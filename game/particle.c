@@ -643,7 +643,6 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->pos      = tmp_pos;
     pprt->pos_old  = tmp_pos;
     pprt->pos_stt  = tmp_pos;
-    pprt->pos_safe = tmp_pos;
 
     // Velocity data
     vel.x = turntocos[turn & TRIG_TABLE_MASK] * velocity;
@@ -652,9 +651,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->vel = pprt->vel_old = pprt->vel_stt = vel;
 
     // Template values
-    pprt->bump.size    = ppip->bumpsize;
-    pprt->bump.sizebig = ppip->bumpsize * SQRT_TWO;
-    pprt->bump.height  = ppip->bumpheight;
+    pprt->bump.size    = ppip->bump_size;
+    pprt->bump.sizebig = ppip->bump_size * SQRT_TWO;
+    pprt->bump.height  = ppip->bump_height;
     pprt->type = ppip->type;
 
     // Image data
@@ -731,10 +730,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
         case SPRITE_LIGHT: break;
     }
 
-    if ( 0 == __prthitawall( pprt, NULL, NULL ) )
-    {
-        pprt->safe_valid = btrue;
-    };
+    // is the spawn location safe?
+    pprt->pos_safe = tmp_pos;
+    pprt->safe_valid = (0 == __prthitawall( pprt, NULL, NULL ));
 
     // gat an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !ACTIVE_CHR( pprt->attachedto_ref );
@@ -1077,7 +1075,7 @@ void particle_set_level( prt_t * pprt, float level )
 
     pprt->enviro.level = level;
 
-    loc_height = pprt->inst.scale * MAX( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.54 );
+    loc_height = pprt->inst.scale * MAX( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5 );
 
     // if the particle is resting on the ground, modify its
     //pprt->enviro.hlerp = 1.0f;
@@ -1102,7 +1100,7 @@ void particle_set_level( prt_t * pprt, float level )
 
     // set the zlerp after we have done everything to the particle's level we care to
     pprt->enviro.zlerp = ( pprt->pos.z - pprt->enviro.adj_level ) / PLATTOLERANCE;
-    pprt->enviro.zlerp = CLIP( pprt->enviro.zlerp, 0, 1 );
+    pprt->enviro.zlerp = CLIP( pprt->enviro.zlerp, 0.0f, 1.0f );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1655,13 +1653,13 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 //if( hit_a_wall )
 //{
 //    // Play the sound for hitting the floor [FSND]
-//    play_particle_sound( iprt, ppip->soundwall_index );
+//    play_particle_sound( iprt, ppip->soundend_wall );
 //}
 
 //if( hit_a_floor )
 //{
 //    // Play the sound for hitting the floor [FSND]
-//    play_particle_sound( iprt, ppip->soundfloor_index );
+//    play_particle_sound( iprt, ppip->soundend_floor );
 //}
 
 //// do the reflections off the walls and floors
@@ -1791,9 +1789,16 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
         else
         {
             // the particle is in the "stop bouncing zone"
-            pprt->pos.z = loc_level + 1;
+            pprt->pos.z = loc_level + 0.0001f;
             pprt->vel.z = 0.0f;
         }
+    }
+
+    // handle the collision
+    if ( hit_a_floor && (ppip->endground || ppip->endbump) )
+    {
+        prt_request_terminate( iprt );
+        return btrue;
     }
 
     ftmp = pprt->pos.x;
@@ -1821,7 +1826,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     }
 
     // handle the collision
-    if (( hit_a_wall && ppip->endwall ) || ( hit_a_floor && ppip->endground ) )
+    if ( hit_a_wall && (ppip->endwall || ppip->endbump) )
     {
         prt_request_terminate( iprt );
         return btrue;
@@ -1831,13 +1836,13 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     if ( hit_a_wall )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( iprt, ppip->soundwall_index );
+        play_particle_sound( iprt, ppip->soundend_wall );
     }
 
     if ( hit_a_floor )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( iprt, ppip->soundfloor_index );
+        play_particle_sound( iprt, ppip->soundend_floor );
     }
 
     // do the reflections off the walls and floors
@@ -1945,19 +1950,19 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
-    pprt->safe_valid = bfalse;
-    if ( !__prthitawall( pprt, NULL, NULL ) )
+    if ( 0 == __prthitawall( pprt, NULL, NULL ) )
     {
-        pprt->pos_safe   = pprt->pos;
-        pprt->safe_valid = btrue;
+        int new_tile = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+        if( new_tile != pprt->onwhichfan )
+        {
+            pprt->pos_safe   = pprt->pos;
+            pprt->safe_valid = btrue;
+        }
     }
     else
     {
-        pprt->pos = pprt->pos_safe;
-        if ( !__prthitawall( pprt, NULL, NULL ) )
-        {
-            pprt->safe_valid = btrue;
-        }
+        pprt->pos        = pprt->pos_safe;
+        pprt->safe_valid = ( 0 == __prthitawall( pprt, NULL, NULL ) );
     }
 
     return btrue;
@@ -1993,8 +1998,8 @@ bool_t move_one_particle( prt_t * pprt )
     }
 
     // Particle's old location
-    pprt->pos_old    = pprt->pos;
-    pprt->vel_old    = pprt->vel;
+    pprt->pos_old = pprt->pos;
+    pprt->vel_old = pprt->vel;
 
     // what is the local environment like?
     move_one_particle_get_environment( pprt );
@@ -2058,15 +2063,13 @@ typedef struct s_spawn_particle_info spawn_particle_info_t;
 //--------------------------------------------------------------------------------------------
 void cleanup_all_particles()
 {
-    int iprt, cnt, tnc;
+    int iprt, tnc;
 
     int                   delay_spawn_count = 0;
     spawn_particle_info_t delay_spawn_list[TOTAL_MAX_PRT];
 
-    //printf("\n----cleanup_all_particles()----\n");
-
     // do end-of-life care for particles
-    for ( iprt = 0, cnt = 0; iprt < maxparticles; iprt++ )
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
         prt_t * pprt;
         Uint16  ipip;
@@ -2094,6 +2097,7 @@ void cleanup_all_particles()
             facing = pprt->facing;
             for ( tnc = 0; tnc < ppip->endspawn_amount; tnc++ )
             {
+                // do not spawn particles while iterating through the list of particles
                 if ( delay_spawn_count < TOTAL_MAX_PRT )
                 {
                     spawn_particle_info_t * pinfo = delay_spawn_list + delay_spawn_count;
@@ -2116,11 +2120,8 @@ void cleanup_all_particles()
             }
         }
 
-        //printf("\tcnt==%d,iprt==%d,free==%d\n", cnt, iprt, PrtList.free_count );
-
         // free the particle.
         free_one_particle_in_game( iprt );
-        cnt++;
     }
 
     // delay the spawning of particles so that it does not happen while we are scanning the
@@ -2130,7 +2131,13 @@ void cleanup_all_particles()
         spawn_particle_info_t * pinfo = delay_spawn_list + tnc;
 
         if ( !ACTIVE_PRT( pinfo->prt_origin ) ) pinfo->prt_origin = TOTAL_MAX_PRT;
+
         if ( !ACTIVE_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = MAX_CHR;
+        if ( !ACTIVE_CHR( pinfo->chr_attach ) ) pinfo->chr_attach = MAX_CHR;
+        if ( !ACTIVE_CHR( pinfo->oldtarget  ) ) pinfo->oldtarget  = MAX_CHR;
+
+        if ( !LOADED_PRO( pinfo->iprofile   ) ) pinfo->iprofile  = MAX_PROFILE;
+        if ( !LOADED_PIP( pinfo->ipip       ) ) pinfo->ipip      = MAX_PIP;
 
         spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->ipip,
                             pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,
@@ -2709,7 +2716,7 @@ bool_t prt_request_terminate( Uint16 iprt )
 //                if( SPRITE_SOLID == pprt->type && !ACTIVE_CHR( pprt->attachedto_ref ) )
 //                {
 //                    // only spawn ripples if you are touching the water surface!
-//                    if( pprt->pos.z + pprt->bumpheight > water.surface_level && pprt->pos.z - pprt->bumpheight < water.surface_level )
+//                    if( pprt->pos.z + pprt->bump_height > water.surface_level && pprt->pos.z - pprt->bump_height < water.surface_level )
 //                    {
 //                        int ripand = ~((~RIPPLEAND) << 1);
 //                        if ( 0 == ((update_wld + pprt->obj_base.guid) & ripand) )

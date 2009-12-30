@@ -1172,13 +1172,13 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
             // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT( pcap->spawnlife ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from ); y1 += 20;
-                y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT( pcap->spawnlife ), ( int )pcap->life_stat.val.from );
+                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from ); y1 += 20;
+                y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
-                    fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT( pcap->spawnmana ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from ); y1 += 20;
-                    y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT( pcap->spawnmana ), ( int )pcap->mana_stat.val.from );
+                    fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from ); y1 += 20;
+                    y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from );
                 }
             }
             else

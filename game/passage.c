@@ -328,7 +328,7 @@ bool_t close_passage( Uint16 passage )
     int x, y, cnt;
     Uint32 fan;
     Uint16 character;
-    float bumpsize;
+    float bump_size;
     passage_t * ppass;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
@@ -351,7 +351,7 @@ bool_t close_passage( Uint16 passage )
             if ( !ACTIVE_CHR( character ) ) continue;
             pchr = ChrList.lst + character;
 
-            bumpsize = pchr->bump.size;
+            bump_size = pchr->bump.size;
             if ( !pchr->pack_ispacked && !ACTIVE_CHR( pchr->attachedto ) && pchr->bump.size != 0 )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )

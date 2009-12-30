@@ -229,8 +229,8 @@ struct s_chr
     Uint8          lifecolor;       ///< Bar color
     Sint16         life;            ///< Basic character stats
     Sint16         lifemax;         ///<  All 8.8 fixed point
-    Uint16         lifeheal;
-    Sint16         lifereturn;      ///< Regeneration/poison
+    Uint16         life_heal;
+    Sint16         life_return;      ///< Regeneration/poison
 
     Uint8          manacolor;       ///< Bar color
     Sint16         mana;            ///< Mana stuff
@@ -342,7 +342,7 @@ struct s_chr
     Uint8          StatusList_on;          ///< Display stats?
     Uint16         uoffvel;         ///< Moving texture speed
     Uint16         voffvel;
-    Uint32         shadowsize;      ///< Size of shadow
+    Uint32         shadow_size;      ///< Size of shadow
     Uint32         shadowsizesave;  ///< Without size modifiers
     Uint16         ibillboard;      ///< The attached billboard
 
@@ -445,10 +445,10 @@ extern cap_t CapList[MAX_CAP];
 DEFINE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 
 #define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
-#define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( &(ChrList.lst[ICHR].obj_base) ) )
-#define ACTIVE_CHR( ICHR )      ( VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE    ( &(ChrList.lst[ICHR].obj_base) ) )
-#define WAITING_CHR( ICHR )     ( VALID_CHR_RANGE( ICHR ) && WAITING_PBASE   ( &(ChrList.lst[ICHR].obj_base) ) )
-#define TERMINATED_CHR( ICHR )  ( VALID_CHR_RANGE( ICHR ) && TERMINATED_PBASE( &(ChrList.lst[ICHR].obj_base) ) )
+#define ALLOCATED_CHR( ICHR )   ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
+#define ACTIVE_CHR( ICHR )      ( VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
+#define WAITING_CHR( ICHR )     ( VALID_CHR_RANGE( ICHR ) && WAITING_PBASE   ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
+#define TERMINATED_CHR( ICHR )  ( VALID_CHR_RANGE( ICHR ) && TERMINATED_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
 
 #define ACTIVE_PCHR( PCHR )     ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX_POBJ( PCHR, MAX_CHR) ) && ACTIVE_PBASE( POBJ_GET_PBASE( (PCHR) ) ) )
 #define ALLOCATED_PCHR( PCHR )  ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX_POBJ( PCHR, MAX_CHR) ) && ALLOCATED_PBASE( POBJ_GET_PBASE( (PCHR) ) ) )

@@ -89,10 +89,10 @@ typedef struct s_enc enc_t;
 DEFINE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 
 #define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
-#define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( &(EncList.lst[IENC].obj_base) ) )
-#define ACTIVE_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE    ( &(EncList.lst[IENC].obj_base) ) )
-#define WAITING_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( &(EncList.lst[IENC].obj_base) ) )
-#define TERMINATED_ENC( IENC )  ( VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( &(EncList.lst[IENC].obj_base) ) )
+#define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define ACTIVE_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define WAITING_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define TERMINATED_ENC( IENC )  ( VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
 
 #define GET_INDEX_PENC( PENC )   GET_INDEX_POBJ( PENC, MAX_ENC )
 #define ACTIVE_PENC( PENC )      ( (NULL != (PENC)) && VALID_ENC_RANGE( GET_INDEX_PENC( PENC ) ) && ACTIVE_PBASE( POBJ_GET_PBASE( (PENC) ) ) )

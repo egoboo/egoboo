@@ -185,6 +185,8 @@ bool_t link_pop_module()
                 pchr->pos_old  = phero->pos;
                 pchr->pos_safe = phero->pos;
                 pchr->pos_stt  = phero->pos_stt;
+
+                pchr->safe_valid = !__chrhitawall( pchr, NULL, NULL );
             }
         };
     }

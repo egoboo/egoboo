@@ -169,13 +169,13 @@ struct s_cap
     EGO_PROFILE_STUFF;
 
     // naming
-    char         classname[MAXCAPNAMESIZE];     ///< Class name
+    char         classname[MAXCAPNAMESIZE];            ///< Class name
 
     // skins
     char         skinname[MAX_SKIN][MAXCAPNAMESIZE];   ///< Skin name
     Uint16       skincost[MAX_SKIN];                   ///< Store prices
     float        maxaccel[MAX_SKIN];                   ///< Acceleration for each skin
-    Uint8        skindressy;                         ///< Dressy
+    Uint8        skindressy;                           ///< Bits to tell whether the skins are "dressy"
 
     // overrides
     int          skinoverride;                  ///< -1 or 0-3.. For import
@@ -183,10 +183,8 @@ struct s_cap
     int          stateoverride;                 ///< 0 for normal
     int          contentoverride;               ///< 0 for normal
 
-    IDSZ         idsz[IDSZ_COUNT];                 ///< ID strings
+    IDSZ         idsz[IDSZ_COUNT];              ///< ID strings
 
-    float        strengthdampen;                ///< Strength damage factor
-    Uint8        stoppedby;                     ///< Collision Mask
 
     // inventory
     Uint8        ammomax;                       ///< Ammo stuff
@@ -194,17 +192,19 @@ struct s_cap
     Sint16       money;                         ///< Money
 
     // characer stats
-
     Uint8        gender;                        ///< Gender
 
-    cap_stat_t   life_stat;                     ///< Life
-    Sint16       lifereturn;
-    Uint16       lifeheal;
-
-    cap_stat_t   mana_stat;                     ///< Mana
-    cap_stat_t   manareturn_stat;
-    cap_stat_t   manaflow_stat;
-    Sint16       manacost;
+    // life
+    cap_stat_t   life_stat;                     ///< Life statistics
+    Sint16       life_return;                    ///< Life regeneration
+    Uint16       life_heal;
+    Uint16       life_spawn;                     ///< Life left from last module
+    
+    // mana
+    cap_stat_t   mana_stat;                     ///< Mana statistics
+    cap_stat_t   manareturn_stat;               ///< Mana regeneration statistics
+    cap_stat_t   manaflow_stat;                 ///< Mana channeling
+    Uint16       mana_spawn;                      ///< Life left from last module
 
     cap_stat_t   strength_stat;                 ///< Strength
     cap_stat_t   wisdom_stat;                   ///< Wisdom
@@ -217,11 +217,12 @@ struct s_cap
     float        bumpdampen;                    ///< Mass
 
     float        size;                          ///< Scale of model
-    float        sizeperlevel;                  ///< Scale increases
-    Uint32       shadowsize;                    ///< Shadow size
-    Uint32       bumpsize;                      ///< Bounding octagon
-    Uint32       bumpsizebig;                   ///< For octagonal bumpers
-    Uint32       bumpheight;
+    float        size_perlevel;                  ///< Scale increases
+    Uint32       shadow_size;                    ///< Shadow size
+    Uint32       bump_size;                     ///< Bounding octagon
+    Uint32       bump_sizebig;                  ///< For octagonal bumpers
+    Uint32       bump_height;
+    Uint8        stoppedby;                     ///< Collision Mask
 
     // movement
     float        jump;                          ///< Jump power
@@ -230,23 +231,29 @@ struct s_cap
     float        walkspd;                       ///< Walk threshold
     float        runspd;                        ///< Run threshold
     Uint8        flyheight;                     ///< Fly height
+    bool_t       waterwalk;                     ///< Walk on water?
 
-    // graphics
+    // status graphics
+    Uint8        lifecolor;                     ///< Life bar color
+    Uint8        manacolor;                     ///< Mana bar color
+    bool_t       icon;                           ///< Draw icon
+
+    // model graphics
     Uint8        flashand;                      ///< Flashing rate
     Uint8        alpha;                         ///< Transparency
     Uint8        light;                         ///< Light blending
     bool_t       transferblend;                 ///< Transfer blending to rider/weapons
     bool_t       sheen;                         ///< How shiny it is ( 0-15 )
     bool_t       enviro;                        ///< Phong map this baby?
-    Uint16       uoffvel;                       ///< Texture movement rates
-    Uint16       voffvel;
+    Uint16       uoffvel;                       ///< "horizontal" texture movement rate
+    Uint16       voffvel;                       ///< "vertical" texture movement rate
     bool_t       uniformlit;                    ///< Bad lighting?
-    Uint8        lifecolor;                     ///< Bar colors
-    Uint8        manacolor;
+    bool_t       reflect;                        ///< Draw the reflection
+    bool_t       alwaysdraw;                     ///< Always render
+    bool_t       forceshadow;                    ///< Draw a shadow?
+    bool_t       ripple;                         ///< Spawn ripples?Uint8        manacolor;                     ///< Mana bar color
 
-    // random stuff
-    bool_t       stickybutt;                    ///< Stick to the ground?
-
+    // attack blocking info
     Uint16       iframefacing;                  ///< Invincibility frame
     Uint16       iframeangle;
     Uint16       nframefacing;                  ///< Normal frame
@@ -258,75 +265,81 @@ struct s_cap
     Uint8        damagemodifier[DAMAGE_COUNT][MAX_SKIN];
 
     // xp
-    Uint32       experienceforlevel[MAXLEVEL];  ///< Experience needed for next level
-    FRange       experience;                    ///< Starting experience
-    Uint16       experienceworth;               ///< Amount given to killer/user
-    float        experienceexchange;            ///< Adds to worth
-    float        experiencerate[XP_COUNT];
+    Uint32       experience_forlevel[MAXLEVEL];  ///< Experience needed for next level
+    FRange       experience;                     ///< Starting experience
+    Uint16       experience_worth;               ///< Amount given to killer/user
+    float        experience_exchange;            ///< Adds to worth
+    float        experience_rate[XP_COUNT];
 
     // sound
     Sint8        sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
 
     // flags
-    int          spelleffect_type;              ///< is the object that a spellbook generates
-    bool_t       isitem;                        ///< Is it an item?
-    bool_t       invictus;                      ///< Is it invincible?
-    bool_t       ismount;                       ///< Can you ride it?
-    bool_t       isstackable;                   ///< Is it arrowlike?
-    bool_t       nameknown;                     ///< Is the class name known?
-    bool_t       usageknown;                    ///< Is its usage known
-    bool_t       cancarrytonextmodule;          ///< Take it with you?
-    bool_t       needskillidtouse;              ///< Check IDSZ first?
-    bool_t       waterwalk;                     ///< Walk on water?
-    bool_t       platform;                      ///< Can be stood on?
-    bool_t       canuseplatforms;               ///< Can use platforms?
-    bool_t       cangrabmoney;                  ///< Collect money?
-    bool_t       canopenstuff;                  ///< Open chests/doors?
-    bool_t       icon;                          ///< Draw icon
-    bool_t       forceshadow;                   ///< Draw a shadow?
-    bool_t       ripple;                        ///< Spawn ripples?
-    Uint8        damagetargettype;              ///< For AI DamageTarget
-    Uint8        weaponaction;                  ///< Animation needed to swing
-    bool_t       slotvalid[SLOT_COUNT];            ///< Left/Right hands valid
-    Uint8        attack_attached;
-    Sint8        attack_pip;
-    Uint8        attachedprt_amount;             ///< Sticky particles
-    Uint8        attachedprt_reaffirmdamagetype; ///< Relight that torch...
-    Uint16       attachedprt_pip;
-    Uint8        gopoofprt_amount;               ///< Poof effect
-    Sint16       gopoofprt_facingadd;
-    Uint16       gopoofprt_pip;
-    Uint8        blud_valid;                    ///< Blud ( yuck )
-    Uint8        blud_pip;
-    bool_t       ridercanattack;                ///< Rider attack?
-    bool_t       canbedazed;                    ///< Can it be dazed?
-    bool_t       canbegrogged;                  ///< Can it be grogged?
-    Uint8        kursechance;                   ///< Chance of being kursed
-    bool_t       istoobig;                      ///< Can't be put in pack
-    bool_t       reflect;                       ///< Draw the reflection
-    bool_t       alwaysdraw;                    ///< Always render
-    bool_t       isranged;                      ///< Flag for ranged weapon
-    Sint8        hidestate;                       ///< Don't draw when...
-    bool_t       isequipment;                     ///< Behave in silly ways
-    Sint8        isvaluable;                      ///< Force to be valuable
-    Uint16       spawnlife;                      ///< Life left from last module
-    Uint16       spawnmana;                      ///< Life left from last module
+    bool_t       isequipment;                    ///< Behave in silly ways
+    bool_t       isitem;                         ///< Is it an item?
+    bool_t       ismount;                        ///< Can you ride it?
+    bool_t       isstackable;                    ///< Is it arrowlike?
+    bool_t       invictus;                       ///< Is it invincible?
+    bool_t       platform;                       ///< Can be stood on?
+    bool_t       canuseplatforms;                ///< Can use platforms?
+    bool_t       cangrabmoney;                   ///< Collect money?
+    bool_t       canopenstuff;                   ///< Open chests/doors?
+    bool_t       canbedazed;                     ///< Can it be dazed?
+    bool_t       canbegrogged;                   ///< Can it be grogged?
+    bool_t       istoobig;                       ///< Can't be put in pack
+    bool_t       isranged;                       ///< Flag for ranged weapon
+    bool_t       nameknown;                      ///< Is the class name known?
+    bool_t       usageknown;                     ///< Is its usage known
+    bool_t       cancarrytonextmodule;           ///< Take it with you?
+    Uint8        damagetargettype;               ///< For AI DamageTarget
+    bool_t       slotvalid[SLOT_COUNT];          ///< Left/Right hands valid
+    bool_t       ridercanattack;                 ///< Rider attack?
+    Uint8        kursechance;                    ///< Chance of being kursed
+    Sint8        hidestate;                      ///< Don't draw when...
+    Sint8        isvaluable;                     ///< Force to be valuable
+    int          spelleffect_type;               ///< is the object that a spellbook generates
+
+    // item usage
+    bool_t       needskillidtouse;               ///< Check IDSZ first?
+    Uint8        weaponaction;                   ///< Animation needed to swing
+    Sint16       manacost;                       ///< How much mana to use this object?
+    Uint8        attack_attached;                ///< Do we have attack particles?
+    Sint8        attack_pip;                     ///< What kind of attack partickes?
+
+    float        str_bonus;                      ///< Strength     damage factor
+    float        wis_bonus;                      ///< Wisdom       damage factor
+    float        int_bonus;                      ///< Intelligence damage factor
+    float        dex_bonus;                      ///< dexterity    damage factor
+
+    // special particle effects
+    Uint8        attachedprt_amount;             ///< Number of sticky particles
+    Uint8        attachedprt_reaffirmdamagetype; ///< Re-attach sticky particles? Relight that torch...
+    Uint16       attachedprt_pip;                ///< Which kind of sticky particle
+    Uint8        gopoofprt_amount;               ///< Amount of poof particles
+    Sint16       gopoofprt_facingadd;            ///< Angular spread of poof particles
+    Uint16       gopoofprt_pip;                  ///< Which poof particle
+    Uint8        blud_valid;                     ///< Has blud? ( yuck )
+    Uint8        blud_pip;                       ///< What kind of blud?
 
     // skill system
     int       shieldproficiency;               ///< Can it use shields?
     int       canjoust;                        ///< Can it use advanced weapons?
     int       canuseadvancedweapons;           ///< Can it use advanced weapons?
-    int       see_invisible_level;                 ///< Can it see invisible?
+    int       see_invisible_level;             ///< Can it see invisible?
     int       canseekurse;                     ///< Can it see kurses?
-    int       canusedivine;
-    int       canusearcane;
-    int       canusetech;
-    int       candisarm;
-    int       canbackstab;
-    int       canusepoison;
-    int       canread;
-    int       hascodeofconduct;                   ///<Bound by a lawful code of conduct?
-    int       darkvision_level;
+    int       canusedivine;                    ///< Can it use divine (holy) magic?
+    int       canusearcane;                    ///< Can it use arcane magic? Spellbooks, scrolls, ...
+    int       canusetech;                      ///< Can it use arcane tech items? Gonne, gonnepowder, ...
+    int       candisarm;                       ///< Can it disarm traps?
+    int       canbackstab;                     ///< Can it backstab?
+    int       canusepoison;                    ///< Can it use poision?
+    int       canread;                         ///< Can it read?
+    int       hascodeofconduct;                ///< Is it bound by a lawful code of conduct?
+    int       darkvision_level;                ///< Does it have the ability to see in the dark?
+
+    // random stuff
+    bool_t       stickybutt;                    ///< Stick to the ground?
+
 };
 
 typedef struct s_cap cap_t;

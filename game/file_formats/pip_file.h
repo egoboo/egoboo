@@ -95,9 +95,6 @@ enum e_particle_direction
 typedef enum e_particle_direction particle_direction_t;
 
 //--------------------------------------------------------------------------------------------
-// Particle template
-//--------------------------------------------------------------------------------------------
-
 struct s_dynalight_info
 {
     Uint8   mode;                ///< when is it?
@@ -111,6 +108,9 @@ struct s_dynalight_info
 };
 typedef struct s_dynalight_info dynalight_info_t;
 
+//--------------------------------------------------------------------------------------------
+// Particle template
+//--------------------------------------------------------------------------------------------
 /// The definition of a particle profile
 struct s_pip
 {
@@ -118,8 +118,8 @@ struct s_pip
 
     char    comment[1024];                ///< the first line of the file has a comment line
 
+    // spawning
     bool_t  force;                        ///< Force spawn?
-
     Uint8   type;                         ///< Transparency mode
     Uint8   numframes;                    ///< Number of frames
     Uint8   imagebase;                    ///< Starting image
@@ -129,63 +129,76 @@ struct s_pip
     Sint16  rotateadd;                    ///< Rotation rate
     Uint16  sizebase;                     ///< Size
     Sint16  sizeadd;                      ///< Size rate
-    float   spdlimit;                     ///< Speed limit
-    float   dampen;                       ///< Bounciness
-    Sint8   bumpmoney;                    ///< Value of particle
-    Uint32  bumpsize;                     ///< Bounding box size
-    Uint32  bumpheight;                   ///< Bounding box height
+    Sint8   soundspawn;                   ///< Beginning sound
+    Uint16  facingadd;                    ///< Facing
+    IPair   facing_pair;                  ///< Facing
+    IPair   xyspacing_pair;               ///< Spacing
+    IPair   zspacing_pair;                ///< Altitude
+    IPair   xyvel_pair;                   ///< Shot velocity
+    IPair   zvel_pair;                    ///< Up velocity
+    bool_t  newtargetonspawn;             ///< Get new target?
+    bool_t  needtarget;                   ///< Need a target?
+    bool_t  startontarget;                ///< Start on target?
+
+    // ensing conditions
     bool_t  endwater;                     ///< End if underwater
     bool_t  endbump;                      ///< End if bumped
     bool_t  endground;                    ///< End if on ground
     bool_t  endwall;                      ///< End if hit a wall
     bool_t  endlastframe;                 ///< End on last frame
+    Uint8   endspawn_amount;              ///< Spawn amount
+    Uint16  endspawn_facingadd;           ///< Spawn in circle
+    Uint8   endspawn_pip;                 ///< Spawn type ( local )
+    Sint8   soundend;                     ///< Ending sound
+    Sint8   soundend_floor;               ///< Floor sound
+    Sint8   soundend_wall;                ///< Ricochet sound
+
+    // bumping
+    Uint8   bumpspawn_amount;             ///< Spawn amount
+    Uint8   bumpspawn_pip;                ///< Spawn type ( global )
+    Sint8   bumpmoney;                    ///< Value of particle
+    Uint32  bump_size;                     ///< Bounding box size
+    Uint32  bump_height;                   ///< Bounding box height
+
+    // continuous spawning 
+    Uint16  contspawn_time;               ///< Spawn timer
+    Uint8   contspawn_amount;             ///< Spawn amount
+    Uint16  contspawn_facingadd;          ///< Spawn in circle
+    Uint16  contspawn_pip;                ///< Spawn type ( local )
+
+    // damage
     FRange  damage;                       ///< Damage
     Uint8   damagetype;                   ///< Damage type
-    Uint16  facingadd;                    ///< Facing
-    IPair   facing_pair;                   ///< Facing
-    IPair   xyspacing_pair;                ///< Spacing
-    IPair   zspacing_pair;                 ///< Altitude
-    IPair   xyvel_pair;                    ///< Shot velocity
-    IPair   zvel_pair;                     ///< Up velocity
-    Uint16  contspawn_time;                ///< Spawn timer
-    Uint8   contspawn_amount;              ///< Spawn amount
-    Uint16  contspawn_facingadd;           ///< Spawn in circle
-    Uint16  contspawn_pip;                 ///< Spawn type ( local )
-    Uint8   endspawn_amount;               ///< Spawn amount
-    Uint16  endspawn_facingadd;            ///< Spawn in circle
-    Uint8   endspawn_pip;                  ///< Spawn type ( local )
-    Uint8   bumpspawn_amount;              ///< Spawn amount
-    Uint8   bumpspawn_pip;                 ///< Spawn type ( global )
     Uint16  dazetime;                     ///< Daze
     Uint16  grogtime;                     ///< Drunkeness
-    Sint8   soundspawn;                   ///< Beginning sound
-    Sint8   soundend;                     ///< Ending sound
-    Sint8   soundfloor_index;                   ///< Floor sound
-    Sint8   soundwall_index;                    ///< Ricochet sound
+    Uint16  damfx;                        ///< Damage effects
+    bool_t  intdamagebonus;               ///< Add intelligence as damage bonus
+    bool_t  wisdamagebonus;               ///< Add wisdom as damage bonus
+    bool_t  spawnenchant;                 ///< Spawn enchant?
+    bool_t  onlydamagefriendly;           ///< Only friends?
     bool_t  friendlyfire;                 ///< Friendly fire
     bool_t  hateonly;                     ///< Only hit hategroup
-    bool_t  rotatetoface;                 ///< Arrows/Missiles
-    bool_t  newtargetonspawn;             ///< Get new target?
+    bool_t  causepancake;                 ///< @todo Not implemented!!
+
+    // homing
     bool_t  homing;                       ///< Homing?
     Uint16  targetangle;                  ///< To find target
     float   homingaccel;                  ///< Acceleration rate
     float   homingfriction;               ///< Deceleration rate
-    bool_t  targetcaster;                 ///< Target caster?
-    bool_t  spawnenchant;                 ///< Spawn enchant?
-    bool_t  causepancake;                 ///< @todo Not implemented!!
-    bool_t  needtarget;                   ///< Need a target?
-    bool_t  onlydamagefriendly;           ///< Only friends?
-    bool_t  startontarget;                ///< Start on target?
     int     zaimspd;                      ///< [ZSPD] For Z aiming
-    Uint16  damfx;                        ///< Damage effects
+    bool_t  rotatetoface;                 ///< Arrows/Missiles
+    bool_t  targetcaster;                 ///< Target caster?
+
+    // physics
+    float   spdlimit;                     ///< Speed limit
+    float   dampen;                       ///< Bounciness
     bool_t  allowpush;                    ///< Allow particle to push characters around
-    bool_t  intdamagebonus;               ///< Add intelligence as damage bonus
-    bool_t  wisdamagebonus;               ///< Add wisdom as damage bonus
 
     dynalight_info_t dynalight;           ///< Dynamic lighting info
 
     prt_ori_t orientation;                ///< the way the particle orientation is calculated for display
 
+    // debugging parameters
     int prt_request_count;                ///< a way to tell how popular this particle is
     int prt_create_count;                 ///< if this number is significantly less than the prt_request_count, there is a problem.
 };

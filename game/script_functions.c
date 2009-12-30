@@ -4816,7 +4816,7 @@ Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->shadowsize     = pstate->argument * pchr->fat;
+    pchr->shadow_size     = pstate->argument * pchr->fat;
     pchr->shadowsizesave = pstate->argument;
 
     SCRIPT_FUNCTION_END();

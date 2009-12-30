@@ -84,7 +84,8 @@ extern float gravity;                     ///< Gravitational accel
 //--------------------------------------------------------------------------------------------
 int    oct_bb_to_points( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count );
 void   points_to_oct_bb( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count );
-bool_t bumper_to_oct_bb( bumper_t src, oct_bb_t * pdst );
+bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst );
+bool_t bumper_to_oct_bb_1( bumper_t src, fvec3_t vel, oct_bb_t * pdst );
 bool_t vec_to_oct_vec( fvec3_t pos, oct_vec_t ovec );
 
 void oct_bb_downgrade( oct_bb_t * psrc, bumper_t bump_base, bumper_t * p_bump, oct_bb_t * pdst );

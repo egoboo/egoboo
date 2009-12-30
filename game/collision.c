@@ -242,7 +242,7 @@ bool_t detect_chr_prt_interaction( Uint16 ichr_a, Uint16 iprt_b )
     if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
     // don't interact if there is no interaction
-    //if ( 0 == pchr_a->bump_1.size || 0 == pprt_b->bumpsize ) return bfalse;
+    //if ( 0 == pchr_a->bump_1.size || 0 == pprt_b->bump_size ) return bfalse;
 
     // First check absolute value diamond
     dx = ABS( pchr_a->pos.x - pprt_b->pos.x );
@@ -1343,8 +1343,8 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     fvec3_t collision_size;
     float dot;
 
-    collision_size.x = MAX( pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f * pprt->bump.size );
-    collision_size.y = MAX( pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f * pprt->bump.size );
+    collision_size.x = MAX( pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f * pprt->bump.size   );
+    collision_size.y = MAX( pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f * pprt->bump.size   );
     collision_size.z = MAX( pchr->chr_prt_cv.maxs[OCT_Z] - pchr->chr_prt_cv.mins[OCT_Z], 2.0f * pprt->bump.height );
 
     // estimate the "normal" for the collision, using the center-of-mass difference
@@ -1841,8 +1841,8 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 
     bool_t chr_is_invictus, chr_can_deflect;
     bool_t prt_wants_deflection;
-
-	Uint16 direction;
+    Uint16 direction;
+    pip_t  *ppip;
 
     if ( NULL == pdata ) return bfalse;
 
@@ -1850,16 +1850,15 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-	direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
+    if( !LOADED_PIP(pprt->pip_ref) ) return bfalse;
+    ppip = PipStack.lst + pprt->pip_ref;
+
+    // find the "attack direction" of the particle
+	direction = vec_to_facing( pchr->pos.x - pprt->pos.x, pchr->pos.y - pprt->pos.y );
 	direction = pchr->turn_z - direction + ATK_BEHIND;
 
     // shield block?
-	//chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pchr ), pdata->ppip->damfx );		//@todo: ZF> this line should replace the two lines below, but
-	chr_is_invictus = ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) );						//		 doesn't work properly for some reason
-    
-
-	// shield block can be counteracted by an unblockable particle
-    chr_is_invictus = chr_is_invictus && ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_NBLOC ) );
+    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR(pchr), ppip->damfx );
 	
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
@@ -1870,18 +1869,12 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     // try to deflect the particle
     prt_deflected = bfalse;
     pdata->mana_paid = bfalse;
-    if ( chr_is_invictus || prt_wants_deflection && chr_can_deflect )
+    if ( chr_is_invictus || (prt_wants_deflection && chr_can_deflect) )
     {
         // magically deflect the particle or make a ricochet if the character is invictus
         int treatment;
 
-		//Blocked!
-		if ( chr_is_invictus )
-        {
-			spawn_defense_ping( pchr, pprt->owner_ref );
-		}
-
-		treatment = MISSILE_DEFLECT;
+		treatment     = MISSILE_DEFLECT;
         prt_deflected = btrue;
         if ( prt_wants_deflection )
         {
@@ -1919,6 +1912,9 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
                 // Turn to face new direction
                 pprt->facing = vec_to_facing( pprt->vel.x , pprt->vel.y );
             }
+
+            //Blocked!
+            spawn_defense_ping( pchr, pprt->owner_ref );
         }
     }
 
@@ -2350,7 +2346,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_col
         }
     }
 
-    return btrue;;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

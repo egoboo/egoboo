@@ -65,14 +65,13 @@ cap_t * cap_init( cap_t * pcap )
 
     // either these will be overridden by data in the data.txt, or
     // they will be limited by the spawning character's max stats
-    pcap->spawnlife = PERFECTBIG;
-    pcap->spawnmana = PERFECTBIG;
+    pcap->life_spawn = PERFECTBIG;
+    pcap->mana_spawn = PERFECTBIG;
 
     // More stuff I forgot
     pcap->stoppedby  = MPDFX_IMPASS;
 
     // Skills
-
     pcap->spelleffect_type = NOSKINOVERRIDE;
 
     return pcap;
@@ -166,10 +165,10 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
     // More physical attributes
     pcap->size = fget_next_float( fileread );
-    pcap->sizeperlevel = fget_next_float( fileread );
-    pcap->shadowsize = fget_next_int( fileread );
-    pcap->bumpsize = fget_next_int( fileread );
-    pcap->bumpheight = fget_next_int( fileread );
+    pcap->size_perlevel = fget_next_float( fileread );
+    pcap->shadow_size = fget_next_int( fileread );
+    pcap->bump_size = fget_next_int( fileread );
+    pcap->bump_height = fget_next_int( fileread );
     pcap->bumpdampen = fget_next_float( fileread );
     pcap->weight = fget_next_int( fileread );
     pcap->jump = fget_next_float( fileread );
@@ -245,22 +244,22 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     }
 
     // Experience and level data
-    pcap->experienceforlevel[0] = 0;
+    pcap->experience_forlevel[0] = 0;
     for ( level = 1; level < MAXBASELEVEL; level++ )
     {
-        pcap->experienceforlevel[level] = fget_next_int( fileread );
+        pcap->experience_forlevel[level] = fget_next_int( fileread );
     }
 
     fget_next_range( fileread, &(pcap->experience) );
     pcap->experience.from /= 256.0f;
     pcap->experience.to   /= 256.0f;
 
-    pcap->experienceworth    = fget_next_int( fileread );
-    pcap->experienceexchange = fget_next_float( fileread );
+    pcap->experience_worth    = fget_next_int( fileread );
+    pcap->experience_exchange = fget_next_float( fileread );
 
     for ( xptype = 0; xptype < XP_COUNT; xptype++ )
     {
-        pcap->experiencerate[xptype] = fget_next_float( fileread ) + 0.001f;
+        pcap->experience_rate[xptype] = fget_next_float( fileread ) + 0.001f;
     }
 
     // IDSZ tags
@@ -316,9 +315,9 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->dampen    = fget_next_float( fileread );
 
     // More stuff I forgot
-    pcap->lifeheal    = fget_next_float( fileread ) * 256;
+    pcap->life_heal    = fget_next_float( fileread ) * 256;
     pcap->manacost    = fget_next_float( fileread ) * 256;
-    pcap->lifereturn  = fget_next_int( fileread );
+    pcap->life_return  = fget_next_int( fileread );
     pcap->stoppedby  |= fget_next_int( fileread );
 
     for(cnt=0; cnt<MAX_SKIN; cnt++)
@@ -331,7 +330,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
         pcap->skincost[cnt] = fget_next_int( fileread );
     }
 
-    pcap->strengthdampen = fget_next_float( fileread );
+    pcap->str_bonus = fget_next_float( fileread );
 
     // Another memory lapse
     pcap->ridercanattack = !fget_next_bool( fileread );
@@ -350,7 +349,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->ripple = !pcap->isitem;
 
     // assume a round object
-    pcap->bumpsizebig = pcap->bumpsize * SQRT_TWO;
+    pcap->bump_sizebig = pcap->bump_size * SQRT_TWO;
 
     // assume the normal icon usage
     pcap->icon = pcap->usageknown;
@@ -372,7 +371,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'R','A','N','G' ) ) pcap->isranged = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'H','I','D','E' ) ) pcap->hidestate = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'E','Q','U','I' ) ) pcap->isequipment = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','Q','U','A' ) ) pcap->bumpsizebig = pcap->bumpsize * 2;
+        else if ( idsz == MAKE_IDSZ( 'S','Q','U','A' ) ) pcap->bump_sizebig = pcap->bump_size * 2;
         else if ( idsz == MAKE_IDSZ( 'I','C','O','N' ) ) pcap->icon = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S','H','A','D' ) ) pcap->forceshadow = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'C','K','U','R' ) ) pcap->canseekurse = fget_int( fileread );
@@ -383,8 +382,8 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'P','L','A','T' ) ) pcap->canuseplatforms = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'R','I','P','P' ) ) pcap->ripple = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'V','A','L','U' ) ) pcap->isvaluable = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L','I','F','E' ) ) pcap->spawnlife = 256 * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'M','A','N','A' ) ) pcap->spawnmana = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L','I','F','E' ) ) pcap->life_spawn = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'M','A','N','A' ) ) pcap->mana_spawn = 256 * fget_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'B','O','O','K' ) ) pcap->spelleffect_type = fget_int( fileread );
 
         // Read Skills
@@ -462,10 +461,10 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 
     // More physical attributes
     template_put_float( filetemp, filewrite, pcap->size );
-    template_put_float( filetemp, filewrite, pcap->sizeperlevel );
-    template_put_int  ( filetemp, filewrite, pcap->shadowsize );
-    template_put_int  ( filetemp, filewrite, pcap->bumpsize );
-    template_put_int  ( filetemp, filewrite, pcap->bumpheight );
+    template_put_float( filetemp, filewrite, pcap->size_perlevel );
+    template_put_int  ( filetemp, filewrite, pcap->shadow_size );
+    template_put_int  ( filetemp, filewrite, pcap->bump_size );
+    template_put_int  ( filetemp, filewrite, pcap->bump_height );
     template_put_float( filetemp, filewrite, pcap->bumpdampen );
     template_put_int  ( filetemp, filewrite, pcap->weight );
     template_put_float( filetemp, filewrite, pcap->jump );
@@ -538,22 +537,22 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_float( filetemp, filewrite, pcap->maxaccel[3]*80 );
 
     // Experience and level data
-    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[1] );
-    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[2] );
-    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[3] );
-    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[4] );
-    template_put_int  ( filetemp, filewrite, pcap->experienceforlevel[5] );
+    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[1] );
+    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[2] );
+    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[3] );
+    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[4] );
+    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[5] );
     template_put_float( filetemp, filewrite, pcap->experience.from * 256.0f );
-    template_put_int  ( filetemp, filewrite, pcap->experienceworth );
-    template_put_float( filetemp, filewrite, pcap->experienceexchange );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[0] );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[1] );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[2] );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[3] );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[4] );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[5] );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[6] );
-    template_put_float( filetemp, filewrite, pcap->experiencerate[7] );
+    template_put_int  ( filetemp, filewrite, pcap->experience_worth );
+    template_put_float( filetemp, filewrite, pcap->experience_exchange );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[0] );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[1] );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[2] );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[3] );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[4] );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[5] );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[6] );
+    template_put_float( filetemp, filewrite, pcap->experience_rate[7] );
 
     // IDSZ identification tags
     template_put_idsz( filetemp, filewrite, pcap->idsz[IDSZ_PARENT] );
@@ -606,9 +605,9 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_float( filetemp, filewrite, pcap->dampen );
 
     // More stuff
-    template_put_float( filetemp, filewrite, FP8_TO_FLOAT(pcap->lifeheal) );       // These two are seriously outdated
+    template_put_float( filetemp, filewrite, FP8_TO_FLOAT(pcap->life_heal) );       // These two are seriously outdated
     template_put_float( filetemp, filewrite, FP8_TO_FLOAT(pcap->manacost) );       // and shouldnt be used. Use scripts instead.
-    template_put_int  ( filetemp, filewrite, pcap->lifereturn );
+    template_put_int  ( filetemp, filewrite, pcap->life_return );
     template_put_int  ( filetemp, filewrite, pcap->stoppedby );
     template_put_string_under( filetemp, filewrite, pcap->skinname[0] );
     template_put_string_under( filetemp, filewrite, pcap->skinname[1] );
@@ -618,7 +617,7 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_int  ( filetemp, filewrite, pcap->skincost[1] );
     template_put_int  ( filetemp, filewrite, pcap->skincost[2] );
     template_put_int  ( filetemp, filewrite, pcap->skincost[3] );
-    template_put_float( filetemp, filewrite, pcap->strengthdampen );
+    template_put_float( filetemp, filewrite, pcap->str_bonus );
 
     // Another memory lapse
     template_put_bool( filetemp, filewrite, btrue - pcap->ridercanattack );
@@ -670,7 +669,7 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     if ( pcap->isequipment )
         fput_expansion(filewrite, "", MAKE_IDSZ('E','Q','U','I'), 1 );
 
-    if ( pcap->bumpsizebig >= pcap->bumpsize * 2 )
+    if ( pcap->bump_sizebig >= pcap->bump_size * 2 )
         fput_expansion(filewrite, "", MAKE_IDSZ('S','Q','U','A'), 1 );
 
     if ( pcap->icon != pcap->usageknown )
@@ -696,8 +695,8 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     fput_expansion(filewrite, "", MAKE_IDSZ('S','T','A','T'), pcap->stateoverride );
     fput_expansion(filewrite, "", MAKE_IDSZ('L','E','V','L'), pcap->leveloverride );
 
-    vfs_printf( filewrite, ": [LIFE] %4.2f\n", FP8_TO_FLOAT(pcap->spawnlife) );
-    vfs_printf( filewrite, ": [MANA] %4.2f\n", FP8_TO_FLOAT(pcap->spawnmana) );
+    vfs_printf( filewrite, ": [LIFE] %4.2f\n", FP8_TO_FLOAT(pcap->life_spawn) );
+    vfs_printf( filewrite, ": [MANA] %4.2f\n", FP8_TO_FLOAT(pcap->mana_spawn) );
 
     // Copy all skill expansions
     if ( pcap->shieldproficiency > 0 )

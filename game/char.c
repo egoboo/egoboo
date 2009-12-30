@@ -548,8 +548,8 @@ void place_particle_at_vertex( Uint16 particle, Uint16 character, int vertex_off
     /// @details ZZ@> This function sets one particle's position to be attached to a character.
     ///    It will kill the particle if the character is no longer around
 
-    Uint16 vertex;
-    fvec4_t   point[1], nupoint[1];
+    int     vertex;
+    fvec4_t point[1], nupoint[1];
 
     chr_t * pchr;
     prt_t * pprt;
@@ -961,11 +961,14 @@ bool_t detach_character_from_mount( Uint16 character, Uint8 ignorekurse, Uint8 d
     {
         pchr->pos.x = pmount->pos.x;
         pchr->pos.y = pmount->pos.y;
+
+        pchr->safe_valid = pmount->safe_valid;
+        pchr->pos_safe   = pmount->pos_safe;
     }
     else
     {
         pchr->safe_valid = btrue;
-        pchr->pos_safe = pchr->pos;
+        pchr->pos_safe   = pchr->pos;
     }
 
     // Check for shop passages
@@ -1642,8 +1645,9 @@ bool_t character_grab_stuff( Uint16 ichr_a, grip_offset_t grip_off, bool_t grab_
     /// @details ZZ@> This function makes the character pick up an item if there's one around
 
     int    cnt;
+    size_t vertex;
     Uint16 ichr_b;
-    Uint16 vertex, frame_nxt;
+    int frame_nxt;
     slot_t slot;
     fvec4_t   point[1], nupoint[1];
     SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
@@ -1993,6 +1997,8 @@ void character_swipe( Uint16 ichr, slot_t slot )
                         pprt->vel_stt.x *= dampen;
                         pprt->vel_stt.y *= dampen;
                         pprt->vel_stt.z *= dampen;
+
+                        place_particle_at_vertex( particle, weapon, spawn_vrt_offset );
                     }
                     else
                     {
@@ -2021,14 +2027,14 @@ void character_swipe( Uint16 ichr, slot_t slot )
                         }
                     }
 
-                    // Initial particles get a strength bonus, which may be 0.00f
-                    pprt->damage.base += ( pchr->strength * pweapon_cap->strengthdampen );
+                    // Initial particles get a bonus, which may be 0.00f
+                    pprt->damage.base += ( pchr->strength     * pweapon_cap->str_bonus );
+                    pprt->damage.base += ( pchr->wisdom       * pweapon_cap->wis_bonus );
+                    pprt->damage.base += ( pchr->intelligence * pweapon_cap->int_bonus );
+                    pprt->damage.base += ( pchr->dexterity    * pweapon_cap->dex_bonus );
 
                     // Initial particles get an enchantment bonus
                     pprt->damage.base += pweapon->damageboost;
-
-                    // Initial particles inherit damage type of weapon
-                    // pprt->damagetype = pweapon->damagetargettype;  // Zefz: not sure if we want this. we can have weapons with different damage types
                 }
             }
         }
@@ -2116,10 +2122,10 @@ bool_t setup_xp_table( Uint16 icap )
     // Calculate xp needed
     for ( level = MAXBASELEVEL; level < MAXLEVEL; level++ )
     {
-        Uint32 xpneeded = pcap->experienceforlevel[MAXBASELEVEL - 1];
+        Uint32 xpneeded = pcap->experience_forlevel[MAXBASELEVEL - 1];
         xpneeded += ( level * level * level * 15 );
         xpneeded -= (( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * 15 );
-        pcap->experienceforlevel[level] = xpneeded;
+        pcap->experience_forlevel[level] = xpneeded;
     }
     return btrue;
 }
@@ -2147,12 +2153,12 @@ void do_level_up( Uint16 character )
         Uint32 xpcurrent, xpneeded;
 
         xpcurrent = pchr->experience;
-        xpneeded  = pcap->experienceforlevel[curlevel];
+        xpneeded  = pcap->experience_forlevel[curlevel];
         if ( xpcurrent >= xpneeded )
         {
             // do the level up
             pchr->experiencelevel++;
-            xpneeded = pcap->experienceforlevel[curlevel];
+            xpneeded = pcap->experience_forlevel[curlevel];
 
             // The character is ready to advance...
             if ( pchr->isplayer )
@@ -2162,7 +2168,7 @@ void do_level_up( Uint16 character )
             }
 
             // Size
-            pchr->fat_goto += pcap->sizeperlevel * 0.25f;  // Limit this?
+            pchr->fat_goto += pcap->size_perlevel * 0.25f;  // Limit this?
             pchr->fat_goto_time += SIZETIME;
 
             // Strength
@@ -2246,7 +2252,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
         newamount = amount;
         if ( xptype < XP_COUNT )
         {
-            newamount = amount * pcap->experiencerate[xptype];
+            newamount = amount * pcap->experience_rate[xptype];
         }
 
         // Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
@@ -2388,8 +2394,8 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     ints_to_range( pchr->experience, 0, &( pcap->experience ) );
 
     // export the current mana and life
-    pcap->spawnlife         = CLIP( pchr->life, 0, pchr->lifemax );
-    pcap->spawnmana         = CLIP( pchr->mana, 0, pchr->manamax );
+    pcap->life_spawn         = CLIP( pchr->life, 0, pchr->lifemax );
+    pcap->mana_spawn         = CLIP( pchr->mana, 0, pchr->manamax );
 
     // export the current stats
     ints_to_range( pchr->lifemax     , 0, &( pcap->life_stat.val ) );
@@ -2439,7 +2445,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Set up model stuff
     pchr->stoppedby = pcap->stoppedby;
-    pchr->lifeheal  = pcap->lifeheal;
+    pchr->life_heal  = pcap->life_heal;
     pchr->manacost  = pcap->manacost;
     pchr->nameknown = pcap->nameknown;
     pchr->ammoknown = pcap->nameknown;
@@ -2483,7 +2489,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->lifecolor = pcap->lifecolor;
     pchr->manacolor = pcap->manacolor;
     pchr->lifemax = generate_irand_range( pcap->life_stat.val );
-    pchr->lifereturn = pcap->lifereturn;
+    pchr->life_return = pcap->life_return;
     pchr->manamax = generate_irand_range( pcap->mana_stat.val );
     pchr->manaflow = generate_irand_range( pcap->manaflow_stat.val );
     pchr->manareturn = generate_irand_range( pcap->manareturn_stat.val );
@@ -2534,8 +2540,8 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->phys.dampen = pcap->dampen;
 
     // Load current life and mana. this may be overridden later
-    pchr->life = CLIP( pcap->spawnlife, LOWSTAT, pchr->lifemax );
-    pchr->mana = CLIP( pcap->spawnmana,       0, pchr->manamax );
+    pchr->life = CLIP( pcap->life_spawn, LOWSTAT, pchr->lifemax );
+    pchr->mana = CLIP( pcap->mana_spawn,       0, pchr->manamax );
 
     pchr->phys.bumpdampen = pcap->bumpdampen;
     if ( pcap->weight == 0xFF )
@@ -2839,7 +2845,7 @@ void kill_character( Uint16 ichr, Uint16 killer, bool_t ignore_invictus )
     pchr->inst.action_keep = btrue;
 
     // Give kill experience
-    experience = pcap->experienceworth + ( pchr->experience * pcap->experienceexchange );
+    experience = pcap->experience_worth + ( pchr->experience * pcap->experience_exchange );
 
     // distribute experience to the attacker
     if ( ACTIVE_CHR( killer ) )
@@ -2916,6 +2922,7 @@ int damage_character( Uint16 character, Uint16 direction,
     ///    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
     ///    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
     ///    left.
+
     Uint16 action;
     int    actual_damage, base_damage;
     chr_t * pchr;
@@ -2967,7 +2974,7 @@ int damage_character( Uint16 character, Uint16 direction,
 
         // Remember the actual_damage type
         pchr->ai.damagetypelast = damagetype;
-        pchr->ai.directionlast = direction;
+        pchr->ai.directionlast  = direction;
 
 		// Check for blocking and invictus, no need to continue if they have
 		if( is_invictus_direction( direction, character, effects ) )
@@ -3542,9 +3549,9 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
 
     pchr->pos      = pos_tmp;
-    pchr->pos_safe = pchr->pos;
-    pchr->pos_stt  = pchr->pos;
-    pchr->pos_old  = pchr->pos;
+    pchr->pos_safe = pos_tmp;
+    pchr->pos_stt  = pos_tmp;
+    pchr->pos_old  = pos_tmp;
 
     pchr->turn_z     = facing;
     pchr->turn_old_z = pchr->turn_z;
@@ -4026,7 +4033,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
     // Stuff that must be set
     pchr->iprofile  = profile_new;
     pchr->stoppedby = pcap_new->stoppedby;
-    pchr->lifeheal  = pcap_new->lifeheal;
+    pchr->life_heal  = pcap_new->life_heal;
     pchr->manacost  = pcap_new->manacost;
 
     // Ammo
@@ -4100,7 +4107,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
         }
         else
         {
-            new_fat = ( pcap_new->bumpsize * pcap_new->size ) / pchr->bump.size;
+            new_fat = ( pcap_new->bump_size * pcap_new->size ) / pchr->bump.size;
         }
 
         // copy all the cap size info over, as normal
@@ -4563,7 +4570,7 @@ void update_all_characters()
                 ChrList.lst[cnt].mana += ( ChrList.lst[cnt].manareturn / MANARETURNSHIFT );
                 ChrList.lst[cnt].mana = MAX( 0, MIN( ChrList.lst[cnt].mana, ChrList.lst[cnt].manamax ) );
 
-                ChrList.lst[cnt].life += ChrList.lst[cnt].lifereturn;
+                ChrList.lst[cnt].life += ChrList.lst[cnt].life_return;
                 ChrList.lst[cnt].life = MAX( 1, MIN( ChrList.lst[cnt].life, ChrList.lst[cnt].lifemax ) );
             }
 
@@ -5222,7 +5229,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
             if ( mana_paid )
             {
                 // Check life healing
-                pchr->life += pweapon->lifeheal;
+                pchr->life += pweapon->life_heal;
                 if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
                 // randomize the action
@@ -5539,12 +5546,16 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     float   ftmp;
     Uint16  ichr;
     ai_state_t * pai;
+    float bumpdampen;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     pai = &( pchr->ai );
     ichr = pai->index;
 
-    // Move the character
+    bumpdampen = CLIP(pchr->phys.bumpdampen, 0.0f, 1.0f);
+    bumpdampen = ( bumpdampen + 1.0f ) / 2.0f;
+
+    // interaction with the mesh
     pchr->pos.z += pchr->vel.z;
     LOG_NAN( pchr->pos.z );
     if ( pchr->pos.z < pchr->enviro.floor_level )
@@ -5562,11 +5573,8 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
             pchr->pos.z = pchr->enviro.level + diff;
         }
     }
-    else
-    {
-        pchr->pos_safe.z = pchr->pos.z;
-    }
 
+    // fixes to the z-position
     if ( 0 != pchr->flyheight )
     {
         if ( pchr->pos.z < 0 )
@@ -5575,99 +5583,114 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
         }
     }
 
+    // interaction with the mesh wall in the x-direction
     ftmp = pchr->pos.x;
     pchr->pos.x += pchr->vel.x;
     LOG_NAN( pchr->pos.x );
     if ( __chrhitawall( pchr, nrm.v, NULL ) )
     {
-        if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0 )
+        if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) + ABS( pchr->vel.z ) > 0 )
         {
-            if ( ABS( nrm.x ) + ABS( nrm.y ) > 0 )
+            if ( ABS( nrm.x ) + ABS( nrm.y ) + ABS( nrm.z ) > 0 )
             {
                 float dotprod;
-                float vpara[2], vperp[2];
+                fvec3_t vpara, vperp;
 
-                dotprod = pchr->vel.x * nrm.x + pchr->vel.y * nrm.y;
+                dotprod = pchr->vel.x * nrm.x + pchr->vel.y * nrm.y + pchr->vel.z * nrm.z;
                 if ( dotprod < 0 )
                 {
-                    vperp[XX] = dotprod * nrm.x;
-                    vperp[YY] = dotprod * nrm.y;
+                    vperp.x = dotprod * nrm.x;
+                    vperp.y = dotprod * nrm.y;
+                    vperp.z = dotprod * nrm.z;
 
-                    vpara[XX] = pchr->vel.x - vperp[XX];
-                    vpara[YY] = pchr->vel.y - vperp[YY];
+                    vpara.x = pchr->vel.x - vperp.x;
+                    vpara.y = pchr->vel.y - vperp.y;
+                    vpara.z = pchr->vel.z - vperp.z;
 
-                    pchr->vel.x = vpara[XX] - /* pchr->phys.bumpdampen * */ vperp[XX];
-                    pchr->vel.y = vpara[YY] - /* pchr->phys.bumpdampen * */ vperp[YY];
+                    pchr->vel.x = vpara.x - bumpdampen * vperp.x;
+                    pchr->vel.y = vpara.y - bumpdampen * vperp.y;
+                    pchr->vel.z = vpara.z - bumpdampen * vperp.z;
                 }
             }
             else
             {
-                pchr->vel.x *= -1 /* pchr->phys.bumpdampen * */;
+                pchr->vel.x *= - bumpdampen;
             }
         }
 
-        if ( !pchr->safe_valid )
-        {
-            pchr->pos.x += nrm.x * 5;
-        }
-        else
-        {
-            pchr->pos.x = pchr->pos_safe.x;
-        }
-    }
-    else
-    {
-        pchr->pos_safe.x = pchr->pos.x;
+        pchr->pos.x = ftmp;
+
+        //if ( !pchr->safe_valid )
+        //{
+        //    pchr->pos.x += nrm.x * 5;
+        //}
+        //else
+        //{
+        //    pchr->pos.x = pchr->pos_safe.x;
+        //}
     }
 
+    // interaction with the mesh wall in the y-direction
     ftmp = pchr->pos.y;
     pchr->pos.y += pchr->vel.y;
     LOG_NAN( pchr->pos.y );
     if ( __chrhitawall( pchr, nrm.v, NULL ) )
     {
-        if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0 )
+        if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) + ABS( pchr->vel.z ) > 0 )
         {
-            if ( ABS( nrm.x ) + ABS( nrm.y ) > 0 )
+            if ( ABS( nrm.x ) + ABS( nrm.y ) + ABS( nrm.z ) > 0 )
             {
                 float dotprod;
-                float vpara[2], vperp[2];
+                fvec3_t vpara, vperp;
 
-                dotprod = pchr->vel.x * nrm.x + pchr->vel.y * nrm.y;
+                dotprod = pchr->vel.x * nrm.x + pchr->vel.y * nrm.y + pchr->vel.z * nrm.z;
                 if ( dotprod < 0 )
                 {
-                    vperp[XX] = dotprod * nrm.x;
-                    vperp[YY] = dotprod * nrm.y;
+                    vperp.x = dotprod * nrm.x;
+                    vperp.y = dotprod * nrm.y;
+                    vperp.z = dotprod * nrm.z;
 
-                    vpara[XX] = pchr->vel.x - vperp[XX];
-                    vpara[YY] = pchr->vel.y - vperp[YY];
+                    vpara.x = pchr->vel.x - vperp.x;
+                    vpara.y = pchr->vel.y - vperp.y;
+                    vpara.z = pchr->vel.z - vperp.z;
 
-                    pchr->vel.x = vpara[XX] - /* pchr->phys.bumpdampen * */ vperp[XX];
-                    pchr->vel.y = vpara[YY] - /* pchr->phys.bumpdampen * */ vperp[YY];
+                    pchr->vel.x = vpara.x - bumpdampen * vperp.x;
+                    pchr->vel.y = vpara.y - bumpdampen * vperp.y;
+                    pchr->vel.z = vpara.z - bumpdampen * vperp.z;
                 }
             }
             else
             {
-                pchr->vel.y *= - 1 /* pchr->phys.bumpdampen * */;
+                pchr->vel.y *= - bumpdampen;
             }
         }
 
-        if ( !pchr->safe_valid )
+        pchr->pos.y = ftmp;
+
+        //if ( !pchr->safe_valid )
+        //{
+        //    pchr->pos.y += nrm.y * 5;
+        //}
+        //else
+        //{
+        //    pchr->pos.y = pchr->pos_safe.y;
+        //}
+    }
+
+    // is the character in a safe location?
+    if ( 0 == __chrhitawall( pchr, NULL, NULL ) )
+    {
+        int new_tile = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+        if( new_tile != pchr->onwhichfan )
         {
-            pchr->pos.y += nrm.y * 5;
-        }
-        else
-        {
-            pchr->pos.y = pchr->pos_safe.y;
+            pchr->pos_safe   = pchr->pos;
+            pchr->safe_valid = btrue;
         }
     }
     else
     {
-        pchr->pos_safe.y = pchr->pos.y;
-    }
-
-    if ( __chrhitawall( pchr, nrm.v, NULL ) )
-    {
-        pchr->safe_valid = btrue;
+        pchr->pos        = pchr->pos_safe;
+        pchr->safe_valid = ( 0 == __chrhitawall( pchr, NULL, NULL ) );
     }
 
     return btrue;
@@ -5919,9 +5942,9 @@ void move_one_character( chr_t * pchr )
     pchr->enviro.acc = fvec3_sub( pchr->vel.v, pchr->vel_old.v );
 
     // Character's old location
-    pchr->pos_old    = pchr->pos;
-    pchr->vel_old    = pchr->vel;
-    pchr->turn_old_z = pchr->turn_z;
+    pchr->pos_old        = pchr->pos;
+    pchr->vel_old        = pchr->vel;
+    pchr->turn_old_z     = pchr->turn_z;
 
     pchr->enviro.new_vx = pchr->vel.x;
     pchr->enviro.new_vy = pchr->vel.y;
@@ -6037,33 +6060,30 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return btrue;
 
-	// they specifically ignore any of our invictus
+	// if the exxect is armor piercing, ignore shielding
     if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return bfalse;
 
     // if the character's frame is invictus, then check the angles
     if ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS )) //HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
     {
-		bool_t using_shield;
-
 		//I Frame
         direction -= pcap->iframefacing;
-        left       = 0xFFFF - pcap->iframeangle;
+        left       = (Uint16)((int)0x00010000 - (int)pcap->iframeangle);
         right      = pcap->iframeangle;
 		
-		using_shield = pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD 
-			||  pchr->inst.action_next >= ACTION_PA && pchr->inst.action_next <= ACTION_PD;
-        
-		// If using shield, use the shield invictus instead
-        if ( using_shield )
+        // If using shield, use the shield invictus instead
+        if ( ACTION_IS_TYPE( pchr->inst.action_which, P ) )
         {
+            bool_t parry_left = (pchr->inst.action_which < ACTION_PC);
+
             // Using a shield?
-            if ( pchr->inst.action_which < ACTION_PC )
+            if ( parry_left )
             {
                 // Check left hand
                 cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_LEFT] );
                 if ( NULL != pcap )
                 {
-                    left  = 0xFFFF - pcap_tmp->iframeangle;
+                    left  = (Uint16)((int)0x00010000 - (int)pcap_tmp->iframeangle);
                     right = pcap_tmp->iframeangle;
                 }
             }
@@ -6073,7 +6093,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
                 cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_RIGHT] );
                 if ( NULL != pcap )
                 {
-                    left  = 0xFFFF - pcap_tmp->iframeangle;
+                    left  = (Uint16)((int)0x00010000 - (int)pcap_tmp->iframeangle);
                     right = pcap_tmp->iframeangle;
                 }
             }
@@ -6083,7 +6103,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     {
         // N Frame
         direction -= pcap->nframefacing;
-        left       = -pcap->nframeangle;
+        left       = (Uint16)((int)0x00010000 - (int)pcap->nframeangle);
         right      = pcap->nframeangle;
     }
 
@@ -6924,7 +6944,7 @@ void chr_update_size( chr_t * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    pchr->shadowsize   = pchr->shadowsizesave    * pchr->fat;
+    pchr->shadow_size   = pchr->shadowsizesave    * pchr->fat;
     pchr->bump.size    = pchr->bump_save.size    * pchr->fat;
     pchr->bump.sizebig = pchr->bump_save.sizebig * pchr->fat;
     pchr->bump.height  = pchr->bump_save.height  * pchr->fat;
@@ -6942,10 +6962,10 @@ void chr_init_size( chr_t * pchr, cap_t * pcap )
 
     pchr->fat               = pcap->size;
 
-    pchr->shadowsizesave    = pcap->shadowsize;
-    pchr->bump_save.size    = pcap->bumpsize;
-    pchr->bump_save.sizebig = pcap->bumpsizebig;
-    pchr->bump_save.height  = pcap->bumpheight;
+    pchr->shadowsizesave    = pcap->shadow_size;
+    pchr->bump_save.size    = pcap->bump_size;
+    pchr->bump_save.sizebig = pcap->bump_sizebig;
+    pchr->bump_save.height  = pcap->bump_height;
 
     chr_update_size( pchr );
 }

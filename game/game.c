@@ -2123,7 +2123,7 @@ void check_stats()
             pcap = pro_get_pcap( pchr->iprofile );
 
             //Give 10% of XP needed for next level
-            xpgain = 0.1f * ( pcap->experienceforlevel[MIN( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experienceforlevel[pchr->experiencelevel] );
+            xpgain = 0.1f * ( pcap->experience_forlevel[MIN( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
             give_experience( pchr->ai.index, xpgain, XP_DIRECT, btrue );
             stat_check_delay = 1;
         }
@@ -2344,7 +2344,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
 
     // set the base values
     ( *pmanaregen ) = pchr->manareturn / MANARETURNSHIFT;
-    ( *pliferegen ) = pchr->lifereturn;
+    ( *pliferegen ) = pchr->life_return;
 
     // Don't forget to add gains and costs from enchants
     for ( enchant = 0; enchant < MAX_ENC; enchant++ )

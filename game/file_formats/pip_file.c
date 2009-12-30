@@ -59,8 +59,8 @@ pip_t * pip_init( pip_t * ppip )
     // clear the pip
     memset( ppip, 0, sizeof(*ppip) );
 
-    ppip->soundfloor_index = INVALID_SOUND;
-    ppip->soundwall_index  = INVALID_SOUND;
+    ppip->soundend_floor = INVALID_SOUND;
+    ppip->soundend_wall  = INVALID_SOUND;
     ppip->damfx            = DAMFX_TURN;
 
     ppip->allowpush = btrue;
@@ -135,8 +135,8 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     // Collision data
     ppip->dampen     = fget_next_float( fileread );
     ppip->bumpmoney  = fget_next_int( fileread );
-    ppip->bumpsize   = fget_next_int( fileread );
-    ppip->bumpheight = fget_next_int( fileread );
+    ppip->bump_size   = fget_next_int( fileread );
+    ppip->bump_height = fget_next_int( fileread );
 
     fget_next_range( fileread, &(ppip->damage) );
     ppip->damagetype = fget_next_damage_type( fileread );
@@ -225,8 +225,8 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  ppip->damfx |= DAMFX_ARRO;
         else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  ppip->damfx |= DAMFX_TIME;
         else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundfloor_index = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundwall_index = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundend_floor = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundend_wall = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalight.level_add = fget_int( fileread ) / 1000.0f;

@@ -1198,8 +1198,8 @@ int draw_character_xp_bar( Uint16 character, int x, int y )
     if ( pchr->experiencelevel < MAXLEVEL )
     {
         Uint8  curlevel    = pchr->experiencelevel + 1;
-        Uint32 xplastlevel = pcap->experienceforlevel[curlevel-1];
-        Uint32 xpneed      = pcap->experienceforlevel[curlevel];
+        Uint32 xplastlevel = pcap->experience_forlevel[curlevel-1];
+        Uint32 xpneed      = pcap->experience_forlevel[curlevel];
 
         float fraction = ( float )MAX( pchr->experience - xplastlevel, 0 ) / ( float )MAX( xpneed - xplastlevel, 1 );
         int   numticks = fraction * NUMTICK;
@@ -1830,7 +1830,7 @@ void render_shadow( Uint16 character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
+    if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
 
     // no shadow if off the mesh
     if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) return;
@@ -1954,7 +1954,7 @@ void render_bad_shadow( Uint16 character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    if ( pchr->is_hidden || pchr->shadowsize == 0 ) return;
+    if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
 
     // no shadow if off the mesh
     if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) return;
@@ -1980,7 +1980,7 @@ void render_bad_shadow( Uint16 character )
     level = pchr->enviro.floor_level;
     level += SHADOWRAISE;
     height = pchr->inst.matrix.CNV( 3, 2 ) - level;
-    height_factor = 1.0f - height / ( pchr->shadowsize * 5.0f );
+    height_factor = 1.0f - height / ( pchr->shadow_size * 5.0f );
     if ( height_factor <= 0.0f ) return;
 
     // how much transparency from height
@@ -1990,7 +1990,7 @@ void render_bad_shadow( Uint16 character )
     x = pchr->inst.matrix.CNV( 3, 0 );
     y = pchr->inst.matrix.CNV( 3, 1 );
 
-    size = pchr->shadowsize * height_factor;
+    size = pchr->shadow_size * height_factor;
 
     v[0].pos[XX] = ( float ) x + size;
     v[0].pos[YY] = ( float ) y - size;
@@ -2348,7 +2348,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 for ( cnt = 0; cnt < dolist_count; cnt++ )
                 {
                     tnc = dolist[cnt].ichr;
-                    if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+                    if ( 0 == ChrList.lst[tnc].shadow_size ) continue;
 
                     render_bad_shadow( tnc );
                 }
@@ -2359,7 +2359,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 for ( cnt = 0; cnt < dolist_count; cnt++ )
                 {
                     tnc = dolist[cnt].ichr;
-                    if ( 0 == ChrList.lst[tnc].shadowsize ) continue;
+                    if ( 0 == ChrList.lst[tnc].shadow_size ) continue;
 
                     render_shadow( tnc );
                 }
