@@ -177,7 +177,7 @@ oglx_video_parameters_t ogl_vparam;
 size_t                dolist_count = 0;
 obj_registry_entity_t dolist[DOLIST_SIZE];
 
-renderlist_t     renderlist = {0, 0, 0, 0, 0, 0};
+renderlist_t     renderlist = {0, 0, 0, 0, 0, 0};         // zero all the counters at startup
 
 float            indextoenvirox[EGO_NORMAL_COUNT];
 float            lighttoenviroy[256];
@@ -4099,7 +4099,8 @@ void renderlist_reset()
             Uint32 fan = renderlist.all[cnt];
             if ( fan < renderlist.pmesh->info.tiles_count )
             {
-                tlist[fan].inrenderlist = bfalse;
+                tlist[fan].inrenderlist       = bfalse;
+                tlist[fan].inrenderlist_frame = 0;
             }
         }
 
@@ -4275,9 +4276,19 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
         {
             cnt = pmesh->gmem.tilestart[tile_y] + tile_x;
 
-            // Put each tile in basic list
-            tlist[cnt].inrenderlist = btrue;
+            // Flag the tile as in the renderlist
+            tlist[cnt].inrenderlist       = btrue;
 
+            // if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
+            if( tlist[cnt].inrenderlist_frame < frame_all - 1 )
+            {
+                tlist[cnt].needs_lighting_update = btrue;
+            }
+
+            // make sure to cache the frame number of this update
+            tlist[cnt].inrenderlist_frame = frame_all;
+
+            // Put each tile in basic list
             renderlist.all[renderlist.all_count] = cnt;
             renderlist.all_count++;
 

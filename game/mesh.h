@@ -66,15 +66,22 @@ struct s_ego_tile_info
 
     bool_t  fanoff;                            ///< display this tile?
     bool_t  inrenderlist;                      ///< Is the tile going to be rendered this frame?
+    int     inrenderlist_frame;                ///< What was the frame number the last time this tile was rendered?
     bool_t  needs_lighting_update;             ///< Has this tile been tagged for a lighting update?
 
     aabb_t         bb;                         ///< the bounding box for this tile
     normal_cache_t ncache;                     ///< the normals at the corners of this tile
     light_cache_t  lcache;                     ///< the light at the corners of this tile
-    light_cache_t  d1_cache;                     ///< the estimated change in the light at the corner of the tile
-    light_cache_t  d2_cache;                     ///< the estimated change in the light at the corner of the tile
+    light_cache_t  d1_cache;                   ///< the estimated change in the light at the corner of the tile
+    light_cache_t  d2_cache;                   ///< the estimated change in the light at the corner of the tile
 };
 typedef struct s_ego_tile_info ego_tile_info_t;
+
+ego_tile_info_t * ego_tile_info_alloc();
+ego_tile_info_t * ego_tile_info_init( ego_tile_info_t * ptr );
+
+ego_tile_info_t * ego_tile_info_alloc_ary( size_t count );
+ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

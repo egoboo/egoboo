@@ -634,7 +634,7 @@ bool_t mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
     if ( NULL == pmem->nlst ) goto mesh_mem_allocate_fail;
 
     // allocate per-tile memory
-    pmem->tile_list  = EGOBOO_NEW_ARY( ego_tile_info_t, pinfo->tiles_count );
+    pmem->tile_list  = ego_tile_info_alloc_ary( pinfo->tiles_count );
     if ( NULL == pmem->tile_list ) goto mesh_mem_allocate_fail;
 
     pmem->vert_count = pinfo->vertcount;
@@ -1726,6 +1726,7 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
     return zmax;
 }
 
+//--------------------------------------------------------------------------------------------
 float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xmin, float ymin, float xmax, float ymax )
 {
     Uint32 itile;
@@ -1766,4 +1767,57 @@ float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xm
     if ( -1e6 == zmax ) zmax = 0.0f;
 
     return zmax;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+ego_tile_info_t * ego_tile_info_init( ego_tile_info_t * ptr )
+{
+    if( NULL == ptr ) return ptr;
+
+    memset(ptr, 0, sizeof(*ptr) );
+
+    // set the non-zero, non-NULL, non-bfalse values
+    ptr->fanoff             = btrue;
+    ptr->inrenderlist_frame = -1;
+    ptr->needs_lighting_update = btrue;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+ego_tile_info_t * ego_tile_info_alloc()
+{
+    ego_tile_info_t * retval = NULL;
+
+    retval = EGOBOO_NEW( ego_tile_info_t );
+    if(NULL == retval) return NULL;
+
+    return ego_tile_info_init( retval );
+}
+
+//--------------------------------------------------------------------------------------------
+ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count )
+{
+    int cnt;
+
+    if( NULL == ptr ) return ptr;
+
+    for( cnt = 0; cnt<count; cnt++ )
+    {
+        ego_tile_info_init( ptr + cnt );
+    }
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+ego_tile_info_t * ego_tile_info_alloc_ary( size_t count )
+{
+    ego_tile_info_t * retval = NULL;
+
+    retval = EGOBOO_NEW_ARY( ego_tile_info_t, count );
+    if(NULL == retval) return NULL;
+
+    return ego_tile_info_init_ary(retval, count);
 }
