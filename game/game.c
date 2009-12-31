@@ -4254,16 +4254,14 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_la
             inst[layer].z         = data[layer].z;
             inst[layer].amp       = data[layer].amp;
 
-            inst[layer].dist.x    = data[layer].dist[XX];
-            inst[layer].dist.y    = data[layer].dist[YY];
+            inst[layer].dist      = data[layer].dist;
 
             inst[layer].light_dir = data[layer].light_dir / 63.0f;
             inst[layer].light_add = data[layer].light_add / 63.0f;
 
-            inst[layer].tx_add.x    = data[layer].tx_add[XX];
-            inst[layer].tx_add.y    = data[layer].tx_add[YY];
+            inst[layer].tx_add    = data[layer].tx_add;
 
-            inst[layer].alpha       = data[layer].alpha;
+            inst[layer].alpha     = data[layer].alpha;
 
             inst[layer].frame_add = data[layer].frame_add;
         }

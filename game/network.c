@@ -35,6 +35,7 @@
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
+#include "egoboo_mem.h"
 #include "egoboo.h"
 
 #include <enet/enet.h>

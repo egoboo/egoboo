@@ -26,6 +26,7 @@
 #include "egoboo_console.inl"
 
 #include "egoboo_typedef.h"
+#include "egoboo_mem.h"
 
 #include "file_common.h"
 #include <string.h>

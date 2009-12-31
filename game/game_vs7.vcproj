@@ -170,6 +170,9 @@
 				RelativePath=".\font_ttf.c">
 			</File>
 			<File
+				RelativePath=".\hash.c">
+			</File>
+			<File
 				RelativePath=".\input.c">
 			</File>
 			<File
@@ -228,6 +231,12 @@
 				RelativePath=".\egoboo_math.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_mem.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_object.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_platform.h">
 			</File>
 			<File
@@ -247,6 +256,9 @@
 			</File>
 			<File
 				RelativePath=".\font_ttf.h">
+			</File>
+			<File
+				RelativePath=".\hash.h">
 			</File>
 			<File
 				RelativePath=".\input.h">

@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+#include "egoboo_object.h"
+
 #include "pip_file.h"
 #include "graphic_prt.h"
 #include "physics.h"

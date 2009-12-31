@@ -104,12 +104,12 @@ wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * 
     pwater->background_req = fget_next_bool( fileread );
 
     // General data info
-    pwater->layer[0].dist[0]  = fget_next_float( fileread );
-    pwater->layer[0].dist[1]  = fget_next_float( fileread );
-    pwater->layer[1].dist[0]  = fget_next_float( fileread );
-    pwater->layer[1].dist[1]  = fget_next_float( fileread );
-    pwater->foregroundrepeat  = fget_next_float( fileread );
-    pwater->backgroundrepeat  = fget_next_float( fileread );
+    pwater->layer[0].dist.x  = fget_next_float( fileread );
+    pwater->layer[0].dist.y  = fget_next_float( fileread );
+    pwater->layer[1].dist.x  = fget_next_float( fileread );
+    pwater->layer[1].dist.y  = fget_next_float( fileread );
+    pwater->foregroundrepeat = fget_next_float( fileread );
+    pwater->backgroundrepeat = fget_next_float( fileread );
 
     // Read data on first water layer
     pwater->layer[0].z          = fget_next_float( fileread );
@@ -118,8 +118,8 @@ wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * 
     pwater->layer[0].light_dir  = fget_next_int( fileread );
     pwater->layer[0].light_add  = fget_next_int( fileread );
     pwater->layer[0].amp        = fget_next_float( fileread );
-    pwater->layer[0].tx_add[0]  = fget_next_float( fileread );
-    pwater->layer[0].tx_add[1]  = fget_next_float( fileread );
+    pwater->layer[0].tx_add.s   = fget_next_float( fileread );
+    pwater->layer[0].tx_add.t   = fget_next_float( fileread );
 
     // Read data on second water layer
     pwater->layer[1].z          = fget_next_int( fileread );
@@ -128,8 +128,8 @@ wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * 
     pwater->layer[1].light_dir  = fget_next_int( fileread );
     pwater->layer[1].light_add  = fget_next_int( fileread );
     pwater->layer[1].amp        = fget_next_float( fileread );
-    pwater->layer[1].tx_add[0]  = fget_next_float( fileread );
-    pwater->layer[1].tx_add[1]  = fget_next_float( fileread );
+    pwater->layer[1].tx_add.s  = fget_next_float( fileread );
+    pwater->layer[1].tx_add.t  = fget_next_float( fileread );
 
     return pwater;
 }
@@ -357,10 +357,10 @@ bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater )
     fput_bool ( filewrite, "Use waterlow.bmp as a background? ( TRUE or FALSE ) :", pwater->background_req );
 
     // General data info
-    fput_float( filewrite, "Foreground distance effect X ( 0.0 to 1.0 )    :", pwater->layer[0].dist[0]  );
-    fput_float( filewrite, "Foreground distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[0].dist[1]  );
-    fput_float( filewrite, "Background distance effect X ( 0.0 to 1.0 )    :", pwater->layer[1].dist[0]  );
-    fput_float( filewrite, "Background distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[1].dist[1]  );
+    fput_float( filewrite, "Foreground distance effect X ( 0.0 to 1.0 )    :", pwater->layer[0].dist.x   );
+    fput_float( filewrite, "Foreground distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[0].dist.y   );
+    fput_float( filewrite, "Background distance effect X ( 0.0 to 1.0 )    :", pwater->layer[1].dist.x   );
+    fput_float( filewrite, "Background distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[1].dist.y   );
     fput_float( filewrite, "Number of foreground repeats ( 1 to 5 )        :", pwater->foregroundrepeat  );
     fput_float( filewrite, "Number of background repeats ( 1 to 5 )        :", pwater->backgroundrepeat  );
 
@@ -371,8 +371,8 @@ bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater )
     fput_int  ( filewrite, "Level 0... Brightness ( 15 )        :", pwater->layer[0].light_dir  );
     fput_int  ( filewrite, "Level 0... Ambient light ( 15 )     :", pwater->layer[0].light_add  );
     fput_float( filewrite, "Level 0... Wave amplitude ( 7.0 )   :", pwater->layer[0].amp        );
-    fput_float( filewrite, "Level 0... U speed ( .0002 )        :", pwater->layer[0].tx_add[0]  );
-    fput_float( filewrite, "Level 0... V speed ( .0002 )        :", pwater->layer[0].tx_add[1]  );
+    fput_float( filewrite, "Level 0... U speed ( .0002 )        :", pwater->layer[0].tx_add.s   );
+    fput_float( filewrite, "Level 0... V speed ( .0002 )        :", pwater->layer[0].tx_add.t   );
 
     // Read data on second water layer
     fput_int  ( filewrite, "Level 1... Base water level ( 85 )  :",  pwater->layer[1].z          );
@@ -381,8 +381,8 @@ bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater )
     fput_int  ( filewrite, "Level 1... Brightness ( 15 )        :",  pwater->layer[1].light_dir  );
     fput_int  ( filewrite, "Level 1... Ambient light ( 15 )     :",  pwater->layer[1].light_add  );
     fput_float( filewrite, "Level 1... Wave amplitude ( 7.0 )   :",  pwater->layer[1].amp        );
-    fput_float( filewrite, "Level 1... U speed ( .0002 )        :",  pwater->layer[1].tx_add[0]  );
-    fput_float( filewrite, "Level 1... V speed ( .0002 )        :",  pwater->layer[1].tx_add[1]  );
+    fput_float( filewrite, "Level 1... U speed ( .0002 )        :",  pwater->layer[1].tx_add.s   );
+    fput_float( filewrite, "Level 1... V speed ( .0002 )        :",  pwater->layer[1].tx_add.t   );
 
     return btrue;
 }

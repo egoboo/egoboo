@@ -72,6 +72,20 @@ typedef struct s_oct_bb oct_bb_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// Data for doing the physics in bump_all_objects()
+/// @details should prevent you from being bumped into a wall
+struct s_phys_data
+{
+    fvec3_t        apos_0, apos_1;
+    fvec3_t        avel;
+
+    float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
+    Uint32         weight;                        ///< Weight
+    float          dampen;                        ///< Bounciness
+};
+typedef struct s_phys_data phys_data_t;
+
+//--------------------------------------------------------------------------------------------
 // the global physics/friction values
 extern float hillslide;                   ///< Extra downhill force
 extern float airfriction;                 ///< 0.9868 is approximately real world air friction

@@ -26,6 +26,7 @@
 #include "enchant.h"
 #include "profile.h"
 
+#include "hash.h"
 #include "game.h"
 #include "SDL_extensions.h"
 

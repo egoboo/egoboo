@@ -29,6 +29,7 @@
 #include "egoboo_strutil.h"
 #include "egoboo_endian.h"
 #include "egoboo_fileutil.h"
+#include "egoboo_mem.h"
 
 #include <physfs.h>
 

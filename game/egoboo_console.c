@@ -26,6 +26,7 @@
 #include "egoboo_config.h"
 #include "egoboo_math.h"
 #include "egoboo_strutil.h"
+#include "egoboo_mem.h"
 
 #include "ogl_debug.h"
 #include "SDL_extensions.h"

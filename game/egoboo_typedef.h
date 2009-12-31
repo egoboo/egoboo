@@ -26,65 +26,6 @@
 #include <SDL_types.h>
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-#    define EGOBOO_NEW( TYPE ) new TYPE
-#    define EGOBOO_NEW_ARY( TYPE, COUNT ) new TYPE [ COUNT ]
-#    define EGOBOO_DELETE(PTR) if(NULL != PTR) { delete PTR; PTR = NULL; }
-#    define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { delete [] PTR; PTR = NULL; }
-#else
-#    define EGOBOO_NEW( TYPE ) (TYPE *)calloc(1, sizeof(TYPE))
-#    define EGOBOO_NEW_ARY( TYPE, COUNT ) (TYPE *)calloc(COUNT, sizeof(TYPE))
-#    define EGOBOO_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
-#    define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// a template-like declaration of a list that tracks free elements
-
-#define ACCESS_TYPE_NONE
-
-#define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
-    struct s_list__##TYPE__##NAME                 \
-    {                                          \
-        Uint32 used_count;                     \
-        int    free_count;                     \
-        int    used_ref[COUNT];                \
-        int    free_ref[COUNT];                \
-        TYPE   lst[COUNT];                     \
-    }
-
-#define DEFINE_LIST_EXTERN(TYPE, NAME, COUNT)   \
-    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
-    extern struct s_list__##TYPE__##NAME NAME
-
-#define DEFINE_LIST_STATIC(TYPE, NAME, COUNT)   \
-    DEFINE_LIST_TYPE(TYPE, NAME, COUNT)
-
-#define DECLARE_LIST(ACCESS,TYPE,NAME) ACCESS struct s_list__##TYPE__##NAME NAME = {0, 0}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// a template-like declaration of a list that tracks free elements
-
-#define DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
-    struct s_stack__##TYPE__##NAME           \
-    {                                        \
-        int  count;                          \
-        TYPE lst[COUNT];                     \
-    }
-
-#define DEFINE_STACK_EXTERN(TYPE, NAME, COUNT) \
-    DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
-    extern struct s_stack__##TYPE__##NAME NAME
-
-#define DEFINE_STACK_STATIC(TYPE, NAME, COUNT) \
-    DEFINE_STACK_TYPE(TYPE, NAME, COUNT)
-
-#define DECLARE_STACK(ACCESS,TYPE,NAME) ACCESS struct s_stack__##TYPE__##NAME NAME = {0}
-
-//--------------------------------------------------------------------------------------------
 /// BOOLEAN
 typedef char bool_t;
 enum
@@ -103,18 +44,6 @@ enum e_egoboo_rv
 };
 
 typedef enum e_egoboo_rv egoboo_rv;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// basic vector types
-
-typedef float vec2f_t[2];
-typedef float vec3f_t[3];
-typedef float vec4f_t[4];
-
-typedef double vec2d_t[2];
-typedef double vec3d_t[3];
-typedef double vec4d_t[4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -209,27 +138,6 @@ const char * undo_idsz( IDSZ idsz );
 typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
-/// FAST CONVERSIONS
-#define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
-#define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
-#define FP8_TO_INT(V1)     ( (V1) >> 8 )                      ///< fast version of V1 / 256
-#define INT_TO_FP8(V1)     ( (V1) << 8 )                      ///< fast version of V1 * 256
-#define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )
-#define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )
-
-#define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF )
-
-#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF )
-#define FLOAT_TO_FFFF( V1 )  ( ((V1) * 0xFFFF) )
-
-#define FLOAT_TO_FP16( V1 )  ( (Uint32)((V1) * 0x00010000) )
-
-#define CLIP_TO_08BITS( V1 )  ( (V1) & 0xFF       )
-#define CLIP_TO_16BITS( V1 )  ( (V1) & 0xFFFF     )
-#define CLIP_TO_24BITS( V1 )  ( (V1) & 0xFFFFFF   )
-#define CLIP_TO_32BITS( V1 )  ( (V1) & 0xFFFFFFFF )
-
-//--------------------------------------------------------------------------------------------
 /// List of the methods an AI can use to obtain a target
 typedef enum target_type
 {
@@ -240,40 +148,8 @@ typedef enum target_type
 } TARGET_TYPE;
 
 //--------------------------------------------------------------------------------------------
-/// a hash type for "efficiently" storing data
-struct s_hash_node
-{
-    struct s_hash_node * next;
-    void * data;
-};
-typedef struct s_hash_node hash_node_t;
-
 //--------------------------------------------------------------------------------------------
-struct s_hash_list
-{
-    int            allocated;
-    int         *  subcount;
-    hash_node_t ** sublist;
-};
-typedef struct s_hash_list hash_list_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-hash_node_t * hash_node_create( void * data );
-bool_t        hash_node_destroy( hash_node_t ** );
-hash_node_t * hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
-hash_node_t * hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
-hash_node_t * hash_node_remove_after( hash_node_t lst[] );
-hash_node_t * hash_node_remove( hash_node_t lst[] );
-
-hash_list_t * hash_list_create( int size );
-bool_t        hash_list_destroy( hash_list_t ** );
-
-hash_node_t * hash_node_ctor( hash_node_t * n, void * data );
-hash_list_t * hash_list_ctor( hash_list_t * lst, int size );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+/// The latch used by the input system
 struct s_latch
 {
     float          x;         ///< the x input
@@ -287,87 +163,49 @@ void latch_init( latch_t * platch );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// some basic data that all egoboo objects should have
+/// a template-like declaration of a list that tracks free elements
 
-/// A variable to hold the object guid counter
-extern Uint32 ego_object_guid;
+#define ACCESS_TYPE_NONE
 
-/// The possible states of an ego_object_base_t object
-enum e_ego_object_state
-{
-    ego_object_invalid = 0,
-    ego_object_pre_active,               ///< in the process of being activated
-    ego_object_active,                   ///< fully activated
-    ego_object_waiting,                  ///< waiting to be terminated
-    ego_object_terminated                ///< fully terminated
-};
-
-/// The data that is "inherited" by every egoboo object.
-struct s_ego_object_base
-{
-    STRING         _name;     ///< what is its "_name"
-    int            index;     ///< what is the index position in the object list?
-    bool_t         allocated; ///< Does it exist?
-    int            state;     ///< what state is it in?
-    Uint32         guid;      ///< a globally unique identifier
-};
-
-typedef struct s_ego_object_base ego_object_base_t;
-
-/// Mark a ego_object_base_t object as being allocated
-#define EGO_OBJECT_ALLOCATE( PDATA, INDEX ) \
-    if( NULL != PDATA ) \
-    { \
-        (PDATA)->obj_base.allocated = btrue; \
-        (PDATA)->obj_base.index     = INDEX; \
-        (PDATA)->obj_base.state     = ego_object_pre_active; \
-        (PDATA)->obj_base.guid      = ego_object_guid++; \
+#define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
+    struct s_list__##TYPE__##NAME                 \
+    {                                          \
+        Uint32 used_count;                     \
+        int    free_count;                     \
+        int    used_ref[COUNT];                \
+        int    free_ref[COUNT];                \
+        TYPE   lst[COUNT];                     \
     }
 
-/// Turn on an ego_object_base_t object
-#define EGO_OBJECT_ACTIVATE( PDATA, NAME ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
-    { \
-        strncpy( (PDATA)->obj_base._name, NAME, SDL_arraysize((PDATA)->obj_base._name) ); \
-        (PDATA)->obj_base.state  = ego_object_active; \
-    }
+#define DEFINE_LIST_EXTERN(TYPE, NAME, COUNT)   \
+    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
+    extern struct s_list__##TYPE__##NAME NAME
 
-/// Begin turning off an ego_object_base_t object
-#define EGO_OBJECT_REQUST_TERMINATE( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
-    { \
-        (PDATA)->obj_base.state = ego_object_waiting; \
-    }
+#define DEFINE_LIST_STATIC(TYPE, NAME, COUNT)   \
+    DEFINE_LIST_TYPE(TYPE, NAME, COUNT)
 
-/// Completely turn off an ego_object_base_t object and mark it as no longer allocated
-#define EGO_OBJECT_TERMINATE( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
-    { \
-        (PDATA)->obj_base.allocated = bfalse; \
-        (PDATA)->obj_base.state     = ego_object_terminated; \
-    }
-
-/// Is the object allocated?
-#define ALLOCATED_PBASE( PBASE )   ( (NULL != (PBASE)) && ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
-
-/// Is the object "on"
-#define ACTIVE_PBASE( PBASE )      ( ALLOCATED_PBASE( PBASE ) && (ego_object_active == (PBASE)->state) )
-
-/// Is the object waiting to "die"
-#define WAITING_PBASE( PBASE )     ( ALLOCATED_PBASE( PBASE ) && (ego_object_waiting == (PBASE)->state) )
-
-/// Has the object been marked as terminated
-#define TERMINATED_PBASE( PBASE )  ( (NULL != (PBASE)) && (ego_object_terminated == (PBASE)->state) )
-
-/// Grab a pointer to the ego_object_base_t of an object that "inherits" this data
-#define POBJ_GET_PBASE( POBJ )   ( (NULL == (POBJ)) ? NULL : &((POBJ)->obj_base) )
-
-/// Grab the index value of object that "inherits" from ego_object_base_t
-#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? FAIL_VALUE : (POBJ)->obj_base.index )
-
-/// Grab the state of object that "inherits" from ego_object_base_t
-#define GET_STATE_POBJ( POBJ )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? ego_object_invalid : (POBJ)->obj_base.index )
+#define DECLARE_LIST(ACCESS,TYPE,NAME) ACCESS struct s_list__##TYPE__##NAME NAME = {0, 0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define Egoboo_egobootypedef_h
+/// a template-like declaration of a list that tracks free elements
+
+#define DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
+    struct s_stack__##TYPE__##NAME           \
+    {                                        \
+        int  count;                          \
+        TYPE lst[COUNT];                     \
+    }
+
+#define DEFINE_STACK_EXTERN(TYPE, NAME, COUNT) \
+    DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
+    extern struct s_stack__##TYPE__##NAME NAME
+
+#define DEFINE_STACK_STATIC(TYPE, NAME, COUNT) \
+    DEFINE_STACK_TYPE(TYPE, NAME, COUNT)
+
+#define DECLARE_STACK(ACCESS,TYPE,NAME) ACCESS struct s_stack__##TYPE__##NAME NAME = {0}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define Egoboo_egoboo_typedef_h

@@ -25,9 +25,10 @@
 
 #include "system.h"
 #include "log.h"
+#include "egoboo_mem.h"
+
 #include <stddef.h>
 #include <stdlib.h>
-#include <memory.h>
 
 static clock_source_ptr_t _clock_timeSource = NULL;
 

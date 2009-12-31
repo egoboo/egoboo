@@ -22,7 +22,7 @@
 /// @file file_formats/wawalite_file.h
 /// @details loading the environment definitions for a module
 
-#include "egoboo_typedef.h"
+#include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -38,11 +38,11 @@ struct s_wawalite_water_layer
     float   z;                ///< Base height of water
     float   amp;            ///< Amplitude of waves
 
-    vec2f_t dist;            ///< For distant backgrounds
+    fvec2_t dist;            ///< For distant backgrounds
     Uint32  light_dir;        ///< direct  reflectivity 0 - 63
     Uint32  light_add;        ///< ambient reflectivity 0 - 63
 
-    vec2f_t tx_add;            ///< Texture movement
+    fvec2_t tx_add;            ///< Texture movement
     Uint8   alpha;            ///< Transparency
 };
 typedef struct s_wawalite_water_layer wawalite_water_layer_t;

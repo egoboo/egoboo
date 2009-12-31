@@ -25,12 +25,13 @@
 #include "font_ttf.h"
 #include "log.h"
 
-#include "egoboo_typedef.h"
-#include "egoboo_strutil.h"
-
 #include "extensions/ogl_include.h"
 #include "extensions/ogl_debug.h"
 #include "extensions/SDL_GL_extensions.h"
+
+#include "egoboo_typedef.h"
+#include "egoboo_mem.h"
+#include "egoboo_strutil.h"
 
 #include <stdlib.h>
 #include <stddef.h>

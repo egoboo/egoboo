@@ -22,7 +22,8 @@
 /// @file enchant.h
 /// @details Decleares some stuff used for handling enchants
 
-#include "egoboo_typedef.h"
+#include "egoboo_object.h"
+
 #include "egoboo.h"
 
 #include "eve_file.h"

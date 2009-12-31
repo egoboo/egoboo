@@ -27,17 +27,34 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define PI                  3.1415926535897932384626433832795f
-#define TWO_PI              6.283185307179586476925286766559f
-#define SQRT_TWO            1.4142135623730950488016887242097f
-#define INV_SQRT_TWO        0.70710678118654752440084436210485f
+// basic constants
 
-#define INV_FF              0.003921568627450980392156862745098f
-#define INV_0100            0.00390625f
-#define INV_FFFF            0.000015259021896696421759365224689097f
+#ifndef PI
+#   define PI                  3.1415926535897932384626433832795f
+#endif
 
-#define RAD_TO_TURN         10430.378350470452724949566316381f
-#define TURN_TO_RAD         0.000095873799242852576857380474343257
+#ifndef TWO_PI
+#   define TWO_PI              6.283185307179586476925286766559f
+#endif
+
+#ifndef SQRT_TWO
+#   define SQRT_TWO            1.4142135623730950488016887242097f
+#endif
+
+#ifndef INV_SQRT_TWO
+#   define INV_SQRT_TWO        0.70710678118654752440084436210485f
+#endif
+
+#ifndef RAD_TO_TURN
+#   define RAD_TO_TURN         10430.378350470452724949566316381f
+#endif
+
+#ifndef TURN_TO_RAD
+#   define TURN_TO_RAD         0.000095873799242852576857380474343257
+#endif
+
+//--------------------------------------------------------------------------------------------
+// the lookup tables for sine and cosine
 
 #define TRIG_TABLE_BITS   14
 #define TRIG_TABLE_SIZE   (1<<TRIG_TABLE_BITS)
@@ -115,14 +132,54 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  t
 #endif
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+/// FAST CONVERSIONS
 
-enum { kX = 0, kY, kZ, kW };
+#ifndef INV_FF
+#   define INV_FF              0.003921568627450980392156862745098f
+#endif
+
+#ifndef INV_0100
+#   define INV_0100            0.00390625f
+#endif
+
+#ifndef INV_FFFF
+#   define INV_FFFF            0.000015259021896696421759365224689097f
+#endif
+
+#define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
+#define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
+#define FP8_TO_INT(V1)     ( (V1) >> 8 )                      ///< fast version of V1 / 256
+#define INT_TO_FP8(V1)     ( (V1) << 8 )                      ///< fast version of V1 * 256
+#define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )
+#define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )
+
+#define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF )
+
+#define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF )
+#define FLOAT_TO_FFFF( V1 )  ( ((V1) * 0xFFFF) )
+
+#define FLOAT_TO_FP16( V1 )  ( (Uint32)((V1) * 0x00010000) )
+
+#define CLIP_TO_08BITS( V1 )  ( (V1) & 0xFF       )
+#define CLIP_TO_16BITS( V1 )  ( (V1) & 0xFFFF     )
+#define CLIP_TO_24BITS( V1 )  ( (V1) & 0xFFFFFF   )
+#define CLIP_TO_32BITS( V1 )  ( (V1) & 0xFFFFFFFF )
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// vector definitions
+
+enum { kX = 0, kY, kZ, kW };             ///< Enumerated indices for the elements of the base vector types
 
 typedef float fmat_4x4_base_t[16];       ///< the basic 4x4 floating point matrix type
 typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector type
 typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
 typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
+
+typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision matrix type
+typedef double dvec2_base_t[2];          ///< the basic double precision 2-vector type
+typedef double dvec3_base_t[3];          ///< the basic double precision 3-vector type
+typedef double dvec4_base_t[4];          ///< the basic double precision 4-vector type
 
 /// A wrapper for fmat_4x4_base_t
 /// Necessary in c so that the function return can be assigned to another matrix more simply.
@@ -137,18 +194,16 @@ typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct {
 /// A 4-vector type that allows more than one form of access
 typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } fvec4_t;
 
+// macros for initializing vectors to zero
 #define ZERO_VECT2 { {0,0} }
 #define ZERO_VECT3 { {0,0,0} }
 #define ZERO_VECT4 { {0,0,0,0} }
 
+// Macros for initializing vectors to specific values. Most C compilers will allow you to initialize
+// to non-constant values, but they do complain.
 #define VECT2(XX,YY) { {XX,YY} }
 #define VECT3(XX,YY,ZZ) { {XX,YY,ZZ} }
 #define VECT4(XX,YY,ZZ,WW) { {XX,YY,ZZ,WW} }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// A lookup table for trug values
-extern float                   turntosin[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  to sine
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -171,21 +226,8 @@ extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Data for doing the physics in bump_all_objects()
-/// @details should prevent you from being bumped into a wall
-struct s_phys_data
-{
-    fvec3_t        apos_0, apos_1;
-    fvec3_t        avel;
+// prototypes of vector functions
 
-    float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
-    Uint32         weight;                        ///< Weight
-    float          dampen;                        ///< Bounciness
-};
-typedef struct s_phys_data phys_data_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 bool_t fvec2_clear( fvec2_t * A );
 bool_t fvec3_clear( fvec3_t * A );
 bool_t fvec4_clear( fvec4_t * A );
@@ -194,6 +236,9 @@ float      fvec3_dot_product( fvec3_base_t A, fvec3_base_t   B );
 fvec3_t    fvec3_normalize( fvec3_base_t A );
 fvec3_t    fvec3_sub( fvec3_base_t A, fvec3_base_t   B );
 fvec3_t    fvec3_cross_product( fvec3_base_t A, fvec3_base_t   B );
+
+//--------------------------------------------------------------------------------------------
+// prototypes of matrix functions
 
 fmat_4x4_t IdentityMatrix( void );
 fmat_4x4_t ZeroMatrix( void );
@@ -218,6 +263,9 @@ fvec3_t   mat_getCamRight( fmat_4x4_t mat );
 fvec3_t   mat_getCamForward( fmat_4x4_t mat );
 
 fvec3_t   mat_getTranslate( fmat_4x4_t mat );
+
+//--------------------------------------------------------------------------------------------
+// prototypes of other math functions
 
 void make_turntosin( void );
 
