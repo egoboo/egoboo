@@ -4298,29 +4298,30 @@ bool_t mnu_test_by_index( int modnumber )
     int     cnt;
     mnu_module_t * pmod;
     bool_t  allowed;
-    bool_t  playerhasquest;
 
     if ( INVALID_MOD( modnumber ) ) return bfalse;
     pmod = mnu_ModList.lst + modnumber;
 
-    // Check all selected players directories
-    playerhasquest = bfalse;
-    for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
-    {
-        if ( pmod->base.quest_level <= quest_check( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ) )
-        {
-            playerhasquest = btrue;
-            break;
-        }
-    }
-
-    // So, do we load the module or not?
+	// First check if we are in developers mode or that the right module has been beaten before
     allowed = bfalse;
-    if ( cfg.dev_mode || playerhasquest || module_has_idsz( pmod->base.reference, pmod->base.quest_idsz ) )
-    {
-        allowed = btrue;
-    }
+    if( cfg.dev_mode || module_has_idsz( pmod->base.reference, pmod->base.quest_idsz ) )
+	{
+		allowed = btrue;
+	}
+	else
+	{
+		// If that did not work, then check all selected players directories
+		for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
+		{
+			if ( pmod->base.quest_level <= quest_check( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ) )
+			{
+				allowed = btrue;
+				break;
+			}
+		}
 
+	}
+    
     return allowed;
 }
 

@@ -80,7 +80,7 @@ stairs:   NONE    116  3.0   37.9   0.0   E    0   0  0   0   0   F   F   N
 
 //Pedestal trap
 pedestal:   NONE    96  21.0   55.0   0.0   ?    0   0  0   0   0   F   F   E
-  gem:   NONE    98  21.0   55.0   1.0   ?    0   4  0   0   0   F   F   N
+  Gem:   NONE    98  21.0   55.0   1.0   ?    0   4  0   0   0   F   F   N
 
 //Big room
 dragonstatue:   NONE    37  55.5   38.0   1.0   W    0   0  0   0   0   F   F   N

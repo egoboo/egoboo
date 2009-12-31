@@ -2483,7 +2483,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Gender
     pchr->gender = pcap->gender;
-    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, 1 );
+    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, GENDER_MALE );
 
     // Life and Mana
     pchr->lifecolor = pcap->lifecolor;

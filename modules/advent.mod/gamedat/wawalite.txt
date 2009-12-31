@@ -1,9 +1,10 @@
+//file_version 2          This lets egoboo know that this is a new type of wawalite 
+
 //   This file tells the game how to model lighting and water...
 // Please fill in all of the data even if you only use one layer of
 // water.  2 is the maximum number of layers.
 //   This file also gives information regarding damage tiles and
 // friction for the module.
-
 
 Random map ( TRUE or FALSE ) ( doesn't work )           : FALSE
 Number of Water Layers ( 1=Fast, 2=Good )		: 2
@@ -57,7 +58,7 @@ Damage tile damage ( 0 to 65535, 512 is 1 life block )	:  512
 Damage tile damage type ( SLASH, CRUSH, POKE, HOLY
                           EVIL, FIRE, ICE, ZAP )	:  FIRE
 
-Weather particle effect ( 0 to 10, RAIN or SNOW )  : 4
+Weather particle effect ( 0 to 10, RAIN or SNOW )   : 4
 Weather particles only over water ( TRUE or FALSE )	: TRUE
 Weather particle spawn rate ( 0 to 100, 0 is none )	: 4
 

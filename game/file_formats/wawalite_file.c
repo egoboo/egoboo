@@ -28,6 +28,7 @@
 
 #include "egoboo_fileutil.h"
 #include "egoboo_math.h"
+#include "pip_file.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ static wawalite_data_t *       read_wawalite_light( vfs_FILE * fileread, wawalit
 static wawalite_physics_t *    read_wawalite_physics( vfs_FILE * fileread, wawalite_physics_t * pphys );
 static wawalite_animtile_t *   read_wawalite_animtile( vfs_FILE * fileread, wawalite_animtile_t * panimtile );
 static wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_damagetile_t * pdamagetile );
-static wawalite_weather_t *    read_wawalite_weather( vfs_FILE * fileread, wawalite_weather_t * pweather );
+static wawalite_weather_t *	   read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t * pdata );
 static wawalite_graphics_t *   read_wawalite_graphics( vfs_FILE * fileread, wawalite_graphics_t * pgraphics );
 static wawalite_camera_t *     read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t * pcamera );
 static wawalite_data_t *       read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdata );
@@ -205,8 +206,9 @@ wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_weather_t * pweather )
+wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t * pdata )
 {
+	wawalite_weather_t * pweather = &(pdata->weather);
     if( NULL == pweather ) return pweather;
 
     memset( pweather, 0, sizeof(*pweather) );
@@ -214,8 +216,15 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_weathe
     if( NULL == fileread ) return pweather;
 
     // weather data
-	pweather->particle    = fget_next_int( fileread );			//@todo: allow text to be read here
-    pweather->over_water  = fget_next_bool( fileread );
+	if(pdata->version >= 2)
+	{
+		pweather->particle    = fget_next_int( fileread );			//@todo: allow text to be read here
+	}
+	else
+	{
+		pweather->particle    = PIP_WEATHER4;			//Default if we use a older versioned wawalite.txt
+	}
+	pweather->over_water  = fget_next_bool( fileread );
     pweather->timer_reset = fget_next_int( fileread );
 
     return pweather;
@@ -302,6 +311,10 @@ wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pd
         return pdata;
     }
 
+	//First figure out what version of wawalite this is, so that we know what data we 
+	//should expect to load
+	pdata->version = fget_version( fileread );
+
     //  Random map...
     //  If someone else wants to handle this, here are some thoughts for approaching
     //  it.  The .MPD file for the level should give the basic size of the map.  Use
@@ -309,14 +322,14 @@ wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pd
     //  the module's object directory, and only use some of them.  Imagine several Rock
     //  Moles eating through a stone filled level to make a path from the entrance to
     //  the exit.  Door placement will be difficult.
-    pdata->seed = fget_next_int( fileread );
+    pdata->seed = fget_next_bool( fileread );
 
     read_wawalite_water     ( fileread, &(pdata->water)      );
     read_wawalite_light     ( fileread, pdata                );
     read_wawalite_physics   ( fileread, &(pdata->phys)       );
     read_wawalite_animtile  ( fileread, &(pdata->animtile)   );
     read_wawalite_damagetile( fileread, &(pdata->damagetile) );
-    read_wawalite_weather   ( fileread, &(pdata->weather)    );
+    read_wawalite_weather   ( fileread, pdata                );
     read_wawalite_graphics  ( fileread, &(pdata->graphics)   );
     read_wawalite_camera    ( fileread, &(pdata->camera)     );
     read_wawalite_fog       ( fileread, pdata                );

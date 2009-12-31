@@ -1,3 +1,5 @@
+//file_version 2          This lets egoboo know that this is a new type of wawalite 
+
 //   This file tells the game how to model lighting and water...
 // Please fill in all of the data even if you only use one layer of
 // water.  2 is the maximum number of layers.

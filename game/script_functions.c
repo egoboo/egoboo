@@ -6483,12 +6483,11 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( ChrList.lst[pself->target].isplayer )
+	returncode = bfalse;
+    if ( ChrList.lst[pself->target].isplayer && quest_add_idsz( chr_get_dir_name( pself->target ), pstate->argument ) )
     {
-        quest_add_idsz( chr_get_dir_name( pself->target ), pstate->argument );
-        returncode = btrue;
+		returncode = btrue;
     }
-    else returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6499,26 +6498,20 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     // IfBeatQuestAllPlayers()
     /// @details ZF@> This function marks a IDSZ in the targets quest.txt as beaten
 
-    int iTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-
-    for ( iTmp = 0; iTmp < MAXPLAYER; iTmp++ )
+    for ( sTmp = 0; sTmp < MAXPLAYER; sTmp++ )
     {
         Uint16 ichr;
-        if ( !PlaList[iTmp].valid ) continue;
+        if ( !PlaList[sTmp].valid ) continue;
 
-        ichr = PlaList[iTmp].index;
-        if ( !ACTIVE_ENC( ichr ) ) continue;
+        ichr = PlaList[sTmp].index;
+        if ( !ACTIVE_CHR( ichr ) ) continue;
 
-        if ( ChrList.lst[ichr].isplayer )
-        {
-            if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )
-            {
-                returncode = btrue;
-            }
+        if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )	//@todo: ZF> this doesnt actually work
+        {																									// sending 0 as adjustment doesnt "beat" the quest
+            returncode = btrue;
         }
     }
 
@@ -6542,8 +6535,8 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
         iTmp = quest_check( chr_get_dir_name( pself->target ), pstate->argument );
         if ( iTmp > QUEST_BEATEN )
         {
-            returncode       = btrue;
             pstate->distance = iTmp;
+            returncode       = btrue;
         }
     }
 
@@ -6589,15 +6582,11 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = PlaList[iTmp].index;
         if ( !ACTIVE_CHR( ichr ) ) continue;
 
-        if ( ChrList.lst[ichr].isplayer )
-        {
-            // Try to add it if not already there or beaten
-            quest_add_idsz( chr_get_dir_name( ichr ) , pstate->argument );
+        // Try to add it if not already there or beaten
+        quest_add_idsz( chr_get_dir_name( ichr ) , pstate->argument );
 
-            // Not beaten yet, set level to tmpdistance
-            returncode = QUEST_NONE != quest_modify_idsz( chr_get_dir_name( ichr ), pstate->argument, pstate->distance );
-        }
-
+        // Not beaten yet, set level to tmpdistance
+        returncode = QUEST_NONE != quest_modify_idsz( chr_get_dir_name( ichr ), pstate->argument, pstate->distance );
     }
 
     SCRIPT_FUNCTION_END();
@@ -6643,7 +6632,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        pits.kill = btrue;
+        pits.kill = btrue;			//make it kill instead
     }
 
     SCRIPT_FUNCTION_END();
@@ -7018,13 +7007,9 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->argument >= 0 )
-    {
-        if ( pstate->argument > MAXMONEY ) pchr->money = MAXMONEY;
-        else pchr->money = pstate->argument;
-    }
-
-    SCRIPT_FUNCTION_END();
+	pchr->money = CLIP(pstate->argument, 0, MAXMONEY);
+    
+	SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7051,7 +7036,6 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
     if ( ChrList.lst[pself->target].alive )
     {
         // Check all enchants to see if they are removed
-
         eve_t * peve;
         Uint16 enc_now, enc_next;
 

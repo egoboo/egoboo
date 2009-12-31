@@ -151,6 +151,7 @@ typedef struct s_wawalite_fog wawalite_fog_t;
 struct s_wawalite_data
 {
     Uint32 seed;
+	Sint8 version;
 
     wawalite_water_t      water;
     wawalite_physics_t    phys;
