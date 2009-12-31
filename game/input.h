@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file input.c
+/// @file input.h
 /// @details Keyboard, mouse, and joystick handling code.
 
 #include "egoboo_typedef.h"

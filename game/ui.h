@@ -19,8 +19,8 @@
 //*
 //********************************************************************************************
 
-/// @file Ui.h
-/// @A basic library for implementing user interfaces, based off of Casey Muratori's
+/// @file ui.h
+/// @details A basic library for implementing user interfaces, based off of Casey Muratori's
 /// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
 
 #include "font_ttf.h"

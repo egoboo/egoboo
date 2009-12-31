@@ -20,8 +20,8 @@
 //********************************************************************************************
 
 ///
-/// @file
-/// @brief
+/// @file Md2.inl
+/// @brief Implementation egoboo's Md2 loading and saving
 /// @details functions that will be declared inside the base class
 
 #include "Md2.h"

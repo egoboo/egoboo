@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file template.h
+/// @file file_formats/template.h
 /// @brief Write formatted output using a pre-formatted template file
 
 #include "egoboo_typedef.h"

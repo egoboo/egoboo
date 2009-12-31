@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 ///
-/// @file
+/// @file md2.h
 /// @brief Md2 Model display routines
 /// @details Adapted from "Tactics - MD2_Model.h" by Jonathan Fischer
 ///   A class for loading/using Quake 2 and Egoboo md2 models.

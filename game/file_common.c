@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file common-file.c
+/// @file file_common.c
 /// @brief Base implementation of the egoboo filesystem
 /// @details File operations that are shared between various operating systems.
 /// OS-specific code goes in *-file.c (such as win-file.c)

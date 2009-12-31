@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file spawn_file.h
+/// @file file_formats/spawn_file.h
 /// @details loading the environment definitions for a module
 
 #include "egoboo_typedef.h"

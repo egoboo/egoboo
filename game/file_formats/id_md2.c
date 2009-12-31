@@ -38,7 +38,7 @@ float kid_md2_normals[MD2_MAX_NORMALS][3] =
 //--------------------------------------------------------------------------------------------
 /// Load an MD2 model from file.
 
-/// @ note MD2 format stores model's data in little-endian ordering.  On
+/// @note MD2 format stores model's data in little-endian ordering.  On
 /// big-endian machines, you'll have to perform proper conversions.
 
 id_md2_model_t * id_md2_load (const char *filename, id_md2_model_t * mdl)

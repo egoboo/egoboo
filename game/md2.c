@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 ///
-/// @file
+/// @file md2.c
 /// @brief Raw MD2 loader
 /// @details Raw model loader for ID Software's MD2 file format
 

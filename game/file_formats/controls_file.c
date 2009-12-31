@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/controls.c
+/// @file file_formats/controls_file.c
 /// @brief Routines for reading and writing the file "controls.txt" and "scancode.txt"
 /// @details
 

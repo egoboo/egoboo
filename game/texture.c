@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file texture.c
-/// @brief
+/// @brief Implementation of code for controlling object texturing
 /// @details
 
 #include "texture.h"

@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file egoboo_fileutil.c
-/// @brief
+/// @brief Implementation of Egoboo file utilities
 /// @details
 
 #include "egoboo_fileutil.h"

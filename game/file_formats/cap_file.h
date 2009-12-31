@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file cap_file.h
+/// @file file_formats/cap_file.h
 /// @details routines for reading and writing the character profile file data.txt
 
 #include "egoboo_typedef.h"

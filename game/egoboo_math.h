@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file mathstuff.h
+/// @file egoboo_math.h
 /// @The name's pretty self explanatory, doncha think?
 
 #include <math.h>

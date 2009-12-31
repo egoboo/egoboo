@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file mathstuff.c
+/// @file egoboo_math.c
 /// @brief The name's pretty self explanatory, doncha think?
 /// @details
 

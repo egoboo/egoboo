@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file char.c
-/// @brief
+/// @brief Implementation of character functions
 /// @details
 
 #include "char.h"

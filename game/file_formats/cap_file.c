@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file cap_file.c
+/// @file file_formats/cap_file.c
 /// @brief routines for reading and writing the character profile file data.txt
 /// @details
 

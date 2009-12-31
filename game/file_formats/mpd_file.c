@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file mfile_formats/pd_file.c
+/// @file file_formats/mpd_file.c
 /// @brief Functions for raw read and write access to the .mpd file type
 /// @details
 

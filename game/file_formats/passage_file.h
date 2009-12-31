@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file passage_file.h
+/// @file file_formats/passage_file.h
 /// @details help read/write the passage file
 
 #include "egoboo_typedef.h"

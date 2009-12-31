@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file win-file.c
+/// @file platform/file_win.c
 /// @brief Windows-specific filesystem functions.
 /// @details
 

@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file profile.c
-/// @brief
+/// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
 
 #include "profile.h"

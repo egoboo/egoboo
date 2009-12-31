@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file sys_mac.c
-/// @brief
+/// @file platform/sys_mac.c
+/// @brief Implementation of mac system-dependent functions
 /// @details
 
 #include "System.h"

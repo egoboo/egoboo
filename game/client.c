@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file Client.c
+/// @file client.c
 /// @brief This code is not currently in use.
 
 #include "client.h"

@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file configfile.h
+/// @file file_formats/configfile.h
 /// @details Configuration file loading code.
 
 #include "egoboo_typedef.h"

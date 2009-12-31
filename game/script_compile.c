@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file script_compile.c
-/// @brief
+/// @brief Implementation of the script compiler
 /// @details
 
 #include "script_compile.h"

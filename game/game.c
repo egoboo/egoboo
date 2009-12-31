@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file game.c
-/// @brief
+/// @brief The code for controlling the game
 /// @details
 
 #include "game.h"

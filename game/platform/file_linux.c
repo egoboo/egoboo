@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file file_linux.c
-/// @brief
+/// @file platform/file_linux.c
+/// @brief Implementation of the linux system-dependent filesystem functions
 /// @details
 
 #include "file_common.h"

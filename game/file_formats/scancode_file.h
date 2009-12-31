@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file scancode_file.h
+/// @file file_formats/scancode_file.h
 /// @details routines for reading and writing the file "scancode.txt"
 
 #include "egoboo_typedef.h"

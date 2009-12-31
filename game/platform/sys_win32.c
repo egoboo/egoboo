@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file sys_win32.c
+/// @file platform/sys_win32.c
 /// @brief System Dependent Functions
 /// @details Win32 - specific code
 

@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file game.c
-/// @brief
+/// @file egoboo_process.c
+/// @brief Implementation of egoboo "process" controll routines
 /// @details
 
 #include "egoboo_process.h"

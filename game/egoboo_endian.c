@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file egoboo_endian.c
-/// @brief
+/// @brief Implementation of endian conversion routines
 /// @details
 
 #include "egoboo_endian.h"
