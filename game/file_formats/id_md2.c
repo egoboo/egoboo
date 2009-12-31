@@ -73,11 +73,11 @@ id_md2_model_t * id_md2_load (const char *filename, id_md2_model_t * mdl)
     }
 
     /* Memory allocations */
-    mdl->skins     = (id_md2_skin_t *) calloc (mdl->header.num_skins, sizeof (id_md2_skin_t) );
-    mdl->texcoords = (id_md2_texcoord_t *) calloc (mdl->header.num_st, sizeof (id_md2_texcoord_t));
-    mdl->triangles = (id_md2_triangle_t *) calloc (mdl->header.num_tris, sizeof (id_md2_triangle_t));
-    mdl->frames    = (id_md2_frame_t *) calloc (mdl->header.num_frames, sizeof (id_md2_frame_header_t) );
-    mdl->glcmds    = (int *)calloc (mdl->header.size_glcmds, sizeof (int));
+    mdl->skins     = (id_md2_skin_t     *) calloc (mdl->header.num_skins,   sizeof (id_md2_skin_t)    );
+    mdl->texcoords = (id_md2_texcoord_t *) calloc (mdl->header.num_st,      sizeof (id_md2_texcoord_t));
+    mdl->triangles = (id_md2_triangle_t *) calloc (mdl->header.num_tris,    sizeof (id_md2_triangle_t));
+    mdl->frames    = (id_md2_frame_t    *) calloc (mdl->header.num_frames,  sizeof (id_md2_frame_t)   );
+    mdl->glcmds    = (int               *) calloc (mdl->header.size_glcmds, sizeof (int)              );
 
     /* Read model data */
     EGO_fseek (fp, mdl->header.offset_skins, SEEK_SET);

@@ -3628,11 +3628,14 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
 
     // determine whether the spawn position is a safe position
     pchr->safe_valid = ( 0 == __chrhitawall( pchr, nrm.v, &pressure ) );
+
+#if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
     if( ACTIVE_CHR(pchr->attachedto) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
         log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
             pchr->pos.x, pchr->pos.y, nrm.x, nrm.y );
     }
+#endif
 
     return ichr;
 }

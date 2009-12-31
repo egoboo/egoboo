@@ -470,6 +470,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
     }
+#if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
     else
     {
         cap_t * pcap;
@@ -493,6 +494,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
                 SQRT(pressure) / TILE_SIZE );
         }
     }
+#endif
 
     if ( returncode )
     {

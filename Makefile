@@ -5,7 +5,6 @@
 #make PREFIX=$HOME/.local
 #PREFIX	:= ${HOME}/.local
 
-
 ifndef ($(PREFIX),"")
 	# define a value for prefix assuming that the program will be installed in the root directory
 	PREFIX := /usr
@@ -29,6 +28,9 @@ enet:
 
 egoboo:
 	make -C game all
+	
+egoboo_lua:
+	make -F Makefile.lua -C game all	
 
 install:
 
