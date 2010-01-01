@@ -247,6 +247,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hash.c"
+				>
+			</File>
+			<File
 				RelativePath=".\input.c"
 				>
 			</File>
@@ -374,6 +378,10 @@
 			</File>
 			<File
 				RelativePath=".\graphic_prt.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hash.h"
 				>
 			</File>
 			<File
@@ -706,6 +714,10 @@
 			</File>
 			<File
 				RelativePath=".\egoboo_math.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_mem.h"
 				>
 			</File>
 			<File

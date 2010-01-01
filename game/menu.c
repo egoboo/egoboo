@@ -2515,7 +2515,7 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_draco", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -2758,7 +2758,7 @@ int doVideoOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_wizard", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
