@@ -22,7 +22,7 @@
 /// @brief Raw MD2 loader
 /// @details Raw model loader for ID Software's MD2 file format
 
-#include "Md2.inl"
+#include "md2.inl"
 
 #include "id_md2.h"
 

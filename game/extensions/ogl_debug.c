@@ -26,6 +26,7 @@
 #include "ogl_debug.h"
 
 #include "file_common.h"
+
 #include <assert.h>
 #include <memory.h>
 

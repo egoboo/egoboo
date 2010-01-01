@@ -23,7 +23,7 @@
 
 #include "mad.h"
 
-#include "Md2.inl"
+#include "md2.inl"
 
 #include "cap_file.h"
 #include "particle.h"

@@ -27,7 +27,7 @@
 #include "char.h"
 #include "mad.h"
 
-#include "Md2.inl"
+#include "md2.inl"
 #include "id_md2.h"
 
 #include "log.h"

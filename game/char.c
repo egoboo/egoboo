@@ -33,7 +33,7 @@
 #include "sound.h"
 #include "camera.h"
 #include "input.h"
-#include "Md2.inl"
+#include "md2.inl"
 #include "passage.h"
 #include "graphic.h"
 #include "game.h"
