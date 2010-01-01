@@ -125,17 +125,17 @@ struct s_pip
     Uint8   imagebase;                    ///< Starting image
     IPair   imageadd;                     ///< Frame rate
     Uint16  time;                         ///< Time until end
-    IPair   rotate_pair;                   ///< Rotation
+    IPair   rotate_pair;                  ///< Rotation
     Sint16  rotateadd;                    ///< Rotation rate
     Uint16  sizebase;                     ///< Size
     Sint16  sizeadd;                      ///< Size rate
     Sint8   soundspawn;                   ///< Beginning sound
     Uint16  facingadd;                    ///< Facing
     IPair   facing_pair;                  ///< Facing
-    IPair   xyspacing_pair;               ///< Spacing
-    IPair   zspacing_pair;                ///< Altitude
-    IPair   xyvel_pair;                   ///< Shot velocity
-    IPair   zvel_pair;                    ///< Up velocity
+    IPair   spacing_hrz_pair;             ///< Spacing
+    IPair   spacing_vrt_pair;             ///< Altitude
+    IPair   vel_hrz_pair;                 ///< Shot velocity
+    IPair   vel_vrt_pair;                 ///< Up velocity
     bool_t  newtargetonspawn;             ///< Get new target?
     bool_t  needtarget;                   ///< Need a target?
     bool_t  startontarget;                ///< Start on target?
@@ -160,7 +160,7 @@ struct s_pip
     Uint32  bump_size;                     ///< Bounding box size
     Uint32  bump_height;                   ///< Bounding box height
 
-    // continuous spawning 
+    // continuous spawning
     Uint16  contspawn_time;               ///< Spawn timer
     Uint8   contspawn_amount;             ///< Spawn amount
     Uint16  contspawn_facingadd;          ///< Spawn in circle

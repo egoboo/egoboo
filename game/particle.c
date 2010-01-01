@@ -558,9 +558,9 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     // Targeting...
     vel.z = 0;
 
-    pprt->offset.z = generate_randmask( ppip->zspacing_pair.base, ppip->zspacing_pair.rand ) - ( ppip->zspacing_pair.rand >> 1 );
+    pprt->offset.z = generate_randmask( ppip->spacing_vrt_pair.base, ppip->spacing_vrt_pair.rand ) - ( ppip->spacing_vrt_pair.rand >> 1 );
     tmp_pos.z += pprt->offset.z;
-    velocity = generate_randmask( ppip->xyvel_pair.base, ppip->xyvel_pair.rand );
+    velocity = generate_randmask( ppip->vel_hrz_pair.base, ppip->vel_hrz_pair.rand );
     pprt->target_ref = oldtarget;
     if ( ppip->newtargetonspawn )
     {
@@ -631,7 +631,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     turn = ( facing + ATK_BEHIND ) >> 2;
 
     // Location data from arguments
-    newrand = generate_randmask( ppip->xyspacing_pair.base, ppip->xyspacing_pair.rand );
+    newrand = generate_randmask( ppip->spacing_hrz_pair.base, ppip->spacing_hrz_pair.rand );
     pprt->offset.x = -turntocos[turn & TRIG_TABLE_MASK] * newrand;
     pprt->offset.y = -turntosin[turn & TRIG_TABLE_MASK] * newrand;
 
@@ -648,7 +648,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     // Velocity data
     vel.x = turntocos[turn & TRIG_TABLE_MASK] * velocity;
     vel.y = turntosin[turn & TRIG_TABLE_MASK] * velocity;
-    vel.z += generate_randmask( ppip->zvel_pair.base, ppip->zvel_pair.rand ) - ( ppip->zvel_pair.rand >> 1 );
+    vel.z += generate_randmask( ppip->vel_vrt_pair.base, ppip->vel_vrt_pair.rand ) - ( ppip->vel_vrt_pair.rand >> 1 );
     pprt->vel = pprt->vel_old = pprt->vel_stt = vel;
 
     // Template values
@@ -1056,7 +1056,7 @@ void update_all_particles()
             if ( !ACTIVE_CHR( ichr ) ) continue;
 
             // Attached iprt_b damage ( Burning )
-            if ( ppip->allowpush && ppip->xyvel_pair.base == 0 )
+            if ( ppip->allowpush && ppip->vel_hrz_pair.base == 0 )
             {
                 // Make character limp
                 ChrList.lst[ichr].vel.x *= 0.5f;
@@ -1195,17 +1195,17 @@ void move_one_particle_get_environment( prt_t * pprt )
     //---- the friction of the fluid we are in
     if ( pprt->enviro.is_watery )
     {
-        pprt->enviro.fluid_friction_z  = waterfriction;
-        pprt->enviro.fluid_friction_xy = waterfriction;
+        pprt->enviro.fluid_friction_vrt  = waterfriction;
+        pprt->enviro.fluid_friction_hrz = waterfriction;
     }
     else
     {
-        pprt->enviro.fluid_friction_xy = pprt->enviro.air_friction;       // like real-life air friction
-        pprt->enviro.fluid_friction_z  = pprt->enviro.air_friction;
+        pprt->enviro.fluid_friction_hrz = pprt->enviro.air_friction;       // like real-life air friction
+        pprt->enviro.fluid_friction_vrt  = pprt->enviro.air_friction;
     }
 
     //---- friction
-    pprt->enviro.friction_xy = 1.0f;
+    pprt->enviro.friction_hrz = 1.0f;
     if ( !pprt->is_homing )
     {
         // Make the characters slide
@@ -1216,7 +1216,7 @@ void move_one_particle_get_environment( prt_t * pprt )
             temp_friction_xy = slippyfriction;
         }
 
-        pprt->enviro.friction_xy = pprt->enviro.zlerp * 1.0f + ( 1.0f - pprt->enviro.zlerp ) * temp_friction_xy;
+        pprt->enviro.friction_hrz = pprt->enviro.zlerp * 1.0f + ( 1.0f - pprt->enviro.zlerp ) * temp_friction_xy;
     }
 }
 
@@ -1280,7 +1280,7 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     }
     //else
     //{
-    //    temp_friction_xy = pprt->enviro.friction_xy;
+    //    temp_friction_xy = pprt->enviro.friction_hrz;
 
     //    if( TWIST_FLAT == pprt->enviro.twist )
     //    {
@@ -1346,7 +1346,7 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     }
 
     // test to see if the player has any more friction left?
-    pprt->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pprt->enviro.friction_xy );
+    pprt->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pprt->enviro.friction_hrz );
 
     if ( pprt->enviro.is_slipping )
     {
@@ -1364,9 +1364,9 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     pprt->vel.z += fric_floor.z;
 
     // Apply fluid friction from last time
-    pprt->vel.x += -pprt->vel.x * ( 1.0f - pprt->enviro.fluid_friction_xy );
-    pprt->vel.y += -pprt->vel.y * ( 1.0f - pprt->enviro.fluid_friction_xy );
-    pprt->vel.z += -pprt->vel.z * ( 1.0f - pprt->enviro.fluid_friction_z );
+    pprt->vel.x += -pprt->vel.x * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+    pprt->vel.y += -pprt->vel.y * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+    pprt->vel.z += -pprt->vel.z * ( 1.0f - pprt->enviro.fluid_friction_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2852,7 +2852,7 @@ bool_t prt_request_terminate( Uint16 iprt )
 //            if( !ACTIVE_CHR( ichr ) ) continue;
 //
 //            // Attached iprt_b damage ( Burning )
-//            if ( ppip->allowpush && ppip->xyvel_pair.base == 0 )
+//            if ( ppip->allowpush && ppip->vel_hrz_pair.base == 0 )
 //            {
 //                // Make character limp
 //                ChrList.lst[ichr].vel.x *= 0.5f;

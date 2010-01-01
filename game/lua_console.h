@@ -29,8 +29,8 @@ typedef struct s_lua_console lua_console_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-lua_console_t    * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect );
-SDL_bool           lua_console_delete( lua_console_t * pcon );
+lua_console_t    * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect );
+SDL_bool           lua_console_destroy( lua_console_t ** pcon );
 
 egoboo_console_t * lua_console_get_base( lua_console_t * pcon );
 

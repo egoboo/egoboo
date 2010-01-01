@@ -83,8 +83,8 @@ struct s_ClockState
     int frameHistoryHead;
 };
 
-static ClockState_t * clk_new( ClockState_t * cs, const char * name, int size );
-static bool_t         clk_delete( ClockState_t * cs );
+static ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int size );
+static bool_t         clk_dtor( ClockState_t * cs );
 
 //static void   clk_initTime( ClockState_t * cs );
 static void   clk_setFrameHistoryWindow( ClockState_t * cs, int size );
@@ -98,7 +98,7 @@ ClockState_t * clk_create( const char * name, int size )
 
     cs = EGOBOO_NEW( ClockState_t );
 
-    return clk_new( cs, name, size );
+    return clk_ctor( cs, name, size );
 }
 
 bool_t clk_destroy( ClockState_t ** pcs )
@@ -107,19 +107,19 @@ bool_t clk_destroy( ClockState_t ** pcs )
 
     if ( NULL == pcs || NULL == *pcs ) return bfalse;
 
-    retval = clk_delete( *pcs );
+    retval = clk_dtor( *pcs );
     EGOBOO_DELETE( *pcs );
 
     return retval;
 }
 
-ClockState_t * clk_new( ClockState_t * cs, const char * name, int size )
+ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int size )
 {
     clock_source_ptr_t psrc;
     if ( NULL == cs ) return cs;
 
     if ( size < 0 ) size = 1;
-    //log_info("clk_new() - \n    \"%s\"    %d buffer(s)\n", name, size);
+    //log_info("clk_ctor() - \n    \"%s\"    %d buffer(s)\n", name, size);
 
     memset( cs, 0, sizeof( *cs ) );
 
@@ -134,7 +134,7 @@ ClockState_t * clk_new( ClockState_t * cs, const char * name, int size )
     return cs;
 }
 
-bool_t clk_delete( ClockState_t * cs )
+bool_t clk_dtor( ClockState_t * cs )
 {
     if ( NULL == cs ) return bfalse;
 
@@ -151,8 +151,8 @@ ClockState_t * clk_renew( ClockState_t * cs )
     name = cs->name;
     size = cs->frameHistorySize;
 
-    clk_delete( cs );
-    return clk_new( cs, name, size );
+    clk_dtor( cs );
+    return clk_ctor( cs, name, size );
 }
 
 void clk_setFrameHistoryWindow( ClockState_t * cs, int size )

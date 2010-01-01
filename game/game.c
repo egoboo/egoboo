@@ -1055,7 +1055,7 @@ int do_game_proc_begin( game_process_t * gproc )
     // do some graphics initialization
     //make_lightdirectionlookup();
     make_enviro();
-    camera_new( PCamera );
+    camera_ctor( PCamera );
 
     // try to start a new module
     if ( !game_begin_module( pickedmodule_name, ( Uint32 )~0 ) )
@@ -1604,7 +1604,7 @@ void do_damage_tiles()
 		    int actual_damage;
             actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
             pchr->damagetime = DAMAGETILETIME;
-			
+
 			if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
 			{
 				spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.parttype, 0);
@@ -3313,7 +3313,7 @@ void game_release_module_data()
 
     // deal with the mesh
     clear_all_passages();
-    mesh_delete( PMesh );
+    mesh_dtor( PMesh );
 }
 
 //--------------------------------------------------------------------------------------------

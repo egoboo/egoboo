@@ -141,7 +141,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // make sure that a bunch of stuff gets initialized properly
     init_all_objects();
     game_module_init( PMod );
-    mesh_new( PMesh );
+    mesh_ctor_default( PMesh );
     init_all_graphics();
     init_profile_system();
 
@@ -516,10 +516,10 @@ void console_init()
     SDL_Rect blah = {0, 0, sdl_scr.x, sdl_scr.y / 4};
 
 #if defined(USE_LUA_CONSOLE)
-    lua_console_new( NULL, blah );
+    lua_console_create( NULL, blah );
 #else
     // without a callback, this console just dumps the input and generates no output
-    egoboo_console_new( NULL, blah, NULL, NULL );
+    egoboo_console_create( NULL, blah, NULL, NULL );
 #endif
 }
 

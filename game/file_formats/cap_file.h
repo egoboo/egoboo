@@ -185,7 +185,6 @@ struct s_cap
 
     IDSZ         idsz[IDSZ_COUNT];              ///< ID strings
 
-
     // inventory
     Uint8        ammomax;                       ///< Ammo stuff
     Uint8        ammo;
@@ -199,7 +198,7 @@ struct s_cap
     Sint16       life_return;                    ///< Life regeneration
     Uint16       life_heal;
     Uint16       life_spawn;                     ///< Life left from last module
-    
+
     // mana
     cap_stat_t   mana_stat;                     ///< Mana statistics
     cap_stat_t   manareturn_stat;               ///< Mana regeneration statistics

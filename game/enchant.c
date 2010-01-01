@@ -153,7 +153,6 @@ bool_t remove_enchant( Uint16 ienc )
     Uint16 lastenchant, currentenchant;
     int add_type, set_type;
 
-
     enc_t * penc;
     eve_t * peve;
     Uint16 itarget, ispawner;
@@ -527,7 +526,7 @@ void enchant_apply_add( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
     peve = EveStack.lst + ieve;
 
-    if( !peve->addyesno[valueindex] ) 
+    if( !peve->addyesno[valueindex] )
     {
         penc->addyesno[valueindex] = bfalse;
         penc->addsave[valueindex]  = 0.0f;
@@ -682,7 +681,7 @@ void enchant_apply_add( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     }
 
     // save whether there was any change in the value
-    penc->addyesno[valueindex] = (0.0f != fvaluetoadd); 
+    penc->addyesno[valueindex] = (0.0f != fvaluetoadd);
 
     // Save the value for undo
     penc->addsave[valueindex]  = valuetoadd;

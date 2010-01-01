@@ -130,7 +130,7 @@ GLuint ErrorImage_get_binding()
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-oglx_texture * oglx_texture_new(oglx_texture * ptex)
+oglx_texture * oglx_texture_ctor(oglx_texture * ptex)
 {
     if ( NULL == ptex ) return ptex;
 
@@ -161,7 +161,7 @@ oglx_texture * oglx_texture_new(oglx_texture * ptex)
 }
 
 //--------------------------------------------------------------------------------------------
-void oglx_texture_delete(oglx_texture * ptex)
+void oglx_texture_dtor(oglx_texture * ptex)
 {
     if ( !VALID_TEXTURE(ptex) )  return;
 
@@ -245,7 +245,7 @@ GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
     else
     {
         // clean out any uninitialied data
-        ptex = oglx_texture_new(ptex);
+        ptex = oglx_texture_ctor(ptex);
         if ( NULL == ptex ) return INVALID_TX_ID;
     }
 
@@ -256,7 +256,7 @@ GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
 
     if ( !VALID_BINDING(retval) )
     {
-        oglx_texture_delete(ptex);
+        oglx_texture_dtor(ptex);
     }
     else
     {
@@ -411,9 +411,9 @@ void oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture)
 GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t )
 {
     int    filt_type, anisotropy;
-    
+
     GLuint local_binding;
-    
+
     // make sure the error texture exists
     if (!ErrorImage_defined) ErrorImage_create();
 

@@ -21,54 +21,11 @@
 
 /// @file physics.h
 
-#include "egoboo_math.h"
+#include "bbox.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define PLATTOLERANCE       50                     ///< Platform tolerance...
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// axis aligned bounding box
-struct s_aabb
-{
-    float mins[3];
-    float maxs[3];
-};
-typedef struct s_aabb aabb_t;
-
-//--------------------------------------------------------------------------------------------
-/// Level 0 character "bumper"
-/// The simplest collision volume, equivalent to the old-style collision data
-/// stored in data.txt
-struct s_bumper
-{
-    float  size;        ///< Size of bumpers
-    float  sizebig;     ///< For octagonal bumpers
-    float  height;      ///< Distance from head to toe
-};
-typedef struct s_bumper bumper_t;
-
-//--------------------------------------------------------------------------------------------
-/// The various axes for the octagonal bounding box
-enum e_octagonal_axes
-{
-    OCT_X, OCT_Y, OCT_XY, OCT_YX, OCT_Z, OCT_COUNT
-};
-
-/// a "vector" that measures distances based on the axes of an octagonal bounding box
-typedef float oct_vec_t[OCT_COUNT];
-
-//--------------------------------------------------------------------------------------------
-/// generic octagonal bounding box
-/// to be used for the Level 1 character "bumper"
-/// The best possible octagonal bounding volume. A generalization of the old octagonal bounding box
-/// values in data.txt. Computed on the fly.
-struct s_oct_bb
-{
-    oct_vec_t mins,  maxs;
-};
-typedef struct s_oct_bb oct_bb_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -96,14 +53,6 @@ extern float gravity;                     ///< Gravitational accel
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int    oct_bb_to_points( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count );
-void   points_to_oct_bb( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count );
-bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst );
-bool_t bumper_to_oct_bb_1( bumper_t src, fvec3_t vel, oct_bb_t * pdst );
-bool_t vec_to_oct_vec( fvec3_t pos, oct_vec_t ovec );
-
-void oct_bb_downgrade( oct_bb_t * psrc, bumper_t bump_base, bumper_t * p_bump, oct_bb_t * pdst );
-
 /// @notes
 /// The test functions are designed to detect an interaction with the "least possible" computation.
 /// Don't spoil the optimization by calling a test_interaction* function and then a get_depth* function

@@ -153,14 +153,14 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     // Initial spawning of this particle
     ppip->facing_pair.base    = fget_next_int( fileread );
     ppip->facing_pair.rand    = fget_next_int( fileread );
-    ppip->xyspacing_pair.base = fget_next_int( fileread );
-    ppip->xyspacing_pair.rand = fget_next_int( fileread );
-    ppip->zspacing_pair.base  = fget_next_int( fileread );
-    ppip->zspacing_pair.rand  = fget_next_int( fileread );
-    ppip->xyvel_pair.base     = fget_next_int( fileread );
-    ppip->xyvel_pair.rand     = fget_next_int( fileread );
-    ppip->zvel_pair.base      = fget_next_int( fileread );
-    ppip->zvel_pair.rand      = fget_next_int( fileread );
+    ppip->spacing_hrz_pair.base = fget_next_int( fileread );
+    ppip->spacing_hrz_pair.rand = fget_next_int( fileread );
+    ppip->spacing_vrt_pair.base  = fget_next_int( fileread );
+    ppip->spacing_vrt_pair.rand  = fget_next_int( fileread );
+    ppip->vel_hrz_pair.base     = fget_next_int( fileread );
+    ppip->vel_hrz_pair.rand     = fget_next_int( fileread );
+    ppip->vel_vrt_pair.base      = fget_next_int( fileread );
+    ppip->vel_vrt_pair.rand      = fget_next_int( fileread );
 
     // Continuous spawning of other particles
     ppip->contspawn_time      = fget_next_int( fileread );

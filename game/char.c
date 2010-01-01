@@ -2012,7 +2012,7 @@ void character_swipe( Uint16 ichr, slot_t slot )
                             place_particle_at_vertex( particle, weapon, spawn_vrt_offset );
 
                             // Correct Z spacing base, but nothing else...
-                            pprt->pos.z += prt_get_ppip( particle )->zspacing_pair.base;
+                            pprt->pos.z += prt_get_ppip( particle )->spacing_vrt_pair.base;
                         }
 
                         // Don't spawn in walls
@@ -4202,7 +4202,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     // Reaffirm them particles...
     pchr->reaffirmdamagetype = pcap_new->attachedprt_reaffirmdamagetype;
-    //reaffirm_attached_particles( ichr );				//ZF> so that books dont burn when dropped 
+    //reaffirm_attached_particles( ichr );				//ZF> so that books dont burn when dropped
     new_attached_prt_count = number_of_attached_particles( ichr );
 
     ai_state_set_changed( &( pchr->ai ) );
@@ -4696,24 +4696,24 @@ void move_one_character_get_environment( chr_t * pchr )
     //---- the friction of the fluid we are in
     if ( pchr->enviro.is_watery )
     {
-        pchr->enviro.fluid_friction_z  = waterfriction;
-        pchr->enviro.fluid_friction_xy = waterfriction;
+        pchr->enviro.fluid_friction_vrt  = waterfriction;
+        pchr->enviro.fluid_friction_hrz = waterfriction;
     }
     else
     {
-        pchr->enviro.fluid_friction_xy = pchr->enviro.air_friction;       // like real-life air friction
-        pchr->enviro.fluid_friction_z  = pchr->enviro.air_friction;
+        pchr->enviro.fluid_friction_hrz = pchr->enviro.air_friction;       // like real-life air friction
+        pchr->enviro.fluid_friction_vrt  = pchr->enviro.air_friction;
     }
 
     //---- friction
-    pchr->enviro.friction_xy       = 1.0f;
+    pchr->enviro.friction_hrz       = 1.0f;
     if ( 0 != pchr->flyheight )
     {
         if ( pchr->platform )
         {
             // override the z friction for platforms.
             // friction in the z direction will make the bouncing stop
-            pchr->enviro.fluid_friction_z = 1.0f;
+            pchr->enviro.fluid_friction_vrt = 1.0f;
         }
     }
     else
@@ -4726,7 +4726,7 @@ void move_one_character_get_environment( chr_t * pchr )
             temp_friction_xy = slippyfriction;
         }
 
-        pchr->enviro.friction_xy = pchr->enviro.zlerp * 1.0f + ( 1.0f - pchr->enviro.zlerp ) * temp_friction_xy;
+        pchr->enviro.friction_hrz = pchr->enviro.zlerp * 1.0f + ( 1.0f - pchr->enviro.zlerp ) * temp_friction_xy;
     }
 
     //---- jump stuff
@@ -4817,7 +4817,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     }
     else
     {
-        temp_friction_xy = pchr->enviro.friction_xy;
+        temp_friction_xy = pchr->enviro.friction_hrz;
 
         if ( TWIST_FLAT == pchr->enviro.twist )
         {
@@ -4883,7 +4883,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     }
 
     // test to see if the player has any more friction left?
-    pchr->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pchr->enviro.friction_xy );
+    pchr->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pchr->enviro.friction_hrz );
 
     if ( pchr->enviro.is_slipping )
     {
@@ -4901,9 +4901,9 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     pchr->vel.z += fric_floor.z;
 
     // Apply fluid friction from last time
-    pchr->vel.x += -pchr->vel.x * ( 1.0f - pchr->enviro.fluid_friction_xy );
-    pchr->vel.y += -pchr->vel.y * ( 1.0f - pchr->enviro.fluid_friction_xy );
-    pchr->vel.z += -pchr->vel.z * ( 1.0f - pchr->enviro.fluid_friction_z );
+    pchr->vel.x += -pchr->vel.x * ( 1.0f - pchr->enviro.fluid_friction_hrz );
+    pchr->vel.y += -pchr->vel.y * ( 1.0f - pchr->enviro.fluid_friction_hrz );
+    pchr->vel.z += -pchr->vel.z * ( 1.0f - pchr->enviro.fluid_friction_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5030,7 +5030,6 @@ void move_one_character_do_voluntary( chr_t * pchr )
             }
         }
 
-
     }
 
     dvmax = pchr->maxaccel;
@@ -5060,7 +5059,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     switch ( pchr->turnmode )
     {
             // Get direction from ACTUAL change in velocity
-            default: 
+            default:
             case TURNMODE_VELOCITY:
             {
                 if ( ABS(dvx) > TURNSPD || ABS(dvy) > TURNSPD )
@@ -6084,7 +6083,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
         direction -= pcap->iframefacing;
         left       = (Uint16)((int)0x00010000 - (int)pcap->iframeangle);
         right      = pcap->iframeangle;
-		
+
         // If using shield, use the shield invictus instead
         if ( ACTION_IS_TYPE( pchr->inst.action_which, P ) )
         {

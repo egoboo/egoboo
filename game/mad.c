@@ -1049,7 +1049,7 @@ bool_t release_one_mad( Uint16 imad )
     if ( !pmad->loaded ) return btrue;
 
     // free any md2 data
-    md2_destruct( pmad->md2_ptr );
+    md2_dtor( pmad->md2_ptr );
     pmad->md2_ptr = NULL;
 
     mad_init( pmad );

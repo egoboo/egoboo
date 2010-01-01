@@ -123,7 +123,7 @@ extern camera_t gCamera;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Function prototypes
-camera_t * camera_new( camera_t * pcam );
+camera_t * camera_ctor( camera_t * pcam );
 
 void camera_reset( camera_t * pcam, struct s_ego_mpd * pmesh );
 void camera_adjust_angle( camera_t * pcam, float height );

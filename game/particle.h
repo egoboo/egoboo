@@ -55,8 +55,8 @@ struct s_prt_environment
     bool_t is_slipping;
     bool_t is_slippy,    is_watery;
     float  air_friction, ice_friction;
-    float  fluid_friction_xy, fluid_friction_z;
-    float  friction_xy;
+    float  fluid_friction_hrz, fluid_friction_vrt;
+    float  friction_hrz;
     float  traction;
 
     // misc states

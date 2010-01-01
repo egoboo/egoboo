@@ -140,6 +140,9 @@
 			Name="Core Source"
 			Filter="">
 			<File
+				RelativePath=".\bsp.c">
+			</File>
+			<File
 				RelativePath=".\clock.c">
 			</File>
 			<File
@@ -216,6 +219,12 @@
 			Name="Core Headers"
 			Filter="">
 			<File
+				RelativePath=".\bbox.h">
+			</File>
+			<File
+				RelativePath=".\bsp.h">
+			</File>
+			<File
 				RelativePath=".\clock.h">
 			</File>
 			<File
@@ -274,6 +283,9 @@
 			Name="Game Source"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath=".\bbox.c">
+			</File>
 			<File
 				RelativePath=".\camera.c">
 			</File>

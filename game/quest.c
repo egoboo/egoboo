@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------
 bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
 {
-    /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt 
+    /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt
 	//		file, returns btrue if it succeeded.
 
     vfs_FILE *filewrite;
@@ -46,7 +46,7 @@ bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
     // Try to open the file in read and append mode
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     filewrite = vfs_openAppend( newloadname );
-    
+
 	// Create the file if it does not exist
     if ( !filewrite )
     {

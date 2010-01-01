@@ -79,12 +79,12 @@ struct s_ego_md2_glcommand
 };
 typedef struct s_ego_md2_glcommand MD2_GLCommand_t;
 
-void MD2_GLCommand_construct( MD2_GLCommand_t * m );
-void MD2_GLCommand_destruct( MD2_GLCommand_t * m );
+void MD2_GLCommand_ctor( MD2_GLCommand_t * m );
+void MD2_GLCommand_dtor( MD2_GLCommand_t * m );
 
-MD2_GLCommand_t * MD2_GLCommand_new( void );
+MD2_GLCommand_t * MD2_GLCommand_create( void );
 MD2_GLCommand_t * MD2_GLCommand_new_vector( int n );
-void              MD2_GLCommand_delete( MD2_GLCommand_t * m );
+void              MD2_GLCommand_destroy( MD2_GLCommand_t ** m );
 void              MD2_GLCommand_delete_vector( MD2_GLCommand_t * v, int n );
 
 //--------------------------------------------------------------------------------------------
@@ -106,11 +106,11 @@ struct s_ego_md2_model
 typedef struct s_ego_md2_model MD2_Model_t;
 
 // CTORS
-void          md2_construct( MD2_Model_t * m );
-void          md2_destruct( MD2_Model_t * m );
-MD2_Model_t * md2_new( void );
+MD2_Model_t * md2_ctor( MD2_Model_t * m );
+MD2_Model_t * md2_dtor( MD2_Model_t * m );
+MD2_Model_t * md2_create( void );
 MD2_Model_t * md2_new_vector( int n );
-void          md2_delete( MD2_Model_t * m );
+void          md2_destroy( MD2_Model_t ** m );
 void          md2_delete_vector( MD2_Model_t * v, int n );
 
 // Other functions

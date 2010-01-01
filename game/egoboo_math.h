@@ -231,11 +231,12 @@ extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
 bool_t fvec2_clear( fvec2_t * A );
 bool_t fvec3_clear( fvec3_t * A );
 bool_t fvec4_clear( fvec4_t * A );
+bool_t fvec3_scale( fvec3_t * A, float B );
 
-float      fvec3_dot_product( fvec3_base_t A, fvec3_base_t   B );
+float      fvec3_dot_product( fvec3_base_t A, fvec3_base_t B );
 fvec3_t    fvec3_normalize( fvec3_base_t A );
-fvec3_t    fvec3_sub( fvec3_base_t A, fvec3_base_t   B );
-fvec3_t    fvec3_cross_product( fvec3_base_t A, fvec3_base_t   B );
+fvec3_t    fvec3_sub( fvec3_base_t A, fvec3_base_t B );
+fvec3_t    fvec3_cross_product( fvec3_base_t A, fvec3_base_t B );
 
 //--------------------------------------------------------------------------------------------
 // prototypes of matrix functions

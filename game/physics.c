@@ -32,897 +32,6 @@ float gravity         = -1.00f;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int oct_bb_to_points( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
-{
-    /// @details BB@> convert the corners of the level 1 bounding box to a point cloud
-    ///      set pos[].w to zero for now, that the transform does not
-    ///      shift the points while transforming them
-    ///
-    /// @note Make sure to set pos[].w to zero so that the bounding box will not be translated
-    ///      then the transformation matrix is applied.
-    ///
-    /// @note The math for finding the corners of this bumper is not hard, but it is easy to make a mistake.
-    ///      be careful if you modify anything.
-
-    float ftmp;
-    float val_x, val_y;
-
-    int vcount = 0;
-
-    if ( NULL == pbmp || NULL == pos || 0 == pos_count ) return 0;
-
-    //---- the points along the y_max edge
-    ftmp = 0.5f * ( pbmp->maxs[OCT_XY] + pbmp->maxs[OCT_YX] );  // the top point of the diamond
-    if ( ftmp <= pbmp->maxs[OCT_Y] )
-    {
-        val_x = 0.5f * ( pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_YX] );
-        val_y = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_y = pbmp->maxs[OCT_Y];
-
-        val_x = pbmp->maxs[OCT_Y] - pbmp->maxs[OCT_YX];
-        if ( val_x < pbmp->mins[OCT_X] )
-        {
-            val_x = pbmp->mins[OCT_X];
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_x = pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_Y];
-        if ( val_x > pbmp->maxs[OCT_X] )
-        {
-            val_x = pbmp->maxs[OCT_X];
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    //---- the points along the y_min edge
-    ftmp = 0.5f * ( pbmp->mins[OCT_XY] + pbmp->mins[OCT_YX] );  // the top point of the diamond
-    if ( ftmp >= pbmp->mins[OCT_Y] )
-    {
-        val_x = 0.5f * ( pbmp->mins[OCT_XY] - pbmp->mins[OCT_YX] );
-        val_y = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_y = pbmp->mins[OCT_Y];
-
-        val_x = pbmp->mins[OCT_XY] - pbmp->mins[OCT_Y];
-        if ( val_x < pbmp->mins[OCT_X] )
-        {
-            val_x = pbmp->mins[OCT_X];
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_x = pbmp->mins[OCT_Y] - pbmp->mins[OCT_YX];
-        if ( val_x > pbmp->maxs[OCT_X] )
-        {
-            val_x = pbmp->maxs[OCT_X];
-        }
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    //---- the points along the x_max edge
-    ftmp = 0.5f * ( pbmp->maxs[OCT_XY] - pbmp->mins[OCT_YX] );  // the top point of the diamond
-    if ( ftmp <= pbmp->maxs[OCT_X] )
-    {
-        val_y = 0.5f * ( pbmp->maxs[OCT_XY] + pbmp->mins[OCT_YX] );
-        val_x = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_x = pbmp->maxs[OCT_X];
-
-        val_y = pbmp->maxs[OCT_X] + pbmp->mins[OCT_YX];
-        if ( val_y < pbmp->mins[OCT_Y] )
-        {
-            val_y = pbmp->mins[OCT_Y];
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_y = pbmp->maxs[OCT_XY] - pbmp->maxs[OCT_X];
-        if ( val_y > pbmp->maxs[OCT_Y] )
-        {
-            val_y = pbmp->maxs[OCT_Y];
-        }
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    //---- the points along the x_min edge
-    ftmp = 0.5f * ( pbmp->mins[OCT_XY] - pbmp->maxs[OCT_YX] );  // the left point of the diamond
-    if ( ftmp >= pbmp->mins[OCT_X] )
-    {
-        val_y = 0.5f * ( pbmp->mins[OCT_XY] + pbmp->maxs[OCT_YX] );
-        val_x = ftmp;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-    else
-    {
-        val_x = pbmp->mins[OCT_X];
-
-        val_y = pbmp->mins[OCT_XY] - pbmp->mins[OCT_X];
-        if ( val_y < pbmp->mins[OCT_Y] )
-        {
-            val_y = pbmp->mins[OCT_Y];
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        val_y = pbmp->maxs[OCT_YX] + pbmp->mins[OCT_X];
-        if ( val_y > pbmp->maxs[OCT_Y] )
-        {
-            val_y = pbmp->maxs[OCT_Y];
-        }
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->maxs[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-
-        pos[vcount].x = val_x;
-        pos[vcount].y = val_y;
-        pos[vcount].z = pbmp->mins[OCT_Z];
-        pos[vcount].w = 0.0f;
-        vcount++;
-    }
-
-    return vcount;
-}
-
-//--------------------------------------------------------------------------------------------
-void points_to_oct_bb( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
-{
-    /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t
-    ///     array as the source
-
-    Uint32 cnt;
-
-    if ( NULL == pbmp || NULL == pos || 0 == pos_count ) return;
-
-    // determine a bounding box for the point cloud
-    pbmp->mins[OCT_X]  = pbmp->maxs[OCT_X]  = pos[0].x;
-    pbmp->mins[OCT_Y]  = pbmp->maxs[OCT_Y]  = pos[0].y;
-    pbmp->mins[OCT_Z]  = pbmp->maxs[OCT_Z]  = pos[0].z;
-    pbmp->mins[OCT_XY] = pbmp->maxs[OCT_XY] = pbmp->mins[OCT_X] + pbmp->mins[OCT_Y];
-    pbmp->mins[OCT_YX] = pbmp->maxs[OCT_YX] = -pbmp->mins[OCT_X] + pbmp->mins[OCT_Y];
-
-    for ( cnt = 1; cnt < pos_count; cnt++ )
-    {
-        float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
-
-        tmp_x = pos[cnt].x;
-        pbmp->mins[OCT_X]  = MIN( pbmp->mins[OCT_X], tmp_x );
-        pbmp->maxs[OCT_X]  = MAX( pbmp->maxs[OCT_X], tmp_x );
-
-        tmp_y = pos[cnt].y;
-        pbmp->mins[OCT_Y]  = MIN( pbmp->mins[OCT_Y], tmp_y );
-        pbmp->maxs[OCT_Y]  = MAX( pbmp->maxs[OCT_Y], tmp_y );
-
-        tmp_z = pos[cnt].z;
-        pbmp->mins[OCT_Z]  = MIN( pbmp->mins[OCT_Z], tmp_z );
-        pbmp->maxs[OCT_Z]  = MAX( pbmp->maxs[OCT_Z], tmp_z );
-
-        tmp_xy = tmp_x + tmp_y;
-        pbmp->mins[OCT_XY] = MIN( pbmp->mins[OCT_XY], tmp_xy );
-        pbmp->maxs[OCT_XY] = MAX( pbmp->maxs[OCT_XY], tmp_xy );
-
-        tmp_yx = -tmp_x + tmp_y;
-        pbmp->mins[OCT_YX] = MIN( pbmp->mins[OCT_YX], tmp_yx );
-        pbmp->maxs[OCT_YX] = MAX( pbmp->maxs[OCT_YX], tmp_yx );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t vec_to_oct_vec( fvec3_t pos, oct_vec_t ovec )
-{
-    if ( NULL == ovec ) return bfalse;
-
-    ovec[OCT_X ] =  pos.x;
-    ovec[OCT_Y ] =  pos.y;
-    ovec[OCT_Z ] =  pos.z;
-    ovec[OCT_XY] =  pos.x + pos.y;
-    ovec[OCT_YX] = -pos.x + pos.y;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst )
-{
-    if ( NULL == pdst ) return bfalse;
-
-    pdst->mins[OCT_X] = -src.size;
-    pdst->maxs[OCT_X] =  src.size;
-
-    pdst->mins[OCT_Y] = -src.size;
-    pdst->maxs[OCT_Y] =  src.size;
-
-    pdst->mins[OCT_XY] = -src.sizebig;
-    pdst->maxs[OCT_XY] =  src.sizebig;
-
-    pdst->mins[OCT_YX] = -src.sizebig;
-    pdst->maxs[OCT_YX] =  src.sizebig;
-
-    pdst->mins[OCT_Z] = -src.height;
-    pdst->maxs[OCT_Z] =  src.height;
-
-    return btrue;
-};
-
-//--------------------------------------------------------------------------------------------
-bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst )
-{
-    /// @details BB@> shift the bounding box by the vector vec
-
-    if( NULL == pdst ) return bfalse;
-
-    pdst->mins[OCT_X]  = src.mins[OCT_X] + vec.x;
-    pdst->maxs[OCT_X]  = src.maxs[OCT_X] + vec.x;
-                       
-    pdst->mins[OCT_Y]  = src.mins[OCT_Y] + vec.y;
-    pdst->maxs[OCT_Y]  = src.maxs[OCT_Y] + vec.y;
-                       
-    pdst->mins[OCT_XY] = src.mins[OCT_XY] + (vec.x + vec.y);
-    pdst->maxs[OCT_XY] = src.maxs[OCT_XY] + (vec.x + vec.y);
-                       
-    pdst->mins[OCT_YX] = src.mins[OCT_YX] + (-vec.x + vec.y);
-    pdst->maxs[OCT_YX] = src.maxs[OCT_YX] + (-vec.x + vec.y);
-                       
-    pdst->mins[OCT_Z]  = src.mins[OCT_Z] + vec.z;
-    pdst->maxs[OCT_Z]  = src.maxs[OCT_Z] + vec.z;
-
-    return btrue;
-}
-
-
-//--------------------------------------------------------------------------------------------
-bool_t oct_bb_union( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst )
-{
-    /// @details BB@> find the union of two oct_bb_t
-
-    if( NULL == pdst ) return bfalse;
-
-    pdst->mins[OCT_X]  = MIN(src1.mins[OCT_X],  src2.mins[OCT_X]); 
-    pdst->maxs[OCT_X]  = MAX(src1.maxs[OCT_X],  src2.maxs[OCT_X]); 
-                                                             
-    pdst->mins[OCT_Y]  = MIN(src1.mins[OCT_Y],  src2.mins[OCT_Y]); 
-    pdst->maxs[OCT_Y]  = MAX(src1.maxs[OCT_Y],  src2.maxs[OCT_Y]); 
-                                                             
-    pdst->mins[OCT_XY] = MIN(src1.mins[OCT_XY], src2.mins[OCT_XY]);
-    pdst->maxs[OCT_XY] = MAX(src1.maxs[OCT_XY], src2.maxs[OCT_XY]);
-                                                             
-    pdst->mins[OCT_YX] = MIN(src1.mins[OCT_YX], src2.mins[OCT_YX]);
-    pdst->maxs[OCT_YX] = MAX(src1.maxs[OCT_YX], src2.maxs[OCT_YX]);
-                                                             
-    pdst->mins[OCT_Z]  = MIN(src1.mins[OCT_Z],  src2.mins[OCT_Z]); 
-    pdst->maxs[OCT_Z]  = MAX(src1.maxs[OCT_Z],  src2.maxs[OCT_Z]); 
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst )
-{
-    /// @details BB@> find the intersection of two oct_bb_t
-
-    if( NULL == pdst ) return bfalse;
-
-    pdst->mins[OCT_X]  = MAX(src1.mins[OCT_X],  src2.mins[OCT_X]); 
-    pdst->maxs[OCT_X]  = MIN(src1.maxs[OCT_X],  src2.maxs[OCT_X]); 
-                                                             
-    pdst->mins[OCT_Y]  = MAX(src1.mins[OCT_Y],  src2.mins[OCT_Y]); 
-    pdst->maxs[OCT_Y]  = MIN(src1.maxs[OCT_Y],  src2.maxs[OCT_Y]); 
-                                                             
-    pdst->mins[OCT_XY] = MAX(src1.mins[OCT_XY], src2.mins[OCT_XY]);
-    pdst->maxs[OCT_XY] = MIN(src1.maxs[OCT_XY], src2.maxs[OCT_XY]);
-                                                             
-    pdst->mins[OCT_YX] = MAX(src1.mins[OCT_YX], src2.mins[OCT_YX]);
-    pdst->maxs[OCT_YX] = MIN(src1.maxs[OCT_YX], src2.maxs[OCT_YX]);
-                                                             
-    pdst->mins[OCT_Z]  = MAX(src1.mins[OCT_Z],  src2.mins[OCT_Z]); 
-    pdst->maxs[OCT_Z]  = MIN(src1.maxs[OCT_Z],  src2.maxs[OCT_Z]); 
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t oct_bb_expand( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_t * pdst )
-{
-    // @details BB@> use the velocity of an object and its oct_bb_t to determine the
-    //               amount of territory that an object will cover in one update
-
-    oct_bb_t tmp_min, tmp_max;
-
-    // determine the bounding volume at t == tmin
-    if( tmin == 0.0f )
-    {
-        tmp_min = src;
-    }
-    else
-    {
-        fvec3_t pos_min;
-
-        pos_min.x = vel.x * tmin;
-        pos_min.y = vel.y * tmin;
-        pos_min.z = vel.z * tmin;
-
-        // adjust the bounding box to take in the position at the next step
-        if( !oct_bb_add_vector( src, pos_min, &tmp_min ) ) return bfalse;
-    }
-
-    // determine the bounding volume at t == tmax
-    if( tmax == 0.0f )
-    {
-        tmp_max = src;
-    }
-    else
-    {
-        fvec3_t pos_max;
-
-        pos_max.x = vel.x * tmax;
-        pos_max.y = vel.y * tmax;
-        pos_max.z = vel.z * tmax;
-
-        // adjust the bounding box to take in the position at the next step
-        if( !oct_bb_add_vector( src, pos_max, &tmp_max ) ) return bfalse;
-    }
-
-    // determine bounding box for the range of times
-    if( !oct_bb_union(tmp_min, tmp_max, pdst ) ) return bfalse;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct_vec_t ovel1, oct_bb_t src2, oct_vec_t opos2, oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
-{
-    float tolerance1, tolerance2;
-    float diff;
-
-    if( NULL == tmin || NULL == tmax ) return rv_error;
-
-    if( index < 0 || index >= OCT_COUNT ) return rv_error; 
-
-    diff = ovel2[index] - ovel1[index];
-    if( diff == 0.0f ) return rv_fail;
-
-    tolerance1 = ((OCT_Z == index) && (test_platform & 1)) ? PLATTOLERANCE : 0.0f;
-    tolerance2 = ((OCT_Z == index) && (test_platform & 2)) ? PLATTOLERANCE : 0.0f;
-
-    if ( 0.0f == tolerance1 && 0.0f == tolerance2 )
-    {
-        float time[4];
-
-        time[0] = ((src1.mins[index] + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
-        time[1] = ((src1.mins[index] + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
-        time[2] = ((src1.maxs[index] + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
-        time[3] = ((src1.maxs[index] + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
-
-        *tmin = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
-        *tmax = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
-    }
-    else if ( tolerance1 > 0.0f && tolerance2 > 0.0f )
-    {
-        float time[8];
-        float tmp_min1, tmp_max1;
-        float tmp_min2, tmp_max2;
-
-        time[0] = ((src1.mins[index] + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
-        time[1] = ((src1.mins[index] + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
-        time[2] = ((src1.maxs[index] + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
-        time[3] = ((src1.maxs[index] + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
-        tmp_min1 = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
-        tmp_max1 = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
-
-        time[4] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
-        time[5] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
-        time[6] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
-        time[7] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
-        tmp_min2 = MIN( MIN(time[4], time[5]), MIN(time[6], time[7]) );
-        tmp_max2 = MAX( MAX(time[4], time[5]), MAX(time[6], time[7]) );
-
-        *tmin = MIN( tmp_min1, tmp_min2 );
-        *tmax = MAX( tmp_max1, tmp_max2 );
-    }
-    else
-    {
-        float time[4];
-
-        time[0] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
-        time[1] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
-        time[2] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
-        time[3] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
-
-        *tmin = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
-        *tmax = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
-    }
-
-    // normalize the results for the diagonal directions
-    if( OCT_XY == index || OCT_YX == index ) 
-    {
-        *tmin *= INV_SQRT_TWO;
-        *tmax *= INV_SQRT_TWO;
-    }
-
-    if( *tmax < *tmin ) return rv_fail;
-
-    return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
-egoboo_rv oct_bb_intersect_close_index( int index, oct_bb_t src1, oct_vec_t opos1, oct_vec_t ovel1, oct_bb_t src2, oct_vec_t opos2, oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
-{
-    float tolerance1, tolerance2;
-    float diff;
-
-    if( NULL == tmin || NULL == tmax ) return rv_error;
-
-    if( index < 0 || index >= OCT_COUNT ) return rv_error; 
-
-    // in the z-direction you always have to deal with the bounding box size
-    if( OCT_Z == index ) return oct_bb_intersect_index( index, src1, opos1, ovel1, src2, opos2, ovel2, test_platform, tmin, tmax );
-
-    diff = ovel2[index] - ovel1[index];
-    if( diff == 0.0f ) return rv_fail;
-
-    tolerance1 = ((OCT_Z == index) && (test_platform & 1)) ? PLATTOLERANCE : 0.0f;
-    tolerance2 = ((OCT_Z == index) && (test_platform & 2)) ? PLATTOLERANCE : 0.0f;
-
-    if ( 0.0f == tolerance1 && 0.0f == tolerance2 )
-    {
-        float time[8];
-        float tmp_min1, tmp_max1;
-        float tmp_min2, tmp_max2;
-
-        time[0] = (opos1[index] - (src2.mins[index] + opos2[index])) / diff;
-        time[1] = (opos1[index] - (src2.maxs[index] + opos2[index])) / diff;
-        time[2] = (opos1[index] - (src2.mins[index] + opos2[index])) / diff;
-        time[3] = (opos1[index] - (src2.maxs[index] + opos2[index])) / diff;
-        tmp_min1 = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
-        tmp_max1 = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
-
-        time[4] = ((src1.mins[index] + opos1[index]) - opos2[index]) / diff;
-        time[5] = ((src1.mins[index] + opos1[index]) - opos2[index]) / diff;
-        time[6] = ((src1.maxs[index] + opos1[index]) - opos2[index]) / diff;
-        time[7] = ((src1.maxs[index] + opos1[index]) - opos2[index]) / diff;
-        tmp_min2 = MIN( MIN(time[4], time[5]), MIN(time[6], time[7]) );
-        tmp_max2 = MAX( MAX(time[4], time[5]), MAX(time[6], time[7]) );
-
-        *tmin = MIN( tmp_min1, tmp_min2 );
-        *tmax = MAX( tmp_max1, tmp_max2 );
-    }
-    else
-    {
-        float time[8];
-        float tmp_min1, tmp_max1;
-        float tmp_min2, tmp_max2;
-
-        time[0] = (opos1[index] - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
-        time[1] = (opos1[index] - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
-        time[2] = (opos1[index] - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
-        time[3] = (opos1[index] - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
-        tmp_min1 = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
-        tmp_max1 = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
-
-        time[4] = ((src1.mins[index] - tolerance1 + opos1[index]) - opos2[index]) / diff;
-        time[5] = ((src1.mins[index] - tolerance1 + opos1[index]) - opos2[index]) / diff;
-        time[6] = ((src1.maxs[index] + tolerance1 + opos1[index]) - opos2[index]) / diff;
-        time[7] = ((src1.maxs[index] + tolerance1 + opos1[index]) - opos2[index]) / diff;
-        tmp_min2 = MIN( MIN(time[4], time[5]), MIN(time[6], time[7]) );
-        tmp_max2 = MAX( MAX(time[4], time[5]), MAX(time[6], time[7]) );
-
-        *tmin = MIN( tmp_min1, tmp_min2 );
-        *tmax = MAX( tmp_max1, tmp_max2 );
-    }
-
-    // normalize the results for the diagonal directions
-    if( OCT_XY == index || OCT_YX == index ) 
-    {
-        *tmin *= INV_SQRT_TWO;
-        *tmax *= INV_SQRT_TWO;
-    }
-
-    if( *tmax < *tmin ) return rv_fail;
-
-    return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t oct_bb_intersect( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb_t src2, fvec3_t pos2, fvec3_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax ) 
-{
-    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
-    ///               Designed to determine whether a bullet particle will interact with character.
-
-    oct_bb_t exp1, exp2;
-    oct_bb_t intersection;
-
-    oct_vec_t opos1, opos2;
-    oct_vec_t ovel1, ovel2;
-
-    int    cnt, index;
-    bool_t found;
-    float  tolerance;
-    float  local_tmin, local_tmax;
-
-    // handle optional parameters
-    if( NULL == tmin ) tmin = &local_tmin;
-    if( NULL == tmax ) tmax = &local_tmax;
-
-    // do the objects interact at the very beginning of the update?
-    if( test_interaction_2(src1, pos2, src2, pos2, test_platform ) )
-    {
-        if( NULL != pdst )
-        {
-            oct_bb_intersection( src1, src2, pdst );
-        }
-
-        return btrue;
-    }
-
-    // convert the position and velocity vectors to octagonal format
-    vec_to_oct_vec( vel1, ovel1 );
-    vec_to_oct_vec( pos1, opos1 );
-
-    vec_to_oct_vec( vel2, ovel2 );
-    vec_to_oct_vec( pos2, opos2 );
-
-    // cycle through the coordinates to see when the two volumes might coincide
-    found = bfalse;
-    *tmin = *tmax = -1.0f;
-    for( index = 0; index < OCT_COUNT; index ++ )
-    {
-        egoboo_rv retval;
-        float tmp_min, tmp_max;
-
-        retval = oct_bb_intersect_index( index, src1, opos1, ovel1, src2, opos2, ovel2, test_platform, &tmp_min, &tmp_max );
-        if( rv_fail == retval ) return bfalse;
-
-        if( rv_success == retval )
-        {
-            if( !found )
-            {
-                *tmin = tmp_min;
-                *tmax = tmp_max;
-                found = btrue;
-            }
-            else
-            {
-                *tmin = MAX(*tmin, tmp_min);
-                *tmax = MIN(*tmax, tmp_max);
-            }
-        }
-
-        if( *tmax < *tmin ) return bfalse;
-    }
-
-    // if the objects do not interact this frame let the caller know
-    if( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
-
-    // determine the expanded collision volumes for both objects
-    oct_bb_expand( src1, vel1, *tmin, *tmax, &exp1 );
-    oct_bb_expand( src2, vel2, *tmin, *tmax, &exp2 );
-
-    // determine the intersection of these two volumes
-    oct_bb_intersection( exp1, exp2, &intersection );
-
-    // check to see if there is any possibility of interaction at all
-    for(cnt = 0; cnt < OCT_Z; cnt++)
-    {
-        if( intersection.mins[cnt] > intersection.maxs[cnt] ) return bfalse;
-    }
-
-    tolerance = test_platform ? PLATTOLERANCE : 0.0f;
-    if( intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance ) return bfalse;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t oct_bb_intersect_close( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb_t src2, fvec3_t pos2, fvec3_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax ) 
-{
-    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
-    ///               Designed to determine whether a bullet particle will interact with character.
-
-    oct_bb_t exp1, exp2;
-    oct_bb_t intersection;
-
-    oct_vec_t opos1, opos2;
-    oct_vec_t ovel1, ovel2;
-
-    int    cnt, index;
-    bool_t found;
-    float  tolerance;
-    float  local_tmin, local_tmax;
-
-    // handle optional parameters
-    if( NULL == tmin ) tmin = &local_tmin;
-    if( NULL == tmax ) tmax = &local_tmax;
-
-    // do the objects interact at the very beginning of the update?
-    if( test_interaction_2(src1, pos2, src2, pos2, test_platform ) )
-    {
-        if( NULL != pdst )
-        {
-            oct_bb_intersection( src1, src2, pdst );
-        }
-
-        return btrue;
-    }
-
-    // convert the position and velocity vectors to octagonal format
-    vec_to_oct_vec( vel1, ovel1 );
-    vec_to_oct_vec( pos1, opos1 );
-
-    vec_to_oct_vec( vel2, ovel2 );
-    vec_to_oct_vec( pos2, opos2 );
-
-    // cycle through the coordinates to see when the two volumes might coincide
-    found = bfalse;
-    *tmin = *tmax = -1.0f;
-    for( index = 0; index < OCT_COUNT; index ++ )
-    {
-        egoboo_rv retval;
-        float tmp_min, tmp_max;
-
-        retval = oct_bb_intersect_close_index( index, src1, opos1, ovel1, src2, opos2, ovel2, test_platform, &tmp_min, &tmp_max );
-        if( rv_fail == retval ) return bfalse;
-
-        if( rv_success == retval )
-        {
-            if( !found )
-            {
-                *tmin = tmp_min;
-                *tmax = tmp_max;
-                found = btrue;
-            }
-            else
-            {
-                *tmin = MAX(*tmin, tmp_min);
-                *tmax = MIN(*tmax, tmp_max);
-            }
-        }
-
-        if( *tmax < *tmin ) return bfalse;
-    }
-
-    // if the objects do not interact this frame let the caller know
-    if( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
-
-    // determine the expanded collision volumes for both objects
-    oct_bb_expand( src1, vel1, *tmin, *tmax, &exp1 );
-    oct_bb_expand( src2, vel2, *tmin, *tmax, &exp2 );
-
-    // determine the intersection of these two volumes
-    oct_bb_intersection( exp1, exp2, &intersection );
-
-    // check to see if there is any possibility of interaction at all
-    for(cnt = 0; cnt < OCT_Z; cnt++)
-    {
-        if( intersection.mins[cnt] > intersection.maxs[cnt] ) return bfalse;
-    }
-
-    tolerance = test_platform ? PLATTOLERANCE : 0.0f;
-    if( intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance ) return bfalse;
-
-    return btrue;
-}
-
-
-
-
-
-
-//--------------------------------------------------------------------------------------------
-void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb )
-{
-    /// @details BB@> convert a level 1 bumper to an "equivalent" level 0 bumper
-
-    float val1, val2, val3, val4;
-
-    // return if there is no source
-    if ( NULL == psrc_bb ) return;
-
-    //---- handle all of the pdst_bump data first
-    if ( NULL != pdst_bump )
-    {
-        if ( 0 == bump_base.height )
-        {
-            pdst_bump->height = 0.0f;
-        }
-        else
-        {
-            // have to use MAX here because the height can be distorted due
-            // to make object-particle interactions easier (i.e. it allows you to
-            // hit a grub bug with your hands)
-
-            pdst_bump->height = MAX( bump_base.height, psrc_bb->maxs[OCT_Z] );
-        }
-
-        if ( 0 == bump_base.size )
-        {
-            pdst_bump->size = 0.0f;
-        }
-        else
-        {
-            val1 = ABS( psrc_bb->mins[OCT_X] );
-            val2 = ABS( psrc_bb->maxs[OCT_Y] );
-            val3 = ABS( psrc_bb->mins[OCT_Y] );
-            val4 = ABS( psrc_bb->maxs[OCT_Y] );
-            pdst_bump->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
-        }
-
-        if ( 0 == bump_base.sizebig )
-        {
-            pdst_bump->sizebig = 0;
-        }
-        else
-        {
-            val1 =  psrc_bb->maxs[OCT_YX];
-            val2 = -psrc_bb->mins[OCT_YX];
-            val3 =  psrc_bb->maxs[OCT_XY];
-            val4 = -psrc_bb->mins[OCT_XY];
-            pdst_bump->sizebig = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
-        }
-    }
-
-    //---- handle all of the pdst_bb data second
-    if ( NULL != pdst_bb )
-    {
-        // memcpy() can fail horribly if the domains overlap
-        // I don't think this should ever happen, though
-        if ( pdst_bb != psrc_bb )
-        {
-            memcpy( pdst_bb, psrc_bb, sizeof( *pdst_bb ) );
-        }
-
-        if ( 0 == bump_base.height )
-        {
-            pdst_bb->mins[OCT_Z] = pdst_bb->maxs[OCT_Z] = 0.0f;
-        }
-        else
-        {
-            // handle the vertical distortion the same as above
-            pdst_bb->maxs[OCT_Z] = MAX( bump_base.height, psrc_bb->maxs[OCT_Z] );
-        }
-
-        // 0 == bump_base.size is supposed to be shorthand for "this object doesn't interact
-        // with anything", so we have to set all of the horizontal pdst_bb data to zero to
-        // make
-        if ( 0 == bump_base.size )
-        {
-            pdst_bb->mins[OCT_X ] = pdst_bb->maxs[OCT_X ] = 0.0f;
-            pdst_bb->mins[OCT_Y ] = pdst_bb->maxs[OCT_Y ] = 0.0f;
-            pdst_bb->mins[OCT_XY] = pdst_bb->maxs[OCT_XY] = 0.0f;
-            pdst_bb->mins[OCT_YX] = pdst_bb->maxs[OCT_YX] = 0.0f;
-        }
-    }
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 bool_t get_depth_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth )
 {
     /// @details BB@> Estimate the depth of collision based on the "collision bounding box"
@@ -1271,3 +380,336 @@ bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec
     return retval;
 }
 
+//--------------------------------------------------------------------------------------------
+egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct_vec_t ovel1, oct_bb_t src2, oct_vec_t opos2, oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
+{
+    float tolerance1, tolerance2;
+    float diff;
+
+    if( NULL == tmin || NULL == tmax ) return rv_error;
+
+    if( index < 0 || index >= OCT_COUNT ) return rv_error;
+
+    diff = ovel2[index] - ovel1[index];
+    if( diff == 0.0f ) return rv_fail;
+
+    tolerance1 = ((OCT_Z == index) && (test_platform & 1)) ? PLATTOLERANCE : 0.0f;
+    tolerance2 = ((OCT_Z == index) && (test_platform & 2)) ? PLATTOLERANCE : 0.0f;
+
+    if ( 0.0f == tolerance1 && 0.0f == tolerance2 )
+    {
+        float time[4];
+
+        time[0] = ((src1.mins[index] + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
+        time[1] = ((src1.mins[index] + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
+        time[2] = ((src1.maxs[index] + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
+        time[3] = ((src1.maxs[index] + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
+
+        *tmin = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
+        *tmax = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
+    }
+    else if ( tolerance1 > 0.0f && tolerance2 > 0.0f )
+    {
+        float time[8];
+        float tmp_min1, tmp_max1;
+        float tmp_min2, tmp_max2;
+
+        time[0] = ((src1.mins[index] + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
+        time[1] = ((src1.mins[index] + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
+        time[2] = ((src1.maxs[index] + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
+        time[3] = ((src1.maxs[index] + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
+        tmp_min1 = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
+        tmp_max1 = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
+
+        time[4] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
+        time[5] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
+        time[6] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.mins[index] + opos2[index])) / diff;
+        time[7] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.maxs[index] + opos2[index])) / diff;
+        tmp_min2 = MIN( MIN(time[4], time[5]), MIN(time[6], time[7]) );
+        tmp_max2 = MAX( MAX(time[4], time[5]), MAX(time[6], time[7]) );
+
+        *tmin = MIN( tmp_min1, tmp_min2 );
+        *tmax = MAX( tmp_max1, tmp_max2 );
+    }
+    else
+    {
+        float time[4];
+
+        time[0] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
+        time[1] = ((src1.mins[index] - tolerance1 + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
+        time[2] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
+        time[3] = ((src1.maxs[index] + tolerance1 + opos1[index]) - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
+
+        *tmin = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
+        *tmax = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
+    }
+
+    // normalize the results for the diagonal directions
+    if( OCT_XY == index || OCT_YX == index )
+    {
+        *tmin *= INV_SQRT_TWO;
+        *tmax *= INV_SQRT_TWO;
+    }
+
+    if( *tmax < *tmin ) return rv_fail;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv oct_bb_intersect_close_index( int index, oct_bb_t src1, oct_vec_t opos1, oct_vec_t ovel1, oct_bb_t src2, oct_vec_t opos2, oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
+{
+    float tolerance1, tolerance2;
+    float diff;
+
+    if( NULL == tmin || NULL == tmax ) return rv_error;
+
+    if( index < 0 || index >= OCT_COUNT ) return rv_error;
+
+    // in the z-direction you always have to deal with the bounding box size
+    if( OCT_Z == index ) return oct_bb_intersect_index( index, src1, opos1, ovel1, src2, opos2, ovel2, test_platform, tmin, tmax );
+
+    diff = ovel2[index] - ovel1[index];
+    if( diff == 0.0f ) return rv_fail;
+
+    tolerance1 = ((OCT_Z == index) && (test_platform & 1)) ? PLATTOLERANCE : 0.0f;
+    tolerance2 = ((OCT_Z == index) && (test_platform & 2)) ? PLATTOLERANCE : 0.0f;
+
+    if ( 0.0f == tolerance1 && 0.0f == tolerance2 )
+    {
+        float time[8];
+        float tmp_min1, tmp_max1;
+        float tmp_min2, tmp_max2;
+
+        time[0] = (opos1[index] - (src2.mins[index] + opos2[index])) / diff;
+        time[1] = (opos1[index] - (src2.maxs[index] + opos2[index])) / diff;
+        time[2] = (opos1[index] - (src2.mins[index] + opos2[index])) / diff;
+        time[3] = (opos1[index] - (src2.maxs[index] + opos2[index])) / diff;
+        tmp_min1 = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
+        tmp_max1 = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
+
+        time[4] = ((src1.mins[index] + opos1[index]) - opos2[index]) / diff;
+        time[5] = ((src1.mins[index] + opos1[index]) - opos2[index]) / diff;
+        time[6] = ((src1.maxs[index] + opos1[index]) - opos2[index]) / diff;
+        time[7] = ((src1.maxs[index] + opos1[index]) - opos2[index]) / diff;
+        tmp_min2 = MIN( MIN(time[4], time[5]), MIN(time[6], time[7]) );
+        tmp_max2 = MAX( MAX(time[4], time[5]), MAX(time[6], time[7]) );
+
+        *tmin = MIN( tmp_min1, tmp_min2 );
+        *tmax = MAX( tmp_max1, tmp_max2 );
+    }
+    else
+    {
+        float time[8];
+        float tmp_min1, tmp_max1;
+        float tmp_min2, tmp_max2;
+
+        time[0] = (opos1[index] - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
+        time[1] = (opos1[index] - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
+        time[2] = (opos1[index] - (src2.mins[index] - tolerance2 + opos2[index])) / diff;
+        time[3] = (opos1[index] - (src2.maxs[index] + tolerance2 + opos2[index])) / diff;
+        tmp_min1 = MIN( MIN(time[0], time[1]), MIN(time[2], time[3]) );
+        tmp_max1 = MAX( MAX(time[0], time[1]), MAX(time[2], time[3]) );
+
+        time[4] = ((src1.mins[index] - tolerance1 + opos1[index]) - opos2[index]) / diff;
+        time[5] = ((src1.mins[index] - tolerance1 + opos1[index]) - opos2[index]) / diff;
+        time[6] = ((src1.maxs[index] + tolerance1 + opos1[index]) - opos2[index]) / diff;
+        time[7] = ((src1.maxs[index] + tolerance1 + opos1[index]) - opos2[index]) / diff;
+        tmp_min2 = MIN( MIN(time[4], time[5]), MIN(time[6], time[7]) );
+        tmp_max2 = MAX( MAX(time[4], time[5]), MAX(time[6], time[7]) );
+
+        *tmin = MIN( tmp_min1, tmp_min2 );
+        *tmax = MAX( tmp_max1, tmp_max2 );
+    }
+
+    // normalize the results for the diagonal directions
+    if( OCT_XY == index || OCT_YX == index )
+    {
+        *tmin *= INV_SQRT_TWO;
+        *tmax *= INV_SQRT_TWO;
+    }
+
+    if( *tmax < *tmin ) return rv_fail;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t oct_bb_intersect( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb_t src2, fvec3_t pos2, fvec3_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+{
+    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
+    ///               Designed to determine whether a bullet particle will interact with character.
+
+    oct_bb_t exp1, exp2;
+    oct_bb_t intersection;
+
+    oct_vec_t opos1, opos2;
+    oct_vec_t ovel1, ovel2;
+
+    int    cnt, index;
+    bool_t found;
+    float  tolerance;
+    float  local_tmin, local_tmax;
+
+    // handle optional parameters
+    if( NULL == tmin ) tmin = &local_tmin;
+    if( NULL == tmax ) tmax = &local_tmax;
+
+    // do the objects interact at the very beginning of the update?
+    if( test_interaction_2(src1, pos2, src2, pos2, test_platform ) )
+    {
+        if( NULL != pdst )
+        {
+            oct_bb_intersection( src1, src2, pdst );
+        }
+
+        return btrue;
+    }
+
+    // convert the position and velocity vectors to octagonal format
+    vec_to_oct_vec( vel1, ovel1 );
+    vec_to_oct_vec( pos1, opos1 );
+
+    vec_to_oct_vec( vel2, ovel2 );
+    vec_to_oct_vec( pos2, opos2 );
+
+    // cycle through the coordinates to see when the two volumes might coincide
+    found = bfalse;
+    *tmin = *tmax = -1.0f;
+    for( index = 0; index < OCT_COUNT; index ++ )
+    {
+        egoboo_rv retval;
+        float tmp_min, tmp_max;
+
+        retval = oct_bb_intersect_index( index, src1, opos1, ovel1, src2, opos2, ovel2, test_platform, &tmp_min, &tmp_max );
+        if( rv_fail == retval ) return bfalse;
+
+        if( rv_success == retval )
+        {
+            if( !found )
+            {
+                *tmin = tmp_min;
+                *tmax = tmp_max;
+                found = btrue;
+            }
+            else
+            {
+                *tmin = MAX(*tmin, tmp_min);
+                *tmax = MIN(*tmax, tmp_max);
+            }
+        }
+
+        if( *tmax < *tmin ) return bfalse;
+    }
+
+    // if the objects do not interact this frame let the caller know
+    if( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
+
+    // determine the expanded collision volumes for both objects
+    oct_bb_expand( src1, vel1, *tmin, *tmax, &exp1 );
+    oct_bb_expand( src2, vel2, *tmin, *tmax, &exp2 );
+
+    // determine the intersection of these two volumes
+    oct_bb_intersection( exp1, exp2, &intersection );
+
+    // check to see if there is any possibility of interaction at all
+    for(cnt = 0; cnt < OCT_Z; cnt++)
+    {
+        if( intersection.mins[cnt] > intersection.maxs[cnt] ) return bfalse;
+    }
+
+    tolerance = test_platform ? PLATTOLERANCE : 0.0f;
+    if( intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t oct_bb_intersect_close( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb_t src2, fvec3_t pos2, fvec3_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+{
+    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
+    ///               Designed to determine whether a bullet particle will interact with character.
+
+    oct_bb_t exp1, exp2;
+    oct_bb_t intersection;
+
+    oct_vec_t opos1, opos2;
+    oct_vec_t ovel1, ovel2;
+
+    int    cnt, index;
+    bool_t found;
+    float  tolerance;
+    float  local_tmin, local_tmax;
+
+    // handle optional parameters
+    if( NULL == tmin ) tmin = &local_tmin;
+    if( NULL == tmax ) tmax = &local_tmax;
+
+    // do the objects interact at the very beginning of the update?
+    if( test_interaction_2(src1, pos2, src2, pos2, test_platform ) )
+    {
+        if( NULL != pdst )
+        {
+            oct_bb_intersection( src1, src2, pdst );
+        }
+
+        return btrue;
+    }
+
+    // convert the position and velocity vectors to octagonal format
+    vec_to_oct_vec( vel1, ovel1 );
+    vec_to_oct_vec( pos1, opos1 );
+
+    vec_to_oct_vec( vel2, ovel2 );
+    vec_to_oct_vec( pos2, opos2 );
+
+    // cycle through the coordinates to see when the two volumes might coincide
+    found = bfalse;
+    *tmin = *tmax = -1.0f;
+    for( index = 0; index < OCT_COUNT; index ++ )
+    {
+        egoboo_rv retval;
+        float tmp_min, tmp_max;
+
+        retval = oct_bb_intersect_close_index( index, src1, opos1, ovel1, src2, opos2, ovel2, test_platform, &tmp_min, &tmp_max );
+        if( rv_fail == retval ) return bfalse;
+
+        if( rv_success == retval )
+        {
+            if( !found )
+            {
+                *tmin = tmp_min;
+                *tmax = tmp_max;
+                found = btrue;
+            }
+            else
+            {
+                *tmin = MAX(*tmin, tmp_min);
+                *tmax = MIN(*tmax, tmp_max);
+            }
+        }
+
+        if( *tmax < *tmin ) return bfalse;
+    }
+
+    // if the objects do not interact this frame let the caller know
+    if( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
+
+    // determine the expanded collision volumes for both objects
+    oct_bb_expand( src1, vel1, *tmin, *tmax, &exp1 );
+    oct_bb_expand( src2, vel2, *tmin, *tmax, &exp2 );
+
+    // determine the intersection of these two volumes
+    oct_bb_intersection( exp1, exp2, &intersection );
+
+    // check to see if there is any possibility of interaction at all
+    for(cnt = 0; cnt < OCT_Z; cnt++)
+    {
+        if( intersection.mins[cnt] > intersection.maxs[cnt] ) return bfalse;
+    }
+
+    tolerance = test_platform ? PLATTOLERANCE : 0.0f;
+    if( intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance ) return bfalse;
+
+    return btrue;
+}

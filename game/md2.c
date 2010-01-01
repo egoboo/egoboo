@@ -81,7 +81,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     }
 
     // Allocate a MD2_Model_t to hold all this stuff
-    model = ( NULL == mdl ) ? md2_new() : mdl;
+    model = ( NULL == mdl ) ? md2_create() : mdl;
     model->m_numVertices  = md2_header.num_vertices;
     model->m_numTexCoords = md2_header.num_st;
     model->m_numTriangles = md2_header.num_tris;
@@ -230,7 +230,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 
             if ( 0 == commands || cmd_size == md2_header.size_glcmds ) break;
 
-            cmd = MD2_GLCommand_new();
+            cmd = MD2_GLCommand_create();
             cmd->command_count = commands;
 
             //set the GL drawing mode
@@ -279,34 +279,38 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void MD2_GLCommand_construct( MD2_GLCommand_t * m )
+void MD2_GLCommand_ctor( MD2_GLCommand_t * m )
 {
     m->next = NULL;
     m->data = NULL;
 }
 
 //--------------------------------------------------------------------------------------------
-void MD2_GLCommand_destruct( MD2_GLCommand_t * m )
+void MD2_GLCommand_dtor( MD2_GLCommand_t * m )
 {
     if ( NULL == m ) return;
 
     if ( NULL != m->next )
     {
-        MD2_GLCommand_delete( m->next );
-        m->next = NULL;
+        // recursively delete
+        MD2_GLCommand_dtor( m->next );
+
+        // delete the empty node
+        MD2_GLCommand_destroy( &(m->next) );
     };
 
     EGOBOO_DELETE( m->data );
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_GLCommand_t * MD2_GLCommand_new()
+MD2_GLCommand_t * MD2_GLCommand_create()
 {
     MD2_GLCommand_t * m;
-    //fprintf( stdout, "MD2_GLCommand_new()\n");
 
     m = EGOBOO_NEW( MD2_GLCommand_t );
-    MD2_GLCommand_construct( m );
+
+    MD2_GLCommand_ctor( m );
+
     return m;
 }
 
@@ -315,16 +319,20 @@ MD2_GLCommand_t * MD2_GLCommand_new_vector( int n )
 {
     int i;
     MD2_GLCommand_t * v = EGOBOO_NEW_ARY( MD2_GLCommand_t, n );
-    for ( i = 0; i < n; i++ ) MD2_GLCommand_construct( v + i );
+    for ( i = 0; i < n; i++ ) MD2_GLCommand_ctor( v + i );
     return v;
 }
 
 //--------------------------------------------------------------------------------------------
-void MD2_GLCommand_delete( MD2_GLCommand_t * m )
+void MD2_GLCommand_destroy( MD2_GLCommand_t ** m )
 {
-    if ( NULL == m ) return;
-    MD2_GLCommand_destruct( m );
-    EGOBOO_DELETE( m );
+    if ( NULL == m || NULL == * m ) return;
+
+    MD2_GLCommand_dtor( *m );
+
+    EGOBOO_DELETE( *m );
+
+    *m = NULL;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -332,14 +340,16 @@ void MD2_GLCommand_delete_vector( MD2_GLCommand_t * v, int n )
 {
     int i;
     if ( NULL == v || 0 == n ) return;
-    for ( i = 0; i < n; i++ ) MD2_GLCommand_destruct( v + i );
+    for ( i = 0; i < n; i++ ) MD2_GLCommand_dtor( v + i );
     EGOBOO_DELETE( v );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void md2_construct( MD2_Model_t * m )
+MD2_Model_t * md2_ctor( MD2_Model_t * m )
 {
+    if( NULL == m ) return m;
+
     m->m_numVertices  = 0;
     m->m_numTexCoords = 0;
     m->m_numTriangles = 0;
@@ -351,6 +361,8 @@ void md2_construct( MD2_Model_t * m )
     m->m_triangles = NULL;
     m->m_frames    = NULL;
     m->m_commands  = NULL;
+
+    return m;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -381,20 +393,21 @@ void md2_deallocate( MD2_Model_t * m )
 }
 
 //--------------------------------------------------------------------------------------------
-void md2_destruct( MD2_Model_t * m )
+MD2_Model_t * md2_dtor( MD2_Model_t * m )
 {
-    if ( NULL == m ) return;
+    if ( NULL == m ) return NULL;
+
     md2_deallocate( m );
+
+    return m;
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Model_t * md2_new()
+MD2_Model_t * md2_create()
 {
-    MD2_Model_t * m;
+    MD2_Model_t * m = EGOBOO_NEW( MD2_Model_t );
 
-    //fprintf( stdout, "MD2_GLCommand_new()\n");
-    m = EGOBOO_NEW( MD2_Model_t );
-    md2_construct( m );
+    md2_ctor( m );
 
     return m;
 }
@@ -404,16 +417,18 @@ MD2_Model_t * md2_new_vector( int n )
 {
     int i;
     MD2_Model_t * v = EGOBOO_NEW_ARY( MD2_Model_t, n );
-    for ( i = 0; i < n; i++ ) md2_construct( v + i );
+    for ( i = 0; i < n; i++ ) md2_ctor( v + i );
     return v;
 }
 
 //--------------------------------------------------------------------------------------------
-void md2_delete( MD2_Model_t * m )
+void md2_destroy( MD2_Model_t ** m )
 {
-    if ( NULL == m ) return;
-    md2_destruct( m );
-    EGOBOO_DELETE( m );
+    if ( NULL == m || NULL == *m ) return;
+
+    md2_dtor( *m );
+
+    EGOBOO_DELETE( *m );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -421,7 +436,7 @@ void md2_delete_vector( MD2_Model_t * v, int n )
 {
     int i;
     if ( NULL == v || 0 == n ) return;
-    for ( i = 0; i < n; i++ ) md2_destruct( v + i );
+    for ( i = 0; i < n; i++ ) md2_dtor( v + i );
     EGOBOO_DELETE( v );
 }
 

@@ -311,7 +311,7 @@ wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pd
         return pdata;
     }
 
-	//First figure out what version of wawalite this is, so that we know what data we 
+	//First figure out what version of wawalite this is, so that we know what data we
 	//should expect to load
 	pdata->version = fget_version( fileread );
 

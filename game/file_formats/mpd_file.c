@@ -33,11 +33,11 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static mpd_info_t * mpd_info_new( mpd_info_t * pinfo );
-static mpd_info_t * mpd_info_delete( mpd_info_t * pinfo );
+static mpd_info_t * mpd_info_ctor( mpd_info_t * pinfo );
+static mpd_info_t * mpd_info_dtor( mpd_info_t * pinfo );
 
-static mpd_mem_t *  mpd_mem_new( mpd_mem_t * pmem );
-static mpd_mem_t *  mpd_mem_delete( mpd_mem_t * pmem );
+static mpd_mem_t *  mpd_mem_ctor( mpd_mem_t * pmem );
+static mpd_mem_t *  mpd_mem_dtor( mpd_mem_t * pmem );
 static bool_t       mpd_mem_free( mpd_mem_t * pmem );
 static bool_t       mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo );
 
@@ -154,26 +154,23 @@ void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mpd_t * mpd_new( mpd_t * pmesh )
+mpd_t * mpd_ctor( mpd_t * pmesh )
 {
+    if ( NULL == pmesh ) return NULL;
 
-    if ( NULL != pmesh )
-    {
-        mpd_mem_new( &(pmesh->mem) );
-        mpd_info_new( &(pmesh->info)  );
-    }
+    if( NULL == mpd_mem_ctor( &(pmesh->mem  ) ) ) return NULL;
+    if( NULL == mpd_info_ctor( &(pmesh->info) ) ) return NULL;
 
     return pmesh;
 }
 
 //--------------------------------------------------------------------------------------------
-mpd_t * mpd_delete( mpd_t * pmesh )
+mpd_t * mpd_dtor( mpd_t * pmesh )
 {
-    if ( NULL != pmesh )
-    {
-        mpd_mem_delete( &(pmesh->mem) );
-        mpd_info_delete( &(pmesh->info)  );
-    }
+    if ( NULL == pmesh ) return NULL;
+
+    if ( NULL == mpd_mem_dtor( &(pmesh->mem  ) ) ) return NULL;
+    if ( NULL == mpd_info_dtor( &(pmesh->info) ) ) return NULL;
 
     return pmesh;
 }
@@ -231,7 +228,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     EGO_fread( &itmp, 4, 1, fileread );  pinfo->tiles_x = ( int )ENDIAN_INT32( itmp );
     if ( pinfo->tiles_x >= MAXMESHTILEY )
     {
-        mpd_delete( pmesh );
+        mpd_dtor( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in x direction.\n" );
         EGO_fclose( fileread );
         return NULL;
@@ -240,7 +237,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     EGO_fread( &itmp, 4, 1, fileread );  pinfo->tiles_y = ( int )ENDIAN_INT32( itmp );
     if ( pinfo->tiles_y >= MAXMESHTILEY )
     {
-        mpd_delete( pmesh );
+        mpd_dtor( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in y direction.\n" );
         EGO_fclose( fileread );
         return NULL;
@@ -249,7 +246,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     // allocate the mesh memory
     if ( !mpd_mem_allocate( pmem, pinfo ) )
     {
-        mpd_delete( pmesh );
+        mpd_dtor( pmesh );
         EGO_fclose( fileread );
         log_warning( "mpd_load() - could not allocate memory for the mesh!!\n" );
         return NULL;
@@ -308,7 +305,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mpd_info_t * mpd_info_new( mpd_info_t * pinfo )
+mpd_info_t * mpd_info_ctor( mpd_info_t * pinfo )
 {
     if (NULL == pinfo) return pinfo;
 
@@ -318,19 +315,18 @@ mpd_info_t * mpd_info_new( mpd_info_t * pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-mpd_info_t * mpd_info_delete( mpd_info_t * pinfo )
+mpd_info_t * mpd_info_dtor( mpd_info_t * pinfo )
 {
-    if ( NULL != pinfo )
-    {
-        memset( pinfo, 0, sizeof(*pinfo) );
-    }
+    if ( NULL == pinfo ) return NULL;
+
+    memset( pinfo, 0, sizeof(*pinfo) );
 
     return pinfo;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mpd_mem_t * mpd_mem_new( mpd_mem_t * pmem )
+mpd_mem_t * mpd_mem_ctor( mpd_mem_t * pmem )
 {
     if (NULL == pmem) return pmem;
 
@@ -340,13 +336,12 @@ mpd_mem_t * mpd_mem_new( mpd_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-mpd_mem_t * mpd_mem_delete( mpd_mem_t * pmem )
+mpd_mem_t * mpd_mem_dtor( mpd_mem_t * pmem )
 {
-    if ( NULL != pmem )
-    {
-        mpd_mem_free( pmem );
-        memset( pmem, 0, sizeof(*pmem) );
-    }
+    if ( NULL == pmem ) return NULL;
+
+    mpd_mem_free( pmem );
+    memset( pmem, 0, sizeof(*pmem) );
 
     return pmem;
 }

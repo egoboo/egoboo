@@ -43,19 +43,19 @@ static void   mesh_make_vrtstart( ego_mpd_t * pmesh );
 
 static bool_t           mesh_free( ego_mpd_t * pmesh );
 
-static tile_mem_t *  mesh_mem_new( tile_mem_t * pmem );
-static tile_mem_t *  mesh_mem_delete( tile_mem_t * pmem );
-static bool_t        mesh_mem_free( tile_mem_t * pmem );
+static tile_mem_t *  mesh_mem_ctor( tile_mem_t * pmem );
+static tile_mem_t *  mesh_mem_dtor( tile_mem_t * pmem );
+static bool_t        mesh_mem_deallocate( tile_mem_t * pmem );
 static bool_t        mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo );
 
-static grid_mem_t *  grid_mem_new( grid_mem_t * pmem );
-static grid_mem_t *  grid_mem_delete( grid_mem_t * pmem );
+static grid_mem_t *  grid_mem_ctor( grid_mem_t * pmem );
+static grid_mem_t *  grid_mem_dtor( grid_mem_t * pmem );
 static bool_t        grid_mem_allocate( grid_mem_t * pmem, ego_mpd_info_t * pinfo );
-static bool_t        grid_mem_free( grid_mem_t * pmem );
+static bool_t        grid_mem_deallocate( grid_mem_t * pmem );
 static void          grid_make_fanstart( grid_mem_t * pmesh, ego_mpd_info_t * pinfo );
 
-static ego_mpd_info_t * mesh_info_new( ego_mpd_info_t * pinfo );
-static ego_mpd_info_t * mesh_info_delete( ego_mpd_info_t * pinfo );
+static ego_mpd_info_t * mesh_info_ctor( ego_mpd_info_t * pinfo );
+static ego_mpd_info_t * mesh_info_dtor( ego_mpd_info_t * pinfo );
 static void             mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y );
 
 // some twist/normal functions
@@ -73,7 +73,7 @@ ego_mpd_t            mesh;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mpd_info_t * mesh_info_new( ego_mpd_info_t * pinfo )
+ego_mpd_info_t * mesh_info_ctor( ego_mpd_info_t * pinfo )
 {
     if ( NULL == pinfo ) return pinfo;
 
@@ -99,18 +99,17 @@ void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t
 }
 
 //--------------------------------------------------------------------------------------------
-ego_mpd_info_t * mesh_info_delete( ego_mpd_info_t * pinfo )
+ego_mpd_info_t * mesh_info_dtor( ego_mpd_info_t * pinfo )
 {
-    if ( NULL != pinfo )
-    {
-        memset( pinfo, 0, sizeof( *pinfo ) );
-    }
+    if ( NULL == pinfo ) return NULL;
+
+    memset( pinfo, 0, sizeof( *pinfo ) );
 
     return pinfo;
 }
 
 //--------------------------------------------------------------------------------------------
-tile_mem_t * mesh_mem_new( tile_mem_t * pmem )
+tile_mem_t * mesh_mem_ctor( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
 
@@ -120,20 +119,20 @@ tile_mem_t * mesh_mem_new( tile_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-tile_mem_t * mesh_mem_delete( tile_mem_t * pmem )
+tile_mem_t * mesh_mem_dtor( tile_mem_t * pmem )
 {
-    if ( NULL != pmem )
-    {
-        mesh_mem_free( pmem );
-        memset( pmem, 0, sizeof( *pmem ) );
-    }
+    if ( NULL == pmem ) return NULL;
+
+    mesh_mem_deallocate( pmem );
+
+    memset( pmem, 0, sizeof( *pmem ) );
 
     return pmem;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
+ego_mpd_t * mesh_ctor_default( ego_mpd_t * pmesh )
 {
     /// @details BB@> initialize the ego_mpd_t structure
 
@@ -143,9 +142,9 @@ ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
 
         mesh_init_tile_offset( pmesh );
 
-        mesh_mem_new( &( pmesh->tmem ) );
-        grid_mem_new( &( pmesh->gmem ) );
-        mesh_info_new( &( pmesh->info ) );
+        mesh_mem_ctor( &( pmesh->tmem ) );
+        grid_mem_ctor( &( pmesh->gmem ) );
+        mesh_info_ctor( &( pmesh->info ) );
     }
 
     // global initialization
@@ -155,14 +154,13 @@ ego_mpd_t * mesh_new( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_mpd_t * mesh_delete( ego_mpd_t * pmesh )
+ego_mpd_t * mesh_dtor( ego_mpd_t * pmesh )
 {
-    if ( NULL != pmesh )
-    {
-        mesh_mem_delete( &( pmesh->tmem ) );
-        grid_mem_delete( &( pmesh->gmem ) );
-        mesh_info_delete( &( pmesh->info ) );
-    }
+    if ( NULL == pmesh ) return NULL;
+
+    if( NULL == mesh_mem_dtor( &( pmesh->tmem  ) ) ) return NULL;
+    if( NULL == grid_mem_dtor( &( pmesh->gmem  ) ) ) return NULL;
+    if( NULL == mesh_info_dtor( &( pmesh->info ) ) ) return NULL;
 
     return pmesh;
 }
@@ -172,8 +170,8 @@ bool_t mesh_free( ego_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return bfalse;
 
-    mesh_mem_free( &( pmesh->tmem ) );
-    grid_mem_free( &( pmesh->gmem ) );
+    mesh_mem_deallocate( &( pmesh->tmem ) );
+    grid_mem_deallocate( &( pmesh->gmem ) );
 
     return btrue;
 }
@@ -181,9 +179,25 @@ bool_t mesh_free( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_renew( ego_mpd_t * pmesh )
 {
-    pmesh = mesh_delete( pmesh );
+    pmesh = mesh_dtor( pmesh );
 
-    return mesh_new( pmesh );
+    return mesh_ctor_default( pmesh );
+}
+
+//--------------------------------------------------------------------------------------------
+ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
+{
+
+    if ( NULL == pmesh ) return pmesh;
+
+    // intitalize the mesh info using the max number of vertices for each tile
+    mesh_info_init( &( pmesh->info ), -1, tiles_x, tiles_y );
+
+    // allocate the mesh memory
+    mesh_mem_allocate( &( pmesh->tmem ), &( pmesh->info ) );
+    grid_mem_allocate( &( pmesh->gmem ), &( pmesh->info ) );
+
+    return pmesh;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -191,22 +205,11 @@ ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
 {
     if ( NULL == pmesh )
     {
-        pmesh = mesh_new( pmesh );
+        pmesh = EGOBOO_NEW( ego_mpd_t );
+        pmesh = mesh_ctor_default( pmesh );
     }
 
-    if ( NULL != pmesh )
-    {
-        // intitalize the mesh info using the max number of vertices for each tile
-        mesh_info_init( &( pmesh->info ), -1, tiles_x, tiles_y );
-
-        // allocate the mesh memory
-        mesh_mem_allocate( &( pmesh->tmem ), &( pmesh->info ) );
-        grid_mem_allocate( &( pmesh->gmem ), &( pmesh->info ) );
-
-        return pmesh;
-    };
-
-    return pmesh;
+    return mesh_ctor( pmesh, tiles_x, tiles_y );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -449,7 +452,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
         // create a new mesh if we are passed a NULL pointer
         if ( NULL == pmesh )
         {
-            pmesh = mesh_new( pmesh );
+            pmesh = mesh_ctor_default( pmesh );
         }
         if ( NULL == pmesh ) return pmesh;
 
@@ -462,7 +465,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
         mpd_t  local_mpd, * pmpd;
 
         // load a raw mpd
-        mpd_new( &local_mpd );
+        mpd_ctor( &local_mpd );
         tile_dictionary_load( "data/fans.txt", tile_dict, MAXMESHTYPE );
         pmpd = mpd_load( vfs_resolveReadFilename( "data/level.mpd" ), &local_mpd );
 
@@ -473,7 +476,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
         }
 
         // delete the now useless mpd data
-        mpd_delete( &local_mpd );
+        mpd_dtor( &local_mpd );
     }
 
     // do some calculation to set up the mpd as a game mesh
@@ -505,7 +508,7 @@ Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int tile_x,  int tile_y )
 }
 
 //--------------------------------------------------------------------------------------------
-grid_mem_t * grid_mem_new( grid_mem_t * pmem )
+grid_mem_t * grid_mem_ctor( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
 
@@ -515,13 +518,13 @@ grid_mem_t * grid_mem_new( grid_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-grid_mem_t * grid_mem_delete( grid_mem_t * pmem )
+grid_mem_t * grid_mem_dtor( grid_mem_t * pmem )
 {
-    if ( NULL != pmem )
-    {
-        grid_mem_free( pmem );
-        memset( pmem, 0, sizeof( *pmem ) );
-    }
+    if ( NULL == pmem ) return NULL;
+
+    grid_mem_deallocate( pmem );
+
+    memset( pmem, 0, sizeof( *pmem ) );
 
     return pmem;
 }
@@ -533,7 +536,7 @@ bool_t grid_mem_allocate( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     if ( NULL == pgmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
 
     // free any memory already allocated
-    if ( !grid_mem_free( pgmem ) ) return bfalse;
+    if ( !grid_mem_deallocate( pgmem ) ) return bfalse;
 
     if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
     {
@@ -577,13 +580,13 @@ bool_t grid_mem_allocate( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 
 grid_mem_allocate_fail:
 
-    grid_mem_free( pgmem );
+    grid_mem_deallocate( pgmem );
     log_error( "grid_mem_allocate() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_mem_free( grid_mem_t * pmem )
+bool_t grid_mem_deallocate( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
 
@@ -613,7 +616,7 @@ bool_t mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
     if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
 
     // free any memory already allocated
-    if ( !mesh_mem_free( pmem ) ) return bfalse;
+    if ( !mesh_mem_deallocate( pmem ) ) return bfalse;
 
     if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
     {
@@ -645,13 +648,13 @@ bool_t mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
 
 mesh_mem_allocate_fail:
 
-    mesh_mem_free( pmem );
+    mesh_mem_deallocate( pmem );
     log_error( "mesh_mem_allocate() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_mem_free( tile_mem_t * pmem )
+bool_t mesh_mem_deallocate( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
 

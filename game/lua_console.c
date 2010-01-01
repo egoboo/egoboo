@@ -102,26 +102,15 @@ void initialize_lua()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-lua_console_t * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect )
+lua_console_t * lua_console_ctor( lua_console_t * pcon, SDL_Rect Con_rect )
 {
-    SDL_bool local_allocation = SDL_FALSE;
-
-    // make sure we have an instance of our lua environment
-    initialize_lua();
-
-    // make sure that we have a valid pointer to a console
-    if ( NULL == pcon )
-    {
-        local_allocation = SDL_TRUE;
-        pcon = EGOBOO_NEW( lua_console_t );
-    }
     if ( NULL == pcon ) return NULL;
 
     // reset all the console data
     memset( pcon, 0, sizeof( *pcon ) );
 
     // call the new function for the "base class"
-    egoboo_console_new( &( pcon->base ), Con_rect, lua_console_run, pcon );
+    egoboo_console_create( &( pcon->base ), Con_rect, lua_console_run, pcon );
 
     // connect to Lua
     pcon->L = lua_newthread( global_L );  /* create state */
@@ -135,22 +124,52 @@ lua_console_t * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect )
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool lua_console_delete( lua_console_t * pcon )
+lua_console_t * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect )
 {
-    SDL_bool retval = SDL_FALSE;
+    SDL_bool local_allocation = SDL_FALSE;
 
-    if ( NULL == pcon ) return SDL_FALSE;
+    // make sure we have an instance of our lua environment
+    initialize_lua();
+
+    // make sure that we have a valid pointer to a console
+    if ( NULL == pcon )
+    {
+        local_allocation = SDL_TRUE;
+        pcon = EGOBOO_NEW( lua_console_t );
+    }
+
+    return lua_console_ctor( pcon, Con_rect );
+
+}
+
+//--------------------------------------------------------------------------------------------
+lua_console_t * lua_console_dtor( lua_console_t * pcon )
+{
+    egoboo_console_t * ptr;
+
+    if ( NULL == pcon ) return NULL;
 
     // uninitialize our own data
     lua_close( pcon->L );
 
     // delete the "base class", but tell it not to actuall free the data
-    egoboo_console_delete( &( pcon->base ), SDL_FALSE );
+    ptr = &( pcon->base );
+    egoboo_console_destroy( &ptr, SDL_FALSE );
+
+    return pcon;
+}
+
+//--------------------------------------------------------------------------------------------
+SDL_bool lua_console_destroy( lua_console_t ** pcon )
+{
+    if( NULL == pcon ) return SDL_FALSE;
+
+    if ( NULL == lua_console_dtor(*pcon) ) return SDL_FALSE;
 
     // do the free-ing here
-    free( pcon );
+    EGOBOO_DELETE( *pcon );
 
-    return retval;
+    return SDL_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

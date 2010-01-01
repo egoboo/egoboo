@@ -56,7 +56,7 @@ void TxTexture_init_all()
 
     for ( cnt = 0; cnt < TEXTURE_COUNT; cnt++ )
     {
-        oglx_texture_new( TxTexture.lst + cnt );
+        oglx_texture_ctor( TxTexture.lst + cnt );
     }
 
     TxTexture_clear_data();
@@ -86,7 +86,7 @@ void TxTexture_delete_all()
 
     for ( cnt = 0; cnt < TEXTURE_COUNT; cnt++ )
     {
-        oglx_texture_delete( TxTexture.lst + cnt );
+        oglx_texture_dtor( TxTexture.lst + cnt );
     }
 
     TxTexture_clear_data();

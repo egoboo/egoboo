@@ -223,7 +223,7 @@ void TxTitleImage_init_all()
 
     for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
     {
-        oglx_texture_new( TxTitleImage + cnt );
+        oglx_texture_ctor( TxTitleImage + cnt );
     }
 
     TxTitleImage_clear_data();
@@ -261,7 +261,7 @@ void TxTitleImage_delete_all()
 
     for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
     {
-        oglx_texture_delete( TxTitleImage + cnt );
+        oglx_texture_dtor( TxTitleImage + cnt );
     }
 
     TxTitleImage_clear_data();
@@ -4321,7 +4321,7 @@ bool_t mnu_test_by_index( int modnumber )
 		}
 
 	}
-    
+
     return allowed;
 }
 

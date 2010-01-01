@@ -158,8 +158,8 @@ extern tile_definition_t tile_dict[MAXMESHTYPE];
 /// the raw mpd loader
 mpd_t *      mpd_load( const char *modname, mpd_t * pmesh );
 
-mpd_t *      mpd_new( mpd_t * pmesh );
-mpd_t *      mpd_delete( mpd_t * pmesh );
+mpd_t *      mpd_ctor( mpd_t * pmesh );
+mpd_t *      mpd_dtor( mpd_t * pmesh );
 bool_t       mpd_free( mpd_t * pmesh );
 
 bool_t twist_to_normal( Uint8 twist, float v[], float slide );

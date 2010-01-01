@@ -19,37 +19,62 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_console.h
-/// @A quake-console that can be used for anything.
+/// @file bsp.h
+/// @details
 
-#include <SDL.h>
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-struct s_egoboo_console;
-
-typedef struct s_egoboo_console egoboo_console_t;
-
-typedef SDL_bool( *egoboo_console_callback_t )( egoboo_console_t * pcon, void * data );
+#include "bbox.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern Uint8  scancode_to_ascii[SDLK_LAST];
-extern Uint8  scancode_to_ascii_shift[SDLK_LAST];
+struct sBSP_node
+{
+  struct sBSP_node * next;
+  int                 data_type;
+  void              * data;
+};
+typedef struct sBSP_node BSP_node_t;
+
+//--------------------------------------------------------------------------------------------
+struct sBSP_leaf
+{
+  struct sBSP_leaf  * parent;
+  size_t               child_count;
+  struct sBSP_leaf ** children;
+  BSP_node_t           * nodes;
+};
+typedef struct sBSP_leaf BSP_leaf_t;
+
+//--------------------------------------------------------------------------------------------
+struct sBSP_tree
+{
+  int dimensions;
+  int depth;
+
+  size_t       leaf_count;
+  BSP_leaf_t * leaf_list;
+
+  BSP_leaf_t * root;
+};
+typedef struct sBSP_tree BSP_tree_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void   init_scancodes();
+BSP_node_t * BSP_node_ctor( BSP_node_t * t, void * data, int type );
+bool_t       BSP_node_dtor( BSP_node_t * t );
 
-egoboo_console_t * egoboo_console_create( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data );
-SDL_bool           egoboo_console_destroy( egoboo_console_t ** pcon, SDL_bool do_free );
+BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, size_t size );
+bool_t       BSP_leaf_dtor( BSP_leaf_t * L );
+bool_t       BSP_leaf_insert( BSP_leaf_t * L, BSP_node_t * n );
 
-void egoboo_console_draw_all();
+BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth);
+bool_t       BSP_tree_dtor( BSP_tree_t * t );
 
-void egoboo_console_show( egoboo_console_t * pcon );
-void egoboo_console_hide( egoboo_console_t * pcon );
+Sint32       BSP_tree_count_nodes(Sint32 dim, Sint32 depth);
 
-SDL_Event * egoboo_console_handle_events( SDL_Event * evt );
+int BSP_find_address_2d(OVolume_t * vmax, OVolume_t * vtile, size_t depth, int address_x[], int address_y[] );
+int BSP_find_address_3d(OVolume_t * vmax, OVolume_t * vtile, size_t depth, int address_x[], int address_y[], int address_z[] );
 
-void egoboo_console_fprint( egoboo_console_t * pcon, const char *format, ... );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define Egoboo_bsp_h
 

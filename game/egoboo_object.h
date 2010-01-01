@@ -107,7 +107,6 @@ typedef struct s_ego_object_base ego_object_base_t;
 /// Grab the state of object that "inherits" from ego_object_base_t
 #define GET_STATE_POBJ( POBJ )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? ego_object_invalid : (POBJ)->obj_base.index )
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// A variable to hold the object guid counter

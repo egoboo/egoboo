@@ -43,7 +43,7 @@ camera_t gCamera;
 //--------------------------------------------------------------------------------------------
 // Camera control stuff
 
-camera_t * camera_new( camera_t * pcam )
+camera_t * camera_ctor( camera_t * pcam )
 {
     /// @detalis BB@> initialize the camera structure
 

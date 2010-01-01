@@ -176,9 +176,9 @@ extern Uint8     map_twist_flat[256];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-ego_mpd_t * mesh_new( ego_mpd_t * pmesh );
+ego_mpd_t * mesh_ctor_default( ego_mpd_t * pmesh );
 ego_mpd_t * mesh_renew( ego_mpd_t * pmesh );
-ego_mpd_t * mesh_delete( ego_mpd_t * pmesh );
+ego_mpd_t * mesh_dtor( ego_mpd_t * pmesh );
 ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y );
 
 /// loading/saving

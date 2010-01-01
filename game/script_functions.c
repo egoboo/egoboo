@@ -483,14 +483,14 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
         {
             log_warning( "scr_AddWaypoint() - failed to add a waypoint because object was \"inside\" a wall.\n"
                 "\tcharacter %d (\"%s\", \"%s\")\n"
-                "\tWaypoint index %d\n" 
+                "\tWaypoint index %d\n"
                 "\tWaypoint location (in tiles) <%f,%f>\n"
                 "\tWall normal <%1.4f,%1.4f>\n"
                 "\tPressure %f\n",
                 GET_INDEX_PCHR(pchr), pchr->Name, pcap->name,
                 pself->wp_lst.head,
-                pos.x / TILE_SIZE, pos.y / TILE_SIZE, 
-                nrm.x, nrm.y, 
+                pos.x / TILE_SIZE, pos.y / TILE_SIZE,
+                nrm.x, nrm.y,
                 SQRT(pressure) / TILE_SIZE );
         }
     }
@@ -1946,7 +1946,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         // Correct X, Y, Z spacing
         pprt->pos.x += pstate->x;
         pprt->pos.y += pstate->y;
-        pprt->pos.z += PipStack.lst[pprt->pip_ref].zspacing_pair.base;
+        pprt->pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
 
         // Don't spawn in walls
         if ( __prthitawall( pprt, NULL, NULL ) )
@@ -6162,20 +6162,20 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     if ( NULL != ppip )
     {
         // save some values
-        iTmp = ppip->xyvel_pair.base;
-        tTmp = ppip->xyspacing_pair.base;
+        iTmp = ppip->vel_hrz_pair.base;
+        tTmp = ppip->spacing_hrz_pair.base;
         fTmp = ppip->damage.from;
 
         // set some values
-        ppip->xyvel_pair.base     = pstate->x;
-        ppip->xyspacing_pair.base = pstate->y;
+        ppip->vel_hrz_pair.base     = pstate->x;
+        ppip->spacing_hrz_pair.base = pstate->y;
         ppip->damage.from         = FP8_TO_FLOAT( pstate->argument );
 
         spawn_poof( pself->index, pchr->iprofile );
 
         // Restore the saved values
-        ppip->xyvel_pair.base     = iTmp;
-        ppip->xyspacing_pair.base = tTmp;
+        ppip->vel_hrz_pair.base     = iTmp;
+        ppip->spacing_hrz_pair.base = tTmp;
         ppip->damage.from         = fTmp;
 
         returncode = btrue;
@@ -7010,7 +7010,7 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
 	pchr->money = CLIP(pstate->argument, 0, MAXMONEY);
-    
+
 	SCRIPT_FUNCTION_END();
 }
 

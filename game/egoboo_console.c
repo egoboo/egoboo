@@ -171,17 +171,9 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data )
+egoboo_console_t * egoboo_console_ctor( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data )
 {
-    SDL_bool local_allocation = SDL_FALSE;
-
-    if ( NULL == pcon )
-    {
-        local_allocation = SDL_TRUE;
-        pcon = EGOBOO_NEW_ARY( egoboo_console_t, 1 );
-    }
-
-    if ( NULL == pcon ) return NULL;
+    if( NULL == pcon ) return NULL;
 
     // reset all the console data
     memset( pcon, 0, sizeof( *pcon ) );
@@ -203,6 +195,20 @@ egoboo_console_t * egoboo_console_new( egoboo_console_t * pcon, SDL_Rect Con_rec
 }
 
 //--------------------------------------------------------------------------------------------
+egoboo_console_t * egoboo_console_create( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data )
+{
+    SDL_bool local_allocation = SDL_FALSE;
+
+    if ( NULL == pcon )
+    {
+        local_allocation = SDL_TRUE;
+        pcon = EGOBOO_NEW( egoboo_console_t );
+    }
+
+    return egoboo_console_ctor( pcon, Con_rect, pcall,  data );
+}
+
+//--------------------------------------------------------------------------------------------
 SDL_bool egoboo_console_run( egoboo_console_t * pcon )
 {
     SDL_bool retval = SDL_FALSE;
@@ -218,20 +224,28 @@ SDL_bool egoboo_console_run( egoboo_console_t * pcon )
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )
+egoboo_console_t * egoboo_console_dtor( egoboo_console_t * pcon )
 {
-    SDL_bool retval = SDL_FALSE;
-
-    if ( NULL == pcon ) return SDL_FALSE;
+    if ( NULL == pcon ) return NULL;
 
     fnt_freeFont( pcon->pfont );
 
     // remove the console from the stack
     egoboo_console_stack_unlink( pcon );
 
-    if ( do_free ) free( pcon );
+    return pcon;
+}
 
-    return retval;
+//--------------------------------------------------------------------------------------------
+SDL_bool egoboo_console_destroy( egoboo_console_t ** pcon, SDL_bool do_free )
+{
+    if ( NULL == pcon ) return SDL_FALSE;
+
+    if ( NULL == egoboo_console_dtor( *pcon ) ) return SDL_FALSE;
+
+    if ( do_free ) EGOBOO_DELETE( *pcon );
+
+    return SDL_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

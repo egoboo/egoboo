@@ -57,7 +57,6 @@ hash_node_t * hash_node_ctor( hash_node_t * pn, void * data )
 hash_node_t * hash_node_create( void * data )
 {
     hash_node_t * n = EGOBOO_NEW( hash_node_t );
-    if ( NULL == n ) return n;
 
     return hash_node_ctor( n, data );
 }
@@ -197,7 +196,9 @@ bool_t hash_list_dtor( hash_list_t * lst )
 //--------------------------------------------------------------------------------------------
 hash_list_t * hash_list_create( int size )
 {
-    return hash_list_ctor( EGOBOO_NEW( hash_list_t ), size );
+    hash_list_t * rv = EGOBOO_NEW( hash_list_t );
+
+    return hash_list_ctor( rv, size );
 }
 
 //--------------------------------------------------------------------------------------------
