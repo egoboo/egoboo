@@ -40,9 +40,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture coordinates
-float            sprite_list_v[MAXPARTICLEIMAGE][2];
-
 Uint16           maxparticles = 512;                            // max number of particles
 
 DECLARE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack );
@@ -2165,19 +2162,6 @@ void PrtList_free_all()
 void particle_system_init()
 {
     /// @details ZZ@> This function sets up particle data
-    int cnt;
-    float x, y;
-
-    // Image coordinates on the big particle bitmap
-    for ( cnt = 0; cnt < MAXPARTICLEIMAGE; cnt++ )
-    {
-        x = cnt & 15;
-        y = cnt >> 4;
-        sprite_list_u[cnt][0] = ( float )(( 0.05f + x ) / 16.0f );
-        sprite_list_u[cnt][1] = ( float )(( 0.95f + x ) / 16.0f );
-        sprite_list_v[cnt][0] = ( float )(( 0.05f + y ) / 16.0f );
-        sprite_list_v[cnt][1] = ( float )(( 0.95f + y ) / 16.0f );
-    }
 
     // Reset the allocation table
     PrtList_init();

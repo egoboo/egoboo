@@ -141,9 +141,6 @@ struct s_prt
 };
 typedef struct s_prt prt_t;
 
-extern float            sprite_list_u[MAXPARTICLEIMAGE][2];        ///< Texture coordinates
-extern float            sprite_list_v[MAXPARTICLEIMAGE][2];
-
 extern Uint16           maxparticles;                              ///< max number of particles
 
 DEFINE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );

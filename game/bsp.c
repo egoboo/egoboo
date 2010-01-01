@@ -46,14 +46,12 @@ BSP_node_t * BSP_node_ctor( BSP_node_t * n, void * data, int type )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_node_dtor( BSP_node_t * n )
 {
-  bool_t retval;
-
   if( NULL == n ) return bfalse;
 
   n->data_type = -1;
   n->data      = NULL;
 
-  return retval;
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -78,14 +76,12 @@ BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, size_t count )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_leaf_dtor( BSP_leaf_t * L )
 {
-  bool_t retval;
-
   if( NULL == L ) return bfalse;
 
   EGOBOO_DELETE(L->children);
   L->child_count = 0;
 
-  return retval;
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -234,6 +230,8 @@ Sint32 BSP_tree_count_nodes(Sint32 dim, Sint32 depth)
 //--------------------------------------------------------------------------------------------
 bool_t BSP_tree_insert( BSP_tree_t * t, BSP_leaf_t * L, BSP_node_t * n, int index )
 {
+  bool_t retval;
+
   if( NULL == t || NULL == L || NULL == n ) return bfalse;
   if( index > (int)L->child_count ) return bfalse;
 
@@ -243,12 +241,13 @@ bool_t BSP_tree_insert( BSP_tree_t * t, BSP_leaf_t * L, BSP_node_t * n, int inde
     return BSP_leaf_insert(L->children[index], n);
   }
 
+  retval = bfalse;
   if(index < 0 || NULL == t->leaf_list)
   {
     // inserting a node into this leaf node
     // this can either occur because someone requested it (index < 0)
     // OR because there are no more free nodes
-    return BSP_leaf_insert(L, n);
+    retval = BSP_leaf_insert(L, n);
   }
   else
   {
@@ -261,11 +260,10 @@ bool_t BSP_tree_insert( BSP_tree_t * t, BSP_leaf_t * L, BSP_node_t * n, int inde
 
     BSP_leaf_ctor( L->children[index], 2 << t->dimensions );
 
-    return BSP_leaf_insert(L->children[index], n);
+    retval = BSP_leaf_insert(L->children[index], n);
   }
 
-  // something went wrong
-  return bfalse;
+  return retval;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -30,6 +30,23 @@
 struct s_camera;
 
 //--------------------------------------------------------------------------------------------
+// support for computing the particle texture coordinates on the fly.
+// currently, there ate two texture types: TX_PARTICLE_TRANS and TX_PARTICLE_LIGHT
+
+extern int   ptex_w[2];
+extern int   ptex_h[2];
+extern float ptex_wscale[2];
+extern float ptex_hscale[2];
+
+#define CALCULATE_PRT_U0(IDX,CNT)  (((.05f+((CNT)&15))/16.0f)*ptex_wscale[IDX])
+#define CALCULATE_PRT_U1(IDX,CNT)  (((.95f+((CNT)&15))/16.0f)*ptex_wscale[IDX])
+#define CALCULATE_PRT_V0(IDX,CNT)  (((.05f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
+#define CALCULATE_PRT_V1(IDX,CNT)  (((.95f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
+
+int prt_get_texture_style( Uint32 itex );
+void prt_set_texture_params( Uint32 itex );
+
+//--------------------------------------------------------------------------------------------
 // Particle graphic data
 //--------------------------------------------------------------------------------------------
 /// All the data necessary to diaplay a partile
@@ -39,7 +56,8 @@ struct s_prt_instance
 
     // basic info
     Uint8    type;               ///< particle type
-    Uint16   image;              ///< which image
+    Uint32   texture_ref;        ///< which texture
+    Uint32   image_ref;          ///< which texture image
     float    alpha;              ///< base alpha
     Uint8    light;              ///< base self lighting
 

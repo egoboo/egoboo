@@ -38,6 +38,53 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// dynamically calculate the particle texture coordinates
+
+int   ptex_w[2] = {256, 256};
+int   ptex_h[2] = {256, 256};
+float ptex_wscale[2] = {1.0f, 1.0f};
+float ptex_hscale[2] = {1.0f, 1.0f};
+
+//--------------------------------------------------------------------------------------------
+int prt_get_texture_style( Uint32 itex )
+{
+    int index;
+
+    index = -1;
+    switch( itex )
+    {
+        case TX_PARTICLE_TRANS:
+            index = 0;
+            break;
+
+        case TX_PARTICLE_LIGHT:
+            index = 1;
+            break;
+    }
+
+    return index;
+}
+
+//--------------------------------------------------------------------------------------------
+void prt_set_texture_params( Uint32 itex )
+{
+    int index;
+    oglx_texture * ptex;
+
+    index = prt_get_texture_style( itex );
+    if( index < 0 ) return;
+
+    ptex = TxTexture_get_ptr(itex);
+    if( NULL == ptex ) return;
+
+    ptex_w[index] = ptex->imgW;
+    ptex_h[index] = ptex->imgH;
+    ptex_wscale[index] = (float)ptex->imgW / (float)ptex->base.width;
+    ptex_hscale[index] = (float)ptex->imgH / (float)ptex->base.height;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// The data values necessary to sort particles by their position to the camera
 struct s_prt_registry_entity
 {
@@ -243,7 +290,8 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );  // GL_CURRENT_BIT
 
-            oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
+            pinst->texture_ref = TX_PARTICLE_TRANS;
+            oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
 
         }
         else if ( SPRITE_LIGHT == pprt->type )
@@ -254,11 +302,12 @@ bool_t render_one_prt_trans( Uint16 iprt )
             GL_DEBUG( glDisable )( GL_ALPHA_TEST );                         // GL_ENABLE_BIT
 
             GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );      // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                      // GL_COLOR_BUFFER_BIT
 
             GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );          // GL_CURRENT_BIT
 
-            oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
+            pinst->texture_ref = TX_PARTICLE_LIGHT;
+            oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
         }
         else if ( SPRITE_ALPHA == pprt->type )
         {
@@ -272,7 +321,8 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );  // GL_CURRENT_BIT
 
-            oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
+            pinst->texture_ref = TX_PARTICLE_TRANS;
+            oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
         }
         else
         {
@@ -431,7 +481,8 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );      // GL_CURRENT_BIT
 
-                oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
+                pinst->texture_ref = TX_PARTICLE_LIGHT;
+                oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
             }
             else if ( SPRITE_SOLID == pprt->type || SPRITE_ALPHA == pprt->type )
             {
@@ -451,7 +502,8 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, alpha ); // GL_CURRENT_BIT
 
-                oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );
+                pinst->texture_ref = TX_PARTICLE_TRANS;
+                oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
             }
             else
             {
@@ -516,10 +568,22 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
 
-    int i;
+    int i, index;
     fvec3_t prt_pos, prt_up, prt_right;
 
     if ( NULL == vlst || NULL == pinst ) return;
+
+    switch( pinst->texture_ref )
+    {
+        default:
+        case TX_PARTICLE_TRANS:
+            index = 0;
+            break;
+
+        case TX_PARTICLE_LIGHT:
+            index = 1;
+            break;
+    }
 
     // use the pre-computed reflection parameters
     if ( do_reflect )
@@ -558,17 +622,17 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
     vlst[3].pos[YY] += ( -prt_right.y + prt_up.y ) * size;
     vlst[3].pos[ZZ] += ( -prt_right.z + prt_up.z ) * size;
 
-    vlst[0].tex[SS] = sprite_list_u[pinst->image][1];
-    vlst[0].tex[TT] = sprite_list_v[pinst->image][1];
+    vlst[0].tex[SS] = CALCULATE_PRT_U1(index, pinst->image_ref);
+    vlst[0].tex[TT] = CALCULATE_PRT_V1(index, pinst->image_ref);
 
-    vlst[1].tex[SS] = sprite_list_u[pinst->image][0];
-    vlst[1].tex[TT] = sprite_list_v[pinst->image][1];
+    vlst[1].tex[SS] = CALCULATE_PRT_U0(index, pinst->image_ref);
+    vlst[1].tex[TT] = CALCULATE_PRT_V1(index, pinst->image_ref);
 
-    vlst[2].tex[SS] = sprite_list_u[pinst->image][0];
-    vlst[2].tex[TT] = sprite_list_v[pinst->image][0];
+    vlst[2].tex[SS] = CALCULATE_PRT_U0(index, pinst->image_ref);
+    vlst[2].tex[TT] = CALCULATE_PRT_V0(index, pinst->image_ref);
 
-    vlst[3].tex[SS] = sprite_list_u[pinst->image][1];
-    vlst[3].tex[TT] = sprite_list_v[pinst->image][0];
+    vlst[3].tex[SS] = CALCULATE_PRT_U1(index, pinst->image_ref);
+    vlst[3].tex[TT] = CALCULATE_PRT_V0(index, pinst->image_ref);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -697,7 +761,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     pinst->type = pprt->type;
 
-    pinst->image = FP8_TO_INT( pprt->image + pprt->imagestt );
+    pinst->image_ref = FP8_TO_INT( pprt->image + pprt->imagestt );
 
     // set the position
     pinst->pos         = pprt->pos;

@@ -1820,10 +1820,12 @@ void render_shadow( Uint16 character )
     /// @details ZZ@> This function draws a NIFTY shadow
     GLvertex v[4];
 
-    float x, y;
-    float level;
-    float height, size_umbra, size_penumbra;
-    float alpha, alpha_umbra, alpha_penumbra;
+    Uint32  itex;
+    int     itex_style;
+    float   x, y;
+    float   level;
+    float   height, size_umbra, size_penumbra;
+    float   alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
 
     if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack_ispacked ) return;
@@ -1882,20 +1884,24 @@ void render_shadow( Uint16 character )
     y = pchr->inst.matrix.CNV( 3, 1 );
 
     // Choose texture.
-    oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
+    itex = TX_PARTICLE_LIGHT;
+    oglx_texture_Bind( TxTexture_get_ptr( itex ) );
+
+    itex_style = prt_get_texture_style(itex);
+    if( itex_style < 0 ) itex_style = 0;
 
     // GOOD SHADOW
-    v[0].tex[SS] = sprite_list_u[238][0];
-    v[0].tex[TT] = sprite_list_v[238][0];
+    v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 238);
+    v[0].tex[TT] = CALCULATE_PRT_V0(itex_style, 238);
 
-    v[1].tex[SS] = sprite_list_u[255][1];
-    v[1].tex[TT] = sprite_list_v[238][0];
+    v[1].tex[SS] = CALCULATE_PRT_U1(itex_style, 255);
+    v[1].tex[TT] = CALCULATE_PRT_V0(itex_style, 238);
 
-    v[2].tex[SS] = sprite_list_u[255][1];
-    v[2].tex[TT] = sprite_list_v[255][1];
+    v[2].tex[SS] = CALCULATE_PRT_U1(itex_style, 255);
+    v[2].tex[TT] = CALCULATE_PRT_V1(itex_style, 255);
 
-    v[3].tex[SS] = sprite_list_u[238][0];
-    v[3].tex[TT] = sprite_list_v[255][1];
+    v[3].tex[SS] = CALCULATE_PRT_U0(itex_style, 238);
+    v[3].tex[TT] = CALCULATE_PRT_V1(itex_style, 255);
 
     if ( size_penumbra > 0 )
     {
@@ -1946,8 +1952,11 @@ void render_bad_shadow( Uint16 character )
 {
     /// @details ZZ@> This function draws a sprite shadow
     GLvertex v[4];
-    float size, x, y;
-    float level, height, height_factor, alpha;
+
+    Uint32  itex;
+    int     itex_style;
+    float   size, x, y;
+    float   level, height, height_factor, alpha;
     chr_t * pchr;
 
     if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack_ispacked ) return;
@@ -2009,19 +2018,23 @@ void render_bad_shadow( Uint16 character )
     v[3].pos[ZZ] = ( float ) level;
 
     // Choose texture and matrix
-    oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_LIGHT ) );
+    itex = TX_PARTICLE_LIGHT;
+    oglx_texture_Bind( TxTexture_get_ptr( itex ) );
 
-    v[0].tex[SS] = sprite_list_u[236][0];
-    v[0].tex[TT] = sprite_list_v[236][0];
+    itex_style = prt_get_texture_style(itex);
+    if( itex_style < 0 ) itex_style = 0;
 
-    v[1].tex[SS] = sprite_list_u[253][1];
-    v[1].tex[TT] = sprite_list_v[236][0];
+    v[0].tex[SS] = CALCULATE_PRT_U0(itex_style, 236);
+    v[0].tex[TT] = CALCULATE_PRT_V0(itex_style, 236);
 
-    v[2].tex[SS] = sprite_list_u[253][1];
-    v[2].tex[TT] = sprite_list_v[253][1];
+    v[1].tex[SS] = CALCULATE_PRT_U1(itex_style, 253);
+    v[1].tex[TT] = CALCULATE_PRT_V0(itex_style, 236);
 
-    v[3].tex[SS] = sprite_list_u[236][0];
-    v[3].tex[TT] = sprite_list_v[253][1];
+    v[2].tex[SS] = CALCULATE_PRT_U1(itex_style, 253);
+    v[2].tex[TT] = CALCULATE_PRT_V1(itex_style, 253);
+
+    v[3].tex[SS] = CALCULATE_PRT_U0(itex_style, 236);
+    v[3].tex[TT] = CALCULATE_PRT_V1(itex_style, 253);
 
     render_shadow_sprite( alpha, v );
 }
@@ -4492,7 +4505,10 @@ void load_basic_textures( /* const char *modname */ )
 
     // Particle sprites
     TxTexture_load_one( "data/particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
+    prt_set_texture_params(TX_PARTICLE_TRANS);
+
     TxTexture_load_one( "data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
+    prt_set_texture_params(TX_PARTICLE_LIGHT);
 
     // Module background tiles
     TxTexture_load_one( "data/tile0", TX_TILE_0, TRANSCOLOR );
