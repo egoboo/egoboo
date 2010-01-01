@@ -51,7 +51,7 @@ void make_turntosin( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // FAKE D3D FUNCTIONS
-fvec3_t fvec3_sub( fvec3_base_t A, fvec3_base_t B )
+fvec3_t fvec3_sub( const fvec3_base_t A, const fvec3_base_t B )
 {
     fvec3_t tmp;
 
@@ -63,7 +63,7 @@ fvec3_t fvec3_sub( fvec3_base_t A, fvec3_base_t B )
 }
 
 //--------------------------------------------------------------------------------------------
-fvec3_t fvec3_normalize( fvec3_base_t vec )
+fvec3_t fvec3_normalize( const fvec3_base_t vec )
 {
     fvec3_t tmp = ZERO_VECT3;
 
@@ -87,7 +87,7 @@ fvec3_t fvec3_normalize( fvec3_base_t vec )
 }
 
 //--------------------------------------------------------------------------------------------
-fvec3_t   fvec3_cross_product( fvec3_base_t A, fvec3_base_t B )
+fvec3_t   fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B )
 {
     fvec3_t   tmp;
 
@@ -99,7 +99,7 @@ fvec3_t   fvec3_cross_product( fvec3_base_t A, fvec3_base_t B )
 }
 
 //--------------------------------------------------------------------------------------------
-float fvec3_dot_product( fvec3_base_t A, fvec3_base_t B )
+float fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B )
 {
     return A[kX]*B[kX] + A[kY]*B[kY] + A[kZ]*B[kZ];
 }

@@ -3164,7 +3164,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     /// @details BB@> all of the initialization code before the module actually starts
 
-    if ( ~0 == seed ) seed = time( NULL );
+    if ( ((Uint32)(~0)) == seed ) seed = time( NULL );
 
     // make sure the old game has been quit
     game_quit_module();

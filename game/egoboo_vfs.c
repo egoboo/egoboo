@@ -914,27 +914,29 @@ int vfs_isDirectory( const char *fname )
 size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
 {
     bool_t error = bfalse;
-    size_t retval;
+    size_t read_length;
 
     if ( NULL == pfile ) return 0;
 
-    retval = 0;
+    read_length = 0;
     if ( vfs_cfile == pfile->type )
     {
-        retval = EGO_fread( buffer, size, count, pfile->ptr.c );
-        error = ( retval != size );
+        read_length = EGO_fread( buffer, size, count, pfile->ptr.c );
+        error = ( read_length != size );
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = PHYSFS_read( pfile->ptr.p, buffer, size, count );
+        int retval = PHYSFS_read( pfile->ptr.p, buffer, size, count );
 
         if ( retval < 0 ) pfile->flags |= VFS_ERROR;
         error = ( retval != size );
+
+        if(!error) read_length = count;
     }
 
     if ( error ) _vfs_translate_error( pfile );
 
-    return retval;
+    return read_length;
 }
 
 //--------------------------------------------------------------------------------------------

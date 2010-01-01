@@ -1428,7 +1428,7 @@ void net_handlePacket( ENetEvent *event )
             {
                 stamp = packet_readUnsignedInt();
                 time = stamp & LAGAND;
-                if ( nexttimestamp == -1 )
+                if ( ((Uint32)(~0)) == nexttimestamp )
                 {
                     nexttimestamp = stamp;
                 }
@@ -1533,7 +1533,8 @@ void unbuffer_player_latches()
     numplatimes = 0;
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        int tnc, latch_count;
+        int tnc;
+        Uint32 latch_count;
         latch_t tmp_latch;
         player_t * ppla;
         time_latch_t * tlatch_list;

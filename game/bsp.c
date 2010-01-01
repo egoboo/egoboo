@@ -27,7 +27,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE BSP_node_t * BSP_node_ctor( BSP_node_t * n, void * data, int type )
+BSP_node_t * BSP_node_ctor( BSP_node_t * n, void * data, int type )
 {
   if(NULL == n) return n;
 
@@ -44,7 +44,7 @@ INLINE BSP_node_t * BSP_node_ctor( BSP_node_t * n, void * data, int type )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t BSP_node_dtor( BSP_node_t * n )
+bool_t BSP_node_dtor( BSP_node_t * n )
 {
   bool_t retval;
 
@@ -58,7 +58,7 @@ INLINE bool_t BSP_node_dtor( BSP_node_t * n )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, size_t count )
+BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, size_t count )
 {
   if(NULL == L) return L;
 
@@ -76,7 +76,7 @@ INLINE BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, size_t count )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t BSP_leaf_dtor( BSP_leaf_t * L )
+bool_t BSP_leaf_dtor( BSP_leaf_t * L )
 {
   bool_t retval;
 
@@ -89,7 +89,7 @@ INLINE bool_t BSP_leaf_dtor( BSP_leaf_t * L )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t BSP_leaf_insert( BSP_leaf_t * L, BSP_node_t * n )
+bool_t BSP_leaf_insert( BSP_leaf_t * L, BSP_node_t * n )
 {
   if( NULL == L || NULL == n ) return bfalse;
 
@@ -101,7 +101,7 @@ INLINE bool_t BSP_leaf_insert( BSP_leaf_t * L, BSP_node_t * n )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE bool_t BSP_tree_allocate( BSP_tree_t * t, size_t count, size_t children )
+bool_t BSP_tree_allocate( BSP_tree_t * t, size_t count, size_t children )
 {
   size_t i;
 
@@ -123,7 +123,7 @@ INLINE bool_t BSP_tree_allocate( BSP_tree_t * t, size_t count, size_t children )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t BSP_tree_deallocate( BSP_tree_t * t )
+bool_t BSP_tree_deallocate( BSP_tree_t * t )
 {
   size_t i;
 
@@ -144,7 +144,7 @@ INLINE bool_t BSP_tree_deallocate( BSP_tree_t * t )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE BSP_tree_t * BSP_tree_ctor_default(BSP_tree_t * t)
+BSP_tree_t * BSP_tree_ctor_default(BSP_tree_t * t)
 {
   int i, j, k;
   int children, current_node;
@@ -178,7 +178,7 @@ INLINE BSP_tree_t * BSP_tree_ctor_default(BSP_tree_t * t)
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth)
+BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth)
 {
   Sint32 count, children;
 
@@ -203,7 +203,7 @@ INLINE BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth)
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t BSP_tree_dtor( BSP_tree_t * t )
+bool_t BSP_tree_dtor( BSP_tree_t * t )
 {
   bool_t retval;
 
@@ -215,7 +215,7 @@ INLINE bool_t BSP_tree_dtor( BSP_tree_t * t )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE Sint32 BSP_tree_count_nodes(Sint32 dim, Sint32 depth)
+Sint32 BSP_tree_count_nodes(Sint32 dim, Sint32 depth)
 {
   int itmp;
   Sint32 node_count;
@@ -232,7 +232,7 @@ INLINE Sint32 BSP_tree_count_nodes(Sint32 dim, Sint32 depth)
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t BSP_tree_insert( BSP_tree_t * t, BSP_leaf_t * L, BSP_node_t * n, int index )
+bool_t BSP_tree_insert( BSP_tree_t * t, BSP_leaf_t * L, BSP_node_t * n, int index )
 {
   if( NULL == t || NULL == L || NULL == n ) return bfalse;
   if( index > (int)L->child_count ) return bfalse;

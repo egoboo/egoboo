@@ -5693,7 +5693,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     // is the character in a safe location?
     if ( 0 == __chrhitawall( pchr, NULL, NULL ) )
     {
-        int new_tile = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+        Uint32 new_tile = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
         if( new_tile != pchr->onwhichfan )
         {
             pchr->pos_safe   = pchr->pos;
@@ -6177,7 +6177,7 @@ chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 
     // Set up initial fade in lighting
     pinst->color_amb = 0;
-    for ( cnt = 0; cnt < SDL_arraysize( pinst->vlst ); cnt++ )
+    for ( cnt = 0; cnt < pinst->vlst_size; cnt++ )
     {
         pinst->vlst[cnt].color_dir = 0;
     }
@@ -7535,8 +7535,7 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
     /// @details BB@> Fill the grip_verts[] array from the mount's data.
     ///     Return the number of vertices found.
 
-    int i, vrt_count;
-	Uint32 tnc;
+    int i, vrt_count, tnc;
 
     chr_t * pmount;
     mad_t * pmount_mad;

@@ -127,7 +127,7 @@ EGO_CONST aabb_lst_t * aabb_lst_realloc(aabb_lst_t * lst, int count)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE EGO_CONST aabb_ary_t * bbox_ary_ctor(aabb_ary_t * ary)
+EGO_CONST aabb_ary_t * bbox_ary_ctor(aabb_ary_t * ary)
 {
   if(NULL == ary) return NULL;
 
@@ -137,7 +137,7 @@ INLINE EGO_CONST aabb_ary_t * bbox_ary_ctor(aabb_ary_t * ary)
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE EGO_CONST aabb_ary_t * bbox_ary_dtor(aabb_ary_t * ary)
+EGO_CONST aabb_ary_t * bbox_ary_dtor(aabb_ary_t * ary)
 {
   int i;
 
@@ -160,7 +160,7 @@ INLINE EGO_CONST aabb_ary_t * bbox_ary_dtor(aabb_ary_t * ary)
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE EGO_CONST aabb_ary_t * bbox_ary_renew(aabb_ary_t * ary)
+EGO_CONST aabb_ary_t * bbox_ary_renew(aabb_ary_t * ary)
 {
   if(NULL == ary) return NULL;
   bbox_ary_dtor(ary);
@@ -168,7 +168,7 @@ INLINE EGO_CONST aabb_ary_t * bbox_ary_renew(aabb_ary_t * ary)
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE EGO_CONST aabb_ary_t * bbox_ary_alloc(aabb_ary_t * ary, int count)
+EGO_CONST aabb_ary_t * bbox_ary_alloc(aabb_ary_t * ary, int count)
 {
   if(NULL == ary) return NULL;
 
@@ -192,6 +192,8 @@ OVolume_t OVolume_merge(OVolume_t * pv1, OVolume_t * pv2)
 {
   OVolume_t rv;
 
+  // construct the OVolume
+  memset( &rv, 0, sizeof(rv) );
   rv.lod = -1;
 
   if(NULL ==pv1 && NULL ==pv2)
@@ -256,6 +258,8 @@ OVolume_t OVolume_intersect(OVolume_t * pv1, OVolume_t * pv2)
 {
   OVolume_t rv;
 
+  // construct the OVolume
+  memset( &rv, 0, sizeof(rv) );
   rv.lod = -1;
 
   if(NULL == pv1 || NULL == pv2)

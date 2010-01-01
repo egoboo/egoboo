@@ -533,7 +533,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->team        = team;
     pprt->owner_ref   = chr_origin;
     pprt->parent_ref  = prt_origin;
-    pprt->parent_guid = ALLOCATED_PRT( prt_origin ) ? PrtList.lst[prt_origin].obj_base.guid : ( ~0 );
+    pprt->parent_guid = ALLOCATED_PRT( prt_origin ) ? PrtList.lst[prt_origin].obj_base.guid : ((Uint32)( ~0 ));
     pprt->damagetype  = ppip->damagetype;
 
     // Lighting and sound

@@ -347,7 +347,8 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
                                      "LA", "LG", "LD", "LC", "RA", "RG", "RD", "RC", NULL
                                    }; /* the "bad" token aliases */
 
-    char * ptmp, * ptmp_end, *paction, *paction_end;
+    const char * ptmp, * ptmp_end;
+    char *paction, *paction_end;
 
     MD2_Model_t * md2;
     MD2_Frame_t * pframe;
