@@ -90,12 +90,15 @@ static void   get_code( int read );
 
 static void load_ai_codes( const char* loadname );
 
-// static void   copy_one_line( int write );
-// static int    load_parsed_line( int read );
-// static void   parse_null_terminate_comments();
-// static int    starts_with_capital_letter();
-// static Uint32 get_high_bits();
-// static void   log_code( int ainumber, const char* savename );
+// functions for debugging the scripts
+#if defined(DEBUG_SCRIPTS) && defined(USE_DEBUG)
+    static void print_token();
+    static void print_line();
+#else
+#   define print_token()
+#   define print_line()
+#endif
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -134,7 +137,7 @@ void insert_space( int position )
             position++;
         }
 
-        cLineBuffer[position] = CSTR_END; // or cTmp as cTmp == '\0'
+        cLineBuffer[position] = CSTR_END; // or cTmp as cTmp == CSTR_END
     }
 }
 
@@ -365,7 +368,7 @@ int parse_token( int read )
         read++;
         cTmp = cLineBuffer[read];
     }
-    if ( read >= iLineSize )  { /* print_token(); */ return read; }
+    if ( read >= iLineSize )  { print_token(); return read; }
 
     // Load the word into the other buffer
     wordsize = 0;
@@ -378,12 +381,12 @@ int parse_token( int read )
     Token.cWord[wordsize] = CSTR_END;
 
     // Check for numeric constant
-    if ( Token.cWord[0] >= '0' && Token.cWord[0] <= '9' )
+    if ( 0 != isdigit(Token.cWord[0]) )
     {
         sscanf( Token.cWord, "%d", &Token.iValue );
         Token.cType  = 'C';
         Token.iIndex = MAX_OPCODE;
-        { /* print_token(); */  return read; }
+        { print_token();  return read; }
     }
 
     // Check for IDSZ constant
@@ -395,36 +398,8 @@ int parse_token( int read )
         Token.cType  = 'C';
         Token.iIndex = MAX_OPCODE;
 
-        { /* print_token(); */  return read; }
+        { print_token();  return read; }
     }
-
-    // compare in a case-insensitive manner. there is a unix-based function that does this,
-    // but it is not sommon enough on non-linux compilers to be cross platform compatible
-    // for ( cnt = 0; cnt < OpList.count; cnt++ )
-    // {
-    //   int i, maxlen;
-    //   char * ptok, *pcode;
-    //   bool_t found;
-
-    //   ptok   = Token.cWord;
-    //   pcode  = OpList.lst[cnt].cName;
-    //   maxlen = MAXCODENAMESIZE;
-
-    //   found = btrue;
-    //   for( i = 0; i < maxlen && CSTR_END != *ptok && CSTR_END != pcode; i++ )
-    //   {
-    //       if( toupper( *ptok ) != toupper( *pcode ) )
-    //       {
-    //           found = bfalse;
-    //           break;
-    //       }
-
-    //       ptok++;
-    //       pcode++;
-    //   }
-
-    //   if ( CSTR_END == *ptok && CSTR_END == *pcode && found ) break;
-    // }
 
     for ( cnt = 0; cnt < OpList.count; cnt++ )
     {
@@ -457,7 +432,7 @@ int parse_token( int read )
         parseerror = btrue;
     }
 
-    { /* print_token(); */  return read; }
+    { print_token();  return read; }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -495,7 +470,9 @@ void parse_line_by_line()
         read = load_one_line( read );
         if ( 0 == iLineSize ) continue;
 
-        // print_line();
+#if defined(DEBUG_SCRIPTS) && defined(USE_DEBUG)
+        print_line();
+#endif
 
         fix_operators();
         parseposition = 0;
@@ -846,85 +823,44 @@ void init_all_ai_scripts()
 }
 
 //--------------------------------------------------------------------------------------------
-// int load_parsed_line( int read )
-// {
-//   /// @details ZZ@> This function loads a line into the line buffer
-//
-//   char cTmp;
-
-//   // Parse to start to maintain indentation
-//   iLineSize = 0;
-//   cTmp = cLoadBuffer[read];
-
-//   while ( CSTR_END != cTmp )
-//   {
-//       cLineBuffer[iLineSize] = cTmp;  iLineSize++;
-//       read++;  cTmp = cLoadBuffer[read];
-//   }
-
-//   cLineBuffer[iLineSize] = CSTR_END;
-//   read++; // skip terminating zero for next call of load_parsed_line()
-//   return read;
-// }
+#if defined(DEBUG_SCRIPTS) && defined(USE_DEBUG)
+void print_token()
+{
+    printf("------------\n", globalparsename, Token.iLine);
+    printf("\tToken.iIndex == %d\n", Token.iIndex);
+    printf("\tToken.iValue == %d\n", Token.iValue);
+    printf("\tToken.cType  == \'%c\'\n", Token.cType);
+    printf("\tToken.cWord  == \"%s\"\n", Token.cWord);
+}
+#endif
 
 //--------------------------------------------------------------------------------------------
-// void parse_null_terminate_comments()
-// {
-//   /// @details ZZ@> This function removes comments and endline codes, replacing
-//   ///    them with a 0
-//
-//   int read, write;
+#if defined(DEBUG_SCRIPTS) && defined(USE_DEBUG)
+void print_line()
+{
+    int i;
+    char cTmp;
 
-//   read = 0;
-//   write = 0;
+    printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token.iLine);
 
-//   while ( read < iLoadSize )
-//   {
-//       read = load_one_line( read );
+    printf( "\tline == \"" );
 
-//       if ( iLineSize > 2 )
-//       {
-//           copy_one_line( write );
-//           write += iLineSize;
-//       }
-//   }
-// }
+    for(i=0; i<iLineSize; i++)
+    {
+        cTmp = cLineBuffer[i];
+        if( isprint(cTmp) )
+        {
+            printf( "%c", cTmp );
+        }
+        else
+        {
+            printf( "\\%03d", cTmp );
+        }
+    };
 
-//--------------------------------------------------------------------------------------------
-// void print_token()
-// {
-//   printf("------------\n", globalparsename, Token.iLine);
-//   printf("\tToken.iIndex == %d\n", Token.iIndex);
-//   printf("\tToken.iValue == %d\n", Token.iValue);
-//   printf("\tToken.cType  == \'%c\'\n", Token.cType);
-//   printf("\tToken.cWord  == \"%s\"\n", Token.cWord);
-// }
-
-//--------------------------------------------------------------------------------------------
-// void print_line()
-// {
-//   int i;
-//   char cTmp;
-
-//   printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token.iLine);
-
-//   printf( "\tline == \"" );
-
-//   for(i=0; i<iLineSize; i++)
-//   {
-//       cTmp = cLineBuffer[i];
-//       if( isprint(cTmp) )
-//       {
-//           printf( "%c", cTmp );
-//       }
-//       else
-//       {
-//           printf( "\\%03d", cTmp );
-//       }
-//   };
-
-//   printf( "\", length == %d\n", iLineSize);
-// }
+    printf( "\", length == %d\n", iLineSize);
+}
+#endif
 
 /** Preparation for eliminating aicodes.txt except for introducing aliases
 DEFINE_FUNCTION( FIFSPAWNED,                       "IfSpawned"    )                          // == 0
@@ -1606,3 +1542,48 @@ DEFINE_FUNCTION( FIFSTATEIS7,    IfStateIsCombat    )
 DEFINE_FUNCTION( FIFXISEQUALTOY,    IfYIsEqualToX    )
 DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
 */
+
+//--------------------------------------------------------------------------------------------
+// int load_parsed_line( int read )
+// {
+//   /// @details ZZ@> This function loads a line into the line buffer
+//
+//   char cTmp;
+
+//   // Parse to start to maintain indentation
+//   iLineSize = 0;
+//   cTmp = cLoadBuffer[read];
+
+//   while ( CSTR_END != cTmp )
+//   {
+//       cLineBuffer[iLineSize] = cTmp;  iLineSize++;
+//       read++;  cTmp = cLoadBuffer[read];
+//   }
+
+//   cLineBuffer[iLineSize] = CSTR_END;
+//   read++; // skip terminating zero for next call of load_parsed_line()
+//   return read;
+// }
+
+//--------------------------------------------------------------------------------------------
+// void parse_null_terminate_comments()
+// {
+//   /// @details ZZ@> This function removes comments and endline codes, replacing
+//   ///    them with a 0
+//
+//   int read, write;
+
+//   read = 0;
+//   write = 0;
+
+//   while ( read < iLoadSize )
+//   {
+//       read = load_one_line( read );
+
+//       if ( iLineSize > 2 )
+//       {
+//           copy_one_line( write );
+//           write += iLineSize;
+//       }
+//   }
+// }

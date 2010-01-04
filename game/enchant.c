@@ -526,7 +526,7 @@ void enchant_apply_add( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
     peve = EveStack.lst + ieve;
 
-    if( !peve->addyesno[valueindex] )
+    if ( !peve->addyesno[valueindex] )
     {
         penc->addyesno[valueindex] = bfalse;
         penc->addsave[valueindex]  = 0.0f;
@@ -681,7 +681,7 @@ void enchant_apply_add( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     }
 
     // save whether there was any change in the value
-    penc->addyesno[valueindex] = (0.0f != fvaluetoadd);
+    penc->addyesno[valueindex] = ( 0.0f != fvaluetoadd );
 
     // Save the value for undo
     penc->addsave[valueindex]  = valuetoadd;
@@ -1035,7 +1035,7 @@ void enchant_remove_set( Uint16 ienc, Uint8 valueindex )
     if ( !ALLOCATED_ENC( ienc ) ) return;
     penc = EncList.lst + ienc;
 
-    if( valueindex >= MAX_ENCHANT_SET || !penc->setyesno[valueindex] ) return;
+    if ( valueindex >= MAX_ENCHANT_SET || !penc->setyesno[valueindex] ) return;
 
     if ( !ACTIVE_CHR( penc->target_ref ) ) return;
     character = penc->target_ref;
@@ -1160,7 +1160,7 @@ void enchant_remove_add( Uint16 ienc, Uint8 valueindex )
     character = penc->target_ref;
     ptarget = ChrList.lst + penc->target_ref;
 
-    if( penc->addyesno[valueindex] )
+    if ( penc->addyesno[valueindex] )
     {
         switch ( valueindex )
         {

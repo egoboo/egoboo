@@ -19,7 +19,8 @@
 //*
 //********************************************************************************************
 
-#include "egoboo_typedef.h"
+#include "bsp.h"
+
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -30,6 +31,16 @@ struct s_mad;
 struct s_eve;
 struct s_pip;
 struct Mix_Chunk;
+
+struct s_mpd_BSP;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#ifdef __cplusplus
+#    define REF_TO_INT(X) ((Uint16)(X))
+#else
+#    define REF_TO_INT(X) (X)
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -73,9 +84,11 @@ struct s_chop_data
 };
 typedef struct s_chop_data chop_data_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+chop_data_t * chop_data_init( chop_data_t * pdata );
 
+bool_t        chop_export( const char *szSaveName, const char * szChop );
+
+//--------------------------------------------------------------------------------------------
 /// Defintion of a single chop secttion
 struct s_chop_section
 {
@@ -84,6 +97,7 @@ struct s_chop_section
 };
 typedef struct s_chop_section chop_section_t;
 
+//--------------------------------------------------------------------------------------------
 /// Defintion of the chop info needed to create a name
 struct s_chop_definition
 {
@@ -91,11 +105,10 @@ struct s_chop_definition
 };
 typedef struct s_chop_definition chop_definition_t;
 
-chop_definition_t * chop_definition_init( chop_definition_t * );
+chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 /// a wrapper for all the datafiles in the *.obj dir
 struct s_object_profile
 {
@@ -127,23 +140,11 @@ struct s_object_profile
 typedef struct s_object_profile object_profile_t;
 typedef struct s_object_profile pro_t;
 
-#define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
-#define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern Uint16  bookicon_count;
-extern Uint16  bookicon_ref[MAX_SKIN];                      ///< The first book icon
-
-extern pro_import_t import_data;
-
-extern chop_data_t chop_mem;
+// the profile list
 
 DEFINE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void init_profile_system();
 
 void   ProList_init();
 //void   ProList_free_all();
@@ -166,27 +167,68 @@ struct Mix_Chunk * pro_get_chunk( Uint16 iobj, int index );
 int    pro_get_slot( const char * tmploadname, int slot_override );
 
 int    load_one_profile( const char* tmploadname, int slot_override );
-void   release_all_pro();
-bool_t release_one_pro( Uint16 override );
 
+#define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
+#define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+extern Uint16  bookicon_count;
+extern Uint16  bookicon_ref[MAX_SKIN];                      ///< The first book icon
+
+extern pro_import_t import_data;
+
+extern chop_data_t chop_mem;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// the BSP structure housing the object
+struct s_obj_BSP
+{
+    size_t       chr_node_count;
+    BSP_node_t * chr_nodes;
+
+    size_t       prt_node_count;
+    BSP_node_t * prt_nodes;
+
+    oct_bb_t     volume;
+    BSP_tree_t   tree;
+};
+
+typedef struct s_obj_BSP obj_BSP_t;
+
+bool_t obj_BSP_start( obj_BSP_t * pbsp, struct s_mpd_BSP * pmesh_bsp, int chr_count, int prt_count );
+bool_t obj_BSP_end( obj_BSP_t * pbsp );
+bool_t obj_BSP_init( obj_BSP_t * pbsp );
+
+bool_t obj_BSP_fill( obj_BSP_t * pbsp );
+bool_t obj_BSP_empty( obj_BSP_t * pbsp );
+
+bool_t obj_BSP_insert_node( obj_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[], int address_z[] );
+bool_t obj_BSP_insert_obj_node( obj_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[], int address_z[] );
+
+int    obj_BSP_collide( obj_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size );
+
+extern obj_BSP_t obj_BSP_root;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void init_profile_system();
+
+void   init_all_profiles();
 int    load_profile_skins( const char * tmploadname, Uint16 object );
 void   load_all_messages( const char *loadname, Uint16 object );
-bool_t release_one_local_pips( Uint16 iobj );
-void   release_all_local_pips();
-
 void   release_all_pro_data();
-
-void init_all_profiles();
-void release_all_profiles();
+void   release_all_profiles();
+void   release_all_pro();
+void   release_all_local_pips();
+bool_t release_one_pro( Uint16 override );
+bool_t release_one_local_pips( Uint16 iobj );
 
 void reset_messages();
 
 const char * pro_create_chop( Uint16 iprofile );
 bool_t       pro_load_chop( Uint16 profile, const char *szLoadname );
 
-chop_data_t * chop_data_init( chop_data_t * pdata );
-chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
-
 const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );
 bool_t        chop_load( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );
-bool_t        chop_export( const char *szSaveName, const char * szChop );

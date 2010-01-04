@@ -296,7 +296,7 @@ void MD2_GLCommand_dtor( MD2_GLCommand_t * m )
         MD2_GLCommand_dtor( m->next );
 
         // delete the empty node
-        MD2_GLCommand_destroy( &(m->next) );
+        MD2_GLCommand_destroy( &( m->next ) );
     };
 
     EGOBOO_DELETE( m->data );
@@ -348,7 +348,7 @@ void MD2_GLCommand_delete_vector( MD2_GLCommand_t * v, int n )
 //--------------------------------------------------------------------------------------------
 MD2_Model_t * md2_ctor( MD2_Model_t * m )
 {
-    if( NULL == m ) return m;
+    if ( NULL == m ) return m;
 
     m->m_numVertices  = 0;
     m->m_numTexCoords = 0;
@@ -470,18 +470,18 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             pframe->vertices[tnc].pos.y *= scale_y;
             pframe->vertices[tnc].pos.z *= scale_z;
 
-            pframe->vertices[tnc].nrm.x *= SGN(scale_x);
-            pframe->vertices[tnc].nrm.y *= SGN(scale_y);
-            pframe->vertices[tnc].nrm.z *= SGN(scale_z);
+            pframe->vertices[tnc].nrm.x *= SGN( scale_x );
+            pframe->vertices[tnc].nrm.y *= SGN( scale_y );
+            pframe->vertices[tnc].nrm.z *= SGN( scale_z );
 
             pframe->vertices[tnc].nrm = fvec3_normalize( pframe->vertices[tnc].nrm.v );
 
-            vec_to_oct_vec( pframe->vertices[tnc].pos, opos );
+            oct_vec_ctor( opos, pframe->vertices[tnc].pos );
 
             // Re-calculate the bounding box for this frame
             if ( !bfound )
             {
-                for( cnt = 0; cnt < OCT_COUNT; cnt ++ )
+                for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
                 {
                     pframe->bb.mins[cnt] = pframe->bb.maxs[cnt] = opos[cnt];
                 }
@@ -490,7 +490,7 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             }
             else
             {
-                for( cnt = 0; cnt < OCT_COUNT; cnt ++ )
+                for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
                 {
                     pframe->bb.mins[cnt] = MIN( pframe->bb.mins[cnt], opos[cnt] );
                     pframe->bb.maxs[cnt] = MAX( pframe->bb.maxs[cnt], opos[cnt] );

@@ -67,9 +67,20 @@ static bool_t mesh_make_bbox( ego_mpd_t * pmesh );
 
 static float grid_get_mix( float u0, float u, float v0, float v );
 
+bool_t   mesh_BSP_collide_nodes( BSP_node_t node_lst[], oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mpd_t            mesh;
+ego_mpd_t   mesh;
+
+mpd_BSP_t   mesh_BSP_root =
+{
+    0,        // size_t
+    NULL      // BSP_node_t *
+};
+
+static int mesh_BSP_collide_leaf_lvl   = 0;
+static int mesh_BSP_collide_nodes_count = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -158,9 +169,9 @@ ego_mpd_t * mesh_dtor( ego_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return NULL;
 
-    if( NULL == mesh_mem_dtor( &( pmesh->tmem  ) ) ) return NULL;
-    if( NULL == grid_mem_dtor( &( pmesh->gmem  ) ) ) return NULL;
-    if( NULL == mesh_info_dtor( &( pmesh->info ) ) ) return NULL;
+    if ( NULL == mesh_mem_dtor( &( pmesh->tmem ) ) ) return NULL;
+    if ( NULL == grid_mem_dtor( &( pmesh->gmem ) ) ) return NULL;
+    if ( NULL == mesh_info_dtor( &( pmesh->info ) ) ) return NULL;
 
     return pmesh;
 }
@@ -989,13 +1000,13 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < pmesh->info.tiles_count; cnt++ )
     {
-        aabb_t      * pbb;
+        oct_bb_t       * poct;
         ego_tile_info_t * ptile;
         Uint16 vertices;
         Uint8 type;
 
         ptile = ptmem->tile_list + cnt;
-        pbb   = &( ptile->bb );
+        poct   = &( ptile->oct );
 
         type = ptile->type;
         type &= 0x3F;
@@ -1004,28 +1015,28 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
         vertices = tile_dict[type].numvertices;          // Number of vertices
 
         // set the bounding box for this tile
-        pbb->mins[XX] = pbb->maxs[XX] = ptmem->plst[mesh_vrt][XX];
-        pbb->mins[YY] = pbb->maxs[YY] = ptmem->plst[mesh_vrt][YY];
-        pbb->mins[ZZ] = pbb->maxs[ZZ] = ptmem->plst[mesh_vrt][ZZ];
+        poct->mins[XX] = poct->maxs[XX] = ptmem->plst[mesh_vrt][XX];
+        poct->mins[YY] = poct->maxs[YY] = ptmem->plst[mesh_vrt][YY];
+        poct->mins[ZZ] = poct->maxs[ZZ] = ptmem->plst[mesh_vrt][ZZ];
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            pbb->mins[XX] = MIN( pbb->mins[XX], ptmem->plst[mesh_vrt][XX] );
-            pbb->mins[YY] = MIN( pbb->mins[YY], ptmem->plst[mesh_vrt][YY] );
-            pbb->mins[ZZ] = MIN( pbb->mins[ZZ], ptmem->plst[mesh_vrt][ZZ] );
+            poct->mins[XX] = MIN( poct->mins[XX], ptmem->plst[mesh_vrt][XX] );
+            poct->mins[YY] = MIN( poct->mins[YY], ptmem->plst[mesh_vrt][YY] );
+            poct->mins[ZZ] = MIN( poct->mins[ZZ], ptmem->plst[mesh_vrt][ZZ] );
 
-            pbb->maxs[XX] = MAX( pbb->maxs[XX], ptmem->plst[mesh_vrt][XX] );
-            pbb->maxs[YY] = MAX( pbb->maxs[YY], ptmem->plst[mesh_vrt][YY] );
-            pbb->maxs[ZZ] = MAX( pbb->maxs[ZZ], ptmem->plst[mesh_vrt][ZZ] );
+            poct->maxs[XX] = MAX( poct->maxs[XX], ptmem->plst[mesh_vrt][XX] );
+            poct->maxs[YY] = MAX( poct->maxs[YY], ptmem->plst[mesh_vrt][YY] );
+            poct->maxs[ZZ] = MAX( poct->maxs[ZZ], ptmem->plst[mesh_vrt][ZZ] );
         }
 
         // extend the mesh bounding box
-        ptmem->bbox.mins[XX] = MIN( ptmem->bbox.mins[XX], pbb->mins[XX] );
-        ptmem->bbox.mins[YY] = MIN( ptmem->bbox.mins[YY], pbb->mins[YY] );
-        ptmem->bbox.mins[ZZ] = MIN( ptmem->bbox.mins[ZZ], pbb->mins[ZZ] );
+        ptmem->bbox.mins[XX] = MIN( ptmem->bbox.mins[XX], poct->mins[XX] );
+        ptmem->bbox.mins[YY] = MIN( ptmem->bbox.mins[YY], poct->mins[YY] );
+        ptmem->bbox.mins[ZZ] = MIN( ptmem->bbox.mins[ZZ], poct->mins[ZZ] );
 
-        ptmem->bbox.maxs[XX] = MAX( ptmem->bbox.maxs[XX], pbb->maxs[XX] );
-        ptmem->bbox.maxs[YY] = MAX( ptmem->bbox.maxs[YY], pbb->maxs[YY] );
-        ptmem->bbox.maxs[ZZ] = MAX( ptmem->bbox.maxs[ZZ], pbb->maxs[ZZ] );
+        ptmem->bbox.maxs[XX] = MAX( ptmem->bbox.maxs[XX], poct->maxs[XX] );
+        ptmem->bbox.maxs[YY] = MAX( ptmem->bbox.maxs[YY], poct->maxs[YY] );
+        ptmem->bbox.maxs[ZZ] = MAX( ptmem->bbox.maxs[ZZ], poct->maxs[ZZ] );
     }
 
     return btrue;
@@ -1462,7 +1473,7 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int fan, float pos[], float *
     int ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
     float u, v, wt, weight_sum;
 
-    aabb_t         * bb;
+    oct_bb_t       * poct;
     light_cache_t  * lc;
 
     if ( NULL == plight ) return bfalse;
@@ -1470,12 +1481,12 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int fan, float pos[], float *
 
     if ( NULL == pmem ) return bfalse;
 
-    bb = &( pmem->tile_list[fan].bb );
-    lc = &( pmem->tile_list[fan].lcache );
+    poct = &( pmem->tile_list[fan].oct );
+    lc   = &( pmem->tile_list[fan].lcache );
 
     // determine a u,v coordinate for the vertex
-    u = ( pos[XX] - bb->mins[XX] ) / ( bb->maxs[XX] - bb->mins[XX] );
-    v = ( pos[YY] - bb->mins[YY] ) / ( bb->maxs[YY] - bb->mins[YY] );
+    u = ( pos[XX] - poct->mins[XX] ) / ( poct->maxs[XX] - poct->mins[XX] );
+    v = ( pos[YY] - poct->mins[YY] ) / ( poct->maxs[YY] - poct->mins[YY] );
 
     // average the cached data on the 4 corners of the mesh
     weight_sum = 0.0f;
@@ -1542,10 +1553,10 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     ego_grid_info_t * glist;
 
     // deal with the optional parameters
-    if( NULL == pressure ) pressure = &loc_pressure;
+    if ( NULL == pressure ) pressure = &loc_pressure;
     *pressure = 0.0f;
 
-    if( NULL == nrm ) nrm =  loc_nrm;
+    if ( NULL == nrm ) nrm =  loc_nrm;
     nrm[kX] = nrm[kY] = nrm[kZ] = 0.0f;
 
     if ( NULL == pos || 0 == bits ) return 0;
@@ -1667,8 +1678,8 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                     if ( HAS_SOME_BITS( glist[itile].fx, bits ) )
                     {
                         // hiting the mesh
-                        nrm[kX] += ( (ovl_x_max + ovl_x_min) * 0.5f - pos[kX] ) * area_ratio;
-                        nrm[kY] += ( (ovl_y_max + ovl_y_min) * 0.5f - pos[kY] ) * area_ratio;
+                        nrm[kX] += (( ovl_x_max + ovl_x_min ) * 0.5f - pos[kX] ) * area_ratio;
+                        nrm[kY] += (( ovl_y_max + ovl_y_min ) * 0.5f - pos[kY] ) * area_ratio;
 
                         // do not count it as a hit unless there is a 25% overlap
                         if ( area_ratio > 0.25f )
@@ -1679,8 +1690,8 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                     else
                     {
                         // not hitting the mesh
-                        nrm[kX] -= ((ovl_x_max + ovl_x_min) * 0.5f - pos[kX] ) * area_ratio;
-                        nrm[kY] -= ((ovl_y_max + ovl_y_min) * 0.5f - pos[kY] ) * area_ratio;
+                        nrm[kX] -= (( ovl_x_max + ovl_x_min ) * 0.5f - pos[kX] ) * area_ratio;
+                        nrm[kY] -= (( ovl_y_max + ovl_y_min ) * 0.5f - pos[kY] ) * area_ratio;
                     }
                 }
             }
@@ -1777,9 +1788,9 @@ float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xm
 //--------------------------------------------------------------------------------------------
 ego_tile_info_t * ego_tile_info_init( ego_tile_info_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
-    memset(ptr, 0, sizeof(*ptr) );
+    memset( ptr, 0, sizeof( *ptr ) );
 
     // set the non-zero, non-NULL, non-bfalse values
     ptr->fanoff             = btrue;
@@ -1795,7 +1806,7 @@ ego_tile_info_t * ego_tile_info_alloc()
     ego_tile_info_t * retval = NULL;
 
     retval = EGOBOO_NEW( ego_tile_info_t );
-    if(NULL == retval) return NULL;
+    if ( NULL == retval ) return NULL;
 
     return ego_tile_info_init( retval );
 }
@@ -1805,9 +1816,9 @@ ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count )
 {
     int cnt;
 
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
-    for( cnt = 0; cnt<count; cnt++ )
+    for ( cnt = 0; cnt < count; cnt++ )
     {
         ego_tile_info_init( ptr + cnt );
     }
@@ -1821,7 +1832,268 @@ ego_tile_info_t * ego_tile_info_alloc_ary( size_t count )
     ego_tile_info_t * retval = NULL;
 
     retval = EGOBOO_NEW_ARY( ego_tile_info_t, count );
-    if(NULL == retval) return NULL;
+    if ( NULL == retval ) return NULL;
 
-    return ego_tile_info_init_ary(retval, count);
+    return ego_tile_info_init_ary( retval, count );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_init_1( mpd_BSP_t * pbsp, ego_mpd_t * pmesh, int size_x, int size_y )
+{
+    // BB> Create a new BSP tree for the mesh.
+    //     These parameters duplicate the max resolution of the old system.
+
+    int i;
+    int depth;
+    BSP_node_t * pnode;
+
+    if ( NULL == pmesh ) return bfalse;
+
+    depth = ceil( log( 0.5f * MAX( size_x, size_y ) ) / log( 2.0f ) );
+
+    // make a 2D BSP tree with "max depth" depth
+    BSP_tree_ctor_1( &( pbsp->tree ), 2, depth );
+
+    // allocate nodes for all of the tiles
+    pbsp->nodes = EGOBOO_NEW_ARY( BSP_node_t, pmesh->gmem.grid_count );
+    for ( i = 0; i < pmesh->gmem.grid_count; i++ )
+    {
+        pnode = pbsp->nodes + i;
+
+        // let data type 1 stand for a tile, -1 is uninitialized
+        BSP_node_ctor( pnode, pmesh->tmem.tile_list + i, 1 );
+        pnode->index = i;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp )
+{
+    if ( NULL == pbsp ) return NULL;
+
+    BSP_tree_clear( &( pbsp->tree ) );
+
+    EGOBOO_DELETE( pbsp->nodes );
+    pbsp->node_count = 0;
+    pbsp->volume.mins[OCT_X] = pbsp->volume.maxs[OCT_X] = 0.0f;
+
+    return pbsp;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_insert_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[] )
+{
+    int i;
+    bool_t retval;
+    Uint32 index;
+    BSP_leaf_t * pleaf, * pnew_leaf;
+    BSP_tree_t * ptree = &( pbsp->tree );
+
+    retval = bfalse;
+    if ( depth < 0 )
+    {
+        // this can only happen if the node does not intersect the BSP bounding box
+        pnode->next = ptree->infinite;
+        ptree->infinite = pnode;
+        retval = btrue;
+    }
+    else if ( 0 == depth )
+    {
+        // this can only happen if the tile should be in the root node list
+        pnode->next = ptree->root->nodes;
+        ptree->root->nodes = pnode;
+        retval = btrue;
+    }
+    else
+    {
+        // insert the node into the tree at this point
+        pleaf = ptree->root;
+        for ( i = 0; i < depth; i++ )
+        {
+            index = (( Uint32 )address_x[i] ) + ((( Uint32 )address_y[i] ) << 1 );
+
+            pnew_leaf = BSP_tree_ensure_leaf( ptree, pleaf, index );
+            if ( NULL == pnew_leaf ) break;
+
+            pleaf = pnew_leaf;
+        };
+
+        // insert the node in this leaf
+        retval = BSP_tree_insert( ptree, pleaf, pnode, -1 );
+    };
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, mpd_mem_t * mem )
+{
+    int tile;
+    int * address_x, * address_y;
+
+    BSP_tree_t * ptree = &( pbsp->tree );
+
+    address_x = EGOBOO_NEW_ARY( int, ptree->depth );
+    address_y = EGOBOO_NEW_ARY( int, ptree->depth );
+
+    for ( tile = 0; tile < mem->tile_count; tile++ )
+    {
+        mpd_BSP_insert_tile_node( pbsp, pbsp->nodes + tile, ptree->depth, address_x, address_y );
+    }
+
+    EGOBOO_DELETE( address_x );
+    EGOBOO_DELETE( address_y );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mesh_BSP_collide_nodes( BSP_node_t node_lst[], oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
+{
+    // BB > check for collisions with the given node list
+
+    BSP_node_t      * pnode;
+    ego_tile_info_t * ptile;
+    oct_bb_t         int_ov;
+
+    if ( NULL == node_lst || NULL == pvobj || NULL == pcolst_index ) return bfalse;
+    if ( *pcolst_index >= colist_size || 0 == colist_size ) return bfalse;
+
+    for ( pnode = node_lst; NULL != pnode; pnode = pnode->next )
+    {
+        assert( pnode->data_type >= 0 );
+
+        ptile = ( ego_tile_info_t * )pnode->data;
+        if ( oct_bb_empty( ptile->oct ) ) continue;
+
+        if ( oct_bb_intersection( *pvobj, ptile->oct, &int_ov ) )
+        {
+            // we have a possible intersection
+            colst[*pcolst_index] = pnode->index;
+            ( *pcolst_index )++;
+            mesh_BSP_collide_nodes_count++;
+
+            if (( *pcolst_index ) >= colist_size )
+            {
+                // too many nodes. break out of the search.
+                mesh_BSP_collide_leaf_lvl--;
+                return bfalse;
+            };
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mesh_BSP_collide_leaf( BSP_leaf_t * pleaf, oct_bb_t * pvleaf, oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
+{
+    // BB > Recursively search the BSP tree for collisions with the pvobj
+    //      Return bfalse if we need to break out of the recursive search for any reson.
+
+    int i;
+    oct_bb_t int_ov, tmp_ov;
+    float    x_mid, y_mid;
+    int      address_x, address_y;
+
+    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return bfalse;
+    if ( NULL == pvleaf || oct_bb_empty( *pvleaf ) ) return bfalse;
+
+    // return if the object does not intersect the leaf
+    if ( !oct_bb_intersection( *pvobj, *pvleaf, &int_ov ) )
+    {
+        return bfalse;
+    }
+
+    mesh_BSP_collide_leaf_lvl++;
+
+    // check the nodes
+    if ( !mesh_BSP_collide_nodes( pleaf->nodes, pvobj, colst, colist_size, pcolst_index ) )
+    {
+        return bfalse;
+    }
+
+    // check for collisions with any of the children
+    x_mid = ( pvleaf->maxs[OCT_X] + pvleaf->mins[OCT_X] ) * 0.5f;
+    y_mid = ( pvleaf->maxs[OCT_Y] + pvleaf->mins[OCT_Y] ) * 0.5f;
+    for ( i = 0; i < pleaf->child_count; i++ )
+    {
+        // scan all the children
+        if ( NULL == pleaf->children[i] ) continue;
+
+        // create the volume of this node
+        address_x = i & ( 1 << 0 );
+        address_y = i & ( 1 << 1 );
+
+        tmp_ov = *( pvleaf );
+
+        if ( 0 == address_x )
+        {
+            tmp_ov.mins[OCT_X] = x_mid;
+        }
+        else
+        {
+            tmp_ov.maxs[OCT_X] = x_mid;
+        }
+
+        if ( 0 == address_y )
+        {
+            tmp_ov.mins[OCT_Y] = y_mid;
+        }
+        else
+        {
+            tmp_ov.maxs[OCT_Y] = y_mid;
+        }
+
+        if ( oct_bb_intersection( *pvobj, tmp_ov, &int_ov ) )
+        {
+            // potential interaction with the child. go recursive!
+            bool_t   ret = mesh_BSP_collide_leaf( pleaf->children[i], &( tmp_ov ), pvobj, colst, colist_size, pcolst_index );
+            if ( !ret ) { mesh_BSP_collide_leaf_lvl--; return ret; }
+        }
+    }
+
+    mesh_BSP_collide_leaf_lvl--;
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int mpd_BSP_collide( mpd_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size )
+{
+    // BB > fill the collision list with references to tiles that the object volume may overlap.
+    //      Return the number of collisions found.
+
+    int collision_count;
+
+    mesh_BSP_collide_leaf_lvl   = 0;
+    mesh_BSP_collide_nodes_count = 0;
+
+    if ( NULL == pbsp || NULL == pvobj || 0 == colist_size ) return 0;
+
+    // do the actual collisions
+    collision_count = 0;
+
+    // collide with any "infinite" nodes
+    mesh_BSP_collide_nodes( pbsp->tree.infinite, pvobj, colst, colist_size, &collision_count );
+
+    // collise with the rest of the tree
+    mesh_BSP_collide_leaf( pbsp->tree.root, &( pbsp->volume ), pvobj, colst, colist_size, &collision_count );
+
+    return collision_count;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_insert_tile_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[] )
+{
+    // BB> insert a tile wrapped in a BSP_node_t into the BSP_tree_t
+
+    int i;
+    ego_tile_info_t * ptile = ( ego_tile_info_t * )( pnode->data );
+
+    i = BSP_find_address_2d( pbsp->volume, ptile->oct, depth, address_x, address_y );
+
+    return mpd_BSP_insert_node( pbsp, pnode, i, address_x, address_y );
 }

@@ -48,35 +48,35 @@
  * developers. The preferred coding style is</P>
  *
  * <UL>
- * 	<LI><P>Use our variant of the ansi-coding style, where opening brackets are
- * 	placed on their own line (except in the case of single-line function
- *	blocks), etc. You can call the run_astyle.sh macro or call &quot;astyle
- * 	--mode=c -s4bCSKNwm4pDUoOcZ&quot; to achieve the formatting used in
- * 	the code</P>
+ *  <LI><P>Use our variant of the ansi-coding style, where opening brackets are
+ *  placed on their own line (except in the case of single-line function
+ *  blocks), etc. You can call the run_astyle.sh macro or call &quot;astyle
+ *  --mode=c -s4bCSKNwm4pDUoOcZ&quot; to achieve the formatting used in
+ *  the code</P>
  *
- * 	<LI><P>When
- * 	naming variables or functions, avoid CamelCase naming in favor of
- * 	using underscores to separate  multi-word identifiers.</P>
+ *  <LI><P>When
+ *  naming variables or functions, avoid CamelCase naming in favor of
+ *  using underscores to separate  multi-word identifiers.</P>
  *
- * 	<LI><P>When creating data structures, look forward to the conversion of the
- * 	program to C++. This means that you should provide a default
- * 	initialization function, and a function to delete any dynamically
- * 	created data housed within the structure. You should also use a
- *	naming convention that is consistent with C++.  For instance, if we
- * 	had started with the C++ class foo, and the function foo::bar(), we
- * 	could say that the C function name should be foo_bar(). So, just
- * 	name everything by the convention module_function_name() or
- * 	struct_type_function_name(), so that the conversion to C++ will go
- * 	as smooth as possible.</P>
+ *  <LI><P>When creating data structures, look forward to the conversion of the
+ *  program to C++. This means that you should provide a default
+ *  initialization function, and a function to delete any dynamically
+ *  created data housed within the structure. You should also use a
+ *  naming convention that is consistent with C++.  For instance, if we
+ *  had started with the C++ class foo, and the function foo::bar(), we
+ *  could say that the C function name should be foo_bar(). So, just
+ *  name everything by the convention module_function_name() or
+ *  struct_type_function_name(), so that the conversion to C++ will go
+ *  as smooth as possible.</P>
  *
- * 	<LI><P>Please respect that certain functions and modules will not be converted to
- * 	C++. These modules have not been marked yet, but they are : enet,
- * 	and the file_formats/id_*.* md2 loading code, and the extensions/*.*
- * 	code. This also includes (to a lesser degree) the the
- * 	file_formats/configfile.* module. The basic reason is  that this
- *	code is being used in multiple projects that are intended to share
- * 	the code. If you must, do something to upgrade the code, make
- * 	wrapper code. :)</P>
+ *  <LI><P>Please respect that certain functions and modules will not be converted to
+ *  C++. These modules have not been marked yet, but they are : enet,
+ *  and the file_formats/id_*.* md2 loading code, and the extensions/*.*
+ *  code. This also includes (to a lesser degree) the the
+ *  file_formats/configfile.* module. The basic reason is  that this
+ *  code is being used in multiple projects that are intended to share
+ *  the code. If you must, do something to upgrade the code, make
+ *  wrapper code. :)</P>
  * </UL>
  *
  * <P> As mentioned above, a lot of the code organization is completely
@@ -98,16 +98,16 @@
  * developers.</P>
  *
  * <UL>
- * 	<LI><P>ZZ&gt;
- *	= &quot;Programmer X&quot; = &quot;Aaron Bishop&quot;</P>
- * 	<LI><P>JF&gt;
- * 	= &quot;Justin Fisher&quot;
- * 	</P>
- * 	<LI><P>ZF&gt;
- * 	= &quot;Zefz&quot; = &quot;Johann Jensen&quot;
- * 	</P>
- * 	<LI><P>BB&gt;
- * 	= &quot;Ben Birdsey&quot;</P>
+ *  <LI><P>ZZ&gt;
+ *  = &quot;Programmer X&quot; = &quot;Aaron Bishop&quot;</P>
+ *  <LI><P>JF&gt;
+ *  = &quot;Justin Fisher&quot;
+ *  </P>
+ *  <LI><P>ZF&gt;
+ *  = &quot;Zefz&quot; = &quot;Johann Jensen&quot;
+ *  </P>
+ *  <LI><P>BB&gt;
+ *  = &quot;Ben Birdsey&quot;</P>
  * </UL>
  *
  * <P>We have been very careful to maintain a proper &quot;chain of
@@ -131,24 +131,24 @@
  * <P>There are several large projects that could definitely benefit the project:</P>
  *
  * <UL>
- * 	<LI><P>Conversion of various game systems to more modern algorithms. Many of these
- * 	have been  implemented in the trunk version and could be ported over
- * 	into the current program. For instance,  the octree collision
- * 	detection.</P>
+ *  <LI><P>Conversion of various game systems to more modern algorithms. Many of these
+ *  have been  implemented in the trunk version and could be ported over
+ *  into the current program. For instance,  the octree collision
+ *  detection.</P>
  *
- *	<LI><P>The program is currently implemented using a lot of roll-your-own code
- * 	to run on SDL with OpenGL. Personally, I would like to see a
- * 	migration to something like irrLicht or another game engine that has
- * 	a much faster architecture.</P>
+ *  <LI><P>The program is currently implemented using a lot of roll-your-own code
+ *  to run on SDL with OpenGL. Personally, I would like to see a
+ *  migration to something like irrLicht or another game engine that has
+ *  a much faster architecture.</P>
  *
- * 	<LI><P>The ability to load more than one type of character model (md3, ms3d,
- * 	etc.) and the ability to  load up more than one terrain mesh (i.e.
- * 	for the buildings to be loaded as separate meshes)</P>
+ *  <LI><P>The ability to load more than one type of character model (md3, ms3d,
+ *  etc.) and the ability to  load up more than one terrain mesh (i.e.
+ *  for the buildings to be loaded as separate meshes)</P>
  *
- * 	<LI><P>Full implementation of randomly generated meshes / modules</P>
+ *  <LI><P>Full implementation of randomly generated meshes / modules</P>
  *
- * 	<LI><P>Full conversion to some kind of &quot;normal&quot; scripting language
- * 	like Lua</P>
+ *  <LI><P>Full conversion to some kind of &quot;normal&quot; scripting language
+ *  like Lua</P>
  *</UL>
  *
  * <H3>Philosophy</H3>
@@ -158,8 +158,8 @@
  *
  * <P>In any case, we have always fallen back to two questions: </P>
  * <OL>
- * 	<LI><P>What would make this more rogue-like?  </P>
- * 	<LI><P>Did Aaron say anything about it in his dev documents?  </P>
+ *  <LI><P>What would make this more rogue-like?  </P>
+ *  <LI><P>Did Aaron say anything about it in his dev documents?  </P>
  * </OL>
  *
  * <P>Thankfully, that has settled most arguments! There are still some open questions

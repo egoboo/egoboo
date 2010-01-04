@@ -530,7 +530,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
     pprt->team        = team;
     pprt->owner_ref   = chr_origin;
     pprt->parent_ref  = prt_origin;
-    pprt->parent_guid = ALLOCATED_PRT( prt_origin ) ? PrtList.lst[prt_origin].obj_base.guid : ((Uint32)( ~0 ));
+    pprt->parent_guid = ALLOCATED_PRT( prt_origin ) ? PrtList.lst[prt_origin].obj_base.guid : (( Uint32 )( ~0 ) );
     pprt->damagetype  = ppip->damagetype;
 
     // Lighting and sound
@@ -730,7 +730,7 @@ Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16
 
     // is the spawn location safe?
     pprt->pos_safe = tmp_pos;
-    pprt->safe_valid = (0 == __prthitawall( pprt, NULL, NULL ));
+    pprt->safe_valid = ( 0 == __prthitawall( pprt, NULL, NULL ) );
 
     // gat an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !ACTIVE_CHR( pprt->attachedto_ref );
@@ -781,8 +781,8 @@ Uint32 __prthitawall( prt_t * pprt, float nrm[], float * pressure )
     if ( ppip->bumpmoney ) bits |= MPDFX_WALL;
 
     // deal with the optional parameters
-    if( NULL == pressure ) pressure = &loc_pressure;
-    if( NULL == nrm      ) nrm      =  loc_nrm;
+    if ( NULL == pressure ) pressure = &loc_pressure;
+    if ( NULL == nrm ) nrm      =  loc_nrm;
 
     return mesh_hitawall( PMesh, pprt->pos.v, 0.0f, bits, nrm, pressure );
 }
@@ -1793,7 +1793,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     }
 
     // handle the collision
-    if ( hit_a_floor && (ppip->endground || ppip->endbump) )
+    if ( hit_a_floor && ( ppip->endground || ppip->endbump ) )
     {
         prt_request_terminate( iprt );
         return btrue;
@@ -1824,7 +1824,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     }
 
     // handle the collision
-    if ( hit_a_wall && (ppip->endwall || ppip->endbump) )
+    if ( hit_a_wall && ( ppip->endwall || ppip->endbump ) )
     {
         prt_request_terminate( iprt );
         return btrue;
@@ -1951,7 +1951,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     if ( 0 == __prthitawall( pprt, NULL, NULL ) )
     {
         int new_tile = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-        if( new_tile != pprt->onwhichfan )
+        if ( new_tile != pprt->onwhichfan )
         {
             pprt->pos_safe   = pprt->pos;
             pprt->safe_valid = btrue;
@@ -2132,10 +2132,10 @@ void cleanup_all_particles()
 
         if ( !ACTIVE_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = MAX_CHR;
         if ( !ACTIVE_CHR( pinfo->chr_attach ) ) pinfo->chr_attach = MAX_CHR;
-        if ( !ACTIVE_CHR( pinfo->oldtarget  ) ) pinfo->oldtarget  = MAX_CHR;
+        if ( !ACTIVE_CHR( pinfo->oldtarget ) ) pinfo->oldtarget  = MAX_CHR;
 
-        if ( !LOADED_PRO( pinfo->iprofile   ) ) pinfo->iprofile  = MAX_PROFILE;
-        if ( !LOADED_PIP( pinfo->ipip       ) ) pinfo->ipip      = MAX_PIP;
+        if ( !LOADED_PRO( pinfo->iprofile ) ) pinfo->iprofile  = MAX_PROFILE;
+        if ( !LOADED_PIP( pinfo->ipip ) ) pinfo->ipip      = MAX_PIP;
 
         spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->ipip,
                             pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,

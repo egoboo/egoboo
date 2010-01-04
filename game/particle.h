@@ -117,10 +117,11 @@ struct s_prt
     int     time_frame;                      ///< Duration of particle
     Uint16  spawntime;                       ///< Time until spawn
 
-    bumper_t   bump;                         ///< Size of bumpers
-    Uint16  bumplist_next;                   ///< Next particle on fanblock
-    IPair   damage;                          ///< For strength
-    Uint8   damagetype;                      ///< Damage type
+    bumper_t bump;                            ///< Size of bumpers
+    oct_bb_t chr_prt_cv;                      ///< Collision volume for chr-prt interactions
+    Uint16   bumplist_next;                   ///< Next particle on fanblock
+    IPair    damage;                          ///< For strength
+    Uint8    damagetype;                      ///< Damage type
 
     bool_t  is_eternal;
 

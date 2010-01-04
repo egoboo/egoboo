@@ -477,21 +477,21 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
         // no it is not safe. what to do? nothing, or add the current position?
         //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
 
-        pcap = chr_get_pcap( GET_INDEX_PCHR(pchr) );
+        pcap = chr_get_pcap( GET_INDEX_PCHR( pchr ) );
 
-        if( NULL != pcap )
+        if ( NULL != pcap )
         {
             log_warning( "scr_AddWaypoint() - failed to add a waypoint because object was \"inside\" a wall.\n"
-                "\tcharacter %d (\"%s\", \"%s\")\n"
-                "\tWaypoint index %d\n"
-                "\tWaypoint location (in tiles) <%f,%f>\n"
-                "\tWall normal <%1.4f,%1.4f>\n"
-                "\tPressure %f\n",
-                GET_INDEX_PCHR(pchr), pchr->Name, pcap->name,
-                pself->wp_lst.head,
-                pos.x / TILE_SIZE, pos.y / TILE_SIZE,
-                nrm.x, nrm.y,
-                SQRT(pressure) / TILE_SIZE );
+                         "\tcharacter %d (\"%s\", \"%s\")\n"
+                         "\tWaypoint index %d\n"
+                         "\tWaypoint location (in tiles) <%f,%f>\n"
+                         "\tWall normal <%1.4f,%1.4f>\n"
+                         "\tPressure %f\n",
+                         GET_INDEX_PCHR( pchr ), pchr->Name, pcap->name,
+                         pself->wp_lst.head,
+                         pos.x / TILE_SIZE, pos.y / TILE_SIZE,
+                         nrm.x, nrm.y,
+                         SQRT( pressure ) / TILE_SIZE );
         }
     }
 #endif
@@ -6485,10 +6485,10 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	returncode = bfalse;
+    returncode = bfalse;
     if ( ChrList.lst[pself->target].isplayer && quest_add_idsz( chr_get_dir_name( pself->target ), pstate->argument ) )
     {
-		returncode = btrue;
+        returncode = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6511,8 +6511,8 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = PlaList[sTmp].index;
         if ( !ACTIVE_CHR( ichr ) ) continue;
 
-        if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )	//@todo: ZF> this doesnt actually work
-        {																									// sending 0 as adjustment doesnt "beat" the quest
+        if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )   //@todo: ZF> this doesnt actually work
+        {                                                                                                   // sending 0 as adjustment doesnt "beat" the quest
             returncode = btrue;
         }
     }
@@ -6634,7 +6634,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        pits.kill = btrue;			//make it kill instead
+        pits.kill = btrue;          //make it kill instead
     }
 
     SCRIPT_FUNCTION_END();
@@ -7009,9 +7009,9 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	pchr->money = CLIP(pstate->argument, 0, MAXMONEY);
+    pchr->money = CLIP( pstate->argument, 0, MAXMONEY );
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------

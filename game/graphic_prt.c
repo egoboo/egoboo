@@ -51,7 +51,7 @@ int prt_get_texture_style( Uint32 itex )
     int index;
 
     index = -1;
-    switch( itex )
+    switch ( itex )
     {
         case TX_PARTICLE_TRANS:
             index = 0;
@@ -72,15 +72,15 @@ void prt_set_texture_params( Uint32 itex )
     oglx_texture * ptex;
 
     index = prt_get_texture_style( itex );
-    if( index < 0 ) return;
+    if ( index < 0 ) return;
 
-    ptex = TxTexture_get_ptr(itex);
-    if( NULL == ptex ) return;
+    ptex = TxTexture_get_ptr( itex );
+    if ( NULL == ptex ) return;
 
     ptex_w[index] = ptex->imgW;
     ptex_h[index] = ptex->imgH;
-    ptex_wscale[index] = (float)ptex->imgW / (float)ptex->base.width;
-    ptex_hscale[index] = (float)ptex->imgH / (float)ptex->base.height;
+    ptex_wscale[index] = ( float )ptex->imgW / ( float )ptex->base.width;
+    ptex_hscale[index] = ( float )ptex->imgH / ( float )ptex->base.height;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -573,7 +573,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 
     if ( NULL == vlst || NULL == pinst ) return;
 
-    switch( pinst->texture_ref )
+    switch ( pinst->texture_ref )
     {
         default:
         case TX_PARTICLE_TRANS:
@@ -622,17 +622,17 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
     vlst[3].pos[YY] += ( -prt_right.y + prt_up.y ) * size;
     vlst[3].pos[ZZ] += ( -prt_right.z + prt_up.z ) * size;
 
-    vlst[0].tex[SS] = CALCULATE_PRT_U1(index, pinst->image_ref);
-    vlst[0].tex[TT] = CALCULATE_PRT_V1(index, pinst->image_ref);
+    vlst[0].tex[SS] = CALCULATE_PRT_U1( index, pinst->image_ref );
+    vlst[0].tex[TT] = CALCULATE_PRT_V1( index, pinst->image_ref );
 
-    vlst[1].tex[SS] = CALCULATE_PRT_U0(index, pinst->image_ref);
-    vlst[1].tex[TT] = CALCULATE_PRT_V1(index, pinst->image_ref);
+    vlst[1].tex[SS] = CALCULATE_PRT_U0( index, pinst->image_ref );
+    vlst[1].tex[TT] = CALCULATE_PRT_V1( index, pinst->image_ref );
 
-    vlst[2].tex[SS] = CALCULATE_PRT_U0(index, pinst->image_ref);
-    vlst[2].tex[TT] = CALCULATE_PRT_V0(index, pinst->image_ref);
+    vlst[2].tex[SS] = CALCULATE_PRT_U0( index, pinst->image_ref );
+    vlst[2].tex[TT] = CALCULATE_PRT_V0( index, pinst->image_ref );
 
-    vlst[3].tex[SS] = CALCULATE_PRT_U1(index, pinst->image_ref);
-    vlst[3].tex[TT] = CALCULATE_PRT_V0(index, pinst->image_ref);
+    vlst[3].tex[SS] = CALCULATE_PRT_U1( index, pinst->image_ref );
+    vlst[3].tex[TT] = CALCULATE_PRT_V0( index, pinst->image_ref );
 }
 
 //--------------------------------------------------------------------------------------------

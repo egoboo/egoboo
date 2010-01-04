@@ -173,7 +173,7 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
 //--------------------------------------------------------------------------------------------
 egoboo_console_t * egoboo_console_ctor( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data )
 {
-    if( NULL == pcon ) return NULL;
+    if ( NULL == pcon ) return NULL;
 
     // reset all the console data
     memset( pcon, 0, sizeof( *pcon ) );

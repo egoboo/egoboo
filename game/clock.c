@@ -30,38 +30,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-static clock_source_ptr_t _clock_timeSource = NULL;
-
-static clock_source_ptr_t clock_getTimeSource()
-{
-    if ( NULL == _clock_timeSource )
-    {
-        _clock_timeSource = sys_getTime;
-    }
-
-    return _clock_timeSource;
-}
-
-void clk_setTimeSource( clock_source_ptr_t tsrc )
-{
-    if ( NULL != tsrc )
-    {
-        _clock_timeSource = tsrc;
-    }
-}
-
-void clk_init()
-{
-    log_info( "Initializing clock services...\n" );
-
-    clock_getTimeSource();
-}
-
-void clk_shutdown()
-{
-    _clock_timeSource = NULL;
-}
-
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// The description of a single clock
 struct s_ClockState
 {
@@ -92,6 +62,45 @@ static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
 static double clk_guessFrameDuration( ClockState_t * cs );
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static clock_source_ptr_t _clock_timeSource = NULL;
+
+static clock_source_ptr_t clock_getTimeSource()
+{
+    if ( NULL == _clock_timeSource )
+    {
+        _clock_timeSource = sys_getTime;
+    }
+
+    return _clock_timeSource;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void clk_setTimeSource( clock_source_ptr_t tsrc )
+{
+    if ( NULL != tsrc )
+    {
+        _clock_timeSource = tsrc;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void clk_init()
+{
+    log_info( "Initializing clock services...\n" );
+
+    clock_getTimeSource();
+}
+
+//--------------------------------------------------------------------------------------------
+void clk_shutdown()
+{
+    _clock_timeSource = NULL;
+}
+
+//--------------------------------------------------------------------------------------------
 ClockState_t * clk_create( const char * name, int size )
 {
     ClockState_t * cs;
@@ -101,6 +110,7 @@ ClockState_t * clk_create( const char * name, int size )
     return clk_ctor( cs, name, size );
 }
 
+//--------------------------------------------------------------------------------------------
 bool_t clk_destroy( ClockState_t ** pcs )
 {
     bool_t retval;
@@ -113,6 +123,7 @@ bool_t clk_destroy( ClockState_t ** pcs )
     return retval;
 }
 
+//--------------------------------------------------------------------------------------------
 ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int size )
 {
     clock_source_ptr_t psrc;
@@ -134,6 +145,7 @@ ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int size )
     return cs;
 }
 
+//--------------------------------------------------------------------------------------------
 bool_t clk_dtor( ClockState_t * cs )
 {
     if ( NULL == cs ) return bfalse;
@@ -143,6 +155,7 @@ bool_t clk_dtor( ClockState_t * cs )
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
 ClockState_t * clk_renew( ClockState_t * cs )
 {
     const char * name;
@@ -155,6 +168,7 @@ ClockState_t * clk_renew( ClockState_t * cs )
     return clk_ctor( cs, name, size );
 }
 
+//--------------------------------------------------------------------------------------------
 void clk_setFrameHistoryWindow( ClockState_t * cs, int size )
 {
     double *history;
@@ -183,6 +197,7 @@ void clk_setFrameHistoryWindow( ClockState_t * cs, int size )
     cs->frameHistory = history;
 }
 
+//--------------------------------------------------------------------------------------------
 double clk_guessFrameDuration( ClockState_t * cs )
 {
     double time = 0;
@@ -207,6 +222,7 @@ double clk_guessFrameDuration( ClockState_t * cs )
     return time;
 }
 
+//--------------------------------------------------------------------------------------------
 void clk_addToFrameHistory( ClockState_t * cs, double frame )
 {
     cs->frameHistory[cs->frameHistoryHead] = frame;
@@ -224,6 +240,7 @@ void clk_addToFrameHistory( ClockState_t * cs, double frame )
     }
 }
 
+//--------------------------------------------------------------------------------------------
 double clk_getExactLastFrameDuration( ClockState_t * cs )
 {
     clock_source_ptr_t psrc;
@@ -251,6 +268,7 @@ double clk_getExactLastFrameDuration( ClockState_t * cs )
     return timeElapsed;
 }
 
+//--------------------------------------------------------------------------------------------
 void clk_frameStep( ClockState_t * cs )
 {
     double lastFrame = clk_getExactLastFrameDuration( cs );
@@ -265,21 +283,25 @@ void clk_frameStep( ClockState_t * cs )
     cs->frameNumber++;
 }
 
+//--------------------------------------------------------------------------------------------
 double clk_getTime( ClockState_t * cs )
 {
     return cs->currentTime;
 }
 
+//--------------------------------------------------------------------------------------------
 double clk_getFrameDuration( ClockState_t * cs )
 {
     return cs->frameTime;
 }
 
+//--------------------------------------------------------------------------------------------
 Uint32 clk_getFrameNumber( ClockState_t * cs )
 {
     return cs->frameNumber;
 }
 
+//--------------------------------------------------------------------------------------------
 float clk_getFrameRate( ClockState_t * cs )
 {
     return ( float )( 1.0 / cs->frameTime );

@@ -389,12 +389,12 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
         if ( isdigit( *ptmp ) ) break;
         *paction = *ptmp;
     }
-    if ( paction < paction_end ) *paction = '\0';
+    if ( paction < paction_end ) *paction = CSTR_END;
 
-    name_fx[0] = '\0';
+    name_fx[0] = CSTR_END;
     fields = sscanf( ptmp, "%d %15s", &name_count, name_fx );
-    name_action[15] = '\0';
-    name_fx[15] = '\0';
+    name_action[15] = CSTR_END;
+    name_fx[15] = CSTR_END;
 
     // check for a non-trivial fx command
     if ( !VALID_CSTR( name_fx ) ) return;
@@ -402,7 +402,7 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
     // scan the fx string for valid commands
     ptmp     = name_fx;
     ptmp_end = name_fx + 15;
-    while ( '\0' != *ptmp && ptmp < ptmp_end )
+    while ( CSTR_END != *ptmp && ptmp < ptmp_end )
     {
         int len;
         int token_index = -1;
@@ -446,7 +446,7 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
                 case  4: // "A" == action
 
                     // get any modifiers
-                    while (( '\0' != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
+                    while (( CSTR_END != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
                     {
                         fx |= ( 'L' == *ptmp ) ? MADFX_ACTLEFT : MADFX_ACTRIGHT;
                         ptmp++;
@@ -456,7 +456,7 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
                 case  5: // "G" == grab
 
                     // get any modifiers
-                    while (( '\0' != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
+                    while (( CSTR_END != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
                     {
                         fx |= ( 'L' == *ptmp ) ? MADFX_GRABLEFT : MADFX_GRABRIGHT;
                         ptmp++;
@@ -466,7 +466,7 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
                 case  6: // "D" == drop
 
                     // get any modifiers
-                    while (( '\0' != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
+                    while (( CSTR_END != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
                     {
                         fx |= ( 'L' == *ptmp ) ? MADFX_DROPLEFT : MADFX_DROPRIGHT;
                         ptmp++;
@@ -476,7 +476,7 @@ void mad_get_framefx( const char * cFrameName, int model, int frame )
                 case  7: // "C" == grab a character
 
                     // get any modifiers
-                    while (( '\0' != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
+                    while (( CSTR_END != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
                     {
                         fx |= ( 'L' == *ptmp ) ? MADFX_CHARLEFT : MADFX_CHARRIGHT;
                         ptmp++;
@@ -607,7 +607,7 @@ void load_action_names( const char* loadname )
     vfs_FILE* fileread;
     int cnt;
 
-    char first = '\0', second = '\0';
+    char first = CSTR_END, second = CSTR_END;
     STRING comment;
     bool_t found;
 
@@ -616,7 +616,7 @@ void load_action_names( const char* loadname )
 
     for ( cnt = 0; cnt < ACTION_COUNT; cnt++ )
     {
-        comment[0] = '\0';
+        comment[0] = CSTR_END;
 
         found = bfalse;
         if ( goto_colon( NULL, fileread, bfalse ) )
@@ -631,18 +631,18 @@ void load_action_names( const char* loadname )
         {
             cActionName[cnt][0] = first;
             cActionName[cnt][1] = second;
-            cActionComent[cnt][0] = '\0';
+            cActionComent[cnt][0] = CSTR_END;
 
             if ( VALID_CSTR( comment ) )
             {
                 strncpy( cActionComent[cnt], comment, SDL_arraysize( cActionComent[cnt] ) );
-                cActionComent[cnt][255] = '\0';
+                cActionComent[cnt][255] = CSTR_END;
             }
         }
         else
         {
-            cActionName[cnt][0] = '\0';
-            cActionComent[cnt][0] = '\0';
+            cActionName[cnt][0] = CSTR_END;
+            cActionComent[cnt][0] = CSTR_END;
         }
     }
 
@@ -695,7 +695,7 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
     pmad->md2_ptr = md2_load( vfs_resolveReadFilename( newloadname ), NULL );
 
     // set the model's file name
-    szModelName[0] = '\0';
+    szModelName[0] = CSTR_END;
     if ( NULL != pmad->md2_ptr )
     {
         strncpy( szModelName, vfs_resolveReadFilename( newloadname ), SDL_arraysize( szModelName ) );

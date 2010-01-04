@@ -36,9 +36,9 @@ static OVolume_t cv_list[1000];
 //--------------------------------------------------------------------------------------------
 struct s_cv_point_data
 {
-  bool_t  inside;
-  fvec3_t   pos;
-  float   rads;
+    bool_t  inside;
+    fvec3_t   pos;
+    float   rads;
 };
 typedef struct s_cv_point_data cv_point_data_t;
 
@@ -46,610 +46,610 @@ static int cv_point_data_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_ctor(aabb_lst_t * lst)
+EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst )
 {
-  if(NULL == lst) return NULL;
-  memset(lst, 0, sizeof(aabb_lst_t));
-  return lst;
+    if ( NULL == lst ) return NULL;
+    memset( lst, 0, sizeof( aabb_lst_t ) );
+    return lst;
 }
 
 //--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_dtor(aabb_lst_t * lst)
+EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst )
 {
-  if(NULL == lst) return NULL;
+    if ( NULL == lst ) return NULL;
 
-  if( lst->count > 0 )
-  {
-    EGOBOO_DELETE(lst->list);
-  }
-
-  lst->count = 0;
-  lst->list  = NULL;
-
-  return lst;
-}
-
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_renew(aabb_lst_t * lst)
-{
-  if(NULL == lst) return NULL;
-
-  aabb_lst_dtor(lst);
-  return aabb_lst_ctor(lst);
-}
-
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_alloc(aabb_lst_t * lst, int count)
-{
-  if(NULL == lst) return NULL;
-
-  aabb_lst_dtor(lst);
-
-  if(count>0)
-  {
-    lst->list = EGOBOO_NEW_ARY( ego_aabb_t, count );
-    if(NULL != lst->list)
+    if ( lst->count > 0 )
     {
-      lst->count = count;
+        EGOBOO_DELETE( lst->list );
     }
-  }
 
-  return lst;
-}
-
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_realloc(aabb_lst_t * lst, int count)
-{
-  // check for bad list
-  if(NULL == lst) return NULL;
-
-  // check for no change in the count
-  if(count == lst->count) return lst;
-
-  // check another dumb case
-  if(count==0)
-  {
-    return aabb_lst_dtor(lst);
-  }
-
-  lst->list = (ego_aabb_t *)realloc(lst->list, count * sizeof(ego_aabb_t));
-  if(NULL == lst->list)
-  {
     lst->count = 0;
-  }
-  else
-  {
-    lst->count = count;
-  }
+    lst->list  = NULL;
 
-  return lst;
+    return lst;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_ctor(aabb_ary_t * ary)
+EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst )
 {
-  if(NULL == ary) return NULL;
+    if ( NULL == lst ) return NULL;
 
-  memset(ary, 0, sizeof(aabb_ary_t));
-
-  return ary;
+    aabb_lst_dtor( lst );
+    return aabb_lst_ctor( lst );
 }
 
 //--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_dtor(aabb_ary_t * ary)
+EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count )
 {
-  int i;
+    if ( NULL == lst ) return NULL;
 
-  if(NULL == ary) return NULL;
+    aabb_lst_dtor( lst );
 
-  if(NULL !=ary->list)
-  {
-    for(i=0; i<ary->count; i++)
+    if ( count > 0 )
     {
-      aabb_lst_dtor(ary->list + i);
+        lst->list = EGOBOO_NEW_ARY( ego_aabb_t, count );
+        if ( NULL != lst->list )
+        {
+            lst->count = count;
+        }
     }
 
-    EGOBOO_DELETE(ary->list);
-  }
-
-  ary->count = 0;
-  ary->list = NULL;
-
-  return ary;
+    return lst;
 }
 
 //--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_renew(aabb_ary_t * ary)
+EGO_CONST aabb_lst_t * aabb_lst_realloc( aabb_lst_t * lst, int count )
 {
-  if(NULL == ary) return NULL;
-  bbox_ary_dtor(ary);
-  return bbox_ary_ctor(ary);
-}
+    // check for bad list
+    if ( NULL == lst ) return NULL;
 
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_alloc(aabb_ary_t * ary, int count)
-{
-  if(NULL == ary) return NULL;
+    // check for no change in the count
+    if ( count == lst->count ) return lst;
 
-  bbox_ary_dtor(ary);
-
-  if(count>0)
-  {
-    ary->list = EGOBOO_NEW_ARY( aabb_lst_t, count );
-    if(NULL != ary->list)
+    // check another dumb case
+    if ( count == 0 )
     {
-      ary->count = count;
-    }
-  }
-
-  return ary;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-OVolume_t OVolume_merge(OVolume_t * pv1, OVolume_t * pv2)
-{
-  OVolume_t rv;
-
-  // construct the OVolume
-  memset( &rv, 0, sizeof(rv) );
-  rv.lod = -1;
-
-  if(NULL ==pv1 && NULL ==pv2)
-  {
-    return rv;
-  }
-  else if(NULL ==pv2)
-  {
-    return *pv1;
-  }
-  else if(NULL ==pv1)
-  {
-    return *pv2;
-  }
-  else
-  {
-    bool_t binvalid;
-
-    // check for uninitialized volumes
-    if(-1==pv1->lod && -1==pv2->lod)
-    {
-      return rv;
-    }
-    else if(-1==pv1->lod)
-    {
-      return *pv2;
-    }
-    else if(-1==pv2->lod)
-    {
-      return *pv1;
-    };
-
-    // merge the volumes
-
-    rv.oct.mins[OCT_X] = MIN(pv1->oct.mins[OCT_X], pv2->oct.mins[OCT_X]);
-    rv.oct.maxs[OCT_X] = MAX(pv1->oct.maxs[OCT_X], pv2->oct.maxs[OCT_X]);
-
-    rv.oct.mins[OCT_Y] = MIN(pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_Y]);
-    rv.oct.maxs[OCT_Y] = MAX(pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_Y]);
-
-    rv.oct.mins[OCT_Z] = MIN(pv1->oct.mins[OCT_Z], pv2->oct.mins[OCT_Z]);
-    rv.oct.maxs[OCT_Z] = MAX(pv1->oct.maxs[OCT_Z], pv2->oct.maxs[OCT_Z]);
-
-    rv.oct.mins[OCT_XY] = MIN(pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_XY]);
-    rv.oct.maxs[OCT_XY] = MAX(pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_XY]);
-
-    rv.oct.mins[OCT_YX] = MIN(pv1->oct.mins[OCT_YX], pv2->oct.mins[OCT_YX]);
-    rv.oct.maxs[OCT_YX] = MAX(pv1->oct.maxs[OCT_YX], pv2->oct.maxs[OCT_YX]);
-
-    // check for an invalid volume
-    binvalid = (rv.oct.mins[OCT_X] >= rv.oct.maxs[OCT_X]) || (rv.oct.mins[OCT_Y] >= rv.oct.maxs[OCT_Y]) || (rv.oct.mins[OCT_Z] >= rv.oct.maxs[OCT_Z]);
-    binvalid = binvalid ||(rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY]) || (rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX]);
-
-    rv.lod = binvalid ? -1 : 1;
-  }
-
-  return rv;
-}
-
-//--------------------------------------------------------------------------------------------
-OVolume_t OVolume_intersect(OVolume_t * pv1, OVolume_t * pv2)
-{
-  OVolume_t rv;
-
-  // construct the OVolume
-  memset( &rv, 0, sizeof(rv) );
-  rv.lod = -1;
-
-  if(NULL == pv1 || NULL == pv2)
-  {
-    return rv;
-  }
-  else
-  {
-    // check for uninitialized volumes
-    if(-1==pv1->lod && -1==pv2->lod)
-    {
-      return rv;
-    }
-    else if(-1==pv1->lod)
-    {
-      return *pv2;
-    }
-    else if (-1==pv2->lod)
-    {
-      return *pv1;
+        return aabb_lst_dtor( lst );
     }
 
-    // intersect the volumes
-    rv.oct.mins[OCT_X] = MAX(pv1->oct.mins[OCT_X], pv2->oct.mins[OCT_X]);
-    rv.oct.maxs[OCT_X] = MIN(pv1->oct.maxs[OCT_X], pv2->oct.maxs[OCT_X]);
-    if(rv.oct.mins[OCT_X] >= rv.oct.maxs[OCT_X]) return rv;
-
-    rv.oct.mins[OCT_Y] = MAX(pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_Y]);
-    rv.oct.maxs[OCT_Y] = MIN(pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_Y]);
-    if(rv.oct.mins[OCT_Y] >= rv.oct.maxs[OCT_Y]) return rv;
-
-    rv.oct.mins[OCT_Z] = MAX(pv1->oct.mins[OCT_Z], pv2->oct.mins[OCT_Z]);
-    rv.oct.maxs[OCT_Z] = MIN(pv1->oct.maxs[OCT_Z], pv2->oct.maxs[OCT_Z]);
-    if(rv.oct.mins[OCT_Z] >= rv.oct.maxs[OCT_Z]) return rv;
-
-    if(pv1->lod >= 0 && pv2->lod >= 0)
+    lst->list = ( ego_aabb_t * )realloc( lst->list, count * sizeof( ego_aabb_t ) );
+    if ( NULL == lst->list )
     {
-      rv.oct.mins[OCT_XY] = MAX(pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_XY]);
-      rv.oct.maxs[OCT_XY] = MIN(pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_XY]);
-      if(rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY]) return rv;
-
-      rv.oct.mins[OCT_YX] = MAX(pv1->oct.mins[OCT_YX], pv2->oct.mins[OCT_YX]);
-      rv.oct.maxs[OCT_YX] = MIN(pv1->oct.maxs[OCT_YX], pv2->oct.maxs[OCT_YX]);
-      if(rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX]) return rv;
-    }
-    else if(pv1->lod >= 0)
-    {
-      rv.oct.mins[OCT_XY] = MAX(pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y]);
-      rv.oct.maxs[OCT_XY] = MIN(pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y]);
-      if(rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY]) return rv;
-
-      rv.oct.mins[OCT_YX] = MAX(pv1->oct.mins[OCT_YX], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y]);
-      rv.oct.maxs[OCT_YX] = MIN(pv1->oct.maxs[OCT_YX], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y]);
-      if(rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX]) return rv;
-    }
-    else if(pv2->lod >= 0)
-    {
-      rv.oct.mins[OCT_XY] = MAX(pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_XY]);
-      rv.oct.maxs[OCT_XY] = MIN(pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_XY]);
-      if(rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY]) return rv;
-
-      rv.oct.mins[OCT_YX] = MAX(-pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_YX]);
-      rv.oct.maxs[OCT_YX] = MIN(-pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_YX]);
-      if(rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX]) return rv;
+        lst->count = 0;
     }
     else
     {
-      rv.oct.mins[OCT_XY] = MAX(pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y]);
-      rv.oct.maxs[OCT_XY] = MIN(pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y]);
-      if(rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY]) return rv;
-
-      rv.oct.mins[OCT_YX] = MAX(-pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y]);
-      rv.oct.maxs[OCT_YX] = MIN(-pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y]);
-      if(rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX]) return rv;
+        lst->count = count;
     }
 
-    if(0 == pv1->lod && 0 == pv2->lod)
+    return lst;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary )
+{
+    if ( NULL == ary ) return NULL;
+
+    memset( ary, 0, sizeof( aabb_ary_t ) );
+
+    return ary;
+}
+
+//--------------------------------------------------------------------------------------------
+EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary )
+{
+    int i;
+
+    if ( NULL == ary ) return NULL;
+
+    if ( NULL != ary->list )
     {
-      rv.lod = 0;
+        for ( i = 0; i < ary->count; i++ )
+        {
+            aabb_lst_dtor( ary->list + i );
+        }
+
+        EGOBOO_DELETE( ary->list );
+    }
+
+    ary->count = 0;
+    ary->list = NULL;
+
+    return ary;
+}
+
+//--------------------------------------------------------------------------------------------
+EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary )
+{
+    if ( NULL == ary ) return NULL;
+    bbox_ary_dtor( ary );
+    return bbox_ary_ctor( ary );
+}
+
+//--------------------------------------------------------------------------------------------
+EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count )
+{
+    if ( NULL == ary ) return NULL;
+
+    bbox_ary_dtor( ary );
+
+    if ( count > 0 )
+    {
+        ary->list = EGOBOO_NEW_ARY( aabb_lst_t, count );
+        if ( NULL != ary->list )
+        {
+            ary->count = count;
+        }
+    }
+
+    return ary;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+OVolume_t OVolume_merge( OVolume_t * pv1, OVolume_t * pv2 )
+{
+    OVolume_t rv;
+
+    // construct the OVolume
+    memset( &rv, 0, sizeof( rv ) );
+    rv.lod = -1;
+
+    if ( NULL == pv1 && NULL == pv2 )
+    {
+        return rv;
+    }
+    else if ( NULL == pv2 )
+    {
+        return *pv1;
+    }
+    else if ( NULL == pv1 )
+    {
+        return *pv2;
     }
     else
     {
-      rv.lod = MIN(pv1->lod, pv2->lod);
-    }
-  }
+        bool_t binvalid;
 
-  return rv;
+        // check for uninitialized volumes
+        if ( -1 == pv1->lod && -1 == pv2->lod )
+        {
+            return rv;
+        }
+        else if ( -1 == pv1->lod )
+        {
+            return *pv2;
+        }
+        else if ( -1 == pv2->lod )
+        {
+            return *pv1;
+        };
+
+        // merge the volumes
+
+        rv.oct.mins[OCT_X] = MIN( pv1->oct.mins[OCT_X], pv2->oct.mins[OCT_X] );
+        rv.oct.maxs[OCT_X] = MAX( pv1->oct.maxs[OCT_X], pv2->oct.maxs[OCT_X] );
+
+        rv.oct.mins[OCT_Y] = MIN( pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_Y] );
+        rv.oct.maxs[OCT_Y] = MAX( pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_Y] );
+
+        rv.oct.mins[OCT_Z] = MIN( pv1->oct.mins[OCT_Z], pv2->oct.mins[OCT_Z] );
+        rv.oct.maxs[OCT_Z] = MAX( pv1->oct.maxs[OCT_Z], pv2->oct.maxs[OCT_Z] );
+
+        rv.oct.mins[OCT_XY] = MIN( pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_XY] );
+        rv.oct.maxs[OCT_XY] = MAX( pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_XY] );
+
+        rv.oct.mins[OCT_YX] = MIN( pv1->oct.mins[OCT_YX], pv2->oct.mins[OCT_YX] );
+        rv.oct.maxs[OCT_YX] = MAX( pv1->oct.maxs[OCT_YX], pv2->oct.maxs[OCT_YX] );
+
+        // check for an invalid volume
+        binvalid = ( rv.oct.mins[OCT_X] >= rv.oct.maxs[OCT_X] ) || ( rv.oct.mins[OCT_Y] >= rv.oct.maxs[OCT_Y] ) || ( rv.oct.mins[OCT_Z] >= rv.oct.maxs[OCT_Z] );
+        binvalid = binvalid || ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) || ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] );
+
+        rv.lod = binvalid ? -1 : 1;
+    }
+
+    return rv;
+}
+
+//--------------------------------------------------------------------------------------------
+OVolume_t OVolume_intersect( OVolume_t * pv1, OVolume_t * pv2 )
+{
+    OVolume_t rv;
+
+    // construct the OVolume
+    memset( &rv, 0, sizeof( rv ) );
+    rv.lod = -1;
+
+    if ( NULL == pv1 || NULL == pv2 )
+    {
+        return rv;
+    }
+    else
+    {
+        // check for uninitialized volumes
+        if ( -1 == pv1->lod && -1 == pv2->lod )
+        {
+            return rv;
+        }
+        else if ( -1 == pv1->lod )
+        {
+            return *pv2;
+        }
+        else if ( -1 == pv2->lod )
+        {
+            return *pv1;
+        }
+
+        // intersect the volumes
+        rv.oct.mins[OCT_X] = MAX( pv1->oct.mins[OCT_X], pv2->oct.mins[OCT_X] );
+        rv.oct.maxs[OCT_X] = MIN( pv1->oct.maxs[OCT_X], pv2->oct.maxs[OCT_X] );
+        if ( rv.oct.mins[OCT_X] >= rv.oct.maxs[OCT_X] ) return rv;
+
+        rv.oct.mins[OCT_Y] = MAX( pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_Y] );
+        rv.oct.maxs[OCT_Y] = MIN( pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_Y] );
+        if ( rv.oct.mins[OCT_Y] >= rv.oct.maxs[OCT_Y] ) return rv;
+
+        rv.oct.mins[OCT_Z] = MAX( pv1->oct.mins[OCT_Z], pv2->oct.mins[OCT_Z] );
+        rv.oct.maxs[OCT_Z] = MIN( pv1->oct.maxs[OCT_Z], pv2->oct.maxs[OCT_Z] );
+        if ( rv.oct.mins[OCT_Z] >= rv.oct.maxs[OCT_Z] ) return rv;
+
+        if ( pv1->lod >= 0 && pv2->lod >= 0 )
+        {
+            rv.oct.mins[OCT_XY] = MAX( pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_XY] );
+            rv.oct.maxs[OCT_XY] = MIN( pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_XY] );
+            if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
+
+            rv.oct.mins[OCT_YX] = MAX( pv1->oct.mins[OCT_YX], pv2->oct.mins[OCT_YX] );
+            rv.oct.maxs[OCT_YX] = MIN( pv1->oct.maxs[OCT_YX], pv2->oct.maxs[OCT_YX] );
+            if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
+        }
+        else if ( pv1->lod >= 0 )
+        {
+            rv.oct.mins[OCT_XY] = MAX( pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_XY] = MIN( pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
+
+            rv.oct.mins[OCT_YX] = MAX( pv1->oct.mins[OCT_YX], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_YX] = MIN( pv1->oct.maxs[OCT_YX], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
+        }
+        else if ( pv2->lod >= 0 )
+        {
+            rv.oct.mins[OCT_XY] = MAX( pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_XY] );
+            rv.oct.maxs[OCT_XY] = MIN( pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_XY] );
+            if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
+
+            rv.oct.mins[OCT_YX] = MAX( -pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_YX] );
+            rv.oct.maxs[OCT_YX] = MIN( -pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_YX] );
+            if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
+        }
+        else
+        {
+            rv.oct.mins[OCT_XY] = MAX( pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_XY] = MIN( pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
+
+            rv.oct.mins[OCT_YX] = MAX( -pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_YX] = MIN( -pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
+        }
+
+        if ( 0 == pv1->lod && 0 == pv2->lod )
+        {
+            rv.lod = 0;
+        }
+        else
+        {
+            rv.lod = MIN( pv1->lod, pv2->lod );
+        }
+    }
+
+    return rv;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 {
-  // BB> determine which of the 16 possible intersection points are within both
-  //     square and diamond bounding volumes
+    // BB> determine which of the 16 possible intersection points are within both
+    //     square and diamond bounding volumes
 
-  bool_t invalid;
-  int cnt, tnc, count;
-  float  area, darea, volume;
+    bool_t invalid;
+    int cnt, tnc, count;
+    float  area, darea, volume;
 
-  fvec3_t center, centroid;
-  cv_point_data_t pd[16];
+    fvec3_t center, centroid;
+    cv_point_data_t pd[16];
 
-  if(NULL == pov) return bfalse;
+    if ( NULL == pov ) return bfalse;
 
-  invalid = bfalse;
-       if(pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = btrue;
-  else if(pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = btrue;
-  else if(pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = btrue;
-  else if(pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY]) invalid = btrue;
-  else if(pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX]) invalid = btrue;
+    invalid = bfalse;
+    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = btrue;
 
-  if(invalid)
-  {
-    pov->lod = -1;
-    if(NULL != pvolume) (*pvolume) = 0;
-    return bfalse;
-  }
-
-  // square points
-  cnt = 0;
-  pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-  pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-  pd[cnt].pos.y = pov->oct.mins[OCT_Y];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.mins[OCT_X];
-  pd[cnt].pos.y = pov->oct.mins[OCT_Y];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.mins[OCT_X];
-  pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
-
-  // diamond points
-  cnt++;
-  pd[cnt].pos.x = (pov->oct.maxs[OCT_XY] - pov->oct.mins[OCT_YX]) * 0.5f;
-  pd[cnt].pos.y = (pov->oct.maxs[OCT_XY] + pov->oct.mins[OCT_YX]) * 0.5f;
-
-  cnt++;
-  pd[cnt].pos.x = (pov->oct.mins[OCT_XY] - pov->oct.mins[OCT_YX]) * 0.5f;
-  pd[cnt].pos.y = (pov->oct.mins[OCT_XY] + pov->oct.mins[OCT_YX]) * 0.5f;
-
-  cnt++;
-  pd[cnt].pos.x = (pov->oct.mins[OCT_XY] - pov->oct.maxs[OCT_YX]) * 0.5f;
-  pd[cnt].pos.y = (pov->oct.mins[OCT_XY] + pov->oct.maxs[OCT_YX]) * 0.5f;
-
-  cnt++;
-  pd[cnt].pos.x = (pov->oct.maxs[OCT_XY] - pov->oct.maxs[OCT_YX]) * 0.5f;
-  pd[cnt].pos.y = (pov->oct.maxs[OCT_XY] + pov->oct.maxs[OCT_YX]) * 0.5f;
-
-  // intersection points
-  cnt++;
-  pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-  pd[cnt].pos.y = pov->oct.maxs[OCT_X] + pov->oct.mins[OCT_YX];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.mins[OCT_Y] - pov->oct.mins[OCT_YX];
-  pd[cnt].pos.y = pov->oct.mins[OCT_Y];
-
-  cnt++;
-  pd[cnt].pos.x =-pov->oct.mins[OCT_Y] + pov->oct.mins[OCT_XY];
-  pd[cnt].pos.y = pov->oct.mins[OCT_Y];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.mins[OCT_X];
-  pd[cnt].pos.y =-pov->oct.mins[OCT_X] + pov->oct.mins[OCT_XY];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.mins[OCT_X];
-  pd[cnt].pos.y = pov->oct.mins[OCT_X] + pov->oct.maxs[OCT_YX];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.maxs[OCT_Y] - pov->oct.maxs[OCT_YX];
-  pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
-
-  cnt++;
-  pd[cnt].pos.x =-pov->oct.maxs[OCT_Y] + pov->oct.maxs[OCT_XY];
-  pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
-
-  cnt++;
-  pd[cnt].pos.x = pov->oct.maxs[OCT_X];
-  pd[cnt].pos.y =-pov->oct.maxs[OCT_X] + pov->oct.maxs[OCT_XY];
-
-  // which points are outside both volumes
-  fvec3_clear(&center);
-  count = 0;
-  for(cnt=0; cnt<16; cnt++)
-  {
-    float ftmp;
-
-    pd[cnt].inside = bfalse;
-
-    // check the box
-    if(pd[cnt].pos.x < pov->oct.mins[OCT_X] || pd[cnt].pos.x > pov->oct.maxs[OCT_X]) continue;
-    if(pd[cnt].pos.y < pov->oct.mins[OCT_Y] || pd[cnt].pos.y > pov->oct.maxs[OCT_Y]) continue;
-
-    // check the diamond
-    ftmp = pd[cnt].pos.x + pd[cnt].pos.y;
-    if(ftmp < pov->oct.mins[OCT_XY] || ftmp > pov->oct.maxs[OCT_XY]) continue;
-
-    ftmp =-pd[cnt].pos.x + pd[cnt].pos.y;
-    if(ftmp < pov->oct.mins[OCT_YX] || ftmp > pov->oct.maxs[OCT_YX]) continue;
-
-    // found a point
-    center.x += pd[cnt].pos.x;
-    center.y += pd[cnt].pos.y;
-    count++;
-    pd[cnt].inside = btrue;
-  };
-
-  if(count < 3) return bfalse;
-
-  // find the centroid
-  fvec3_scale(&center, 1.0f/(float)count);
-
-  // move the valid points to the beginning of the list
-  for(cnt=0, tnc=0; cnt<16 && tnc<count; cnt++)
-  {
-    if(!pd[cnt].inside) continue;
-
-    // insert a valid point into the next available slot
-    if(tnc != cnt)
+    if ( invalid )
     {
-      pd[tnc] = pd[cnt];
+        pov->lod = -1;
+        if ( NULL != pvolume )( *pvolume ) = 0;
+        return bfalse;
     }
 
-    // record the cartesian rotation angle relative to center
-    pd[tnc].rads = atan2(pd[cnt].pos.y-center.y, pd[cnt].pos.x-center.x);
-    tnc++;
-  }
+    // square points
+    cnt = 0;
+    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
+    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
 
-  // use qsort to order the points according to their rotation angle
-  // relative to the centroid
-  qsort( (void *)pd, count, sizeof( cv_point_data_t ), cv_point_data_cmp );
+    cnt++;
+    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
+    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
 
-  // now we can use geometry to find the area of the planar collision area
-  fvec3_clear(&centroid);
-  {
-    float ftmp;
-    fvec3_t diff1, diff2;
+    cnt++;
+    pd[cnt].pos.x = pov->oct.mins[OCT_X];
+    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
 
-    area = 0;
-    pov->oct.mins[OCT_X]  = pov->oct.maxs[OCT_X]  = pd[0].pos.x;
-    pov->oct.mins[OCT_Y]  = pov->oct.maxs[OCT_Y]  = pd[0].pos.y;
-    pov->oct.mins[OCT_Z]  = pov->oct.maxs[OCT_Z]  = pd[0].pos.z;
-    pov->oct.mins[OCT_XY] = pov->oct.maxs[OCT_XY] = pd[0].pos.x + pd[0].pos.y;
-    pov->oct.mins[OCT_YX] = pov->oct.maxs[OCT_YX] =-pd[0].pos.x + pd[0].pos.y;
-    for(cnt=0; cnt<count-1; cnt++)
+    cnt++;
+    pd[cnt].pos.x = pov->oct.mins[OCT_X];
+    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
+
+    // diamond points
+    cnt++;
+    pd[cnt].pos.x = ( pov->oct.maxs[OCT_XY] - pov->oct.mins[OCT_YX] ) * 0.5f;
+    pd[cnt].pos.y = ( pov->oct.maxs[OCT_XY] + pov->oct.mins[OCT_YX] ) * 0.5f;
+
+    cnt++;
+    pd[cnt].pos.x = ( pov->oct.mins[OCT_XY] - pov->oct.mins[OCT_YX] ) * 0.5f;
+    pd[cnt].pos.y = ( pov->oct.mins[OCT_XY] + pov->oct.mins[OCT_YX] ) * 0.5f;
+
+    cnt++;
+    pd[cnt].pos.x = ( pov->oct.mins[OCT_XY] - pov->oct.maxs[OCT_YX] ) * 0.5f;
+    pd[cnt].pos.y = ( pov->oct.mins[OCT_XY] + pov->oct.maxs[OCT_YX] ) * 0.5f;
+
+    cnt++;
+    pd[cnt].pos.x = ( pov->oct.maxs[OCT_XY] - pov->oct.maxs[OCT_YX] ) * 0.5f;
+    pd[cnt].pos.y = ( pov->oct.maxs[OCT_XY] + pov->oct.maxs[OCT_YX] ) * 0.5f;
+
+    // intersection points
+    cnt++;
+    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
+    pd[cnt].pos.y = pov->oct.maxs[OCT_X] + pov->oct.mins[OCT_YX];
+
+    cnt++;
+    pd[cnt].pos.x = pov->oct.mins[OCT_Y] - pov->oct.mins[OCT_YX];
+    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
+
+    cnt++;
+    pd[cnt].pos.x = -pov->oct.mins[OCT_Y] + pov->oct.mins[OCT_XY];
+    pd[cnt].pos.y = pov->oct.mins[OCT_Y];
+
+    cnt++;
+    pd[cnt].pos.x = pov->oct.mins[OCT_X];
+    pd[cnt].pos.y = -pov->oct.mins[OCT_X] + pov->oct.mins[OCT_XY];
+
+    cnt++;
+    pd[cnt].pos.x = pov->oct.mins[OCT_X];
+    pd[cnt].pos.y = pov->oct.mins[OCT_X] + pov->oct.maxs[OCT_YX];
+
+    cnt++;
+    pd[cnt].pos.x = pov->oct.maxs[OCT_Y] - pov->oct.maxs[OCT_YX];
+    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
+
+    cnt++;
+    pd[cnt].pos.x = -pov->oct.maxs[OCT_Y] + pov->oct.maxs[OCT_XY];
+    pd[cnt].pos.y = pov->oct.maxs[OCT_Y];
+
+    cnt++;
+    pd[cnt].pos.x = pov->oct.maxs[OCT_X];
+    pd[cnt].pos.y = -pov->oct.maxs[OCT_X] + pov->oct.maxs[OCT_XY];
+
+    // which points are outside both volumes
+    fvec3_clear( &center );
+    count = 0;
+    for ( cnt = 0; cnt < 16; cnt++ )
     {
-      tnc = cnt + 1;
+        float ftmp;
 
-      // optimize the bounding volume
-      pov->oct.mins[OCT_X] = MIN(pov->oct.mins[OCT_X], pd[tnc].pos.x);
-      pov->oct.maxs[OCT_X] = MAX(pov->oct.maxs[OCT_X], pd[tnc].pos.x);
+        pd[cnt].inside = bfalse;
 
-      pov->oct.mins[OCT_Y] = MIN(pov->oct.mins[OCT_Y], pd[tnc].pos.y);
-      pov->oct.maxs[OCT_Y] = MAX(pov->oct.maxs[OCT_Y], pd[tnc].pos.y);
+        // check the box
+        if ( pd[cnt].pos.x < pov->oct.mins[OCT_X] || pd[cnt].pos.x > pov->oct.maxs[OCT_X] ) continue;
+        if ( pd[cnt].pos.y < pov->oct.mins[OCT_Y] || pd[cnt].pos.y > pov->oct.maxs[OCT_Y] ) continue;
 
-      ftmp = pd[tnc].pos.x + pd[tnc].pos.y;
-      pov->oct.mins[OCT_XY] = MIN(pov->oct.mins[OCT_XY], ftmp);
-      pov->oct.maxs[OCT_XY] = MAX(pov->oct.maxs[OCT_XY], ftmp);
+        // check the diamond
+        ftmp = pd[cnt].pos.x + pd[cnt].pos.y;
+        if ( ftmp < pov->oct.mins[OCT_XY] || ftmp > pov->oct.maxs[OCT_XY] ) continue;
 
-      ftmp =-pd[tnc].pos.x + pd[tnc].pos.y;
-      pov->oct.mins[OCT_YX] = MIN(pov->oct.mins[OCT_YX], ftmp);
-      pov->oct.maxs[OCT_YX] = MAX(pov->oct.maxs[OCT_YX], ftmp);
+        ftmp = -pd[cnt].pos.x + pd[cnt].pos.y;
+        if ( ftmp < pov->oct.mins[OCT_YX] || ftmp > pov->oct.maxs[OCT_YX] ) continue;
 
-      // determine the area for this element
-      diff1.x = pd[cnt].pos.x - center.x;
-      diff1.y = pd[cnt].pos.y - center.y;
+        // found a point
+        center.x += pd[cnt].pos.x;
+        center.y += pd[cnt].pos.y;
+        count++;
+        pd[cnt].inside = btrue;
+    };
 
-      diff2.x = pd[tnc].pos.x - pd[cnt].pos.x;
-      diff2.y = pd[tnc].pos.y - pd[cnt].pos.y;
+    if ( count < 3 ) return bfalse;
 
-      darea = diff1.x * diff2.y - diff1.y * diff2.x;
+    // find the centroid
+    fvec3_scale( &center, 1.0f / ( float )count );
 
-      // esitmate the centroid
-      area += darea;
-      centroid.x += (pd[cnt].pos.x + pd[tnc].pos.x + center.x) / 3.0f * darea;
-      centroid.y += (pd[cnt].pos.y + pd[tnc].pos.y + center.y) / 3.0f * darea;
+    // move the valid points to the beginning of the list
+    for ( cnt = 0, tnc = 0; cnt < 16 && tnc < count; cnt++ )
+    {
+        if ( !pd[cnt].inside ) continue;
+
+        // insert a valid point into the next available slot
+        if ( tnc != cnt )
+        {
+            pd[tnc] = pd[cnt];
+        }
+
+        // record the cartesian rotation angle relative to center
+        pd[tnc].rads = atan2( pd[cnt].pos.y - center.y, pd[cnt].pos.x - center.x );
+        tnc++;
     }
 
-    diff1.x = pd[cnt].pos.x - center.x;
-    diff1.y = pd[cnt].pos.y - center.y;
+    // use qsort to order the points according to their rotation angle
+    // relative to the centroid
+    qsort(( void * )pd, count, sizeof( cv_point_data_t ), cv_point_data_cmp );
 
-    diff2.x = pd[1].pos.x - pd[cnt].pos.x;
-    diff2.y = pd[1].pos.y - pd[cnt].pos.y;
+    // now we can use geometry to find the area of the planar collision area
+    fvec3_clear( &centroid );
+    {
+        float ftmp;
+        fvec3_t diff1, diff2;
 
-    darea = diff1.x * diff2.y - diff1.y * diff2.x;
+        area = 0;
+        pov->oct.mins[OCT_X]  = pov->oct.maxs[OCT_X]  = pd[0].pos.x;
+        pov->oct.mins[OCT_Y]  = pov->oct.maxs[OCT_Y]  = pd[0].pos.y;
+        pov->oct.mins[OCT_Z]  = pov->oct.maxs[OCT_Z]  = pd[0].pos.z;
+        pov->oct.mins[OCT_XY] = pov->oct.maxs[OCT_XY] = pd[0].pos.x + pd[0].pos.y;
+        pov->oct.mins[OCT_YX] = pov->oct.maxs[OCT_YX] = -pd[0].pos.x + pd[0].pos.y;
+        for ( cnt = 0; cnt < count - 1; cnt++ )
+        {
+            tnc = cnt + 1;
 
-    area += darea;
-    centroid.x += (pd[cnt].pos.x + pd[1].pos.x + center.x) / 3.0f  * darea;
-    centroid.y += (pd[cnt].pos.y + pd[1].pos.y + center.y) / 3.0f  * darea;
-  }
+            // optimize the bounding volume
+            pov->oct.mins[OCT_X] = MIN( pov->oct.mins[OCT_X], pd[tnc].pos.x );
+            pov->oct.maxs[OCT_X] = MAX( pov->oct.maxs[OCT_X], pd[tnc].pos.x );
 
-  // is the volume valid?
-  invalid = bfalse;
-       if(pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = btrue;
-  else if(pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = btrue;
-  else if(pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = btrue;
-  else if(pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY]) invalid = btrue;
-  else if(pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX]) invalid = btrue;
+            pov->oct.mins[OCT_Y] = MIN( pov->oct.mins[OCT_Y], pd[tnc].pos.y );
+            pov->oct.maxs[OCT_Y] = MAX( pov->oct.maxs[OCT_Y], pd[tnc].pos.y );
 
-  if(invalid)
-  {
-    pov->lod = -1;
-    if(NULL != pvolume) (*pvolume) = 0;
-    return bfalse;
-  }
+            ftmp = pd[tnc].pos.x + pd[tnc].pos.y;
+            pov->oct.mins[OCT_XY] = MIN( pov->oct.mins[OCT_XY], ftmp );
+            pov->oct.maxs[OCT_XY] = MAX( pov->oct.maxs[OCT_XY], ftmp );
 
-  // determine the volume center
-  if( NULL != pcenter && ABS(area) > 0)
-  {
-    (*pcenter).x = centroid.x / area;
-    (*pcenter).y = centroid.y / area;
-    (*pcenter).z = (pov->oct.maxs[OCT_Z] + pov->oct.mins[OCT_Z]) * 0.5f;
-  }
+            ftmp = -pd[tnc].pos.x + pd[tnc].pos.y;
+            pov->oct.mins[OCT_YX] = MIN( pov->oct.mins[OCT_YX], ftmp );
+            pov->oct.maxs[OCT_YX] = MAX( pov->oct.maxs[OCT_YX], ftmp );
 
-  // determine the volume
-  volume = ABS(area) * (pov->oct.maxs[OCT_Z] - pov->oct.mins[OCT_Z]);
-  if(NULL != pvolume)
-  {
-    (*pvolume) = volume;
-  };
+            // determine the area for this element
+            diff1.x = pd[cnt].pos.x - center.x;
+            diff1.y = pd[cnt].pos.y - center.y;
 
-  return volume > 0.0f;
+            diff2.x = pd[tnc].pos.x - pd[cnt].pos.x;
+            diff2.y = pd[tnc].pos.y - pd[cnt].pos.y;
+
+            darea = diff1.x * diff2.y - diff1.y * diff2.x;
+
+            // esitmate the centroid
+            area += darea;
+            centroid.x += ( pd[cnt].pos.x + pd[tnc].pos.x + center.x ) / 3.0f * darea;
+            centroid.y += ( pd[cnt].pos.y + pd[tnc].pos.y + center.y ) / 3.0f * darea;
+        }
+
+        diff1.x = pd[cnt].pos.x - center.x;
+        diff1.y = pd[cnt].pos.y - center.y;
+
+        diff2.x = pd[1].pos.x - pd[cnt].pos.x;
+        diff2.y = pd[1].pos.y - pd[cnt].pos.y;
+
+        darea = diff1.x * diff2.y - diff1.y * diff2.x;
+
+        area += darea;
+        centroid.x += ( pd[cnt].pos.x + pd[1].pos.x + center.x ) / 3.0f  * darea;
+        centroid.y += ( pd[cnt].pos.y + pd[1].pos.y + center.y ) / 3.0f  * darea;
+    }
+
+    // is the volume valid?
+    invalid = bfalse;
+    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = btrue;
+    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = btrue;
+
+    if ( invalid )
+    {
+        pov->lod = -1;
+        if ( NULL != pvolume )( *pvolume ) = 0;
+        return bfalse;
+    }
+
+    // determine the volume center
+    if ( NULL != pcenter && ABS( area ) > 0 )
+    {
+        ( *pcenter ).x = centroid.x / area;
+        ( *pcenter ).y = centroid.y / area;
+        ( *pcenter ).z = ( pov->oct.maxs[OCT_Z] + pov->oct.mins[OCT_Z] ) * 0.5f;
+    }
+
+    // determine the volume
+    volume = ABS( area ) * ( pov->oct.maxs[OCT_Z] - pov->oct.mins[OCT_Z] );
+    if ( NULL != pvolume )
+    {
+        ( *pvolume ) = volume;
+    };
+
+    return volume > 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t CVolume_init( OVolume_t * pva, OVolume_t * pvb, CVolume_t * pcv)
+bool_t CVolume_ctor( CVolume_t * pcv, OVolume_t * pva, OVolume_t * pvb )
 {
-  bool_t retval;
-  CVolume_t cv;
+    bool_t retval;
+    CVolume_t cv;
 
-  if(pva->lod < 0 || pvb->lod < 0) return bfalse;
+    if ( pva->lod < 0 || pvb->lod < 0 ) return bfalse;
 
-  //---- do the preliminary collision test ----
+    //---- do the preliminary collision test ----
 
-  cv.ov = OVolume_intersect(pva, pvb);
-  if(cv.ov.lod < 0)
-  {
-    return bfalse;
-  };
+    cv.ov = OVolume_intersect( pva, pvb );
+    if ( cv.ov.lod < 0 )
+    {
+        return bfalse;
+    };
 
-  //---- refine the collision volume ----
+    //---- refine the collision volume ----
 
-  cv.ov.lod = MIN(pva->lod, pvb->lod);
-  retval = CVolume_refine( &cv );
+    cv.ov.lod = MIN( pva->lod, pvb->lod );
+    retval = CVolume_refine( &cv );
 
-  if(NULL != pcv)
-  {
-    *pcv = cv;
-  }
+    if ( NULL != pcv )
+    {
+        *pcv = cv;
+    }
 
-  return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t CVolume_refine( CVolume_t * pcv )
 {
-  // BB> determine which of the 16 possible intersection points are within both
-  //     square and diamond bounding volumes
+    // BB> determine which of the 16 possible intersection points are within both
+    //     square and diamond bounding volumes
 
-  if(NULL == pcv) return bfalse;
+    if ( NULL == pcv ) return bfalse;
 
-  if(pcv->ov.oct.maxs[OCT_Z] <= pcv->ov.oct.mins[OCT_Z])
-  {
-    pcv->ov.lod = -1;
-    pcv->volume = 0;
-    return bfalse;
-  }
+    if ( pcv->ov.oct.maxs[OCT_Z] <= pcv->ov.oct.mins[OCT_Z] )
+    {
+        pcv->ov.lod = -1;
+        pcv->volume = 0;
+        return bfalse;
+    }
 
-  return OVolume_refine( &(pcv->ov), &(pcv->center), &(pcv->volume) );
+    return OVolume_refine( &( pcv->ov ), &( pcv->center ), &( pcv->volume ) );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static int cv_point_data_cmp( const void * pleft, const void * pright )
 {
-  int rv = 0;
+    int rv = 0;
 
-  cv_point_data_t * pcv_left  = (cv_point_data_t *)pleft;
-  cv_point_data_t * pcv_right = (cv_point_data_t *)pright;
+    cv_point_data_t * pcv_left  = ( cv_point_data_t * )pleft;
+    cv_point_data_t * pcv_right = ( cv_point_data_t * )pright;
 
-  if(pcv_left->rads < pcv_right->rads) rv = -1;
-  else if(pcv_left->rads > pcv_right->rads) rv = 1;
+    if ( pcv_left->rads < pcv_right->rads ) rv = -1;
+    else if ( pcv_left->rads > pcv_right->rads ) rv = 1;
 
-  return rv;
+    return rv;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -958,7 +958,7 @@ void points_to_oct_bb( oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vec_to_oct_vec( fvec3_t pos, oct_vec_t ovec )
+bool_t oct_vec_ctor( oct_vec_t ovec , fvec3_t pos )
 {
     if ( NULL == ovec ) return bfalse;
 
@@ -992,14 +992,14 @@ bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst )
     pdst->maxs[OCT_Z] =  src.height;
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst )
 {
     /// @details BB@> shift the bounding box by the vector vec
 
-    if( NULL == pdst ) return bfalse;
+    if ( NULL == pdst ) return bfalse;
 
     pdst->mins[OCT_X]  = src.mins[OCT_X] + vec.x;
     pdst->maxs[OCT_X]  = src.maxs[OCT_X] + vec.x;
@@ -1007,11 +1007,11 @@ bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst )
     pdst->mins[OCT_Y]  = src.mins[OCT_Y] + vec.y;
     pdst->maxs[OCT_Y]  = src.maxs[OCT_Y] + vec.y;
 
-    pdst->mins[OCT_XY] = src.mins[OCT_XY] + (vec.x + vec.y);
-    pdst->maxs[OCT_XY] = src.maxs[OCT_XY] + (vec.x + vec.y);
+    pdst->mins[OCT_XY] = src.mins[OCT_XY] + ( vec.x + vec.y );
+    pdst->maxs[OCT_XY] = src.maxs[OCT_XY] + ( vec.x + vec.y );
 
-    pdst->mins[OCT_YX] = src.mins[OCT_YX] + (-vec.x + vec.y);
-    pdst->maxs[OCT_YX] = src.maxs[OCT_YX] + (-vec.x + vec.y);
+    pdst->mins[OCT_YX] = src.mins[OCT_YX] + ( -vec.x + vec.y );
+    pdst->maxs[OCT_YX] = src.maxs[OCT_YX] + ( -vec.x + vec.y );
 
     pdst->mins[OCT_Z]  = src.mins[OCT_Z] + vec.z;
     pdst->maxs[OCT_Z]  = src.maxs[OCT_Z] + vec.z;
@@ -1024,22 +1024,22 @@ bool_t oct_bb_union( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst )
 {
     /// @details BB@> find the union of two oct_bb_t
 
-    if( NULL == pdst ) return bfalse;
+    if ( NULL == pdst ) return bfalse;
 
-    pdst->mins[OCT_X]  = MIN(src1.mins[OCT_X],  src2.mins[OCT_X]);
-    pdst->maxs[OCT_X]  = MAX(src1.maxs[OCT_X],  src2.maxs[OCT_X]);
+    pdst->mins[OCT_X]  = MIN( src1.mins[OCT_X],  src2.mins[OCT_X] );
+    pdst->maxs[OCT_X]  = MAX( src1.maxs[OCT_X],  src2.maxs[OCT_X] );
 
-    pdst->mins[OCT_Y]  = MIN(src1.mins[OCT_Y],  src2.mins[OCT_Y]);
-    pdst->maxs[OCT_Y]  = MAX(src1.maxs[OCT_Y],  src2.maxs[OCT_Y]);
+    pdst->mins[OCT_Y]  = MIN( src1.mins[OCT_Y],  src2.mins[OCT_Y] );
+    pdst->maxs[OCT_Y]  = MAX( src1.maxs[OCT_Y],  src2.maxs[OCT_Y] );
 
-    pdst->mins[OCT_XY] = MIN(src1.mins[OCT_XY], src2.mins[OCT_XY]);
-    pdst->maxs[OCT_XY] = MAX(src1.maxs[OCT_XY], src2.maxs[OCT_XY]);
+    pdst->mins[OCT_XY] = MIN( src1.mins[OCT_XY], src2.mins[OCT_XY] );
+    pdst->maxs[OCT_XY] = MAX( src1.maxs[OCT_XY], src2.maxs[OCT_XY] );
 
-    pdst->mins[OCT_YX] = MIN(src1.mins[OCT_YX], src2.mins[OCT_YX]);
-    pdst->maxs[OCT_YX] = MAX(src1.maxs[OCT_YX], src2.maxs[OCT_YX]);
+    pdst->mins[OCT_YX] = MIN( src1.mins[OCT_YX], src2.mins[OCT_YX] );
+    pdst->maxs[OCT_YX] = MAX( src1.maxs[OCT_YX], src2.maxs[OCT_YX] );
 
-    pdst->mins[OCT_Z]  = MIN(src1.mins[OCT_Z],  src2.mins[OCT_Z]);
-    pdst->maxs[OCT_Z]  = MAX(src1.maxs[OCT_Z],  src2.maxs[OCT_Z]);
+    pdst->mins[OCT_Z]  = MIN( src1.mins[OCT_Z],  src2.mins[OCT_Z] );
+    pdst->maxs[OCT_Z]  = MAX( src1.maxs[OCT_Z],  src2.maxs[OCT_Z] );
 
     return btrue;
 }
@@ -1049,24 +1049,43 @@ bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst )
 {
     /// @details BB@> find the intersection of two oct_bb_t
 
-    if( NULL == pdst ) return bfalse;
+    if ( NULL == pdst ) return bfalse;
 
-    pdst->mins[OCT_X]  = MAX(src1.mins[OCT_X],  src2.mins[OCT_X]);
-    pdst->maxs[OCT_X]  = MIN(src1.maxs[OCT_X],  src2.maxs[OCT_X]);
+    pdst->mins[OCT_X]  = MAX( src1.mins[OCT_X],  src2.mins[OCT_X] );
+    pdst->maxs[OCT_X]  = MIN( src1.maxs[OCT_X],  src2.maxs[OCT_X] );
 
-    pdst->mins[OCT_Y]  = MAX(src1.mins[OCT_Y],  src2.mins[OCT_Y]);
-    pdst->maxs[OCT_Y]  = MIN(src1.maxs[OCT_Y],  src2.maxs[OCT_Y]);
+    pdst->mins[OCT_Y]  = MAX( src1.mins[OCT_Y],  src2.mins[OCT_Y] );
+    pdst->maxs[OCT_Y]  = MIN( src1.maxs[OCT_Y],  src2.maxs[OCT_Y] );
 
-    pdst->mins[OCT_XY] = MAX(src1.mins[OCT_XY], src2.mins[OCT_XY]);
-    pdst->maxs[OCT_XY] = MIN(src1.maxs[OCT_XY], src2.maxs[OCT_XY]);
+    pdst->mins[OCT_XY] = MAX( src1.mins[OCT_XY], src2.mins[OCT_XY] );
+    pdst->maxs[OCT_XY] = MIN( src1.maxs[OCT_XY], src2.maxs[OCT_XY] );
 
-    pdst->mins[OCT_YX] = MAX(src1.mins[OCT_YX], src2.mins[OCT_YX]);
-    pdst->maxs[OCT_YX] = MIN(src1.maxs[OCT_YX], src2.maxs[OCT_YX]);
+    pdst->mins[OCT_YX] = MAX( src1.mins[OCT_YX], src2.mins[OCT_YX] );
+    pdst->maxs[OCT_YX] = MIN( src1.maxs[OCT_YX], src2.maxs[OCT_YX] );
 
-    pdst->mins[OCT_Z]  = MAX(src1.mins[OCT_Z],  src2.mins[OCT_Z]);
-    pdst->maxs[OCT_Z]  = MIN(src1.maxs[OCT_Z],  src2.maxs[OCT_Z]);
+    pdst->mins[OCT_Z]  = MAX( src1.mins[OCT_Z],  src2.mins[OCT_Z] );
+    pdst->maxs[OCT_Z]  = MIN( src1.maxs[OCT_Z],  src2.maxs[OCT_Z] );
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t oct_bb_empty( oct_bb_t src1 )
+{
+    int cnt;
+    bool_t rv;
+
+    rv = bfalse;
+    for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
+    {
+        if ( src1.mins[cnt] >= src1.maxs[cnt] )
+        {
+            rv = btrue;
+            break;
+        }
+    }
+
+    return rv;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1078,7 +1097,7 @@ bool_t oct_bb_expand( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_
     oct_bb_t tmp_min, tmp_max;
 
     // determine the bounding volume at t == tmin
-    if( tmin == 0.0f )
+    if ( tmin == 0.0f )
     {
         tmp_min = src;
     }
@@ -1091,11 +1110,11 @@ bool_t oct_bb_expand( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_
         pos_min.z = vel.z * tmin;
 
         // adjust the bounding box to take in the position at the next step
-        if( !oct_bb_add_vector( src, pos_min, &tmp_min ) ) return bfalse;
+        if ( !oct_bb_add_vector( src, pos_min, &tmp_min ) ) return bfalse;
     }
 
     // determine the bounding volume at t == tmax
-    if( tmax == 0.0f )
+    if ( tmax == 0.0f )
     {
         tmp_max = src;
     }
@@ -1108,11 +1127,11 @@ bool_t oct_bb_expand( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_
         pos_max.z = vel.z * tmax;
 
         // adjust the bounding box to take in the position at the next step
-        if( !oct_bb_add_vector( src, pos_max, &tmp_max ) ) return bfalse;
+        if ( !oct_bb_add_vector( src, pos_max, &tmp_max ) ) return bfalse;
     }
 
     // determine bounding box for the range of times
-    if( !oct_bb_union(tmp_min, tmp_max, pdst ) ) return bfalse;
+    if ( !oct_bb_union( tmp_min, tmp_max, pdst ) ) return bfalse;
 
     return btrue;
 }
@@ -1173,11 +1192,10 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
     //---- handle all of the pdst_bb data second
     if ( NULL != pdst_bb )
     {
-        // memcpy() can fail horribly if the domains overlap
-        // I don't think this should ever happen, though
+        // memcpy() can fail horribly if the domains overlap, so use memmove()
         if ( pdst_bb != psrc_bb )
         {
-            memcpy( pdst_bb, psrc_bb, sizeof( *pdst_bb ) );
+            memmove( pdst_bb, psrc_bb, sizeof( *pdst_bb ) );
         }
 
         if ( 0 == bump_base.height )

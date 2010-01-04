@@ -35,7 +35,7 @@
 bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
 {
     /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt
-	//		file, returns btrue if it succeeded.
+    //      file, returns btrue if it succeeded.
 
     vfs_FILE *filewrite;
     STRING newloadname;
@@ -47,13 +47,13 @@ bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     filewrite = vfs_openAppend( newloadname );
 
-	// Create the file if it does not exist
+    // Create the file if it does not exist
     if ( !filewrite )
     {
         filewrite = vfs_openWrite( newloadname );
         if ( !filewrite )
         {
-			log_warning( "Cannot create quest file! (%s)\n", newloadname );
+            log_warning( "Cannot create quest file! (%s)\n", newloadname );
             return bfalse;
         }
 
@@ -78,12 +78,12 @@ int quest_modify_idsz( const char *player_directory, const IDSZ idsz, const int 
     STRING newloadname, copybuffer;
     IDSZ newidsz;
     char ctmp;
-	int newquestlevel = QUEST_NONE, questlevel;
+    int newquestlevel = QUEST_NONE, questlevel;
 
     // Now check each expansion until we find correct IDSZ
     if ( adjustment == 0 || quest_check( player_directory, idsz ) <= QUEST_BEATEN )  return QUEST_NONE;
 
-	// modify the CData.quest_file
+    // modify the CData.quest_file
     // create a "tmp_*" copy of the file
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     snprintf( copybuffer, SDL_arraysize( copybuffer ), "%s/tmp_quest.txt", player_directory );
@@ -160,7 +160,7 @@ int quest_check( const char *player_directory, const IDSZ idsz )
         if ( fget_idsz( fileread ) == idsz )
         {
             result = fget_int( fileread );  // Read value behind colon and IDSZ
-			break;
+            break;
         }
     }
 

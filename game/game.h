@@ -136,12 +136,12 @@ extern damagetile_instance_t damagetile;
 /// The data descibing the weather state
 struct s_weather_instance
 {
-    int		timer_reset;		///< How long between each spawn?
-    bool_t  over_water;			///< Only spawn over water?
-	Uint8	particle;			///< Which particle to spawn?
+    int     timer_reset;        ///< How long between each spawn?
+    bool_t  over_water;         ///< Only spawn over water?
+    Uint8   particle;           ///< Which particle to spawn?
 
     Uint16  iplayer;
-    int		time;                ///< 0 is no weather
+    int     time;                ///< 0 is no weather
 };
 typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;

@@ -1344,8 +1344,8 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     fvec3_t collision_size;
     float dot;
 
-    collision_size.x = MAX( pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f * pprt->bump.size   );
-    collision_size.y = MAX( pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f * pprt->bump.size   );
+    collision_size.x = MAX( pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f * pprt->bump.size );
+    collision_size.y = MAX( pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f * pprt->bump.size );
     collision_size.z = MAX( pchr->chr_prt_cv.maxs[OCT_Z] - pchr->chr_prt_cv.mins[OCT_Z], 2.0f * pprt->bump.height );
 
     // estimate the "normal" for the collision, using the center-of-mass difference
@@ -1413,7 +1413,7 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     }
 
     return dot;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
@@ -1529,8 +1529,8 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     chr_get_mass_pair( pchr_a, pchr_b, &wta, &wtb );
 
     // create an "octagonal position" for each object
-    vec_to_oct_vec( pchr_a->pos, opos_a );
-    vec_to_oct_vec( pchr_b->pos, opos_b );
+    oct_vec_ctor( opos_a, pchr_a->pos );
+    oct_vec_ctor( opos_b, pchr_b->pos );
 
     // adjust the center-of-mass
     opos_a[OCT_Z] += ( pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->chr_chr_cv.mins[OCT_Z] ) * 0.5f;
@@ -1851,15 +1851,15 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    if( !LOADED_PIP(pprt->pip_ref) ) return bfalse;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
 
     // find the "attack direction" of the particle
-	direction = vec_to_facing( pchr->pos.x - pprt->pos.x, pchr->pos.y - pprt->pos.y );
-	direction = pchr->turn_z - direction + ATK_BEHIND;
+    direction = vec_to_facing( pchr->pos.x - pprt->pos.x, pchr->pos.y - pprt->pos.y );
+    direction = pchr->turn_z - direction + ATK_BEHIND;
 
     // shield block?
-    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR(pchr), ppip->damfx );
+    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pchr ), ppip->damfx );
 
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
@@ -1870,12 +1870,12 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     // try to deflect the particle
     prt_deflected = bfalse;
     pdata->mana_paid = bfalse;
-    if ( chr_is_invictus || (prt_wants_deflection && chr_can_deflect) )
+    if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
     {
         // magically deflect the particle or make a ricochet if the character is invictus
         int treatment;
 
-		treatment     = MISSILE_DEFLECT;
+        treatment     = MISSILE_DEFLECT;
         prt_deflected = btrue;
         if ( prt_wants_deflection )
         {
@@ -1901,10 +1901,10 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
                 pdata->impulse.y -= 2.0f * pprt->vel.y;
                 pdata->impulse.z -= 2.0f * pprt->vel.z;
 
-				// Change the owner of the missile
-				pprt->team				= pchr->team;
-				pprt->owner_ref			= GET_INDEX_PCHR( pchr );
-				pdata->ppip->homing		= bfalse;
+                // Change the owner of the missile
+                pprt->team              = pchr->team;
+                pprt->owner_ref         = GET_INDEX_PCHR( pchr );
+                pdata->ppip->homing     = bfalse;
             }
 
             // Change the direction of the particle
@@ -1937,7 +1937,7 @@ bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 
     if ( 0.0f == ABS( pdata->impulse.x ) + ABS( pdata->impulse.y ) + ABS( pdata->impulse.z ) ) return btrue;
 
-	if( !pdata->ppip->allowpush ) return bfalse;
+    if ( !pdata->ppip->allowpush ) return bfalse;
 
     // do the reaction force of the particle on the character
 
@@ -2085,7 +2085,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    if ( pchr->damagetime > 0 || (pprt->damage.base + pprt->damage.base) == 0 ) return bfalse;
+    if ( pchr->damagetime > 0 || ( pprt->damage.base + pprt->damage.base ) == 0 ) return bfalse;
 
     // clean up the enchant list before doing anything
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
@@ -2127,60 +2127,60 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     //---- Damage the character, if necessary
-	prt_needs_impact = pdata->ppip->rotatetoface || ACTIVE_CHR( pprt->attachedto_ref );
-	if ( ACTIVE_CHR( pprt->owner_ref ) )
-	{
-		chr_t * powner = ChrList.lst + pprt->owner_ref;
-		cap_t * powner_cap = pro_get_pcap( powner->iprofile );
+    prt_needs_impact = pdata->ppip->rotatetoface || ACTIVE_CHR( pprt->attachedto_ref );
+    if ( ACTIVE_CHR( pprt->owner_ref ) )
+    {
+        chr_t * powner = ChrList.lst + pprt->owner_ref;
+        cap_t * powner_cap = pro_get_pcap( powner->iprofile );
 
-		if ( powner_cap->isranged ) prt_needs_impact = btrue;
-	}
+        if ( powner_cap->isranged ) prt_needs_impact = btrue;
+    }
 
-	// DAMFX_ARRO means that it only does damage to the one it's attached to
-	if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
-	{
-		Uint16 direction;
-		IPair loc_damage = pprt->damage;
+    // DAMFX_ARRO means that it only does damage to the one it's attached to
+    if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
+    {
+        Uint16 direction;
+        IPair loc_damage = pprt->damage;
 
-		direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
-		direction = pchr->turn_z - direction + ATK_BEHIND;
+        direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
+        direction = pchr->turn_z - direction + ATK_BEHIND;
 
-		// Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-		// +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-		if ( pdata->ppip->intdamagebonus )
-		{
-			float percent;
-			percent = (( FP8_TO_INT( ChrList.lst[pprt->owner_ref].intelligence ) ) - 14 ) * 2;
-			percent /= 100;
-			loc_damage.base *= 1.00f + percent;
-			loc_damage.rand *= 1.00f + percent;
-		}
+        // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+        // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+        if ( pdata->ppip->intdamagebonus )
+        {
+            float percent;
+            percent = (( FP8_TO_INT( ChrList.lst[pprt->owner_ref].intelligence ) ) - 14 ) * 2;
+            percent /= 100;
+            loc_damage.base *= 1.00f + percent;
+            loc_damage.rand *= 1.00f + percent;
+        }
 
-		if ( pdata->ppip->wisdamagebonus )
-		{
-			float percent;
-			percent = ( FP8_TO_INT( ChrList.lst[pprt->owner_ref].wisdom ) - 14 ) * 2;
-			percent /= 100;
-			loc_damage.base *= 1.00f + percent;
-			loc_damage.rand *= 1.00f + percent;
-		}
+        if ( pdata->ppip->wisdamagebonus )
+        {
+            float percent;
+            percent = ( FP8_TO_INT( ChrList.lst[pprt->owner_ref].wisdom ) - 14 ) * 2;
+            percent /= 100;
+            loc_damage.base *= 1.00f + percent;
+            loc_damage.rand *= 1.00f + percent;
+        }
 
-		// handle vulnerabilities
-		if ( chr_has_vulnie( GET_INDEX_PCHR( pchr ), pprt->profile_ref ) )
-		{
-			loc_damage.base = ( loc_damage.base << 1 );
-			loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
+        // handle vulnerabilities
+        if ( chr_has_vulnie( GET_INDEX_PCHR( pchr ), pprt->profile_ref ) )
+        {
+            loc_damage.base = ( loc_damage.base << 1 );
+            loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
 
-			pchr->ai.alert |= ALERTIF_HITVULNERABLE;
-		}
+            pchr->ai.alert |= ALERTIF_HITVULNERABLE;
+        }
 
-		// Damage the character
-		pdata->actual_damage = damage_character( GET_INDEX_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
+        // Damage the character
+        pdata->actual_damage = damage_character( GET_INDEX_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
 
-		// we're supposed to blank out the damage here so that swords and such don't
-		// kill everything in one swipe?
-		//pprt->damage = loc_damage;		//ZF> I see no reason why this should be, it even causes a bug
-	}
+        // we're supposed to blank out the damage here so that swords and such don't
+        // kill everything in one swipe?
+        //pprt->damage = loc_damage;        //ZF> I see no reason why this should be, it even causes a bug
+    }
 
     //---- estimate the impulse on the particle
     if ( pdata->dot < 0.0f )

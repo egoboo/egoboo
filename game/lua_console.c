@@ -162,9 +162,9 @@ lua_console_t * lua_console_dtor( lua_console_t * pcon )
 //--------------------------------------------------------------------------------------------
 SDL_bool lua_console_destroy( lua_console_t ** pcon )
 {
-    if( NULL == pcon ) return SDL_FALSE;
+    if ( NULL == pcon ) return SDL_FALSE;
 
-    if ( NULL == lua_console_dtor(*pcon) ) return SDL_FALSE;
+    if ( NULL == lua_console_dtor( *pcon ) ) return SDL_FALSE;
 
     // do the free-ing here
     EGOBOO_DELETE( *pcon );

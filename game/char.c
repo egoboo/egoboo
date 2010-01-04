@@ -399,7 +399,7 @@ bool_t ChrList_free_one( Uint16 ichr )
     if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
 
 #ifdef DEBUG_SCRIPTS
-	chr_log_script_time( ichr );
+    chr_log_script_time( ichr );
 #endif
 
     pchr = ChrList.lst + ichr;
@@ -852,8 +852,8 @@ Uint32 __chrhitawall( chr_t * pchr, float nrm[], float * pressure )
     if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
     // deal with the optional parameters
-    if( NULL == pressure ) pressure = &loc_pressure;
-    if( NULL == nrm      ) nrm      =  loc_nrm;
+    if ( NULL == pressure ) pressure = &loc_pressure;
+    if ( NULL == nrm ) nrm      =  loc_nrm;
 
     return mesh_hitawall( PMesh, pchr->pos.v, pchr->bump.size, pchr->stoppedby, nrm, pressure );
 }
@@ -2241,7 +2241,7 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
 
-	//No xp to give
+    //No xp to give
     if ( 0 == amount ) return;
 
     if ( !pchr->invictus || override_invictus )
@@ -2977,12 +2977,12 @@ int damage_character( Uint16 character, Uint16 direction,
         pchr->ai.damagetypelast = damagetype;
         pchr->ai.directionlast  = direction;
 
-		// Check for blocking and invictus, no need to continue if they have
-		if( is_invictus_direction( direction, character, effects ) )
-		{
-			actual_damage = 0;
-			spawn_defense_ping( pchr, attacker );
-		}
+        // Check for blocking and invictus, no need to continue if they have
+        if ( is_invictus_direction( direction, character, effects ) )
+        {
+            actual_damage = 0;
+            spawn_defense_ping( pchr, attacker );
+        }
 
         // Do it already
         if ( actual_damage > pchr->damagethreshold )
@@ -3000,9 +3000,9 @@ int damage_character( Uint16 character, Uint16 direction,
                     if ( !ChrList.lst[attacker].isplayer && pchr->isplayer ) actual_damage *= 0.75f;
                 }
 
-				if ( actual_damage != 0 )
+                if ( actual_damage != 0 )
                 {
-                    if ( HAS_NO_BITS(DAMFX_ARMO, effects) )
+                    if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
                     {
                         actual_damage = ( actual_damage * pchr->defense  * INV_FF );
                     }
@@ -3053,7 +3053,7 @@ int damage_character( Uint16 character, Uint16 direction,
                             chr_play_action( pchr, action, bfalse );
 
                             // Make the character invincible for a limited time only
-                            if ( HAS_NO_BITS(effects, DAMFX_TIME ) )
+                            if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
                             {
                                 pchr->damagetime = DAMAGETIME;
                             }
@@ -3155,9 +3155,9 @@ void spawn_defense_ping( chr_t *pchr, Uint16 attacker )
 {
     //ZF> Spawn a defend particle
     spawn_one_particle_global( pchr->pos, pchr->turn_z, PIP_DEFEND, 0 );
-	pchr->damagetime    = DEFENDTIME;
+    pchr->damagetime    = DEFENDTIME;
     pchr->ai.alert     |= ALERTIF_BLOCKED;
-    pchr->ai.attacklast = attacker;					// For the ones attacking a shield
+    pchr->ai.attacklast = attacker;                 // For the ones attacking a shield
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3577,7 +3577,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
             tnc++;
         }
 
-        pchr->Name[tnc] = '\0';
+        pchr->Name[tnc] = CSTR_END;
     }
 
     // Particle attachments
@@ -3631,10 +3631,10 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     pchr->safe_valid = ( 0 == __chrhitawall( pchr, nrm.v, &pressure ) );
 
 #if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
-    if( ACTIVE_CHR(pchr->attachedto) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
+    if ( ACTIVE_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
         log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
-            pchr->pos.x, pchr->pos.y, nrm.x, nrm.y );
+                     pchr->pos.x, pchr->pos.y, nrm.x, nrm.y );
     }
 #endif
 
@@ -4202,7 +4202,7 @@ void change_character( Uint16 ichr, Uint16 profile_new, Uint8 skin, Uint8 leavew
 
     // Reaffirm them particles...
     pchr->reaffirmdamagetype = pcap_new->attachedprt_reaffirmdamagetype;
-    //reaffirm_attached_particles( ichr );				//ZF> so that books dont burn when dropped
+    //reaffirm_attached_particles( ichr );              //ZF> so that books dont burn when dropped
     new_attached_prt_count = number_of_attached_particles( ichr );
 
     ai_state_set_changed( &( pchr->ai ) );
@@ -4463,7 +4463,7 @@ void update_all_characters()
                 // Splash
                 fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
 
-				spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0);
+                spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
 
                 if ( water.is_water )
                 {
@@ -4499,7 +4499,7 @@ void update_all_characters()
                         fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
 
                         spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
-					}
+                    }
                 }
 
                 if ( water.is_water && HAS_NO_BITS( update_wld, 7 ) )
@@ -4941,7 +4941,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
     dvx = dvy = 0.0f;
     new_ax = new_ay = 0.0f;
-    if( ACTION_IS_TYPE(pchr->inst.action_which, P) )
+    if ( ACTION_IS_TYPE( pchr->inst.action_which, P ) )
     {
         // handle the parry case of a parry/block animation
         new_ax = -pchr->vel.x;
@@ -4966,7 +4966,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
         // Switch x and y for grog
         if ( pchr->grogtime > 0 )
         {
-            SWAP(float, dvx, dvy);
+            SWAP( float, dvx, dvy );
         }
 
         // this is the maximum speed that a character could go under the v2.22 system
@@ -5059,10 +5059,10 @@ void move_one_character_do_voluntary( chr_t * pchr )
     switch ( pchr->turnmode )
     {
             // Get direction from ACTUAL change in velocity
-            default:
-            case TURNMODE_VELOCITY:
+        default:
+        case TURNMODE_VELOCITY:
             {
-                if ( ABS(dvx) > TURNSPD || ABS(dvy) > TURNSPD )
+                if ( ABS( dvx ) > TURNSPD || ABS( dvy ) > TURNSPD )
                 {
                     if ( pchr->isplayer )
                     {
@@ -5565,7 +5565,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     pai = &( pchr->ai );
     ichr = pai->index;
 
-    bumpdampen = CLIP(pchr->phys.bumpdampen, 0.0f, 1.0f);
+    bumpdampen = CLIP( pchr->phys.bumpdampen, 0.0f, 1.0f );
     bumpdampen = ( bumpdampen + 1.0f ) / 2.0f;
 
     // interaction with the mesh
@@ -5694,7 +5694,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     if ( 0 == __chrhitawall( pchr, NULL, NULL ) )
     {
         Uint32 new_tile = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-        if( new_tile != pchr->onwhichfan )
+        if ( new_tile != pchr->onwhichfan )
         {
             pchr->pos_safe   = pchr->pos;
             pchr->safe_valid = btrue;
@@ -6073,21 +6073,21 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return btrue;
 
-	// if the exxect is armor piercing, ignore shielding
+    // if the exxect is armor piercing, ignore shielding
     if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return bfalse;
 
     // if the character's frame is invictus, then check the angles
-    if ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS )) //HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
+    if ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) ) //HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
     {
-		//I Frame
+        //I Frame
         direction -= pcap->iframefacing;
-        left       = (Uint16)((int)0x00010000 - (int)pcap->iframeangle);
+        left       = ( Uint16 )(( int )0x00010000 - ( int )pcap->iframeangle );
         right      = pcap->iframeangle;
 
         // If using shield, use the shield invictus instead
         if ( ACTION_IS_TYPE( pchr->inst.action_which, P ) )
         {
-            bool_t parry_left = (pchr->inst.action_which < ACTION_PC);
+            bool_t parry_left = ( pchr->inst.action_which < ACTION_PC );
 
             // Using a shield?
             if ( parry_left )
@@ -6096,7 +6096,7 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
                 cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_LEFT] );
                 if ( NULL != pcap )
                 {
-                    left  = (Uint16)((int)0x00010000 - (int)pcap_tmp->iframeangle);
+                    left  = ( Uint16 )(( int )0x00010000 - ( int )pcap_tmp->iframeangle );
                     right = pcap_tmp->iframeangle;
                 }
             }
@@ -6106,17 +6106,17 @@ bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects
                 cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_RIGHT] );
                 if ( NULL != pcap )
                 {
-                    left  = (Uint16)((int)0x00010000 - (int)pcap_tmp->iframeangle);
+                    left  = ( Uint16 )(( int )0x00010000 - ( int )pcap_tmp->iframeangle );
                     right = pcap_tmp->iframeangle;
                 }
             }
-		}
+        }
     }
     else
     {
         // N Frame
         direction -= pcap->nframefacing;
-        left       = (Uint16)((int)0x00010000 - (int)pcap->nframeangle);
+        left       = ( Uint16 )(( int )0x00010000 - ( int )pcap->nframeangle );
         right      = pcap->nframeangle;
     }
 
@@ -6592,7 +6592,7 @@ const char * chr_get_dir_name( Uint16 ichr )
         // grab the path
 
         sztmp = strstr( buffer, "/\\" );
-        if ( NULL != sztmp ) *sztmp = '\0';
+        if ( NULL != sztmp ) *sztmp = CSTR_END;
     }
     else
     {
@@ -8768,7 +8768,7 @@ Uint32 chr_get_framefx( chr_t * pchr )
     pframe_nxt  = frame_list + pchr->inst.frame_nxt;
 
     return pframe_nxt->framefx;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_invalidate_child_instances( chr_t * pchr )

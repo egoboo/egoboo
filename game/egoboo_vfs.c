@@ -931,7 +931,7 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
         if ( retval < 0 ) pfile->flags |= VFS_ERROR;
         error = ( retval != size );
 
-        if(!error) read_length = count;
+        if ( !error ) read_length = count;
     }
 
     if ( error ) _vfs_translate_error( pfile );

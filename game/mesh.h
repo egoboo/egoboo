@@ -22,8 +22,12 @@
 #include "mpd_file.h"
 #include "ogl_include.h"
 
-#include "physics.h"
 #include "lighting.h"
+#include "bsp.h"
+
+//--------------------------------------------------------------------------------------------
+struct s_ego_mpd;
+typedef struct s_ego_mpd ego_mpd_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,6 +61,33 @@ typedef float       light_cache_t[4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// the BSP structure housing the mesh
+struct s_mpd_BSP
+{
+    size_t            node_count;
+    BSP_node_t      * nodes;
+    BSP_tree_t        tree;
+
+    oct_bb_t          volume;
+};
+typedef struct s_mpd_BSP mpd_BSP_t;
+
+mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * );
+mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * );
+
+bool_t mpd_BSP_init_1( mpd_BSP_t * pbsp, ego_mpd_t * pmesh, int size_x, int size_y );
+bool_t mpd_BSP_init_0( mpd_BSP_t * pbsp, ego_mpd_t * pmesh );
+
+bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, mpd_mem_t * mem );
+bool_t mpd_BSP_insert_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[] );
+bool_t mpd_BSP_insert_tile_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[] );
+
+int    mpd_BSP_collide( mpd_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size );
+
+extern mpd_BSP_t mesh_BSP_root;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// The data describing an egoboo tile
 struct s_ego_tile_info
 {
@@ -69,7 +100,7 @@ struct s_ego_tile_info
     int     inrenderlist_frame;                ///< What was the frame number the last time this tile was rendered?
     bool_t  needs_lighting_update;             ///< Has this tile been tagged for a lighting update?
 
-    aabb_t         bb;                         ///< the bounding box for this tile
+    oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
     normal_cache_t ncache;                     ///< the normals at the corners of this tile
     light_cache_t  lcache;                     ///< the light at the corners of this tile
     light_cache_t  d1_cache;                   ///< the estimated change in the light at the corner of the tile
@@ -161,7 +192,6 @@ struct s_ego_mpd
 
     fvec2_t         tileoff[MAXTILETYPE];     ///< Tile texture offset
 };
-typedef struct s_ego_mpd ego_mpd_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -57,6 +57,8 @@ enum e_octagonal_axes
 /// a "vector" that measures distances based on the axes of an octagonal bounding box
 typedef float oct_vec_t[OCT_COUNT];
 
+bool_t oct_vec_ctor( oct_vec_t ovec , fvec3_t pos );
+
 //--------------------------------------------------------------------------------------------
 /// generic octagonal bounding box
 /// to be used for the Level 1 character "bumper"
@@ -68,17 +70,21 @@ struct s_oct_bb
 };
 typedef struct s_oct_bb oct_bb_t;
 
+bool_t oct_bb_union( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
+bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
+bool_t oct_bb_empty( oct_bb_t src1 );
+
 //--------------------------------------------------------------------------------------------
 struct s_ego_aabb
 {
-  int    sub_used;
-  float  weight;
+    int    sub_used;
+    float  weight;
 
-  bool_t used;
-  int    level;
-  int    address;
+    bool_t used;
+    int    level;
+    int    address;
 
-  aabb_t  bb;
+    aabb_t  bb;
 };
 
 typedef struct s_ego_aabb ego_aabb_t;
@@ -86,47 +92,47 @@ typedef struct s_ego_aabb ego_aabb_t;
 //--------------------------------------------------------------------------------------------
 struct s_aabb_lst
 {
-  int       count;
-  ego_aabb_t * list;
+    int       count;
+    ego_aabb_t * list;
 };
 typedef struct s_aabb_lst aabb_lst_t;
 
-EGO_CONST aabb_lst_t * aabb_lst_ctor(aabb_lst_t * lst);
-EGO_CONST aabb_lst_t * aabb_lst_dtor(aabb_lst_t * lst);
-EGO_CONST aabb_lst_t * aabb_lst_renew(aabb_lst_t * lst);
-EGO_CONST aabb_lst_t * aabb_lst_alloc(aabb_lst_t * lst, int count);
-EGO_CONST aabb_lst_t * aabb_lst_realloc(aabb_lst_t * lst, int count);
+EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst );
+EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst );
+EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst );
+EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count );
+EGO_CONST aabb_lst_t * aabb_lst_realloc( aabb_lst_t * lst, int count );
 
 //--------------------------------------------------------------------------------------------
 struct s_aabb_ary
 {
-  int         count;
-  aabb_lst_t * list;
+    int         count;
+    aabb_lst_t * list;
 };
 typedef struct s_aabb_ary aabb_ary_t;
 
-EGO_CONST aabb_ary_t * bbox_ary_ctor(aabb_ary_t * ary);
-EGO_CONST aabb_ary_t * bbox_ary_dtor(aabb_ary_t * ary);
-EGO_CONST aabb_ary_t * bbox_ary_renew(aabb_ary_t * ary);
-EGO_CONST aabb_ary_t * bbox_ary_alloc(aabb_ary_t * ary, int count);
+EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary );
+EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary );
+EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary );
+EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count );
 
 //--------------------------------------------------------------------------------------------
 /// @detaild A convex poly representation of an object volume
 struct s_OVolume
 {
-  int      lod;             ///< the level of detail (LOD) of this volume
-  bool_t   needs_shape;     ///< is the shape data valid?
-  bool_t   needs_position;  ///< Is the position data valid?
+    int      lod;             ///< the level of detail (LOD) of this volume
+    bool_t   needs_shape;     ///< is the shape data valid?
+    bool_t   needs_position;  ///< Is the position data valid?
 
-  oct_bb_t oct;
+    oct_bb_t oct;
 };
 typedef struct s_OVolume OVolume_t;
 
-OVolume_t OVolume_merge(OVolume_t * pv1, OVolume_t * pv2);
-OVolume_t OVolume_intersect(OVolume_t * pv1, OVolume_t * pv2);
+OVolume_t OVolume_merge( OVolume_t * pv1, OVolume_t * pv2 );
+OVolume_t OVolume_intersect( OVolume_t * pv1, OVolume_t * pv2 );
 bool_t    OVolume_draw( OVolume_t * cv, bool_t draw_square, bool_t draw_diamond );
-bool_t    OVolume_shift(OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst);
-bool_t    OVolume_unshift(OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst);
+bool_t    OVolume_shift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
+bool_t    OVolume_unshift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
 
 bool_t    OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume );
 
@@ -138,21 +144,20 @@ typedef struct s_OVolume_Tree OVolume_Tree_t;
 /// @details A covex polygon representation of the collision of two objects
 struct s_CVolume
 {
-  float            volume;
-  fvec3_t          center;
-  OVolume_t        ov;
-  OVolume_Tree_t * tree;
+    float            volume;
+    fvec3_t          center;
+    OVolume_t        ov;
+    OVolume_Tree_t * tree;
 };
 typedef struct s_CVolume CVolume_t;
 
-bool_t CVolume_init( OVolume_t * pva, OVolume_t * pvb, CVolume_t * pcv);
+bool_t CVolume_ctor( CVolume_t * pcv, OVolume_t * pva, OVolume_t * pvb );
 bool_t CVolume_refine( CVolume_t * pcv );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // type conversion routines
 
-bool_t vec_to_oct_vec( fvec3_t pos, oct_vec_t ovec );
 bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst );
 bool_t bumper_to_oct_bb_1( bumper_t src, fvec3_t vel, oct_bb_t * pdst );
 

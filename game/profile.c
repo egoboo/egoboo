@@ -32,8 +32,11 @@
 #include "log.h"
 #include "script_compile.h"
 #include "game.h"
+#include "mesh.h"
+#include "bsp.h"
 
 #include "egoboo_setup.h"
+#include "egoboo_mem.h"
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_vfs.h"
@@ -54,6 +57,8 @@ DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
 
 Uint32  message_buffer_carat = 0;                           // Where to put letter
 char    message_buffer[MESSAGEBUFFERSIZE] = EMPTY_CSTR;     // The text buffer
+
+obj_BSP_t obj_BSP_root = {0, NULL, 0, NULL};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1116,7 +1121,7 @@ const char * chop_create( chop_data_t * pdata, chop_definition_t * pdefinition )
             {
                 read = pdata->start[mychop];
                 cTmp = pdata->buffer[read];
-                while ( '\0' != cTmp && write < MAXCAPNAMESIZE - 1 )
+                while ( CSTR_END != cTmp && write < MAXCAPNAMESIZE - 1 )
                 {
                     buffer[write] = cTmp;
                     write++;
@@ -1251,4 +1256,378 @@ bool_t chop_export( const char *szSaveName, const char * szChop )
     vfs_close( filewrite );
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_start( obj_BSP_t * pbsp, mpd_BSP_t * pmesh_bsp, int chr_count, int prt_count )
+{
+    // BB> Create a new BSP tree for the mesh.
+    //     These parameters duplicate the max resolution of the old system.
+
+    float size;
+
+    if ( NULL == pbsp ) return bfalse;
+
+    // copy the volume from the mesh
+    pbsp->volume = pmesh_bsp->volume;
+
+    // make some extra space in the z direction
+    size = MAX( ABS( pmesh_bsp->volume.mins[OCT_X] ), ABS( pmesh_bsp->volume.maxs[OCT_X] ) );
+    size = MAX( size, MAX( ABS( pmesh_bsp->volume.mins[OCT_Y] ), ABS( pmesh_bsp->volume.maxs[OCT_Y] ) ) );
+    size = MAX( size, MAX( ABS( pmesh_bsp->volume.mins[OCT_Z] ), ABS( pmesh_bsp->volume.maxs[OCT_Z] ) ) );
+
+    pbsp->volume.mins[OCT_Z] = -size * 2;
+    pbsp->volume.maxs[OCT_Z] =  size * 2;
+
+    // make a 3D BSP tree, depth copied from the mesh depth
+    BSP_tree_init_1( &( pbsp->tree ), 3, pmesh_bsp->tree.depth );
+
+    // allocate nodes for all of the tiles
+    if ( chr_count < 0 ) chr_count = MAX_CHR;
+    pbsp->chr_nodes = EGOBOO_NEW_ARY( BSP_node_t, chr_count );
+    pbsp->chr_node_count = chr_count;
+
+    if ( prt_count < 0 ) prt_count = MAX_CHR;
+    pbsp->prt_nodes = EGOBOO_NEW_ARY( BSP_node_t, prt_count );
+    pbsp->prt_node_count = prt_count;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_end( obj_BSP_t * pbsp )
+{
+    if ( NULL == pbsp ) return bfalse;
+
+    BSP_tree_clear( &( pbsp->tree ) );
+
+    EGOBOO_DELETE( pbsp->chr_nodes );
+    pbsp->chr_node_count = 0;
+
+    EGOBOO_DELETE( pbsp->prt_nodes );
+    pbsp->prt_node_count = 0;
+
+    // make the volume zero
+    pbsp->volume.mins[OCT_X] = pbsp->volume.maxs[OCT_X] = 0.0f;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_init( obj_BSP_t * pbsp )
+{
+    int i;
+    BSP_node_t * pnode;
+
+    if ( NULL == pbsp ) return bfalse;
+
+    // Create a new BSP tree for this mesh
+    // use the known sizes for the pre-allocated nodes
+    obj_BSP_start( pbsp, &mesh_BSP_root, MAX_CHR, maxparticles );
+
+    for ( i = 0; i < ChrList.used_count; i++ )
+    {
+        Uint16 chr_ref = ChrList.used_ref[i];
+        if ( !ACTIVE_CHR( chr_ref ) ) continue;
+
+        pnode = pbsp->chr_nodes + REF_TO_INT( chr_ref );
+
+        // let data type 1 stand for a character, -1 is uninitialized
+        BSP_node_ctor( pnode, ChrList.lst + i, 1 );
+        pnode->index = i;
+    }
+
+    for ( i = 0; i < PrtList.used_count; i++ )
+    {
+        Uint16 prt_ref = PrtList.used_ref[i];
+        pnode = pbsp->prt_nodes + REF_TO_INT( prt_ref );
+
+        // let data type 2 stand for a particle, -1 is uninitialized
+        BSP_node_ctor( pnode, PrtList.lst + i, 2 );
+        pnode->index = i;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_insert_node( obj_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[], int address_z[] )
+{
+    int i;
+    bool_t retval;
+    Uint32 index;
+    BSP_leaf_t * pleaf, * pnew_leaf;
+    BSP_tree_t * ptree = &( pbsp->tree );
+
+    retval = bfalse;
+    if ( depth < 0 )
+    {
+        // this can only happen if the node does not intersect the BSP bounding box
+        pnode->next = ptree->infinite;
+        ptree->infinite = pnode;
+        retval = btrue;
+    }
+    else if ( 0 == depth )
+    {
+        // this can only happen if the object should be in the root node list
+        pnode->next = ptree->root->nodes;
+        ptree->root->nodes = pnode;
+        retval = btrue;
+    }
+    else
+    {
+        // insert the node into the tree at this point
+        pleaf = ptree->root;
+        for ( i = 0; i < depth; i++ )
+        {
+            index = (( Uint32 )address_x[i] ) + ((( Uint32 )address_y[i] ) << 1 ) + ((( Uint32 )address_z[i] ) << 2 ) ;
+
+            pnew_leaf = BSP_tree_ensure_leaf( ptree, pleaf, index );
+            if ( NULL == pnew_leaf ) break;
+
+            pleaf = pnew_leaf;
+        };
+
+        // insert the node in this leaf
+        retval = BSP_tree_insert( ptree, pleaf, pnode, -1 );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_insert_obj_node( obj_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[], int address_z[] )
+{
+    // BB> insert a tile wrapped in a BSP_node_t into the BSP_tree_t
+
+    int i;
+    bool_t retval;
+    chr_t * pchr = ( chr_t * )( pnode->data );
+    prt_t * pprt = ( prt_t * )( pnode->data );
+
+    retval = bfalse;
+    if ( 1 == pnode->data_type )
+    {
+        if ( ACTIVE_PCHR( pchr ) && !oct_bb_empty( pchr->chr_prt_cv ) )
+        {
+            i = BSP_find_address_3d( pbsp->volume, pchr->chr_prt_cv, depth, address_x, address_y, address_z );
+            retval = obj_BSP_insert_node( pbsp, pnode, i, address_x, address_y, address_z );
+        }
+    }
+    else if ( 2 == pnode->data_type )
+    {
+        if ( ACTIVE_PPRT( pprt ) && !oct_bb_empty( pprt->chr_prt_cv ) )
+        {
+            i = BSP_find_address_3d( pbsp->volume, pprt->chr_prt_cv, depth, address_x, address_y, address_z );
+            retval = obj_BSP_insert_node( pbsp, pnode, i, address_x, address_y, address_z );
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_fill( obj_BSP_t * pbsp )
+{
+    size_t i;
+    int * address_x, * address_y, * address_z;
+
+    BSP_tree_t * ptree = &( pbsp->tree );
+
+    address_x = EGOBOO_NEW_ARY( int, ptree->depth );
+    address_y = EGOBOO_NEW_ARY( int, ptree->depth );
+    address_z = EGOBOO_NEW_ARY( int, ptree->depth );
+
+    for ( i = 0; i < pbsp->chr_node_count; i++ )
+    {
+        obj_BSP_insert_obj_node( pbsp, pbsp->chr_nodes + i, ptree->depth, address_x, address_y, address_z );
+    }
+
+    for ( i = 0; i < pbsp->prt_node_count; i++ )
+    {
+        obj_BSP_insert_obj_node( pbsp, pbsp->prt_nodes + i, ptree->depth, address_x, address_y, address_z );
+    }
+
+    EGOBOO_DELETE( address_x );
+    EGOBOO_DELETE( address_y );
+    EGOBOO_DELETE( address_z );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_empty( obj_BSP_t * pbsp )
+{
+    int i;
+
+    if ( NULL == pbsp ) return bfalse;
+
+    // free all the leaves
+    BSP_tree_init_0( &( pbsp->tree ) );
+
+    // unlink all the nodes
+    for ( i = 0; i < MAX_CHR; i++ )
+    {
+        pbsp->chr_nodes[i].next = NULL;
+    }
+
+    // unlink all the nodes
+    for ( i = 0; i < maxparticles; i++ )
+    {
+        pbsp->prt_nodes[i].next = NULL;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_collide_nodes( BSP_node_t node_lst[], oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
+{
+    // BB > check for collisions with the given node list
+
+    BSP_node_t * pnode;
+    oct_bb_t    int_ov, * pnodevol;
+
+    if ( NULL == node_lst || NULL == pvobj || NULL == pcolst_index ) return bfalse;
+    if ( *pcolst_index >= colist_size || 0 == colist_size ) return bfalse;
+
+    // check for collisions with any of the nodes of this leaf
+    for ( pnode = node_lst; NULL != pnode; pnode = pnode->next )
+    {
+        if ( NULL == pnode ) assert( bfalse );
+
+        // get the volume of the node
+        pnodevol = NULL;
+        if ( 1 == pnode->data_type )
+        {
+            pnodevol = &((( chr_t* )pnode->data )->chr_prt_cv );
+        }
+        else if ( 2 == pnode->data_type )
+        {
+            pnodevol = &((( prt_t* )pnode->data )->chr_prt_cv );
+        }
+        else
+        {
+            continue;
+        }
+
+        if ( oct_bb_intersection( *pvobj, *pnodevol, &int_ov ) )
+        {
+            // we have a possible intersection
+            colst[*pcolst_index] = pnode->index * (( 1 == pnode->data_type ) ? 1 : -1 );
+            ( *pcolst_index )++;
+
+            if (( *pcolst_index ) >= colist_size )
+            {
+                // too many nodes. break out of the search.
+                return bfalse;
+            };
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_collide_leaf( BSP_leaf_t * pleaf, oct_bb_t * pvleaf, oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
+{
+    // BB > Recursively search the BSP tree for collisions with the pvobj
+    //      Return bfalse if we need to break out of the recursive search for any reson.
+
+    int i;
+    oct_bb_t    int_ov, tmp_ov;
+    float x_mid, y_mid, z_mid;
+    int address_x, address_y, address_z;
+
+    if ( NULL == pvleaf || oct_bb_empty( *pvleaf ) ) return bfalse;
+    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return bfalse;
+
+    // return if the object does not intersect the leaf
+    if ( !oct_bb_intersection( *pvobj, *pvleaf, &int_ov ) )
+    {
+        return bfalse;
+    }
+
+    if ( !obj_BSP_collide_nodes( pleaf->nodes, pvobj, colst, colist_size, pcolst_index ) )
+    {
+        return bfalse;
+    };
+
+    // check for collisions with any of the children
+    x_mid = ( pvleaf->maxs[OCT_X] + pvleaf->mins[OCT_X] ) * 0.5f;
+    y_mid = ( pvleaf->maxs[OCT_Y] + pvleaf->mins[OCT_Y] ) * 0.5f;
+    z_mid = ( pvleaf->maxs[OCT_Z] + pvleaf->mins[OCT_Z] ) * 0.5f;
+    for ( i = 0; i < pleaf->child_count; i++ )
+    {
+        // scan all the children
+        if ( NULL == pleaf->children[i] ) continue;
+
+        // create the volume of this node
+        address_x = i & ( 1 << 0 );
+        address_y = i & ( 1 << 1 );
+        address_z = i & ( 1 << 2 );
+
+        tmp_ov = *( pvleaf );
+
+        if ( 0 == address_x )
+        {
+            tmp_ov.maxs[OCT_X] = x_mid;
+        }
+        else
+        {
+            tmp_ov.mins[OCT_X] = x_mid;
+        }
+
+        if ( 0 == address_y )
+        {
+            tmp_ov.maxs[OCT_Y] = y_mid;
+        }
+        else
+        {
+            tmp_ov.mins[OCT_X] = y_mid;
+        }
+
+        if ( 0 == address_z )
+        {
+            tmp_ov.maxs[OCT_Z] = z_mid;
+        }
+        else
+        {
+            tmp_ov.mins[OCT_Z] = z_mid;
+        }
+
+        if ( oct_bb_intersection( *pvobj, tmp_ov, &int_ov ) )
+        {
+            // potential interaction with the child. go recursive!
+            bool_t ret = obj_BSP_collide_leaf( pleaf->children[i], &( tmp_ov ), pvobj, colst, colist_size, pcolst_index );
+            if ( !ret ) return ret;
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int obj_BSP_collide( obj_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size )
+{
+    // BB > fill the collision list with references to tiles that the object volume may overlap.
+    //      Return the number of collisions found.
+
+    int collision_count;
+
+    if ( NULL == pbsp || NULL == colst || 0 == colist_size ) return 0;
+
+    if ( NULL == pvobj || oct_bb_empty( *pvobj ) ) return 0;
+
+    // do actual collision
+    collision_count = 0;
+
+    // infinite nodes
+    obj_BSP_collide_nodes( pbsp->tree.infinite, pvobj, colst, colist_size, &collision_count );
+
+    // nodes inside the tree
+    obj_BSP_collide_leaf( pbsp->tree.root, &( pbsp->volume ), pvobj, colst, colist_size, &collision_count );
+
+    return collision_count;
 }

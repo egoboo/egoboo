@@ -1267,7 +1267,7 @@ egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int 
 egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
 {
     int vmin, vmax;
-	Uint32 cnt;
+    Uint32 cnt;
     size_t count;
     egoboo_rv retval;
 

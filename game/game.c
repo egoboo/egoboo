@@ -657,7 +657,7 @@ void cleanup_all_objects()
     cleanup_all_characters();
     cleanup_all_particles();
     cleanup_all_enchants();
-};
+}
 
 //--------------------------------------------------------------------------------------------
 void move_all_objects()
@@ -838,8 +838,6 @@ int update_game()
         }
         update_lag = tnc;
     }
-
-    //printf( "---- update_loop_cnt %d\n", update_loop_cnt );
 
     est_update_game_time = 0.9 * est_update_game_time + 0.1 * est_single_update_time * update_loop_cnt;
     est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * 1.0 / est_update_game_time;
@@ -1586,7 +1584,7 @@ void do_damage_tiles()
         // don't do direct damage to invulnerable objects
         if ( pchr->invictus ) continue;
 
-		//@todo: sound of lava sizzling and such
+        //@todo: sound of lava sizzling and such
         //distance = ABS( PCamera->track_pos.x - pchr->pos.x ) + ABS( PCamera->track_pos.y - pchr->pos.y );
 
         //if ( distance < damagetile.min_distance )
@@ -1601,17 +1599,17 @@ void do_damage_tiles()
 
         if ( 0 == pchr->damagetime )
         {
-		    int actual_damage;
+            int actual_damage;
             actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
             pchr->damagetime = DAMAGETILETIME;
 
-			if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
-			{
-				spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.parttype, 0);
-			}
+            if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
+            {
+                spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.parttype, 0 );
+            }
         }
-	}
-};
+    }
+}
 
 //--------------------------------------------------------------------------------------------
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
@@ -1787,7 +1785,7 @@ void do_weather_spawn_particles()
                 if ( ACTIVE_CHR( cnt ) && !ChrList.lst[cnt].pack_ispacked )
                 {
                     // Yes, so spawn over that character
-					particle = spawn_one_particle_global( ChrList.lst[cnt].pos, ATK_FRONT, weather.particle, 0 );
+                    particle = spawn_one_particle_global( ChrList.lst[cnt].pos, ATK_FRONT, weather.particle, 0 );
                     if ( ACTIVE_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList.lst + particle;
@@ -3164,7 +3162,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     /// @details BB@> all of the initialization code before the module actually starts
 
-    if ( ((Uint32)(~0)) == seed ) seed = time( NULL );
+    if ((( Uint32 )( ~0 ) ) == seed ) seed = time( NULL );
 
     // make sure the old game has been quit
     game_quit_module();
@@ -4340,7 +4338,7 @@ bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pda
         // copy the data
         pinst->timer_reset = pdata->timer_reset;
         pinst->over_water  = pdata->over_water;
-		pinst->particle = pdata->particle;
+        pinst->particle = pdata->particle;
     }
 
     // set the new data

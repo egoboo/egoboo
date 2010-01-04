@@ -1428,7 +1428,7 @@ void net_handlePacket( ENetEvent *event )
             {
                 stamp = packet_readUnsignedInt();
                 time = stamp & LAGAND;
-                if ( ((Uint32)(~0)) == nexttimestamp )
+                if ((( Uint32 )( ~0 ) ) == nexttimestamp )
                 {
                     nexttimestamp = stamp;
                 }
