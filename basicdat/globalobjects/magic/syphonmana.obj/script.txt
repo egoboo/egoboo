@@ -21,6 +21,8 @@ IfCrushed
   
 IfDropped				// Make it lie on floor
   KeepAction
+  tmpargument = 0
+  SetState
 IfGrabbed				// Tell them what they've won, Johnny!
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer

@@ -1,5 +1,5 @@
-Slot number    : -1
-Class name     : Flamethrower
+Slot number    : 39
+Class name     : Falling_Rock
 Uniform light  : FALSE
 Maximum ammo   : 0
 Current ammo   : 0
@@ -24,17 +24,17 @@ INT up         : 0.00-0.00
 DEX            : 1.00
 DEX up         : 0.00-0.00
 
-Size           : 1.0
-Size up        : 0
-Shadow size    : 0
-Bump size      : 1
-Bump height    : 1
-Bump dampen    : 0
-Weight         : 0
+Size           : 1.00
+Size up        : 0.05
+Shadow size    : 30
+Bump size      : 0
+Bump height    : 0
+Bump dampen    : 0.0
+Weight         : 150
 Jump power     : 0.00
 Jump number    : 0
-Sneak speed    : 3
-Walk speed     : 4
+Sneak speed    : 1
+Walk speed     : 3
 Run speed      : 5
 Fly to height  : 0
 Flashing AND   : 255
@@ -45,7 +45,7 @@ Sheen          : 0
 Phong mapping  : FALSE
 Texture X add  : 0.00
 Texture Y add  : 0.00
-Sticky butt    : FALSE
+Sticky butt    : TRUE
 
 Invictus       : TRUE
 NonI facing    : 0
@@ -70,39 +70,39 @@ E damage code  :   F   F   F   F
 F damage code  :   F   F   F   F
 I damage code  :   F   F   F   F
 Z damage code  :   F   F   F   F
-Acceleration   :  20  30  40  50
+Acceleration   :   0   0   0   0
 
-EXP for 2nd    : 100
-EXP for 3rd    : 200
-EXP for 4th    : 300
-EXP for 5th    : 400
-EXP for 6th    : 500
+EXP for 2nd    : 200
+EXP for 3rd    : 400
+EXP for 4th    : 800
+EXP for 5th    : 1600
+EXP for 6th    : 3200
 Starting EXP   : 0
 EXP worth      : 10
-EXP exchange   : 0.001
+EXP exchange   : 0.010
 EXPSECRET      : 0.00
-EXPQUEST       : 0.00
+EXPQUEST       : 1.00
 EXPDARE        : 0.00
-EXPKILL        : 0.00
+EXPKILL        : 0.90
 EXPMURDER      : 0.00
-EXPREVENGE     : 0.00
-EXPTEAMWORK    : 0.00
-EXPROLEPLAY    : 0.00
+EXPREVENGE     : 2.00
+EXPTEAMWORK    : 0.10
+EXPROLEPLAY    : 1.00
 
-IDSZ Parent    : [STRM]
-IDSZ Type      : [WIND]
-IDSZ Skill     : [WMAG]
+IDSZ Parent    : [NONE]
+IDSZ Type      : [NONE]
+IDSZ Skill     : [NONE]
 IDSZ Special   : [NONE]
 IDSZ Hate      : [NONE]
 IDSZ Vulnie    : [NONE]
 
-Is an item     : TRUE
+Is an item     : FALSE
 Is a mount     : FALSE
 Is stackable   : FALSE
 Name known     : FALSE
-Usage known    : TRUE
-Is exportable  : TRUE
-Requires skill : TRUE
+Usage known    : FALSE
+Is exportable  : FALSE
+Requires skill : FALSE
 Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE
@@ -110,11 +110,11 @@ Can open stuff : FALSE
 Damage type    : CRUSH
 Attack type    : WALK
 
-Attached parts : 0
+Attached parts : 1
 Reaffirm type  : NONE
 Particle type  : 0
 
-Left valid     : TRUE
+Left valid     : FALSE
 Right valid    : FALSE
 
 Part on weapon : FALSE
@@ -124,11 +124,11 @@ Poof amount    : 0
 Facing add     : 0
 Part type      : 0
 
-Blood valid    : FALSE
+Blud valid    : FALSE
 Part type      : 0
 
 Waterwalking   : FALSE
-Bounce dampen  : 0.0
+Bounce dampen  : 0.000
 
 Life healing   : 0.000
 Mana cost      : 0.000
@@ -154,11 +154,7 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 2
-:[HIDE] 0
 :[ICON] 0
-:[PLAT] 1
-:[SKIN] 0
 :[CONT] 0
 :[STAT] 0
 :[LEVL] 0

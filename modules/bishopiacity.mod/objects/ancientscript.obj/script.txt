@@ -42,8 +42,13 @@ IfUsed
     tmpargument = 50
     SetTargetReloadTime
 
-    tmpargument = 2
-    SendMessage
+    tmpargument = [READ]
+    IfTargetHasSkillID
+      tmpargument = 2
+      SendMessage
+    Else
+      tmpargument = 3
+      SendMessage
 
   Else
     // Can't use a blank scroll...

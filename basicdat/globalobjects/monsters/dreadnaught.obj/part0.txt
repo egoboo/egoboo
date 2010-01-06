@@ -2,8 +2,8 @@
 Force spawn ( TRUE or FALSE )				: TRUE
 Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
 Starting frame ( 0 to 255 )				: 4
-Number of frames ( 1 to 16 )				: 4
-Frame rate ( 0 to 1000 )				: 50
+Number of frames ( 1 to 16 )				: 1
+Frame rate ( 0 to 1000 )				: 0
 Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 Rotation base ( 0 to 65535 )				: 0
 Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )	: 65535
@@ -19,19 +19,19 @@ Facing rate ( 0 to 1000 )				: 0
 Water ends particle ( TRUE or FALSE )			: FALSE
 Bump ends particle ( TRUE or FALSE )			: TRUE
 End if hits ground ( TRUE or FALSE )			: FALSE
-End after last frame ( TRUE or FALSE )			: TRUE
-Time before end ( 1 to 1000, 0 )			: 0
+End after last frame ( TRUE or FALSE )			: FALSE
+Time before end ( 1 to 1000, 0 )			: 12
 
 
 
 // Collision data
 Bounce dampen ( 0.0 to 0.9 )				: 1.0
 Bump money ( 0 to 100 )					: 0
-Bump size ( 0 to 60 )					: 20
+Bump size ( 0 to 60 )					: 15
 Bump height ( 0 to 60 )					: 60
-Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 1
+Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 2-3
 Bump damage type ( SLASH, CRUSH, POKE, HOLY,
-              EVIL, FIRE, ICE, ZAP )			: POKE
+              EVIL, FIRE, ICE, ZAP )			: SLASH
 
 
 

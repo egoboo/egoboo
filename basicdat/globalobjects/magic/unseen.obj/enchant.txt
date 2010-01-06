@@ -39,7 +39,7 @@ FIRE  damage modifier ( InversionTFC, Shift )	: F F 1
 ICE   damage modifier ( InversionTFC, Shift )	: F F 1
 ZAP   damage modifier ( InversionTFC, Shift )	: F F 1
 Flashing AND ( 1, 3, 7, 15...  255 is don't )	: F 7
-Light blending ( 255 is normal )		: F 128
+Light blending ( 255 is normal )		: T 1
 Alpha blending ( 255 is normal )		: T 1
 Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: F 0
 Fly to height ( 0 to 255, Won't affect innate )	: F 20
