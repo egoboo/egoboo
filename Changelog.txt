@@ -1,7 +1,7 @@
-Version 2.8.0 (xx.12.2009)
+Version 2.8.0 (xx.01.2010)
 - New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
   without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
-- New Feature: New side quest - The Imprisoned One. A great ancient evil is breaking free from
+- New Feature: New side quest called "The Imprisoned One". A great ancient evil is breaking free from
   it's imprisoment and you have to delve down into his tower of prison and seal him for good!
 - New Feature: New spells, magical items, monsters and other fun stuff!
 - New Feature: Another new Starter Module based on a classic nethack character - The Valkyrie class!
@@ -15,7 +15,7 @@ Version 2.8.0 (xx.12.2009)
 - Update: Halved the permanent mana and life loss from using potions.
 - Update: Various AI script optimizations to increase game performance.
 - Update: Added support for up to 32 joystick buttons.
-- Update: Backstabs now deal double damage and damage is increased by dexterity.
+- Update: Backstabs now deal double damage and that damage is also increased by dexterity.
 - Update: Various GUI improvements to make it easier to navigate and use.
 - Update: Improved the texture detail for all the title images and replaced some with better ones.
 - Update: Vampires and Shuffling Heaps are significantly weaker than before.

@@ -464,7 +464,6 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
         {
             int       cnt;
             oct_vec_t opos;
-            fvec3_t   vtmp;
 
             pframe->vertices[tnc].pos.x *= scale_x;
             pframe->vertices[tnc].pos.y *= scale_y;

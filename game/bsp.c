@@ -893,7 +893,7 @@ BSP_node_t * BSP_node_init( BSP_node_t * n, void * data, int type )
 {
     if ( NULL == n ) return n;
 
-    n = BSP_node_create();
+    n = BSP_node_create(data, type);
 
     if ( NULL == data ) return n;
 

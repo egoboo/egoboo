@@ -81,7 +81,7 @@ int quest_modify_idsz( const char *player_directory, const IDSZ idsz, const int 
     int newquestlevel = QUEST_NONE, questlevel;
 
     // Now check each expansion until we find correct IDSZ
-    if ( adjustment == 0 || quest_check( player_directory, idsz ) <= QUEST_BEATEN )  return QUEST_NONE;
+    if ( quest_check( player_directory, idsz ) <= QUEST_BEATEN )  return QUEST_NONE;
 
     // modify the CData.quest_file
     // create a "tmp_*" copy of the file
@@ -119,7 +119,9 @@ int quest_modify_idsz( const char *player_directory, const IDSZ idsz, const int 
             // modify it
             if ( newidsz == idsz )
             {
-                newquestlevel = questlevel = ABS( questlevel + adjustment );      // Don't get negative
+				if( adjustment == 0 ) questlevel = QUEST_BEATEN;		//adjustment == 0 means we mark it as beaten
+				else questlevel = ABS( questlevel + adjustment );      // Don't get negative
+				newquestlevel = questlevel;
             }
 
             vfs_printf( filewrite, "\n:[%s] %i", undo_idsz( newidsz ), questlevel );

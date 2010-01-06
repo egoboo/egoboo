@@ -1535,7 +1535,7 @@ bool_t obj_BSP_collide_leaf( BSP_leaf_t * pleaf, oct_bb_t * pvleaf, oct_bb_t * p
     // BB > Recursively search the BSP tree for collisions with the pvobj
     //      Return bfalse if we need to break out of the recursive search for any reson.
 
-    int i;
+    Uint32 i;
     oct_bb_t    int_ov, tmp_ov;
     float x_mid, y_mid, z_mid;
     int address_x, address_y, address_z;

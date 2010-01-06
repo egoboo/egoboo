@@ -35,7 +35,7 @@ struct s_BSP_node
 };
 typedef struct s_BSP_node BSP_node_t;
 
-BSP_node_t * BSP_node_create();
+BSP_node_t * BSP_node_create( void * data, int type );
 bool_t       BSP_node_destroy( BSP_node_t ** pnode );
 BSP_node_t * BSP_node_ctor( BSP_node_t * t, void * data, int type );
 bool_t       BSP_node_dtor( BSP_node_t * t );

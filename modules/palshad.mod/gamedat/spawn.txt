@@ -93,6 +93,7 @@ Chest:     NONE     43    19   35   0.0  S   0   0   0   0   0   F   F   Null
 Chest: NONE     43    45   35   0.0  S   2   0   0   32   8   F   F   Null    //Contains rogue armor (Level 3)
 GasChest:  NONE     42    35   47   0.0  N   0   0   0   1   0   F   F   Null
   Poison:  NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
+  Scythe:  NONE     94     0    0     0  I   0   0   0   0   0   F   F   Null 
 GasChest:  NONE     42    37   47   0.0  N   199 0   0   0   0   F   F   Null
 GasChest:  NONE     42    39   47   0.0  N   0   0   0   1   0   F   F   Null
   KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null

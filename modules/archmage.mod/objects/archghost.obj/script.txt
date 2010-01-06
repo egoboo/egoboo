@@ -15,7 +15,8 @@ IfTimeOut
   IfXIsEqualToY
     tmpargument = 25
     SetTime
-    SetTargetToWideEnemy
+    tmpargument = [AMAG]
+    SetTargetToNearestQuestID
       tmpargument = [AMAG]
       IfTargetHasSkillID
         tmpargument = 0
@@ -29,36 +30,34 @@ IfTimeOut
         tmpargument = 150
         SetTime
       Else
-        tmpargument = [AMAG]
-        IfTargetHasQuest
-          tmpdistance = targetlevel
-          tmpturn = 6                //Need to be level 8 at least
-          IfDistanceIsMoreThanTurn
-            SetTurnModeToWatchTarget
-            tmpargument = 1
-            SetState
-          Else
-            tmpargument = 0
-            IfArmorIs
-              tmpargument = 19      //Too low level!
-              SendMessage
-              PlayFullSound   //BAD: NEED SOUND!!
-            tmpargument = 8
-            SetState
-            SetTurnModeToSpin
-            tmpargument = 150
-            SetTime
+        tmpdistance = targetlevel
+        tmpturn = 6                //Need to be level 8 at least
+        IfDistanceIsMoreThanTurn
+          SetTurnModeToWatchTarget
+          tmpargument = 1
+          SetState
         Else
           tmpargument = 0
           IfArmorIs
-            tmpargument = 8         //They aren't even arcane!!
+            tmpargument = 19      //Too low level!
             SendMessage
-            PlayFullSound
+            PlayFullSound   //BAD: NEED SOUND!!
           tmpargument = 8
           SetState
           SetTurnModeToSpin
           tmpargument = 150
           SetTime
+    Else
+      tmpargument = 0
+      IfArmorIs
+        tmpargument = 8         //They aren't even arcane!!
+        SendMessage
+        PlayFullSound
+      tmpargument = 8
+      SetState
+      SetTurnModeToSpin
+      tmpargument = 150
+      SetTime
 
   //Introdouce
   tmpy = 1

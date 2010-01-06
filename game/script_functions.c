@@ -6511,8 +6511,8 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = PlaList[sTmp].index;
         if ( !ACTIVE_CHR( ichr ) ) continue;
 
-        if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )   //@todo: ZF> this doesnt actually work
-        {                                                                                                   // sending 0 as adjustment doesnt "beat" the quest
+        if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )
+        {
             returncode = btrue;
         }
     }
