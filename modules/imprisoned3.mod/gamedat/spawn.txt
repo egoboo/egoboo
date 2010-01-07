@@ -48,7 +48,7 @@ tent.obj:   NONE    40  43.5   70.5   0.0   ?    7   4  0   0   0   F   F   E
   oilflask.obj:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //The portal maze!
-portal.obj:   NONE    37  44.0   76.5   0.0   W    0   0  0   0   0   F   F   N
+portal.obj:   NONE    37  44.0   76.5   0.0   W    0   0  0   32   0   F   F   N
 portal.obj:   NONE    37  38.5   71.0   0.0   S    0   0  0   2   0   F   F   N
 portal.obj:   NONE    37  44.0   65.5   0.0   E    0   0  0   1   0   F   F   N
 portal.obj:   NONE    37  49.5   71.0   0.0   N    0   0  0   0   0   F   F   N
@@ -82,9 +82,9 @@ portal.obj:   NONE    37  43.0   28.0   1.0   N    0   0  0   24   0   F   F   N
 portal.obj:   NONE    37  51.0   31.0   1.0   N    0   0  0   7   0   F   F   N
 portal.obj:   NONE    37  64.0   30.5   1.0   N    0   0  0   27   0   F   F   N
 portal.obj:   NONE    37  57.0   25.0   1.0   W    0   0  0   28   0   F   F   N
-portal.obj:   NONE    37  70.5   18.5   1.0   W    0   0  0   30   0   F   F   N
+portal.obj:   NONE    37  70.5   18.5   1.0   W    0   0  0   33   0   F   F   N
 portal.obj:   NONE    37  52.5   7.5   1.0   N    0   0  0   30   0   F   F   N
-portal.obj:   NONE    37  40.0   12.0   1.0   W    0   0  0   0   0   F   F   N
+portal.obj:   NONE    37  40.0   12.0   1.0   W    0   0  0   34   0   F   F   N
 
 //Chaos room
 mephit.obj:   NONE    41  32.0   50.0   1.0   N    1   4  0   0   0   F   F   E

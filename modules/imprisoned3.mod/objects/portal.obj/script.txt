@@ -159,6 +159,14 @@ IfXIsMoreThanY
       OrderSpecialID
       tmpx = 8*128
       tmpy = 6*128
+    tmpargument = 33
+    IfContentIs
+      tmpx = 40*128
+      tmpy = 12*128
+    tmpargument = 34
+    IfContentIs
+      tmpx = 52*128
+      tmpy = 7*128
     tmpdistance = 0
     tmpturn = rand
     TeleportTarget
@@ -171,12 +179,19 @@ IfBumped
   IfTargetIsAPlayer
     IfTimeOut
       IfStateIs0
-        tmpargument = 0
-        SendMessageNear
-        tmpargument = 100
-        SetTime
-        tmpargument = 175
-        SetState
+        tmpargument = 32
+        IfContentIs
+          tmpargument = 1               //The start portal
+          SendMessageNear
+          tmpargument = 100
+          SetTime
+        Else
+          tmpargument = 0
+          SendMessageNear
+          tmpargument = 100
+          SetTime
+          tmpargument = 175
+          SetState
       Else
         tmpargument = [TLPR]      //Set a cooldown for all teleports on the map
         IssueOrder
