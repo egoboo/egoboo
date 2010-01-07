@@ -1,0 +1,28 @@
+// This file tells the module which teams should ally with which teams.
+// Only the first letter of a team name is used, and make sure it is
+// capital.  N is predefined to be neutral.  If one team allies with another,
+// but the other team does not reciprocate the alliance, then the first
+// team can still be killed by the second.
+
+//Magic monsters are allied with all
+Alliance:  Magic   Earth
+Alliance:  Magic   Fire
+Alliance:  Magic   Ice
+Alliance:  Magic   Air
+Alliance:  Earth   Magic
+Alliance:  Fire    Magic
+Alliance:  Ice     Magic
+Alliance:  Air     Magic
+
+//Makes only opposing elements hate each other... currently disabled
+Alliance  Fire Air
+Alliance  Fire Earth
+
+Alliance  Air Fire
+Alliance  Air Ice
+
+Alliance  Earth Fire
+Alliance  Earth Ice
+
+Alliance  Ice   Earth
+Alliance  Ice   Air

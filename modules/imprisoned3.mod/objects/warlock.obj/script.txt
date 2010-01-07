@@ -1,0 +1,321 @@
+//------------------------------------------------------------------------------
+// Each hand has a spell usage list, which is stored in content.  8 bits
+// for each hand, bits 0-7 for left, 8-15 for right.
+// Bit 7 - 1 is useable, 0 is unuseable
+// Bit 6 - 1 is one shot, 0 is unlimited uses
+// Bit 5 - 1 is need a [HUMA] corpse, 0 is use anytime
+// Bit 4 - \Charge time
+// Bit 3 - /
+// Bit 2 - \
+// Bit 1 -  Range
+// Bit 0 - /
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 2
+  PlaySound
+
+  // Send messages
+  IfTargetIsOnHatedTeam
+    tmpargument = 0
+  Else
+    tmpargument = 1
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+// ZZ> Oops
+IfHealed
+  tmpargument = 2
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+// ZZ> Keep 'em guessin'
+IfAttacked
+  tmpargument = rand & 1
+  PlaySound
+
+  SetTargetToWhoeverAttacked
+    IfTargetIsOnHatedTeam
+      GetState
+    Else
+      SetTargetToOldTarget
+
+  // Teleport away...
+  tmpargument = 1
+  IfStateIsNot
+    tmpargument = 2
+    IfStateIsNot
+      tmpargument = 1
+      SetState
+      tmpargument = 20
+      SetTime
+
+//------------------------------------------------------------------------------
+IfBumped
+  // Teleport away...
+  tmpargument = 1
+  IfStateIsNot
+    tmpargument = 2
+    IfStateIsNot
+      tmpargument = 1
+      SetState
+      tmpargument = 0
+      SetTime
+
+//------------------------------------------------------------------------------
+// ZZ> For charging a spell...
+IfStateIs10
+  // Left hand
+  IfTimeOut
+    // Release the spell?
+    tmpx = targetdistance - 128
+    GetContent
+    tmpy = tmpargument & 7 < 7
+    IfXIsLessThanY
+      // Distance is good...
+      tmpx = selfmana
+      tmpy = 256
+      IfXIsMoreThanY
+        // Is it one use?
+        tmpy = 64
+        tmpx = tmpargument & tmpy
+        IfXIsEqualToY
+          tmpargument = tmpargument + 128
+          SetContent
+        tmpargument = 0
+        SetState
+      Else
+        // Get more mana first
+        tmpargument = LATCHLEFT
+        PressLatchButton
+    Else
+      // Get closer first
+      tmpargument = LATCHLEFT
+      PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = 10
+    SetTime
+  Else
+    // Keep charging
+    tmpargument = LATCHLEFT
+    PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint
+IfStateIs11
+  // Right hand
+  IfTimeOut
+    // Release the spell?
+    tmpx = targetdistance - 128
+    GetContent
+    tmpy = tmpargument & 1792 > 1
+    IfXIsLessThanY
+      // Distance is good...
+      tmpx = selfmana
+      tmpy = 256
+      IfXIsMoreThanY
+        // Is it one use?
+        tmpy = 16384
+        tmpx = tmpargument & tmpy
+        IfXIsEqualToY
+          tmpargument = tmpargument + 32768
+          SetContent
+        tmpargument = 0
+        SetState
+      Else
+        // Get more mana first
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+    Else
+      // Get closer first
+      tmpargument = LATCHRIGHT
+      PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = 10
+    SetTime
+  Else
+    // Keep charging
+    tmpargument = LATCHRIGHT
+    PressLatchButton
+    tmpx = targetx - selfx > 1 + selfx
+    tmpy = targety - selfy > 1 + selfy
+    ClearWaypoints
+    AddWaypoint
+
+//------------------------------------------------------------------------------
+// ZZ> Find something to do...
+IfTimeOut
+  IfStateIs15
+    // Fall through to normal state
+    tmpargument = 0
+    SetState
+
+  IfStateIs13
+    // Un-charged spell in right hand...
+    IfTargetIsOnHatedTeam
+      tmpx = targetdistance - 128
+      GetContent
+      tmpy = tmpargument & 1792 > 1
+      IfXIsLessThanY
+        // Distance is good...
+        IfFacingTarget
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+      tmpargument = 15
+      SetState
+      tmpargument = rand & 15 + 20
+      SetTime
+    Else
+      tmpargument = 0
+      SetState
+
+  IfStateIs12
+    IfTargetIsOnHatedTeam
+      // Un-charged spell in left hand...
+      tmpx = targetdistance - 128
+      GetContent
+      tmpy = tmpargument & 7 < 7
+      IfXIsLessThanY
+        // Distance is good...
+        IfFacingTarget
+          tmpargument = LATCHLEFT
+          PressLatchButton
+      tmpargument = 15
+      SetState
+      tmpargument = rand & 15 + 20
+      SetTime
+    Else
+      tmpargument = 0
+      SetState
+
+  IfStateIs3
+    // Pick a spell to use on the enemy...  Left or right
+    IfTargetIsOnHatedTeam
+      GetContent
+      tmpx = tmpargument & 32896
+      tmpy = 0
+      IfXIsEqualToY
+        // Neither hand is useable...  Fall through to state 1
+        tmpargument = 1
+        SetState
+      Else
+        tmpy = 32896
+        IfXIsEqualToY
+          // Both hands are useable, so pick one...  0 or 8
+          tmpx = rand & 8
+        Else
+          // Figure out if it's left or right...  0 or 8
+          tmpx = tmpx > 12
+        tmpy = 0
+        tmpturn = 11  // Right hand state
+        IfXIsEqualToY
+          tmpturn = 10  // Left hand state
+        tmpargument = tmpargument > tmpx & 127
+        tmpy = 32
+        tmpx = tmpargument & tmpy
+        IfXIsEqualToY
+          // We need a [HUMA] corpse around...
+          tmpx = tmpargument  // Save it...
+          tmpargument = [HUMA]
+          tmpdistance = 7 // Dead friends and enemies...
+          SetTargetToNearestBlahID
+            tmpargument = tmpx & 24 < 4
+            SetTime
+            tmpargument = tmpturn
+            SetState
+          Else
+            // Drop back to normal state
+            tmpargument = 0
+            SetState
+        Else
+          // Just set the state and time...
+          tmpargument = tmpargument & 24 < 4
+          SetTime
+          tmpx = tmpargument
+          tmpy = 0
+          IfXIsEqualToY
+            // Use states 12 and 13 for uncharged spells...
+            tmpturn = tmpturn + 2
+          tmpargument = tmpturn
+          SetState
+
+  IfStateIs2
+    // Halfway through a teleport
+    tmpargument = rand & 15 + 35
+    SetTime
+    tmpx = rand & 511 - 256 + selfx
+    tmpy = rand & 511 - 256 + selfy
+    Teleport
+    tmpx = rand & 511 - 256 + selfx
+    tmpy = rand & 511 - 256 + selfy
+    Teleport
+    tmpargument = 15
+    SetState
+    // Face the target
+    tmpx = targetx
+    tmpy = targety
+    ClearWaypoints
+    AddWaypoint
+
+  IfStateIs1
+    // Want to start a teleport
+    tmpargument = ACTIONMJ
+    DoAction
+      tmpargument = 2
+      SetState
+      tmpargument = 40  // Don't let 'em get hit out of it...
+      SetDamageTime
+      tmpargument = 16
+      SetTime
+    Else
+      // Try again in a bit...
+      tmpargument = 5
+      SetTime
+
+  IfStateIs0
+    tmpargument = 20
+    SetTime
+    tmpx = rand & 255
+    tmpy = 200
+    IfXIsMoreThanY
+      // Teleport...
+      tmpargument = 1
+      SetState
+      SetTime
+    Else
+      // Go after enemies
+      SetTargetToWideEnemy
+        tmpargument = rand & 7 + 4
+        SetTime
+        tmpargument = 3
+        SetState
+        tmpx = targetx
+        tmpy = targety
+      Else
+        // Wander around
+        tmpargument = rand & 15 + 25
+        SetTime
+        tmpx = rand & 255 - 256 + selfspawnx
+        tmpy = rand & 511 - 256 + selfspawny
+      ClearWaypoints
+      AddWaypoint
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

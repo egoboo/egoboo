@@ -1,0 +1,26 @@
+//------------------------------------------------------------------------------
+//Setup where to roll
+IfSpawned
+  ClearWaypoints
+  tmpx = selfmoney
+  tmpy = selfcontent
+  AddWaypoint
+  tmpx = selfspawnx
+  tmpy = selfspawny
+  AddWaypoint
+
+//------------------------------------------------------------------------------
+//Make it roll
+IfHitGround
+  tmpargument = 0
+  PlaySound
+   
+//------------------------------------------------------------------------------
+//Crush folks
+IfBumped
+  SetTargetToWhoeverBumped
+  KillTarget
+  tmpargument = LATCHJUMP
+  PressLatchButton			//"bump" over them
+
+End					// All done

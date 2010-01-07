@@ -1,0 +1,8 @@
+Message 0: %t_found_%n.
+Message 1: %t_found_a_Blank_Scroll.
+Message 2: "Note_to_self:_I_hid_the_gem_in_my_tent..."
+Message 3: %t_can't_read!
+Message 4: The_%c_was_destroyed!
+Message 5: The_ink_washed_off_the_%c...
+Message 6: The_%c_was_shredded!
+Message 7: There's_nothing_on_the_%c...

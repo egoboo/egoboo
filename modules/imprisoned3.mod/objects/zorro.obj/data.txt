@@ -1,0 +1,161 @@
+Slot number    : 99
+Class name     : Duelist
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color     : 1
+Mana color     : 5
+Life           : 14-16
+Life up        : 1-2
+Mana           : 0.00
+Mana up        : 0.00-0.00
+Mana return    : 0.00
+Mana return up : 0.00-0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00-0.00
+STR            : 15-18
+STR up         : 1-2
+WIS            : 6-10
+WIS up         : 1.00
+INT            : 14-16
+INT up         : 1-2
+DEX            : 19-23
+DEX up         : 1-2
+
+Size           : 1.00
+Size up        : 0.03
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 90
+Bump dampen    : 0.35
+Weight         : 110
+Jump power     : 24.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 3
+Run speed      : 5
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 16000
+
+Base defense   :   55  50  80 50 
+S damage shift :   1   1   1   1 
+C damage shift :   2   2   2   1 
+P damage shift :   2   1   2   1 
+H damage shift :   1   1   1   1 
+E damage shift :   1   1   1   2 
+F damage shift :   1   1   1   2 
+I damage shift :   1   2   1   1 
+Z damage shift :   1   1   1   1 
+S damage code  :   F   F   F   F 
+C damage code  :   F   F   F   F 
+P damage code  :   F   F   F   F 
+H damage code  :   T   T   T   T 
+E damage code  :   F   F   F   F 
+F damage code  :   F   F   F   F 
+I damage code  :   F   F   F   F 
+Z damage code  :   F   F   F   F 
+Acceleration   :  55  50  55  70 
+EXP for 2nd    : 300
+EXP for 3rd    : 1200
+EXP for 4th    : 2500
+EXP for 5th    : 5400
+EXP for 6th    : 7900
+Starting EXP   : 0
+EXP worth      : 50
+EXP exchange   : 0.01
+EXPSECRET      : 1.75
+EXPQUEST       : 1.10
+EXPDARE        : 1.25
+EXPKILL        : 0.25
+EXPMURDER      : 0.10
+EXPREVENGE     : 1.00
+EXPTEAMWORK    : 0.25
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [DUEL]
+IDSZ Skill     : [TECH]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NOEN]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+Blud valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : an_Explorer_Outfit
+Skin 1 name    : some_Spelunking_Gear
+Skin 2 name    : a_Gunfighter's_Getup
+Skin 3 name    : a_Smuggler's_Costume
+Skin 0 cost    : 50
+Skin 1 cost    : 200
+Skin 2 cost    : 450
+Skin 3 cost    : 800
+STR dampen     : 0.100
+
+No rider attak : FALSE
+Can be dazed   : TRUE
+Can be grogged : TRUE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 1
+
+//Expansions
+:[DRES] 0	//Armor is dressy
+:[POIS] 1	//Poison use
+:[STAB] 1	//Backstab
+:[DISA] 1	//Find and disarm traps
+:[READ] 1	//Character is literate

@@ -1,0 +1,152 @@
+//------------------------------------------------------------------------------
+// Jump on enemies with Size spell and over obstacles
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfTargetKilled
+      tmpargument = LATCHJUMP
+      PressLatchButton
+  Else
+    IfTargetIsAPlatform
+      tmpargument = LATCHJUMP
+      PressLatchButton
+    SetTargetToOldTarget
+      
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 1
+  PlaySound
+
+  // Send messages
+  IfTargetIsOnHatedTeam       //Wizard death
+    tmpargument = 0
+  Else
+    tmpargument = 1
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropItems
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+  
+//------------------------------------------------------------------------------
+//Oops
+IfHealed
+  tmpargument = 2
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+// ZZ> Keep 'em guessin'
+IfAttacked
+  tmpargument = rand & 1 + 2
+  PlaySound
+
+  SetTargetToWhoeverAttacked
+    IfTargetIsOnSameTeam
+      SetTargetToOldTarget
+
+  // Keep distance
+  tmpx = targetx
+  tmpy = targety
+  tmpdistance = -400
+  tmpturn = targetturnto
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  
+  //become angry
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+
+IfTimeOut
+  tmpargument = rand & 15 + 20
+  SetTime
+  
+  // Go after enemies
+  SetTargetToWideEnemy
+  
+    //Taunt
+    tmpx = rand & 255
+    tmpy = 40
+    IfXIsLessThanY
+      tmpargument = 5
+      PlaySound
+      
+    tmpx = rand & 511 - 256 + targetx
+    tmpy = rand & 511 - 256 + targety
+    tmpturn = targetturnto
+    tmpdistance = 200
+    Compass
+  Else
+    tmpx = selfspawnx
+    tmpy = selfspawny
+  ClearWaypoints
+  AddWaypoint
+
+  //Attack
+  IfTargetIsOnHatedTeam
+    tmpx = targetdistance
+    tmpy = 200
+    IfXIsLessThanY
+      IfFacingTarget
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+        
+  //Clerical AI
+  tmpx = selfmana
+  tmpy = 255
+  IfXIsMoreThanY
+    SetOldTarget
+    SetTargetToNearestFriend
+      IfTargetIsHurt
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = 200
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        
+        //Heal them?
+        tmpx = targetdistance
+        tmpy = 200
+        IfXIsLessThanY
+          IfFacingTarget
+            tmpargument = ACTIONZA
+            DoAction
+            tmpargument = rand & 1023 + 512    //2-6 life points (dimlock heal 1/8 due magic resist)
+            HealTarget
+            
+            tmpargument = rand & 15 + 35
+            SetTime
+            
+            //Spell effect
+            tmpargument = 6
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            SpawnExactParticle
+            tmpargument = 4
+            PlaySound
+            
+            //Cost some mana
+            SetTargetToSelf
+            tmpargument = 256
+            CostTargetMana            
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+IfCalledForHelp
+  tmpargument = TEAME
+  JoinTeam
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

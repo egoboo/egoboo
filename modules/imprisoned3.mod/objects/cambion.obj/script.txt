@@ -1,0 +1,337 @@
+//------------------------------------------------------------------------------
+//Setup some basic speech stuff
+IfSpawned
+  tmpargument = 1
+  tmpx = 3
+  tmpy = 0
+  SetXY
+
+//------------------------------------------------------------------------------
+//Handle chest interaction
+IfOrdered
+
+  tmpargument = 2
+  GetXY
+  tmpy = 3              //Check if we don't have our gems already
+  IfXIsLessThanY
+    //They are stealing from us! Attack!
+    tmpx = selforder
+    tmpy = [CAMB]
+    IfXIsEqualToY
+      CallForHelp
+      tmpargument = TEAME
+      JoinTeam
+      
+      //Talk
+      tmpargument = 2
+      SendMessageNear
+      PlaySound
+      
+      //Animate
+      tmpargument = ACTIONMC
+      DoAction
+
+    //They are touching OUR chest
+    tmpx = selforder
+    tmpy = [OPEN]
+    IfXIsEqualToY
+      tmpargument = 0
+      GetXY
+      IfXIsEqualToY               //Special cooldown timer
+        tmpargument = 1
+        SendMessageNear
+        PlaySound
+        
+        //Animate
+        tmpargument = ACTIONJA
+        DoAction
+        
+        //Reset the timer
+        tmpargument = 0
+        tmpx = 4
+        tmpy = 0
+        SetXY
+    
+//------------------------------------------------------------------------------
+IfBumped
+  SetTargetToWhoeverBumped
+
+  //Do talking
+  IfStateIs0
+    IfTargetIsAPlayer
+      tmpargument = 0
+      GetXY
+      IfXIsEqualToY
+        tmpx = 3
+        SetXY                 //Set cooldown for next talking
+        
+        IfTargetIsOnHatedTeam
+          DoNothing
+        Else
+          tmpargument = 1
+          GetXY
+          
+          //Check if they have our gems
+          tmpy = 8
+          IfXIsEqualToY
+            tmpargument = [GEMM]
+            CostTargetItemID
+              tmpargument = 30
+              tmpdistance = EXPQUEST
+              GiveExperienceToTarget
+              
+              //Message
+              tmpargument = ACTIONMG
+              DoAction
+              tmpargument = 15
+              PlayFullSound
+              tmpargument = 10
+              SendMessageNear
+  
+              //Increase number of gems we have
+              tmpargument = 2
+              GetXY
+              tmpx = tmpx + 1
+              SetXY
+              tmpy = 3
+              IfXIsEqualToY                           //All done!
+                tmpargument = 1
+                tmpx = 9
+                SetXY
+                tmpargument = 50
+                tmpdistance = EXPQUEST
+                GiveExperienceToTarget
+                DropKeys
+                
+              //So that next message won't be messed up
+              tmpargument = 1
+              GetXY
+            Else
+              tmpargument = 8
+              SendMessageNear
+              PlaySound
+          Else
+            tmpargument = tmpx
+            SendMessageNear
+            PlaySound
+          
+          //Prepeare the next speech
+          tmpy = 8
+          IfXIsLessThanY
+            tmpargument = 1
+            tmpx = tmpx + 1
+            SetXY
+          
+          //Animate
+          tmpargument = ACTIONMC
+          DoAction
+
+  // Jump over barriers, onto mounts
+  IfTargetIsAlive
+    IfTargetIsAPlatform
+      // Jump over some stuff
+      tmpargument = LATCHJUMP
+      PressLatchButton
+    IfTargetIsAMount
+      // Jump onto mounts
+      tmpx = targetx
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+
+      tmpargument = 30
+      SetTime
+  Else
+    // Jump over corpses
+    tmpargument = LATCHJUMP
+    PressLatchButton
+  SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+IfKilled
+  // Tell the players
+  tmpargument = 0
+  SendMessageNear
+
+  //Death sound
+  tmpargument = 14
+  PlaySound
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropItems
+  DropKeys
+
+  // Make the character body
+  tmpargument = 40
+  SetBumpHeight
+
+  //Become bad
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+  
+//------------------------------------------------------------------------------
+//They are attacking us!
+IfCalledForHelp
+  tmpargument = TEAME
+  JoinTeam
+
+//------------------------------------------------------------------------------
+IfAttacked
+  SetTargetToWhoeverAttacked
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+
+  IfTargetIsOnSameTeam
+    // Friendly fire, get out of the way
+    tmpx = rand & 511 - 256 + selfx
+    tmpy = rand & 511 - 256 + selfy
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+
+  tmpargument = rand % 3 + 11
+  PlaySound
+
+//------------------------------------------------------------------------------
+IfTimeOut
+
+  //Handle special cooldown timer
+  tmpargument = 0
+  GetXY
+  IfXIsMoreThanY
+    tmpx = tmpx - 1
+    SetXY
+    
+  // Riding some type of animal...
+  IfSitting
+    tmpargument = rand & 15 + 15 // Time
+    SetTime
+
+    // Acquire a target
+    SetTurnModeToVelocity
+    SetTargetToWideEnemy
+      // Charge towards enemy
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = targetturnto
+      tmpdistance = 500
+      Compass
+      ClearWaypoints
+      AddWaypoint
+
+      // Check for special mount attacks
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsLessThanY
+        tmpargument = [XFUN]
+        SetOldTarget
+        SetTargetToWhoeverIsHolding            //The mount
+        IfTargetHasAnyID
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+          SetTargetToOldTarget
+        Else
+          // Don't let the enemy jump over
+          SetTargetToOldTarget
+          IfFacingTarget
+            IfXIsLessThanY
+              IfHoldingMeleeWeapon
+                PressLatchButton
+    Else
+      // Guard the start position
+      tmpx = rand & 511 - 256 + selfspawnx
+      tmpy = rand & 511 - 256 + selfspawny
+      ClearWaypoints
+      AddWaypoint
+  Else
+    // Foot soldier...
+    // Behave according to state
+
+    //STATE 0 - WANDER
+    IfStateIs0
+      tmpargument = rand & 15 + 45
+      SetTime
+      SetTargetToWideEnemy
+        tmpargument = 1
+        SetState
+      Else
+        tmpx = selfspawnx
+        tmpy = selfspawny
+        ClearWaypoints			  
+        AddWaypoint
+        
+        //Always watch players
+        tmpargument = [NONE]
+        tmpdistance = BLAHPLAYERS + BLAHENEMIES + BLAHFRIENDS
+        SetTargetToWideBlahID
+          SetTurnModeToWatchTarget
+        Else
+          SetTurnModeToVelocity
+   
+    //STATE 1 - MELEE
+    IfStateIs1
+      SetTurnModeToVelocity
+      tmpargument = rand & 15 + 30 // Time
+      SetTime
+      
+      //movement
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsLessThanY
+        tmpx = targetx
+        tmpy = targety
+        ClearWaypoints			  
+        AddWaypoint
+      Else
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = -600
+        tmpturn = targetturnto
+        ClearWaypoints			  
+        AddWaypoint
+        
+      //Attack melee
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 200
+        IfXIsLessThanY
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+      
+    IfTargetKilled
+      tmpargument = 0
+      SetState
+ 
+//Charge magic missiles
+IfStateIs1
+  tmpargument = 0
+  IfContentIs
+    IfTargetIsOnHatedTeam
+      IfTargetIsAlive
+        tmpx = rand & 255
+        tmpy = 10
+        IfXIsLessThanY                        //Delay recast
+          tmpargument = 1
+          SetContent
+  Else
+    tmpx = targetdistance
+    tmpy = 200
+    IfXIsMoreThanY
+      tmpargument = LATCHLEFT
+      PressLatchButton
+      tmpargument = selfcontent + 1
+      SetContent
+      
+      //Finished charging?
+      tmpargument = 175
+      IfContentIs
+        tmpargument = 0
+        SetContent
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

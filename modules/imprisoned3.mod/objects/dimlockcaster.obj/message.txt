@@ -1,0 +1,5 @@
+Message 0: %t_outsmarted_the_Dimlock_Mage.
+Message 1: A_%c_was_killed!
+Message 2: The_%c_looks_better!
+Message 3: The_Dimlock_Priest_was_too_faithfull...
+Message 4: A_Dimlock_Priest_is_with_his_god_now.

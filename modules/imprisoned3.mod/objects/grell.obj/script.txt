@@ -1,0 +1,204 @@
+//------------------------------------------------------------------------------
+//Set correct wing colour
+IfSpawned
+  SetTargetToSelf
+  SetTargetToTargetLeftHand	//Target the wing
+  tmpargument = 3
+  ChangeTargetArmor
+  SetTargetToSelf
+  
+//------------------------------------------------------------------------------
+IfCalledForHelp
+  tmpargument = TEAME
+  JoinTeam
+  
+//------------------------------------------------------------------------------
+//Enemy target has been defeated
+IfTargetKilled
+  SetTargetToNearestEnemy
+    tmpargument = 1 //Follow
+    SetState
+  Else
+    tmpargument = 0 //Guard
+    SetState
+
+//------------------------------------------------------------------------------
+IfTimeOut
+  IfStateIs0
+    tmpargument = rand & 31 + 30
+    SetTime
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint		       
+
+    SetTargetToWideEnemy	//Enemy found, target him
+      tmpargument = 1 
+      SetState 		//and charge
+
+  //Move towards enemy
+  IfStateIs1
+    tmpx = targetdistance
+    tmpy = 128*3
+    IfXIsLessThanY
+      tmpargument = 2
+      SetState		//Melee
+    Else				//Move towards enemy in a
+      tmpx = rand & 1023 + targetx - 511	//random direction pattern
+      tmpy = rand & 1023 + targety - 511
+      tmpturn = targetturnto
+      tmpdistance = rand % 1000 + 500
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 50
+      SetTime
+
+    SetTargetToWideEnemy	//Enemy to far away?
+      DoNothing		//Nope
+    Else
+      tmpargument = 0 		//Yep return to guarding
+      SetState    
+      tmpargument = 20
+      SetTime
+
+  //Combat
+  IfStateIs2
+    tmpx = targetdistance
+    tmpy = 170
+    IfXIsLessThanY             // Close enough to swing...
+      IfFacingTarget            // If he is facing his enemy
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+        tmpargument = 10
+        SetTime
+
+    //Enemy to far away?
+    tmpx = targetdistance
+    tmpy = 128*3
+    IfXIsMoreThanY    
+      tmpargument = 1 		//Retry attack position
+      SetState    
+      tmpargument = 0
+      SetTime
+
+    //Move towards target
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 100
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+
+  //Fly up or down depending on opponent altitude
+  tmpargument = 20
+  IfTargetIsOnHatedTeam
+    tmpx = targetz
+    tmpy = 20
+    IfXIsMoreThanY
+      tmpargument = targetaltitude + 20
+  SetFlyHeight
+
+//------------------------------------------------------------------------------
+//Handle being attacked by countering
+IfAttacked
+  SetTargetToWhoeverAttacked
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+  
+  IfTargetIsOnHatedTeam
+    Run
+    IfStateIs0		//If not already, engage in combat
+      tmpargument = 1
+      SetState
+    tmpargument = 2
+    PlaySound		//Ouch sound
+  Else
+    SetTargetToOldTarget
+  
+  //Spawn blud
+  tmpargument = 3		//Blue blud
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+
+//------------------------------------------------------------------------------
+//Slash and bite (Okay forget the biting part)
+IfBumped
+  SetTargetToWhoeverBumped
+  
+  //Fly over obstacles
+  IfTargetIsAPlatform
+    tmpargument = selfz + 80
+    SetFlyHeight
+    tmpargument = 50
+    SetTime
+  Else
+    IfTargetIsAlive
+      DoNothing
+    Else
+      tmpargument = selfz + 80
+      SetFlyHeight
+      tmpargument = 50
+      SetTime      
+
+  //Attack or scuttle
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      IfTargetIsAlive
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+  Else
+    tmpx = rand & 511 + targetx - 256
+    tmpy = rand & 511 + targety - 256
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget	//Oops, friendly xD
+
+//------------------------------------------------------------------------------
+// Handle death by sending a message and other stuff
+IfKilled
+  // Spit out text
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 1		//Friendly fire
+    IfTargetIsSelf
+      tmpargument =3		//Sucide!
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  // Stop flying
+  tmpargument = 0
+  SetFlyHeight
+
+  //Sound
+  tmpargument = 1
+  PlaySound
+
+  //Spawn blud
+  tmpargument = 3		//Blue blud
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  
+  //Become bad
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+  
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

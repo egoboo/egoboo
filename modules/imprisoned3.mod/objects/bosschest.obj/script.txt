@@ -1,0 +1,152 @@
+// Someone cast an unlock spell
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs
+      tmpargument = ACTIONMG
+      DoAction
+        tmpargument = 1
+        SetState
+        tmpargument = 60
+        SetBumpHeight
+        KeepAction
+        tmpargument = 0
+        PlaySound
+        
+        // Wait a while
+        tmpargument = 40
+        SetTime
+        
+        // Tell the players...
+        tmpargument = 3
+        SendMessageNear
+
+        //Unlock
+        tmpargument = 1
+        SetContent
+          
+//------------------------------------------------------------------------------------
+// Someone is trying to open it
+IfBumped
+  // Can they open the chest?
+  SetTargetToWhoeverBumped
+  IfTargetCanOpenStuff
+    tmpargument = [OPEN]
+    IssueOrder
+    
+    IfFacingTarget
+    
+      // Is it closed?
+      IfStateIs0
+        //Animate the target
+        tmpargument = ACTIONMG
+        TargetDoAction
+          tmpargument = 0                 //Content 0 == locked
+          IfContentIs
+            tmpargument = [DISA]
+            IfTargetHasSkillID          //They picked the lock
+            
+              //Unlock it
+              tmpargument = 1
+              SetContent
+              tmpargument = 1
+              PlaySound
+              tmpargument = 6
+              SendMessageNear
+              
+              //Award some xp
+              tmpargument = 25
+              tmpdistance = EXPROLEPLAY
+              GiveExperienceToTarget
+            Else
+              tmpargument = [KEYC]
+              CostTargetItemID          //They used a key
+              
+                //Unlock it
+                tmpargument = 1
+                SetContent
+                tmpargument = 1
+                PlaySound
+                tmpargument = 5
+                SendMessageNear
+                
+                //Award some xp
+                tmpargument = 10
+                tmpdistance = EXPSECRET
+                GiveExperienceToTarget
+              Else
+                IfTimeOut           //Tell it's locked
+                  tmpargument = 1
+                  SendMessageNear
+                  tmpargument = 40
+                  SetTime
+                                
+          //Unlocked!
+          Else 
+            // Give some experience
+            tmpargument = 5
+            tmpdistance = EXPDARE
+            GiveExperienceToTarget
+            
+            //Animate
+            tmpargument = ACTIONMG
+            TargetDoAction
+
+            // Open it up
+            tmpargument = ACTIONMG
+            DoAction
+              tmpargument = 1
+              SetState
+              tmpargument = 60
+              SetBumpHeight
+              KeepAction
+              tmpargument = 0
+              PlaySound
+          
+              // Wait a while
+              tmpargument = 40
+              SetTime
+      
+              // Tell the players...
+              tmpargument = 4
+              SendMessageNear
+      Else                
+        // Wait before allowing loot
+        IfTimeOut
+          // Reset the timer
+          tmpargument = 40
+          SetTime
+            
+          // Make target crouch
+          IfFacingTarget
+            tmpargument = ACTIONMG
+            TargetDoAction
+        
+          // Say it's empty...
+          IfStateIs2
+            // Say the chest is empty...
+            tmpargument = 0
+            SendMessageNear
+              
+          // Drop the contents
+          IfStateIs1
+            tmpargument = selfmoney
+            DropMoney
+            DropItems
+            DropKeys
+            
+            //Warn the owner we are being opened!
+            tmpargument = [CAMB]
+            IssueOrder
+            
+            //Truly empty now...
+            tmpargument = 2
+            SetState
+
+//------------------------------------------------------------------------------------
+// All done
+End
+//------------------------------------------------------------------------------------

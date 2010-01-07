@@ -1,0 +1,441 @@
+//States
+//0 - wander
+//1 - attack melee
+//2 - attack ranged position
+//3 - attack ranged combat
+//4 - retreat
+//5 - sleeping		(special)
+
+IfSpawned
+  //Engage sleeping mode
+  GetContent
+  SetState
+
+  //Sleeping
+  IfStateIs5
+    tmpargument = 8
+    SetState
+    tmpargument = rand & 63 + 32
+    SetTime
+    tmpargument = ACTIONMK
+    DoActionOverride
+    KeepAction
+
+//------------------------------------------------------------------------------
+IfBumped
+  SetTargetToWhoeverBumped
+
+  //Bumping a sleeping man...  How rude!
+  IfStateIs4
+    IfTargetIsOnHatedTeam
+      
+      tmpargument = 4
+      PlaySound
+      tmpargument = 4
+      SendMessageNear
+      tmpargument = ACTIONMJ
+      DoActionOverride
+      UnkeepAction
+
+      // Start combat
+      tmpargument = 2
+      IfHoldingMeleeWeapon
+        tmpargument = 1
+      SetState
+      tmpargument = 15
+      SetTime
+  Else
+    // Jump over barriers, onto mounts
+    IfTargetIsAlive
+      IfTargetIsAPlatform
+        // Jump over some stuff
+        tmpargument = LATCHJUMP
+        PressLatchButton
+      IfTargetIsAMount
+        // Jump onto mounts
+        tmpx = targetx
+        tmpy = targety
+        ClearWaypoints
+        AddWaypoint
+
+        tmpargument = 30
+        SetTime
+    Else
+      // Jump over corpses
+      tmpargument = LATCHJUMP
+      PressLatchButton
+    SetTargetToOldTarget
+
+//Use shield
+IfTargetIsAttacking
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      IfHoldingShield
+        tmpturn = selfturn - targetturn		//Target facing self?
+        tmpx = tmpturn
+        tmpy = 24768
+        IfXIsMoreThanY
+          tmpy = 40768
+          IfXIsLessThanY
+            PressLatchButton
+
+//------------------------------------------------------------------------------
+IfKilled
+  // Tell the players
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 1
+  SendMessageNear
+
+  // Just to be sure
+  tmpargument = ACTIONKA
+  DoActionOverride
+  KeepAction
+
+  //Death sound
+  tmpargument = 1
+  PlaySound
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropItems
+  DropKeys
+
+  // Make the character body
+  tmpargument = 40
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+IfAttacked
+  SetTargetToWhoeverAttacked
+
+  //STATE 4 - SLEEPING
+  IfStateIs5
+    // A sleeping prisoner
+    tmpargument = [STAB]
+    IfTargetHasSkillID
+      // This is what Rogues do best...
+      tmpargument = 5
+    Else
+      // Just a normal player
+      tmpargument = 6
+    SendMessageNear
+
+    // Give experience
+    tmpargument = 30
+    tmpdistance = EXPMURDER
+    GiveExperienceToTarget
+
+    // Do it
+    SetTargetToSelf
+    KillTarget
+
+  Else
+    IfTargetIsOnHatedTeam
+      IfHoldingMeleeWeapon
+        tmpargument = 1
+      Else
+        tmpargument = 2
+      SetState
+
+      // Check for instant death
+      IfBackstabbed
+        tmpargument = 3
+        SendMessageNear
+
+        tmpargument = 30
+        tmpdistance = EXPMURDER
+        GiveExperienceToTarget
+
+        // Do it
+        SetTargetToSelf
+        KillTarget
+    Else
+      // Friendly fire, get out of the way
+      tmpx = rand & 511 - 256 + selfx
+      tmpy = rand & 511 - 256 + selfy
+      ClearWaypoints
+      AddWaypoint
+      SetTargetToOldTarget
+
+    tmpargument = rand & 1 + 2
+    PlaySound
+
+//Don't hack dead bodies
+IfTargetIsAlive
+  DoNothing
+Else
+  tmpargument = 0
+  SetState
+
+//------------------------------------------------------------------------------
+IfTimeOut
+
+  // Riding some type of animal...
+  IfSitting
+    tmpargument = rand & 15 + 15 // Time
+    SetTime
+
+    // Acquire a target
+    SetTurnModeToVelocity
+    SetTargetToWideEnemy
+      // Charge towards enemy
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = targetturnto
+      tmpdistance = 500
+      Compass
+      ClearWaypoints
+      AddWaypoint
+
+      // Check for special mount attacks
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsLessThanY
+        tmpargument = [XFUN]
+        SetOldTarget
+        SetTargetToWhoeverIsHolding            //The mount
+        IfTargetHasAnyID
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+          SetTargetToOldTarget
+        Else
+          // Don't let the enemy jump over
+          SetTargetToOldTarget
+          IfFacingTarget
+            IfXIsLessThanY
+              IfHoldingMeleeWeapon
+                PressLatchButton
+    Else
+      // Guard the start position
+      tmpx = rand & 511 - 256 + selfspawnx
+      tmpy = rand & 511 - 256 + selfspawny
+      ClearWaypoints
+      AddWaypoint
+  Else
+    // Foot soldier...
+    // Behave according to state
+
+    //STATE 0 - WANDER
+    IfStateIs0
+      tmpargument = rand & 15 + 45
+      SetTime
+      SetTurnModeToVelocity 
+      SetTargetToWideEnemy
+        IfHoldingRangedWeapon
+          tmpargument = 2
+        Else
+          tmpargument = 1
+        SetState
+      Else
+        tmpx = rand & 1023 - 512 + selfspawnx
+        tmpy = rand & 1023 - 512 + selfspawny
+        ClearWaypoints			  
+        AddWaypoint
+   
+
+    //STATE 1 - MELEE
+    IfStateIs1
+      tmpargument = rand & 15 + 30 // Time
+      SetTime
+        
+      // Charge and attack the enemy
+      SetTargetToNearestEnemy
+      tmpx = targetdistance
+      tmpy = 2500
+      IfXIsLessThanY
+        tmpy = 450
+        IfXIsMoreThanY
+          tmpx = rand & 511 + targetx - 256
+          tmpy = rand & 511 + targety - 256
+          tmpturn = targetturnto
+          tmpdistance = 1500
+          Compass
+          SetTurnModeToVelocity
+        Else
+          tmpx = targetx
+          tmpy = targety
+          tmpturn = targetturnto
+          tmpdistance = 200
+          Compass
+          SetTurnModeToWatchTarget
+        ClearWaypoints
+        AddWaypoint
+      Else
+        tmpargument = 0
+        SetState			//target ran away
+
+      // Close enough to attack
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 200
+        IfXIsLessThanY
+          IfHoldingMeleeWeapon
+            IfFacingTarget
+              PressLatchButton
+
+      // Rummage for a weapon
+      IfHoldingMeleeWeapon
+        DoNothing
+      Else
+        tmpargument = 4			//panic a little
+        SetState
+        // Draw a new weapon
+        tmpargument = LATCHPACKRIGHT
+        PressLatchButton
+ 
+
+    //STATE 2 - RANGED POSITION
+    IfStateIs2
+      tmpargument = rand & 15 + 30 // Time
+      SetTime 
+
+      SetTargetToNearestEnemy
+      SetTurnModeToWatchTarget
+      tmpx = targetdistance
+      tmpy = 2500
+      IfXIsLessThanY
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 600
+        Compass
+        ClearWaypoints
+        AddWaypoint
+
+        //Suitable to shoot?
+        IfFacingTarget
+          tmpx = targetdistance
+          tmpy = 700
+          IfXIsLessThanY
+            tmpargument = 3
+            SetState
+
+        // Don't shoot if friends are too close
+        SetOldTarget
+        SetTargetToNearestFriend
+          IfFacingTarget
+            tmpx = targetdistance
+            tmpy = 300
+            IfXIsLessThanY
+              // Keep distance from friends
+              tmpx = targetx
+              tmpy = targety
+              tmpturn = rand & 8191 + 28000 + targetturnto
+              tmpdistance = 300
+              Compass
+              ClearWaypoints
+              AddWaypoint
+              tmpargument = 2	
+              SetState			//not safe to shoot
+            SetTargetToOldTarget
+            tmpy = targetdistance
+            IfXIsMoreThanY
+              tmpargument = 3
+              SetState			//Enemy is closer than friend, shoot after all
+        SetTargetToOldTarget
+
+      Else
+        tmpargument = 0			//target ran away
+        SetState
+        
+
+    //STATE 3 - RANGED COMBAT
+    IfStateIs3
+      tmpargument = rand & 15 + 30
+      SetTime
+      IfHoldingRangedWeapon
+        PressLatchButton			//return to ranged movement
+      Else					//ammo out
+        // Draw a new weapon
+        DropWeapons
+        // Now using melee weapons
+        tmpargument = 1
+        SetState
+      SetTargetToNearestEnemy
+
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 900
+        IfXIsMoreThanY
+          tmpargument = 2
+          SetState
+        tmpy = 400
+        IfXIsLessThanY
+          tmpargument = 4
+          SetState	
+      Else
+        tmpargument = 2
+        SetState	
+
+    //STATE 4 - RETREAT
+    IfStateIs4
+      tmpargument = 150
+      SetTime
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = rand & 32768 + targetturnto
+      tmpdistance = 650
+      Compass
+      ClearWaypoints
+      AddWaypoint
+
+      IfHoldingMeleeWeapon
+        tmpargument = 1
+        SetState
+      Else
+        IfHoldingRangedWeapon
+          tmpargument = 2
+          SetState
+
+        //Grab a weapon
+        Else
+          tmpargument = [SWOR]
+          tmpdistance = BLAHITEMS		//Look for items
+          tmpx = 0
+          SetTargetToWideBlahID
+            tmpx = 1				//Found a hammer
+          Else
+            tmpargument = [MACE]
+            SetTargetToWideBlahID
+              tmpx = 1				//Found a mace
+            Else
+              tmpargument = [AXEE]
+              SetTargetToWideBlahID
+                tmpx = 1			//Found a axe
+              Else
+                tmpargument = [CLAW]
+                SetTargetToWideBlahID
+                  tmpx = 1			//Found a claw
+                Else
+                  tmpargument = [HAMM]
+                  SetTargetToWideBlahID
+                    tmpx = 1			//Found a sword
+                  Else
+                    tmpargument = [POLE]
+                    SetTargetToWideBlahID
+                      tmpx = 1			//Found a spear
+          tmpy = 1
+          IfXIsEqualToY				//tmpx = 1 means something was found
+            tmpx = targetdistance
+            tmpy = 50
+            IfXIsLessThanY
+              tmpargument = LATCHALTRIGHT
+              PressLatchButton
+            tmpx = targetx
+            tmpy = targety
+            tmpturn = targetturnto
+            tmpdistance = 100
+            Compass
+            ClearWaypoints
+            AddWaypoint
+
+//------------------------------------------------------------------------------
+IfHealed
+  tmpargument = 2
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

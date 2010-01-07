@@ -1,0 +1,4 @@
+Message 0: %t_slaughtered_the_nasty_%c!
+Message 1: The_nasty_%c_was_betrayed!
+Message 2: A_%c_was_attacked_by_a_friend!
+Message 3: A_%c_was_not_catious_enough...

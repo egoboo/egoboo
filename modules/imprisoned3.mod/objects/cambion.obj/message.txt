@@ -1,0 +1,11 @@
+Message 0: %n_was_slain.
+Message 1: Hey!_That's_our_chest!
+Message 2: Kill_the_thief!
+Message 3: Greetings_%s!
+Message 4: This_chest_contains_the_key_to_the_next_level...
+Message 5: But_it_is_ours!
+Message 6: Say_what..._I'll_do_ya_a_trade.
+Message 7: 3_sparkling_gems_for_the_chest,_deal?
+Message 8: No_touching_the_chest_until_I_have_the_gems!
+Message 9: It_has_been_a_joy_dealing_with_you!_Enjoy_your_chest..._Hahaha!
+Message 10: %t_gave_%n_a_gem.

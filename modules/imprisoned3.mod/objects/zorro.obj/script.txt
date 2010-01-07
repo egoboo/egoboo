@@ -1,0 +1,127 @@
+//------------------------------------------------------------------------------
+IfBumped
+  SetTargetToWhoeverBumped
+
+  // Jump over barriers, onto mounts
+  IfTargetIsAlive
+    IfTargetIsAPlatform
+      // Jump over some stuff
+      tmpargument = LATCHJUMP
+      PressLatchButton
+  Else
+    // Jump over corpses
+    tmpargument = LATCHJUMP
+    PressLatchButton
+  SetTargetToOldTarget
+  
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 8
+  PlaySound
+  
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 1
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropItems
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+  
+  //Become bad
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+
+//------------------------------------------------------------------------------
+IfCalledForHelp
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+  
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  SetTargetToWhoeverAttacked
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+  IfTargetIsOnSameTeam
+    tmpargument = 9       //"Stupid!"
+    PlaySound
+    tmpargument = 2
+    SendMessageNear
+  Else
+    tmpargument = rand % 5 + 3  //Ouch!
+    PlaySound
+
+//------------------------------------------------------------------------------
+//Main AI
+IfTimeOut
+  IfStateIs0
+    tmpargument = 20
+    SetTime
+    SetTargetToWideEnemy
+      tmpargument = 1
+      SetState
+    Else
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      ClearWaypoints
+      AddWaypoint
+  
+  IfStateIs1
+    tmpargument = rand & 7 + 20
+    SetTime
+    SetTargetToWideEnemy
+      tmpx = targetx
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+      
+      //Attack!
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 200
+        IfXIsLessThanY
+          IfHoldingMeleeWeapon
+            PressLatchButton
+        Else
+          IfHoldingRangedWeapon
+            PressLatchButton
+    Else
+      tmpargument = 0
+      SetState
+      
+//------------------------------------------------------------------------------
+//dodge!
+IfTargetIsAttacking
+  tmpx = rand & 255
+  tmpy = 10
+  IfXIsLessThanY
+    tmpargument = LATCHJUMP
+    PressLatchButton
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = -800
+    tmpturn = rand
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    
+//------------------------------------------------------------------------------
+//someone healed us
+IfHealed
+  tmpargument = 3
+  SendMessageNear
+  
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

@@ -1,0 +1,280 @@
+//The different states:
+//0: Wait for enemy
+//1: Get in position
+//2: Attack
+//3: Casting poison cloud
+//Content is the spell cast charge timer
+
+//This is an illusion so it can be disenchanted!
+IfSpawned
+  SetTargetToSelf
+  EnchantTarget
+
+//------------------------------------------------------------------------------
+//Dont cling into other friends
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    DoNothing
+  Else
+    tmpx = rand & 511 + targetx - 255
+    tmpy = rand & 511 + targety - 255
+    tmpdistance = 0 - 500
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+  SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+//This manages the melee attack speed
+IfUsed
+  tmpargument = 40
+  SetReloadTime
+
+//------------------------------------------------------------------------------
+//Leader AI
+IfSpawned
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+//Nasty sounds
+IfBored
+  tmpargument = 9
+  PlaySound
+
+//------------------------------------------------------------------------------
+//Handle death by sending a message and other stuff
+IfKilled
+  // Spit out text
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 1
+    IfTargetIsSelf
+      tmpargument =3
+  SendMessage
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  // Stop flying
+  tmpargument = 0
+  SetFlyHeight
+
+  //Sound
+  tmpargument = 1
+  PlaySound
+  
+  //Go away!
+  GoPoof
+
+//------------------------------------------------------------------------------
+//What to do each round
+IfTimeOut
+
+  //Show them it's an illusion
+  IfTargetIsOnHatedTeam
+    IfTargetCanSeeInvisible
+      IfTargetCanSeeKurses
+        tmpargument = 128
+        SetLight
+        SetAlpha
+
+  // Wait for the good guys to barge in...
+  IfStateIs0
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand % 30 + 10
+    SetTime
+    tmpdistance = 128*8
+    SetTargetToDistantEnemy
+      tmpargument = 1
+      SetState				//Combat mode
+      tmpargument = rand & 1 + 10
+      PlayFullSound				//Growl
+      tmpargument = 3			//Tell the players what they have done
+      SendMessageNear
+    Else
+      tmpargument = 40			//Nobody here, wait some more
+      SetTime
+  Else
+    //Growl sometimes
+    tmpx = rand & 255
+    tmpy = 250
+    IfXIsMoreThanY
+      tmpargument = rand & 7 + 9
+      PlayFullSound
+      tmpx = tmpargument
+      tmpy = 11			//Figure out if to play message
+      IfXIsMoreThanY
+        tmpargument = tmpargument - 7
+        SendMessageNear
+
+  //Move towards enemy
+  IfStateIs1
+    Run
+    tmpargument = rand & 15 + 20
+    SetTime
+    tmpx = targetdistance
+    tmpy = 290
+    IfXIsMoreThanY		//Move closer?
+      Run
+      tmpx = targetx
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 40
+      SetTime
+      IfFacingTarget		//Shall we cast a spell?
+        SetTargetToSelf
+        tmpx = targetmana
+        tmpy = 550
+        SetTargetToOldTarget
+        IfXIsMoreThanY		//Only if enough mana
+          tmpx = rand & 100	//70% chance not to cast a spell this time
+          tmpy = 92
+          IfXIsMoreThanY       	  //Cast a fireball spell (8% chance)
+            tmpargument = 1
+            tmpx = selfx
+            tmpy = selfy
+            tmpdistance = selfz + 70
+            SpawnExactParticle
+            tmpargument = ACTIONBC	//Cast Spell
+            DoAction
+            tmpargument = 500	//Costs 2 points of mana
+            SetTargetToSelf
+            CostTargetMana
+            SetTargetToOldTarget
+          Else
+            tmpx = rand & 100
+            tmpy = 97
+            IfXIsMoreThanY	//Cast Poison cloud spell (3% chance if last failed)
+              tmpargument = ACTIONCC	//Cast Spell
+              DoAction
+              tmpx = 0
+              tmpy = 0
+              tmpdistance = GRIPRIGHT
+              tmpargument = 5
+              SpawnAttachedParticle
+              SetTargetToSelf		//Costs 3 points of mana
+              tmpargument = 800
+              CostTargetMana
+              SetTargetToOldTarget
+              tmpargument =  3	//Set to cast poison cloud
+              SetState
+    Else			//Close enough - attack
+      IfFacingTarget
+        IfTargetIsDefending
+          tmpargument = ACTIONCC	//Cast Spell if he uses shield
+          DoAction
+          tmpx = 0
+          tmpy = 0
+          tmpdistance = GRIPRIGHT
+          tmpargument = 5
+          SpawnAttachedParticle
+
+          //Costs 3 points of mana
+          SetTargetToSelf
+          tmpargument = 800
+          CostTargetMana
+          SetTargetToOldTarget
+
+          tmpargument =  3	//Set to cast poison cloud
+          SetState
+        Else
+          tmpargument = LATCHRIGHT	//Attack the enemy
+          PressLatchButton
+      Else
+        Walk
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 5
+        SetTime
+
+  //Casting posion cloud
+  IfStateIs3
+    tmpargument = 10
+    SetTime
+
+    //Always look at the enemy while casting spell
+    tmpx = selfx
+    tmpy = selfy
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+
+    GetContent
+    tmpargument = tmpargument +1	//Another round has passed
+    SetContent
+    tmpx = tmpargument
+    tmpy = 15
+    IfXIsMoreThanY		//Finished casting poison cloud?
+      tmpargument = 0
+      SetContent		//Reset poison timer
+      tmpdistance = 128*12
+      SetTargetToDistantEnemy
+        Run
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 250
+        Compass
+        ClearWaypoints		//Charge enemy
+        AddWaypoint
+        tmpargument = 1
+        SetState
+      Else
+        tmpargument = 0		//He died, lets wait again
+        SetState
+
+//------------------------------------------------------------------------------
+//Spawn fire around daemon (Fiery shield)
+tmpx = selfx
+tmpy = selfy
+tmpdistance = selfz
+tmpargument = 4
+SpawnExactParticle
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    Run
+    tmpargument = 1		//Move toward enemy
+    SetState
+    tmpargument = rand & 3 + 2
+    PlaySound
+  Else
+    tmpargument = 3		//Friendly fire
+    PlaySound
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+//Last, check if our target is really a enemy (Just in case)
+tmpargument = 0
+IfStateIsNot
+  IfTargetIsOnHatedTeam
+    DoNothing
+  Else
+    tmpdistance = 128*12
+    SetTargetToDistantEnemy
+      DoNothing
+    Else
+      tmpargument = 0     //No enemies left
+      SetState
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

@@ -1,0 +1,87 @@
+//Simple AI
+IfTimeOut
+  tmpargument = rand & 15 + 20
+  SetTime
+  
+  //Now we die!
+  IfStateIs4
+    tmpargument = selfmoney
+    DropMoney
+    DropKeys
+    DropItems
+
+    DisableInvictus
+    SetTargetToSelf
+    KillTarget        
+   
+  //Waiting for someone to come
+  IfStateIs0
+    SetTargetToNearbyEnemy
+      tmpx = targetdistance
+      tmpy = 140
+      IfXIsLessThanY
+        tmpargument = 1
+        SetState
+        tmpx = 44*128         //run into the portal
+        tmpy = 65*128
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 1
+        SetState
+        
+        //Message
+        tmpargument = 2
+        PlaySound
+        tmpargument = 0
+        SendMessage
+    
+  //Running towards the portal
+  IfStateIs1
+    IfAtLastWaypoint
+      tmpargument = 3
+      PlaySound
+      tmpx = 24*128
+      tmpy = 71*128         //Teleport us to the new room
+      Teleport
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 2
+      SetState
+  
+  //Waiting in the second portal room  
+  IfStateIs2
+    SetTargetToWideEnemy
+      tmpx = 24*128         //run into the next portal
+      tmpy = 65*128
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 3
+      SetState
+      
+      //Message
+      tmpargument = 2
+      PlaySound
+      tmpargument = 1
+      SendMessage
+      
+      //Award the first one following us
+      tmpdistance = EXPDARE
+      tmpargument = 30
+      GiveExperienceToTarget
+
+  //Running towards the final portal
+  IfStateIs3
+    tmpx = gotodistance
+    tmpy = 25
+    IfXIsLessThanY
+      tmpargument = 3
+      PlaySound
+      tmpx = 8*128
+      tmpy = 71*128         //Teleport us to our grave
+      Teleport
+      tmpargument = 4
+      SetState
+      
+//----------------------------------------------------------------------------------
+End					// All done
+//----------------------------------------------------------------------------------

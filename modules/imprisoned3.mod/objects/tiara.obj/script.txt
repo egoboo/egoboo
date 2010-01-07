@@ -1,0 +1,130 @@
+//------------------------------------------------------------------------------
+//Main AI
+IfTimeOut
+  tmpargument = rand & 31 + 30
+  SetTime
+  
+  IfStateIs0
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint		       
+
+    SetTargetToWideEnemy	//Enemy found, target him
+      tmpargument = 1 
+      SetState 		//and charge
+      SetTurnModeToWatchTarget
+
+  //Combat AI
+  IfStateIs1
+  
+    //Taunt
+    tmpx = rand & 255
+    tmpy = 10
+    IfXIsLessThanY
+      tmpargument = 8
+      PlaySound
+      tmpargument = 5
+      SendMessageNear
+    
+    //Move in for the kill
+    tmpx = targetx
+    tmpy = targety
+    tmpturn = rand
+    tmpdistance = - 150
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    
+    //Attack!
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 220
+      IfXIsLessThanY
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+
+//-----------------------------------------------------------------------------
+IfTargetKilled
+  tmpargument = 0
+  SetState
+  
+//-----------------------------------------------------------------------------
+//Critical hit abillity
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  tmpx = rand % 100
+  tmpy = 15               //15%
+  IfXIsLessThanY
+    tmpargument = 1024   //+4 damage
+    DamageTarget
+    tmpargument = 4
+    PlaySound
+    tmpargument = 1
+    SendMessage
+    
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 7
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+  
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+
+//------------------------------------------------------------------------------
+IfCalledForHelp
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+  
+//------------------------------------------------------------------------------
+IfAttacked
+  CallForHelp
+  tmpargument = TEAME
+  JoinTeam
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+//------------------------------------------------------------------------------
+IfUsed
+  tmpargument = rand & 1 + 11
+  PlaySound
+
+//------------------------------------------------------------------------------
+//Someone healed us
+IfHealed
+  tmpargument = 6
+  SendMessageNear
+  
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
