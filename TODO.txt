@@ -7,13 +7,19 @@ MASTER TODO LIST:
 - Runes need to be repriced much like Arcane Spellbooks were
 - Troll in Griffin tower doesnt die properly
 - Rare crash bug with Tile Mimics in Sand Palace
+
 - Healing cloud for Paladin and Healer is backwards
 - The Jive Elf is no longer loaded properly
 - Something is messing up the waypoints. In Tourist Starter platforms no longer move.
-- Lightning bugs
+- Lightning bugs (Areas of strong darkness still appear and stay until you bring a light source)
 - Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
-- Screenshots dont work
-- SetFrame doesnt seem to work properly. (see mosquitoes)
+- SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)
+- Shields held in right hand look buggy
+- You can no longer turn around while holding a shield
+- A very irritating bug where defence pings spawn for almost everything that hits something. A lit lamp that hits a portal for example.
+- Offensive stuff can no longer friendly fire. If they hit stuff it will simply spawn a defence ping and bounce like it was deflected.
+  Same with hitting invulnerable stuff like a pillar or table.
+- Certain objects with a bump radius seem to hit stuff when dropped, being held, etc... the torch for example.
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif

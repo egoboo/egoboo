@@ -63,7 +63,6 @@ IfKilled
 
   //Death sound
   tmpargument = 0
-  tmpdistance = rand % 3800 + 11000
   PlaySound
 
 //------------------------------------------------------------------------------
@@ -122,6 +121,7 @@ IfTimeOut
     tmpdistance = 700
     Compass
   Else						//No enemies, flock around leader
+    SetTargetToSelf
     tmpx = rand % 1500 + selfspawnx - 750
     tmpy = rand % 1500 + selfspawny - 750
   tmpargument = 100				//Bats are fast
@@ -135,6 +135,15 @@ IfTimeOut
   IfXIsLessThanY
     tmpargument = 4
     PlaySound
+  
+  //Fly up and down towards enemies  
+  tmpargument = 40
+  IfTargetIsOnHatedTeam
+    tmpx = targetz
+    tmpy = selfz + 5
+    IfXIsMoreThanY
+      tmpargument = targetz + 5
+  SetFlyHeight
     
   //Ready biting
   tmpargument = 0
