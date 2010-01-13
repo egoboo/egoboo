@@ -671,22 +671,7 @@ Uint16 load_one_model_profile( const char* tmploadname, Uint16 imad )
 
     // Load the imad model
     make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
-
-#ifdef __unix__
-
-    // unix is case sensitive, but sometimes this file is called tris.MD2
-    if ( access( newloadname, R_OK ) )
-    {
-        make_newloadname( tmploadname, SLASH_STR "tris.MD2", newloadname );
-
-        // still no luck !
-        if ( access( newloadname, R_OK ) )
-        {
-            log_warning( "Cannot open: %s\n", newloadname );
-        }
-    }
-
-#endif
+    
 
     // do this for now. maybe make it dynamic later...
     //pmad->md2_ref = imad;
