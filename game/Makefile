@@ -16,11 +16,7 @@ EGO_PLATFORM    := platform/file_linux.c platform/sys_linux.c
 EGO_FILE_FORMAT := $(wildcard ./file_formats/*.c)
 EGO_EXTENSIONS  := $(wildcard ./extensions/*.c)
 
-EGO_OBJ  := ${EGO_SRC:.c=.o} ${EGO_FILE_FORMAT:.c=.o} ${EGO_EXTENSIONS:.c=.o} ${EGO_PLATFORM:.c=.o}
-
-ENET_SRC := ../enet/host.c ../enet/list.c ../enet/memory.c \
-	../enet/packet.c ../enet/peer.c ../enet/protocol.c ../enet/unix.c
-ENET_OBJ := $(ENET_SRC:.c=.o)
+EGO_OBJ := ${EGO_SRC:.c=.o} ${EGO_FILE_FORMAT:.c=.o} ${EGO_EXTENSIONS:.c=.o} ${EGO_PLATFORM:.c=.o}
 
 SDL_CONF  := sdl-config
 SDLCONF_I := $(shell ${SDL_CONF} --cflags)
@@ -30,16 +26,15 @@ CC      := gcc
 OPT     := -Os -Wall -DPREFIX=\"${PREFIX}\"
 INC     := -I. -I.. -I../enet/include ${SDLCONF_I} -I./extensions -I./file_formats -I./platform
 CFLAGS  := ${OPT} ${INC}
-LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs
+LDFLAGS := ${SDLCONF_L} -L../enet -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs -lenet
 
 .PHONY: all clean
 
-EGO_BIN := egoboo-2.x
+EGO_BIN := PROJ_NAME
 
 all: ${EGO_BIN}
 
-${EGO_BIN}: ${EGO_OBJ} ${ENET_OBJ}
-	${CC} -o $@ $^ ${LDFLAGS}
+${EGO_BIN}: ${EGO_OBJ} ${CC} -o $@ $^ ${LDFLAGS}
 
 clean:
 	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN}
