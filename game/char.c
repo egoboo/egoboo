@@ -6162,7 +6162,7 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 chr_instance_t * chr_instance_init( chr_instance_t * pinst )
 {
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == pinst ) return pinst;
 
@@ -6253,7 +6253,7 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, Uint16 imad )
 
     mad_t * pmad;
     bool_t updated = bfalse;
-    int vlst_size;
+    Uint32 vlst_size;
 
     if ( !LOADED_MAD( imad ) ) return bfalse;
     pmad = MadList + imad;
@@ -7535,7 +7535,8 @@ int get_grip_verts( Uint16 grip_verts[], Uint16 imount, int vrt_offset )
     /// @details BB@> Fill the grip_verts[] array from the mount's data.
     ///     Return the number of vertices found.
 
-    int i, vrt_count, tnc;
+	Uint32  i;
+    int vrt_count, tnc;
 
     chr_t * pmount;
     mad_t * pmount_mad;

@@ -655,7 +655,7 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
     /// @details BB@> a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
 
-    int vrt;
+    Uint32 vrt;
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( NULL == pinst || NULL == pmad ) return;

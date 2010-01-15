@@ -345,7 +345,7 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_make_texture( ego_mpd_t * pmesh )
 {
-    int cnt;
+    Uint32 cnt;
     ego_mpd_info_t * pinfo;
 
     if ( NULL == pmesh ) return bfalse;
@@ -1717,7 +1717,7 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
 {
     Uint32 itile;
     int type;
-    int cnt;
+    Uint32 cnt;
     float zmax;
     size_t vcount, vstart, ivrt;
 
@@ -1814,7 +1814,7 @@ ego_tile_info_t * ego_tile_info_alloc()
 //--------------------------------------------------------------------------------------------
 ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count )
 {
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == ptr ) return ptr;
 
@@ -1844,7 +1844,7 @@ bool_t mpd_BSP_init_1( mpd_BSP_t * pbsp, ego_mpd_t * pmesh, int size_x, int size
     // BB> Create a new BSP tree for the mesh.
     //     These parameters duplicate the max resolution of the old system.
 
-    int i;
+    Uint32 i;
     int depth;
     BSP_node_t * pnode;
 
@@ -1931,7 +1931,7 @@ bool_t mpd_BSP_insert_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, int depth, int
 //--------------------------------------------------------------------------------------------
 bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, mpd_mem_t * mem )
 {
-    int tile;
+    Uint32 tile;
     int * address_x, * address_y;
 
     BSP_tree_t * ptree = &( pbsp->tree );
@@ -1994,7 +1994,7 @@ bool_t mesh_BSP_collide_leaf( BSP_leaf_t * pleaf, oct_bb_t * pvleaf, oct_bb_t * 
     // BB > Recursively search the BSP tree for collisions with the pvobj
     //      Return bfalse if we need to break out of the recursive search for any reson.
 
-    int i;
+    Uint32 i;
     oct_bb_t int_ov, tmp_ov;
     float    x_mid, y_mid;
     int      address_x, address_y;

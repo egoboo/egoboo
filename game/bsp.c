@@ -116,7 +116,7 @@ bool_t BSP_leaf_destroy( BSP_leaf_t ** pleaf )
 //--------------------------------------------------------------------------------------------
 BSP_leaf_t * BSP_leaf_create_ary( size_t ary_size, size_t count )
 {
-    int cnt;
+    Uint32 cnt;
     BSP_leaf_t * lst;
 
     lst = EGOBOO_NEW_ARY(BSP_leaf_t, ary_size);
@@ -133,7 +133,7 @@ BSP_leaf_t * BSP_leaf_create_ary( size_t ary_size, size_t count )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_leaf_destroy_ary( size_t ary_size, BSP_leaf_t ** lst )
 {
-    int cnt;
+    Uint32 cnt;
 
     if( NULL == lst || NULL == *lst || 0 == ary_size ) return bfalse;
 

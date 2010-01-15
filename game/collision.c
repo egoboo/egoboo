@@ -1854,6 +1854,9 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
 
+	// ZF> Simply ignore characters with invictus for now, it causes some strange effects
+	if( pchr->invictus ) return btrue;
+
     // find the "attack direction" of the particle
     direction = vec_to_facing( pchr->pos.x - pprt->pos.x, pchr->pos.y - pprt->pos.y );
     direction = pchr->turn_z - direction + ATK_BEHIND;
