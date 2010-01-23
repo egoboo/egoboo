@@ -13,6 +13,7 @@ IfSpawned
   KeepAction
   MakeCrushValid
   MakeAmmoKnown
+  
   // Don't activate right away
   tmpargument = 100
   SetTime

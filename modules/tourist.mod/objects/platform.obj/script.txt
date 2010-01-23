@@ -151,18 +151,22 @@ IfContentIs
 
 //Prespecified AI
 Else
-  tmpargument = selfstate
-  GetXY
-  ClearWaypoints
-  AddWaypoint
+  IfTimeOut
 
-  IfAtLastWaypoint
-    tmpargument = selfstate + 1
-    SetState
-    IfStateIs3
-      tmpargument = 0
+    IfAtLastWaypoint
+      tmpargument = selfstate + 1
       SetState
+      IfStateIs3
+        tmpargument = 0
+        SetState
 
+    tmpargument = selfstate
+    GetXY
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = 40
+    SetTime
+    
 //Don't get stuck in other platforms
 IfBumped
   tmpx = selfcontent

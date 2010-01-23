@@ -21,7 +21,6 @@
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -56,6 +55,7 @@
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
+				CallingConvention="0"
 				CompileAs="1"
 			/>
 			<Tool
@@ -71,12 +71,14 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDLd.lib SDLmaind.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf.lib SDL_mixerd.lib SDL_imaged.lib lua5.1.lib physfs.lib"
 				OutputFile="$(OutDir)/Egoboo2x.exe"
+				Version="2.8.0"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/game.pdb"
 				SubSystem="1"
 				LinkTimeCodeGeneration="0"
+				EntryPointSymbol=""
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -144,6 +146,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 				CompileAs="1"
 			/>
 			<Tool
@@ -167,6 +170,7 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="0"
+				EntryPointSymbol=""
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"

@@ -74,6 +74,7 @@ enum e_menu_states
 #define MENU_STACK_COUNT 256
 #define MAXWIDGET        100
 #define INVALID_TITLEIMAGE MAX_MODULE
+#define MENU_MAX_GAMETIPS 100
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -111,7 +112,6 @@ static which_menu_t menu_stack[MENU_STACK_COUNT];
 
 static which_menu_t mnu_whichMenu = emnu_Main;
 
-// static int         mnu_widgetCount;
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
 
 static int selectedModule = -1;
@@ -131,6 +131,15 @@ static int buttonLeft = 0;
 static int buttonTop = 0;
 
 static int selectedPlayer = 0;           // Which player is currently selected to play
+
+/// The data that menu.c uses to store the users' choice of players
+struct s_GameTips
+{
+	STRING hint[MENU_MAX_GAMETIPS];		//< The actual hints/tips
+	Uint8 count;						//< Number of tips loaded
+};
+typedef struct s_GameTips GameTips_t;
+static GameTips_t		mnu_GameTip;
 
 static menu_process_t    _mproc;
 
@@ -440,6 +449,46 @@ void set_copyright_position( Font * font, const char * text, int spacing )
 }
 
 //--------------------------------------------------------------------------------------------
+void load_game_hints()
+{
+    /// ZF@> This function loads all of the game hints and tips
+    STRING loadpath;
+    STRING buffer;
+    vfs_FILE *fileread;
+    Uint8 cnt;
+
+    // Open the playlist listing all music files
+    snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "menu" SLASH_STR "gametips.txt" );
+    fileread = vfs_openRead( loadpath );
+    if ( fileread == NULL )
+    {
+        log_warning( "Could not load the game tips and hints. (%s)\n", loadpath );
+        return;
+    }
+
+    // Load the data
+	mnu_GameTip.count = 0;
+    for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
+    {
+        if ( goto_colon( NULL, fileread, btrue ) )
+        {
+            //Read the line
+			fget_string( fileread, buffer, SDL_arraysize( buffer ) );
+			strcpy( mnu_GameTip.hint[cnt], buffer );
+			
+			// remove the '_' characters
+			str_decode( mnu_GameTip.hint[cnt], SDL_arraysize(mnu_GameTip.hint[cnt]), mnu_GameTip.hint[cnt] );
+
+			//Keep track of how many we have total
+			mnu_GameTip.count++;
+        }
+    }
+
+    vfs_close( fileread );
+
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int mnu_init()
 {
@@ -463,6 +512,9 @@ int mnu_init()
 
     // Figure out where to draw the options text
     set_tip_position( menuFont, tipText, 20 );
+
+	// Load game hints
+    load_game_hints();
 
     // initialize the title images
     TxTitleImage_init_all();
@@ -902,23 +954,17 @@ int doChooseModule( float deltaTime )
             y = 20;
             for ( i = startIndex, j = 0; i < ( startIndex + 3 ) && j < numValidModules; i++ )
             {
-                // Only draw valid modules
-                // this tese is superfluous, since nothing can make it into this list
-                // unless it already passes this test
-                // if ( mnu_test_by_index( validModules[i] ) )
+                // fix the menu images in case one or more of them are undefined
+                int         imod       = validModules[i];
+                Uint32      tex_offset = mnu_ModList.lst[imod].tex_index;
+                oglx_texture * ptex    = TxTitleImage_get_ptr( tex_offset );
+
+                if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
                 {
-                    // fix the menu images in case one or more of them are undefined
-                    int         imod       = validModules[i];
-                    Uint32      tex_offset = mnu_ModList.lst[imod].tex_index;
-                    oglx_texture * ptex    = TxTitleImage_get_ptr( tex_offset );
-
-                    if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
-                    {
-                        selectedModule = i;
-                    }
-
-                    x += 138 + 20;  // Width of the button, and the spacing between buttons
+                    selectedModule = i;
                 }
+
+                x += 138 + 20;  // Width of the button, and the spacing between buttons
             }
 
             // Draw an empty button as the backdrop for the module text
@@ -3385,21 +3431,30 @@ int doShowResults( float deltaTime )
 {
     Uint8 i;
 
-    //static STRING  text;
     static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;
+	static int	   hintnum;
 
     int menuResult = 0;
 
     switch ( menuState )
     {
         case MM_Begin:
-            font = ui_getFont();
 
-            count = 0;
-            menuState = MM_Entering;
-            // pass through
+			// Randomize the next game hint		//@todo: Zefz> this isnt properly randomized for some reason
+			if( mnu_GameTip.count > 0)
+			{
+				int irand = RANDIE;
+				hintnum = (irand % mnu_GameTip.count);
+			}
+
+			font = ui_getFont();
+
+			count = 0;
+			menuState = MM_Entering;
+			// pass through
+		
 
         case MM_Entering:
             menuState = MM_Running;
@@ -3425,6 +3480,18 @@ int doShowResults( float deltaTime )
 
                 // Draw a text box
                 ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
+
+				// Draw the game tip
+				if( mnu_GameTip.count > 0 && hintnum <= mnu_GameTip.count && mnu_GameTip.hint[hintnum] != NULL )
+				{
+					int text_w, text_h;
+
+					fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
+					fnt_drawText( menuFont, (GFX_WIDTH / 2)  - text_w/2, GFX_HEIGHT - 150, "GAME TIP" );
+
+					fnt_getTextSize( menuFont, mnu_GameTip.hint[hintnum], &text_w, &text_h );
+					ui_drawTextBox( menuFont, mnu_GameTip.hint[hintnum], (GFX_WIDTH / 2) - text_w/2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
+				}
 
                 // keep track of the iterations through this section for a timer
                 count++;

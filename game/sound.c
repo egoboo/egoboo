@@ -748,10 +748,11 @@ void load_all_music_sounds()
     if ( musicinmemory || !snd.musicvalid ) return;
 
     // Open the playlist listing all music files
-    playlist = vfs_openRead( "basicdat" SLASH_STR "music" SLASH_STR "playlist.txt" );
+    snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "music" SLASH_STR "playlist.txt" );
+    playlist = vfs_openRead( loadpath );
     if ( playlist == NULL )
     {
-        log_warning( "Error opening playlist.txt\n" );
+        log_warning( "Error reading music list. (%s)\n", loadpath );
         return;
     }
 
@@ -767,6 +768,9 @@ void load_all_music_sounds()
         }
     }
     musicinmemory = btrue;
+
+	// A small helper for us developers
+	if( cnt == MAXPLAYLISTLENGTH )	log_debug( "Play list is full. Consider increasing MAXPLAYLISTLENGTH (currently %i).", MAXPLAYLISTLENGTH );
 
     vfs_close( playlist );
 }

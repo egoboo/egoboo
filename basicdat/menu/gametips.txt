@@ -1,0 +1,8 @@
+//Lists all the game tips that are randomly displayed whenever
+//you are loading a module. 
+Tip 0: Identifying_items_may_give_it_extra_powers.
+Tip 1: Always_keep_a_couple_mana_potions_in_handy.
+Tip 2: Mana_potions_reduce_your_max_mana!
+Tip 3: Bludthirsty_Squirrels_can_eat_'Almost_dead'_Ghouls.
+Tip 4: 'Chiuaua'_allows_you_to_attack_even_when_paralysed!
+Tip 5: A_character_with_the_Poison_Skill_can_throw_flasks_of_poison_at_enemies.

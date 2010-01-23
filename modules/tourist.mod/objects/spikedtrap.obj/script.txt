@@ -13,7 +13,7 @@ IfOrdered
   IfXIsEqualToY
     tmpargument = 1   //ready trap
     SetState
-    tmpargument = 15
+    tmpargument = 25
     SetTime
     
   tmpy = [STOP]
@@ -51,7 +51,7 @@ IfStateIs1
 tmpargument = 0
 IfContentIs
   IfTimeOut  
-    tmpargument = 75  //Do this every 1.5 seconds
+    tmpargument = 125  //Do this every 1.5 seconds
     SetTime
     
     tmpargument = 1
