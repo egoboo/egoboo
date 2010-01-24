@@ -16,16 +16,17 @@ IfTimeOut				// This is done every so often
   
   //Follow the tourist!
   SetTargetToNearestEnemy		  
+  IfTargetKilled
+    tmpx = selfspawnx     //No enemy... return home
+    tmpy = selfspawny
+  Else
     tmpx = targetx
     tmpy = targety
     tmpdistance = 500
     tmpturn = targetturnto
     Compass
-  Else
-    tmpx = selfspawnx     //No enemy... return home
-    tmpy = selfspawny
-  ClearWaypoints			  //
-  AddWaypoint				  //
+  ClearWaypoints
+  AddWaypoint
   tmpargument = rand & 15 + 10		  // Wait a while and try again
   SetTime
 

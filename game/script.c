@@ -270,7 +270,6 @@ void set_alerts( Uint16 character )
     if ( at_waypoint )
     {
         pai->alert |= ALERTIF_ATWAYPOINT;
-
         if ( waypoint_list_finished( &( pai->wp_lst ) ) )
         {
             // we are now at the last waypoint

@@ -92,10 +92,10 @@ landmine:   NONE    38  26.0   22.5   0.0   ?    0   0  0   198   0   F   F   N
 landmine:   NONE    38  30.0   22.5   0.0   ?    0   0  0   196   0   F   F   N
 
 //Boulder room
-bouldertrap:   NONE    36  59.0   13.8   1.0   N    4850   0  0   1750   0   F   F   N
-bouldertrap:   NONE    36  39.5   10.8   1.0   N    7650   0  0   1550   0   F   F   N
-bouldertrap:   NONE    36  59.0   7.8   1.0   N    4850   0  0   1350   0   F   F   N
-bouldertrap:   NONE    36  39.0   5.8   1.0   N    7650   0  0   742   0   F   F   N
+bouldertrap:   NONE    36  58.75   13.8   1.0   N    5000   0  0   1600   0   F   F   N
+bouldertrap:   NONE    36  39.5   10.8   1.0   N    7500   0  0   1550   0   F   F   N
+bouldertrap:   NONE    36  58.75   7.8   1.0   N    5000   0  0   1350   0   F   F   N
+bouldertrap:   NONE    36  39.5   5.8   1.0   N    7600   0  0   742   0   F   F   N
 
 //treasure room
 Chest:   NONE    59  57.0   24.0   0.0   W    0   0  0   1   0   F   F   N

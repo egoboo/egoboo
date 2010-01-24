@@ -3452,7 +3452,7 @@ int doShowResults( float deltaTime )
 				// is initialized afterwards
 				srand( time( NULL ) );
 				strcpy( game_hint, mnu_GameTip.hint[ (rand() % mnu_GameTip.count) ] );
-				str_add_linebreaks( game_hint, SDL_arraysize( game_hint ), 40 );	
+				//str_add_linebreaks( game_hint, SDL_arraysize( game_hint ), 40 );	
 			}
 
 			font = ui_getFont();

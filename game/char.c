@@ -3471,7 +3471,7 @@ Uint16 spawn_one_character( fvec3_t pos, Uint16 profile, Uint8 team,
     // Kurse state
     if ( pcap->isitem )
     {
-        IPair loc_rand = {0, 100};
+        IPair loc_rand = {1, 100};
 
         kursechance = pcap->kursechance;
         if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses

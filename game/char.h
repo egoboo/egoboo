@@ -224,7 +224,7 @@ struct s_chr
     latch_t        latch;
 
     // character stats
-    STRING         Name;
+    STRING         Name;			///< My name
     Uint8          gender;          ///< Gender
 
     Uint8          lifecolor;       ///< Bar color

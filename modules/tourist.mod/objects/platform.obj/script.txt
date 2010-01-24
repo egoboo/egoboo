@@ -8,135 +8,63 @@ IfXIsLessThanY
 IfSpawned
   tmpargument = 10
   SetFlyHeight					//Randomize Z position
+  ClearWaypoints
 
   //Platform near the start (TEAL)
   tmpargument = 1
   IfContentIs
-    tmpargument = 0
     tmpx = 44 < 7
     tmpy = 37 < 7
-    SetXY
+    AddWaypoint
 
-    tmpargument = 1
     tmpx = 49 < 7
     tmpy = 35 < 7
-    SetXY
+    AddWaypoint
 
-    tmpargument = 2
     tmpx = 51 < 7
     tmpy = 37 < 7
-    SetXY
+    AddWaypoint
 
     tmpargument = 3
     SetRedShift
 
-  //Second platform (PINK)
+  //Second platform (BLUE)
   tmpargument = 2
   IfContentIs
-    tmpargument = 0
     tmpx = 51 < 7
     tmpy = 37 < 7
-    SetXY
+    AddWaypoint
 
-    tmpargument = 1
     tmpx = 57 < 7
-    tmpy = 35 < 7
-    SetXY
+    tmpy = 38 < 7
+    AddWaypoint
 
-    tmpargument = 2
     tmpx = 56 < 7
     tmpy = 39 < 7
-    SetXY
+    AddWaypoint
 
     tmpargument = 3
+    SetRedShift
     SetGreenShift
 
-  //Third platform (YELLOW)
+  //Third platform (PINK)
   tmpargument = 3
   IfContentIs
-    tmpargument = 0
     tmpx = 50 < 7
     tmpy = 39 < 7
-    SetXY
+    AddWaypoint
 
-    tmpargument = 1
     tmpx = 51 < 7
     tmpy = 35 < 7
-    SetXY
+    AddWaypoint
 
-    tmpargument = 2
     tmpx = 54 < 7
     tmpy = 37 < 7
-    SetXY
+    AddWaypoint
 
     tmpargument = 3
     SetBlueShift
 
-  //Shortcut (DARK RED)
-  tmpargument = 4
-  IfContentIs
-    tmpargument = 0
-    tmpx = 78 < 7
-    tmpy = 100 < 7
-    SetXY
-
-    tmpargument = 1
-    tmpx = 78 < 7
-    tmpy = 96 < 7
-    SetXY
-
-    tmpargument = 2
-    tmpx = 82 < 7
-    tmpy = 94 < 7
-    SetXY
-
-    tmpargument = 0 - 3
-    SetBlueShift
-    SetGreenShift
-
-  //Longway to double isle (GREEN)
-  tmpargument = 5
-  IfContentIs
-    tmpargument = 0
-    tmpx = 71 < 7
-    tmpy = 91 < 7
-    SetXY
-
-    tmpargument = 1
-    tmpx = 86 < 7
-    tmpy = 91 < 7
-    SetXY
-
-    tmpargument = 2
-    tmpx = 80 < 7
-    tmpy = 99 < 7
-    SetXY
-
-    tmpargument = 0 - 3
-    SetRedShift
-    SetBlueShift
-
-  //Final platform (BLUE)
-  tmpargument = 6
-  IfContentIs
-    tmpargument = 0
-    tmpx = 84 < 7
-    tmpy = 94 < 7
-    SetXY
-
-    tmpargument = 1
-    tmpx = 89 < 7
-    tmpy = 94 < 7
-    SetXY
-
-    tmpargument = 2
-    tmpx = 89 < 7
-    tmpy = 100 < 7
-    SetXY
-
-    tmpargument = 0 - 1
-    SetRedShift
-    SetGreenShift
 
 //Completely random platform AI
 tmpargument = 0
@@ -148,25 +76,7 @@ IfContentIs
     AddWaypoint
     tmpargument = rand % 200
     SetTime
-
-//Prespecified AI
-Else
-  IfTimeOut
-
-    IfAtLastWaypoint
-      tmpargument = selfstate + 1
-      SetState
-      IfStateIs3
-        tmpargument = 0
-        SetState
-
-    tmpargument = selfstate
-    GetXY
-    ClearWaypoints
-    AddWaypoint
-    tmpargument = 40
-    SetTime
-    
+        
 //Don't get stuck in other platforms
 IfBumped
   tmpx = selfcontent
