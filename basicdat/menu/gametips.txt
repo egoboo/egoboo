@@ -2,7 +2,26 @@
 //you are loading a module. 
 Tip 0: Identifying_items_may_give_it_extra_powers.
 Tip 1: Always_keep_a_couple_mana_potions_in_handy.
-Tip 2: Mana_potions_reduce_your_max_mana!
+Tip 2: Life_and_Mana_potions_reduce_your_max_life_and_mana.
 Tip 3: Bludthirsty_Squirrels_can_eat_'Almost_dead'_Ghouls.
-Tip 4: 'Chiuaua'_allows_you_to_attack_even_when_paralysed!
+Tip 4: There_is_a_secret_with_the_Outhouse_in_Bishopia.
 Tip 5: A_character_with_the_Poison_Skill_can_throw_flasks_of_poison_at_enemies.
+Tip 6: Spell_books_are_easily_damaged_by_fire_or_water...
+Tip 7: Scrolls_and_books_are_ruined_if_soaked_in_water...
+Tip 8: Mephits_have_different_resistances_and_weaknesses._The_red_mephit_for_example_is_weak_VS_ice_but_immune_vs_fire.
+Tip 9: Poison_can_be_deadly_for_the_untrained...
+Tip 10: Be_careful_of_Kursed_items!_They_stick_to_their_carrier_and_usually_give_some_sort_of_penality._Use_Identify_Scrolls_to_get_rid_of_them.
+Tip 11: Rider_of_a_mount_gains_its_resistances.
+Tip 12: You_can_try_to_steal_from_shops_when_invisible_or_hidden._But beware!_If_you_get_caught_you'll_be_in_big_trouble!
+Tip 13: A_chest_mimic's_teeth_are_visible_in_their_reflections.
+Tip 14: The_Enchant_spell_can_turn_Healing_or_Mana_potions_into_Super_Potions.
+Tip 15: The_magical_weapon_'Chiuaua'_allows_you_to_attack_even_when_paralysed!
+Tip 16: Killing_the_Deamon_Lord_with_a_toilet_plunger_is_very_humiliating.
+Tip 17: The_book_of_Enchant_gives_your_weapon_+4_damage_and_removes_all_kurses!
+Tip 18: Slashing_weapons_can_cut_off_a_giant_scorpoion's_claws!
+Tip 19: You_can_actually_jump_on_floating_eyes.
+Tip 20: Elf_in_dragon_hide_can_walk_in_lava_freely.
+Tip 21: You_can_increase_your_spell_power_when_eating_mushrooms._But_there_are_some_side_effects_as_well...
+Tip 22: Rust_Monsters_deal_extra_damage_to_characters_with_Heavy_Armor.
+Tip 23: The_Enchant_spell_can_recharge_wands...__for_a_price.
+Tip 24: Intelligence_and_wisdom_increases_the_amout_of_XP_you_gain.

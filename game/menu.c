@@ -457,6 +457,9 @@ void load_game_hints()
     vfs_FILE *fileread;
     Uint8 cnt;
 
+	// Reset
+	mnu_GameTip.count = 0;
+
     // Open the playlist listing all music files
     snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "menu" SLASH_STR "gametips.txt" );
     fileread = vfs_openRead( loadpath );
@@ -467,7 +470,6 @@ void load_game_hints()
     }
 
     // Load the data
-	mnu_GameTip.count = 0;
     for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
     {
         if ( goto_colon( NULL, fileread, btrue ) )
@@ -503,7 +505,7 @@ int mnu_init()
     menuFont = ui_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
     if ( !menuFont )
     {
-        log_error( "Could not load the menu font!\n" );
+        log_error( "Could not load the menu font! (Negatori.ttf)\n" );
         return 0;
     }
 
@@ -3434,7 +3436,7 @@ int doShowResults( float deltaTime )
     static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;
-	static int	   hintnum;
+	static STRING  game_hint;
 
     int menuResult = 0;
 
@@ -3442,11 +3444,15 @@ int doShowResults( float deltaTime )
     {
         case MM_Begin:
 
-			// Randomize the next game hint		//@todo: Zefz> this isnt properly randomized for some reason
+			// Randomize the next game hint
 			if( mnu_GameTip.count > 0)
 			{
-				int irand = RANDIE;
-				hintnum = (irand % mnu_GameTip.count);
+				// We use a non standarized randomization method here, no harm
+				// should be done since the real random seed used in the module
+				// is initialized afterwards
+				srand( time( NULL ) );
+				strcpy( game_hint, mnu_GameTip.hint[ (rand() % mnu_GameTip.count) ] );
+				str_add_linebreaks( game_hint, SDL_arraysize( game_hint ), 40 );	
 			}
 
 			font = ui_getFont();
@@ -3482,15 +3488,15 @@ int doShowResults( float deltaTime )
                 ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
 
 				// Draw the game tip
-				if( mnu_GameTip.count > 0 && hintnum <= mnu_GameTip.count && mnu_GameTip.hint[hintnum] != NULL )
+				if( mnu_GameTip.count > 0 && !INVALID_CSTR( game_hint ) )
 				{
 					int text_w, text_h;
-
+					
 					fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
 					fnt_drawText( menuFont, (GFX_WIDTH / 2)  - text_w/2, GFX_HEIGHT - 150, "GAME TIP" );
 
-					fnt_getTextSize( menuFont, mnu_GameTip.hint[hintnum], &text_w, &text_h );
-					ui_drawTextBox( menuFont, mnu_GameTip.hint[hintnum], (GFX_WIDTH / 2) - text_w/2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
+					fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );
+					ui_drawTextBox( menuFont, game_hint, (GFX_WIDTH / 2) - text_w/2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
 				}
 
                 // keep track of the iterations through this section for a timer
