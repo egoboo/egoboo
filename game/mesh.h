@@ -64,27 +64,28 @@ typedef float       light_cache_t[4];
 // the BSP structure housing the mesh
 struct s_mpd_BSP
 {
-    size_t            node_count;
-    BSP_node_t      * nodes;
-    BSP_tree_t        tree;
+    oct_bb_t       volume;
+    BSP_leaf_ary_t nodes;
+    BSP_tree_t     tree;
 
-    oct_bb_t          volume;
+#if defined(__cplusplus)
+    s_mpd_BSP();
+    s_mpd_BSP( ego_mpd_t * pmesh );
+    ~s_mpd_BSP();
+#endif
 };
-typedef struct s_mpd_BSP mpd_BSP_t;
+typedef struct s_mpd_BSP mesh_BSP_t;
 
-mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * );
-mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * );
+mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, ego_mpd_t * pmesh );
+mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * );
+bool_t       mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh );
+bool_t       mesh_BSP_free( mesh_BSP_t * pbsp );
 
-bool_t mpd_BSP_init_1( mpd_BSP_t * pbsp, ego_mpd_t * pmesh, int size_x, int size_y );
-bool_t mpd_BSP_init_0( mpd_BSP_t * pbsp, ego_mpd_t * pmesh );
+bool_t mesh_BSP_fill( mesh_BSP_t * pbsp );
 
-bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, mpd_mem_t * mem );
-bool_t mpd_BSP_insert_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[] );
-bool_t mpd_BSP_insert_tile_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[] );
+int    mesh_BSP_collide( mesh_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
 
-int    mpd_BSP_collide( mpd_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size );
-
-extern mpd_BSP_t mesh_BSP_root;
+extern mesh_BSP_t mesh_BSP_root;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -125,6 +126,11 @@ struct s_ego_grid_info
     // the lighting info in the upper left hand corner of a grid
     Uint8            a, l;                     ///< the raw mesh lighting... pretty much ignored
     lighting_cache_t cache;                    ///< the per-grid lighting info
+
+#if defined(__cplusplus)
+    s_ego_grid_info() { memset( this, 0, sizeof( *this ) ); }
+#endif
+
 };
 typedef struct s_ego_grid_info ego_grid_info_t;
 
@@ -147,6 +153,11 @@ struct s_grid_mem
 
     // the per-grid info
     ego_grid_info_t* grid_list;                        ///< tile command info
+
+#if defined(__cplusplus)
+    s_grid_mem();
+    ~s_grid_mem();
+#endif
 };
 typedef struct s_grid_mem grid_mem_t;
 
@@ -167,6 +178,11 @@ struct s_tile_mem
     GLXvector2f   * tlst;                              ///< the texture coordinate list
     GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
     GLXvector3f   * nlst;                              ///< the normal list
+
+#if defined(__cplusplus)
+    s_tile_mem();
+    ~s_tile_mem();
+#endif
 };
 typedef struct s_tile_mem tile_mem_t;
 
@@ -179,6 +195,11 @@ struct s_ego_mpd_info
     int             tiles_x;                          ///< Size in tiles
     int             tiles_y;
     Uint32          tiles_count;                      ///< Number of tiles
+
+#if defined(__cplusplus)
+    s_ego_mpd_info() { memset( this, 0, sizeof( *this ) ); }
+#endif
+
 };
 typedef struct s_ego_mpd_info ego_mpd_info_t;
 
@@ -191,6 +212,11 @@ struct s_ego_mpd
     grid_mem_t      gmem;
 
     fvec2_t         tileoff[MAXTILETYPE];     ///< Tile texture offset
+
+#if defined(__cplusplus)
+    s_ego_mpd();
+    ~s_ego_mpd();
+#endif
 };
 
 //--------------------------------------------------------------------------------------------
@@ -203,27 +229,19 @@ extern float     map_twistvel_y[256];
 extern float     map_twistvel_z[256];
 extern Uint8     map_twist_flat[256];
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+extern int mesh_wall_tests;
 
-ego_mpd_t * mesh_ctor_default( ego_mpd_t * pmesh );
-ego_mpd_t * mesh_renew( ego_mpd_t * pmesh );
-ego_mpd_t * mesh_dtor( ego_mpd_t * pmesh );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y );
+bool_t      mesh_destroy( ego_mpd_t ** pmesh );
+
+ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh );
+ego_mpd_t * mesh_dtor( ego_mpd_t * pmesh );
+ego_mpd_t * mesh_renew( ego_mpd_t * pmesh );
 
 /// loading/saving
 ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh );
-
-float  mesh_get_level( ego_mpd_t * pmesh, float x, float y );
-Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y );
-Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y );
-
-Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y );
-Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int tile_x,  int tile_y );
-
-Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
-bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
-bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 
 void   mesh_make_twist();
 
@@ -233,10 +251,11 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float
 
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
+Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure );
+bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits );
+
+float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y );
+float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
+
 bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
 bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile );
-
-Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure );
-
-float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y );
-float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xmin, float ymin, float xmax, float ymax );

@@ -30,7 +30,6 @@
 #include "extensions/SDL_GL_extensions.h"
 
 #include "egoboo_typedef.h"
-#include "egoboo_mem.h"
 #include "egoboo_strutil.h"
 
 #include <stdlib.h>
@@ -38,6 +37,8 @@
 #include <string.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
+
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -121,23 +122,23 @@ void fnt_freeFont( Font *font )
     {
         TTF_CloseFont( font->ttfFont );
         GL_DEBUG( glDeleteTextures )( 1, &font->texture );
-        free( font );
+        EGOBOO_DELETE( font );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char * szText )
+int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint itex, float texCoords[], const char * szText )
 {
     int rv;
-    SDL_Surface *textSurf, **pptmp;
     bool_t sdl_surf_external;
+    SDL_Surface *textSurf = NULL, **pptmp = NULL, *ptmp;
 
     if ( NULL == font || NULL == texCoords ) return -1;
 
-    if ( NULL != psurf )
+    if ( NULL != ppSurface )
     {
         sdl_surf_external = btrue;
-        pptmp = psurf;
+        pptmp = ppSurface;
     }
     else
     {
@@ -145,20 +146,35 @@ int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint ite
         pptmp = &textSurf;
     }
 
-    if ( INVALID_TX_ID == itex ) return -1;
+    if ( INVALID_TX_ID == itex )
+    {
+        rv = -1;
+        goto fnt_print_raw_finish;
+    }
 
     // create the text
-    ( *pptmp ) = TTF_RenderText_Blended( font->ttfFont, szText, color );
-    if ( NULL == ( *pptmp ) ) return -1;
+    ptmp = TTF_RenderText_Blended( font->ttfFont, szText, color );
+    if ( NULL != ptmp )
+    {
+        SDL_FreeSurface( *pptmp );
+        *pptmp = ptmp;
+    }
+    else
+    {
+        rv = -1;
+        goto fnt_print_raw_finish;
+    }
 
     // upload the texture
     rv = 0;
-    if ( !SDL_GL_uploadSurface(( *pptmp ), itex, texCoords ) )
+    if ( !SDL_GL_uploadSurface( *pptmp, itex, texCoords ) )
     {
         rv = -1;
     }
 
-    if ( !sdl_surf_external )
+fnt_print_raw_finish:
+
+    if ( !sdl_surf_external && NULL != *pptmp )
     {
         // Done with the surface
         SDL_FreeSurface( *pptmp );
@@ -169,30 +185,40 @@ int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint ite
 }
 
 //--------------------------------------------------------------------------------------------
-int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args )
+int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint itex, float texCoords[], const char *format, va_list args )
 {
     int rv;
     STRING szText = EMPTY_CSTR;
 
     // evaluate the variable args
     rv = EGO_vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
-    if ( rv < 0 )
-    {
-        return rv;
-    }
+    if ( rv < 0 ) return rv;
 
-    return fnt_print_raw( font, color, psurf, itex, texCoords, szText );
+    return fnt_print_raw( font, color, ppSurface, itex, texCoords, szText );
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_drawText_raw( Font *font, int x, int y, const char *text )
+void fnt_drawText_raw( Font *font, int x, int y, const char *text, SDL_Surface ** ppSurface )
 {
     int rv;
-    SDL_Surface *textSurf;
     SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
 
-    rv = fnt_print_raw( font, color, &textSurf, font->texture, font->texCoords, text );
-    if ( rv < 0 ) return;
+    bool_t sdl_surf_external;
+    SDL_Surface *textSurf = NULL, **pptmp = NULL;
+
+    if ( NULL != ppSurface )
+    {
+        sdl_surf_external = btrue;
+        pptmp = ppSurface;
+    }
+    else
+    {
+        sdl_surf_external = bfalse;
+        pptmp = &textSurf;
+    }
+
+    rv = fnt_print_raw( font, color, pptmp, font->texture, font->texCoords, text );
+    if ( rv < 0 ) goto fnt_drawText_raw_finish;
 
     // And draw the darn thing
     GL_DEBUG( glBegin )( GL_QUADS );
@@ -201,37 +227,52 @@ void fnt_drawText_raw( Font *font, int x, int y, const char *text )
         GL_DEBUG( glVertex2f )( x, y );
 
         GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
-        GL_DEBUG( glVertex2f )( x + textSurf->w, y );
+        GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y );
 
         GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
-        GL_DEBUG( glVertex2f )( x + textSurf->w, y + textSurf->h );
+        GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y + ( *pptmp )->h );
 
         GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
-        GL_DEBUG( glVertex2f )( x, y + textSurf->h );
+        GL_DEBUG( glVertex2f )( x, y + ( *pptmp )->h );
     }
     GL_DEBUG_END();
 
-    if ( NULL != textSurf )
+fnt_drawText_raw_finish:
+
+    if ( !sdl_surf_external && NULL != *pptmp )
     {
         // Done with the surface
-        SDL_FreeSurface( textSurf );
-        textSurf = NULL;
+        SDL_FreeSurface( *pptmp );
+        *pptmp = NULL;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_drawText( Font *font, int x, int y, const char *format, ... )
+void fnt_drawText( Font *font, SDL_Surface ** ppSurface, int x, int y, const char *format, ... )
 {
     va_list args;
     int rv;
-    SDL_Surface *textSurf;
     SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
 
+    bool_t sdl_surf_external;
+    SDL_Surface *textSurf = NULL, **pptmp = NULL;
+
+    if ( NULL != ppSurface )
+    {
+        sdl_surf_external = btrue;
+        pptmp = ppSurface;
+    }
+    else
+    {
+        sdl_surf_external = bfalse;
+        pptmp = &textSurf;
+    }
+
     va_start( args, format );
-    rv = fnt_vprintf( font, color, &textSurf, font->texture, font->texCoords, format, args );
+    rv = fnt_vprintf( font, color, pptmp, font->texture, font->texCoords, format, args );
     va_end( args );
 
-    if ( rv < 0 ) return;
+    if ( rv < 0 ) goto fnt_drawText_finish;
 
     // And draw the darn thing
     GL_DEBUG( glBegin )( GL_QUADS );
@@ -240,21 +281,23 @@ void fnt_drawText( Font *font, int x, int y, const char *format, ... )
         GL_DEBUG( glVertex2f )( x, y );
 
         GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
-        GL_DEBUG( glVertex2f )( x + textSurf->w, y );
+        GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y );
 
         GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
-        GL_DEBUG( glVertex2f )( x + textSurf->w, y + textSurf->h );
+        GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y + ( *pptmp )->h );
 
         GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
-        GL_DEBUG( glVertex2f )( x, y + textSurf->h );
+        GL_DEBUG( glVertex2f )( x, y + ( *pptmp )->h );
     }
     GL_DEBUG_END();
 
-    if ( NULL != textSurf )
+fnt_drawText_finish:
+
+    if ( !sdl_surf_external && NULL != *pptmp )
     {
         // Done with the surface
-        SDL_FreeSurface( textSurf );
-        textSurf = NULL;
+        SDL_FreeSurface( *pptmp );
+        *pptmp = NULL;
     }
 }
 
@@ -280,20 +323,34 @@ void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
  * @var height  - Maximum height of the box (not implemented)
  * @var spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ... )
+void fnt_drawTextBox( Font *font, SDL_Surface ** ppSurface, int x, int y, int width, int height, int spacing, const char *format, ... )
 {
     va_list args;
     int rv;
-    int len;
+    size_t len;
     char *buffer, *line;
     char text[4096] = EMPTY_CSTR;
+
+    bool_t       sdl_surf_external;
+    SDL_Surface *textSurf = NULL, **pptmp = NULL;
+
+    if ( NULL != ppSurface )
+    {
+        sdl_surf_external = btrue;
+        pptmp = ppSurface;
+    }
+    else
+    {
+        sdl_surf_external = bfalse;
+        pptmp = &textSurf;
+    }
 
     va_start( args, format );
     rv = EGO_vsnprintf( text, SDL_arraysize( text ), format, args );
     va_end( args );
 
     // some problem printing the text
-    if ( rv < 0 ) return;
+    if ( rv < 0 ) goto fnt_drawTextBox_finish;
 
     // Split the passed in text into separate lines
     len = strlen( text );
@@ -304,19 +361,28 @@ void fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spaci
 
     while ( line != NULL )
     {
-        fnt_drawText_raw( font, x, y, line );
+        fnt_drawText_raw( font, x, y, line, pptmp );
         y += spacing;
         line = strtok( NULL, "\n" );
     }
 
-    free( buffer );
+    EGOBOO_DELETE_ARY( buffer );
+
+fnt_drawTextBox_finish:
+
+    if ( !sdl_surf_external && NULL != *pptmp )
+    {
+        // Done with the surface
+        SDL_FreeSurface( *pptmp );
+        *pptmp = NULL;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
 void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height )
 {
     char *buffer, *line;
-    int len;
+    size_t len;
     int tmp_w, tmp_h;
     if ( !font ) return;
     if ( !text || !text[0] ) return;
@@ -338,5 +404,5 @@ void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, 
         line = strtok( NULL, "\n" );
     }
 
-    free( buffer );
+    EGOBOO_DELETE_ARY( buffer );
 }

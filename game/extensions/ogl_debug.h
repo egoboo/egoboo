@@ -82,7 +82,7 @@ extern "C"
     typedef struct s_gl_texture gl_texture_t;
 
     /// Grab the OpenGL textire state
-    void gl_grab_texture_state(GLenum target, GLint level, gl_texture_t * pi);
+    void gl_grab_texture_state( GLenum target, GLint level, gl_texture_t * pi );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -140,10 +140,10 @@ extern "C"
     typedef struct s_gl_packing gl_packing_t;
 
     /// Grab the OpenGL packing state
-    void gl_grab_packing_state(gl_packing_t * pp);
+    void gl_grab_packing_state( gl_packing_t * pp );
 
     /// Grab the OpenGL unpacking state
-    void gl_grab_unpacking_state(gl_packing_t * pp);
+    void gl_grab_unpacking_state( gl_packing_t * pp );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -161,7 +161,7 @@ extern "C"
     typedef struct s_gl_blend gl_blend_t;
 
     /// Grab the OpenGL blend state
-    void gl_grab_blend_state(gl_blend_t * pb);
+    void gl_grab_blend_state( gl_blend_t * pb );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ extern "C"
     typedef struct s_gl_alpha gl_alpha_t;
 
     /// Grab the OpenGL alpha state
-    void gl_grab_alpha_state(gl_alpha_t * pa);
+    void gl_grab_alpha_state( gl_alpha_t * pa );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ extern "C"
     typedef struct s_gl_depth gl_depth_t;
 
     /// Grab the OpenGL depth state
-    void gl_grab_depth_state(gl_depth_t * pd);
+    void gl_grab_depth_state( gl_depth_t * pd );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -349,7 +349,7 @@ extern "C"
     typedef struct s_gl_render_options gl_render_options_t;
 
     /// Grab the OpenGL render options state
-    void gl_grab_render_options_state(gl_render_options_t * po);
+    void gl_grab_render_options_state( gl_render_options_t * po );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -404,7 +404,7 @@ extern "C"
     typedef struct s_gl_clipping gl_clipping_t;
 
     /// Grab the OpenGL clipping state
-    void gl_grab_clipping_state(gl_clipping_t * ps);
+    void gl_grab_clipping_state( gl_clipping_t * ps );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ extern "C"
     typedef struct s_gl_texturing gl_texturing_t;
 
     /// Grab the OpenGL texturing state
-    void gl_grab_texturing_state(gl_texturing_t * pt);
+    void gl_grab_texturing_state( gl_texturing_t * pt );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -451,7 +451,7 @@ extern "C"
     typedef struct s_gl_logic_op gl_logic_op_t;
 
     /// Grab the OpenGL logic op state
-    void gl_grab_logic_op_state(gl_logic_op_t * pl);
+    void gl_grab_logic_op_state( gl_logic_op_t * pl );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -568,7 +568,7 @@ extern "C"
 
     /// Set the FILE that ogl_debug will use to dump debugging information.
     /// If not set, it will default to stderr.
-    FILE * set_ogl_debug_stderr(FILE * pfile);
+    FILE * set_ogl_debug_stderr( FILE * pfile );
 
 #ifdef __cplusplus
 };

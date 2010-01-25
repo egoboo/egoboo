@@ -21,22 +21,28 @@
 /// @brief Quale-like console running running Lua behing egoboo
 /// @details
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+#    include <lua.h>
+#    include <lauxlib.h>
+#    include <lualib.h>
+
+#if defined(__cplusplus)
+}
+#endif
+
 #include "lua_console.h"
+#include "file_common.h"
 
 #include "egoboo_console.inl"
-
 #include "egoboo_typedef.h"
-#include "egoboo_mem.h"
 
-#include "file_common.h"
 #include <string.h>
 
-#define lua_c
-
-#include <lua.h>
-
-#include <lauxlib.h>
-#include <lualib.h>
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -55,9 +61,9 @@ static lua_State     * global_L = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 // this is the hook for connecting a Lua state to the egoboo data
-extern void luaopen_ego( lua_State* L );
+int luaopen_ego( lua_State* L );
+//extern void luaopen_ego( lua_State* L );
 
 static SDL_bool lua_console_run( egoboo_console_t * pcon, void * data );
 
@@ -139,7 +145,6 @@ lua_console_t * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect )
     }
 
     return lua_console_ctor( pcon, Con_rect );
-
 }
 
 //--------------------------------------------------------------------------------------------

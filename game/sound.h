@@ -132,7 +132,7 @@ void    fade_in_music( Mix_Music * music );
 void    sound_stop_channel( int whichchannel );
 void    sound_stop_song();
 
-void    load_global_waves();
+void    load_global_waves( void );
 void    load_all_music_sounds();
 
 bool_t snd_config_synch( snd_config_t * psnd, struct s_egoboo_config * pcfg );
@@ -142,3 +142,5 @@ void   looped_update_all_sound();
 
 void   sound_finish_sound();
 void   sound_free_chunk( Mix_Chunk * pchunk );
+
+bool_t LoopedList_remove( int channel );

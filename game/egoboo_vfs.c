@@ -29,14 +29,12 @@
 #include "egoboo_strutil.h"
 #include "egoboo_endian.h"
 #include "egoboo_fileutil.h"
-#include "egoboo_mem.h"
 
 #include <physfs.h>
-
-#include "file_common.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -642,10 +640,10 @@ bool_t _vfs_ensure_destination_file( const char * filename )
     // directory
 
     sys_src_name  = vfs_resolveReadFilename( local_filename );
-    read_exists   = fs_fileExists( sys_src_name );
+    read_exists   = fs_fileExists( sys_src_name ) > 0;
 
     sys_dst_name  = vfs_resolveWriteFilename( local_filename );
-    write_exists  = fs_fileExists( sys_dst_name );
+    write_exists  = fs_fileExists( sys_dst_name ) > 0;
 
     if ( read_exists && !write_exists )
     {
@@ -653,7 +651,7 @@ bool_t _vfs_ensure_destination_file( const char * filename )
         // copy the read file to the write file and then append
         fs_copyFile( sys_src_name, sys_dst_name );
 
-        write_exists  = fs_fileExists( sys_dst_name );
+        write_exists  = fs_fileExists( sys_dst_name ) > 0;
     }
 
     return write_exists;
@@ -707,14 +705,14 @@ int vfs_close( vfs_FILE * pfile )
         retval = EGO_fclose( pfile->ptr.c );
         memset( pfile, 0, sizeof( *pfile ) );
 
-        free( pfile );
+        EGOBOO_DELETE( pfile );
     }
     else if ( vfs_physfs == pfile->type )
     {
         retval = PHYSFS_close( pfile->ptr.p );
         memset( pfile, 0, sizeof( *pfile ) );
 
-        free( pfile );
+        EGOBOO_DELETE( pfile );
     }
     else
     {
@@ -928,8 +926,7 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
     {
         int retval = PHYSFS_read( pfile->ptr.p, buffer, size, count );
 
-        if ( retval < 0 ) pfile->flags |= VFS_ERROR;
-        error = ( retval != size );
+        if ( retval < 0 ) { error = btrue; pfile->flags |= VFS_ERROR; }
 
         if ( !error ) read_length = count;
     }
@@ -1423,13 +1420,13 @@ const char * _vfs_search( vfs_search_context_t * ctxt )
     }
     else
     {
-        int extension_length = strlen( ctxt->ext );
+        size_t extension_length = strlen( ctxt->ext );
 
         // scan through the list
         for ( /* nothing */; NULL != *( ctxt->ptr ); ctxt->ptr++ )
         {
             int found, is_dir;
-            int    string_length;
+            size_t string_length;
             char * sztest;
             char * loc_path;
 
@@ -1820,7 +1817,7 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        int len = strlen( str );
+        size_t len = strlen( str );
 
         retval = PHYSFS_write( pfile->ptr.p, str, len + 1, sizeof( char ) );
     }

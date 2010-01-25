@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 /// @file script_functions.h
-/// @details functions called by run_function()
+/// @details functions called by scr_run_function()
 
 #include "egoboo_typedef.h"
 
@@ -37,7 +37,7 @@ struct s_chr;
 
 Uint8  _display_message( int ichr, int iprofile, int message, struct s_script_state * pstate );
 Uint8  _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley );
-Uint8  _find_tile_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 );
+Uint8  _find_grid_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 );
 
 Uint8  _append_end_text( struct s_chr * pchr, const int message, struct s_script_state * pstate );
 Uint16 _get_chr_target( struct s_chr * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );

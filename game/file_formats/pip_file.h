@@ -76,11 +76,11 @@ typedef enum e_prt_orientations prt_ori_t;
 enum e_damage_fx
 {
     DAMFX_NONE           = 0,                       ///< Damage effects
-    DAMFX_ARMO           = (1 << 1),                ///< Armor piercing
-    DAMFX_NBLOC          = (1 << 2),                ///< Cannot be blocked by shield
-    DAMFX_ARRO           = (1 << 3),                ///< Only hurts the one it's attached to
-    DAMFX_TURN           = (1 << 4),                ///< Turn to attached direction
-    DAMFX_TIME           = (1 << 5)
+    DAMFX_ARMO           = ( 1 << 1 ),              ///< Armor piercing
+    DAMFX_NBLOC          = ( 1 << 2 ),              ///< Cannot be blocked by shield
+    DAMFX_ARRO           = ( 1 << 3 ),              ///< Only hurts the one it's attached to
+    DAMFX_TURN           = ( 1 << 4 ),              ///< Turn to attached direction
+    DAMFX_TIME           = ( 1 << 5 )
 };
 
 /// Turn values specifying corrections to the rotation of particles
@@ -122,13 +122,13 @@ struct s_pip
     bool_t  force;                        ///< Force spawn?
     Uint8   type;                         ///< Transparency mode
     Uint8   numframes;                    ///< Number of frames
-    Uint8   imagebase;                    ///< Starting image
-    IPair   imageadd;                     ///< Frame rate
+    Uint8   image_base;                    ///< Starting image
+    IPair   image_add;                     ///< Frame rate
     Uint16  time;                         ///< Time until end
     IPair   rotate_pair;                  ///< Rotation
-    Sint16  rotateadd;                    ///< Rotation rate
-    Uint16  sizebase;                     ///< Size
-    Sint16  sizeadd;                      ///< Size rate
+    Sint16  rotate_add;                    ///< Rotation rate
+    Uint16  size_base;                    ///< Size
+    Sint16  size_add;                     ///< Size rate
     Sint8   soundspawn;                   ///< Beginning sound
     Uint16  facingadd;                    ///< Facing
     IPair   facing_pair;                  ///< Facing

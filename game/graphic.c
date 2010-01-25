@@ -26,11 +26,14 @@
 #include "graphic_mad.h"
 #include "graphic_fan.h"
 
-#include "char.h"
-#include "particle.h"
-#include "enchant.h"
+#include "char.inl"
+#include "particle.inl"
+#include "enchant.inl"
 #include "mad.h"
-#include "profile.h"
+#include "profile.inl"
+#include "mesh.inl"
+
+#include "collision.h"
 
 #include "log.h"
 #include "script.h"
@@ -350,7 +353,7 @@ int _draw_string_raw( int x, int y, const char *format, ... )
 //---------------------------------------------------------------------------------------------
 // MODULE INITIALIZATION
 //---------------------------------------------------------------------------------------------
-void gfx_init()
+void gfx_system_begin()
 {
     // set the graphics state
     gfx_init_SDL_graphics();
@@ -385,6 +388,35 @@ void gfx_init()
     // init some other variables
     stabilized_fps_sum    = 0.1f * TARGET_FPS;
     stabilized_fps_weight = 0.1f;
+}
+
+//---------------------------------------------------------------------------------------------
+void gfx_system_end()
+{
+    // initialize the profiling variables
+    PROFILE_FREE( render_scene_init );
+    PROFILE_FREE( render_scene_mesh );
+    PROFILE_FREE( render_scene_solid );
+    PROFILE_FREE( render_scene_water );
+    PROFILE_FREE( render_scene_trans );
+
+    PROFILE_FREE( renderlist_make );
+    PROFILE_FREE( dolist_make );
+    PROFILE_FREE( do_grid_dynalight );
+    PROFILE_FREE( light_fans );
+    PROFILE_FREE( update_all_chr_instance );
+    PROFILE_FREE( prt_instance_update_all );
+
+    PROFILE_FREE( render_scene_mesh_dolist_sort );
+    PROFILE_FREE( render_scene_mesh_ndr );
+    PROFILE_FREE( render_scene_mesh_drf_back );
+    PROFILE_FREE( render_scene_mesh_ref );
+    PROFILE_FREE( render_scene_mesh_ref_chr );
+    PROFILE_FREE( render_scene_mesh_drf_solid );
+    PROFILE_FREE( render_scene_mesh_render_shadows );
+
+    BillboardList_free_all();
+    TxTexture_release_all();
 }
 
 //---------------------------------------------------------------------------------------------
@@ -1155,7 +1187,7 @@ void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
     ///     If the object is invalid, draw the null icon instead of failing
 
     Uint32 icon_ref;
-    bool_t draw_sparkle;
+    Uint8  draw_sparkle;
 
     chr_t * pitem = !ACTIVE_CHR( item ) ? NULL : ChrList.lst + item;
 
@@ -1380,7 +1412,7 @@ void draw_map()
         // Show local player position(s)
         if ( youarehereon && ( update_wld & 8 ) )
         {
-            for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+            for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
             {
                 if ( !PlaList[cnt].valid ) continue;
 
@@ -1424,24 +1456,37 @@ int draw_fps( int y )
     {
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
 
-#if defined(USE_DEBUG) && defined(DEBUG_PROFILE)
+#if defined(USE_DEBUG)
+
+#    if defined(DEBUG_BSP)
+        y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", BSP_chr_count, MAX_CHR - chr_count_free(), BSP_prt_count, maxparticles - prt_count_free() );
+        y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
+        y = _draw_string_raw( 0, y, "chr_wall_tests %04d - prt_wall_tests %04d", chr_wall_tests, prt_wall_tests );
+#    endif
+
+#    if defined(DEBUG_PROFILE_DISPLAY)
+
+#        if defined(DEBUG_PROFILE_RENDER)
         y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
         y = _draw_string_raw( 0, y, "rendertime %2.4f, drawtime %2.4f", est_render_time, time_draw_scene );
         y = _draw_string_raw( 0, y, "init %2.4f,  mesh %2.4f, solid %2.4f", time_render_scene_init, time_render_scene_mesh, time_render_scene_solid );
         y = _draw_string_raw( 0, y, "water %2.4f, trans %2.4f", time_render_scene_water, time_render_scene_trans );
+#        endif
 
-#    if defined(DEBUG_PROFILE_MESH)
-        //y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
-        //y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
-        //y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
-        //y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
-#    endif
+#        if defined(DEBUG_PROFILE_MESH)
+        y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
+        y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
+        y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
+        y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
+#        endif
 
-#    if defined(DEBUG_PROFILE_INIT)
+#        if defined(DEBUG_PROFILE_INIT)
         y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
         y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
         y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
         y = _draw_string_raw( 0, y, "init:prt_instance_update_all %2.4f", time_render_scene_init_update_all_prt_instance );
+#        endif
+
 #    endif
 
 #endif
@@ -1513,10 +1558,10 @@ int draw_debug( int y )
                               ChrList.lst[tnc].damagemodifier[DAMAGE_ZAP  ] & 3 );
 
         tnc = PlaList[0].index;
-        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / TILE_SIZE, ChrList.lst[tnc].pos.y / TILE_SIZE );
+        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / GRID_SIZE, ChrList.lst[tnc].pos.y / GRID_SIZE );
 
         tnc = PlaList[1].index;
-        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[tnc].pos.x / TILE_SIZE, ChrList.lst[tnc].pos.y / TILE_SIZE );
+        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[tnc].pos.x / GRID_SIZE, ChrList.lst[tnc].pos.y / GRID_SIZE );
     }
 
     if ( SDLKEYDOWN( SDLK_F6 ) )
@@ -1835,10 +1880,10 @@ void render_shadow( Uint16 character )
     if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) return;
+    if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichfan] ) ) return;
+    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichgrid] ) ) return;
 
     // no shadow if completely transparent
     alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
@@ -1848,7 +1893,7 @@ void render_shadow( Uint16 character )
     if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DRAWREF ) )
+    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -1966,10 +2011,10 @@ void render_bad_shadow( Uint16 character )
     if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) return;
+    if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichfan] ) ) return;
+    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichgrid] ) ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
@@ -1979,7 +2024,7 @@ void render_bad_shadow( Uint16 character )
     if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DRAWREF ) )
+    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -2051,7 +2096,7 @@ void update_all_chr_instance()
         if ( !ACTIVE_CHR( cnt ) ) continue;
         pchr = ChrList.lst + cnt;
 
-        if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) continue;
+        if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) continue;
 
         if ( rv_success == chr_update_instance( pchr ) )
         {
@@ -2236,7 +2281,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT - do not draw hidden surfaces
                 GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT - surfaces must be closer to the camera to be drawn
 
-                for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
+                for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
                 {
                     tnc = dolist[cnt].ichr;
 
@@ -2251,9 +2296,9 @@ void render_scene_mesh( renderlist_t * prlist )
                         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
 
                         tnc = dolist[cnt].ichr;
-                        itile = ChrList.lst[tnc].onwhichfan;
+                        itile = ChrList.lst[tnc].onwhichgrid;
 
-                        if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                        if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
                             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
                             render_one_mad_ref( tnc );
@@ -2263,7 +2308,7 @@ void render_scene_mesh( renderlist_t * prlist )
                     {
                         Uint32 itile;
                         tnc = dolist[cnt].iprt;
-                        itile = PrtList.lst[tnc].onwhichfan;
+                        itile = PrtList.lst[tnc].onwhichgrid;
 
                         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
@@ -2271,7 +2316,7 @@ void render_scene_mesh( renderlist_t * prlist )
                         GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT - allow transparent objects
                         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT - set the default particle blending
 
-                        if ( VALID_TILE( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                        if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
                             render_one_prt_ref( tnc );
                         }
@@ -2446,7 +2491,7 @@ void render_scene_trans()
     GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
     // Now render all transparent and light objects
-    for ( cnt = dolist_count - 1; cnt >= 0; cnt-- )
+    for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
     {
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
         {
@@ -2600,12 +2645,12 @@ void render_world_background( Uint16 texture )
     ilayer->tx.y = ilayer->tx.y - ( float )floor( ilayer->tx.y );
 
     // determine the constants for the x-coordinate
-    xmag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.x ) / TILE_SIZE;
+    xmag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.x ) / GRID_SIZE;
     Cx_0 = xmag * ( 1.0f +  PCamera->pos.z       * ilayer->dist.x );
     Cx_1 = -xmag * ( 1.0f + ( PCamera->pos.z - z0 ) * ilayer->dist.x );
 
     // determine the constants for the y-coordinate
-    ymag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.y ) / TILE_SIZE;
+    ymag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.y ) / GRID_SIZE;
     Cy_0 = ymag * ( 1.0f +  PCamera->pos.z       * ilayer->dist.y );
     Cy_1 = -ymag * ( 1.0f + ( PCamera->pos.z - z0 ) * ilayer->dist.y );
 
@@ -2936,12 +2981,12 @@ bool_t dump_screenshot()
                 //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
                 //// stolen from SDL ;)
                 // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
-                // assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
 
                 //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
                 //// it is not necesssaty to mess with the alignment
                 // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
-                // assert( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
 
                 // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
                 // relative to the SDL Screen memory
@@ -2954,7 +2999,7 @@ bool_t dump_screenshot()
                     GL_DEBUG( glReadPixels )( rect.x, ( rect.h - y ) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels );
                     pixels += temp->pitch;
                 }
-                assert( GL_NO_ERROR == GL_DEBUG( glGetError )() );
+                EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG( glGetError )() );
             }
 
             SDL_UnlockSurface( temp );
@@ -3060,7 +3105,7 @@ void make_enviro( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff )
+float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff )
 {
     int ix, iy, cnt;
     Uint32 fan[4];
@@ -3072,8 +3117,8 @@ bool_t grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff,
     if ( NULL == pmesh ) return bfalse;
     glist = pmesh->gmem.grid_list;
 
-    ix = floor( pos[XX] / TILE_SIZE );
-    iy = floor( pos[YY] / TILE_SIZE );
+    ix = floor( pos[XX] / GRID_SIZE );
+    iy = floor( pos[YY] / GRID_SIZE );
 
     fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
     fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );
@@ -3083,14 +3128,14 @@ bool_t grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff,
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
-        if ( VALID_TILE( pmesh, fan[cnt] ) )
+        if ( VALID_GRID( pmesh, fan[cnt] ) )
         {
             cache_list[cnt] = &( glist[fan[cnt]].cache );
         }
     }
 
-    u = pos[XX] / TILE_SIZE - ix;
-    v = pos[YY] / TILE_SIZE - iy;
+    u = pos[XX] / GRID_SIZE - ix;
+    v = pos[YY] / GRID_SIZE - iy;
 
     return lighting_cache_test( cache_list, u, v, low_diff, hgh_diff );
 }
@@ -3108,8 +3153,8 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
     if ( NULL == pmesh ) return bfalse;
     glist = pmesh->gmem.grid_list;
 
-    ix = floor( fx / TILE_SIZE );
-    iy = floor( fy / TILE_SIZE );
+    ix = floor( fx / GRID_SIZE );
+    iy = floor( fy / GRID_SIZE );
 
     fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
     fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );
@@ -3119,14 +3164,14 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
-        if ( VALID_TILE( pmesh, fan[cnt] ) )
+        if ( VALID_GRID( pmesh, fan[cnt] ) )
         {
             cache_list[cnt] = &( glist[fan[cnt]].cache );
         }
     }
 
-    u = fx / TILE_SIZE - ix;
-    v = fy / TILE_SIZE - iy;
+    u = fx / GRID_SIZE - ix;
+    v = fy / GRID_SIZE - iy;
 
     return lighting_cache_interpolate( dst, cache_list, u, v );
 }
@@ -3898,8 +3943,8 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
     pcap = chr_get_pcap( ichr );
     if ( NULL == pcap ) return bfalse;
 
-    itile = pchr->onwhichfan;
-    if ( !VALID_TILE( pmesh, itile ) ) return bfalse;
+    itile = pchr->onwhichgrid;
+    if ( !VALID_GRID( pmesh, itile ) ) return bfalse;
 
     if ( pmesh->tmem.tile_list[itile].inrenderlist )
     {
@@ -3946,7 +3991,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 
     if ( pinst->indolist ) return btrue;
 
-    if ( 0 == pinst->size || pprt->is_hidden || !VALID_TILE( pmesh, pprt->onwhichfan ) ) return bfalse;
+    if ( 0 == pinst->size || pprt->is_hidden || !VALID_GRID( pmesh, pprt->onwhichgrid ) ) return bfalse;
 
     dolist[dolist_count].ichr = MAX_CHR;
     dolist[dolist_count].iprt = iprt;
@@ -3990,7 +4035,7 @@ void dolist_make( ego_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        if ( DISPLAY_PRT( cnt ) && VALID_TILE( pmesh, PrtList.lst[cnt].onwhichfan ) )
+        if ( DISPLAY_PRT( cnt ) && VALID_GRID( pmesh, PrtList.lst[cnt].onwhichgrid ) )
         {
             // Add the character
             dolist_add_prt( pmesh, cnt );
@@ -4132,7 +4177,7 @@ void renderlist_reset()
 void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function figures out which mesh fans to draw
-    int cnt, tile_x, tile_y;
+    int cnt, grid_x, grid_y;
     int row, run, numrow;
     int corner_x[4], corner_y[4];
     int leftnum, leftlist[4];
@@ -4202,7 +4247,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     rightlist[rightnum] = 3;  rightnum++;
 
     // Make the left edge ( rowstt )
-    tile_y = corner_y[0] >> TILE_BITS;
+    grid_y = corner_y[0] >> TILE_BITS;
     row = 0;
     cnt = 1;
     while ( cnt < leftnum )
@@ -4218,20 +4263,20 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
 
         x -= 256;
         run = corner_y[to] >> TILE_BITS;
-        while ( tile_y < run )
+        while ( grid_y < run )
         {
-            if ( tile_y >= 0 && tile_y < pmesh->info.tiles_y )
+            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
             {
-                tile_x = x >> TILE_BITS;
-                if ( tile_x < 0 )  tile_x = 0;
-                if ( tile_x >= pmesh->info.tiles_x )  tile_x = pmesh->info.tiles_x - 1;
+                grid_x = x >> TILE_BITS;
+                if ( grid_x < 0 )  grid_x = 0;
+                if ( grid_x >= pmesh->info.tiles_x )  grid_x = pmesh->info.tiles_x - 1;
 
-                rowstt[row] = tile_x;
+                rowstt[row] = grid_x;
                 row++;
             }
 
             x += stepx;
-            tile_y++;
+            grid_y++;
         }
 
         cnt++;
@@ -4239,7 +4284,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     numrow = row;
 
     // Make the right edge ( rowrun )
-    tile_y = corner_y[0] >> TILE_BITS;
+    grid_y = corner_y[0] >> TILE_BITS;
     row = 0;
     cnt = 1;
     while ( cnt < rightnum )
@@ -4256,20 +4301,20 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
 
         run = corner_y[to] >> TILE_BITS;
 
-        while ( tile_y < run )
+        while ( grid_y < run )
         {
-            if ( tile_y >= 0 && tile_y < pmesh->info.tiles_y )
+            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
             {
-                tile_x = x >> TILE_BITS;
-                if ( tile_x < 0 )  tile_x = 0;
-                if ( tile_x >= pmesh->info.tiles_x - 1 )  tile_x = pmesh->info.tiles_x - 1;// -2
+                grid_x = x >> TILE_BITS;
+                if ( grid_x < 0 )  grid_x = 0;
+                if ( grid_x >= pmesh->info.tiles_x - 1 )  grid_x = pmesh->info.tiles_x - 1;// -2
 
-                rowend[row] = tile_x;
+                rowend[row] = grid_x;
                 row++;
             }
 
             x += stepx;
-            tile_y++;
+            grid_y++;
         }
 
         cnt++;
@@ -4281,13 +4326,13 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     }
 
     // fill the renderlist from the projected view
-    tile_y = corner_y[0] / TILE_ISIZE;
-    tile_y = CLIP( tile_y, 0, pmesh->info.tiles_y - 1 );
-    for ( row = 0; row < numrow; row++, tile_y++ )
+    grid_y = corner_y[0] / TILE_ISIZE;
+    grid_y = CLIP( grid_y, 0, pmesh->info.tiles_y - 1 );
+    for ( row = 0; row < numrow; row++, grid_y++ )
     {
-        for ( tile_x = rowstt[row]; tile_x <= rowend[row] && renderlist.all_count < MAXMESHRENDER; tile_x++ )
+        for ( grid_x = rowstt[row]; grid_x <= rowend[row] && renderlist.all_count < MAXMESHRENDER; grid_x++ )
         {
-            cnt = pmesh->gmem.tilestart[tile_y] + tile_x;
+            cnt = pmesh->gmem.tilestart[grid_y] + grid_x;
 
             // Flag the tile as in the renderlist
             tlist[cnt].inrenderlist       = btrue;
@@ -4489,11 +4534,11 @@ bool_t load_all_global_icons()
     bool_t result = bfalse;
 
     // Now load every icon
-    result = TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ICON_NULL, INVALID_KEY );
-    result = TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ICON_KEYB, INVALID_KEY );
-    result = TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ICON_MOUS, INVALID_KEY );
-    result = TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ICON_JOYA, INVALID_KEY );
-    result = TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ICON_JOYB, INVALID_KEY );
+    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ICON_NULL, INVALID_KEY );
+    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ICON_KEYB, INVALID_KEY );
+    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ICON_MOUS, INVALID_KEY );
+    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ICON_JOYA, INVALID_KEY );
+    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ICON_JOYB, INVALID_KEY );
 
     return result;
 }
@@ -4972,7 +5017,7 @@ void light_fans( renderlist_t * prlist )
         ego_tile_info_t * ptile;
 
         fan = prlist->all[entry];
-        if ( !VALID_TILE( pmesh, fan ) ) continue;
+        if ( !VALID_GRID( pmesh, fan ) ) continue;
 
         ptile = ptmem->tile_list + fan;
 
@@ -5061,7 +5106,7 @@ void light_fans( renderlist_t * prlist )
             ego_tile_info_t * ptile;
 
             fan = prlist->all[entry];
-            if ( !VALID_TILE( pmesh, fan ) ) continue;
+            if ( !VALID_GRID( pmesh, fan ) ) continue;
 
             ptile = ptmem->tile_list + fan;
 
@@ -5199,9 +5244,9 @@ void gfx_make_dynalist( camera_t * pcam )
         PrtList.lst[cnt].inview = bfalse;
         if ( !DISPLAY_PRT( cnt ) ) continue;
 
-        if ( !VALID_TILE( PMesh, PrtList.lst[cnt].onwhichfan ) ) continue;
+        if ( !VALID_GRID( PMesh, PrtList.lst[cnt].onwhichgrid ) ) continue;
 
-        PrtList.lst[cnt].inview = PMesh->tmem.tile_list[PrtList.lst[cnt].onwhichfan].inrenderlist;
+        PrtList.lst[cnt].inview = PMesh->tmem.tile_list[PrtList.lst[cnt].onwhichgrid].inrenderlist;
 
         // Set up the lights we need
         if ( !PrtList.lst[cnt].dynalight.on ) continue;
@@ -5301,18 +5346,18 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
     for ( entry = 0; entry < renderlist.all_count; entry++ )
     {
         fan = renderlist.all[entry];
-        if ( !VALID_TILE( pmesh, fan ) ) continue;
+        if ( !VALID_GRID( pmesh, fan ) ) continue;
 
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
 
-        x0 = ix * TILE_SIZE;
-        y0 = iy * TILE_SIZE;
+        x0 = ix * GRID_SIZE;
+        y0 = iy * GRID_SIZE;
 
-        mesh_bound.xmin = MIN( mesh_bound.xmin, x0 - TILE_SIZE / 2 );
-        mesh_bound.xmax = MAX( mesh_bound.xmax, x0 + TILE_SIZE / 2 );
-        mesh_bound.ymin = MIN( mesh_bound.ymin, y0 - TILE_SIZE / 2 );
-        mesh_bound.ymax = MAX( mesh_bound.ymax, y0 + TILE_SIZE / 2 );
+        mesh_bound.xmin = MIN( mesh_bound.xmin, x0 - GRID_SIZE / 2 );
+        mesh_bound.xmax = MAX( mesh_bound.xmax, x0 + GRID_SIZE / 2 );
+        mesh_bound.ymin = MIN( mesh_bound.ymin, y0 - GRID_SIZE / 2 );
+        mesh_bound.ymax = MAX( mesh_bound.ymax, y0 + GRID_SIZE / 2 );
     }
 
     if ( mesh_bound.xmin >= mesh_bound.xmax || mesh_bound.ymin >= mesh_bound.ymax ) return;
@@ -5334,10 +5379,10 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 
         radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
 
-        ftmp.xmin = floor(( pdyna->pos.x - radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.xmax = ceil(( pdyna->pos.x + radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.ymin = floor(( pdyna->pos.y - radius ) / TILE_SIZE ) * TILE_SIZE;
-        ftmp.ymax = ceil(( pdyna->pos.y + radius ) / TILE_SIZE ) * TILE_SIZE;
+        ftmp.xmin = floor(( pdyna->pos.x - radius ) / GRID_SIZE ) * GRID_SIZE;
+        ftmp.xmax = ceil(( pdyna->pos.x + radius ) / GRID_SIZE ) * GRID_SIZE;
+        ftmp.ymin = floor(( pdyna->pos.y - radius ) / GRID_SIZE ) * GRID_SIZE;
+        ftmp.ymax = ceil(( pdyna->pos.y + radius ) / GRID_SIZE ) * GRID_SIZE;
 
         // check to see if it intersects the "frustum"
         if ( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )
@@ -5373,7 +5418,7 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 
         // grab each grid box in the "frustum"
         fan = renderlist.all[entry];
-        if ( !VALID_TILE( pmesh, fan ) ) continue;
+        if ( !VALID_GRID( pmesh, fan ) ) continue;
 
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
@@ -5395,14 +5440,14 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         // calculate the local lighting
         if ( gfx.shading != GL_FLAT )
         {
-            x0 = ix * TILE_SIZE;
-            y0 = iy * TILE_SIZE;
+            x0 = ix * GRID_SIZE;
+            y0 = iy * GRID_SIZE;
 
             // check this grid vertex relative to the measured light_bound
-            ftmp.xmin = x0 - TILE_SIZE / 2;
-            ftmp.xmax = x0 + TILE_SIZE / 2;
-            ftmp.ymin = y0 - TILE_SIZE / 2;
-            ftmp.ymax = y0 + TILE_SIZE / 2;
+            ftmp.xmin = x0 - GRID_SIZE / 2;
+            ftmp.xmax = x0 + GRID_SIZE / 2;
+            ftmp.ymin = y0 - GRID_SIZE / 2;
+            ftmp.ymax = y0 + GRID_SIZE / 2;
 
             if ( ftmp.xmin <= light_bound.xmax && ftmp.xmax >= light_bound.xmin )
             {

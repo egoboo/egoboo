@@ -74,10 +74,10 @@ static ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile );
 static ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile );
 
 static ConfigFileSectionPtr_t ConfigFileSection_create();
-static ConfigFile_retval      ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp);
+static ConfigFile_retval      ConfigFileSection_destroy( ConfigFileSectionPtr_t * ptmp );
 
 static ConfigFileValuePtr_t   ConfigFileValue_create();
-static ConfigFile_retval      ConfigFileValue_destroy(ConfigFileValuePtr_t * ptmp);
+static ConfigFile_retval      ConfigFileValue_destroy( ConfigFileValuePtr_t * ptmp );
 
 static size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectionPtr_t pSection );
 static size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t pValue );
@@ -99,7 +99,7 @@ ConfigFilePtr_t ConfigFile_create()
 
     // allocate the data
     ptmp = CONFIG_NEW( ConfigFile_t );
-    if (NULL == ptmp) return ptmp;
+    if ( NULL == ptmp ) return ptmp;
 
     // set the file
     ptmp->f           = NULL;
@@ -109,18 +109,18 @@ ConfigFilePtr_t ConfigFile_create()
 }
 
 //--------------------------------------------------------------------------------------------
-ConfigFile_retval ConfigFile_destroy(ConfigFilePtr_t * ppConfigFile )
+ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ppConfigFile )
 {
     ConfigFileSectionPtr_t lTempSection, lDoomedSection;
-    if (NULL == ppConfigFile || NULL == *ppConfigFile) return ConfigFile_fail;
+    if ( NULL == ppConfigFile || NULL == *ppConfigFile ) return ConfigFile_fail;
 
     ConfigFile_close( *ppConfigFile );
-    (*ppConfigFile)->filename[0] = '\0';
+    ( *ppConfigFile )->filename[0] = '\0';
 
     // delete all sections form the ConfigFile_t
-    lTempSection = (*ppConfigFile)->ConfigSectionList;
+    lTempSection = ( *ppConfigFile )->ConfigSectionList;
 
-    while ( NULL != lTempSection  )
+    while ( NULL != lTempSection )
     {
         lDoomedSection = lTempSection;
         lTempSection   = lTempSection->NextSection;
@@ -142,7 +142,7 @@ ConfigFileSectionPtr_t ConfigFile_createSection( ConfigFilePtr_t f, ConfigFileSe
     pnew = ConfigFileSection_create();
 
     // link the new section into the correct place
-    if (NULL == s)
+    if ( NULL == s )
     {
         f->ConfigSectionList = pnew;
     }
@@ -161,7 +161,7 @@ ConfigFileSectionPtr_t ConfigFile_createSection( ConfigFilePtr_t f, ConfigFileSe
 }
 
 //--------------------------------------------------------------------------------------------
-ConfigFileValuePtr_t ConfigFile_createValue( ConfigFilePtr_t f, ConfigFileSectionPtr_t s, ConfigFileValuePtr_t v)
+ConfigFileValuePtr_t ConfigFile_createValue( ConfigFilePtr_t f, ConfigFileSectionPtr_t s, ConfigFileValuePtr_t v )
 {
     ConfigFileValuePtr_t pnew;
 
@@ -169,7 +169,7 @@ ConfigFileValuePtr_t ConfigFile_createValue( ConfigFilePtr_t f, ConfigFileSectio
     pnew = ConfigFileValue_create();
 
     // link the new value into the correct section
-    if ( NULL == v  )
+    if ( NULL == v )
     {
         // first value in section
         s->FirstValue = pnew;
@@ -191,42 +191,56 @@ ConfigFileValuePtr_t ConfigFile_createValue( ConfigFilePtr_t f, ConfigFileSectio
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-char * ConfigFileString_create(size_t len)
+char * ConfigFileString_create( size_t len )
 {
+    /// @details BB@> must use malloc/calloc instead of new, since we have to accommodate realoc()
+
     char * ptmp;
 
-    ptmp = CONFIG_NEW_ARY(char, len);
+    ptmp = ( char * )malloc( len * sizeof( char ) );
+    if ( NULL != ptmp ) *ptmp = '\0';
 
     return ptmp;
 }
 
 //--------------------------------------------------------------------------------------------
-ConfigFile_retval ConfigFileString_destroy(char ** ptmp )
+ConfigFile_retval ConfigFileString_destroy( char ** ptmp )
 {
-    if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
+    /// @details BB@> must use free instead of delete, since we have to accommodate realoc()
 
-    CONFIG_DELETE( *ptmp );
+    ConfigFile_retval retval;
 
-    return ConfigFile_succeed;
+    if ( NULL == ptmp ) return ConfigFile_fail;
+
+    retval = ConfigFile_fail;
+    if ( NULL != *ptmp )
+    {
+        free( *ptmp );
+        *ptmp = NULL;
+        retval = ConfigFile_succeed;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-char * ConfigFileString_resize(char * str, size_t new_len )
+char * ConfigFileString_resize( char * str, size_t new_len )
 {
-    size_t old_len = (NULL == str || '\0' == *str) ? 0 : strlen( str );
+    size_t old_len = ( NULL == str || '\0' == *str ) ? 0 : strlen( str );
 
-    // if value already exist, verify if allocated memory is enough
+    // if value already exists, verify if allocated memory is enough
     // if not allocate more memory
     if ( new_len >= MAX_CONFIG_VALUE_LENGTH )
     {
         new_len = MAX_CONFIG_VALUE_LENGTH - 1;
     }
-    if ( new_len >= old_len )
+    if ( new_len > old_len )
     {
-        str = (char *)realloc(str, new_len);
-    }
+        str = ( char * )realloc( str, new_len );
 
-    memset( str, 0, new_len * sizeof(char) );
+        // only blank the new memory, not the whole string
+        memset( str + old_len, 0, ( new_len - old_len ) * sizeof( char ) );
+    }
 
     return str;
 }
@@ -237,18 +251,18 @@ ConfigFileValuePtr_t ConfigFileValue_create()
 {
     ConfigFileValuePtr_t ptmp;
 
-    ptmp = CONFIG_NEW(ConfigFileValue_t);
+    ptmp = CONFIG_NEW( ConfigFileValue_t );
 
     return ptmp;
 }
 
 //--------------------------------------------------------------------------------------------
-ConfigFile_retval ConfigFileValue_destroy(ConfigFileValuePtr_t * ptmp)
+ConfigFile_retval ConfigFileValue_destroy( ConfigFileValuePtr_t * ptmp )
 {
-    if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
+    if ( NULL == ptmp || NULL == *ptmp ) return ConfigFile_fail;
 
-    ConfigFileString_destroy( &(*ptmp)->Commentary );
-    ConfigFileString_destroy( &(*ptmp)->Value      );
+    ConfigFileString_destroy( &( *ptmp )->Commentary );
+    ConfigFileString_destroy( &( *ptmp )->Value );
 
     CONFIG_DELETE( *ptmp );
 
@@ -261,21 +275,21 @@ ConfigFileSectionPtr_t ConfigFileSection_create()
 {
     ConfigFileSectionPtr_t ptmp;
 
-    ptmp = CONFIG_NEW(ConfigFileSection_t);
+    ptmp = CONFIG_NEW( ConfigFileSection_t );
 
     return ptmp;
 }
 
 //--------------------------------------------------------------------------------------------
-ConfigFile_retval ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp)
+ConfigFile_retval ConfigFileSection_destroy( ConfigFileSectionPtr_t * ptmp )
 {
     ConfigFileValuePtr_t lTempValue, lDoomedValue;
-    if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
+    if ( NULL == ptmp || NULL == *ptmp ) return ConfigFile_fail;
 
     // delete all values from the current section
-    lTempValue = (*ptmp)->FirstValue;
+    lTempValue = ( *ptmp )->FirstValue;
 
-    while ( NULL != lTempValue  )
+    while ( NULL != lTempValue )
     {
         lDoomedValue = lTempValue;
         lTempValue   = lTempValue->NextValue;
@@ -293,7 +307,7 @@ ConfigFile_retval ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp)
 // It is use for the section and key name
 void ConfigFileString_Encode( char *pStr )
 {
-    if ( NULL == pStr  ) return;
+    if ( NULL == pStr ) return;
 
     str_encode( pStr, ( size_t )( -1 ), pStr );
 }
@@ -327,7 +341,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     char lc;
 
     lc = EGO_fgetc( pConfigFile->f );
-    memset( pSection->SectionName, 0, sizeof(pSection->SectionName) );
+    memset( pSection->SectionName, 0, sizeof( pSection->SectionName ) );
 
     while ( '}' != lc && 0 == EGO_feof( pConfigFile->f ) )
     {
@@ -360,7 +374,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     char lc;
 
     lc = EGO_fgetc( pConfigFile->f );
-    memset( pValue->KeyName, 0, sizeof(pValue->KeyName) );
+    memset( pValue->KeyName, 0, sizeof( pValue->KeyName ) );
 
     while ( ']' != lc && 0 == EGO_feof( pConfigFile->f ) )
     {
@@ -395,7 +409,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
     Sint32  lState = 0;
     Sint32 lLengthName = 0;
 
-    memset( lTempStr, 0, sizeof(lTempStr) );
+    memset( lTempStr, 0, sizeof( lTempStr ) );
 
     while ( 0 == lEndScan )
     {
@@ -448,7 +462,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
                     EGO_ungetc( lc, pConfigFile->f );
                     // succesfull scan
                     // allocate memory for value
-                    pValue->Value = CONFIG_NEW_ARY( char, lLengthName + 1 );
+                    pValue->Value = ConfigFileString_create( lLengthName + 1 );
                     // copy string
                     strncpy( pValue->Value, lTempStr, lLengthName + 1 );
                     // exit scan
@@ -481,9 +495,9 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
     Sint32  lEndScan = 0;
     Sint32  lState = 0;
     Sint32 lLengthName = 0;
-    if (NULL == pValue) return ConfigFile_PassOverCommentary( pConfigFile );
+    if ( NULL == pValue ) return ConfigFile_PassOverCommentary( pConfigFile );
 
-    memset( lTempStr, 0, sizeof(lTempStr) );
+    memset( lTempStr, 0, sizeof( lTempStr ) );
 
     while ( 0 == lEndScan )
     {
@@ -563,24 +577,24 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
     char    local_attribute[32] = { '\0' };
     FILE   *lTempFile;
 
-    if (NULL == szFileName || '\0' == szFileName[0]) return pConfigFile;
+    if ( NULL == szFileName || '\0' == szFileName[0] ) return pConfigFile;
 
-    if (NULL == szAttribute || '\0' == szAttribute[0] )
+    if ( NULL == szAttribute || '\0' == szAttribute[0] )
     {
-        strncpy( local_attribute, "rt", SDL_arraysize(local_attribute)-2 );
+        strncpy( local_attribute, "rt", SDL_arraysize( local_attribute ) - 2 );
     }
     else
     {
-        strncpy( local_attribute, szAttribute, SDL_arraysize(local_attribute)-2 );
+        strncpy( local_attribute, szAttribute, SDL_arraysize( local_attribute ) - 2 );
     }
 
-    if( force )
+    if ( force )
     {
         strcat( local_attribute, "+" );
     }
 
     // make sure that we have a valid, closed ConfigFile
-    if (NULL == pConfigFile)
+    if ( NULL == pConfigFile )
     {
         pConfigFile = ConfigFile_create();
     }
@@ -591,14 +605,14 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
 
     // open a file stream for access using the szAttribute attribute
     lTempFile = EGO_fopen( szFileName, local_attribute );
-    if ( NULL == lTempFile  )
+    if ( NULL == lTempFile )
     {
         return pConfigFile;
     }
 
     // assign the file info
     pConfigFile->f = lTempFile;
-    strncpy(pConfigFile->filename, szFileName, SDL_arraysize(pConfigFile->filename));
+    strncpy( pConfigFile->filename, szFileName, SDL_arraysize( pConfigFile->filename ) );
 
     return pConfigFile;
 }
@@ -617,7 +631,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     char    lc;
 
     if ( NULL == pConfigFile ) return ConfigFile_fail;
-    if ( NULL == pConfigFile->f || EGO_feof(pConfigFile->f) ) return ConfigFile_fail;
+    if ( NULL == pConfigFile->f || EGO_feof( pConfigFile->f ) ) return ConfigFile_fail;
 
     // load all values in memory
     while ( 0 == lError && !EGO_feof( pConfigFile->f ) )
@@ -632,7 +646,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
                 if ( '{' == lc )
                 {
                     // create first section and load name
-                    lCurSection = ConfigFile_createSection(pConfigFile, lCurSection);
+                    lCurSection = ConfigFile_createSection( pConfigFile, lCurSection );
                     lCurValue   = NULL;
 
                     // state change : look for new value or section
@@ -651,12 +665,12 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
                 if ( '{' == lc )
                 {
                     // create new section and load name
-                    lCurSection = ConfigFile_createSection(pConfigFile, lCurSection);
+                    lCurSection = ConfigFile_createSection( pConfigFile, lCurSection );
                     lCurValue   = NULL;
                 }
                 else if ( '[' == lc )
                 {
-                    lCurValue = ConfigFile_createValue(pConfigFile, lCurSection, lCurValue);
+                    lCurValue = ConfigFile_createValue( pConfigFile, lCurSection, lCurValue );
 
                     // state change : get value
                     lState = 2;
@@ -709,7 +723,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
         }
     }
 
-    return (0 == lError) ? ConfigFile_succeed : ConfigFile_fail;
+    return ( 0 == lError ) ? ConfigFile_succeed : ConfigFile_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -722,7 +736,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
 long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSection )
 {
     long lFound = 0;
-    if ( NULL == pConfigFile  || NULL == pSection  )
+    if ( NULL == pConfigFile  || NULL == pSection )
     {
         return ConfigFile_fail;
     }
@@ -752,7 +766,7 @@ long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSec
         {
             pConfigFile->CurrentSection = pConfigFile->ConfigSectionList;
 
-            while ( 0 == lFound && ( NULL != pConfigFile->CurrentSection) )
+            while ( 0 == lFound && ( NULL != pConfigFile->CurrentSection ) )
             {
                 if ( strcmp( pConfigFile->CurrentSection->SectionName, pSection ) == 0 )
                 {
@@ -862,7 +876,7 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
     char lBoolStr[16] = { '\0' };
     Sint32 lRet;
 
-    memset( lBoolStr, 0, sizeof(lBoolStr) );
+    memset( lBoolStr, 0, sizeof( lBoolStr ) );
 
     lRet = ConfigFile_GetValue_String( pConfigFile, pSection, pKey, lBoolStr, 16 );
     if ( lRet != 0 )
@@ -890,7 +904,7 @@ ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const ch
     char lIntStr[24] = { '\0' };
     Sint32 lRet;
 
-    memset( lIntStr, 0, sizeof(lIntStr) );
+    memset( lIntStr, 0, sizeof( lIntStr ) );
 
     lRet = ConfigFile_GetValue_String( pConfigFile, pSection, pKey, lIntStr, 24 );
     if ( lRet != 0 )
@@ -914,18 +928,18 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     size_t lLengthNewValue;
     char   lNewSectionName[MAX_CONFIG_SECTION_LENGTH] = { '\0' };
     char   lNewKeyName[MAX_CONFIG_KEY_LENGTH] = { '\0' };
-    if ( NULL == pConfigFile  )
+    if ( NULL == pConfigFile )
     {
         return ConfigFile_fail;
     }
-    if ( NULL == pValue  || NULL == pSection  || NULL == pKey  )
+    if ( NULL == pValue  || NULL == pSection  || NULL == pKey )
     {
         return ConfigFile_fail;
     }
 
     // make sure section name and key name are made of valid char
-    strncpy( lNewSectionName, pSection, sizeof(lNewSectionName) );
-    strncpy( lNewKeyName, pKey, sizeof(lNewKeyName) );
+    strncpy( lNewSectionName, pSection, sizeof( lNewSectionName ) );
+    strncpy( lNewKeyName, pKey, sizeof( lNewKeyName ) );
     ConfigFileString_Encode( lNewSectionName );
     ConfigFileString_Encode( lNewKeyName );
 
@@ -936,12 +950,12 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
         lTempSection = ConfigFileSection_create();
         lTempSection->NextSection = pConfigFile->ConfigSectionList;
         pConfigFile->ConfigSectionList = lTempSection;
-        strncpy( lTempSection->SectionName, lNewSectionName, sizeof(lTempSection->SectionName) );
+        strncpy( lTempSection->SectionName, lNewSectionName, sizeof( lTempSection->SectionName ) );
 
         // create the new value
         lTempValue = ConfigFileValue_create();
         lTempSection->FirstValue = lTempValue;
-        strncpy( lTempValue->KeyName, lNewKeyName, sizeof(lTempValue->KeyName) );
+        strncpy( lTempValue->KeyName, lNewKeyName, sizeof( lTempValue->KeyName ) );
 
         // set current section and value
         pConfigFile->CurrentSection = lTempSection;
@@ -958,7 +972,7 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
             lTempValue = ConfigFileValue_create();
             lTempValue->NextValue = pConfigFile->CurrentSection->FirstValue;
             pConfigFile->CurrentSection->FirstValue = lTempValue;
-            strncpy( lTempValue->KeyName, lNewKeyName, sizeof(lTempValue->KeyName) );
+            strncpy( lTempValue->KeyName, lNewKeyName, sizeof( lTempValue->KeyName ) );
 
             // set current section and value
             pConfigFile->CurrentValue = lTempValue;
@@ -973,7 +987,7 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     }
     else
     {
-        pConfigFile->CurrentValue->Value = ConfigFileString_resize(pConfigFile->CurrentValue->Value, lLengthNewValue + 1 );
+        pConfigFile->CurrentValue->Value = ConfigFileString_resize( pConfigFile->CurrentValue->Value, lLengthNewValue + 1 );
     }
 
     strncpy( pConfigFile->CurrentValue->Value, pValue, lLengthNewValue + 1 );
@@ -1070,7 +1084,7 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
 {
     ConfigFileSectionPtr_t lTempSection;
     ConfigFileValuePtr_t   lTempValue;
-    if ( NULL == pConfigFile || NULL == pConfigFile->f  )
+    if ( NULL == pConfigFile || NULL == pConfigFile->f )
     {
         return ConfigFile_fail;
     }
@@ -1080,13 +1094,13 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
     EGO_rewind( pConfigFile->f );
 
     // saves all sections
-    while ( NULL != lTempSection  )
+    while ( NULL != lTempSection )
     {
         fprintf( pConfigFile->f, "{%s}\n", lTempSection->SectionName );
         // saves all values form the current section
         lTempValue = lTempSection->FirstValue;
 
-        while ( NULL != lTempValue  )
+        while ( NULL != lTempValue )
         {
             fprintf( pConfigFile->f, "[%s] : ", lTempValue->KeyName );
             if ( NULL != lTempValue->Value )
@@ -1118,7 +1132,7 @@ ConfigFilePtr_t LoadConfigFile( const char *szFileName, bool_t force )
 
     // try to open a file
     lConfigFile = ConfigFile_open( NULL, szFileName, "", force );
-    if (NULL == lConfigFile) return NULL;
+    if ( NULL == lConfigFile ) return NULL;
 
     // try to read the data
     if ( ConfigFile_fail == ConfigFile_read( lConfigFile ) )
@@ -1159,11 +1173,11 @@ ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szF
     ConfigFile_retval retval;
     char old_filename[256] = { '\0' };
 
-    if (NULL == pConfigFile) return ConfigFile_fail;
-    if (NULL == szFileName || '\0' == szFileName) return ConfigFile_fail;
+    if ( NULL == pConfigFile ) return ConfigFile_fail;
+    if ( NULL == szFileName || '\0' == szFileName ) return ConfigFile_fail;
 
     // save the original filename
-    strncpy( old_filename, pConfigFile->filename, SDL_arraysize(old_filename) );
+    strncpy( old_filename, pConfigFile->filename, SDL_arraysize( old_filename ) );
 
     // try to open the target file
     if ( !ConfigFile_open( pConfigFile, szFileName, "wt", btrue ) )
@@ -1178,7 +1192,7 @@ ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szF
     ConfigFile_close( pConfigFile );
 
     // restore the old filename info
-    strncpy( pConfigFile->filename, old_filename, SDL_arraysize(old_filename) );
+    strncpy( pConfigFile->filename, old_filename, SDL_arraysize( old_filename ) );
 
     return retval;
 }

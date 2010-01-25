@@ -27,7 +27,7 @@
 #include "file_common.h"
 #include "log.h"
 #include "input.h"
-#include "char.h"
+#include "char.inl"
 #include "module_file.h"
 #include "game.h"
 #include "menu.h"
@@ -35,13 +35,13 @@
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
-#include "egoboo_mem.h"
 #include "egoboo.h"
 
 #include <enet/enet.h>
 #include "file_common.h"
+
 #include <stdarg.h>
-#include <assert.h>
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ Uint32      numplatimes = 0;
 
 int         local_numlpla;                         // number of players on the local machine
 int         PlaList_count = 0;                     // Number of players
-player_t    PlaList[MAXPLAYER];
+player_t    PlaList[MAX_PLAYER];
 
 FILE *      globalnetworkerr = NULL;
 
@@ -118,7 +118,7 @@ Uint32 nexttimestamp;                          // Expected timestamp
 // ENet host & client identifiers
 static ENetHost* net_myHost = NULL;
 static ENetPeer* net_gameHost = NULL;
-static ENetPeer* net_playerPeers[MAXPLAYER];
+static ENetPeer* net_playerPeers[MAX_PLAYER];
 static NetPlayerInfo net_playerInfo[MAXNETPLAYER];
 
 static bool_t net_amHost = bfalse;
@@ -520,7 +520,7 @@ void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
 void net_copyFileToAllPlayers( const char *source, const char *dest )
 {
     /// @details JF@> This function queues up files to send to all the hosts.
-    ///    @todo Deal with having to send to up to MAXPLAYER players...
+    ///    @todo Deal with having to send to up to MAX_PLAYER players...
 
     NetFileTransfer *state;
     if ( net_numFileTransfers < NET_MAX_FILE_TRANSFERS )
@@ -528,7 +528,7 @@ void net_copyFileToAllPlayers( const char *source, const char *dest )
         // net_fileTransferTail should already be pointed at an open
         // slot in the queue.
         state = &( net_transferStates[net_fileTransferTail] );
-        assert( state->sourceName[0] == 0 );
+        EGOBOO_ASSERT( state->sourceName[0] == 0 );
 
         // Just do the first player for now
         state->target = &net_myHost->peers[0];
@@ -656,7 +656,7 @@ void net_copyFileToHost( const char *source, const char *dest )
         // net_fileTransferTail should already be pointed at an open
         // slot in the queue.
         state = &( net_transferStates[net_fileTransferTail] );
-        assert( state->sourceName[0] == 0 );
+        EGOBOO_ASSERT( state->sourceName[0] == 0 );
 
         state->target = net_gameHost;
         strncpy( state->sourceName, source, NET_MAX_FILE_NAME );
@@ -894,7 +894,7 @@ void cl_talkToHost()
     {
         player = 0;
 
-        while ( player < MAXPLAYER )
+        while ( player < MAX_PLAYER )
         {
             if ( PlaList[player].valid && PlaList[player].device.bits != INPUT_BITS_NONE )
             {
@@ -911,7 +911,7 @@ void cl_talkToHost()
         net_startNewPacket();
         packet_addUnsignedShort( TO_HOST_LATCH );        // The message header
 
-        for ( player = 0; player < MAXPLAYER; player++ )
+        for ( player = 0; player < MAX_PLAYER; player++ )
         {
             // Find the local players
             if ( PlaList[player].valid && PlaList[player].device.bits != INPUT_BITS_NONE )
@@ -951,7 +951,7 @@ void sv_talkToRemotes()
             packet_addUnsignedInt( time );                                  // The stamp
 
             // Send all player latches...
-            for ( player = 0; player < MAXPLAYER; player++ )
+            for ( player = 0; player < MAX_PLAYER; player++ )
             {
                 if ( !PlaList[player].valid ) continue;
 
@@ -973,7 +973,7 @@ void sv_talkToRemotes()
 
         // update the local timed latches with the same info
         numplatimes = 0;
-        for ( player = 0; player < MAXPLAYER; player++ )
+        for ( player = 0; player < MAX_PLAYER; player++ )
         {
             int index, cnt;
             player_t * ppla;
@@ -1531,7 +1531,7 @@ void unbuffer_player_latches()
 
     // get the "network" latch for each valid player
     numplatimes = 0;
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         int tnc;
         Uint32 latch_count;
@@ -1636,7 +1636,7 @@ void unbuffer_player_latches()
     }
 
     // set the player latch
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         chr_t * pchr;
         player_t * ppla;
@@ -1652,7 +1652,7 @@ void unbuffer_player_latches()
     }
 
     // Let players respawn
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         chr_t * pchr;
         player_t * ppla;
@@ -1695,8 +1695,8 @@ void net_initialize()
     net_instance_init( &gnet );
 
     // Clear all the state variables to 0 to start.
-    memset( net_playerPeers, 0, sizeof( ENetPeer* ) * MAXPLAYER );
-    memset( net_playerInfo, 0, sizeof( NetPlayerInfo ) * MAXPLAYER );
+    memset( net_playerPeers, 0, sizeof( ENetPeer* ) * MAX_PLAYER );
+    memset( net_playerInfo, 0, sizeof( NetPlayerInfo ) * MAX_PLAYER );
     memset( packetbuffer, 0, MAXSENDSIZE * sizeof( Uint8 ) );
     memset( net_transferStates, 0, sizeof( NetFileTransfer ) * NET_MAX_FILE_TRANSFERS );
     memset( &net_receiveState, 0, sizeof( NetFileTransfer ) );
@@ -1878,7 +1878,7 @@ int sv_hostGame()
         address.port = NET_EGOBOO_PORT;
 
         log_info( "sv_hostGame: Creating game on port %d\n", NET_EGOBOO_PORT );
-        net_myHost = enet_host_create( &address, MAXPLAYER, 0, 0 );
+        net_myHost = enet_host_create( &address, MAX_PLAYER, 0, 0 );
         if ( net_myHost == NULL )
         {
             log_info( "sv_hostGame: Could not create network connection!\n" );
@@ -1975,8 +1975,7 @@ void net_updateFileTransfers()
                     packet = enet_packet_create( transferBuffer, transferSize, ENET_PACKET_FLAG_RELIABLE );
                     enet_peer_send( state->target, NET_GUARANTEED_CHANNEL, packet );
 
-                    free( transferBuffer );
-                    transferBuffer = NULL;
+                    EGOBOO_DELETE_ARY( transferBuffer );
                     transferSize = 0;
 
                     net_waitingForXferAck = 1;
@@ -2034,7 +2033,7 @@ Uint16   pla_get_ichr( Uint16 iplayer )
 {
     player_t * pplayer;
 
-    if ( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return MAX_CHR;
+    if ( iplayer >= MAX_PLAYER || !PlaList[iplayer].valid ) return MAX_CHR;
     pplayer = PlaList + iplayer;
 
     if ( !ACTIVE_CHR( pplayer->index ) ) return MAX_CHR;
@@ -2047,7 +2046,7 @@ chr_t  * pla_get_pchr( Uint16 iplayer )
 {
     player_t * pplayer;
 
-    if ( iplayer >= MAXPLAYER || !PlaList[iplayer].valid ) return NULL;
+    if ( iplayer >= MAX_PLAYER || !PlaList[iplayer].valid ) return NULL;
     pplayer = PlaList + iplayer;
 
     if ( !ACTIVE_CHR( pplayer->index ) ) return NULL;
@@ -2061,7 +2060,7 @@ void net_reset_players()
     int cnt;
 
     // Reset the initial player data and latches
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         memset( PlaList + cnt, 0, sizeof( player_t ) );
 

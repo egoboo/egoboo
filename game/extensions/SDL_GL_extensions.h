@@ -42,7 +42,7 @@ extern "C"
     SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint texture, GLfloat *texCoords );
 
     /// Set the OpenGL screen mode using SDL
-    SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new);
+    SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new );
 
     extern const Uint32 sdl_a_mask;        ///< the mask to pick out alpha data from SDL's current pixel format
     extern const Uint32 sdl_b_mask;        ///< the mask to pick out blue  data from SDL's current pixel format
@@ -56,11 +56,11 @@ extern "C"
 
     /// Set the FILE that SDL_GL_extensions will dump debugging information to.
     /// If not set, it will default to stdout.
-    FILE * SDL_GL_set_stdout(FILE * pfile);
+    FILE * SDL_GL_set_stdout( FILE * pfile );
 
     /// Set the FILE that SDL_GL_extensions will dump debugging errors to.
     /// If not set, it will default to stderr.
-    FILE * SDL_GL_set_stderr(FILE * pfile);
+    FILE * SDL_GL_set_stderr( FILE * pfile );
 
 #ifdef __cplusplus
 };

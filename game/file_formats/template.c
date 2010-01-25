@@ -23,7 +23,7 @@
 
 #include "template.h"
 
-#include "char.h"
+#include "char.inl"
 
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
@@ -45,12 +45,12 @@ char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffe
 
     char * ptmp;
 
-    if( NULL == outfile          ) return buffer_beg;
-    if( INVALID_CSTR(buffer_beg) ) return buffer_beg;
-    if( buffer_beg == pcarat     ) return buffer_beg;
+    if ( NULL == outfile ) return buffer_beg;
+    if ( INVALID_CSTR( buffer_beg ) ) return buffer_beg;
+    if ( buffer_beg == pcarat ) return buffer_beg;
 
     ptmp = buffer_beg;
-    while( ptmp < pcarat && ptmp < buffer_end )
+    while ( ptmp < pcarat && ptmp < buffer_end )
     {
         vfs_putc( *ptmp++, outfile );
     }
@@ -70,13 +70,13 @@ bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
 
     found = bfalse;
     pmark = marker_str;
-    while( !vfs_eof( tempfile )  )
+    while ( !vfs_eof( tempfile ) )
     {
         cTmp = vfs_getc( tempfile );
-        if( cTmp == *pmark )
+        if ( cTmp == *pmark )
         {
             pmark++;
-            if( CSTR_END == *pmark )
+            if ( CSTR_END == *pmark )
             {
                 found = btrue;
                 break;
@@ -103,7 +103,7 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
     char   buffer[256] = EMPTY_CSTR;
     char * pcarat, * buffer_end = buffer + 255;
 
-    if( vfs_eof( tempfile ) )
+    if ( vfs_eof( tempfile ) )
     {
         return bfalse;
     }
@@ -111,14 +111,14 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
     found  = bfalse;
     pmark  = marker_str;
     pcarat = buffer;
-    while( !vfs_eof( tempfile )  )
+    while ( !vfs_eof( tempfile ) )
     {
         cTmp = vfs_getc( tempfile );
-        if( cTmp == *pmark )
+        if ( cTmp == *pmark )
         {
             *pcarat++ = cTmp;
             pmark++;
-            if( CSTR_END == *pmark )
+            if ( CSTR_END == *pmark )
             {
                 found = btrue;
 
@@ -157,10 +157,10 @@ void template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile )
 {
     int ctmp;
 
-    if( vfs_eof( tempfile ) ) return;
+    if ( vfs_eof( tempfile ) ) return;
 
     ctmp = vfs_getc( tempfile );
-    while( !vfs_eof( tempfile )  )
+    while ( !vfs_eof( tempfile ) )
     {
         vfs_putc( ctmp, outfile );
         ctmp = vfs_getc( tempfile );
@@ -194,9 +194,9 @@ void template_flush( vfs_FILE* filetemp, vfs_FILE* filewrite )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void template_put_char ( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval )
+void template_put_char( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_putc( cval, filewrite );
     }
@@ -205,7 +205,7 @@ void template_put_char ( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval )
 //--------------------------------------------------------------------------------------------
 void template_put_int( vfs_FILE* filetemp, vfs_FILE* filewrite, int ival )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_printf( filewrite, "%d", ival );
     }
@@ -214,7 +214,7 @@ void template_put_int( vfs_FILE* filetemp, vfs_FILE* filewrite, int ival )
 //--------------------------------------------------------------------------------------------
 void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_printf( filewrite, "%f", fval );
     }
@@ -223,30 +223,30 @@ void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval )
 //--------------------------------------------------------------------------------------------
 void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool_t truth )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         vfs_printf( filewrite, truth ? "TRUE" : "FALSE" );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_damage_type ( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 damagetype )
+void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 damagetype )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        switch( damagetype )
+        switch ( damagetype )
         {
             case DAMAGE_SLASH: vfs_printf( filewrite, "SLASH" ); break;
             case DAMAGE_CRUSH: vfs_printf( filewrite, "CRUSH" ); break;
-            case DAMAGE_POKE : vfs_printf( filewrite, "POKE"  ); break;
-            case DAMAGE_HOLY : vfs_printf( filewrite, "HOLY"  ); break;
-            case DAMAGE_EVIL : vfs_printf( filewrite, "EVIL"  ); break;
-            case DAMAGE_FIRE : vfs_printf( filewrite, "FIRE"  ); break;
-            case DAMAGE_ICE  : vfs_printf( filewrite, "ICE"   ); break;
-            case DAMAGE_ZAP  : vfs_printf( filewrite, "ZAP"   ); break;
+            case DAMAGE_POKE : vfs_printf( filewrite, "POKE" ); break;
+            case DAMAGE_HOLY : vfs_printf( filewrite, "HOLY" ); break;
+            case DAMAGE_EVIL : vfs_printf( filewrite, "EVIL" ); break;
+            case DAMAGE_FIRE : vfs_printf( filewrite, "FIRE" ); break;
+            case DAMAGE_ICE  : vfs_printf( filewrite, "ICE" ); break;
+            case DAMAGE_ZAP  : vfs_printf( filewrite, "ZAP" ); break;
 
             default:
-            case DAMAGE_NONE : vfs_printf( filewrite, "NONE"  ); break;
+            case DAMAGE_NONE : vfs_printf( filewrite, "NONE" ); break;
         }
     }
 }
@@ -254,25 +254,25 @@ void template_put_damage_type ( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 d
 //--------------------------------------------------------------------------------------------
 void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         switch ( action )
         {
-            case ACTION_DA: vfs_printf( filewrite, "DANCE"  ); break;
-            case ACTION_UA: vfs_printf( filewrite, "UNARMED"); break;
+            case ACTION_DA: vfs_printf( filewrite, "DANCE" ); break;
+            case ACTION_UA: vfs_printf( filewrite, "UNARMED" ); break;
             case ACTION_TA: vfs_printf( filewrite, "THRUST" ); break;
-            case ACTION_CA: vfs_printf( filewrite, "CHOP"   ); break;
-            case ACTION_SA: vfs_printf( filewrite, "SLASH"  ); break;
-            case ACTION_BA: vfs_printf( filewrite, "BASH"   ); break;
-            case ACTION_LA: vfs_printf( filewrite, "LONGBOW"); break;
-            case ACTION_XA: vfs_printf( filewrite, "XBOW"   ); break;
-            case ACTION_FA: vfs_printf( filewrite, "FLING"  ); break;
-            case ACTION_PA: vfs_printf( filewrite, "PARRY"  ); break;
-            case ACTION_ZA: vfs_printf( filewrite, "ZAP"    ); break;
-            case ACTION_WA: vfs_printf( filewrite, "WALK"   ); break;
-            case ACTION_HA: vfs_printf( filewrite, "HIT"    ); break;
+            case ACTION_CA: vfs_printf( filewrite, "CHOP" ); break;
+            case ACTION_SA: vfs_printf( filewrite, "SLASH" ); break;
+            case ACTION_BA: vfs_printf( filewrite, "BASH" ); break;
+            case ACTION_LA: vfs_printf( filewrite, "LONGBOW" ); break;
+            case ACTION_XA: vfs_printf( filewrite, "XBOW" ); break;
+            case ACTION_FA: vfs_printf( filewrite, "FLING" ); break;
+            case ACTION_PA: vfs_printf( filewrite, "PARRY" ); break;
+            case ACTION_ZA: vfs_printf( filewrite, "ZAP" ); break;
+            case ACTION_WA: vfs_printf( filewrite, "WALK" ); break;
+            case ACTION_HA: vfs_printf( filewrite, "HIT" ); break;
             case ACTION_KA: vfs_printf( filewrite, "KILLED" ); break;
-            default:        vfs_printf( filewrite, "NONE"   ); break;
+            default:        vfs_printf( filewrite, "NONE" ); break;
         }
     }
 }
@@ -280,14 +280,14 @@ void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action 
 //--------------------------------------------------------------------------------------------
 void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        switch( gender )
+        switch ( gender )
         {
-            case GENDER_MALE  : vfs_printf( filewrite, "MALE"   ); break;
+            case GENDER_MALE  : vfs_printf( filewrite, "MALE" ); break;
             case GENDER_FEMALE: vfs_printf( filewrite, "FEMALE" ); break;
             default:
-            case GENDER_OTHER : vfs_printf( filewrite, "OTHER"  ); break;
+            case GENDER_OTHER : vfs_printf( filewrite, "OTHER" ); break;
         }
     }
 }
@@ -295,19 +295,19 @@ void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender 
 //--------------------------------------------------------------------------------------------
 void template_put_pair( vfs_FILE* filetemp, vfs_FILE* filewrite, IPair val )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         FRange loc_range;
-        pair_to_range( val, &loc_range);
+        pair_to_range( val, &loc_range );
 
         vfs_printf( filewrite, "%4.2f-%4.2f", loc_range.from, loc_range.to );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_range ( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val )
+void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         fput_range_raw( filewrite, val );
     }
@@ -316,11 +316,11 @@ void template_put_range ( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val )
 //--------------------------------------------------------------------------------------------
 void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const char* usename )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
         STRING tmp_str;
 
-        str_encode( tmp_str, SDL_arraysize(tmp_str), usename );
+        str_encode( tmp_str, SDL_arraysize( tmp_str ), usename );
 
         vfs_printf( filewrite, "%s", tmp_str );
     }
@@ -329,9 +329,9 @@ void template_put_string_under( vfs_FILE* filetemp, vfs_FILE* filewrite, const c
 //--------------------------------------------------------------------------------------------
 void template_put_idsz( vfs_FILE* filetemp, vfs_FILE* filewrite, IDSZ idsz )
 {
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        vfs_printf( filewrite, "[%s]", undo_idsz(idsz) );
+        vfs_printf( filewrite, "[%s]", undo_idsz( idsz ) );
     }
 }
 
@@ -341,23 +341,23 @@ void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint
     // this eats two '#'s in the template file
 
     // put the mod bits
-    if( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        if ( 0 != (mod & DAMAGEINVERT) )
+        if ( 0 != ( mod & DAMAGEINVERT ) )
         {
-            vfs_putc( 'T', filewrite);
+            vfs_putc( 'T', filewrite );
         }
-        else if ( 0 != (mod & DAMAGECHARGE) )
+        else if ( 0 != ( mod & DAMAGECHARGE ) )
         {
-            vfs_putc( 'C', filewrite);
+            vfs_putc( 'C', filewrite );
         }
-        else if ( 0 != (mod & DAMAGEMANA) )
+        else if ( 0 != ( mod & DAMAGEMANA ) )
         {
-            vfs_putc( 'M', filewrite);
+            vfs_putc( 'M', filewrite );
         }
         else
         {
-            vfs_putc( 'F', filewrite);
+            vfs_putc( 'F', filewrite );
         }
     }
 

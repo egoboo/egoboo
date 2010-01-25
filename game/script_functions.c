@@ -27,11 +27,12 @@
 
 #include "script_functions.h"
 
-#include "profile.h"
-#include "enchant.h"
-#include "char.h"
-#include "particle.h"
+#include "profile.inl"
+#include "enchant.inl"
+#include "char.inl"
+#include "particle.inl"
 #include "mad.h"
+#include "mesh.inl"
 
 #include "link.h"
 #include "camera.h"
@@ -49,7 +50,7 @@
 
 #include "egoboo_strutil.h"
 #include "egoboo_setup.h"
-#include "egoboo_math.h"
+#include "egoboo_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -465,7 +466,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 
     // is this a safe position?
     returncode = bfalse;
-    if ( !mesh_hitawall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
+    if ( !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
     {
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
@@ -489,9 +490,9 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
                          "\tPressure %f\n",
                          GET_INDEX_PCHR( pchr ), pchr->Name, pcap->name,
                          pself->wp_lst.head,
-                         pos.x / TILE_SIZE, pos.y / TILE_SIZE,
+                         pos.x / GRID_SIZE, pos.y / GRID_SIZE,
                          nrm.x, nrm.y,
-                         SQRT( pressure ) / TILE_SIZE );
+                         SQRT( pressure ) / GRID_SIZE );
         }
     }
 #endif
@@ -1704,13 +1705,16 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         {
             pself->child = sTmp;
 
-            tTmp = ( pchr->turn_z + ATK_BEHIND ) >> 2;
+            tTmp = ( pchr->facing_z + ATK_BEHIND ) >> 2;
             pchild->vel.x += turntocos[ tTmp & TRIG_TABLE_MASK ] * pstate->distance;
             pchild->vel.y += turntosin[ tTmp & TRIG_TABLE_MASK ] * pstate->distance;
 
-            pchild->iskursed = pchr->iskursed;  // BB> inherit this from your spawner
+            pchild->iskursed = pchr->iskursed;  /// @details BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
             pchild->ai.owner   = pself->owner;
+
+            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+            pchild->dismount_object = pself->index;
         }
     }
 
@@ -1742,7 +1746,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = mesh_set_texture( PMesh, pchr->onwhichfan, pstate->argument );
+    returncode = mesh_set_texture( PMesh, pchr->onwhichgrid, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1932,7 +1936,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         sTmp = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = ACTIVE_PRT( tTmp );
     if ( returncode )
@@ -1949,10 +1953,10 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         pprt->pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
 
         // Don't spawn in walls
-        if ( __prthitawall( pprt, NULL, NULL ) )
+        if ( prt_test_wall( pprt ) )
         {
             pprt->pos.x = pchr->pos.x;
-            if ( __prthitawall( pprt, NULL, NULL ) )
+            if ( prt_test_wall( pprt ) )
             {
                 pprt->pos.y = pchr->pos.y;
             }
@@ -2134,7 +2138,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     iskin = pchr->skin;
 
     // change the spellbook to a spell effect
-    change_character( pself->index, pself->content, 0, LEAVENONE );
+    change_character( pself->index, pself->content, 0, ENC_LEAVE_NONE );
 
     // set the spell effect parameters
     pchr->money    = iskin;
@@ -2171,7 +2175,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // convert the spell effect to a spellbook
     old_profile = pchr->iprofile;
-    change_character( pself->index, SPELLBOOK, pchr->money % MAX_SKIN, LEAVENONE );
+    change_character( pself->index, SPELLBOOK, pchr->money % MAX_SKIN, ENC_LEAVE_NONE );
 
     // Reset the spellbook state so it doesn't burn up
     pself->state   = 0;
@@ -3165,7 +3169,7 @@ Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
     debug_printf( "aistate %d, aicontent %d, target %d", pself->state, pself->content, pself->target );
     debug_printf( "tmpx %d, tmpy %d", pstate->x, pstate->y );
     debug_printf( "tmpdistance %d, tmpturn %d", pstate->distance, pstate->turn );
-    debug_printf( "tmpargument %d, selfturn %d", pstate->argument, pchr->turn_z );
+    debug_printf( "tmpargument %d, selfturn %d", pstate->argument, pchr->facing_z );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3471,9 +3475,9 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( VALID_TILE( PMesh, pchr->onwhichfan ) )
+    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
     {
-        returncode = (( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER ) ) && water.is_water );
+        returncode = (( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) && water.is_water );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3622,7 +3626,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
         sTmp = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = ACTIVE_PRT( tTmp );
 
@@ -3647,7 +3651,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+        tTmp = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
     returncode = ACTIVE_PRT( tTmp );
@@ -4099,13 +4103,12 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
         sTmp = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
-    returncode = ACTIVE_PRT( tTmp );
-
-    if ( returncode )
+    returncode = bfalse;
+    if ( ACTIVE_PRT( tTmp ) )
     {
-        PrtList.lst[tTmp].size = pstate->turn;
+        returncode = prt_set_size( PrtList.lst + tTmp, pstate->turn );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4155,7 +4158,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
-    sTmp -= pchr->turn_z;
+    sTmp -= pchr->facing_z;
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 
     SCRIPT_FUNCTION_END();
@@ -4259,7 +4262,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_teleport( pself->index, pstate->x, pstate->y, pchr->pos.z, pchr->turn_z );
+    returncode = chr_teleport( pself->index, pstate->x, pstate->y, pchr->pos.z, pchr->facing_z );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4530,7 +4533,6 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
     /// Checks all 6 IDSZ types to make sure they match.
 
     int tTmp;
-    int iTmp;
     cap_t * pcap_chr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4538,11 +4540,11 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
     pcap_chr = pro_get_pcap( pchr->iprofile );
     if ( NULL == pcap_chr ) return bfalse;
 
-    for ( iTmp = 0; iTmp < MAX_CHR; iTmp++ )
+    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr_test )
     {
         cap_t * pcap_test;
 
-        pcap_test = chr_get_pcap( iTmp );
+        pcap_test = chr_get_pcap( cnt );
         if ( NULL == pcap_test ) continue;
 
         sTmp = btrue;
@@ -4556,9 +4558,10 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 
         if ( sTmp )
         {
-            ChrList.lst[iTmp].nameknown = btrue;
+            pchr_test->nameknown = btrue;
         }
     }
+    CHR_END_LOOP();
 
     SCRIPT_FUNCTION_END();
 }
@@ -4580,7 +4583,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
         sTmp = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->turn_z, pchr->iprofile, pstate->argument, sTmp, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, sTmp, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
 
     returncode = ACTIVE_PRT( tTmp );
 
@@ -4785,7 +4788,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     returncode = bfalse;
     iTmp = mesh_get_tile( PMesh, pstate->x, pstate->y );
-    if ( VALID_TILE( PMesh, iTmp ) )
+    if ( VALID_GRID( PMesh, iTmp ) )
     {
         returncode = btrue;
         pstate->argument = CLIP_TO_08BITS( PMesh->tmem.tile_list[iTmp].img );
@@ -4819,7 +4822,7 @@ Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     pchr->shadow_size     = pstate->argument * pchr->fat;
-    pchr->shadowsizesave = pstate->argument;
+    pchr->shadow_size_save = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4898,10 +4901,10 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( ACTIVE_ENC( iTmp ) )
     {
-        EncList.lst[iTmp].ownermana = pstate->argument;
-        EncList.lst[iTmp].ownerlife = pstate->distance;
-        EncList.lst[iTmp].targetmana = pstate->x;
-        EncList.lst[iTmp].targetlife = pstate->y;
+        EncList.lst[iTmp].owner_mana = pstate->argument;
+        EncList.lst[iTmp].owner_life = pstate->distance;
+        EncList.lst[iTmp].target_mana = pstate->x;
+        EncList.lst[iTmp].target_life = pstate->y;
 
         returncode = btrue;
     }
@@ -4946,9 +4949,12 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         {
             pself->child = sTmp;
 
-            pchild->iskursed   = pchr->iskursed;  // BB> inherit this from your spawner
+            pchild->iskursed   = pchr->iskursed;  /// @details BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
             pchild->ai.owner   = pself->owner;
+
+            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+            pchild->dismount_object = pself->index;
         }
     }
 
@@ -4998,9 +5004,12 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         {
             pself->child = sTmp;
 
-            pchild->iskursed   = pchr->iskursed;  // BB> inherit this from your spawner
+            pchild->iskursed   = pchr->iskursed;  /// @details BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
             pchild->ai.owner   = pself->owner;
+
+            pchild->dismount_timer  = PHYS_DISMOUNT_TIME;
+            pchild->dismount_object = pself->index;
         }
     }
 
@@ -5021,7 +5030,7 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    change_character_full( pself->target, pstate->argument, 0, LEAVEALL );
+    change_character_full( pself->target, pstate->argument, 0, ENC_LEAVE_ALL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5062,7 +5071,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+        tTmp = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
     returncode = ACTIVE_PRT( tTmp );
@@ -5358,7 +5367,7 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _find_tile_in_passage( pstate->x, pstate->y, pstate->distance, pstate->argument, &( pstate->x ), &( pstate->y ) );
+    returncode = _find_grid_in_passage( pstate->x, pstate->y, pstate->distance, pstate->argument, &( pstate->x ), &( pstate->y ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6122,7 +6131,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        tTmp = spawn_one_particle( vtmp, pchr->turn_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+        tTmp = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
     }
 
     returncode = ACTIVE_PRT( tTmp );
@@ -6153,10 +6162,14 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_BEGIN();
 
     pcap = pro_get_pcap( pchr->iprofile );
-
     if ( NULL == pcap ) return bfalse;
 
     ppip = pro_get_ppip( pchr->iprofile, pcap->gopoofprt_pip );
+    if ( NULL == ppip && LOADED_PIP( pcap->gopoofprt_pip ) )
+    {
+        // ???just in calse pcap->gopoofprt_pip is supposed to be referencing a global particle???
+        ppip = PipStack.lst + pcap->gopoofprt_pip;
+    }
 
     returncode = bfalse;
     if ( NULL != ppip )
@@ -6503,7 +6516,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    for ( sTmp = 0; sTmp < MAXPLAYER; sTmp++ )
+    for ( sTmp = 0; sTmp < MAX_PLAYER; sTmp++ )
     {
         Uint16 ichr;
         if ( !PlaList[sTmp].valid ) continue;
@@ -6575,7 +6588,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    for ( iTmp = 0; iTmp < MAXPLAYER; iTmp++ )
+    for ( iTmp = 0; iTmp < MAX_PLAYER; iTmp++ )
     {
         Uint16 ichr;
 
@@ -6695,7 +6708,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             {
                 pchild->ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
-                let_character_think( sTmp );  // Empty the grabbed messages
+                scr_run_chr_script( sTmp );  // Empty the grabbed messages
 
                 pchild->attachedto = MAX_CHR;  // Fix grab
 
@@ -6721,7 +6734,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
                 attach_character_to_mount( sTmp, pself->target, grip_off );
 
                 // Handle the "grabbed" messages
-                let_character_think( sTmp );
+                scr_run_chr_script( sTmp );
 
                 //Set some AI values
                 pself->child = sTmp;
@@ -6951,7 +6964,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     if ( !ACTIVE_CHR( pself->target ) ) return bfalse;
 
-    change_character( pself->index, ChrList.lst[pself->target].basemodel, ChrList.lst[pself->target].skin, LEAVEALL );
+    change_character( pself->index, ChrList.lst[pself->target].basemodel, ChrList.lst[pself->target].skin, ENC_LEAVE_ALL );
 
     // let the resizing take some time
     pchr->fat_goto      = ChrList.lst[pself->target].fat;
@@ -7193,7 +7206,7 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
     returncode = bfalse;
 
     //A special version of the get_chr() function
-    for ( sTmp = 0; sTmp < MAXPLAYER; sTmp++ )
+    for ( sTmp = 0; sTmp < MAX_PLAYER; sTmp++ )
     {
         Uint16 ichr_test = PlaList[sTmp].index;
         chr_t * ptst;
@@ -7237,7 +7250,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
 
     Uint16 endtile;
     Uint32 fan;
-    int useful, character;
+    int useful;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
@@ -7249,13 +7262,9 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
     endtile = CLIP( endtile, 0, 255 );
 
     useful = bfalse;
-    for ( character = 0; character < MAX_CHR; character++ )
+    CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
-        chr_t * pchr;
         float lerp_z;
-
-        if ( !ACTIVE_CHR( character ) ) continue;
-        pchr = ChrList.lst + character;
 
         // nothing in packs
         if ( pchr->pack_ispacked || ACTIVE_CHR( pchr->attachedto ) ) continue;
@@ -7269,7 +7278,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
         fan = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-        if ( VALID_TILE( PMesh, fan ) )
+        if ( VALID_GRID( PMesh, fan ) )
         {
             int img      = PMesh->tmem.tile_list[fan].img & 0x00FF;
             int highbits = PMesh->tmem.tile_list[fan].img & 0xFF00;
@@ -7305,6 +7314,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
             }
         }
     }
+    CHR_END_LOOP();
 
     return useful;
 }
@@ -7348,7 +7358,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 )
+Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 )
 {
     /// @details ZZ@> This function finds the next tile in the passage, x0 and y0
     ///    must be set first, and are set on a find.  Returns btrue or bfalse
@@ -7374,7 +7384,7 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( VALID_TILE( PMesh, fan ) )
+            if ( VALID_GRID( PMesh, fan ) )
             {
                 if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
                 {
@@ -7395,7 +7405,7 @@ Uint8 _find_tile_in_passage( const int x0, const int y0, const int tiletype, con
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( VALID_TILE( PMesh, fan ) )
+            if ( VALID_GRID( PMesh, fan ) )
             {
 
                 if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )

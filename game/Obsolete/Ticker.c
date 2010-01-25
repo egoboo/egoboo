@@ -26,46 +26,46 @@
 
 void ticker_initWithInterval( Ticker *ticker, double interval )
 {
-  assert( ticker != NULL && "ticker_initWithInterval: NULL ticker passed!" );
-  if ( ticker == NULL || interval <= 0 ) return;
+    assert( ticker != NULL && "ticker_initWithInterval: NULL ticker passed!" );
+    if ( ticker == NULL || interval <= 0 ) return;
 
-  ticker->lastTime = clock_getTime();
-  ticker->numTicks = 0;
-  ticker->tickInterval = interval;
+    ticker->lastTime = clock_getTime();
+    ticker->numTicks = 0;
+    ticker->tickInterval = interval;
 }
 
 void ticker_initWithFrequency( Ticker *ticker, int freq )
 {
-  double interval = 1.0 / freq;
-  ticker_initWithInterval( ticker, interval );
+    double interval = 1.0 / freq;
+    ticker_initWithInterval( ticker, interval );
 }
 
 void ticker_update( Ticker *ticker )
 {
-  double deltaTime, currentTime;
-  assert( ticker != NULL && "ticker_update: NULL ticker passed!" );
-  if ( ticker == NULL ) return;
+    double deltaTime, currentTime;
+    assert( ticker != NULL && "ticker_update: NULL ticker passed!" );
+    if ( ticker == NULL ) return;
 
-  currentTime = clock_getTime();
-  deltaTime = currentTime - ticker->lastTime;
+    currentTime = clock_getTime();
+    deltaTime = currentTime - ticker->lastTime;
 
-  while ( deltaTime > ticker->tickInterval )
-  {
-    ticker->numTicks++;
-    ticker->lastTime += ticker->tickInterval;
+    while ( deltaTime > ticker->tickInterval )
+    {
+        ticker->numTicks++;
+        ticker->lastTime += ticker->tickInterval;
 
-    deltaTime -= ticker->tickInterval;
-  }
+        deltaTime -= ticker->tickInterval;
+    }
 }
 
 int ticker_tick( Ticker *ticker )
 {
-  int numTicks;
+    int numTicks;
 
-  assert( ticker != NULL && "ticker_tick: NULL ticker passed!" );
-  if ( ticker == NULL ) return 0;
+    assert( ticker != NULL && "ticker_tick: NULL ticker passed!" );
+    if ( ticker == NULL ) return 0;
 
-  numTicks = ticker->numTicks;
-  ticker->numTicks--;
-  return numTicks;
+    numTicks = ticker->numTicks;
+    ticker->numTicks--;
+    return numTicks;
 }

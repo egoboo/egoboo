@@ -23,7 +23,8 @@
 
 #include "bbox.h"
 
-#include "egoboo_math.h"
+#include "egoboo_math.inl"
+
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -46,10 +47,17 @@ static int cv_point_data_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if defined(__cplusplus)
+s_aabb_lst::s_aabb_lst() { aabb_lst_ctor( this ); }
+s_aabb_lst::~s_aabb_lst() { aabb_lst_dtor( this ); }
+#endif
+
 EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst )
 {
     if ( NULL == lst ) return NULL;
-    memset( lst, 0, sizeof( aabb_lst_t ) );
+
+    memset( lst, 0, sizeof( *lst ) );
+
     return lst;
 }
 
@@ -98,40 +106,12 @@ EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count )
 }
 
 //--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_realloc( aabb_lst_t * lst, int count )
-{
-    // check for bad list
-    if ( NULL == lst ) return NULL;
-
-    // check for no change in the count
-    if ( count == lst->count ) return lst;
-
-    // check another dumb case
-    if ( count == 0 )
-    {
-        return aabb_lst_dtor( lst );
-    }
-
-    lst->list = ( ego_aabb_t * )realloc( lst->list, count * sizeof( ego_aabb_t ) );
-    if ( NULL == lst->list )
-    {
-        lst->count = 0;
-    }
-    else
-    {
-        lst->count = count;
-    }
-
-    return lst;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary )
 {
     if ( NULL == ary ) return NULL;
 
-    memset( ary, 0, sizeof( aabb_ary_t ) );
+    memset( ary, 0, sizeof( *ary ) );
 
     return ary;
 }
@@ -352,7 +332,7 @@ OVolume_t OVolume_intersect( OVolume_t * pv1, OVolume_t * pv2 )
 //--------------------------------------------------------------------------------------------
 bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 {
-    // BB> determine which of the 16 possible intersection points are within both
+    /// @details BB@> determine which of the 16 possible intersection points are within both
     //     square and diamond bounding volumes
 
     bool_t invalid;
@@ -622,7 +602,7 @@ bool_t CVolume_ctor( CVolume_t * pcv, OVolume_t * pva, OVolume_t * pvb )
 //--------------------------------------------------------------------------------------------
 bool_t CVolume_refine( CVolume_t * pcv )
 {
-    // BB> determine which of the 16 possible intersection points are within both
+    /// @details BB@> determine which of the 16 possible intersection points are within both
     //     square and diamond bounding volumes
 
     if ( NULL == pcv ) return bfalse;
@@ -995,28 +975,14 @@ bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst )
+//--------------------------------------------------------------------------------------------
+oct_bb_t * oct_bb_ctor( oct_bb_t * pobb )
 {
-    /// @details BB@> shift the bounding box by the vector vec
+    if ( NULL == pobb ) return NULL;
 
-    if ( NULL == pdst ) return bfalse;
+    memset( pobb, 0, sizeof( *pobb ) );
 
-    pdst->mins[OCT_X]  = src.mins[OCT_X] + vec.x;
-    pdst->maxs[OCT_X]  = src.maxs[OCT_X] + vec.x;
-
-    pdst->mins[OCT_Y]  = src.mins[OCT_Y] + vec.y;
-    pdst->maxs[OCT_Y]  = src.maxs[OCT_Y] + vec.y;
-
-    pdst->mins[OCT_XY] = src.mins[OCT_XY] + ( vec.x + vec.y );
-    pdst->maxs[OCT_XY] = src.maxs[OCT_XY] + ( vec.x + vec.y );
-
-    pdst->mins[OCT_YX] = src.mins[OCT_YX] + ( -vec.x + vec.y );
-    pdst->maxs[OCT_YX] = src.maxs[OCT_YX] + ( -vec.x + vec.y );
-
-    pdst->mins[OCT_Z]  = src.mins[OCT_Z] + vec.z;
-    pdst->maxs[OCT_Z]  = src.maxs[OCT_Z] + vec.z;
-
-    return btrue;
+    return pobb;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1070,6 +1036,31 @@ bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst )
+{
+    /// @details BB@> shift the bounding box by the vector vec
+
+    if ( NULL == pdst ) return bfalse;
+
+    pdst->mins[OCT_X]  = src.mins[OCT_X] + vec.x;
+    pdst->maxs[OCT_X]  = src.maxs[OCT_X] + vec.x;
+
+    pdst->mins[OCT_Y]  = src.mins[OCT_Y] + vec.y;
+    pdst->maxs[OCT_Y]  = src.maxs[OCT_Y] + vec.y;
+
+    pdst->mins[OCT_XY] = src.mins[OCT_XY] + ( vec.x + vec.y );
+    pdst->maxs[OCT_XY] = src.maxs[OCT_XY] + ( vec.x + vec.y );
+
+    pdst->mins[OCT_YX] = src.mins[OCT_YX] + ( -vec.x + vec.y );
+    pdst->maxs[OCT_YX] = src.maxs[OCT_YX] + ( -vec.x + vec.y );
+
+    pdst->mins[OCT_Z]  = src.mins[OCT_Z] + vec.z;
+    pdst->maxs[OCT_Z]  = src.maxs[OCT_Z] + vec.z;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t oct_bb_empty( oct_bb_t src1 )
 {
     int cnt;
@@ -1086,54 +1077,6 @@ bool_t oct_bb_empty( oct_bb_t src1 )
     }
 
     return rv;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t oct_bb_expand( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_t * pdst )
-{
-    // @details BB@> use the velocity of an object and its oct_bb_t to determine the
-    //               amount of territory that an object will cover in one update
-
-    oct_bb_t tmp_min, tmp_max;
-
-    // determine the bounding volume at t == tmin
-    if ( tmin == 0.0f )
-    {
-        tmp_min = src;
-    }
-    else
-    {
-        fvec3_t pos_min;
-
-        pos_min.x = vel.x * tmin;
-        pos_min.y = vel.y * tmin;
-        pos_min.z = vel.z * tmin;
-
-        // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_vector( src, pos_min, &tmp_min ) ) return bfalse;
-    }
-
-    // determine the bounding volume at t == tmax
-    if ( tmax == 0.0f )
-    {
-        tmp_max = src;
-    }
-    else
-    {
-        fvec3_t pos_max;
-
-        pos_max.x = vel.x * tmax;
-        pos_max.y = vel.y * tmax;
-        pos_max.z = vel.z * tmax;
-
-        // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_vector( src, pos_max, &tmp_max ) ) return bfalse;
-    }
-
-    // determine bounding box for the range of times
-    if ( !oct_bb_union( tmp_min, tmp_max, pdst ) ) return bfalse;
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

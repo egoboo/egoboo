@@ -47,7 +47,7 @@ extern "C"
 #    define ATTRIB_PUSH(TXT, BITS)    GL_DEBUG(glPushAttrib)(BITS);
 #    define ATTRIB_POP(TXT)           GL_DEBUG(glPopAttrib)();
 #    define ATTRIB_GUARD_OPEN(XX)     { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&XX);  }
-#    define ATTRIB_GUARD_CLOSE(XX,YY) { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&YY); assert(XX==YY); if(XX!=YY) { vfs_printf( stderr, "ERROR: CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); exit(-1); }  }
+#    define ATTRIB_GUARD_CLOSE(XX,YY) { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&YY); EGOBOO_ASSERTXX==YY); if(XX!=YY) { vfs_printf( stderr, "ERROR: CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); exit(-1); }  }
 #else
 #    define ATTRIB_PUSH(TXT, BITS)    GL_DEBUG(glPushAttrib)(BITS);
 #    define ATTRIB_POP(TXT)           GL_DEBUG(glPopAttrib)();
@@ -108,7 +108,7 @@ extern "C"
 
     /// Set the FILE that ogl_include will use to dump debugging information.
     /// If not set, it will default to stderr.
-    FILE * set_ogl_include_stderr(FILE * pfile);
+    FILE * set_ogl_include_stderr( FILE * pfile );
 
 #ifdef __cplusplus
 };

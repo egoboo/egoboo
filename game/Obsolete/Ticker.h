@@ -25,10 +25,10 @@
 
 typedef struct Ticker
 {
-  double lastTime;
-  double tickInterval;
-  int numTicks;
-}Ticker;
+    double lastTime;
+    double tickInterval;
+    int numTicks;
+} Ticker;
 
 extern void ticker_initWithInterval( Ticker *ticker, double interval );
 extern void ticker_initWithFrequency( Ticker *ticker, int freq );

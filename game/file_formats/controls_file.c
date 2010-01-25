@@ -42,7 +42,7 @@ static void export_control( vfs_FILE * filewrite, const char * text, Sint32 devi
 {
     STRING write;
 
-    snprintf( write, SDL_arraysize(write), "%s : %s\n", text, scantag_get_string(device, pcontrol->tag, pcontrol->is_key) );
+    snprintf( write, SDL_arraysize( write ), "%s : %s\n", text, scantag_get_string( device, pcontrol->tag, pcontrol->is_key ) );
     vfs_puts( write, filewrite );
 }
 
@@ -55,9 +55,9 @@ bool_t input_settings_load( const char *szFilename )
     int i, cnt;
 
     fileread = vfs_openRead( szFilename );
-    if (NULL == fileread)
+    if ( NULL == fileread )
     {
-        log_error("Could not load input settings (%s)!\n", szFilename);
+        log_error( "Could not load input settings (%s)!\n", szFilename );
         return bfalse;
     }
 
@@ -65,9 +65,9 @@ bool_t input_settings_load( const char *szFilename )
     input_device_count = 0;
 
     // read the keyboard controls
-    for (i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++)
+    for ( i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++ )
     {
-        fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
+        fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
         controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( 'K' == currenttag[0] );
     };
@@ -76,9 +76,9 @@ bool_t input_settings_load( const char *szFilename )
     input_device_count++;
 
     // read the mouse controls
-    for (i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++)
+    for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
     {
-        fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
+        fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
         controls[INPUT_DEVICE_MOUSE].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( 'K' == currenttag[0] );
     };
@@ -87,11 +87,11 @@ bool_t input_settings_load( const char *szFilename )
     input_device_count++;
 
     // read in however many joysticks there are...
-    for ( cnt = 0; !vfs_eof(fileread) && cnt < MAXJOYSTICK; cnt++ )
+    for ( cnt = 0; !vfs_eof( fileread ) && cnt < MAXJOYSTICK; cnt++ )
     {
-        for (i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++)
+        for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
-            fget_next_string( fileread, currenttag, SDL_arraysize(currenttag) );
+            fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
             controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
             controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( 'K' == currenttag[0] );
         };
@@ -106,7 +106,7 @@ bool_t input_settings_load( const char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_save( const char* szFilename)
+bool_t input_settings_save( const char* szFilename )
 {
     /// @details ZF@> This function saves all current game settings to "controls.txt"
 
@@ -118,7 +118,7 @@ bool_t input_settings_save( const char* szFilename)
     filewrite = vfs_openWrite( szFilename );
     if ( NULL == filewrite )
     {
-        log_warning("Could not save input settings (%s)!\n", szFilename);
+        log_warning( "Could not save input settings (%s)!\n", szFilename );
         return bfalse;
     }
 
@@ -176,11 +176,11 @@ bool_t input_settings_save( const char* szFilename)
     export_control( filewrite, "Camera Control Mode    ", pdevice->device, pdevice->control + CONTROL_CAMERA );
 
     // export all known joysticks
-    for ( i = INPUT_DEVICE_JOY; i < input_device_count; i++)
+    for ( i = INPUT_DEVICE_JOY; i < input_device_count; i++ )
     {
         pdevice = controls + i;
 
-        snprintf( write, SDL_arraysize(write), "\n\nJoystick %d\n", i - INPUT_DEVICE_JOY );
+        snprintf( write, SDL_arraysize( write ), "\n\nJoystick %d\n", i - INPUT_DEVICE_JOY );
         vfs_puts( write, filewrite );
         vfs_puts( "========\n", filewrite );
         export_control( filewrite, "Jump                ", pdevice->device, pdevice->control + CONTROL_JUMP );
@@ -194,7 +194,7 @@ bool_t input_settings_save( const char* szFilename)
     }
 
     // All done
-    vfs_close(filewrite);
+    vfs_close( filewrite );
 
     return btrue;
 }

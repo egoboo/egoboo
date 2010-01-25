@@ -25,6 +25,8 @@
 ///   A class for loading/using Quake 2 and Egoboo md2 models.
 ///   Creating/destroying objects of this class is done in the same fashion as
 ///   Textures, so see Texture.h for details.
+/// @note You will routinely include "md2.h" only in headers (*.h) files where you need to declare an
+///       struct defined in this file. In *.inl files or *.c/*.cpp files you will routinely include "md2.inl", instead.
 
 #include "id_md2.h"
 
@@ -43,23 +45,42 @@ typedef struct s_ego_md2_vertex
     fvec3_t pos;
     fvec3_t nrm;
     int     normal;  ///< index to id-normal array
+
+#if defined(__cplusplus)
+    s_ego_md2_vertex() { memset( this, 0, sizeof( *this ) ); }
+#endif
+
 } MD2_Vertex_t;
 
 //--------------------------------------------------------------------------------------------
 typedef struct s_ego_md2_texcoord
 {
     fvec2_t tex;
+
+#if defined(__cplusplus)
+    s_ego_md2_texcoord() { memset( this, 0, sizeof( *this ) ); }
+#endif
+
 } MD2_TexCoord_t;
 
 //--------------------------------------------------------------------------------------------
 typedef struct s_ego_md2_frame
 {
     char          name[16];
-    MD2_Vertex_t *vertices;
+
+    size_t        vertex_count;
+    MD2_Vertex_t *vertex_lst;
 
     oct_bb_t      bb;             ///< axis-aligned octagonal bounding box limits
     int           framelip;       ///< the position in the current animation
     Uint32        framefx;        ///< the special effects associated with this frame
+
+#if defined(__cplusplus)
+    s_ego_md2_frame();
+    s_ego_md2_frame( size_t size );
+    ~s_ego_md2_frame();
+#endif
+
 } MD2_Frame_t;
 
 //--------------------------------------------------------------------------------------------
@@ -76,6 +97,11 @@ struct s_ego_md2_glcommand
     GLenum              gl_mode;
     signed int          command_count;
     id_glcmd_packed_t * data;
+
+#if defined(__cplusplus)
+    s_ego_md2_glcommand();
+    ~s_ego_md2_glcommand();
+#endif
 };
 typedef struct s_ego_md2_glcommand MD2_GLCommand_t;
 
@@ -102,6 +128,11 @@ struct s_ego_md2_model
     MD2_Triangle_t  *m_triangles;
     MD2_Frame_t     *m_frames;
     MD2_GLCommand_t *m_commands;
+
+#if defined(__cplusplus)
+    s_ego_md2_model();
+    ~s_ego_md2_model();
+#endif
 };
 typedef struct s_ego_md2_model MD2_Model_t;
 
@@ -115,7 +146,7 @@ void          md2_delete_vector( MD2_Model_t * v, int n );
 
 // Other functions
 MD2_Model_t * md2_load( const char * szFilename, MD2_Model_t* m );
-void          md2_deallocate( MD2_Model_t * m );
+void          md2_free( MD2_Model_t * m );
 void          md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z );
 
 //--------------------------------------------------------------------------------------------

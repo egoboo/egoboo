@@ -23,8 +23,8 @@
 
 #include "module_file.h"
 
-#include "char.h"
-#include "enchant.h"
+#include "char.inl"
+#include "enchant.inl"
 #include "log.h"
 #include "menu.h"
 #include "sound.h"
@@ -53,15 +53,15 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     // clear all the module info
     if ( NULL == pmod ) return NULL;
 
-    memset( pmod, 0, sizeof(*pmod) );
+    memset( pmod, 0, sizeof( *pmod ) );
 
     // see if we can open the file
     fileread = vfs_openRead( szLoadName );
     if ( NULL == fileread ) return NULL;
 
     // Read basic data
-    fget_next_name( fileread, pmod->longname, sizeof(pmod->longname) );
-    fget_next_string( fileread, pmod->reference, SDL_arraysize(pmod->reference) );
+    fget_next_name( fileread, pmod->longname, sizeof( pmod->longname ) );
+    fget_next_string( fileread, pmod->reference, SDL_arraysize( pmod->reference ) );
     pmod->quest_idsz  = fget_next_idsz( fileread );
     pmod->quest_level = fget_int( fileread );
 
@@ -72,12 +72,12 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
 
     cTmp = fget_next_char( fileread );
     pmod->respawnvalid = bfalse;
-    if ( 'T' == toupper(cTmp) )  pmod->respawnvalid = btrue;
-    if ( 'A' == toupper(cTmp) )  pmod->respawnvalid = RESPAWN_ANYTIME;
+    if ( 'T' == toupper( cTmp ) )  pmod->respawnvalid = btrue;
+    if ( 'A' == toupper( cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
     pmod->rtscontrol = fget_next_char( fileread );
 
-    fget_next_string( fileread, pmod->rank, SDL_arraysize(pmod->rank) );
+    fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     pmod->rank[RANKSIZE-1] = CSTR_END;
     str_trim( pmod->rank );
 
@@ -85,14 +85,14 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
         // load hte string
-        fget_next_string( fileread,  pmod->summary[cnt], SDL_arraysize(pmod->summary[cnt]) );
+        fget_next_string( fileread,  pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ) );
         pmod->summary[cnt][SUMMARYSIZE-1] = CSTR_END;
 
         // remove the '_' characters
-        str_decode( pmod->summary[cnt], SDL_arraysize(pmod->summary[cnt]), pmod->summary[cnt] );
+        str_decode( pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ), pmod->summary[cnt] );
     }
 
-    vfs_close(fileread);
+    vfs_close( fileread );
 
     return pmod;
 }
@@ -110,9 +110,9 @@ int module_has_idsz( const char *szLoadName, IDSZ idsz )
 
     if ( idsz == IDSZ_NONE ) return btrue;
 
-    if ( 0 == strcmp( szLoadName, "NONE" )  ) return bfalse;
+    if ( 0 == strcmp( szLoadName, "NONE" ) ) return bfalse;
 
-    snprintf( newloadname, SDL_arraysize( newloadname), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
+    snprintf( newloadname, SDL_arraysize( newloadname ), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
 
     fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return bfalse;
@@ -137,7 +137,7 @@ int module_has_idsz( const char *szLoadName, IDSZ idsz )
 
     // Now check expansions
     foundidsz = bfalse;
-    while ( goto_colon( NULL, fileread, btrue )  )
+    while ( goto_colon( NULL, fileread, btrue ) )
     {
         newidsz = fget_idsz( fileread );
         if ( newidsz == idsz )
@@ -163,12 +163,12 @@ void module_add_idsz( const char *szLoadName, IDSZ idsz )
     if ( !module_has_idsz( szLoadName, idsz ) )
     {
         // Try to open the file in append mode
-        snprintf( newloadname, SDL_arraysize( newloadname), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
 
         filewrite = vfs_openAppend( newloadname );
         if ( filewrite )
         {
-            vfs_printf( filewrite, "\n:[%s]\n", undo_idsz(idsz) );
+            vfs_printf( filewrite, "\n:[%s]\n", undo_idsz( idsz ) );
             vfs_close( filewrite );
         }
     }

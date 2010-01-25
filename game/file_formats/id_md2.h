@@ -150,7 +150,7 @@ extern float kid_md2_normals[MD2_MAX_NORMALS][3];
 
 /// functions to load the packed data structures directly from a file
 /// only works with little endian machines
-id_md2_model_t * id_md2_load (const char *filename, id_md2_model_t * mdl);
-void             id_md2_free ( id_md2_model_t * mdl );
+id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl );
+void             id_md2_free( id_md2_model_t * mdl );
 
 #define ID_MD2_H

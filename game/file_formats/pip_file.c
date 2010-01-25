@@ -54,10 +54,10 @@ particle_direction_t prt_direction[256] =
 //--------------------------------------------------------------------------------------------
 pip_t * pip_init( pip_t * ppip )
 {
-    if( NULL == ppip ) return ppip;
+    if ( NULL == ppip ) return ppip;
 
     // clear the pip
-    memset( ppip, 0, sizeof(*ppip) );
+    memset( ppip, 0, sizeof( *ppip ) );
 
     ppip->soundend_floor = INVALID_SOUND;
     ppip->soundend_wall  = INVALID_SOUND;
@@ -90,39 +90,39 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     pip_init( ppip );
 
     // set up the EGO_PROFILE_STUFF
-    strncpy( ppip->name, szLoadName, SDL_arraysize(ppip->name) );
+    strncpy( ppip->name, szLoadName, SDL_arraysize( ppip->name ) );
     ppip->loaded = btrue;
 
     // read the 1 line comment at the top of the file
-    vfs_gets( ppip->comment, SDL_arraysize(ppip->comment)-1, fileread );
+    vfs_gets( ppip->comment, SDL_arraysize( ppip->comment ) - 1, fileread );
 
     // EGO_rewind the file
-    vfs_seek ( fileread, 0 );
+    vfs_seek( fileread, 0 );
 
     // General data
     ppip->force = fget_next_bool( fileread );
 
     cTmp = fget_next_char( fileread );
-         if ( 'L' == toupper(cTmp) )  ppip->type = SPRITE_LIGHT;
-    else if ( 'S' == toupper(cTmp) )  ppip->type = SPRITE_SOLID;
-    else if ( 'T' == toupper(cTmp) )  ppip->type = SPRITE_ALPHA;
+    if ( 'L' == toupper( cTmp ) )  ppip->type = SPRITE_LIGHT;
+    else if ( 'S' == toupper( cTmp ) )  ppip->type = SPRITE_SOLID;
+    else if ( 'T' == toupper( cTmp ) )  ppip->type = SPRITE_ALPHA;
 
-    ppip->imagebase = fget_next_int( fileread );
+    ppip->image_base = fget_next_int( fileread );
     ppip->numframes = fget_next_int( fileread );
-    ppip->imageadd.base = fget_next_int( fileread );
-    ppip->imageadd.rand = fget_next_int( fileread );
+    ppip->image_add.base = fget_next_int( fileread );
+    ppip->image_add.rand = fget_next_int( fileread );
     ppip->rotate_pair.base = fget_next_int( fileread );
     ppip->rotate_pair.rand = fget_next_int( fileread );
-    ppip->rotateadd = fget_next_int( fileread );
-    ppip->sizebase = fget_next_int( fileread );
-    ppip->sizeadd = fget_next_int( fileread );
+    ppip->rotate_add = fget_next_int( fileread );
+    ppip->size_base = fget_next_int( fileread );
+    ppip->size_add = fget_next_int( fileread );
     ppip->spdlimit = fget_next_float( fileread );
     ppip->facingadd = fget_next_int( fileread );
 
     // override the base rotation
-    if ( ppip->imagebase < 256 && prt_u != prt_direction[ ppip->imagebase ] )
+    if ( ppip->image_base < 256 && prt_u != prt_direction[ ppip->image_base ] )
     {
-        ppip->rotate_pair.base = prt_direction[ ppip->imagebase ];
+        ppip->rotate_pair.base = prt_direction[ ppip->image_base ];
     };
 
     // Ending conditions
@@ -138,13 +138,13 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->bump_size   = fget_next_int( fileread );
     ppip->bump_height = fget_next_int( fileread );
 
-    fget_next_range( fileread, &(ppip->damage) );
+    fget_next_range( fileread, &( ppip->damage ) );
     ppip->damagetype = fget_next_damage_type( fileread );
 
     // Lighting data
     cTmp = fget_next_char( fileread );
-         if ( 'T' == toupper(cTmp) ) ppip->dynalight.mode = DYNA_MODE_ON;
-    else if ( 'L' == toupper(cTmp) ) ppip->dynalight.mode = DYNA_MODE_LOCAL;
+    if ( 'T' == toupper( cTmp ) ) ppip->dynalight.mode = DYNA_MODE_ON;
+    else if ( 'L' == toupper( cTmp ) ) ppip->dynalight.mode = DYNA_MODE_LOCAL;
     else                             ppip->dynalight.mode = DYNA_MODE_OFF;
 
     ppip->dynalight.level   = fget_next_float( fileread );
@@ -219,7 +219,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     {
         idsz = fget_idsz( fileread );
 
-             if ( idsz == MAKE_IDSZ( 'T', 'U', 'R', 'N' ) )  ppip->damfx |= DAMFX_NONE;
+        if ( idsz == MAKE_IDSZ( 'T', 'U', 'R', 'N' ) )  ppip->damfx |= DAMFX_NONE;
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'M', 'O' ) )  ppip->damfx |= DAMFX_ARMO;
         else if ( idsz == MAKE_IDSZ( 'B', 'L', 'O', 'C' ) )  ppip->damfx |= DAMFX_NBLOC;
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  ppip->damfx |= DAMFX_ARRO;
@@ -227,16 +227,16 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundend_floor = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundend_wall = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalight.level_add = fget_int( fileread ) / 1000.0f;
         else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'D' ) )  ppip->dynalight.falloff_add = fget_int( fileread ) / 1000.0f;
-        else if ( idsz == MAKE_IDSZ( 'I', 'D', 'A', 'M' ) )  ppip->intdamagebonus = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'D', 'A', 'M' ) )  ppip->wisdamagebonus = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'I', 'D', 'A', 'M' ) )  ppip->intdamagebonus = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'W', 'D', 'A', 'M' ) )  ppip->wisdamagebonus = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'O', 'R', 'N', 'T' ) )
         {
             char cTmp = fget_first_letter( fileread );
-            switch ( toupper(cTmp) )
+            switch ( toupper( cTmp ) )
             {
                 case 'X': ppip->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
                 case 'Y': ppip->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis

@@ -59,6 +59,8 @@ typedef float oct_vec_t[OCT_COUNT];
 
 bool_t oct_vec_ctor( oct_vec_t ovec , fvec3_t pos );
 
+#define OCT_VEC_INIT_VALS { 0,0,0,0,0 }
+
 //--------------------------------------------------------------------------------------------
 /// generic octagonal bounding box
 /// to be used for the Level 1 character "bumper"
@@ -67,12 +69,19 @@ bool_t oct_vec_ctor( oct_vec_t ovec , fvec3_t pos );
 struct s_oct_bb
 {
     oct_vec_t mins,  maxs;
+
+#if defined(__cplusplus)
+    s_oct_bb() { memset( this, 0, sizeof( *this ) ); }
+#endif
 };
 typedef struct s_oct_bb oct_bb_t;
 
-bool_t oct_bb_union( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
-bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
-bool_t oct_bb_empty( oct_bb_t src1 );
+oct_bb_t * oct_bb_ctor( oct_bb_t * pobb );
+bool_t     oct_bb_union( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
+bool_t     oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
+bool_t     oct_bb_empty( oct_bb_t src1 );
+
+#define OCT_BB_INIT_VALS { OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
 struct s_ego_aabb
@@ -85,6 +94,10 @@ struct s_ego_aabb
     int    address;
 
     aabb_t  bb;
+
+#if defined(__cplusplus)
+    s_ego_aabb() { memset( this, 0, sizeof( *this ) ); }
+#endif
 };
 
 typedef struct s_ego_aabb ego_aabb_t;
@@ -94,6 +107,11 @@ struct s_aabb_lst
 {
     int       count;
     ego_aabb_t * list;
+
+#if defined(__cplusplus)
+    s_aabb_lst();
+    ~s_aabb_lst();
+#endif
 };
 typedef struct s_aabb_lst aabb_lst_t;
 
@@ -101,7 +119,6 @@ EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst );
 EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst );
 EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst );
 EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count );
-EGO_CONST aabb_lst_t * aabb_lst_realloc( aabb_lst_t * lst, int count );
 
 //--------------------------------------------------------------------------------------------
 struct s_aabb_ary
@@ -162,11 +179,12 @@ bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst );
 bool_t bumper_to_oct_bb_1( bumper_t src, fvec3_t vel, oct_bb_t * pdst );
 
 void   oct_bb_downgrade( oct_bb_t * psrc, bumper_t bump_base, bumper_t * p_bump, oct_bb_t * pdst );
-bool_t oct_bb_expand( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_t * pdst );
 bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
 
 int    oct_bb_to_points( oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
 void   points_to_oct_bb( oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
+
+bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

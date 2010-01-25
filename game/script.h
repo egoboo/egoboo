@@ -38,8 +38,8 @@
 #define EDGE                128
 
 /// AI targeting
-#define NEARBY      3*TILE_SIZE    ///< 3 tiles away
-#define WIDE        6*TILE_SIZE    ///< 6 tiles away
+#define NEARBY      3*GRID_SIZE    ///< 3 tiles away
+#define WIDE        6*GRID_SIZE    ///< 6 tiles away
 #define NEAREST     0              ///< unlimited range
 
 /// Character AI alerts
@@ -80,7 +80,7 @@
 //--------------------------------------------------------------------------------------------
 /// AI variables
 #define MAXWAY              8                       ///< Waypoints
-#define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (TILE_SIZE/2)
+#define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
 
 // swig chokes on the definition below
 #ifdef SWIG
@@ -173,9 +173,11 @@ struct s_ai_state
 };
 typedef struct s_ai_state ai_state_t;
 
-bool_t ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr );
-bool_t ai_state_get_wp( ai_state_t * pself );
-bool_t ai_state_ensure_wp( ai_state_t * pself );
+ai_state_t * ai_state_ctor( ai_state_t * pself );
+ai_state_t * ai_state_dtor( ai_state_t * pself );
+bool_t       ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr );
+bool_t       ai_state_get_wp( ai_state_t * pself );
+bool_t       ai_state_ensure_wp( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -195,8 +197,11 @@ typedef struct s_script_state script_state_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Prototypes
-void  let_character_think( Uint16 character );
+void  scr_run_chr_script( Uint16 character );
 
 void issue_order( Uint16 character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
 void set_alerts( Uint16 character );
+
+void scripting_system_begin();
+void scripting_system_end();

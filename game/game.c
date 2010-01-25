@@ -23,16 +23,16 @@
 
 #include "game.h"
 
-#include "char.h"
-#include "particle.h"
+#include "char.inl"
+#include "particle.inl"
 #include "mad.h"
-#include "enchant.h"
-#include "profile.h"
+#include "enchant.inl"
+#include "profile.inl"
 
 #include "controls_file.h"
 #include "scancode_file.h"
 
-#include "physics.h"
+#include "physics.inl"
 #include "clock.h"
 #include "link.h"
 #include "ui.h"
@@ -47,7 +47,7 @@
 #include "input.h"
 #include "menu.h"
 #include "network.h"
-#include "mesh.h"
+#include "mesh.inl"
 #include "texture.h"
 #include "wawalite_file.h"
 #include "clock.h"
@@ -204,7 +204,8 @@ static void   game_end_menu( menu_process_t * mproc );
 
 static void   do_game_hud();
 
-static void init_all_objects( void );
+static void object_systems_begin( void );
+static void object_systems_end( void );
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -372,7 +373,7 @@ void export_all_players( bool_t require_local )
     if ( !PMod->exportvalid ) return;
 
     // Check each player
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         is_local = ( 0 != PlaList[cnt].device.bits );
         if ( require_local && !is_local ) continue;
@@ -415,57 +416,6 @@ void export_all_players( bool_t require_local )
 
 }
 
-//--------------------------------------------------------------------------------------------
-void getadd( int min, int value, int max, int* valuetoadd )
-{
-    /// @details ZZ@> This function figures out what value to add should be in order
-    ///    to not overflow the min and max bounds
-
-    int newvalue;
-
-    newvalue = value + ( *valuetoadd );
-    if ( newvalue < min )
-    {
-        // Increase valuetoadd to fit
-        *valuetoadd = min - value;
-        if ( *valuetoadd > 0 )  *valuetoadd = 0;
-
-        return;
-    }
-    if ( newvalue > max )
-    {
-        // Decrease valuetoadd to fit
-        *valuetoadd = max - value;
-        if ( *valuetoadd < 0 )  *valuetoadd = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void fgetadd( float min, float value, float max, float* valuetoadd )
-{
-    /// @details ZZ@> This function figures out what value to add should be in order
-    ///    to not overflow the min and max bounds
-
-    float newvalue;
-
-    newvalue = value + ( *valuetoadd );
-    if ( newvalue < min )
-    {
-        // Increase valuetoadd to fit
-        *valuetoadd = min - value;
-        if ( *valuetoadd > 0 )  *valuetoadd = 0;
-
-        return;
-    }
-    if ( newvalue > max )
-    {
-        // Decrease valuetoadd to fit
-        *valuetoadd = max - value;
-        if ( *valuetoadd < 0 )  *valuetoadd = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void log_madused( const char *savename )
@@ -662,6 +612,8 @@ void cleanup_all_objects()
 //--------------------------------------------------------------------------------------------
 void move_all_objects()
 {
+    mesh_wall_tests = 0;
+
     move_all_particles();
     move_all_characters();
 }
@@ -683,7 +635,7 @@ int update_game()
 
     numplayer = 0;
     numdead = numalive = 0;
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         Uint16 ichr;
         chr_t * pchr;
@@ -738,7 +690,7 @@ int update_game()
     }
 
     // check for autorespawn
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         Uint16 ichr;
         chr_t * pchr;
@@ -775,8 +727,7 @@ int update_game()
     update_loop_cnt = 0;
     if ( update_wld < true_update )
     {
-        // [claforte Jan 6th 2001]
-        /// @todo Put that back in place once networking is functional.
+        /// @todo claforte@> Put that back in place once networking is functional (Jan 6th 2001)
         for ( tnc = 0; update_wld < true_update && tnc < TARGET_UPS ; tnc++ )
         {
             PROFILE_BEGIN( game_single_update );
@@ -807,7 +758,7 @@ int update_game()
                     unbuffer_player_latches();            // sets the player latches
 
                     move_all_objects();                   // clears some latches
-                    bump_all_objects();
+                    bump_all_objects( &obj_BSP_root );
 
                     cleanup_all_objects();
                 }
@@ -1047,8 +998,11 @@ int do_game_proc_begin( game_process_t * gproc )
     if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
     else log_message( "Failure!\n" );
 
+    // initialize the collision system
+    collision_system_begin();
+
     // intialize the "profile system"
-    init_profile_system();
+    profile_system_begin();
 
     // do some graphics initialization
     //make_lightdirectionlookup();
@@ -1099,6 +1053,8 @@ int do_game_proc_begin( game_process_t * gproc )
 
     est_update_game_time  = 1.0f / TARGET_UPS;
     est_max_game_ups      = TARGET_UPS;
+
+    obj_BSP_ctor( &obj_BSP_root, &mesh_BSP_root );
 
     return 1;
 }
@@ -1266,11 +1222,34 @@ int do_game_proc_leaving( game_process_t * gproc )
     // resume the menu
     process_resume( PROC_PBASE( MProc ) );
 
+    // deallocate any dynamically allocated collision memory
+    collision_system_end();
+
+    // deallocate any data used by the profile system
+    profile_system_end();
+
+    // deallocate any dynamically allocated scripting memory
+    scripting_system_end();
+
+    // clean up any remaining models that might have dynamic data
+    release_all_mad();
+
     // reset the fps counter
     fps_clock             = 0;
     fps_loops             = 0;
     stabilized_fps_sum    = 0.1f * stabilized_fps_sum / stabilized_fps_weight;
     stabilized_fps_weight = 0.1f;
+
+    PROFILE_FREE( game_update_loop );
+    PROFILE_FREE( game_single_update );
+    PROFILE_FREE( gfx_loop );
+
+    PROFILE_FREE( talk_to_remotes );
+    PROFILE_FREE( listen_for_packets );
+    PROFILE_FREE( check_stats );
+    PROFILE_FREE( set_local_latches );
+    PROFILE_FREE( check_passage_music );
+    PROFILE_FREE( cl_talkToHost );
 
     return 1;
 }
@@ -1347,19 +1326,15 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
 
     pip_t * ppip;
 
-    Uint16 besttarget = MAX_CHR, cnt;
+    Uint16 besttarget = MAX_CHR;
     float  longdist2 = max_dist2;
 
     if ( !LOADED_PIP( particletype ) ) return MAX_CHR;
     ppip = PipStack.lst + particletype;
 
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
-        chr_t * pchr;
         bool_t target_friend, target_enemy;
-
-        if ( !ACTIVE_CHR( cnt ) ) continue;
-        pchr = ChrList.lst + cnt;
 
         if ( !pchr->alive || pchr->isitem || ACTIVE_CHR( pchr->attachedto ) ) continue;
 
@@ -1398,6 +1373,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
             }
         }
     }
+    CHR_END_LOOP();
 
     // All done
     return besttarget;
@@ -1481,7 +1457,31 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
     Uint16 cnt;
     Uint16 best_target = MAX_CHR;
     float  best_dist2;
-    Uint16 search_list = target_players ? MAXPLAYER : MAX_CHR;
+
+    size_t search_list_size = 0;
+    Uint16 search_list[MAX_CHR];
+
+    if ( target_players )
+    {
+        int i;
+
+        for ( i = 0; i < MAX_PLAYER; i ++ )
+        {
+            if ( !PlaList[i].valid || !ACTIVE_CHR( PlaList[i].index ) ) continue;
+
+            search_list[search_list_size] = PlaList[i].index;
+            search_list_size++;
+        }
+    }
+    else
+    {
+        CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+        {
+            search_list[search_list_size] = cnt;
+            search_list_size++;
+        }
+        CHR_END_LOOP();
+    }
 
     if ( TARGET_NONE == target_type ) return MAX_CHR;
 
@@ -1495,12 +1495,12 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 
     best_target = MAX_CHR;
     best_dist2  = max_dist2;
-    for ( cnt = 0; cnt < search_list; cnt++ )
+    for ( cnt = 0; cnt < search_list_size; cnt++ )
     {
         float  dist2;
         fvec3_t   diff;
         chr_t * ptst;
-        Uint16 ichr_test = target_players ? PlaList[cnt].index : cnt;
+        Uint16 ichr_test = search_list[cnt];
 
         if ( !ACTIVE_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
@@ -1538,10 +1538,9 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
 //--------------------------------------------------------------------------------------------
 void do_damage_tiles()
 {
-    Uint16 character;
-
     // do the damage tile stuff
-    for ( character = 0; character < MAX_CHR; character++ )
+
+    CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
         cap_t * pcap;
         chr_t * pchr;
@@ -1559,8 +1558,8 @@ void do_damage_tiles()
         if ( pchr->pack_ispacked ) continue;
 
         // are we on a damage tile?
-        if ( !VALID_TILE( PMesh, pchr->onwhichfan ) ) continue;
-        if ( 0 == mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_DAMAGE ) ) continue;
+        if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) continue;
+        if ( 0 == mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_DAMAGE ) ) continue;
 
         // are we low enough?
         if ( pchr->pos.z > pchr->enviro.floor_level + DAMAGERAISE ) continue;
@@ -1609,6 +1608,7 @@ void do_damage_tiles()
             }
         }
     }
+    CHR_END_LOOP();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1692,32 +1692,32 @@ void update_pits()
             }
 
             // Kill or teleport any characters that fell in a pit...
-            for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+            CHR_BEGIN_LOOP_ACTIVE( cnt, pit_chr )
             {
                 // Is it a valid character?
-                if ( !ACTIVE_CHR( cnt ) || ChrList.lst[cnt].invictus || !ChrList.lst[cnt].alive ) continue;
-                if ( ACTIVE_CHR( ChrList.lst[cnt].attachedto ) || ChrList.lst[cnt].pack_ispacked ) continue;
+                if ( pit_chr->invictus || !pit_chr->alive ) continue;
+                if ( ACTIVE_CHR( pit_chr->attachedto ) || pit_chr->pack_ispacked ) continue;
 
                 // Do we kill it?
-                if ( pits.kill && ChrList.lst[cnt].pos.z < PITDEPTH )
+                if ( pits.kill && pit_chr->pos.z < PITDEPTH )
                 {
                     // Got one!
                     kill_character( cnt, MAX_CHR, bfalse );
-                    ChrList.lst[cnt].vel.x = 0;
-                    ChrList.lst[cnt].vel.y = 0;
+                    pit_chr->vel.x = 0;
+                    pit_chr->vel.y = 0;
 
                     //ZF> Disabled, the pitfall sound was intended for pits.teleport only
                     // Play sound effect
-                    // sound_play_chunk( ChrList.lst[cnt].pos, g_wavelist[GSND_PITFALL] );
+                    // sound_play_chunk( pit_chr->pos, g_wavelist[GSND_PITFALL] );
                 }
 
                 // Do we teleport it?
-                if ( pits.teleport && ChrList.lst[cnt].pos.z < PITDEPTH << 3 )
+                if ( pits.teleport && pit_chr->pos.z < PITDEPTH << 3 )
                 {
                     bool_t teleported;
 
                     // Teleport them back to a "safe" spot
-                    teleported = chr_teleport( cnt, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, ChrList.lst[cnt].turn_z );
+                    teleported = chr_teleport( cnt, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pit_chr->facing_z );
 
                     if ( !teleported )
                     {
@@ -1727,18 +1727,18 @@ void update_pits()
                     else
                     {
                         // Stop movement
-                        ChrList.lst[cnt].vel.z = 0;
-                        ChrList.lst[cnt].vel.x = 0;
-                        ChrList.lst[cnt].vel.y = 0;
+                        pit_chr->vel.z = 0;
+                        pit_chr->vel.x = 0;
+                        pit_chr->vel.y = 0;
 
                         // Play sound effect
-                        if ( ChrList.lst[cnt].isplayer )
+                        if ( pit_chr->isplayer )
                         {
                             sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_PITFALL] );
                         }
                         else
                         {
-                            sound_play_chunk( ChrList.lst[cnt].pos, g_wavelist[GSND_PITFALL] );
+                            sound_play_chunk( pit_chr->pos, g_wavelist[GSND_PITFALL] );
                         }
 
                         // Do some damage (same as damage tile)
@@ -1746,6 +1746,7 @@ void update_pits()
                     }
                 }
             }
+            CHR_END_LOOP();
         }
     }
 }
@@ -1767,9 +1768,9 @@ void do_weather_spawn_particles()
 
             // Find a valid player
             foundone = bfalse;
-            for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+            for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
             {
-                weather.iplayer = ( weather.iplayer + 1 ) & ( MAXPLAYER - 1 );
+                weather.iplayer = ( weather.iplayer + 1 ) & ( MAX_PLAYER - 1 );
                 if ( PlaList[weather.iplayer].valid )
                 {
                     foundone = btrue;
@@ -1792,7 +1793,7 @@ void do_weather_spawn_particles()
 
                         bool_t destroy_particle = bfalse;
 
-                        if ( __prthitawall( pprt, NULL, NULL ) )
+                        if ( prt_test_wall( pprt ) )
                         {
                             destroy_particle = btrue;
                         }
@@ -1858,7 +1859,7 @@ void set_one_player_latch( Uint16 player )
     latch_init( &( sum ) );
 
     // generate the transforms relative to the camera
-    turnsin = PCamera->turn_z >> 2;
+    turnsin = PCamera->facing_z >> 2;
     fsin    = turntosin[turnsin & TRIG_TABLE_MASK ];
     fcos    = turntocos[turnsin & TRIG_TABLE_MASK ];
 
@@ -2068,7 +2069,7 @@ void set_local_latches( void )
 
     int cnt;
 
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         set_one_player_latch( cnt );
     }
@@ -2354,14 +2355,14 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
 
         if ( penc->target_ref == ichr )
         {
-            ( *pliferegen ) += penc->targetlife;
-            ( *pmanaregen ) += penc->targetmana;
+            ( *pliferegen ) += penc->target_life;
+            ( *pmanaregen ) += penc->target_mana;
         }
 
         if ( penc->owner_ref == ichr )
         {
-            ( *pliferegen ) += penc->ownerlife;
-            ( *pmanaregen ) += penc->ownermana;
+            ( *pliferegen ) += penc->owner_life;
+            ( *pmanaregen ) += penc->owner_mana;
         }
     }
 
@@ -2457,25 +2458,25 @@ void tilt_characters_to_terrain()
 {
     /// @details ZZ@> This function sets all of the character's starting tilt values
 
-    int cnt;
     Uint8 twist;
 
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
         if ( !ACTIVE_CHR( cnt ) ) continue;
 
-        if ( ChrList.lst[cnt].stickybutt && VALID_TILE( PMesh, ChrList.lst[cnt].onwhichfan ) )
+        if ( pchr->stickybutt && VALID_GRID( PMesh, pchr->onwhichgrid ) )
         {
-            twist = PMesh->gmem.grid_list[ChrList.lst[cnt].onwhichfan].twist;
-            ChrList.lst[cnt].map_turn_y = map_twist_y[twist];
-            ChrList.lst[cnt].map_turn_x = map_twist_x[twist];
+            twist = PMesh->gmem.grid_list[pchr->onwhichgrid].twist;
+            pchr->map_facing_y = map_twist_y[twist];
+            pchr->map_facing_x = map_twist_x[twist];
         }
         else
         {
-            ChrList.lst[cnt].map_turn_y = MAP_TURN_OFFSET;
-            ChrList.lst[cnt].map_turn_x = MAP_TURN_OFFSET;
+            pchr->map_facing_y = MAP_TURN_OFFSET;
+            pchr->map_facing_x = MAP_TURN_OFFSET;
         }
     }
+    CHR_END_LOOP();
 
 }
 
@@ -2609,7 +2610,7 @@ bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
 
         pchr->ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
         pchr->attachedto = pinfo->parent;  // Make grab work
-        let_character_think( ichr );  // Empty the grabbed messages
+        scr_run_chr_script( ichr );  // Empty the grabbed messages
 
         pchr->attachedto = MAX_CHR;  // Fix grab
 
@@ -2621,7 +2622,7 @@ bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
         attach_character_to_mount( ichr, pinfo->parent, grip_off );
 
         // Handle the "grabbed" messages
-        let_character_think( ichr );
+        scr_run_chr_script( ichr );
     }
 
     // Set the starting pinfo->level
@@ -2745,7 +2746,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
                 // each new player steals an input device from the 1st player
                 bits = 1 << local_numlpla;
-                for ( tnc = 0; tnc < MAXPLAYER; tnc++ )
+                for ( tnc = 0; tnc < MAX_PLAYER; tnc++ )
                 {
                     PlaList[tnc].device.bits &= ~bits;
                 }
@@ -2935,14 +2936,14 @@ void game_load_global_assets()
 void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
-    load_global_waves( /* modname */ );
-    reset_particles( /* modname */ );
-    if ( NULL == read_wawalite( /* modname */ ) )
+    load_global_waves();
+    reset_particles();
+    if ( NULL == read_wawalite() )
     {
         log_warning( "wawalite.txt not loaded for %s.\n", modname );
     }
-    load_basic_textures( /* modname */ );
-    load_map( /* modname */ );
+    load_basic_textures();
+    load_map();
 
     upload_wawalite();
 }
@@ -2984,7 +2985,11 @@ bool_t game_load_module_data( const char *smallname )
 
     log_info( "Loading module \"%s\"\n", smallname );
 
-    load_ai_script( "data/script.txt" );
+    if ( load_ai_script( "data/script.txt" ) < 0 )
+    {
+        log_warning( "game_load_module_data() - cannot load the default script\n" );
+        goto game_load_module_data_fail;
+    }
 
     // generate the module directory
     strncpy( modname, smallname, SDL_arraysize( modname ) );
@@ -3000,11 +3005,19 @@ bool_t game_load_module_data( const char *smallname )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
-        log_warning( "Uh oh! Problems loading the mesh! (%s)\n", modname );
-        return bfalse;
+        log_warning( "game_load_module_data() - Uh oh! Problems loading the mesh! (%s)\n", modname );
+
+        goto game_load_module_data_fail;
     }
 
     return btrue;
+
+game_load_module_data_fail:
+
+    // release any data that might have been allocated
+    game_release_module_data();
+
+    return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3235,7 +3248,7 @@ bool_t game_update_imports()
     vfs_mkdir( "/import" );
 
     // export all of the players directly from memory straight to the "import" dir
-    for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( player = 0, cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         if ( !PlaList[cnt].valid ) continue;
 
@@ -3297,6 +3310,8 @@ void game_release_module_data()
 {
     /// @details ZZ@> This function frees up memory used by the module
 
+    ego_mpd_t * ptmp;
+
     // Disable EMP
     local_senseenemiesID = IDSZ_NONE;
     local_senseenemiesTeam = TEAM_MAX;
@@ -3311,7 +3326,12 @@ void game_release_module_data()
 
     // deal with the mesh
     clear_all_passages();
-    mesh_dtor( PMesh );
+
+    ptmp = PMesh;
+    mesh_destroy( &ptmp );
+
+    // restore the original statically allocated ego_mpd_t header
+    PMesh = _mesh + 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3320,32 +3340,25 @@ void attach_particles()
     /// @details ZZ@> This function attaches particles to their characters so everything gets
     ///    drawn right
 
-    int cnt;
-
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    PRT_BEGIN_LOOP_DISPLAY( cnt, pprt )
     {
-        prt_t * pprt;
+        if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) continue;
 
-        if ( !ACTIVE_PRT( cnt ) ) continue;
-        pprt = PrtList.lst + cnt;
+        place_particle_at_vertex( cnt, pprt->attachedto_ref, pprt->vrt_off );
 
-        if ( ACTIVE_CHR( pprt->attachedto_ref ) )
+        // the previous function can inactivate a particle
+        if ( ACTIVE_PRT( cnt ) )
         {
-            place_particle_at_vertex( cnt, pprt->attachedto_ref, pprt->vrt_off );
+            pip_t * ppip = prt_get_ppip( cnt );
 
-            // the previous function can inactivate a particle
-            if ( ACTIVE_PRT( cnt ) )
+            // Correct facing so swords knock characters in the right direction...
+            if ( NULL != ppip && ppip->damfx & DAMFX_TURN )
             {
-                pip_t * ppip = prt_get_ppip( cnt );
-
-                // Correct facing so swords knock characters in the right direction...
-                if ( NULL != ppip && ppip->damfx & DAMFX_TURN )
-                {
-                    pprt->facing = ChrList.lst[pprt->attachedto_ref].turn_z;
-                }
+                pprt->facing = ChrList.lst[pprt->attachedto_ref].facing_z;
             }
         }
     }
+    PRT_END_LOOP()
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3387,25 +3400,21 @@ bool_t add_player( Uint16 character, Uint16 player, Uint32 device_bits )
 //--------------------------------------------------------------------------------------------
 void let_all_characters_think()
 {
-    /// @details ZZ@> This function lets every computer controlled character do AI stuff
+    /// @details ZZ@> This function funst the ai scripts for all eligible objects
 
-    int character;
     static Uint32 last_update = ( Uint32 )( ~0 );
 
-    // make sure there is only one script update per game update;
+    // make sure there is only one script update per game update
     if ( update_wld == last_update ) return;
     last_update = update_wld;
 
     numblip = 0;
-    for ( character = 0; character < MAX_CHR; character++ )
+
+    CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
-        chr_t * pchr;
         cap_t * pcap;
 
         bool_t is_crushed, is_cleanedup, can_think;
-
-        if ( !ACTIVE_CHR( character ) ) continue;
-        pchr = ChrList.lst + character;
 
         pcap = chr_get_pcap( character );
         if ( NULL == pcap ) continue;
@@ -3429,9 +3438,10 @@ void let_all_characters_think()
             // Cleaned up characters shouldn't be alert to anything else
             if ( is_cleanedup )  { pchr->ai.alert = ALERTIF_CLEANEDUP; pchr->ai.timer = update_wld + 1; }
 
-            let_character_think( character );
+            scr_run_chr_script( character );
         }
     }
+    CHR_END_LOOP();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4043,7 +4053,7 @@ void do_game_hud()
         if ( fpson )
         {
             y = draw_string( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_ups );
-            y = draw_string( 0, y, "estimated max FPS %2.3f", est_max_fps );
+            y = draw_string( 0, y, "estimated max FPS %2.3f", est_max_fps ); \
         }
 
         y = draw_string( 0, y, "Menu time %f", MProc->base.dtime );
@@ -4072,11 +4082,11 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 
     if ( 0 == plos->stopped_by ) return bfalse;
 
-    ix_stt = plos->x0 / TILE_SIZE;
-    ix_end = plos->x1 / TILE_SIZE;
+    ix_stt = plos->x0 / GRID_SIZE;
+    ix_end = plos->x1 / GRID_SIZE;
 
-    iy_stt = plos->y0 / TILE_SIZE;
-    iy_end = plos->y1 / TILE_SIZE;
+    iy_stt = plos->y0 / GRID_SIZE;
+    iy_end = plos->y1 / GRID_SIZE;
 
     Dx = plos->x1 - plos->x0;
     Dy = plos->y1 - plos->y0;
@@ -4182,16 +4192,14 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 //--------------------------------------------------------------------------------------------
 bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
 {
-    Uint16 ichr;
 
     if ( NULL == plos ) return bfalse;
 
-    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        if ( !ACTIVE_CHR( ichr ) ) continue;
-
         // do line/character intersection
     }
+    CHR_END_LOOP();
 
     return bfalse;
 }
@@ -4204,8 +4212,8 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
 
     /*if ( mesh_hit )
     {
-        plos->x1 = (plos->collide_x + 0.5f) * TILE_SIZE;
-        plos->y1 = (plos->collide_y + 0.5f) * TILE_SIZE;
+        plos->x1 = (plos->collide_x + 0.5f) * GRID_SIZE;
+        plos->y1 = (plos->collide_y + 0.5f) * GRID_SIZE;
     }
 
     chr_hit = collide_ray_with_characters( plos );
@@ -4402,17 +4410,17 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 //--------------------------------------------------------------------------------------------
 bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * pdata, size_t animtile_count )
 {
-    Uint32 size;
+    Uint32 cnt;
 
     if ( NULL == inst || 0 == animtile_count ) return bfalse;
 
     memset( inst, 0, sizeof( *inst ) );
 
-    for ( size = 0; size < animtile_count; size++ )
+    for ( cnt = 0; cnt < animtile_count; cnt++ )
     {
-        inst[size].frame_and  = ( 1 << ( size + 2 ) ) - 1;
-        inst[size].base_and   = ~inst[size].frame_and;
-        inst[size].frame_add  = 0;
+        inst[cnt].frame_and  = ( 1 << ( cnt + 2 ) ) - 1;
+        inst[cnt].base_and   = ~inst[cnt].frame_and;
+        inst[cnt].frame_add  = 0;
     }
 
     if ( NULL != pdata )
@@ -4421,11 +4429,11 @@ bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * p
         inst[0].frame_and  = pdata->frame_and;
         inst[0].base_and   = ~inst[0].frame_and;
 
-        for ( size = 1; size < animtile_count; size++ )
+        for ( cnt = 1; cnt < animtile_count; cnt++ )
         {
-            inst[size].update_and = pdata->update_and;
-            inst[size].frame_and  = ( inst[size-1].frame_and << 1 ) | 1;
-            inst[size].base_and   = ~inst[size].frame_and;
+            inst[cnt].update_and = pdata->update_and;
+            inst[cnt].frame_and  = ( inst[cnt-1].frame_and << 1 ) | 1;
+            inst[cnt].base_and   = ~inst[cnt].frame_and;
         }
     }
 
@@ -4708,8 +4716,8 @@ bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
     {
         Uint16 iowner;
 
-        int ix = pitem->pos.x / TILE_SIZE;
-        int iy = pitem->pos.y / TILE_SIZE;
+        int ix = pitem->pos.x / GRID_SIZE;
+        int iy = pitem->pos.y / GRID_SIZE;
 
         // This is a hack that makes spellbooks in shops cost correctly
         if ( pdropper->isshopitem ) pitem->isshopitem = btrue;
@@ -4770,8 +4778,8 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
     {
         Uint16 iowner;
 
-        int ix = pitem->pos.x / TILE_SIZE;
-        int iy = pitem->pos.y / TILE_SIZE;
+        int ix = pitem->pos.x / GRID_SIZE;
+        int iy = pitem->pos.y / GRID_SIZE;
 
         iowner = shop_get_owner( ix, iy );
         if ( ACTIVE_CHR( iowner ) )
@@ -4852,8 +4860,8 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
     {
         Uint16 iowner;
 
-        int ix = pitem->pos.x / TILE_SIZE;
-        int iy = pitem->pos.y / TILE_SIZE;
+        int ix = pitem->pos.x / GRID_SIZE;
+        int iy = pitem->pos.y / GRID_SIZE;
 
         iowner = shop_get_owner( ix, iy );
         if ( ACTIVE_CHR( iowner ) )
@@ -4893,8 +4901,8 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
 
     if ( !ACTIVE_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
-    ix = pitem->pos.x / TILE_SIZE;
-    iy = pitem->pos.y / TILE_SIZE;
+    ix = pitem->pos.x / GRID_SIZE;
+    iy = pitem->pos.y / GRID_SIZE;
 
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
@@ -4931,13 +4939,13 @@ bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y, bool_t waterwalk )
+float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y, bool_t waterwalk )
 {
-    float zdone = mesh_get_max_vertex_0( pmesh, tile_x, tile_y );
+    float zdone = mesh_get_max_vertex_0( pmesh, grid_x, grid_y );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_tile( pmesh, tile_x, tile_y );
+        int tile = mesh_get_tile( pmesh, grid_x, grid_y );
 
         if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
         {
@@ -4949,13 +4957,13 @@ float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y, bool_t w
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, oct_bb_t * pbump, bool_t waterwalk )
+float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk )
 {
-    float zdone = mesh_get_max_vertex_1( pmesh, tile_x, tile_y, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
+    float zdone = mesh_get_max_vertex_1( pmesh, grid_x, grid_y, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_tile( pmesh, tile_x, tile_y );
+        int tile = mesh_get_tile( pmesh, grid_x, grid_y );
 
         if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
         {
@@ -4969,7 +4977,7 @@ float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, oct_bb_t
 //--------------------------------------------------------------------------------------------
 float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
 {
-    // BB> the object does not overlap a single grid corner. Check the 4 corners of the collision volume
+    /// @details BB@> the object does not overlap a single grid corner. Check the 4 corners of the collision volume
 
     int corner;
     int ix_off[4] = {1, 1, 0, 0};
@@ -5025,11 +5033,11 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     bump.maxs[OCT_Y]  = pchr->chr_chr_cv.maxs[OCT_Y]  + pchr->pos.y;
 
     // determine the size of this object in tiles
-    ixmin = bump.mins[OCT_X] / TILE_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
-    ixmax = bump.maxs[OCT_X] / TILE_SIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
+    ixmin = bump.mins[OCT_X] / GRID_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
+    ixmax = bump.maxs[OCT_X] / GRID_SIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
 
-    iymin = bump.mins[OCT_Y] / TILE_SIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
-    iymax = bump.maxs[OCT_Y] / TILE_SIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
+    iymin = bump.mins[OCT_Y] / GRID_SIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
+    iymax = bump.maxs[OCT_Y] / GRID_SIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )
@@ -5124,3 +5132,22 @@ egoboo_rv move_water( water_instance_t * pwater )
     return rv_success;
 }
 
+//--------------------------------------------------------------------------------------------
+void disenchant_character( Uint16 cnt )
+{
+    /// @details ZZ@> This function removes all enchantments from a character
+
+    chr_t * pchr;
+
+    if ( !ALLOCATED_CHR( cnt ) ) return;
+    pchr = ChrList.lst + cnt;
+
+    while ( MAX_ENC != pchr->firstenchant )
+    {
+        // do not let disenchant_character() get stuck in an infinite loop if there is an error
+        if ( !remove_enchant( pchr->firstenchant ) )
+        {
+            break;
+        }
+    }
+}

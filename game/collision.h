@@ -21,4 +21,70 @@
 
 /// @file collision.h
 
-void bump_all_objects( void );
+#include "egoboo_typedef.h"
+
+#include "hash.h"
+#include "bbox.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_obj_BSP;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+/// element for storing pair-wise "collision" data
+/// @note this does not use the "standard" method of inheritance from hash_node_t, where an
+/// instance of hash_node_t is embedded inside CoNode_t as CoNode_t::base or something.
+/// Instead, a separate lists of free hash_nodes and free CoNodes are kept, and they are
+/// associated through the hash_node_t::data pointer when the hash node is added to the
+/// hash_list_t
+struct s_CoNode
+{
+    // the "colliding" objects
+    Uint16 chra;
+    Uint16 prta;
+
+    // the "collided with" objects
+    Uint16 chrb;
+    Uint16 prtb;
+    Uint32 tileb;
+
+    // some information about the estimated collision
+    float    tmin, tmax;
+    oct_bb_t cv;
+};
+typedef struct s_CoNode CoNode_t;
+
+CoNode_t * CoNode_ctor( CoNode_t * );
+Uint8      CoNode_generate_hash( CoNode_t * coll );
+int        CoNode_cmp( const void * pleft, const void * pright );
+
+//--------------------------------------------------------------------------------------------
+// a template-like definition of a dynamically allocated array of CoNode_t elements
+DEFINE_ARY( CoNode_ary, CoNode_t );
+
+//--------------------------------------------------------------------------------------------
+// a template-like definition of a dynamically allocated array of hash_node_t elements
+DEFINE_ARY( HashNode_ary, hash_node_t );
+
+//--------------------------------------------------------------------------------------------
+/// a useful re-typing of the CHashList_t, in case we need to add more variables or functionality later
+typedef hash_list_t CHashList_t;
+
+CHashList_t * CHashList_ctor( CHashList_t * pchlst, int size );
+CHashList_t * CHashList_dtor( CHashList_t * pchlst );
+bool_t        CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_ary_t * cdata, HashNode_ary_t * hnlst );
+
+CHashList_t * CHashList_get_Instance( int size );
+
+//--------------------------------------------------------------------------------------------
+extern int CHashList_inserted;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// global functions
+
+bool_t collision_system_begin();
+void   collision_system_end();
+
+void bump_all_objects( struct s_obj_BSP * pbsp );

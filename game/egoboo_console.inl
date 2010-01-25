@@ -55,10 +55,10 @@ struct s_egoboo_console
     int    save_index;
     char   save_buffer[EGOBOO_CONSOLE_LINES][EGOBOO_CONSOLE_LENGTH];
 
-    int    buffer_carat;
+    size_t buffer_carat;
     char   buffer[EGOBOO_CONSOLE_LENGTH];
 
-    int    output_carat;
+    size_t output_carat;
     char   output_buffer[EGOBOO_CONSOLE_OUTPUT];
 };
 

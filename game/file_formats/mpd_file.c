@@ -24,7 +24,7 @@
 #include "mpd_file.h"
 #include "log.h"
 
-#include "egoboo_math.h"
+#include "egoboo_math.inl"
 #include "egoboo_endian.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
@@ -39,7 +39,7 @@ static mpd_info_t * mpd_info_dtor( mpd_info_t * pinfo );
 static mpd_mem_t *  mpd_mem_ctor( mpd_mem_t * pmem );
 static mpd_mem_t *  mpd_mem_dtor( mpd_mem_t * pmem );
 static bool_t       mpd_mem_free( mpd_mem_t * pmem );
-static bool_t       mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo );
+static bool_t       mpd_mem_alloc( mpd_mem_t * pmem, mpd_info_t * pinfo );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ tile_definition_t tile_dict[MAXMESHTYPE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_t dict_size)
+void tile_dictionary_load( const char * filename, tile_definition_t dict[], size_t dict_size )
 {
     /// @details ZZ@> This function loads fan types for the terrain
 
@@ -67,7 +67,7 @@ void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_
     float ftmp;
     vfs_FILE* fileread;
 
-    if ( !VALID_CSTR(filename) || NULL == dict || dict_size < 2 ) return;
+    if ( !VALID_CSTR( filename ) || NULL == dict || dict_size < 2 ) return;
 
     // Initialize all mesh types to 0
     for ( entry = 0; entry < dict_size; entry++ )
@@ -135,8 +135,8 @@ void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_
     {
         for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
         {
-            dict[entry].u[cnt] = ( ( 0.6f / 32 ) + ( dict[entry].u[cnt] * 30.8f / 32 ) ) / 8;
-            dict[entry].v[cnt] = ( ( 0.6f / 32 ) + ( dict[entry].v[cnt] * 30.8f / 32 ) ) / 8;
+            dict[entry].u[cnt] = (( 0.6f / 32 ) + ( dict[entry].u[cnt] * 30.8f / 32 ) ) / 8;
+            dict[entry].v[cnt] = (( 0.6f / 32 ) + ( dict[entry].v[cnt] * 30.8f / 32 ) ) / 8;
         }
     }
 
@@ -145,8 +145,8 @@ void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_
     {
         for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
         {
-            dict[entry].u[cnt] = ( ( 0.6f / 64 ) + ( dict[entry].u[cnt] * 62.8f / 64 ) ) / 4;
-            dict[entry].v[cnt] = ( ( 0.6f / 64 ) + ( dict[entry].v[cnt] * 62.8f / 64 ) ) / 4;
+            dict[entry].u[cnt] = (( 0.6f / 64 ) + ( dict[entry].u[cnt] * 62.8f / 64 ) ) / 4;
+            dict[entry].v[cnt] = (( 0.6f / 64 ) + ( dict[entry].v[cnt] * 62.8f / 64 ) ) / 4;
         }
     }
 
@@ -158,8 +158,10 @@ mpd_t * mpd_ctor( mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return NULL;
 
-    if( NULL == mpd_mem_ctor( &(pmesh->mem  ) ) ) return NULL;
-    if( NULL == mpd_info_ctor( &(pmesh->info) ) ) return NULL;
+    memset( pmesh, 0, sizeof( *pmesh ) );
+
+    if ( NULL == mpd_mem_ctor( &( pmesh->mem ) ) ) return NULL;
+    if ( NULL == mpd_info_ctor( &( pmesh->info ) ) ) return NULL;
 
     return pmesh;
 }
@@ -169,8 +171,8 @@ mpd_t * mpd_dtor( mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return NULL;
 
-    if ( NULL == mpd_mem_dtor( &(pmesh->mem  ) ) ) return NULL;
-    if ( NULL == mpd_info_dtor( &(pmesh->info) ) ) return NULL;
+    if ( NULL == mpd_mem_dtor( &( pmesh->mem ) ) ) return NULL;
+    if ( NULL == mpd_info_dtor( &( pmesh->info ) ) ) return NULL;
 
     return pmesh;
 }
@@ -180,7 +182,7 @@ bool_t mpd_free( mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return bfalse;
 
-    mpd_mem_free( &(pmesh->mem) );
+    mpd_mem_free( &( pmesh->mem ) );
 
     return btrue;
 }
@@ -199,12 +201,12 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     mpd_info_t * pinfo;
     mpd_mem_t  * pmem;
 
-    if ( NULL == pmesh || INVALID_CSTR(loadname) ) return pmesh;
+    if ( NULL == pmesh || INVALID_CSTR( loadname ) ) return pmesh;
 
     printf( "---- mpd_load(\"%s\",%p)\n", loadname, pmesh );
 
-    pinfo = &(pmesh->info);
-    pmem  = &(pmesh->mem);
+    pinfo = &( pmesh->info );
+    pmem  = &( pmesh->mem );
 
     fileread = EGO_fopen( loadname, "rb" );
     if ( NULL == fileread )
@@ -244,7 +246,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     }
 
     // allocate the mesh memory
-    if ( !mpd_mem_allocate( pmem, pinfo ) )
+    if ( !mpd_mem_alloc( pmem, pinfo ) )
     {
         mpd_dtor( pmesh );
         EGO_fclose( fileread );
@@ -258,9 +260,9 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     for ( fan = 0; fan < tiles_count; fan++ )
     {
         EGO_fread( &itmp, 4, 1, fileread );
-        pmem->tile_list[fan].type = CLIP_TO_08BITS(ENDIAN_INT32( itmp ) >> 24);
-        pmem->tile_list[fan].fx   = CLIP_TO_08BITS(ENDIAN_INT32( itmp ) >> 16);
-        pmem->tile_list[fan].img  = CLIP_TO_16BITS(ENDIAN_INT32( itmp ) >>  0);
+        pmem->tile_list[fan].type = CLIP_TO_08BITS( ENDIAN_INT32( itmp ) >> 24 );
+        pmem->tile_list[fan].fx   = CLIP_TO_08BITS( ENDIAN_INT32( itmp ) >> 16 );
+        pmem->tile_list[fan].img  = CLIP_TO_16BITS( ENDIAN_INT32( itmp ) >>  0 );
     }
 
     // Load twist data
@@ -307,9 +309,9 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 mpd_info_t * mpd_info_ctor( mpd_info_t * pinfo )
 {
-    if (NULL == pinfo) return pinfo;
+    if ( NULL == pinfo ) return pinfo;
 
-    memset( pinfo, 0, sizeof(*pinfo) );
+    memset( pinfo, 0, sizeof( *pinfo ) );
 
     return pinfo;
 }
@@ -319,7 +321,7 @@ mpd_info_t * mpd_info_dtor( mpd_info_t * pinfo )
 {
     if ( NULL == pinfo ) return NULL;
 
-    memset( pinfo, 0, sizeof(*pinfo) );
+    memset( pinfo, 0, sizeof( *pinfo ) );
 
     return pinfo;
 }
@@ -328,9 +330,9 @@ mpd_info_t * mpd_info_dtor( mpd_info_t * pinfo )
 //--------------------------------------------------------------------------------------------
 mpd_mem_t * mpd_mem_ctor( mpd_mem_t * pmem )
 {
-    if (NULL == pmem) return pmem;
+    if ( NULL == pmem ) return pmem;
 
-    memset( pmem, 0, sizeof(*pmem) );
+    memset( pmem, 0, sizeof( *pmem ) );
 
     return pmem;
 }
@@ -341,43 +343,43 @@ mpd_mem_t * mpd_mem_dtor( mpd_mem_t * pmem )
     if ( NULL == pmem ) return NULL;
 
     mpd_mem_free( pmem );
-    memset( pmem, 0, sizeof(*pmem) );
+    memset( pmem, 0, sizeof( *pmem ) );
 
     return pmem;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_mem_allocate( mpd_mem_t * pmem, mpd_info_t * pinfo  )
+bool_t mpd_mem_alloc( mpd_mem_t * pmem, mpd_info_t * pinfo )
 {
     int tile_count;
 
     if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
 
     // free any memory already allocated
-    if ( !mpd_mem_free(pmem) ) return bfalse;
+    if ( !mpd_mem_free( pmem ) ) return bfalse;
 
     if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
     {
-        log_warning( "mpd_mem_allocate() - mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MESH_MAXTOTALVERTRICES );
+        log_warning( "mpd_mem_alloc() - mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MESH_MAXTOTALVERTRICES );
         return bfalse;
     }
 
     // allocate new memory
-    pmem->vlst = (mpd_vertex_t *) calloc( pinfo->vertcount, sizeof(mpd_vertex_t) );
+    pmem->vlst = EGOBOO_NEW_ARY( mpd_vertex_t, pinfo->vertcount );
     if ( NULL == pmem->vlst )
     {
-        mpd_mem_free(pmem);
-        log_error( "mpd_mem_allocate() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+        mpd_mem_free( pmem );
+        log_error( "mpd_mem_alloc() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
         return bfalse;
     }
     pmem->vcount = pinfo->vertcount;
 
     tile_count = pinfo->tiles_x * pinfo->tiles_y;
-    pmem->tile_list  = (tile_info_t *) calloc( tile_count, sizeof(tile_info_t) );
+    pmem->tile_list  = EGOBOO_NEW_ARY( tile_info_t, tile_count );
     if ( NULL == pmem->tile_list )
     {
-        mpd_mem_free(pmem);
-        log_error( "mpd_mem_allocate() - not enough memory to allocate the tile info\n" );
+        mpd_mem_free( pmem );
+        log_error( "mpd_mem_alloc() - not enough memory to allocate the tile info\n" );
         return bfalse;
     }
     pmem->tile_count = tile_count;
@@ -391,18 +393,10 @@ bool_t mpd_mem_free( mpd_mem_t * pmem )
     if ( NULL == pmem ) return bfalse;
 
     // free the memory
-    if ( NULL != pmem->vlst )
-    {
-        free( pmem->vlst );
-        pmem->vlst   = NULL;
-    }
+    EGOBOO_DELETE_ARY( pmem->vlst );
     pmem->vcount = 0;
 
-    if ( NULL != pmem->tile_list )
-    {
-        free( pmem->tile_list );
-        pmem->tile_list  = NULL;
-    }
+    EGOBOO_DELETE_ARY( pmem->tile_list );
     pmem->tile_count = 0;
 
     return btrue;
@@ -410,20 +404,20 @@ bool_t mpd_mem_free( mpd_mem_t * pmem )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Uint8 cartman_get_twist(int x, int y)
+Uint8 cartman_get_twist( int x, int y )
 {
     Uint8 twist;
 
     // x and y should be from -7 to 8
-    if (x < -7) x = -7;
-    if (x > 8) x = 8;
-    if (y < -7) y = -7;
-    if (y > 8) y = 8;
+    if ( x < -7 ) x = -7;
+    if ( x > 8 ) x = 8;
+    if ( y < -7 ) y = -7;
+    if ( y > 8 ) y = 8;
 
     // Now between 0 and 15
     x = x + 7;
     y = y + 7;
-    twist = (y << 4) + x;
+    twist = ( y << 4 ) + x;
 
     return twist;
 }
@@ -436,17 +430,17 @@ bool_t twist_to_normal( Uint8 twist, float v[], float slide )
     float nx, ny, nz, nz2;
     float diff_xy;
 
-    if (NULL == v) return bfalse;
+    if ( NULL == v ) return bfalse;
 
     diff_xy = 128.0f / slide;
 
-    ix = (twist >> 0) & 0x0f;
-    iy = (twist >> 4) & 0x0f;
+    ix = ( twist >> 0 ) & 0x0f;
+    iy = ( twist >> 4 ) & 0x0f;
     ix -= 7;
     iy -= 7;
 
-    dx = -ix / (float)CARTMAN_FIXNUM * (float)CARTMAN_SLOPE;
-    dy = iy / (float)CARTMAN_FIXNUM * (float)CARTMAN_SLOPE;
+    dx = -ix / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
+    dy = iy / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
 
     // determine the square of the z normal
     nz2 =  diff_xy * diff_xy / ( dx * dx + dy * dy + diff_xy * diff_xy );

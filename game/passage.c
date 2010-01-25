@@ -22,10 +22,10 @@
 
 #include "passage.h"
 
-#include "char.h"
+#include "char.inl"
 #include "script.h"
 #include "sound.h"
-#include "mesh.h"
+#include "mesh.inl"
 #include "game.h"
 #include "quest.h"
 #include "network.h"
@@ -140,7 +140,7 @@ void flash_passage( Uint16 passage, Uint8 color )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( !VALID_TILE( PMesh, fan ) ) continue;
+            if ( !VALID_GRID( PMesh, fan ) ) continue;
 
             for ( cnt = 0; cnt < 4; cnt++ )
             {
@@ -162,10 +162,10 @@ bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos )
     ppass = PassageStack.lst + passage;
 
     // Passage area
-    tmp_rect.left   = ppass->area.left * TILE_SIZE;
-    tmp_rect.top    = ppass->area.top * TILE_SIZE;
-    tmp_rect.right  = ( ppass->area.right + 1 ) * TILE_SIZE;
-    tmp_rect.bottom = ( ppass->area.bottom + 1 ) * TILE_SIZE;
+    tmp_rect.left   = ppass->area.left * GRID_SIZE;
+    tmp_rect.top    = ppass->area.top * GRID_SIZE;
+    tmp_rect.right  = ( ppass->area.right + 1 ) * GRID_SIZE;
+    tmp_rect.bottom = ( ppass->area.bottom + 1 ) * GRID_SIZE;
 
     return frect_point_inside( &tmp_rect, xpos, ypos );
 }
@@ -184,10 +184,10 @@ bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radiu
 
     // Passage area
     radius += CLOSETOLERANCE;
-    tmp_rect.left   = ( ppass->area.left         * TILE_SIZE ) - radius;
-    tmp_rect.top    = ( ppass->area.top          * TILE_SIZE ) - radius;
-    tmp_rect.right  = (( ppass->area.right + 1 ) * TILE_SIZE ) + radius;
-    tmp_rect.bottom = (( ppass->area.bottom + 1 ) * TILE_SIZE ) + radius;
+    tmp_rect.left   = ( ppass->area.left         * GRID_SIZE ) - radius;
+    tmp_rect.top    = ( ppass->area.top          * GRID_SIZE ) - radius;
+    tmp_rect.right  = (( ppass->area.right + 1 ) * GRID_SIZE ) + radius;
+    tmp_rect.bottom = (( ppass->area.bottom + 1 ) * GRID_SIZE ) + radius;
 
     return frect_point_inside( &tmp_rect, xpos, ypos );
 }
@@ -299,7 +299,7 @@ void check_passage_music()
         if ( ppass->music == NO_MUSIC ) continue;
 
         // Look at each player
-        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
         {
             chr_t * pchr;
 

@@ -27,7 +27,7 @@
 #include "configfile.h"
 #include "graphic.h"
 #include "input.h"
-#include "particle.h"
+#include "particle.inl"
 #include "sound.h"
 #include "network.h"
 #include "camera.h"
@@ -240,7 +240,8 @@ bool_t setup_download( egoboo_config_t * pcfg )
     GetKey_bool( "DITHERING", pcfg->use_dither, cfg_default.use_dither );
 
     // Reflection fadeout
-    GetKey_bool( "FLOOR_REFLECTION_FADEOUT", pcfg->reflect_fade, cfg_default.reflect_fade );
+    GetKey_bool( "FLOOR_REFLECTION_FADEOUT", lTempBool, 0 != cfg_default.reflect_fade );
+    pcfg->reflect_fade = lTempBool ? 255 : 0;
 
     // Draw Reflection?
     GetKey_bool( "REFLECTION", pcfg->reflect_allowed, cfg_default.reflect_allowed );
@@ -339,7 +340,8 @@ bool_t setup_download( egoboo_config_t * pcfg )
     if ( 'H' == toupper( lTempStr[0] ) )  pcfg->difficulty = GAME_HARD;
 
     //Feedback
-    GetKey_int( "FEEDBACK", pcfg->feedback, cfg_default.feedback );
+    GetKey_int( "FEEDBACK", lTempInt, cfg_default.feedback );
+    pcfg->feedback = ( FEEDBACK_TYPE )lTempInt;
 
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
@@ -454,7 +456,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_bool( "DITHERING", pcfg->use_dither );
 
     // Reflection fadeout
-    SetKey_bool( "FLOOR_REFLECTION_FADEOUT", pcfg->reflect_fade );
+    SetKey_bool( "FLOOR_REFLECTION_FADEOUT", 0 != pcfg->reflect_fade );
 
     // Draw Reflection?
     SetKey_bool( "REFLECTION", pcfg->reflect_allowed );

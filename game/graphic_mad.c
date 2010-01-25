@@ -23,8 +23,8 @@
 
 #include "graphic_mad.h"
 
-#include "profile.h"
-#include "char.h"
+#include "profile.inl"
+#include "char.inl"
 #include "mad.h"
 
 #include "md2.inl"
@@ -122,7 +122,7 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
 
         // Render each command
         cmd_count   = md2_get_numCommands( pmd2 );
-        glcommand   = md2_get_Commands( pmd2 );
+        glcommand   = ( MD2_GLCommand_t * )md2_get_Commands( pmd2 );
 
         for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
         {
@@ -140,9 +140,9 @@ bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
                     GLvertex   *pvrt;
 
                     vertex = glcommand->data[tnc].index;
-                    if ( vertex >= pinst->vlst_size ) continue;
+                    if ( vertex >= pinst->vrt_count ) continue;
 
-                    pvrt   = pinst->vlst + vertex;
+                    pvrt   = pinst->vrt_lst + vertex;
 
                     // normalize the color so it can be modulated by the phong/environment map
                     col[RR] = pvrt->color_dir * INV_FF;
@@ -206,14 +206,14 @@ if(fogon && pinst->light==255)
     for (cnt = 0; cnt < pmad->transvertices; cnt++)
     {
         // Figure out the z position of the vertex...  Not totally accurate
-        z = (pinst->vlst[cnt].pos[ZZ]) + pchr->matrix(3,2);
+        z = (pinst->vrt_lst[cnt].pos[ZZ]) + pchr->matrix(3,2);
 
         // Figure out the fog coloring
         if(z < fogtop)
         {
             if(z < fogbottom)
             {
-                pinst->vlst[cnt].specular = alpha;
+                pinst->vrt_lst[cnt].specular = alpha;
             }
             else
             {
@@ -222,19 +222,19 @@ if(fogon && pinst->light==255)
                 grn = foggrn * z;
                 blu = fogblu * z;
                 fogspec = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                pinst->vlst[cnt].specular = fogspec;
+                pinst->vrt_lst[cnt].specular = fogspec;
             }
         }
         else
         {
-            pinst->vlst[cnt].specular = 0;
+            pinst->vrt_lst[cnt].specular = 0;
         }
     }
 }
 else
 {
     for (cnt = 0; cnt < pmad->transvertices; cnt++)
-        pinst->vlst[cnt].specular = 0;
+        pinst->vrt_lst[cnt].specular = 0;
 }
 */
 
@@ -305,7 +305,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 
         // Render each command
         cmd_count   = md2_get_numCommands( pmd2 );
-        glcommand   = md2_get_Commands( pmd2 );
+        glcommand   = ( MD2_GLCommand_t * )md2_get_Commands( pmd2 );
 
         for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
         {
@@ -322,9 +322,9 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
                     GLvertex * pvrt;
 
                     vertex = glcommand->data[tnc].index;
-                    if ( vertex >= pinst->vlst_size ) continue;
+                    if ( vertex >= pinst->vrt_count ) continue;
 
-                    pvrt = pinst->vlst + vertex;
+                    pvrt = pinst->vrt_lst + vertex;
 
                     // determine the texture coordinates
                     tex[0] = glcommand->data[tnc].s + uoffset;
@@ -389,18 +389,18 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
         for (cnt = 0; cnt < pmad->transvertices; cnt++)
         {
             // Figure out the z position of the vertex...  Not totally accurate
-            z = (pinst->vlst[cnt].pos[ZZ]) + pchr->matrix(3,2);
+            z = (pinst->vrt_lst[cnt].pos[ZZ]) + pchr->matrix(3,2);
 
             // Figure out the fog coloring
             if(z < fogtop)
             {
                 if(z < fogbottom)
                 {
-                    pinst->vlst[cnt].specular = alpha;
+                    pinst->vrt_lst[cnt].specular = alpha;
                 }
                 else
                 {
-                    spek = pinst->vlst[cnt].specular & 255;
+                    spek = pinst->vrt_lst[cnt].specular & 255;
                     z = (z - fogbottom)/fogdistance;  // 0.0f to 1.0f...  Amount of old to keep
                     fogtokeep = 1.0f-z;  // 0.0f to 1.0f...  Amount of fog to keep
                     spek = spek * z;
@@ -408,7 +408,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
                     grn = (foggrn * fogtokeep) + spek;
                     blu = (fogblu * fogtokeep) + spek;
                     fogspec = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                    pinst->vlst[cnt].specular = fogspec;
+                    pinst->vrt_lst[cnt].specular = fogspec;
                 }
             }
         }
@@ -449,7 +449,7 @@ bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits )
 
     // draw all the vertices of an object
     //GL_DEBUG( glPointSize( 5 ) );
-    //draw_points( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertices );
+    //draw_points( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertex_lst );
 #endif
 
     return retval;
@@ -530,32 +530,6 @@ void render_chr_bbox( chr_t * pchr )
 {
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    //// draw the object bounding box as a part of the graphics debug mode F7
-    //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
-    //{
-    //    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
-    //    {
-    //        int cnt;
-    //        aabb_t bb;
-
-    //        for ( cnt = 0; cnt < 3; cnt++ )
-    //        {
-    //            bb.mins[cnt] = bb.maxs[cnt] = pchr->pos.v[cnt];
-    //        }
-
-    //        bb.mins[XX] -= pchr->chr_prt_cv.size;
-    //        bb.mins[YY] -= pchr->chr_prt_cv.size;
-
-    //        bb.maxs[XX] += pchr->chr_prt_cv.size;
-    //        bb.maxs[YY] += pchr->chr_prt_cv.size;
-    //        bb.maxs[ZZ] += pchr->chr_prt_cv.height;
-
-    //        GL_DEBUG(glColor4f)(1, 1, 1, 1);
-    //        render_aabb( &bb );
-    //    }
-    //    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
-    //}
-
     // draw the object bounding box as a part of the graphics debug mode F7
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
     {
@@ -588,7 +562,7 @@ void render_chr_bbox( chr_t * pchr )
 
         // draw all the vertices of an object
         GL_DEBUG( glPointSize( 5 ) );
-        draw_points( pchr, 0, pchr->inst.vlst_size );
+        draw_points( pchr, 0, pchr->inst.vrt_count );
     }
 }
 
@@ -612,7 +586,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     vmax = vmin + verts;
 
     if ( vmin < 0 || vmax < 0 ) return;
-    if ( vmin > pchr->inst.vlst_size || vmax > pchr->inst.vlst_size ) return;
+    if ( vmin > pchr->inst.vrt_count || vmax > pchr->inst.vrt_count ) return;
 
     texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
     texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
@@ -630,7 +604,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
         {
-            glVertex3fv( pchr->inst.vlst[cnt].pos );
+            glVertex3fv( pchr->inst.vrt_lst[cnt].pos );
         }
     }
     GL_DEBUG_END();
@@ -684,10 +658,10 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     if ( NULL == pinst || NULL == pmad ) return;
 
-    vmin = pinst->vlst_size - slot_to_grip_offset(( slot_t )slot );
+    vmin = (( int )pinst->vrt_count ) - slot_to_grip_offset(( slot_t )slot );
     vmax = vmin + GRIP_VERTS;
 
-    if ( vmin >= 0 && vmax >= 0 && vmax <= pinst->vlst_size )
+    if ( vmin >= 0 && vmax >= 0 && vmax <= pinst->vrt_count )
     {
         fvec3_t   src, dst, diff;
 
@@ -695,13 +669,13 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
         {
             for ( cnt = 1; cnt < GRIP_VERTS; cnt++ )
             {
-                src.x = pinst->vlst[vmin].pos[XX];
-                src.y = pinst->vlst[vmin].pos[YY];
-                src.z = pinst->vlst[vmin].pos[ZZ];
+                src.x = pinst->vrt_lst[vmin].pos[XX];
+                src.y = pinst->vrt_lst[vmin].pos[YY];
+                src.z = pinst->vrt_lst[vmin].pos[ZZ];
 
-                diff.x = pinst->vlst[vmin+cnt].pos[XX] - src.x;
-                diff.y = pinst->vlst[vmin+cnt].pos[YY] - src.y;
-                diff.z = pinst->vlst[vmin+cnt].pos[ZZ] - src.z;
+                diff.x = pinst->vrt_lst[vmin+cnt].pos[XX] - src.x;
+                diff.y = pinst->vrt_lst[vmin+cnt].pos[YY] - src.y;
+                diff.z = pinst->vrt_lst[vmin+cnt].pos[ZZ] - src.z;
 
                 dst.x = src.x + 3 * diff.x;
                 dst.y = src.y + 3 * diff.y;
@@ -820,12 +794,12 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     lighting_cache_t global_light, loc_light;
 
-    GLvertex * vlst;
+    GLvertex * vrt_lst;
 
     mad_t * pmad;
 
     if ( NULL == pinst || NULL == pchr ) return;
-    vlst = pinst->vlst;
+    vrt_lst = pinst->vrt_lst;
 
     // force this function to be evaluated the 1st time through
     if ( 0 == update_wld && 0 == frame_all ) force = btrue;
@@ -846,7 +820,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadList + pinst->imad;
-    pinst->vlst_size = pinst->vlst_size;
+    pinst->vrt_count = pinst->vrt_count;
 
     // interpolate the lighting for the origin of the object
     grid_lighting_interpolate( PMesh, &global_light, pchr->pos.x, pchr->pos.y );
@@ -858,11 +832,11 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     pinst->max_light = -255;
     pinst->min_light =  255;
-    for ( cnt = 0; cnt < pinst->vlst_size; cnt++ )
+    for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
     {
         Sint16 lite;
 
-        GLvertex * pvert = pinst->vlst + cnt;
+        GLvertex * pvert = pinst->vrt_lst + cnt;
 
         // a simple "height" measurement
         float hgt = pvert->pos[ZZ] * pinst->matrix.CNV( 3, 3 ) + pinst->matrix.CNV( 3, 3 );
@@ -918,7 +892,7 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
     frame_count = md2_get_numFrames( pmd2 );
     if ( pinst->frame_nxt >= frame_count ||  pinst->frame_lst >= frame_count ) return rv_error;
 
-    frame_list = md2_get_Frames( pmd2 );
+    frame_list = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
     pframe_lst = frame_list + pinst->frame_lst;
     pframe_nxt = frame_list + pinst->frame_nxt;
 
@@ -980,7 +954,7 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     if ( !psave->valid ) return rv_success;
 
     // get the last valid vertex from the chr_instance
-    maxvert = pinst->vlst_size - 1;
+    maxvert = (( int )pinst->vrt_count ) - 1;
 
     // check to make sure the lower bound of the saved data is valid.
     // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
@@ -1033,13 +1007,13 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     if ( NULL == pmd2 ) return rv_error;
 
     // make sure we have valid data
-    if ( pinst->vlst_size != md2_get_numVertices( pmd2 ) )
+    if ( pinst->vrt_count != md2_get_numVertices( pmd2 ) )
     {
         log_error( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
     }
 
     // get the vertex list size from the chr_instance
-    maxvert = pinst->vlst_size - 1;
+    maxvert = (( int )pinst->vrt_count ) - 1;
 
     // handle the default parameters
     if ( vmin < 0 ) vmin = 0;
@@ -1081,7 +1055,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     }
 
     // grab the frame data from the correct model
-    frame_list = md2_get_Frames( pmd2 );
+    frame_list = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
     pframe_nxt = frame_list + pinst->frame_nxt;
     pframe_lst = frame_list + pinst->frame_lst;
 
@@ -1091,19 +1065,19 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         {
             Uint16 vrta_lst;
 
-            pinst->vlst[i].pos[XX] = pframe_lst->vertices[i].pos.x;
-            pinst->vlst[i].pos[YY] = pframe_lst->vertices[i].pos.y;
-            pinst->vlst[i].pos[ZZ] = pframe_lst->vertices[i].pos.z;
-            pinst->vlst[i].pos[WW] = 1.0f;
+            pinst->vrt_lst[i].pos[XX] = pframe_lst->vertex_lst[i].pos.x;
+            pinst->vrt_lst[i].pos[YY] = pframe_lst->vertex_lst[i].pos.y;
+            pinst->vrt_lst[i].pos[ZZ] = pframe_lst->vertex_lst[i].pos.z;
+            pinst->vrt_lst[i].pos[WW] = 1.0f;
 
-            pinst->vlst[i].nrm[XX] = pframe_lst->vertices[i].nrm.x;
-            pinst->vlst[i].nrm[YY] = pframe_lst->vertices[i].nrm.y;
-            pinst->vlst[i].nrm[ZZ] = pframe_lst->vertices[i].nrm.z;
+            pinst->vrt_lst[i].nrm[XX] = pframe_lst->vertex_lst[i].nrm.x;
+            pinst->vrt_lst[i].nrm[YY] = pframe_lst->vertex_lst[i].nrm.y;
+            pinst->vrt_lst[i].nrm[ZZ] = pframe_lst->vertex_lst[i].nrm.z;
 
-            vrta_lst = pframe_lst->vertices[i].normal;
+            vrta_lst = pframe_lst->vertex_lst[i].normal;
 
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst];
-            pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
+            pinst->vrt_lst[i].env[XX] = indextoenvirox[vrta_lst];
+            pinst->vrt_lst[i].env[YY] = 0.5f * ( 1.0f + pinst->vrt_lst[i].nrm[ZZ] );
         }
     }
     else if ( pinst->flip == 1.0f )
@@ -1112,19 +1086,19 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         {
             Uint16 vrta_nxt;
 
-            pinst->vlst[i].pos[XX] = pframe_nxt->vertices[i].pos.x;
-            pinst->vlst[i].pos[YY] = pframe_nxt->vertices[i].pos.y;
-            pinst->vlst[i].pos[ZZ] = pframe_nxt->vertices[i].pos.z;
-            pinst->vlst[i].pos[WW] = 1.0f;
+            pinst->vrt_lst[i].pos[XX] = pframe_nxt->vertex_lst[i].pos.x;
+            pinst->vrt_lst[i].pos[YY] = pframe_nxt->vertex_lst[i].pos.y;
+            pinst->vrt_lst[i].pos[ZZ] = pframe_nxt->vertex_lst[i].pos.z;
+            pinst->vrt_lst[i].pos[WW] = 1.0f;
 
-            pinst->vlst[i].nrm[XX] = pframe_nxt->vertices[i].nrm.x;
-            pinst->vlst[i].nrm[YY] = pframe_nxt->vertices[i].nrm.y;
-            pinst->vlst[i].nrm[ZZ] = pframe_nxt->vertices[i].nrm.z;
+            pinst->vrt_lst[i].nrm[XX] = pframe_nxt->vertex_lst[i].nrm.x;
+            pinst->vrt_lst[i].nrm[YY] = pframe_nxt->vertex_lst[i].nrm.y;
+            pinst->vrt_lst[i].nrm[ZZ] = pframe_nxt->vertex_lst[i].nrm.z;
 
-            vrta_nxt = pframe_nxt->vertices[i].normal;
+            vrta_nxt = pframe_nxt->vertex_lst[i].normal;
 
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_nxt];
-            pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
+            pinst->vrt_lst[i].env[XX] = indextoenvirox[vrta_nxt];
+            pinst->vrt_lst[i].env[YY] = 0.5f * ( 1.0f + pinst->vrt_lst[i].nrm[ZZ] );
         }
     }
     else
@@ -1133,20 +1107,20 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         {
             Uint16 vrta_lst, vrta_nxt;
 
-            pinst->vlst[i].pos[XX] = pframe_lst->vertices[i].pos.x + ( pframe_nxt->vertices[i].pos.x - pframe_lst->vertices[i].pos.x ) * pinst->flip;
-            pinst->vlst[i].pos[YY] = pframe_lst->vertices[i].pos.y + ( pframe_nxt->vertices[i].pos.y - pframe_lst->vertices[i].pos.y ) * pinst->flip;
-            pinst->vlst[i].pos[ZZ] = pframe_lst->vertices[i].pos.z + ( pframe_nxt->vertices[i].pos.z - pframe_lst->vertices[i].pos.z ) * pinst->flip;
-            pinst->vlst[i].pos[WW] = 1.0f;
+            pinst->vrt_lst[i].pos[XX] = pframe_lst->vertex_lst[i].pos.x + ( pframe_nxt->vertex_lst[i].pos.x - pframe_lst->vertex_lst[i].pos.x ) * pinst->flip;
+            pinst->vrt_lst[i].pos[YY] = pframe_lst->vertex_lst[i].pos.y + ( pframe_nxt->vertex_lst[i].pos.y - pframe_lst->vertex_lst[i].pos.y ) * pinst->flip;
+            pinst->vrt_lst[i].pos[ZZ] = pframe_lst->vertex_lst[i].pos.z + ( pframe_nxt->vertex_lst[i].pos.z - pframe_lst->vertex_lst[i].pos.z ) * pinst->flip;
+            pinst->vrt_lst[i].pos[WW] = 1.0f;
 
-            pinst->vlst[i].nrm[XX] = pframe_lst->vertices[i].nrm.x + ( pframe_nxt->vertices[i].nrm.x - pframe_lst->vertices[i].nrm.x ) * pinst->flip;
-            pinst->vlst[i].nrm[YY] = pframe_lst->vertices[i].nrm.y + ( pframe_nxt->vertices[i].nrm.y - pframe_lst->vertices[i].nrm.y ) * pinst->flip;
-            pinst->vlst[i].nrm[ZZ] = pframe_lst->vertices[i].nrm.z + ( pframe_nxt->vertices[i].nrm.z - pframe_lst->vertices[i].nrm.z ) * pinst->flip;
+            pinst->vrt_lst[i].nrm[XX] = pframe_lst->vertex_lst[i].nrm.x + ( pframe_nxt->vertex_lst[i].nrm.x - pframe_lst->vertex_lst[i].nrm.x ) * pinst->flip;
+            pinst->vrt_lst[i].nrm[YY] = pframe_lst->vertex_lst[i].nrm.y + ( pframe_nxt->vertex_lst[i].nrm.y - pframe_lst->vertex_lst[i].nrm.y ) * pinst->flip;
+            pinst->vrt_lst[i].nrm[ZZ] = pframe_lst->vertex_lst[i].nrm.z + ( pframe_nxt->vertex_lst[i].nrm.z - pframe_lst->vertex_lst[i].nrm.z ) * pinst->flip;
 
-            vrta_lst = pframe_lst->vertices[i].normal;
-            vrta_nxt = pframe_nxt->vertices[i].normal;
+            vrta_lst = pframe_lst->vertex_lst[i].normal;
+            vrta_nxt = pframe_nxt->vertex_lst[i].normal;
 
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + ( indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst] ) * pinst->flip;
-            pinst->vlst[i].env[YY] = 0.5f * ( 1.0f + pinst->vlst[i].nrm[ZZ] );
+            pinst->vrt_lst[i].env[XX] = indextoenvirox[vrta_lst] + ( indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst] ) * pinst->flip;
+            pinst->vrt_lst[i].env[YY] = 0.5f * ( 1.0f + pinst->vrt_lst[i].nrm[ZZ] );
         }
     }
 
@@ -1167,7 +1141,7 @@ egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int 
     vlst_cache_t * psave;
 
     if ( NULL == pinst ) return rv_error;
-    maxvert = pinst->vlst_size - 1;
+    maxvert = (( int )pinst->vrt_count ) - 1;
     psave   = &( pinst->save );
 
     // the save_vmin and save_vmax is the most complex
@@ -1484,7 +1458,7 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Ui
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 action_ready )
+egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, bool_t action_ready )
 {
     /// @details ZZ@> This function starts a generic action for a character
     mad_t * pmad;

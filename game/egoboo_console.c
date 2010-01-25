@@ -24,18 +24,18 @@
 #include "egoboo_console.inl"
 
 #include "egoboo_config.h"
-#include "egoboo_math.h"
+#include "egoboo_math.inl"
 #include "egoboo_strutil.h"
-#include "egoboo_mem.h"
 
 #include "ogl_debug.h"
 #include "SDL_extensions.h"
 
+#include "file_common.h"
+
+#include <string.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
-
-#include "file_common.h"
-#include <string.h>
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -354,7 +354,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
         fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
         height -= text_h;
-        fnt_drawText( pcon->pfont, pwin->x, height - text_h, buffer );
+        fnt_drawText( pcon->pfont, NULL, pwin->x, height - text_h, buffer );
 
         if ( CSTR_END != pcon->output_buffer[0] )
         {
@@ -379,7 +379,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
             }
 
             // draw the last output line and work backwards
-            for ( i = console_line_count - 1; i >= 0 && height > 0 ; i-- )
+            for ( i = (( int )console_line_count ) - 1; i >= 0 && height > 0 ; i-- )
             {
                 size_t len = MIN( 1023, console_line_lengths[i] );
 
@@ -388,7 +388,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
                 fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
                 height -= text_h;
-                fnt_drawText( pcon->pfont, pwin->x, height - text_h, buffer );
+                fnt_drawText( pcon->pfont, NULL, pwin->x, height - text_h, buffer );
             }
         }
 
@@ -576,7 +576,8 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
                 if ( pcon->save_count > 0 )
                 {
                     strncpy( pcon->buffer, pcon->save_buffer[pcon->save_index], SDL_arraysize( pcon->buffer ) );
-                    pcon->buffer_carat = strlen( pcon->buffer ) - 1;
+                    pcon->buffer_carat = strlen( pcon->buffer );
+                    pcon->buffer_carat = (( int )pcon->buffer_carat ) - 1;
                 }
             }
 
@@ -600,7 +601,8 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
                 if ( pcon->save_count > 0 )
                 {
                     strncpy( pcon->buffer, pcon->save_buffer[pcon->save_index], EGOBOO_CONSOLE_LENGTH - 1 );
-                    pcon->buffer_carat = strlen( pcon->buffer ) - 1;
+                    pcon->buffer_carat = strlen( pcon->buffer );
+                    pcon->buffer_carat = (( int )pcon->buffer_carat ) - 1;
                 }
             }
 

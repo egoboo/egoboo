@@ -27,9 +27,9 @@
 
 typedef struct TimerNode
 {
-  Timer *timer;
-  struct TimerNode *previous, *next;
-}TimerNode;
+    Timer *timer;
+    struct TimerNode *previous, *next;
+} TimerNode;
 
 static TimerNode *timerList = NULL;
 static TimerNode *timerListEnd = NULL;
@@ -37,122 +37,122 @@ static int timersInUse = 0;
 
 static TimerNode *findTimer( Timer *t )
 {
-  TimerNode *node = timerList;
+    TimerNode *node = timerList;
 
-  while ( node != NULL )
-  {
-    if ( node->timer == t )
+    while ( node != NULL )
     {
-      return node;
+        if ( node->timer == t )
+        {
+            return node;
+        }
+        node = node->next;
     }
-    node = node->next;
-  }
 
-  return NULL;
+    return NULL;
 }
 
 void timer_init()
 {
-  // Just set some basic stuff
-  timerList = NULL;
-  timersInUse = 0;
+    // Just set some basic stuff
+    timerList = NULL;
+    timersInUse = 0;
 }
 
 void timer_shutdown()
 {
-  TimerNode *node, *next;
+    TimerNode *node, *next;
 
-  // Clear out the list o' timers
-  node = timerList;
-  while ( node != NULL )
-  {
-    next = node->next;
-    free( node );
-    node = next;
-  }
+    // Clear out the list o' timers
+    node = timerList;
+    while ( node != NULL )
+    {
+        next = node->next;
+        free( node );
+        node = next;
+    }
 
-  timerList = NULL;
-  timersInUse = 0;
+    timerList = NULL;
+    timersInUse = 0;
 }
 
 void timer_update()
 {
-  TimerNode *node;
+    TimerNode *node;
 
-  node = timerList;
-  while ( node != NULL )
-  {
-    assert( node->timer != NULL );
-    if ( !node->timer->isPaused )
+    node = timerList;
+    while ( node != NULL )
     {
-      node->timer->frameTime = clock_getFrameDuration() * node->timer->timeScale;
-      node->timer->currentTime += node->timer->frameTime;
-    }
+        assert( node->timer != NULL );
+        if ( !node->timer->isPaused )
+        {
+            node->timer->frameTime = clock_getFrameDuration() * node->timer->timeScale;
+            node->timer->currentTime += node->timer->frameTime;
+        }
 
-    node = node->next;
-  }
+        node = node->next;
+    }
 }
 
 void timer_addTimer( Timer *t )
 {
-  TimerNode *node;
+    TimerNode *node;
 
-  if ( !t ) return;
+    if ( !t ) return;
 
-  node = malloc( sizeof( TimerNode ) );
-  node->timer = t;
+    node = malloc( sizeof( TimerNode ) );
+    node->timer = t;
 
-  if ( timerList )
-  {
-    timerListEnd->next = node;
-    node->previous = timerListEnd;
-    node->next = NULL;
-  }
-  else
-  {
-    timerList = node;
-    node->previous = NULL;
-    node->next = NULL;
-    timerListEnd = node;
-  }
-  timersInUse++;
+    if ( timerList )
+    {
+        timerListEnd->next = node;
+        node->previous = timerListEnd;
+        node->next = NULL;
+    }
+    else
+    {
+        timerList = node;
+        node->previous = NULL;
+        node->next = NULL;
+        timerListEnd = node;
+    }
+    timersInUse++;
 }
 
 void timer_removeTimer( Timer *t )
 {
-  TimerNode *node;
+    TimerNode *node;
 
-  if ( !t ) return;
+    if ( !t ) return;
 
-  node = findTimer( t );
-  if ( node )
-  {
-    if ( node == timerList )
+    node = findTimer( t );
+    if ( node )
     {
-      // Is this the only node in the list?
-      if ( timerList->next == NULL )
-      {
-        // yup
-        timerList = NULL;
-        timerListEnd = NULL;
-      }
-      else
-      {
-        timerList = node->next;
-        timerList->previous = NULL;
-      }
+        if ( node == timerList )
+        {
+            // Is this the only node in the list?
+            if ( timerList->next == NULL )
+            {
+                // yup
+                timerList = NULL;
+                timerListEnd = NULL;
+            }
+            else
+            {
+                timerList = node->next;
+                timerList->previous = NULL;
+            }
+        }
+        else if ( node == timerListEnd )
+        {
+            timerListEnd = node->previous;
+            timerListEnd->next = NULL;
+        }
+        else
+        {
+            node->previous->next = node->next;
+            node->next->previous = node->previous;
+        }
+        free( node );
+        timersInUse--;
     }
-    else if ( node == timerListEnd )
-    {
-      timerListEnd = node->previous;
-      timerListEnd->next = NULL;
-    }
-    else
-    {
-      node->previous->next = node->next;
-      node->next->previous = node->previous;
-    }
-    free( node );
-    timersInUse--;
-  }
 }

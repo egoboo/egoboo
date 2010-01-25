@@ -308,8 +308,6 @@ void statlist_sort();
 /// Math
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
-void   getadd( int min, int value, int max, int* valuetoadd );
-void   fgetadd( float min, float value, float max, float* valuetoadd );
 
 /// Player
 void   set_one_player_latch( Uint16 player );
@@ -377,3 +375,5 @@ float get_chr_level( struct s_ego_mpd * pmesh, struct s_chr * pchr );
 int do_game_proc_run( game_process_t * gproc, double frameDuration );
 
 egoboo_rv move_water( water_instance_t * pwater );
+
+void    disenchant_character( Uint16 cnt );

@@ -23,7 +23,7 @@
 
 #include "graphic_fan.h"
 #include "graphic.h"
-#include "mesh.h"
+#include "mesh.inl"
 #include "camera.h"
 
 #include "game.h"
@@ -74,7 +74,7 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
     if ( NULL == pmesh ) return bfalse;
     ptmem  = &( pmesh->tmem );
 
-    if ( !VALID_TILE( pmesh, itile ) ) return bfalse;
+    if ( !VALID_GRID( pmesh, itile ) ) return bfalse;
     ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
@@ -127,7 +127,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
     if ( NULL == pmesh ) return;
     ptmem  = &( pmesh->tmem );
 
-    if ( !VALID_TILE( pmesh, itile ) ) return;
+    if ( !VALID_GRID( pmesh, itile ) ) return;
     ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
@@ -182,9 +182,9 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
         {
             GL_DEBUG( glVertex3fv )( ptmem->plst[entry] );
             GL_DEBUG( glVertex3f )(
-                ptmem->plst[entry][XX] + TILE_SIZE*ptmem->ncache[itile][cnt][XX],
-                ptmem->plst[entry][YY] + TILE_SIZE*ptmem->ncache[itile][cnt][YY],
-                ptmem->plst[entry][ZZ] + TILE_SIZE*ptmem->ncache[itile][cnt][ZZ] );
+                ptmem->plst[entry][XX] + GRID_SIZE*ptmem->ncache[itile][cnt][XX],
+                ptmem->plst[entry][YY] + GRID_SIZE*ptmem->ncache[itile][cnt][YY],
+                ptmem->plst[entry][ZZ] + GRID_SIZE*ptmem->ncache[itile][cnt][ZZ] );
 
         }
         GL_DEBUG_END();
@@ -216,7 +216,7 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     pgmem  = &( pmesh->gmem );
     pinfo  = &( pmesh->info );
 
-    if ( !VALID_TILE( pmesh, itile ) ) return;
+    if ( !VALID_GRID( pmesh, itile ) ) return;
     ptile = ptmem->tile_list + itile;
     pgrid = pgmem->grid_list + itile;
 
@@ -240,8 +240,8 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         float tmp;
-        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * TILE_SIZE;
-        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * TILE_SIZE;
+        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * GRID_SIZE;
+        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * GRID_SIZE;
         v[cnt].pos[ZZ] = ptmem->plst[badvertex][ZZ];
 
         tmp = map_twist_nrm[twist].z;
@@ -302,7 +302,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
 
-    if ( !VALID_TILE( pmesh, itile ) ) return;
+    if ( !VALID_GRID( pmesh, itile ) ) return;
     ptile = ptmem->tile_list + itile;
 
     falpha = FF_TO_FLOAT( water.layer[layer].alpha );
@@ -370,8 +370,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
             jx = ix + ix_off[cnt];
             jy = iy + iy_off[cnt];
 
-            v[cnt].pos[XX] = jx * TILE_SIZE;
-            v[cnt].pos[YY] = jy * TILE_SIZE;
+            v[cnt].pos[XX] = jx * GRID_SIZE;
+            v[cnt].pos[YY] = jy * GRID_SIZE;
             v[cnt].pos[ZZ] = water.layer_z_add[layer][frame][tnc] + water.layer[layer].z;
 
             v[cnt].tex[SS] = fx_off[cnt] + offu;

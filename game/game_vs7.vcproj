@@ -32,7 +32,7 @@
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
-				CompileAs="1"
+				CompileAs="0"
 				DisableSpecificWarnings="4127"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -85,7 +85,7 @@
 				WholeProgramOptimization="FALSE"
 				OptimizeForProcessor="3"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions;Fluid_Studios_Memory_Manager"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"
@@ -96,7 +96,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
-				CompileAs="1"/>
+				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -139,6 +139,9 @@
 		<Filter
 			Name="Core Source"
 			Filter="">
+			<File
+				RelativePath=".\bbox.c">
+			</File>
 			<File
 				RelativePath=".\bsp.c">
 			</File>
@@ -280,12 +283,16 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="Core Inline"
+			Filter="">
+			<File
+				RelativePath=".\egoboo_math.inl">
+			</File>
+		</Filter>
+		<Filter
 			Name="Game Source"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
-			<File
-				RelativePath=".\bbox.c">
-			</File>
 			<File
 				RelativePath=".\camera.c">
 			</File>
@@ -297,6 +304,13 @@
 			</File>
 			<File
 				RelativePath=".\collision.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+						KeepComments="FALSE"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\egoboo.c">
@@ -351,6 +365,9 @@
 			</File>
 			<File
 				RelativePath=".\profile.c">
+			</File>
+			<File
+				RelativePath=".\rpc.c">
 			</File>
 			<File
 				RelativePath=".\server.c">
@@ -436,6 +453,9 @@
 				RelativePath=".\profile.h">
 			</File>
 			<File
+				RelativePath=".\rpc.h">
+			</File>
+			<File
 				RelativePath=".\server.h">
 			</File>
 			<File
@@ -452,7 +472,25 @@
 			Name="Game Inline"
 			Filter="">
 			<File
+				RelativePath=".\char.inl">
+			</File>
+			<File
+				RelativePath=".\enchant.inl">
+			</File>
+			<File
 				RelativePath=".\Md2.inl">
+			</File>
+			<File
+				RelativePath=".\mesh.inl">
+			</File>
+			<File
+				RelativePath=".\particle.inl">
+			</File>
+			<File
+				RelativePath=".\physics.inl">
+			</File>
+			<File
+				RelativePath=".\profile.inl">
 			</File>
 		</Filter>
 		<Filter
@@ -465,14 +503,6 @@
 				RelativePath=".\ego_wrap.c">
 				<FileConfiguration
 					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						BrowseInformation="0"
-						DebugInformationFormat="0"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCCLCompilerTool"/>
 				</FileConfiguration>
@@ -488,6 +518,11 @@
 			</File>
 			<File
 				RelativePath=".\lua_console.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">

@@ -87,17 +87,17 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     SDL_Surface * ps;
     const SDL_VideoInfo * pvi;
 
-    memset( psi, 0, sizeof(*psi) );
+    memset( psi, 0, sizeof( *psi ) );
 
-    init_flags = SDL_WasInit(SDL_INIT_EVERYTHING);
+    init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
     {
-        if (make_report) fprintf( LOCAL_STDOUT, "ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n" );
+        if ( make_report ) fprintf( LOCAL_STDOUT, "ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n" );
         return SDL_FALSE;
     }
-    else if ( HAS_NO_BITS(init_flags, SDL_INIT_VIDEO) )
+    else if ( HAS_NO_BITS( init_flags, SDL_INIT_VIDEO ) )
     {
-        if (make_report) fprintf( LOCAL_STDOUT, "ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n" );
+        if ( make_report ) fprintf( LOCAL_STDOUT, "ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n" );
         return SDL_FALSE;
     }
 
@@ -114,13 +114,13 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     psi->video_mode_list = SDL_ListModes( ps->format, ps->flags | SDL_FULLSCREEN );
 
     // log the video driver info
-    SDL_VideoDriverName( psi->szDriver, sizeof(psi->szDriver) );
+    SDL_VideoDriverName( psi->szDriver, sizeof( psi->szDriver ) );
 
     // grab all SDL_GL_* attributes
-    SDLX_read_sdl_gl_attrib( &(psi->gl_att) );
+    SDLX_read_sdl_gl_attrib( &( psi->gl_att ) );
 
     // translate the surface flags into the bitfield
-    SDLX_download_sdl_video_flags( ps->flags, &(psi->flags) );
+    SDLX_download_sdl_video_flags( ps->flags, &( psi->flags ) );
 
     psi->hw_available = pvi->hw_available;
     psi->wm_available = pvi->wm_available;
@@ -155,21 +155,21 @@ void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     fprintf( LOCAL_STDOUT, "\tSDL_GL_DEPTH_SIZE         == %d\n", patt->depth_size );
 #endif
 
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_DOUBLEBUFFER       == %d\n", patt->doublebuffer       );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_STENCIL_SIZE       == %d\n", patt->stencil_size       );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_RED_SIZE     == %d\n", patt->accum[0]           );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", patt->accum[1]           );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", patt->accum[2]           );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", patt->accum[3]           );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_STEREO             == %d\n", patt->stereo             );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_DOUBLEBUFFER       == %d\n", patt->doublebuffer );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_STENCIL_SIZE       == %d\n", patt->stencil_size );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_RED_SIZE     == %d\n", patt->accum[0] );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", patt->accum[1] );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", patt->accum[2] );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", patt->accum[3] );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_STEREO             == %d\n", patt->stereo );
 
 #if !defined(__unix)
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", patt->multi_buffers      );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_MULTISAMPLESAMPLES == %d\n", patt->multi_samples      );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", patt->multi_buffers );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_MULTISAMPLESAMPLES == %d\n", patt->multi_samples );
     fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCELERATED_VISUAL == %d\n", patt->accelerated_visual );
 
     // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_SWAP_CONTROL       == %d\n", patt->swap_control       );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_SWAP_CONTROL       == %d\n", patt->swap_control );
 #endif
 
     fflush( LOCAL_STDOUT );
@@ -180,9 +180,9 @@ void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
 {
     fprintf( LOCAL_STDOUT, "\nSDL flags\n" );
 
-    fprintf( LOCAL_STDOUT, "    %s\n", flags.full_screen ? "fullscreen"           : "windowed"             );
+    fprintf( LOCAL_STDOUT, "    %s\n", flags.full_screen ? "fullscreen"           : "windowed" );
     fprintf( LOCAL_STDOUT, "    %s\n", flags.hw_surface  ? "SDL hardware surface" : "SDL software surface" );
-    fprintf( LOCAL_STDOUT, "    %s\n", flags.double_buf  ? "SDL double buffer"    : "SDL single buffer"    );
+    fprintf( LOCAL_STDOUT, "    %s\n", flags.double_buf  ? "SDL double buffer"    : "SDL single buffer" );
 
     if ( flags.opengl )
     {
@@ -254,24 +254,24 @@ void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pfla
 {
     if ( NULL != pflags )
     {
-        pflags->hw_surface  = HAS_SOME_BITS( iflags, SDL_HWSURFACE  );
-        pflags->async_blit  = HAS_SOME_BITS( iflags, SDL_ASYNCBLIT  );
-        pflags->any_format  = HAS_SOME_BITS( iflags, SDL_ANYFORMAT  );
-        pflags->hw_palette  = HAS_SOME_BITS( iflags, SDL_HWPALETTE  );
-        pflags->double_buf  = HAS_SOME_BITS( iflags, SDL_DOUBLEBUF  );
+        pflags->hw_surface  = HAS_SOME_BITS( iflags, SDL_HWSURFACE );
+        pflags->async_blit  = HAS_SOME_BITS( iflags, SDL_ASYNCBLIT );
+        pflags->any_format  = HAS_SOME_BITS( iflags, SDL_ANYFORMAT );
+        pflags->hw_palette  = HAS_SOME_BITS( iflags, SDL_HWPALETTE );
+        pflags->double_buf  = HAS_SOME_BITS( iflags, SDL_DOUBLEBUF );
         pflags->full_screen = HAS_SOME_BITS( iflags, SDL_FULLSCREEN );
-        pflags->opengl      = HAS_SOME_BITS( iflags, SDL_OPENGL     );
+        pflags->opengl      = HAS_SOME_BITS( iflags, SDL_OPENGL );
         pflags->opengl_blit = HAS_SOME_BITS( iflags, SDL_OPENGLBLIT );
-        pflags->resizable   = HAS_SOME_BITS( iflags, SDL_RESIZABLE  );
-        pflags->no_frame    = HAS_SOME_BITS( iflags, SDL_NOFRAME    );
+        pflags->resizable   = HAS_SOME_BITS( iflags, SDL_RESIZABLE );
+        pflags->no_frame    = HAS_SOME_BITS( iflags, SDL_NOFRAME );
 
         // "read only"
-        pflags->use_hwaccel     = HAS_SOME_BITS( iflags, SDL_HWACCEL     );
+        pflags->use_hwaccel     = HAS_SOME_BITS( iflags, SDL_HWACCEL );
         pflags->has_srccolorkey = HAS_SOME_BITS( iflags, SDL_SRCCOLORKEY );
-        pflags->use_rleaccelok  = HAS_SOME_BITS( iflags, SDL_RLEACCELOK  );
-        pflags->use_rleaccel    = HAS_SOME_BITS( iflags, SDL_RLEACCEL    );
-        pflags->use_srcalpha    = HAS_SOME_BITS( iflags, SDL_SRCALPHA    );
-        pflags->is_prealloc     = HAS_SOME_BITS( iflags, SDL_PREALLOC    );
+        pflags->use_rleaccelok  = HAS_SOME_BITS( iflags, SDL_RLEACCELOK );
+        pflags->use_rleaccel    = HAS_SOME_BITS( iflags, SDL_RLEACCEL );
+        pflags->use_srcalpha    = HAS_SOME_BITS( iflags, SDL_SRCALPHA );
+        pflags->is_prealloc     = HAS_SOME_BITS( iflags, SDL_PREALLOC );
     }
 }
 
@@ -284,9 +284,9 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
 
     SDLX_output_sdl_video_flags( v->flags );
 
-    if (v->flags.opengl)
+    if ( v->flags.opengl )
     {
-        SDLX_output_sdl_gl_attrib( &(v->gl_att) );
+        SDLX_output_sdl_gl_attrib( &( v->gl_att ) );
     }
 
     fflush( LOCAL_STDOUT );
@@ -297,25 +297,25 @@ void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
 {
     if ( NULL == patt ) return;
 
-    SDL_GL_GetAttribute( SDL_GL_RED_SIZE,               patt->color + 0           );
-    SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE,             patt->color + 1           );
-    SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE,              patt->color + 2           );
-    SDL_GL_GetAttribute( SDL_GL_ALPHA_SIZE,             patt->color + 3           );
-    SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE,          &(patt->buffer_size)        );
-    SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER,         &(patt->doublebuffer)       );
-    SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE,           &(patt->depth_size)         );
-    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE,         &(patt->stencil_size)       );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE,         patt->accum + 0           );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE,       patt->accum + 1           );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE,        patt->accum + 2           );
-    SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,       patt->accum + 3           );
-    SDL_GL_GetAttribute( SDL_GL_STEREO,               &(patt->stereo)             );
+    SDL_GL_GetAttribute( SDL_GL_RED_SIZE,               patt->color + 0 );
+    SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE,             patt->color + 1 );
+    SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE,              patt->color + 2 );
+    SDL_GL_GetAttribute( SDL_GL_ALPHA_SIZE,             patt->color + 3 );
+    SDL_GL_GetAttribute( SDL_GL_BUFFER_SIZE,          &( patt->buffer_size ) );
+    SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER,         &( patt->doublebuffer ) );
+    SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE,           &( patt->depth_size ) );
+    SDL_GL_GetAttribute( SDL_GL_STENCIL_SIZE,         &( patt->stencil_size ) );
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_RED_SIZE,         patt->accum + 0 );
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_GREEN_SIZE,       patt->accum + 1 );
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_BLUE_SIZE,        patt->accum + 2 );
+    SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,       patt->accum + 3 );
+    SDL_GL_GetAttribute( SDL_GL_STEREO,               &( patt->stereo ) );
 
 #if !defined(__unix)
-    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   &(patt->multi_buffers)      );
-    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES,   &(patt->multi_samples)      );
-    SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL,   &(patt->accelerated_visual) );
-    SDL_GL_GetAttribute( SDL_GL_SWAP_CONTROL,         &(patt->swap_control)       );
+    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   &( patt->multi_buffers ) );
+    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES,   &( patt->multi_samples ) );
+    SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL,   &( patt->accelerated_visual ) );
+    SDL_GL_GetAttribute( SDL_GL_SWAP_CONTROL,         &( patt->swap_control ) );
 #endif
 
 }
@@ -332,10 +332,10 @@ void SDLX_synch_video_parameters( SDL_Surface * ret, SDLX_video_parameters_t * v
     v->depth  = ret->format->BitsPerPixel;
 
     // translate the surface flags into the bitfield
-    SDLX_download_sdl_video_flags( ret->flags, &(v->flags) );
+    SDLX_download_sdl_video_flags( ret->flags, &( v->flags ) );
 
     // grab all SDL_GL_* attributes
-    SDLX_read_sdl_gl_attrib( &(v->gl_att) );
+    SDLX_read_sdl_gl_attrib( &( v->gl_att ) );
 }
 
 //------------------------------------------------------------------------------
@@ -345,42 +345,42 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
 
     if ( v->flags.opengl )
     {
-        SDLX_sdl_gl_attrib_t * patt = &(v->gl_att);
+        SDLX_sdl_gl_attrib_t * patt = &( v->gl_att );
 
 #if !defined(__unix__)
         // Under Unix we cannot specify these, we just get whatever format
         // the framebuffer has, specifying depths > the framebuffer one
         // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
-        SDL_GL_SetAttribute( SDL_GL_RED_SIZE,             patt->color[0]           );
-        SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE,           patt->color[1]           );
-        SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,            patt->color[2]           );
-        SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE,           patt->color[3]           );
-        SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE,          patt->buffer_size        );
+        SDL_GL_SetAttribute( SDL_GL_RED_SIZE,             patt->color[0] );
+        SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE,           patt->color[1] );
+        SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,            patt->color[2] );
+        SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE,           patt->color[3] );
+        SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE,          patt->buffer_size );
 #endif
 
-        SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER,         patt->doublebuffer       );
-        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE,           patt->depth_size         );
-        SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE,         patt->stencil_size       );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE,       patt->accum[0]           );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE,     patt->accum[1]           );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE,      patt->accum[2]           );
-        SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,     patt->accum[3]           );
-        SDL_GL_SetAttribute( SDL_GL_STEREO,               patt->stereo             );
+        SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER,         patt->doublebuffer );
+        SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE,           patt->depth_size );
+        SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE,         patt->stencil_size );
+        SDL_GL_SetAttribute( SDL_GL_ACCUM_RED_SIZE,       patt->accum[0] );
+        SDL_GL_SetAttribute( SDL_GL_ACCUM_GREEN_SIZE,     patt->accum[1] );
+        SDL_GL_SetAttribute( SDL_GL_ACCUM_BLUE_SIZE,      patt->accum[2] );
+        SDL_GL_SetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,     patt->accum[3] );
+        SDL_GL_SetAttribute( SDL_GL_STEREO,               patt->stereo );
 
 #if defined(__unix__)
 
         // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
         if ( patt->swap_control )
         {
-            SDL_putenv("__GL_SYNC_TO_VBLANK=1");
+            SDL_putenv( "__GL_SYNC_TO_VBLANK=1" );
         }
 
 #else
 
-        SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   patt->multi_buffers      );
-        SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES,   patt->multi_samples      );
+        SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   patt->multi_buffers );
+        SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES,   patt->multi_samples );
         SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL,   patt->accelerated_visual );
-        SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL,         patt->swap_control       );
+        SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL,         patt->swap_control );
 
 #endif
 
@@ -395,7 +395,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
     Uint32 flags;
     SDL_Surface * ret = NULL;
 
-    if (NULL == v) return ret;
+    if ( NULL == v ) return ret;
 
     if ( !v->flags.opengl )
     {
@@ -419,10 +419,10 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         if ( buffer_size > 32 ) buffer_size = 32;
 
         // fix bad colordepth
-        if ( (0 == v->gl_att.color[0] && 0 == v->gl_att.color[1] && 0 == v->gl_att.color[2]) ||
-                (v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] > buffer_size ) )
+        if (( 0 == v->gl_att.color[0] && 0 == v->gl_att.color[1] && 0 == v->gl_att.color[2] ) ||
+            ( v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] > buffer_size ) )
         {
-            if (buffer_size > 24)
+            if ( buffer_size > 24 )
             {
                 v->gl_att.color[0] = v->gl_att.color[1] = v->gl_att.color[2] = buffer_size / 4;
             }
@@ -433,14 +433,14 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
                 v->gl_att.color[1] = buffer_size - v->gl_att.color[0] - v->gl_att.color[2];
             }
 
-            v->gl_att.color[0] = (v->gl_att.color[0] > 8) ? 8 : v->gl_att.color[0];
-            v->gl_att.color[1] = (v->gl_att.color[1] > 8) ? 8 : v->gl_att.color[1];
-            v->gl_att.color[2] = (v->gl_att.color[2] > 8) ? 8 : v->gl_att.color[2];
+            v->gl_att.color[0] = ( v->gl_att.color[0] > 8 ) ? 8 : v->gl_att.color[0];
+            v->gl_att.color[1] = ( v->gl_att.color[1] > 8 ) ? 8 : v->gl_att.color[1];
+            v->gl_att.color[2] = ( v->gl_att.color[2] > 8 ) ? 8 : v->gl_att.color[2];
         }
 
         // fix the alpha value
         v->gl_att.color[3] = buffer_size - v->gl_att.color[0] - v->gl_att.color[1] - v->gl_att.color[2];
-        v->gl_att.color[3] = (v->gl_att.color[3] < 0) ? 0 : v->gl_att.color[3];
+        v->gl_att.color[3] = ( v->gl_att.color[3] < 0 ) ? 0 : v->gl_att.color[3];
 
         // get the proper buffer size
         buffer_size = v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] + v->gl_att.color[3];
@@ -468,7 +468,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 #if !defined(__unix__)
         // attempt to see if our antialiasing setting is valid
 
-        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
+        SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
 
         if ( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
         {
@@ -493,7 +493,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
                 }
 
                 actual_multi_buffers = 0;
-                SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers);
+                SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
 
                 v->gl_att.multi_samples -= 1;
             }
@@ -505,8 +505,8 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
             // something is interfering with our ability to generate a screen.
             // assume that it is a complete incompatability with multisampling
 
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0 );
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0 );
+            SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 0 );
+            SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 0 );
 
             if ( 0 != SDL_VideoModeOK( v->width, v->height, buffer_size, flags ) )
             {
@@ -519,16 +519,16 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         v->gl_att.multi_buffers = 0;
         v->gl_att.multi_samples = 0;
         v->gl_att.accelerated_visual = SDL_FALSE;
-        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &(v->gl_att.multi_buffers));
-        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &(v->gl_att.multi_samples));
-        SDL_GL_GetAttribute(SDL_GL_ACCELERATED_VISUAL, &(v->gl_att.accelerated_visual) );
+        SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &( v->gl_att.multi_buffers ) );
+        SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES, &( v->gl_att.multi_samples ) );
+        SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL, &( v->gl_att.accelerated_visual ) );
 #endif
     }
 
     // update the video parameters
     if ( NULL != ret )
     {
-        SDLX_Get_Screen_Info(&sdl_scr, make_report);
+        SDLX_Get_Screen_Info( &sdl_scr, make_report );
         SDLX_synch_video_parameters( ret, v );
     }
 
@@ -536,11 +536,11 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 }
 
 //------------------------------------------------------------------------------
-SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t * pflags)
+SDL_bool SDLX_sdl_video_flags_default( SDLX_sdl_video_flags_t * pflags )
 {
     if ( NULL == pflags ) return SDL_FALSE;
 
-    memset( pflags, 0, sizeof(*pflags) );
+    memset( pflags, 0, sizeof( *pflags ) );
 
     pflags->double_buf  = 1;
     pflags->full_screen = 1;
@@ -550,11 +550,11 @@ SDL_bool SDLX_sdl_video_flags_default(SDLX_sdl_video_flags_t * pflags)
 }
 
 //------------------------------------------------------------------------------
-SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t * patt)
+SDL_bool SDLX_sdl_gl_attrib_default( SDLX_sdl_gl_attrib_t * patt )
 {
     if ( NULL == patt ) return SDL_FALSE;
 
-    memset( patt, 0, sizeof(*patt) );
+    memset( patt, 0, sizeof( *patt ) );
 
     patt->multi_buffers      = 1;
     patt->multi_samples      = 2;
@@ -572,17 +572,17 @@ SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t * patt)
 }
 
 //------------------------------------------------------------------------------
-SDL_bool SDLX_video_parameters_default(SDLX_video_parameters_t * v)
+SDL_bool SDLX_video_parameters_default( SDLX_video_parameters_t * v )
 {
-    if (NULL == v) return SDL_FALSE;
+    if ( NULL == v ) return SDL_FALSE;
 
     v->surface = NULL;
     v->width   = 640;
     v->height  = 480;
     v->depth   =  32;
 
-    SDLX_sdl_video_flags_default( &(v->flags ) );
-    SDLX_sdl_gl_attrib_default  ( &(v->gl_att) );
+    SDLX_sdl_video_flags_default( &( v->flags ) );
+    SDLX_sdl_gl_attrib_default( &( v->gl_att ) );
 
     return SDL_TRUE;
 }
@@ -616,7 +616,7 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
 }
 
 //------------------------------------------------------------------------------
-SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report )
+SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report )
 {
     /// @details BB@> let SDL try to set a new video mode.
 
@@ -625,34 +625,34 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
     SDL_Surface             * surface;
 
     // initialize v_old and param_old
-    if (NULL == v_old)
+    if ( NULL == v_old )
     {
         SDLX_video_parameters_default( &param_old );
         v_old = &param_old;
     }
     else
     {
-        memcpy(&param_old, v_old, sizeof(SDLX_video_parameters_t));
+        memcpy( &param_old, v_old, sizeof( SDLX_video_parameters_t ) );
     }
 
     // initialize v_new and param_new
-    if (NULL == v_new)
+    if ( NULL == v_new )
     {
         SDLX_video_parameters_default( &param_new );
         v_new = &param_new;
     }
     else
     {
-        memcpy(&param_new, v_new, sizeof(SDLX_video_parameters_t));
+        memcpy( &param_new, v_new, sizeof( SDLX_video_parameters_t ) );
     }
 
     // assume any problem with setting the graphics mode is with the multisampling
-    surface = SDLX_RequestVideoMode(&param_new, make_report);
+    surface = SDLX_RequestVideoMode( &param_new, make_report );
 
     if ( make_report )
     {
         // report on the success or failure to set the mode
-        SDLX_report_mode( surface, &param_new);
+        SDLX_report_mode( surface, &param_new );
     };
 
     if ( NULL != surface )
@@ -660,7 +660,7 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
         param_new.surface = surface;
         if ( NULL != v_new )
         {
-            memcpy(v_new, &param_new, sizeof(SDLX_video_parameters_t));
+            memcpy( v_new, &param_new, sizeof( SDLX_video_parameters_t ) );
         }
         retval = v_new;
     }
@@ -668,17 +668,17 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
     {
         surface = SDLX_RequestVideoMode( &param_old, make_report );
 
-        if (NULL == surface)
+        if ( NULL == surface )
         {
             // log_error("Could not restore the old video mode. Terminating.\n");
-            exit(-1);
+            exit( -1 );
         }
         else
         {
             param_old.surface = surface;
             if ( NULL != v_old )
             {
-                memcpy(v_old, &param_old, sizeof(SDLX_video_parameters_t));
+                memcpy( v_old, &param_old, sizeof( SDLX_video_parameters_t ) );
             }
         }
 
@@ -689,7 +689,7 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat)
+SDL_bool SDLX_ExpandFormat( SDL_PixelFormat * pformat )
 {
     // use the basic screen format to create a surface with proper alpha support
 
@@ -725,7 +725,7 @@ SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-FILE * SDLX_set_stdout(FILE * pfile)
+FILE * SDLX_set_stdout( FILE * pfile )
 {
     FILE * pfile_old = _SDLX_stdout;
 

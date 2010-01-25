@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------
 #define TILE_BITS     7
 #define TILE_ISIZE     (1<<(TILE_BITS))
-#define TILE_SIZE     ((float)TILE_ISIZE)
+#define GRID_SIZE     ((float)TILE_ISIZE)
 #define TILE_MASK     (TILE_ISIZE - 1)
 
 #define MAPID                     0x4470614d                   ///< The string... MapD
@@ -47,39 +47,39 @@
 #define INVALID_BLOCK ((Uint32)(~0))
 #define INVALID_TILE  ((Uint32)(~0))
 
-#define VALID_TILE(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
+#define VALID_GRID(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
 
 /// The bit flags for mesh tiles
 enum e_mpd_fx
 {
     MPDFX_REF             =       0,     ///< NOT USED
-                                         ///< Egoboo v1.0 : "0 This tile is drawn 1st"
+    ///< Egoboo v1.0 : "0 This tile is drawn 1st"
 
-    MPDFX_SHA             = (1 << 0),    ///< 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors
-                                         ///< Egoboo v1.0: "0 This tile is drawn 2nd"
-                                         ///< aicodes.txt : FXNOREFLECT
+    MPDFX_SHA             = ( 1 << 0 ),  ///< 0 == (val & MPDFX_SHA) means that the tile is reflected in the floors
+    ///< Egoboo v1.0: "0 This tile is drawn 2nd"
+    ///< aicodes.txt : FXNOREFLECT
 
-    MPDFX_DRAWREF         = (1 << 1),    ///< the tile reflects characters
-                                         ///< Egoboo v1.0: "1 Draw reflection of characters"
-                                         ///< aicodes.txt : FXDRAWREFLECT
+    MPDFX_DRAWREF         = ( 1 << 1 ),  ///< the tile reflects characters
+    ///< Egoboo v1.0: "1 Draw reflection of characters"
+    ///< aicodes.txt : FXDRAWREFLECT
 
-    MPDFX_ANIM            = (1 << 2),    ///< Egoboo v1.0: "2 Animated tile ( 4 frame )"
-                                         ///< aicodes.txt : FXANIM
+    MPDFX_ANIM            = ( 1 << 2 ),  ///< Egoboo v1.0: "2 Animated tile ( 4 frame )"
+    ///< aicodes.txt : FXANIM
 
-    MPDFX_WATER           = (1 << 3),    ///< Egoboo v1.0: "3 Render water above surface ( Water details are set per module )"
-                                         ///< aicodes.txt : FXWATER
+    MPDFX_WATER           = ( 1 << 3 ),  ///< Egoboo v1.0: "3 Render water above surface ( Water details are set per module )"
+    ///< aicodes.txt : FXWATER
 
-    MPDFX_WALL            = (1 << 4),    ///< Egoboo v1.0: "4 Wall ( Passable by ghosts, particles )"
-                                         ///< aicodes.txt : FXBARRIER
+    MPDFX_WALL            = ( 1 << 4 ),  ///< Egoboo v1.0: "4 Wall ( Passable by ghosts, particles )"
+    ///< aicodes.txt : FXBARRIER
 
-    MPDFX_IMPASS          = (1 << 5),    ///< Egoboo v1.0: "5 Impassable"
-                                         ///< aicodes.txt : FXIMPASS
+    MPDFX_IMPASS          = ( 1 << 5 ),  ///< Egoboo v1.0: "5 Impassable"
+    ///< aicodes.txt : FXIMPASS
 
-    MPDFX_DAMAGE          = (1 << 6),    ///< Egoboo v1.0: "6 Damage"
-                                         ///< aicodes.txt : FXDAMAGE
+    MPDFX_DAMAGE          = ( 1 << 6 ),  ///< Egoboo v1.0: "6 Damage"
+    ///< aicodes.txt : FXDAMAGE
 
-    MPDFX_SLIPPY          = (1 << 7)     ///< Egoboo v1.0: "7 Ice or normal"
-                                         ///< aicodes.txt : FXSLIPPY
+    MPDFX_SLIPPY          = ( 1 << 7 )   ///< Egoboo v1.0: "7 Ice or normal"
+    ///< aicodes.txt : FXSLIPPY
 };
 
 //--------------------------------------------------------------------------------------------
@@ -101,7 +101,6 @@ struct s_tile_info
     Uint16  img;                               ///< Get texture from this
     Uint8   fx;                                ///< Special effects flags
     Uint8   twist;
-    size_t  vrtstart;                          ///< Which vertex to start at
 };
 typedef struct s_tile_info tile_info_t;
 
@@ -163,6 +162,6 @@ mpd_t *      mpd_dtor( mpd_t * pmesh );
 bool_t       mpd_free( mpd_t * pmesh );
 
 bool_t twist_to_normal( Uint8 twist, float v[], float slide );
-Uint8  cartman_get_twist(int x, int y);
+Uint8  cartman_get_twist( int x, int y );
 
-void tile_dictionary_load(const char * filename, tile_definition_t dict[], size_t dict_size);
+void tile_dictionary_load( const char * filename, tile_definition_t dict[], size_t dict_size );

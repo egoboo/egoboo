@@ -25,7 +25,7 @@
 #include "camera.h"
 #include "log.h"
 #include "game.h"
-#include "char.h"
+#include "char.inl"
 
 #include "pip_file.h"
 
@@ -63,7 +63,6 @@ int    LoopedList_get_free();
 
 bool_t LoopedList_validate();
 int    LoopedList_add( Mix_Chunk * sound, int loops, Uint16 object );
-bool_t LoopedList_remove( int channel );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -514,7 +513,7 @@ int _calculate_volume( fvec3_t   diff )
     float render_size;
 
     // approximate the radius of the area that the camera sees
-    render_size = renderlist.all_count * ( TILE_SIZE / 2 * TILE_SIZE / 2 ) / 4;
+    render_size = renderlist.all_count * ( GRID_SIZE / 2 * GRID_SIZE / 2 ) / 4;
 
     dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
@@ -691,7 +690,7 @@ void sound_stop_song()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void load_global_waves( )
+void load_global_waves()
 {
     /// @details ZZ@> This function loads the global waves
 
@@ -769,8 +768,11 @@ void load_all_music_sounds()
     }
     musicinmemory = btrue;
 
-	// A small helper for us developers
-	if( cnt == MAXPLAYLISTLENGTH )	log_debug( "Play list is full. Consider increasing MAXPLAYLISTLENGTH (currently %i).", MAXPLAYLISTLENGTH );
+    // A small helper for us developers
+    if ( cnt == MAXPLAYLISTLENGTH )
+    {
+        log_debug( "Play list is full. Consider increasing MAXPLAYLISTLENGTH (currently %i).", MAXPLAYLISTLENGTH );
+    }
 
     vfs_close( playlist );
 }

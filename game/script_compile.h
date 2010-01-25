@@ -489,9 +489,12 @@ enum e_script_functions
     FDISABLEINVICTUS,            // == 380
     FTARGETDAMAGESELF,           // == 381
     FSETTARGETSIZE,              // == 382
-    FSETTARGETTONEARESTQUESTID   // == 383
+    FSETTARGETTONEARESTQUESTID,  // == 383
 
+    SCRIPT_FUNCTIONS_COUNT
 };
+
+extern const char * script_function_names[SCRIPT_FUNCTIONS_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

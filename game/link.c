@@ -23,7 +23,7 @@
 
 #include "link.h"
 
-#include "char.h"
+#include "char.inl"
 #include "camera.h"
 
 #include "menu.h"
@@ -39,7 +39,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define LINK_HEROES_MAX MAXPLAYER
+#define LINK_HEROES_MAX MAX_PLAYER
 #define LINK_STACK_MAX  10
 
 //--------------------------------------------------------------------------------------------
@@ -140,6 +140,8 @@ bool_t link_build( const char * fname, Link_t list[] )
         i++;
     }
 
+    vfs_close( pfile );
+
     return i > 0;
 }
 
@@ -183,10 +185,11 @@ bool_t link_pop_module()
             {
                 pchr->pos      = phero->pos;
                 pchr->pos_old  = phero->pos;
-                pchr->pos_safe = phero->pos;
+                pchr->safe_pos = phero->pos;
                 pchr->pos_stt  = phero->pos_stt;
 
-                pchr->safe_valid = !__chrhitawall( pchr, NULL, NULL );
+                pchr->safe_valid = !chr_test_wall( pchr );
+                if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
             }
         };
     }
@@ -201,7 +204,7 @@ bool_t link_push_module()
     bool_t retval;
     link_stack_entry_t * pentry;
 
-    if ( link_stack_count >= MAXPLAYER || pickedmodule_index < 0 ) return bfalse;
+    if ( link_stack_count >= MAX_PLAYER || pickedmodule_index < 0 ) return bfalse;
 
     // grab an entry
     pentry = link_stack + link_stack_count;
@@ -212,7 +215,7 @@ bool_t link_push_module()
 
     // find all of the exportable characters
     pentry->hero_count = 0;
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         Uint16 ichr;
         chr_t * pchr;
@@ -271,9 +274,9 @@ bool_t link_load_parent( const char * modname, fvec3_t   pos )
     pentry = link_stack + ( link_stack_count - 1 );
 
     // determine how you would have to shift the heroes so that they fall on top of the spawn point
-    pos_diff.x = pos.x * TILE_SIZE - pentry->hero[0].pos_stt.x;
-    pos_diff.y = pos.y * TILE_SIZE - pentry->hero[0].pos_stt.y;
-    pos_diff.z = pos.z * TILE_SIZE - pentry->hero[0].pos_stt.z;
+    pos_diff.x = pos.x * GRID_SIZE - pentry->hero[0].pos_stt.x;
+    pos_diff.y = pos.y * GRID_SIZE - pentry->hero[0].pos_stt.y;
+    pos_diff.z = pos.z * GRID_SIZE - pentry->hero[0].pos_stt.z;
 
     // adjust all the hero spawn points
     for ( i = 0; i < pentry->hero_count; i++ )

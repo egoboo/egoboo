@@ -151,46 +151,50 @@ enum e_action
 #define ACTION_IS_TYPE( VAL, CHR ) ((VAL >= ACTION_##CHR##A) && (VAL <= ACTION_##CHR##D))
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+typedef Uint16 MAD_REF;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// The definition of the egoboo model type
 struct s_mad
 {
     EGO_PROFILE_STUFF;
 
-    // templates
-    //Uint16  transvertices;                   ///< Number to transform
-
     Uint16  frameliptowalkframe[4][16];        ///< For walk animations
 
     int     action_map[ACTION_COUNT];          ///< actual action = action_map[requested action]
-    Uint8   action_valid[ACTION_COUNT];        ///< bfalse if not valid
-    Uint16  action_stt[ACTION_COUNT];          ///< First frame of anim
-    Uint16  action_end[ACTION_COUNT];          ///< One past last frame
+    bool_t  action_valid[ACTION_COUNT];        ///< bfalse if not valid
+    int     action_stt[ACTION_COUNT];          ///< First frame of anim
+    int     action_end[ACTION_COUNT];          ///< One past last frame
 
     //---- per-object data ----
 
     // model data
-    //Uint16        md2_ref;                       ///< a reference to the old-style md2 data
     MD2_Model_t * md2_ptr;                       ///< the pointer that will eventually be used
 };
 typedef struct s_mad mad_t;
 
-extern mad_t   MadList[MAX_PROFILE];
+extern mad_t   MadList[MAX_MAD];
 
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
 #define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
+
+void MadList_init();
+void MadList_dtor();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 void   init_all_mad();
 void   release_all_mad();
-bool_t release_one_mad( Uint16 imad );
-Uint16 load_one_model_profile( const char* tmploadname, Uint16 object );
+bool_t release_one_mad( MAD_REF imad );
+Uint16 load_one_model_profile( const char* tmploadname, MAD_REF object );
 
 int    action_which( char cTmp );
 void   load_action_names( const char* loadname );
 
-void   mad_make_equally_lit( int model );
+void   mad_make_equally_lit( MAD_REF imad );
 
-int mad_get_action( Uint16 imad, int action );
+int mad_get_action( MAD_REF imad, int action );
 int randomize_action( int action, int slot );

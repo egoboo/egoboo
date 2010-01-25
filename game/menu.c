@@ -23,10 +23,10 @@
 
 #include "menu.h"
 
-#include "particle.h"
+#include "particle.inl"
 #include "mad.h"
-#include "char.h"
-#include "profile.h"
+#include "char.inl"
+#include "profile.inl"
 
 #include "game.h"
 #include "quest.h"
@@ -59,7 +59,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MNU_INVALID_PLA MAXPLAYER
+#define MNU_INVALID_PLA MAX_PLAYER
 
 /// The possible states of the menu state machine
 enum e_menu_states
@@ -71,10 +71,10 @@ enum e_menu_states
     MM_Finish
 };
 
-#define MENU_STACK_COUNT 256
-#define MAXWIDGET        100
 #define INVALID_TITLEIMAGE MAX_MODULE
-#define MENU_MAX_GAMETIPS 100
+#define MENU_STACK_COUNT   256
+#define MAXWIDGET          100
+#define MENU_MAX_GAMETIPS  100
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -132,15 +132,6 @@ static int buttonTop = 0;
 
 static int selectedPlayer = 0;           // Which player is currently selected to play
 
-/// The data that menu.c uses to store the users' choice of players
-struct s_GameTips
-{
-	STRING hint[MENU_MAX_GAMETIPS];		//< The actual hints/tips
-	Uint8 count;						//< Number of tips loaded
-};
-typedef struct s_GameTips GameTips_t;
-static GameTips_t		mnu_GameTip;
-
 static menu_process_t    _mproc;
 
 //--------------------------------------------------------------------------------------------
@@ -161,8 +152,8 @@ int              loadplayer_count = 0;
 LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
 int    mnu_selectedPlayerCount = 0;
-int    mnu_selectedInput[MAXPLAYER] = {0};
-Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
+int    mnu_selectedInput[MAX_PLAYER] = {0};
+Uint16 mnu_selectedPlayer[MAX_PLAYER] = {0};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -184,7 +175,6 @@ static bool_t mnu_removeSelectedPlayer( Uint16 player );
 static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input );
 static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input );
 
-static int  TxTitleImage_load_one( const char *szLoadName );
 static void TxTitleImage_clear_data();
 
 static void mnu_release_one_module( int imod );
@@ -193,6 +183,9 @@ static void mnu_release_one_module( int imod );
 static int do_menu_proc_begin( menu_process_t * mproc );
 static int do_menu_proc_running( menu_process_t * mproc );
 static int do_menu_proc_leaving( menu_process_t * mproc );
+
+// the hint system
+static void load_game_hints();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -218,13 +211,25 @@ DECLARE_STACK( ACCESS_TYPE_NONE, mnu_module_t, mnu_ModList );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// The data that menu.c uses to store the users' choice of players
+struct s_GameTips
+{
+    Uint8 count;                        //< Number of tips loaded
+    STRING hint[MENU_MAX_GAMETIPS];     //< The actual hints/tips
+};
+typedef struct s_GameTips GameTips_t;
+
+static GameTips_t mnu_GameTip = { 0 };
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void TxTitleImage_clear_data()
 {
     TxTitleImage_count = 0;
 }
 
 //---------------------------------------------------------------------------------------------
-void TxTitleImage_init_all()
+void TxTitleImage_ctor()
 {
     /// @details ZZ@> This function clears out all of the textures
 
@@ -262,7 +267,7 @@ void TxTitleImage_release_all()
 }
 
 //---------------------------------------------------------------------------------------------
-void TxTitleImage_delete_all()
+void TxTitleImage_dtor()
 {
     /// @details ZZ@> This function clears out all of the textures
 
@@ -449,50 +454,7 @@ void set_copyright_position( Font * font, const char * text, int spacing )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_game_hints()
-{
-    /// ZF@> This function loads all of the game hints and tips
-    STRING loadpath;
-    STRING buffer;
-    vfs_FILE *fileread;
-    Uint8 cnt;
-
-	// Reset
-	mnu_GameTip.count = 0;
-
-    // Open the playlist listing all music files
-    snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "menu" SLASH_STR "gametips.txt" );
-    fileread = vfs_openRead( loadpath );
-    if ( fileread == NULL )
-    {
-        log_warning( "Could not load the game tips and hints. (%s)\n", loadpath );
-        return;
-    }
-
-    // Load the data
-    for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
-    {
-        if ( goto_colon( NULL, fileread, btrue ) )
-        {
-            //Read the line
-			fget_string( fileread, buffer, SDL_arraysize( buffer ) );
-			strcpy( mnu_GameTip.hint[cnt], buffer );
-			
-			// remove the '_' characters
-			str_decode( mnu_GameTip.hint[cnt], SDL_arraysize(mnu_GameTip.hint[cnt]), mnu_GameTip.hint[cnt] );
-
-			//Keep track of how many we have total
-			mnu_GameTip.count++;
-        }
-    }
-
-    vfs_close( fileread );
-
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int mnu_init()
+int menu_system_begin()
 {
     // initializes the menu system
     //
@@ -503,7 +465,7 @@ int mnu_init()
     ui_set_virtual_screen( gfx.vw, gfx.vh, GFX_WIDTH, GFX_HEIGHT );
 
     menuFont = ui_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
-    if ( !menuFont )
+    if ( NULL == menuFont )
     {
         log_error( "Could not load the menu font! (Negatori.ttf)\n" );
         return 0;
@@ -515,13 +477,32 @@ int mnu_init()
     // Figure out where to draw the options text
     set_tip_position( menuFont, tipText, 20 );
 
-	// Load game hints
+    // construct the TxTitleImage array
+    TxTitleImage_ctor();
+
+    // Load game hints
     load_game_hints();
 
-    // initialize the title images
-    TxTitleImage_init_all();
-
     return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+void menu_system_end()
+{
+    // initializes the menu system
+    //
+    // Loads resources for the menus, and figures out where things should
+    // be positioned.  If we ever allow changing resolution on the fly, this
+    // function will have to be updated/called more than once.
+
+    if ( NULL != menuFont )
+    {
+        fnt_freeFont( menuFont );
+        menuFont = NULL;
+    }
+
+    // destruct the TxTitleImage array
+    TxTitleImage_dtor();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -676,7 +657,7 @@ int doMainMenu( float deltaTime )
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
             oglx_texture_Release( &background );
-            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+            menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
             ui_Reset();
@@ -1209,52 +1190,52 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             // fix class name capitalization
             pcap->classname[0] = toupper( pcap->classname[0] );
-            fnt_drawText( menuFont, x1, y1, "A level %d %s", pcap->leveloverride + 1, pcap->classname );
+            fnt_drawText( menuFont, NULL, x1, y1, "A level %d %s", pcap->leveloverride + 1, pcap->classname );
             y1 += 20;
 
             // Armor
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-            fnt_drawText( menuFont, x1, y1, "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
+            fnt_drawText( menuFont, NULL, x1, y1, "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
             y1 += 40;
 
             // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                fnt_drawText( menuFont, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from ); y1 += 20;
+                fnt_drawText( menuFont, NULL, x1, y1, "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from ); y1 += 20;
                 y1 = draw_one_bar( pcap->lifecolor, x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
-                    fnt_drawText( menuFont, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from ); y1 += 20;
+                    fnt_drawText( menuFont, NULL, x1, y1, "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from ); y1 += 20;
                     y1 = draw_one_bar( pcap->manacolor, x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from );
                 }
             }
             else
             {
-                fnt_drawText( menuFont, x1, y1, "Life: %d", ( int )pcap->life_stat.val.from ); y1 += 20;
+                fnt_drawText( menuFont, NULL, x1, y1, "Life: %d", ( int )pcap->life_stat.val.from ); y1 += 20;
                 y1 = draw_one_bar( pcap->lifecolor, x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
-                    fnt_drawText( menuFont, x1, y1, "Mana: %d", ( int )pcap->mana_stat.val.from ); y1 += 20;
+                    fnt_drawText( menuFont, NULL, x1, y1, "Mana: %d", ( int )pcap->mana_stat.val.from ); y1 += 20;
                     y1 = draw_one_bar( pcap->manacolor, x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from );
                 }
             }
             y1 += 20;
 
             //SWID
-            fnt_drawText( menuFont, x1, y1, "Stats" ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), ( int )pcap->strength_stat.val.from ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), ( int )pcap->wisdom_stat.val.from ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), ( int )pcap->intelligence_stat.val.from ); y1 += 20;
-            fnt_drawText( menuFont, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), ( int )pcap->dexterity_stat.val.from ); y1 += 20;
+            fnt_drawText( menuFont, NULL, x1, y1, "Stats" ); y1 += 20;
+            fnt_drawText( menuFont, NULL, x1, y1, "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), ( int )pcap->strength_stat.val.from ); y1 += 20;
+            fnt_drawText( menuFont, NULL, x1, y1, "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), ( int )pcap->wisdom_stat.val.from ); y1 += 20;
+            fnt_drawText( menuFont, NULL, x1, y1, "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), ( int )pcap->intelligence_stat.val.from ); y1 += 20;
+            fnt_drawText( menuFont, NULL, x1, y1, "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), ( int )pcap->dexterity_stat.val.from ); y1 += 20;
             y1 += 20;
 
             if ( objects.count > 1 )
             {
                 ChoosePlayer_element_t * pdata;
 
-                fnt_drawText( menuFont, x1, y1, "Inventory" ); y1 += 20;
+                fnt_drawText( menuFont, NULL, x1, y1, "Inventory" ); y1 += 20;
 
                 for ( i = 1; i < objects.count; i++ )
                 {
@@ -1276,15 +1257,15 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
                         if ( icap == SLOT_LEFT + 1 )
                         {
-                            fnt_drawText( menuFont, x1 + 32, y1 + 6, "  Left: %s", itemname ); y1 += 32;
+                            fnt_drawText( menuFont, NULL, x1 + 32, y1 + 6, "  Left: %s", itemname ); y1 += 32;
                         }
                         else if ( icap == SLOT_RIGHT + 1 )
                         {
-                            fnt_drawText( menuFont, x1 + 32, y1 + 6, "  Right: %s", itemname ); y1 += 32;
+                            fnt_drawText( menuFont, NULL, x1 + 32, y1 + 6, "  Right: %s", itemname ); y1 += 32;
                         }
                         else
                         {
-                            fnt_drawText( menuFont, x1 + 32, y1 + 6, "  Item: %s", itemname ); y1 += 32;
+                            fnt_drawText( menuFont, NULL, x1 + 32, y1 + 6, "  Item: %s", itemname ); y1 += 32;
                         }
                     }
                 }
@@ -1804,7 +1785,7 @@ int doOptions( float deltaTime )
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
             oglx_texture_Release( &background );
-            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+            menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
             ui_Reset();
@@ -2201,7 +2182,7 @@ int doInputOptions( float deltaTime )
             break;
 
         case MM_Finish:
-            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+            menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
             ui_Reset();
@@ -2520,7 +2501,7 @@ int doGameOptions( float deltaTime )
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
             oglx_texture_Release( &background );
-            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+            menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
             ui_Reset();
@@ -2755,7 +2736,7 @@ int doAudioOptions( float deltaTime )
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
             oglx_texture_Release( &background );
-            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+            menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
             ui_Reset();
@@ -3414,7 +3395,7 @@ int doVideoOptions( float deltaTime )
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
             oglx_texture_Release( &background );
-            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+            menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
             ui_Reset();
@@ -3436,7 +3417,7 @@ int doShowResults( float deltaTime )
     static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;
-	static STRING  game_hint;
+    static int     hintnum;
 
     int menuResult = 0;
 
@@ -3444,23 +3425,27 @@ int doShowResults( float deltaTime )
     {
         case MM_Begin:
 
-			// Randomize the next game hint
-			if( mnu_GameTip.count > 0)
-			{
-				// We use a non standarized randomization method here, no harm
-				// should be done since the real random seed used in the module
-				// is initialized afterwards
-				srand( time( NULL ) );
-				strcpy( game_hint, mnu_GameTip.hint[ (rand() % mnu_GameTip.count) ] );
-				//str_add_linebreaks( game_hint, SDL_arraysize( game_hint ), 40 );	
-			}
+            count = 0;
+            menuState = MM_Entering;
 
-			font = ui_getFont();
+            // Randomize the next game hint     //@todo: Zefz> this isnt properly randomized for some reason
+            if ( mnu_GameTip.count > 0 )
+            {
+                int irand = RANDIE;
+                hintnum = ( irand % mnu_GameTip.count );
+            }
 
-			count = 0;
-			menuState = MM_Entering;
-			// pass through
-		
+            font = ui_getFont();
+
+            count = 0;
+            menuState = MM_Entering;
+            // pass through
+
+            font = ui_getFont();
+
+            count = 0;
+            menuState = MM_Entering;
+            // pass through
 
         case MM_Entering:
             menuState = MM_Running;
@@ -3487,17 +3472,17 @@ int doShowResults( float deltaTime )
                 // Draw a text box
                 ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
 
-				// Draw the game tip
-				if( mnu_GameTip.count > 0 && !INVALID_CSTR( game_hint ) )
-				{
-					int text_w, text_h;
-					
-					fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
-					fnt_drawText( menuFont, (GFX_WIDTH / 2)  - text_w/2, GFX_HEIGHT - 150, "GAME TIP" );
+                // Draw the game tip
+                if ( mnu_GameTip.count > 0 && hintnum <= mnu_GameTip.count && mnu_GameTip.hint[hintnum] != NULL )
+                {
+                    int text_w, text_h;
 
-					fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );
-					ui_drawTextBox( menuFont, game_hint, (GFX_WIDTH / 2) - text_w/2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
-				}
+                    fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
+                    fnt_drawText( menuFont, NULL, ( GFX_WIDTH / 2 )  - text_w / 2, GFX_HEIGHT - 150, "GAME TIP" );
+
+                    fnt_getTextSize( menuFont, mnu_GameTip.hint[hintnum], &text_w, &text_h );
+                    ui_drawTextBox( menuFont, mnu_GameTip.hint[hintnum], ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
+                }
 
                 // keep track of the iterations through this section for a timer
                 count++;
@@ -3621,7 +3606,7 @@ int doGamePaused( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+            menuState = MM_Begin;  // Make sure this all resets next time
 
             // reset the ui
             ui_Reset();
@@ -3984,7 +3969,7 @@ bool_t mnu_checkSelectedPlayer( Uint16 player )
     int i;
     if ( player > loadplayer_count ) return bfalse;
 
-    for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
     {
         if ( mnu_selectedPlayer[i] == player ) return btrue;
     }
@@ -3998,7 +3983,7 @@ Uint16 mnu_getSelectedPlayer( Uint16 player )
     Uint16 ipla;
     if ( player > loadplayer_count ) return MNU_INVALID_PLA;
 
-    for ( ipla = 0; ipla < MAXPLAYER && ipla < mnu_selectedPlayerCount; ipla++ )
+    for ( ipla = 0; ipla < MAX_PLAYER && ipla < mnu_selectedPlayerCount; ipla++ )
     {
         if ( mnu_selectedPlayer[ ipla ] == player ) return ipla;
     }
@@ -4009,7 +3994,7 @@ Uint16 mnu_getSelectedPlayer( Uint16 player )
 //--------------------------------------------------------------------------------------------
 bool_t mnu_addSelectedPlayer( Uint16 player )
 {
-    if ( player > loadplayer_count || mnu_selectedPlayerCount >= MAXPLAYER ) return bfalse;
+    if ( player > loadplayer_count || mnu_selectedPlayerCount >= MAX_PLAYER ) return bfalse;
     if ( mnu_checkSelectedPlayer( player ) ) return bfalse;
 
     mnu_selectedPlayer[mnu_selectedPlayerCount] = player;
@@ -4036,7 +4021,7 @@ bool_t mnu_removeSelectedPlayer( Uint16 player )
     }
     else
     {
-        for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+        for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
         {
             if ( mnu_selectedPlayer[i] == player )
             {
@@ -4048,7 +4033,7 @@ bool_t mnu_removeSelectedPlayer( Uint16 player )
         if ( found )
         {
             i++;
-            for ( /* nothing */; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+            for ( /* nothing */; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
             {
                 mnu_selectedPlayer[i-1] = mnu_selectedPlayer[i];
                 mnu_selectedInput[i-1]  = mnu_selectedInput[i];
@@ -4130,7 +4115,7 @@ bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
     int i;
     bool_t retval = bfalse;
 
-    for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
     {
         if ( mnu_selectedPlayer[i] == player )
         {
@@ -4510,7 +4495,7 @@ int do_menu_proc_begin( menu_process_t * mproc )
     sound_play_song( MENU_SONG, 0, -1 );
 
     // initialize all these structures
-    mnu_init();        // start the menu menu
+    menu_system_begin();        // start the menu menu
 
     // load all module info at menu initialization
     // this will not change unless a new module is downloaded for a network menu?
@@ -4567,6 +4552,9 @@ int do_menu_proc_running( menu_process_t * mproc )
 int do_menu_proc_leaving( menu_process_t * mproc )
 {
     if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+
+    // terminate the menu system
+    menu_system_end();
 
     // finish the menu song
     sound_finish_song( 500 );
@@ -4645,3 +4633,44 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
     return mproc;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void load_game_hints()
+{
+    /// ZF@> This function loads all of the game hints and tips
+    STRING loadpath;
+    STRING buffer;
+    vfs_FILE *fileread;
+    Uint8 cnt;
+
+    // reset the count
+    mnu_GameTip.count = 0;
+
+    // Open the playlist listing all music files
+    snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "menu" SLASH_STR "gametips.txt" );
+    fileread = vfs_openRead( loadpath );
+    if ( fileread == NULL )
+    {
+        log_warning( "Could not load the game tips and hints. (%s)\n", loadpath );
+        return;
+    }
+
+    // Load the data
+    for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
+    {
+        if ( goto_colon( NULL, fileread, btrue ) )
+        {
+            //Read the line
+            fget_string( fileread, buffer, SDL_arraysize( buffer ) );
+            strcpy( mnu_GameTip.hint[cnt], buffer );
+
+            // remove the '_' characters
+            str_decode( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), mnu_GameTip.hint[cnt] );
+
+            //Keep track of how many we have total
+            mnu_GameTip.count++;
+        }
+    }
+
+    vfs_close( fileread );
+}

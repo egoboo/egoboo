@@ -56,7 +56,7 @@ static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ErrorImage_create(void)
+void ErrorImage_create( void )
 {
     /// @details BB@> define a default "error texture"
 
@@ -64,26 +64,26 @@ void ErrorImage_create(void)
 
     if ( INVALID_TX_ID != ErrorImage_binding ) return;
 
-    GL_DEBUG(glGenTextures)( 1, &ErrorImage_binding );
+    GL_DEBUG( glGenTextures )( 1, &ErrorImage_binding );
 
-    for (i = 0; i < ErrorImage_height; i++)
+    for ( i = 0; i < ErrorImage_height; i++ )
     {
-        for (j = 0; j < ErrorImage_width; j++)
+        for ( j = 0; j < ErrorImage_width; j++ )
         {
-            if ( 0 == ((i&0x1) ^ (j&0x1)) )
+            if ( 0 == (( i&0x1 ) ^( j&0x1 ) ) )
             {
-                ErrorImage[i][j][0] = (GLubyte) 255;
-                ErrorImage[i][j][1] = (GLubyte) 0;
-                ErrorImage[i][j][2] = (GLubyte) 0;
+                ErrorImage[i][j][0] = ( GLubyte ) 255;
+                ErrorImage[i][j][1] = ( GLubyte ) 0;
+                ErrorImage[i][j][2] = ( GLubyte ) 0;
             }
             else
             {
-                ErrorImage[i][j][0] = (GLubyte) 0;
-                ErrorImage[i][j][1] = (GLubyte) 255;
-                ErrorImage[i][j][2] = (GLubyte) 255;
+                ErrorImage[i][j][0] = ( GLubyte ) 0;
+                ErrorImage[i][j][1] = ( GLubyte ) 255;
+                ErrorImage[i][j][2] = ( GLubyte ) 255;
             }
 
-            ErrorImage[i][j][3] = (GLubyte) 255;
+            ErrorImage[i][j][3] = ( GLubyte ) 255;
         }
     }
 
@@ -93,61 +93,61 @@ void ErrorImage_create(void)
 }
 
 //--------------------------------------------------------------------------------------------
-void ErrorImage_bind(GLenum target, GLuint id)
+void ErrorImage_bind( GLenum target, GLuint id )
 {
     // make sure the error texture exists
-    if (!ErrorImage_defined) ErrorImage_create();
+    if ( !ErrorImage_defined ) ErrorImage_create();
 
-    GL_DEBUG(glPushClientAttrib)( GL_CLIENT_PIXEL_STORE_BIT ) ;
+    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
-        GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1);
+        GL_DEBUG( glPixelStorei )( GL_UNPACK_ALIGNMENT, 1 );
 
-        GL_DEBUG(glBindTexture)(target, id);
+        GL_DEBUG( glBindTexture )( target, id );
 
-        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        if (target == GL_TEXTURE_1D)
+        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+        GL_DEBUG( glTexParameteri )( target, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+        if ( target == GL_TEXTURE_1D )
         {
-            GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
+            GL_DEBUG( glTexImage1D )( GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage );
         }
         else
         {
-            GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA, ErrorImage_width, ErrorImage_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
+            GL_DEBUG( glTexImage2D )( GL_TEXTURE_2D, 0, GL_RGBA, ErrorImage_width, ErrorImage_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage );
         }
     }
-    GL_DEBUG(glPopClientAttrib)();
+    GL_DEBUG( glPopClientAttrib )();
 }
 
 //--------------------------------------------------------------------------------------------
 GLuint ErrorImage_get_binding()
 {
     // make sure the error texture exists
-    if (!ErrorImage_defined) ErrorImage_create();
+    if ( !ErrorImage_defined ) ErrorImage_create();
 
     return ErrorImage_binding;
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-oglx_texture * oglx_texture_ctor(oglx_texture * ptex)
+oglx_texture * oglx_texture_ctor( oglx_texture * ptex )
 {
     if ( NULL == ptex ) return ptex;
 
-    memset( ptex, 0, sizeof(oglx_texture) );
+    memset( ptex, 0, sizeof( *ptex ) );
 
     // only need one base.binding per texture
     // do not need to ask for a new id, even if we change the texture data
-    GL_DEBUG(glGenTextures)( 1, &(ptex->base.binding) );
+    GL_DEBUG( glGenTextures )( 1, &( ptex->base.binding ) );
 
     // set the flag validity flag
-    if ( VALID_BINDING(ptex->base.binding) && !ERROR_IMAGE_BINDING(ptex->base.binding) )
+    if ( VALID_BINDING( ptex->base.binding ) && !ERROR_IMAGE_BINDING( ptex->base.binding ) )
     {
         ptex->valid = VALID_VALUE;
     }
     else
     {
-        ptex->valid = ~VALID_VALUE;
+        ptex->valid = ( GLuint )( ~VALID_VALUE );
     }
 
     // set to 2d texture by default
@@ -161,17 +161,17 @@ oglx_texture * oglx_texture_ctor(oglx_texture * ptex)
 }
 
 //--------------------------------------------------------------------------------------------
-void oglx_texture_dtor(oglx_texture * ptex)
+void oglx_texture_dtor( oglx_texture * ptex )
 {
-    if ( !VALID_TEXTURE(ptex) )  return;
+    if ( !VALID_TEXTURE( ptex ) )  return;
 
     // set a bad value for ptex->valid
-    ptex->valid = ~VALID_VALUE;
+    ptex->valid = ( GLuint )( ~VALID_VALUE );
 
     // actually delete the OpenGL texture data
-    if ( VALID_BINDING(ptex->base.binding) )
+    if ( VALID_BINDING( ptex->base.binding ) )
     {
-        GL_DEBUG(glDeleteTextures)( 1, &ptex->base.binding );
+        GL_DEBUG( glDeleteTextures )( 1, &ptex->base.binding );
         ptex->base.binding = INVALID_TX_ID;
     }
 
@@ -211,7 +211,7 @@ GLuint oglx_texture_Convert( oglx_texture *ptex, SDL_Surface * image, Uint32 key
     // Determine the correct power of two greater than or equal to the original image's size
     ptex->base.binding = SDL_GL_convert_surface( ptex->base.binding, image, ptex->base.wrap_s, ptex->base.wrap_t );
 
-    ptex->base.target = ((1 == image->h) && (image->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
+    ptex->base.target = (( 1 == image->h ) && ( image->w > 1 ) ) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
     ptex->base.height = powerOfTwo( image->h );
     ptex->base.width  = powerOfTwo( image->w );
 
@@ -221,7 +221,7 @@ GLuint oglx_texture_Convert( oglx_texture *ptex, SDL_Surface * image, Uint32 key
     ptex->imgW       = image->w;
     ptex->imgH       = image->h;
     ptex->alpha      = image->format->alpha / 255.0f;
-    strncpy( ptex->name, "SDL_Surface()", SDL_arraysize(ptex->name) );
+    strncpy( ptex->name, "SDL_Surface()", SDL_arraysize( ptex->name ) );
 
     //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
     //// this texture. Useful for debugging
@@ -237,7 +237,7 @@ GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
     GLuint retval;
     SDL_Surface * image;
 
-    if ( VALID_TEXTURE(ptex) )
+    if ( VALID_TEXTURE( ptex ) )
     {
         // release any old texture
         oglx_texture_Release( ptex );
@@ -245,7 +245,7 @@ GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
     else
     {
         // clean out any uninitialied data
-        ptex = oglx_texture_ctor(ptex);
+        ptex = oglx_texture_ctor( ptex );
         if ( NULL == ptex ) return INVALID_TX_ID;
     }
 
@@ -254,13 +254,13 @@ GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
 
     retval = oglx_texture_Convert( ptex, image, key );
 
-    if ( !VALID_BINDING(retval) )
+    if ( !VALID_BINDING( retval ) )
     {
-        oglx_texture_dtor(ptex);
+        oglx_texture_dtor( ptex );
     }
     else
     {
-        strncpy( ptex->name, filename, SDL_arraysize(ptex->name) );
+        strncpy( ptex->name, filename, SDL_arraysize( ptex->name ) );
 
         ptex->base.wrap_s = GL_REPEAT;
         ptex->base.wrap_t = GL_REPEAT;
@@ -272,31 +272,31 @@ GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
 //---------------------------------------------------------------------------------------------
 GLuint  oglx_texture_GetTextureID( oglx_texture *texture )
 {
-    return (NULL == texture) ? INVALID_TX_ID : texture->base.binding;
+    return ( NULL == texture ) ? INVALID_TX_ID : texture->base.binding;
 }
 
 //---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageHeight( oglx_texture *texture )
 {
-    return (NULL == texture) ? 0 : texture->imgH;
+    return ( NULL == texture ) ? 0 : texture->imgH;
 }
 
 //---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageWidth( oglx_texture *texture )
 {
-    return (NULL == texture) ? 0 : texture->imgW;
+    return ( NULL == texture ) ? 0 : texture->imgW;
 }
 
 //---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureWidth( oglx_texture *texture )
 {
-    return (NULL == texture) ? 0 : texture->base.width;
+    return ( NULL == texture ) ? 0 : texture->base.width;
 }
 
 //---------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureHeight( oglx_texture *texture )
 {
-    return (NULL == texture) ? 0 : texture->base.height;
+    return ( NULL == texture ) ? 0 : texture->base.height;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -311,13 +311,13 @@ void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
 //---------------------------------------------------------------------------------------------
 GLfloat  oglx_texture_GetAlpha( oglx_texture *texture )
 {
-    return (NULL == texture) ? 0 : texture->alpha;
+    return ( NULL == texture ) ? 0 : texture->alpha;
 }
 
 //---------------------------------------------------------------------------------------------
 void  oglx_texture_Release( oglx_texture *texture )
 {
-    if ( !VALID_TEXTURE(texture) ) return;
+    if ( !VALID_TEXTURE( texture ) ) return;
 
     // delete any existing SDL surface
     if ( NULL != texture->surface )
@@ -326,7 +326,7 @@ void  oglx_texture_Release( oglx_texture *texture )
         texture->surface = NULL;
     }
 
-    if (!ErrorImage_defined) ErrorImage_create();
+    if ( !ErrorImage_defined ) ErrorImage_create();
 
     // Bind the error texture instead of the old texture
     ErrorImage_bind( texture->base.target, texture->base.binding );
@@ -334,7 +334,7 @@ void  oglx_texture_Release( oglx_texture *texture )
     // Reset the other data
     texture->imgW = texture->base.width = ErrorImage_width;
     texture->imgH = texture->base.height = ErrorImage_height;
-    strncpy( texture->name, "ErrorImage", sizeof(texture->name) );
+    strncpy( texture->name, "ErrorImage", sizeof( texture->name ) );
 
     // set the image to be repeat in s and t
     texture->base.wrap_s = GL_REPEAT;
@@ -364,7 +364,7 @@ void oglx_texture_Bind( oglx_texture *texture )
         // NULL texture means white blob
         id = INVALID_TX_ID;
     }
-    else if ( VALID_TEXTURE(texture) && VALID_BINDING(texture->base.binding) )
+    else if ( VALID_TEXTURE( texture ) && VALID_BINDING( texture->base.binding ) )
     {
         // grab the info from the texture
         target = texture->base.target;
@@ -377,7 +377,7 @@ void oglx_texture_Bind( oglx_texture *texture )
     id = oglx_bind_to_tex_params( id, target, wrap_s, wrap_t );
 
     // if the texture binding changed, upload the change.
-    if( VALID_TEXTURE(texture) )
+    if ( VALID_TEXTURE( texture ) )
     {
         texture->base.binding = id;
     }
@@ -397,11 +397,11 @@ GLboolean oglx_texture_Valid( oglx_texture *ptex )
 }
 
 //---------------------------------------------------------------------------------------------
-void oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture)
+void oglx_grab_texture_state( GLenum target, GLint level, oglx_texture * texture )
 {
     if ( NULL == texture ) return;
 
-    gl_grab_texture_state( target, level, &(texture->base) );
+    gl_grab_texture_state( target, level, &( texture->base ) );
 
     texture->base_valid = GL_TRUE;
 }
@@ -415,26 +415,26 @@ GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLi
     GLuint local_binding;
 
     // make sure the error texture exists
-    if (!ErrorImage_defined) ErrorImage_create();
+    if ( !ErrorImage_defined ) ErrorImage_create();
 
     // handle default parameters
-    if( wrap_s < 0 ) wrap_s = GL_REPEAT;
-    if( wrap_t < 0 ) wrap_t = GL_REPEAT;
+    if ( wrap_s < 0 ) wrap_s = GL_REPEAT;
+    if ( wrap_t < 0 ) wrap_t = GL_REPEAT;
 
-    local_binding = VALID_BINDING(binding) ? binding : ErrorImage_binding;
+    local_binding = VALID_BINDING( binding ) ? binding : ErrorImage_binding;
 
     filt_type  = tex_params.texturefilter;
     anisotropy = tex_params.userAnisotropy;
 
-    if ( !GL_DEBUG(glIsEnabled)( target ) )
+    if ( !GL_DEBUG( glIsEnabled )( target ) )
     {
-        GL_DEBUG(glEnable)( target );
+        GL_DEBUG( glEnable )( target );
     };
 
     if ( filt_type >= TX_ANISOTROPIC )
     {
         // Anisotropic filtered!
-        oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, anisotropy);
+        oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, anisotropy );
     }
     else
     {
@@ -442,32 +442,32 @@ GLuint oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLi
         {
                 // Unfiltered
             case TX_UNFILTERED:
-                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_NEAREST, GL_LINEAR, 0);
+                oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Linear filtered
             case TX_LINEAR:
-                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, 0);
+                oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR, GL_LINEAR, 0 );
                 break;
 
                 // Bilinear interpolation
             case TX_MIPMAP:
-                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR, 0);
+                oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Bilinear interpolation
             case TX_BILINEAR:
-                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, 0);
+                oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, 0 );
                 break;
 
                 // Trilinear filtered (quality 1)
             case TX_TRILINEAR_1:
-                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR, 0);
+                oglx_bind( target, local_binding, wrap_s, wrap_t, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR, 0 );
                 break;
 
                 // Trilinear filtered (quality 2)
             case TX_TRILINEAR_2:
-                oglx_bind(target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, 0);
+                oglx_bind( target, local_binding, wrap_s, wrap_t, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, 0 );
                 break;
         };
     }

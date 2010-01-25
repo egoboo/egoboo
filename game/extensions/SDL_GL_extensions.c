@@ -92,10 +92,10 @@ SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texC
 
     GLfloat local_texCoords[4];
 
-    if( NULL == surface ) return SDL_FALSE;
+    if ( NULL == surface ) return SDL_FALSE;
 
     // handle the optional parameters
-    if( NULL == texCoords ) texCoords = local_texCoords;
+    if ( NULL == texCoords ) texCoords = local_texCoords;
 
     // Use the surface width & height expanded to the next powers of two
     tx_w = powerOfTwo( surface->w );
@@ -103,8 +103,8 @@ SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texC
 
     texCoords[0] = 0.0f;
     texCoords[1] = 0.0f;
-    texCoords[2] = ( GLfloat )surface->w /  ( GLfloat )tx_w;
-    texCoords[3] = ( GLfloat )surface->h /  ( GLfloat )tx_h;
+    texCoords[2] = ( GLfloat )surface->w / ( GLfloat )tx_w;
+    texCoords[3] = ( GLfloat )surface->h / ( GLfloat )tx_h;
 
     // use the default wrap parameters
     SDL_GL_convert_surface( tx_id, surface, -1, -1 );
@@ -113,50 +113,50 @@ SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texC
 }
 
 //------------------------------------------------------------------------------
-SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
+SDL_bool SDL_GL_set_gl_mode( struct s_oglx_video_parameters * v )
 {
     /// @details BB@> this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.
 
-    if (NULL == v || !SDL_WasInit(SDL_INIT_VIDEO)) return SDL_FALSE;
+    if ( NULL == v || !SDL_WasInit( SDL_INIT_VIDEO ) ) return SDL_FALSE;
 
-    oglx_Get_Screen_Info(&ogl_caps);
+    oglx_Get_Screen_Info( &ogl_caps );
 
     if ( v->multisample_arb )
     {
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE);
-        GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
+        GL_DEBUG( glDisable )( GL_MULTISAMPLE );
+        GL_DEBUG( glEnable )( GL_MULTISAMPLE_ARB );
     }
     else if ( v->multisample )
     {
-        GL_DEBUG(glEnable)(GL_MULTISAMPLE);
+        GL_DEBUG( glEnable )( GL_MULTISAMPLE );
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE);
-        GL_DEBUG(glDisable)(GL_MULTISAMPLE_ARB);
+        GL_DEBUG( glDisable )( GL_MULTISAMPLE );
+        GL_DEBUG( glDisable )( GL_MULTISAMPLE_ARB );
     }
 
     // Enable perspective correction?
-    GL_DEBUG(glHint)(GL_PERSPECTIVE_CORRECTION_HINT, v->perspective );
+    GL_DEBUG( glHint )( GL_PERSPECTIVE_CORRECTION_HINT, v->perspective );
 
     // Enable dithering?
-    if ( v->dither ) GL_DEBUG(glEnable)(GL_DITHER );
-    else GL_DEBUG(glDisable)(GL_DITHER );
+    if ( v->dither ) GL_DEBUG( glEnable )( GL_DITHER );
+    else GL_DEBUG( glDisable )( GL_DITHER );
 
     // Enable gourad v->shading? (Important!)
-    GL_DEBUG(glShadeModel)(v->shading );
+    GL_DEBUG( glShadeModel )( v->shading );
 
     // Enable v->antialiasing?
     if ( v->antialiasing )
     {
-        GL_DEBUG(glEnable)(GL_LINE_SMOOTH );
-        GL_DEBUG(glHint)(GL_LINE_SMOOTH_HINT,    GL_NICEST );
+        GL_DEBUG( glEnable )( GL_LINE_SMOOTH );
+        GL_DEBUG( glHint )( GL_LINE_SMOOTH_HINT,    GL_NICEST );
 
-        GL_DEBUG(glEnable)(GL_POINT_SMOOTH );
-        GL_DEBUG(glHint)(GL_POINT_SMOOTH_HINT,   GL_NICEST );
+        GL_DEBUG( glEnable )( GL_POINT_SMOOTH );
+        GL_DEBUG( glHint )( GL_POINT_SMOOTH_HINT,   GL_NICEST );
 
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH );
-        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
+        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
+        GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
 
         // PLEASE do not turn this on unless you use
         // GL_DEBUG(glEnable)(GL_BLEND);
@@ -168,9 +168,9 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
     }
     else
     {
-        GL_DEBUG(glDisable)(GL_POINT_SMOOTH );
-        GL_DEBUG(glDisable)(GL_LINE_SMOOTH );
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH );
+        GL_DEBUG( glDisable )( GL_POINT_SMOOTH );
+        GL_DEBUG( glDisable )( GL_LINE_SMOOTH );
+        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
     }
 
     // anisotropic filtering
@@ -182,20 +182,20 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
             v->userAnisotropy = ogl_caps.maxAnisotropy;
         }
 
-        GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
+        GL_DEBUG( glTexParameterf )( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
     };
 
     // fill mode
-    GL_DEBUG(glPolygonMode)(GL_FRONT, GL_FILL );
-    GL_DEBUG(glPolygonMode)(GL_BACK,  GL_FILL );
+    GL_DEBUG( glPolygonMode )( GL_FRONT, GL_FILL );
+    GL_DEBUG( glPolygonMode )( GL_BACK,  GL_FILL );
 
     /* Disable OpenGL lighting */
-    GL_DEBUG(glDisable)(GL_LIGHTING );
+    GL_DEBUG( glDisable )( GL_LIGHTING );
 
     /* Backface culling */
     // The glEnable() seems implied - DDOI
-    GL_DEBUG(glEnable)( GL_CULL_FACE );  // GL_ENABLE_BIT
-    GL_DEBUG(glCullFace)( GL_BACK );     // GL_ENABLE_BIT | GL_POLYGON_BIT
+    GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
+    GL_DEBUG( glCullFace )( GL_BACK );   // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     return SDL_TRUE;
 }
@@ -203,7 +203,7 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
 //------------------------------------------------------------------------------
 void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
 {
-    SDL_Surface * surface = (NULL == retval) ? NULL : retval->surface;
+    SDL_Surface * surface = ( NULL == retval ) ? NULL : retval->surface;
 
     SDLX_set_stdout( LOCAL_STDOUT );
     SDLX_report_mode( surface, retval );
@@ -218,7 +218,7 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
 }
 
 //------------------------------------------------------------------------------
-SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new)
+SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new )
 {
     /// @details BB@> let SDL_GL try to set a new video mode.
 
@@ -226,14 +226,14 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     SDLX_video_parameters_t * retval = NULL;
 
     // initialize v_old and param_old
-    if (NULL == v_old)
+    if ( NULL == v_old )
     {
         SDLX_video_parameters_default( &param_old );
         v_old = &param_old;
     }
     else
     {
-        memcpy(&param_old, v_old, sizeof(SDLX_video_parameters_t));
+        memcpy( &param_old, v_old, sizeof( SDLX_video_parameters_t ) );
     }
 
     // use the sdl extensions to set the SDL video mode
@@ -258,7 +258,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-FILE * SDL_GL_set_stdout(FILE * pfile)
+FILE * SDL_GL_set_stdout( FILE * pfile )
 {
     FILE * pfile_old = _SDL_GL_stdout;
 
@@ -293,18 +293,18 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     local_surface = surface;
 
     // handle default parameters
-    if( wrap_s < 0 ) wrap_s = GL_REPEAT;
-    if( wrap_t < 0 ) wrap_t = GL_REPEAT;
+    if ( wrap_s < 0 ) wrap_s = GL_REPEAT;
+    if ( wrap_t < 0 ) wrap_t = GL_REPEAT;
 
     // grab the screen information
-    SDLX_Get_Screen_Info(&sdl_scr, SDL_FALSE);
+    SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
 
     /* Set the original local_surface's size (incase it's not an exact square of a power of two) */
     srf_h = local_surface->h;
     srf_w = local_surface->w;
 
     // adjust the texture target
-    target = ((1 == local_surface->h) && (local_surface->w > 1)) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
+    target = (( 1 == local_surface->h ) && ( local_surface->w > 1 ) ) ? GL_TEXTURE_1D : GL_TEXTURE_2D;
 
     /* Determine the correct power of two greater than or equal to the original local_surface's size */
     tx_h = powerOfTwo( local_surface->h );
@@ -369,7 +369,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
         // convert the local_surface format to the correct format
         convert_flags = SDL_SWSURFACE;
         tmp = SDL_ConvertSurface( local_surface, &tmpformat, convert_flags );
-        if( local_surface != surface ) SDL_FreeSurface( local_surface );
+        if ( local_surface != surface ) SDL_FreeSurface( local_surface );
         local_surface = tmp;
 
         // fix the alpha channel on the new SDL_Surface.  For some reason, SDL wants to create
@@ -390,14 +390,15 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
         SDL_Surface * tmp = SDL_CreateRGBSurface( SDL_SWSURFACE, tx_w, tx_h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
 
         SDL_BlitSurface( local_surface, &local_surface->clip_rect, tmp, &local_surface->clip_rect );
-        if( local_surface != surface ) SDL_FreeSurface( local_surface );
+        if ( local_surface != surface )
+            SDL_FreeSurface( local_surface );
         local_surface = tmp;
     };
 
     /* Generate an OpenGL texture ID */
-    if ( !VALID_BINDING(binding) || ERROR_IMAGE_BINDING(binding) )
+    if ( !VALID_BINDING( binding ) || ERROR_IMAGE_BINDING( binding ) )
     {
-        GL_DEBUG(glGenTextures)( 1, &binding );
+        GL_DEBUG( glGenTextures )( 1, &binding );
     }
 
     /* Set up some parameters for the format of the oglx_texture */
@@ -409,21 +410,23 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     {
         if ( tex_params.texturefilter >= TX_MIPMAP )
         {
-            oglx_upload_2d_mipmap(use_alpha, local_surface->w, local_surface->h, local_surface->pixels);
+            oglx_upload_2d_mipmap( use_alpha, local_surface->w, local_surface->h, local_surface->pixels );
         }
         else
         {
-            oglx_upload_2d(use_alpha, local_surface->w, local_surface->h, local_surface->pixels);
+            oglx_upload_2d( use_alpha, local_surface->w, local_surface->h, local_surface->pixels );
         }
     }
-    else if (target == GL_TEXTURE_1D)
+    else if ( target == GL_TEXTURE_1D )
     {
-        oglx_upload_1d(use_alpha, local_surface->w, local_surface->pixels);
+        oglx_upload_1d( use_alpha, local_surface->w, local_surface->pixels );
     }
     else
     {
-        assert(0);
+        assert( 0 );
     }
+
+    if ( local_surface != surface )  SDL_FreeSurface( local_surface );
 
     return binding;
 }

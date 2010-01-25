@@ -57,6 +57,7 @@ struct s_ui_Widget
 {
     ui_id_t       id;
     Font         *pfont;
+    SDL_Surface  *text_surf;
     const char   *text;
     oglx_texture *img;
     Uint32 mask,  state, timeout;
@@ -75,8 +76,8 @@ bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits );
 bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits );
 
 /// Initialize or shut down the ui system
-int  ui_initialize( const char *default_font, int default_font_size );
-void ui_shutdown();
+int  ui_begin( const char *default_font, int default_font_size );
+void ui_end();
 void ui_Reset();
 
 /// Pass input data from SDL to the ui

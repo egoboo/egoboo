@@ -131,7 +131,7 @@ struct s_chr_instance
     fmat_4x4_t     matrix;           ///< Character's matrix
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
 
-    Uint16         turn_z;
+    Uint16         facing_z;
 
     // render mode info
     Uint8          alpha;           ///< 255 = Solid, 0 = Invisible
@@ -174,8 +174,8 @@ struct s_chr_instance
     Uint32         lighting_frame_all;             ///< update some lighting info no more than once a frame
 
     // linear interpolated frame vertices
-    size_t         vlst_size;
-    GLvertex     * vlst;
+    size_t         vrt_count;
+    GLvertex     * vrt_lst;
     oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations
@@ -212,4 +212,4 @@ egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, 
 
 egoboo_rv chr_instance_increment_action( chr_instance_t * pinst );
 egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Uint16 imount );
-egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, Uint8 actionready );
+egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, bool_t actionready );

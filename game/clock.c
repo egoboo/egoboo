@@ -25,10 +25,11 @@
 
 #include "system.h"
 #include "log.h"
-#include "egoboo_mem.h"
 
 #include <stddef.h>
 #include <stdlib.h>
+
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -115,32 +116,34 @@ bool_t clk_destroy( ClockState_t ** pcs )
 {
     bool_t retval;
 
-    if ( NULL == pcs || NULL == *pcs ) return bfalse;
+    if ( NULL == pcs ) return bfalse;
 
-    retval = clk_dtor( *pcs );
+    if ( NULL == *pcs ) return btrue;
+
+    clk_dtor( *pcs );
     EGOBOO_DELETE( *pcs );
 
-    return retval;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int size )
+ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int window_size )
 {
     clock_source_ptr_t psrc;
+
     if ( NULL == cs ) return cs;
 
-    if ( size < 0 ) size = 1;
-    //log_info("clk_ctor() - \n    \"%s\"    %d buffer(s)\n", name, size);
-
     memset( cs, 0, sizeof( *cs ) );
-
-    cs->maximumFrameTime = 0.2;
-    cs->name = name;
-    clk_setFrameHistoryWindow( cs, size );
 
     psrc = clock_getTimeSource();
     cs->sourceStartTime = psrc();
     cs->sourceLastTime  = cs->sourceStartTime;
+
+    cs->maximumFrameTime = 0.2;
+    cs->name = name;
+
+    if ( window_size < 0 ) window_size = 1;
+    clk_setFrameHistoryWindow( cs, window_size );
 
     return cs;
 }
@@ -150,7 +153,9 @@ bool_t clk_dtor( ClockState_t * cs )
 {
     if ( NULL == cs ) return bfalse;
 
-    EGOBOO_DELETE( cs->frameHistory );
+    EGOBOO_DELETE_ARY( cs->frameHistory );
+
+    memset( cs, 0, sizeof( *cs ) );
 
     return btrue;
 }
@@ -172,29 +177,38 @@ ClockState_t * clk_renew( ClockState_t * cs )
 void clk_setFrameHistoryWindow( ClockState_t * cs, int size )
 {
     double *history;
-    int oldSize = cs->frameHistoryWindow;
-    int less;
+    int oldSize, newSize;
 
-    // The frame history has to be at least 1
-    cs->frameHistoryWindow = ( size > 1 ) ? size : 1;
-    history = EGOBOO_NEW_ARY( double, cs->frameHistoryWindow );
+    if ( NULL == cs ) return;
 
-    if ( NULL == cs->frameHistory )
+    // Save the old size of the array
+    oldSize = cs->frameHistoryWindow;
+
+    // Determine the new size of the array (minimum of 1)
+    newSize = ( size <= 1 ) ? 1 : size;
+
+    // create the new array
+    history = EGOBOO_NEW_ARY( double, newSize );
+    if ( NULL != history )
     {
-        memset( history, 0, sizeof( double ) * cs->frameHistoryWindow );
+        memset( history, 0, sizeof( double ) * newSize );
     }
-    else
+
+    if ( NULL != cs->frameHistory )
     {
+        int smaller;
+
         // Copy over the older history.  Make sure that only the size of the
         // smaller buffer is copied
-        less = ( cs->frameHistoryWindow < oldSize ) ? cs->frameHistoryWindow : oldSize;
-        memcpy( history, cs->frameHistory, less );
+        smaller = ( newSize < oldSize ) ? newSize : oldSize;
+        memcpy( history, cs->frameHistory, smaller );
 
-        EGOBOO_DELETE( cs->frameHistory );
+        EGOBOO_DELETE_ARY( cs->frameHistory );
     }
 
-    cs->frameHistoryHead = 0;
-    cs->frameHistory = history;
+    cs->frameHistoryHead   = 0;
+    cs->frameHistory       = history;
+    cs->frameHistoryWindow = newSize;
 }
 
 //--------------------------------------------------------------------------------------------

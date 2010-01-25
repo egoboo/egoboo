@@ -79,7 +79,7 @@ static void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Core functions
-int ui_initialize( const char *default_font, int default_font_size )
+int ui_begin( const char *default_font, int default_font_size )
 {
     // initialize the font handler
     fnt_init();
@@ -97,12 +97,17 @@ int ui_initialize( const char *default_font, int default_font_size )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_shutdown()
+void ui_end()
 {
-    if ( ui_context.defaultFont )
+    // clear out the default font
+    if ( NULL != ui_context.defaultFont )
     {
         fnt_freeFont( ui_context.defaultFont );
+        ui_context.defaultFont = NULL;
     }
+
+    // clear out the active font
+    ui_context.activeFont = NULL;
 
     memset( &ui_context, 0, sizeof( ui_context ) );
 }
@@ -509,7 +514,7 @@ void ui_drawTextBox( Font * font, const char *text, float vx, float vy, float vw
     spacing = ui_context.ah * vspacing;
 
     // draw using screen coordinates
-    fnt_drawTextBox( font, x1, y1, x2 - x1, y2 - y1, spacing, text );
+    fnt_drawTextBox( font, NULL, x1, y1, x2 - x1, y2 - y1, spacing, text );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -544,7 +549,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
         text_y = (( y2 - y1 ) - text_h ) / 2 + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText( font, text_x, text_y, text );
+        fnt_drawText( font, NULL, text_x, text_y, text );
     }
 
     return result;
@@ -605,7 +610,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const c
         text_y = (( y2 - y1 ) - text_h ) / 2         + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText( font, text_x, text_y, text );
+        fnt_drawText( font, NULL, text_x, text_y, text );
     }
 
     return result;
@@ -670,7 +675,7 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         text_y = (( y2 - y1 ) - text_h ) / 2                + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText( pw->pfont, text_x, text_y, pw->text );
+        fnt_drawText( pw->pfont, &( pw->text_surf ), text_x, text_y, pw->text );
     }
 
     return result;
@@ -780,7 +785,7 @@ void ui_set_virtual_screen( float vw, float vh, float ww, float wh )
     /// @details BB@> set up the ui's virtual screen
 
     float k;
-    Font * ftmp;
+    Font * old_defaultFont;
 
     // define the virtual screen
     ui_context.vw = vw;
@@ -802,21 +807,18 @@ void ui_set_virtual_screen( float vw, float vh, float ww, float wh )
     ui_context.ibh = -ui_context.bh * ui_context.iah;
 
     // make sure the font is sized right for the virtual screen
-    ftmp = ui_context.defaultFont;
+    old_defaultFont = ui_context.defaultFont;
     if ( NULL != ui_context.defaultFont )
     {
         fnt_freeFont( ui_context.defaultFont );
     }
-    ui_context.defaultFont = NULL;
-
-    // clear out the default font
-    if ( NULL != ui_context.activeFont && ftmp != ui_context.activeFont )
-    {
-        fnt_freeFont( ui_context.activeFont );
-    }
-    ui_context.activeFont = NULL;
-
     ui_context.defaultFont = ui_loadFont( ui_context.defaultFontName, ui_context.defaultFontSize );
+
+    // fix the active font. in general, we do not own it, so do not delete
+    if ( NULL == ui_context.activeFont || old_defaultFont == ui_context.activeFont )
+    {
+        ui_context.activeFont = ui_context.defaultFont;
+    }
 }
 
 //--------------------------------------------------------------------------------------------

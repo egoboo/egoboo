@@ -48,11 +48,11 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
     {
         Uint32 i;
 
-        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        for (i = 0; i < pself->indent; i++) { fprintf( scr_file, "  " ); }
+        for ( i = 0; i < pself->indent; i++ ) { fprintf( scr_file, "  " ); }
 
-        for (i = 0; i < MAXCODE; i++)
+        for ( i = 0; i < MAXCODE; i++ )
         {
             if ( 'F' == cCodeType[i] && valuecode == iCodeValue[i] )
             {
@@ -117,7 +117,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
 
         case FIFTARGETKILLED:
             // Proceed only if the character's target has just died
-			returncode = ( 0 != ( pself->alert & ALERTIF_TARGETKILLED ) || !ChrList.lst[pself->target].alive );
+            returncode = ( 0 != ( pself->alert & ALERTIF_TARGETKILLED ) || !ChrList.lst[pself->target].alive );
             break;
 
         case FCLEARWAYPOINTS:
@@ -169,8 +169,8 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
                 if ( pstate->distance != MOVE_FOLLOW )
                 {
                     //sTmp = ( pstate->turn + 16384 );
-                    pstate->x = pstate->x - turntocos[(pstate->turn & 0xFFFF)>>2] * pstate->distance;
-                    pstate->y = pstate->y - turntosin[(pstate->turn & 0xFFFF)>>2] * pstate->distance;
+                    pstate->x = pstate->x - turntocos[( pstate->turn & 0xFFFF )>>2] * pstate->distance;
+                    pstate->y = pstate->y - turntosin[( pstate->turn & 0xFFFF )>>2] * pstate->distance;
                 }
 
                 // Then we add the waypoint(s), without clearing existing ones...
@@ -187,8 +187,8 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // This function changes tmpx and tmpy in a circlular manner according
             // to tmpturn and tmpdistance
             //sTmp = ( pstate->turn + 16384 );
-            pstate->x -= turntocos[(pstate->turn & 0xFFFF)>>2] * pstate->distance;
-            pstate->y -= turntosin[(pstate->turn & 0xFFFF)>>2] * pstate->distance;
+            pstate->x -= turntocos[( pstate->turn & 0xFFFF )>>2] * pstate->distance;
+            pstate->y -= turntosin[( pstate->turn & 0xFFFF )>>2] * pstate->distance;
             break;
 
         case FGETTARGETARMORPRICE:
@@ -223,7 +223,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
         case FSETTARGETTONEARBYENEMY:
             // This function finds a nearby enemy, and proceeds only if there is one
             returncode = bfalse;
-            if (get_target( pself->index, NEARBY, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
+            if ( get_target( pself->index, NEARBY, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR ) returncode = btrue;
 
             break;
 
@@ -378,7 +378,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // This function proceeds if ID matches tmpargument
             returncode = bfalse;
 
-            returncode = (0 != check_skills( pself->target, ( IDSZ )pstate->argument ));
+            returncode = ( 0 != check_skills( pself->target, ( IDSZ )pstate->argument ) );
 
             break;
 
@@ -521,7 +521,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
 
             while ( sTmp != MAXCHR )
             {
-                if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == ( IDSZ) pstate->argument || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
+                if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
                 {
                     returncode = btrue;
                     iTmp = sTmp;
@@ -807,7 +807,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
                     ChrList[sTmp].ai.owner   = pself->owner;
                 }
             }
-            returncode = (sTmp != MAXCHR);
+            returncode = ( sTmp != MAXCHR );
             break;
 
         case FRESPAWNCHARACTER:
@@ -1022,8 +1022,8 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
                 pself->target = sTmp;
             }
 
-            pstate->x = ( ( pself->order >> 14 ) & 1023 ) << 6;
-            pstate->y = ( ( pself->order >> 4 ) & 1023 ) << 6;
+            pstate->x = (( pself->order >> 14 ) & 1023 ) << 6;
+            pstate->y = (( pself->order >> 4 ) & 1023 ) << 6;
             pstate->argument = pself->order & 15;
             break;
 
@@ -1035,7 +1035,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
         case FSETTARGETTOWIDEENEMY:
             // This function finds an enemy, and proceeds only if there is one
             returncode = bfalse;
-            if (get_target( pself->index, WIDE, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
+            if ( get_target( pself->index, WIDE, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR ) returncode = btrue;
 
             break;
 
@@ -1615,7 +1615,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // This function passes if the character's skin is dressy
             iTmp = pchr->skin;
             iTmp = 1 << iTmp;
-            returncode = ( ( CapList[pchr->model].skindressy & iTmp ) != 0 );
+            returncode = (( CapList[pchr->model].skindressy & iTmp ) != 0 );
             break;
 
         case FIFOVERWATER:
@@ -1623,7 +1623,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             if ( INVALID_TILE != pchr->onwhichfan )
             {
-                returncode = ( ( mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_WATER ) != 0 && wateriswater );
+                returncode = (( mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_WATER ) != 0 && wateriswater );
             }
             break;
 
@@ -1681,7 +1681,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
 
             tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
-            returncode = (tTmp != TOTALMAXPRT);
+            returncode = ( tTmp != TOTALMAXPRT );
             break;
 
         case FSPAWNEXACTPARTICLE:
@@ -1826,15 +1826,15 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // tmpargument and tmpdistance
             {
                 TARGET_TYPE blahteam = ALL;
-                if ( ( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
-                if ( (( pstate->distance >> 1 ) & 1) && blahteam == FRIEND ) blahteam = ALL;
-                else if ((( pstate->distance >> 1 ) & 1)) blahteam = ENEMY;
+                if (( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
+                if ((( pstate->distance >> 1 ) & 1 ) && blahteam == FRIEND ) blahteam = ALL;
+                else if ((( pstate->distance >> 1 ) & 1 ) ) blahteam = ENEMY;
                 else returncode = bfalse;
-                if (returncode)
+                if ( returncode )
                 {
                     returncode = bfalse;
-                    if (get_target(pself->index, WIDE, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                                   ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
+                    if ( get_target( pself->index, WIDE, blahteam, (( pstate->distance >> 3 ) & 1 ),
+                                     (( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1 ) ) != MAXCHR ) returncode = btrue;
                 }
             }
             break;
@@ -1902,7 +1902,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             {
                 PrtList[tTmp].size = pstate->turn;
             }
-            returncode = (tTmp != TOTALMAXPRT);
+            returncode = ( tTmp != TOTALMAXPRT );
             break;
 
         case FCHANGEARMOR:
@@ -1952,7 +1952,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
 
             tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pstate->turn & 0xFFFF, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
-            returncode = (tTmp != TOTALMAXPRT);
+            returncode = ( tTmp != TOTALMAXPRT );
             break;
 
         case FIFSTATEISODD:
@@ -1963,7 +1963,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // This function finds an enemy, within a certain distance to the character, and
             // proceeds only if there is one
             returncode = bfalse;
-            if (get_target(pself->index, pstate->distance, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
+            if ( get_target( pself->index, pstate->distance, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR ) returncode = btrue;
 
             break;
 
@@ -2184,7 +2184,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
 
             tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
-            returncode = (tTmp != TOTALMAXPRT);
+            returncode = ( tTmp != TOTALMAXPRT );
             break;
 
         case FSETTARGETRELOADTIME:
@@ -2366,7 +2366,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
                 }
             }
 
-            returncode = (sTmp != MAXCHR);
+            returncode = ( sTmp != MAXCHR );
             break;
 
         case FSPAWNEXACTCHARACTERXYZ:
@@ -2391,7 +2391,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
                     ChrList[sTmp].ai.owner   = pself->owner;
                 }
             }
-            returncode = (sTmp != MAXCHR);
+            returncode = ( sTmp != MAXCHR );
             break;
 
         case FCHANGETARGETCLASS:
@@ -2418,15 +2418,15 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             {
                 PrtList[tTmp].target = pself->target;
             }
-            returncode = (tTmp != TOTALMAXPRT);
+            returncode = ( tTmp != TOTALMAXPRT );
             break;
 
         case FCREATEORDER:
             // This function packs up an order, using tmpx, tmpy, tmpargument and the
             // target ( if valid ) to create a new tmpargument
             sTmp = pself->target << 24;
-            sTmp |= ( ( pstate->x >> 6 ) & 1023 ) << 14;
-            sTmp |= ( ( pstate->y >> 6 ) & 1023 ) << 4;
+            sTmp |= (( pstate->x >> 6 ) & 1023 ) << 14;
+            sTmp |= (( pstate->y >> 6 ) & 1023 ) << 4;
             sTmp |= ( pstate->argument & 15 );
             pstate->argument = sTmp;
             break;
@@ -2502,13 +2502,13 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             {
                 TARGET_TYPE blahteam = NONE;
                 returncode = bfalse;
-                if ( ( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
-                if ( (( pstate->distance >> 1 ) & 1) && blahteam == FRIEND ) blahteam = ALL;
-                else if ((( pstate->distance >> 1 ) & 1)) blahteam = ENEMY;
-                if (blahteam != NONE)
+                if (( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
+                if ((( pstate->distance >> 1 ) & 1 ) && blahteam == FRIEND ) blahteam = ALL;
+                else if ((( pstate->distance >> 1 ) & 1 ) ) blahteam = ENEMY;
+                if ( blahteam != NONE )
                 {
-                    if (get_target(pself->index, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                                   ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
+                    if ( get_target( pself->index, NEAREST, blahteam, (( pstate->distance >> 3 ) & 1 ),
+                                     (( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1 ) ) != MAXCHR ) returncode = btrue;
                 }
             }
             break;
@@ -2517,7 +2517,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // This function finds the nearest target that meets the
             // requirements
             returncode = bfalse;
-            if (get_target(pself->index, 0, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR) returncode = btrue;
+            if ( get_target( pself->index, 0, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR ) returncode = btrue;
 
             break;
 
@@ -2525,7 +2525,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // This function finds the nearest target that meets the
             // requirements
             returncode = bfalse;
-            if (get_target(pself->index, 0, FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR) returncode = btrue;
+            if ( get_target( pself->index, 0, FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR ) returncode = btrue;
 
             break;
 
@@ -2533,7 +2533,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             // This function finds the nearest target that meets the
             // requirements
             returncode = bfalse;
-            if (get_target(pself->index, 0, ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR) returncode = btrue;
+            if ( get_target( pself->index, 0, ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR ) returncode = btrue;
 
             break;
 
@@ -2587,10 +2587,10 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             sTmp = pself->target;
             if ( ChrList[sTmp].ammomax != 0 )  ChrList[sTmp].ammoknown = btrue;
             if ( ChrList[sTmp].name[0] != 'B' ||
-                    ChrList[sTmp].name[1] != 'l' ||
-                    ChrList[sTmp].name[2] != 'a' ||
-                    ChrList[sTmp].name[3] != 'h' ||
-                    ChrList[sTmp].name[4] != 0 )
+                 ChrList[sTmp].name[1] != 'l' ||
+                 ChrList[sTmp].name[2] != 'a' ||
+                 ChrList[sTmp].name[3] != 'h' ||
+                 ChrList[sTmp].name[4] != 0 )
             {
                 returncode = !ChrList[sTmp].nameknown;
                 ChrList[sTmp].nameknown = btrue;
@@ -2889,7 +2889,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             {
                 PrtList[tTmp].spawncharacterstate = pstate->turn;
             }
-            returncode = (tTmp != TOTALMAXPRT);
+            returncode = ( tTmp != TOTALMAXPRT );
             break;
 
         case FSPAWNPOOFSPEEDSPACINGDAMAGE:
@@ -3004,11 +3004,11 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
                 // !!!use the message text to control the links!!!!
                 returncode = link_follow_modname( ptext, btrue );
 
-                if (!returncode)
+                if ( !returncode )
                 {
                     STRING tmpbuf;
-                    snprintf(tmpbuf, sizeof(tmpbuf), "That's too scary for %s...", pchr->name );
-                    debug_message(tmpbuf);
+                    snprintf( tmpbuf, sizeof( tmpbuf ), "That's too scary for %s...", pchr->name );
+                    debug_message( tmpbuf );
                 }
             }
             break;
@@ -3025,7 +3025,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
         case FIFTARGETISAWEAPON:
             // Proceeds if the AI target is a melee or ranged weapon
             sTmp = ChrList[pself->target].model;
-            returncode = CapList[sTmp].isranged || (CapList[sTmp].weaponaction != ACTIONPA);
+            returncode = CapList[sTmp].isranged || ( CapList[sTmp].weaponaction != ACTIONPA );
             break;
 
         case FIFSOMEONEISSTEALING:
@@ -3038,9 +3038,9 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             iTmp = 0;
             returncode = bfalse;
 
-            while (iTmp < MAXPRTPIPPEROBJECT)
+            while ( iTmp < MAXPRTPIPPEROBJECT )
             {
-                if (PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].wisdamagebonus)
+                if ( PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].wisdamagebonus )
                 {
                     returncode = btrue;
                     break;
@@ -3089,11 +3089,11 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             iTmp = 0;
 
-            while (iTmp < MAXCHR)
+            while ( iTmp < MAXCHR )
             {
                 if ( ChrList[iTmp].isplayer )
                 {
-                    if (modify_quest_idsz( ChrList[iTmp].name, (IDSZ)pstate->argument, 0 ) == QUEST_BEATEN) returncode = btrue;
+                    if ( modify_quest_idsz( ChrList[iTmp].name, ( IDSZ )pstate->argument, 0 ) == QUEST_BEATEN ) returncode = btrue;
                 }
 
                 iTmp++;
@@ -3122,7 +3122,7 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             if ( ChrList[pself->target].isplayer && pstate->distance != 0 )
             {
-                if (modify_quest_idsz( ChrList[pself->target].name, pstate->argument, pstate->distance ) > QUEST_NONE) returncode = btrue;
+                if ( modify_quest_idsz( ChrList[pself->target].name, pstate->argument, pstate->distance ) > QUEST_NONE ) returncode = btrue;
             }
             break;
 
@@ -3132,16 +3132,16 @@ Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself )
             iTmp = 0;
             returncode = bfalse;
 
-            while (iTmp < MAXPLAYER)
+            while ( iTmp < MAXPLAYER )
             {
                 if ( ChrList[PlaList[iTmp].index].isplayer )
                 {
                     returncode = btrue;
-                    if (!add_quest_idsz(ChrList[PlaList[iTmp].index].name , pstate->argument ))       //Try to add it if not already there or beaten
+                    if ( !add_quest_idsz( ChrList[PlaList[iTmp].index].name , pstate->argument ) )    //Try to add it if not already there or beaten
                     {
                         Sint16 i;
-                        i = check_player_quest( ChrList[PlaList[iTmp].index].name, pstate->argument);   //Get the current quest level
-                        if (i < 0 || i >= pstate->distance) returncode = bfalse;      //It was already beaten
+                        i = check_player_quest( ChrList[PlaList[iTmp].index].name, pstate->argument );  //Get the current quest level
+                        if ( i < 0 || i >= pstate->distance ) returncode = bfalse;    //It was already beaten
                         else modify_quest_idsz( ChrList[PlaList[iTmp].index].name, pstate->argument, pstate->distance );//Not beaten yet, increase level by 1
                     }
                 }

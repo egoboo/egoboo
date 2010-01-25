@@ -22,7 +22,6 @@
 /// @file egoboo_math.h
 /// @The name's pretty self explanatory, doncha think?
 
-#include <math.h>
 #include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
@@ -64,9 +63,10 @@
 /// @note - Aaron uses two terms without much attention to their meaning
 ///         I think that we should use "face" or "facing" to mean the fill 16-bit value
 ///         and use "turn" to be the TRIG_TABLE_BITS-bit value
+typedef Uint16 FACING_T;
 
-extern float turntosin[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  to sine
-extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  to cosine
+extern float turntosin[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to sine
+extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to cosine
 
 /// pre defined directions
 #define FACE_WEST    0x0000
@@ -146,19 +146,10 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert chrturn>>2...  t
 #   define INV_FFFF            0.000015259021896696421759365224689097f
 #endif
 
-#define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
-#define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
-#define FP8_TO_INT(V1)     ( (V1) >> 8 )                      ///< fast version of V1 / 256
-#define INT_TO_FP8(V1)     ( (V1) << 8 )                      ///< fast version of V1 * 256
-#define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )
-#define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )
-
 #define FF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FF )
 
 #define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF )
 #define FLOAT_TO_FFFF( V1 )  ( ((V1) * 0xFFFF) )
-
-#define FLOAT_TO_FP16( V1 )  ( (Uint32)((V1) * 0x00010000) )
 
 #define CLIP_TO_08BITS( V1 )  ( (V1) & 0xFF       )
 #define CLIP_TO_16BITS( V1 )  ( (V1) & 0xFFFF     )
@@ -225,55 +216,7 @@ extern Uint32  randindex;
 extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// prototypes of vector functions
-
-bool_t fvec2_clear( fvec2_t * A );
-bool_t fvec3_clear( fvec3_t * A );
-bool_t fvec4_clear( fvec4_t * A );
-bool_t fvec3_scale( fvec3_t * A, float B );
-
-float      fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B );
-fvec3_t    fvec3_normalize( const fvec3_base_t A );
-fvec3_t    fvec3_sub( const fvec3_base_t A, const fvec3_base_t B );
-fvec3_t    fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B );
-
-//--------------------------------------------------------------------------------------------
-// prototypes of matrix functions
-
-fmat_4x4_t IdentityMatrix( void );
-fmat_4x4_t ZeroMatrix( void );
-fmat_4x4_t MatrixMult( const fmat_4x4_t a, const fmat_4x4_t b );
-fmat_4x4_t Translate( const float dx, const float dy, const float dz );
-fmat_4x4_t RotateX( const float rads );
-fmat_4x4_t RotateY( const float rads );
-fmat_4x4_t RotateZ( const float rads );
-fmat_4x4_t ScaleXYZ( const float sizex, const float sizey, const float sizez );
-fmat_4x4_t ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz );
-fmat_4x4_t FourPoints( fvec4_base_t ori, fvec4_base_t wid, fvec4_base_t frw, fvec4_base_t upx, float scale );
-fmat_4x4_t ViewMatrix( const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
-fmat_4x4_t ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
-void       TransformVertices( fmat_4x4_t *pMatrix, fvec4_t   *pSourceV, fvec4_t   *pDestV, Uint32  NumVertor );
-
-fvec3_t   mat_getChrUp( fmat_4x4_t mat );
-fvec3_t   mat_getChrRight( fmat_4x4_t mat );
-fvec3_t   mat_getChrForward( fmat_4x4_t mat );
-
-fvec3_t   mat_getCamUp( fmat_4x4_t mat );
-fvec3_t   mat_getCamRight( fmat_4x4_t mat );
-fvec3_t   mat_getCamForward( fmat_4x4_t mat );
-
-fvec3_t   mat_getTranslate( fmat_4x4_t mat );
-
-//--------------------------------------------------------------------------------------------
 // prototypes of other math functions
 
 void make_turntosin( void );
-
-void   make_randie();
-int    generate_irand_pair( IPair num );
-int    generate_irand_range( FRange num );
-int    generate_randmask( int base, int mask );
-
-Uint16 vec_to_facing( float dx, float dy );
-void   facing_to_vec( Uint16 facing, float * dx, float * dy );
+void make_randie();

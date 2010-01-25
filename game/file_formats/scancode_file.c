@@ -53,10 +53,10 @@ bool_t scantag_read_one( vfs_FILE *fileread )
 
     bool_t retval;
 
-    retval = goto_colon( NULL, fileread, btrue ) && (scantag_count < MAXTAG);
+    retval = goto_colon( NULL, fileread, btrue ) && ( scantag_count < MAXTAG );
     if ( retval )
     {
-        fget_string( fileread, scantag[scantag_count].name, SDL_arraysize(scantag[scantag_count].name) );
+        fget_string( fileread, scantag[scantag_count].name, SDL_arraysize( scantag[scantag_count].name ) );
         scantag[scantag_count].value = fget_int( fileread );
         scantag_count++;
     }
@@ -85,14 +85,14 @@ void scantag_read_all( const char *szFilename )
     vfs_close( fileread );
 
     // make extra scantags to support joystick buttons up to 32 bits
-    for( cnt=0; cnt<32; cnt++ )
+    for ( cnt = 0; cnt < 32; cnt++ )
     {
         STRING str_tmp;
 
-        snprintf( str_tmp, SDL_arraysize(str_tmp), "JOY_%d", cnt );
-        if( -1 != scantag_get_value(str_tmp) ) continue;
+        snprintf( str_tmp, SDL_arraysize( str_tmp ), "JOY_%d", cnt );
+        if ( -1 != scantag_get_value( str_tmp ) ) continue;
 
-        strncpy( scantag[scantag_count].name, str_tmp, SDL_arraysize(scantag[scantag_count].name) );
+        strncpy( scantag[scantag_count].name, str_tmp, SDL_arraysize( scantag[scantag_count].name ) );
         scantag[scantag_count].value = 1 << cnt;
         scantag_count++;
     }
@@ -106,7 +106,7 @@ int scantag_get_value( const char *string )
 
     int cnt;
 
-    for( cnt = 0; cnt < scantag_count; cnt++ )
+    for ( cnt = 0; cnt < scantag_count; cnt++ )
     {
         if ( 0 == strcmp( string, scantag[cnt].name ) )
         {
@@ -126,7 +126,7 @@ char* scantag_get_string( Sint32 device, Uint32 tag, bool_t is_key )
 
     int cnt;
 
-    if ( device >= INPUT_DEVICE_JOY      ) device = INPUT_DEVICE_JOY;
+    if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
     if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
 
     for ( cnt = 0; cnt < scantag_count; cnt++ )
@@ -149,7 +149,7 @@ char* scantag_get_string( Sint32 device, Uint32 tag, bool_t is_key )
                     break;
             }
         };
-        if ( tag == scantag[cnt].value)
+        if ( tag == scantag[cnt].value )
         {
             return scantag[cnt].name;
         }

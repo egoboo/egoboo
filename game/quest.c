@@ -28,7 +28,7 @@
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_vfs.h"
-#include "egoboo_math.h"
+#include "egoboo_math.inl"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
     filewrite = vfs_openAppend( newloadname );
 
     // Create the file if it does not exist
-    if ( !filewrite )
+    if ( NULL == filewrite )
     {
         filewrite = vfs_openWrite( newloadname );
         if ( !filewrite )
@@ -119,9 +119,9 @@ int quest_modify_idsz( const char *player_directory, const IDSZ idsz, const int 
             // modify it
             if ( newidsz == idsz )
             {
-				if( adjustment == 0 ) questlevel = QUEST_BEATEN;		//adjustment == 0 means we mark it as beaten
-				else questlevel = ABS( questlevel + adjustment );      // Don't get negative
-				newquestlevel = questlevel;
+                if ( adjustment == 0 ) questlevel = QUEST_BEATEN;       //adjustment == 0 means we mark it as beaten
+                else questlevel = ABS( questlevel + adjustment );      // Don't get negative
+                newquestlevel = questlevel;
             }
 
             vfs_printf( filewrite, "\n:[%s] %i", undo_idsz( newidsz ), questlevel );

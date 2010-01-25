@@ -23,9 +23,9 @@
 
 #include "graphic_prt.h"
 
-#include "particle.h"
-#include "char.h"
-#include "profile.h"
+#include "particle.inl"
+#include "char.inl"
+#include "profile.inl"
 
 #include "game.h"
 #include "texture.h"
@@ -356,7 +356,7 @@ void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t 
     gfx_begin_3d( pcam );
     {
         // apply transparent particles from far to near
-        for ( cnt = numparticle - 1; cnt >= 0; cnt-- )
+        for ( cnt = (( int )numparticle ) - 1; cnt >= 0; cnt-- )
         {
             // Get the index from the color slot
             render_one_prt_trans( reg[cnt].index );
@@ -660,9 +660,9 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
 
     if ( NULL == pinst || NULL == pmad ) return;
 
-    vrt = pinst->vlst_size - vrt_offset;
+    vrt = (( int )pinst->vrt_count ) - vrt_offset;
 
-    if ( vrt < 0 || vrt >= pinst->vlst_size ) return;
+    if ( vrt < 0 || vrt >= pinst->vrt_count ) return;
 
     texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
     texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
@@ -680,7 +680,7 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
 
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
-        glVertex3fv( pinst->vlst[vrt].pos );
+        glVertex3fv( pinst->vrt_lst[vrt].pos );
     }
     GL_DEBUG_END();
 
@@ -761,7 +761,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     pinst->type = pprt->type;
 
-    pinst->image_ref = FP8_TO_INT( pprt->image + pprt->imagestt );
+    pinst->image_ref = FP8_TO_INT( pprt->image + pprt->image_stt );
 
     // set the position
     pinst->pos         = pprt->pos;

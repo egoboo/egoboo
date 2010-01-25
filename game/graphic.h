@@ -105,7 +105,7 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright );
 //--------------------------------------------------------------------------------------------
 /// OPENGL VERTEX
 
-typedef struct
+typedef struct s_GLvertex
 {
     GLfloat pos[4];
     GLfloat nrm[3];
@@ -116,6 +116,11 @@ typedef struct
     GLint   color_dir;   ///< the vertex-dependent, directional lighting
 
     GLfloat col[4];      ///< the total vertex-dependent lighting (ambient + directional)
+
+#if defined(__cplusplus)
+    s_GLvertex() { memset( this, 0, sizeof( *this ) ); }
+#endif
+
 } GLvertex;
 
 //--------------------------------------------------------------------------------------------
@@ -315,7 +320,9 @@ extern float time_render_scene_mesh_render_shadows;
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-void   gfx_init();
+void   gfx_system_begin();
+void   gfx_system_end();
+
 int    ogl_init();
 void   gfx_main();
 void   gfx_begin_3d( struct s_camera * pcam );
@@ -367,7 +374,7 @@ void renderlist_reset();
 void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );
 
 bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, float fx, float fy );
-bool_t grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
+float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
 int  get_free_line();
 

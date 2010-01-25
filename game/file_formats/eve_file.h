@@ -38,8 +38,8 @@ enum e_missle_treatment
 enum e_enchant_set
 {
     SETMORPH = 0,           ///< Morph character?
-                            ///< @details this must be first since the
-                            ///< character must be morphed before adding any of the other enchants
+    ///< @details this must be first since the
+    ///< character must be morphed before adding any of the other enchants
 
     SETDAMAGETYPE,          ///< Type of damage dealt
     SETNUMBEROFJUMPS,       ///< Max number of jumps
@@ -128,17 +128,17 @@ struct s_eve
     bool_t  stayiftargetdead;            ///< Stay if target has died?
 
     // Boost values
-    Sint16  ownermana;
-    Sint16  ownerlife;
-    Sint16  targetmana;
-    Sint16  targetlife;
+    Sint16  owner_mana;
+    Sint16  owner_life;
+    Sint16  target_mana;
+    Sint16  target_life;
 
     // the enchant values
     bool_t  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
-    Uint8   setvalue[MAX_ENCHANT_SET];    ///< Value to use
+    float   setvalue[MAX_ENCHANT_SET];    ///< Value to use
 
     bool_t  addyesno[MAX_ENCHANT_ADD];    ///< Add this value?
-    Sint32  addvalue[MAX_ENCHANT_ADD];    ///< The values to add
+    float   addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
     // other values that are enchanted
     Uint16  seekurse;                    ///< Allow target to see kurses

@@ -242,7 +242,7 @@ struct s_cap
     Uint8        alpha;                         ///< Transparency
     Uint8        light;                         ///< Light blending
     bool_t       transferblend;                 ///< Transfer blending to rider/weapons
-    bool_t       sheen;                         ///< How shiny it is ( 0-15 )
+    Uint8        sheen;                         ///< How shiny it is ( 0-15 )
     bool_t       enviro;                        ///< Phong map this baby?
     Uint16       uoffvel;                       ///< "horizontal" texture movement rate
     Uint16       voffvel;                       ///< "vertical" texture movement rate

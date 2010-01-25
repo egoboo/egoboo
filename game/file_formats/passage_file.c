@@ -30,9 +30,9 @@
 //--------------------------------------------------------------------------------------------
 passage_t * passage_init( passage_t * ppass )
 {
-    if( NULL == ppass ) return ppass;
+    if ( NULL == ppass ) return ppass;
 
-    memset( ppass, 0, sizeof(*ppass) );
+    memset( ppass, 0, sizeof( *ppass ) );
 
     ppass->music = NO_MUSIC;     // Set no song as default
 
@@ -40,13 +40,13 @@ passage_t * passage_init( passage_t * ppass )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass  )
+bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass )
 {
     /// @details ZZ@> This function reads the passage file
 
     bool_t found;
 
-    if( NULL == fileread || NULL == ppass ) return bfalse;
+    if ( NULL == fileread || NULL == ppass ) return bfalse;
 
     passage_init( ppass );
 

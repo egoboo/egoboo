@@ -25,7 +25,6 @@
 #include "log.h"
 
 #include "egoboo_strutil.h"
-#include "egoboo_mem.h"
 #include "egoboo.h"
 
 #include <unistd.h>
@@ -35,6 +34,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/dir.h>
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -213,7 +213,7 @@ void fs_findClose( fs_find_context_t * fs_search )
 
     globfree( &( pcnt->last_find ) );
 
-    free( pcnt );
+    EGOBOO_DELETE( pcnt );
 
     memset( fs_search, 0, sizeof( *fs_search ) );
 }

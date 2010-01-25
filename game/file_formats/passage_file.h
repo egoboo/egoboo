@@ -47,4 +47,4 @@ typedef struct s_passage passage_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass  );
+bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass );

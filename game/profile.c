@@ -21,25 +21,21 @@
 /// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
 
-#include "profile.h"
-
-#include "char.h"
-#include "particle.h"
-#include "mad.h"
-#include "enchant.h"
+#include "profile.inl"
 
 #include "texture.h"
 #include "log.h"
 #include "script_compile.h"
 #include "game.h"
-#include "mesh.h"
+#include "mesh.inl"
 #include "bsp.h"
 
 #include "egoboo_setup.h"
-#include "egoboo_mem.h"
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_vfs.h"
+
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -51,14 +47,21 @@ pro_import_t import_data;
 Uint16  bookicon_count   = 0;
 Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
 
-DECLARE_LIST( ACCESS_TYPE_NONE, pro_t,  ProList );
+DECLARE_LIST( ACCESS_TYPE_NONE, pro_t, ProList );
 
 DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
 
 Uint32  message_buffer_carat = 0;                           // Where to put letter
 char    message_buffer[MESSAGEBUFFERSIZE] = EMPTY_CSTR;     // The text buffer
 
-obj_BSP_t obj_BSP_root = {0, NULL, 0, NULL};
+#if defined(__cplusplus)
+obj_BSP_t obj_BSP_root;
+#else
+obj_BSP_t obj_BSP_root = { BSP_TREE_INIT_VALS };
+#endif
+
+int BSP_chr_count = 0;
+int BSP_prt_count = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -110,7 +113,7 @@ void release_all_profiles()
 }
 
 //---------------------------------------------------------------------------------------------
-void init_profile_system()
+void profile_system_begin()
 {
     /// @details BB@> initialize the profile list and load up some intialization files
     ///     necessary for the the profile loading code to work
@@ -143,6 +146,24 @@ void init_profile_system()
 
     // let the code know that everything is initialized
     _profile_initialized = btrue;
+}
+
+//---------------------------------------------------------------------------------------------
+void profile_system_end()
+{
+    /// @details BB@> initialize the profile list and load up some intialization files
+    ///     necessary for the the profile loading code to work
+
+    if ( _profile_initialized )
+    {
+        // release all profile data and reinitialize the profile list
+        release_all_profiles();
+
+        // delete the object BSP data
+        obj_BSP_dtor( &obj_BSP_root );
+
+        _profile_initialized = bfalse;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -190,7 +211,7 @@ bool_t pro_init( pro_t * pobj )
 //--------------------------------------------------------------------------------------------
 // The "private" ProList management functions
 //--------------------------------------------------------------------------------------------
-int ProList_search_free( Uint16 iobj )
+int ProList_search_free( PRO_REF iobj )
 {
     /// @details BB@> if an object of index iobj exists on the free list, return the free list index
     ///     otherwise return -1
@@ -246,11 +267,11 @@ int ProList_pop_free( int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ProList_push_free( Uint16 iobj )
+bool_t ProList_push_free( PRO_REF iobj )
 {
     /// @details BB@> push an object onto the free stack
 
-    int retval;
+    bool_t retval;
 
 #if defined(USE_DEBUG)
     // determine whether this character is already in the list of free objects
@@ -293,11 +314,11 @@ void ProList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 ProList_get_free( Uint16 override )
+Uint16 ProList_get_free( PRO_REF override )
 {
     /// @details ZZ@> This function returns the next free character or MAX_PROFILE if there are none
 
-    Uint16 retval = MAX_PROFILE;
+    PRO_REF retval = MAX_PROFILE;
 
     if ( VALID_PRO_RANGE( override ) )
     {
@@ -324,7 +345,7 @@ Uint16 ProList_get_free( Uint16 override )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ProList_free_one( Uint16 iobj )
+bool_t ProList_free_one( PRO_REF iobj )
 {
     /// @details ZZ@> This function sticks an object back on the free object stack
 
@@ -341,7 +362,7 @@ bool_t ProList_free_one( Uint16 iobj )
 // object functions
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t release_one_profile_textures( Uint16 iobj )
+bool_t release_one_profile_textures( PRO_REF iobj )
 {
     int tnc;
     pro_t  * pobj;
@@ -391,7 +412,7 @@ void release_all_profile_textures()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pro_data( Uint16 iobj )
+bool_t release_one_pro_data( PRO_REF iobj )
 {
     int cnt;
     pro_t * pobj;
@@ -413,7 +434,7 @@ bool_t release_one_pro_data( Uint16 iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pro( Uint16 iobj )
+bool_t release_one_pro( PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -464,144 +485,7 @@ void release_all_pro_data()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint16 pro_get_icap( Uint16 iobj )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return MAX_CAP;
-    pobj = ProList.lst + iobj;
-
-    return LOADED_CAP( pobj->icap ) ? pobj->icap : MAX_CAP;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 pro_get_imad( Uint16 iobj )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return MAX_MAD;
-    pobj = ProList.lst + iobj;
-
-    return LOADED_MAD( pobj->imad ) ? pobj->imad : MAX_MAD;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 pro_get_ieve( Uint16 iobj )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return MAX_EVE;
-    pobj = ProList.lst + iobj;
-
-    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : MAX_EVE;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 pro_get_ipip( Uint16 iobj, Uint16 ipip )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return MAX_PIP;
-    pobj = ProList.lst + iobj;
-
-    // find the local pip if it exists
-    if ( ipip < MAX_PIP_PER_PROFILE )
-    {
-        ipip = pobj->prtpip[ipip];
-    }
-
-    return LOADED_PIP( ipip ) ? ipip : MAX_PIP;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-cap_t * pro_get_pcap( Uint16 iobj )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
-
-    if ( !LOADED_CAP( pobj->icap ) ) return NULL;
-
-    return CapList + pobj->icap;
-}
-
-//--------------------------------------------------------------------------------------------
-mad_t * pro_get_pmad( Uint16 iobj )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
-
-    if ( !LOADED_MAD( pobj->imad ) ) return NULL;
-
-    return MadList + pobj->imad;
-}
-
-//--------------------------------------------------------------------------------------------
-eve_t * pro_get_peve( Uint16 iobj )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
-
-    if ( !LOADED_EVE( pobj->ieve ) ) return NULL;
-
-    return EveStack.lst + pobj->ieve;
-}
-
-//--------------------------------------------------------------------------------------------
-pip_t * pro_get_ppip( Uint16 iobj, Uint16 ipip )
-{
-    pro_t * pobj;
-
-    if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
-
-    // find the local pip if it exists
-    if ( ipip < MAX_PIP_PER_PROFILE )
-    {
-        ipip = pobj->prtpip[ipip];
-    }
-
-    if ( !LOADED_PIP( ipip ) ) return NULL;
-
-    return PipStack.lst + ipip;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-IDSZ pro_get_idsz( Uint16 iobj, int type )
-{
-    cap_t * pcap;
-
-    if ( type >= IDSZ_COUNT ) return IDSZ_NONE;
-
-    pcap = pro_get_pcap( iobj );
-    if ( NULL == pcap ) return IDSZ_NONE;
-
-    return pcap->idsz[type];
-}
-
-//--------------------------------------------------------------------------------------------
-Mix_Chunk * pro_get_chunk( Uint16 iobj, int index )
-{
-    pro_t * pobj;
-
-    if ( !VALID_SND( index ) ) return NULL;
-
-    if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
-
-    return pobj->wavelist[index];
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int load_profile_skins( const char * tmploadname, Uint16 object )
+int load_profile_skins( const char * tmploadname, PRO_REF object )
 {
     int min_skin_tx, min_icon_tx;
     int max_skin, max_icon, max_tex;
@@ -732,7 +616,7 @@ void get_message( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages( const char *loadname, Uint16 object )
+void load_all_messages( const char *loadname, PRO_REF object )
 {
     /// @details ZZ@> This function loads all of an objects messages
     vfs_FILE *fileread;
@@ -753,7 +637,7 @@ void load_all_messages( const char *loadname, Uint16 object )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_local_pips( Uint16 iobj )
+bool_t release_one_local_pips( PRO_REF iobj )
 {
     int cnt;
     pro_t * pobj;
@@ -823,7 +707,7 @@ bool_t obj_verify_file( const char * tmploadname )
     make_newloadname( tmploadname, SLASH_STR "data.txt", szLoadName );
 
     // Open the file
-    return vfs_exists( szLoadName );
+    return ( 0 != vfs_exists( szLoadName ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -863,7 +747,7 @@ int pro_get_slot( const char * tmploadname, int slot_override )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_profile( const char* tmploadname, int slot_override )
+PRO_REF load_one_profile( const char* tmploadname, int slot_override )
 {
     /// @details ZZ@> This function loads one object and returns the object slot
 
@@ -1010,7 +894,7 @@ void reset_messages()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-const char * pro_create_chop( Uint16 iprofile )
+const char * pro_create_chop( PRO_REF iprofile )
 {
     /// BB@> use the profile's chop to generate a name. Return "*NONE*" on a falure.
 
@@ -1048,7 +932,7 @@ const char * pro_create_chop( Uint16 iprofile )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t pro_load_chop( Uint16 iprofile, const char *szLoadname )
+bool_t pro_load_chop( PRO_REF iprofile, const char *szLoadname )
 {
     /// BB@> load the chop for the given profile
     pro_t * ppro;
@@ -1176,8 +1060,10 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
         {
             if ( which_section < MAXSECTION )
             {
+                int itmp;
                 pdefinition->section[which_section].size  = section_count;
-                pdefinition->section[which_section].start = pdata->chop_count - section_count;
+                itmp = (( int )pdata->chop_count ) - section_count;
+                pdefinition->section[which_section].start = MAX( 0, itmp );
             }
 
             which_section++;
@@ -1203,8 +1089,10 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
     // pretend the last command was "STOP"
     if ( CSTR_END != tmp_buffer[0] && which_section < MAXSECTION )
     {
+        int itmp;
         pdefinition->section[which_section].size  = section_count;
-        pdefinition->section[which_section].start = pdata->chop_count - section_count;
+        itmp = (( int )pdata->chop_count ) - section_count;
+        pdefinition->section[which_section].start = MAX( 0, itmp );
     }
 
     vfs_close( fileread );
@@ -1260,374 +1148,446 @@ bool_t chop_export( const char *szSaveName, const char * szChop )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_start( obj_BSP_t * pbsp, mpd_BSP_t * pmesh_bsp, int chr_count, int prt_count )
+bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int depth )
 {
-    // BB> Create a new BSP tree for the mesh.
-    //     These parameters duplicate the max resolution of the old system.
-
-    float size;
+    BSP_tree_t * rv;
 
     if ( NULL == pbsp ) return bfalse;
 
-    // copy the volume from the mesh
-    pbsp->volume = pmesh_bsp->volume;
+    obj_BSP_free( pbsp );
 
-    // make some extra space in the z direction
-    size = MAX( ABS( pmesh_bsp->volume.mins[OCT_X] ), ABS( pmesh_bsp->volume.maxs[OCT_X] ) );
-    size = MAX( size, MAX( ABS( pmesh_bsp->volume.mins[OCT_Y] ), ABS( pmesh_bsp->volume.maxs[OCT_Y] ) ) );
-    size = MAX( size, MAX( ABS( pmesh_bsp->volume.mins[OCT_Z] ), ABS( pmesh_bsp->volume.maxs[OCT_Z] ) ) );
-
-    pbsp->volume.mins[OCT_Z] = -size * 2;
-    pbsp->volume.maxs[OCT_Z] =  size * 2;
+    rv = BSP_tree_ctor( &( pbsp->tree ), 3, depth );
 
     // make a 3D BSP tree, depth copied from the mesh depth
-    BSP_tree_init_1( &( pbsp->tree ), 3, pmesh_bsp->tree.depth );
+    return ( NULL != rv );
+}
 
-    // allocate nodes for all of the tiles
-    if ( chr_count < 0 ) chr_count = MAX_CHR;
-    pbsp->chr_nodes = EGOBOO_NEW_ARY( BSP_node_t, chr_count );
-    pbsp->chr_node_count = chr_count;
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_free( obj_BSP_t * pbsp )
+{
+    if ( NULL == pbsp ) return bfalse;
 
-    if ( prt_count < 0 ) prt_count = MAX_CHR;
-    pbsp->prt_nodes = EGOBOO_NEW_ARY( BSP_node_t, prt_count );
-    pbsp->prt_node_count = prt_count;
+    BSP_tree_free( &( pbsp->tree ) );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_end( obj_BSP_t * pbsp )
+bool_t obj_BSP_ctor( obj_BSP_t * pbsp, mesh_BSP_t * pmesh_bsp )
 {
-    if ( NULL == pbsp ) return bfalse;
+    /// @details BB@> Create a new BSP tree for the mesh.
+    //     These parameters duplicate the max resolution of the old system.
 
-    BSP_tree_clear( &( pbsp->tree ) );
+    int          cnt;
+    float        bsp_size;
+    BSP_tree_t * t;
 
-    EGOBOO_DELETE( pbsp->chr_nodes );
-    pbsp->chr_node_count = 0;
+    if ( NULL == pbsp || NULL == pmesh_bsp ) return bfalse;
 
-    EGOBOO_DELETE( pbsp->prt_nodes );
-    pbsp->prt_node_count = 0;
+    memset( pbsp, 0, sizeof( *pbsp ) );
 
-    // make the volume zero
-    pbsp->volume.mins[OCT_X] = pbsp->volume.maxs[OCT_X] = 0.0f;
+    // allocate the data
+    obj_BSP_alloc( pbsp, pmesh_bsp->tree.depth );
+
+    t = &( pbsp->tree );
+
+    // copy the volume from the mesh
+    t->bbox.mins.ary[0] = pmesh_bsp->volume.mins[OCT_X];
+    t->bbox.mins.ary[1] = pmesh_bsp->volume.mins[OCT_Y];
+
+    t->bbox.maxs.ary[0] = pmesh_bsp->volume.maxs[OCT_X];
+    t->bbox.maxs.ary[1] = pmesh_bsp->volume.maxs[OCT_Y];
+
+    // make some extra space in the z direction
+    bsp_size = MAX( ABS( t->bbox.mins.ary[OCT_X] ), ABS( t->bbox.maxs.ary[OCT_X] ) );
+    bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Y] ), ABS( t->bbox.maxs.ary[OCT_Y] ) ) );
+    bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Z] ), ABS( t->bbox.maxs.ary[OCT_Z] ) ) );
+
+    t->bbox.mins.ary[2] = -bsp_size * 2;
+    t->bbox.maxs.ary[2] =  bsp_size * 2;
+
+    // calculate the mid positions
+    for ( cnt = 0; cnt < 3; cnt++ )
+    {
+        t->bbox.mids.ary[cnt] = 0.5f * ( t->bbox.mins.ary[cnt] + t->bbox.maxs.ary[cnt] );
+    }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_init( obj_BSP_t * pbsp )
+bool_t obj_BSP_dtor( obj_BSP_t * pbsp )
 {
-    int i;
-    BSP_node_t * pnode;
+    if ( NULL == pbsp ) return bfalse;
+
+    // deallocate everything
+    obj_BSP_free( pbsp );
+
+    // run the destructors on all of the sub-objects
+    BSP_tree_dtor( &( pbsp->tree ) );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
+{
+    /// @details BB@> insert a character's BSP_leaf_t into the BSP_tree_t
+
+    bool_t       retval;
+    BSP_leaf_t * pleaf;
+    BSP_tree_t * ptree;
+
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+    if ( NULL == pbsp ) return bfalse;
+    ptree = &( pbsp->tree );
+
+    pleaf = &( pchr->bsp_leaf );
+    if ( pchr != ( chr_t * )( pleaf->data ) )
+    {
+        // some kind of error. re-initialize the data.
+        pleaf->data      = pchr;
+        pleaf->index     = GET_INDEX_PCHR( pchr );
+        pleaf->data_type = 1;
+    };
+
+    retval = bfalse;
+    if ( !oct_bb_empty( pchr->chr_prt_cv ) )
+    {
+        oct_bb_t tmp_oct;
+
+        // use the object velocity to figure out where the volume that the object will occupy during this
+        // update
+        phys_expand_chr_bb( pchr, 0.0f, 1.0f, &tmp_oct );
+
+        // convert the bounding box
+        BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
+
+        // insert the leaf
+
+        retval = BSP_tree_insert_leaf( ptree, pleaf );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
+{
+    /// @details BB@> insert a particle's BSP_leaf_t into the BSP_tree_t
+
+    bool_t       retval;
+    BSP_leaf_t * pleaf;
+    BSP_tree_t * ptree;
+    pro_t      * ppro;
+    pip_t      * ppip;
+
+    bool_t       has_enchant, does_damage, does_grog_daze, needs_bump, does_special_effect;
+
+    if ( NULL == pbsp ) return bfalse;
+    ptree = &( pbsp->tree );
+
+    if ( !ACTIVE_PPRT( pprt ) || pprt->is_hidden ) return bfalse;
+
+    if ( !LOADED_PRO( pprt->profile_ref ) ) return bfalse;
+    ppro = ProList.lst + pprt->profile_ref;
+
+    has_enchant = LOADED_EVE( ppro->ieve );
+    does_damage = ( ABS( pprt->damage.base ) + ABS( pprt->damage.rand ) ) > 0;
+
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
+    ppip = PipStack.lst + pprt->pip_ref;
+
+    does_grog_daze = ( 0 != ppip->grogtime ) || ( 0 != ppip->dazetime );
+    needs_bump     = ppip->endbump || ppip->endground || ( ppip->bumpspawn_amount > 0 ) || ( ppip->bumpmoney > 0 );
+
+    does_special_effect = ppip->causepancake;
+
+    if ( 0 == pprt->bump.size && !has_enchant && !does_damage && !does_grog_daze && !needs_bump && !does_special_effect )
+        return bfalse;
+
+    pleaf = &( pprt->bsp_leaf );
+    if ( pprt != ( prt_t * )( pleaf->data ) )
+    {
+        // some kind of error. re-initialize the data.
+        pleaf->data      = pprt;
+        pleaf->index     = GET_INDEX_PPRT( pprt );
+        pleaf->data_type = 1;
+    };
+
+    retval = bfalse;
+    if ( ACTIVE_PPRT( pprt ) )
+    {
+        oct_bb_t tmp_oct;
+
+        // use the object velocity to figure out where the volume that the object will occupy during this
+        // update
+        phys_expand_prt_bb( pprt, 0.0f, 1.0f, &tmp_oct );
+
+        // convert the bounding box
+        BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
+
+        retval = BSP_tree_insert_leaf( ptree, pleaf );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t obj_BSP_empty( obj_BSP_t * pbsp )
+{
+    size_t i;
 
     if ( NULL == pbsp ) return bfalse;
 
-    // Create a new BSP tree for this mesh
-    // use the known sizes for the pre-allocated nodes
-    obj_BSP_start( pbsp, &mesh_BSP_root, MAX_CHR, maxparticles );
+    // unlink all the BSP nodes
+    BSP_tree_clear_nodes( &( pbsp->tree ), btrue );
 
+    // unlink all used character nodes
     for ( i = 0; i < ChrList.used_count; i++ )
     {
-        Uint16 chr_ref = ChrList.used_ref[i];
-        if ( !ACTIVE_CHR( chr_ref ) ) continue;
+        Uint16 ichr = ChrList.used_ref[i];
+        if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
-        pnode = pbsp->chr_nodes + REF_TO_INT( chr_ref );
-
-        // let data type 1 stand for a character, -1 is uninitialized
-        BSP_node_ctor( pnode, ChrList.lst + i, 1 );
-        pnode->index = i;
+        ChrList.lst[i].bsp_leaf.next = NULL;
     }
 
+    // unlink all used particle nodes
+    BSP_prt_count = 0;
     for ( i = 0; i < PrtList.used_count; i++ )
     {
-        Uint16 prt_ref = PrtList.used_ref[i];
-        pnode = pbsp->prt_nodes + REF_TO_INT( prt_ref );
+        Uint16 iprt = PrtList.used_ref[i];
+        if ( !VALID_PRT_RANGE( iprt ) ) continue;
 
-        // let data type 2 stand for a particle, -1 is uninitialized
-        BSP_node_ctor( pnode, PrtList.lst + i, 2 );
-        pnode->index = i;
+        PrtList.lst[i].bsp_leaf.next = NULL;
     }
 
     return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t obj_BSP_insert_node( obj_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[], int address_z[] )
-{
-    int i;
-    bool_t retval;
-    Uint32 index;
-    BSP_leaf_t * pleaf, * pnew_leaf;
-    BSP_tree_t * ptree = &( pbsp->tree );
-
-    retval = bfalse;
-    if ( depth < 0 )
-    {
-        // this can only happen if the node does not intersect the BSP bounding box
-        pnode->next = ptree->infinite;
-        ptree->infinite = pnode;
-        retval = btrue;
-    }
-    else if ( 0 == depth )
-    {
-        // this can only happen if the object should be in the root node list
-        pnode->next = ptree->root->nodes;
-        ptree->root->nodes = pnode;
-        retval = btrue;
-    }
-    else
-    {
-        // insert the node into the tree at this point
-        pleaf = ptree->root;
-        for ( i = 0; i < depth; i++ )
-        {
-            index = (( Uint32 )address_x[i] ) + ((( Uint32 )address_y[i] ) << 1 ) + ((( Uint32 )address_z[i] ) << 2 ) ;
-
-            pnew_leaf = BSP_tree_ensure_leaf( ptree, pleaf, index );
-            if ( NULL == pnew_leaf ) break;
-
-            pleaf = pnew_leaf;
-        };
-
-        // insert the node in this leaf
-        retval = BSP_tree_insert( ptree, pleaf, pnode, -1 );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t obj_BSP_insert_obj_node( obj_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[], int address_z[] )
-{
-    // BB> insert a tile wrapped in a BSP_node_t into the BSP_tree_t
-
-    int i;
-    bool_t retval;
-    chr_t * pchr = ( chr_t * )( pnode->data );
-    prt_t * pprt = ( prt_t * )( pnode->data );
-
-    retval = bfalse;
-    if ( 1 == pnode->data_type )
-    {
-        if ( ACTIVE_PCHR( pchr ) && !oct_bb_empty( pchr->chr_prt_cv ) )
-        {
-            i = BSP_find_address_3d( pbsp->volume, pchr->chr_prt_cv, depth, address_x, address_y, address_z );
-            retval = obj_BSP_insert_node( pbsp, pnode, i, address_x, address_y, address_z );
-        }
-    }
-    else if ( 2 == pnode->data_type )
-    {
-        if ( ACTIVE_PPRT( pprt ) && !oct_bb_empty( pprt->chr_prt_cv ) )
-        {
-            i = BSP_find_address_3d( pbsp->volume, pprt->chr_prt_cv, depth, address_x, address_y, address_z );
-            retval = obj_BSP_insert_node( pbsp, pnode, i, address_x, address_y, address_z );
-        }
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t obj_BSP_fill( obj_BSP_t * pbsp )
 {
     size_t i;
-    int * address_x, * address_y, * address_z;
-
-    BSP_tree_t * ptree = &( pbsp->tree );
-
-    address_x = EGOBOO_NEW_ARY( int, ptree->depth );
-    address_y = EGOBOO_NEW_ARY( int, ptree->depth );
-    address_z = EGOBOO_NEW_ARY( int, ptree->depth );
-
-    for ( i = 0; i < pbsp->chr_node_count; i++ )
-    {
-        obj_BSP_insert_obj_node( pbsp, pbsp->chr_nodes + i, ptree->depth, address_x, address_y, address_z );
-    }
-
-    for ( i = 0; i < pbsp->prt_node_count; i++ )
-    {
-        obj_BSP_insert_obj_node( pbsp, pbsp->prt_nodes + i, ptree->depth, address_x, address_y, address_z );
-    }
-
-    EGOBOO_DELETE( address_x );
-    EGOBOO_DELETE( address_y );
-    EGOBOO_DELETE( address_z );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t obj_BSP_empty( obj_BSP_t * pbsp )
-{
-    int i;
 
     if ( NULL == pbsp ) return bfalse;
 
-    // free all the leaves
-    BSP_tree_init_0( &( pbsp->tree ) );
-
-    // unlink all the nodes
-    for ( i = 0; i < MAX_CHR; i++ )
+    // insert the characters
+    BSP_chr_count = 0;
+    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        pbsp->chr_nodes[i].next = NULL;
-    }
+        // reset a couple of things here
+        pchr->holdingweight     = 0;
+        pchr->onwhichplatform   = MAX_CHR;
 
-    // unlink all the nodes
-    for ( i = 0; i < maxparticles; i++ )
-    {
-        pbsp->prt_nodes[i].next = NULL;
+        // try to insert the character
+        if ( obj_BSP_insert_chr( pbsp, pchr ) )
+        {
+            BSP_chr_count++;
+        }
     }
+    CHR_END_LOOP()
+
+    // insert the particles
+    BSP_prt_count = 0;
+    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    {
+        // reset a couple of things here
+        pprt->onwhichplatform   = MAX_CHR;
+
+        // try to insert the particle
+        if ( obj_BSP_insert_prt( pbsp, pprt ) )
+        {
+            BSP_prt_count++;
+        }
+    }
+    PRT_END_LOOP()
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_collide_nodes( BSP_node_t node_lst[], oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
+int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst )
 {
-    // BB > check for collisions with the given node list
-
-    BSP_node_t * pnode;
-    oct_bb_t    int_ov, * pnodevol;
-
-    if ( NULL == node_lst || NULL == pvobj || NULL == pcolst_index ) return bfalse;
-    if ( *pcolst_index >= colist_size || 0 == colist_size ) return bfalse;
-
-    // check for collisions with any of the nodes of this leaf
-    for ( pnode = node_lst; NULL != pnode; pnode = pnode->next )
-    {
-        if ( NULL == pnode ) assert( bfalse );
-
-        // get the volume of the node
-        pnodevol = NULL;
-        if ( 1 == pnode->data_type )
-        {
-            pnodevol = &((( chr_t* )pnode->data )->chr_prt_cv );
-        }
-        else if ( 2 == pnode->data_type )
-        {
-            pnodevol = &((( prt_t* )pnode->data )->chr_prt_cv );
-        }
-        else
-        {
-            continue;
-        }
-
-        if ( oct_bb_intersection( *pvobj, *pnodevol, &int_ov ) )
-        {
-            // we have a possible intersection
-            colst[*pcolst_index] = pnode->index * (( 1 == pnode->data_type ) ? 1 : -1 );
-            ( *pcolst_index )++;
-
-            if (( *pcolst_index ) >= colist_size )
-            {
-                // too many nodes. break out of the search.
-                return bfalse;
-            };
-        }
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t obj_BSP_collide_leaf( BSP_leaf_t * pleaf, oct_bb_t * pvleaf, oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
-{
-    // BB > Recursively search the BSP tree for collisions with the pvobj
-    //      Return bfalse if we need to break out of the recursive search for any reson.
-
-    Uint32 i;
-    oct_bb_t    int_ov, tmp_ov;
-    float x_mid, y_mid, z_mid;
-    int address_x, address_y, address_z;
-
-    if ( NULL == pvleaf || oct_bb_empty( *pvleaf ) ) return bfalse;
-    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return bfalse;
-
-    // return if the object does not intersect the leaf
-    if ( !oct_bb_intersection( *pvobj, *pvleaf, &int_ov ) )
-    {
-        return bfalse;
-    }
-
-    if ( !obj_BSP_collide_nodes( pleaf->nodes, pvobj, colst, colist_size, pcolst_index ) )
-    {
-        return bfalse;
-    };
-
-    // check for collisions with any of the children
-    x_mid = ( pvleaf->maxs[OCT_X] + pvleaf->mins[OCT_X] ) * 0.5f;
-    y_mid = ( pvleaf->maxs[OCT_Y] + pvleaf->mins[OCT_Y] ) * 0.5f;
-    z_mid = ( pvleaf->maxs[OCT_Z] + pvleaf->mins[OCT_Z] ) * 0.5f;
-    for ( i = 0; i < pleaf->child_count; i++ )
-    {
-        // scan all the children
-        if ( NULL == pleaf->children[i] ) continue;
-
-        // create the volume of this node
-        address_x = i & ( 1 << 0 );
-        address_y = i & ( 1 << 1 );
-        address_z = i & ( 1 << 2 );
-
-        tmp_ov = *( pvleaf );
-
-        if ( 0 == address_x )
-        {
-            tmp_ov.maxs[OCT_X] = x_mid;
-        }
-        else
-        {
-            tmp_ov.mins[OCT_X] = x_mid;
-        }
-
-        if ( 0 == address_y )
-        {
-            tmp_ov.maxs[OCT_Y] = y_mid;
-        }
-        else
-        {
-            tmp_ov.mins[OCT_X] = y_mid;
-        }
-
-        if ( 0 == address_z )
-        {
-            tmp_ov.maxs[OCT_Z] = z_mid;
-        }
-        else
-        {
-            tmp_ov.mins[OCT_Z] = z_mid;
-        }
-
-        if ( oct_bb_intersection( *pvobj, tmp_ov, &int_ov ) )
-        {
-            // potential interaction with the child. go recursive!
-            bool_t ret = obj_BSP_collide_leaf( pleaf->children[i], &( tmp_ov ), pvobj, colst, colist_size, pcolst_index );
-            if ( !ret ) return ret;
-        }
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-int obj_BSP_collide( obj_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size )
-{
-    // BB > fill the collision list with references to tiles that the object volume may overlap.
+    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
     //      Return the number of collisions found.
 
-    int collision_count;
-
-    if ( NULL == pbsp || NULL == colst || 0 == colist_size ) return 0;
-
-    if ( NULL == pvobj || oct_bb_empty( *pvobj ) ) return 0;
-
-    // do actual collision
-    collision_count = 0;
+    if ( NULL == pbsp || NULL == paabb || NULL == colst ) return 0;
 
     // infinite nodes
-    obj_BSP_collide_nodes( pbsp->tree.infinite, pvobj, colst, colist_size, &collision_count );
-
-    // nodes inside the tree
-    obj_BSP_collide_leaf( pbsp->tree.root, &( pbsp->volume ), pvobj, colst, colist_size, &collision_count );
-
-    return collision_count;
+    return BSP_tree_collide( &( pbsp->tree ), paabb, colst );
 }
+
+////--------------------------------------------------------------------------------------------
+//bool_t obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pleaf, int depth, int address_x[], int address_y[], int address_z[] )
+//{
+//    int i;
+//    bool_t retval;
+//    Uint32 index;
+//    BSP_branch_t * pbranch, * pbranch_new;
+//    BSP_tree_t * ptree = &( pbsp->tree );
+//
+//    retval = bfalse;
+//    if ( depth < 0 )
+//    {
+//        // this can only happen if the node does not intersect the BSP bounding box
+//        pleaf->next = ptree->infinite;
+//        ptree->infinite = pleaf;
+//        retval = btrue;
+//    }
+//    else if ( 0 == depth )
+//    {
+//        // this can only happen if the object should be in the root node list
+//        pleaf->next = ptree->root->nodes;
+//        ptree->root->nodes = pleaf;
+//        retval = btrue;
+//    }
+//    else
+//    {
+//        // insert the node into the tree at this point
+//        pbranch = ptree->root;
+//        for ( i = 0; i < depth; i++ )
+//        {
+//            index = (( Uint32 )address_x[i] ) | ((( Uint32 )address_y[i] ) << 1 ) | ((( Uint32 )address_z[i] ) << 2 ) ;
+//
+//            pbranch_new = BSP_tree_ensure_branch( ptree, pbranch, index );
+//            if ( NULL == pbranch_new ) break;
+//
+//            pbranch = pbranch_new;
+//        };
+//
+//        // insert the node in this branch
+//        retval = BSP_tree_insert( ptree, pbranch, pleaf, -1 );
+//    }
+//
+//    return retval;
+//}
+//
+
+////--------------------------------------------------------------------------------------------
+//bool_t obj_BSP_collide_branch( BSP_branch_t * pbranch, oct_bb_t * pvbranch, oct_bb_t * pvobj, int_ary_t * colst )
+//{
+//    /// @details BB@> Recursively search the BSP tree for collisions with the pvobj
+//    //      Return bfalse if we need to break out of the recursive search for any reson.
+//
+//    Uint32 i;
+//    oct_bb_t    int_ov, tmp_ov;
+//    float x_mid, y_mid, z_mid;
+//    int address_x, address_y, address_z;
+//
+//    if ( NULL == colst ) return bfalse;
+//    if ( NULL == pvbranch || oct_bb_empty( *pvbranch ) ) return bfalse;
+//    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return bfalse;
+//
+//    // return if the object does not intersect the branch
+//    if ( !oct_bb_intersection( *pvobj, *pvbranch, &int_ov ) )
+//    {
+//        return bfalse;
+//    }
+//
+//    if ( !obj_BSP_collide_nodes( pbranch->nodes, pvobj, colst ) )
+//    {
+//        return bfalse;
+//    };
+//
+//    // check for collisions with any of the children
+//    x_mid = ( pvbranch->maxs[OCT_X] + pvbranch->mins[OCT_X] ) * 0.5f;
+//    y_mid = ( pvbranch->maxs[OCT_Y] + pvbranch->mins[OCT_Y] ) * 0.5f;
+//    z_mid = ( pvbranch->maxs[OCT_Z] + pvbranch->mins[OCT_Z] ) * 0.5f;
+//    for ( i = 0; i < pbranch->child_count; i++ )
+//    {
+//        // scan all the children
+//        if ( NULL == pbranch->children[i] ) continue;
+//
+//        // create the volume of this node
+//        address_x = i & ( 1 << 0 );
+//        address_y = i & ( 1 << 1 );
+//        address_z = i & ( 1 << 2 );
+//
+//        tmp_ov = *( pvbranch );
+//
+//        if ( 0 == address_x )
+//        {
+//            tmp_ov.maxs[OCT_X] = x_mid;
+//        }
+//        else
+//        {
+//            tmp_ov.mins[OCT_X] = x_mid;
+//        }
+//
+//        if ( 0 == address_y )
+//        {
+//            tmp_ov.maxs[OCT_Y] = y_mid;
+//        }
+//        else
+//        {
+//            tmp_ov.mins[OCT_X] = y_mid;
+//        }
+//
+//        if ( 0 == address_z )
+//        {
+//            tmp_ov.maxs[OCT_Z] = z_mid;
+//        }
+//        else
+//        {
+//            tmp_ov.mins[OCT_Z] = z_mid;
+//        }
+//
+//        if ( oct_bb_intersection( *pvobj, tmp_ov, &int_ov ) )
+//        {
+//            // potential interaction with the child. go recursive!
+//            bool_t ret = obj_BSP_collide_branch( pbranch->children[i], &( tmp_ov ), pvobj, colst );
+//            if ( !ret ) return ret;
+//        }
+//    }
+//
+//    return btrue;
+//}
+//
+
+////--------------------------------------------------------------------------------------------
+//bool_t obj_BSP_collide_nodes( BSP_leaf_t leaf_lst[], oct_bb_t * pvobj, int_ary_t * colst )
+//{
+//    /// @details BB@> check for collisions with the given node list
+//
+//    BSP_leaf_t * pleaf;
+//    oct_bb_t    int_ov, * pnodevol;
+//
+//    if ( NULL == leaf_lst || NULL == pvobj ) return bfalse;
+//
+//    if ( 0 == int_ary_get_size( colst ) || int_ary_get_top( colst ) >= int_ary_get_size( colst ) ) return bfalse;
+//
+//    // check for collisions with any of the nodes of this branch
+//    for ( pleaf = leaf_lst; NULL != pleaf; pleaf = pleaf->next )
+//    {
+//        if ( NULL == pleaf ) EGOBOO_ASSERT( bfalse );
+//
+//        // get the volume of the node
+//        pnodevol = NULL;
+//        if ( 1 == pleaf->data_type )
+//        {
+//            chr_t * pchr = ( chr_t* )pleaf->data;
+//            pnodevol = &( pchr->chr_prt_cv );
+//        }
+//        else if ( 2 == pleaf->data_type )
+//        {
+//            prt_t * pprt = ( prt_t* )pleaf->data;
+//            pnodevol = &( pprt->chr_prt_cv );
+//        }
+//        else
+//        {
+//            continue;
+//        }
+//
+//        if ( oct_bb_intersection( *pvobj, *pnodevol, &int_ov ) )
+//        {
+//            // we have a possible intersection
+//            int_ary_push_back( colst, pleaf->index *(( 1 == pleaf->data_type ) ? 1 : -1 ) );
+//
+//            if ( int_ary_get_top( colst ) >= int_ary_get_size( colst ) )
+//            {
+//                // too many nodes. break out of the search.
+//                return bfalse;
+//            };
+//        }

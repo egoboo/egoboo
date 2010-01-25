@@ -40,55 +40,55 @@ typedef GLubyte SET_PACKING( image_row_t[ErrorImage_width][4], 1 );
 
 static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
 
-void ErrorImage_create(void)
+void ErrorImage_create( void )
 {
     // BB > define a default "error texture"
 
     int i, j;
 
-    for (i = 0; i < ErrorImage_height; i++)
+    for ( i = 0; i < ErrorImage_height; i++ )
     {
-        for (j = 0; j < ErrorImage_width; j++)
+        for ( j = 0; j < ErrorImage_width; j++ )
         {
-            if ( 0 == ((i&0x1) ^ (j&0x1)) )
+            if ( 0 == (( i&0x1 ) ^( j&0x1 ) ) )
             {
-                ErrorImage[i][j][0] = (GLubyte) 255;
-                ErrorImage[i][j][1] = (GLubyte) 0;
-                ErrorImage[i][j][2] = (GLubyte) 0;
+                ErrorImage[i][j][0] = ( GLubyte ) 255;
+                ErrorImage[i][j][1] = ( GLubyte ) 0;
+                ErrorImage[i][j][2] = ( GLubyte ) 0;
             }
             else
             {
-                ErrorImage[i][j][0] = (GLubyte) 0;
-                ErrorImage[i][j][1] = (GLubyte) 255;
-                ErrorImage[i][j][2] = (GLubyte) 255;
+                ErrorImage[i][j][0] = ( GLubyte ) 0;
+                ErrorImage[i][j][1] = ( GLubyte ) 255;
+                ErrorImage[i][j][2] = ( GLubyte ) 255;
             }
 
-            ErrorImage[i][j][3] = (GLubyte) 255;
+            ErrorImage[i][j][3] = ( GLubyte ) 255;
         }
     }
 
     ErrorImage_defined = GL_TRUE;
 }
 
-void ErrorImage_bind(GLenum target, GLuint id)
+void ErrorImage_bind( GLenum target, GLuint id )
 {
     glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
-        glBindTexture(target, id);
+        glBindTexture( target, id );
 
-        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        if (target == GL_TEXTURE_1D)
+        glTexParameteri( target, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( target, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+        glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+        if ( target == GL_TEXTURE_1D )
         {
-            glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
+            glTexImage1D( GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage );
         }
         else
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ErrorImage_width, ErrorImage_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, ErrorImage_width, ErrorImage_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage );
         }
     }
     glPopClientAttrib();
@@ -115,13 +115,13 @@ int powerOfTwo( int input )
 GLtexture * GLtexture_new( GLtexture * ptx )
 {
     GLtexture_delete( ptx );
-    if (!ErrorImage_defined) ErrorImage_create();
+    if ( !ErrorImage_defined ) ErrorImage_create();
 
-    memset(ptx, 0, sizeof(GLtexture));
+    memset( ptx, 0, sizeof( GLtexture ) );
 
     // only need one textureID per texture
     // do not need to ask for a new id, even if we change the texture data
-    glGenTextures( 1, &(ptx->textureID) );
+    glGenTextures( 1, &( ptx->textureID ) );
 
     // set the image to be clamped in s and t
     ptx->wrap_s = GL_CLAMP;
@@ -151,7 +151,7 @@ Uint32  GLtexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * i
 {
     SDL_PixelFormat * pformat;
     SDL_PixelFormat   tmpformat;
-    if ( NULL == texture || NULL == image) return INVALID_TX_ID;
+    if ( NULL == texture || NULL == image ) return INVALID_TX_ID;
 
     // make sure the old texture has been freed
     GLtexture_Release( texture );
@@ -205,7 +205,7 @@ Uint32  GLtexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * i
         tmpformat.BytesPerPixel = displaySurface->format->BytesPerPixel;
 
         for ( i = 0; i < scrz && ( tmpformat.Amask & ( 1 << i ) ) == 0; i++ );
-        if ( 0 == (tmpformat.Amask & ( 1 << i )) )
+        if ( 0 == ( tmpformat.Amask & ( 1 << i ) ) )
         {
             // no alpha bits available
             tmpformat.Ashift = 0;
@@ -392,28 +392,28 @@ Uint32  GLtexture_Load( GLenum tx_target, GLtexture *texture, const char *filena
 
     // load the image
     image = NULL;
-    if (use_sdl_image)
+    if ( use_sdl_image )
     {
         // try all different formats
-        for (type = 0; type < maxformattypes; type++)
+        for ( type = 0; type < maxformattypes; type++ )
         {
-            snprintf(fullname, sizeof(fullname), "%s%s", filename, TxFormatSupported[type]);
+            snprintf( fullname, sizeof( fullname ), "%s%s", filename, TxFormatSupported[type] );
             image = IMG_Load( fullname );
-            if (NULL != image) break;
+            if ( NULL != image ) break;
         }
     }
     else
     {
         // normal SDL only supports bmp
-        snprintf(fullname, sizeof(fullname), "%s.bmp", filename);
-        image = SDL_LoadBMP(fullname);
+        snprintf( fullname, sizeof( fullname ), "%s.bmp", filename );
+        image = SDL_LoadBMP( fullname );
     }
 
     //We could not load the image
     if ( NULL == image ) return INVALID_TX_ID;
 
     retval = GLtexture_Convert( tx_target, texture, image, key );
-    strncpy(texture->name, fullname, sizeof(texture->name));
+    strncpy( texture->name, fullname, sizeof( texture->name ) );
 
     texture->wrap_s = GL_REPEAT;
     texture->wrap_t = GL_REPEAT;
@@ -454,20 +454,20 @@ GLfloat GLtexture_GetAlpha( GLtexture *texture )
 //--------------------------------------------------------------------------------------------
 void    GLtexture_Release( GLtexture *texture )
 {
-    if (!ErrorImage_defined) ErrorImage_create();
+    if ( !ErrorImage_defined ) ErrorImage_create();
 
     // Bind an "error texture" to this texture
-    if (INVALID_TX_ID == texture->textureID)
+    if ( INVALID_TX_ID == texture->textureID )
     {
         glGenTextures( 1, &texture->textureID );
     }
 
-    ErrorImage_bind(GL_TEXTURE_2D, texture->textureID);
+    ErrorImage_bind( GL_TEXTURE_2D, texture->textureID );
 
     // Reset the other data
     texture->imgW = texture->txW = ErrorImage_width;
     texture->imgH = texture->txH = ErrorImage_height;
-    strncpy( texture->name, "ErrorImage", sizeof(texture->name) );
+    strncpy( texture->name, "ErrorImage", sizeof( texture->name ) );
 
     // set the image to be repeat in s and t
     texture->wrap_s = GL_REPEAT;

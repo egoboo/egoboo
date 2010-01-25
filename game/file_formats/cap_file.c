@@ -42,12 +42,12 @@ cap_t * cap_init( cap_t * pcap )
 
     int cnt;
 
-    if( NULL == pcap ) return pcap;
+    if ( NULL == pcap ) return pcap;
 
     // clear out all the data
-    memset( pcap, 0, sizeof(*pcap) );
+    memset( pcap, 0, sizeof( *pcap ) );
 
-    for( cnt=0; cnt<IDSZ_COUNT; cnt++ )
+    for ( cnt = 0; cnt < IDSZ_COUNT; cnt++ )
     {
         pcap->idsz[cnt] = IDSZ_NONE;
     }
@@ -96,7 +96,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     int cnt;
     STRING szLoadName;
 
-    if( NULL == pcap ) return NULL;
+    if ( NULL == pcap ) return NULL;
 
     make_newloadname( tmploadname, SLASH_STR "data.txt", szLoadName );
 
@@ -113,13 +113,13 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     cap_init( pcap );
 
     // mark the source filename
-    strncpy( pcap->name, szLoadName, SDL_arraysize(pcap->name) );
+    strncpy( pcap->name, szLoadName, SDL_arraysize( pcap->name ) );
 
     // mark it as loaded
     pcap->loaded = btrue;
 
     // Read in the real general data
-    fget_next_name( fileread, pcap->classname, SDL_arraysize(pcap->classname) );
+    fget_next_name( fileread, pcap->classname, SDL_arraysize( pcap->classname ) );
 
     // Light cheat
     pcap->uniformlit = fget_next_bool( fileread );
@@ -130,38 +130,38 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
     // Gender
     cTmp = fget_next_char( fileread );
-         if ( 'F' == toupper(cTmp) )  pcap->gender = GENDER_FEMALE;
-    else if ( 'M' == toupper(cTmp) )  pcap->gender = GENDER_MALE;
-    else if ( 'R' == toupper(cTmp) )  pcap->gender = GENDER_RANDOM;
+    if ( 'F' == toupper( cTmp ) )  pcap->gender = GENDER_FEMALE;
+    else if ( 'M' == toupper( cTmp ) )  pcap->gender = GENDER_MALE;
+    else if ( 'R' == toupper( cTmp ) )  pcap->gender = GENDER_RANDOM;
     else                              pcap->gender = GENDER_OTHER;
 
     // Read in the icap stats
     pcap->lifecolor = fget_next_int( fileread );
     pcap->manacolor = fget_next_int( fileread );
 
-    fget_next_range( fileread, &(pcap->life_stat.val) );
-    fget_next_range( fileread, &(pcap->life_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->life_stat.val ) );
+    fget_next_range( fileread, &( pcap->life_stat.perlevel ) );
 
-    fget_next_range( fileread, &(pcap->mana_stat.val) );
-    fget_next_range( fileread, &(pcap->mana_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->mana_stat.val ) );
+    fget_next_range( fileread, &( pcap->mana_stat.perlevel ) );
 
-    fget_next_range( fileread, &(pcap->manareturn_stat.val) );
-    fget_next_range( fileread, &(pcap->manareturn_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->manareturn_stat.val ) );
+    fget_next_range( fileread, &( pcap->manareturn_stat.perlevel ) );
 
-    fget_next_range( fileread, &(pcap->manaflow_stat.val) );
-    fget_next_range( fileread, &(pcap->manaflow_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->manaflow_stat.val ) );
+    fget_next_range( fileread, &( pcap->manaflow_stat.perlevel ) );
 
-    fget_next_range( fileread, &(pcap->strength_stat.val) );
-    fget_next_range( fileread, &(pcap->strength_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->strength_stat.val ) );
+    fget_next_range( fileread, &( pcap->strength_stat.perlevel ) );
 
-    fget_next_range( fileread, &(pcap->wisdom_stat.val) );
-    fget_next_range( fileread, &(pcap->wisdom_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->wisdom_stat.val ) );
+    fget_next_range( fileread, &( pcap->wisdom_stat.perlevel ) );
 
-    fget_next_range( fileread, &(pcap->intelligence_stat.val) );
-    fget_next_range( fileread, &(pcap->intelligence_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->intelligence_stat.val ) );
+    fget_next_range( fileread, &( pcap->intelligence_stat.perlevel ) );
 
-    fget_next_range( fileread, &(pcap->dexterity_stat.val) );
-    fget_next_range( fileread, &(pcap->dexterity_stat.perlevel) );
+    fget_next_range( fileread, &( pcap->dexterity_stat.val ) );
+    fget_next_range( fileread, &( pcap->dexterity_stat.perlevel ) );
 
     // More physical attributes
     pcap->size = fget_next_float( fileread );
@@ -186,9 +186,9 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->enviro = fget_next_bool( fileread );
 
     fTmp = fget_next_float( fileread );
-    pcap->uoffvel    = FLOAT_TO_FFFF(fTmp);
+    pcap->uoffvel    = FLOAT_TO_FFFF( fTmp );
     fTmp = fget_next_float( fileread );
-    pcap->voffvel    = FLOAT_TO_FFFF(fTmp);
+    pcap->voffvel    = FLOAT_TO_FFFF( fTmp );
     pcap->stickybutt = fget_next_bool( fileread );
 
     // Invulnerability data
@@ -209,7 +209,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
     // Skin defenses ( 4 skins )
     goto_colon( NULL, fileread, bfalse );
-    for( cnt=0; cnt<MAX_SKIN; cnt++ )
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         iTmp = 0xFF - fget_int( fileread );
         pcap->defense[cnt] = CLIP( iTmp, 0, 0xFF );
@@ -218,7 +218,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         goto_colon( NULL, fileread, bfalse );
-        for( cnt=0; cnt<MAX_SKIN; cnt++ )
+        for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
             pcap->damagemodifier[damagetype][cnt] = fget_int( fileread );
         }
@@ -228,17 +228,17 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     {
         goto_colon( NULL, fileread, bfalse );
 
-        for( cnt=0; cnt<MAX_SKIN; cnt++ )
+        for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
             cTmp = fget_first_letter( fileread );
-                 if ( 'T' == toupper(cTmp) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVERT;
-            else if ( 'C' == toupper(cTmp) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGECHARGE;
-            else if ( 'M' == toupper(cTmp) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEMANA;
+            if ( 'T' == toupper( cTmp ) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVERT;
+            else if ( 'C' == toupper( cTmp ) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGECHARGE;
+            else if ( 'M' == toupper( cTmp ) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEMANA;
         }
     }
 
     goto_colon( NULL, fileread, bfalse );
-    for( cnt=0; cnt<MAX_SKIN; cnt++ )
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         pcap->maxaccel[cnt] = fget_float( fileread ) / 80.0f;
     }
@@ -250,7 +250,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
         pcap->experience_forlevel[level] = fget_next_int( fileread );
     }
 
-    fget_next_range( fileread, &(pcap->experience) );
+    fget_next_range( fileread, &( pcap->experience ) );
     pcap->experience.from /= 256.0f;
     pcap->experience.to   /= 256.0f;
 
@@ -304,8 +304,8 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
     // Blud
     cTmp = fget_next_char( fileread );
-         if ( 'T' == toupper(cTmp) )  pcap->blud_valid = btrue;
-    else if ( 'U' == toupper(cTmp) )  pcap->blud_valid = ULTRABLUDY;
+    if ( 'T' == toupper( cTmp ) )  pcap->blud_valid = btrue;
+    else if ( 'U' == toupper( cTmp ) )  pcap->blud_valid = ULTRABLUDY;
     else                              pcap->blud_valid = bfalse;
 
     pcap->blud_pip = fget_next_int( fileread );
@@ -320,12 +320,12 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     pcap->life_return  = fget_next_int( fileread );
     pcap->stoppedby  |= fget_next_int( fileread );
 
-    for(cnt=0; cnt<MAX_SKIN; cnt++)
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        fget_next_name( fileread, pcap->skinname[cnt], sizeof(pcap->skinname[cnt]) );
+        fget_next_name( fileread, pcap->skinname[cnt], sizeof( pcap->skinname[cnt] ) );
     }
 
-    for(cnt=0; cnt<MAX_SKIN; cnt++)
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         pcap->skincost[cnt] = fget_next_int( fileread );
     }
@@ -362,43 +362,43 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     {
         idsz = fget_idsz( fileread );
 
-             if ( idsz == MAKE_IDSZ( 'D','R','E','S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'G','O','L','D' ) ) pcap->money = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','T','U','K' ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P','A','C','K' ) ) pcap->istoobig = 1 - fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'V','A','M','P' ) ) pcap->reflect = 1 - fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D','R','A','W' ) ) pcap->alwaysdraw = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'R','A','N','G' ) ) pcap->isranged = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'H','I','D','E' ) ) pcap->hidestate = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'E','Q','U','I' ) ) pcap->isequipment = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','Q','U','A' ) ) pcap->bump_sizebig = pcap->bump_size * 2;
-        else if ( idsz == MAKE_IDSZ( 'I','C','O','N' ) ) pcap->icon = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','H','A','D' ) ) pcap->forceshadow = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'C','K','U','R' ) ) pcap->canseekurse = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','K','I','N' ) ) pcap->skinoverride = fget_int( fileread ) & 3;
-        else if ( idsz == MAKE_IDSZ( 'C','O','N','T' ) ) pcap->contentoverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','T','A','T' ) ) pcap->stateoverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L','E','V','L' ) ) pcap->leveloverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P','L','A','T' ) ) pcap->canuseplatforms = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'R','I','P','P' ) ) pcap->ripple = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'V','A','L','U' ) ) pcap->isvaluable = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L','I','F','E' ) ) pcap->life_spawn = 256 * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'M','A','N','A' ) ) pcap->mana_spawn = 256 * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'B','O','O','K' ) ) pcap->spelleffect_type = fget_int( fileread );
+        if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'G', 'O', 'L', 'D' ) ) pcap->money = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = ( 0 == fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'V', 'A', 'M', 'P' ) ) pcap->reflect = ( 0 == fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'W' ) ) pcap->alwaysdraw = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'R', 'A', 'N', 'G' ) ) pcap->isranged = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'H', 'I', 'D', 'E' ) ) pcap->hidestate = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'E', 'Q', 'U', 'I' ) ) pcap->isequipment = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'S', 'Q', 'U', 'A' ) ) pcap->bump_sizebig = pcap->bump_size * 2;
+        else if ( idsz == MAKE_IDSZ( 'I', 'C', 'O', 'N' ) ) pcap->icon = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) pcap->canseekurse = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) pcap->skinoverride = fget_int( fileread ) & 3;
+        else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->contentoverride = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->stateoverride = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L', 'E', 'V', 'L' ) ) pcap->leveloverride = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'P', 'L', 'A', 'T' ) ) pcap->canuseplatforms = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'R', 'I', 'P', 'P' ) ) pcap->ripple = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'V', 'A', 'L', 'U' ) ) pcap->isvaluable = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->life_spawn = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->spelleffect_type = fget_int( fileread );
 
         // Read Skills
-        else if ( idsz == MAKE_IDSZ( 'A','W','E','P' ) ) pcap->canuseadvancedweapons = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','H','P','R' ) ) pcap->shieldproficiency = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'J','O','U','S' ) ) pcap->canjoust = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W','M','A','G' ) ) pcap->canusearcane = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'H','M','A','G' ) ) pcap->canusedivine = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T','E','C','H' ) ) pcap->canusetech = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D','I','S','A' ) ) pcap->candisarm = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S','T','A','B' ) ) pcap->canbackstab = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P','O','I','S' ) ) pcap->canusepoison = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'R','E','A','D' ) ) pcap->canread = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'C','O','D','E' ) ) pcap->hascodeofconduct = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D','A','R','K' ) ) pcap->darkvision_level = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'A', 'W', 'E', 'P' ) ) pcap->canuseadvancedweapons = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'H', 'P', 'R' ) ) pcap->shieldproficiency = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'J', 'O', 'U', 'S' ) ) pcap->canjoust = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'M', 'A', 'G' ) ) pcap->canusearcane = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'H', 'M', 'A', 'G' ) ) pcap->canusedivine = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T', 'E', 'C', 'H' ) ) pcap->canusetech = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D', 'I', 'S', 'A' ) ) pcap->candisarm = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) pcap->canbackstab = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'P', 'O', 'I', 'S' ) ) pcap->canusepoison = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'R', 'E', 'A', 'D' ) ) pcap->canread = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'C', 'O', 'D', 'E' ) ) pcap->hascodeofconduct = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) pcap->darkvision_level = fget_int( fileread );
     }
     vfs_close( fileread );
 
@@ -417,7 +417,7 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 
     int damagetype, skin;
 
-    if( NULL == pcap ) return bfalse;
+    if ( NULL == pcap ) return bfalse;
 
     // Open the file
     filewrite = vfs_openWrite( szSaveName );
@@ -432,16 +432,16 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     }
 
     // Real general data
-    template_put_int   ( filetemp, filewrite, -1 );  // -1 signals a flexible load thing
+    template_put_int( filetemp, filewrite, -1 );     // -1 signals a flexible load thing
     template_put_string_under( filetemp, filewrite, pcap->classname );
-    template_put_bool  ( filetemp, filewrite, pcap->uniformlit );
-    template_put_int   ( filetemp, filewrite, pcap->ammomax );
-    template_put_int   ( filetemp, filewrite, pcap->ammo );
+    template_put_bool( filetemp, filewrite, pcap->uniformlit );
+    template_put_int( filetemp, filewrite, pcap->ammomax );
+    template_put_int( filetemp, filewrite, pcap->ammo );
     template_put_gender( filetemp, filewrite, pcap->gender );
 
     // Object stats
-    template_put_int  ( filetemp, filewrite, pcap->lifecolor );
-    template_put_int  ( filetemp, filewrite, pcap->manacolor );
+    template_put_int( filetemp, filewrite, pcap->lifecolor );
+    template_put_int( filetemp, filewrite, pcap->manacolor );
     template_put_range( filetemp, filewrite, pcap->life_stat.val );
     template_put_range( filetemp, filewrite, pcap->life_stat.perlevel );
     template_put_range( filetemp, filewrite, pcap->mana_stat.val );
@@ -462,46 +462,46 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     // More physical attributes
     template_put_float( filetemp, filewrite, pcap->size );
     template_put_float( filetemp, filewrite, pcap->size_perlevel );
-    template_put_int  ( filetemp, filewrite, pcap->shadow_size );
-    template_put_int  ( filetemp, filewrite, pcap->bump_size );
-    template_put_int  ( filetemp, filewrite, pcap->bump_height );
+    template_put_int( filetemp, filewrite, pcap->shadow_size );
+    template_put_int( filetemp, filewrite, pcap->bump_size );
+    template_put_int( filetemp, filewrite, pcap->bump_height );
     template_put_float( filetemp, filewrite, pcap->bumpdampen );
-    template_put_int  ( filetemp, filewrite, pcap->weight );
+    template_put_int( filetemp, filewrite, pcap->weight );
     template_put_float( filetemp, filewrite, pcap->jump );
-    template_put_int  ( filetemp, filewrite, pcap->jumpnumber );
+    template_put_int( filetemp, filewrite, pcap->jumpnumber );
     template_put_float( filetemp, filewrite, pcap->sneakspd );
     template_put_float( filetemp, filewrite, pcap->walkspd );
     template_put_float( filetemp, filewrite, pcap->runspd );
-    template_put_int  ( filetemp, filewrite, pcap->flyheight );
-    template_put_int  ( filetemp, filewrite, pcap->flashand );
-    template_put_int  ( filetemp, filewrite, pcap->alpha );
-    template_put_int  ( filetemp, filewrite, pcap->light );
-    template_put_bool ( filetemp, filewrite, pcap->transferblend );
-    template_put_int  ( filetemp, filewrite, pcap->sheen );
-    template_put_bool ( filetemp, filewrite, pcap->enviro );
-    template_put_float( filetemp, filewrite, FFFF_TO_FLOAT(pcap->uoffvel) );
-    template_put_float( filetemp, filewrite, FFFF_TO_FLOAT(pcap->voffvel) );
-    template_put_bool ( filetemp, filewrite, pcap->stickybutt );
+    template_put_int( filetemp, filewrite, pcap->flyheight );
+    template_put_int( filetemp, filewrite, pcap->flashand );
+    template_put_int( filetemp, filewrite, pcap->alpha );
+    template_put_int( filetemp, filewrite, pcap->light );
+    template_put_bool( filetemp, filewrite, pcap->transferblend );
+    template_put_int( filetemp, filewrite, pcap->sheen );
+    template_put_bool( filetemp, filewrite, pcap->enviro );
+    template_put_float( filetemp, filewrite, FFFF_TO_FLOAT( pcap->uoffvel ) );
+    template_put_float( filetemp, filewrite, FFFF_TO_FLOAT( pcap->voffvel ) );
+    template_put_bool( filetemp, filewrite, pcap->stickybutt );
 
     // Invulnerability data
     template_put_bool( filetemp, filewrite, pcap->invictus );
-    template_put_int ( filetemp, filewrite, pcap->nframefacing );
-    template_put_int ( filetemp, filewrite, pcap->nframeangle );
-    template_put_int ( filetemp, filewrite, pcap->iframefacing );
-    template_put_int ( filetemp, filewrite, pcap->iframeangle );
+    template_put_int( filetemp, filewrite, pcap->nframefacing );
+    template_put_int( filetemp, filewrite, pcap->nframeangle );
+    template_put_int( filetemp, filewrite, pcap->iframefacing );
+    template_put_int( filetemp, filewrite, pcap->iframeangle );
 
     // Skin defenses
-    template_put_int ( filetemp, filewrite, 255 - pcap->defense[0] );
-    template_put_int ( filetemp, filewrite, 255 - pcap->defense[1] );
-    template_put_int ( filetemp, filewrite, 255 - pcap->defense[2] );
-    template_put_int ( filetemp, filewrite, 255 - pcap->defense[3] );
+    template_put_int( filetemp, filewrite, 255 - pcap->defense[0] );
+    template_put_int( filetemp, filewrite, 255 - pcap->defense[1] );
+    template_put_int( filetemp, filewrite, 255 - pcap->defense[2] );
+    template_put_int( filetemp, filewrite, 255 - pcap->defense[3] );
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][0] & DAMAGESHIFT );
-        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][1] & DAMAGESHIFT );
-        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][2] & DAMAGESHIFT );
-        template_put_int ( filetemp, filewrite, pcap->damagemodifier[damagetype][3] & DAMAGESHIFT );
+        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][0] & DAMAGESHIFT );
+        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][1] & DAMAGESHIFT );
+        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][2] & DAMAGESHIFT );
+        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][3] & DAMAGESHIFT );
     }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -537,13 +537,13 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_float( filetemp, filewrite, pcap->maxaccel[3]*80 );
 
     // Experience and level data
-    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[1] );
-    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[2] );
-    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[3] );
-    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[4] );
-    template_put_int  ( filetemp, filewrite, pcap->experience_forlevel[5] );
+    template_put_int( filetemp, filewrite, pcap->experience_forlevel[1] );
+    template_put_int( filetemp, filewrite, pcap->experience_forlevel[2] );
+    template_put_int( filetemp, filewrite, pcap->experience_forlevel[3] );
+    template_put_int( filetemp, filewrite, pcap->experience_forlevel[4] );
+    template_put_int( filetemp, filewrite, pcap->experience_forlevel[5] );
     template_put_float( filetemp, filewrite, pcap->experience.from * 256.0f );
-    template_put_int  ( filetemp, filewrite, pcap->experience_worth );
+    template_put_int( filetemp, filewrite, pcap->experience_worth );
     template_put_float( filetemp, filewrite, pcap->experience_exchange );
     template_put_float( filetemp, filewrite, pcap->experience_rate[0] );
     template_put_float( filetemp, filewrite, pcap->experience_rate[1] );
@@ -576,20 +576,20 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 
     // Other item and damage stuff
     template_put_damage_type( filetemp, filewrite, pcap->damagetargettype );
-    template_put_action     ( filetemp, filewrite, pcap->weaponaction );
+    template_put_action( filetemp, filewrite, pcap->weaponaction );
 
     // Particle attachments
-    template_put_int        ( filetemp, filewrite, pcap->attachedprt_amount );
+    template_put_int( filetemp, filewrite, pcap->attachedprt_amount );
     template_put_damage_type( filetemp, filewrite, pcap->attachedprt_reaffirmdamagetype );
-    template_put_int        ( filetemp, filewrite, pcap->attachedprt_pip );
+    template_put_int( filetemp, filewrite, pcap->attachedprt_pip );
 
     // Character hands
     template_put_bool( filetemp, filewrite, pcap->slotvalid[SLOT_LEFT] );
     template_put_bool( filetemp, filewrite, pcap->slotvalid[SLOT_RIGHT] );
 
     // Particle spawning on attack
-    template_put_bool( filetemp, filewrite, pcap->attack_attached );
-    template_put_int ( filetemp, filewrite, pcap->attack_pip );
+    template_put_bool( filetemp, filewrite, 0 != pcap->attack_attached );
+    template_put_int( filetemp, filewrite, pcap->attack_pip );
 
     // Particle spawning for GoPoof
     template_put_int( filetemp, filewrite, pcap->gopoofprt_amount );
@@ -597,38 +597,38 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     template_put_int( filetemp, filewrite, pcap->gopoofprt_pip );
 
     // Particle spawning for blud
-    template_put_bool( filetemp, filewrite, pcap->blud_valid );
-    template_put_int ( filetemp, filewrite, pcap->blud_pip );
+    template_put_bool( filetemp, filewrite, 0 != pcap->blud_valid );
+    template_put_int( filetemp, filewrite, pcap->blud_pip );
 
     // Extra stuff
-    template_put_bool ( filetemp, filewrite, pcap->waterwalk );
+    template_put_bool( filetemp, filewrite, pcap->waterwalk );
     template_put_float( filetemp, filewrite, pcap->dampen );
 
     // More stuff
-    template_put_float( filetemp, filewrite, FP8_TO_FLOAT(pcap->life_heal) );       // These two are seriously outdated
-    template_put_float( filetemp, filewrite, FP8_TO_FLOAT(pcap->manacost) );       // and shouldnt be used. Use scripts instead.
-    template_put_int  ( filetemp, filewrite, pcap->life_return );
-    template_put_int  ( filetemp, filewrite, pcap->stoppedby );
+    template_put_float( filetemp, filewrite, FP8_TO_FLOAT( pcap->life_heal ) );     // These two are seriously outdated
+    template_put_float( filetemp, filewrite, FP8_TO_FLOAT( pcap->manacost ) );     // and shouldnt be used. Use scripts instead.
+    template_put_int( filetemp, filewrite, pcap->life_return );
+    template_put_int( filetemp, filewrite, pcap->stoppedby );
     template_put_string_under( filetemp, filewrite, pcap->skinname[0] );
     template_put_string_under( filetemp, filewrite, pcap->skinname[1] );
     template_put_string_under( filetemp, filewrite, pcap->skinname[2] );
     template_put_string_under( filetemp, filewrite, pcap->skinname[3] );
-    template_put_int  ( filetemp, filewrite, pcap->skincost[0] );
-    template_put_int  ( filetemp, filewrite, pcap->skincost[1] );
-    template_put_int  ( filetemp, filewrite, pcap->skincost[2] );
-    template_put_int  ( filetemp, filewrite, pcap->skincost[3] );
+    template_put_int( filetemp, filewrite, pcap->skincost[0] );
+    template_put_int( filetemp, filewrite, pcap->skincost[1] );
+    template_put_int( filetemp, filewrite, pcap->skincost[2] );
+    template_put_int( filetemp, filewrite, pcap->skincost[3] );
     template_put_float( filetemp, filewrite, pcap->str_bonus );
 
     // Another memory lapse
-    template_put_bool( filetemp, filewrite, btrue - pcap->ridercanattack );
+    template_put_bool( filetemp, filewrite, !pcap->ridercanattack );
     template_put_bool( filetemp, filewrite, pcap->canbedazed );
     template_put_bool( filetemp, filewrite, pcap->canbegrogged );
-    template_put_int ( filetemp, filewrite, 0 );
-    template_put_int ( filetemp, filewrite, 0 );
-    template_put_bool( filetemp, filewrite, pcap->see_invisible_level );
-    template_put_int ( filetemp, filewrite, pcap->kursechance );
-    template_put_int ( filetemp, filewrite, pcap->sound_index[SOUND_FOOTFALL] );
-    template_put_int ( filetemp, filewrite, pcap->sound_index[SOUND_JUMP] );
+    template_put_int( filetemp, filewrite, 0 );
+    template_put_int( filetemp, filewrite, 0 );
+    template_put_bool( filetemp, filewrite, pcap->see_invisible_level > 0 );
+    template_put_int( filetemp, filewrite, pcap->kursechance );
+    template_put_int( filetemp, filewrite, pcap->sound_index[SOUND_FOOTFALL] );
+    template_put_int( filetemp, filewrite, pcap->sound_index[SOUND_JUMP] );
 
     vfs_flush( filewrite );
 
@@ -637,106 +637,106 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
 
     // Expansions
     if ( pcap->skindressy&1 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','R','E','S'), 0 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 0 );
 
     if ( pcap->skindressy&2 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','R','E','S'), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 1 );
 
     if ( pcap->skindressy&4 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','R','E','S'), 2 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 2 );
 
     if ( pcap->skindressy&8 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','R','E','S'), 3 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 3 );
 
     if ( pcap->resistbumpspawn )
-        fput_expansion(filewrite, "", MAKE_IDSZ('S','T','U','K'), 0 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'U', 'K' ), 0 );
 
     if ( pcap->istoobig )
-        fput_expansion(filewrite, "", MAKE_IDSZ('P','A','C','K'), 0 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'P', 'A', 'C', 'K' ), 0 );
 
     if ( !pcap->reflect )
-        fput_expansion(filewrite, "", MAKE_IDSZ('V','A','M','P'), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'V', 'A', 'M', 'P' ), 1 );
 
     if ( pcap->alwaysdraw )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','R','A','W'), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'A', 'W' ), 1 );
 
     if ( pcap->isranged )
-        fput_expansion(filewrite, "", MAKE_IDSZ('R','A','N','G'), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'R', 'A', 'N', 'G' ), 1 );
 
     if ( pcap->hidestate != NOHIDE )
-        fput_expansion(filewrite, "", MAKE_IDSZ('H','I','D','E'), pcap->hidestate );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'H', 'I', 'D', 'E' ), pcap->hidestate );
 
     if ( pcap->isequipment )
-        fput_expansion(filewrite, "", MAKE_IDSZ('E','Q','U','I'), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'E', 'Q', 'U', 'I' ), 1 );
 
     if ( pcap->bump_sizebig >= pcap->bump_size * 2 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('S','Q','U','A'), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'Q', 'U', 'A' ), 1 );
 
     if ( pcap->icon != pcap->usageknown )
-        fput_expansion(filewrite, "", MAKE_IDSZ('I','C','O','N'), pcap->icon );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), pcap->icon );
 
     if ( pcap->forceshadow )
-        fput_expansion(filewrite, "", MAKE_IDSZ('S','H','A','D'), 1 );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'H', 'A', 'D' ), 1 );
 
     if ( pcap->ripple == pcap->isitem )
-        fput_expansion(filewrite, "", MAKE_IDSZ('R','I','P','P'), pcap->ripple );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'R', 'I', 'P', 'P' ), pcap->ripple );
 
     if ( pcap->isvaluable != -1 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('V','A','L','U'), pcap->isvaluable );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), pcap->isvaluable );
 
-    if( pcap->spelleffect_type != NOSKINOVERRIDE )
-        fput_expansion(filewrite, "", MAKE_IDSZ('B','O','O','K'), pcap->spelleffect_type );
+    if ( pcap->spelleffect_type != NOSKINOVERRIDE )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), pcap->spelleffect_type );
 
     // Basic stuff that is always written
-    fput_expansion(filewrite, "", MAKE_IDSZ('G','O','L','D'), pcap->money );
-    fput_expansion(filewrite, "", MAKE_IDSZ('P','L','A','T'), pcap->canuseplatforms );
-    fput_expansion(filewrite, "", MAKE_IDSZ('S','K','I','N'), pcap->skinoverride );
-    fput_expansion(filewrite, "", MAKE_IDSZ('C','O','N','T'), pcap->contentoverride );
-    fput_expansion(filewrite, "", MAKE_IDSZ('S','T','A','T'), pcap->stateoverride );
-    fput_expansion(filewrite, "", MAKE_IDSZ('L','E','V','L'), pcap->leveloverride );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), pcap->money );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), pcap->canuseplatforms );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'K', 'I', 'N' ), pcap->skinoverride );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), pcap->contentoverride );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), pcap->stateoverride );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), pcap->leveloverride );
 
-    vfs_printf( filewrite, ": [LIFE] %4.2f\n", FP8_TO_FLOAT(pcap->life_spawn) );
-    vfs_printf( filewrite, ": [MANA] %4.2f\n", FP8_TO_FLOAT(pcap->mana_spawn) );
+    vfs_printf( filewrite, ": [LIFE] %4.2f\n", FP8_TO_FLOAT( pcap->life_spawn ) );
+    vfs_printf( filewrite, ": [MANA] %4.2f\n", FP8_TO_FLOAT( pcap->mana_spawn ) );
 
     // Copy all skill expansions
     if ( pcap->shieldproficiency > 0 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('S','H','P','R'), pcap->shieldproficiency );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'H', 'P', 'R' ), pcap->shieldproficiency );
 
     if ( pcap->canuseadvancedweapons > 0 )
-        fput_expansion(filewrite, "", MAKE_IDSZ('A','W','E','P'), pcap->canuseadvancedweapons );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'A', 'W', 'E', 'P' ), pcap->canuseadvancedweapons );
 
-    if ( pcap->canjoust > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('J','O','U','S'), pcap->canjoust );
+    if ( pcap->canjoust > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'J', 'O', 'U', 'S' ), pcap->canjoust );
 
-    if ( pcap->candisarm > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','I','S','A'), pcap->candisarm );
+    if ( pcap->candisarm > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'I', 'S', 'A' ), pcap->candisarm );
 
-    if ( pcap->canseekurse > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('C','K','U','R'), pcap->canseekurse );
+    if ( pcap->canseekurse > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'K', 'U', 'R' ), pcap->canseekurse );
 
-    if ( pcap->canusepoison > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('P','O','I','S'), pcap->canusepoison );
+    if ( pcap->canusepoison > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'P', 'O', 'I', 'S' ), pcap->canusepoison );
 
-    if ( pcap->canread > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('R','E','A','D'), pcap->canread );
+    if ( pcap->canread > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'R', 'E', 'A', 'D' ), pcap->canread );
 
-    if ( pcap->canbackstab > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('S','T','A','B'), pcap->canbackstab );
+    if ( pcap->canbackstab > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'B' ), pcap->canbackstab );
 
-    if ( pcap->canusedivine > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('H','M','A','G'), pcap->canusedivine );
+    if ( pcap->canusedivine > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'H', 'M', 'A', 'G' ), pcap->canusedivine );
 
-    if ( pcap->canusearcane > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('W','M','A','G'), pcap->canusearcane );
+    if ( pcap->canusearcane > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'W', 'M', 'A', 'G' ), pcap->canusearcane );
 
-    if ( pcap->canusetech > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('T','E','C','H'), pcap->canusetech );
+    if ( pcap->canusetech > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'E', 'C', 'H' ), pcap->canusetech );
 
-    if ( pcap->hascodeofconduct > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('C','O','D','E'), pcap->hascodeofconduct );
+    if ( pcap->hascodeofconduct > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'O', 'D', 'E' ), pcap->hascodeofconduct );
 
-    if ( pcap->darkvision_level > 0  )
-        fput_expansion(filewrite, "", MAKE_IDSZ('D','A','R','K'), pcap->darkvision_level );
+    if ( pcap->darkvision_level > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'A', 'R', 'K' ), pcap->darkvision_level );
 
     // dump the rest of the template file
     template_flush( filetemp, filewrite );

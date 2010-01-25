@@ -29,16 +29,17 @@
 #include "graphic.h"
 #include "network.h"
 #include "sound.h"
-#include "profile.h"
+#include "profile.inl"
 #include "ui.h"
 #include "font_bmp.h"
 #include "input.h"
 #include "game.h"
 #include "menu.h"
 
-#include "char.h"
-#include "particle.h"
-#include "enchant.h"
+#include "char.inl"
+#include "particle.inl"
+#include "enchant.inl"
+#include "collision.h"
 
 #include "file_formats/scancode_file.h"
 #include "SDL_extensions.h"
@@ -62,9 +63,11 @@ static int do_ego_proc_run( ego_process_t * eproc, double frameDuration );
 
 static void memory_cleanUp( void );
 static int  ego_init_SDL();
-static void console_init();
+static void console_begin();
+static void console_end();
 
-static void init_all_objects( void );
+static void object_systems_begin( void );
+static void object_systems_end( void );
 
 static void _quit_game( ego_process_t * pgame );
 
@@ -79,6 +82,8 @@ static bool_t  screenshot_keyready  = btrue;
 
 static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_base     = bfalse;
+
+static void * _top_con = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -118,8 +123,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // do basic system initialization
     ego_init_SDL();
-    gfx_init();
-    console_init();
+    gfx_system_begin();
+    console_begin();
     net_initialize();
 
     log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL );
@@ -139,14 +144,14 @@ int do_ego_proc_begin( ego_process_t * eproc )
     load_all_music_sounds();
 
     // make sure that a bunch of stuff gets initialized properly
-    init_all_objects();
+    object_systems_begin();
     game_module_init( PMod );
-    mesh_ctor_default( PMesh );
+    mesh_ctor( PMesh );
     init_all_graphics();
-    init_profile_system();
+    profile_system_begin();
 
     // setup the menu system's gui
-    ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
+    ui_begin( "basicdat" SLASH_STR "Negatori.ttf", 24 );
     font_bmp_load( "basicdat" SLASH_STR "font_new_shadow", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory
@@ -238,15 +243,18 @@ int do_ego_proc_running( ego_process_t * eproc )
 
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F9 ) && NULL != PMod && PMod->active )
     {
-        int cnt;
         // super secret "I win" button
         //PMod->beat        = btrue;
         //PMod->exportvalid = btrue;
-        for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+
+        CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
         {
-            if ( ChrList.lst[cnt].isplayer ) continue;
-            kill_character( cnt, 511, bfalse );
+            if ( !pchr->isplayer )
+            {
+                kill_character( cnt, 511, bfalse );
+            }
         }
+        CHR_END_LOOP();
     }
 
     // handle an escape by passing it on to all active sub-processes
@@ -294,6 +302,16 @@ int do_ego_proc_leaving( ego_process_t * eproc )
     if ( GProc->base.terminated && MProc->base.terminated )
     {
         process_terminate( PROC_PBASE( eproc ) );
+    }
+
+    if ( eproc->base.terminated )
+    {
+        // hopefully this will only happen once
+        object_systems_end();
+        clk_destroy( &_gclock );
+        console_end();
+        ui_end();
+        gfx_system_end();
     }
 
     return eproc->base.terminated ? 0 : 1;
@@ -431,7 +449,7 @@ void memory_cleanUp( void )
     input_settings_save( "controls.txt" );
 
     // shut down the ui
-    ui_shutdown();
+    ui_end();
 
     // shut down the network
     if ( PNet->on )
@@ -442,6 +460,18 @@ void memory_cleanUp( void )
     // shut down the clock services
     clk_destroy( &_gclock );
     clk_shutdown();
+
+    // deallocate any dynamically allocated collision memory
+    collision_system_end();
+
+    // deallocate any dynamically allocated scripting memory
+    scripting_system_end();
+
+    // deallocate all dynamically allocated memory for characters, particles, and enchants
+    object_systems_end();
+
+    // clean up any remaining models that might have dynamic data
+    MadList_dtor();
 
     log_message( "Success!\n" );
     log_info( "Exiting Egoboo " VERSION " the good way...\n" );
@@ -507,7 +537,7 @@ void ego_init_SDL_base()
 }
 
 //--------------------------------------------------------------------------------------------
-void console_init()
+void console_begin()
 {
     /// @details BB@> initialize the console. This must happen after the screen has been defines,
     ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
@@ -516,21 +546,52 @@ void console_init()
     SDL_Rect blah = {0, 0, sdl_scr.x, sdl_scr.y / 4};
 
 #if defined(USE_LUA_CONSOLE)
-    lua_console_create( NULL, blah );
+    _top_con = lua_console_create( NULL, blah );
 #else
     // without a callback, this console just dumps the input and generates no output
-    egoboo_console_create( NULL, blah, NULL, NULL );
+    _top_con = egoboo_console_create( NULL, blah, NULL, NULL );
 #endif
 }
 
 //--------------------------------------------------------------------------------------------
-void init_all_objects( void )
+void console_end()
 {
-    /// @details BB@> initialize all the object lists
+    /// @details BB@> de-initialize the top console
 
-    particle_system_init();
-    enchant_system_init();
-    character_system_init();
+#if defined(USE_LUA_CONSOLE)
+    {
+        lua_console_t * ptmp = ( lua_console_t* )_top_con;
+        lua_console_destroy( &ptmp );
+    }
+#else
+    // without a callback, this console just dumps the input and generates no output
+    {
+        egoboo_console_t * ptmp = ( egoboo_console_t* )_top_con;
+        egoboo_console_destroy( &ptmp, SDL_TRUE );
+    }
+#endif
+
+    _top_con = NULL;
+}
+
+//--------------------------------------------------------------------------------------------
+void object_systems_begin( void )
+{
+    /// @details BB@> initialize all the object systems
+
+    particle_system_begin();
+    enchant_system_begin();
+    character_system_begin();
+}
+
+//--------------------------------------------------------------------------------------------
+void object_systems_end( void )
+{
+    /// @details BB@> quit all the object systems
+
+    particle_system_end();
+    enchant_system_end();
+    character_system_end();
 }
 
 //--------------------------------------------------------------------------------------------

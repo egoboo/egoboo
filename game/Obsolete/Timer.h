@@ -25,11 +25,11 @@
 
 typedef struct Timer
 {
-  double currentTime;
-  double frameTime;
-  float timeScale;
-  int isPaused;
-}Timer;
+    double currentTime;
+    double frameTime;
+    float timeScale;
+    int isPaused;
+} Timer;
 
 void timer_init();  // Initialize the timer code
 void timer_shutdown(); // Turn off the timer code

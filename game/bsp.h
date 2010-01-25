@@ -26,81 +26,165 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_BSP_node
+struct s_BSP_aabb
 {
-    struct s_BSP_node * next;
-    int                 data_type;
-    void              * data;
-    int                 index;
-};
-typedef struct s_BSP_node BSP_node_t;
+    size_t      dim;
+    float_ary_t mins;
+    float_ary_t mids;
+    float_ary_t maxs;
 
-BSP_node_t * BSP_node_create( void * data, int type );
-bool_t       BSP_node_destroy( BSP_node_t ** pnode );
-BSP_node_t * BSP_node_ctor( BSP_node_t * t, void * data, int type );
-bool_t       BSP_node_dtor( BSP_node_t * t );
+#if defined(__cplusplus)
+    s_BSP_aabb();
+    s_BSP_aabb( size_t dim );
+    ~s_BSP_aabb();
+#endif
+};
+typedef struct s_BSP_aabb BSP_aabb_t;
+
+BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim );
+BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb );
+
+bool_t       BSP_aabb_empty( BSP_aabb_t * psrc1 );
+bool_t       BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 );
+bool_t       BSP_aabb_overlap( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 );
+
+bool_t       BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc );
+
+#define BSP_AABB_INIT_VALUES { 0, ARY_INIT_VALS, ARY_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_leaf
 {
-    struct s_BSP_leaf  * parent;
-    size_t               child_count;
-    struct s_BSP_leaf ** children;
-    BSP_node_t         * nodes;
+    struct s_BSP_leaf * next;
+    int                 data_type;
+    void              * data;
+    int                 index;
+
+    BSP_aabb_t          bbox;
+
+#if defined(__cplusplus)
+    s_BSP_leaf();
+    ~s_BSP_leaf();
+#endif
 };
 typedef struct s_BSP_leaf BSP_leaf_t;
 
-BSP_leaf_t * BSP_leaf_create( size_t count );
-bool_t       BSP_leaf_destroy( BSP_leaf_t ** pleaf );
-BSP_leaf_t * BSP_leaf_create_ary( size_t ary_size, size_t count );
-bool_t       BSP_leaf_destroy_ary( size_t ary_size, BSP_leaf_t ** pleaf );
-BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, size_t size );
-bool_t       BSP_leaf_dtor( BSP_leaf_t * L );
-bool_t       BSP_leaf_insert( BSP_leaf_t * L, BSP_node_t * n );
-bool_t       BSP_leaf_free_nodes( BSP_leaf_t * L, bool_t recursive );
+BSP_leaf_t * BSP_leaf_create( int dim, void * data, int type );
+bool_t       BSP_leaf_destroy( BSP_leaf_t ** ppleaf );
+BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * t, int dim, void * data, int type );
+bool_t       BSP_leaf_dtor( BSP_leaf_t * t );
+
+//--------------------------------------------------------------------------------------------
+DEFINE_ARY( BSP_leaf_ary, BSP_leaf_t )
+DEFINE_ARY( BSP_leaf_pary, BSP_leaf_t * )
+
+//--------------------------------------------------------------------------------------------
+struct s_BSP_branch
+{
+    struct s_BSP_branch  * parent;
+
+    size_t                 child_count;
+    struct s_BSP_branch ** child_lst;
+
+    size_t                 node_count;
+    BSP_leaf_t           * node_lst;
+
+    BSP_aabb_t             bbox;
+    int                    depth;
+
+#if defined(__cplusplus)
+    s_BSP_branch();
+    s_BSP_branch( size_t dim );
+    ~s_BSP_branch();
+#endif
+};
+typedef struct s_BSP_branch BSP_branch_t;
+
+BSP_branch_t * BSP_branch_create( size_t dim );
+bool_t         BSP_branch_destroy( BSP_branch_t ** ppbranch );
+BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim );
+bool_t         BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch );
+BSP_branch_t * BSP_branch_ctor( BSP_branch_t * B, size_t dim );
+bool_t         BSP_branch_dtor( BSP_branch_t * B );
+bool_t         BSP_branch_empty( BSP_branch_t * pbranch );
+
+bool_t         BSP_branch_insert_leaf( BSP_branch_t * B, BSP_leaf_t * n );
+bool_t         BSP_branch_insert_branch( BSP_branch_t * B, int index, BSP_branch_t * B2 );
+bool_t         BSP_branch_clear_nodes( BSP_branch_t * B, bool_t recursive );
+bool_t         BSP_branch_free_nodes( BSP_branch_t * B, bool_t recursive );
+bool_t         BSP_branch_unlink( BSP_branch_t * B );
+bool_t         BSP_branch_add_all_nodes( BSP_branch_t * pbranch, BSP_leaf_pary_t * colst );
+
+//--------------------------------------------------------------------------------------------
+DEFINE_ARY( BSP_branch_ary, BSP_branch_t )
+
+DEFINE_ARY( BSP_branch_pary, BSP_branch_t * )
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_tree
 {
-    int dimensions;
-    int depth;
+    size_t dimensions;
+    int    depth;
 
-    size_t       leaf_count;
-    BSP_leaf_t * leaf_list;
-    BSP_leaf_t * leaf_free;
+    BSP_branch_ary_t  branch_all;
+    BSP_branch_pary_t branch_used;
+    BSP_branch_pary_t branch_free;
 
-    BSP_leaf_t * root;
+    BSP_branch_t    * root;
 
-    BSP_node_t * infinite;
+    size_t            infinite_count;
+    BSP_leaf_t      * infinite;
+
+    BSP_aabb_t        bbox;
+
+#if defined(__cplusplus)
+    s_BSP_tree();
+    s_BSP_tree( Sint32 dim, Sint32 depth );
+    ~s_BSP_tree();
+#endif
 };
 typedef struct s_BSP_tree BSP_tree_t;
+
+#define BSP_TREE_INIT_VALS                                   \
+    {                                                            \
+        0,             /* size_t              dimensions     */  \
+        0,             /* int                 depth          */  \
+        ARY_INIT_VALS, /* BSP_branch_ary_t    branch_all     */  \
+        ARY_INIT_VALS, /* BSP_branch_pary_t * branch_all     */  \
+        ARY_INIT_VALS, /* BSP_branch_pary_t * branch_free    */  \
+        NULL,          /* BSP_branch_t      * root           */  \
+        0,             /* size_t              infinite_count */  \
+        NULL,          /* BSP_leaf_t        * infinite       */  \
+        BSP_AABB_INIT_VALUES /* BSP_aabb_t bbox              */  \
+    }
 
 BSP_tree_t * BSP_tree_create( size_t count );
 bool_t       BSP_tree_destroy( BSP_tree_t ** ptree );
 
-BSP_tree_t * BSP_tree_ctor_0( BSP_tree_t * t );
-BSP_tree_t * BSP_tree_ctor_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
+BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
 BSP_tree_t * BSP_tree_dtor( BSP_tree_t * t );
-bool_t       BSP_tree_allocate( BSP_tree_t * t, size_t count, size_t dim );
-bool_t       BSP_tree_deallocate( BSP_tree_t * t );
+bool_t       BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
+bool_t       BSP_tree_free( BSP_tree_t * t );
 bool_t       BSP_tree_init_0( BSP_tree_t * t );
-BSP_tree_t * BSP_tree_init_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
+//BSP_tree_t * BSP_tree_init_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
 
-bool_t       BSP_tree_clear( BSP_tree_t * t );
-bool_t       BSP_tree_free_nodes( BSP_tree_t * t );
-bool_t       BSP_tree_prune( BSP_tree_t * t );
-BSP_leaf_t * BSP_tree_get_free( BSP_tree_t * t );
-bool_t       BSP_tree_add_free( BSP_tree_t * t, BSP_leaf_t * L );
-bool_t       BSP_tree_create_root( BSP_tree_t * t );
-BSP_leaf_t * BSP_tree_ensure_leaf( BSP_tree_t * t, BSP_leaf_t * L, int index );
-bool_t       BSP_tree_insert( BSP_tree_t * t, BSP_leaf_t * L, BSP_node_t * n, int index );
-Sint32       BSP_tree_count_nodes( Sint32 dim, Sint32 depth );
+bool_t         BSP_tree_clear_nodes( BSP_tree_t * t, bool_t recursive );
+bool_t         BSP_tree_free_nodes( BSP_tree_t * t, bool_t recursive );
+bool_t         BSP_tree_free_all( BSP_tree_t * t );
+bool_t         BSP_tree_prune( BSP_tree_t * t );
+BSP_branch_t * BSP_tree_get_free( BSP_tree_t * t );
+bool_t         BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B );
+BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t );
+BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int index );
+Sint32         BSP_tree_count_nodes( Sint32 dim, Sint32 depth );
+bool_t         BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index );
+bool_t         BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
+bool_t         BSP_tree_prune_branch( BSP_tree_t * t, int cnt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-int BSP_find_address_2d( oct_bb_t vmax, oct_bb_t vtile, size_t depth, int address_x[], int address_y[] );
-int BSP_find_address_3d( oct_bb_t vmax, oct_bb_t vtile, size_t depth, int address_x[], int address_y[], int address_z[] );
+bool_t BSP_generate_aabb( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst );
+int    BSP_tree_collide( BSP_tree_t * tree, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

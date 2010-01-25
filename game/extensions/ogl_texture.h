@@ -102,10 +102,10 @@ extern oglx_texture_parameters_t tex_params;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void      oglx_grab_texture_state(GLenum target, GLint level, oglx_texture * texture);
+void      oglx_grab_texture_state( GLenum target, GLint level, oglx_texture * texture );
 GLboolean oglx_texture_Valid( oglx_texture *ptex );
 
 GLuint    oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t );
 
-void      ErrorImage_bind(GLenum target, GLuint id);
+void      ErrorImage_bind( GLenum target, GLuint id );
 GLuint    ErrorImage_get_binding();

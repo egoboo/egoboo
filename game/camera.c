@@ -23,8 +23,10 @@
 
 #include "camera.h"
 
+#include "char.inl"
+#include "mesh.inl"
+
 #include "input.h"
-#include "char.h"
 #include "graphic.h"
 #include "network.h"
 #include "controls_file.h"
@@ -68,7 +70,7 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->zgoto     =  800;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->turn_z     = (( int )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
+    pcam->facing_z     = (( int )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
     pcam->turnadd    =  0;
     pcam->sustain    =  0.60f;
     pcam->turnupdown = ( float )( PI / 4 );
@@ -237,7 +239,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         sum_level = 0.0f;
         fvec3_clear( &sum_pos );
 
-        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
         {
             chr_t * pchr;
 
@@ -265,12 +267,12 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         // a camera mode for focusing in on the players that are actually doing something.
         // "Show me the drama!"
 
-        chr_t * local_chr_ptrs[MAXPLAYER];
+        chr_t * local_chr_ptrs[MAX_PLAYER];
         int local_chr_count = 0;
 
         // count the number of local players, first
         local_chr_count = 0;
-        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
         {
             chr_t * pchr;
 
@@ -519,7 +521,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         }
     }
 
-    turnsin = pcam->turn_z >> 2;
+    turnsin = pcam->facing_z >> 2;
     pcam->center.x += movex * turntocos[ turnsin & TRIG_TABLE_MASK ] + movey * turntosin[ turnsin & TRIG_TABLE_MASK ];
     pcam->center.y += -movex * turntosin[ turnsin & TRIG_TABLE_MASK ] + movey * turntocos[ turnsin & TRIG_TABLE_MASK ];
 
@@ -533,7 +535,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     camera_make_matrix( pcam );
 
     pcam->turn_z_one = ( pcam->turn_z_rad ) / ( TWO_PI );
-    pcam->turn_z     = CLIP_TO_16BITS( FLOAT_TO_FP16( pcam->turn_z_one ) );
+    pcam->facing_z     = CLIP_TO_16BITS( FLOAT_TO_FP16( pcam->turn_z_one ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -558,7 +560,7 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->zgoto = 1500;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->turn_z     = (( int )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
+    pcam->facing_z     = (( int )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
     pcam->turnupdown = PI / 4.0f;
     pcam->roll = 0;
 

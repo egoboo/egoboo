@@ -21,17 +21,18 @@
 /// @brief Windows-specific filesystem functions.
 /// @details
 
-#include "file_common.h"
-#include "log.h"
-
-#include "egoboo_mem.h"
-#include "egoboo_strutil.h"
-#include "egoboo.h"
-
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <shellapi.h>
+
+#include "file_common.h"
+#include "log.h"
+
+#include "egoboo_strutil.h"
+#include "egoboo.h"
+
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -165,7 +166,7 @@ bool_t fs_copyFile( const char *source, const char *dest )
     /*bool_t retval =   CopyFile( source, dest, bfalse );
     if(!retval) log_debug("fs_copyFile() - Failed to copy \"%s\" to \"%s\" (%d)\n", source, dest, GetLastError());
     return retval;*/
-    return CopyFile( source, dest, bfalse );
+    return ( TRUE == CopyFile( source, dest, bfalse ) );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -259,7 +260,7 @@ void fs_findClose( fs_find_context_t * fs_search )
         pcnt->hFind = NULL;
     }
 
-    free( pcnt );
+    EGOBOO_DELETE( pcnt );
 
     memset( fs_search, 0, sizeof( *fs_search ) );
 }

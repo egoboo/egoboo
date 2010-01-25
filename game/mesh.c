@@ -21,19 +21,19 @@
 /// @brief Functions for creating, reading, and writing egoboo's .mpd mesh file
 /// @details
 
-#include "mesh.h"
+#include "mesh.inl"
 
 #include "log.h"
 #include "graphic.h"
 
-#include "egoboo_math.h"
+#include "SDL_extensions.h"
+
+#include "egoboo_math.inl"
 #include "egoboo_endian.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
-#include "egoboo_mem.h"
 #include "egoboo.h"
-
-#include "SDL_extensions.h"
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -41,18 +41,16 @@
 static void   mesh_init_tile_offset( ego_mpd_t * pmesh );
 static void   mesh_make_vrtstart( ego_mpd_t * pmesh );
 
-static bool_t           mesh_free( ego_mpd_t * pmesh );
-
-static tile_mem_t *  mesh_mem_ctor( tile_mem_t * pmem );
-static tile_mem_t *  mesh_mem_dtor( tile_mem_t * pmem );
-static bool_t        mesh_mem_deallocate( tile_mem_t * pmem );
-static bool_t        mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo );
-
 static grid_mem_t *  grid_mem_ctor( grid_mem_t * pmem );
 static grid_mem_t *  grid_mem_dtor( grid_mem_t * pmem );
-static bool_t        grid_mem_allocate( grid_mem_t * pmem, ego_mpd_info_t * pinfo );
-static bool_t        grid_mem_deallocate( grid_mem_t * pmem );
+static bool_t        grid_mem_alloc( grid_mem_t * pmem, ego_mpd_info_t * pinfo );
+static bool_t        grid_mem_free( grid_mem_t * pmem );
 static void          grid_make_fanstart( grid_mem_t * pmesh, ego_mpd_info_t * pinfo );
+
+static tile_mem_t *    tile_mem_ctor( tile_mem_t * pmem );
+static tile_mem_t *    tile_mem_dtor( tile_mem_t * pmem );
+static bool_t          tile_mem_free( tile_mem_t * pmem );
+static bool_t          tile_mem_alloc( tile_mem_t * pmem, ego_mpd_info_t * pinfo );
 
 static ego_mpd_info_t * mesh_info_ctor( ego_mpd_info_t * pinfo );
 static ego_mpd_info_t * mesh_info_dtor( ego_mpd_info_t * pinfo );
@@ -67,20 +65,20 @@ static bool_t mesh_make_bbox( ego_mpd_t * pmesh );
 
 static float grid_get_mix( float u0, float u, float v0, float v );
 
-bool_t   mesh_BSP_collide_nodes( BSP_node_t node_lst[], oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mpd_t   mesh;
 
-mpd_BSP_t   mesh_BSP_root =
+#if defined(__cplusplus)
+mesh_BSP_t mesh_BSP_root;
+#else
+mesh_BSP_t mesh_BSP_root =
 {
-    0,        // size_t
-    NULL      // BSP_node_t *
+    OCT_BB_INIT_VALS, ARY_INIT_VALS, BSP_TREE_INIT_VALS
 };
+#endif
 
-static int mesh_BSP_collide_leaf_lvl   = 0;
-static int mesh_BSP_collide_nodes_count = 0;
+int mesh_wall_tests = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -120,7 +118,13 @@ ego_mpd_info_t * mesh_info_dtor( ego_mpd_info_t * pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-tile_mem_t * mesh_mem_ctor( tile_mem_t * pmem )
+//--------------------------------------------------------------------------------------------
+#if defined(__cplusplus)
+s_tile_mem::s_tile_mem() { tile_mem_ctor( this ); }
+s_tile_mem::~s_tile_mem() { tile_mem_dtor( this ); }
+#endif
+
+tile_mem_t * tile_mem_ctor( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
 
@@ -130,11 +134,11 @@ tile_mem_t * mesh_mem_ctor( tile_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-tile_mem_t * mesh_mem_dtor( tile_mem_t * pmem )
+tile_mem_t * tile_mem_dtor( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return NULL;
 
-    mesh_mem_deallocate( pmem );
+    tile_mem_free( pmem );
 
     memset( pmem, 0, sizeof( *pmem ) );
 
@@ -143,7 +147,12 @@ tile_mem_t * mesh_mem_dtor( tile_mem_t * pmem )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mpd_t * mesh_ctor_default( ego_mpd_t * pmesh )
+#if defined(__cplusplus)
+s_ego_mpd::s_ego_mpd() { mesh_ctor( this ); }
+s_ego_mpd::~s_ego_mpd() { mesh_dtor( this ); }
+#endif
+
+ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh )
 {
     /// @details BB@> initialize the ego_mpd_t structure
 
@@ -153,7 +162,7 @@ ego_mpd_t * mesh_ctor_default( ego_mpd_t * pmesh )
 
         mesh_init_tile_offset( pmesh );
 
-        mesh_mem_ctor( &( pmesh->tmem ) );
+        tile_mem_ctor( &( pmesh->tmem ) );
         grid_mem_ctor( &( pmesh->gmem ) );
         mesh_info_ctor( &( pmesh->info ) );
     }
@@ -169,22 +178,14 @@ ego_mpd_t * mesh_dtor( ego_mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return NULL;
 
-    if ( NULL == mesh_mem_dtor( &( pmesh->tmem ) ) ) return NULL;
+    if ( NULL == tile_mem_dtor( &( pmesh->tmem ) ) ) return NULL;
     if ( NULL == grid_mem_dtor( &( pmesh->gmem ) ) ) return NULL;
     if ( NULL == mesh_info_dtor( &( pmesh->info ) ) ) return NULL;
 
+    // delete the mesh BSP data
+    mesh_BSP_dtor( &mesh_BSP_root );
+
     return pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t mesh_free( ego_mpd_t * pmesh )
-{
-    if ( NULL == pmesh ) return bfalse;
-
-    mesh_mem_deallocate( &( pmesh->tmem ) );
-    grid_mem_deallocate( &( pmesh->gmem ) );
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -192,21 +193,23 @@ ego_mpd_t * mesh_renew( ego_mpd_t * pmesh )
 {
     pmesh = mesh_dtor( pmesh );
 
-    return mesh_ctor_default( pmesh );
+    return mesh_ctor( pmesh );
 }
 
 //--------------------------------------------------------------------------------------------
-ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
+ego_mpd_t * mesh_ctor_1( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
 {
 
     if ( NULL == pmesh ) return pmesh;
+
+    memset( pmesh, 0, sizeof( *pmesh ) );
 
     // intitalize the mesh info using the max number of vertices for each tile
     mesh_info_init( &( pmesh->info ), -1, tiles_x, tiles_y );
 
     // allocate the mesh memory
-    mesh_mem_allocate( &( pmesh->tmem ), &( pmesh->info ) );
-    grid_mem_allocate( &( pmesh->gmem ), &( pmesh->info ) );
+    tile_mem_alloc( &( pmesh->tmem ), &( pmesh->info ) );
+    grid_mem_alloc( &( pmesh->gmem ), &( pmesh->info ) );
 
     return pmesh;
 }
@@ -217,10 +220,22 @@ ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
     if ( NULL == pmesh )
     {
         pmesh = EGOBOO_NEW( ego_mpd_t );
-        pmesh = mesh_ctor_default( pmesh );
+        pmesh = mesh_ctor( pmesh );
     }
 
-    return mesh_ctor( pmesh, tiles_x, tiles_y );
+    return mesh_ctor_1( pmesh, tiles_x, tiles_y );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mesh_destroy( ego_mpd_t ** ppmesh )
+{
+    if ( NULL == ppmesh || NULL == *ppmesh ) return bfalse;
+
+    mesh_dtor( *ppmesh );
+
+    *ppmesh = NULL;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -288,7 +303,7 @@ bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image )
     ego_tile_info_t * ptile;
     Uint16 tile_value, tile_upper, tile_lower;
 
-    if ( !VALID_TILE( pmesh, tile ) ) return bfalse;
+    if ( !VALID_GRID( pmesh, tile ) ) return bfalse;
     ptile = pmesh->tmem.tile_list + tile;
 
     // get the upper and lower bits for this tile image
@@ -322,7 +337,7 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile )
     pgmem = &( pmesh->gmem );
     pinfo = &( pmesh->info );
 
-    if ( !VALID_TILE( pmesh, tile ) ) return bfalse;
+    if ( !VALID_GRID( pmesh, tile ) ) return bfalse;
     ptile = ptmem->tile_list + tile;
 
     image = TILE_GET_LOWER_BITS( ptile->img );
@@ -372,6 +387,9 @@ ego_mpd_t * mesh_finalize( ego_mpd_t * pmesh )
     mesh_make_bbox( pmesh );
     mesh_make_texture( pmesh );
 
+    // initialize the mesh's BSP structure with the mesh tiles
+    mesh_BSP_ctor( &mesh_BSP_root, pmesh );
+
     return pmesh;
 }
 
@@ -401,10 +419,10 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     // set up the destination mesh from the source mesh
     mesh_info_init( pinfo_dst, pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y );
 
-    allocated_dst = mesh_mem_allocate( ptmem_dst, pinfo_dst );
+    allocated_dst = tile_mem_alloc( ptmem_dst, pinfo_dst );
     if ( !allocated_dst ) return bfalse;
 
-    allocated_dst = grid_mem_allocate( pgmem_dst, pinfo_dst );
+    allocated_dst = grid_mem_alloc( pgmem_dst, pinfo_dst );
     if ( !allocated_dst ) return bfalse;
 
     // copy all the per-tile info
@@ -417,7 +435,6 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
         memset( ptile_dst, 0, sizeof( *ptile_dst ) );
         ptile_dst->type         = ptile_src->type;
         ptile_dst->img          = ptile_src->img;
-        ptile_dst->vrtstart     = ptile_src->vrtstart;
 
         memset( pgrid_dst, 0, sizeof( *pgrid_dst ) );
         pgrid_dst->fx    = ptile_src->fx;
@@ -463,7 +480,11 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
         // create a new mesh if we are passed a NULL pointer
         if ( NULL == pmesh )
         {
-            pmesh = mesh_ctor_default( pmesh );
+            pmesh = mesh_ctor( pmesh );
+        }
+        else
+        {
+            mesh_BSP_dtor( &mesh_BSP_root );
         }
         if ( NULL == pmesh ) return pmesh;
 
@@ -497,28 +518,12 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y )
-{
-    if ( NULL == pmesh ) return INVALID_BLOCK;
-
-    if ( block_x < 0 || block_x >= pmesh->gmem.blocks_x )  return INVALID_BLOCK;
-    if ( block_y < 0 || block_y >= pmesh->gmem.blocks_y )  return INVALID_BLOCK;
-
-    return block_x + pmesh->gmem.blockstart[block_y];
-}
-
 //--------------------------------------------------------------------------------------------
-Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int tile_x,  int tile_y )
-{
-    if ( NULL == pmesh ) return INVALID_TILE;
+#if defined(__cplusplus)
+s_grid_mem::s_grid_mem() { grid_mem_ctor( this ); }
+s_grid_mem::~s_grid_mem() { grid_mem_dtor( this ); }
+#endif
 
-    if ( tile_x < 0 || tile_x >= pmesh->info.tiles_x )  return INVALID_TILE;
-    if ( tile_y < 0 || tile_y >= pmesh->info.tiles_y )  return INVALID_TILE;
-
-    return tile_x + pmesh->gmem.tilestart[tile_y];
-}
-
-//--------------------------------------------------------------------------------------------
 grid_mem_t * grid_mem_ctor( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
@@ -533,7 +538,7 @@ grid_mem_t * grid_mem_dtor( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return NULL;
 
-    grid_mem_deallocate( pmem );
+    grid_mem_free( pmem );
 
     memset( pmem, 0, sizeof( *pmem ) );
 
@@ -541,13 +546,13 @@ grid_mem_t * grid_mem_dtor( grid_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_mem_allocate( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
+bool_t grid_mem_alloc( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 {
 
     if ( NULL == pgmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
 
     // free any memory already allocated
-    if ( !grid_mem_deallocate( pgmem ) ) return bfalse;
+    if ( !grid_mem_free( pgmem ) ) return bfalse;
 
     if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
     {
@@ -575,44 +580,36 @@ bool_t grid_mem_allocate( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 
     // allocate per-grid memory
     pgmem->grid_list = EGOBOO_NEW_ARY( ego_grid_info_t, pgmem->grid_count );
-    if ( NULL == pgmem->grid_list ) goto grid_mem_allocate_fail;
+    if ( NULL == pgmem->grid_list ) goto grid_mem_alloc_fail;
 
     // helper info
     pgmem->blockstart = EGOBOO_NEW_ARY( Uint32, pgmem->blocks_y );
-    if ( NULL == pgmem->blockstart ) goto grid_mem_allocate_fail;
+    if ( NULL == pgmem->blockstart ) goto grid_mem_alloc_fail;
 
     pgmem->tilestart  = EGOBOO_NEW_ARY( Uint32, pinfo->tiles_y );
-    if ( NULL == pgmem->tilestart ) goto grid_mem_allocate_fail;
+    if ( NULL == pgmem->tilestart ) goto grid_mem_alloc_fail;
 
     // initialize the fanstart/blockstart data
     grid_make_fanstart( pgmem, pinfo );
 
     return btrue;
 
-grid_mem_allocate_fail:
+grid_mem_alloc_fail:
 
-    grid_mem_deallocate( pgmem );
-    log_error( "grid_mem_allocate() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+    grid_mem_free( pgmem );
+    log_error( "grid_mem_alloc() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_mem_deallocate( grid_mem_t * pmem )
+bool_t grid_mem_free( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
 
     // free the memory
-    if ( pmem->blockstart != NULL )
-    {
-        free( pmem->blockstart );
-        pmem->blockstart = NULL;
-    }
-
-    if ( pmem->tilestart != NULL )
-    {
-        free( pmem->tilestart );
-        pmem->tilestart = NULL;
-    }
+    EGOBOO_DELETE_ARY( pmem->grid_list );
+    EGOBOO_DELETE_ARY( pmem->blockstart );
+    EGOBOO_DELETE_ARY( pmem->tilestart );
 
     // reset some values to safe values
     memset( pmem, 0, sizeof( *pmem ) );
@@ -621,13 +618,13 @@ bool_t grid_mem_deallocate( grid_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
+bool_t tile_mem_alloc( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
 {
 
     if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
 
     // free any memory already allocated
-    if ( !mesh_mem_deallocate( pmem ) ) return bfalse;
+    if ( !tile_mem_free( pmem ) ) return bfalse;
 
     if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
     {
@@ -637,69 +634,46 @@ bool_t mesh_mem_allocate( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
 
     // allocate per-vertex memory
     pmem->plst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
-    if ( NULL == pmem->plst ) goto mesh_mem_allocate_fail;
+    if ( NULL == pmem->plst ) goto mesh_mem_alloc_fail;
 
     pmem->tlst = EGOBOO_NEW_ARY( GLXvector2f, pinfo->vertcount );
-    if ( NULL == pmem->tlst ) goto mesh_mem_allocate_fail;
+    if ( NULL == pmem->tlst ) goto mesh_mem_alloc_fail;
 
     pmem->clst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
-    if ( NULL == pmem->clst ) goto mesh_mem_allocate_fail;
+    if ( NULL == pmem->clst ) goto mesh_mem_alloc_fail;
 
     pmem->nlst = EGOBOO_NEW_ARY( GLXvector3f, pinfo->vertcount );
-    if ( NULL == pmem->nlst ) goto mesh_mem_allocate_fail;
+    if ( NULL == pmem->nlst ) goto mesh_mem_alloc_fail;
 
     // allocate per-tile memory
     pmem->tile_list  = ego_tile_info_alloc_ary( pinfo->tiles_count );
-    if ( NULL == pmem->tile_list ) goto mesh_mem_allocate_fail;
+    if ( NULL == pmem->tile_list ) goto mesh_mem_alloc_fail;
 
     pmem->vert_count = pinfo->vertcount;
     pmem->tile_count = pinfo->tiles_count;
 
     return btrue;
 
-mesh_mem_allocate_fail:
+mesh_mem_alloc_fail:
 
-    mesh_mem_deallocate( pmem );
-    log_error( "mesh_mem_allocate() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+    tile_mem_free( pmem );
+    log_error( "tile_mem_alloc() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_mem_deallocate( tile_mem_t * pmem )
+bool_t tile_mem_free( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return bfalse;
 
     // free the memory
-    if ( pmem->plst != NULL )
-    {
-        free( pmem->plst );
-        pmem->plst = NULL;
-    }
-
-    if ( pmem->nlst != NULL )
-    {
-        free( pmem->nlst );
-        pmem->nlst = NULL;
-    }
-
-    if ( pmem->clst != NULL )
-    {
-        free( pmem->clst );
-        pmem->clst = NULL;
-    }
-
-    if ( pmem->tlst != NULL )
-    {
-        free( pmem->tlst );
-        pmem->tlst = NULL;
-    }
+    EGOBOO_DELETE_ARY( pmem->plst );
+    EGOBOO_DELETE_ARY( pmem->nlst );
+    EGOBOO_DELETE_ARY( pmem->clst );
+    EGOBOO_DELETE_ARY( pmem->tlst );
 
     // per-tile values
-    if ( NULL != pmem->tile_list )
-    {
-        free( pmem->tile_list );
-        pmem->tile_list = NULL;
-    }
+    EGOBOO_DELETE_ARY( pmem->tile_list );
 
     // reset some values to safe values
     pmem->vert_count  = 0;
@@ -813,80 +787,6 @@ void mesh_make_twist()
     }
 }
 
-//---------------------------------------------------------------------------------------------
-float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
-{
-    /// @details ZZ@> This function returns the height of a point within a mesh fan, precisely
-
-    Uint32 tile;
-    int ix, iy;
-
-    float z0, z1, z2, z3;         // Height of each fan corner
-    float zleft, zright, zdone;   // Weighted height of each side
-
-    tile = mesh_get_tile( pmesh, x, y );
-    if ( !VALID_TILE( pmesh, tile ) ) return 0;
-
-    ix = x;
-    iy = y;
-
-    ix &= TILE_MASK;
-    iy &= TILE_MASK;
-
-    z0 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 0 ][ZZ];
-    z1 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 1 ][ZZ];
-    z2 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 2 ][ZZ];
-    z3 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 3 ][ZZ];
-
-    zleft  = ( z0 * ( TILE_SIZE - iy ) + z3 * iy ) / TILE_SIZE;
-    zright = ( z1 * ( TILE_SIZE - iy ) + z2 * iy ) / TILE_SIZE;
-    zdone  = ( zleft * ( TILE_SIZE - ix ) + zright * ix ) / TILE_SIZE;
-
-    return zdone;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y )
-{
-    Uint32 block = INVALID_BLOCK;
-
-    if ( pos_x >= 0.0f && pos_x <= pmesh->gmem.edge_x && pos_y >= 0.0f && pos_y <= pmesh->gmem.edge_y )
-    {
-        int ix, iy;
-
-        ix = pos_x;
-        iy = pos_y;
-
-        ix >>= BLOCK_BITS;
-        iy >>= BLOCK_BITS;
-
-        block = mesh_get_block_int( pmesh, ix, iy );
-    }
-
-    return block;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y )
-{
-    Uint32 tile = INVALID_TILE;
-
-    if ( pos_x >= 0.0f && pos_x < pmesh->gmem.edge_x && pos_y >= 0.0f && pos_y < pmesh->gmem.edge_y )
-    {
-        int ix, iy;
-
-        ix = pos_x;
-        iy = pos_y;
-
-        ix >>= TILE_BITS;
-        iy >>= TILE_BITS;
-
-        tile = mesh_get_tile_int( pmesh, ix, iy );
-    }
-
-    return tile;
-}
-
 //------------------------------------------------------------------------------
 Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
 {
@@ -911,69 +811,6 @@ Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
     zy = CARTMAN_FIXNUM * ( z2 + z3 - z0 - z1 ) / CARTMAN_SLOPE;
 
     return cartman_get_twist( zx, zy );
-}
-
-//------------------------------------------------------------------------------
-bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
-{
-    Uint32 old_flags;
-
-    // test for mesh
-    if ( NULL == pmesh ) return bfalse;
-
-    // test for invalid tile
-    if ( itile > pmesh->info.tiles_count ) return bfalse;
-
-    // save a copy of the fx
-    old_flags = pmesh->gmem.grid_list[itile].fx;
-
-    // clear the wall and impass flags
-    pmesh->gmem.grid_list[itile].fx &= ~flags;
-
-    // succeed only of something actually changed
-    return 0 != ( old_flags & flags );
-}
-
-//------------------------------------------------------------------------------
-bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
-{
-    Uint32 old_flags;
-
-    // test for mesh
-    if ( NULL == pmesh ) return bfalse;
-
-    // test for invalid tile
-    if ( itile > pmesh->info.tiles_count ) return bfalse;
-
-    // save a copy of the fx
-    old_flags = pmesh->gmem.grid_list[itile].fx;
-
-    // add in the flags
-    pmesh->gmem.grid_list[itile].fx = old_flags | flags;
-
-    // succeed only of something actually changed
-    return 0 != ( old_flags & flags );
-}
-
-//------------------------------------------------------------------------------
-Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
-{
-    // test for mesh
-    if ( NULL == pmesh ) return 0;
-
-    // test for invalid tile
-    if ( itile > pmesh->info.tiles_count )
-    {
-        return flags & ( MPDFX_WALL | MPDFX_IMPASS );
-    }
-
-    // if the tile is actually labelled as FANOFF, ignore it completely
-    if ( FANOFF == pmesh->tmem.tile_list[itile].img )
-    {
-        return flags & ( MPDFX_WALL | MPDFX_IMPASS );
-    }
-
-    return pmesh->gmem.grid_list[itile].fx & flags;
 }
 
 //------------------------------------------------------------------------------
@@ -1084,7 +921,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
             int i, j, k;
 
             fan0 = mesh_get_tile_int( pmesh, ix, iy );
-            if ( !VALID_TILE( pmesh, fan0 ) ) continue;
+            if ( !VALID_GRID( pmesh, fan0 ) ) continue;
 
             nrm_lst[0].x = ptmem->nlst[fan0][XX];
             nrm_lst[0].y = ptmem->nlst[fan0][YY];
@@ -1120,7 +957,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 
                     fan1 = mesh_get_tile_int( pmesh, jx, jy );
 
-                    if ( VALID_TILE( pmesh, fan1 ) )
+                    if ( VALID_GRID( pmesh, fan1 ) )
                     {
                         nrm_lst[j].x = ptmem->nlst[fan1][XX];
                         nrm_lst[j].y = ptmem->nlst[fan1][YY];
@@ -1207,7 +1044,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     //                    jx = ix + dx;
 
     //                    fan1 = mesh_get_tile_int(pmesh, jx, jy);
-    //                    if ( VALID_TILE(pmesh, fan1) )
+    //                    if ( VALID_GRID(pmesh, fan1) )
     //                    {
     //                        float wt;
 
@@ -1261,7 +1098,7 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
     bool_t             reflective;
     lighting_cache_t * lighting;
 
-    if ( NULL == pmesh || NULL == plight || !VALID_TILE( pmesh, fan ) ) return bfalse;
+    if ( NULL == pmesh || NULL == plight || !VALID_GRID( pmesh, fan ) ) return bfalse;
 
     // get the grid lighting
     lighting = &( pmesh->gmem.grid_list[fan].cache );
@@ -1316,7 +1153,7 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, int itile, GLXvector3f pos, GLX
     lighting_cache_t grid_light;
     bool_t reflective;
 
-    if ( !VALID_TILE( pmesh, itile ) ) return bfalse;
+    if ( !VALID_GRID( pmesh, itile ) ) return bfalse;
 
     // add in the effect of this lighting cache node
     reflective = ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) );
@@ -1351,7 +1188,7 @@ bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
     light_cache_t * lcache;
     light_cache_t * d1_cache;
 
-    if ( NULL == pmesh || !VALID_TILE( pmesh, itile ) ) return bfalse;
+    if ( NULL == pmesh || !VALID_GRID( pmesh, itile ) ) return bfalse;
     ptmem = &( pmesh->tmem );
 
     // get the normal and lighting cache for this tile
@@ -1403,7 +1240,7 @@ float mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep
     light_cache_t  * lcache;
     light_cache_t  * d1_cache, * d2_cache;
 
-    if ( NULL == pmesh || !VALID_TILE( pmesh, itile ) ) return 0.0f;
+    if ( NULL == pmesh || !VALID_GRID( pmesh, itile ) ) return 0.0f;
     pinfo = &( pmesh->info );
     ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
@@ -1533,16 +1370,110 @@ float grid_get_mix( float u0, float u, float v0, float v )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure )
+bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits )
 {
-    /// @details BB@> an abstraction of the functions of __chrhitawall() and __prthitawall()
+    /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
+
+    Uint32 pass;
+    int   ix_min, ix_max, iy_min, iy_max;
+    float fx_min, fx_max, fy_min, fy_max;
+    int   ix, iy;
+    int   iarea;
+
+    ego_mpd_info_t  * pinfo;
+    ego_tile_info_t * tlist;
+    ego_grid_info_t * glist;
+
+    // deal with the optional parameters
+    if ( NULL == pos || 0 == bits ) return 0;
+
+    if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
+    pinfo = &( pmesh->info );
+    tlist = pmesh->tmem.tile_list;
+    glist = pmesh->gmem.grid_list;
+
+    if ( 0.0f == radius )
+    {
+        fx_min = fx_max = pos[kX];
+        fy_min = fy_max = pos[kY];
+    }
+    else
+    {
+        // make sure it is positive
+        radius = ABS( radius );
+
+        fx_min = pos[kX] - radius;
+        fx_max = pos[kX] + radius;
+
+        fy_min = pos[kY] - radius;
+        fy_max = pos[kY] + radius;
+    }
+
+    ix_min = floor( fx_min / GRID_SIZE );
+    ix_max = floor( fx_max / GRID_SIZE );
+
+    iy_min = floor( fy_min / GRID_SIZE );
+    iy_max = floor( fy_max / GRID_SIZE );
+
+    pass = 0;
+
+    // detect out of bounds in the y-direction
+    if ( iy_min < 0 || iy_max >= pinfo->tiles_y )
+    {
+        pass |= ( MPDFX_IMPASS | MPDFX_WALL );
+        mesh_wall_tests++;
+    }
+    if ( 0 != ( pass & bits ) ) return btrue;
+
+    // detect out of bounds in the x-direction
+    if ( ix_min < 0 || ix_max >= pinfo->tiles_x )
+    {
+        pass |= ( MPDFX_IMPASS | MPDFX_WALL );
+        mesh_wall_tests++;
+    }
+    if ( 0 != ( pass & bits ) ) return btrue;
+
+    // limit the test values to be in-bounds
+    ix_min = MAX( ix_min, 0 );
+    ix_max = MIN( ix_max, pinfo->tiles_x - 1 );
+
+    iy_min = MAX( iy_min, 0 );
+    iy_max = MIN( iy_max, pinfo->tiles_y - 1 );
+
+    iarea = ( ix_max + 1 - ix_min ) * ( iy_max + 1 - iy_min );
+    //printf( "mesh_test_wall() - area == %d\n", iarea );
+
+    for ( iy = iy_min; iy <= iy_max; iy++ )
+    {
+        // since we KNOW that this is in range, allow raw access to the data strucutre
+        int irow = pmesh->gmem.tilestart[iy];
+
+        for ( ix = ix_min; ix <= ix_max; ix++ )
+        {
+            int itile = ix + irow;
+
+            if ( 0 != ( glist[itile].fx & bits ) ) return btrue;
+        }
+
+        mesh_wall_tests++;
+    }
+
+    return 0 != ( pass & bits );
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure )
+{
+    /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
+
+    const float tile_area = GRID_SIZE * GRID_SIZE;
 
     Uint32 pass;
     Uint32 itile;
     int   ix_min, ix_max, iy_min, iy_max;
     float fx_min, fx_max, fy_min, fy_max, obj_area;
     float dist2;
-    int ix, iy, tx0, ty0;
+    int ix, iy;
     bool_t invalid;
 
     float  loc_pressure;
@@ -1584,55 +1515,53 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
         fy_min = pos[kY] - radius;
         fy_max = pos[kY] + radius;
 
-        tx0 = ( int )pos[kX] / TILE_ISIZE;
-        ty0 = ( int )pos[kY] / TILE_ISIZE;
-
         obj_area = ( fx_max - fx_min ) * ( fy_max - fy_min );
     }
 
-    ix_min = floor( fx_min / TILE_SIZE );
-    ix_max = floor( fx_max / TILE_SIZE );
+    ix_min = floor( fx_min / GRID_SIZE );
+    ix_max = floor( fx_max / GRID_SIZE );
 
-    iy_min = floor( fy_min / TILE_SIZE );
-    iy_max = floor( fy_max / TILE_SIZE );
+    iy_min = floor( fy_min / GRID_SIZE );
+    iy_max = floor( fy_max / GRID_SIZE );
 
     pass = 0;
     nrm[kX] = nrm[kY] = 0.0f;
     for ( iy = iy_min; iy <= iy_max; iy++ )
     {
-        const float tile_area = TILE_SIZE * TILE_SIZE;
         float ty_min, ty_max;
 
         invalid = bfalse;
 
-        ty_min = ( iy + 0 ) * TILE_SIZE;
-        ty_max = ( iy + 1 ) * TILE_SIZE;
+        ty_min = ( iy + 0 ) * GRID_SIZE;
+        ty_max = ( iy + 1 ) * GRID_SIZE;
 
         if ( iy < 0 || iy >= pinfo->tiles_y )
         {
             pass    |= ( MPDFX_IMPASS | MPDFX_WALL );
-            nrm[kY] += ( iy + 0.5f ) * TILE_SIZE - pos[kY];
+            nrm[kY] += ( iy + 0.5f ) * GRID_SIZE - pos[kY];
             invalid = btrue;
+            mesh_wall_tests++;
         }
 
         for ( ix = ix_min; ix <= ix_max; ix++ )
         {
             float tx_min, tx_max;
 
-            tx_min = ( ix + 0 ) * TILE_SIZE;
-            tx_max = ( ix + 1 ) * TILE_SIZE;
+            tx_min = ( ix + 0 ) * GRID_SIZE;
+            tx_max = ( ix + 1 ) * GRID_SIZE;
 
             if ( ix < 0 || ix >= pinfo->tiles_x )
             {
                 pass    |=  MPDFX_IMPASS | MPDFX_WALL;
-                nrm[kX] += ( ix + 0.5f ) * TILE_SIZE - pos[kX];
+                nrm[kX] += ( ix + 0.5f ) * GRID_SIZE - pos[kX];
                 invalid = btrue;
+                mesh_wall_tests++;
             }
 
             if ( !invalid )
             {
                 itile = mesh_get_tile_int( pmesh, ix, iy );
-                if ( VALID_TILE( pmesh, itile ) )
+                if ( VALID_GRID( pmesh, itile ) )
                 {
                     float area_ratio;
                     float ovl_x_min, ovl_x_max;
@@ -1694,6 +1623,7 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                         nrm[kY] -= (( ovl_y_max + ovl_y_min ) * 0.5f - pos[kY] ) * area_ratio;
                     }
                 }
+                mesh_wall_tests++;
             }
         }
     }
@@ -1713,7 +1643,7 @@ Uint32 mesh_hitawall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
+float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y )
 {
     Uint32 itile;
     int type;
@@ -1723,7 +1653,7 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
 
     if ( NULL == pmesh ) return 0.0f;
 
-    itile = mesh_get_tile_int( pmesh, tile_x, tile_y );
+    itile = mesh_get_tile_int( pmesh, grid_x, grid_y );
 
     if ( INVALID_TILE == itile ) return 0.0f;
 
@@ -1742,7 +1672,7 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int tile_x, int tile_y )
 }
 
 //--------------------------------------------------------------------------------------------
-float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xmin, float ymin, float xmax, float ymax )
+float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax )
 {
     Uint32 itile;
     int type;
@@ -1755,7 +1685,7 @@ float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xm
 
     if ( NULL == pmesh ) return 0.0f;
 
-    itile = mesh_get_tile_int( pmesh, tile_x, tile_y );
+    itile = mesh_get_tile_int( pmesh, grid_x, grid_y );
 
     if ( INVALID_TILE == itile ) return 0.0f;
 
@@ -1770,8 +1700,8 @@ float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int tile_x, int tile_y, float xm
         GLXvector3f * pvert = pmesh->tmem.plst + ivrt;
 
         // we are evaluating the height based on the grid, not the actual vertex positions
-        fx = ( tile_x + ix_off[cnt] ) * TILE_SIZE;
-        fy = ( tile_y + iy_off[cnt] ) * TILE_SIZE;
+        fx = ( grid_x + ix_off[cnt] ) * GRID_SIZE;
+        fy = ( grid_y + iy_off[cnt] ) * GRID_SIZE;
 
         if ( fx >= xmin && fx <= xmax && fy >= ymin && fy <= ymax )
         {
@@ -1839,261 +1769,185 @@ ego_tile_info_t * ego_tile_info_alloc_ary( size_t count )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_init_1( mpd_BSP_t * pbsp, ego_mpd_t * pmesh, int size_x, int size_y )
+#if defined(__cplusplus)
+s_mpd_BSP::s_mpd_BSP() { memset( this, 0, sizeof( *this ) ); }
+s_mpd_BSP::s_mpd_BSP( ego_mpd_t * pmesh ) { mesh_BSP_ctor( this, pmesh ); }
+s_mpd_BSP::~s_mpd_BSP()  { mesh_BSP_dtor( this ); }
+#endif
+
+mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
 {
-    // BB> Create a new BSP tree for the mesh.
+    /// @details BB@> Create a new BSP tree for the mesh.
     //     These parameters duplicate the max resolution of the old system.
 
-    Uint32 i;
+    int size_x, size_y;
     int depth;
-    BSP_node_t * pnode;
 
-    if ( NULL == pmesh ) return bfalse;
+    if ( NULL == pbsp ) return NULL;
 
+    memset( pbsp, 0, sizeof( *pbsp ) );
+
+    if ( NULL == pmesh ) return pbsp;
+    size_x = pmesh->gmem.grids_x;
+    size_y = pmesh->gmem.grids_y;
+
+    // determine the number of bifurcations necessary to get cells the size of the "blocks"
     depth = ceil( log( 0.5f * MAX( size_x, size_y ) ) / log( 2.0f ) );
 
     // make a 2D BSP tree with "max depth" depth
-    BSP_tree_ctor_1( &( pbsp->tree ), 2, depth );
+    BSP_tree_ctor( &( pbsp->tree ), 2, depth );
 
-    // allocate nodes for all of the tiles
-    pbsp->nodes = EGOBOO_NEW_ARY( BSP_node_t, pmesh->gmem.grid_count );
-    for ( i = 0; i < pmesh->gmem.grid_count; i++ )
-    {
-        pnode = pbsp->nodes + i;
+    mesh_BSP_alloc( pbsp, pmesh );
 
-        // let data type 1 stand for a tile, -1 is uninitialized
-        BSP_node_ctor( pnode, pmesh->tmem.tile_list + i, 1 );
-        pnode->index = i;
-    }
-
-    return btrue;
+    return pbsp;
 }
 
 //--------------------------------------------------------------------------------------------
-mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp )
+mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp )
 {
     if ( NULL == pbsp ) return NULL;
 
-    BSP_tree_clear( &( pbsp->tree ) );
+    // free all allocated memory
+    mesh_BSP_free( pbsp );
 
-    EGOBOO_DELETE( pbsp->nodes );
-    pbsp->node_count = 0;
+    // set the volume to zero
     pbsp->volume.mins[OCT_X] = pbsp->volume.maxs[OCT_X] = 0.0f;
 
     return pbsp;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_insert_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[] )
+bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
 {
     int i;
-    bool_t retval;
-    Uint32 index;
-    BSP_leaf_t * pleaf, * pnew_leaf;
-    BSP_tree_t * ptree = &( pbsp->tree );
 
-    retval = bfalse;
-    if ( depth < 0 )
+    if ( NULL == pbsp || NULL == pmesh ) return bfalse;
+
+    if ( 0 == pmesh->gmem.grid_count ) return bfalse;
+
+    // allocate the BSP_leaf_t list, the containers for the actual tiles
+    BSP_leaf_ary_ctor( &( pbsp->nodes ), pmesh->gmem.grid_count );
+    if ( NULL == pbsp->nodes.ary ) return bfalse;
+
+    // set up the initial bounding volume size
+    pbsp->volume = pmesh->tmem.tile_list[0].oct;
+
+    // construct the BSP_leaf_t list
+    for ( i = 0; i < pmesh->gmem.grid_count; i++ )
     {
-        // this can only happen if the node does not intersect the BSP bounding box
-        pnode->next = ptree->infinite;
-        ptree->infinite = pnode;
-        retval = btrue;
-    }
-    else if ( 0 == depth )
-    {
-        // this can only happen if the tile should be in the root node list
-        pnode->next = ptree->root->nodes;
-        ptree->root->nodes = pnode;
-        retval = btrue;
-    }
-    else
-    {
-        // insert the node into the tree at this point
-        pleaf = ptree->root;
-        for ( i = 0; i < depth; i++ )
-        {
-            index = (( Uint32 )address_x[i] ) + ((( Uint32 )address_y[i] ) << 1 );
+        BSP_leaf_t      * pleaf = pbsp->nodes.ary + i;
+        ego_tile_info_t * ptile = pmesh->tmem.tile_list + i;
 
-            pnew_leaf = BSP_tree_ensure_leaf( ptree, pleaf, index );
-            if ( NULL == pnew_leaf ) break;
+        // add the bounding volume for this tile to the bounding volume for the mesh
+        oct_bb_union( pbsp->volume, ptile->oct, &( pbsp->volume ) );
 
-            pleaf = pnew_leaf;
-        };
-
-        // insert the node in this leaf
-        retval = BSP_tree_insert( ptree, pleaf, pnode, -1 );
-    };
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, mpd_mem_t * mem )
-{
-    Uint32 tile;
-    int * address_x, * address_y;
-
-    BSP_tree_t * ptree = &( pbsp->tree );
-
-    address_x = EGOBOO_NEW_ARY( int, ptree->depth );
-    address_y = EGOBOO_NEW_ARY( int, ptree->depth );
-
-    for ( tile = 0; tile < mem->tile_count; tile++ )
-    {
-        mpd_BSP_insert_tile_node( pbsp, pbsp->nodes + tile, ptree->depth, address_x, address_y );
-    }
-
-    EGOBOO_DELETE( address_x );
-    EGOBOO_DELETE( address_y );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_collide_nodes( BSP_node_t node_lst[], oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
-{
-    // BB > check for collisions with the given node list
-
-    BSP_node_t      * pnode;
-    ego_tile_info_t * ptile;
-    oct_bb_t         int_ov;
-
-    if ( NULL == node_lst || NULL == pvobj || NULL == pcolst_index ) return bfalse;
-    if ( *pcolst_index >= colist_size || 0 == colist_size ) return bfalse;
-
-    for ( pnode = node_lst; NULL != pnode; pnode = pnode->next )
-    {
-        assert( pnode->data_type >= 0 );
-
-        ptile = ( ego_tile_info_t * )pnode->data;
-        if ( oct_bb_empty( ptile->oct ) ) continue;
-
-        if ( oct_bb_intersection( *pvobj, ptile->oct, &int_ov ) )
-        {
-            // we have a possible intersection
-            colst[*pcolst_index] = pnode->index;
-            ( *pcolst_index )++;
-            mesh_BSP_collide_nodes_count++;
-
-            if (( *pcolst_index ) >= colist_size )
-            {
-                // too many nodes. break out of the search.
-                mesh_BSP_collide_leaf_lvl--;
-                return bfalse;
-            };
-        }
+        // let data type 1 stand for a tile, -1 is uninitialized
+        BSP_leaf_ctor( pleaf, 2, pmesh->tmem.tile_list + i, 1 );
+        pleaf->index = i;
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_collide_leaf( BSP_leaf_t * pleaf, oct_bb_t * pvleaf, oct_bb_t * pvobj, int colst[], size_t colist_size, int * pcolst_index )
+bool_t mesh_BSP_free( mesh_BSP_t * pbsp )
 {
-    // BB > Recursively search the BSP tree for collisions with the pvobj
-    //      Return bfalse if we need to break out of the recursive search for any reson.
+    if ( NULL == pbsp ) return bfalse;
 
-    Uint32 i;
-    oct_bb_t int_ov, tmp_ov;
-    float    x_mid, y_mid;
-    int      address_x, address_y;
+    // deallocate the tree
+    BSP_tree_free( &( pbsp->tree ) );
 
-    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return bfalse;
-    if ( NULL == pvleaf || oct_bb_empty( *pvleaf ) ) return bfalse;
+    // deallocate the nodes
+    BSP_leaf_ary_dtor( &( pbsp->nodes ) );
 
-    // return if the object does not intersect the leaf
-    if ( !oct_bb_intersection( *pvobj, *pvleaf, &int_ov ) )
-    {
-        return bfalse;
-    }
-
-    mesh_BSP_collide_leaf_lvl++;
-
-    // check the nodes
-    if ( !mesh_BSP_collide_nodes( pleaf->nodes, pvobj, colst, colist_size, pcolst_index ) )
-    {
-        return bfalse;
-    }
-
-    // check for collisions with any of the children
-    x_mid = ( pvleaf->maxs[OCT_X] + pvleaf->mins[OCT_X] ) * 0.5f;
-    y_mid = ( pvleaf->maxs[OCT_Y] + pvleaf->mins[OCT_Y] ) * 0.5f;
-    for ( i = 0; i < pleaf->child_count; i++ )
-    {
-        // scan all the children
-        if ( NULL == pleaf->children[i] ) continue;
-
-        // create the volume of this node
-        address_x = i & ( 1 << 0 );
-        address_y = i & ( 1 << 1 );
-
-        tmp_ov = *( pvleaf );
-
-        if ( 0 == address_x )
-        {
-            tmp_ov.mins[OCT_X] = x_mid;
-        }
-        else
-        {
-            tmp_ov.maxs[OCT_X] = x_mid;
-        }
-
-        if ( 0 == address_y )
-        {
-            tmp_ov.mins[OCT_Y] = y_mid;
-        }
-        else
-        {
-            tmp_ov.maxs[OCT_Y] = y_mid;
-        }
-
-        if ( oct_bb_intersection( *pvobj, tmp_ov, &int_ov ) )
-        {
-            // potential interaction with the child. go recursive!
-            bool_t   ret = mesh_BSP_collide_leaf( pleaf->children[i], &( tmp_ov ), pvobj, colst, colist_size, pcolst_index );
-            if ( !ret ) { mesh_BSP_collide_leaf_lvl--; return ret; }
-        }
-    }
-
-    mesh_BSP_collide_leaf_lvl--;
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-int mpd_BSP_collide( mpd_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size )
+bool_t mesh_BSP_fill( mesh_BSP_t * pbsp )
 {
-    // BB > fill the collision list with references to tiles that the object volume may overlap.
+    int tile;
+
+    for ( tile = 0; tile < pbsp->nodes.top; tile++ )
+    {
+        ego_tile_info_t * pdata;
+        BSP_leaf_t      * pleaf = pbsp->nodes.ary + tile;
+
+        // do not deal with uninitialized nodes
+        if ( pleaf->data_type < 0 ) continue;
+
+        // grab the leaf data, assume that it points to the correct data structure
+        pdata = ( ego_tile_info_t* ) pleaf->data;
+        if ( NULL == pdata ) continue;
+
+        // calculate the leaf's BSP_aabb_t
+        BSP_aabb_from_oct_bb( &( pleaf->bbox ), &( pdata->oct ) );
+
+        // insert the leaf
+        BSP_tree_insert_leaf( &( pbsp->tree ), pleaf );
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int mesh_BSP_collide( mesh_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst )
+{
+    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
     //      Return the number of collisions found.
 
-    int collision_count;
+    if ( NULL == pbsp || NULL == paabb ) return 0;
 
-    mesh_BSP_collide_leaf_lvl   = 0;
-    mesh_BSP_collide_nodes_count = 0;
-
-    if ( NULL == pbsp || NULL == pvobj || 0 == colist_size ) return 0;
-
-    // do the actual collisions
-    collision_count = 0;
+    if ( NULL == colst ) return 0;
+    colst->top = 0;
+    if ( 0 == colst->alloc ) return 0;
 
     // collide with any "infinite" nodes
-    mesh_BSP_collide_nodes( pbsp->tree.infinite, pvobj, colst, colist_size, &collision_count );
-
-    // collise with the rest of the tree
-    mesh_BSP_collide_leaf( pbsp->tree.root, &( pbsp->volume ), pvobj, colst, colist_size, &collision_count );
-
-    return collision_count;
+    return BSP_tree_collide( &( pbsp->tree ), paabb, colst );
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_insert_tile_node( mpd_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[] )
-{
-    // BB> insert a tile wrapped in a BSP_node_t into the BSP_tree_t
-
-    int i;
-    ego_tile_info_t * ptile = ( ego_tile_info_t * )( pnode->data );
-
-    i = BSP_find_address_2d( pbsp->volume, ptile->oct, depth, address_x, address_y );
-
-    return mpd_BSP_insert_node( pbsp, pnode, i, address_x, address_y );
-}
+////--------------------------------------------------------------------------------------------
+//bool_t mesh_BSP_insert_node( mesh_BSP_t * pbsp, BSP_leaf_t * pnode, int depth, int address_x[], int address_y[] )
+//{
+//    int i;
+//    bool_t retval;
+//    Uint32 index;
+//    BSP_branch_t * pbranch, * pbranch_new;
+//    BSP_tree_t * ptree = &( pbsp->tree );
+//
+//    retval = bfalse;
+//    if ( depth < 0 )
+//    {
+//        // this can only happen if the node does not intersect the BSP bounding box
+//        pnode->next = ptree->infinite;
+//        ptree->infinite = pnode;
+//        retval = btrue;
+//    }
+//    else if ( 0 == depth )
+//    {
+//        // this can only happen if the tile should be in the root node list
+//        pnode->next = ptree->root->nodes;
+//        ptree->root->nodes = pnode;
+//        retval = btrue;
+//    }
+//    else
+//    {
+//        // insert the node into the tree at this point
+//        pbranch = ptree->root;
+//        for ( i = 0; i < depth; i++ )
+//        {
+//            index = (( Uint32 )address_x[i] ) + ((( Uint32 )address_y[i] ) << 1 );
+//
+//            pbranch_new = BSP_tree_ensure_branch( ptree, pbranch, index );
+//            if ( NULL == pbranch_new ) break;
+//
+//            pbranch = pbranch_new;
+//        };
+//
+//        // insert the node in this branch
+//        retval = BSP_tree_insert( ptree, pbranch, pnode, -1 );
+//    };
+//
+//    return retval;
+//}
+//

@@ -24,6 +24,7 @@
 #include "pip_file.h"
 #include "graphic_prt.h"
 #include "physics.h"
+#include "bsp.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -37,6 +38,13 @@ DEFINE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
+
+//--------------------------------------------------------------------------------------------
+/// The particle template reference type
+typedef Uint16 PIP_REF;
+
+/// the particle reference type
+typedef Uint16 PRT_REF;
 
 //--------------------------------------------------------------------------------------------
 /// Everything that is necessary to compute the character's interaction with the environment
@@ -76,73 +84,82 @@ struct s_prt
     ego_object_base_t obj_base;
 
     // profiles
-    Uint16  pip_ref;                         ///< The part template
+    PIP_REF pip_ref;                         ///< The part template
     Uint16  profile_ref;                     ///< the profile related to the spawned particle
 
     // links
     Uint16  attachedto_ref;                  ///< For torch flame
     Uint16  owner_ref;                       ///< The character that is attacking
     Uint16  target_ref;                      ///< Who it's chasing
-    Uint16  parent_ref;                      ///< Did a another particle spawn this one?
+    PRT_REF parent_ref;                      ///< Did a another particle spawn this one?
     Uint32  parent_guid;                     ///< Just in case, the parent particle was despawned and a differnt particle now has the parent_ref
 
-    Uint16  vrt_off;                         ///< It's vertex offset
-    Uint8   type;                            ///< Transparency mode, 0-2
-    Uint16  facing;                          ///< Direction of the part
-    Uint8   team;                            ///< Team
+    Uint16   vrt_off;                         ///< It's vertex offset
+    Uint8    type;                            ///< Transparency mode, 0-2
+    FACING_T facing;                          ///< Direction of the part
+    Uint8    team;                            ///< Team
 
     fvec3_t pos, pos_old, pos_stt;           ///< Position
     fvec3_t vel, vel_old, vel_stt;           ///< Velocity
     fvec3_t offset;                          ///< The initial offset when spawning the particle
 
-    Uint32  onwhichfan;                      ///< Where the part is
+    Uint32  onwhichgrid;                      ///< Where the part is
     Uint32  onwhichblock;                    ///< The particle's collision block
     Uint16  onwhichplatform;                 ///< Is the particle on a platform?
     bool_t  is_hidden;                       ///< Is the particle related to a hidden character?
 
-    Uint16  rotate;                          ///< Rotation direction
-    Sint16  rotateadd;                       ///< Rotation rate
+    FACING_T rotate;                          ///< Rotation direction
+    Sint16   rotate_add;                      ///< Rotation rate
 
-    int  size;                            ///< Size of particle (8.8-bit fixed point)
-    Uint16  size_stt;                        ///< the starting size of the particle (8.8-bit fixed point)
-    Sint16  size_add;                        ///< Change in size
+    int     size;                            ///< Size of particle (8.8-bit fixed point)
+    UFP8_T  size_stt;                        ///< the starting size of the particle (8.8-bit fixed point)
+    SFP8_T  size_add;                        ///< Change in size
 
     bool_t  inview;                          ///< Render this one?
-    Uint16  image;                           ///< Which image (8.8-bit fixed point)
-    Uint16  imageadd;                        ///< Animation rate
-    Uint16  imagemax;                        ///< End of image loop
-    Uint16  imagestt;                        ///< Start of image loop
+    UFP8_T  image;                           ///< Which image (8.8-bit fixed point)
+    Uint16  image_add;                       ///< Animation rate
+    Uint16  image_max;                       ///< End of image loop
+    Uint16  image_stt;                       ///< Start of image loop
 
     int     time_update;                     ///< Duration of particle
     int     time_frame;                      ///< Duration of particle
+    Uint32  lifetime;                        ///< how long does the particle live?
     Uint16  spawntime;                       ///< Time until spawn
 
-    bumper_t bump;                            ///< Size of bumpers
-    oct_bb_t chr_prt_cv;                      ///< Collision volume for chr-prt interactions
-    Uint16   bumplist_next;                   ///< Next particle on fanblock
-    IPair    damage;                          ///< For strength
-    Uint8    damagetype;                      ///< Damage type
+    bumper_t          bump;                            ///< Size of bumpers
+    oct_bb_t          chr_prt_cv;                      ///< Collision volume for chr-prt interactions
+    Uint16            bumplist_next;                   ///< Next particle on fanblock
+    IPair             damage;                          ///< For strength
+    Uint8             damagetype;                      ///< Damage type
 
-    bool_t  is_eternal;
+    bool_t            is_eternal;
 
-    bool_t is_bumpspawn;                      ///< this particle is like a flame, burning something
-    bool_t inwater;
+    bool_t            is_bumpspawn;                      ///< this particle is like a flame, burning something
+    bool_t            inwater;
 
-    bool_t   spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
+    int               spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
-    bool_t         safe_valid;
-    fvec3_t        pos_safe;                      ///< Character's last safe position
+    bool_t            safe_valid;
+    fvec3_t           safe_pos;                         ///< Character's last safe position
+    Uint32            safe_grid;
 
-    bool_t         is_homing;                 ///< Is the particle in control of its motion?
+    bool_t            is_homing;                 ///< Is the particle in control of its motion?
 
     dynalight_info_t  dynalight;              ///< Dynamic lighting...
     prt_instance_t    inst;                   ///< Everything needed for rendering
     prt_environment_t enviro;                 ///< the particle's environment
     phys_data_t       phys;                   ///< the particle's physics data
+
+    BSP_leaf_t        bsp_leaf;
+
+#if defined(__cplusplus)
+    s_prt();
+    ~s_prt();
+#endif
 };
 typedef struct s_prt prt_t;
 
-extern Uint16           maxparticles;                              ///< max number of particles
+extern Uint32 maxparticles;                              ///< max number of particles
 
 DEFINE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 
@@ -151,55 +168,65 @@ DEFINE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 #define ACTIVE_PRT( IPRT )      ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE    (POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
 #define WAITING_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && WAITING_PBASE   (POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
 #define TERMINATED_PRT( IPRT )  ( VALID_PRT_RANGE( IPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
-#define DISPLAY_PRT( IPRT )     ( ACTIVE_PRT(IPRT) || WAITING_PRT( IPRT ) )
+
+#define DEFINED_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE    (POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
 
 #define GET_INDEX_PPRT( PPRT )   GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT )
+#define VALID_PRT_PTR( PPRT )   ( (NULL != (PPRT)) && VALID_PRT_RANGE( GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT) ) )
+#define ALLOCATED_PPRT( PPRT )  ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PPRT) ) )
+#define TERMINATED_PPRT( PPRT ) ( VALID_PRT_PTR( PPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PPRT)) )
+#define ACTIVE_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) )
 
-#define ACTIVE_PPRT( PPRT )      ( (NULL != (PPRT)) && VALID_PRT_RANGE(GET_INDEX_PPRT(PPRT)) && ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) )
-#define DISPLAY_PPRT( PPRT )     ( (NULL != (PPRT)) && VALID_PRT_RANGE(GET_INDEX_PPRT(PPRT)) && (ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) || WAITING_PBASE(POBJ_GET_PBASE(PPRT))) )
+#define DEFINED_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
+#define DISPLAY_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) || WAITING_PBASE(POBJ_GET_PBASE(PPRT))) )
+
+#define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT) {int IT##internal; for(IT##internal=0;IT##internal<PrtList.used_count;IT##internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = PrtList.used_ref[IT##internal]; if(!ACTIVE_PRT(IT)) continue; PPRT = PrtList.lst + IT;
+#define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {int IT##internal; for(IT##internal=0;IT##internal<PrtList.used_count;IT##internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = PrtList.used_ref[IT##internal]; if(!DISPLAY_PRT(IT)) continue; PPRT = PrtList.lst + IT;
+#define PRT_END_LOOP() }}
+
+extern int prt_wall_tests;
 
 //--------------------------------------------------------------------------------------------
 /// function prototypes
 
 void   init_all_pip();
 void   release_all_pip();
-bool_t release_one_pip( Uint16 ipip );
+bool_t release_one_pip( PIP_REF ipip );
 
-bool_t PrtList_free_one( Uint16 particle );
+bool_t PrtList_free_one( PRT_REF particle );
 void   PrtList_free_all();
 void   PrtList_update_used();
 
-void   free_one_particle_in_game( Uint16 particle );
+void   free_one_particle_in_game( PRT_REF particle );
 
-void particle_system_init();
+void particle_system_begin();
+void particle_system_end();
 
 void update_all_particles( void );
 void move_all_particles( void );
 void cleanup_all_particles( void );
 
-void play_particle_sound( Uint16 particle, Sint8 sound );
-int prt_get_free( int force );
-Uint16 spawn_one_particle( fvec3_t   pos, Uint16 facing, Uint16 iprofile, Uint16 ipip,
+void play_particle_sound( PRT_REF particle, Sint8 sound );
+
+Uint16 spawn_one_particle( fvec3_t pos, FACING_T facing, Uint16 iprofile, PIP_REF ipip,
                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget );
+
 #define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, MAX_PROFILE, ipip, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, multispawn, MAX_CHR );
 
-int prt_count_free();
+int     prt_count_free();
 
-int load_one_particle_profile( const char *szLoadName, Uint16 pip_override );
+int  load_one_particle_profile( const char *szLoadName, PIP_REF pip_override );
 void reset_particles();
 
-Uint32 __prthitawall( prt_t * pprt, float nrm[], float * pressure );
+Uint32 prt_hit_wall( prt_t * pprt, float nrm[], float * pressure );
+bool_t prt_test_wall( prt_t * pprt );
 
-int    prt_is_over_water( Uint16 cnt );
+bool_t prt_is_over_water( PRT_REF particle );
 
-bool_t release_one_pip( Uint16 ipip );
+bool_t release_one_pip( PIP_REF ipip );
 
-Uint16  prt_get_ipip( Uint16 cnt );
-pip_t * prt_get_ppip( Uint16 cnt );
-
-bool_t prt_request_terminate( Uint16 iprt );
+bool_t prt_request_terminate( PRT_REF iprt );
 
 void particle_set_level( prt_t * pprt, float level );
-
-Uint16 prt_get_iowner( Uint16 iprt, int depth );

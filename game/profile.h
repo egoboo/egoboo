@@ -25,6 +25,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_chr;
+struct s_prt;
 
 struct s_cap;
 struct s_mad;
@@ -36,20 +38,8 @@ struct s_mpd_BSP;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#ifdef __cplusplus
-#    define REF_TO_INT(X) ((Uint16)(X))
-#else
-#    define REF_TO_INT(X) (X)
-#endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// Message files
-
-DEFINE_STACK_EXTERN( int, MessageOffset, MAXTOTALMESSAGE );
-
-extern Uint32          message_buffer_carat;                                  ///< Where to put letter
-extern char            message_buffer[MESSAGEBUFFERSIZE];                     ///< The text buffer
+typedef Uint16 PRO_REF;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -76,11 +66,11 @@ typedef struct s_pro_import pro_import_t;
 /// The buffer for the random naming data
 struct s_chop_data
 {
-    Uint16  chop_count;             ///< The global number of name parts
+    size_t  chop_count;             ///< The global number of name parts
 
     Uint32  carat;                  ///< The data pointer
     char    buffer[CHOPDATACHUNK];  ///< The name parts
-    Uint16  start[MAXCHOP];         ///< The first character of each part
+    int     start[MAXCHOP];         ///< The first character of each part
 };
 typedef struct s_chop_data chop_data_t;
 
@@ -92,8 +82,8 @@ bool_t        chop_export( const char *szSaveName, const char * szChop );
 /// Defintion of a single chop secttion
 struct s_chop_section
 {
-    Uint16       size;     ///< Number of choices, 0
-    Uint16       start;    ///< A reference to a specific offset in the chop_data_t buffer
+    int size;     ///< Number of choices, 0
+    int start;    ///< A reference to a specific offset in the chop_data_t buffer
 };
 typedef struct s_chop_section chop_section_t;
 
@@ -123,12 +113,12 @@ struct s_object_profile
     Uint16  prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 
     // the profile skins
-    Uint16  skins;                            ///< Number of skins
+    size_t  skins;                            ///< Number of skins
     int     tex_ref[MAX_SKIN];                 ///< references to the icon textures
     int     ico_ref[MAX_SKIN];                 ///< references to the skin textures
 
     // the profile message info
-    Uint16  message_start;                    ///< The first message
+    int     message_start;                    ///< The first message
 
     /// the random naming info
     chop_definition_t chop;
@@ -146,30 +136,45 @@ typedef struct s_object_profile pro_t;
 
 DEFINE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
 
-void   ProList_init();
-//void   ProList_free_all();
-Uint16 ProList_get_free( Uint16 override );
-bool_t ProList_free_one( Uint16 iobj );
+int          pro_get_slot( const char * tmploadname, int slot_override );
+const char * pro_create_chop( PRO_REF profile_ref );
+bool_t       pro_load_chop( PRO_REF profile_ref, const char *szLoadname );
 
-Uint16 pro_get_icap( Uint16 iobj );
-Uint16 pro_get_imad( Uint16 iobj );
-Uint16 pro_get_ieve( Uint16 iobj );
-Uint16 pro_get_ipip( Uint16 iobj, Uint16 ipip );
-
-struct s_cap * pro_get_pcap( Uint16 iobj );
-struct s_mad * pro_get_pmad( Uint16 iobj );
-struct s_eve * pro_get_peve( Uint16 iobj );
-struct s_pip * pro_get_ppip( Uint16 iobj, Uint16 ipip );
-
-IDSZ               pro_get_idsz( Uint16 iobj, int type );
-struct Mix_Chunk * pro_get_chunk( Uint16 iobj, int index );
-
-int    pro_get_slot( const char * tmploadname, int slot_override );
-
-int    load_one_profile( const char* tmploadname, int slot_override );
+void    ProList_init();
+//void    ProList_free_all();
+PRO_REF ProList_get_free( PRO_REF override_ref );
+bool_t  ProList_free_one( PRO_REF object_ref );
 
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
 #define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// the BSP structure housing the object
+struct s_obj_BSP
+{
+    // the BSP of characters for character-character and character-particle interactions
+    BSP_tree_t   tree;
+};
+
+typedef struct s_obj_BSP obj_BSP_t;
+
+bool_t obj_BSP_ctor( obj_BSP_t * pbsp, struct s_mpd_BSP * pmesh_bsp );
+bool_t obj_BSP_dtor( obj_BSP_t * pbsp );
+
+bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int depth );
+bool_t obj_BSP_free( obj_BSP_t * pbsp );
+
+bool_t obj_BSP_fill( obj_BSP_t * pbsp );
+bool_t obj_BSP_empty( obj_BSP_t * pbsp );
+
+//bool_t obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pnode, int depth, int address_x[], int address_y[], int address_z[] );
+bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, struct s_chr * pchr );
+bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, struct s_prt * pprt );
+
+int    obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
+
+extern obj_BSP_t obj_BSP_root;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -177,58 +182,34 @@ extern Uint16  bookicon_count;
 extern Uint16  bookicon_ref[MAX_SKIN];                      ///< The first book icon
 
 extern pro_import_t import_data;
-
 extern chop_data_t chop_mem;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// the BSP structure housing the object
-struct s_obj_BSP
-{
-    size_t       chr_node_count;
-    BSP_node_t * chr_nodes;
+DEFINE_STACK_EXTERN( int, MessageOffset, MAXTOTALMESSAGE );
 
-    size_t       prt_node_count;
-    BSP_node_t * prt_nodes;
+extern Uint32          message_buffer_carat;                                  ///< Where to put letter
+extern char            message_buffer[MESSAGEBUFFERSIZE];                     ///< The text buffer
 
-    oct_bb_t     volume;
-    BSP_tree_t   tree;
-};
-
-typedef struct s_obj_BSP obj_BSP_t;
-
-bool_t obj_BSP_start( obj_BSP_t * pbsp, struct s_mpd_BSP * pmesh_bsp, int chr_count, int prt_count );
-bool_t obj_BSP_end( obj_BSP_t * pbsp );
-bool_t obj_BSP_init( obj_BSP_t * pbsp );
-
-bool_t obj_BSP_fill( obj_BSP_t * pbsp );
-bool_t obj_BSP_empty( obj_BSP_t * pbsp );
-
-bool_t obj_BSP_insert_node( obj_BSP_t * pbsp, BSP_node_t * pnode, int depth, int address_x[], int address_y[], int address_z[] );
-bool_t obj_BSP_insert_obj_node( obj_BSP_t * pbsp, BSP_node_t * pnode, size_t depth, int address_x[], int address_y[], int address_z[] );
-
-int    obj_BSP_collide( obj_BSP_t * pbsp, oct_bb_t * pvobj, int colst[], size_t colist_size );
-
-extern obj_BSP_t obj_BSP_root;
+extern int             BSP_chr_count;                                         ///< the number of characters in the obj_BSP_root structure
+extern int             BSP_prt_count;                                         ///< the number of particles  in the obj_BSP_root structure
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void init_profile_system();
+void profile_system_begin();
+void profile_system_end();
 
 void   init_all_profiles();
-int    load_profile_skins( const char * tmploadname, Uint16 object );
-void   load_all_messages( const char *loadname, Uint16 object );
+int    load_profile_skins( const char * tmploadname, PRO_REF object_ref );
+void   load_all_messages( const char *loadname, PRO_REF object_ref );
 void   release_all_pro_data();
 void   release_all_profiles();
 void   release_all_pro();
 void   release_all_local_pips();
-bool_t release_one_pro( Uint16 override );
-bool_t release_one_local_pips( Uint16 iobj );
+bool_t release_one_pro( PRO_REF object_ref );
+bool_t release_one_local_pips( PRO_REF object_ref );
+
+PRO_REF load_one_profile( const char* tmploadname, int slot_override );
 
 void reset_messages();
-
-const char * pro_create_chop( Uint16 iprofile );
-bool_t       pro_load_chop( Uint16 profile, const char *szLoadname );
 
 const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );
 bool_t        chop_load( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );

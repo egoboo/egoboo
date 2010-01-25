@@ -38,10 +38,10 @@ extern "C"
 //------------------------------------------------------------------------------
 /// wrapper for uploading texture information
 
-    void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat aniso );
-    void oglx_upload_1d(GLboolean use_alpha, GLsizei w, const GLvoid * data);
-    void oglx_upload_2d(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data);
-    void oglx_upload_2d_mipmap(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data);
+    void oglx_bind( GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat aniso );
+    void oglx_upload_1d( GLboolean use_alpha, GLsizei w, const GLvoid * data );
+    void oglx_upload_2d( GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data );
+    void oglx_upload_2d_mipmap( GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -125,11 +125,11 @@ extern "C"
     };
     typedef struct s_oglx_video_parameters oglx_video_parameters_t;
 
-    GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid);
+    GLboolean oglx_video_parameters_default( oglx_video_parameters_t * pvid );
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-    FILE * oglx_set_stdout(FILE * pfile);
+    FILE * oglx_set_stdout( FILE * pfile );
 
 #ifdef __cplusplus
 };

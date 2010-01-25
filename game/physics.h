@@ -25,7 +25,19 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_chr;
+struct s_prt;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define PLATTOLERANCE       50                     ///< Platform tolerance...
+
+enum
+{
+    PHYS_PLATFORM_NONE = 0,
+    PHYS_PLATFORM_OBJ1 = ( 1 << 0 ),
+    PHYS_PLATFORM_OBJ2 = ( 1 << 1 )
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,36 +65,10 @@ extern float gravity;                     ///< Gravitational accel
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// @notes
-/// The test functions are designed to detect an interaction with the "least possible" computation.
-/// Don't spoil the optimization by calling a test_interaction* function and then a get_depth* function
-///
-/// The numbers attached to these functions signify the level of precision that is used in calculating the
-/// collision. The smallest number, 0, indicates the least precise collision and is equivalent to the "old" egoboo method.
-///
-/// The _close_ keyword indicates that you are checking for something like whether a character is able to
-/// stand on a platform or something where it will tend to fall off if it starts to step off the edge.
-///
-/// Use the test_platform flag if you want to test whether the objects are close enough for some platform interaction.
-/// You could determine whether this should be set to btrue by determining whether either of the objects was a platform
-/// and whether the other object could use the platform.
-///
-/// If you definitely are going to need the depth info, make sure to use the get_depth* functions with the break_out
-/// flag set to bfalse. Setting break_out to btrue will make the function faster in the case that there is no collision,
-/// but it will leave some of the "depth vector" uncalculated, which might leave it with uninitialized data.
-
-bool_t test_interaction_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t test_platform );
-bool_t test_interaction_1( oct_bb_t cv_a,   fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t test_platform );
-bool_t test_interaction_2( oct_bb_t cv_a,   fvec3_t pos_a, oct_bb_t   cv_b, fvec3_t pos_b, bool_t test_platform );
-bool_t test_interaction_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t test_platform );
-bool_t test_interaction_close_1( oct_bb_t cv_a,   fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t test_platform );
-bool_t test_interaction_close_2( oct_bb_t cv_a,   fvec3_t pos_a, oct_bb_t   cv_b, fvec3_t pos_b, bool_t test_platform );
-
-bool_t get_depth_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth );
-bool_t get_depth_1( oct_bb_t cv_a,   fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth );
-bool_t get_depth_2( oct_bb_t cv_a,   fvec3_t pos_a, oct_bb_t   cv_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth );
-bool_t get_depth_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth );
-bool_t get_depth_close_1( oct_bb_t cv_a,   fvec3_t pos_a, bumper_t bump_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth );
-bool_t get_depth_close_2( oct_bb_t cv_a,   fvec3_t pos_a, oct_bb_t   cv_b, fvec3_t pos_b, bool_t break_out, oct_vec_t depth );
+bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_t * pdst );
+bool_t phys_expand_chr_bb( struct s_chr * pchr, float tmin, float tmax, oct_bb_t * pdst );
+bool_t phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
 
 bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm );
+bool_t phys_intersect_oct_bb( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb_t src2, fvec3_t pos2, fvec3_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+

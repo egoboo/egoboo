@@ -39,8 +39,8 @@ extern int      fnt_init();
 extern Font    *fnt_loadFont( const char *fileName, int pointSize );
 extern void    fnt_freeFont( Font *font );
 
-extern void    fnt_drawTextBox( Font *font, int x, int y, int width, int height, int spacing, const char *format, ... );
-extern void    fnt_drawText( Font *font, int x, int y, const char *format, ... );
+extern void    fnt_drawTextBox( Font *font, SDL_Surface ** ppSurface, int x, int y, int width, int height, int spacing, const char *format, ... );
+extern void    fnt_drawText( Font *font, SDL_Surface ** ppSurface, int x, int y, const char *format, ... );
 
 /// Only works properly on a single line of text
 extern void    fnt_getTextSize( Font *font, const char *text, int *width, int *height );
@@ -48,6 +48,6 @@ extern void    fnt_getTextSize( Font *font, const char *text, int *width, int *h
 extern void    fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height );
 
 /// handle variable arguments to print text to a GL texture
-extern int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** psurf, GLuint itex, float texCoords[], const char *format, va_list args );
+extern int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint itex, float texCoords[], const char *format, va_list args );
 
 #define egoboo_Font_h

@@ -100,8 +100,8 @@ extern LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern int    mnu_selectedPlayerCount;
-extern int    mnu_selectedInput[MAXPLAYER];
-extern Uint16 mnu_selectedPlayer[MAXPLAYER];
+extern int    mnu_selectedInput[MAX_PLAYER];
+extern Uint16 mnu_selectedPlayer[MAX_PLAYER];
 
 extern bool_t mnu_draw_background;
 
@@ -109,19 +109,21 @@ extern menu_process_t * MProc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+int  menu_system_begin();
+void menu_system_end();
+
 void  check_player_import( const char *dirname, bool_t initialize );
 
 int doMenu( float deltaTime );
-int mnu_init();
 
 bool_t mnu_begin_menu( which_menu_t which );
 void   mnu_end_menu();
 
 int mnu_get_menu_depth();
 
-void                    TxTitleImage_init_all();
+void                    TxTitleImage_ctor();
 void                    TxTitleImage_release_all();
-void                    TxTitleImage_delete_all();
+void                    TxTitleImage_dtor();
 struct s_oglx_texture * TxTitleImage_get_ptr( Uint32 itex );
 
 extern bool_t startNewPlayer;
@@ -139,6 +141,8 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref );
 
 int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );
 menu_process_t     * menu_process_init( menu_process_t * mproc );
+
+int  TxTitleImage_load_one( const char *szLoadName );
 
 #define egoboo_Menu_h
 

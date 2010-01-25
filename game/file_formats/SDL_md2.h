@@ -153,9 +153,9 @@ extern float kid_md2_normals[MD2_MAX_NORMALS][3];
 
 // functions to load the unpacked data structures
 // works for both big and little endian machines
-SDL_md2_model_t * SDL_md2_new     ( SDL_md2_model_t * mdl );
-void              SDL_md2_free    ( SDL_md2_model_t * mdl );
+SDL_md2_model_t * SDL_md2_new( SDL_md2_model_t * mdl );
+void              SDL_md2_free( SDL_md2_model_t * mdl );
 // SDL_md2_model_t * SDL_md2_load    ( const char *filename, SDL_md2_model_t * mdl );
-SDL_md2_model_t * SDL_md2_load_RW ( SDL_RWops * rw,       SDL_md2_model_t * mdl );
+SDL_md2_model_t * SDL_md2_load_RW( SDL_RWops * rw,       SDL_md2_model_t * mdl );
 
 #define SDL_MD2_H

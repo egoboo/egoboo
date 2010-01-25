@@ -22,12 +22,12 @@
 /// @details
 
 #include "wawalite_file.h"
-#include "char.h"
+#include "char.inl"
 
 #include "log.h"
 
 #include "egoboo_fileutil.h"
-#include "egoboo_math.h"
+#include "egoboo_math.inl"
 #include "pip_file.h"
 
 //--------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ static wawalite_data_t *       read_wawalite_light( vfs_FILE * fileread, wawalit
 static wawalite_physics_t *    read_wawalite_physics( vfs_FILE * fileread, wawalite_physics_t * pphys );
 static wawalite_animtile_t *   read_wawalite_animtile( vfs_FILE * fileread, wawalite_animtile_t * panimtile );
 static wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_damagetile_t * pdamagetile );
-static wawalite_weather_t *	   read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t * pdata );
+static wawalite_weather_t *    read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t * pdata );
 static wawalite_graphics_t *   read_wawalite_graphics( vfs_FILE * fileread, wawalite_graphics_t * pgraphics );
 static wawalite_camera_t *     read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t * pcamera );
 static wawalite_data_t *       read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdata );
@@ -69,15 +69,15 @@ static bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata 
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * wawalite_data_init( wawalite_data_t * pdata )
 {
-    if( NULL == pdata ) return NULL;
+    if ( NULL == pdata ) return NULL;
 
-    SDL_memset( pdata, 0, sizeof(wawalite_data_t) );
+    SDL_memset( pdata, 0, sizeof( wawalite_data_t ) );
 
-    wawalite_water_init( &(pdata->water) );
-    wawalite_weather_init( &(pdata->weather) );
-    wawalite_fog_init( &(pdata->fog) );
-    wawalite_damagetile_init( &(pdata->damagetile) );
-    wawalite_animtile_init( &(pdata->animtile) );
+    wawalite_water_init( &( pdata->water ) );
+    wawalite_weather_init( &( pdata->weather ) );
+    wawalite_fog_init( &( pdata->fog ) );
+    wawalite_damagetile_init( &( pdata->damagetile ) );
+    wawalite_animtile_init( &( pdata->animtile ) );
 
     return pdata;
 }
@@ -86,11 +86,11 @@ wawalite_data_t * wawalite_data_init( wawalite_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * pwater )
 {
-    if( NULL == pwater ) return pwater;
+    if ( NULL == pwater ) return pwater;
 
-    memset( pwater, 0, sizeof(*pwater) );
+    memset( pwater, 0, sizeof( *pwater ) );
 
-    if( NULL == fileread ) return pwater;
+    if ( NULL == fileread ) return pwater;
 
     // Read water data first
     pwater->layer_count    = fget_next_int( fileread );
@@ -137,14 +137,14 @@ wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * 
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * read_wawalite_light( vfs_FILE * fileread, wawalite_data_t * pdata )
 {
-    if( NULL == pdata ) return pdata;
+    if ( NULL == pdata ) return pdata;
 
     pdata->light_x = 1.00;
     pdata->light_y = 1.00;
     pdata->light_z = 0.50;
     pdata->light_a = 0.20;
 
-    if( NULL == fileread ) return pdata;
+    if ( NULL == fileread ) return pdata;
 
     // Read light data second
     pdata->light_x = fget_next_float( fileread );
@@ -158,11 +158,11 @@ wawalite_data_t * read_wawalite_light( vfs_FILE * fileread, wawalite_data_t * pd
 //--------------------------------------------------------------------------------------------
 wawalite_physics_t * read_wawalite_physics( vfs_FILE * fileread, wawalite_physics_t * pphys )
 {
-    if( NULL == pphys ) return pphys;
+    if ( NULL == pphys ) return pphys;
 
-    memset( pphys, 0, sizeof(*pphys) );
+    memset( pphys, 0, sizeof( *pphys ) );
 
-    if( NULL == fileread ) return pphys;
+    if ( NULL == fileread ) return pphys;
 
     // Read tile data third
     pphys->hillslide      = fget_next_float( fileread );
@@ -178,11 +178,11 @@ wawalite_physics_t * read_wawalite_physics( vfs_FILE * fileread, wawalite_physic
 //--------------------------------------------------------------------------------------------
 wawalite_animtile_t * read_wawalite_animtile( vfs_FILE * fileread, wawalite_animtile_t * panimtile )
 {
-    if( NULL == panimtile ) return panimtile;
+    if ( NULL == panimtile ) return panimtile;
 
-    memset( panimtile, 0, sizeof(*panimtile) );
+    memset( panimtile, 0, sizeof( *panimtile ) );
 
-    if( NULL == fileread ) return panimtile;
+    if ( NULL == fileread ) return panimtile;
 
     // animated tile
     panimtile->update_and = fget_next_int( fileread );
@@ -194,9 +194,9 @@ wawalite_animtile_t * read_wawalite_animtile( vfs_FILE * fileread, wawalite_anim
 //--------------------------------------------------------------------------------------------
 wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_damagetile_t * pdamagetile )
 {
-    if( NULL == pdamagetile ) return pdamagetile;
-    if( NULL == fileread ) return pdamagetile;
-	wawalite_damagetile_init( pdamagetile );			//Reset
+    if ( NULL == pdamagetile ) return pdamagetile;
+    if ( NULL == fileread ) return pdamagetile;
+    wawalite_damagetile_init( pdamagetile );            //Reset
 
     // damage tile
     pdamagetile->amount = fget_next_int( fileread );
@@ -208,23 +208,23 @@ wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_
 //--------------------------------------------------------------------------------------------
 wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t * pdata )
 {
-	wawalite_weather_t * pweather = &(pdata->weather);
-    if( NULL == pweather ) return pweather;
+    wawalite_weather_t * pweather = &( pdata->weather );
+    if ( NULL == pweather ) return pweather;
 
-    memset( pweather, 0, sizeof(*pweather) );
+    memset( pweather, 0, sizeof( *pweather ) );
 
-    if( NULL == fileread ) return pweather;
+    if ( NULL == fileread ) return pweather;
 
     // weather data
-	if(pdata->version >= 2)
-	{
-		pweather->particle    = fget_next_int( fileread );			//@todo: allow text to be read here
-	}
-	else
-	{
-		pweather->particle    = PIP_WEATHER4;			//Default if we use a older versioned wawalite.txt
-	}
-	pweather->over_water  = fget_next_bool( fileread );
+    if ( pdata->version >= 2 )
+    {
+        pweather->particle    = fget_next_int( fileread );          //@todo: allow text to be read here
+    }
+    else
+    {
+        pweather->particle    = PIP_WEATHER4;           //Default if we use a older versioned wawalite.txt
+    }
+    pweather->over_water  = fget_next_bool( fileread );
     pweather->timer_reset = fget_next_int( fileread );
 
     return pweather;
@@ -233,11 +233,11 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
 //--------------------------------------------------------------------------------------------
 wawalite_graphics_t * read_wawalite_graphics( vfs_FILE * fileread, wawalite_graphics_t * pgraphics )
 {
-    if( NULL == pgraphics ) return pgraphics;
+    if ( NULL == pgraphics ) return pgraphics;
 
-    memset( pgraphics, 0, sizeof(*pgraphics) );
+    memset( pgraphics, 0, sizeof( *pgraphics ) );
 
-    if( NULL == fileread ) return pgraphics;
+    if ( NULL == fileread ) return pgraphics;
 
     // graphics options
     pgraphics->exploremode = fget_next_bool( fileread );
@@ -249,11 +249,11 @@ wawalite_graphics_t * read_wawalite_graphics( vfs_FILE * fileread, wawalite_grap
 //--------------------------------------------------------------------------------------------
 wawalite_camera_t * read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t * pcamera )
 {
-    if( NULL == pcamera ) return pcamera;
+    if ( NULL == pcamera ) return pcamera;
 
-    memset( pcamera, 0, sizeof(*pcamera) );
+    memset( pcamera, 0, sizeof( *pcamera ) );
 
-    if( NULL == fileread ) return pcamera;
+    if ( NULL == fileread ) return pcamera;
 
     // camera data
     pcamera->swingrate = fget_next_float( fileread );
@@ -265,9 +265,9 @@ wawalite_camera_t * read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdata )
 {
-    if( NULL == pdata ) return pdata;
+    if ( NULL == pdata ) return pdata;
 
-    if( NULL == fileread ) return pdata;
+    if ( NULL == fileread ) return pdata;
 
     // Read unnecessary data...  Only read if it exists...
     if ( goto_colon( NULL, fileread, btrue ) )
@@ -300,9 +300,9 @@ wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pd
     vfs_FILE*  fileread;
     STRING newloadname;
 
-    if( NULL == pdata ) pdata = &_wawalite_file;
+    if ( NULL == pdata ) pdata = &_wawalite_file;
 
-    if( NULL == wawalite_data_init( pdata ) ) return pdata;
+    if ( NULL == wawalite_data_init( pdata ) ) return pdata;
 
     fileread = vfs_openRead( filename );
     if ( NULL == fileread )
@@ -311,9 +311,9 @@ wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pd
         return pdata;
     }
 
-	//First figure out what version of wawalite this is, so that we know what data we
-	//should expect to load
-	pdata->version = fget_version( fileread );
+    //First figure out what version of wawalite this is, so that we know what data we
+    //should expect to load
+    pdata->version = fget_version( fileread );
 
     //  Random map...
     //  If someone else wants to handle this, here are some thoughts for approaching
@@ -324,15 +324,15 @@ wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pd
     //  the exit.  Door placement will be difficult.
     pdata->seed = fget_next_bool( fileread );
 
-    read_wawalite_water     ( fileread, &(pdata->water)      );
-    read_wawalite_light     ( fileread, pdata                );
-    read_wawalite_physics   ( fileread, &(pdata->phys)       );
-    read_wawalite_animtile  ( fileread, &(pdata->animtile)   );
-    read_wawalite_damagetile( fileread, &(pdata->damagetile) );
-    read_wawalite_weather   ( fileread, pdata                );
-    read_wawalite_graphics  ( fileread, &(pdata->graphics)   );
-    read_wawalite_camera    ( fileread, &(pdata->camera)     );
-    read_wawalite_fog       ( fileread, pdata                );
+    read_wawalite_water( fileread, &( pdata->water ) );
+    read_wawalite_light( fileread, pdata );
+    read_wawalite_physics( fileread, &( pdata->phys ) );
+    read_wawalite_animtile( fileread, &( pdata->animtile ) );
+    read_wawalite_damagetile( fileread, &( pdata->damagetile ) );
+    read_wawalite_weather( fileread, pdata );
+    read_wawalite_graphics( fileread, &( pdata->graphics ) );
+    read_wawalite_camera( fileread, &( pdata->camera ) );
+    read_wawalite_fog( fileread, pdata );
 
     vfs_close( fileread );
 
@@ -343,46 +343,46 @@ wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pd
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater )
 {
-    if( NULL == filewrite || NULL == pwater ) return bfalse;
+    if ( NULL == filewrite || NULL == pwater ) return bfalse;
 
     // Read water data first
-    fput_int  ( filewrite, "Number of Water Layers ( 1=Fast, 2=Good )           :", pwater->layer_count    );
-    fput_int  ( filewrite, "Water specular start ( 0-255 )                      :", pwater->spek_start     );
-    fput_int  ( filewrite, "Water specular level ( 0-255 )                      :", pwater->spek_level     );
-    fput_float( filewrite, "Water douse level ( For torches, 90 )               :", pwater->douse_level    );
-    fput_float( filewrite, "Water surface level ( For water striders, 55 )      :", pwater->surface_level  );
-    fput_bool ( filewrite, "Water light ( TRUE or FALSE )                       :", pwater->light          );
-    fput_bool ( filewrite, "Water is really water? ( TRUE or FALSE )            :", pwater->is_water       );
-    fput_bool ( filewrite, "Use watertop.bmp as an overlay? ( TRUE or FALSE )   :", pwater->overlay_req    );
-    fput_bool ( filewrite, "Use waterlow.bmp as a background? ( TRUE or FALSE ) :", pwater->background_req );
+    fput_int( filewrite, "Number of Water Layers ( 1=Fast, 2=Good )           :", pwater->layer_count );
+    fput_int( filewrite, "Water specular start ( 0-255 )                      :", pwater->spek_start );
+    fput_int( filewrite, "Water specular level ( 0-255 )                      :", pwater->spek_level );
+    fput_float( filewrite, "Water douse level ( For torches, 90 )               :", pwater->douse_level );
+    fput_float( filewrite, "Water surface level ( For water striders, 55 )      :", pwater->surface_level );
+    fput_bool( filewrite, "Water light ( TRUE or FALSE )                       :", pwater->light );
+    fput_bool( filewrite, "Water is really water? ( TRUE or FALSE )            :", pwater->is_water );
+    fput_bool( filewrite, "Use watertop.bmp as an overlay? ( TRUE or FALSE )   :", pwater->overlay_req );
+    fput_bool( filewrite, "Use waterlow.bmp as a background? ( TRUE or FALSE ) :", pwater->background_req );
 
     // General data info
-    fput_float( filewrite, "Foreground distance effect X ( 0.0 to 1.0 )    :", pwater->layer[0].dist.x   );
-    fput_float( filewrite, "Foreground distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[0].dist.y   );
-    fput_float( filewrite, "Background distance effect X ( 0.0 to 1.0 )    :", pwater->layer[1].dist.x   );
-    fput_float( filewrite, "Background distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[1].dist.y   );
-    fput_float( filewrite, "Number of foreground repeats ( 1 to 5 )        :", pwater->foregroundrepeat  );
-    fput_float( filewrite, "Number of background repeats ( 1 to 5 )        :", pwater->backgroundrepeat  );
+    fput_float( filewrite, "Foreground distance effect X ( 0.0 to 1.0 )    :", pwater->layer[0].dist.x );
+    fput_float( filewrite, "Foreground distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[0].dist.y );
+    fput_float( filewrite, "Background distance effect X ( 0.0 to 1.0 )    :", pwater->layer[1].dist.x );
+    fput_float( filewrite, "Background distance effect Y ( 0.0 to 1.0 )    :", pwater->layer[1].dist.y );
+    fput_float( filewrite, "Number of foreground repeats ( 1 to 5 )        :", pwater->foregroundrepeat );
+    fput_float( filewrite, "Number of background repeats ( 1 to 5 )        :", pwater->backgroundrepeat );
 
     // Read data on first water layer
-    fput_float( filewrite, "Level 0... Base water level ( 85 )  :", pwater->layer[0].z          );
-    fput_int  ( filewrite, "Level 0... Alpha level ( 100 )      :", pwater->layer[0].alpha      );
-    fput_int  ( filewrite, "Level 0... Wave speed ( 3 )         :", pwater->layer[0].frame_add  );
-    fput_int  ( filewrite, "Level 0... Brightness ( 15 )        :", pwater->layer[0].light_dir  );
-    fput_int  ( filewrite, "Level 0... Ambient light ( 15 )     :", pwater->layer[0].light_add  );
-    fput_float( filewrite, "Level 0... Wave amplitude ( 7.0 )   :", pwater->layer[0].amp        );
-    fput_float( filewrite, "Level 0... U speed ( .0002 )        :", pwater->layer[0].tx_add.s   );
-    fput_float( filewrite, "Level 0... V speed ( .0002 )        :", pwater->layer[0].tx_add.t   );
+    fput_float( filewrite, "Level 0... Base water level ( 85 )  :", pwater->layer[0].z );
+    fput_int( filewrite, "Level 0... Alpha level ( 100 )      :", pwater->layer[0].alpha );
+    fput_int( filewrite, "Level 0... Wave speed ( 3 )         :", pwater->layer[0].frame_add );
+    fput_int( filewrite, "Level 0... Brightness ( 15 )        :", pwater->layer[0].light_dir );
+    fput_int( filewrite, "Level 0... Ambient light ( 15 )     :", pwater->layer[0].light_add );
+    fput_float( filewrite, "Level 0... Wave amplitude ( 7.0 )   :", pwater->layer[0].amp );
+    fput_float( filewrite, "Level 0... U speed ( .0002 )        :", pwater->layer[0].tx_add.s );
+    fput_float( filewrite, "Level 0... V speed ( .0002 )        :", pwater->layer[0].tx_add.t );
 
     // Read data on second water layer
-    fput_int  ( filewrite, "Level 1... Base water level ( 85 )  :",  pwater->layer[1].z          );
-    fput_int  ( filewrite, "Level 1... Alpha level ( 100 )      :",  pwater->layer[1].alpha      );
-    fput_int  ( filewrite, "Level 1... Wave speed ( 3 )         :",  pwater->layer[1].frame_add  );
-    fput_int  ( filewrite, "Level 1... Brightness ( 15 )        :",  pwater->layer[1].light_dir  );
-    fput_int  ( filewrite, "Level 1... Ambient light ( 15 )     :",  pwater->layer[1].light_add  );
-    fput_float( filewrite, "Level 1... Wave amplitude ( 7.0 )   :",  pwater->layer[1].amp        );
-    fput_float( filewrite, "Level 1... U speed ( .0002 )        :",  pwater->layer[1].tx_add.s   );
-    fput_float( filewrite, "Level 1... V speed ( .0002 )        :",  pwater->layer[1].tx_add.t   );
+    fput_int( filewrite, "Level 1... Base water level ( 85 )  :",  pwater->layer[1].z );
+    fput_int( filewrite, "Level 1... Alpha level ( 100 )      :",  pwater->layer[1].alpha );
+    fput_int( filewrite, "Level 1... Wave speed ( 3 )         :",  pwater->layer[1].frame_add );
+    fput_int( filewrite, "Level 1... Brightness ( 15 )        :",  pwater->layer[1].light_dir );
+    fput_int( filewrite, "Level 1... Ambient light ( 15 )     :",  pwater->layer[1].light_add );
+    fput_float( filewrite, "Level 1... Wave amplitude ( 7.0 )   :",  pwater->layer[1].amp );
+    fput_float( filewrite, "Level 1... U speed ( .0002 )        :",  pwater->layer[1].tx_add.s );
+    fput_float( filewrite, "Level 1... V speed ( .0002 )        :",  pwater->layer[1].tx_add.t );
 
     return btrue;
 }
@@ -390,7 +390,7 @@ bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater )
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_light( vfs_FILE * filewrite, wawalite_data_t * pdata )
 {
-    if( NULL == filewrite || NULL == pdata ) return bfalse;
+    if ( NULL == filewrite || NULL == pdata ) return bfalse;
 
     // Read light data second
     fput_float( filewrite, "Light X direction ( 1.00 )        :", pdata->light_x );
@@ -404,15 +404,15 @@ bool_t write_wawalite_light( vfs_FILE * filewrite, wawalite_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_physics( vfs_FILE * filewrite, wawalite_physics_t * pphys )
 {
-    if( NULL == filewrite || NULL == pphys ) return bfalse;
+    if ( NULL == filewrite || NULL == pphys ) return bfalse;
 
     // Read tile data third
-    fput_float( filewrite, "Hillslide ( 1.00 )              :", pphys->hillslide      );
+    fput_float( filewrite, "Hillslide ( 1.00 )              :", pphys->hillslide );
     fput_float( filewrite, "Slippy friction ( 1.00 )        :", pphys->slippyfriction );
-    fput_float( filewrite, "Air friction ( .95 )            :", pphys->airfriction    );
-    fput_float( filewrite, "Water friction ( .85 )          :", pphys->waterfriction  );
+    fput_float( filewrite, "Air friction ( .95 )            :", pphys->airfriction );
+    fput_float( filewrite, "Water friction ( .85 )          :", pphys->waterfriction );
     fput_float( filewrite, "Normal friction ( .95 )         :", pphys->noslipfriction );
-    fput_float( filewrite, "Gravity ( -1.0 )                :", pphys->gravity        );
+    fput_float( filewrite, "Gravity ( -1.0 )                :", pphys->gravity );
 
     return btrue;
 }
@@ -420,11 +420,11 @@ bool_t write_wawalite_physics( vfs_FILE * filewrite, wawalite_physics_t * pphys 
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_animtile( vfs_FILE * filewrite, wawalite_animtile_t * panimtile )
 {
-    if( NULL == filewrite || NULL == panimtile ) return bfalse;
+    if ( NULL == filewrite || NULL == panimtile ) return bfalse;
 
     // animated tile
     fput_int( filewrite, "Animated tile update AND ( 0, 1, 3, 7, 15, 31 )        :", panimtile->update_and );
-    fput_int( filewrite, "Animated tile frame AND ( 3 == 4 frame, 7 == 8 frame ) :", panimtile->frame_and  );
+    fput_int( filewrite, "Animated tile frame AND ( 3 == 4 frame, 7 == 8 frame ) :", panimtile->frame_and );
 
     return btrue;
 }
@@ -432,11 +432,11 @@ bool_t write_wawalite_animtile( vfs_FILE * filewrite, wawalite_animtile_t * pani
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_damagetile( vfs_FILE * filewrite, wawalite_damagetile_t * pdamagetile )
 {
-    if( NULL == filewrite || NULL == pdamagetile ) return bfalse;
+    if ( NULL == filewrite || NULL == pdamagetile ) return bfalse;
 
     // basic damage tile
     fput_int( filewrite, "Damage tile damage ( 0 to 65535, 512 is 1 life block )  :", pdamagetile->amount );
-    fput_damage_type( filewrite, "Damage tile damage type ( SLASH, CRUSH, POKE, HOLY\n                          EVIL, FIRE, ICE, ZAP )  :", pdamagetile->type   );
+    fput_damage_type( filewrite, "Damage tile damage type ( SLASH, CRUSH, POKE, HOLY\n                          EVIL, FIRE, ICE, ZAP )  :", pdamagetile->type );
 
     return btrue;
 }
@@ -444,12 +444,12 @@ bool_t write_wawalite_damagetile( vfs_FILE * filewrite, wawalite_damagetile_t * 
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweather )
 {
-    if( NULL == filewrite || NULL == pweather ) return bfalse;
+    if ( NULL == filewrite || NULL == pweather ) return bfalse;
 
     // weather data
-    fput_int ( filewrite, "Weather particle effect ( 0 to 10, RAIN or SNOW )  :", pweather->particle );
-    fput_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water  );
-    fput_int ( filewrite, "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
+    fput_int( filewrite, "Weather particle effect ( 0 to 10, RAIN or SNOW )  :", pweather->particle );
+    fput_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water );
+    fput_int( filewrite, "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
 
     return btrue;
 }
@@ -457,11 +457,11 @@ bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweath
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_graphics( vfs_FILE * filewrite, wawalite_graphics_t * pgraphics )
 {
-    if( NULL == filewrite || NULL == pgraphics ) return bfalse;
+    if ( NULL == filewrite || NULL == pgraphics ) return bfalse;
 
     // graphics options
     fput_bool( filewrite, "Explore mode ( TRUE or FALSE )                         :", pgraphics->exploremode );
-    fput_bool( filewrite, "Far Edge mode...  For outside levels ( TRUE or FALSE ) :", pgraphics->usefaredge  );
+    fput_bool( filewrite, "Far Edge mode...  For outside levels ( TRUE or FALSE ) :", pgraphics->usefaredge );
 
     return btrue;
 }
@@ -469,11 +469,11 @@ bool_t write_wawalite_graphics( vfs_FILE * filewrite, wawalite_graphics_t * pgra
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera )
 {
-    if( NULL == filewrite || NULL == pcamera ) return bfalse;
+    if ( NULL == filewrite || NULL == pcamera ) return bfalse;
 
     // camera data
     fput_float( filewrite, "Camera swing rate ( 0 to 100 )                :", pcamera->swingrate );
-    fput_float( filewrite, "Camera swing amplitude ( 0, or .002 to .100 ) :", pcamera->swingamp  );
+    fput_float( filewrite, "Camera swing amplitude ( 0, or .002 to .100 ) :", pcamera->swingamp );
 
     return btrue;
 }
@@ -481,22 +481,22 @@ bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera 
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
 {
-    if( NULL == filewrite || NULL == pdata ) return bfalse;
+    if ( NULL == filewrite || NULL == pdata ) return bfalse;
 
     // write optional data...  Only read if it exists...
     if ( !pdata->fog.found ) return btrue;
 
     vfs_printf( filewrite, "\n\n// Fog Expansion...  Leave this out for no fog...\n" );
-    fput_float( filewrite, "Fog top z ( 0 to 100 )                            :", pdata->fog.top           );
-    fput_float( filewrite, "Fog bottom z ( 0 )                                :", pdata->fog.bottom        );
-    fput_float( filewrite, "Fog Red ( 0.0 to 1.0 )                            :", pdata->fog.red           );
-    fput_float( filewrite, "Fog Green ( 0.0 to 1.0 )                          :", pdata->fog.grn           );
-    fput_float( filewrite, "Fog Blue ( 0.0 to 1.0 )                           :", pdata->fog.blu           );
-    fput_bool ( filewrite, "Fog affects water ( TRUE or FALSE )               :", pdata->fog.affects_water );
+    fput_float( filewrite, "Fog top z ( 0 to 100 )                            :", pdata->fog.top );
+    fput_float( filewrite, "Fog bottom z ( 0 )                                :", pdata->fog.bottom );
+    fput_float( filewrite, "Fog Red ( 0.0 to 1.0 )                            :", pdata->fog.red );
+    fput_float( filewrite, "Fog Green ( 0.0 to 1.0 )                          :", pdata->fog.grn );
+    fput_float( filewrite, "Fog Blue ( 0.0 to 1.0 )                           :", pdata->fog.blu );
+    fput_bool( filewrite, "Fog affects water ( TRUE or FALSE )               :", pdata->fog.affects_water );
 
     vfs_printf( filewrite, "\n\n// Damage tile expansion...  Must have fog first...\n" );
     fput_int( filewrite, "Weather particle to spawn ( 4 or 5, 6 is splash )  :", pdata->damagetile.parttype );
-    fput_int( filewrite, "Particle timing AND ( 1, 3, 7, 15, etc. )          :", pdata->damagetile.partand  );
+    fput_int( filewrite, "Particle timing AND ( 1, 3, 7, 15, etc. )          :", pdata->damagetile.partand );
     fput_int( filewrite, "Damage sound ( 0 to 4 )                            :", pdata->damagetile.sound_index );
 
     return btrue;
@@ -510,7 +510,7 @@ bool_t write_wawalite_file( wawalite_data_t * pdata )
     vfs_FILE*  filewrite;
     STRING newloadname;
 
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     filewrite = vfs_openWrite( "data/wawalite.txt" );
     if ( NULL == filewrite )
@@ -530,15 +530,15 @@ bool_t write_wawalite_file( wawalite_data_t * pdata )
     // random map
     fput_int( filewrite, "Random map ( TRUE or FALSE ) ( doesn't work )           :", pdata->seed );
 
-    write_wawalite_water     ( filewrite, &(pdata->water) );
-    write_wawalite_light     ( filewrite, pdata );
-    write_wawalite_physics   ( filewrite, &(pdata->phys) );
-    write_wawalite_animtile  ( filewrite, &(pdata->animtile) );
-    write_wawalite_damagetile( filewrite, &(pdata->damagetile) );
-    write_wawalite_weather   ( filewrite, &(pdata->weather) );
-    write_wawalite_graphics  ( filewrite, &(pdata->graphics) );
-    write_wawalite_camera    ( filewrite, &(pdata->camera) );
-    write_wawalite_fog       ( filewrite, pdata );
+    write_wawalite_water( filewrite, &( pdata->water ) );
+    write_wawalite_light( filewrite, pdata );
+    write_wawalite_physics( filewrite, &( pdata->phys ) );
+    write_wawalite_animtile( filewrite, &( pdata->animtile ) );
+    write_wawalite_damagetile( filewrite, &( pdata->damagetile ) );
+    write_wawalite_weather( filewrite, &( pdata->weather ) );
+    write_wawalite_graphics( filewrite, &( pdata->graphics ) );
+    write_wawalite_camera( filewrite, &( pdata->camera ) );
+    write_wawalite_fog( filewrite, pdata );
 
     vfs_close( filewrite );
 
@@ -550,7 +550,7 @@ bool_t wawalite_water_init( wawalite_water_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    memset( pdata, 0, sizeof(*pdata) );
+    memset( pdata, 0, sizeof( *pdata ) );
 
     pdata->spek_start =   128;
     pdata->spek_level =   128;
@@ -567,7 +567,7 @@ bool_t wawalite_weather_init( wawalite_weather_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    memset( pdata, 0, sizeof(*pdata) );
+    memset( pdata, 0, sizeof( *pdata ) );
 
     pdata->timer_reset = 10;
 
@@ -594,7 +594,7 @@ bool_t wawalite_animtile_init( wawalite_animtile_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    memset( pdata, 0, sizeof(*pdata) );
+    memset( pdata, 0, sizeof( *pdata ) );
 
     pdata->update_and    = 7;                        // New tile every 7 frames
     pdata->frame_and     = 3;              // Only 4 frames

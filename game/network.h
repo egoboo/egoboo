@@ -57,7 +57,7 @@
 #define MAXSENDSIZE 8192
 #define COPYSIZE    4096
 #define TOTALSIZE   2097152
-#define MAXPLAYER   8                               ///< 2 to a power...  2^3
+#define MAX_PLAYER   8                               ///< 2 to a power...  2^3
 #define MAXLAG      64
 #define LAGAND      63
 #define STARTTALK   10
@@ -118,9 +118,9 @@ typedef struct s_player player_t;
 
 extern int                     local_numlpla;                                   ///< Number of local players
 extern int                     PlaList_count;                                   ///< Number of players
-extern player_t                PlaList[MAXPLAYER];
+extern player_t                PlaList[MAX_PLAYER];
 
-#define VALID_PLA_RANGE(IPLA) ( ((IPLA) >= 0) && ((IPLA) < MAXPLAYER) )
+#define VALID_PLA_RANGE(IPLA) ( ((IPLA) >= 0) && ((IPLA) < MAX_PLAYER) )
 #define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaList_count) && PlaList[IPLA].valid )
 #define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaList_count)|| !PlaList[IPLA].valid )
 
