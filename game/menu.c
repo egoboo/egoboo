@@ -185,7 +185,8 @@ static int do_menu_proc_running( menu_process_t * mproc );
 static int do_menu_proc_leaving( menu_process_t * mproc );
 
 // the hint system
-static void load_game_hints();
+void   load_global_game_hints();
+bool_t load_local_game_hints();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -214,8 +215,13 @@ DECLARE_STACK( ACCESS_TYPE_NONE, mnu_module_t, mnu_ModList );
 /// The data that menu.c uses to store the users' choice of players
 struct s_GameTips
 {
-    Uint8 count;                        //< Number of tips loaded
-    STRING hint[MENU_MAX_GAMETIPS];     //< The actual hints/tips
+	//These are loaded only once
+    Uint8  count;                         //< Number of global tips loaded
+    STRING hint[MENU_MAX_GAMETIPS];       //< The global hints/tips
+
+	//These are loaded for every module
+	Uint8  local_count;                   //< Number of module specific tips loaded
+	STRING local_hint[MENU_MAX_GAMETIPS]; //< Module specific hints and tips
 };
 typedef struct s_GameTips GameTips_t;
 
@@ -481,7 +487,7 @@ int menu_system_begin()
     TxTitleImage_ctor();
 
     // Load game hints
-    load_game_hints();
+    load_global_game_hints();
 
     return 1;
 }
@@ -3417,7 +3423,7 @@ int doShowResults( float deltaTime )
     static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;
-    static int     hintnum;
+    static char*   game_hint;
 
     int menuResult = 0;
 
@@ -3425,27 +3431,21 @@ int doShowResults( float deltaTime )
     {
         case MM_Begin:
 
-            count = 0;
-            menuState = MM_Entering;
-
-            // Randomize the next game hint     //@todo: Zefz> this isnt properly randomized for some reason
-            if ( mnu_GameTip.count > 0 )
-            {
-                int irand = RANDIE;
-                hintnum = ( irand % mnu_GameTip.count );
-            }
-
             font = ui_getFont();
-
             count = 0;
             menuState = MM_Entering;
+
+			// Should be okay to do this, the random seed isnt standarized or used elsewhere before 
+			// the module is loaded.
+            srand( time( NULL ) );
+                
+            // Randomize the next game hint
+			game_hint = CSTR_END;
+			if( load_local_game_hints() )		game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
+            else if ( mnu_GameTip.count > 0 )	game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
+
             // pass through
 
-            font = ui_getFont();
-
-            count = 0;
-            menuState = MM_Entering;
-            // pass through
 
         case MM_Entering:
             menuState = MM_Running;
@@ -3473,15 +3473,15 @@ int doShowResults( float deltaTime )
                 ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
 
                 // Draw the game tip
-                if ( mnu_GameTip.count > 0 && hintnum <= mnu_GameTip.count && mnu_GameTip.hint[hintnum] != NULL )
+                if ( VALID_CSTR( game_hint ) )
                 {
                     int text_w, text_h;
 
                     fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
                     fnt_drawText( menuFont, NULL, ( GFX_WIDTH / 2 )  - text_w / 2, GFX_HEIGHT - 150, "GAME TIP" );
 
-                    fnt_getTextSize( menuFont, mnu_GameTip.hint[hintnum], &text_w, &text_h );
-                    ui_drawTextBox( menuFont, mnu_GameTip.hint[hintnum], ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
+                    fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );		//ZF> @todo: this doesnt work correctly, get_TextSize() does not take line breaks into account
+                    ui_drawTextBox( menuFont, game_hint, ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
                 }
 
                 // keep track of the iterations through this section for a timer
@@ -4635,7 +4635,7 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void load_game_hints()
+void load_global_game_hints()
 {
     /// ZF@> This function loads all of the game hints and tips
     STRING loadpath;
@@ -4646,7 +4646,7 @@ void load_game_hints()
     // reset the count
     mnu_GameTip.count = 0;
 
-    // Open the playlist listing all music files
+    // Open the file with all the tips
     snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "menu" SLASH_STR "gametips.txt" );
     fileread = vfs_openRead( loadpath );
     if ( fileread == NULL )
@@ -4664,8 +4664,9 @@ void load_game_hints()
             fget_string( fileread, buffer, SDL_arraysize( buffer ) );
             strcpy( mnu_GameTip.hint[cnt], buffer );
 
-            // remove the '_' characters
+            //Make it look nice
             str_decode( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), mnu_GameTip.hint[cnt] );
+            str_add_linebreaks( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), 50 );
 
             //Keep track of how many we have total
             mnu_GameTip.count++;
@@ -4673,4 +4674,46 @@ void load_game_hints()
     }
 
     vfs_close( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t load_local_game_hints()
+{
+    /// ZF@> This function loads all module specific hints and tips. If this fails, the game will
+	//       default to the global hints and tips instead
+    STRING loadpath;
+    STRING buffer;
+    vfs_FILE *fileread;
+    Uint8 cnt;
+
+    // reset the count
+    mnu_GameTip.local_count = 0;
+
+    // Open all the tips
+	snprintf( loadpath, SDL_arraysize( loadpath ), "%s" SLASH_STR "gamedat" SLASH_STR "gametips.txt", mnu_ModList.lst[selectedModule].name );
+    fileread = vfs_openRead( loadpath );
+    if ( fileread == NULL )	return bfalse;
+
+    // Load the data
+    for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
+    {
+        if ( goto_colon( NULL, fileread, btrue ) )
+        {
+            //Read the line
+            fget_string( fileread, buffer, SDL_arraysize( buffer ) );
+            strcpy( mnu_GameTip.local_hint[cnt], buffer );
+
+            //Make it look nice
+            str_decode( mnu_GameTip.local_hint[cnt], SDL_arraysize( mnu_GameTip.local_hint[cnt] ), mnu_GameTip.local_hint[cnt] );
+            str_add_linebreaks( mnu_GameTip.local_hint[cnt], SDL_arraysize( mnu_GameTip.local_hint[cnt] ), 50 );
+
+            //Keep track of how many we have total
+            mnu_GameTip.local_count++;
+        }
+    }
+
+    vfs_close( fileread );
+
+	return mnu_GameTip.local_count > 0;
 }

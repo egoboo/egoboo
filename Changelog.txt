@@ -29,7 +29,6 @@ Version 2.8.0 (xx.01.2010)
 - Update: Edward Blakely aka eddyster made some finishing touches on the Sandweg theme song.
 - Update: Improved the way the homing particle effect was handled.
 - Update: Various improvements to particle effects.
-- Update: Many performance improvement tweaks.
 - Update: Various new class skills and updates to existing ones. See Classes.txt for a detailed list.
 - Update: Fixed various formatting issues so that text, icons and bars now display better.
 - Update: Made some AI and sound effect improvements to the Squirrel pet.

@@ -182,7 +182,6 @@ bool_t pro_init( pro_t * pobj )
     //---- reset everything to safe values
     memset( pobj, 0, sizeof( *pobj ) );
 
-    pobj->iai  = 0;
     pobj->icap = MAX_CAP;
     pobj->imad = MAX_MAD;
     pobj->ieve = MAX_EVE;
@@ -1369,8 +1368,6 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
 //--------------------------------------------------------------------------------------------
 bool_t obj_BSP_fill( obj_BSP_t * pbsp )
 {
-    size_t i;
-
     if ( NULL == pbsp ) return bfalse;
 
     // insert the characters

@@ -58,24 +58,15 @@
 #define MAXIMPORTOBJECTS    (MAXINVENTORY + 2)      ///< left hand + right hand + MAXINVENTORY
 #define MAXIMPORTPERPLAYER  (1 + MAXIMPORTOBJECTS)  ///< player + MAXIMPORTOBJECTS
 
-#define NOSPARKLE           255
-#define RESPAWN_ANYTIME     0xFF          ///< Code for respawnvalid...
-
-#define NOHIDE              127                     ///< Don't hide
-
+#define NOSPARKLE           255						///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model
 
 /// Messaging stuff
-#define MAX_MESSAGE          8                       ///< Number of messages
+#define MAX_MESSAGE         8                       ///< Number of messages
 #define MAXTOTALMESSAGE     4096
 #define MESSAGESIZE         80
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
 
-#define GRABSIZE            90.0f                      ///< Grab tolerance
-#define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
-
-#define RAISE               12                  ///< Helps correct z level
-#define SHADOWRAISE         5
 #define DAMAGERAISE         25                  ///< Tolerance for damage tiles
 
 /* SDL_GetTicks() always returns milli seconds */

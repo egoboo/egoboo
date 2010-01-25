@@ -114,8 +114,6 @@ ClockState_t * clk_create( const char * name, int size )
 //--------------------------------------------------------------------------------------------
 bool_t clk_destroy( ClockState_t ** pcs )
 {
-    bool_t retval;
-
     if ( NULL == pcs ) return bfalse;
 
     if ( NULL == *pcs ) return btrue;

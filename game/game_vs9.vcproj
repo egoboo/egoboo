@@ -223,6 +223,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\char.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\client.c"
 				>
 			</File>
@@ -235,7 +239,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_math.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\enchant.c"
+				>
+			</File>
+			<File
+				RelativePath=".\enchant.inl"
 				>
 			</File>
 			<File
@@ -295,11 +307,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mesh.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\network.c"
 				>
 			</File>
 			<File
 				RelativePath=".\particle.c"
+				>
+			</File>
+			<File
+				RelativePath=".\particle.inl"
 				>
 			</File>
 			<File
@@ -311,7 +331,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\physics.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\profile.c"
+				>
+			</File>
+			<File
+				RelativePath=".\profile.inl"
 				>
 			</File>
 			<File
@@ -442,6 +470,10 @@
 			</File>
 			<File
 				RelativePath=".\passage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\physics.h"
 				>
 			</File>
 			<File
@@ -665,6 +697,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rpc.c"
+				>
+			</File>
+			<File
 				RelativePath=".\platform\sys_linux.c"
 				>
 				<FileConfiguration
@@ -741,6 +777,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_object.h"
+				>
+			</File>
+			<File
 				RelativePath=".\egoboo_platform.h"
 				>
 			</File>
@@ -770,6 +810,10 @@
 			</File>
 			<File
 				RelativePath=".\log.h"
+				>
+			</File>
+			<File
+				RelativePath=".\rpc.h"
 				>
 			</File>
 			<File

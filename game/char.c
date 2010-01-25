@@ -780,7 +780,7 @@ CHR_REF ChrList_get_free()
 //--------------------------------------------------------------------------------------------
 void ChrList_free_all()
 {
-    int cnt;
+    Uint32 cnt;
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -792,8 +792,6 @@ void ChrList_free_all()
 void free_all_chraracters()
 {
     /// @details ZZ@> This function resets the character allocation list
-
-    int cnt;
 
     // free all the characters
     ChrList_free_all();
@@ -5637,7 +5635,6 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     CHR_REF  ichr;
     ai_state_t * pai;
 
-    fvec3_t nrm;
     float   ftmp;
     float   bumpdampen;
     bool_t  needs_test, updated_2d;

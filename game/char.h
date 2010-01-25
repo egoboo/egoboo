@@ -65,6 +65,13 @@ struct s_billboard_data_t;
 #define INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
 #define MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
 
+#define GRABSIZE            90.0f                      ///< Grab tolerance
+#define NOHIDE              127						   ///< Don't hide
+#define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
+#define RESPAWN_ANYTIME     0xFF          ///< Code for respawnvalid...
+
+#define RAISE               12                  ///< Helps correct z level
+
 /// The possible methods for characters to determine what direction they are facing
 typedef enum e_turn_modes
 {

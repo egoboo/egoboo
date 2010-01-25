@@ -68,6 +68,8 @@ struct Font;
 #define GFX_WIDTH                       800         ///< 640
 #define GFX_HEIGHT                      600         ///< 480
 
+#define SHADOWRAISE         5
+
 /// The supported colors of bars and blips
 enum e_color
 {

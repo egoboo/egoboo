@@ -1824,7 +1824,6 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     PRT_REF iprt;
     bool_t hit_a_floor, hit_a_wall;
     fvec3_t nrm_total;
-    fvec3_t nrm;
 
     if ( !DISPLAY_PPRT( pprt ) ) return bfalse;
     iprt = GET_INDEX_PPRT( pprt );

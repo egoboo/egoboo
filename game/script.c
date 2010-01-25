@@ -65,7 +65,7 @@ PROFILE_DECLARE( script_function )
 static int    _script_function_calls[SCRIPT_FUNCTIONS_COUNT];
 static double _script_function_times[SCRIPT_FUNCTIONS_COUNT];
 
-static       _scripting_system_initialized = bfalse;
+static bool_t _scripting_system_initialized = bfalse;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
