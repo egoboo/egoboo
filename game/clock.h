@@ -47,7 +47,7 @@ double clk_getFrameDuration( ClockState_t * cs );   ///< Return the length of th
 Uint32 clk_getFrameNumber( ClockState_t * cs );     ///< Return which frame we're on
 float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current instantaneous FPS
 
-//-----------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// macros to use the high resolution timer for profiling
 #define PROFILE_KEEP  0.9
 #define PROFILE_NEW  (1.0 - PROFILE_KEEP)

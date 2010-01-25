@@ -33,20 +33,20 @@
 
 #include "egoboo_math.inl"
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // cap_t accessor functions
 INLINE bool_t cap_is_type_idsz( CAP_REF icap, IDSZ test_idsz );
 INLINE bool_t cap_has_idsz( CAP_REF icap, IDSZ idsz );
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // team_t accessor functions
 INLINE CHR_REF  team_get_ileader( TEAM_REF iteam );
 INLINE chr_t  * team_get_pleader( TEAM_REF iteam );
 
 INLINE bool_t team_hates_team( TEAM_REF ipredator_team, TEAM_REF iprey_team );
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // chr_t accessor functions
 INLINE PRO_REF  chr_get_ipro( CHR_REF ichr );
 INLINE CAP_REF  chr_get_icap( CHR_REF ichr );
@@ -86,9 +86,9 @@ INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_t   * pvec );
 INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_t   * pvec );
 INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_t   * pvec );
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 INLINE bool_t cap_is_type_idsz( CAP_REF icap, IDSZ test_idsz )
 {
     /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not

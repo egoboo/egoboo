@@ -512,7 +512,7 @@ bool_t write_wawalite_file( wawalite_data_t * pdata )
 
     if ( NULL == pdata ) return bfalse;
 
-    filewrite = vfs_openWrite( "data/wawalite.txt" );
+    filewrite = vfs_openWrite( "mp_data/wawalite.txt" );
     if ( NULL == filewrite )
     {
         log_warning( "Could not write file! (\"%s\")\n", newloadname );

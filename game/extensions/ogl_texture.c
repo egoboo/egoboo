@@ -269,37 +269,37 @@ GLuint oglx_texture_Load( oglx_texture *ptex, const char *filename, Uint32 key )
     return retval;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 GLuint  oglx_texture_GetTextureID( oglx_texture *texture )
 {
     return ( NULL == texture ) ? INVALID_TX_ID : texture->base.binding;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageHeight( oglx_texture *texture )
 {
     return ( NULL == texture ) ? 0 : texture->imgH;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageWidth( oglx_texture *texture )
 {
     return ( NULL == texture ) ? 0 : texture->imgW;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureWidth( oglx_texture *texture )
 {
     return ( NULL == texture ) ? 0 : texture->base.width;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureHeight( oglx_texture *texture )
 {
     return ( NULL == texture ) ? 0 : texture->base.height;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
 {
     if ( NULL != texture )
@@ -308,13 +308,13 @@ void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
     }
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 GLfloat  oglx_texture_GetAlpha( oglx_texture *texture )
 {
     return ( NULL == texture ) ? 0 : texture->alpha;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void  oglx_texture_Release( oglx_texture *texture )
 {
     if ( !VALID_TEXTURE( texture ) ) return;
@@ -345,7 +345,7 @@ void  oglx_texture_Release( oglx_texture *texture )
     //oglx_grab_texture_state( GL_TEXTURE_2D, 0, texture );
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void oglx_texture_Bind( oglx_texture *texture )
 {
     /// @details BB@> a oglx_texture wrapper for oglx_bind_to_tex_params() function
@@ -390,13 +390,13 @@ void oglx_texture_Bind( oglx_texture *texture )
     //}
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 GLboolean oglx_texture_Valid( oglx_texture *ptex )
 {
     return VALID_TEXTURE( ptex );
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void oglx_grab_texture_state( GLenum target, GLint level, oglx_texture * texture )
 {
     if ( NULL == texture ) return;

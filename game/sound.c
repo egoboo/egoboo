@@ -698,19 +698,19 @@ void load_global_waves()
     int cnt;
 
     // Grab these sounds from the basicdat dir
-    snprintf( wavename, SDL_arraysize( wavename ), "data/%s", wavenames[GSND_GETCOIN] );
+    snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_GETCOIN] );
     g_wavelist[GSND_GETCOIN] = sound_load_chunk( wavename );
 
-    snprintf( wavename, SDL_arraysize( wavename ), "data/%s", wavenames[GSND_DEFEND] );
+    snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_DEFEND] );
     g_wavelist[GSND_DEFEND] = sound_load_chunk( wavename );
 
-    snprintf( wavename, SDL_arraysize( wavename ), "data/%s", wavenames[GSND_COINFALL] );
+    snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_COINFALL] );
     g_wavelist[GSND_COINFALL] = sound_load_chunk( wavename );
 
-    snprintf( wavename, SDL_arraysize( wavename ), "data/%s", wavenames[GSND_LEVELUP] );
+    snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_LEVELUP] );
     g_wavelist[GSND_LEVELUP] = sound_load_chunk( wavename );
 
-    snprintf( wavename, SDL_arraysize( wavename ), "data/%s", wavenames[GSND_PITFALL] );
+    snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_PITFALL] );
     g_wavelist[GSND_PITFALL] = sound_load_chunk( wavename );
 
     /*
@@ -723,7 +723,7 @@ void load_global_waves()
     {
         Mix_Chunk * ptmp;
 
-        snprintf( wavename, SDL_arraysize( wavename ), "data/sound%d", cnt );
+        snprintf( wavename, SDL_arraysize( wavename ), "mp_data/sound%d", cnt );
         ptmp = sound_load_chunk( wavename );
 
         // only overwrite with a valid sound file

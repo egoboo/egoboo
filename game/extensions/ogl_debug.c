@@ -30,22 +30,22 @@
 #include <assert.h>
 #include <memory.h>
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define LOCAL_STDERR ((NULL == _ogl_debug_stderr) ? stderr : _ogl_debug_stderr)
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 FILE * _ogl_debug_stderr = NULL;
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 char * next_cmd = NULL;
 int    next_line = -1;
 char * next_file = "BAD FILE";
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void handle_gl_error()
 {
     GLint err = glGetError();
@@ -56,13 +56,13 @@ void handle_gl_error()
     }
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void print_gl_command()
 {
     fprintf( LOCAL_STDERR, "%s (\"%s\" - %d)\n", next_cmd, next_file, next_line );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_texture_state( GLenum target, GLint level, gl_texture_t * pi )
 {
     GLint itmp;
@@ -103,7 +103,7 @@ void gl_grab_texture_state( GLenum target, GLint level, gl_texture_t * pi )
     GL_DEBUG( glGetTexLevelParameteriv )( target, level, GL_TEXTURE_BORDER,          &pi->border );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_unpacking_state( gl_packing_t * pp )
 {
     GL_DEBUG( glGetBooleanv )( GL_UNPACK_SWAP_BYTES,  pp->swap_bytes );
@@ -114,7 +114,7 @@ void gl_grab_unpacking_state( gl_packing_t * pp )
     GL_DEBUG( glGetIntegerv )( GL_UNPACK_ALIGNMENT,   pp->alignment );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_packing_state( gl_packing_t * pp )
 {
     GL_DEBUG( glGetBooleanv )( GL_PACK_SWAP_BYTES,  pp->swap_bytes );
@@ -125,7 +125,7 @@ void gl_grab_packing_state( gl_packing_t * pp )
     GL_DEBUG( glGetIntegerv )( GL_PACK_ALIGNMENT,   pp->alignment );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_blend_state( gl_blend_t * pb )
 {
     pb->enabled = GL_DEBUG( glIsEnabled )( GL_BLEND );
@@ -168,7 +168,7 @@ void gl_grab_blend_state( gl_blend_t * pb )
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_alpha_state( gl_alpha_t * pa )
 {
     pa->test_enabled = GL_DEBUG( glIsEnabled )( GL_ALPHA_TEST );
@@ -196,7 +196,7 @@ void gl_grab_alpha_state( gl_alpha_t * pa )
     GL_DEBUG( glGetFloatv )( GL_ALPHA_BIAS,  pa->bias );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_stencil_state( gl_stencil_t * ps )
 {
     ps->test_enabled = GL_DEBUG( glIsEnabled )( GL_STENCIL_TEST );
@@ -262,14 +262,14 @@ void gl_grab_stencil_state( gl_stencil_t * ps )
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_clip_plane_state( gl_clip_plane_t * ps, GLint which )
 {
     ps->enabled = GL_DEBUG( glIsEnabled )( GL_CLIP_PLANE0 + which );
     GL_DEBUG( glGetClipPlane )( GL_CLIP_PLANE0 + which, ps->coeffs );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_depth_state( gl_depth_t * pd )
 {
     pd->test_enabled = GL_DEBUG( glIsEnabled )( GL_DEPTH_TEST );
@@ -298,7 +298,7 @@ void gl_grab_depth_state( gl_depth_t * pd )
     GL_DEBUG( glGetFloatv )( GL_DEPTH_BIAS,  pd->bias );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_texture_gen_state( gl_texture_gen_t * pt, GLenum coord )
 {
     GL_DEBUG( glGetTexGenfv )( coord, GL_EYE_PLANE, pt->eye_plane );
@@ -307,7 +307,7 @@ void gl_grab_texture_gen_state( gl_texture_gen_t * pt, GLenum coord )
     GL_DEBUG( glGetTexGeniv )( coord, GL_TEXTURE_GEN_MODE, pt->mode );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_matrix_state( gl_matrix_t * pm )
 {
     GL_DEBUG( glGetIntegerv )( GL_MODELVIEW_STACK_DEPTH, pm->modelview_stack_depth );
@@ -329,21 +329,21 @@ void gl_grab_matrix_state( gl_matrix_t * pm )
     };
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_attrib_state( gl_attrib_t * pa )
 {
     GL_DEBUG( glGetIntegerv )( GL_CLIENT_ATTRIB_STACK_DEPTH, pa->client_stack_depth );
     GL_DEBUG( glGetIntegerv )( GL_ATTRIB_STACK_DEPTH, pa->stack_depth );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_mapping_state( gl_mapping_t * pm )
 {
     GL_DEBUG( glGetBooleanv )( GL_MAP_COLOR, pm->map_color );
     GL_DEBUG( glGetBooleanv )( GL_MAP_STENCIL, pm->map_stencil );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_state( ogl_state_t * ps )
 {
     ogl_state_t      tmp_state;
@@ -402,7 +402,7 @@ void gl_grab_state( ogl_state_t * ps )
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * ps2 )
 {
     // compare the entire state
@@ -422,7 +422,7 @@ void gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * p
     pcomp->logic_op  = ( 0 != memcmp( &ps1->logic_op,  &ps2->logic_op,      sizeof( gl_logic_op_t ) ) );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_render_options_state( gl_render_options_t * po )
 {
     gl_grab_blend_state( &po->blend );
@@ -556,7 +556,7 @@ void gl_grab_render_options_state( gl_render_options_t * po )
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_clipping_state( gl_clipping_t * ps )
 {
     ps->scissor.test_enabled = GL_DEBUG( glIsEnabled )( GL_SCISSOR_TEST );
@@ -591,7 +591,7 @@ void gl_grab_clipping_state( gl_clipping_t * ps )
     }
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_texturing_state( gl_texturing_t * pt )
 {
     // texture environment
@@ -636,7 +636,7 @@ void gl_grab_texturing_state( gl_texturing_t * pt )
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_logic_op_state( gl_logic_op_t * pl )
 {
     pl->index_enabled = GL_DEBUG( glIsEnabled )( GL_INDEX_LOGIC_OP );
@@ -670,7 +670,7 @@ void gl_grab_logic_op_state( gl_logic_op_t * pl )
 
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gl_grab_buffer_state( gl_buffer_t * pb )
 {
     gl_grab_depth_state( &pb->depth );
@@ -700,8 +700,8 @@ void gl_grab_buffer_state( gl_buffer_t * pb )
     GL_DEBUG( glGetFloatv )( GL_BLUE_BIAS,  pb->blue_bias );
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 FILE * set_ogl_debug_stderr( FILE * pfile )
 {
     FILE * pfile_old = _ogl_debug_stderr;

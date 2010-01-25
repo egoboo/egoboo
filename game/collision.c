@@ -109,7 +109,7 @@ static bool_t bump_all_collisions( CoNode_ary_t * pcn_ary );
 static bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b );
 static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
 static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
-static bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b );
+static bool_t do_chr_chr_collision( CoNode_t * d );
 
 static bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
@@ -117,7 +117,7 @@ static bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_c
 static bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
-static bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b );
+static bool_t do_chr_prt_collision( CoNode_t * d );
 
 IMPLEMENT_ARY( CoNode_ary,   CoNode_t )
 
@@ -1337,55 +1337,54 @@ bool_t bump_all_mounts( CoNode_ary_t * pcn_ary )
     return btrue;
 }
 
-//-------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 {
     /// @details BB@> Detect all character-character and character-particle collsions (with exclusions
     ///               for the mounts and platforms found in the previous steps)
 
     int        cnt;
-    CoNode_t * d;
 
     // blank the accumulators
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
-        ChrList.lst[cnt].phys.apos_0.x = 0.0f;
-        ChrList.lst[cnt].phys.apos_0.y = 0.0f;
-        ChrList.lst[cnt].phys.apos_0.z = 0.0f;
+        pchr->phys.apos_0.x = 0.0f;
+        pchr->phys.apos_0.y = 0.0f;
+        pchr->phys.apos_0.z = 0.0f;
 
-        ChrList.lst[cnt].phys.apos_1.x = 0.0f;
-        ChrList.lst[cnt].phys.apos_1.y = 0.0f;
-        ChrList.lst[cnt].phys.apos_1.z = 0.0f;
+        pchr->phys.apos_1.x = 0.0f;
+        pchr->phys.apos_1.y = 0.0f;
+        pchr->phys.apos_1.z = 0.0f;
 
-        ChrList.lst[cnt].phys.avel.x = 0.0f;
-        ChrList.lst[cnt].phys.avel.y = 0.0f;
-        ChrList.lst[cnt].phys.avel.z = 0.0f;
+        pchr->phys.avel.x = 0.0f;
+        pchr->phys.avel.y = 0.0f;
+        pchr->phys.avel.z = 0.0f;
     }
+    CHR_END_LOOP();
 
     // do all interactions
     for ( cnt = 0; cnt < pcn_ary->top; cnt++ )
     {
-        d = pcn_ary->ary + cnt;
+        bool_t handled = bfalse;
 
-        if ( TOTAL_MAX_PRT == d->prtb )
+        // use this form of the function call so that we could add more modules or
+        // rearrange them without needing to change anything
+        if( !handled )
         {
-            do_chr_chr_collision( d->chra, d->chrb );
+            handled = do_chr_chr_collision( pcn_ary->ary + cnt );
         }
-        else if ( MAX_CHR == d->chrb )
+
+        if( !handled )
         {
-            do_chr_prt_collision( d->chra, d->prtb );
+            handled = do_chr_prt_collision( pcn_ary->ary + cnt );
         }
     }
 
     // accumulate the accumulators
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
         float tmpx, tmpy, tmpz;
-        chr_t * pchr;
         float bump_str;
-
-        if ( !ACTIVE_CHR( cnt ) ) continue;
-        pchr = ChrList.lst + cnt;
 
         bump_str = 1.0f;
         if ( ACTIVE_CHR( pchr->attachedto ) )
@@ -1466,6 +1465,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         pchr->safe_valid = !chr_test_wall( pchr );
         if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
     }
+    CHR_END_LOOP();
 
     return btrue;
 }
@@ -1732,8 +1732,9 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
+bool_t do_chr_chr_collision( CoNode_t * d )
 {
+    CHR_REF ichr_a, ichr_b;
     chr_t * pchr_a, * pchr_b;
     cap_t * pcap_a, * pcap_b;
 
@@ -1745,6 +1746,10 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
     oct_vec_t opos_a, opos_b, odepth, odepth_old;
     bool_t    collision = bfalse, bump = bfalse;
+
+    if( NULL == d || TOTAL_MAX_PRT != d->prtb ) return bfalse;
+    ichr_a = d->chra;
+    ichr_b = d->chrb;
 
     // make sure that it is on
     if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
@@ -2704,7 +2709,7 @@ bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
+bool_t do_chr_prt_collision( CoNode_t * d )
 {
     /// @details BB@> this funciton goes through all of the steps to handle character-particle
     ///               interactions. A basic interaction has been detected. This needs to be refined
@@ -2716,6 +2721,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     bool_t retval = bfalse;
 
+    CHR_REF ichr_a;
+    PRT_REF iprt_b;
+
     chr_t * pchr_a;
     prt_t * pprt_b;
 
@@ -2725,6 +2733,10 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     bool_t plat_collision, full_collision;
 
     chr_prt_collsion_data_t cn_lst;
+
+    if( NULL == d || MAX_CHR != d->chrb ) return bfalse;
+    ichr_a = d->chra;
+    iprt_b = d->prtb;
 
     // make sure that it is on
     if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;

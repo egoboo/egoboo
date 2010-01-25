@@ -130,7 +130,7 @@ const char *fs_getConfigDirectory()
     return win32_configPath;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int fs_fileIsDirectory( const char *filename )
 {
     // Returns 1 if this filename is a directory
@@ -154,7 +154,7 @@ int fs_removeDirectory( const char *dirname )
     return ( RemoveDirectory( dirname ) != 0 );
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void fs_deleteFile( const char *filename )
 {
     /// @details ZZ@> This function deletes a file
@@ -169,9 +169,9 @@ bool_t fs_copyFile( const char *source, const char *dest )
     return ( TRUE == CopyFile( source, dest, bfalse ) );
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Directory Functions--------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_win32_find_context
 {
     WIN32_FIND_DATA wfdData;
@@ -179,7 +179,7 @@ struct s_win32_find_context
 };
 typedef struct s_win32_find_context win32_find_context_t;
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Read the first directory entry
 const char *fs_findFirstFile( const char *searchDir, const char *searchExtension, fs_find_context_t * fs_search )
 {
@@ -220,7 +220,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     return pcnt->wfdData.cFileName;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Read the next directory entry (NULL if done)
 const char *fs_findNextFile( fs_find_context_t * fs_search )
 {
@@ -243,7 +243,7 @@ const char *fs_findNextFile( fs_find_context_t * fs_search )
     return pcnt->wfdData.cFileName;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Close anything left open
 void fs_findClose( fs_find_context_t * fs_search )
 {

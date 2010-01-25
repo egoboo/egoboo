@@ -969,7 +969,7 @@ void init_all_mad()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void release_all_mad()
 {
     int cnt;
@@ -980,7 +980,7 @@ void release_all_mad()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t release_one_mad( MAD_REF imad )
 {
     mad_t * pmad;
@@ -1088,7 +1088,7 @@ int randomize_action( int action, int slot )
 //    return bfalse;
 //}
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 //void md2_fix_normals( MAD_REF imad )
 //{
 //    /// @details ZZ@> This function helps light not flicker so much
@@ -1149,7 +1149,7 @@ int randomize_action( int action, int slot )
 //    }
 //}
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 //void md2_get_transvertices( MAD_REF imad )
 //{
 //    /// @details ZZ@> This function gets the number of vertices to transform for a model...
@@ -1166,7 +1166,7 @@ int randomize_action( int action, int slot )
 //    MadList[imad].transvertices = ego_md2_data[MadList[imad].md2_ref].vertex_lst;
 //}
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /*int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
 {
     /// @details ZZ@> This function returns 1 if the model vertex is connected, 0 otherwise

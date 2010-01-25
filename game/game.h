@@ -377,3 +377,6 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration );
 egoboo_rv move_water( water_instance_t * pwater );
 
 void    disenchant_character( Uint16 cnt );
+
+// manage the game's vfs mount points
+bool_t game_setup_vfs( const char * modname );

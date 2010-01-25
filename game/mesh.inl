@@ -137,7 +137,7 @@ INLINE Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int grid_x,  int grid_y )
     return grid_x + pmesh->gmem.tilestart[grid_y];
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
 {
     Uint32 old_flags;
@@ -158,7 +158,7 @@ INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     return 0 != ( old_flags & flags );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
 {
     Uint32 old_flags;
@@ -179,7 +179,7 @@ INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     return 0 != ( old_flags & flags );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
 {
     // test for mesh

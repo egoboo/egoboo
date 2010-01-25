@@ -93,7 +93,7 @@ void init_all_profiles()
     bookicon_count = 0;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void release_all_profiles()
 {
     /// @details ZZ@> This function clears out all of the model data
@@ -112,7 +112,7 @@ void release_all_profiles()
     ProList_init();
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void profile_system_begin()
 {
     /// @details BB@> initialize the profile list and load up some intialization files
@@ -148,7 +148,7 @@ void profile_system_begin()
     _profile_initialized = btrue;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void profile_system_end()
 {
     /// @details BB@> initialize the profile list and load up some intialization files

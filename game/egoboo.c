@@ -97,6 +97,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // initialize the virtual filesystem first
     vfs_init( eproc->argv0 );
+    egoboo_setup_vfs();
 
     // Initialize logging next, so that we can use it everywhere.
     vfs_mkdir( "/debug" );
@@ -312,6 +313,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
         console_end();
         ui_end();
         gfx_system_end();
+        egoboo_clear_vfs();
     }
 
     return eproc->base.terminated ? 0 : 1;
@@ -480,7 +482,7 @@ void memory_cleanUp( void )
     log_shutdown();
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int ego_init_SDL()
 {
     ego_init_SDL_base();
@@ -489,7 +491,7 @@ int ego_init_SDL()
     return _sdl_initialized_base;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ego_init_SDL_base()
 {
     if ( _sdl_initialized_base ) return;
@@ -624,3 +626,20 @@ ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
     return eproc;
 }
 
+//--------------------------------------------------------------------------------------------
+void egoboo_clear_vfs()
+{
+    /// @details BB@> clear out the basic mount points
+
+    vfs_remove_mount_point( "mp_data" );
+}
+
+//--------------------------------------------------------------------------------------------
+void egoboo_setup_vfs()
+{
+    /// @details BB@> set the basic mount points used by the main program
+
+    // mount all of the default global data directories
+    vfs_add_mount_point( "basicdat",                 "mp_data", 0 );
+    vfs_add_mount_point( "basicdat/globalparticles", "mp_data", 1 );
+}

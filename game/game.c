@@ -207,6 +207,9 @@ static void   do_game_hud();
 static void object_systems_begin( void );
 static void object_systems_end( void );
 
+// manage the game's vfs mount points
+static void   game_clear_vfs();
+
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -357,7 +360,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     }
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void export_all_players( bool_t require_local )
 {
     /// @details ZZ@> This function saves all the local players in the
@@ -568,7 +571,7 @@ void activate_alliance_file( /*const char *modname*/ )
     vfs_FILE *fileread;
 
     // Load the file
-    fileread = vfs_openRead( "data/alliance.txt" );
+    fileread = vfs_openRead( "mp_data/alliance.txt" );
     if ( fileread )
     {
         while ( goto_colon( NULL, fileread, btrue ) )
@@ -2452,7 +2455,7 @@ void show_magic_status( Uint16 statindex )
     debug_printf( "~Flying: %s~~Missile Protection: %s", ( pchr->flyheight > 0 ) ? "Yes" : "No", missile_str );
 }
 
-//-------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void tilt_characters_to_terrain()
 {
@@ -2689,9 +2692,9 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     // do the loading
     if ( CSTR_END != psp_info->spawn_coment[0] )
     {
-        // we are relying on the firtual mount point "/objects", so use
+        // we are relying on the virtual mount point "mp_objects", so use
         // the vfs/PHYSFS file naming conventions
-        snprintf( filename, SDL_arraysize( filename ), "objects/%s", psp_info->spawn_coment );
+        snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info->spawn_coment );
 
         psp_info->slot = load_one_profile( filename, psp_info->slot );
     }
@@ -2821,7 +2824,7 @@ void activate_spawn_file()
     spawn_file_info_t sp_info;
 
     // Turn some back on
-    newloadname = "data/spawn.txt";
+    newloadname = "mp_data/spawn.txt";
     fileread = vfs_openRead( newloadname );
 
     PlaList_count = 0;
@@ -2929,7 +2932,7 @@ void game_load_global_assets()
     }
     load_blips();
     load_bars();
-    font_bmp_load( "data/font", "data/font.txt" );
+    font_bmp_load( "mp_data/font", "mp_data/font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2985,7 +2988,7 @@ bool_t game_load_module_data( const char *smallname )
 
     log_info( "Loading module \"%s\"\n", smallname );
 
-    if ( load_ai_script( "data/script.txt" ) < 0 )
+    if ( load_ai_script( "mp_data/script.txt" ) < 0 )
     {
         log_warning( "game_load_module_data() - cannot load the default script\n" );
         goto game_load_module_data_fail;
@@ -3127,11 +3130,26 @@ void game_quit_module()
     // finish whatever in-game song is playing
     sound_finish_sound();
 
-    // remove "/objects" as a virtual mounting point
-    vfs_remove_mount_point( "objects" );
+    // remove the module-dependent mount points from the vfs
+    game_clear_vfs();
 }
 
-//-----------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void game_clear_vfs()
+{
+    /// @details BB@> clear out the all mount points
+
+    // clear out the basic mount points
+    egoboo_clear_vfs();
+
+    // clear out the module's mount points
+    vfs_remove_mount_point( "mp_objects" );
+
+    // set up the basic mount points again
+    egoboo_setup_vfs();
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t game_setup_vfs( const char * modname )
 {
     /// @details BB@> set up the virtual mount points for the module's data
@@ -3141,36 +3159,35 @@ bool_t game_setup_vfs( const char * modname )
 
     if ( INVALID_CSTR( modname ) ) return bfalse;
 
-    // set the mount point for the module's objects
-    vfs_remove_mount_point( "objects" );
+    // revert to the program's basic mount points
+    game_clear_vfs();
+
+    // set the module-dependent mount points
     snprintf( tmpDir, sizeof( tmpDir ), "%s" SLASH_STR "objects", modname );
-    vfs_add_mount_point( tmpDir, "objects", 0 );
+    vfs_add_mount_point( tmpDir, "mp_objects", 0 );
 
     // mount all of the default global objects directories
-    vfs_add_mount_point( "basicdat/globalobjects/items",            "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/magic",            "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/magic_item" ,      "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/misc",             "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/monsters",         "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/players",          "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/potions",          "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/unique",           "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/weapons",          "objects", 1 );
-    vfs_add_mount_point( "basicdat/globalobjects/work_in_progress", "objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/items",            "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/magic",            "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/magic_item" ,      "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/misc",             "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/monsters",         "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/players",          "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/potions",          "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/unique",           "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/weapons",          "mp_objects", 1 );
+    vfs_add_mount_point( "basicdat/globalobjects/work_in_progress", "mp_objects", 1 );
 
-    // set the mount point for the module's data
-    vfs_remove_mount_point( "data" );
+    // mount the module's gamedat directory
     snprintf( tmpDir, sizeof( tmpDir ), "%s" SLASH_STR "gamedat", modname );
-    vfs_add_mount_point( tmpDir, "data", 0 );
 
-    // mount all of the default global data directories
-    vfs_add_mount_point( "basicdat",                 "data", 1 );
-    vfs_add_mount_point( "basicdat/globalparticles", "data", 1 );
+    // put the module's gamedat dir at the beginning of the mount point list
+    vfs_add_mount_point( tmpDir, "mp_data", 0 );
 
     return btrue;
 }
 
-//-----------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     /// @details BB@> all of the initialization code before the module actually starts
@@ -3223,7 +3240,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     return btrue;
 }
 
-//-----------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t game_update_imports()
 {
     /// @details BB@> This function saves all the players to the players dir
@@ -3521,7 +3538,7 @@ camera_t * set_PCamera( camera_t * pcam )
     return pcam_old;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
     /// @details ZZ@> This function returns the height of a point within a mesh fan, precise
@@ -3919,11 +3936,21 @@ void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char
 //--------------------------------------------------------------------------------------------
 bool_t game_choose_module( int imod, int seed )
 {
+    bool_t retval;
+
     if ( seed < 0 ) seed = time( NULL );
 
     if ( NULL == PMod ) PMod = &gmod;
 
-    return game_module_setup( PMod, mnu_ModList_get_base( imod ), mnu_ModList_get_name( imod ), seed );
+    retval = game_module_setup( PMod, mnu_ModList_get_base( imod ), mnu_ModList_get_name( imod ), seed );
+
+    if( retval )
+    {
+        // give everyone virtual access to the game directories
+        game_setup_vfs( pickedmodule_name );
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3953,7 +3980,7 @@ game_process_t * game_process_init( game_process_t * gproc )
     return gproc;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
 Uint8 onlyfriends, Uint8 anyone, Uint8 team,
@@ -4629,7 +4656,7 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
 
     // if( INVALID_CSTR(modname) ) return NULL;
 
-    pdata = read_wawalite_file( "data/wawalite.txt", NULL );
+    pdata = read_wawalite_file( "mp_data/wawalite.txt", NULL );
     if ( NULL == pdata ) return NULL;
 
     memcpy( &wawalite_data, pdata, sizeof( wawalite_data_t ) );

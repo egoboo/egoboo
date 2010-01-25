@@ -498,8 +498,8 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
 
         // load a raw mpd
         mpd_ctor( &local_mpd );
-        tile_dictionary_load( "data/fans.txt", tile_dict, MAXMESHTYPE );
-        pmpd = mpd_load( vfs_resolveReadFilename( "data/level.mpd" ), &local_mpd );
+        tile_dictionary_load( "mp_data/fans.txt", tile_dict, MAXMESHTYPE );
+        pmpd = mpd_load( vfs_resolveReadFilename( "mp_data/level.mpd" ), &local_mpd );
 
         // convert it into a convenient version for egoboo
         if ( !mesh_convert( pmesh, pmpd ) )
@@ -787,7 +787,7 @@ void mesh_make_twist()
     }
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
 {
     size_t vrtstart;
@@ -813,7 +813,7 @@ Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
     return cartman_get_twist( zx, zy );
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 {
     /// @details BB@> set the bounding box for each tile, and for the entire mesh
@@ -879,7 +879,7 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
     return btrue;
 }
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t mesh_make_normals( ego_mpd_t * pmesh )
 {
     /// @details BB@> this function calculates a set of normals for the 4 corners

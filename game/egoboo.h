@@ -215,4 +215,9 @@ void ego_init_SDL_base();
 
 EXTERN bool_t screenshot_requested EQ( bfalse );
 
+
+void egoboo_clear_vfs();
+void egoboo_setup_vfs();
+
+
 #define  _EGOBOO_H_

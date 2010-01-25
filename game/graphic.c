@@ -350,9 +350,9 @@ int _draw_string_raw( int x, int y, const char *format, ... )
     return y;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // MODULE INITIALIZATION
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gfx_system_begin()
 {
     // set the graphics state
@@ -390,7 +390,7 @@ void gfx_system_begin()
     stabilized_fps_weight = 0.1f;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gfx_system_end()
 {
     // initialize the profiling variables
@@ -419,7 +419,7 @@ void gfx_system_end()
     TxTexture_release_all();
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int ogl_init()
 {
     gfx_init_SDL_graphics();
@@ -467,7 +467,7 @@ int ogl_init()
     return _ogl_initialized && _sdl_initialized_graphics;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void gfx_init_SDL_graphics()
 {
     if ( _sdl_initialized_graphics ) return;
@@ -551,7 +551,7 @@ void gfx_init_SDL_graphics()
 
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
 {
     float kx, ky;
@@ -3036,7 +3036,7 @@ void clear_messages()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 float calc_light_rotation( int rotation, int normal )
 {
     /// @details ZZ@> This function helps make_lighttable
@@ -3057,7 +3057,7 @@ float calc_light_rotation( int rotation, int normal )
     return ( nrm2.x < 0 ) ? 0 : ( nrm2.x * nrm2.x );
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 float calc_light_global( int rotation, int normal, float lx, float ly, float lz )
 {
     /// @details ZZ@> This function helps make_lighttable
@@ -4397,9 +4397,9 @@ int DisplayMsg_get_free()
     return tnc;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // ASSET INITIALIZATION
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void init_icon_data()
 {
     /// @details ZZ@> This function sets the icon pointers to NULL
@@ -4410,7 +4410,7 @@ void init_icon_data()
     iconrect.bottom = 32;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void init_bar_data()
 {
     Uint8 cnt;
@@ -4431,7 +4431,7 @@ void init_bar_data()
     }
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void init_blip_data()
 {
     int cnt;
@@ -4449,7 +4449,7 @@ void init_blip_data()
     numblip      = 0;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void init_map_data()
 {
     /// @details ZZ@> This function releases all the map images
@@ -4464,7 +4464,7 @@ void init_map_data()
     mapon    = bfalse;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void init_all_graphics()
 {
     init_icon_data();
@@ -4501,7 +4501,7 @@ void init_all_graphics()
     stabilized_fps_weight = 0.0f;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void release_all_graphics()
 {
     init_icon_data();
@@ -4549,24 +4549,24 @@ void load_basic_textures( /* const char *modname */ )
     /// @details ZZ@> This function loads the standard textures for a module
 
     // Particle sprites
-    TxTexture_load_one( "data/particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
     prt_set_texture_params( TX_PARTICLE_TRANS );
 
-    TxTexture_load_one( "data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
+    TxTexture_load_one( "mp_data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
     prt_set_texture_params( TX_PARTICLE_LIGHT );
 
     // Module background tiles
-    TxTexture_load_one( "data/tile0", TX_TILE_0, TRANSCOLOR );
-    TxTexture_load_one( "data/tile1", TX_TILE_1, TRANSCOLOR );
-    TxTexture_load_one( "data/tile2", TX_TILE_2, TRANSCOLOR );
-    TxTexture_load_one( "data/tile3", TX_TILE_3, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile0", TX_TILE_0, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile1", TX_TILE_1, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile2", TX_TILE_2, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile3", TX_TILE_3, TRANSCOLOR );
 
     // Water textures
-    TxTexture_load_one( "data/watertop", TX_WATER_TOP, TRANSCOLOR );
-    TxTexture_load_one( "data/waterlow", TX_WATER_LOW, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/watertop", TX_WATER_TOP, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/waterlow", TX_WATER_LOW, TRANSCOLOR );
 
     // Texture 7 is the phong map
-    TxTexture_load_one( "data/phong", TX_PHONG, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/phong", TX_PHONG, TRANSCOLOR );
 
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
@@ -4600,13 +4600,13 @@ void load_bars()
 
     const char * pname;
 
-    pname = "data/bars";
+    pname = "mp_data/bars";
     if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_BARS, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 
-    pname = "data/xpbar";
+    pname = "mp_data/xpbar";
     if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_XP_BAR, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
@@ -4627,7 +4627,7 @@ void load_map( /* const char* szModule */ )
     numblip = 0;
 
     // Load the images
-    szMap = "data/plan";
+    szMap = "mp_data/plan";
     if ( INVALID_TEXTURE == TxTexture_load_one( szMap, TX_MAP, INVALID_KEY ) )
     {
         log_warning( "load_map() - Cannot load file! (\"%s\")\n", szMap );
@@ -4643,7 +4643,7 @@ void load_map( /* const char* szModule */ )
 bool_t load_blips()
 {
     /// ZZ@> This function loads the blip bitmaps
-    if ( INVALID_TEXTURE == TxTexture_load_one( "data/blip", TX_BLIP, INVALID_KEY ) )
+    if ( INVALID_TEXTURE == TxTexture_load_one( "mp_data/blip", TX_BLIP, INVALID_KEY ) )
     {
         log_warning( "Blip bitmap not loaded! (\"%s\")\n", "basicdat" SLASH_STR "blip" );
         return bfalse;
@@ -4652,7 +4652,7 @@ bool_t load_blips()
     return btrue;
 }
 
-//---------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void load_graphics()
 {
     /// @details ZF@> This function loads all the graphics based on the game settings

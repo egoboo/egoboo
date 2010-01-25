@@ -234,7 +234,7 @@ void TxTitleImage_clear_data()
     TxTitleImage_count = 0;
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void TxTitleImage_ctor()
 {
     /// @details ZZ@> This function clears out all of the textures
@@ -249,7 +249,7 @@ void TxTitleImage_ctor()
     TxTitleImage_clear_data();
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void TxTitleImage_release_one( int index )
 {
     if ( index < 0 || index >= MAX_MODULE ) return;
@@ -257,7 +257,7 @@ void TxTitleImage_release_one( int index )
     oglx_texture_Release( TxTitleImage + index );
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void TxTitleImage_release_all()
 {
     /// @details ZZ@> This function releases all of the textures
@@ -272,7 +272,7 @@ void TxTitleImage_release_all()
     TxTitleImage_clear_data();
 }
 
-//---------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void TxTitleImage_dtor()
 {
     /// @details ZZ@> This function clears out all of the textures
@@ -4647,9 +4647,8 @@ void load_global_game_hints()
     mnu_GameTip.count = 0;
 
     // Open the file with all the tips
-    snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "menu" SLASH_STR "gametips.txt" );
-    fileread = vfs_openRead( loadpath );
-    if ( fileread == NULL )
+    fileread = vfs_openRead( "mp_data/gametips.txt" );
+    if ( NULL == fileread )
     {
         log_warning( "Could not load the game tips and hints. (%s)\n", loadpath );
         return;
@@ -4691,9 +4690,8 @@ bool_t load_local_game_hints()
     mnu_GameTip.local_count = 0;
 
     // Open all the tips
-	snprintf( loadpath, SDL_arraysize( loadpath ), "%s" SLASH_STR "gamedat" SLASH_STR "gametips.txt", mnu_ModList.lst[selectedModule].name );
-    fileread = vfs_openRead( loadpath );
-    if ( fileread == NULL )	return bfalse;
+    fileread = vfs_openRead( "mp_data/gametips.txt" );
+    if ( NULL == fileread )	return bfalse;
 
     // Load the data
     for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
