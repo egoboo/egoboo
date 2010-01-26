@@ -38,8 +38,7 @@ struct s_mpd_BSP;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-typedef Uint16 PRO_REF;
+DECLARE_REF( PRO_REF );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -105,12 +104,12 @@ struct s_object_profile
     EGO_PROFILE_STUFF;
 
     // the sub-profiles
-    Uint16  iai;                              ///< the AI  for this profile
-    Uint16  icap;                             ///< the cap for this profile
-    Uint16  imad;                             ///< the mad for this profile
-    Uint16  ieve;                             ///< the eve for this profile
+    REF_T   iai;                              ///< the AI  for this profile
+    REF_T   icap;                             ///< the cap for this profile
+    REF_T   imad;                             ///< the mad for this profile
+    REF_T   ieve;                             ///< the eve for this profile
 
-    Uint16  prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
+    REF_T   prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 
     // the profile skins
     size_t  skins;                            ///< Number of skins
@@ -142,7 +141,7 @@ bool_t       pro_load_chop( PRO_REF profile_ref, const char *szLoadname );
 
 void    ProList_init();
 //void    ProList_free_all();
-PRO_REF ProList_get_free( PRO_REF override_ref );
+size_t  ProList_get_free( PRO_REF override_ref );
 bool_t  ProList_free_one( PRO_REF object_ref );
 
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
@@ -178,8 +177,8 @@ extern obj_BSP_t obj_BSP_root;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern Uint16  bookicon_count;
-extern Uint16  bookicon_ref[MAX_SKIN];                      ///< The first book icon
+extern size_t  bookicon_count;
+extern REF_T   bookicon_ref[MAX_SKIN];                      ///< The first book icon
 
 extern pro_import_t import_data;
 extern chop_data_t chop_mem;
@@ -207,7 +206,7 @@ void   release_all_local_pips();
 bool_t release_one_pro( PRO_REF object_ref );
 bool_t release_one_local_pips( PRO_REF object_ref );
 
-PRO_REF load_one_profile( const char* tmploadname, int slot_override );
+int load_one_profile( const char* tmploadname, int slot_override );
 
 void reset_messages();
 

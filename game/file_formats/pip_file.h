@@ -124,7 +124,7 @@ struct s_pip
     Uint8   numframes;                    ///< Number of frames
     Uint8   image_base;                    ///< Starting image
     IPair   image_add;                     ///< Frame rate
-    Uint16  time;                         ///< Time until end
+    int     time;                         ///< Time until end
     IPair   rotate_pair;                  ///< Rotation
     Sint16  rotate_add;                    ///< Rotation rate
     Uint16  size_base;                    ///< Size
@@ -164,14 +164,14 @@ struct s_pip
     Uint16  contspawn_time;               ///< Spawn timer
     Uint8   contspawn_amount;             ///< Spawn amount
     Uint16  contspawn_facingadd;          ///< Spawn in circle
-    Uint16  contspawn_pip;                ///< Spawn type ( local )
+    REF_T   contspawn_pip;                ///< Spawn type ( local )
 
     // damage
     FRange  damage;                       ///< Damage
     Uint8   damagetype;                   ///< Damage type
-    Uint16  dazetime;                     ///< Daze
-    Uint16  grogtime;                     ///< Drunkeness
-    Uint16  damfx;                        ///< Damage effects
+    int     dazetime;                     ///< Daze
+    int     grogtime;                     ///< Drunkeness
+    Uint32  damfx;                        ///< Damage effects
     bool_t  intdamagebonus;               ///< Add intelligence as damage bonus
     bool_t  wisdamagebonus;               ///< Add wisdom as damage bonus
     bool_t  spawnenchant;                 ///< Spawn enchant?
@@ -181,13 +181,13 @@ struct s_pip
     bool_t  causepancake;                 ///< @todo Not implemented!!
 
     // homing
-    bool_t  homing;                       ///< Homing?
-    Uint16  targetangle;                  ///< To find target
-    float   homingaccel;                  ///< Acceleration rate
-    float   homingfriction;               ///< Deceleration rate
-    int     zaimspd;                      ///< [ZSPD] For Z aiming
-    bool_t  rotatetoface;                 ///< Arrows/Missiles
-    bool_t  targetcaster;                 ///< Target caster?
+    bool_t   homing;                       ///< Homing?
+    FACING_T targetangle;                  ///< To find target
+    float    homingaccel;                  ///< Acceleration rate
+    float    homingfriction;               ///< Deceleration rate
+    int      zaimspd;                      ///< [ZSPD] For Z aiming
+    bool_t   rotatetoface;                 ///< Arrows/Missiles
+    bool_t   targetcaster;                 ///< Target caster?
 
     // physics
     float   spdlimit;                     ///< Speed limit

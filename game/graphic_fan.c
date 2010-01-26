@@ -36,7 +36,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t           meshnotexture   = bfalse;
-Uint16           meshlasttexture = ( Uint16 )( ~0 );
+Uint32           meshlasttexture = ( Uint32 )( ~0 );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -200,7 +200,8 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     /// @details ZZ@> This function draws a mesh itile
     GLvertex v[4];
 
-    int cnt, vertex, badvertex;
+    int cnt, vertex;
+    size_t badvertex;
     int ix, iy, ix_off[4] = {0, 1, 1, 0}, iy_off[4] = {0, 0, 1, 1};
     Uint16 tile;
     Uint8  type, twist;
@@ -281,7 +282,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
 
     GLvertex v[4];
 
-    int    cnt, tnc, badvertex;
+    int    cnt, tnc;
+    size_t badvertex;
     Uint16 type, commands, vertices, texture;
     Uint16 frame;
     float offu, offv;

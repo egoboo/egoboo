@@ -257,7 +257,7 @@ bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
     /// @details BB@> remove extra ambient light in the lightmap
 
     Uint32 cnt;
-    Uint16 min_vrt_a = 255;
+    UFP8_T min_vrt_a = 255;
 
     if ( NULL == pmesh ) return bfalse;
 
@@ -319,7 +319,7 @@ bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile )
+bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile )
 {
     size_t mesh_vrt;
     int    tile_vrt;

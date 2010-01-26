@@ -48,7 +48,7 @@ struct s_looped_sound_data
 {
     int         channel;
     Mix_Chunk * chunk;
-    Uint16      object;
+    CHR_REF     object;
 };
 typedef struct s_looped_sound_data looped_sound_data_t;
 
@@ -56,13 +56,13 @@ DEFINE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
 DECLARE_LIST( static, looped_sound_data_t, LoopedList );
 
-void   LoopedList_init();
-void   LoopedList_clear();
-bool_t LoopedList_free_one( int index );
-int    LoopedList_get_free();
+static void   LoopedList_init();
+static void   LoopedList_clear();
+static bool_t LoopedList_free_one( size_t index );
+static size_t LoopedList_get_free();
 
-bool_t LoopedList_validate();
-int    LoopedList_add( Mix_Chunk * sound, int loops, Uint16 object );
+static bool_t LoopedList_validate();
+static size_t LoopedList_add( Mix_Chunk * sound, int loops, REF_T object );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -556,7 +556,7 @@ bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( fvec3_t   pos, Mix_Chunk * pchunk, Sint8 loops, Uint16 owner )
+int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, REF_T owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
@@ -612,7 +612,7 @@ void sound_stop_channel( int whichchannel )
 //------------------------------------
 // Mix_Music stuff -------------------
 //------------------------------------
-void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
+void sound_play_song( int songnumber, Uint16 fadetime, int loops )
 {
     /// @details ZF@> This functions plays a specified track loaded into memory
     if ( !snd.musicvalid || !mixeron ) return;
@@ -885,7 +885,7 @@ bool_t LoopedList_validate()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t LoopedList_free_one( int index )
+bool_t LoopedList_free_one( size_t index )
 {
     /// @details BB@> free a looped sound only if it is actually being used
     Uint32 cnt;
@@ -902,7 +902,7 @@ bool_t LoopedList_free_one( int index )
     if ( cnt >= LoopedList.used_count ) return bfalse;
 
     // swap the value with the one on the top of the stack
-    SWAP( int, LoopedList.used_ref[cnt], LoopedList.used_ref[LoopedList.used_count-1] );
+    SWAP( size_t, LoopedList.used_ref[cnt], LoopedList.used_ref[LoopedList.used_count-1] );
     LoopedList.used_count--;
 
     // push the value onto the free stack
@@ -918,9 +918,9 @@ bool_t LoopedList_free_one( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-int LoopedList_get_free()
+size_t LoopedList_get_free()
 {
-    int index;
+    size_t index;
 
     if ( !LoopedList_validate() ) return bfalse;
 
@@ -958,19 +958,18 @@ void LoopedList_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-int LoopedList_add( Mix_Chunk * sound, int channel, Uint16 ichr )
+size_t LoopedList_add( Mix_Chunk * sound, int channel, REF_T ichr )
 {
     /// @details BB@> add a looped sound to the list
 
-    int index;
+    size_t index;
 
     if ( NULL == sound || INVALID_SOUND_CHANNEL == channel || !ACTIVE_CHR( ichr ) ) return LOOPED_COUNT;
 
-    if ( LoopedList.used_count >= LOOPED_COUNT ) return INVALID_SOUND_CHANNEL;
-    if ( !LoopedList_validate() ) return INVALID_SOUND_CHANNEL;
+    if ( LoopedList.used_count >= LOOPED_COUNT ) return LOOPED_COUNT;
+    if ( !LoopedList_validate() ) return LOOPED_COUNT;
 
     index = LoopedList_get_free();
-
     if ( index != LOOPED_COUNT )
     {
         // set up the LoopedList entry at the empty index
@@ -997,7 +996,7 @@ bool_t LoopedList_remove( int channel )
     retval = bfalse;
     for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
     {
-        int index = LoopedList.used_ref[cnt];
+        size_t index = LoopedList.used_ref[cnt];
 
         if ( channel == LoopedList.lst[index].channel )
         {
@@ -1030,7 +1029,7 @@ void looped_update_all_sound()
     for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
     {
         fvec3_t   diff;
-        int       index;
+        size_t    index;
         looped_sound_data_t * plooped;
 
         index = LoopedList.used_ref[cnt];
@@ -1058,7 +1057,7 @@ void looped_update_all_sound()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t looped_stop_object_sounds( Uint16 ichr )
+bool_t looped_stop_object_sounds( REF_T ichr )
 {
     /// @details BB@> free any looped sound(s) being made by a certain character
     int freed;
@@ -1078,7 +1077,7 @@ bool_t looped_stop_object_sounds( Uint16 ichr )
         found = bfalse;
         for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
         {
-            int index = LoopedList.used_ref[cnt];
+            size_t index = LoopedList.used_ref[cnt];
 
             if ( LoopedList.lst[index].object == ichr )
             {

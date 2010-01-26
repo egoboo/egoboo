@@ -57,7 +57,7 @@ static egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vma
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad_enviro( REF_T character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
@@ -239,7 +239,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad_tex( REF_T character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws a model
 
@@ -416,7 +416,7 @@ bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits )
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad( REF_T character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function picks the actual function to use
 
@@ -1406,7 +1406,7 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Uint16 imount )
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, REF_T imount )
 {
     /// @detaild BB@> all the code necessary to move on to the next frame of the animation
 
@@ -1458,7 +1458,7 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Ui
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, bool_t action_ready )
+egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t action_ready )
 {
     /// @details ZZ@> This function starts a generic action for a character
     mad_t * pmad;

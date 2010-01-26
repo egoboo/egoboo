@@ -45,9 +45,9 @@
 //--------------------------------------------------------------------------------------------
 
 static char * script_error_classname = "UNKNOWN";
-static Uint16 script_error_model     = ( Uint16 )( ~0 );
+static REF_T  script_error_model     = ( REF_T )( ~0 );
 static char * script_error_name      = "UNKNOWN";
-static Uint16 script_error_index     = ( Uint16 )( ~0 );
+static REF_T  script_error_index     = ( Uint16 )( ~0 );
 
 static bool_t scr_increment_exe( ai_state_t * pself );
 static bool_t scr_set_exe( ai_state_t * pself, size_t offset );
@@ -123,7 +123,7 @@ void scripting_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void scr_run_chr_script( Uint16 character )
+void scr_run_chr_script( REF_T character )
 {
     /// @details ZZ@> This function lets one character do AI stuff
 
@@ -1606,7 +1606,7 @@ bool_t ai_state_ensure_wp( ai_state_t * pself )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void set_alerts( Uint16 character )
+void set_alerts( REF_T character )
 {
     /// @details ZZ@> This function polls some alert conditions
 
@@ -1668,7 +1668,7 @@ void set_alerts( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_order( Uint16 character, Uint32 value )
+void issue_order( REF_T character, Uint32 value )
 {
     /// @details ZZ@> This function issues an value for help to all teammates
 

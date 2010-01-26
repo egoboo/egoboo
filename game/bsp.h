@@ -58,7 +58,7 @@ struct s_BSP_leaf
     struct s_BSP_leaf * next;
     int                 data_type;
     void              * data;
-    int                 index;
+    size_t              index;
 
     BSP_aabb_t          bbox;
 

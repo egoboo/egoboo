@@ -339,10 +339,6 @@
 			<Add directory="..\enet\include" />
 			<Add directory="..\game" />
 		</Compiler>
-		<Unit filename="Makefile">
-			<Option target="nix-gcc-debug" />
-			<Option target="nix-gcc-release" />
-		</Unit>
 		<Unit filename="bbox.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -359,6 +355,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="char.h" />
+		<Unit filename="char.inl" />
 		<Unit filename="client.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -397,6 +394,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="egoboo_math.h" />
+		<Unit filename="egoboo_math.inl" />
 		<Unit filename="egoboo_mem.h" />
 		<Unit filename="egoboo_object.h" />
 		<Unit filename="egoboo_platform.h" />
@@ -424,6 +422,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="enchant.h" />
+		<Unit filename="enchant.inl" />
 		<Unit filename="extensions\SDL_GL_extensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -520,6 +519,7 @@
 		<Unit filename="game.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="game.cbp" />
 		<Unit filename="game.h" />
 		<Unit filename="graphic.c">
 			<Option compilerVar="CC" />
@@ -578,6 +578,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="mesh.h" />
+		<Unit filename="mesh.inl" />
 		<Unit filename="network.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -586,6 +587,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="particle.h" />
+		<Unit filename="particle.inl" />
 		<Unit filename="passage.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -594,6 +596,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="physics.h" />
+		<Unit filename="physics.inl" />
 		<Unit filename="platform\file_linux.c">
 			<Option compilerVar="CC" />
 			<Option target="nix-gcc-debug" />
@@ -627,10 +630,15 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="profile.h" />
+		<Unit filename="profile.inl" />
 		<Unit filename="quest.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="quest.h" />
+		<Unit filename="rpc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="rpc.h" />
 		<Unit filename="script.c">
 			<Option compilerVar="CC" />
 		</Unit>

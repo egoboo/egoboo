@@ -44,7 +44,7 @@ static int    _rpc_system_guid;
 static void   TxReqList_ctor();
 static void   TxReqList_dtor();
 static bool_t TxReqList_timestep();
-static int    TxReqList_get_free( int type );
+static size_t TxReqList_get_free( int type );
 static bool_t TxReqList_free_one( int index );
 
 static int rpc_system_get_guid();
@@ -201,11 +201,11 @@ void TxReqList_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-int TxReqList_get_free( int type )
+size_t TxReqList_get_free( int type )
 {
     /// @details ZZ@> This function returns the next free index or MAX_TX_TEXTURE_REQ if there are none
 
-    int retval = MAX_TX_TEXTURE_REQ;
+    size_t retval = MAX_TX_TEXTURE_REQ;
 
     if ( TxReqList.free_count > 0 )
     {
@@ -318,7 +318,7 @@ tx_request_t * rpc_load_TxTexture( const char *filename, int itex_src, Uint32 ke
     /// @details BB@> request that the main thread loads the texture
 
     tx_request_t * preq;
-    int index;
+    size_t index;
 
     // find a free request for TxTexture (type 1)
     index = TxReqList_get_free( 1 );
@@ -339,7 +339,7 @@ tx_request_t * rpc_load_TxTitleImage( const char *filename )
     /// @details BB@> request that the main thread loads the texture
 
     tx_request_t * preq;
-    int index;
+    size_t index;
 
     // find a free request for TxTitleImage (type 2)
     index = TxReqList_get_free( 2 );

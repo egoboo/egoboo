@@ -56,6 +56,11 @@ typedef Sint32 SFP8_T;
 #define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )               ///< this may overflow if V1 or V2 have non-zero bits in their upper 8 bits
 #define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
 
+
+//--------------------------------------------------------------------------------------------
+// the type for the 16-bit value used to stor angles
+typedef Uint16 FACING_T;
+
 //--------------------------------------------------------------------------------------------
 // 16.16 fixed point types
 
@@ -70,8 +75,10 @@ typedef Sint32 SFP16_T;
 
 typedef Uint16 REF_T;
 
+#define DECLARE_REF( NAME ) typedef REF_T NAME;
+
 #ifdef __cplusplus
-#    define REF_TO_INT(X) ((Uint16)(X))
+#    define REF_TO_INT(X) ((REF_T)(X))
 #else
 #    define REF_TO_INT(X) (X)
 #endif
@@ -229,10 +236,10 @@ void latch_init( latch_t * platch );
 #define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
     struct s_list__##TYPE__##NAME           \
     {                                       \
-        Uint32 used_count;                  \
+        int    used_count;                  \
         int    free_count;                  \
-        int    used_ref[COUNT];             \
-        int    free_ref[COUNT];             \
+        size_t used_ref[COUNT];             \
+        size_t free_ref[COUNT];             \
         TYPE   lst[COUNT];                  \
     }
 

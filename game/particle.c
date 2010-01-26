@@ -44,7 +44,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint32 maxparticles = 512;                            // max number of particles
+PRT_REF maxparticles = 512;                            // max number of particles
 
 DECLARE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack );
 DECLARE_LIST( ACCESS_TYPE_NONE, prt_t, PrtList );
@@ -57,17 +57,17 @@ struct s_spawn_particle_info
 {
     fvec3_t  pos;
     FACING_T facing;
-    Uint16   iprofile;
+    REF_T    iprofile;
     PIP_REF  ipip;
 
-    Uint16   chr_attach;
+    REF_T    chr_attach;
     size_t   vrt_offset;
-    Uint8    team;
+    REF_T    team;
 
-    Uint16   chr_origin;
+    REF_T    chr_origin;
     PRT_REF  prt_origin;
-    Uint16   multispawn;
-    Uint16   oldtarget;
+    int      multispawn;
+    REF_T    oldtarget;
 };
 typedef struct s_spawn_particle_info spawn_particle_info_t;
 
@@ -77,8 +77,9 @@ static prt_t * prt_ctor( prt_t * pprt );
 static prt_t * prt_dtor( prt_t * pprt );
 static prt_t * prt_reconstruct( prt_t * pprt );
 
-static void PrtList_init();
-static PRT_REF PrtList_get_free();
+static void   PrtList_init();
+static size_t PrtList_get_free();
+
 static PRT_REF prt_get_free( bool_t force );
 
 //--------------------------------------------------------------------------------------------
@@ -220,7 +221,7 @@ void free_one_particle_in_game( PRT_REF particle )
     ///            Requesting termination will defer the actual deletion of a particle until
     ///            it is finally destroyed by cleanup_all_particles()
 
-    Uint16 child;
+    PRT_REF child;
     prt_t * pprt;
 
     if ( !ALLOCATED_PRT( particle ) ) return;
@@ -250,11 +251,11 @@ void free_one_particle_in_game( PRT_REF particle )
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF PrtList_get_free()
+size_t PrtList_get_free()
 {
     /// @details ZZ@> This function returns the next free particle or TOTAL_MAX_PRT if there are none
 
-    PRT_REF retval = TOTAL_MAX_PRT;
+    size_t retval = TOTAL_MAX_PRT;
 
     if ( PrtList.free_count > 0 )
     {
@@ -272,7 +273,7 @@ PRT_REF prt_get_free( bool_t force )
     ///    and force is set, it grabs the first unimportant one.  The iprt
     ///    index is the return value
 
-    int iprt;
+    PRT_REF iprt;
 
     // Return TOTAL_MAX_PRT if we can't find one
     iprt = TOTAL_MAX_PRT;
@@ -281,9 +282,11 @@ PRT_REF prt_get_free( bool_t force )
     {
         if ( force )
         {
-            int found = TOTAL_MAX_PRT;
-            int min_life = 65535, min_life_idx = TOTAL_MAX_PRT;
-            int min_display = 65535, min_display_idx = TOTAL_MAX_PRT;
+            PRT_REF found           = TOTAL_MAX_PRT;
+            int     min_life        = 65535; 
+            size_t  min_life_idx    = TOTAL_MAX_PRT;
+            int     min_display     = 65535; 
+            size_t  min_display_idx = TOTAL_MAX_PRT;
 
             // Gotta find one, so go through the list and replace a unimportant one
             for ( iprt = 0; iprt < maxparticles; iprt++ )
@@ -496,9 +499,9 @@ prt_t * prt_dtor( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, Uint16 iprofile, PIP_REF ipip,
-                            Uint16 chr_attach, Uint16 vrt_offset, Uint8 team,
-                            Uint16 chr_origin, Uint16 prt_origin, Uint16 multispawn, Uint16 oldtarget )
+PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_REF ipip,
+                            REF_T chr_attach, Uint16 vrt_offset, REF_T team,
+                            REF_T chr_origin, PRT_REF prt_origin, int multispawn, REF_T oldtarget )
 {
     /// @details ZZ@> This function spawns a new particle.
     ///               Returns the index of that particle or TOTAL_MAX_PRT on a failure.
@@ -1108,7 +1111,7 @@ void update_all_particles()
         {
             prt_t * pprt;
             pip_t * ppip;
-            Uint16 ichr;
+            CHR_REF ichr;
 
             if ( !ACTIVE_PRT( particle ) ) continue;
             pprt = PrtList.lst + particle;
@@ -1531,9 +1534,8 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
 //}
 void move_one_particle_do_homing( prt_t * pprt )
 {
+    PRT_REF iprt;
     pip_t * ppip;
-
-    int iprt;
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
     iprt = GET_INDEX_PPRT( pprt );
@@ -2046,10 +2048,9 @@ bool_t move_one_particle( prt_t * pprt )
 {
     /// @details BB@> The master function for controlling a particle's motion
 
-    prt_environment_t * penviro;
+    PRT_REF iprt;
     pip_t * ppip;
-
-    int iprt;
+    prt_environment_t * penviro;
 
     if ( !DISPLAY_PPRT( pprt ) ) return bfalse;
     penviro = &( pprt->enviro );
@@ -2232,14 +2233,14 @@ void particle_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-int spawn_bump_particles( Uint16 character, PRT_REF particle )
+int spawn_bump_particles( REF_T character, PRT_REF particle )
 {
     /// @details ZZ@> This function is for catching characters on fire and such
 
     int      cnt, bs_count;
     float    x, y, z;
     FACING_T facing;
-    Uint16   amount;
+    int      amount;
     FACING_T direction;
     float    fsin, fcos;
 
@@ -2313,12 +2314,12 @@ int spawn_bump_particles( Uint16 character, PRT_REF particle )
 
             if ( vertices != 0 )
             {
-                int    *vertex_occupied;
-                float  *vertex_distance;
+                PRT_REF *vertex_occupied;
+                float   *vertex_distance;
                 float dist;
 
-                vertex_occupied = EGOBOO_NEW_ARY( int, vertices );
-                vertex_distance = EGOBOO_NEW_ARY( float, vertices );
+                vertex_occupied = EGOBOO_NEW_ARY( PRT_REF, vertices );
+                vertex_distance = EGOBOO_NEW_ARY( float,   vertices );
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
@@ -2451,7 +2452,7 @@ PIP_REF PipStack_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_particle_profile( const char *szLoadName, PIP_REF pip_override )
+PIP_REF load_one_particle_profile( const char *szLoadName, PIP_REF pip_override )
 {
     /// @details ZZ@> This function loads a particle template, returning bfalse if the file wasn't
     ///    found
@@ -2809,7 +2810,7 @@ bool_t prt_request_terminate( PRT_REF iprt )
 //          facing = pprt->facing;
 //          for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
 //          {
-//              Uint16 prt_child;
+//              PRT_REF prt_child;
 //              prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
 //                  MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, particle, tnc, pprt->target_ref );
 //
@@ -2853,7 +2854,7 @@ bool_t prt_request_terminate( PRT_REF iprt )
 //        {
 //            prt_t * pprt;
 //            pip_t * ppip;
-//            Uint16 ichr;
+//            CHR_REF ichr;
 //
 //            if ( !ACTIVE_PRT(particle) ) continue;
 //            pprt = PrtList.lst + particle;

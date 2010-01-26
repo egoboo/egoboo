@@ -36,6 +36,11 @@
 INLINE FACING_T vec_to_facing( float dx, float dy );
 INLINE void     facing_to_vec( FACING_T facing, float * dx, float * dy );
 
+// rotation functions
+/// Math
+INLINE FACING_T terp_dir( FACING_T majordir, FACING_T minordir );
+INLINE FACING_T terp_dir_fast( FACING_T majordir, FACING_T minordir );
+
 // limiting functions
 INLINE void getadd( int min, int value, int max, int* valuetoadd );
 INLINE void fgetadd( float min, float value, float max, float* valuetoadd );
@@ -101,6 +106,60 @@ INLINE void facing_to_vec( FACING_T facing, float * dx, float * dy )
     {
         *dy = turntosin[turn & TRIG_TABLE_MASK];
     }
+}
+
+//--------------------------------------------------------------------------------------------
+// ROTATION FUNCTIONS
+//--------------------------------------------------------------------------------------------
+INLINE FACING_T terp_dir( FACING_T majordir, FACING_T minordir )
+{
+    /// @details ZZ@> This function returns a direction between the major and minor ones, closer
+    ///    to the major.
+
+    FACING_T temp;
+
+    // Align major direction with 0
+    minordir -= majordir;
+
+    if ( minordir > 0x8000 )
+    {
+        temp = 0xFFFF;
+    }
+    else
+    {
+        temp = 0;
+    }
+
+    minordir  = ( minordir + ( temp << 3 ) - temp ) >> 3;
+    minordir += majordir;
+
+    return minordir;
+}
+
+//--------------------------------------------------------------------------------------------
+FACING_T terp_dir_fast( FACING_T majordir, FACING_T minordir )
+{
+    /// @details ZZ@> This function returns a direction between the major and minor ones, closer
+    ///    to the major, but not by much.  Makes turning faster.
+
+    FACING_T temp;
+
+    // Align major direction with 0
+    minordir -= majordir;
+
+    if ( minordir > 0x8000 )
+    {
+        temp = 0xFFFF;
+    }
+    else
+    {
+        temp = 0;
+    }
+
+    minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
+    minordir += majordir;
+
+    return minordir;
 }
 
 //--------------------------------------------------------------------------------------------

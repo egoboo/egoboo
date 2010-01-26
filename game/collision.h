@@ -41,12 +41,12 @@ struct s_obj_BSP;
 struct s_CoNode
 {
     // the "colliding" objects
-    Uint16 chra;
-    Uint16 prta;
+    REF_T  chra;
+    REF_T  prta;
 
     // the "collided with" objects
-    Uint16 chrb;
-    Uint16 prtb;
+    REF_T  chrb;
+    REF_T  prtb;
     Uint32 tileb;
 
     // some information about the estimated collision

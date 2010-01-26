@@ -51,7 +51,7 @@ static bool_t  enc_free( enc_t * penc );
 
 static void    EncList_init();
 static void    EncList_dtor();
-static ENC_REF EncList_get_free();
+static size_t  EncList_get_free();
 static ENC_REF enc_get_free( const ENC_REF override );
 
 //--------------------------------------------------------------------------------------------
@@ -173,13 +173,13 @@ bool_t remove_enchant( ENC_REF ienc )
     /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
 
     int     iwave;
-    Uint16  overlay_ref;
+    CHR_REF overlay_ref;
     ENC_REF ienc_last, ienc_now;
     int add_type, set_type;
 
     enc_t * penc;
     eve_t * peve;
-    Uint16 itarget, ispawner;
+    CHR_REF itarget, ispawner;
 
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
     penc = EncList.lst + ienc;
@@ -284,7 +284,7 @@ bool_t remove_enchant( ENC_REF ienc )
         iwave = peve->endsound_index;
         if ( VALID_SND( iwave ) )
         {
-            Uint16 imodel = penc->spawnermodel_ref;
+            PRO_REF imodel = penc->spawnermodel_ref;
             if ( LOADED_PRO( imodel ) )
             {
                 if ( ACTIVE_CHR( itarget ) )
@@ -348,7 +348,7 @@ ENC_REF enchant_value_filled( ENC_REF ienc, int value_idx )
     ///    set values in its other enchantments.  Otherwise it returns the ienc
     ///    of the conflicting enchantment
 
-    Uint16  character;
+    CHR_REF character;
     ENC_REF currenchant;
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return MAX_ENC;
@@ -371,11 +371,12 @@ ENC_REF enchant_value_filled( ENC_REF ienc, int value_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_apply_set( ENC_REF ienc, int value_idx, Uint16 profile )
+void enchant_apply_set( ENC_REF ienc, int value_idx, REF_T profile )
 {
     /// @details ZZ@> This function sets and saves one of the character's stats
 
-    Uint16 conflict, character;
+    ENC_REF conflict;
+    CHR_REF character;
     enc_t * penc;
     eve_t * peve;
     chr_t * ptarget;
@@ -555,7 +556,7 @@ void enchant_apply_add( ENC_REF ienc, int value_idx, EVE_REF ieve )
 
     int valuetoadd, newvalue;
     float fvaluetoadd, fnewvalue;
-    Uint16 character;
+    CHR_REF character;
     enc_t * penc;
     eve_t * peve;
     chr_t * ptarget;
@@ -845,7 +846,7 @@ ENC_REF enc_get_free( const ENC_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF spawn_one_enchant( Uint16 owner, Uint16 target, Uint16 spawner, ENC_REF enc_override, Uint16 modeloptional )
+ENC_REF spawn_one_enchant( REF_T owner, REF_T target, REF_T spawner, ENC_REF enc_override, REF_T modeloptional )
 {
     /// @details ZZ@> This function enchants a target, returning the enchantment index or MAX_ENC
     ///    if failed
@@ -1054,7 +1055,7 @@ void EncList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 load_one_enchant_profile( const char* szLoadName, EVE_REF ieve )
+EVE_REF load_one_enchant_profile( const char* szLoadName, EVE_REF ieve )
 {
     /// @details ZZ@> This function loads an enchantment profile into the EveStack
 
@@ -1075,11 +1076,11 @@ Uint16 load_one_enchant_profile( const char* szLoadName, EVE_REF ieve )
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF EncList_get_free()
+size_t EncList_get_free()
 {
     /// @details ZZ@> This function returns the next free enchantment or MAX_ENC if there are none
 
-    ENC_REF retval = MAX_ENC;
+    size_t retval = MAX_ENC;
 
     if ( EncList.free_count > 0 )
     {
@@ -1094,7 +1095,7 @@ ENC_REF EncList_get_free()
 void enchant_remove_set( ENC_REF ienc, int value_idx )
 {
     /// @details ZZ@> This function unsets a set value
-    Uint16 character;
+    CHR_REF character;
     enc_t * penc;
     chr_t * ptarget;
 
@@ -1217,7 +1218,7 @@ void enchant_remove_add( ENC_REF ienc, int value_idx )
 
     float fvaluetoadd;
     int valuetoadd;
-    Uint16 character;
+    CHR_REF character;
     enc_t * penc;
     chr_t * ptarget;
 
@@ -1328,7 +1329,7 @@ void enchant_remove_add( ENC_REF ienc, int value_idx )
 //--------------------------------------------------------------------------------------------
 void init_all_eve()
 {
-    Uint16 cnt;
+    EVE_REF cnt;
 
     for ( cnt = 0; cnt < MAX_EVE; cnt++ )
     {
@@ -1369,7 +1370,7 @@ void update_all_enchants()
 
     int      cnt, tnc;
     FACING_T facing;
-    Uint16   owner, target;
+    CHR_REF  owner, target;
     EVE_REF  eve;
 
     // the following functions should not be done the first time through the update loop

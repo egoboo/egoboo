@@ -140,7 +140,7 @@ struct s_weather_instance
     bool_t  over_water;         ///< Only spawn over water?
     Uint8   particle;           ///< Which particle to spawn?
 
-    Uint16  iplayer;
+    REF_T   iplayer;
     int     time;                ///< 0 is no weather
 };
 typedef struct s_weather_instance weather_instance_t;
@@ -233,7 +233,7 @@ typedef struct s_game_module game_module_t;
 
 extern bool_t StatusList_on;
 extern int    StatusList_count;
-extern Uint16 StatusList[MAXSTAT];
+extern REF_T  StatusList[MAXSTAT];
 
 //--------------------------------------------------------------------------------------------
 /// End text
@@ -262,7 +262,7 @@ typedef struct s_pit_info pit_info_t;
 
 extern pit_info_t pits;
 
-extern Uint16  glouseangle;                                        ///< actually still used
+extern FACING_T  glouseangle;                                        ///< actually still used
 
 /// Sense enemies
 extern Uint8  local_senseenemiesTeam;
@@ -280,52 +280,46 @@ void   game_finish_module();
 bool_t game_begin_module( const char * modname, Uint32 seed );
 
 /// Exporting stuff
-void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local );
+void export_one_character( REF_T character, REF_T owner, int number, bool_t is_local );
 void export_all_players( bool_t require_local );
 
 /// Messages
-void show_stat( Uint16 statindex );
-void show_armor( Uint16 statindex );
-void show_full_status( Uint16 statindex );
-void show_magic_status( Uint16 statindex );
+void show_stat( int statindex );
+void show_armor( int statindex );
+void show_full_status( int statindex );
+void show_magic_status( int statindex );
 
 /// End Text
 void reset_end_text();
 
 /// Particles
-Uint16 number_of_attached_particles( Uint16 character );
-int    spawn_bump_particles( Uint16 character, Uint16 particle );
-void   place_particle_at_vertex( Uint16 particle, Uint16 character, int vertex_offset );
-void   disaffirm_attached_particles( Uint16 character );
-int    reaffirm_attached_particles( Uint16 character );
-Uint16 number_of_attached_particles( Uint16 character );
+int    number_of_attached_particles( REF_T character );
+int    spawn_bump_particles( REF_T character, REF_T particle );
+void   place_particle_at_vertex( REF_T particle, REF_T character, int vertex_offset );
+void   disaffirm_attached_particles( REF_T character );
+int    reaffirm_attached_particles( REF_T character );
 
 /// Statlist
-void statlist_add( Uint16 character );
-void statlist_move_to_top( Uint16 character );
+void statlist_add( REF_T character );
+void statlist_move_to_top( REF_T character );
 void statlist_sort();
 
-/// Math
-Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
-Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
-
 /// Player
-void   set_one_player_latch( Uint16 player );
-bool_t add_player( Uint16 character, Uint16 player, Uint32 device );
+void   set_one_player_latch( REF_T player );
+bool_t add_player( REF_T character, REF_T player, Uint32 device );
 
 /// AI targeting
-Uint16 chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items,
+REF_T chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items,
                         bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
-Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
-                        Uint16 particletype, Uint8 team, Uint16 donttarget,
-                        Uint16 oldtarget );
+REF_T prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
+                        REF_T particletype, REF_T team, REF_T donttarget, REF_T oldtarget );
 
 /// object initialization
 void  free_all_objects( void );
 
 /// Data
-struct s_ego_mpd   * set_PMesh( struct s_ego_mpd * pmpd );
-struct s_camera * set_PCamera( struct s_camera * pcam );
+struct s_ego_mpd * set_PMesh( struct s_ego_mpd * pmpd );
+struct s_camera  * set_PCamera( struct s_camera * pcam );
 
 bool_t upload_animtile_data( animtile_instance_t pinst[], struct s_wawalite_animtile * pdata, size_t animtile_count );
 bool_t upload_damagetile_data( damagetile_instance_t * pinst, struct s_wawalite_damagetile * pdata );
@@ -342,7 +336,7 @@ bool_t game_choose_module( int imod, int seed );
 int                  game_do_menu( struct s_menu_process * mproc );
 game_process_t     * game_process_init( game_process_t * gproc );
 
-void expand_escape_codes( Uint16 ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
+void expand_escape_codes( REF_T ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 void upload_wawalite();
 
@@ -352,7 +346,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
 bool_t game_module_start( game_module_t * pinst );
 bool_t game_module_stop( game_module_t * pinst );
 
-bool_t check_target( struct s_chr * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
+bool_t check_target( struct s_chr * psrc, REF_T ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 
 void attach_particles();
 
@@ -362,11 +356,11 @@ bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );
 Uint8 get_local_alpha( int alpha );
 Uint8 get_local_light( int light );
 
-bool_t do_shop_drop( Uint16 idropper, Uint16 iitem );
+bool_t do_shop_drop( REF_T idropper, REF_T iitem );
 
-bool_t do_shop_buy( Uint16 ipicker, Uint16 ichr );
-bool_t do_shop_steal( Uint16 ithief, Uint16 iitem );
-bool_t do_item_pickup( Uint16 ichr, Uint16 iitem );
+bool_t do_shop_buy( REF_T ipicker, REF_T ichr );
+bool_t do_shop_steal( REF_T ithief, REF_T iitem );
+bool_t do_item_pickup( REF_T ichr, REF_T iitem );
 
 bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
 
@@ -376,7 +370,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration );
 
 egoboo_rv move_water( water_instance_t * pwater );
 
-void    disenchant_character( Uint16 cnt );
+void disenchant_character( REF_T ichr );
 
 // manage the game's vfs mount points
 bool_t game_setup_vfs( const char * modname );

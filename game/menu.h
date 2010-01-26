@@ -100,8 +100,8 @@ extern LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern int    mnu_selectedPlayerCount;
-extern int    mnu_selectedInput[MAX_PLAYER];
-extern Uint16 mnu_selectedPlayer[MAX_PLAYER];
+extern Uint32 mnu_selectedInput[MAX_PLAYER];
+extern REF_T  mnu_selectedPlayer[MAX_PLAYER];
 
 extern bool_t mnu_draw_background;
 
@@ -137,7 +137,7 @@ int    mnu_get_mod_number( const char *szModName );
 bool_t mnu_test_by_name( const char *szModName );
 bool_t mnu_test_by_index( int modnumber );
 
-Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref );
+REF_T  mnu_get_icon_ref( REF_T icap, Uint32 default_ref );
 
 int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );
 menu_process_t     * menu_process_init( menu_process_t * mproc );

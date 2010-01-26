@@ -31,6 +31,9 @@
 
 struct s_script_state;
 
+DECLARE_REF( PASS_REF );
+DECLARE_REF( SHOP_REF );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define MAX_PASS             256                     ///< Maximum number of passages ( mul 32 )
@@ -62,8 +65,8 @@ DEFINE_STACK_EXTERN( passage_t, PassageStack, MAX_PASS );
 /// The data defining a shop
 struct s_shop
 {
-    Uint16  passage;  ///< The passage number
-    Uint16  owner;    ///< Who gets the gold?
+    REF_T   passage;  ///< The passage number
+    REF_T   owner;    ///< Who gets the gold?
 };
 typedef struct s_shop shop_t;
 
@@ -77,18 +80,17 @@ DEFINE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
 //--------------------------------------------------------------------------------------------
 /// prototypes
 
-bool_t open_passage( Uint16 passage );
-bool_t close_passage( Uint16 passage );
+bool_t open_passage( PASS_REF ipassage );
+bool_t close_passage( PASS_REF ipassage );
 void   check_passage_music();
-void   flash_passage( Uint16 passage, Uint8 color );
-Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
+void   flash_passage( PASS_REF ipassage, Uint8 color );
+REF_T  who_is_blocking_passage( PASS_REF ipassage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
                                 bool_t requireitem, IDSZ findidsz );
 void   clear_all_passages();
-void   add_shop_passage( Uint16 owner, Uint16 passage );
+void   add_shop_passage( REF_T owner, PASS_REF ipassage );
 void   add_passage( passage_t * pdata );
 void   activate_passages_file();
-Uint16 shop_get_owner( int ix, int iy );
-bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos );
-bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radius );
+bool_t point_is_in_passage( PASS_REF ipassage, float xpos, float ypos );
+bool_t object_is_in_passage( PASS_REF ipassage, float xpos, float ypos, float radius );
 
-Uint16 shop_get_owner( int ix, int iy );
+REF_T  shop_get_owner( int ix, int iy );

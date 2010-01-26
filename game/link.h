@@ -29,7 +29,7 @@ struct s_link
 {
     bool_t  valid;
     STRING  modname;
-    Uint16  passage;
+    REF_T   passage;
 };
 typedef struct s_link Link_t;
 

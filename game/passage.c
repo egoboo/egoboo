@@ -91,7 +91,7 @@ int ShopStack_get_free()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t open_passage( Uint16 passage )
+bool_t open_passage( PASS_REF passage )
 {
     /// @details ZZ@> This function makes a passage passable
     int x, y;
@@ -124,7 +124,7 @@ bool_t open_passage( Uint16 passage )
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_passage( Uint16 passage, Uint8 color )
+void flash_passage( PASS_REF passage, Uint8 color )
 {
     /// @details ZZ@> This function makes a passage flash white
     int x, y, cnt;
@@ -151,7 +151,7 @@ void flash_passage( Uint16 passage, Uint8 color )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos )
+bool_t point_is_in_passage( PASS_REF passage, float xpos, float ypos )
 {
     /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
 
@@ -171,7 +171,7 @@ bool_t point_is_in_passage( Uint16 passage, float xpos, float ypos )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radius )
+bool_t object_is_in_passage( PASS_REF passage, float xpos, float ypos, float radius )
 {
     /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
     ///     radius is how much offset we allow outside the passage
@@ -193,7 +193,7 @@ bool_t object_is_in_passage( Uint16 passage, float xpos, float ypos, float radiu
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
+REF_T who_is_blocking_passage( PASS_REF passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
                                 bool_t requireitem, IDSZ findidsz )
 {
     /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
@@ -201,7 +201,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
     ///    Can also look for characters with a specific quest or item in his or her inventory
     ///    Finds living ones, then items and corpses
 
-    Uint16 character, foundother;
+    CHR_REF character, foundother;
     passage_t * ppass;
 
     if ( INVALID_PASSAGE( passage ) ) return MAX_CHR;
@@ -236,7 +236,7 @@ Uint16 who_is_blocking_passage( Uint16 passage, bool_t targetitems, bool_t targe
         {
             if ( pchr->alive && !pchr->isitem )
             {
-                Uint16 item;
+                CHR_REF item;
 
                 // Found a live one, do we need to check for required items as well?
                 if ( !requireitem ) return character;
@@ -289,7 +289,9 @@ void check_passage_music()
     /// @details ZF@> This function checks all passages if there is a player in it, if it is, it plays a specified
     /// song set in by the AI script functions
 
-    Uint16 character = 0, passage, cnt;
+    CHR_REF character = 0;
+    PASS_REF passage;
+    int cnt;
 
     // Check every music passage
     for ( passage = 0; passage < PassageStack.count; passage++ )
@@ -322,12 +324,12 @@ void check_passage_music()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t close_passage( Uint16 passage )
+bool_t close_passage( PASS_REF passage )
 {
     /// @details ZZ@> This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y, cnt;
     Uint32 fan;
-    Uint16 character;
+    CHR_REF character;
     float bump_size;
     passage_t * ppass;
 
@@ -340,8 +342,8 @@ bool_t close_passage( Uint16 passage )
     // check to see if a wall can close
     if ( 0 != HAS_SOME_BITS( ppass->mask, MPDFX_IMPASS | MPDFX_WALL ) )
     {
-        Uint16 numcrushed = 0;
-        Uint16 crushedcharacters[MAX_CHR];
+        size_t  numcrushed = 0;
+        CHR_REF crushedcharacters[MAX_CHR];
 
         // Make sure it isn't blocked
         for ( character = 0; character < MAX_CHR; character++ )
@@ -403,7 +405,7 @@ void clear_all_passages()
 }
 
 //--------------------------------------------------------------------------------------------
-void add_shop_passage( Uint16 owner, Uint16 passage )
+void add_shop_passage( REF_T owner, PASS_REF passage )
 {
     /// @details ZZ@> This function creates a shop passage
 
@@ -504,15 +506,15 @@ void activate_passages_file()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 shop_get_owner( int ix, int iy )
+REF_T shop_get_owner( int ix, int iy )
 {
     /// ZZ@> This function returns the owner of a item in a shop
     int cnt;
-    Uint16 owner = SHOP_NOOWNER;
+    CHR_REF owner = SHOP_NOOWNER;
 
     for ( cnt = 0; cnt < ShopStack.count; cnt++ )
     {
-        Uint16      passage;
+        PASS_REF    passage;
         passage_t * ppass;
         shop_t    * pshop;
 

@@ -58,7 +58,7 @@ cursor_t cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
 static void input_read_mouse();
 static void input_read_keyboard();
 static void input_read_joysticks();
-static void input_read_joystick( Uint16 which );
+static void input_read_joystick( int which );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ void input_read_keyboard()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_read_joystick( Uint16 which )
+void input_read_joystick( int which )
 {
     int dead_zone = 0x8000 / 10;
     int i, button_count, x, y;

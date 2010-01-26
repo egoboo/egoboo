@@ -138,7 +138,7 @@ INLINE bool_t cap_has_idsz( CAP_REF icap, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 INLINE CHR_REF team_get_ileader( TEAM_REF iteam )
 {
-    int ichr;
+    CHR_REF ichr;
 
     if ( iteam >= TEAM_MAX ) return MAX_CHR;
 
@@ -151,7 +151,7 @@ INLINE CHR_REF team_get_ileader( TEAM_REF iteam )
 //--------------------------------------------------------------------------------------------
 INLINE chr_t  * team_get_pleader( TEAM_REF iteam )
 {
-    int ichr;
+    CHR_REF ichr;
 
     if ( iteam >= TEAM_MAX ) return NULL;
 
@@ -377,6 +377,19 @@ INLINE bool_t chr_has_idsz( CHR_REF ichr, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
+INLINE bool_t chr_is_type_idsz( CHR_REF item, IDSZ test_idsz )
+{
+    /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
+
+    CAP_REF icap;
+
+    icap = chr_get_icap( item );
+
+    return cap_is_type_idsz( icap, test_idsz );
+}
+
+//--------------------------------------------------------------------------------------------
 INLINE bool_t chr_has_vulnie( CHR_REF item, PRO_REF test_profile )
 {
     /// @detalis BB@> is item vulnerable to the type in profile test_profile?
@@ -506,6 +519,38 @@ INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_t   *pvec )
 }
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+INLINE void chr_update_size( chr_t * pchr )
+{
+    /// @details BB@> Convert the base size values to the size values that are used in the game
+
+    if ( !ACTIVE_PCHR( pchr ) ) return;
+
+    pchr->shadow_size  = pchr->shadow_size_save  * pchr->fat;
+    pchr->bump.size    = pchr->bump_save.size    * pchr->fat;
+    pchr->bump.sizebig = pchr->bump_save.sizebig * pchr->fat;
+    pchr->bump.height  = pchr->bump_save.height  * pchr->fat;
+
+    chr_update_collision_size( pchr, btrue );
+}
+
+//--------------------------------------------------------------------------------------------
+INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
+{
+    /// @details BB@> initalize the character size info
+
+    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if ( NULL == pcap || !pcap->loaded ) return;
+
+    pchr->fat               = pcap->size;
+    pchr->shadow_size_save  = pcap->shadow_size;
+    pchr->bump_save.size    = pcap->bump_size;
+    pchr->bump_save.sizebig = pcap->bump_sizebig;
+    pchr->bump_save.height  = pcap->bump_height;
+
+    chr_update_size( pchr );
+}
+
 //--------------------------------------------------------------------------------------------
 INLINE void chr_set_size( chr_t * pchr, float size )
 {

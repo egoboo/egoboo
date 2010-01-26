@@ -44,8 +44,8 @@ static bool_t _profile_initialized = bfalse;
 chop_data_t  chop_mem = {0, 0};
 pro_import_t import_data;
 
-Uint16  bookicon_count   = 0;
-Uint16  bookicon_ref[MAX_SKIN];                      // The first book icon
+size_t bookicon_count   = 0;
+TX_REF bookicon_ref[MAX_SKIN];                      // The first book icon
 
 DECLARE_LIST( ACCESS_TYPE_NONE, pro_t, ProList );
 
@@ -233,11 +233,11 @@ int ProList_search_free( PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-int ProList_pop_free( int idx )
+size_t ProList_pop_free( int idx )
 {
     /// @details BB@> pop off whatever object exists at the free list index idx
 
-    int retval;
+    size_t retval;
 
     if ( idx >= 0 && idx < ProList.free_count )
     {
@@ -250,12 +250,12 @@ int ProList_pop_free( int idx )
         // make sure this is a valid case
         if ( idx_top > idx_bottom && idx_top > 1 )
         {
-            SWAP( int, ProList.free_ref[idx_top], ProList.free_ref[idx_bottom] );
+            SWAP( size_t, ProList.free_ref[idx_top], ProList.free_ref[idx_bottom] );
         }
     }
 
     // just pop off the top index
-    retval = -1;
+    retval = MAX_PROFILE;
     if ( ProList.free_count > 0 )
     {
         ProList.free_count--;
@@ -313,11 +313,11 @@ void ProList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 ProList_get_free( PRO_REF override )
+size_t ProList_get_free( PRO_REF override )
 {
     /// @details ZZ@> This function returns the next free character or MAX_PROFILE if there are none
 
-    PRO_REF retval = MAX_PROFILE;
+    size_t retval = MAX_PROFILE;
 
     if ( VALID_PRO_RANGE( override ) )
     {
@@ -746,7 +746,7 @@ int pro_get_slot( const char * tmploadname, int slot_override )
 }
 
 //--------------------------------------------------------------------------------------------
-PRO_REF load_one_profile( const char* tmploadname, int slot_override )
+int load_one_profile( const char* tmploadname, int slot_override )
 {
     /// @details ZZ@> This function loads one object and returns the object slot
 
@@ -754,7 +754,7 @@ PRO_REF load_one_profile( const char* tmploadname, int slot_override )
     STRING newloadname;
     bool_t required;
 
-    int     iobj;
+    int     iobj;    // this has to be a signed value for this function to work properly
     pro_t * pobj;
 
     required = !VALID_CAP_RANGE( slot_override );
@@ -1346,7 +1346,7 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
     // unlink all used character nodes
     for ( i = 0; i < ChrList.used_count; i++ )
     {
-        Uint16 ichr = ChrList.used_ref[i];
+        CHR_REF ichr = ChrList.used_ref[i];
         if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
         ChrList.lst[i].bsp_leaf.next = NULL;
@@ -1356,7 +1356,7 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
     BSP_prt_count = 0;
     for ( i = 0; i < PrtList.used_count; i++ )
     {
-        Uint16 iprt = PrtList.used_ref[i];
+        PRT_REF iprt = PrtList.used_ref[i];
         if ( !VALID_PRT_RANGE( iprt ) ) continue;
 
         PrtList.lst[i].bsp_leaf.next = NULL;

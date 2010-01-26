@@ -90,9 +90,9 @@ struct s_prt_instance
 typedef struct s_prt_instance prt_instance_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( Uint16 iprt );
-bool_t render_one_prt_trans( Uint16 iprt );
-bool_t render_one_prt_ref( Uint16 iprt );
+bool_t render_one_prt_solid( REF_T iprt );
+bool_t render_one_prt_trans( REF_T iprt );
+bool_t render_one_prt_ref( REF_T iprt );
 
 void   render_prt( struct s_camera * pcam );
 void   render_prt_ref( struct s_camera * pcam );

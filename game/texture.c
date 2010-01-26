@@ -93,8 +93,9 @@ void TxTexture_delete_all()
 }
 
 //--------------------------------------------------------------------------------------------
-int TxTexture_get_free( int itex )
+size_t TxTexture_get_free( int itex )
 {
+    size_t retval = itex;
 
     if ( itex >= 0 && itex < TX_LAST )
     {
@@ -105,11 +106,11 @@ int TxTexture_get_free( int itex )
         if ( TxTexture.free_count > 0 )
         {
             TxTexture.free_count--;
-            itex = TxTexture.free_ref[TxTexture.free_count];
+            retval = TxTexture.free_ref[TxTexture.free_count];
         }
         else
         {
-            itex = INVALID_TEXTURE;
+            retval = INVALID_TEXTURE;
         }
     }
     else
@@ -127,14 +128,14 @@ int TxTexture_get_free( int itex )
                 if ( TxTexture.free_count > 0 )
                 {
                     TxTexture.free_count--;
-                    SWAP( int, TxTexture.free_ref[i], TxTexture.free_ref[TxTexture.free_count] );
+                    SWAP( size_t, TxTexture.free_ref[i], TxTexture.free_ref[TxTexture.free_count] );
                 }
                 break;
             }
         }
     }
 
-    return itex;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -176,7 +177,7 @@ int TxTexture_load_one( const char *filename, int itex_src, Uint32 key )
     /// @details BB@> load a texture into TxTexture.
     ///     If INVALID_TEXTURE == itex, then we just get the next free index
 
-    int    itex;
+    size_t itex;
 
     // get a texture index.
     itex = TxTexture_get_free( itex_src );

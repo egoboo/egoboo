@@ -62,6 +62,7 @@ extern float waterfriction;               ///< Water resistance
 extern float slippyfriction;              ///< Friction on tiles that are marked with MPDFX_SLIPPY
 extern float noslipfriction;              ///< Friction on normal tiles
 extern float gravity;                     ///< Gravitational accel
+extern float platstick;                   ///< Friction between characters and platforms
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

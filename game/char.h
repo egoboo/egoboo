@@ -185,13 +185,13 @@ enum e_team_types
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// the integer type for character template references
-typedef Uint16 CAP_REF;
+DECLARE_REF( CAP_REF );
 
 /// the integer type for character references
-typedef Uint16 CHR_REF;
+DECLARE_REF( CHR_REF );
 
 /// the integer type for character references
-typedef Uint16 TEAM_REF;
+DECLARE_REF( TEAM_REF );
 
 //--------------------------------------------------------------------------------------------
 /// The description of a single team
@@ -284,8 +284,8 @@ struct s_chr
     TEAM_REF       baseteam;        ///< Character's starting team
 
     // enchant data
-    Uint16         firstenchant;                  ///< Linked list for enchants
-    Uint16         undoenchant;                   ///< Last enchantment spawned
+    REF_T          firstenchant;                  ///< Linked list for enchants
+    REF_T          undoenchant;                   ///< Last enchantment spawned
 
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
@@ -313,8 +313,8 @@ struct s_chr
     Uint8          reaffirmdamagetype;            ///< For relighting torches
     Uint8          damagemodifier[DAMAGE_COUNT];  ///< Resistances and inversion
     Uint8          defense;                       ///< Base defense rating
-    Uint16         damageboost;                   ///< Add to swipe damage
-    Uint16         damagethreshold;               ///< Damage below this number is ignored
+    SFP8_T         damageboost;                   ///< Add to swipe damage
+    SFP8_T         damagethreshold;               ///< Damage below this number is ignored
 
     // sound stuff
     Sint8          sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
@@ -363,17 +363,17 @@ struct s_chr
     bool_t         icon;            ///< Show the icon?
     Uint8          sparkle;         ///< Sparkle color or 0 for off
     bool_t         StatusList_on;   ///< Display stats?
-    Uint16         uoffvel;         ///< Moving texture speed
-    Uint16         voffvel;
+    SFP8_T         uoffvel;         ///< Moving texture speed
+    SFP8_T         voffvel;
     Uint32         shadow_size;      ///< Size of shadow
     Uint32         shadow_size_save; ///< Without size modifiers
-    Uint16         ibillboard;       ///< The attached billboard
+    REF_T          ibillboard;       ///< The attached billboard
 
     // model info
     bool_t         is_overlay;                    ///< Is this an overlay? Track aitarget...
     Uint16         skin;                          ///< Character's skin
-    Uint16         iprofile;                      ///< Character's profile
-    Uint16         basemodel;                     ///< The true form
+    REF_T          iprofile;                      ///< Character's profile
+    REF_T          basemodel;                     ///< The true form
     Uint8          alpha_base;
     Uint8          light_base;
     chr_instance_t inst;                          ///< the render data
@@ -482,7 +482,7 @@ DEFINE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 #define DEFINED_CHR( ICHR )        ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
 #define PRE_TERMINATED_CHR( ICHR ) ( VALID_CHR_RANGE( ICHR ) && ( ACTIVE_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) || WAITING_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) ) )
 
-#define GET_INDEX_PCHR( PCHR )       GET_INDEX_POBJ( PCHR, MAX_CHR )
+#define GET_INDEX_PCHR( PCHR )      ((CHR_REF)GET_INDEX_POBJ( PCHR, MAX_CHR ))
 #define VALID_CHR_PTR( PCHR )       ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_INDEX_POBJ( PCHR, MAX_CHR) ) )
 #define ALLOCATED_PCHR( PCHR )      ( VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PCHR) ) )
 #define ACTIVE_PCHR( PCHR )         ( VALID_CHR_PTR( PCHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) )
@@ -491,7 +491,7 @@ DEFINE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 #define DEFINED_PCHR( PCHR )        ( VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PCHR) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PCHR) ) )
 #define PRE_TERMINATED_PCHR( PCHR ) ( VALID_CHR_PTR( PCHR ) && ( ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) || WAITING_PBASE( POBJ_GET_PBASE(PCHR) ) ) )
 
-#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR) {int IT##internal; for(IT##internal=0;IT##internal<ChrList.used_count;IT##internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = ChrList.used_ref[IT##internal]; if(!ACTIVE_CHR(IT)) continue; PCHR = ChrList.lst + IT;
+#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR) {size_t IT##internal; for(IT##internal=0;IT##internal<ChrList.used_count;IT##internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##internal]; if(!ACTIVE_CHR(IT)) continue; PCHR = ChrList.lst + IT;
 #define CHR_END_LOOP() }}
 
 extern int chr_wall_tests;
@@ -508,7 +508,7 @@ int  damage_character( CHR_REF character, FACING_T direction,
                        CHR_REF attacker, Uint16 effects, bool_t ignore_invictus );
 void kill_character( CHR_REF character, CHR_REF killer, bool_t ignore_invictus );
 bool_t heal_character( CHR_REF character, CHR_REF healer, int amount, bool_t ignore_invictus );
-void spawn_poof( CHR_REF character, Uint16 profile );
+void spawn_poof( CHR_REF character, REF_T profile );
 void spawn_defense_ping( chr_t *pchr, CHR_REF attacker );
 
 void reset_character_alpha( CHR_REF character );
@@ -540,11 +540,11 @@ bool_t chr_test_wall( chr_t * pchr );
 
 int chr_count_free();
 
-CHR_REF spawn_one_character( fvec3_t   pos, Uint16 profile, TEAM_REF team, Uint8 skin, FACING_T facing, const char *name, CHR_REF override );
+CHR_REF spawn_one_character( fvec3_t   pos, REF_T profile, TEAM_REF team, Uint8 skin, FACING_T facing, const char *name, CHR_REF override );
 void    respawn_character( CHR_REF character );
-Uint16  change_armor( CHR_REF character, Uint16 skin );
-void    change_character( CHR_REF cnt, Uint16 profile, Uint8 skin, Uint8 leavewhich );
-void    change_character_full( CHR_REF ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich );
+int     change_armor( CHR_REF character, int skin );
+void    change_character( CHR_REF cnt, REF_T profile, Uint8 skin, Uint8 leavewhich );
+void    change_character_full( CHR_REF ichr, REF_T profile, Uint8 skin, Uint8 leavewhich );
 bool_t  cost_mana( CHR_REF character, int amount, CHR_REF killer );
 void    switch_team( CHR_REF character, TEAM_REF team );
 void    issue_clean( CHR_REF character );
@@ -564,8 +564,6 @@ int    load_one_character_profile( const char *szLoadName, int slot_override, bo
 void character_swipe( CHR_REF cnt, slot_t slot );
 
 int check_skills( CHR_REF who, IDSZ whichskill );
-
-bool_t looped_stop_object_sounds( CHR_REF character );
 
 bool_t is_invictus_direction( FACING_T direction, CHR_REF character, Uint16 effects );
 
@@ -605,9 +603,9 @@ bool_t chr_matrix_valid( chr_t * pchr );
 
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
 
-Uint16 chr_has_inventory_idsz( CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last );
-Uint16 chr_holding_idsz( CHR_REF ichr, IDSZ idsz );
-Uint16 chr_has_item_idsz( CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last );
+CHR_REF chr_has_inventory_idsz( CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last );
+CHR_REF chr_holding_idsz( CHR_REF ichr, IDSZ idsz );
+CHR_REF chr_has_item_idsz( CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last );
 
 bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
@@ -624,7 +622,7 @@ void chr_set_light( chr_t * pchr, int light );
 
 void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );
 
-Uint16 chr_get_lowest_attachment( CHR_REF ichr, bool_t non_item );
+CHR_REF chr_get_lowest_attachment( CHR_REF ichr, bool_t non_item );
 
 bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * wtb );
 
@@ -632,7 +630,7 @@ bool_t chr_can_mount( CHR_REF ichr_a, CHR_REF ichr_b );
 
 Uint32 chr_get_framefx( chr_t * pchr );
 
-void      chr_set_frame( CHR_REF character, Uint16 action, int frame, Uint16 lip );
+void      chr_set_frame( CHR_REF character, int action, int frame, int lip );
 
 egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
 egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
@@ -645,6 +643,6 @@ void character_system_begin();
 void character_system_end();
 
 // these accessor functions are to complex to be inlined
-Uint16         chr_get_imad( CHR_REF ichr );
+REF_T          chr_get_imad( CHR_REF ichr );
 struct s_mad * chr_get_pmad( CHR_REF ichr );
-Uint32         chr_get_icon_ref( CHR_REF item );
+REF_T          chr_get_icon_ref( CHR_REF item );

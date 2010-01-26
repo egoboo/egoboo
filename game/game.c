@@ -91,10 +91,10 @@ struct s_line_of_sight_info
     float x1, y1, z1;
     Uint32 stopped_by;
 
-    Uint16 collide_chr;
-    Uint32 collide_fx;
-    int    collide_x;
-    int    collide_y;
+    CHR_REF collide_chr;
+    Uint32  collide_fx;
+    int     collide_x;
+    int     collide_y;
 };
 
 typedef struct s_line_of_sight_info line_of_sight_info_t;
@@ -137,7 +137,7 @@ size_t endtext_carat = 0;
 // Status displays
 bool_t StatusList_on     = btrue;
 int    StatusList_count    = 0;
-Uint16 StatusList[MAXSTAT];
+REF_T  StatusList[MAXSTAT];
 
 ego_mpd_t         * PMesh   = _mesh + 0;
 camera_t          * PCamera = _camera + 0;
@@ -146,7 +146,7 @@ game_process_t    * GProc   = &_gproc;
 
 pit_info_t pits = { bfalse, bfalse, ZERO_VECT3 };
 
-Uint16  glouseangle = 0;                                        // actually still used
+FACING_T glouseangle = 0;                                        // actually still used
 
 Uint32                animtile_update_and = 0;
 animtile_instance_t   animtile[2];
@@ -186,7 +186,7 @@ static void   activate_spawn_file();
 static void   activate_alliance_file();
 static void   load_all_global_objects();
 
-static bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo );
+static bool_t chr_setup_apply( CHR_REF ichr, spawn_file_info_t *pinfo );
 
 static void   game_reset_players();
 
@@ -213,7 +213,7 @@ static void   game_clear_vfs();
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local )
+void export_one_character( REF_T character, REF_T owner, int number, bool_t is_local )
 {
     /// @details ZZ@> This function exports a character
 
@@ -367,7 +367,8 @@ void export_all_players( bool_t require_local )
     ///    PLAYERS directory
 
     bool_t is_local;
-    int cnt, character, item, number;
+    int cnt, number;
+    CHR_REF character, item;
 
     // Don't export if the module isn't running
     if ( !process_running( PROC_PBASE( GProc ) ) ) return;
@@ -446,7 +447,7 @@ void log_madused( const char *savename )
 }
 
 //--------------------------------------------------------------------------------------------
-void statlist_add( Uint16 character )
+void statlist_add( REF_T character )
 {
     /// @details ZZ@> This function adds a status display to the do list
 
@@ -465,7 +466,7 @@ void statlist_add( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void statlist_move_to_top( Uint16 character )
+void statlist_move_to_top( REF_T character )
 {
     /// @details ZZ@> This function puts the character on top of the StatusList
 
@@ -515,7 +516,7 @@ void statlist_sort()
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
+void chr_set_frame( REF_T character, int action, int frame, int lip )
 {
     /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
@@ -640,7 +641,7 @@ int update_game()
     numdead = numalive = 0;
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
-        Uint16 ichr;
+        CHR_REF ichr;
         chr_t * pchr;
 
         if ( !PlaList[cnt].valid ) continue;
@@ -695,7 +696,7 @@ int update_game()
     // check for autorespawn
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
-        Uint16 ichr;
+        CHR_REF ichr;
         chr_t * pchr;
 
         if ( !PlaList[cnt].valid ) continue;
@@ -1319,9 +1320,8 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
-                        Uint16 particletype, Uint8 team, Uint16 donttarget,
-                        Uint16 oldtarget )
+REF_T prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
+                        REF_T particletype, REF_T team, REF_T donttarget, REF_T oldtarget )
 {
     /// @details ZF@> This is the new improved targeting system for particles. Also includes distance in the Z direction.
 
@@ -1329,7 +1329,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
 
     pip_t * ppip;
 
-    Uint16 besttarget = MAX_CHR;
+    CHR_REF besttarget = MAX_CHR;
     float  longdist2 = max_dist2;
 
     if ( !LOADED_PIP( particletype ) ) return MAX_CHR;
@@ -1357,7 +1357,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
 
         if ( target_friend || target_enemy )
         {
-            Uint16 angle = - facing + vec_to_facing( pchr->pos.x - pos_x , pchr->pos.y - pos_y );
+            FACING_T angle = - facing + vec_to_facing( pchr->pos.x - pos_x , pchr->pos.y - pos_y );
 
             // Only proceed if we are facing the target
             if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
@@ -1383,7 +1383,7 @@ Uint16 prt_find_target( float pos_x, float pos_y, float pos_z, Uint16 facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+bool_t check_target( chr_t * psrc, REF_T ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     bool_t retval;
 
@@ -1450,7 +1450,7 @@ bool_t check_target( chr_t * psrc, Uint16 ichr_test, TARGET_TYPE target_type, bo
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+REF_T chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     /// @details BB@> this is the raw character targeting code, this is not throttled at all. You should call
     ///     scr_get_chr_target() if you are calling this function from the scripting system.
@@ -1458,11 +1458,11 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
     line_of_sight_info_t los_info;
 
     Uint16 cnt;
-    Uint16 best_target = MAX_CHR;
+    CHR_REF best_target = MAX_CHR;
     float  best_dist2;
 
     size_t search_list_size = 0;
-    Uint16 search_list[MAX_CHR];
+    CHR_REF search_list[MAX_CHR];
 
     if ( target_players )
     {
@@ -1503,7 +1503,7 @@ Uint16 chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, 
         float  dist2;
         fvec3_t   diff;
         chr_t * ptst;
-        Uint16 ichr_test = search_list[cnt];
+        CHR_REF ichr_test = search_list[cnt];
 
         if ( !ACTIVE_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
@@ -1615,58 +1615,6 @@ void do_damage_tiles()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
-{
-    /// @details ZZ@> This function returns a direction between the major and minor ones, closer
-    ///    to the major.
-
-    Uint16 temp;
-
-    // Align major direction with 0
-    minordir -= majordir;
-
-    if ( minordir > 0x8000 )
-    {
-        temp = 0xFFFF;
-    }
-    else
-    {
-        temp = 0;
-    }
-
-    minordir  = ( minordir + ( temp << 3 ) - temp ) >> 3;
-    minordir += majordir;
-
-    return minordir;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
-{
-    /// @details ZZ@> This function returns a direction between the major and minor ones, closer
-    ///    to the major, but not by much.  Makes turning faster.
-
-    Uint16 temp;
-
-    // Align major direction with 0
-    minordir -= majordir;
-
-    if ( minordir > 0x8000 )
-    {
-        temp = 0xFFFF;
-    }
-    else
-    {
-        temp = 0;
-    }
-
-    minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
-    minordir += majordir;
-
-    return minordir;
-}
-
-//--------------------------------------------------------------------------------------------
 void update_pits()
 {
     /// @details ZZ@> This function kills any character in a deep pit...
@@ -1759,13 +1707,13 @@ void do_weather_spawn_particles()
 {
     /// @details ZZ@> This function drops snowflakes or rain or whatever, also swings the camera
 
-    int particle, cnt;
+    int    cnt;
     bool_t foundone;
 
     if ( weather.time > 0 )
     {
         weather.time--;
-        if ( weather.time == 0 )
+        if ( 0 == weather.time )
         {
             weather.time = weather.timer_reset;
 
@@ -1785,11 +1733,11 @@ void do_weather_spawn_particles()
             if ( foundone )
             {
                 // Yes, but is the character valid?
-                cnt = PlaList[weather.iplayer].index;
-                if ( ACTIVE_CHR( cnt ) && !ChrList.lst[cnt].pack_ispacked )
+                CHR_REF ichr = PlaList[weather.iplayer].index;
+                if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack_ispacked )
                 {
                     // Yes, so spawn over that character
-                    particle = spawn_one_particle_global( ChrList.lst[cnt].pos, ATK_FRONT, weather.particle, 0 );
+                    PRT_REF particle = spawn_one_particle_global( ChrList.lst[ichr].pos, ATK_FRONT, weather.particle, 0 );
                     if ( ACTIVE_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList.lst + particle;
@@ -1831,7 +1779,7 @@ void do_weather_spawn_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void set_one_player_latch( Uint16 player )
+void set_one_player_latch( REF_T player )
 {
     /// @details ZZ@> This function converts input readings to latch settings, so players can
     ///    move around
@@ -2110,7 +2058,7 @@ void check_stats()
     // XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        Uint16 docheat = MAX_CHR;
+        CHR_REF docheat = MAX_CHR;
         if ( SDLKEYDOWN( SDLK_1 ) )  docheat = 0;
         else if ( SDLKEYDOWN( SDLK_2 ) )  docheat = 1;
         else if ( SDLKEYDOWN( SDLK_3 ) )  docheat = 2;
@@ -2134,7 +2082,7 @@ void check_stats()
     // LIFE CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_z ) )
     {
-        Uint16 docheat = MAX_CHR;
+        CHR_REF docheat = MAX_CHR;
         if ( SDLKEYDOWN( SDLK_1 ) )  docheat = 0;
         else if ( SDLKEYDOWN( SDLK_2 ) )  docheat = 1;
         else if ( SDLKEYDOWN( SDLK_3 ) )  docheat = 2;
@@ -2208,12 +2156,13 @@ void check_stats()
 }
 
 //--------------------------------------------------------------------------------------------
-void show_stat( Uint16 statindex )
+void show_stat( int statindex )
 {
     /// @details ZZ@> This function shows the more specific stats for a character
 
-    int character, level;
-    char gender[8] = EMPTY_CSTR;
+    CHR_REF character;
+    int     level;
+    char    gender[8] = EMPTY_CSTR;
 
     if ( statindex < StatusList_count )
     {
@@ -2275,12 +2224,12 @@ void show_stat( Uint16 statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-void show_armor( Uint16 statindex )
+void show_armor( int statindex )
 {
     /// @details ZF@> This function shows detailed armor information for the character
 
     STRING tmps;
-    Uint16 ichr;
+    CHR_REF ichr;
 
     Uint8  skinlevel;
 
@@ -2336,7 +2285,8 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     /// @details ZF@> Get a character's life and mana regeneration, considering all sources
 
     int local_liferegen, local_manaregen;
-    Uint16 ichr, enchant;
+    CHR_REF ichr;
+    ENC_REF enchant;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     ichr = GET_INDEX_PCHR( pchr );
@@ -2373,11 +2323,11 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
 }
 
 //--------------------------------------------------------------------------------------------
-void show_full_status( Uint16 statindex )
+void show_full_status( int statindex )
 {
     /// @details ZF@> This function shows detailed armor information for the character including magic
 
-    Uint16 character;
+    CHR_REF character;
     int manaregen, liferegen;
     chr_t * pchr;
 
@@ -2413,11 +2363,11 @@ void show_full_status( Uint16 statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-void show_magic_status( Uint16 statindex )
+void show_magic_status( int statindex )
 {
     /// @details ZF@> Displays special enchantment effects for the character
 
-    Uint16 character;
+    CHR_REF character;
     char * missile_str;
     chr_t * pchr;
 
@@ -2586,7 +2536,7 @@ void game_load_all_profiles( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_setup_apply( Uint16 ichr, spawn_file_info_t *pinfo )
+bool_t chr_setup_apply( CHR_REF ichr, spawn_file_info_t *pinfo )
 {
     chr_t * pchr, *pparent;
 
@@ -2705,8 +2655,8 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 //--------------------------------------------------------------------------------------------
 bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 {
-    int tnc;
-    int new_object, local_index = 0;
+    int     tnc, local_index = 0;
+    CHR_REF new_object;
     chr_t * pobject;
 
     if ( NULL == psp_info || !psp_info->do_spawn ) return bfalse;
@@ -3024,11 +2974,11 @@ game_load_module_data_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-void disaffirm_attached_particles( Uint16 character )
+void disaffirm_attached_particles( REF_T character )
 {
     /// @details ZZ@> This function makes sure a character has no attached particles
 
-    Uint16 particle;
+    PRT_REF particle;
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
@@ -3048,12 +2998,12 @@ void disaffirm_attached_particles( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 number_of_attached_particles( Uint16 character )
+int number_of_attached_particles( REF_T character )
 {
     /// @details ZZ@> This function returns the number of particles attached to the given character
 
-    Uint16 cnt = 0;
-    Uint16 particle;
+    int     cnt = 0;
+    PRT_REF particle;
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
@@ -3067,13 +3017,13 @@ Uint16 number_of_attached_particles( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-int reaffirm_attached_particles( Uint16 character )
+int reaffirm_attached_particles( REF_T character )
 {
     /// @details ZZ@> This function makes sure a character has all of it's particles
 
-    int number_added, number_attached;
-    int amount, attempts;
-    Uint16 particle;
+    int     number_added, number_attached;
+    int     amount, attempts;
+    PRT_REF particle;
     chr_t * pchr;
     cap_t * pcap;
 
@@ -3247,7 +3197,9 @@ bool_t game_update_imports()
     ///    and also copies them into the imports dir to prepare for the next module
 
     bool_t is_local;
-    int cnt, tnc, j, character, player;
+    int cnt, tnc, j;
+    CHR_REF character;
+    PLA_REF player;
     STRING srcPlayer, srcDir, destDir;
 
     // do the normal export to save all the player settings
@@ -3379,7 +3331,7 @@ void attach_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_player( Uint16 character, Uint16 player, Uint32 device_bits )
+bool_t add_player( CHR_REF character, REF_T player, Uint32 device_bits )
 {
     /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
@@ -3425,7 +3377,7 @@ void let_all_characters_think()
     if ( update_wld == last_update ) return;
     last_update = update_wld;
 
-    numblip = 0;
+    blip_count = 0;
 
     CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
@@ -3644,7 +3596,7 @@ void reset_end_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void expand_escape_codes( Uint16 ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
+void expand_escape_codes( REF_T ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
 {
     int    cnt;
     STRING szTmp;
@@ -3982,94 +3934,6 @@ game_process_t * game_process_init( game_process_t * gproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-Uint8 onlyfriends, Uint8 anyone, Uint8 team,
-Uint16 donttarget, Uint16 oldtarget )
-{
-/// @details ZZ@> This function helps find a target, returning btrue if it found a decent target
-
-int cnt;
-Uint16 angle;
-Uint16 charb;
-Uint8 enemies, returncode;
-Uint32 fanblock;
-int distance;
-
-returncode = bfalse;
-
-// Current fanblock
-if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-{
-fanblock = mesh_get_block_int(PMesh, x,y);
-
-enemies = bfalse;
-if ( !onlyfriends ) enemies = btrue;
-
-charb = bumplist[fanblock].chr;
-cnt = 0;
-while ( cnt < bumplist[fanblock].chrnum )
-{
-if ( ChrList.lst[charb].alive && !ChrList.lst[charb].invictus && charb != donttarget && charb != oldtarget )
-{
-if ( anyone || ( chr_get_iteam(charb) == team && onlyfriends ) || ( TeamList[team].hatesteam[chr_get_iteam(charb)] && enemies ) )
-{
-distance = ABS( ChrList.lst[charb].pos.x - chrx ) + ABS( ChrList.lst[charb].pos.y - chry );
-if ( distance < globestdistance )
-{
-angle = vec_to_facing( ChrList.lst[charb].pos.x - chrx , ChrList.lst[charb].pos.y - chry );
-angle = facing - angle;
-if ( angle < globestangle || angle > ( 0x00010000 - globestangle ) )
-{
-returncode = btrue;
-globesttarget = charb;
-globestdistance = distance;
-glouseangle = angle;
-if ( angle  > 32767 )
-globestangle = -angle;
-else
-globestangle = angle;
-}
-}
-}
-}
-charb = ChrList.lst[charb].bumplist_next;
-cnt++;
-}
-}
-return returncode;
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 find_target( float chrx, float chry, Uint16 facing,
-Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
-Uint8 team, Uint16 donttarget, Uint16 oldtarget )
-{
-// This function finds the best target for the given parameters
-Uint8 done;
-int x, y;
-
-x = chrx;
-y = chry;
-x = x >> BLOCK_BITS;
-y = y >> BLOCK_BITS;
-globestdistance = 9999;
-globestangle = targetangle;
-done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-if ( done ) return globesttarget;
-
-done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-if ( done ) return globesttarget;
-
-return MAX_CHR;
-}*/
-
 void do_game_hud()
 {
     int y = 0;
@@ -4724,7 +4588,7 @@ Uint8 get_local_light( int light )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
+bool_t do_shop_drop( REF_T idropper, REF_T iitem )
 {
     chr_t * pdropper, * pitem;
     bool_t inshop;
@@ -4741,7 +4605,7 @@ bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
     inshop = bfalse;
     if ( pitem->isitem && ShopStack.count > 0 )
     {
-        Uint16 iowner;
+        CHR_REF iowner;
 
         int ix = pitem->pos.x / GRID_SIZE;
         int iy = pitem->pos.y / GRID_SIZE;
@@ -4781,7 +4645,7 @@ bool_t do_shop_drop( Uint16 idropper, Uint16 iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
+bool_t do_shop_buy( REF_T ipicker, REF_T iitem )
 {
     bool_t can_grab, can_pay, in_shop;
     int price;
@@ -4803,7 +4667,7 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
 
     if ( pitem->isitem && ShopStack.count > 0 )
     {
-        Uint16 iowner;
+        CHR_REF iowner;
 
         int ix = pitem->pos.x / GRID_SIZE;
         int iy = pitem->pos.y / GRID_SIZE;
@@ -4865,7 +4729,7 @@ bool_t do_shop_buy( Uint16 ipicker, Uint16 iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
+bool_t do_shop_steal( REF_T ithief, REF_T iitem )
 {
     // Pets can try to steal in addition to invisible characters
 
@@ -4885,7 +4749,7 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
     can_steal = btrue;
     if ( pitem->isitem && ShopStack.count > 0 )
     {
-        Uint16 iowner;
+        CHR_REF iowner;
 
         int ix = pitem->pos.x / GRID_SIZE;
         int iy = pitem->pos.y / GRID_SIZE;
@@ -4913,7 +4777,7 @@ bool_t do_shop_steal( Uint16 ithief, Uint16 iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_item_pickup( Uint16 ichr, Uint16 iitem )
+bool_t do_item_pickup( REF_T ichr, REF_T iitem )
 {
     bool_t can_grab;
     bool_t is_invis, can_steal, in_shop;
@@ -5160,7 +5024,7 @@ egoboo_rv move_water( water_instance_t * pwater )
 }
 
 //--------------------------------------------------------------------------------------------
-void disenchant_character( Uint16 cnt )
+void disenchant_character( REF_T cnt )
 {
     /// @details ZZ@> This function removes all enchantments from a character
 

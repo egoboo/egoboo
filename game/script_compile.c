@@ -58,6 +58,8 @@ static Uint8   cLoadBuffer[AISMAXLOADSIZE] = EMPTY_CSTR;
 
 static token_t Token;
 
+static const char * globalparsename = NULL;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

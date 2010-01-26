@@ -63,7 +63,6 @@
 /// @note - Aaron uses two terms without much attention to their meaning
 ///         I think that we should use "face" or "facing" to mean the fill 16-bit value
 ///         and use "turn" to be the TRIG_TABLE_BITS-bit value
-typedef Uint16 FACING_T;
 
 extern float turntosin[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to sine
 extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to cosine

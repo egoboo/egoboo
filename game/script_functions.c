@@ -663,7 +663,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     // SetTargetToNearbyEnemy()
     /// @details ZZ@> This function sets the target to a nearby enemy, failing if there are none
 
-    Uint16 ichr;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -854,7 +854,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function proceeds if the target has a matching item in his/her
     /// pockets or hands.
 
-    Uint16 item;
+    CHR_REF item;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -873,7 +873,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
     /// hands.  It also sets tmpargument to the proper latch button to press
     /// to use that item
 
-    Uint16 item;
+    CHR_REF item;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1147,7 +1147,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     /// that item.
     /// For one use keys and such
 
-    Uint16 item, pack_last;
+    CHR_REF item, pack_last;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2167,7 +2167,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     /// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
     /// them too much
 
-    Uint16  old_profile;
+    PRO_REF  old_profile;
     cap_t * pcap;
     mad_t * pmad;
 
@@ -2284,7 +2284,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function sets the target to an enemy in the vicinity around the
     /// character, failing if there are none
 
-    Uint16 ichr;
+    CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = _get_chr_target( pchr, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
@@ -3261,7 +3261,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it
 
-    Uint16 item;
+    CHR_REF item;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3862,7 +3862,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
     // IfTargetHasItemIDEquipped( tmpargument = "item idsz" )
     /// @details ZZ@> This function proceeds if the target already wearing a matching item
 
-    Uint16 item;
+    CHR_REF item;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3957,7 +3957,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function sets the target to a character that matches the description,
     /// and who is located in the general vicinity of the character
 
-    Uint16 ichr;
+    CHR_REF ichr;
     TARGET_TYPE blahteam;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4238,7 +4238,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
     /// @details ZZ@> This function finds a character within a certain distance of the
     /// character, failing if there are none
 
-    Uint16 ichr;
+    CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = _get_chr_target( pchr, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
@@ -4431,16 +4431,16 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Add a blip
-    if ( numblip < MAXBLIP )
+    if ( blip_count < MAXBLIP )
     {
         if ( pstate->x > 0 && pstate->x < PMesh->gmem.edge_x && pstate->y > 0 && pstate->y < PMesh->gmem.edge_y )
         {
             if ( pstate->argument < COLOR_MAX && pstate->argument >= 0 )
             {
-                blipx[numblip] = pstate->x;
-                blipy[numblip] = pstate->y;
-                blipc[numblip] = pstate->argument;
-                numblip++;
+                blip_x[blip_count] = pstate->x;
+                blip_y[blip_count] = pstate->y;
+                blip_c[blip_count] = pstate->argument;
+                blip_count++;
             }
         }
     }
@@ -4460,7 +4460,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( heal_character( pself->target, pself->index, pstate->argument, bfalse ) )
     {
-        Uint16 enc_now, enc_next;
+        ENC_REF enc_now, enc_next;
         eve_t * peve;
 
         returncode = btrue;
@@ -5247,7 +5247,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     /// @details ZZ@> This function finds the NEAREST ( exact ) character that fits the given
     /// parameters, failing if it finds none
 
-    Uint16 ichr;
+    CHR_REF ichr;
     TARGET_TYPE blahteam;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5280,7 +5280,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
     // SetTargetToNearestEnemy()
     /// @details ZZ@> This function finds the NEAREST ( exact ) enemy, failing if it finds none
 
-    Uint16 ichr;
+    CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = _get_chr_target( pchr, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
@@ -5301,7 +5301,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
     // SetTargetToNearestFriend()
     /// @details ZZ@> This function finds the NEAREST ( exact ) friend, failing if it finds none
 
-    Uint16 ichr;
+    CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = _get_chr_target( pchr, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
@@ -5324,7 +5324,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
     /// @details ZZ@> This function finds the NEAREST ( exact ) friend or enemy, failing if it
     /// finds none
 
-    Uint16 ichr;
+    CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = _get_chr_target( pchr, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
@@ -6518,7 +6518,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     for ( sTmp = 0; sTmp < MAX_PLAYER; sTmp++ )
     {
-        Uint16 ichr;
+        CHR_REF ichr;
         if ( !PlaList[sTmp].valid ) continue;
 
         ichr = PlaList[sTmp].index;
@@ -6590,7 +6590,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     for ( iTmp = 0; iTmp < MAX_PLAYER; iTmp++ )
     {
-        Uint16 ichr;
+        CHR_REF ichr;
 
         if ( !PlaList[iTmp].valid ) continue;
 
@@ -7052,7 +7052,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
     {
         // Check all enchants to see if they are removed
         eve_t * peve;
-        Uint16 enc_now, enc_next;
+        ENC_REF enc_now, enc_next;
 
         IDSZ idsz = pstate->argument;
 
@@ -7208,7 +7208,7 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
     //A special version of the get_chr() function
     for ( sTmp = 0; sTmp < MAX_PLAYER; sTmp++ )
     {
-        Uint16 ichr_test = PlaList[sTmp].index;
+        CHR_REF ichr_test = PlaList[sTmp].index;
         chr_t * ptst;
         int iTmp;
         fvec3_t   diff;
@@ -7248,7 +7248,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
     /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
 
-    Uint16 endtile;
+    Uint32 endtile;
     Uint32 fan;
     int useful;
 
@@ -7422,7 +7422,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+REF_T _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
     ///     If max_dist is 0 then it searches without a max limit.
@@ -7439,7 +7439,7 @@ Uint16 _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _display_message( int ichr, int iprofile, int message, script_state_t * pstate )
+Uint8 _display_message( REF_T ichr, REF_T iprofile, int message, script_state_t * pstate )
 {
     /// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
 

@@ -1012,7 +1012,7 @@ void sv_talkToRemotes()
 }
 
 //--------------------------------------------------------------------------------------------
-void pla_add_tlatch( Uint16 iplayer, Uint32 time, latch_t net_latch )
+void pla_add_tlatch( PLA_REF iplayer, Uint32 time, latch_t net_latch )
 {
     player_t * ppla;
 
@@ -1036,7 +1036,7 @@ void net_handlePacket( ENetEvent *event )
     STRING filename;      // also used for reading various strings
     int filesize, newfilesize, fileposition;
     char newfile;
-    Uint16 player;
+    PLA_REF player;
     Uint32 stamp;
     int time;
     vfs_FILE *file;
@@ -1525,7 +1525,8 @@ void unbuffer_player_latches()
 {
     /// @details ZZ@> This function sets character latches based on player input to the host
 
-    int cnt, character;
+    int     cnt;
+    CHR_REF character;
 
     // if ( PMod->rtscontrol ) { numplatimes--; return; }
 
@@ -2029,7 +2030,7 @@ bool_t net_instance_init( net_instance_t * pnet )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint16   pla_get_ichr( Uint16 iplayer )
+REF_T pla_get_ichr( PLA_REF iplayer )
 {
     player_t * pplayer;
 
@@ -2042,7 +2043,7 @@ Uint16   pla_get_ichr( Uint16 iplayer )
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t  * pla_get_pchr( Uint16 iplayer )
+chr_t  * pla_get_pchr( PLA_REF iplayer )
 {
     player_t * pplayer;
 

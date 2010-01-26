@@ -195,9 +195,9 @@ struct s_cap
 
     // life
     cap_stat_t   life_stat;                     ///< Life statistics
-    Sint16       life_return;                    ///< Life regeneration
-    Uint16       life_heal;
-    Uint16       life_spawn;                     ///< Life left from last module
+    UFP8_T       life_return;                    ///< Life regeneration
+    UFP8_T       life_heal;
+    UFP8_T       life_spawn;                     ///< Life left from last module
 
     // mana
     cap_stat_t   mana_stat;                     ///< Mana statistics
@@ -244,8 +244,8 @@ struct s_cap
     bool_t       transferblend;                 ///< Transfer blending to rider/weapons
     Uint8        sheen;                         ///< How shiny it is ( 0-15 )
     bool_t       enviro;                        ///< Phong map this baby?
-    Uint16       uoffvel;                       ///< "horizontal" texture movement rate
-    Uint16       voffvel;                       ///< "vertical" texture movement rate
+    SFP8_T       uoffvel;                       ///< "horizontal" texture movement rate
+    SFP8_T       voffvel;                       ///< "vertical" texture movement rate
     bool_t       uniformlit;                    ///< Bad lighting?
     bool_t       reflect;                        ///< Draw the reflection
     bool_t       alwaysdraw;                     ///< Always render
@@ -313,12 +313,12 @@ struct s_cap
     // special particle effects
     Uint8        attachedprt_amount;             ///< Number of sticky particles
     Uint8        attachedprt_reaffirmdamagetype; ///< Re-attach sticky particles? Relight that torch...
-    Uint16       attachedprt_pip;                ///< Which kind of sticky particle
+    int          attachedprt_pip;                ///< Which kind of sticky particle
     Uint8        gopoofprt_amount;               ///< Amount of poof particles
     Sint16       gopoofprt_facingadd;            ///< Angular spread of poof particles
-    Uint16       gopoofprt_pip;                  ///< Which poof particle
+    int          gopoofprt_pip;                  ///< Which poof particle
     Uint8        blud_valid;                     ///< Has blud? ( yuck )
-    Uint8        blud_pip;                       ///< What kind of blud?
+    int          blud_pip;                       ///< What kind of blud?
 
     // skill system
     int       shieldproficiency;               ///< Can it use shields?

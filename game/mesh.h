@@ -258,4 +258,4 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y );
 float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
 
 bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
-bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint16 tile );
+bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile );

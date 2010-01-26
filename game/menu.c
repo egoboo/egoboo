@@ -151,9 +151,9 @@ bool_t mnu_draw_background = btrue;
 int              loadplayer_count = 0;
 LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
-int    mnu_selectedPlayerCount = 0;
-int    mnu_selectedInput[MAX_PLAYER] = {0};
-Uint16 mnu_selectedPlayer[MAX_PLAYER] = {0};
+int     mnu_selectedPlayerCount = 0;
+Uint32  mnu_selectedInput[MAX_PLAYER] = {0};
+PLA_REF mnu_selectedPlayer[MAX_PLAYER] = {0};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -168,12 +168,12 @@ static void initSlidyButtons( float lerp, const char *button_text[] );
 static void updateSlidyButtons( float deltaTime );
 static void drawSlidyButtons();
 
-static bool_t mnu_checkSelectedPlayer( Uint16 player );
-static Uint16 mnu_getSelectedPlayer( Uint16 player );
-static bool_t mnu_addSelectedPlayer( Uint16 player );
-static bool_t mnu_removeSelectedPlayer( Uint16 player );
-static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input );
-static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input );
+static bool_t mnu_checkSelectedPlayer( PLA_REF player );
+static REF_T  mnu_getSelectedPlayer( PLA_REF player );
+static bool_t mnu_addSelectedPlayer( PLA_REF player );
+static bool_t mnu_removeSelectedPlayer( PLA_REF player );
+static bool_t mnu_addSelectedPlayerInput( PLA_REF player, Uint32 input );
+static bool_t mnu_removeSelectedPlayerInput( PLA_REF player, Uint32 input );
 
 static void TxTitleImage_clear_data();
 
@@ -1182,7 +1182,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
     y1 = y + 25;
     if ( player >= 0 && objects.count > 0 )
     {
-        Uint16 icap = objects.pro_data[0].cap_ref;
+        CAP_REF icap = objects.pro_data[0].cap_ref;
 
         if ( LOADED_CAP( icap ) )
         {
@@ -1250,7 +1250,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                     icap = pdata->cap_ref;
                     if ( LOADED_CAP( icap ) )
                     {
-                        Uint32  icon_ref;
+                        TX_REF  icon_ref;
                         cap_t * pcap = CapList + icap;
 
                         STRING itemname;
@@ -1290,7 +1290,7 @@ int doChoosePlayer( float deltaTime )
     int result = 0;
     int i, j, x, y;
     STRING srcDir, destDir;
-    static int startIndex = 0;
+    static int    startIndex = 0;
     static int    last_player = -1;
     static bool_t new_player = bfalse;
 
@@ -1440,8 +1440,7 @@ int doChoosePlayer( float deltaTime )
             y = y0;
             for ( i = 0; i < numVertical; i++ )
             {
-                Uint16 player;
-                Uint16 splayer;
+                PLA_REF player, splayer;
                 int m = i * 5;
 
                 player = i + startIndex;
@@ -3964,7 +3963,7 @@ int doMenu( float deltaTime )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mnu_checkSelectedPlayer( Uint16 player )
+bool_t mnu_checkSelectedPlayer( PLA_REF player )
 {
     int i;
     if ( player > loadplayer_count ) return bfalse;
@@ -3978,9 +3977,9 @@ bool_t mnu_checkSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 mnu_getSelectedPlayer( Uint16 player )
+REF_T mnu_getSelectedPlayer( PLA_REF player )
 {
-    Uint16 ipla;
+    REF_T ipla;
     if ( player > loadplayer_count ) return MNU_INVALID_PLA;
 
     for ( ipla = 0; ipla < MAX_PLAYER && ipla < mnu_selectedPlayerCount; ipla++ )
@@ -3992,7 +3991,7 @@ Uint16 mnu_getSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_addSelectedPlayer( Uint16 player )
+bool_t mnu_addSelectedPlayer( PLA_REF player )
 {
     if ( player > loadplayer_count || mnu_selectedPlayerCount >= MAX_PLAYER ) return bfalse;
     if ( mnu_checkSelectedPlayer( player ) ) return bfalse;
@@ -4005,7 +4004,7 @@ bool_t mnu_addSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_removeSelectedPlayer( Uint16 player )
+bool_t mnu_removeSelectedPlayer( PLA_REF player )
 {
     int i;
     bool_t found = bfalse;
@@ -4047,7 +4046,7 @@ bool_t mnu_removeSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
+bool_t mnu_addSelectedPlayerInput( PLA_REF player, Uint32 input )
 {
     int i;
     bool_t done, retval = bfalse;
@@ -4110,7 +4109,7 @@ bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
+bool_t mnu_removeSelectedPlayerInput( PLA_REF player, Uint32 input )
 {
     int i;
     bool_t retval = bfalse;
@@ -4440,7 +4439,7 @@ void mnu_load_all_module_info()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
+REF_T mnu_get_icon_ref( REF_T icap, Uint32 default_ref )
 {
     /// @details BB@> This function gets the proper icon for a an object profile.
     //
@@ -4449,7 +4448,7 @@ Uint32 mnu_get_icon_ref( Uint16 icap, Uint32 default_ref )
     //     and one icon. Sometimes, though the item is actually a spell effect which means
     //     that we need to display the book icon.
 
-    Uint32 icon_ref = ICON_NULL;
+    TX_REF icon_ref = ICON_NULL;
     bool_t is_spell_fx, is_book, draw_book;
 
     cap_t * pitem_cap;
@@ -4681,7 +4680,7 @@ bool_t load_local_game_hints()
 {
     /// ZF@> This function loads all module specific hints and tips. If this fails, the game will
 	//       default to the global hints and tips instead
-    STRING loadpath;
+
     STRING buffer;
     vfs_FILE *fileread;
     Uint8 cnt;

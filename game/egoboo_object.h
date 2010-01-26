@@ -43,7 +43,7 @@ enum e_ego_object_state
 struct s_ego_object_base
 {
     STRING         _name;     ///< what is its "_name"
-    int            index;     ///< what is the index position in the object list?
+    size_t         index;     ///< what is the index position in the object list?
     bool_t         allocated; ///< Does it exist?
     int            state;     ///< what state is it in?
     Uint32         guid;      ///< a globally unique identifier

@@ -141,7 +141,7 @@ struct s_eve
     float   addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
     // other values that are enchanted
-    Uint16  seekurse;                    ///< Allow target to see kurses
+    bool_t  seekurse;                    ///< Allow target to see kurses
 };
 typedef struct s_eve eve_t;
 

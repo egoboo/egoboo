@@ -501,11 +501,6 @@
 			</File>
 			<File
 				RelativePath=".\ego_wrap.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\egoboo_console.c">
@@ -518,11 +513,6 @@
 			</File>
 			<File
 				RelativePath=".\lua_console.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">
@@ -786,6 +776,11 @@
 			</File>
 			<File
 				RelativePath=".\script_functions.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\script_functions.h">

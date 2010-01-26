@@ -73,7 +73,7 @@ struct s_matrix_cache
 
     //---- MAT_WEAPON data
 
-    Uint16  grip_chr;                   ///< !=MAX_CHR if character is a held weapon
+    REF_T   grip_chr;                   ///< !=MAX_CHR if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     Uint16  grip_verts[GRIP_VERTS];     ///< Vertices which describe the weapon grip
     fvec3_t grip_scale;
@@ -131,7 +131,7 @@ struct s_chr_instance
     fmat_4x4_t     matrix;           ///< Character's matrix
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
 
-    Uint16         facing_z;
+    FACING_T       facing_z;
 
     // render mode info
     Uint8          alpha;           ///< 255 = Solid, 0 = Invisible
@@ -145,12 +145,12 @@ struct s_chr_instance
     Uint8          blushift;
 
     // texture info
-    Uint16         texture;         ///< The texture id of the character's skin
-    Uint16         uoffset;         ///< For moving textures
-    Uint16         voffset;
+    Uint32         texture;         ///< The texture id of the character's skin
+    SFP8_T         uoffset;         ///< For moving textures
+    SFP8_T         voffset;
 
     // model info
-    Uint16         imad;            ///< Character's model
+    REF_T          imad;            ///< Character's model
 
     // animation info
     Uint16         frame_nxt;       ///< Character's frame
@@ -185,7 +185,7 @@ struct s_chr_instance
 
     // OBSOLETE
     // lighting
-    // Uint16         light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
+    // FACING_T       light_turn_z;    ///< Character's light rotation 0 to 0xFFFF
     // Uint8          lightlevel_amb;  ///< 0-255, terrain light
     // Uint8          lightlevel_dir;  ///< 0-255, terrain light
 };
@@ -193,9 +193,9 @@ struct s_chr_instance
 typedef struct s_chr_instance chr_instance_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( Uint16 character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_tex( Uint16 character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad( Uint16 character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad_enviro( REF_T character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad_tex( REF_T character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad( REF_T character, GLXvector4f tint, Uint32 bits );
 bool_t render_one_mad_ref( int tnc );
 
 void      update_all_chr_instance();
@@ -211,5 +211,5 @@ egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t ac
 egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action );
 
 egoboo_rv chr_instance_increment_action( chr_instance_t * pinst );
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, Uint16 imount );
-egoboo_rv chr_instance_play_action( chr_instance_t * pinst, Uint16 action, bool_t actionready );
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, REF_T imount );
+egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t actionready );

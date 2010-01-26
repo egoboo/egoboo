@@ -961,7 +961,7 @@ mad_t * mad_dtor( mad_t * pmad )
 //--------------------------------------------------------------------------------------------
 void init_all_mad()
 {
-    Uint16 cnt;
+    MAD_REF cnt;
 
     for ( cnt = 0; cnt < MAX_MAD; cnt++ )
     {

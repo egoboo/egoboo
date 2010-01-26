@@ -88,14 +88,14 @@ void prt_set_texture_params( Uint32 itex )
 /// The data values necessary to sort particles by their position to the camera
 struct s_prt_registry_entity
 {
-    int   index;
+    REF_T index;
     float dist;
 };
 typedef struct s_prt_registry_entity prt_registry_entity_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting );
+static void prt_instance_update( camera_t * pcam, PRT_REF particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
@@ -171,7 +171,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( Uint16 iprt )
+bool_t render_one_prt_solid( REF_T iprt )
 {
     /// @details BB@> Render the solid version of the particle
 
@@ -233,8 +233,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 {
     /// @details BB@> do solid sprites first
 
-    Uint32 cnt;
-    Uint16 prt;
+    PRT_REF cnt, prt;
 
     gfx_begin_3d( pcam );
     {
@@ -252,7 +251,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_trans( Uint16 iprt )
+bool_t render_one_prt_trans( REF_T iprt )
 {
     /// @details BB@> do all kinds of transparent sprites next
 
@@ -383,9 +382,9 @@ void render_prt( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
-    fvec3_t   vfwd, vcam;
-    Uint16 cnt;
-    size_t numparticle;
+    fvec3_t vfwd, vcam;
+    PRT_REF cnt;
+    size_t  numparticle;
 
     prt_instance_update_all( pcam );
 
@@ -429,7 +428,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_ref( Uint16 iprt )
+bool_t render_one_prt_ref( REF_T iprt )
 {
     /// @details BB@> render one particle
 
@@ -532,8 +531,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 //--------------------------------------------------------------------------------------------
 void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
-    Uint16 prt;
-    Uint32 cnt;
+    PRT_REF prt, cnt;
 
     gfx_begin_3d( pcam );
     {
@@ -1128,7 +1126,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_update( camera_t * pcam, Uint16 particle, Uint8 trans, bool_t do_lighting )
+void prt_instance_update( camera_t * pcam, REF_T particle, Uint8 trans, bool_t do_lighting )
 {
     prt_t * pprt;
     prt_instance_t * pinst;

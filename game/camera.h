@@ -103,7 +103,7 @@ struct s_camera
     float     zgoto;
     float     turn_z_rad;           ///< Camera rotations
     float     turn_z_one;
-    Uint16    facing_z;
+    FACING_T  facing_z;
     float     turnadd;                 ///< Turning rate
     float     sustain;                 ///< Turning rate falloff
     float     turnupdown;

@@ -326,7 +326,13 @@ void  oglx_texture_Release( oglx_texture *texture )
         texture->surface = NULL;
     }
 
+    // try to get rid of any stored texture data for this texture
+    GL_DEBUG( glDeleteTextures )( 1, &(texture->base.binding) );
+    
     if ( !ErrorImage_defined ) ErrorImage_create();
+
+    // generate a new texture binding
+    GL_DEBUG( glGenTextures )( 1, &(texture->base.binding) );
 
     // Bind the error texture instead of the old texture
     ErrorImage_bind( texture->base.target, texture->base.binding );

@@ -30,7 +30,7 @@ struct s_camera;
 //--------------------------------------------------------------------------------------------
 /// JF - Added so that the video mode might be determined outside of the graphics code
 extern bool_t          meshnotexture;
-extern Uint16          meshlasttexture;             ///< Last texture used
+extern Uint32          meshlasttexture;             ///< Last texture used
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

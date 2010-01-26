@@ -151,7 +151,7 @@ EXTERN int             pickedmodule_index;                ///< The module index 
 
 /// Respawning
 EXTERN bool_t                   local_allpladead;            ///< Has everyone died?
-EXTERN Uint16                   revivetimer EQ( 0 );
+EXTERN int                      revivetimer EQ( 0 );
 
 /// Imports
 EXTERN int                     local_import_count;                     ///< Number of imports from this machine
@@ -178,14 +178,6 @@ EXTERN int                       local_seedark_level     EQ( 0 );
 EXTERN bool_t                    local_seekurse          EQ( bfalse );
 EXTERN bool_t                    local_listening         EQ( bfalse );  ///< Players with listen skill?
 EXTERN bool_t                    local_noplayers;                    ///< Are there any local players?
-
-//------------------------------------
-// Model stuff
-//------------------------------------
-
-EXTERN const char *globalparsename  EQ( NULL ); ///< The SCRIPT.TXT filename
-
-EXTERN float           platstick  EQ( 0.1f );   ///< phisics info
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

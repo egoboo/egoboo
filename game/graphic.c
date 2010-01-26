@@ -193,12 +193,13 @@ int rotmeshdown;
 Uint8   mapon         = bfalse;
 Uint8   mapvalid      = bfalse;
 Uint8   youarehereon  = bfalse;
-Uint16  numblip       = 0;
-Uint16  blipx[MAXBLIP];
-Uint16  blipy[MAXBLIP];
-Uint8   blipc[MAXBLIP];
 
-Uint16  msgtimechange = 0;
+size_t  blip_count    = 0;
+float   blip_x[MAXBLIP];
+float   blip_y[MAXBLIP];
+Uint8   blip_c[MAXBLIP];
+
+int     msgtimechange = 0;
 
 DECLARE_STACK( ACCESS_TYPE_NONE, msg_t, DisplayMsg );
 
@@ -724,7 +725,7 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map )
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 {
     /// @details ZZ@> This function draws an icon
-    int     position, blipx, blipy;
+    int     position, blip_x, blip_y;
     int     width, height;
     frect_t txrect;
 
@@ -757,21 +758,21 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
         position = update_wld & 31;
         position = ( SPARKLESIZE * position >> 5 );
 
-        blipx = x + SPARKLEADD + position;
-        blipy = y + SPARKLEADD;
-        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
+        blip_x = x + SPARKLEADD + position;
+        blip_y = y + SPARKLEADD;
+        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
 
-        blipx = x + SPARKLEADD + SPARKLESIZE;
-        blipy = y + SPARKLEADD + position;
-        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
+        blip_x = x + SPARKLEADD + SPARKLESIZE;
+        blip_y = y + SPARKLEADD + position;
+        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
 
-        blipx = blipx - position;
-        blipy = y + SPARKLEADD + SPARKLESIZE;
-        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
+        blip_x = blip_x - position;
+        blip_y = y + SPARKLEADD + SPARKLESIZE;
+        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
 
-        blipx = x + SPARKLEADD;
-        blipy = blipy - position;
-        draw_blip( 0.5f, sparkle, blipx, blipy, bfalse );
+        blip_x = x + SPARKLEADD;
+        blip_y = blip_y - position;
+        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
     }
 }
 
@@ -1181,12 +1182,12 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
+void draw_one_character_icon( REF_T item, int x, int y, bool_t draw_ammo )
 {
     /// @details BB@> Draw an icon for the given item at the position <x,y>.
     ///     If the object is invalid, draw the null icon instead of failing
 
-    Uint32 icon_ref;
+    TX_REF icon_ref;
     Uint8  draw_sparkle;
 
     chr_t * pitem = !ACTIVE_CHR( item ) ? NULL : ChrList.lst + item;
@@ -1215,7 +1216,7 @@ void draw_one_character_icon( Uint16 item, int x, int y, bool_t draw_ammo )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_character_xp_bar( Uint16 character, int x, int y )
+int draw_character_xp_bar( REF_T character, int x, int y )
 {
     chr_t * pchr;
     cap_t * pcap;
@@ -1243,7 +1244,7 @@ int draw_character_xp_bar( Uint16 character, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_status( Uint16 character, int x, int y )
+int draw_status( REF_T character, int x, int y )
 {
     /// @details ZZ@> This function shows a character's icon, status and inventory
     ///    The x,y coordinates are the top left point of the image to draw
@@ -1348,7 +1349,7 @@ int draw_all_status( int y )
 //--------------------------------------------------------------------------------------------
 void draw_map()
 {
-    int cnt, tnc;
+    int cnt;
 
     // Map display
     if ( !mapvalid || !mapon ) return;
@@ -1367,17 +1368,17 @@ void draw_map()
         // If one of the players can sense enemies via EMP, draw them as blips on the map
         if ( TEAM_MAX != local_senseenemiesTeam )
         {
-            Uint16 iTmp;
+            CHR_REF ichr;
 
-            for ( iTmp = 0; iTmp < MAX_CHR && numblip < MAXBLIP; iTmp++ )
+            for ( ichr = 0; ichr < MAX_CHR && blip_count < MAXBLIP; ichr++ )
             {
                 chr_t * pchr;
                 cap_t * pcap;
 
-                if ( !ACTIVE_CHR( iTmp ) ) continue;
-                pchr = ChrList.lst + iTmp;
+                if ( !ACTIVE_CHR( ichr ) ) continue;
+                pchr = ChrList.lst + ichr;
 
-                pcap = chr_get_pcap( iTmp );
+                pcap = chr_get_pcap( ichr );
                 if ( NULL == pcap ) continue;
 
                 // Show only teams that will attack the player
@@ -1392,10 +1393,10 @@ void draw_map()
                         if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
                         {
                             // Valid colors only
-                            blipx[numblip] = pchr->pos.x;
-                            blipy[numblip] = pchr->pos.y;
-                            blipc[numblip] = COLOR_RED; // Red blips
-                            numblip++;
+                            blip_x[blip_count] = pchr->pos.x;
+                            blip_y[blip_count] = pchr->pos.y;
+                            blip_c[blip_count] = COLOR_RED; // Red blips
+                            blip_count++;
                         }
                     }
                 }
@@ -1403,25 +1404,26 @@ void draw_map()
         }
 
         // draw all the blips
-        for ( cnt = 0; cnt < numblip; cnt++ )
+        for ( cnt = 0; cnt < blip_count; cnt++ )
         {
-            draw_blip( 0.75f, blipc[cnt], blipx[cnt], blipy[cnt], btrue );
+            draw_blip( 0.75f, blip_c[cnt], blip_x[cnt], blip_y[cnt], btrue );
         }
-        numblip = 0;
+        blip_count = 0;
 
         // Show local player position(s)
         if ( youarehereon && ( update_wld & 8 ) )
         {
-            for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+            PLA_REF iplayer;
+            for ( iplayer = 0; iplayer < MAX_PLAYER; iplayer++ )
             {
-                if ( !PlaList[cnt].valid ) continue;
+                if ( !PlaList[iplayer].valid ) continue;
 
-                if ( INPUT_BITS_NONE != PlaList[cnt].device.bits )
+                if ( INPUT_BITS_NONE != PlaList[iplayer].device.bits )
                 {
-                    tnc = PlaList[cnt].index;
-                    if ( ACTIVE_CHR( tnc ) && ChrList.lst[tnc].alive )
+                    CHR_REF ichr = PlaList[iplayer].index;
+                    if ( ACTIVE_CHR( ichr ) && ChrList.lst[ichr].alive )
                     {
-                        draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[tnc].pos.x, ChrList.lst[tnc].pos.y, btrue );
+                        draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[ichr].pos.x, ChrList.lst[ichr].pos.y, btrue );
                     }
                 }
             }
@@ -1536,32 +1538,32 @@ int draw_help( int y )
 //--------------------------------------------------------------------------------------------
 int draw_debug( int y )
 {
-    int tnc;
-
     if ( !cfg.dev_mode ) return y;
 
     if ( SDLKEYDOWN( SDLK_F5 ) )
     {
+        CHR_REF ichr;
+
         // Debug information
         y = _draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
         y = _draw_string_raw( 0, y, "~~CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
 
-        tnc = PlaList[0].index;
+        ichr = PlaList[0].index;
         y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_SLASH] & 3,
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_CRUSH] & 3,
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_POKE ] & 3,
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_HOLY ] & 3,
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_EVIL ] & 3,
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_FIRE ] & 3,
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_ICE  ] & 3,
-                              ChrList.lst[tnc].damagemodifier[DAMAGE_ZAP  ] & 3 );
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_SLASH] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_CRUSH] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_POKE ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_HOLY ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_EVIL ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_FIRE ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_ICE  ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_ZAP  ] & 3 );
 
-        tnc = PlaList[0].index;
-        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[tnc].pos.x / GRID_SIZE, ChrList.lst[tnc].pos.y / GRID_SIZE );
+        ichr = PlaList[0].index;
+        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_SIZE, ChrList.lst[ichr].pos.y / GRID_SIZE );
 
-        tnc = PlaList[1].index;
-        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[tnc].pos.x / GRID_SIZE, ChrList.lst[tnc].pos.y / GRID_SIZE );
+        ichr = PlaList[1].index;
+        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_SIZE, ChrList.lst[ichr].pos.y / GRID_SIZE );
     }
 
     if ( SDLKEYDOWN( SDLK_F6 ) )
@@ -1860,7 +1862,7 @@ void render_shadow_sprite( float intensity, GLvertex v[] )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_shadow( Uint16 character )
+void render_shadow( REF_T character )
 {
     /// @details ZZ@> This function draws a NIFTY shadow
     GLvertex v[4];
@@ -1993,7 +1995,7 @@ void render_shadow( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_bad_shadow( Uint16 character )
+void render_bad_shadow( REF_T character )
 {
     /// @details ZZ@> This function draws a sprite shadow
     GLvertex v[4];
@@ -2203,7 +2205,6 @@ void render_scene_mesh( renderlist_t * prlist )
 {
     /// @details BB@> draw the mesh and any reflected objects
 
-    Uint16 tnc;
     int cnt;
     ego_mpd_t * pmesh;
 
@@ -2283,7 +2284,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                 for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
                 {
-                    tnc = dolist[cnt].ichr;
+                    REF_T iref;
 
                     if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
                     {
@@ -2295,20 +2296,20 @@ void render_scene_mesh( renderlist_t * prlist )
                         GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
                         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
 
-                        tnc = dolist[cnt].ichr;
-                        itile = ChrList.lst[tnc].onwhichgrid;
+                        iref = dolist[cnt].ichr;
+                        itile = ChrList.lst[iref].onwhichgrid;
 
                         if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
                             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
-                            render_one_mad_ref( tnc );
+                            render_one_mad_ref( iref );
                         }
                     }
                     else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
                     {
                         Uint32 itile;
-                        tnc = dolist[cnt].iprt;
-                        itile = PrtList.lst[tnc].onwhichgrid;
+                        iref = dolist[cnt].iprt;
+                        itile = PrtList.lst[iref].onwhichgrid;
 
                         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
@@ -2318,7 +2319,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                         if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
-                            render_one_prt_ref( tnc );
+                            render_one_prt_ref( iref );
                         }
                     }
                 }
@@ -2405,10 +2406,10 @@ void render_scene_mesh( renderlist_t * prlist )
                 // Bad shadows
                 for ( cnt = 0; cnt < dolist_count; cnt++ )
                 {
-                    tnc = dolist[cnt].ichr;
-                    if ( 0 == ChrList.lst[tnc].shadow_size ) continue;
+                    CHR_REF ichr = dolist[cnt].ichr;
+                    if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
-                    render_bad_shadow( tnc );
+                    render_bad_shadow( ichr );
                 }
             }
             else
@@ -2416,10 +2417,10 @@ void render_scene_mesh( renderlist_t * prlist )
                 // Good shadows for me
                 for ( cnt = 0; cnt < dolist_count; cnt++ )
                 {
-                    tnc = dolist[cnt].ichr;
-                    if ( 0 == ChrList.lst[tnc].shadow_size ) continue;
+                    CHR_REF ichr = dolist[cnt].ichr;
+                    if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
-                    render_shadow( tnc );
+                    render_shadow( ichr );
                 }
             }
         }
@@ -2495,7 +2496,7 @@ void render_scene_trans()
     {
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
         {
-            Uint16  ichr = dolist[cnt].ichr;
+            CHR_REF  ichr = dolist[cnt].ichr;
             chr_t * pchr = ChrList.lst + ichr;
             chr_instance_t * pinst = &( pchr->inst );
 
@@ -3431,10 +3432,10 @@ void BillboardList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-int BillboardList_get_free( Uint32 lifetime_secs )
+size_t BillboardList_get_free( Uint32 lifetime_secs )
 {
-    int                itex = INVALID_TEXTURE;
-    int                ibb  = INVALID_BILLBOARD;
+    TX_REF             itex = INVALID_TEXTURE;
+    size_t             ibb  = INVALID_BILLBOARD;
     billboard_data_t * pbb  = NULL;
 
     if ( BillboardList.free_count <= 0 ) return INVALID_BILLBOARD;
@@ -3470,7 +3471,7 @@ int BillboardList_get_free( Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BillboardList_free_one( int ibb )
+bool_t BillboardList_free_one( REF_T ibb )
 {
     billboard_data_t * pbb;
 
@@ -3503,7 +3504,7 @@ bool_t BillboardList_free_one( int ibb )
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * BillboardList_get_ptr( int ibb )
+billboard_data_t * BillboardList_get_ptr( REF_T ibb )
 {
     if ( !VALID_BILLBOARD( ibb ) ) return NULL;
 
@@ -3924,7 +3925,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 //--------------------------------------------------------------------------------------------
 // GRAPHICS OPTIMIZATIONS
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
+bool_t dolist_add_chr( ego_mpd_t * pmesh, REF_T ichr )
 {
     /// ZZ@> This function puts a character in the list
     Uint32 itile;
@@ -3977,7 +3978,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
+bool_t dolist_add_prt( ego_mpd_t * pmesh, REF_T iprt )
 {
     /// ZZ@> This function puts a character in the list
     prt_t * pprt;
@@ -4050,7 +4051,7 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
     ///    which is needed for reflections to properly clip themselves.
     ///    Order from closest to farthest
 
-    Uint32    cnt, tnc;
+    Uint32    cnt;
     fvec3_t   vcam;
     size_t    count;
 
@@ -4062,35 +4063,36 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
     {
         fvec3_t   vtmp;
         float dist;
+        REF_T iref;
 
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
         {
             fvec3_t pos_tmp;
 
-            tnc = dolist[cnt].ichr;
+            iref = dolist[cnt].ichr;
 
             if ( do_reflect )
             {
-                pos_tmp = mat_getTranslate( ChrList.lst[tnc].inst.ref.matrix );
+                pos_tmp = mat_getTranslate( ChrList.lst[iref].inst.ref.matrix );
             }
             else
             {
-                pos_tmp = mat_getTranslate( ChrList.lst[tnc].inst.matrix );
+                pos_tmp = mat_getTranslate( ChrList.lst[iref].inst.matrix );
             }
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
         else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
         {
-            tnc = dolist[cnt].iprt;
+            iref = dolist[cnt].iprt;
 
             if ( do_reflect )
             {
-                vtmp = fvec3_sub( PrtList.lst[tnc].inst.pos.v, pcam->pos.v );
+                vtmp = fvec3_sub( PrtList.lst[iref].inst.pos.v, pcam->pos.v );
             }
             else
             {
-                vtmp = fvec3_sub( PrtList.lst[tnc].inst.ref_pos.v, pcam->pos.v );
+                vtmp = fvec3_sub( PrtList.lst[iref].inst.ref_pos.v, pcam->pos.v );
             }
         }
         else
@@ -4446,7 +4448,7 @@ void init_blip_data()
     }
 
     youarehereon = bfalse;
-    numblip      = 0;
+    blip_count      = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4624,7 +4626,7 @@ void load_map( /* const char* szModule */ )
     mapvalid = bfalse;
     mapon = bfalse;
     youarehereon = bfalse;
-    numblip = 0;
+    blip_count = 0;
 
     // Load the images
     szMap = "mp_data/plan";
@@ -4730,7 +4732,7 @@ void do_chr_flashing()
 
     for ( i = 0; i < dolist_count; i++ )
     {
-        Uint16 ichr = dolist[i].ichr;
+        CHR_REF ichr = dolist[i].ichr;
 
         if ( !ACTIVE_CHR( ichr ) ) continue;
 
@@ -4749,7 +4751,7 @@ void do_chr_flashing()
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_character( Uint16 character, Uint8 value )
+void flash_character( REF_T character, Uint8 value )
 {
     /// @details ZZ@> This function sets a character's lighting
 

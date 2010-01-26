@@ -115,7 +115,7 @@ bool_t waypoint_list_advance( waypoint_list_t * plst );
 struct s_ai_state
 {
     // which script to run
-    Uint16         type;
+    REF_T          type;
 
     // the execution pointer(s)
     size_t         exe_stt;
@@ -131,10 +131,10 @@ struct s_ai_state
     Uint32         indent_last;
 
     // who are we related to?
-    Uint16         index;         ///< what is the index value of this character
-    Uint16         target;        ///< Who the AI is after
-    Uint16         owner;         ///< The character's owner
-    Uint16         child;         ///< The character's child
+    REF_T          index;         ///< what is the index value of this character
+    REF_T          target;        ///< Who the AI is after
+    REF_T          owner;         ///< The character's owner
+    REF_T          child;         ///< The character's child
 
     // some local storage
     Uint32         alert;         ///< Alerts for AI script
@@ -146,22 +146,19 @@ struct s_ai_state
     int            y[STOR_COUNT];
 
     // ai memory from the last event
-    Uint16         bumplast;        ///< Last character it was bumped by
+    REF_T          bumplast;        ///< Last character it was bumped by
     int            bumplast_time;   ///< The last time that a ALERTIF_BUMPED was sent
 
-    Uint16         attacklast;      ///< Last character it was attacked by
-    Uint16         hitlast;         ///< Last character it hit
-    Uint16         directionlast;   ///< Direction of last attack/healing
+    REF_T          attacklast;      ///< Last character it was attacked by
+    REF_T          hitlast;         ///< Last character it hit
+    FACING_T       directionlast;   ///< Direction of last attack/healing
     Uint16         damagetypelast;  ///< Last damage type
-    Uint16         lastitemused;    ///< The last item the character used
-    Uint16         target_old;      ///< Target in the previous update
+    REF_T          lastitemused;    ///< The last item the character used
+    REF_T          target_old;      ///< Target in the previous update
 
     // message handling
     Uint32         order_value;           ///< The last order given the character
     Uint16         order_counter;         ///< The rank of the character on the order chain
-
-    // timers to limit the the rate of some calls
-    //Uint32         los_timer;
 
     // waypoints
     bool_t          wp_valid;            ///< is the current waypoint valid?
@@ -175,7 +172,7 @@ typedef struct s_ai_state ai_state_t;
 
 ai_state_t * ai_state_ctor( ai_state_t * pself );
 ai_state_t * ai_state_dtor( ai_state_t * pself );
-bool_t       ai_state_set_bumplast( ai_state_t * pself, Uint16 ichr );
+bool_t       ai_state_set_bumplast( ai_state_t * pself, REF_T ichr );
 bool_t       ai_state_get_wp( ai_state_t * pself );
 bool_t       ai_state_ensure_wp( ai_state_t * pself );
 
@@ -197,11 +194,11 @@ typedef struct s_script_state script_state_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Prototypes
-void  scr_run_chr_script( Uint16 character );
+void  scr_run_chr_script( REF_T character );
 
-void issue_order( Uint16 character, Uint32 order );
+void issue_order( REF_T character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
-void set_alerts( Uint16 character );
+void set_alerts( REF_T character );
 
 void scripting_system_begin();
 void scripting_system_end();

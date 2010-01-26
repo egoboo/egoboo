@@ -152,7 +152,7 @@ enum e_action
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-typedef Uint16 MAD_REF;
+DECLARE_REF( MAD_REF );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -186,10 +186,10 @@ void MadList_dtor();
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void   init_all_mad();
-void   release_all_mad();
-bool_t release_one_mad( MAD_REF imad );
-Uint16 load_one_model_profile( const char* tmploadname, MAD_REF object );
+void    init_all_mad();
+void    release_all_mad();
+bool_t  release_one_mad( MAD_REF imad );
+MAD_REF load_one_model_profile( const char* tmploadname, MAD_REF object );
 
 int    action_which( char cTmp );
 void   load_action_names( const char* loadname );
