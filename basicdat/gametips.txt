@@ -29,3 +29,4 @@ Tip 26: A_rogue_can_attack_many_enemies_from_behind_for_a_massive_damage_bonus._
 Tip 27: Want_to_gain_experience_faster?_Increase_the_Game_Difficulity_to_gain_a_xp_bonus!
 Tip 28: Is_the_game_to_hard?_Try_reducing_the_Game_Difficulity_in_the_Options_Menu.
 Tip 29: You_can_change_the_game_controls_in_the_Input_Options_menu.
+Tip 30: Dexterity_increases_your_chance_to_hit_with_ranged_weapons.

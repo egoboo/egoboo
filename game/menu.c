@@ -4637,7 +4637,6 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
 void load_global_game_hints()
 {
     /// ZF@> This function loads all of the game hints and tips
-    STRING loadpath;
     STRING buffer;
     vfs_FILE *fileread;
     Uint8 cnt;
@@ -4649,7 +4648,7 @@ void load_global_game_hints()
     fileread = vfs_openRead( "mp_data/gametips.txt" );
     if ( NULL == fileread )
     {
-        log_warning( "Could not load the game tips and hints. (%s)\n", loadpath );
+        log_warning( "Could not load the game tips and hints. (basicdat" SLASH_STR "gametips.txt)\n" );
         return;
     }
 
