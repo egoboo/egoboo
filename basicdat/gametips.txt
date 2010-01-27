@@ -3,7 +3,7 @@ Tip 0: Identifying_an_item_may_give_it_extra_powers.
 Tip 1: Always_keep_a_couple_mana_potions_handy.
 Tip 2: Life_and_Mana_potions_reduce_your_max_life_and_max_mana.
 Tip 3: Bludthirsty_Squirrels_can_eat_'Almost_dead'_Ghouls.
-Tip 4: There_is_a_secret_with_the_Outhouse_in_Bishopia.
+Tip 4: Bumping_into_many_NPC's_often_allows_you_to_talk_with_them.
 Tip 5: A_character_with_the_Poison_Skill_can_throw_flasks_of_poison_at_enemies.
 Tip 6: Spell_books_are_easily_damaged_by_fire_or_water...
 Tip 7: Scrolls_and_books_are_ruined_if_soaked_in_water...
@@ -30,3 +30,4 @@ Tip 27: Want_to_gain_experience_faster?_Increase_the_Game_Difficulity_to_gain_a_
 Tip 28: Is_the_game_to_hard?_Try_reducing_the_Game_Difficulity_in_the_Options_Menu.
 Tip 29: You_can_change_the_game_controls_in_the_Input_Options_menu.
 Tip 30: Dexterity_increases_your_chance_to_hit_with_ranged_weapons.
+Tip 31: You_can_carry_up_to_6_items_in_your_inventory_plus_two_items_in_your_hands.

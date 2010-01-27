@@ -1,0 +1,5 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Inside_this_tower,_there_is_a_great_evil_imprisoned_that_is_breaking_free.
+Tip 1: A_lot_of_dangerous_challenges_guard_the_prison.
+Tip 2: Seemingly_useless_items_might_have_some_use_later.
+Tip 3: Use_a_Truesight_spell_to_see_invisible_enemies.
