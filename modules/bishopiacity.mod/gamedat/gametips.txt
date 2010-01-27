@@ -15,4 +15,4 @@ Tip 12: Bishopia_is_the_biggest_City_and_the_Capitol_of_Lorule.
 Tip 13: Tuk_is_the_monk_that_runs_the_divine_shop_of_the_Paladin_Guild.
 Tip 14: Zambini_is_the_magic_shop_owner._He_is_one_of_the_most_powerful_mages_alive.
 Tip 15: Visit_Bishopia_Graveyard_to_mourn_the_dead.
-Tip 16: Shops_restock_randomly_their_goods_each_time_you_visit_the_city.
+Tip 16: Shops_restock_with_random_goods_every_time_you_visit_the_city.
