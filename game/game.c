@@ -1629,7 +1629,7 @@ void update_pits()
         if ( clock_pit == 0 )
         {
             //Reset timer
-            clock_pit = 20;
+            clock_pit = 15;
 
             // Kill any particles that fell in a pit, if they die in water...
             for ( cnt = 0; cnt < maxparticles; cnt++ )
@@ -1648,7 +1648,7 @@ void update_pits()
                 // Is it a valid character?
                 if ( pit_chr->invictus || !pit_chr->alive ) continue;
                 if ( ACTIVE_CHR( pit_chr->attachedto ) || pit_chr->pack_ispacked ) continue;
-
+				
                 // Do we kill it?
                 if ( pits.kill && pit_chr->pos.z < PITDEPTH )
                 {
@@ -1663,7 +1663,7 @@ void update_pits()
                 }
 
                 // Do we teleport it?
-                if ( pits.teleport && pit_chr->pos.z < PITDEPTH << 3 )
+                if ( pits.teleport && pit_chr->pos.z < PITDEPTH << 2 )
                 {
                     bool_t teleported;
 

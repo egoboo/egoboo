@@ -97,7 +97,7 @@ IfBumped
 
         tmpargument = 3              //Special Chest
         IfContentIs
-          tmpx = rand & 3
+          tmpx = rand % 4
           tmpy = 0
           IfXIsEqualToY
             tmpargument = 67		//Chiuaua X2
@@ -122,7 +122,7 @@ IfBumped
           SetTime
 
           //And drop treasure!
-          tmpargument = 400
+          tmpargument = selfmoney
           DropMoney
           tmpargument = rand & 3 + 1
           tmpdistance = SPAWNORIGIN

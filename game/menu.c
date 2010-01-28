@@ -3417,34 +3417,44 @@ int doVideoOptions( float deltaTime )
 //--------------------------------------------------------------------------------------------
 int doShowResults( float deltaTime )
 {
-    Uint8 i;
-
-    static Font   *font;
+    
+	static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;
-    static char*   game_hint;
+	static char*   game_hint;
+    static char    buffer[1024] = EMPTY_CSTR;
 
     int menuResult = 0;
 
     switch ( menuState )
     {
         case MM_Begin:
+			{
+			    Uint8 i;
+				char * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
+				
+				font = ui_getFont();
+		        count = 0;
+			    menuState = MM_Entering;
 
-            font = ui_getFont();
-            count = 0;
-            menuState = MM_Entering;
-
-			// Should be okay to do this, the random seed isnt standarized or used elsewhere before 
-			// the module is loaded.
-            srand( time( NULL ) );
-                
-            // Randomize the next game hint
-			game_hint = CSTR_END;
-			if( load_local_game_hints() )		game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
-            else if ( mnu_GameTip.count > 0 )	game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
-
-            // pass through
-
+				// Prepeare the summary text
+				for ( i = 0; i < SUMMARYLINES; i++ )
+				{
+					carat += snprintf( carat, carat_end - carat - 1, "%s\n", mnu_ModList.lst[selectedModule].base.summary[i] );
+				}
+				
+				// Randomize the next game hint, but only if not in hard mode
+				game_hint = CSTR_END;
+				if( cfg.difficulty >= GAME_HARD )
+				{
+					// Should be okay to randomize the seed here, the random seed isnt standarized or 
+					// used elsewhere before the module is loaded.
+					srand( time( NULL ) );
+            		if( load_local_game_hints() )		game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
+					else if ( mnu_GameTip.count > 0 )	game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
+				}
+			}
+			// pass through
 
         case MM_Entering:
             menuState = MM_Running;
@@ -3452,21 +3462,12 @@ int doShowResults( float deltaTime )
 
         case MM_Running:
             {
-                char buffer[1024] = EMPTY_CSTR;
-                char * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
-
                 ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
                 GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
                 // the module name
                 ui_drawTextBox( font, mnu_ModList.lst[selectedModule].base.longname, 50, 80, 291, 230, 20 );
-
-                // the summary
-                for ( i = 0; i < SUMMARYLINES; i++ )
-                {
-                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", mnu_ModList.lst[selectedModule].base.summary[i] );
-                }
 
                 // Draw a text box
                 ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );

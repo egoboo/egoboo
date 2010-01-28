@@ -1,6 +1,11 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+
+#dependency Everburn 68
+#dependency Chiuaua 67
+#dependency MagicPick 69 
+
 //The player and his equipment
-unknown:   NONE    0  3.5  12.5   0.0   N    0   0  0   0   0   T   F   R
+HERO:        NONE    0  3.5  12.5   0.0   N    0   0  0   0   0   T   F   R
   unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
