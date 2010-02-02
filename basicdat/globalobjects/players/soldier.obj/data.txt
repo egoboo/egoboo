@@ -69,17 +69,17 @@ POKE defense shift ( eg. 1 1 1 1 )		:  1  1  2  1
 HOLY defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
 FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
-ICE defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
-ZAP defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
-SLASH inversion ( eg. F F F T )			:  F  F  F  F
-CRUSH inversion ( eg. F F F T )			:  F  F  F  F
-POKE inversion ( eg. F F F T )			:  F  F  F  F
-HOLY inversion ( eg. T T T T )			:  T  T  T  T
-EVIL inversion ( eg. F F F T )			:  F  F  F  F
-FIRE inversion ( eg. F F F T )			:  F  F  F  F
-ICE inversion ( eg. F F F T )			:  F  F  F  F
-ZAP inversion ( eg. F F F T )			:  F  F  F  F
-Acceleration rate ( eg. 40 38 30 20 )		: 50 45 40 60
+ICE defense shift ( eg. 1 1 1 1 )		  :  1  1  1  2
+ZAP defense shift ( eg. 1 1 1 1 )		  :  1  1  1  2
+SLASH inversion ( eg. F F F T )			  :  F  F  F  F
+CRUSH inversion ( eg. F F F T )			  :  F  F  F  F
+POKE inversion ( eg. F F F T )			  :  F  F  F  F
+HOLY inversion ( eg. T T T T )			  :  T  T  T  T
+EVIL inversion ( eg. F F F T )			  :  F  F  F  F
+FIRE inversion ( eg. F F F T )			  :  F  F  F  F
+ICE inversion ( eg. F F F T )			    :  F  F  F  F
+ZAP inversion ( eg. F F F T )			    :  F  F  F  F
+Acceleration rate ( eg. 40 38 30 20 )	: 50 45 40 60
 
 
 // Experience and level data
@@ -194,6 +194,7 @@ Sound of Jump ( -1 for none )			: 1
 
 // Expansions
 :[AWEP] 1		//Can use Advanced Weapons
+:[DRES] 0   //Skin 0 is dressy
 
 //-Notes------------------------------------------------------------------------
 // This is not the orginal Soldier, it's modified by Zefz for more game balance.

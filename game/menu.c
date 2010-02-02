@@ -2792,7 +2792,7 @@ int doVideoOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_wizard", TRANSCOLOR );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_video", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -3445,7 +3445,7 @@ int doShowResults( float deltaTime )
 				
 				// Randomize the next game hint, but only if not in hard mode
 				game_hint = CSTR_END;
-				if( cfg.difficulty >= GAME_HARD )
+				if( cfg.difficulty <= GAME_NORMAL )
 				{
 					// Should be okay to randomize the seed here, the random seed isnt standarized or 
 					// used elsewhere before the module is loaded.
@@ -3462,6 +3462,7 @@ int doShowResults( float deltaTime )
 
         case MM_Running:
             {
+				int text_h, text_w;
                 ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
                 GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
@@ -3472,16 +3473,18 @@ int doShowResults( float deltaTime )
                 // Draw a text box
                 ui_drawTextBox( menuFont, buffer, 50, 120, 291, 230, 20 );
 
+				// Loading game... please wait
+				fnt_getTextSize( font, "Loading module...", &text_w, &text_h );
+				fnt_drawText( font, NULL, ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 200, "Loading module..." );
+
                 // Draw the game tip
                 if ( VALID_CSTR( game_hint ) )
                 {
-                    int text_w, text_h;
-
                     fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
                     fnt_drawText( menuFont, NULL, ( GFX_WIDTH / 2 )  - text_w / 2, GFX_HEIGHT - 150, "GAME TIP" );
 
-                    fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );		//ZF> @todo: this doesnt work correctly, get_TextSize() does not take line breaks into account
-                    ui_drawTextBox( menuFont, game_hint, ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 125, GFX_WIDTH + 100, GFX_HEIGHT, 20 );
+                    fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );		//ZF> @todo: this doesnt work as I intended, fnt_get_TextSize() does not take line breaks into account
+                    ui_drawTextBox( menuFont, game_hint, ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 125, GFX_WIDTH + 150, GFX_HEIGHT, 20 );
                 }
 
                 // keep track of the iterations through this section for a timer
@@ -3921,7 +3924,7 @@ int doMenu( float deltaTime )
                 }
                 else if ( result == 2 )
                 {
-                    // "Restart Module"
+					// "Restart Module"
                     mnu_end_menu();
                     game_begin_module( PMod->loadname, ( Uint32 )~0 );
                     retval = MENU_END;

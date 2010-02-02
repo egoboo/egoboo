@@ -4,3 +4,4 @@ Tip 1: Destroy_tents_to_uncover_extra_loot!
 Tip 2: You_can_only_destroy_statues_with_crushing_weapons.
 Tip 3: There_is_a_secret_level_in_this_module.
 Tip 4: The_mushroom_ring_is_outside_the_fortress.
+Tip 5: Elves_have_great_mana_regeneration_but_rather_low_mana_pool.

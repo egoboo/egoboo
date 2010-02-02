@@ -1629,7 +1629,7 @@ void update_pits()
         if ( clock_pit == 0 )
         {
             //Reset timer
-            clock_pit = 15;
+            clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
             for ( cnt = 0; cnt < maxparticles; cnt++ )

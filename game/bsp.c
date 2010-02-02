@@ -375,7 +375,7 @@ bool_t BSP_branch_unlink( BSP_branch_t * B )
     // remove any links to other leaves
     // assume the user knows what they are doing
 
-    int i;
+    Uint32 i;
 
     if ( NULL == B ) return bfalse;
 

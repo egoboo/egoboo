@@ -1519,7 +1519,7 @@ void drop_keys( CHR_REF character )
     if ( !ACTIVE_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
-    if ( pchr->pos.z > -2 ) // Don't lose keys in pits...
+	if ( pchr->pos.z > (PITDEPTH >> 1) ) // Don't lose keys in pits...
     {
         // The IDSZs to find
         testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
@@ -1977,10 +1977,7 @@ void character_swipe( CHR_REF ichr, slot_t slot )
             pthrown->ai.alert |= ALERTIF_THROWN;
             velocity = pchr->strength / ( pthrown->phys.weight * THROWFIX );
             velocity += MINTHROWVELOCITY;
-            if ( velocity > MAXTHROWVELOCITY )
-            {
-                velocity = MAXTHROWVELOCITY;
-            }
+			velocity = MIN(velocity, MAXTHROWVELOCITY);
 
             turn = ( pchr->facing_z + ATK_BEHIND ) >> 2;
             pthrown->vel.x += turntocos[ turn & TRIG_TABLE_MASK ] * velocity;

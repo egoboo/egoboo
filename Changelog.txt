@@ -1,4 +1,4 @@
-Version 2.8.0 (xx.01.2010)
+Version 2.8.0 (xx.02.2010)
 - New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
   without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
 - New Feature: New side quest called "The Imprisoned One". A great ancient evil is breaking free from
