@@ -938,7 +938,7 @@ void GLSetup_SupportedFormats()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 key )
+Uint32  ego_texture_load( oglx_texture_t *texture, const char *filename, Uint32 key )
 {
     STRING fullname;
     Uint32 retval;

@@ -34,17 +34,10 @@
 /// Physics
 #define STOPBOUNCINGPART                5.0f         ///< To make particles stop bouncing
 
-DEFINE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
+DECLARE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
-
-//--------------------------------------------------------------------------------------------
-/// The particle template reference type
-DECLARE_REF( PIP_REF );
-
-/// the particle reference type
-DECLARE_REF( PRT_REF );
 
 //--------------------------------------------------------------------------------------------
 /// Everything that is necessary to compute the character's interaction with the environment
@@ -85,19 +78,19 @@ struct s_prt
 
     // profiles
     PIP_REF pip_ref;                         ///< The part template
-    REF_T   profile_ref;                     ///< the profile related to the spawned particle
+    PRO_REF profile_ref;                     ///< the profile related to the spawned particle
 
     // links
-    REF_T   attachedto_ref;                  ///< For torch flame
-    REF_T   owner_ref;                       ///< The character that is attacking
-    REF_T   target_ref;                      ///< Who it's chasing
+    CHR_REF attachedto_ref;                  ///< For torch flame
+    CHR_REF owner_ref;                       ///< The character that is attacking
+    CHR_REF target_ref;                      ///< Who it's chasing
     PRT_REF parent_ref;                      ///< Did a another particle spawn this one?
     Uint32  parent_guid;                     ///< Just in case, the parent particle was despawned and a differnt particle now has the parent_ref
 
     Uint16   vrt_off;                         ///< It's vertex offset
     Uint8    type;                            ///< Transparency mode, 0-2
     FACING_T facing;                          ///< Direction of the part
-    REF_T    team;                            ///< Team
+    TEAM_REF team;                            ///< Team
 
     fvec3_t pos, pos_old, pos_stt;           ///< Position
     fvec3_t vel, vel_old, vel_stt;           ///< Velocity
@@ -105,7 +98,7 @@ struct s_prt
 
     Uint32  onwhichgrid;                      ///< Where the part is
     Uint32  onwhichblock;                    ///< The particle's collision block
-    REF_T   onwhichplatform;                 ///< Is the particle on a platform?
+    CHR_REF onwhichplatform;                 ///< Is the particle on a platform?
     bool_t  is_hidden;                       ///< Is the particle related to a hidden character?
 
     FACING_T rotate;                          ///< Rotation direction
@@ -145,6 +138,11 @@ struct s_prt
 
     bool_t            is_homing;                 ///< Is the particle in control of its motion?
 
+    // some data that needs to be copied from the particle profile
+    Uint8             endspawn_amount;        ///< The number of particles to be spawned at the end
+    Uint16            endspawn_facingadd;     ///< The angular spacing for the end spawn
+    int               endspawn_pip;           ///< The actual pip that will be spawned at the end
+
     dynalight_info_t  dynalight;              ///< Dynamic lighting...
     prt_instance_t    inst;                   ///< Everything needed for rendering
     prt_environment_t enviro;                 ///< the particle's environment
@@ -159,9 +157,9 @@ struct s_prt
 };
 typedef struct s_prt prt_t;
 
-extern PRT_REF maxparticles;                              ///< max number of particles
+extern size_t maxparticles;                              ///< max number of particles
 
-DEFINE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
+DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
 #define ALLOCATED_PRT( IPRT )   ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
@@ -170,10 +168,11 @@ DEFINE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 #define TERMINATED_PRT( IPRT )  ( VALID_PRT_RANGE( IPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
 
 #define DEFINED_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE    (POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
+#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && (ACTIVE_PBASE    (POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT)))) )
 
-#define GET_INDEX_PPRT( PPRT )  ((PRT_REF)GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT ))
-#define VALID_PRT_PTR( PPRT )   ( (NULL != (PPRT)) && VALID_PRT_RANGE( GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT) ) )
+#define GET_INDEX_PPRT( PPRT )  ((size_t)GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT ))
+#define GET_REF_PPRT( PPRT )    ((PRT_REF)GET_INDEX_PPRT( PPRT ))
+#define VALID_PRT_PTR( PPRT )   ( (NULL != (PPRT)) && VALID_PRT_RANGE( GET_REF_POBJ( PPRT, TOTAL_MAX_PRT) ) )
 #define ALLOCATED_PPRT( PPRT )  ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PPRT) ) )
 #define TERMINATED_PPRT( PPRT ) ( VALID_PRT_PTR( PPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PPRT)) )
 #define ACTIVE_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) )
@@ -192,13 +191,13 @@ extern int prt_wall_tests;
 
 void   init_all_pip();
 void   release_all_pip();
-bool_t release_one_pip( PIP_REF ipip );
+bool_t release_one_pip( const PIP_REF by_reference ipip );
 
-bool_t PrtList_free_one( PRT_REF particle );
+bool_t PrtList_free_one( const PRT_REF by_reference particle );
 void   PrtList_free_all();
 void   PrtList_update_used();
 
-void   free_one_particle_in_game( PRT_REF particle );
+void   free_one_particle_in_game( const PRT_REF by_reference particle );
 
 void particle_system_begin();
 void particle_system_end();
@@ -207,26 +206,26 @@ void update_all_particles( void );
 void move_all_particles( void );
 void cleanup_all_particles( void );
 
-void play_particle_sound( PRT_REF particle, Sint8 sound );
+void play_particle_sound( const PRT_REF by_reference particle, Sint8 sound );
 
-PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, REF_T iprofile, PIP_REF ipip,
-                           REF_T chr_attach, Uint16 vrt_offset, REF_T team,
-                           REF_T chr_origin, REF_T prt_origin, int multispawn, REF_T oldtarget );
+PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
+                            const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
+                            const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
 
-#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, MAX_PROFILE, ipip, MAX_CHR, GRIP_LAST, TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, multispawn, MAX_CHR );
+#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)TOTAL_MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
 
 int     prt_count_free();
 
-PIP_REF load_one_particle_profile( const char *szLoadName, PIP_REF pip_override );
+PIP_REF load_one_particle_profile( const char *szLoadName, const PIP_REF by_reference pip_override );
 void    reset_particles();
 
 Uint32 prt_hit_wall( prt_t * pprt, float nrm[], float * pressure );
 bool_t prt_test_wall( prt_t * pprt );
 
-bool_t prt_is_over_water( PRT_REF particle );
+bool_t prt_is_over_water( const PRT_REF by_reference particle );
 
-bool_t release_one_pip( PIP_REF ipip );
+bool_t release_one_pip( const PIP_REF by_reference ipip );
 
-bool_t prt_request_terminate( PRT_REF iprt );
+bool_t prt_request_terminate( const PRT_REF by_reference iprt );
 
 void particle_set_level( prt_t * pprt, float level );

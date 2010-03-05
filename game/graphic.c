@@ -124,7 +124,7 @@ static bool_t             gfx_page_clear_requested = btrue;
 
 static float dynalight_keep = 0.9f;
 
-DECLARE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList );
+INSTANTIATE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 PROFILE_DECLARE( render_scene_init );
 PROFILE_DECLARE( render_scene_mesh );
@@ -201,7 +201,7 @@ Uint8   blip_c[MAXBLIP];
 
 int     msgtimechange = 0;
 
-DECLARE_STACK( ACCESS_TYPE_NONE, msg_t, DisplayMsg );
+INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 line_data_t line_list[LINE_COUNT];
 
@@ -236,8 +236,10 @@ static void gfx_disable_texturing();
 static void gfx_begin_2d( void );
 static void gfx_end_2d( void );
 
-void light_fans( renderlist_t * prlist );
-void render_water( renderlist_t * prlist );
+static void light_fans( renderlist_t * prlist );
+static void render_water( renderlist_t * prlist );
+
+static void   gfx_make_dynalist( camera_t * pcam );
 
 //--------------------------------------------------------------------------------------------
 // MODULE "PRIVATE" FUNCTIONS
@@ -255,7 +257,7 @@ void _debug_print( const char *text )
 
     // Get a "free" message
     slot = DisplayMsg_get_free();
-    pmsg = DisplayMsg.lst + slot;
+    pmsg = DisplayMsg.ary + slot;
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
@@ -691,7 +693,7 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map )
     //Now draw it
     if ( x > 0 && y > 0 )
     {
-        oglx_texture * ptex = TxTexture_get_ptr( TX_BLIP );
+        oglx_texture_t * ptex = TxTexture_get_ptr(( TX_REF )TX_BLIP );
 
         gfx_enable_texturing();
         GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -722,14 +724,14 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
+void draw_one_icon( const TX_REF by_reference icontype, int x, int y, Uint8 sparkle )
 {
     /// @details ZZ@> This function draws an icon
     int     position, blip_x, blip_y;
     int     width, height;
     frect_t txrect;
 
-    oglx_texture * ptex = TxTexture_get_ptr( icontype );
+    oglx_texture_t * ptex = TxTexture_get_ptr( icontype );
 
     gfx_enable_texturing();    // Enable texture mapping
     GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -755,7 +757,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 
     if ( sparkle != NOSPARKLE )
     {
-        position = update_wld & 31;
+        position = update_wld & 0x1F;
         position = ( SPARKLESIZE * position >> 5 );
 
         blip_x = x + SPARKLEADD + position;
@@ -814,7 +816,7 @@ void draw_map_texture( int x, int y )
     /// @details ZZ@> This function draws the map
     gfx_enable_texturing();
 
-    oglx_texture_Bind( TxTexture_get_ptr( TX_MAP ) );
+    oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_MAP ) );
 
     GL_DEBUG( glBegin )( GL_QUADS );
     {
@@ -841,7 +843,7 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
     GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
     // Draw the tab (always colored)
-    oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
+    oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_XP_BAR ) );
 
     txrect.left   = 0;
     txrect.right  = 32.00f / 128;
@@ -872,7 +874,7 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
 
     for ( cnt = 0; cnt < ticks; cnt++ )
     {
-        oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
+        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_XP_BAR ) );
         GL_DEBUG( glBegin )( GL_QUADS );
         {
             GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )(( cnt * width ) + x,         y + height );
@@ -894,7 +896,7 @@ int draw_one_xp_bar( int x, int y, Uint8 ticks )
 
     for ( /*nothing*/; cnt < NUMTICK; cnt++ )
     {
-        oglx_texture_Bind( TxTexture_get_ptr( TX_XP_BAR ) );
+        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_XP_BAR ) );
         GL_DEBUG( glBegin )( GL_QUADS );
         {
             GL_DEBUG( glTexCoord2f )( txrect.left,  txrect.bottom ); GL_DEBUG( glVertex2i )(( cnt * width ) + x,         y + height );
@@ -923,7 +925,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
     // Draw the tab
-    oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
+    oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_BARS ) );
 
     txrect.left   = tabrect[bartype].left   / 128.0f;
     txrect.right  = tabrect[bartype].right  / 128.0f;
@@ -947,7 +949,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     if ( ticks > maxticks ) ticks = maxticks;
 
     // use the bars texture
-    oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
+    oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_BARS ) );
 
     // Draw the full rows of ticks
     x += TABX;
@@ -1006,7 +1008,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
         if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
 
         barrect[0].right = ( noticks << 3 ) + TABX;
-        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
+        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_BARS ) );
 
         txrect.left   = barrect[0].left   / 128.0f;
         txrect.right  = barrect[0].right  / 128.0f;
@@ -1059,7 +1061,7 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks > 0 )
     {
         barrect[0].right = ( maxticks << 3 ) + TABX;
-        oglx_texture_Bind( TxTexture_get_ptr( TX_BARS ) );
+        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_BARS ) );
 
         txrect.left   = barrect[0].left   / 128.0f;
         txrect.right  = barrect[0].right  / 128.0f;
@@ -1182,7 +1184,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_character_icon( REF_T item, int x, int y, bool_t draw_ammo )
+void draw_one_character_icon( const CHR_REF by_reference item, int x, int y, bool_t draw_ammo )
 {
     /// @details BB@> Draw an icon for the given item at the position <x,y>.
     ///     If the object is invalid, draw the null icon instead of failing
@@ -1216,7 +1218,7 @@ void draw_one_character_icon( REF_T item, int x, int y, bool_t draw_ammo )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_character_xp_bar( REF_T character, int x, int y )
+int draw_character_xp_bar( const CHR_REF by_reference character, int x, int y )
 {
     chr_t * pchr;
     cap_t * pcap;
@@ -1244,7 +1246,7 @@ int draw_character_xp_bar( REF_T character, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_status( REF_T character, int x, int y )
+int draw_status( const CHR_REF by_reference character, int x, int y )
 {
     /// @details ZZ@> This function shows a character's icon, status and inventory
     ///    The x,y coordinates are the top left point of the image to draw
@@ -1382,7 +1384,7 @@ void draw_map()
                 if ( NULL == pcap ) continue;
 
                 // Show only teams that will attack the player
-                if ( TeamList[pchr->team].hatesteam[local_senseenemiesTeam] )
+                if ( team_hates_team( pchr->team, local_senseenemiesTeam ) )
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == IDSZ_NONE ||
@@ -1416,11 +1418,11 @@ void draw_map()
             PLA_REF iplayer;
             for ( iplayer = 0; iplayer < MAX_PLAYER; iplayer++ )
             {
-                if ( !PlaList[iplayer].valid ) continue;
+                if ( !PlaStack.lst[iplayer].valid ) continue;
 
-                if ( INPUT_BITS_NONE != PlaList[iplayer].device.bits )
+                if ( INPUT_BITS_NONE != PlaStack.lst[iplayer].device.bits )
                 {
-                    CHR_REF ichr = PlaList[iplayer].index;
+                    CHR_REF ichr = PlaStack.lst[iplayer].index;
                     if ( ACTIVE_CHR( ichr ) && ChrList.lst[ichr].alive )
                     {
                         draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[ichr].pos.x, ChrList.lst[ichr].pos.y, btrue );
@@ -1543,12 +1545,14 @@ int draw_debug( int y )
     if ( SDLKEYDOWN( SDLK_F5 ) )
     {
         CHR_REF ichr;
+        PLA_REF ipla;
 
         // Debug information
         y = _draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
         y = _draw_string_raw( 0, y, "~~CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
 
-        ichr = PlaList[0].index;
+        ipla = ( PLA_REF )0;
+        ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
                               ChrList.lst[ichr].damagemodifier[DAMAGE_SLASH] & 3,
                               ChrList.lst[ichr].damagemodifier[DAMAGE_CRUSH] & 3,
@@ -1559,10 +1563,11 @@ int draw_debug( int y )
                               ChrList.lst[ichr].damagemodifier[DAMAGE_ICE  ] & 3,
                               ChrList.lst[ichr].damagemodifier[DAMAGE_ZAP  ] & 3 );
 
-        ichr = PlaList[0].index;
+        ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_SIZE, ChrList.lst[ichr].pos.y / GRID_SIZE );
 
-        ichr = PlaList[1].index;
+        ipla = ( PLA_REF )1;
+        ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_SIZE, ChrList.lst[ichr].pos.y / GRID_SIZE );
     }
 
@@ -1660,16 +1665,16 @@ int draw_messages( int y )
         tnc = DisplayMsg.count;
         for ( cnt = 0; cnt < maxmessage; cnt++ )
         {
-            if ( DisplayMsg.lst[tnc].time > 0 )
+            if ( DisplayMsg.ary[tnc].time > 0 )
             {
-                y = draw_wrap_string( DisplayMsg.lst[tnc].textdisplay, 0, y, sdl_scr.x - wraptolerance );
-                if ( DisplayMsg.lst[tnc].time > msgtimechange )
+                y = draw_wrap_string( DisplayMsg.ary[tnc].textdisplay, 0, y, sdl_scr.x - wraptolerance );
+                if ( DisplayMsg.ary[tnc].time > msgtimechange )
                 {
-                    DisplayMsg.lst[tnc].time -= msgtimechange;
+                    DisplayMsg.ary[tnc].time -= msgtimechange;
                 }
                 else
                 {
-                    DisplayMsg.lst[tnc].time = 0;
+                    DisplayMsg.ary[tnc].time = 0;
                 }
             }
 
@@ -1862,12 +1867,12 @@ void render_shadow_sprite( float intensity, GLvertex v[] )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_shadow( REF_T character )
+void render_shadow( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function draws a NIFTY shadow
     GLvertex v[4];
 
-    Uint32  itex;
+    TX_REF  itex;
     int     itex_style;
     float   x, y;
     float   level;
@@ -1995,12 +2000,13 @@ void render_shadow( REF_T character )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_bad_shadow( REF_T character )
+void render_bad_shadow( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function draws a sprite shadow
+
     GLvertex v[4];
 
-    Uint32  itex;
+    TX_REF  itex;
     int     itex_style;
     float   size, x, y;
     float   level, height, height_factor, alpha;
@@ -2089,7 +2095,7 @@ void render_bad_shadow( REF_T character )
 //--------------------------------------------------------------------------------------------
 void update_all_chr_instance()
 {
-    int cnt;
+    CHR_REF cnt;
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -2112,7 +2118,7 @@ void update_all_chr_instance()
 bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 {
     Uint32 cnt;
-    int tx;
+    TX_REF tx;
 
     if ( NULL == pmesh || NULL == list || 0 == list_size ) return bfalse;
 
@@ -2284,10 +2290,9 @@ void render_scene_mesh( renderlist_t * prlist )
 
                 for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
                 {
-                    REF_T iref;
-
                     if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
                     {
+                        CHR_REF ichr;
                         Uint32 itile;
 
                         GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT - cull backward facing faces
@@ -2296,20 +2301,21 @@ void render_scene_mesh( renderlist_t * prlist )
                         GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
                         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
 
-                        iref = dolist[cnt].ichr;
-                        itile = ChrList.lst[iref].onwhichgrid;
+                        ichr  = dolist[cnt].ichr;
+                        itile = ChrList.lst[ichr].onwhichgrid;
 
                         if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
                             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
-                            render_one_mad_ref( iref );
+                            render_one_mad_ref( ichr );
                         }
                     }
                     else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
                     {
                         Uint32 itile;
-                        iref = dolist[cnt].iprt;
-                        itile = PrtList.lst[iref].onwhichgrid;
+                        PRT_REF iprt;
+                        iprt = dolist[cnt].iprt;
+                        itile = PrtList.lst[iprt].onwhichgrid;
 
                         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
@@ -2319,7 +2325,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                         if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
-                            render_one_prt_ref( iref );
+                            render_one_prt_ref( iprt );
                         }
                     }
                 }
@@ -2616,7 +2622,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_world_background( Uint16 texture )
+void render_world_background( const TX_REF by_reference texture )
 {
     /// @details ZZ@> This function draws the large background
     GLvertex vtlist[4];
@@ -2629,7 +2635,7 @@ void render_world_background( Uint16 texture )
 
     ego_mpd_info_t * pinfo;
     grid_mem_t     * pgmem;
-    oglx_texture   * ptex;
+    oglx_texture_t   * ptex;
     water_instance_layer_t * ilayer;
 
     pinfo = &( PMesh->info );
@@ -2772,14 +2778,14 @@ void render_world_background( Uint16 texture )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_world_overlay( Uint16 texture )
+void render_world_overlay( const TX_REF by_reference texture )
 {
     /// @details ZZ@> This function draws the large foreground
 
     float alpha, ftmp;
     fvec3_t   vforw_wind, vforw_cam;
 
-    oglx_texture           * ptex;
+    oglx_texture_t           * ptex;
 
     water_instance_layer_t * ilayer = water.layer      + 1;
 
@@ -2879,7 +2885,7 @@ void render_world( camera_t * pcam )
         if ( gfx.draw_background )
         {
             // Render the background
-            render_world_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
+            render_world_background(( TX_REF )TX_WATER_LOW ); // TX_WATER_LOW for waterlow.bmp
         }
 
         render_scene( PMesh, pcam );
@@ -2887,7 +2893,7 @@ void render_world( camera_t * pcam )
         if ( gfx.draw_overlay )
         {
             // Foreground overlay
-            render_world_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
+            render_world_overlay(( TX_REF )TX_WATER_TOP ); // TX_WATER_TOP is watertop.bmp
         }
     }
     gfx_end_3d();
@@ -3032,7 +3038,7 @@ void clear_messages()
 
     while ( cnt < MAX_MESSAGE )
     {
-        DisplayMsg.lst[cnt].time = 0;
+        DisplayMsg.ary[cnt].time = 0;
         cnt++;
     }
 }
@@ -3239,8 +3245,8 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
 
     memset( pbb, 0, sizeof( *pbb ) );
 
-    pbb->tex_ref = INVALID_TEXTURE;
-    pbb->ichr    = MAX_CHR;
+    pbb->tex_ref = INVALID_TX_TEXTURE;
+    pbb->ichr    = ( CHR_REF )MAX_CHR;
 
     pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
     pbb->tint_add[AA] -= 1.0f / 100.0f;
@@ -3318,7 +3324,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
 {
     va_list args;
     int rv;
-    oglx_texture * ptex;
+    oglx_texture_t * ptex;
     float texCoords[4];
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
@@ -3362,7 +3368,7 @@ void BillboardList_clear_data()
 //--------------------------------------------------------------------------------------------
 void BillboardList_init_all()
 {
-    int cnt;
+    BBOARD_REF cnt;
 
     for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
@@ -3375,7 +3381,8 @@ void BillboardList_init_all()
 //--------------------------------------------------------------------------------------------
 void BillboardList_update_all()
 {
-    Uint32 cnt, ticks;
+    BBOARD_REF cnt;
+    Uint32     ticks;
 
     ticks = SDL_GetTicks();
 
@@ -3409,7 +3416,7 @@ void BillboardList_update_all()
             }
 
             // deallocate the billboard
-            BillboardList_free_one( cnt );
+            BillboardList_free_one( REF_TO_INT( cnt ) );
         }
         else
         {
@@ -3421,7 +3428,7 @@ void BillboardList_update_all()
 //--------------------------------------------------------------------------------------------
 void BillboardList_free_all()
 {
-    int cnt;
+    BBOARD_REF cnt;
 
     for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
@@ -3434,7 +3441,7 @@ void BillboardList_free_all()
 //--------------------------------------------------------------------------------------------
 size_t BillboardList_get_free( Uint32 lifetime_secs )
 {
-    TX_REF             itex = INVALID_TEXTURE;
+    TX_REF             itex = ( TX_REF )INVALID_TX_TEXTURE;
     size_t             ibb  = INVALID_BILLBOARD;
     billboard_data_t * pbb  = NULL;
 
@@ -3442,8 +3449,8 @@ size_t BillboardList_get_free( Uint32 lifetime_secs )
 
     if ( 0 == lifetime_secs ) return INVALID_BILLBOARD;
 
-    itex = TxTexture_get_free( INVALID_TEXTURE );
-    if ( INVALID_TEXTURE == itex ) return INVALID_BILLBOARD;
+    itex = TxTexture_get_free(( TX_REF )INVALID_TX_TEXTURE );
+    if ( INVALID_TX_TEXTURE == itex ) return INVALID_BILLBOARD;
 
     // grab the top index
     BillboardList.free_count--;
@@ -3451,7 +3458,8 @@ size_t BillboardList_get_free( Uint32 lifetime_secs )
 
     if ( VALID_BILLBOARD_RANGE( ibb ) )
     {
-        pbb = BillboardList.lst + ibb;
+        pbb = BillboardList.lst + ( BBOARD_REF )ibb;
+
         billboard_data_init( pbb );
 
         pbb->tex_ref = itex;
@@ -3471,13 +3479,12 @@ size_t BillboardList_get_free( Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BillboardList_free_one( REF_T ibb )
+bool_t BillboardList_free_one( size_t ibb )
 {
     billboard_data_t * pbb;
 
     if ( !VALID_BILLBOARD_RANGE( ibb ) ) return bfalse;
-
-    pbb = BillboardList.lst + ibb;
+    pbb = BillboardList.lst + ( BBOARD_REF )ibb;
 
     billboard_data_free( pbb );
 
@@ -3504,7 +3511,7 @@ bool_t BillboardList_free_one( REF_T ibb )
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * BillboardList_get_ptr( REF_T ibb )
+billboard_data_t * BillboardList_get_ptr( const BBOARD_REF by_reference  ibb )
 {
     if ( !VALID_BILLBOARD( ibb ) ) return NULL;
 
@@ -3521,7 +3528,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     float w, h;
     fvec4_t   vector_up, vector_right;
 
-    oglx_texture     * ptex;
+    oglx_texture_t     * ptex;
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
@@ -3617,7 +3624,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
 //--------------------------------------------------------------------------------------------
 void render_all_billboards( camera_t * pcam )
 {
-    int cnt;
+    BBOARD_REF cnt;
 
     if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam ) return;
@@ -3648,7 +3655,6 @@ void render_all_billboards( camera_t * pcam )
         ATTRIB_POP( "render_all_billboards()" );
     }
     gfx_end_3d();
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3925,7 +3931,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 //--------------------------------------------------------------------------------------------
 // GRAPHICS OPTIMIZATIONS
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_chr( ego_mpd_t * pmesh, REF_T ichr )
+bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr )
 {
     /// ZZ@> This function puts a character in the list
     Uint32 itile;
@@ -3978,7 +3984,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, REF_T ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_prt( ego_mpd_t * pmesh, REF_T iprt )
+bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF by_reference iprt )
 {
     /// ZZ@> This function puts a character in the list
     prt_t * pprt;
@@ -3994,7 +4000,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, REF_T iprt )
 
     if ( 0 == pinst->size || pprt->is_hidden || !VALID_GRID( pmesh, pprt->onwhichgrid ) ) return bfalse;
 
-    dolist[dolist_count].ichr = MAX_CHR;
+    dolist[dolist_count].ichr = ( CHR_REF )MAX_CHR;
     dolist[dolist_count].iprt = iprt;
     dolist_count++;
 
@@ -4009,6 +4015,8 @@ void dolist_make( ego_mpd_t * pmesh )
     /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
 
     int cnt;
+    CHR_REF ichr;
+    PRT_REF iprt;
 
     // Remove everyone from the dolist
     for ( cnt = 0; cnt < dolist_count; cnt++ )
@@ -4025,21 +4033,21 @@ void dolist_make( ego_mpd_t * pmesh )
     dolist_count = 0;
 
     // Now fill it up again
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        if ( ACTIVE_CHR( cnt ) && !ChrList.lst[cnt].pack_ispacked )
+        if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack_ispacked )
         {
             // Add the character
-            dolist_add_chr( pmesh, cnt );
+            dolist_add_chr( pmesh, ichr );
         }
     }
 
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
-        if ( DISPLAY_PRT( cnt ) && VALID_GRID( pmesh, PrtList.lst[cnt].onwhichgrid ) )
+        if ( DISPLAY_PRT( iprt ) && VALID_GRID( pmesh, PrtList.lst[iprt].onwhichgrid ) )
         {
             // Add the character
-            dolist_add_prt( pmesh, cnt );
+            dolist_add_prt( pmesh, iprt );
         }
     }
 }
@@ -4063,36 +4071,36 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
     {
         fvec3_t   vtmp;
         float dist;
-        REF_T iref;
 
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
         {
+            CHR_REF ichr;
             fvec3_t pos_tmp;
 
-            iref = dolist[cnt].ichr;
+            ichr = dolist[cnt].ichr;
 
             if ( do_reflect )
             {
-                pos_tmp = mat_getTranslate( ChrList.lst[iref].inst.ref.matrix );
+                pos_tmp = mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix );
             }
             else
             {
-                pos_tmp = mat_getTranslate( ChrList.lst[iref].inst.matrix );
+                pos_tmp = mat_getTranslate( ChrList.lst[ichr].inst.matrix );
             }
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
         else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
         {
-            iref = dolist[cnt].iprt;
+            PRT_REF iprt = dolist[cnt].iprt;
 
             if ( do_reflect )
             {
-                vtmp = fvec3_sub( PrtList.lst[iref].inst.pos.v, pcam->pos.v );
+                vtmp = fvec3_sub( PrtList.lst[iprt].inst.pos.v, pcam->pos.v );
             }
             else
             {
-                vtmp = fvec3_sub( PrtList.lst[iref].inst.ref_pos.v, pcam->pos.v );
+                vtmp = fvec3_sub( PrtList.lst[iprt].inst.ref_pos.v, pcam->pos.v );
             }
         }
         else
@@ -4536,11 +4544,11 @@ bool_t load_all_global_icons()
     bool_t result = bfalse;
 
     // Now load every icon
-    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ICON_NULL, INVALID_KEY );
-    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ICON_KEYB, INVALID_KEY );
-    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ICON_MOUS, INVALID_KEY );
-    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ICON_JOYA, INVALID_KEY );
-    result = INVALID_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ICON_JOYB, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
 
     return result;
 }
@@ -4551,24 +4559,24 @@ void load_basic_textures( /* const char *modname */ )
     /// @details ZZ@> This function loads the standard textures for a module
 
     // Particle sprites
-    TxTexture_load_one( "mp_data/particle_trans", TX_PARTICLE_TRANS, TRANSCOLOR );
-    prt_set_texture_params( TX_PARTICLE_TRANS );
+    TxTexture_load_one( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
+    prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
 
-    TxTexture_load_one( "mp_data/particle_light", TX_PARTICLE_LIGHT, INVALID_KEY );
-    prt_set_texture_params( TX_PARTICLE_LIGHT );
+    TxTexture_load_one( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
+    prt_set_texture_params(( TX_REF )TX_PARTICLE_LIGHT );
 
     // Module background tiles
-    TxTexture_load_one( "mp_data/tile0", TX_TILE_0, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/tile1", TX_TILE_1, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/tile2", TX_TILE_2, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/tile3", TX_TILE_3, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
 
     // Water textures
-    TxTexture_load_one( "mp_data/watertop", TX_WATER_TOP, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/waterlow", TX_WATER_LOW, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
 
     // Texture 7 is the phong map
-    TxTexture_load_one( "mp_data/phong", TX_PHONG, TRANSCOLOR );
+    TxTexture_load_one( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
 
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
@@ -4603,13 +4611,13 @@ void load_bars()
     const char * pname;
 
     pname = "mp_data/bars";
-    if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_BARS, TRANSCOLOR ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one( pname, ( TX_REF )TX_BARS, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 
     pname = "mp_data/xpbar";
-    if ( INVALID_TEXTURE == TxTexture_load_one( pname, TX_XP_BAR, TRANSCOLOR ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
@@ -4630,7 +4638,7 @@ void load_map( /* const char* szModule */ )
 
     // Load the images
     szMap = "mp_data/plan";
-    if ( INVALID_TEXTURE == TxTexture_load_one( szMap, TX_MAP, INVALID_KEY ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one( szMap, ( TX_REF )TX_MAP, INVALID_KEY ) )
     {
         log_warning( "load_map() - Cannot load file! (\"%s\")\n", szMap );
     }
@@ -4645,7 +4653,7 @@ void load_map( /* const char* szModule */ )
 bool_t load_blips()
 {
     /// ZZ@> This function loads the blip bitmaps
-    if ( INVALID_TEXTURE == TxTexture_load_one( "mp_data/blip", TX_BLIP, INVALID_KEY ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one( "mp_data/blip", ( TX_REF )TX_BLIP, INVALID_KEY ) )
     {
         log_warning( "Blip bitmap not loaded! (\"%s\")\n", "basicdat" SLASH_STR "blip" );
         return bfalse;
@@ -4751,7 +4759,7 @@ void do_chr_flashing()
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_character( REF_T character, Uint8 value )
+void flash_character( const CHR_REF by_reference character, Uint8 value )
 {
     /// @details ZZ@> This function sets a character's lighting
 
@@ -4770,7 +4778,7 @@ void gfx_begin_text()
 {
     gfx_enable_texturing();    // Enable texture mapping
 
-    oglx_texture_Bind( TxTexture_get_ptr( TX_FONT ) );
+    oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_FONT ) );
 
     GL_DEBUG( glEnable )( GL_ALPHA_TEST );
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
@@ -5235,27 +5243,28 @@ void gfx_make_dynalist( camera_t * pcam )
     /// @details ZZ@> This function figures out which particles are visible, and it sets up dynamic
     ///    lighting
 
-    int cnt, tnc, slot;
+    PRT_REF iprt;
+    int tnc, slot;
     float disx, disy, disz, distance;
 
     // Don't really make a list, just set to visible or not
     dyna_list_count = 0;
     dyna_distancetobeat = 1e12;
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
-        PrtList.lst[cnt].inview = bfalse;
-        if ( !DISPLAY_PRT( cnt ) ) continue;
+        PrtList.lst[iprt].inview = bfalse;
+        if ( !DISPLAY_PRT( iprt ) ) continue;
 
-        if ( !VALID_GRID( PMesh, PrtList.lst[cnt].onwhichgrid ) ) continue;
+        if ( !VALID_GRID( PMesh, PrtList.lst[iprt].onwhichgrid ) ) continue;
 
-        PrtList.lst[cnt].inview = PMesh->tmem.tile_list[PrtList.lst[cnt].onwhichgrid].inrenderlist;
+        PrtList.lst[iprt].inview = PMesh->tmem.tile_list[PrtList.lst[iprt].onwhichgrid].inrenderlist;
 
         // Set up the lights we need
-        if ( !PrtList.lst[cnt].dynalight.on ) continue;
+        if ( !PrtList.lst[iprt].dynalight.on ) continue;
 
-        disx = PrtList.lst[cnt].pos.x - pcam->track_pos.x;
-        disy = PrtList.lst[cnt].pos.y - pcam->track_pos.y;
-        disz = PrtList.lst[cnt].pos.z - pcam->track_pos.z;
+        disx = PrtList.lst[iprt].pos.x - pcam->track_pos.x;
+        disy = PrtList.lst[iprt].pos.y - pcam->track_pos.y;
+        disz = PrtList.lst[iprt].pos.z - pcam->track_pos.z;
 
         distance = disx * disx + disy * disy + disz * disz;
         if ( distance < dyna_distancetobeat )
@@ -5301,9 +5310,9 @@ void gfx_make_dynalist( camera_t * pcam )
 
             if ( found )
             {
-                dyna_list[slot].pos     = PrtList.lst[cnt].pos;
-                dyna_list[slot].level   = PrtList.lst[cnt].dynalight.level;
-                dyna_list[slot].falloff = PrtList.lst[cnt].dynalight.falloff;
+                dyna_list[slot].pos     = PrtList.lst[iprt].pos;
+                dyna_list[slot].level   = PrtList.lst[iprt].dynalight.level;
+                dyna_list[slot].falloff = PrtList.lst[iprt].dynalight.falloff;
             }
         }
     }

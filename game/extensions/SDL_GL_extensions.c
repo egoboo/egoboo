@@ -401,7 +401,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
         GL_DEBUG( glGenTextures )( 1, &binding );
     }
 
-    /* Set up some parameters for the format of the oglx_texture */
+    /* Set up some parameters for the format of the oglx_texture_t */
     binding = oglx_bind_to_tex_params( binding, target, wrap_s, wrap_t );
 
     /* actually create the OpenGL textures */

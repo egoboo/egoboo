@@ -152,10 +152,6 @@ enum e_action
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-DECLARE_REF( MAD_REF );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// The definition of the egoboo model type
 struct s_mad
 {
@@ -175,10 +171,10 @@ struct s_mad
 };
 typedef struct s_mad mad_t;
 
-extern mad_t   MadList[MAX_MAD];
+DECLARE_STACK_EXTERN( mad_t, MadStack, MAX_MAD );
 
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
-#define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
+#define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadStack.lst[IMAD].loaded )
 
 void MadList_init();
 void MadList_dtor();
@@ -188,13 +184,13 @@ void MadList_dtor();
 
 void    init_all_mad();
 void    release_all_mad();
-bool_t  release_one_mad( MAD_REF imad );
-MAD_REF load_one_model_profile( const char* tmploadname, MAD_REF object );
+bool_t  release_one_mad( const MAD_REF by_reference imad );
+MAD_REF load_one_model_profile( const char* tmploadname, const MAD_REF by_reference object );
 
 int    action_which( char cTmp );
 void   load_action_names( const char* loadname );
 
-void   mad_make_equally_lit( MAD_REF imad );
+void   mad_make_equally_lit( const MAD_REF by_reference imad );
 
-int mad_get_action( MAD_REF imad, int action );
+int mad_get_action( const MAD_REF by_reference imad, int action );
 int randomize_action( int action, int slot );

@@ -22,6 +22,8 @@
 /// @file egoboo_console.h
 /// @A quake-console that can be used for anything.
 
+#include "egoboo_config.h"
+
 #include <SDL.h>
 
 //--------------------------------------------------------------------------------------------

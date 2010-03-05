@@ -65,11 +65,11 @@ struct s_tx_request
 
     // the function call parameters
     STRING filename;
-    int    itex_src;
+    TX_REF itex_src;
     Uint32 key;
 
     // the function call return value(s)
-    int    index;    /// the return value of the function
+    TX_REF index;    /// the return value of the function
 };
 
 typedef struct s_tx_request tx_request_t;

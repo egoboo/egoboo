@@ -82,14 +82,14 @@ void font_bmp_load( const char* szBitmap, const char* szSpacing )
     vfs_FILE *fileread;
 
     font_bmp_init();
-    if ( INVALID_TEXTURE == TxTexture_load_one( szBitmap, TX_FONT, TRANSCOLOR ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one( szBitmap, ( TX_REF )TX_FONT, TRANSCOLOR ) )
     {
         log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
-    xsize = oglx_texture_GetImageWidth( TxTexture_get_ptr( TX_FONT ) );
-    ysize = oglx_texture_GetImageHeight( TxTexture_get_ptr( TX_FONT ) );
+    xsize = oglx_texture_GetImageWidth( TxTexture_get_ptr(( TX_REF )TX_FONT ) );
+    ysize = oglx_texture_GetImageHeight( TxTexture_get_ptr(( TX_REF )TX_FONT ) );
     if ( xsize == 0 || ysize == 0 )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );

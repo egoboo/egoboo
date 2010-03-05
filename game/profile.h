@@ -38,10 +38,6 @@ struct s_mpd_BSP;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-DECLARE_REF( PRO_REF );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// Placeholders used while importing profiles
 struct s_pro_import
 {
@@ -105,16 +101,16 @@ struct s_object_profile
 
     // the sub-profiles
     REF_T   iai;                              ///< the AI  for this profile
-    REF_T   icap;                             ///< the cap for this profile
-    REF_T   imad;                             ///< the mad for this profile
-    REF_T   ieve;                             ///< the eve for this profile
+    CAP_REF icap;                             ///< the cap for this profile
+    MAD_REF imad;                             ///< the mad for this profile
+    EVE_REF ieve;                             ///< the eve for this profile
 
-    REF_T   prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
+    PIP_REF prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 
     // the profile skins
     size_t  skins;                            ///< Number of skins
-    int     tex_ref[MAX_SKIN];                 ///< references to the icon textures
-    int     ico_ref[MAX_SKIN];                 ///< references to the skin textures
+    TX_REF  tex_ref[MAX_SKIN];                ///< references to the icon textures
+    TX_REF  ico_ref[MAX_SKIN];                ///< references to the skin textures
 
     // the profile message info
     int     message_start;                    ///< The first message
@@ -133,16 +129,16 @@ typedef struct s_object_profile pro_t;
 //--------------------------------------------------------------------------------------------
 // the profile list
 
-DEFINE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
+DECLARE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
 
 int          pro_get_slot( const char * tmploadname, int slot_override );
-const char * pro_create_chop( PRO_REF profile_ref );
-bool_t       pro_load_chop( PRO_REF profile_ref, const char *szLoadname );
+const char * pro_create_chop( const PRO_REF by_reference profile_ref );
+bool_t       pro_load_chop( const PRO_REF by_reference profile_ref, const char *szLoadname );
 
 void    ProList_init();
 //void    ProList_free_all();
-size_t  ProList_get_free( PRO_REF override_ref );
-bool_t  ProList_free_one( PRO_REF object_ref );
+size_t  ProList_get_free( const PRO_REF by_reference override_ref );
+bool_t  ProList_free_one( const PRO_REF by_reference object_ref );
 
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
 #define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
@@ -178,12 +174,13 @@ extern obj_BSP_t obj_BSP_root;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern size_t  bookicon_count;
-extern REF_T   bookicon_ref[MAX_SKIN];                      ///< The first book icon
+extern TX_REF  bookicon_ref[MAX_SKIN];                      ///< The first book icon
 
 extern pro_import_t import_data;
 extern chop_data_t chop_mem;
 
-DEFINE_STACK_EXTERN( int, MessageOffset, MAXTOTALMESSAGE );
+DECLARE_STATIC_ARY_TYPE( MessageOffsetAry, int, MAXTOTALMESSAGE );
+DECLARE_EXTERN_STATIC_ARY( MessageOffsetAry, MessageOffset );
 
 extern Uint32          message_buffer_carat;                                  ///< Where to put letter
 extern char            message_buffer[MESSAGEBUFFERSIZE];                     ///< The text buffer
@@ -197,14 +194,14 @@ void profile_system_begin();
 void profile_system_end();
 
 void   init_all_profiles();
-int    load_profile_skins( const char * tmploadname, PRO_REF object_ref );
-void   load_all_messages( const char *loadname, PRO_REF object_ref );
+int    load_profile_skins( const char * tmploadname, const PRO_REF by_reference object_ref );
+void   load_all_messages( const char *loadname, const PRO_REF by_reference object_ref );
 void   release_all_pro_data();
 void   release_all_profiles();
 void   release_all_pro();
 void   release_all_local_pips();
-bool_t release_one_pro( PRO_REF object_ref );
-bool_t release_one_local_pips( PRO_REF object_ref );
+bool_t release_one_pro( const PRO_REF by_reference object_ref );
+bool_t release_one_local_pips( const PRO_REF by_reference object_ref );
 
 int load_one_profile( const char* tmploadname, int slot_override );
 

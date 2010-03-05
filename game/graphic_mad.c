@@ -57,7 +57,7 @@ static egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vma
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( REF_T character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad_enviro( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
@@ -69,14 +69,14 @@ bool_t render_one_mad_enviro( REF_T character, GLXvector4f tint, Uint32 bits )
     mad_t          * pmad;
     MD2_Model_t    * pmd2;
     chr_instance_t * pinst;
-    oglx_texture   * ptex;
+    oglx_texture_t   * ptex;
 
     if ( !ACTIVE_CHR( character ) ) return bfalse;
     pchr  = ChrList.lst + character;
     pinst = &( pchr->inst );
 
     if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
     if ( NULL == pmd2 ) return bfalse;
@@ -84,7 +84,7 @@ bool_t render_one_mad_enviro( REF_T character, GLXvector4f tint, Uint32 bits )
     ptex = NULL;
     if ( 0 != ( bits & CHR_PHONG ) )
     {
-        ptex = TxTexture_get_ptr( TX_PHONG );
+        ptex = TxTexture_get_ptr(( TX_REF )TX_PHONG );
     }
 
     if ( NULL == ptex )
@@ -239,7 +239,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_tex( REF_T character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad_tex( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws a model
 
@@ -252,14 +252,14 @@ bool_t render_one_mad_tex( REF_T character, GLXvector4f tint, Uint32 bits )
     mad_t          * pmad;
     MD2_Model_t    * pmd2;
     chr_instance_t * pinst;
-    oglx_texture   * ptex;
+    oglx_texture_t   * ptex;
 
     if ( !ACTIVE_CHR( character ) ) return bfalse;
     pchr  = ChrList.lst + character;
     pinst = &( pchr->inst );
 
     if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
     if ( NULL == pmd2 ) return bfalse;
@@ -416,7 +416,7 @@ bool_t render_one_mad_tex( REF_T character, GLXvector4f tint, Uint32 bits )
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad( REF_T character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function picks the actual function to use
 
@@ -456,7 +456,7 @@ bool_t render_one_mad( REF_T character, GLXvector4f tint, Uint32 bits )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_ref( int ichr )
+bool_t render_one_mad_ref( const CHR_REF by_reference ichr )
 {
     /// @details ZZ@> This function draws characters reflected in the floor
 
@@ -579,7 +579,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
+    pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return;
 
     vmin = vrt_offset;
@@ -658,7 +658,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     if ( NULL == pinst || NULL == pmad ) return;
 
-    vmin = (( int )pinst->vrt_count ) - slot_to_grip_offset(( slot_t )slot );
+    vmin = ( int )pinst->vrt_count - ( int )slot_to_grip_offset(( slot_t )slot );
     vmax = vmin + GRIP_VERTS;
 
     if ( vmin >= 0 && vmax >= 0 && vmax <= pinst->vrt_count )
@@ -708,7 +708,7 @@ void chr_draw_attached_grip( chr_t * pchr )
     pholder_cap = pro_get_pcap( pholder->iprofile );
     if ( NULL == pholder_cap ) return;
 
-    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
+    pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
 
     draw_one_grip( &( pholder->inst ), pholder_mad, pchr->inwhich_slot );
@@ -728,7 +728,7 @@ void chr_draw_grips( chr_t * pchr )
     pcap = pro_get_pcap( pchr->iprofile );
     if ( NULL == pcap ) return;
 
-    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
+    pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return;
 
     texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
@@ -819,7 +819,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     pinst->lighting_frame_all = frame_all + (( frame_all + pchr->obj_base.guid ) & 0x03 );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
     pinst->vrt_count = pinst->vrt_count;
 
     // interpolate the lighting for the origin of the object
@@ -884,7 +884,7 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 
     // get the model. try to heal a bad model.
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
     if ( NULL == pmd2 ) return rv_error;
@@ -947,7 +947,7 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
 
     // do we hace a valid mad?
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
@@ -1001,7 +1001,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
     // get the model
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
     if ( NULL == pmd2 ) return rv_error;
@@ -1285,7 +1285,7 @@ egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t ac
 
     // do we have a valid model?
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     // is the chosen action valid?
     if ( !pmad->action_valid[ action ] ) return rv_fail;
@@ -1323,7 +1323,7 @@ egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 
     // do we have a valid model?
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     // is the current action valid?
     if ( !pmad->action_valid[ pinst->action_which ] ) return rv_fail;
@@ -1370,7 +1370,7 @@ egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t ac
     if ( action < 0 || action >= ACTION_COUNT ) return rv_error;
 
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     return chr_instance_set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
 }
@@ -1391,7 +1391,7 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
     action_old = pinst->action_which;
 
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     // get the correct action
     action = mad_get_action( pinst->imad, pinst->action_next );
@@ -1406,7 +1406,7 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, REF_T imount )
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF by_reference imount )
 {
     /// @detaild BB@> all the code necessary to move on to the next frame of the animation
 
@@ -1466,7 +1466,7 @@ egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t a
     if ( NULL == pinst ) return rv_error;
 
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadList + pinst->imad;
+    pmad = MadStack.lst + pinst->imad;
 
     action = mad_get_action( pinst->imad, action );
 

@@ -36,12 +36,11 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t           meshnotexture   = bfalse;
-Uint32           meshlasttexture = ( Uint32 )( ~0 );
+TX_REF           meshlasttexture = ( TX_REF )INVALID_TX_TEXTURE;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile );
-static void   gfx_make_dynalist( camera_t * pcam );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -284,7 +283,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
 
     int    cnt, tnc;
     size_t badvertex;
-    Uint16 type, commands, vertices, texture;
+    Uint16 type, commands, vertices;
+    TX_REF texture;
     Uint16 frame;
     float offu, offv;
     int ix, iy;
@@ -297,7 +297,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     tile_mem_t     * ptmem;
     grid_mem_t     * pgmem;
     ego_tile_info_t    * ptile;
-    oglx_texture   * ptex;
+    oglx_texture_t   * ptex;
 
     if ( NULL == pmesh ) return;
     pinfo = &( pmesh->info );

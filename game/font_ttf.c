@@ -272,25 +272,25 @@ void fnt_drawText( Font *font, SDL_Surface ** ppSurface, int x, int y, const cha
     rv = fnt_vprintf( font, color, pptmp, font->texture, font->texCoords, format, args );
     va_end( args );
 
-    if ( rv <= 0 ) 
-	{
-		// And draw the darn thing
-		GL_DEBUG( glBegin )( GL_QUADS );
-		{
-			GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[1] );
-			GL_DEBUG( glVertex2f )( x, y );
+    if ( rv <= 0 )
+    {
+        // And draw the darn thing
+        GL_DEBUG( glBegin )( GL_QUADS );
+        {
+            GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[1] );
+            GL_DEBUG( glVertex2f )( x, y );
 
-			GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
-			GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y );
+            GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
+            GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y );
 
-			GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
-			GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y + ( *pptmp )->h );
+            GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
+            GL_DEBUG( glVertex2f )( x + ( *pptmp )->w, y + ( *pptmp )->h );
 
-			GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
-			GL_DEBUG( glVertex2f )( x, y + ( *pptmp )->h );
-		}
-		GL_DEBUG_END();
-	}
+            GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
+            GL_DEBUG( glVertex2f )( x, y + ( *pptmp )->h );
+        }
+        GL_DEBUG_END();
+    }
 
     if ( !sdl_surf_external && NULL != *pptmp )
     {

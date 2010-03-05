@@ -44,32 +44,40 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-PRT_REF maxparticles = 512;                            // max number of particles
-
-DECLARE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack );
-DECLARE_LIST( ACCESS_TYPE_NONE, prt_t, PrtList );
-
-int prt_wall_tests = 0;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 struct s_spawn_particle_info
 {
+    PRT_REF  allocated_ref;    ///< the reference to the particle that has been allocated, but not yet spawned
+
     fvec3_t  pos;
     FACING_T facing;
-    REF_T    iprofile;
-    PIP_REF  ipip;
+    PRO_REF  iprofile;
+    int      pip_index;    ///< either local or global pip reference, depending on the value of iprofile
 
-    REF_T    chr_attach;
+    CHR_REF  chr_attach;
     size_t   vrt_offset;
-    REF_T    team;
+    TEAM_REF team;
 
-    REF_T    chr_origin;
+    CHR_REF  chr_origin;
     PRT_REF  prt_origin;
     int      multispawn;
-    REF_T    oldtarget;
+    CHR_REF  oldtarget;
 };
 typedef struct s_spawn_particle_info spawn_particle_info_t;
+
+DECLARE_STATIC_ARY_TYPE( prt_delay_list, spawn_particle_info_t, TOTAL_MAX_PRT );
+
+spawn_particle_info_t * spawn_particle_info_ctor( spawn_particle_info_t * ptr );
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+size_t maxparticles = 512;                            // max number of particles
+
+INSTANTIATE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack, MAX_PIP );
+INSTANTIATE_LIST( ACCESS_TYPE_NONE, prt_t, PrtList, TOTAL_MAX_PRT );
+INSTANTIATE_STATIC_ARY( prt_delay_list, prt_delay_list );
+
+int prt_wall_tests = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,6 +90,57 @@ static size_t PrtList_get_free();
 
 static PRT_REF prt_get_free( bool_t force );
 
+static size_t prt_delay_list_push( spawn_particle_info_t * pinfo );
+
+size_t spawn_all_delayed_particles();
+
+size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
+                                     const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
+                                     const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+spawn_particle_info_t * spawn_particle_info_ctor( spawn_particle_info_t * ptr )
+{
+    if ( NULL == ptr ) return NULL;
+
+    memset( ptr, 0, sizeof( *ptr ) );
+
+    ptr->allocated_ref = ( PRT_REF )TOTAL_MAX_PRT;
+
+    ptr->iprofile   = ( PRO_REF )MAX_PROFILE;
+    ptr->pip_index  = MAX_PIP;
+
+    ptr->chr_attach = ( CHR_REF )MAX_CHR;
+    ptr->team       = ( TEAM_REF )TEAM_NULL;
+
+    ptr->chr_origin = ( CHR_REF )MAX_CHR;
+    ptr->prt_origin = ( PRT_REF )TOTAL_MAX_PRT;
+    ptr->oldtarget  = ( CHR_REF )MAX_CHR;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+size_t prt_delay_list_push( spawn_particle_info_t * pinfo )
+{
+    size_t retval;
+
+    // do not spawn particles while iterating through the list of particles
+    if ( prt_delay_list.count >= TOTAL_MAX_PRT ) return TOTAL_MAX_PRT;
+
+    // grab a free index
+    retval = prt_delay_list.count;
+    prt_delay_list.count++;
+
+    // put the info onto the stack
+    prt_delay_list.ary[retval] = *pinfo;
+
+    return retval;
+}
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int prt_count_free()
@@ -92,7 +151,7 @@ int prt_count_free()
 //--------------------------------------------------------------------------------------------
 void PrtList_init()
 {
-    int cnt;
+    PRT_REF cnt;
 
     // free all the particles
     PrtList.free_count = 0;
@@ -113,7 +172,7 @@ void PrtList_init()
 //--------------------------------------------------------------------------------------------
 void PrtList_dtor()
 {
-    int cnt;
+    PRT_REF cnt;
 
     PrtList.free_count = 0;
     PrtList.used_count = 0;
@@ -126,25 +185,26 @@ void PrtList_dtor()
 //--------------------------------------------------------------------------------------------
 void PrtList_update_used()
 {
-    int cnt;
+    size_t  tnc;
+    PRT_REF cnt;
 
     PrtList.used_count = 0;
     for ( cnt = 0; cnt < TOTAL_MAX_PRT; cnt++ )
     {
         if ( !DISPLAY_PRT( cnt ) ) continue;
 
-        PrtList.used_ref[PrtList.used_count] = cnt;
+        PrtList.used_ref[PrtList.used_count] = REF_TO_INT( cnt );
         PrtList.used_count++;
     }
 
-    for ( cnt = PrtList.used_count; cnt < TOTAL_MAX_PRT; cnt++ )
+    for ( tnc = PrtList.used_count; tnc < TOTAL_MAX_PRT; tnc++ )
     {
-        PrtList.used_ref[cnt] = TOTAL_MAX_PRT;
+        PrtList.used_ref[tnc] = TOTAL_MAX_PRT;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_free_one( PRT_REF iprt )
+bool_t PrtList_free_one( const PRT_REF by_reference iprt )
 {
     /// @details ZZ@> This function sticks a particle back on the free particle stack
     ///
@@ -179,7 +239,7 @@ bool_t PrtList_free_one( PRT_REF iprt )
     retval = bfalse;
     if ( PrtList.free_count < TOTAL_MAX_PRT )
     {
-        PrtList.free_ref[PrtList.free_count] = iprt;
+        PrtList.free_ref[PrtList.free_count] = REF_TO_INT( iprt );
         PrtList.free_count++;
         retval = btrue;
     }
@@ -190,7 +250,7 @@ bool_t PrtList_free_one( PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-void play_particle_sound( PRT_REF particle, Sint8 sound )
+void play_particle_sound( const PRT_REF by_reference particle, Sint8 sound )
 {
     /// ZZ@> This function plays a sound effect for a particle
 
@@ -212,7 +272,7 @@ void play_particle_sound( PRT_REF particle, Sint8 sound )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_one_particle_in_game( PRT_REF particle )
+void free_one_particle_in_game( const PRT_REF by_reference particle )
 {
     /// @details ZZ@> This function sticks a particle back on the free particle stack and
     ///    plays the sound associated with the particle
@@ -221,7 +281,7 @@ void free_one_particle_in_game( PRT_REF particle )
     ///            Requesting termination will defer the actual deletion of a particle until
     ///            it is finally destroyed by cleanup_all_particles()
 
-    PRT_REF child;
+    CHR_REF child;
     prt_t * pprt;
 
     if ( !ALLOCATED_PRT( particle ) ) return;
@@ -233,7 +293,7 @@ void free_one_particle_in_game( PRT_REF particle )
 
         if ( pprt->spawncharacterstate )
         {
-            child = spawn_one_character( pprt->pos, pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, MAX_CHR );
+            child = spawn_one_character( pprt->pos, pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
             if ( ACTIVE_CHR( child ) )
             {
                 chr_get_pai( child )->state = pprt->spawncharacterstate;
@@ -282,11 +342,11 @@ PRT_REF prt_get_free( bool_t force )
     {
         if ( force )
         {
-            PRT_REF found           = TOTAL_MAX_PRT;
-            int     min_life        = 65535; 
-            size_t  min_life_idx    = TOTAL_MAX_PRT;
-            int     min_display     = 65535; 
-            size_t  min_display_idx = TOTAL_MAX_PRT;
+            PRT_REF  found           = ( PRT_REF )TOTAL_MAX_PRT;
+            int      min_life        = 65535;
+            PRT_REF  min_life_idx    = ( PRT_REF )TOTAL_MAX_PRT;
+            int      min_display     = 65535;
+            PRT_REF  min_display_idx = ( PRT_REF )TOTAL_MAX_PRT;
 
             // Gotta find one, so go through the list and replace a unimportant one
             for ( iprt = 0; iprt < maxparticles; iprt++ )
@@ -389,7 +449,7 @@ PRT_REF prt_get_free( bool_t force )
     }
 
     // return a proper value
-    iprt = ( iprt >= maxparticles ) ? TOTAL_MAX_PRT : iprt;
+    iprt = ( iprt >= maxparticles ) ? ( PRT_REF )TOTAL_MAX_PRT : iprt;
 
     if ( VALID_PRT_RANGE( iprt ) )
     {
@@ -398,7 +458,7 @@ PRT_REF prt_get_free( bool_t force )
             free_one_particle_in_game( iprt );
         }
 
-        EGO_OBJECT_ALLOCATE( PrtList.lst + iprt, iprt );
+        EGO_OBJECT_ALLOCATE( PrtList.lst + iprt, REF_TO_INT( iprt ) );
     }
 
     if ( ALLOCATED_PRT( iprt ) )
@@ -456,13 +516,13 @@ prt_t * prt_reconstruct( prt_t * pprt )
     pprt->pip_ref      = MAX_PIP;
     pprt->profile_ref  = MAX_PROFILE;
 
-    pprt->attachedto_ref = MAX_CHR;
-    pprt->owner_ref      = MAX_CHR;
-    pprt->target_ref     = MAX_CHR;
+    pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
+    pprt->owner_ref      = ( CHR_REF )MAX_CHR;
+    pprt->target_ref     = ( CHR_REF )MAX_CHR;
     pprt->parent_ref     = TOTAL_MAX_PRT;
     pprt->parent_guid    = 0xFFFFFFFF;
 
-    pprt->onwhichplatform = MAX_CHR;
+    pprt->onwhichplatform = ( CHR_REF )MAX_CHR;
 
     // initialize the bsp node for this particle
     pprt->bsp_leaf.data = pprt;
@@ -499,14 +559,47 @@ prt_t * prt_dtor( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_REF ipip,
-                            REF_T chr_attach, Uint16 vrt_offset, REF_T team,
-                            REF_T chr_origin, PRT_REF prt_origin, int multispawn, REF_T oldtarget )
+size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
+                                     const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
+                                     const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget )
+{
+    /// @details BB@> Store a request to spawn a particle, and return the index to the pre-active
+    ///               index to the particle
+
+    spawn_particle_info_t info;
+
+    // initialize the structure
+    spawn_particle_info_ctor( &info );
+
+    // fill in the structure
+    info.pos        = pos;
+    info.facing     = facing;
+    info.iprofile   = iprofile;
+    info.pip_index  = pip_index;
+    info.chr_attach = chr_attach;
+    info.vrt_offset = vrt_offset;
+    info.team       = team;
+    info.chr_origin = chr_origin;
+    info.prt_origin = prt_origin;
+    info.multispawn = multispawn;
+    info.oldtarget  = oldtarget;
+
+    return prt_delay_list_push( &info );
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
+                            const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
+                            const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget )
 {
     /// @details ZZ@> This function spawns a new particle.
     ///               Returns the index of that particle or TOTAL_MAX_PRT on a failure.
 
+    PIP_REF ipip;
     PRT_REF iprt;
+
     int     velocity;
     fvec3_t vel;
     float   tvel;
@@ -517,19 +610,18 @@ PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_
     fvec3_t tmp_pos;
     Uint16  turn;
 
+    CHR_REF loc_chr_origin;
+
     // Convert from local ipip to global ipip
-    if ( LOADED_PRO( iprofile ) && ipip < MAX_PIP_PER_PROFILE )
-    {
-        ipip = pro_get_ipip( iprofile, ipip );
-    }
+    ipip = pro_get_ipip( iprofile, pip_index );
 
     if ( !LOADED_PIP( ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                   ipip, chr_origin, ACTIVE_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
-                   iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
+                   REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), ACTIVE_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   REF_TO_INT( iprofile ), LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 
-        return TOTAL_MAX_PRT;
+        return ( PRT_REF )TOTAL_MAX_PRT;
     }
     ppip = PipStack.lst + ipip;
 
@@ -546,7 +638,7 @@ PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_
                    iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 #endif
 
-        return TOTAL_MAX_PRT;
+        return ( PRT_REF )TOTAL_MAX_PRT;
     }
     pprt = PrtList.lst + iprt;
 
@@ -557,15 +649,16 @@ PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_
 
     // try to get an idea of who our owner is even if we are
     // given bogus info
+    loc_chr_origin = chr_origin;
     if ( !ACTIVE_CHR( chr_origin ) && ACTIVE_PRT( prt_origin ) )
     {
-        chr_origin = prt_get_iowner( prt_origin, 0 );
+        loc_chr_origin = prt_get_iowner( prt_origin, 0 );
     }
 
     pprt->pip_ref     = ipip;
     pprt->profile_ref = iprofile;
     pprt->team        = team;
-    pprt->owner_ref   = chr_origin;
+    pprt->owner_ref   = loc_chr_origin;
     pprt->parent_ref  = prt_origin;
     pprt->parent_guid = ALLOCATED_PRT( prt_origin ) ? PrtList.lst[prt_origin].obj_base.guid : (( Uint32 )( ~0 ) );
     pprt->damagetype  = ppip->damagetype;
@@ -601,12 +694,12 @@ PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_
         if ( ppip->targetcaster )
         {
             // Set the target to the caster
-            pprt->target_ref = chr_origin;
+            pprt->target_ref = loc_chr_origin;
         }
         else
         {
             // Find a target
-            pprt->target_ref = prt_find_target( pos.x, pos.y, pos.z, facing, ipip, team, chr_origin, oldtarget );
+            pprt->target_ref = prt_find_target( pos.x, pos.y, pos.z, facing, ipip, team, loc_chr_origin, oldtarget );
             if ( ACTIVE_CHR( pprt->target_ref ) && !ppip->homing )
             {
                 facing -= glouseangle;
@@ -614,11 +707,11 @@ PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_
 
             // Correct facing for dexterity...
             offsetfacing = 0;
-            if ( ChrList.lst[chr_origin].dexterity < PERFECTSTAT )
+            if ( ChrList.lst[loc_chr_origin].dexterity < PERFECTSTAT )
             {
                 // Correct facing for randomness
                 offsetfacing  = generate_randmask( 0, ppip->facing_pair.rand ) - ( ppip->facing_pair.rand >> 1 );
-                offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[chr_origin].dexterity ) ) / PERFECTSTAT;
+                offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECTSTAT;
             }
 
             if ( ACTIVE_CHR( pprt->target_ref ) && ppip->zaimspd != 0 )
@@ -643,7 +736,7 @@ PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_
         if ( !ACTIVE_CHR( pprt->target_ref ) && ppip->needtarget )
         {
             prt_request_terminate( iprt );
-            return maxparticles;
+            return ( PRT_REF )maxparticles;
         }
 
         // Start on top of target
@@ -788,7 +881,7 @@ PRT_REF spawn_one_particle( fvec3_t   pos, FACING_T facing, REF_T iprofile, PIP_
                "\n",
                iprt,
                update_wld, pprt->time_update, frame_all, pprt->time_frame,
-               chr_origin, ACTIVE_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+               loc_chr_origin, ACTIVE_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
                ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
                LOADED_PIP( ipip ) ? PipStack.lst[ipip].comment : "",
                iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
@@ -936,7 +1029,7 @@ void update_all_particles()
         else if ( inwater )
         {
             bool_t  spawn_valid = bfalse;
-            PIP_REF spawn_pip   = MAX_PIP;
+            PIP_REF spawn_pip   = ( PIP_REF )MAX_PIP;
             fvec3_t vtmp = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
 
             if ( MAX_CHR == pprt->owner_ref &&
@@ -982,8 +1075,8 @@ void update_all_particles()
             if ( spawn_valid )
             {
                 // Splash for particles is just a ripple
-                spawn_one_particle( vtmp, 0, MAX_PROFILE, spawn_pip, MAX_CHR, GRIP_LAST,
-                                    TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
+                spawn_one_particle( vtmp, 0, ( PRO_REF )MAX_PROFILE, REF_TO_INT( spawn_pip ), ( CHR_REF )MAX_CHR, GRIP_LAST,
+                                    ( TEAM_REF )TEAM_NULL, ( CHR_REF )MAX_CHR, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
             }
 
             pprt->inwater  = btrue;
@@ -1091,7 +1184,7 @@ void update_all_particles()
             for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
             {
                 PRT_REF prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
-                                                        MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, particle, tnc, pprt->target_ref );
+                                                        ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, particle, tnc, pprt->target_ref );
 
                 if ( ppip->facingadd != 0 && ACTIVE_PRT( prt_child ) )
                 {
@@ -1105,7 +1198,7 @@ void update_all_particles()
     }
 
     // apply damage from  attatched bump particles (about once a second)
-    if ( 0 == ( update_wld & 31 ) )
+    if ( 0 == ( update_wld & 0x1F ) )
     {
         for ( particle = 0; particle < maxparticles; particle++ )
         {
@@ -1538,7 +1631,7 @@ void move_one_particle_do_homing( prt_t * pprt )
     pip_t * ppip;
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
-    iprt = GET_INDEX_PPRT( pprt );
+    iprt = GET_REF_PPRT( pprt );
 
     if ( !pprt->is_homing || !ACTIVE_CHR( pprt->target_ref ) ) return;
 
@@ -1828,7 +1921,7 @@ bool_t move_one_particle_integrate_motion( prt_t * pprt )
     fvec3_t nrm_total;
 
     if ( !DISPLAY_PPRT( pprt ) ) return bfalse;
-    iprt = GET_INDEX_PPRT( pprt );
+    iprt = GET_REF_PPRT( pprt );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
@@ -2054,7 +2147,7 @@ bool_t move_one_particle( prt_t * pprt )
 
     if ( !DISPLAY_PPRT( pprt ) ) return bfalse;
     penviro = &( pprt->enviro );
-    iprt = GET_INDEX_PPRT( pprt );
+    iprt = GET_REF_PPRT( pprt );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
@@ -2116,7 +2209,8 @@ void move_all_particles( void )
 //--------------------------------------------------------------------------------------------
 void cleanup_all_particles()
 {
-    int iprt, tnc;
+    PRT_REF iprt;
+    int tnc;
 
     int                   delay_spawn_count = 0;
     spawn_particle_info_t delay_spawn_list[TOTAL_MAX_PRT];
@@ -2125,7 +2219,6 @@ void cleanup_all_particles()
     for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
         prt_t * pprt;
-        PIP_REF ipip;
         bool_t  time_out;
 
         if ( !DEFINED_PRT( iprt ) ) continue;
@@ -2139,37 +2232,30 @@ void cleanup_all_particles()
         if ( pprt->time_frame >= frame_all + 1 ) continue;
 
         // Spawn new particles if time for old one is up
-        ipip = pprt->pip_ref;
-        if ( LOADED_PIP( ipip ) )
+        if ( pprt->endspawn_amount > 0 && pprt->endspawn_pip >= 0 )
         {
-            pip_t  * ppip;
-            FACING_T facing;
-
-            ppip = PipStack.lst + ipip;
-
-            facing = pprt->facing;
-            for ( tnc = 0; tnc < ppip->endspawn_amount; tnc++ )
+            PIP_REF  ipip = pro_get_ipip( pprt->profile_ref, pprt->endspawn_pip );
+            if ( LOADED_PIP( ipip ) )
             {
-                // do not spawn particles while iterating through the list of particles
-                if ( delay_spawn_count < TOTAL_MAX_PRT )
+                FACING_T facing;
+                int      tnc;
+
+                facing = pprt->facing;
+                for ( tnc = 0; tnc < pprt->endspawn_amount; tnc++ )
                 {
-                    spawn_particle_info_t * pinfo = delay_spawn_list + delay_spawn_count;
-                    delay_spawn_count++;
+                    // we have been given the absolute pip reference when the particle was spawned
+                    // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
+                    // value of pprt->endspawn_pip will be used directly
+                    delay_spawn_particle_request( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, pprt->endspawn_pip,
+                                                  ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
-                    pinfo->pos        = pprt->pos_old;
-                    pinfo->facing     = facing;
-                    pinfo->iprofile   = pprt->profile_ref;
-                    pinfo->ipip       = ppip->endspawn_pip;
-                    pinfo->chr_attach = MAX_CHR;
-                    pinfo->vrt_offset = GRIP_LAST;
-                    pinfo->team       = pprt->team;
-                    pinfo->chr_origin = prt_get_iowner( iprt, 0 );
-                    pinfo->prt_origin = iprt;
-                    pinfo->multispawn = tnc;
-                    pinfo->oldtarget  = pprt->target_ref;
-                };
+                    facing += pprt->endspawn_facingadd;
+                }
 
-                facing += ppip->endspawn_facingadd;
+                // we have already spawned these particles, so set this amount to
+                // zero in case we are not actually calling free_one_particle_in_game()
+                // this time around.
+                pprt->endspawn_amount = 0;
             }
         }
 
@@ -2183,16 +2269,13 @@ void cleanup_all_particles()
     {
         spawn_particle_info_t * pinfo = delay_spawn_list + tnc;
 
-        if ( !ACTIVE_PRT( pinfo->prt_origin ) ) pinfo->prt_origin = TOTAL_MAX_PRT;
+        if ( !ACTIVE_PRT( pinfo->prt_origin ) ) pinfo->prt_origin = ( PRT_REF )TOTAL_MAX_PRT;
+        if ( !ACTIVE_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = ( CHR_REF )MAX_CHR;
+        if ( !ACTIVE_CHR( pinfo->chr_attach ) ) pinfo->chr_attach = ( CHR_REF )MAX_CHR;
+        if ( !ACTIVE_CHR( pinfo->oldtarget ) ) pinfo->oldtarget  = ( CHR_REF )MAX_CHR;
+        if ( !LOADED_PRO( pinfo->iprofile ) ) pinfo->iprofile   = ( PRO_REF )MAX_PROFILE;
 
-        if ( !ACTIVE_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = MAX_CHR;
-        if ( !ACTIVE_CHR( pinfo->chr_attach ) ) pinfo->chr_attach = MAX_CHR;
-        if ( !ACTIVE_CHR( pinfo->oldtarget ) ) pinfo->oldtarget  = MAX_CHR;
-
-        if ( !LOADED_PRO( pinfo->iprofile ) ) pinfo->iprofile  = MAX_PROFILE;
-        if ( !LOADED_PIP( pinfo->ipip ) ) pinfo->ipip      = MAX_PIP;
-
-        spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->ipip,
+        spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->pip_index,
                             pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,
                             pinfo->prt_origin, pinfo->multispawn, pinfo->oldtarget );
     }
@@ -2204,7 +2287,7 @@ void PrtList_free_all()
 {
     /// @details ZZ@> This function resets the particle allocation lists
 
-    int cnt;
+    PRT_REF cnt;
 
     // free all the particles
     for ( cnt = 0; cnt < maxparticles; cnt++ )
@@ -2233,7 +2316,7 @@ void particle_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-int spawn_bump_particles( REF_T character, PRT_REF particle )
+int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by_reference particle )
 {
     /// @details ZZ@> This function is for catching characters on fire and such
 
@@ -2243,6 +2326,7 @@ int spawn_bump_particles( REF_T character, PRT_REF particle )
     int      amount;
     FACING_T direction;
     float    fsin, fcos;
+    PRT_REF  iprt;
 
     pip_t * ppip;
     chr_t * pchr;
@@ -2281,7 +2365,7 @@ int spawn_bump_particles( REF_T character, PRT_REF particle )
         // Spawn new enchantments
         if ( ppip->spawnenchant )
         {
-            spawn_one_enchant( pprt->owner_ref, character, MAX_CHR, MAX_ENC, pprt->profile_ref );
+            spawn_one_enchant( pprt->owner_ref, character, ( CHR_REF )MAX_CHR, ( ENC_REF )MAX_ENC, pprt->profile_ref );
         }
 
         // Spawn particles - this has been modded to maximize the visual effect
@@ -2309,7 +2393,7 @@ int spawn_bump_particles( REF_T character, PRT_REF particle )
                 grip_verts = GRIP_VERTS * slot_count;
             }
 
-            vertices = (( int )pchr->inst.vrt_count ) - grip_verts;
+            vertices = ( int )pchr->inst.vrt_count - ( int )grip_verts;
             vertices = MAX( 0, vertices );
 
             if ( vertices != 0 )
@@ -2346,17 +2430,17 @@ int spawn_bump_particles( REF_T character, PRT_REF particle )
                 }
 
                 // determine if some of the vertex sites are already occupied
-                for ( cnt = 0; cnt < maxparticles; cnt++ )
+                for ( iprt = 0; iprt < maxparticles; iprt++ )
                 {
                     prt_t * pprt;
-                    if ( !ACTIVE_PRT( cnt ) ) continue;
-                    pprt = PrtList.lst + cnt;
+                    if ( !ACTIVE_PRT( iprt ) ) continue;
+                    pprt = PrtList.lst + iprt;
 
                     if ( character != pprt->attachedto_ref ) continue;
 
                     if ( pprt->vrt_off >= 0 && pprt->vrt_off < vertices )
                     {
-                        vertex_occupied[pprt->vrt_off] = cnt;
+                        vertex_occupied[pprt->vrt_off] = iprt;
                     }
                 }
 
@@ -2421,7 +2505,7 @@ int spawn_bump_particles( REF_T character, PRT_REF particle )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_is_over_water( PRT_REF iprt )
+bool_t prt_is_over_water( const PRT_REF by_reference iprt )
 {
     /// ZZ@> This function returns btrue if the particle is over a water tile
     Uint32 fan;
@@ -2440,7 +2524,7 @@ bool_t prt_is_over_water( PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 PIP_REF PipStack_get_free()
 {
-    PIP_REF retval = MAX_PIP;
+    PIP_REF retval = ( PIP_REF )MAX_PIP;
 
     if ( PipStack.count < MAX_PIP )
     {
@@ -2452,7 +2536,7 @@ PIP_REF PipStack_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-PIP_REF load_one_particle_profile( const char *szLoadName, PIP_REF pip_override )
+PIP_REF load_one_particle_profile( const char *szLoadName, const PIP_REF by_reference pip_override )
 {
     /// @details ZZ@> This function loads a particle template, returning bfalse if the file wasn't
     ///    found
@@ -2473,13 +2557,13 @@ PIP_REF load_one_particle_profile( const char *szLoadName, PIP_REF pip_override 
 
     if ( !VALID_PIP_RANGE( ipip ) )
     {
-        return MAX_PIP;
+        return ( PIP_REF )MAX_PIP;
     }
     ppip = PipStack.lst + ipip;
 
     if ( NULL == load_one_pip_file( szLoadName, ppip ) )
     {
-        return MAX_PIP;
+        return ( PIP_REF )MAX_PIP;
     }
 
     ppip->soundend = CLIP( ppip->soundend, INVALID_SOUND, MAX_WAVE );
@@ -2493,64 +2577,64 @@ void reset_particles( /* const char* modname */ )
 {
     /// @details ZZ@> This resets all particle data and reads in the coin and water particles
 
-    char *loadpath;
+    const char *loadpath;
 
     release_all_local_pips();
     release_all_pip();
 
     // Load in the standard global particles ( the coins for example )
     loadpath = "mp_data/1money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN1 ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN1 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/5money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN5 ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN5 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/25money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN25 ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN25 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/100money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_COIN100 ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN100 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     // Load module specific information
     loadpath = "mp_data/weather4.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_WEATHER4 ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_WEATHER4 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/weather5.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_WEATHER5 ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_WEATHER5 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/splash.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_SPLASH ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_SPLASH ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/ripple.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_RIPPLE ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_RIPPLE ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     // This is also global...
     loadpath = "mp_data/defend.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, PIP_DEFEND ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_DEFEND ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
@@ -2576,7 +2660,8 @@ void init_all_pip()
 //--------------------------------------------------------------------------------------------
 void release_all_pip()
 {
-    int cnt, tnc;
+    PIP_REF cnt;
+    int tnc;
     int max_request;
 
     max_request = 0;
@@ -2603,7 +2688,7 @@ void release_all_pip()
                 if ( LOADED_PIP( cnt ) )
                 {
                     pip_t * ppip = PipStack.lst + cnt;
-                    fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", cnt, ppip->name, ppip->prt_create_count, ppip->prt_request_count );
+                    fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->prt_create_count, ppip->prt_request_count );
                 }
             }
 
@@ -2621,7 +2706,7 @@ void release_all_pip()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pip( PIP_REF ipip )
+bool_t release_one_pip( const PIP_REF by_reference ipip )
 {
     pip_t * ppip;
 
@@ -2639,7 +2724,7 @@ bool_t release_one_pip( PIP_REF ipip )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_request_terminate( PRT_REF iprt )
+bool_t prt_request_terminate( const PRT_REF by_reference iprt )
 {
     /// @details BB@> Tell the game to get rid of this object and treat it
     ///               as if it was already dead
@@ -2753,8 +2838,8 @@ bool_t prt_request_terminate( PRT_REF iprt )
 //            if( spawn_valid )
 //            {
 //                // Splash for particles is just a ripple
-//                spawn_one_particle( vtmp, 0, MAX_PROFILE, spawn_pip, MAX_CHR, GRIP_LAST,
-//                                    TEAM_NULL, MAX_CHR, TOTAL_MAX_PRT, 0, MAX_CHR );
+//                spawn_one_particle( vtmp, 0, (PRO_REF)MAX_PROFILE, spawn_pip, (CHR_REF)MAX_CHR, GRIP_LAST,
+//                                    TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)TOTAL_MAX_PRT, 0, (CHR_REF)MAX_CHR );
 //            }
 //
 //            pprt->inwater  = btrue;
@@ -2812,7 +2897,7 @@ bool_t prt_request_terminate( PRT_REF iprt )
 //          {
 //              PRT_REF prt_child;
 //              prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
-//                  MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, particle, tnc, pprt->target_ref );
+//                  (CHR_REF)MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, particle, tnc, pprt->target_ref );
 //
 //              if ( ppip->facingadd != 0 && ACTIVE_PRT(prt_child) )
 //              {
@@ -2848,7 +2933,7 @@ bool_t prt_request_terminate( PRT_REF iprt )
 //    }
 //
 //    // apply damage from  attatched bump particles (about once a second)
-//    if ( 0 == ( update_wld & 31 ) )
+//    if ( 0 == ( update_wld & 0x1F ) )
 //    {
 //        for ( particle = 0; particle < maxparticles; particle++ )
 //        {

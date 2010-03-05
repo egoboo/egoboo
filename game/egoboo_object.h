@@ -103,6 +103,7 @@ typedef struct s_ego_object_base ego_object_base_t;
 
 /// Grab the index value of object that "inherits" from ego_object_base_t
 #define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? FAIL_VALUE : (POBJ)->obj_base.index )
+#define GET_REF_POBJ( POBJ, FAIL_VALUE )    ((REF_T)GET_INDEX_POBJ( POBJ, FAIL_VALUE ))
 
 /// Grab the state of object that "inherits" from ego_object_base_t
 #define GET_STATE_POBJ( POBJ )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? ego_object_invalid : (POBJ)->obj_base.index )
@@ -114,4 +115,4 @@ extern Uint32 ego_object_guid;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define Egoboo_egoboo_object_h
+#define egoboo_object_h

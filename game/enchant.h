@@ -45,16 +45,8 @@ struct s_chr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// the integer type for enchant template references
-DECLARE_REF( EVE_REF );
-
-/// the integer type for enchant references
-DECLARE_REF( ENC_REF );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// Enchantment template
-DEFINE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
+DECLARE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
 
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
 #define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
@@ -69,14 +61,14 @@ struct s_enc
     int     time;                    ///< Time before end
     int     spawntime;               ///< Time before spawn
 
-    REF_T   profile_ref;             ///< The object  profile index that spawned this enchant
+    PRO_REF profile_ref;             ///< The object  profile index that spawned this enchant
     EVE_REF eve_ref;                 ///< The enchant profile index
 
-    REF_T   target_ref;              ///< Who it enchants
-    REF_T   owner_ref;               ///< Who cast the enchant
-    REF_T   spawner_ref;             ///< The spellbook character
-    REF_T   spawnermodel_ref;        ///< The spellbook character's CapList index
-    REF_T   overlay_ref;             ///< The overlay character
+    CHR_REF target_ref;              ///< Who it enchants
+    CHR_REF owner_ref;               ///< Who cast the enchant
+    CHR_REF spawner_ref;             ///< The spellbook character
+    PRO_REF spawnermodel_ref;        ///< The spellbook character's CapStack index
+    CHR_REF overlay_ref;             ///< The overlay character
 
     int     owner_mana;               ///< Boost values
     int     owner_life;
@@ -93,7 +85,7 @@ struct s_enc
 };
 typedef struct s_enc enc_t;
 
-DEFINE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
+DECLARE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 
 #define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
 #define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
@@ -104,8 +96,9 @@ DEFINE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 #define DEFINED_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
 #define PRE_TERMINATED_ENC( IENC ) ( VALID_ENC_RANGE( IENC ) && ( ACTIVE_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) || WAITING_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) ) )
 
-#define GET_INDEX_PENC( PENC )      ( (ENC_REF)GET_INDEX_POBJ( PENC, MAX_ENC ) )
-#define VALID_ENC_PTR( PENC )       ( (NULL != (PENC)) && VALID_ENC_RANGE( GET_INDEX_POBJ( PENC, MAX_ENC) ) )
+#define GET_INDEX_PENC( PENC )      ((size_t)GET_INDEX_POBJ( PENC, MAX_ENC ))
+#define GET_REF_PENC( PENC )        ((ENC_REF)GET_INDEX_PENC( PENC ))
+#define VALID_ENC_PTR( PENC )       ( (NULL != (PENC)) && VALID_ENC_RANGE( GET_REF_POBJ( PENC, MAX_ENC) ) )
 #define ALLOCATED_PENC( PENC )      ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PENC) ) )
 #define ACTIVE_PENC( PENC )         ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) )
 
@@ -121,25 +114,25 @@ DEFINE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 
 void   init_all_eve();
 void   release_all_eve();
-bool_t release_one_eve( EVE_REF ieve );
+bool_t release_one_eve( const EVE_REF by_reference ieve );
 
 void EncList_free_all();
 void EncList_update_used();
 
 void    update_all_enchants();
 void    cleanup_all_enchants();
-ENC_REF cleanup_enchant_list( ENC_REF ienc );
+ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc );
 
-ENC_REF enchant_value_filled( ENC_REF enchant_idx, int value_idx );
-bool_t  remove_enchant( ENC_REF enchant_idx );
-void    enchant_apply_set( ENC_REF enchant_idx, int value_idx, REF_T profile );
-void    enchant_apply_add( ENC_REF enchant_idx, int value_idx, EVE_REF enchanttype );
-ENC_REF spawn_one_enchant( REF_T owner, REF_T target, REF_T spawner, ENC_REF enc_override, REF_T modeloptional );
-EVE_REF load_one_enchant_profile( const char* szLoadName, ENC_REF profile );
-void    enchant_remove_set( ENC_REF enchant_idx, int value_idx );
-void    enchant_remove_add( ENC_REF enchant_idx, int value_idx );
+ENC_REF enchant_value_filled( const ENC_REF by_reference enchant_idx, int value_idx );
+bool_t  remove_enchant( const ENC_REF by_reference  enchant_idx );
+void    enchant_apply_set( const ENC_REF by_reference  enchant_idx, int value_idx, const PRO_REF by_reference profile );
+void    enchant_apply_add( const ENC_REF by_reference  enchant_idx, int value_idx, const EVE_REF by_reference enchanttype );
+ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_reference target, const CHR_REF by_reference spawner, const ENC_REF by_reference enc_override, const PRO_REF by_reference modeloptional );
+EVE_REF load_one_enchant_profile( const char* szLoadName, const EVE_REF by_reference profile );
+void    enchant_remove_set( const ENC_REF by_reference  enchant_idx, int value_idx );
+void    enchant_remove_add( const ENC_REF by_reference  enchant_idx, int value_idx );
 
-bool_t enc_request_terminate( ENC_REF ienc );
+bool_t enc_request_terminate( const ENC_REF by_reference  ienc );
 
 void enchant_system_begin();
 void enchant_system_end();

@@ -19,9 +19,12 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;USE_LUA_CONSOLE"
+				Optimization="4"
+				InlineFunctionExpansion="2"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions;Fluid_Studios_Memory_Manager"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
+				GeneratePreprocessedFile="0"
+				KeepComments="FALSE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -30,10 +33,11 @@
 				UsePrecompiledHeader="0"
 				BrowseInformation="1"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"
 				CompileAs="0"
-				DisableSpecificWarnings="4127"/>
+				DisableSpecificWarnings="4127;4239;4130"
+				ShowIncludes="FALSE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -264,6 +268,9 @@
 				RelativePath=".\egoboo_typedef.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_typedef_cpp.h">
+			</File>
+			<File
 				RelativePath=".\font_bmp.h">
 			</File>
 			<File
@@ -283,18 +290,17 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Core Inline"
-			Filter="">
-			<File
-				RelativePath=".\egoboo_math.inl">
-			</File>
-		</Filter>
-		<Filter
 			Name="Game Source"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
 				RelativePath=".\camera.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\char.c">
@@ -365,6 +371,12 @@
 			</File>
 			<File
 				RelativePath=".\profile.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\rpc.c">
@@ -501,6 +513,12 @@
 			</File>
 			<File
 				RelativePath=".\ego_wrap.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\egoboo_console.c">
@@ -513,6 +531,12 @@
 			</File>
 			<File
 				RelativePath=".\lua_console.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">
@@ -776,11 +800,6 @@
 			</File>
 			<File
 				RelativePath=".\script_functions.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\script_functions.h">
@@ -914,6 +933,13 @@
 			</File>
 			<File
 				RelativePath="..\res\old-egoboo.ico">
+			</File>
+		</Filter>
+		<Filter
+			Name="Core Inline"
+			Filter="">
+			<File
+				RelativePath=".\egoboo_math.inl">
 			</File>
 		</Filter>
 	</Files>

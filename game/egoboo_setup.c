@@ -202,7 +202,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
     /// @details BB@> download the ConfigFile_t keys into game variables
     ///     use default values to fill in any missing keys
 
-    char  *lCurSectionName;
+    const char *lCurSectionName;
     bool_t lTempBool;
     Sint32 lTempInt;
     STRING lTempStr;
@@ -427,7 +427,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
 {
     /// @details BB@> upload game variables into the ConfigFile_t keys
 
-    char  *lCurSectionName;
+    const char  *lCurSectionName;
     if ( NULL == lConfigSetup || NULL == pcfg ) return bfalse;
 
     //*********************************************

@@ -85,17 +85,17 @@ typedef struct s_bumplist bumplist_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t add_chr_chr_interaction( CHashList_t * pclst, CHR_REF ichr_a, CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
-static bool_t add_chr_prt_interaction( CHashList_t * pclst, CHR_REF ichr_a, PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+static bool_t add_chr_chr_interaction( CHashList_t * pclst, const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
 
-static bool_t detect_chr_chr_interaction_valid( CHR_REF ichr_a, CHR_REF ichr_b );
-static bool_t detect_chr_prt_interaction_valid( CHR_REF ichr_a, PRT_REF iprt_b );
+static bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
+static bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
 
-static bool_t detect_chr_chr_interaction( CHR_REF ichr_a, CHR_REF ichr_b );
-static bool_t detect_chr_prt_interaction( CHR_REF ichr_a, PRT_REF iprt_b );
+static bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
+static bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
 
-static bool_t do_chr_platform_detection( CHR_REF ichr_a, CHR_REF ichr_b );
-static bool_t do_prt_platform_detection( CHR_REF ichr_a, PRT_REF iprt_b );
+static bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
+static bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
 
 static bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat );
 static bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat );
@@ -107,7 +107,7 @@ static bool_t bump_all_platforms( CoNode_ary_t * pcn_ary );
 static bool_t bump_all_mounts( CoNode_ary_t * pcn_ary );
 static bool_t bump_all_collisions( CoNode_ary_t * pcn_ary );
 
-static bool_t do_mounts( CHR_REF ichr_a, CHR_REF ichr_b );
+static bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
 static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
 static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
 static bool_t do_chr_chr_collision( CoNode_t * d );
@@ -120,9 +120,8 @@ static bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_
 static bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision( CoNode_t * d );
 
-IMPLEMENT_ARY( CoNode_ary,   CoNode_t )
-
-IMPLEMENT_ARY( HashNode_ary, hash_node_t )
+IMPLEMENT_DYNAMIC_ARY( CoNode_ary,   CoNode_t );
+IMPLEMENT_DYNAMIC_ARY( HashNode_ary, hash_node_t );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -195,7 +194,7 @@ void collision_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t detect_chr_chr_interaction_valid( CHR_REF ichr_a, CHR_REF ichr_b )
+bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
 {
     chr_t *pchr_a, *pchr_b;
 
@@ -226,7 +225,7 @@ bool_t detect_chr_chr_interaction_valid( CHR_REF ichr_a, CHR_REF ichr_b )
     return btrue;
 }
 
-bool_t detect_chr_chr_interaction( CHR_REF ichr_a, CHR_REF ichr_b )
+bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
 {
     bool_t interact_x  = bfalse;
     bool_t interact_y  = bfalse;
@@ -292,7 +291,7 @@ bool_t detect_chr_chr_interaction( CHR_REF ichr_a, CHR_REF ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t detect_chr_prt_interaction_valid( CHR_REF ichr_a, PRT_REF iprt_b )
+bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
 {
     chr_t * pchr_a;
     prt_t * pprt_b;
@@ -319,7 +318,7 @@ bool_t detect_chr_prt_interaction_valid( CHR_REF ichr_a, PRT_REF iprt_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t detect_chr_prt_interaction( CHR_REF ichr_a, PRT_REF iprt_b )
+bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
 {
     bool_t interact_x  = bfalse;
     bool_t interact_y  = bfalse;
@@ -369,7 +368,7 @@ bool_t detect_chr_prt_interaction( CHR_REF ichr_a, PRT_REF iprt_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_chr_chr_interaction( CHashList_t * pchlst, CHR_REF ichr_a, CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
+bool_t add_chr_chr_interaction( CHashList_t * pchlst, const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
 {
     Uint32 hashval = 0;
     int count;
@@ -384,7 +383,7 @@ bool_t add_chr_chr_interaction( CHashList_t * pchlst, CHR_REF ichr_a, CHR_REF ic
     if ( ichr_a == ichr_b ) return bfalse;
 
     // create a hash that is order-independent
-    hashval = MAKE_HASH( ichr_a, ichr_b );
+    hashval = MAKE_HASH( REF_TO_INT( ichr_a ), REF_TO_INT( ichr_b ) );
 
     found = bfalse;
     count = pchlst->subcount[hashval];
@@ -434,7 +433,7 @@ bool_t add_chr_chr_interaction( CHashList_t * pchlst, CHR_REF ichr_a, CHR_REF ic
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_chr_prt_interaction( CHashList_t * pchlst, CHR_REF ichr_a, PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
+bool_t add_chr_prt_interaction( CHashList_t * pchlst, const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
 {
     bool_t found;
     int    count;
@@ -446,7 +445,7 @@ bool_t add_chr_prt_interaction( CHashList_t * pchlst, CHR_REF ichr_a, PRT_REF ip
     if ( NULL == pchlst ) return bfalse;
 
     // create a hash that is order-independent
-    hashval = MAKE_HASH( ichr_a, iprt_b );
+    hashval = MAKE_HASH( REF_TO_INT( ichr_a ), REF_TO_INT( iprt_b ) );
 
     found = bfalse;
     count = pchlst->subcount[hashval];
@@ -551,7 +550,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                 if ( 1 == pleaf->data_type )
                 {
                     // collided with a character
-                    CHR_REF ichr_b = coll_ref;
+                    CHR_REF ichr_b = ( CHR_REF )coll_ref;
 
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_chr_interaction_valid( ichr_a, ichr_b ) )
@@ -578,7 +577,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                 else if ( 2 == pleaf->data_type )
                 {
                     // collided with a particle
-                    PRT_REF iprt_b = coll_ref;
+                    PRT_REF iprt_b = ( PRT_REF )coll_ref;
 
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_prt_interaction_valid( ichr_a, iprt_b ) )
@@ -706,7 +705,7 @@ bool_t fill_bumplists( obj_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_platform_detection( CHR_REF ichr_a, CHR_REF ichr_b )
+bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
 {
     chr_t * pchr_a, * pchr_b;
     cap_t * pcap_a, * pcap_b;
@@ -884,7 +883,7 @@ bool_t do_chr_platform_detection( CHR_REF ichr_a, CHR_REF ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_prt_platform_detection( CHR_REF ichr_a, PRT_REF iprt_b )
+bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
 {
     chr_t * pchr_a;
     prt_t * pprt_b;
@@ -954,7 +953,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     if ( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pchr->onwhichplatform = GET_INDEX_PCHR( pplat );
+    pchr->onwhichplatform = GET_REF_PCHR( pplat );
 
     // update the character's relationship to the ground
     pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] );
@@ -986,7 +985,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
-    ai_state_set_bumplast( &( pplat->ai ), GET_INDEX_PCHR( pchr ) );
+    ai_state_set_bumplast( &( pplat->ai ), GET_REF_PCHR( pchr ) );
 
     return btrue;
 }
@@ -1002,14 +1001,14 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
     if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
 
-    pprt_pip = prt_get_ppip( GET_INDEX_PPRT( pprt ) );
+    pprt_pip = prt_get_ppip( GET_REF_PPRT( pprt ) );
     if ( NULL == pprt_pip ) return bfalse;
 
     // check if they can be connected
     if ( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pprt->onwhichplatform = GET_INDEX_PCHR( pplat );
+    pprt->onwhichplatform = GET_REF_PCHR( pplat );
 
     // update the character's relationship to the ground
     particle_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] ) );
@@ -1363,12 +1362,12 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 
         // use this form of the function call so that we could add more modules or
         // rearrange them without needing to change anything
-        if( !handled )
+        if ( !handled )
         {
             handled = do_chr_chr_collision( pcn_ary->ary + cnt );
         }
 
-        if( !handled )
+        if ( !handled )
         {
             handled = do_chr_prt_collision( pcn_ary->ary + cnt );
         }
@@ -1398,7 +1397,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 
             if ( 0 == pchr->dismount_timer )
             {
-                pchr->dismount_object = MAX_CHR;
+                pchr->dismount_object = ( CHR_REF )MAX_CHR;
             }
         }
 
@@ -1465,7 +1464,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_mounts( CHR_REF ichr_a, CHR_REF ichr_b )
+bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
 {
     float xa, ya, za;
     float xb, yb, zb;
@@ -1616,7 +1615,7 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     if ( !ACTIVE_PCHR( pitem ) ) return bfalse;
     if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
 
-    if ( pitem->onwhichplatform != GET_INDEX_PCHR( pplat ) ) return bfalse;
+    if ( pitem->onwhichplatform != GET_REF_PCHR( pplat ) ) return bfalse;
 
     // grab the pre-computed zlerp value, and map it to our needs
     lerp_z = 1.0f - pitem->enviro.zlerp;
@@ -1741,7 +1740,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     oct_vec_t opos_a, opos_b, odepth, odepth_old;
     bool_t    collision = bfalse, bump = bfalse;
 
-    if( NULL == d || TOTAL_MAX_PRT != d->prtb ) return bfalse;
+    if ( NULL == d || TOTAL_MAX_PRT != d->prtb ) return bfalse;
     ichr_a = d->chra;
     ichr_b = d->chrb;
 
@@ -2080,7 +2079,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     if ( !ACTIVE_PPRT( pprt ) || ACTIVE_CHR( pprt->attachedto_ref ) ) return bfalse;
 
     // this is handled elsewhere
-    if ( GET_INDEX_PCHR( pplat ) == pprt->onwhichplatform ) return bfalse;
+    if ( GET_REF_PCHR( pplat ) == pprt->onwhichplatform ) return bfalse;
 
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
@@ -2177,11 +2176,11 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     direction = pchr->facing_z - direction + ATK_BEHIND;
 
     // shield block?
-    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pchr ), ppip->damfx );
+    chr_is_invictus = is_invictus_direction( direction, GET_REF_PCHR( pchr ), ppip->damfx );
 
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
-                            ( pprt->owner_ref != GET_INDEX_PCHR( pchr ) ) && !pdata->ppip->bumpmoney;
+                            ( pprt->owner_ref != GET_REF_PCHR( pchr ) ) && !pdata->ppip->bumpmoney;
 
     chr_can_deflect = ( 0 != pchr->damagetime ) && ( pdata->max_damage > 0 );
 
@@ -2221,7 +2220,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 
                 // Change the owner of the missile
                 pprt->team              = pchr->team;
-                pprt->owner_ref         = GET_INDEX_PCHR( pchr );
+                pprt->owner_ref         = GET_REF_PCHR( pchr );
                 pdata->ppip->homing     = bfalse;
             }
 
@@ -2484,7 +2483,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         }
 
         // handle vulnerabilities
-        if ( chr_has_vulnie( GET_INDEX_PCHR( pchr ), pprt->profile_ref ) )
+        if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
         {
             loc_damage.base = ( loc_damage.base << 1 );
             loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
@@ -2493,7 +2492,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         }
 
         // Damage the character
-        pdata->actual_damage = damage_character( GET_INDEX_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
+        pdata->actual_damage = damage_character( GET_REF_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
 
         // we're supposed to blank out the damage here so that swords and such don't
         // kill everything in one swipe?
@@ -2542,19 +2541,19 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         CHR_REF item;
 
         chr_get_pai( pprt->owner_ref )->alert |= ALERTIF_SCOREDAHIT;
-        chr_get_pai( pprt->owner_ref )->hitlast = GET_INDEX_PCHR( pchr );
+        chr_get_pai( pprt->owner_ref )->hitlast = GET_REF_PCHR( pchr );
 
         //Tell the weapons who the attacker hit last
         item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_LEFT];
         if ( ACTIVE_CHR( item ) )
         {
-            ChrList.lst[item].ai.hitlast = GET_INDEX_PCHR( pchr );
+            ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
         }
 
         item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_RIGHT];
         if ( ACTIVE_CHR( item ) )
         {
-            ChrList.lst[item].ai.hitlast = GET_INDEX_PCHR( pchr );
+            ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
         }
     }
 
@@ -2574,20 +2573,20 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // if the particle was deflected, then it can't bump the character
-    if ( pchr->invictus || pprt->attachedto_ref == GET_INDEX_PCHR( pchr ) ) return bfalse;
+    if ( pchr->invictus || pprt->attachedto_ref == GET_REF_PCHR( pchr ) ) return bfalse;
 
-    prt_belongs_to_chr = ( GET_INDEX_PCHR( pchr ) == pprt->owner_ref );
+    prt_belongs_to_chr = ( GET_REF_PCHR( pchr ) == pprt->owner_ref );
 
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-        PRT_REF prt_owner = prt_get_iowner( GET_INDEX_PPRT( pprt ), 0 );
+        CHR_REF prt_owner = prt_get_iowner( GET_REF_PPRT( pprt ), 0 );
         if ( ACTIVE_CHR( prt_owner ) )
         {
-            CHR_REF chr_wielder = chr_get_lowest_attachment( GET_INDEX_PCHR( pchr ),   btrue );
+            CHR_REF chr_wielder = chr_get_lowest_attachment( GET_REF_PCHR( pchr ),   btrue );
             CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, btrue );
 
-            if ( !ACTIVE_CHR( chr_wielder ) ) chr_wielder = GET_INDEX_PCHR( pchr );
+            if ( !ACTIVE_CHR( chr_wielder ) ) chr_wielder = GET_REF_PCHR( pchr );
             if ( !ACTIVE_CHR( prt_wielder ) ) prt_wielder = prt_owner;
 
             prt_belongs_to_chr = ( chr_wielder == prt_wielder );
@@ -2595,7 +2594,7 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     }
 
     // does the particle team hate the character's team
-    prt_hates_chr = TeamList[pprt->team].hatesteam[pchr->team];
+    prt_hates_chr = team_hates_team( pprt->team, pchr->team );
 
     // Only bump into hated characters?
     prt_hateonly = PipStack.lst[pprt->pip_ref].hateonly;
@@ -2628,7 +2627,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_col
     if ( !pdata->prt_bumps_chr ) return bfalse;
 
     // Catch on fire
-    spawn_bump_particles( GET_INDEX_PCHR( pchr ), GET_INDEX_PPRT( pprt ) );
+    spawn_bump_particles( GET_REF_PCHR( pchr ), GET_REF_PPRT( pprt ) );
 
     //handle some special particle interactions
     if ( pdata->ppip->endbump )
@@ -2728,7 +2727,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     chr_prt_collsion_data_t cn_lst;
 
-    if( NULL == d || MAX_CHR != d->chrb ) return bfalse;
+    if ( NULL == d || MAX_CHR != d->chrb ) return bfalse;
     ichr_a = d->chra;
     iprt_b = d->prtb;
 
@@ -2840,11 +2839,11 @@ CoNode_t * CoNode_ctor( CoNode_t * n )
     memset( n, 0, sizeof( *n ) );
 
     // the "colliding" objects
-    n->chra = MAX_CHR;
+    n->chra = ( CHR_REF )MAX_CHR;
     n->prta = TOTAL_MAX_PRT;
 
     // the "collided with" objects
-    n->chrb  = MAX_CHR;
+    n->chrb  = ( CHR_REF )MAX_CHR;
     n->prtb  = TOTAL_MAX_PRT;
     n->tileb = FANOFF;
 
@@ -2862,21 +2861,21 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
     AA = ( Uint32 )( ~0 );
     if ( ACTIVE_CHR( coll->chra ) )
     {
-        AA = coll->chra;
+        AA = REF_TO_INT( coll->chra );
     }
     else if ( ACTIVE_PRT( coll->prta ) )
     {
-        AA = coll->prta;
+        AA = REF_TO_INT( coll->prta );
     }
 
     BB = ( Uint32 )( ~0 );
     if ( ACTIVE_CHR( coll->chrb ) )
     {
-        BB = coll->chra;
+        BB = REF_TO_INT( coll->chra );
     }
     else if ( ACTIVE_PRT( coll->prtb ) )
     {
-        BB = coll->prta;
+        BB = REF_TO_INT( coll->prta );
     }
     else if ( FANOFF != coll->tileb )
     {
@@ -2905,22 +2904,22 @@ int CoNode_cmp( const void * vleft, const void * vright )
     if ( ftmp <= 0.0f ) return -1;
     else if ( ftmp >= 0.0f ) return 1;
 
-    itmp = ( int )pleft->chra - ( int )pright->chra;
+    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
     if ( 0 != itmp ) return itmp;
 
-    itmp = ( int )pleft->prta - ( int )pright->prta;
+    itmp = ( signed )REF_TO_INT( pleft->prta ) - ( signed )REF_TO_INT( pright->prta );
     if ( 0 != itmp ) return itmp;
 
-    itmp = ( int )pleft->chra - ( int )pright->chra;
+    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
     if ( 0 != itmp ) return itmp;
 
-    itmp = ( int )pleft->prtb - ( int )pright->prtb;
+    itmp = ( signed )REF_TO_INT( pleft->prtb ) - ( signed )REF_TO_INT( pright->prtb );
     if ( 0 != itmp ) return itmp;
 
-    itmp = ( int )pleft->chrb - ( int )pright->chrb;
+    itmp = ( signed )REF_TO_INT( pleft->chrb ) - ( signed )REF_TO_INT( pright->chrb );
     if ( 0 != itmp ) return itmp;
 
-    itmp = ( int )pleft->tileb - ( int )pright->tileb;
+    itmp = ( signed )pleft->tileb - ( signed )pright->tileb;
     if ( 0 != itmp ) return itmp;
 
     return 0;
@@ -3039,7 +3038,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //    // Clear the lists
 //    for ( fanblock = 0; fanblock < PMesh->gmem.blocks_count; fanblock++ )
 //    {
-//        bumplist[fanblock].chr    = MAX_CHR;
+//        bumplist[fanblock].chr    = (CHR_REF)MAX_CHR;
 //        bumplist[fanblock].chrnum = 0;
 //
 //        bumplist[fanblock].prt    = TOTAL_MAX_PRT;
@@ -3056,7 +3055,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //
 //        // reset the platform stuff each update
 //        pchr->holdingweight   = 0;
-//        pchr->onwhichplatform = MAX_CHR;
+//        pchr->onwhichplatform = (CHR_REF)MAX_CHR;
 //        pchr->enviro.level    = pchr->enviro.floor_level;
 //
 //        // reset the fan and block position
@@ -3086,7 +3085,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //        if ( !ACTIVE_PRT( particle ) ) continue;
 //        pprt = PrtList.lst + particle;
 //
-//        pprt->onwhichplatform = MAX_CHR;
+//        pprt->onwhichplatform = (CHR_REF)MAX_CHR;
 //        particle_set_level( pprt, pprt->enviro.floor_level );
 //
 //        // reject characters that are hidden

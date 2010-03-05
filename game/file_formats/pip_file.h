@@ -148,14 +148,14 @@ struct s_pip
     bool_t  endlastframe;                 ///< End on last frame
     Uint8   endspawn_amount;              ///< Spawn amount
     Uint16  endspawn_facingadd;           ///< Spawn in circle
-    Uint8   endspawn_pip;                 ///< Spawn type ( local )
+    int     endspawn_pip;                 ///< Spawn type ( local )
     Sint8   soundend;                     ///< Ending sound
     Sint8   soundend_floor;               ///< Floor sound
     Sint8   soundend_wall;                ///< Ricochet sound
 
     // bumping
     Uint8   bumpspawn_amount;             ///< Spawn amount
-    Uint8   bumpspawn_pip;                ///< Spawn type ( global )
+    int     bumpspawn_pip;                ///< Spawn type ( global )
     Sint8   bumpmoney;                    ///< Value of particle
     Uint32  bump_size;                     ///< Bounding box size
     Uint32  bump_height;                   ///< Bounding box height
@@ -164,7 +164,7 @@ struct s_pip
     Uint16  contspawn_time;               ///< Spawn timer
     Uint8   contspawn_amount;             ///< Spawn amount
     Uint16  contspawn_facingadd;          ///< Spawn in circle
-    REF_T   contspawn_pip;                ///< Spawn type ( local )
+    int     contspawn_pip;                ///< Spawn type ( local )
 
     // damage
     FRange  damage;                       ///< Damage

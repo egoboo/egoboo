@@ -37,37 +37,38 @@
 // FORWARD DECLARARIONS
 //--------------------------------------------------------------------------------------------
 // cap_t accessor functions
-INLINE bool_t cap_is_type_idsz( CAP_REF icap, IDSZ test_idsz );
-INLINE bool_t cap_has_idsz( CAP_REF icap, IDSZ idsz );
+INLINE bool_t cap_is_type_idsz( const CAP_REF by_reference icap, IDSZ test_idsz );
+INLINE bool_t cap_has_idsz( const CAP_REF by_reference icap, IDSZ idsz );
+
 //--------------------------------------------------------------------------------------------
 // team_t accessor functions
-INLINE CHR_REF  team_get_ileader( TEAM_REF iteam );
-INLINE chr_t  * team_get_pleader( TEAM_REF iteam );
+INLINE CHR_REF  team_get_ileader( const TEAM_REF by_reference iteam );
+INLINE chr_t  * team_get_pleader( const TEAM_REF by_reference iteam );
 
-INLINE bool_t team_hates_team( TEAM_REF ipredator_team, TEAM_REF iprey_team );
+INLINE bool_t team_hates_team( const TEAM_REF by_reference ipredator_team, const TEAM_REF by_reference iprey_team );
 
 //--------------------------------------------------------------------------------------------
 // chr_t accessor functions
-INLINE PRO_REF  chr_get_ipro( CHR_REF ichr );
-INLINE CAP_REF  chr_get_icap( CHR_REF ichr );
-INLINE EVE_REF  chr_get_ieve( CHR_REF ichr );
-INLINE PIP_REF  chr_get_ipip( CHR_REF ichr, int ipip );
-INLINE TEAM_REF chr_get_iteam( CHR_REF ichr );
-INLINE TEAM_REF chr_get_iteam_base( CHR_REF ichr );
+INLINE PRO_REF  chr_get_ipro( const CHR_REF by_reference ichr );
+INLINE CAP_REF  chr_get_icap( const CHR_REF by_reference ichr );
+INLINE EVE_REF  chr_get_ieve( const CHR_REF by_reference ichr );
+INLINE PIP_REF  chr_get_ipip( const CHR_REF by_reference ichr, int ipip );
+INLINE TEAM_REF chr_get_iteam( const CHR_REF by_reference ichr );
+INLINE TEAM_REF chr_get_iteam_base( const CHR_REF by_reference ichr );
 
-INLINE pro_t * chr_get_ppro( CHR_REF ichr );
-INLINE cap_t * chr_get_pcap( CHR_REF ichr );
-INLINE eve_t * chr_get_peve( CHR_REF ichr );
-INLINE pip_t * chr_get_ppip( CHR_REF ichr, int ipip );
+INLINE pro_t * chr_get_ppro( const CHR_REF by_reference ichr );
+INLINE cap_t * chr_get_pcap( const CHR_REF by_reference ichr );
+INLINE eve_t * chr_get_peve( const CHR_REF by_reference ichr );
+INLINE pip_t * chr_get_ppip( const CHR_REF by_reference ichr, int ipip );
 
 INLINE Mix_Chunk      * chr_get_chunk_ptr( chr_t * pchr, int index );
-INLINE Mix_Chunk      * chr_get_chunk( CHR_REF ichr, int index );
-INLINE team_t         * chr_get_pteam( CHR_REF ichr );
-INLINE team_t         * chr_get_pteam_base( CHR_REF ichr );
-INLINE ai_state_t     * chr_get_pai( CHR_REF ichr );
-INLINE chr_instance_t * chr_get_pinstance( CHR_REF ichr );
+INLINE Mix_Chunk      * chr_get_chunk( const CHR_REF by_reference ichr, int index );
+INLINE team_t         * chr_get_pteam( const CHR_REF by_reference ichr );
+INLINE team_t         * chr_get_pteam_base( const CHR_REF by_reference ichr );
+INLINE ai_state_t     * chr_get_pai( const CHR_REF by_reference ichr );
+INLINE chr_instance_t * chr_get_pinstance( const CHR_REF by_reference ichr );
 
-INLINE IDSZ chr_get_idsz( CHR_REF ichr, int type );
+INLINE IDSZ chr_get_idsz( const CHR_REF by_reference ichr, int type );
 
 INLINE void chr_update_size( chr_t * pchr );
 INLINE void chr_init_size( chr_t * pchr, cap_t * pcap );
@@ -77,9 +78,9 @@ INLINE void chr_set_shadow( chr_t * pchr, float width );
 INLINE void chr_set_height( chr_t * pchr, float height );
 INLINE void chr_set_fat( chr_t * pchr, float fat );
 
-INLINE bool_t chr_has_idsz( CHR_REF ichr, IDSZ idsz );
-INLINE bool_t chr_is_type_idsz( CHR_REF ichr, IDSZ idsz );
-INLINE bool_t chr_has_vulnie( CHR_REF item, PRO_REF weapon_profile );
+INLINE bool_t chr_has_idsz( const CHR_REF by_reference ichr, IDSZ idsz );
+INLINE bool_t chr_is_type_idsz( const CHR_REF by_reference ichr, IDSZ idsz );
+INLINE bool_t chr_has_vulnie( const CHR_REF by_reference item, const PRO_REF by_reference weapon_profile );
 
 INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_t   * pvec );
 INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_t   * pvec );
@@ -89,7 +90,7 @@ INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_t   * pvec );
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-INLINE bool_t cap_is_type_idsz( CAP_REF icap, IDSZ test_idsz )
+INLINE bool_t cap_is_type_idsz( const CAP_REF by_reference icap, IDSZ test_idsz )
 {
     /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
@@ -97,7 +98,7 @@ INLINE bool_t cap_is_type_idsz( CAP_REF icap, IDSZ test_idsz )
     cap_t * pcap;
 
     if ( !LOADED_CAP( icap ) ) return bfalse;
-    pcap = CapList + icap;
+    pcap = CapStack.lst + icap;
 
     if ( IDSZ_NONE == test_idsz ) return btrue;
     if ( test_idsz == pcap->idsz[IDSZ_TYPE  ] ) return btrue;
@@ -107,7 +108,7 @@ INLINE bool_t cap_is_type_idsz( CAP_REF icap, IDSZ test_idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t cap_has_idsz( CAP_REF icap, IDSZ idsz )
+INLINE bool_t cap_has_idsz( const CAP_REF by_reference icap, IDSZ idsz )
 {
     /// @detalis BB@> does idsz match any of the stored values in pcap->idsz[]?
     ///               Matches anything if not picky (idsz == IDSZ_NONE)
@@ -117,7 +118,7 @@ INLINE bool_t cap_has_idsz( CAP_REF icap, IDSZ idsz )
     bool_t  retval;
 
     if ( !LOADED_CAP( icap ) ) return bfalse;
-    pcap = CapList + icap;
+    pcap = CapStack.lst + icap;
 
     if ( IDSZ_NONE == idsz ) return btrue;
 
@@ -136,112 +137,120 @@ INLINE bool_t cap_has_idsz( CAP_REF icap, IDSZ idsz )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE CHR_REF team_get_ileader( TEAM_REF iteam )
+INLINE CHR_REF team_get_ileader( const TEAM_REF by_reference iteam )
 {
     CHR_REF ichr;
 
-    if ( iteam >= TEAM_MAX ) return MAX_CHR;
+    if ( iteam >= TEAM_MAX ) return ( CHR_REF )MAX_CHR;
 
-    ichr = TeamList[iteam].leader;
-    if ( !DEFINED_CHR( ichr ) ) return MAX_CHR;
+    ichr = TeamStack.lst[iteam].leader;
+    if ( !DEFINED_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
 
     return ichr;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE chr_t  * team_get_pleader( TEAM_REF iteam )
+INLINE chr_t  * team_get_pleader( const TEAM_REF by_reference iteam )
 {
     CHR_REF ichr;
 
     if ( iteam >= TEAM_MAX ) return NULL;
 
-    ichr = TeamList[iteam].leader;
+    ichr = TeamStack.lst[iteam].leader;
     if ( !DEFINED_CHR( ichr ) ) return NULL;
 
     return ChrList.lst + ichr;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t team_hates_team( TEAM_REF ipredator_team, TEAM_REF iprey_team )
+INLINE bool_t team_hates_team( const TEAM_REF by_reference ipredator_team, const TEAM_REF by_reference iprey_team )
 {
     /// @details BB@> a wrapper function for access to the hatesteam data
 
     if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return bfalse;
 
-    return TeamList[ipredator_team].hatesteam[iprey_team];
+    return TeamStack.lst[ipredator_team].hatesteam[ REF_TO_INT( iprey_team )];
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE PRO_REF chr_get_ipro( CHR_REF ichr )
+INLINE PRO_REF chr_get_ipro( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return MAX_PROFILE;
+    if ( !DEFINED_CHR( ichr ) ) return ( PRO_REF )MAX_PROFILE;
     pchr = ChrList.lst + ichr;
 
-    if ( !LOADED_PRO( pchr->iprofile ) ) return MAX_PROFILE;
+    if ( !LOADED_PRO( pchr->iprofile ) ) return ( PRO_REF )MAX_PROFILE;
 
     return pchr->iprofile;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE CAP_REF chr_get_icap( CHR_REF ichr )
+INLINE CAP_REF chr_get_icap( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return MAX_CAP;
+    if ( !DEFINED_CHR( ichr ) ) return ( CAP_REF )MAX_CAP;
     pchr = ChrList.lst + ichr;
 
     return pro_get_icap( pchr->iprofile );
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE EVE_REF chr_get_ieve( CHR_REF ichr )
+INLINE EVE_REF chr_get_ieve( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return MAX_EVE;
+    if ( !DEFINED_CHR( ichr ) ) return ( EVE_REF )MAX_EVE;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ieve( pchr->iprofile );
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE PIP_REF chr_get_ipip( CHR_REF ichr, int ipip )
+INLINE PIP_REF chr_get_ipip( const CHR_REF by_reference ichr, int ipip )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return MAX_PIP;
+    if ( !DEFINED_CHR( ichr ) ) return ( PIP_REF )MAX_PIP;
     pchr = ChrList.lst + ichr;
 
     return pro_get_ipip( pchr->iprofile, ipip );
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE TEAM_REF chr_get_iteam( CHR_REF ichr )
+INLINE TEAM_REF chr_get_iteam( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
+    int iteam;
 
-    if ( !DEFINED_CHR( ichr ) ) return TEAM_DAMAGE;
+    if ( !DEFINED_CHR( ichr ) ) return ( TEAM_REF )TEAM_DAMAGE;
     pchr = ChrList.lst + ichr;
 
-    return CLIP( pchr->team, 0, TEAM_MAX );
+    iteam = REF_TO_INT( pchr->team );
+    iteam = CLIP( iteam, 0, TEAM_MAX );
+
+    return ( TEAM_REF )iteam;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE TEAM_REF chr_get_iteam_base( CHR_REF ichr )
+INLINE TEAM_REF chr_get_iteam_base( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
+    int iteam;
 
-    if ( !DEFINED_CHR( ichr ) ) return TEAM_MAX;
+    if ( !DEFINED_CHR( ichr ) ) return ( TEAM_REF )TEAM_MAX;
     pchr = ChrList.lst + ichr;
 
-    return CLIP( pchr->baseteam, 0, TEAM_MAX );
+    iteam = REF_TO_INT( pchr->baseteam );
+    iteam = CLIP( iteam, 0, TEAM_MAX );
+
+    return ( TEAM_REF )iteam;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE pro_t * chr_get_ppro( CHR_REF ichr )
+INLINE pro_t * chr_get_ppro( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
@@ -254,7 +263,7 @@ INLINE pro_t * chr_get_ppro( CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE cap_t * chr_get_pcap( CHR_REF ichr )
+INLINE cap_t * chr_get_pcap( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
@@ -265,7 +274,7 @@ INLINE cap_t * chr_get_pcap( CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE eve_t * chr_get_peve( CHR_REF ichr )
+INLINE eve_t * chr_get_peve( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
@@ -276,7 +285,7 @@ INLINE eve_t * chr_get_peve( CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE pip_t * chr_get_ppip( CHR_REF ichr, int ipip )
+INLINE pip_t * chr_get_ppip( const CHR_REF by_reference ichr, int ipip )
 {
     chr_t * pchr;
 
@@ -287,7 +296,7 @@ INLINE pip_t * chr_get_ppip( CHR_REF ichr, int ipip )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE Mix_Chunk * chr_get_chunk( CHR_REF ichr, int index )
+INLINE Mix_Chunk * chr_get_chunk( const CHR_REF by_reference ichr, int index )
 {
     chr_t * pchr;
 
@@ -306,7 +315,7 @@ INLINE Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE team_t * chr_get_pteam( CHR_REF ichr )
+INLINE team_t * chr_get_pteam( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
@@ -315,11 +324,11 @@ INLINE team_t * chr_get_pteam( CHR_REF ichr )
 
     if ( pchr->team < 0 && pchr->team >= TEAM_MAX ) return NULL;
 
-    return TeamList + pchr->team;
+    return TeamStack.lst + pchr->team;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE team_t * chr_get_pteam_base( CHR_REF ichr )
+INLINE team_t * chr_get_pteam_base( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
@@ -328,11 +337,11 @@ INLINE team_t * chr_get_pteam_base( CHR_REF ichr )
 
     if ( pchr->baseteam < 0 || pchr->baseteam >= TEAM_MAX ) return NULL;
 
-    return TeamList + pchr->baseteam;
+    return TeamStack.lst + pchr->baseteam;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE ai_state_t * chr_get_pai( CHR_REF ichr )
+INLINE ai_state_t * chr_get_pai( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
@@ -343,7 +352,7 @@ INLINE ai_state_t * chr_get_pai( CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE chr_instance_t * chr_get_pinstance( CHR_REF ichr )
+INLINE chr_instance_t * chr_get_pinstance( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
@@ -354,7 +363,7 @@ INLINE chr_instance_t * chr_get_pinstance( CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE IDSZ chr_get_idsz( CHR_REF ichr, int type )
+INLINE IDSZ chr_get_idsz( const CHR_REF by_reference ichr, int type )
 {
     cap_t * pcap;
 
@@ -367,7 +376,7 @@ INLINE IDSZ chr_get_idsz( CHR_REF ichr, int type )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t chr_has_idsz( CHR_REF ichr, IDSZ idsz )
+INLINE bool_t chr_has_idsz( const CHR_REF by_reference ichr, IDSZ idsz )
 {
     /// @detalis BB@> a wrapper for cap_has_idsz
 
@@ -377,7 +386,7 @@ INLINE bool_t chr_has_idsz( CHR_REF ichr, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t chr_is_type_idsz( CHR_REF item, IDSZ test_idsz )
+INLINE bool_t chr_is_type_idsz( const CHR_REF by_reference item, IDSZ test_idsz )
 {
     /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
@@ -390,7 +399,7 @@ INLINE bool_t chr_is_type_idsz( CHR_REF item, IDSZ test_idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t chr_has_vulnie( CHR_REF item, PRO_REF test_profile )
+INLINE bool_t chr_has_vulnie( const CHR_REF by_reference item, const PRO_REF by_reference test_profile )
 {
     /// @detalis BB@> is item vulnerable to the type in profile test_profile?
 

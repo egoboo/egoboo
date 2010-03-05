@@ -74,7 +74,7 @@ mesh_BSP_t mesh_BSP_root;
 #else
 mesh_BSP_t mesh_BSP_root =
 {
-    OCT_BB_INIT_VALS, ARY_INIT_VALS, BSP_TREE_INIT_VALS
+    OCT_BB_INIT_VALS, DYNAMIC_ARY_INIT_VALS, BSP_TREE_INIT_VALS
 };
 #endif
 

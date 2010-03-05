@@ -27,28 +27,28 @@
 // FORWARD DECLARATION
 //--------------------------------------------------------------------------------------------
 
-INLINE PIP_REF  prt_get_ipip( PRT_REF particle );
-INLINE pip_t  * prt_get_ppip( PRT_REF particle );
+INLINE PIP_REF  prt_get_ipip( const PRT_REF by_reference particle );
+INLINE pip_t  * prt_get_ppip( const PRT_REF by_reference particle );
+INLINE CHR_REF  prt_get_iowner( const PRT_REF by_reference iprt, int depth );
 INLINE bool_t   prt_set_size( prt_t *, int size );
-INLINE CHR_REF  prt_get_iowner( PRT_REF iprt, int depth );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-INLINE PIP_REF prt_get_ipip( PRT_REF iprt )
+INLINE PIP_REF prt_get_ipip( const PRT_REF by_reference iprt )
 {
     prt_t * pprt;
 
-    if ( !DEFINED_PRT( iprt ) ) return MAX_PIP;
+    if ( !DEFINED_PRT( iprt ) ) return ( PIP_REF )MAX_PIP;
     pprt = PrtList.lst + iprt;
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return MAX_PIP;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return ( PIP_REF )MAX_PIP;
 
     return pprt->pip_ref;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE pip_t * prt_get_ppip( PRT_REF iprt )
+INLINE pip_t * prt_get_ppip( const PRT_REF by_reference iprt )
 {
     prt_t * pprt;
 
@@ -73,7 +73,7 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE CHR_REF prt_get_iowner( PRT_REF iprt, int depth )
+INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
 {
     /// BB@> A helper function for determining the owner of a paricle
     ///
@@ -89,14 +89,14 @@ INLINE CHR_REF prt_get_iowner( PRT_REF iprt, int depth )
     ///      @note this function should be completely trivial for anything other than
     ///       namage particles created by an explosion
 
-    CHR_REF iowner = MAX_CHR;
+    CHR_REF iowner = ( CHR_REF )MAX_CHR;
 
     prt_t * pprt;
 
     // be careful because this can be recursive
-    if ( depth > ( int )maxparticles - ( int )PrtList.free_count ) return MAX_CHR;
+    if ( depth > ( int )maxparticles - ( int )PrtList.free_count ) return ( CHR_REF )MAX_CHR;
 
-    if ( !DEFINED_PRT( iprt ) ) return MAX_CHR;
+    if ( !DEFINED_PRT( iprt ) ) return ( CHR_REF )MAX_CHR;
     pprt = PrtList.lst + iprt;
 
     if ( ACTIVE_CHR( pprt->owner_ref ) )

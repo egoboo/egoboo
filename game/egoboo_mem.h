@@ -22,10 +22,12 @@
 /// @file egoboo_mem.h
 /// @details Macros to control allocation and deallocation of memory
 
-#include <memory.h>
-#include <assert.h>
-
-//#include "mmgr.h"
+#if defined(__cplusplus)
+#    include "mmgr.h"
+#else
+#    include <memory.h>
+#    include <string.h>
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -43,4 +45,4 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define Egoboo_egoboo_mem_h
+#define egoboo_mem_h

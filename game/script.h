@@ -131,10 +131,10 @@ struct s_ai_state
     Uint32         indent_last;
 
     // who are we related to?
-    REF_T          index;         ///< what is the index value of this character
-    REF_T          target;        ///< Who the AI is after
-    REF_T          owner;         ///< The character's owner
-    REF_T          child;         ///< The character's child
+    CHR_REF        index;         ///< what is the index value of this character
+    CHR_REF        target;        ///< Who the AI is after
+    CHR_REF        owner;         ///< The character's owner
+    CHR_REF        child;         ///< The character's child
 
     // some local storage
     Uint32         alert;         ///< Alerts for AI script
@@ -146,15 +146,15 @@ struct s_ai_state
     int            y[STOR_COUNT];
 
     // ai memory from the last event
-    REF_T          bumplast;        ///< Last character it was bumped by
+    CHR_REF        bumplast;        ///< Last character it was bumped by
     int            bumplast_time;   ///< The last time that a ALERTIF_BUMPED was sent
 
-    REF_T          attacklast;      ///< Last character it was attacked by
-    REF_T          hitlast;         ///< Last character it hit
+    CHR_REF        attacklast;      ///< Last character it was attacked by
+    CHR_REF        hitlast;         ///< Last character it hit
     FACING_T       directionlast;   ///< Direction of last attack/healing
     Uint16         damagetypelast;  ///< Last damage type
-    REF_T          lastitemused;    ///< The last item the character used
-    REF_T          target_old;      ///< Target in the previous update
+    CHR_REF        lastitemused;    ///< The last item the character used
+    CHR_REF        target_old;      ///< Target in the previous update
 
     // message handling
     Uint32         order_value;           ///< The last order given the character
@@ -172,7 +172,7 @@ typedef struct s_ai_state ai_state_t;
 
 ai_state_t * ai_state_ctor( ai_state_t * pself );
 ai_state_t * ai_state_dtor( ai_state_t * pself );
-bool_t       ai_state_set_bumplast( ai_state_t * pself, REF_T ichr );
+bool_t       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF by_reference  ichr );
 bool_t       ai_state_get_wp( ai_state_t * pself );
 bool_t       ai_state_ensure_wp( ai_state_t * pself );
 
@@ -194,11 +194,11 @@ typedef struct s_script_state script_state_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Prototypes
-void  scr_run_chr_script( REF_T character );
+void  scr_run_chr_script( const CHR_REF by_reference character );
 
-void issue_order( REF_T character, Uint32 order );
+void issue_order( const CHR_REF by_reference character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
-void set_alerts( REF_T character );
+void set_alerts( const CHR_REF by_reference character );
 
 void scripting_system_begin();
 void scripting_system_end();

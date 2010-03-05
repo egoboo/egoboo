@@ -693,7 +693,7 @@ SDL_bool SDLX_ExpandFormat( SDL_PixelFormat * pformat )
 {
     // use the basic screen format to create a surface with proper alpha support
 
-    int i;
+    Uint8 i;
 
     if ( NULL == pformat ) return SDL_FALSE;
 

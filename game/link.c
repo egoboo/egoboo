@@ -160,7 +160,8 @@ bool_t link_pop_module()
 
     if ( retval )
     {
-        int i, j;
+        int i;
+        CHR_REF j;
 
         // restore the heroes' positions before jumping out of the module
         for ( i = 0; i < pentry->hero_count; i++ )
@@ -200,9 +201,9 @@ bool_t link_pop_module()
 //--------------------------------------------------------------------------------------------
 bool_t link_push_module()
 {
-    int cnt;
     bool_t retval;
     link_stack_entry_t * pentry;
+    PLA_REF ipla;
 
     if ( link_stack_count >= MAX_PLAYER || pickedmodule_index < 0 ) return bfalse;
 
@@ -215,17 +216,17 @@ bool_t link_push_module()
 
     // find all of the exportable characters
     pentry->hero_count = 0;
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
         chr_t * pchr;
 
         hero_spawn_data_t * phero;
 
-        if ( !PlaList[cnt].valid ) continue;
+        if ( !PlaStack.lst[ipla].valid ) continue;
 
         // Is it alive?
-        ichr = PlaList[cnt].index;
+        ichr = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
@@ -235,7 +236,7 @@ bool_t link_push_module()
             pentry->hero_count++;
 
             // copy some important info
-            phero->object_index = pchr->iprofile;
+            phero->object_index = REF_TO_INT( pchr->iprofile );
 
             phero->pos_stt.x    = pchr->pos_stt.x;
             phero->pos_stt.y    = pchr->pos_stt.y;

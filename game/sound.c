@@ -52,9 +52,13 @@ struct s_looped_sound_data
 };
 typedef struct s_looped_sound_data looped_sound_data_t;
 
-DEFINE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
+INSTANTIATE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
-DECLARE_LIST( static, looped_sound_data_t, LoopedList );
+//#if !defined(DEBUG_CPP_LISTS)
+//
+//#elif defined(__cplusplus)
+//    INSTANTIATE_LIST( static, looped_sound_data_t, LoopedList, LOOPED_COUNT );
+//#endif
 
 static void   LoopedList_init();
 static void   LoopedList_clear();
@@ -62,7 +66,7 @@ static bool_t LoopedList_free_one( size_t index );
 static size_t LoopedList_get_free();
 
 static bool_t LoopedList_validate();
-static size_t LoopedList_add( Mix_Chunk * sound, int loops, REF_T object );
+static size_t LoopedList_add( Mix_Chunk * sound, int loops, const CHR_REF by_reference  object );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -556,7 +560,7 @@ bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, REF_T owner )
+int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF by_reference owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
@@ -847,7 +851,8 @@ void fade_in_music( Mix_Music * music )
 void   LoopedList_init()
 {
     /// @details BB@> setup the looped sound list
-    int cnt;
+    LOOP_REF cnt;
+    size_t tnc;
 
     for ( cnt = 0; cnt < LOOPED_COUNT; cnt++ )
     {
@@ -856,10 +861,11 @@ void   LoopedList_init()
 
         LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
         LoopedList.lst[cnt].chunk   = NULL;
-        LoopedList.lst[cnt].object  = MAX_CHR;
+        LoopedList.lst[cnt].object  = ( CHR_REF )MAX_CHR;
 
-        LoopedList.used_ref[cnt] = LOOPED_COUNT;
-        LoopedList.free_ref[cnt] = cnt;
+        tnc = REF_TO_INT( cnt );
+        LoopedList.used_ref[tnc] = LOOPED_COUNT;
+        LoopedList.free_ref[tnc] = tnc;
     }
 
     LoopedList.used_count = 0;
@@ -888,7 +894,8 @@ bool_t LoopedList_validate()
 bool_t LoopedList_free_one( size_t index )
 {
     /// @details BB@> free a looped sound only if it is actually being used
-    Uint32 cnt;
+    Uint32   cnt;
+    LOOP_REF ref;
 
     if ( !LoopedList_validate() ) return bfalse;
 
@@ -910,9 +917,10 @@ bool_t LoopedList_free_one( size_t index )
     LoopedList.free_count++;
 
     // clear out the data
-    LoopedList.lst[index].channel = INVALID_SOUND_CHANNEL;
-    LoopedList.lst[index].chunk   = NULL;
-    LoopedList.lst[index].object  = MAX_CHR;
+    ref = ( LOOP_REF )index;
+    LoopedList.lst[ref].channel = INVALID_SOUND_CHANNEL;
+    LoopedList.lst[ref].chunk   = NULL;
+    LoopedList.lst[ref].object  = ( CHR_REF )MAX_CHR;
 
     return btrue;
 }
@@ -939,7 +947,7 @@ void LoopedList_clear()
 {
     /// @details BB@> shut off all the looped sounds
 
-    int cnt;
+    LOOP_REF cnt;
 
     for ( cnt = 0; cnt < LOOPED_COUNT; cnt++ )
     {
@@ -950,7 +958,7 @@ void LoopedList_clear()
             // clear out the data
             LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
             LoopedList.lst[cnt].chunk   = NULL;
-            LoopedList.lst[cnt].object  = MAX_CHR;
+            LoopedList.lst[cnt].object  = ( CHR_REF )MAX_CHR;
         }
     }
 
@@ -958,7 +966,7 @@ void LoopedList_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t LoopedList_add( Mix_Chunk * sound, int channel, REF_T ichr )
+size_t LoopedList_add( Mix_Chunk * sound, int channel, const CHR_REF by_reference  ichr )
 {
     /// @details BB@> add a looped sound to the list
 
@@ -973,9 +981,11 @@ size_t LoopedList_add( Mix_Chunk * sound, int channel, REF_T ichr )
     if ( index != LOOPED_COUNT )
     {
         // set up the LoopedList entry at the empty index
-        LoopedList.lst[index].chunk   = sound;
-        LoopedList.lst[index].channel = channel;
-        LoopedList.lst[index].object  = ichr;
+        LOOP_REF ref = ( LOOP_REF )index;
+
+        LoopedList.lst[ref].chunk   = sound;
+        LoopedList.lst[ref].channel = channel;
+        LoopedList.lst[ref].object  = ichr;
     }
 
     return index;
@@ -998,10 +1008,15 @@ bool_t LoopedList_remove( int channel )
     {
         size_t index = LoopedList.used_ref[cnt];
 
-        if ( channel == LoopedList.lst[index].channel )
+        if ( index != LOOPED_COUNT )
         {
-            retval = LoopedList_free_one( cnt );
-            break;
+            LOOP_REF ref = ( LOOP_REF ) index;
+
+            if ( channel == LoopedList.lst[ref].channel )
+            {
+                retval = LoopedList_free_one( cnt );
+                break;
+            }
         }
     }
 
@@ -1030,13 +1045,16 @@ void looped_update_all_sound()
     {
         fvec3_t   diff;
         size_t    index;
+        LOOP_REF   ref;
         looped_sound_data_t * plooped;
 
         index = LoopedList.used_ref[cnt];
-
         if ( index < 0 || index >= LOOPED_COUNT ) continue;
-        if ( INVALID_SOUND_CHANNEL == LoopedList.lst[index].channel ) continue;
-        plooped = LoopedList.lst + index;
+
+        ref = ( LOOP_REF )index;
+
+        if ( INVALID_SOUND_CHANNEL == LoopedList.lst[ref].channel ) continue;
+        plooped = LoopedList.lst + ref;
 
         if ( !ACTIVE_CHR( plooped->object ) )
         {
@@ -1057,7 +1075,7 @@ void looped_update_all_sound()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t looped_stop_object_sounds( REF_T ichr )
+bool_t looped_stop_object_sounds( const CHR_REF by_reference  ichr )
 {
     /// @details BB@> free any looped sound(s) being made by a certain character
     int freed;
@@ -1077,11 +1095,16 @@ bool_t looped_stop_object_sounds( REF_T ichr )
         found = bfalse;
         for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
         {
-            size_t index = LoopedList.used_ref[cnt];
+            LOOP_REF ref;
 
-            if ( LoopedList.lst[index].object == ichr )
+            size_t index = LoopedList.used_ref[cnt];
+            if ( index < 0 || index >= LOOPED_COUNT ) continue;
+
+            ref = ( LOOP_REF )index;
+
+            if ( LoopedList.lst[ref].object == ichr )
             {
-                int channel = LoopedList.lst[index].channel;
+                int channel = LoopedList.lst[ref].channel;
 
                 if ( LoopedList_free_one( index ) )
                 {

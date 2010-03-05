@@ -27,9 +27,9 @@
 // The data needed to describe a single link between modules
 struct s_link
 {
-    bool_t  valid;
-    STRING  modname;
-    REF_T   passage;
+    bool_t   valid;
+    STRING   modname;
+    PASS_REF passage;
 };
 typedef struct s_link Link_t;
 

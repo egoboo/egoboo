@@ -122,7 +122,7 @@ struct s_eve
     Uint16  contspawn_time;              ///< Spawn timer
     Uint8   contspawn_amount;            ///< Spawn amount
     Uint16  contspawn_facingadd;         ///< Spawn in circle
-    Uint16  contspawn_pip;               ///< Spawn type ( local )
+    int     contspawn_pip;               ///< Spawn type ( local )
     Sint16  endsound_index;              ///< Sound on end (-1 for none)
     bool_t  spawn_overlay;               ///< Spawn an overlay?
     bool_t  stayiftargetdead;            ///< Stay if target has died?

@@ -102,23 +102,23 @@ extern "C"
     /// An encapsulation of the OpenGL stencil state
     struct s_gl_stencil
     {
-        GLboolean test_enabled;
-        GLint  test_func[1];
-        char * test_func_sz;
-        GLint  test_ref[1];
+        GLboolean    test_enabled;
+        GLint        test_func[1];
+        const char * test_func_sz;
+        GLint        test_ref[1];
 
         GLint writemask[1];
         GLint clear_value[1];
         GLint value_mask[1];
 
-        GLint  fail[1];
-        char * fail_sz;
+        GLint        fail[1];
+        const char * fail_sz;
 
-        GLint  pass_depth_fail[1];
-        char * pass_depth_fail_sz;
+        GLint        pass_depth_fail[1];
+        const char * pass_depth_fail_sz;
 
-        GLint  pass_depth_pass[1];
-        char * pass_depth_pass_sz;
+        GLint        pass_depth_pass[1];
+        const char * pass_depth_pass_sz;
     };
     typedef struct s_gl_stencil gl_stencil_t;
 
@@ -152,11 +152,11 @@ extern "C"
     {
         GLboolean enabled;
 
-        GLint  src[1];
-        char * src_sz;
+        GLint        src[1];
+        const char * src_sz;
 
-        GLint  dst[1];
-        char * dst_sz;
+        GLint        dst[1];
+        const char * dst_sz;
     };
     typedef struct s_gl_blend gl_blend_t;
 
@@ -170,10 +170,9 @@ extern "C"
     {
         GLboolean test_enabled;
 
-        GLint     test_func[1];
-        char *    test_func_sz;
-
-        GLint     test_ref[1];
+        GLint        test_func[1];
+        const char * test_func_sz;
+        GLint        test_ref[1];
 
         GLfloat   scale[1];
         GLfloat   bias[1];
@@ -191,8 +190,8 @@ extern "C"
     {
         GLboolean test_enabled;
 
-        char *    test_func_sz;
-        GLint     test_func[1];
+        const char * test_func_sz;
+        GLint        test_func[1];
 
         GLboolean writemask_enabled[1];
         GLfloat   clear_value[1];
@@ -211,12 +210,12 @@ extern "C"
     /// An encapsulation of the OpenGL polygon state
     struct s_gl_polygon
     {
-        GLint    mode[1];
-        char *    mode_sz;
+        GLint        mode[1];
+        const char * mode_sz;
 
-        GLboolean smooth;
-        GLint     smooth_hint[1];
-        char *    smooth_hint_sz;
+        GLboolean    smooth;
+        GLint        smooth_hint[1];
+        const char * smooth_hint_sz;
 
         GLfloat   offset_factor[1];
         GLfloat   offset_bias[1];
@@ -235,9 +234,9 @@ extern "C"
     {
         GLfloat width[1];
 
-        GLboolean smooth;
-        GLint     smooth_hint[1];
-        char    * smooth_hint_sz;
+        GLboolean    smooth;
+        GLint        smooth_hint[1];
+        const char * smooth_hint_sz;
 
         GLboolean stipple_enabled;
         GLint     stipple_pattern[1];
@@ -252,8 +251,8 @@ extern "C"
     {
         GLfloat size[1];
 
-        GLint   smooth_hint[1];
-        char *  smooth_hint_sz;
+        GLint        smooth_hint[1];
+        const char * smooth_hint_sz;
     };
     typedef struct s_gl_point gl_point_t;
 
@@ -295,7 +294,7 @@ extern "C"
     struct s_gl_render_mode
     {
         GLint            mode[1];
-        char           * mode_sz;
+        const char     * mode_sz;
 
         gl_feedback_t    feedback;
         gl_selection_t   selection;
@@ -307,8 +306,8 @@ extern "C"
     /// An encapsulation of the OpenGL matrix state
     struct s_gl_matrix
     {
-        GLint   mode[1];
-        char *  mode_sz;
+        GLint        mode[1];
+        const char * mode_sz;
 
         GLint   modelview_stack_depth[1];
         GLfloat modelview_matrix[16];
@@ -337,14 +336,14 @@ extern "C"
         GLboolean dither_enabled;
         GLboolean auto_normal_enabled;
 
-        GLint  perspective_correction_hint[1];
-        char * perspective_correction_hint_sz;
+        GLint        perspective_correction_hint[1];
+        const char * perspective_correction_hint_sz;
 
-        GLint  fog_hint[1];
-        char * fog_hint_sz;
+        GLint        fog_hint[1];
+        const char * fog_hint_sz;
 
-        GLint  shade_model[1];
-        char * shade_model_sz;
+        GLint        shade_model[1];
+        const char * shade_model_sz;
     };
     typedef struct s_gl_render_options gl_render_options_t;
 
@@ -397,9 +396,9 @@ extern "C"
 
         GLboolean        cull_face_enabled;
         GLint            cull_face_mode[1];
-        char           * cull_face_mode_sz;
+        const char     * cull_face_mode_sz;
         GLint            front_face[1];
-        char           * front_face_sz;
+        const char     * front_face_sz;
     };
     typedef struct s_gl_clipping gl_clipping_t;
 
@@ -442,8 +441,8 @@ extern "C"
     /// An encapsulation of the OpenGL logic op state
     struct s_gl_logic_op
     {
-        GLint     mode[1];
-        char *    mode_sz;
+        GLint        mode[1];
+        const char * mode_sz;
 
         GLboolean index_enabled;
         GLboolean color_enabled;
@@ -521,9 +520,9 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    extern char * next_cmd;
-    extern int    next_line;
-    extern char * next_file;
+    extern const char * next_cmd;
+    extern int          next_line;
+    extern const char * next_file;
 
     /// grab a text representation of an OpenGL error
     void handle_gl_error();

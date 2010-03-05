@@ -88,7 +88,7 @@ struct s_load_player_info
 {
     STRING name;              ///< the object's name
     STRING dir;               ///< the object's full path
-    int    tx_ref;            ///< the index of the texture
+    TX_REF tx_ref;            ///< the index of the texture
 
     chop_definition_t chop;   ///< put this here so we can generate a name without loading an entire profile
 };
@@ -99,9 +99,9 @@ extern LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern int    mnu_selectedPlayerCount;
-extern Uint32 mnu_selectedInput[MAX_PLAYER];
-extern REF_T  mnu_selectedPlayer[MAX_PLAYER];
+extern int     mnu_selectedPlayerCount;
+extern Uint32  mnu_selectedInput[MAX_PLAYER];
+extern int     mnu_selectedPlayer[MAX_PLAYER];
 
 extern bool_t mnu_draw_background;
 
@@ -124,7 +124,7 @@ int mnu_get_menu_depth();
 void                    TxTitleImage_ctor();
 void                    TxTitleImage_release_all();
 void                    TxTitleImage_dtor();
-struct s_oglx_texture * TxTitleImage_get_ptr( Uint32 itex );
+struct s_oglx_texture * TxTitleImage_get_ptr( const TX_REF by_reference itex );
 
 extern bool_t startNewPlayer;
 
@@ -135,14 +135,14 @@ const char *        mnu_ModList_get_name( int imod );
 void   mnu_load_all_module_info();
 int    mnu_get_mod_number( const char *szModName );
 bool_t mnu_test_by_name( const char *szModName );
-bool_t mnu_test_by_index( int modnumber );
+bool_t mnu_test_by_index( const MOD_REF by_reference modnumber );
 
-REF_T  mnu_get_icon_ref( REF_T icap, Uint32 default_ref );
+TX_REF mnu_get_icon_ref( const CAP_REF by_reference icap, const TX_REF by_reference default_ref );
 
 int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );
 menu_process_t     * menu_process_init( menu_process_t * mproc );
 
-int  TxTitleImage_load_one( const char *szLoadName );
+TX_REF  TxTitleImage_load_one( const char *szLoadName );
 
 #define egoboo_Menu_h
 

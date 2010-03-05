@@ -30,11 +30,9 @@
 //--------------------------------------------------------------------------------------------
 #define MAX_TX_TEXTURE_REQ 100
 
-DEFINE_LIST_STATIC( tx_request_t, TxReqList, MAX_TX_TEXTURE_REQ );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-DECLARE_LIST( static, tx_request_t, TxReqList );
+INSTANTIATE_LIST_STATIC( tx_request_t, TxReqList, MAX_TX_TEXTURE_REQ );
 
 static bool_t _rpc_system_initialized = bfalse;
 static int    _rpc_system_guid;
@@ -90,7 +88,7 @@ tx_request_t * tx_request_ctor( tx_request_t * preq, int type )
     if ( NULL == rpc_base_ctor( &( preq->rpc_base ), type, preq ) ) return NULL;
 
     preq->filename[0] = '\0';
-    preq->index       = ~0;
+    preq->index       = ( TX_REF )INVALID_TX_TEXTURE;
     preq->key         = ( Uint32 )( ~0 );
 
     return preq;
@@ -164,7 +162,7 @@ int rpc_system_get_guid()
 //--------------------------------------------------------------------------------------------
 void TxReqList_ctor()
 {
-    int cnt;
+    TREQ_REF cnt;
 
     TxReqList.free_count = 0;
     for ( cnt = 0; cnt < MAX_TX_TEXTURE_REQ; cnt++ )
@@ -178,7 +176,7 @@ void TxReqList_ctor()
         tx_request_ctor( preq, -1 );
 
         // set the index
-        preq->rpc_base.index = cnt;
+        preq->rpc_base.index = REF_TO_INT( cnt );
 
         // push the characters onto the free stack
         TxReqList.free_ref[TxReqList.free_count] = TxReqList.free_count;
@@ -189,7 +187,7 @@ void TxReqList_ctor()
 //--------------------------------------------------------------------------------------------
 void TxReqList_dtor()
 {
-    int cnt;
+    TREQ_REF cnt;
 
     TxReqList.used_count = 0;
     TxReqList.free_count = 0;
@@ -215,7 +213,7 @@ size_t TxReqList_get_free( int type )
 
     if ( retval >= 0 && retval < MAX_TX_TEXTURE_REQ )
     {
-        tx_request_ctor( TxReqList.lst + retval, type );
+        tx_request_ctor( TxReqList.lst + ( TREQ_REF )retval, type );
     }
 
     return retval;
@@ -230,7 +228,7 @@ bool_t TxReqList_free_one( int ireq )
     tx_request_t * preq;
 
     if ( ireq < 0 || ireq >= MAX_TX_TEXTURE_REQ ) return bfalse;
-    preq = TxReqList.lst + ireq;
+    preq = TxReqList.lst + ( TREQ_REF )ireq;
 
     // destruct the request
     tx_request_dtor( preq );
@@ -274,7 +272,7 @@ bool_t TxReqList_timestep()
     // grab the index the 1st ting
     index = TxReqList.used_count - 1;
     if ( index < 0 ) return bfalse;
-    preq = TxReqList.lst + index;
+    preq = TxReqList.lst + ( TREQ_REF )index;
 
     // ??lock the list??
 
@@ -323,7 +321,7 @@ tx_request_t * rpc_load_TxTexture( const char *filename, int itex_src, Uint32 ke
     // find a free request for TxTexture (type 1)
     index = TxReqList_get_free( 1 );
     if ( index == MAX_TX_TEXTURE_REQ ) return NULL;
-    preq = TxReqList.lst + index;
+    preq = TxReqList.lst + ( TREQ_REF )index;
 
     // fill in the data
     strncpy( preq->filename, filename, SDL_arraysize( preq->filename ) );
@@ -344,7 +342,7 @@ tx_request_t * rpc_load_TxTitleImage( const char *filename )
     // find a free request for TxTitleImage (type 2)
     index = TxReqList_get_free( 2 );
     if ( index == MAX_TX_TEXTURE_REQ ) return NULL;
-    preq = TxReqList.lst + index;
+    preq = TxReqList.lst + ( TREQ_REF )index;
 
     // fill in the data
     strncpy( preq->filename, filename, SDL_arraysize( preq->filename ) );

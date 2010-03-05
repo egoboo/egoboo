@@ -294,7 +294,7 @@ const char * vfs_convert_fname_sys( const char * fname )
         offset++;
     }
 
-    while ( '/' == copy_fname[offset] || '\\' == copy_fname[offset] && offset < SDL_arraysize( copy_fname ) )
+    while (( '/' == copy_fname[offset] || '\\' == copy_fname[offset] ) && offset < SDL_arraysize( copy_fname ) )
     {
         offset++;
     }
@@ -1467,7 +1467,7 @@ const char * _vfs_search( vfs_search_context_t * ctxt )
             string_length = strlen( sztest );
 
             // grab the last bit of the test string
-            if ( string_length - extension_length >= 0 )
+            if ((( signed )string_length - ( signed )extension_length ) >= 0 )
             {
                 sztest += ( string_length - extension_length );
             }
@@ -2034,7 +2034,7 @@ int _vfs_mount_point_matches( const char * mount_point, const char * local_path 
     {
         for ( /* nothing */; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
         {
-            if ( '/' != *ptmp && '\\' != *ptmp || '\0' == *ptmp )
+            if (( '/' != *ptmp && '\\' != *ptmp ) || '\0' == *ptmp )
             {
                 break;
             }
@@ -2098,7 +2098,7 @@ bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path )
     // strip any starting slashes
     for ( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
     {
-        if ( '/' != *ptmp && '\\' != *ptmp || '\0' == *ptmp )
+        if (( '/' != *ptmp && '\\' != *ptmp ) || '\0' == *ptmp )
         {
             break;
         }

@@ -31,9 +31,6 @@
 
 struct s_script_state;
 
-DECLARE_REF( PASS_REF );
-DECLARE_REF( SHOP_REF );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define MAX_PASS             256                     ///< Maximum number of passages ( mul 32 )
@@ -56,7 +53,7 @@ enum e_shop_orders
 //--------------------------------------------------------------------------------------------
 /// Passages
 
-DEFINE_STACK_EXTERN( passage_t, PassageStack, MAX_PASS );
+DECLARE_STACK_EXTERN( passage_t, PassageStack, MAX_PASS );
 
 #define VALID_PASSAGE_RANGE( IPASS ) ( ((IPASS) >= 0) && ((IPASS) <   MAX_PASS) )
 #define VALID_PASSAGE( IPASS )       ( VALID_PASSAGE_RANGE( IPASS ) && ((IPASS) <  PassageStack.count) )
@@ -65,12 +62,12 @@ DEFINE_STACK_EXTERN( passage_t, PassageStack, MAX_PASS );
 /// The data defining a shop
 struct s_shop
 {
-    REF_T   passage;  ///< The passage number
-    REF_T   owner;    ///< Who gets the gold?
+    PASS_REF passage;  ///< The passage number
+    CHR_REF  owner;    ///< Who gets the gold?
 };
 typedef struct s_shop shop_t;
 
-DEFINE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
+DECLARE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
 
 #define VALID_SHOP_RANGE( ISHOP ) ( ((ISHOP) >= 0) && ((ISHOP) <   MAX_SHOP) )
 #define VALID_SHOP( ISHOP )       ( VALID_SHOP_RANGE( ISHOP ) && ((ISHOP) <  ShopStack.count) )
@@ -80,17 +77,20 @@ DEFINE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
 //--------------------------------------------------------------------------------------------
 /// prototypes
 
-bool_t open_passage( PASS_REF ipassage );
-bool_t close_passage( PASS_REF ipassage );
 void   check_passage_music();
-void   flash_passage( PASS_REF ipassage, Uint8 color );
-REF_T  who_is_blocking_passage( PASS_REF ipassage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
-                                bool_t requireitem, IDSZ findidsz );
 void   clear_all_passages();
-void   add_shop_passage( REF_T owner, PASS_REF ipassage );
-void   add_passage( passage_t * pdata );
 void   activate_passages_file();
-bool_t point_is_in_passage( PASS_REF ipassage, float xpos, float ypos );
-bool_t object_is_in_passage( PASS_REF ipassage, float xpos, float ypos, float radius );
 
-REF_T  shop_get_owner( int ix, int iy );
+void   add_passage( passage_t * pdata );
+
+bool_t   open_passage( const PASS_REF by_reference ipassage );
+bool_t   close_passage( const PASS_REF by_reference ipassage );
+void     flash_passage( const PASS_REF by_reference ipassage, Uint8 color );
+CHR_REF  who_is_blocking_passage( const PASS_REF by_reference ipassage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
+                                  bool_t requireitem, IDSZ findidsz );
+void   add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_reference ipassage );
+
+bool_t point_is_in_passage( const PASS_REF by_reference ipassage, float xpos, float ypos );
+bool_t object_is_in_passage( const PASS_REF by_reference ipassage, float xpos, float ypos, float radius );
+
+CHR_REF  shop_get_owner( int ix, int iy );

@@ -395,7 +395,7 @@ void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight,
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawImage( ui_id_t id, oglx_texture *img, float vx, float vy, float vwidth, float vheight )
+void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight )
 {
     float vw, vh;
     float tx, ty;
@@ -556,7 +556,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, float vx, float vy, float vwidth, float vheight )
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight )
 {
     ui_buttonValues result;
 
@@ -574,7 +574,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, float vx, float
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, Font * font, float vx, float vy, float vwidth, float vheight )
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const char *text, Font * font, float vx, float vy, float vwidth, float vheight )
 {
     ui_buttonValues result;
 
@@ -707,7 +707,7 @@ bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture *img, float vx, float vy, float vwidth, float vheight )
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight )
 {
     if ( NULL == pw ) return bfalse;
 

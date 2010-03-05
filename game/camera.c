@@ -70,7 +70,7 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->zgoto     =  800;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->facing_z     = (( int )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
+    pcam->facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
     pcam->turnadd    =  0;
     pcam->sustain    =  0.60f;
     pcam->turnupdown = ( float )( PI / 4 );
@@ -232,6 +232,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     {
         // a camera movement mode for re-focusing in on a bunch of players
 
+        PLA_REF ipla;
         fvec3_t sum_pos;
         float   sum_wt, sum_level;
 
@@ -239,11 +240,11 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         sum_level = 0.0f;
         fvec3_clear( &sum_pos );
 
-        for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+        for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
         {
             chr_t * pchr;
 
-            pchr = pla_get_pchr( cnt );
+            pchr = pla_get_pchr( ipla );
             if ( NULL == pchr || !pchr->alive ) continue;
 
             sum_pos.x += pchr->pos.x;
@@ -267,16 +268,17 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         // a camera mode for focusing in on the players that are actually doing something.
         // "Show me the drama!"
 
+        PLA_REF ipla;
         chr_t * local_chr_ptrs[MAX_PLAYER];
         int local_chr_count = 0;
 
         // count the number of local players, first
         local_chr_count = 0;
-        for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+        for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
         {
             chr_t * pchr;
 
-            pchr = pla_get_pchr( cnt );
+            pchr = pla_get_pchr( ipla );
             if ( NULL == pchr || !pchr->alive ) continue;
 
             local_chr_ptrs[local_chr_count] = pchr;
@@ -560,7 +562,7 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->zgoto = 1500;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->facing_z     = (( int )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
+    pcam->facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
     pcam->turnupdown = PI / 4.0f;
     pcam->roll = 0;
 

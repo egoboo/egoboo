@@ -44,10 +44,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static char * script_error_classname = "UNKNOWN";
-static REF_T  script_error_model     = ( REF_T )( ~0 );
-static char * script_error_name      = "UNKNOWN";
-static REF_T  script_error_index     = ( Uint16 )( ~0 );
+static const char *  script_error_classname = "UNKNOWN";
+static PRO_REF       script_error_model     = ( PRO_REF )MAX_PROFILE;
+static const char *  script_error_name      = "UNKNOWN";
+static REF_T         script_error_index     = ( Uint16 )( ~0 );
 
 static bool_t scr_increment_exe( ai_state_t * pself );
 static bool_t scr_set_exe( ai_state_t * pself, size_t offset );
@@ -123,7 +123,7 @@ void scripting_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void scr_run_chr_script( REF_T character )
+void scr_run_chr_script( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function lets one character do AI stuff
 
@@ -163,12 +163,14 @@ void scr_run_chr_script( REF_T character )
     script_error_name      = "UNKNOWN";
     if ( script_error_model < MAX_PROFILE )
     {
-        script_error_classname = CapList[ script_error_model ].classname;
+        CAP_REF icap = pro_get_icap( script_error_model );
+
+        script_error_classname = CapStack.lst[ icap ].classname;
 
         script_error_index = ProList.lst[script_error_model].iai;
         if ( script_error_index < MAX_AI )
         {
-            script_error_name = AisStorage.lst[script_error_index].szName;
+            script_error_name = AisStorage.ary[script_error_index].szName;
         }
     }
 
@@ -177,13 +179,13 @@ void scr_run_chr_script( REF_T character )
         FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
         fprintf( scr_file,  "\n\n--------\n%d - %s\n", script_error_index, script_error_name );
-        fprintf( scr_file,  "%d - %s\n", script_error_model, script_error_classname );
+        fprintf( scr_file,  "%d - %s\n", REF_TO_INT( script_error_model ), script_error_classname );
 
         // who are we related to?
-        fprintf( scr_file,  "\tindex  == %d\n", pself->index );
-        fprintf( scr_file,  "\ttarget == %d\n", pself->target );
-        fprintf( scr_file,  "\towner  == %d\n", pself->owner );
-        fprintf( scr_file,  "\tchild  == %d\n", pself->child );
+        fprintf( scr_file,  "\tindex  == %d\n", REF_TO_INT( pself->index ) );
+        fprintf( scr_file,  "\ttarget == %d\n", REF_TO_INT( pself->target ) );
+        fprintf( scr_file,  "\towner  == %d\n", REF_TO_INT( pself->owner ) );
+        fprintf( scr_file,  "\tchild  == %d\n", REF_TO_INT( pself->child ) );
 
         // some local storage
         fprintf( scr_file,  "\talert     == %x\n", pself->alert );
@@ -193,13 +195,13 @@ void scr_run_chr_script( REF_T character )
         fprintf( scr_file,  "\tupdate_wld == %d\n", update_wld );
 
         // ai memory from the last event
-        fprintf( scr_file,  "\tbumplast       == %d\n", pself->bumplast );
-        fprintf( scr_file,  "\tattacklast     == %d\n", pself->attacklast );
-        fprintf( scr_file,  "\thitlast        == %d\n", pself->hitlast );
+        fprintf( scr_file,  "\tbumplast       == %d\n", REF_TO_INT( pself->bumplast ) );
+        fprintf( scr_file,  "\tattacklast     == %d\n", REF_TO_INT( pself->attacklast ) );
+        fprintf( scr_file,  "\thitlast        == %d\n", REF_TO_INT( pself->hitlast ) );
         fprintf( scr_file,  "\tdirectionlast  == %d\n", pself->directionlast );
         fprintf( scr_file,  "\tdamagetypelast == %d\n", pself->damagetypelast );
-        fprintf( scr_file,  "\tlastitemused   == %d\n", pself->lastitemused );
-        fprintf( scr_file,  "\ttarget_old     == %d\n", pself->target_old );
+        fprintf( scr_file,  "\tlastitemused   == %d\n", REF_TO_INT( pself->lastitemused ) );
+        fprintf( scr_file,  "\ttarget_old     == %d\n", REF_TO_INT( pself->target_old ) );
 
         // message handling
         fprintf( scr_file,  "\torder == %d\n", pself->order_value );
@@ -228,8 +230,8 @@ void scr_run_chr_script( REF_T character )
     // reset the ai
     pself->terminate = bfalse;
     pself->indent    = 0;
-    pself->exe_stt   = AisStorage.lst[pself->type].iStartPosition;
-    pself->exe_end   = AisStorage.lst[pself->type].iEndPosition;
+    pself->exe_stt   = AisStorage.ary[pself->type].iStartPosition;
+    pself->exe_end   = AisStorage.ary[pself->type].iEndPosition;
 
     // Run the AI Script
     scr_set_exe( pself, pself->exe_stt );
@@ -337,7 +339,7 @@ bool_t scr_run_function_call( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 bool_t scr_run_operation( script_state_t * pstate, ai_state_t * pself )
 {
-    char * variable;
+    const char * variable;
     Uint32 var_value, operand_count, i;
 
     // check for valid pointers
@@ -358,9 +360,9 @@ bool_t scr_run_operation( script_state_t * pstate, ai_state_t * pself )
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
-            if ( 'V' == OpList.lst[i].cType && var_value == OpList.lst[i].iValue )
+            if ( 'V' == OpList.ary[i].cType && var_value == OpList.ary[i].iValue )
             {
-                variable = OpList.lst[i].cName;
+                variable = OpList.ary[i].cName;
                 break;
             };
         }
@@ -406,7 +408,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
     Uint8 returncode = btrue;
     if ( MAX_OPCODE == valuecode )
     {
-        log_message( "SCRIPT ERROR: scr_run_function() - model == %d, class name == \"%s\" - Unknown opcode found!\n", script_error_model, script_error_classname );
+        log_message( "SCRIPT ERROR: scr_run_function() - model == %d, class name == \"%s\" - Unknown opcode found!\n", REF_TO_INT( script_error_model ), script_error_classname );
         return bfalse;
     }
 
@@ -420,9 +422,9 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
-            if ( 'F' == OpList.lst[i].cType && valuecode == OpList.lst[i].iValue )
+            if ( 'F' == OpList.ary[i].cType && valuecode == OpList.ary[i].iValue )
             {
-                fprintf( scr_file,  "%s\n", OpList.lst[i].cName );
+                fprintf( scr_file,  "%s\n", OpList.ary[i].cName );
                 break;
             };
         }
@@ -881,7 +883,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 {
     /// @details ZZ@> This function does the scripted arithmetic in OPERATOR, OPERAND pairs
 
-    char * varname, * op;
+    const char * varname, * op;
 
     STRING buffer = EMPTY_CSTR;
     Uint8  variable;
@@ -966,7 +968,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFMORALE:
                 varname = "SELFMORALE";
-                iTmp = TeamList[pchr->baseteam].morale;
+                iTmp = TeamStack.lst[pchr->baseteam].morale;
                 break;
 
             case VARSELFLIFE:
@@ -998,7 +1000,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARLEADERX:
                 varname = "LEADERX";
                 iTmp = pchr->pos.x;
-                if ( TeamList[pchr->team].leader != NOLEADER )
+                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
                     iTmp = team_get_pleader( pchr->team )->pos.x;
 
                 break;
@@ -1006,7 +1008,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARLEADERY:
                 varname = "LEADERY";
                 iTmp = pchr->pos.y;
-                if ( TeamList[pchr->team].leader != NOLEADER )
+                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
                     iTmp = team_get_pleader( pchr->team )->pos.y;
 
                 break;
@@ -1014,7 +1016,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARLEADERDISTANCE:
                 varname = "LEADERdistance";
                 iTmp = 10000;
-                if ( TeamList[pchr->team].leader != NOLEADER )
+                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
                     iTmp = ABS(( int )( team_get_pleader( pchr->team )->pos.x - pchr->pos.x ) ) +
                            ABS(( int )( team_get_pleader( pchr->team )->pos.y - pchr->pos.y ) );
 
@@ -1023,7 +1025,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
             case VARLEADERTURN:
                 varname = "LEADERTURN";
                 iTmp = pchr->facing_z;
-                if ( TeamList[pchr->team].leader != NOLEADER )
+                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
                     iTmp = team_get_pleader( pchr->team )->facing_z;
 
                 break;
@@ -1246,7 +1248,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFINDEX:
                 varname = "SELFINDEX";
-                iTmp = pself->index;
+                iTmp = REF_TO_INT( pself->index );
                 break;
 
             case VAROWNERX:
@@ -1341,7 +1343,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTEAM:
                 varname = "TARGETTEAM";
-                iTmp = chr_get_iteam( pself->target );
+                iTmp = REF_TO_INT( chr_get_iteam( pself->target ) );
                 break;
 
             case VARTARGETARMOR:
@@ -1355,7 +1357,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
                 break;
 
             default:
-                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", script_error_model, script_error_classname );
+                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", REF_TO_INT( script_error_model ), script_error_classname );
                 break;
         }
     }
@@ -1402,7 +1404,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
             }
             else
             {
-                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot divide by zero!\n", script_error_model, script_error_classname );
+                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot divide by zero!\n", REF_TO_INT( script_error_model ), script_error_classname );
             }
             break;
 
@@ -1414,12 +1416,12 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
             }
             else
             {
-                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot modulo by zero!\n", script_error_model, script_error_classname );
+                log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Cannot modulo by zero!\n", REF_TO_INT( script_error_model ), script_error_classname );
             }
             break;
 
         default:
-            log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - unknown op\n", script_error_model, script_error_classname );
+            log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - unknown op\n", REF_TO_INT( script_error_model ), script_error_classname );
             break;
     }
 
@@ -1606,7 +1608,7 @@ bool_t ai_state_ensure_wp( ai_state_t * pself )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void set_alerts( REF_T character )
+void set_alerts( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function polls some alert conditions
 
@@ -1668,11 +1670,12 @@ void set_alerts( REF_T character )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_order( REF_T character, Uint32 value )
+void issue_order( const CHR_REF by_reference character, Uint32 value )
 {
     /// @details ZZ@> This function issues an value for help to all teammates
 
-    int cnt, counter;
+    CHR_REF cnt;
+    int     counter;
 
     for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -1690,7 +1693,9 @@ void issue_order( REF_T character, Uint32 value )
 void issue_special_order( Uint32 value, IDSZ idsz )
 {
     /// @details ZZ@> This function issues an order to all characters with the a matching special IDSZ
-    int cnt, counter;
+
+    CHR_REF cnt;
+    int     counter;
 
     for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -1732,16 +1737,16 @@ ai_state_t * ai_state_reconstruct( ai_state_t * pself )
     // set everything to safe values
     memset( pself, 0, sizeof( *pself ) );
 
-    pself->index      = MAX_CHR;
-    pself->target     = MAX_CHR;
-    pself->owner      = MAX_CHR;
-    pself->child      = MAX_CHR;
-    pself->target_old = MAX_CHR;
+    pself->index      = ( CHR_REF )MAX_CHR;
+    pself->target     = ( CHR_REF )MAX_CHR;
+    pself->owner      = ( CHR_REF )MAX_CHR;
+    pself->child      = ( CHR_REF )MAX_CHR;
+    pself->target_old = ( CHR_REF )MAX_CHR;
     pself->poof_time  = -1;
 
-    pself->bumplast   = MAX_CHR;
-    pself->attacklast = MAX_CHR;
-    pself->hitlast    = MAX_CHR;
+    pself->bumplast   = ( CHR_REF )MAX_CHR;
+    pself->attacklast = ( CHR_REF )MAX_CHR;
+    pself->hitlast    = ( CHR_REF )MAX_CHR;
 
     return pself;
 }

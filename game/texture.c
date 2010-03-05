@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-DECLARE_LIST( ACCESS_TYPE_NONE, oglx_texture, TxTexture );
+INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ void TxTexture_clear_data()
 
     int cnt, tnc;
 
-    for ( cnt = TX_LAST, tnc = 0; cnt < TEXTURE_COUNT; cnt++, tnc++ )
+    for ( cnt = TX_LAST, tnc = 0; cnt < TX_TEXTURE_COUNT; cnt++, tnc++ )
     {
         TxTexture.free_ref[tnc] = cnt;
     }
@@ -52,9 +52,9 @@ void TxTexture_init_all()
 {
     /// @details ZZ@> This function clears out all of the textures
 
-    int cnt;
+    TX_REF cnt;
 
-    for ( cnt = 0; cnt < TEXTURE_COUNT; cnt++ )
+    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
     {
         oglx_texture_ctor( TxTexture.lst + cnt );
     }
@@ -67,9 +67,9 @@ void TxTexture_release_all()
 {
     /// @details ZZ@> This function releases all of the textures
 
-    int cnt;
+    TX_REF cnt;
 
-    for ( cnt = 0; cnt < TEXTURE_COUNT; cnt++ )
+    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
     {
         oglx_texture_Release( TxTexture.lst + cnt );
     }
@@ -82,9 +82,9 @@ void TxTexture_delete_all()
 {
     /// @details ZZ@> This function clears out all of the textures
 
-    int cnt;
+    TX_REF cnt;
 
-    for ( cnt = 0; cnt < TEXTURE_COUNT; cnt++ )
+    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
     {
         oglx_texture_dtor( TxTexture.lst + cnt );
     }
@@ -93,15 +93,16 @@ void TxTexture_delete_all()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t TxTexture_get_free( int itex )
+TX_REF TxTexture_get_free( const TX_REF by_reference itex )
 {
-    size_t retval = itex;
+    TX_REF retval = ( TX_REF )INVALID_TX_TEXTURE;
 
     if ( itex >= 0 && itex < TX_LAST )
     {
+        retval = itex;
         oglx_texture_Release( TxTexture.lst + itex );
     }
-    else if ( itex < 0 || itex >= TEXTURE_COUNT )
+    else if ( itex < 0 || itex >= TX_TEXTURE_COUNT )
     {
         if ( TxTexture.free_count > 0 )
         {
@@ -110,7 +111,7 @@ size_t TxTexture_get_free( int itex )
         }
         else
         {
-            retval = INVALID_TEXTURE;
+            retval = ( TX_REF )INVALID_TX_TEXTURE;
         }
     }
     else
@@ -118,7 +119,7 @@ size_t TxTexture_get_free( int itex )
         int i;
 
         // grab the specified index
-        oglx_texture_Release( TxTexture.lst + itex );
+        oglx_texture_Release( TxTexture.lst + ( TX_REF )itex );
 
         // if this index is on the free stack, remove it
         for ( i = 0; i < TxTexture.free_count; i++ )
@@ -139,9 +140,9 @@ size_t TxTexture_get_free( int itex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t TxTexture_free_one( int itex )
+bool_t TxTexture_free_one( const TX_REF by_reference itex )
 {
-    if ( itex < 0 || itex >= TEXTURE_COUNT ) return bfalse;
+    if ( itex < 0 || itex >= TX_TEXTURE_COUNT ) return bfalse;
 
     // release the texture
     oglx_texture_Release( TxTexture.lst + itex );
@@ -158,13 +159,13 @@ bool_t TxTexture_free_one( int itex )
     }
 #endif
 
-    if ( TxTexture.free_count >= TEXTURE_COUNT )
+    if ( TxTexture.free_count >= TX_TEXTURE_COUNT )
         return bfalse;
 
     // do not put anything below TX_LAST back onto the SDL_free stack
     if ( itex >= TX_LAST )
     {
-        TxTexture.free_ref[TxTexture.free_count] = itex;
+        TxTexture.free_ref[TxTexture.free_count] = REF_TO_INT( itex );
         TxTexture.free_count++;
     }
 
@@ -172,37 +173,36 @@ bool_t TxTexture_free_one( int itex )
 }
 
 //--------------------------------------------------------------------------------------------
-int TxTexture_load_one( const char *filename, int itex_src, Uint32 key )
+TX_REF TxTexture_load_one( const char *filename, const TX_REF by_reference itex_src, Uint32 key )
 {
     /// @details BB@> load a texture into TxTexture.
-    ///     If INVALID_TEXTURE == itex, then we just get the next free index
+    ///     If INVALID_TX_TEXTURE == itex, then we just get the next free index
 
-    size_t itex;
+    TX_REF retval;
 
     // get a texture index.
-    itex = TxTexture_get_free( itex_src );
+    retval = TxTexture_get_free( itex_src );
 
     // handle an error
-    if ( itex >= 0 && itex < TEXTURE_COUNT )
+    if ( retval >= 0 && retval < TX_TEXTURE_COUNT )
     {
-        Uint32 txid = ego_texture_load( TxTexture.lst + itex, filename, key );
+        Uint32 txid = ego_texture_load( TxTexture.lst + retval, filename, key );
         if ( INVALID_TX_ID == txid )
         {
-            TxTexture_free_one( itex );
-            itex = INVALID_TEXTURE;
+            TxTexture_free_one( retval );
+            retval = INVALID_TX_TEXTURE;
         }
     }
 
-    return itex;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture * TxTexture_get_ptr( int itex )
+oglx_texture_t * TxTexture_get_ptr( const TX_REF by_reference itex )
 {
-    oglx_texture * ptex;
+    oglx_texture_t * ptex;
 
-    if ( itex < 0 || itex >= TEXTURE_COUNT )
-        return NULL;
+    if ( itex < 0 || itex >= TX_TEXTURE_COUNT ) return NULL;
     ptex = TxTexture.lst + itex;
 
     if ( !oglx_texture_Valid( ptex ) )

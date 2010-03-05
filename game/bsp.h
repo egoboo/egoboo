@@ -50,7 +50,7 @@ bool_t       BSP_aabb_overlap( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 );
 
 bool_t       BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc );
 
-#define BSP_AABB_INIT_VALUES { 0, ARY_INIT_VALS, ARY_INIT_VALS }
+#define BSP_AABB_INIT_VALUES { 0, DYNAMIC_ARY_INIT_VALS, DYNAMIC_ARY_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_leaf
@@ -75,8 +75,8 @@ BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * t, int dim, void * data, int type );
 bool_t       BSP_leaf_dtor( BSP_leaf_t * t );
 
 //--------------------------------------------------------------------------------------------
-DEFINE_ARY( BSP_leaf_ary, BSP_leaf_t )
-DEFINE_ARY( BSP_leaf_pary, BSP_leaf_t * )
+DECLARE_DYNAMIC_ARY( BSP_leaf_ary, BSP_leaf_t )
+DECLARE_DYNAMIC_ARY( BSP_leaf_pary, BSP_leaf_t * )
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_branch
@@ -116,9 +116,8 @@ bool_t         BSP_branch_unlink( BSP_branch_t * B );
 bool_t         BSP_branch_add_all_nodes( BSP_branch_t * pbranch, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
-DEFINE_ARY( BSP_branch_ary, BSP_branch_t )
-
-DEFINE_ARY( BSP_branch_pary, BSP_branch_t * )
+DECLARE_DYNAMIC_ARY( BSP_branch_ary, BSP_branch_t )
+DECLARE_DYNAMIC_ARY( BSP_branch_pary, BSP_branch_t * )
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_tree
@@ -145,17 +144,17 @@ struct s_BSP_tree
 };
 typedef struct s_BSP_tree BSP_tree_t;
 
-#define BSP_TREE_INIT_VALS                                   \
-    {                                                            \
-        0,             /* size_t              dimensions     */  \
-        0,             /* int                 depth          */  \
-        ARY_INIT_VALS, /* BSP_branch_ary_t    branch_all     */  \
-        ARY_INIT_VALS, /* BSP_branch_pary_t * branch_all     */  \
-        ARY_INIT_VALS, /* BSP_branch_pary_t * branch_free    */  \
-        NULL,          /* BSP_branch_t      * root           */  \
-        0,             /* size_t              infinite_count */  \
-        NULL,          /* BSP_leaf_t        * infinite       */  \
-        BSP_AABB_INIT_VALUES /* BSP_aabb_t bbox              */  \
+#define BSP_TREE_INIT_VALS                                               \
+    {                                                                    \
+        0,                     /* size_t              dimensions     */  \
+        0,                     /* int                 depth          */  \
+        DYNAMIC_ARY_INIT_VALS, /* BSP_branch_ary_t    branch_all     */  \
+        DYNAMIC_ARY_INIT_VALS, /* BSP_branch_pary_t * branch_all     */  \
+        DYNAMIC_ARY_INIT_VALS, /* BSP_branch_pary_t * branch_free    */  \
+        NULL,                  /* BSP_branch_t      * root           */  \
+        0,                     /* size_t              infinite_count */  \
+        NULL,                  /* BSP_leaf_t        * infinite       */  \
+        BSP_AABB_INIT_VALUES   /* BSP_aabb_t bbox                    */  \
     }
 
 BSP_tree_t * BSP_tree_create( size_t count );

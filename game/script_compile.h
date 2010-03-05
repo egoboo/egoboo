@@ -50,7 +50,8 @@ struct s_script_storage_info
 };
 typedef struct s_script_storage_info script_storage_info_t;
 
-DEFINE_STACK_EXTERN( script_storage_info_t, AisStorage, MAX_AI );
+DECLARE_STATIC_ARY_TYPE( AisStorageAry, script_storage_info_t, MAX_AI );
+DECLARE_EXTERN_STATIC_ARY( AisStorageAry, AisStorage );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,7 +70,8 @@ struct s_opcode_data
 };
 typedef struct s_opcode_data opcode_data_t;
 
-DEFINE_STACK_EXTERN( opcode_data_t, OpList, MAX_OPCODE );
+DECLARE_STATIC_ARY_TYPE( OpListAry, opcode_data_t, MAX_OPCODE );
+DECLARE_EXTERN_STATIC_ARY( OpListAry, OpList );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

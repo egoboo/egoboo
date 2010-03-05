@@ -120,7 +120,7 @@ int scantag_get_value( const char *string )
 }
 
 //--------------------------------------------------------------------------------------------
-char* scantag_get_string( Sint32 device, Uint32 tag, bool_t is_key )
+const char* scantag_get_string( Sint32 device, Uint32 tag, bool_t is_key )
 {
     /// @details ZF@> This translates a input tag value to a string
 

@@ -53,10 +53,10 @@ struct s_spawn_file_info
     fvec3_t    pos;
     int        passage, content, money, level, skin;
     bool_t     stat;
-    REF_T      team;
+    TEAM_REF   team;
     FACING_T   facing;
-    REF_T      attach;
-    REF_T      parent;
+    CHR_REF    attach;
+    CHR_REF    parent;
 };
 typedef struct s_spawn_file_info spawn_file_info_t;
 

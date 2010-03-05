@@ -35,12 +35,12 @@ struct s_chr;
 // helper functions
 //--------------------------------------------------------------------------------------------
 
-Uint8  _display_message( REF_T ichr, REF_T iprofile, int message, struct s_script_state * pstate );
-Uint8  _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley );
-Uint8  _find_grid_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 );
+Uint8  _display_message( const CHR_REF by_reference ichr, const PRO_REF by_reference iprofile, int message, struct s_script_state * pstate );
+Uint8  _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF by_reference passage, int *ptilex, int *ptiley );
+Uint8  _find_grid_in_passage( const int x0, const int y0, const int tiletype, const PASS_REF by_reference passage, int *px1, int *py1 );
 
-Uint8  _append_end_text( struct s_chr * pchr, const int message, struct s_script_state * pstate );
-REF_T  _get_chr_target( struct s_chr * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
+Uint8   _append_end_text( struct s_chr * pchr, const int message, struct s_script_state * pstate );
+CHR_REF _get_chr_target( struct s_chr * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

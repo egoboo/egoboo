@@ -46,12 +46,12 @@ float ptex_wscale[2] = {1.0f, 1.0f};
 float ptex_hscale[2] = {1.0f, 1.0f};
 
 //--------------------------------------------------------------------------------------------
-int prt_get_texture_style( Uint32 itex )
+int prt_get_texture_style( const TX_REF by_reference itex )
 {
     int index;
 
     index = -1;
-    switch ( itex )
+    switch ( REF_TO_INT( itex ) )
     {
         case TX_PARTICLE_TRANS:
             index = 0;
@@ -66,10 +66,10 @@ int prt_get_texture_style( Uint32 itex )
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_set_texture_params( Uint32 itex )
+void prt_set_texture_params( const TX_REF by_reference itex )
 {
     int index;
-    oglx_texture * ptex;
+    oglx_texture_t * ptex;
 
     index = prt_get_texture_style( itex );
     if ( index < 0 ) return;
@@ -88,14 +88,14 @@ void prt_set_texture_params( Uint32 itex )
 /// The data values necessary to sort particles by their position to the camera
 struct s_prt_registry_entity
 {
-    REF_T index;
-    float dist;
+    PRT_REF index;
+    float   dist;
 };
 typedef struct s_prt_registry_entity prt_registry_entity_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void prt_instance_update( camera_t * pcam, PRT_REF particle, Uint8 trans, bool_t do_lighting );
+static void prt_instance_update( camera_t * pcam, const PRT_REF by_reference particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
@@ -122,9 +122,9 @@ int cmp_prt_registry_entity( const void * vlhs, const void * vrhs )
 //--------------------------------------------------------------------------------------------
 size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
-    fvec3_t   vfwd, vcam;
-    int cnt;
-    size_t numparticle;
+    fvec3_t vfwd, vcam;
+    PRT_REF iprt;
+    size_t  numparticle;
 
     prt_instance_update_all( pcam );
 
@@ -133,13 +133,13 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
     // Original points
     numparticle = 0;
-    for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
+    for ( iprt = 0; iprt < maxparticles && numparticle < reg_count; iprt++ )
     {
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !DISPLAY_PRT( cnt ) ) continue;
-        pprt = PrtList.lst + cnt;
+        if ( !DISPLAY_PRT( iprt ) ) continue;
+        pprt = PrtList.lst + iprt;
         pinst = &( pprt->inst );
 
         if ( !pprt->inview || pprt->is_hidden ) continue;
@@ -157,7 +157,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
             if ( dist > 0 )
             {
-                reg[numparticle].index = cnt;
+                reg[numparticle].index = REF_TO_INT( iprt );
                 reg[numparticle].dist  = dist;
                 numparticle++;
             }
@@ -171,7 +171,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( REF_T iprt )
+bool_t render_one_prt_solid( const PRT_REF by_reference iprt )
 {
     /// @details BB@> Render the solid version of the particle
 
@@ -209,7 +209,7 @@ bool_t render_one_prt_solid( REF_T iprt )
         GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
         GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1 );       // GL_COLOR_BUFFER_BIT
 
-        oglx_texture_Bind( TxTexture_get_ptr( TX_PARTICLE_TRANS ) );  // GL_CURRENT_BIT
+        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_PARTICLE_TRANS ) ); // GL_CURRENT_BIT
 
         GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
 
@@ -233,7 +233,8 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 {
     /// @details BB@> do solid sprites first
 
-    PRT_REF cnt, prt;
+    size_t cnt;
+    PRT_REF prt;
 
     gfx_begin_3d( pcam );
     {
@@ -243,7 +244,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
             // Get the index from the color slot
             prt = reg[cnt].index;
 
-            render_one_prt_solid( reg[cnt].index );
+            render_one_prt_solid( prt );
         }
     }
     gfx_end_3d();
@@ -251,7 +252,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_trans( REF_T iprt )
+bool_t render_one_prt_trans( const PRT_REF by_reference iprt )
 {
     /// @details BB@> do all kinds of transparent sprites next
 
@@ -358,7 +359,7 @@ void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t 
         for ( cnt = (( int )numparticle ) - 1; cnt >= 0; cnt-- )
         {
             // Get the index from the color slot
-            render_one_prt_trans( reg[cnt].index );
+            render_one_prt_trans(( PRT_REF )reg[cnt].index );
         }
     }
     gfx_end_3d();
@@ -414,7 +415,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 
             if ( dist > 0 )
             {
-                reg[numparticle].index = cnt;
+                reg[numparticle].index = REF_TO_INT( cnt );
                 reg[numparticle].dist  = dist;
                 numparticle++;
             }
@@ -428,7 +429,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_ref( REF_T iprt )
+bool_t render_one_prt_ref( const PRT_REF by_reference iprt )
 {
     /// @details BB@> render one particle
 
@@ -531,7 +532,8 @@ bool_t render_one_prt_ref( REF_T iprt )
 //--------------------------------------------------------------------------------------------
 void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
 {
-    PRT_REF prt, cnt;
+    size_t cnt;
+    PRT_REF prt;
 
     gfx_begin_3d( pcam );
     {
@@ -541,7 +543,7 @@ void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t nu
             // Get the index from the color slot
             prt = reg[cnt].index;
 
-            render_one_prt_ref( reg[cnt].index );
+            render_one_prt_ref(( PRT_REF )reg[cnt].index );
         }
     }
     gfx_end_3d();
@@ -571,7 +573,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 
     if ( NULL == vlst || NULL == pinst ) return;
 
-    switch ( pinst->texture_ref )
+    switch ( REF_TO_INT( pinst->texture_ref ) )
     {
         default:
         case TX_PARTICLE_TRANS:
@@ -637,7 +639,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 //--------------------------------------------------------------------------------------------
 void render_all_prt_attachment()
 {
-    int cnt;
+    PRT_REF cnt;
 
     GL_DEBUG( glDisable )( GL_BLEND );
 
@@ -658,7 +660,7 @@ void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_off
 
     if ( NULL == pinst || NULL == pmad ) return;
 
-    vrt = (( int )pinst->vrt_count ) - vrt_offset;
+    vrt = ( int )pinst->vrt_count - ( int )vrt_offset;
 
     if ( vrt < 0 || vrt >= pinst->vrt_count ) return;
 
@@ -704,7 +706,7 @@ void prt_draw_attached_point( prt_t * pprt )
     pholder_cap = pro_get_pcap( pholder->iprofile );
     if ( NULL == pholder_cap ) return;
 
-    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
+    pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
 
     draw_one_attacment_point( &( pholder->inst ), pholder_mad, pprt->vrt_off );
@@ -714,7 +716,7 @@ void prt_draw_attached_point( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 void prt_instance_update_all( camera_t * pcam )
 {
-    int cnt;
+    PRT_REF iprt;
 
     if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam ) return;
@@ -723,13 +725,13 @@ void prt_instance_update_all( camera_t * pcam )
     if ( instance_update == update_wld ) return;
     instance_update = update_wld;
 
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
         prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !DISPLAY_PRT( cnt ) ) continue;
-        pprt = PrtList.lst + cnt;
+        if ( !DISPLAY_PRT( iprt ) ) continue;
+        pprt = PrtList.lst + iprt;
         pinst = &( pprt->inst );
 
         if ( !pprt->inview || pprt->is_hidden || 0 == pprt->size )
@@ -739,7 +741,7 @@ void prt_instance_update_all( camera_t * pcam )
         else
         {
             // calculate the "billboard" for this particle
-            prt_instance_update( pcam, cnt, 255, btrue );
+            prt_instance_update( pcam, iprt, 255, btrue );
         }
     }
 }
@@ -1126,7 +1128,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_update( camera_t * pcam, REF_T particle, Uint8 trans, bool_t do_lighting )
+void prt_instance_update( camera_t * pcam, const PRT_REF by_reference particle, Uint8 trans, bool_t do_lighting )
 {
     prt_t * pprt;
     prt_instance_t * pinst;

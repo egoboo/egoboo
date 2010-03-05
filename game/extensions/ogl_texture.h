@@ -69,23 +69,23 @@ struct s_oglx_texture
     int           imgW, imgH;      ///< the height & width of the texture data
     GLfloat       alpha;           ///< the alpha for the texture
 };
-typedef struct s_oglx_texture oglx_texture;
+typedef struct s_oglx_texture oglx_texture_t;
 
-GLuint  oglx_texture_Convert( oglx_texture *texture, SDL_Surface * pimage, Uint32 key );
-GLuint  oglx_texture_Load( oglx_texture *texture, const char *filename, Uint32 key );
-GLuint  oglx_texture_GetTextureID( oglx_texture *texture );
-GLsizei oglx_texture_GetImageHeight( oglx_texture *texture );
-GLsizei oglx_texture_GetImageWidth( oglx_texture *texture );
-GLsizei oglx_texture_GetTextureWidth( oglx_texture *texture );
-GLsizei oglx_texture_GetTextureHeight( oglx_texture *texture );
-void    oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha );
-GLfloat oglx_texture_GetAlpha( oglx_texture *texture );
-void    oglx_texture_Release( oglx_texture *texture );
+GLuint  oglx_texture_Convert( oglx_texture_t *texture, SDL_Surface * pimage, Uint32 key );
+GLuint  oglx_texture_Load( oglx_texture_t *texture, const char *filename, Uint32 key );
+GLuint  oglx_texture_GetTextureID( oglx_texture_t *texture );
+GLsizei oglx_texture_GetImageHeight( oglx_texture_t *texture );
+GLsizei oglx_texture_GetImageWidth( oglx_texture_t *texture );
+GLsizei oglx_texture_GetTextureWidth( oglx_texture_t *texture );
+GLsizei oglx_texture_GetTextureHeight( oglx_texture_t *texture );
+void    oglx_texture_SetAlpha( oglx_texture_t *texture, GLfloat alpha );
+GLfloat oglx_texture_GetAlpha( oglx_texture_t *texture );
+void    oglx_texture_Release( oglx_texture_t *texture );
 
-void    oglx_texture_Bind( oglx_texture * texture );
+void    oglx_texture_Bind( oglx_texture_t * texture );
 
-oglx_texture * oglx_texture_ctor( oglx_texture * texture );
-void           oglx_texture_dtor( oglx_texture * texture );
+oglx_texture_t * oglx_texture_ctor( oglx_texture_t * texture );
+void           oglx_texture_dtor( oglx_texture_t * texture );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -102,8 +102,8 @@ extern oglx_texture_parameters_t tex_params;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void      oglx_grab_texture_state( GLenum target, GLint level, oglx_texture * texture );
-GLboolean oglx_texture_Valid( oglx_texture *ptex );
+void      oglx_grab_texture_state( GLenum target, GLint level, oglx_texture_t * texture );
+GLboolean oglx_texture_Valid( oglx_texture_t *ptex );
 
 GLuint    oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t );
 

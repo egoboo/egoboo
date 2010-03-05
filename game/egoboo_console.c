@@ -23,7 +23,6 @@
 
 #include "egoboo_console.inl"
 
-#include "egoboo_config.h"
 #include "egoboo_math.inl"
 #include "egoboo_strutil.h"
 
@@ -457,7 +456,7 @@ void egoboo_console_hide( egoboo_console_t * pcon )
 }
 
 //--------------------------------------------------------------------------------------------
-char * egoboo_console_get_saved( egoboo_console_t * pcon )
+const char * egoboo_console_get_saved( egoboo_console_t * pcon )
 {
     if ( NULL == pcon ) return "";
 

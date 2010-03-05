@@ -25,9 +25,6 @@
 ///   @todo  add in linux and mac stuff.
 ///   @todo  some of this stuff is compiler dependent, rather than system dependent.
 
-#include "egoboo_endian.h"
-#include "egoboo_platform.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// compliation flags
@@ -91,4 +88,13 @@
 /// >= 3 -- decompile every script (requires USE_DEBUG)
 #define DEBUG_SCRIPT_LEVEL 0
 
+#define DEBUG_CPP_LISTS
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// do the includes last so that the compile switches are always set
+#include "egoboo_platform.h"
+#include "egoboo_endian.h"
+
 #define EGOBOO_CONFIG_H
+

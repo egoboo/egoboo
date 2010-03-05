@@ -28,6 +28,12 @@
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
+// portable definition of assert. the c++ version can be activated below.
+
+#include <assert.h>
+#define C_EGOBOO_ASSERT(X) assert(X)
+
+//--------------------------------------------------------------------------------------------
 /// BOOLEAN
 
 #if defined __cplusplus
@@ -44,6 +50,28 @@ typedef enum e_bool bool_t;
 #endif
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+/// special return values
+enum e_egoboo_rv
+{
+    rv_error   = -1,
+    rv_fail    = bfalse,
+    rv_success = btrue
+};
+
+typedef enum e_egoboo_rv egoboo_rv;
+
+//--------------------------------------------------------------------------------------------
+/// List of the methods an AI can use to obtain a target
+typedef enum target_type
+{
+    TARGET_ENEMY = 0,
+    TARGET_FRIEND,
+    TARGET_ALL,
+    TARGET_NONE
+} TARGET_TYPE;
+
+//--------------------------------------------------------------------------------------------
 // 24.8 fixed point types
 
 typedef Uint32 UFP8_T;
@@ -55,7 +83,6 @@ typedef Sint32 SFP8_T;
 #define INT_TO_FP8(V1)     ( (V1) << 8 )                      ///< fast version of V1 * 256
 #define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )               ///< this may overflow if V1 or V2 have non-zero bits in their upper 8 bits
 #define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
-
 
 //--------------------------------------------------------------------------------------------
 // the type for the 16-bit value used to stor angles
@@ -70,48 +97,6 @@ typedef Sint32 SFP16_T;
 #define FLOAT_TO_FP16( V1 )  ( (Uint32)((V1) * 0x00010000) )
 #define FP16_TO_FLOAT( V1 )  ( (float )((V1) * 0.0000152587890625f ) )
 
-//--------------------------------------------------------------------------------------------
-// References
-
-typedef Uint16 REF_T;
-
-#define DECLARE_REF( NAME ) typedef REF_T NAME;
-
-#ifdef __cplusplus
-#    define REF_TO_INT(X) ((REF_T)(X))
-#else
-#    define REF_TO_INT(X) (X)
-#endif
-
-//--------------------------------------------------------------------------------------------
-// fix for the fact that assert is technically not suppoeted in c++
-
-#if defined(__cplusplus)
-#    include <exception>
-class egoboo_exception : public std::exception
-{
-    protected:
-        const char * what;
-    public:
-        egoboo_exception( const char * str ) : what( str ) {};
-};
-#    define EGOBOO_ASSERT(X) if( !(X) ) { throw new egoboo_exception( #X ); }
-#else
-#    define EGOBOO_ASSERT(X) assert(X)
-#endif
-
-//--------------------------------------------------------------------------------------------
-/// special return values
-enum e_egoboo_rv
-{
-    rv_error   = -1,
-    rv_fail    = bfalse,
-    rv_success = btrue
-};
-
-typedef enum e_egoboo_rv egoboo_rv;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// RECTANGLE
 typedef struct s_irect
@@ -175,12 +160,6 @@ void ints_to_range( int base, int rand, FRange * prange );
 void floats_to_pair( float vmin, float vmax, IPair * ppair );
 
 //--------------------------------------------------------------------------------------------
-/// some basic data that all egoboo profiles should have
-#define  EGO_PROFILE_STUFF \
-    bool_t         loaded;      /* Does it exist? */ \
-    STRING         name
-
-//--------------------------------------------------------------------------------------------
 /// IDSZ
 typedef Uint32 IDSZ;
 
@@ -204,14 +183,10 @@ const char * undo_idsz( IDSZ idsz );
 typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
-/// List of the methods an AI can use to obtain a target
-typedef enum target_type
-{
-    TARGET_ENEMY = 0,
-    TARGET_FRIEND,
-    TARGET_ALL,
-    TARGET_NONE
-} TARGET_TYPE;
+/// the "base class" of egoboo profiles
+#define  EGO_PROFILE_STUFF \
+    bool_t         loaded;      /* Does it exist? */ \
+    STRING         name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -229,61 +204,88 @@ void latch_init( latch_t * platch );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// a template-like declaration of a list that tracks free elements
+// References
+
+/// base reference type
+typedef Uint16 REF_T;
+
+//--------------------------------------------------------------------------------------------
+// definition of the c-type reference
+
+#define C_DECLARE_REF( NAME ) typedef REF_T NAME
+
+//--------------------------------------------------------------------------------------------
+// reference conversions
+
+// define the c implementation always
+#define C_REF_TO_INT(X) ((REF_T)(X))
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// a simple array
+
+#define C_DECLARE_T_ARY(TYPE, NAME, COUNT)  TYPE   NAME[COUNT]
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// a simple list structure that tracks free elements
 
 #define ACCESS_TYPE_NONE
 
-#define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
-    struct s_list__##TYPE__##NAME           \
+#define C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
+    struct s_c_list__##TYPE__##NAME           \
     {                                       \
         int    used_count;                  \
         int    free_count;                  \
         size_t used_ref[COUNT];             \
         size_t free_ref[COUNT];             \
-        TYPE   lst[COUNT];                  \
+        C_DECLARE_T_ARY(TYPE, lst, COUNT);  \
     }
 
-#define DEFINE_LIST_EXTERN(TYPE, NAME, COUNT)   \
-    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
-    extern struct s_list__##TYPE__##NAME NAME
+#define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
+    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
+    extern struct s_c_list__##TYPE__##NAME NAME
 
-#define DEFINE_LIST_STATIC(TYPE, NAME, COUNT)   \
-    DEFINE_LIST_TYPE(TYPE, NAME, COUNT)
+#define C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT) \
+    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
+    static struct s_c_list__##TYPE__##NAME NAME = {0, 0}
 
-#define DECLARE_LIST(ACCESS,TYPE,NAME) ACCESS struct s_list__##TYPE__##NAME NAME = {0, 0}
+#define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) ACCESS struct s_c_list__##TYPE__##NAME NAME = {0, 0}
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// a template-like declaration of a list that tracks free elements
+// a simple stack structure
 
-#define DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
-    struct s_stack__##TYPE__##NAME           \
+#define C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
+    struct s_c_stack__##TYPE__##NAME           \
     {                                        \
         int  count;                          \
-        TYPE lst[COUNT];                     \
+        C_DECLARE_T_ARY(TYPE, lst, COUNT);     \
     }
 
-#define DEFINE_STACK_EXTERN(TYPE, NAME, COUNT) \
-    DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
-    extern struct s_stack__##TYPE__##NAME NAME
+#define C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT) \
+    C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
+    extern struct s_c_stack__##TYPE__##NAME NAME
 
-#define DEFINE_STACK_STATIC(TYPE, NAME, COUNT) \
-    DEFINE_STACK_TYPE(TYPE, NAME, COUNT)
+#define C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT) \
+    C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
+    static struct s_c_stack__##TYPE__##NAME NAME = {0}
 
-#define DECLARE_STACK(ACCESS,TYPE,NAME) ACCESS struct s_stack__##TYPE__##NAME NAME = {0}
+#define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) ACCESS struct s_c_stack__##TYPE__##NAME NAME = {0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// a template-like declaration of an array
+/// a template-like declaration of a dynamically allocated array
 
-#define DEFINE_ARY(ARY_T, ELEM_T) \
-    struct s_##ARY_T \
+#define DECLARE_DYNAMIC_ARY(ARY_T, ELEM_T) \
+    struct s_DYNAMIC_ARY_##ARY_T \
     { \
         size_t alloc; \
         int    top;  \
         ELEM_T * ary; \
     }; \
-    typedef struct s_##ARY_T ARY_T##_t; \
+    typedef struct s_DYNAMIC_ARY_##ARY_T ARY_T##_t; \
     \
     ARY_T##_t * ARY_T##_ctor( ARY_T##_t * pary, size_t sz ); \
     ARY_T##_t * ARY_T##_dtor( ARY_T##_t * pary ); \
@@ -296,13 +298,13 @@ void latch_init( latch_t * platch );
     ELEM_T *    ARY_T##_pop_back( ARY_T##_t * pary ); \
     bool_t      ARY_T##_push_back( ARY_T##_t * pary , ELEM_T val );
 
-#define ARY_INIT_VALS {0,0,NULL}
+#define DYNAMIC_ARY_INIT_VALS {0,0,NULL}
 
-#define DECLARE_ARY(ARY_T, NAME) ARY_T##_t NAME = ARY_INIT_VALS;
+#define INSTANTIATE_DYNAMIC_ARY(ARY_T, NAME) ARY_T##_t NAME = DYNAMIC_ARY_INIT_VALS;
 
-#define IMPLEMENT_ARY(ARY_T, ELEM_T) \
+#define IMPLEMENT_DYNAMIC_ARY(ARY_T, ELEM_T) \
     bool_t      ARY_T##_alloc( ARY_T##_t * pary, size_t sz )  { if(NULL == pary) return bfalse; ARY_T##_free( pary ); pary->ary = EGOBOO_NEW_ARY( ELEM_T, sz );  pary->alloc = (NULL == pary->ary) ? 0 : sz; return btrue; } \
-    bool_t      ARY_T##_free(ARY_T##_t * pary )            { if(NULL == pary) return bfalse; EGOBOO_DELETE_ARY(pary->ary); pary->alloc = 0; pary->top = 0; return btrue; } \
+    bool_t      ARY_T##_free(ARY_T##_t * pary )               { if(NULL == pary) return bfalse; EGOBOO_DELETE_ARY(pary->ary); pary->alloc = 0; pary->top = 0; return btrue; } \
     ARY_T##_t * ARY_T##_ctor(ARY_T##_t * pary, size_t sz)     { if(NULL == pary) return NULL;   memset(pary, 0, sizeof(*pary)); if( !ARY_T##_alloc(pary, sz) ) return NULL; return pary; } \
     ARY_T##_t * ARY_T##_dtor(ARY_T##_t * pary )               { if(NULL == pary) return NULL;   ARY_T##_free(pary); memset(pary, 0, sizeof(*pary)); return pary; } \
     \
@@ -313,13 +315,178 @@ void latch_init( latch_t * platch );
     ELEM_T * ARY_T##_pop_back( ARY_T##_t * pary )              { if( NULL == pary || pary->top < 1 ) return NULL; --pary->top; return &(pary->ary[pary->top]); } \
     bool_t   ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { bool_t retval = bfalse; if( NULL == pary ) return bfalse; if (pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = btrue; } return retval; }
 
-// define simple type arrays
-DEFINE_ARY( char_ary,   char )
-DEFINE_ARY( short_ary,  short )
-DEFINE_ARY( int_ary,    int )
-DEFINE_ARY( float_ary,  float )
-DEFINE_ARY( double_ary, double )
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define Egoboo_egoboo_typedef_h
+/// a template-like declaration of a statically allocated array
+
+#define DECLARE_STATIC_ARY_TYPE(ARY_T, ELEM_T, SIZE) \
+    struct s_STATIC_ARY_##ARY_T \
+    { \
+        int    count;     \
+        ELEM_T ary[SIZE]; \
+    }; \
+    typedef struct s_STATIC_ARY_##ARY_T ARY_T##_t
+
+#define DECLARE_EXTERN_STATIC_ARY(ARY_T, NAME) extern ARY_T##_t NAME;
+#define STATIC_ARY_INIT_VALS {0}
+#define INSTANTIATE_STATIC_ARY(ARY_T, NAME) ARY_T##_t NAME = STATIC_ARY_INIT_VALS;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// place this include here so that the REF_T is defined for egoboo_typedef_cpp.h
+
+#if defined(__cplusplus)
+#    include "egoboo_typedef_cpp.h"
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// definitions for the compiler environment
+
+#if defined(__cplusplus)
+
+#   define by_reference &
+
+#   define EGOBOO_ASSERT(X) CPP_EGOBOO_ASSERT(X)
+
+#   define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
+
+#else
+
+#   define by_reference             /* no passing by reference in c */
+
+#   define EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
+
+#   define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
+
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// implementation of forward declaration of references
+
+#if defined(__cplusplus) && defined(DEBUG_CPP_LISTS)
+
+#   define REF_TO_INT(X)  REF_TO_INT(X)
+#   define _REF_TO_INT(X) C_REF_TO_INT(X)
+
+#   define DECLARE_T_ARY(TYPE, NAME, COUNT)              CPP_DECLARE_T_ARY(TYPE, NAME, COUNT)
+
+#   define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        CPP_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
+#   define INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     CPP_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
+#   define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     CPP_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
+
+#    define DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      CPP_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
+#    define INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  CPP_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
+#    define INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) CPP_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+
+// use an underscore to force the c implementation
+#   define _DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
+
+#   define _DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
+#   define _INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
+#   define _INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
+
+#    define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
+#    define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
+#    define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+
+typedef struct s_cap cap_t;
+typedef struct s_chr chr_t;
+typedef struct s_team team_t;
+typedef struct s_eve eve_t;
+typedef struct s_enc enc_t;
+typedef struct s_mad mad_t;
+typedef struct s_player player_t;
+typedef struct s_pip pip_t;
+typedef struct s_prt prt_t;
+typedef struct s_passage passage_t;
+typedef struct s_shop shop_t;
+typedef struct s_object_profile pro_t;
+typedef struct s_oglx_texture oglx_texture_t;
+typedef struct s_billboard_data billboard_data_t;
+typedef struct s_looped_sound_data looped_sound_data_t;
+typedef struct s_mnu_module mnu_module_t;
+typedef struct s_tx_request tx_request_t;
+
+CPP_DECLARE_REF( cap_t, CAP_REF );
+CPP_DECLARE_REF( chr_t, CHR_REF );
+CPP_DECLARE_REF( team_t, TEAM_REF );
+CPP_DECLARE_REF( eve_t, EVE_REF );
+CPP_DECLARE_REF( enc_t, ENC_REF );
+CPP_DECLARE_REF( mad_t, MAD_REF );
+CPP_DECLARE_REF( player_t, PLA_REF );
+CPP_DECLARE_REF( pip_t, PIP_REF );
+CPP_DECLARE_REF( prt_t, PRT_REF );
+CPP_DECLARE_REF( passage_t, PASS_REF );
+CPP_DECLARE_REF( shop_t, SHOP_REF );
+CPP_DECLARE_REF( pro_t, PRO_REF );
+CPP_DECLARE_REF( oglx_texture_t, TX_REF );
+CPP_DECLARE_REF( billboard_data_t, BBOARD_REF );
+CPP_DECLARE_REF( looped_sound_data_t, LOOP_REF );
+CPP_DECLARE_REF( mnu_module_t, MOD_REF );
+CPP_DECLARE_REF( MOD_REF, MOD_REF_REF );
+CPP_DECLARE_REF( tx_request_t, TREQ_REF );
+
+#else
+
+#   define REF_TO_INT(X)  C_REF_TO_INT(X)
+#   define _REF_TO_INT(X) C_REF_TO_INT(X)
+
+#   define DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
+
+#   define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
+#   define INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
+#   define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
+
+#    define DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
+#    define INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
+#    define INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+
+// use an underscore to force the c implementation
+#   define _DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
+
+#   define _DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
+#   define _INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
+#   define _INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
+
+#    define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
+#    define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
+#    define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+
+
+C_DECLARE_REF( CAP_REF );
+C_DECLARE_REF( CHR_REF );
+C_DECLARE_REF( TEAM_REF );
+C_DECLARE_REF( EVE_REF );
+C_DECLARE_REF( ENC_REF );
+C_DECLARE_REF( MAD_REF );
+C_DECLARE_REF( PLA_REF );
+C_DECLARE_REF( PIP_REF );
+C_DECLARE_REF( PRT_REF );
+C_DECLARE_REF( PASS_REF );
+C_DECLARE_REF( SHOP_REF );
+C_DECLARE_REF( PRO_REF );
+C_DECLARE_REF( TX_REF );
+C_DECLARE_REF( BBOARD_REF );
+C_DECLARE_REF( LOOP_REF );
+C_DECLARE_REF( MOD_REF );
+C_DECLARE_REF( TREQ_REF );
+C_DECLARE_REF( MOD_REF_REF );
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// forward declaration of standard dynamic array types
+
+DECLARE_DYNAMIC_ARY( char_ary,   char )
+DECLARE_DYNAMIC_ARY( short_ary,  short )
+DECLARE_DYNAMIC_ARY( int_ary,    int )
+DECLARE_DYNAMIC_ARY( float_ary,  float )
+DECLARE_DYNAMIC_ARY( double_ary, double )
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define egoboo_typedef_h

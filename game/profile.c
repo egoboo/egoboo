@@ -47,9 +47,8 @@ pro_import_t import_data;
 size_t bookicon_count   = 0;
 TX_REF bookicon_ref[MAX_SKIN];                      // The first book icon
 
-DECLARE_LIST( ACCESS_TYPE_NONE, pro_t, ProList );
-
-DECLARE_STACK( ACCESS_TYPE_NONE, int, MessageOffset );
+INSTANTIATE_LIST( ACCESS_TYPE_NONE, pro_t, ProList, MAX_PROFILE );
+INSTANTIATE_STATIC_ARY( MessageOffsetAry, MessageOffset );
 
 Uint32  message_buffer_carat = 0;                           // Where to put letter
 char    message_buffer[MESSAGEBUFFERSIZE] = EMPTY_CSTR;     // The text buffer
@@ -88,7 +87,7 @@ void init_all_profiles()
     // fix the book icon list
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
     {
-        bookicon_ref[tnc] = INVALID_TEXTURE;
+        bookicon_ref[tnc] = INVALID_TX_TEXTURE;
     }
     bookicon_count = 0;
 }
@@ -200,8 +199,8 @@ bool_t pro_init( pro_t * pobj )
     // clear out the textures
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        pobj->tex_ref[cnt] = INVALID_TEXTURE;
-        pobj->ico_ref[cnt] = INVALID_TEXTURE;
+        pobj->tex_ref[cnt] = INVALID_TX_TEXTURE;
+        pobj->ico_ref[cnt] = INVALID_TX_TEXTURE;
     }
 
     return btrue;
@@ -210,7 +209,7 @@ bool_t pro_init( pro_t * pobj )
 //--------------------------------------------------------------------------------------------
 // The "private" ProList management functions
 //--------------------------------------------------------------------------------------------
-int ProList_search_free( PRO_REF iobj )
+int ProList_search_free( const PRO_REF by_reference iobj )
 {
     /// @details BB@> if an object of index iobj exists on the free list, return the free list index
     ///     otherwise return -1
@@ -266,7 +265,7 @@ size_t ProList_pop_free( int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ProList_push_free( PRO_REF iobj )
+bool_t ProList_push_free( const PRO_REF by_reference iobj )
 {
     /// @details BB@> push an object onto the free stack
 
@@ -282,7 +281,7 @@ bool_t ProList_push_free( PRO_REF iobj )
     retval = bfalse;
     if ( ProList.free_count < MAX_PROFILE )
     {
-        ProList.free_ref[ProList.free_count] = iobj;
+        ProList.free_ref[ProList.free_count] = REF_TO_INT( iobj );
         ProList.free_count++;
 
         retval = btrue;
@@ -299,7 +298,7 @@ void ProList_init()
     /// @details BB@> initialize all the objects and the object free list.
     ///     call before ever using the object list.
 
-    int cnt;
+    PRO_REF cnt;
 
     ProList.free_count = 0;
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
@@ -313,7 +312,7 @@ void ProList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t ProList_get_free( PRO_REF override )
+size_t ProList_get_free( const PRO_REF by_reference override )
 {
     /// @details ZZ@> This function returns the next free character or MAX_PROFILE if there are none
 
@@ -344,7 +343,7 @@ size_t ProList_get_free( PRO_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ProList_free_one( PRO_REF iobj )
+bool_t ProList_free_one( const PRO_REF by_reference iobj )
 {
     /// @details ZZ@> This function sticks an object back on the free object stack
 
@@ -361,7 +360,7 @@ bool_t ProList_free_one( PRO_REF iobj )
 // object functions
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t release_one_profile_textures( PRO_REF iobj )
+bool_t release_one_profile_textures( const PRO_REF by_reference iobj )
 {
     int tnc;
     pro_t  * pobj;
@@ -371,7 +370,7 @@ bool_t release_one_profile_textures( PRO_REF iobj )
 
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
     {
-        int itex;
+        TX_REF itex;
 
         itex = pobj->tex_ref[tnc] ;
         if ( itex > TX_LAST )
@@ -391,7 +390,7 @@ bool_t release_one_profile_textures( PRO_REF iobj )
     {
         for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
         {
-            bookicon_ref[tnc] = INVALID_TEXTURE;
+            bookicon_ref[tnc] = INVALID_TX_TEXTURE;
         }
         bookicon_count = 0;
     }
@@ -402,7 +401,7 @@ bool_t release_one_profile_textures( PRO_REF iobj )
 //--------------------------------------------------------------------------------------------
 void release_all_profile_textures()
 {
-    int cnt;
+    PRO_REF cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
@@ -411,7 +410,7 @@ void release_all_profile_textures()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pro_data( PRO_REF iobj )
+bool_t release_one_pro_data( const PRO_REF by_reference iobj )
 {
     int cnt;
     pro_t * pobj;
@@ -433,7 +432,7 @@ bool_t release_one_pro_data( PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pro( PRO_REF iobj )
+bool_t release_one_pro( const PRO_REF by_reference iobj )
 {
     pro_t * pobj;
 
@@ -462,7 +461,7 @@ bool_t release_one_pro( PRO_REF iobj )
 void release_all_pro()
 {
     /// @details BB@> release the allocated data for all objects
-    int cnt;
+    PRO_REF cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
@@ -474,7 +473,7 @@ void release_all_pro()
 void release_all_pro_data()
 {
     /// @details BB@> release the allocated data for all objects
-    int cnt;
+    PRO_REF cnt;
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
@@ -484,12 +483,12 @@ void release_all_pro_data()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int load_profile_skins( const char * tmploadname, PRO_REF object )
+int load_profile_skins( const char * tmploadname, const PRO_REF by_reference object )
 {
-    int min_skin_tx, min_icon_tx;
-    int max_skin, max_icon, max_tex;
-    int iskin, iicon;
-    int cnt;
+    TX_REF min_skin_tx, min_icon_tx;
+    int    max_skin, max_icon, max_tex;
+    TX_REF iskin, iicon;
+    int    cnt;
 
     STRING newloadname;
 
@@ -500,29 +499,29 @@ int load_profile_skins( const char * tmploadname, PRO_REF object )
 
     // Load the skins and icons
     max_skin    = max_icon    = -1;
-    min_skin_tx = min_icon_tx = INVALID_TEXTURE;
+    min_skin_tx = min_icon_tx = INVALID_TX_TEXTURE;
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "tris%d", tmploadname, cnt );
 
-        pobj->tex_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, TRANSCOLOR );
-        if ( INVALID_TEXTURE != pobj->tex_ref[cnt] )
+        pobj->tex_ref[cnt] = TxTexture_load_one( newloadname, ( TX_REF )INVALID_TX_TEXTURE, TRANSCOLOR );
+        if ( INVALID_TX_TEXTURE != pobj->tex_ref[cnt] )
         {
             max_skin = cnt;
-            if ( INVALID_TEXTURE == min_skin_tx )
+            if ( INVALID_TX_TEXTURE == min_skin_tx )
             {
                 min_skin_tx = pobj->tex_ref[cnt];
             }
         }
 
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "icon%d", tmploadname, cnt );
-        pobj->ico_ref[cnt] = TxTexture_load_one( newloadname, INVALID_TEXTURE, INVALID_KEY );
+        pobj->ico_ref[cnt] = TxTexture_load_one( newloadname, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
 
-        if ( INVALID_TEXTURE != pobj->ico_ref[cnt] )
+        if ( INVALID_TX_TEXTURE != pobj->ico_ref[cnt] )
         {
             max_icon = cnt;
 
-            if ( INVALID_TEXTURE == min_icon_tx )
+            if ( INVALID_TX_TEXTURE == min_icon_tx )
             {
                 min_icon_tx = pobj->ico_ref[cnt];
             }
@@ -554,12 +553,12 @@ int load_profile_skins( const char * tmploadname, PRO_REF object )
     iicon = min_icon_tx;
     for ( cnt = 0; cnt <= max_tex; cnt++ )
     {
-        if ( INVALID_TEXTURE != pobj->tex_ref[cnt] && iskin != pobj->tex_ref[cnt] )
+        if ( INVALID_TX_TEXTURE != pobj->tex_ref[cnt] && iskin != pobj->tex_ref[cnt] )
         {
             iskin = pobj->tex_ref[cnt];
         }
 
-        if ( INVALID_TEXTURE != pobj->ico_ref[cnt] && iicon != pobj->ico_ref[cnt] )
+        if ( INVALID_TX_TEXTURE != pobj->ico_ref[cnt] && iicon != pobj->ico_ref[cnt] )
         {
             iicon = pobj->ico_ref[cnt];
         }
@@ -593,7 +592,7 @@ void get_message( vfs_FILE* fileread )
         return;
     }
 
-    MessageOffset.lst[MessageOffset.count] = message_buffer_carat;
+    MessageOffset.ary[MessageOffset.count] = message_buffer_carat;
     fget_string( fileread, szTmp, SDL_arraysize( szTmp ) );
     szTmp[255] = CSTR_END;
 
@@ -615,7 +614,7 @@ void get_message( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages( const char *loadname, PRO_REF object )
+void load_all_messages( const char *loadname, const PRO_REF by_reference object )
 {
     /// @details ZZ@> This function loads all of an objects messages
     vfs_FILE *fileread;
@@ -636,7 +635,7 @@ void load_all_messages( const char *loadname, PRO_REF object )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_local_pips( PRO_REF iobj )
+bool_t release_one_local_pips( const PRO_REF by_reference iobj )
 {
     int cnt;
     pro_t * pobj;
@@ -660,7 +659,8 @@ void release_all_local_pips()
 {
     // clear out the local pips
 
-    int object, cnt;
+    PRO_REF object;
+    int cnt;
 
     for ( object = 0; object < MAX_PROFILE; object++ )
     {
@@ -754,16 +754,18 @@ int load_one_profile( const char* tmploadname, int slot_override )
     STRING newloadname;
     bool_t required;
 
-    int     iobj;    // this has to be a signed value for this function to work properly
+    int islot;     // this has to be a signed value for this function to work properly
+
+    PRO_REF iobj;
     pro_t * pobj;
 
     required = !VALID_CAP_RANGE( slot_override );
 
     // get a slot value
-    iobj = pro_get_slot( tmploadname, slot_override );
+    islot = pro_get_slot( tmploadname, slot_override );
 
     // throw an error code if the slot is invalid of if the file doesn't exist
-    if ( !VALID_PRO_RANGE( iobj ) )
+    if ( islot < 0 || islot > MAX_PROFILE )
     {
         // The data file wasn't found
         if ( required )
@@ -778,6 +780,9 @@ int load_one_profile( const char* tmploadname, int slot_override )
         return MAX_PROFILE;
     }
 
+    // convert the slot to a profile reference
+    iobj = islot;
+
     // throw an error code if we are trying to load over an existing profile
     // without permission
     if ( LOADED_PRO( iobj ) )
@@ -791,7 +796,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
         }
         else if ( required && overrideslots )
         {
-            log_error( "load_one_profile() - object slot %i used twice (%s, %s)\n", iobj, pobj->name, tmploadname );
+            log_error( "load_one_profile() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), pobj->name, tmploadname );
         }
         else
         {
@@ -804,22 +809,23 @@ int load_one_profile( const char* tmploadname, int slot_override )
     iobj = ProList_get_free( iobj );
     if ( !VALID_PRO_RANGE( iobj ) )
     {
-        log_warning( "load_one_profile() - Cannot allocate object %d (\"%s\")\n", iobj, tmploadname );
+        log_warning( "load_one_profile() - Cannot allocate object %d (\"%s\")\n", REF_TO_INT( iobj ), tmploadname );
         return MAX_PROFILE;
     }
 
     // grab a pointer to the object
-    pobj = ProList.lst + iobj;
+    pobj  = ProList.lst + iobj;
 
     // load the character profile
-    pobj->icap = load_one_character_profile( tmploadname, iobj, bfalse );
+    pobj->icap = load_one_character_profile( tmploadname, islot, bfalse );
+    islot = REF_TO_INT( pobj->icap );
 
     // Load the model for this iobj
-    pobj->imad = load_one_model_profile( tmploadname, iobj );
+    pobj->imad = load_one_model_profile( tmploadname, ( MAD_REF )islot );
 
     // Load the enchantment for this iobj
     make_newloadname( tmploadname, SLASH_STR "enchant.txt", newloadname );
-    pobj->ieve = load_one_enchant_profile( newloadname, iobj );
+    pobj->ieve = load_one_enchant_profile( newloadname, ( EVE_REF )islot );
 
     // Load the AI script for this iobj
     make_newloadname( tmploadname, SLASH_STR "script.txt", newloadname );
@@ -835,7 +841,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
 
         // Make sure it's referenced properly
-        pobj->prtpip[cnt] = load_one_particle_profile( newloadname, MAX_PIP );
+        pobj->prtpip[cnt] = load_one_particle_profile( newloadname, ( PIP_REF )MAX_PIP );
     }
 
     pobj->skins = load_profile_skins( tmploadname, iobj );
@@ -855,7 +861,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
     pro_load_chop( iobj, newloadname );
 
     // Fix lighting if need be
-    if ( CapList[pobj->icap].uniformlit )
+    if ( CapStack.lst[pobj->icap].uniformlit )
     {
         mad_make_equally_lit( pobj->imad );
     }
@@ -864,7 +870,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
     strncpy( pobj->name, tmploadname, SDL_arraysize( pobj->name ) );
     pobj->loaded = btrue;
 
-    return iobj;
+    return islot;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -880,12 +886,12 @@ void reset_messages()
 
     for ( cnt = 0; cnt < MAX_MESSAGE; cnt++ )
     {
-        DisplayMsg.lst[cnt].time = 0;
+        DisplayMsg.ary[cnt].time = 0;
     }
 
     for ( cnt = 0; cnt < MAXTOTALMESSAGE; cnt++ )
     {
-        MessageOffset.lst[cnt] = 0;
+        MessageOffset.ary[cnt] = 0;
     }
 
     message_buffer[0] = CSTR_END;
@@ -893,7 +899,7 @@ void reset_messages()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-const char * pro_create_chop( PRO_REF iprofile )
+const char * pro_create_chop( const PRO_REF by_reference iprofile )
 {
     /// BB@> use the profile's chop to generate a name. Return "*NONE*" on a falure.
 
@@ -911,7 +917,7 @@ const char * pro_create_chop( PRO_REF iprofile )
     ppro = ProList.lst + iprofile;
 
     if ( !LOADED_CAP( ppro->icap ) ) return buffer;
-    pcap = CapList + ppro->icap;
+    pcap = CapStack.lst + ppro->icap;
 
     if ( 0 == ppro->chop.section[0].size )
     {
@@ -931,7 +937,7 @@ const char * pro_create_chop( PRO_REF iprofile )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t pro_load_chop( PRO_REF iprofile, const char *szLoadname )
+bool_t pro_load_chop( const PRO_REF by_reference iprofile, const char *szLoadname )
 {
     /// BB@> load the chop for the given profile
     pro_t * ppro;
@@ -1061,7 +1067,7 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
             {
                 int itmp;
                 pdefinition->section[which_section].size  = section_count;
-                itmp = (( int )pdata->chop_count ) - section_count;
+                itmp = ( int )pdata->chop_count - ( int )section_count;
                 pdefinition->section[which_section].start = MAX( 0, itmp );
             }
 
@@ -1090,7 +1096,7 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
     {
         int itmp;
         pdefinition->section[which_section].size  = section_count;
-        itmp = (( int )pdata->chop_count ) - section_count;
+        itmp = ( int )pdata->chop_count - ( int )section_count;
         pdefinition->section[which_section].start = MAX( 0, itmp );
     }
 
@@ -1346,20 +1352,20 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
     // unlink all used character nodes
     for ( i = 0; i < ChrList.used_count; i++ )
     {
-        CHR_REF ichr = ChrList.used_ref[i];
+        CHR_REF ichr = ( CHR_REF )ChrList.used_ref[i];
         if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
-        ChrList.lst[i].bsp_leaf.next = NULL;
+        ChrList.lst[ichr].bsp_leaf.next = NULL;
     }
 
     // unlink all used particle nodes
     BSP_prt_count = 0;
     for ( i = 0; i < PrtList.used_count; i++ )
     {
-        PRT_REF iprt = PrtList.used_ref[i];
+        PRT_REF iprt = ( PRT_REF )PrtList.used_ref[i];
         if ( !VALID_PRT_RANGE( iprt ) ) continue;
 
-        PrtList.lst[i].bsp_leaf.next = NULL;
+        PrtList.lst[iprt].bsp_leaf.next = NULL;
     }
 
     return btrue;
@@ -1376,7 +1382,7 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     {
         // reset a couple of things here
         pchr->holdingweight     = 0;
-        pchr->onwhichplatform   = MAX_CHR;
+        pchr->onwhichplatform   = ( CHR_REF )MAX_CHR;
 
         // try to insert the character
         if ( obj_BSP_insert_chr( pbsp, pchr ) )
@@ -1391,7 +1397,7 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
         // reset a couple of things here
-        pprt->onwhichplatform   = MAX_CHR;
+        pprt->onwhichplatform   = ( CHR_REF )MAX_CHR;
 
         // try to insert the particle
         if ( obj_BSP_insert_prt( pbsp, pprt ) )

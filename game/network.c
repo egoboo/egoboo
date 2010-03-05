@@ -50,14 +50,18 @@ static int  numfilesent = 0;                            // For network copy
 static int  numfileexpected = 0;                        // For network copy
 static int  numplayerrespond = 0;
 
+static net_instance_t gnet = { bfalse, bfalse, bfalse, bfalse, bfalse };
+
 static bool_t net_instance_init( net_instance_t * pnet );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+INSTANTIATE_STACK( ACCESS_TYPE_NONE, player_t, PlaStack, MAX_PLAYER );
 
 int         lag  = 3;                       // Lag tolerance
 Uint32      numplatimes = 0;
 
 int         local_numlpla;                         // number of players on the local machine
-int         PlaList_count = 0;                     // Number of players
-player_t    PlaList[MAX_PLAYER];
 
 FILE *      globalnetworkerr = NULL;
 
@@ -75,8 +79,6 @@ int     playersready  = 0;         // Number of players ready to start
 int     playersloaded = 0;
 
 Uint32 sv_last_frame = ( Uint32 )~0;
-
-static net_instance_t gnet = { bfalse, bfalse, bfalse, bfalse, bfalse };
 
 net_instance_t * PNet = &gnet;
 
@@ -883,7 +885,7 @@ void cl_talkToHost()
 {
     /// @details ZZ@> This function sends the latch packets to the host machine
 
-    Uint16 player;
+    PLA_REF player;
 
     // Let the players respawn
     if ( SDLKEYDOWN( SDLK_SPACE )
@@ -896,9 +898,9 @@ void cl_talkToHost()
 
         while ( player < MAX_PLAYER )
         {
-            if ( PlaList[player].valid && PlaList[player].device.bits != INPUT_BITS_NONE )
+            if ( PlaStack.lst[player].valid && PlaStack.lst[player].device.bits != INPUT_BITS_NONE )
             {
-                PlaList[player].local_latch.b |= LATCHBUTTON_RESPAWN;  // Press the respawn button...
+                PlaStack.lst[player].local_latch.b |= LATCHBUTTON_RESPAWN;  // Press the respawn button...
             }
 
             player++;
@@ -914,12 +916,12 @@ void cl_talkToHost()
         for ( player = 0; player < MAX_PLAYER; player++ )
         {
             // Find the local players
-            if ( PlaList[player].valid && PlaList[player].device.bits != INPUT_BITS_NONE )
+            if ( PlaStack.lst[player].valid && PlaStack.lst[player].device.bits != INPUT_BITS_NONE )
             {
-                packet_addUnsignedByte( player );                             // The player index
-                packet_addUnsignedInt( PlaList[player].local_latch.b );             // Player button states
-                packet_addSignedShort( PlaList[player].local_latch.x*SHORTLATCH );  // Player motion
-                packet_addSignedShort( PlaList[player].local_latch.y*SHORTLATCH );  // Player motion
+                packet_addUnsignedByte( REF_TO_INT( player ) );                      // The player index
+                packet_addUnsignedInt( PlaStack.lst[player].local_latch.b );             // Player button states
+                packet_addSignedShort( PlaStack.lst[player].local_latch.x*SHORTLATCH );  // Player motion
+                packet_addSignedShort( PlaStack.lst[player].local_latch.y*SHORTLATCH );  // Player motion
             }
         }
 
@@ -933,7 +935,8 @@ void sv_talkToRemotes()
 {
     /// @details ZZ@> This function sends the character data to all the remote machines
 
-    int player, time;
+    PLA_REF player;
+    int time;
 
     // make sure there is only one update per frame;
     if ( update_wld == sv_last_frame ) return;
@@ -953,12 +956,12 @@ void sv_talkToRemotes()
             // Send all player latches...
             for ( player = 0; player < MAX_PLAYER; player++ )
             {
-                if ( !PlaList[player].valid ) continue;
+                if ( !PlaStack.lst[player].valid ) continue;
 
-                packet_addUnsignedByte( player );                        // The player index
-                packet_addUnsignedInt( PlaList[player].local_latch.b );        // Player button states
-                packet_addSignedShort( PlaList[player].local_latch.x*SHORTLATCH );  // Player motion
-                packet_addSignedShort( PlaList[player].local_latch.y*SHORTLATCH );  // Player motion
+                packet_addUnsignedByte( REF_TO_INT( player ) );                      // The player index
+                packet_addUnsignedInt( PlaStack.lst[player].local_latch.b );        // Player button states
+                packet_addSignedShort( PlaStack.lst[player].local_latch.x*SHORTLATCH );  // Player motion
+                packet_addSignedShort( PlaStack.lst[player].local_latch.y*SHORTLATCH );  // Player motion
 
                 player++;
             }
@@ -978,8 +981,8 @@ void sv_talkToRemotes()
             int index, cnt;
             player_t * ppla;
 
-            if ( !PlaList[player].valid ) continue;
-            ppla = PlaList + player;
+            if ( !PlaStack.lst[player].valid ) continue;
+            ppla = PlaStack.lst + player;
 
             index = ppla->tlatch_count;
             if ( index < MAXLAG )
@@ -1012,12 +1015,12 @@ void sv_talkToRemotes()
 }
 
 //--------------------------------------------------------------------------------------------
-void pla_add_tlatch( PLA_REF iplayer, Uint32 time, latch_t net_latch )
+void pla_add_tlatch( const PLA_REF by_reference iplayer, Uint32 time, latch_t net_latch )
 {
     player_t * ppla;
 
     if ( !VALID_PLA( iplayer ) ) return;
-    ppla = PlaList + iplayer;
+    ppla = PlaStack.lst + iplayer;
 
     if ( ppla->tlatch_count >= MAXLAG ) return;
 
@@ -1457,9 +1460,9 @@ void net_handlePacket( ENetEvent *event )
                     while ( packet_remainingSize() > 0 )
                     {
                         player = packet_readUnsignedByte();
-                        PlaList[player].tlatch[time].button = packet_readUnsignedInt();
-                        PlaList[player].tlatch[time].x      = packet_readSignedShort() / SHORTLATCH;
-                        PlaList[player].tlatch[time].y      = packet_readSignedShort() / SHORTLATCH;
+                        PlaStack.lst[player].tlatch[time].button = packet_readUnsignedInt();
+                        PlaStack.lst[player].tlatch[time].x      = packet_readSignedShort() / SHORTLATCH;
+                        PlaStack.lst[player].tlatch[time].y      = packet_readSignedShort() / SHORTLATCH;
                     }
 
                     nexttimestamp = stamp + 1;
@@ -1525,14 +1528,14 @@ void unbuffer_player_latches()
 {
     /// @details ZZ@> This function sets character latches based on player input to the host
 
-    int     cnt;
+    PLA_REF ipla;
     CHR_REF character;
 
     // if ( PMod->rtscontrol ) { numplatimes--; return; }
 
     // get the "network" latch for each valid player
     numplatimes = 0;
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         int tnc;
         Uint32 latch_count;
@@ -1540,8 +1543,8 @@ void unbuffer_player_latches()
         player_t * ppla;
         time_latch_t * tlatch_list;
 
-        if ( !PlaList[cnt].valid ) continue;
-        ppla = PlaList + cnt;
+        if ( !PlaStack.lst[ipla].valid ) continue;
+        ppla = PlaStack.lst + ipla;
         tlatch_list = ppla->tlatch;
 
         // copy the latch from last time
@@ -1637,15 +1640,15 @@ void unbuffer_player_latches()
     }
 
     // set the player latch
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         chr_t * pchr;
         player_t * ppla;
 
-        if ( !PlaList[cnt].valid ) continue;
-        ppla = PlaList + cnt;
+        if ( !PlaStack.lst[ipla].valid ) continue;
+        ppla = PlaStack.lst + ipla;
 
-        character = PlaList[cnt].index;
+        character = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
@@ -1653,15 +1656,15 @@ void unbuffer_player_latches()
     }
 
     // Let players respawn
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         chr_t * pchr;
         player_t * ppla;
 
-        if ( !PlaList[cnt].valid ) continue;
-        ppla = PlaList + cnt;
+        if ( !PlaStack.lst[ipla].valid ) continue;
+        ppla = PlaStack.lst + ipla;
 
-        character = PlaList[cnt].index;
+        character = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
@@ -1670,15 +1673,15 @@ void unbuffer_player_latches()
             if ( !pchr->alive && 0 == revivetimer )
             {
                 respawn_character( character );
-                TeamList[pchr->team].leader = character;
+                TeamStack.lst[pchr->team].leader = character;
                 pchr->ai.alert |= ALERTIF_CLEANEDUP;
 
-                // Cost some experience for doing this...  Never lose a level
+                // cost some experience for doing this...  never lose a level
                 pchr->experience *= EXPKEEP;
                 if ( cfg.difficulty > GAME_EASY ) pchr->money *= EXPKEEP;
             }
 
-            // remove all latches other than LATCHBUTTON_RESPAWN
+            // remove all latches other than latchbutton_respawn
             pchr->latch.b &= ~LATCHBUTTON_RESPAWN;
         }
     }
@@ -2030,25 +2033,25 @@ bool_t net_instance_init( net_instance_t * pnet )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-REF_T pla_get_ichr( PLA_REF iplayer )
+CHR_REF pla_get_ichr( const PLA_REF by_reference iplayer )
 {
     player_t * pplayer;
 
-    if ( iplayer >= MAX_PLAYER || !PlaList[iplayer].valid ) return MAX_CHR;
-    pplayer = PlaList + iplayer;
+    if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return ( CHR_REF )MAX_CHR;
+    pplayer = PlaStack.lst + iplayer;
 
-    if ( !ACTIVE_CHR( pplayer->index ) ) return MAX_CHR;
+    if ( !ACTIVE_CHR( pplayer->index ) ) return ( CHR_REF )MAX_CHR;
 
     return pplayer->index;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t  * pla_get_pchr( PLA_REF iplayer )
+chr_t  * pla_get_pchr( const PLA_REF by_reference iplayer )
 {
     player_t * pplayer;
 
-    if ( iplayer >= MAX_PLAYER || !PlaList[iplayer].valid ) return NULL;
-    pplayer = PlaList + iplayer;
+    if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return NULL;
+    pplayer = PlaStack.lst + iplayer;
 
     if ( !ACTIVE_CHR( pplayer->index ) ) return NULL;
 
@@ -2058,17 +2061,17 @@ chr_t  * pla_get_pchr( PLA_REF iplayer )
 //--------------------------------------------------------------------------------------------
 void net_reset_players()
 {
-    int cnt;
+    PLA_REF cnt;
 
     // Reset the initial player data and latches
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
-        memset( PlaList + cnt, 0, sizeof( player_t ) );
+        memset( PlaStack.lst + cnt, 0, sizeof( player_t ) );
 
         // reset the device
-        input_device_init( &( PlaList[cnt].device ) );
+        input_device_init( &( PlaStack.lst[cnt].device ) );
     }
-    PlaList_count        = 0;
+    PlaStack.count        = 0;
 
     nexttimestamp = (( Uint32 )~0 );
     numplatimes   = 0;
@@ -2096,7 +2099,7 @@ void pla_reinit( player_t * ppla )
     if ( NULL == ppla ) return;
 
     ppla->valid       = bfalse;
-    ppla->index       = MAX_CHR;
+    ppla->index       = ( CHR_REF )MAX_CHR;
     ppla->device.bits = INPUT_BITS_NONE;
 }
 
@@ -2107,7 +2110,7 @@ void player_init( player_t * ppla )
 
     memset( ppla, 0, sizeof( *ppla ) );
 
-    ppla->index       = MAX_CHR;
+    ppla->index       = ( CHR_REF )MAX_CHR;
 
     // initialize the device
     input_device_init( &( ppla->device ) );

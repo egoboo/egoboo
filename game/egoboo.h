@@ -58,7 +58,7 @@
 #define MAXIMPORTOBJECTS    (MAXINVENTORY + 2)      ///< left hand + right hand + MAXINVENTORY
 #define MAXIMPORTPERPLAYER  (1 + MAXIMPORTOBJECTS)  ///< player + MAXIMPORTOBJECTS
 
-#define NOSPARKLE           255						///< Dont sparkle icons
+#define NOSPARKLE           255                     ///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model
 
 /// Messaging stuff

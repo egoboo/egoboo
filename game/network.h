@@ -64,10 +64,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-DECLARE_REF( PLA_REF );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 /// A latch with a time attached
 /// @details This is recieved over the network, or inserted into the list by the local system to simulate
 ///  network traffic
@@ -102,7 +98,7 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy );
 struct s_player
 {
     bool_t                  valid;                    ///< Player used?
-    REF_T                   index;                    ///< Which character?
+    CHR_REF                 index;                    ///< Which character?
 
     /// the buffered input from the local input devices
     input_device_t          device;
@@ -121,17 +117,19 @@ struct s_player
 typedef struct s_player player_t;
 
 extern int                     local_numlpla;                                   ///< Number of local players
-extern int                     PlaList_count;                                   ///< Number of players
-extern player_t                PlaList[MAX_PLAYER];
+
+#define INVALID_PLAYER MAX_PLAYER
+
+DECLARE_STACK_EXTERN( player_t, PlaStack, MAX_PLAYER );                         ///< Stack for keeping track of players
 
 #define VALID_PLA_RANGE(IPLA) ( ((IPLA) >= 0) && ((IPLA) < MAX_PLAYER) )
-#define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaList_count) && PlaList[IPLA].valid )
-#define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaList_count)|| !PlaList[IPLA].valid )
+#define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaStack.count) && PlaStack.lst[IPLA].valid )
+#define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaStack.count)|| !PlaStack.lst[IPLA].valid )
 
 void           player_init( player_t * ppla );
 void           pla_reinit( player_t * ppla );
-REF_T          pla_get_ichr( REF_T iplayer );
-struct s_chr * pla_get_pchr( REF_T iplayer );
+CHR_REF        pla_get_ichr( const PLA_REF by_reference iplayer );
+struct s_chr * pla_get_pchr( const PLA_REF by_reference iplayer );
 
 //--------------------------------------------------------------------------------------------
 /// The state of the network code used in old-egoboo

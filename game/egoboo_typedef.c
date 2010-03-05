@@ -33,11 +33,11 @@ Uint32 ego_object_guid = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // implement simple type arrays
-IMPLEMENT_ARY( char_ary,   char )
-IMPLEMENT_ARY( short_ary,  short )
-IMPLEMENT_ARY( int_ary,    int )
-IMPLEMENT_ARY( float_ary,  float )
-IMPLEMENT_ARY( double_ary, double )
+IMPLEMENT_DYNAMIC_ARY( char_ary,   char );
+IMPLEMENT_DYNAMIC_ARY( short_ary,  short );
+IMPLEMENT_DYNAMIC_ARY( int_ary,    int );
+IMPLEMENT_DYNAMIC_ARY( float_ary,  float );
+IMPLEMENT_DYNAMIC_ARY( double_ary, double );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -54,10 +54,10 @@ const char * undo_idsz( IDSZ idsz )
     else
     {
         // Bad! both function return and return to global variable!
-        value_string[0] = (( idsz >> 15 ) & 31 ) + 'A';
-        value_string[1] = (( idsz >> 10 ) & 31 ) + 'A';
-        value_string[2] = (( idsz >> 5 ) & 31 ) + 'A';
-        value_string[3] = (( idsz ) & 31 ) + 'A';
+        value_string[0] = (( idsz >> 15 ) & 0x1F ) + 'A';
+        value_string[1] = (( idsz >> 10 ) & 0x1F ) + 'A';
+        value_string[2] = (( idsz >> 5 ) & 0x1F ) + 'A';
+        value_string[3] = (( idsz ) & 0x1F ) + 'A';
         value_string[4] = 0;
     }
 

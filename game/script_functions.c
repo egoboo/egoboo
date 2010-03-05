@@ -62,7 +62,6 @@
 #define SCRIPT_FUNCTION_BEGIN() \
     chr_t * pchr; \
     pro_t * ppro; \
-    Uint16 sTmp = 0; \
     Uint8 returncode = btrue; \
     if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return bfalse; \
     pchr = ChrList.lst + pself->index; \
@@ -73,7 +72,6 @@
     return returncode;
 
 #define FUNCTION_BEGIN() \
-    Uint16 sTmp = 0; \
     Uint8 returncode = btrue; \
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
@@ -478,7 +476,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
         // no it is not safe. what to do? nothing, or add the current position?
         //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
 
-        pcap = chr_get_pcap( GET_INDEX_PCHR( pchr ) );
+        pcap = chr_get_pcap( GET_REF_PCHR( pchr ) );
 
         if ( NULL != pcap )
         {
@@ -488,7 +486,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
                          "\tWaypoint location (in tiles) <%f,%f>\n"
                          "\tWall normal <%1.4f,%1.4f>\n"
                          "\tPressure %f\n",
-                         GET_INDEX_PCHR( pchr ), pchr->Name, pcap->name,
+                         GET_REF_PCHR( pchr ), pchr->Name, pcap->name,
                          pself->wp_lst.head,
                          pos.x / GRID_SIZE, pos.y / GRID_SIZE,
                          nrm.x, nrm.y,
@@ -588,6 +586,7 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
+    Uint16 sTmp = 0;
     cap_t * pcap;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -686,13 +685,15 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
     /// @details ZZ@> This function sets the target to the item in the target's left hand,
     /// failing if the target has no left hand item
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
+    ichr = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
     returncode = bfalse;
-    if ( ACTIVE_CHR( sTmp ) )
+    if ( ACTIVE_CHR( ichr ) )
     {
-        pself->target = sTmp;
+        pself->target = ichr;
         returncode = btrue;
     }
 
@@ -706,13 +707,15 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
     /// @details ZZ@> This function sets the target to the item in the target's right hand,
     /// failing if the target has no right hand item
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
+    ichr = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
     returncode = bfalse;
-    if ( ACTIVE_CHR( sTmp ) )
+    if ( ACTIVE_CHR( ichr ) )
     {
-        pself->target = sTmp;
+        pself->target = ichr;
         returncode = btrue;
     }
 
@@ -759,7 +762,7 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->target = TeamList[pchr->team].sissy;
+    pself->target = TeamStack.lst[pchr->team].sissy;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1013,30 +1016,32 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function drops the character's in-hand items.  It will also
     /// buck the rider if the character is a mount
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
     // This funtion drops the character's in hand items/riders
-    sTmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( ACTIVE_CHR( sTmp ) )
+    ichr = pchr->holdingwhich[SLOT_LEFT];
+    if ( ACTIVE_CHR( ichr ) )
     {
-        detach_character_from_mount( sTmp, btrue, btrue );
+        detach_character_from_mount( ichr, btrue, btrue );
         if ( pchr->ismount )
         {
-            ChrList.lst[sTmp].vel.z = DISMOUNTZVEL;
-            ChrList.lst[sTmp].pos.z += DISMOUNTZVEL;
-            ChrList.lst[sTmp].jumptime = JUMPDELAY;
+            ChrList.lst[ichr].vel.z = DISMOUNTZVEL;
+            ChrList.lst[ichr].pos.z += DISMOUNTZVEL;
+            ChrList.lst[ichr].jumptime = JUMPDELAY;
         }
     }
 
-    sTmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( ACTIVE_CHR( sTmp ) )
+    ichr = pchr->holdingwhich[SLOT_RIGHT];
+    if ( ACTIVE_CHR( ichr ) )
     {
-        detach_character_from_mount( sTmp, btrue, btrue );
+        detach_character_from_mount( ichr, btrue, btrue );
         if ( pchr->ismount )
         {
-            ChrList.lst[sTmp].vel.z = DISMOUNTZVEL;
-            ChrList.lst[sTmp].pos.z += DISMOUNTZVEL;
-            ChrList.lst[sTmp].jumptime = JUMPDELAY;
+            ChrList.lst[ichr].vel.z = DISMOUNTZVEL;
+            ChrList.lst[ichr].pos.z += DISMOUNTZVEL;
+            ChrList.lst[ichr].jumptime = JUMPDELAY;
         }
     }
 
@@ -1082,7 +1087,7 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = open_passage( pstate->argument );
+    returncode = open_passage(( PASS_REF )pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1097,7 +1102,7 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = close_passage( pstate->argument );
+    returncode = close_passage(( PASS_REF )pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1112,9 +1117,11 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( VALID_PASSAGE( pstate->argument ) )
+    if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
     {
-        returncode = PassageStack.lst[pstate->argument].open;
+        PASS_REF ipass = ( PASS_REF )pstate->argument;
+
+        returncode = PassageStack.lst[ipass].open;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1147,12 +1154,12 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     /// that item.
     /// For one use keys and such
 
-    CHR_REF item, pack_last;
+    CHR_REF item, pack_last, ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->target;
-    item = chr_has_item_idsz( sTmp, ( IDSZ ) pstate->argument, bfalse, &pack_last );
+    ichr = pself->target;
+    item = chr_has_item_idsz( ichr, ( IDSZ ) pstate->argument, bfalse, &pack_last );
 
     returncode = bfalse;
     if ( ACTIVE_CHR( item ) )
@@ -1171,20 +1178,20 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
             {
                 // Remove from the pack
                 ChrList.lst[pack_last].pack_next = ChrList.lst[item].pack_next;
-                ChrList.lst[sTmp].pack_count--;
+                ChrList.lst[ichr].pack_count--;
 
                 ChrList.lst[item].pack_ispacked = bfalse;
-                ChrList.lst[item].pack_next     = MAX_CHR;
+                ChrList.lst[item].pack_next     = ( CHR_REF )MAX_CHR;
             }
             else if ( ACTIVE_CHR( pack_last ) && !ChrList.lst[item].pack_ispacked )
             {
                 // this is corrupt data == trouble
                 // treat it as the normal case. if it causes errors, we'll fix them later
                 ChrList.lst[pack_last].pack_next = ChrList.lst[item].pack_next;
-                ChrList.lst[sTmp].pack_count--;
+                ChrList.lst[ichr].pack_count--;
 
                 ChrList.lst[item].pack_ispacked = bfalse;
-                ChrList.lst[item].pack_next     = MAX_CHR;
+                ChrList.lst[item].pack_next     = ( CHR_REF )MAX_CHR;
             }
             else
             {
@@ -1493,7 +1500,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList.lst[pself->target].alive && TeamList[pchr->team].hatesteam[chr_get_iteam( pself->target )] && !ChrList.lst[pself->target].invictus );
+    returncode = ( ChrList.lst[pself->target].alive && team_hates_team( pchr->team, chr_get_iteam( pself->target ) ) && !ChrList.lst[pself->target].invictus );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1521,9 +1528,9 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( TeamList[pchr->team].leader != NOLEADER )
+    if ( TeamStack.lst[pchr->team].leader != NOLEADER )
     {
-        pself->target = ChrList.lst[TeamList[pchr->team].leader].ai.target;
+        pself->target = ChrList.lst[TeamStack.lst[pchr->team].leader].ai.target;
         returncode = btrue;
     }
 
@@ -1551,7 +1558,7 @@ Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    TeamList[pchr->team].leader = pself->index;
+    TeamStack.lst[pchr->team].leader = pself->index;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1624,7 +1631,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( TeamList[pchr->team].leader != NOLEADER );
+    returncode = ( TeamStack.lst[pchr->team].leader != NOLEADER );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1651,13 +1658,13 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( TeamList[pchr->team].leader == NOLEADER )
+    if ( TeamStack.lst[pchr->team].leader == NOLEADER )
     {
         returncode = bfalse;
     }
     else
     {
-        pself->target = TeamList[pchr->team].leader;
+        pself->target = TeamStack.lst[pchr->team].leader;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1674,6 +1681,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     /// tmpx and tmpy give the coodinates, tmpturn gives the new character's
     /// direction, and tmpdistance gives the new character's initial velocity
 
+    CHR_REF ichr;
     int tTmp;
     fvec3_t   pos;
 
@@ -1683,27 +1691,27 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = 0;
 
-    sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, MAX_CHR );
-    if ( !ACTIVE_CHR( sTmp ) )
+    ichr = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
+    if ( !ACTIVE_CHR( ichr ) )
     {
-        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
     }
     else
     {
-        chr_t * pchild = ChrList.lst + sTmp;
+        chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
         if ( !pchild->safe_valid )
         {
-            chr_request_terminate( sTmp );
-            sTmp = MAX_CHR;
+            chr_request_terminate( ichr );
+            ichr = ( CHR_REF )MAX_CHR;
         }
         else
         {
-            pself->child = sTmp;
+            pself->child = ichr;
 
             tTmp = ( pchr->facing_z + ATK_BEHIND ) >> 2;
             pchild->vel.x += turntocos[ tTmp & TRIG_TABLE_MASK ] * pstate->distance;
@@ -1718,7 +1726,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = ACTIVE_CHR( sTmp );
+    returncode = ACTIVE_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1926,26 +1934,27 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     // SpawnParticle(tmpargument = "particle", tmpdistance = "character vertex", tmpx = "offset x", tmpy = "offset y" )
     /// @details ZZ@> This function spawns a particle, offset from the character's location
 
-    int tTmp;
+    PRT_REF iprt;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-    returncode = ACTIVE_PRT( tTmp );
+    returncode = ACTIVE_PRT( iprt );
     if ( returncode )
     {
-        prt_t * pprt = PrtList.lst + tTmp;
+        prt_t * pprt = PrtList.lst + iprt;
 
         // Detach the particle
-        place_particle_at_vertex( tTmp, pself->index, pstate->distance );
-        pprt->attachedto_ref = MAX_CHR;
+        place_particle_at_vertex( iprt, pself->index, pstate->distance );
+        pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
         // Correct X, Y, Z spacing
         pprt->pos.x += pstate->x;
@@ -2138,7 +2147,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     iskin = pchr->skin;
 
     // change the spellbook to a spell effect
-    change_character( pself->index, pself->content, 0, ENC_LEAVE_NONE );
+    change_character( pself->index, ( PRO_REF )pself->content, 0, ENC_LEAVE_NONE );
 
     // set the spell effect parameters
     pchr->money    = iskin;
@@ -2175,11 +2184,11 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     // convert the spell effect to a spellbook
     old_profile = pchr->iprofile;
-    change_character( pself->index, SPELLBOOK, pchr->money % MAX_SKIN, ENC_LEAVE_NONE );
+    change_character( pself->index, ( PRO_REF )SPELLBOOK, pchr->money % MAX_SKIN, ENC_LEAVE_NONE );
 
     // Reset the spellbook state so it doesn't burn up
     pself->state   = 0;
-    pself->content = old_profile;
+    pself->content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
     pcap = pro_get_pcap( pchr->iprofile );
@@ -2249,12 +2258,14 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
     /// See CreateOrder for more.  This function sets tmpx, tmpy, tmpargument,
     /// and sets the target ( if valid )
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = CLIP_TO_16BITS( pself->order_value >> 24 );
-    if ( ACTIVE_CHR( sTmp ) )
+    ichr = CLIP_TO_16BITS( pself->order_value >> 24 );
+    if ( ACTIVE_CHR( ichr ) )
     {
-        pself->target = sTmp;
+        pself->target = ichr;
     }
 
     pstate->x        = (( pself->order_value >> 14 ) & 0x03FF ) << 6;
@@ -2520,10 +2531,12 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function enchants the target with the enchantment given
     /// in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
+    ENC_REF iTmp;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_enchant( pself->owner, pself->target, pself->index, MAX_ENC, MAX_PROFILE );
-    returncode = ACTIVE_ENC( sTmp );
+    iTmp = spawn_one_enchant( pself->owner, pself->target, pself->index, ( ENC_REF )MAX_ENC, ( PRO_REF )MAX_PROFILE );
+    returncode = ACTIVE_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2536,10 +2549,12 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
     /// newly spawned character with the enchantment
     /// given in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
+    ENC_REF iTmp;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_enchant( pself->owner, pself->child, pself->index, MAX_ENC, MAX_PROFILE );
-    returncode = ACTIVE_ENC( sTmp );
+    iTmp = spawn_one_enchant( pself->owner, pself->child, pself->index, ( ENC_REF )MAX_ENC, ( PRO_REF )MAX_PROFILE );
+    returncode = ACTIVE_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2633,21 +2648,22 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function restocks the ammo of every item the character is holding,
     /// if the item matches the ID given ( parent or child type )
 
+    CHR_REF ichr;
     int iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = 0;  // Amount of ammo given
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo( sTmp, pstate->argument );
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-    iTmp += restock_ammo( sTmp, pstate->argument );
-    sTmp = ChrList.lst[pself->target].pack_next;
+    ichr = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
+    iTmp += restock_ammo( ichr, pstate->argument );
+    ichr = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
+    iTmp += restock_ammo( ichr, pstate->argument );
+    ichr = ChrList.lst[pself->target].pack_next;
 
-    while ( sTmp != MAX_CHR )
+    while ( ichr != MAX_CHR )
     {
-        iTmp += restock_ammo( sTmp, pstate->argument );
-        sTmp = ChrList.lst[sTmp].pack_next;
+        iTmp += restock_ammo( ichr, pstate->argument );
+        ichr = ChrList.lst[ichr].pack_next;
     }
 
     pstate->argument = iTmp;
@@ -2664,24 +2680,25 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     /// if the item matches the ID given ( parent or child type )
 
     int iTmp;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = 0;  // Amount of ammo given
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-    iTmp += restock_ammo( sTmp, pstate->argument );
+    ichr = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
+    iTmp += restock_ammo( ichr, pstate->argument );
     if ( iTmp == 0 )
     {
-        sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-        iTmp += restock_ammo( sTmp, pstate->argument );
+        ichr = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
+        iTmp += restock_ammo( ichr, pstate->argument );
         if ( iTmp == 0 )
         {
-            sTmp = ChrList.lst[pself->target].pack_next;
+            ichr = ChrList.lst[pself->target].pack_next;
 
-            while ( sTmp != MAX_CHR && iTmp == 0 )
+            while ( ichr != MAX_CHR && iTmp == 0 )
             {
-                iTmp += restock_ammo( sTmp, pstate->argument );
-                sTmp = ChrList.lst[sTmp].pack_next;
+                iTmp += restock_ammo( ichr, pstate->argument );
+                ichr = ChrList.lst[ichr].pack_next;
             }
         }
     }
@@ -2859,17 +2876,19 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
     // KillTarget()
     /// @details ZZ@> This function kills the target
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
 
     //Weapons don't kill people, people kill people...
     if ( ACTIVE_CHR( pchr->attachedto ) && !ChrList.lst[pchr->attachedto].ismount )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
-    kill_character( pself->target, sTmp, bfalse );
+    kill_character( pself->target, ichr, bfalse );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3166,7 +3185,7 @@ Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    debug_printf( "aistate %d, aicontent %d, target %d", pself->state, pself->content, pself->target );
+    debug_printf( "aistate %d, aicontent %d, target %d", pself->state, pself->content, REF_TO_INT( pself->target ) );
     debug_printf( "tmpx %d, tmpy %d", pstate->x, pstate->y );
     debug_printf( "tmpdistance %d, tmpturn %d", pstate->distance, pstate->turn );
     debug_printf( "tmpargument %d, selfturn %d", pstate->argument, pchr->facing_z );
@@ -3279,7 +3298,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function passes if the character is holding a ranged weapon, returning
     /// the latch to press to use it.  This also checks ammo/ammoknown.
 
-    int tTmp;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3287,12 +3306,12 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     pstate->argument = 0;
 
     // Check right hand
-    tTmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( ACTIVE_CHR( tTmp ) )
+    ichr = pchr->holdingwhich[SLOT_RIGHT];
+    if ( ACTIVE_CHR( ichr ) )
     {
-        cap_t * pcap = chr_get_pcap( tTmp );
+        cap_t * pcap = chr_get_pcap( ichr );
 
-        if ( NULL != pcap && pcap->isranged && ( ChrList.lst[tTmp].ammomax == 0 || ( ChrList.lst[tTmp].ammo != 0 && ChrList.lst[tTmp].ammoknown ) ) )
+        if ( NULL != pcap && pcap->isranged && ( ChrList.lst[ichr].ammomax == 0 || ( ChrList.lst[ichr].ammo != 0 && ChrList.lst[ichr].ammoknown ) ) )
         {
             if ( pstate->argument == 0 || ( update_wld & 1 ) )
             {
@@ -3305,12 +3324,12 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check left hand
-        tTmp = pchr->holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( tTmp ) )
+        ichr = pchr->holdingwhich[SLOT_LEFT];
+        if ( ACTIVE_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( tTmp );
+            cap_t * pcap = chr_get_pcap( ichr );
 
-            if ( NULL != pcap && pcap->isranged && ( ChrList.lst[tTmp].ammomax == 0 || ( ChrList.lst[tTmp].ammo != 0 && ChrList.lst[tTmp].ammoknown ) ) )
+            if ( NULL != pcap && pcap->isranged && ( ChrList.lst[ichr].ammomax == 0 || ( ChrList.lst[ichr].ammo != 0 && ChrList.lst[ichr].ammoknown ) ) )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = btrue;
@@ -3329,6 +3348,8 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
@@ -3337,10 +3358,10 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check right hand
-        sTmp = pchr->holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR( sTmp ) )
+        ichr = pchr->holdingwhich[SLOT_RIGHT];
+        if ( ACTIVE_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( sTmp );
+            cap_t * pcap = chr_get_pcap( ichr );
 
             if ( NULL != pcap && !pcap->isranged && pcap->weaponaction != ACTION_PA )
             {
@@ -3356,10 +3377,10 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check left hand
-        sTmp = pchr->holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( sTmp ) )
+        ichr = pchr->holdingwhich[SLOT_LEFT];
+        if ( ACTIVE_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( sTmp );
+            cap_t * pcap = chr_get_pcap( ichr );
 
             if ( NULL != pcap && !pcap->isranged && pcap->weaponaction != ACTION_PA )
             {
@@ -3379,6 +3400,8 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it. The button will need to be held down.
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
@@ -3387,10 +3410,10 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check right hand
-        sTmp = pchr->holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR( sTmp ) )
+        ichr = pchr->holdingwhich[SLOT_RIGHT];
+        if ( ACTIVE_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( sTmp );
+            cap_t * pcap = chr_get_pcap( ichr );
 
             if ( NULL != pcap && pcap->weaponaction == ACTION_PA )
             {
@@ -3403,10 +3426,10 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     if ( !returncode )
     {
         // Check left hand
-        sTmp = pchr->holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( sTmp ) )
+        ichr = pchr->holdingwhich[SLOT_LEFT];
+        if ( ACTIVE_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( sTmp );
+            cap_t * pcap = chr_get_pcap( ichr );
 
             if ( NULL != pcap && pcap->weaponaction == ACTION_PA )
             {
@@ -3616,19 +3639,20 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     // SpawnAttachedParticle( tmpargument = "particle", tmpdistance = "vertex" )
     /// @details ZZ@> This function spawns a particle attached to the character
 
-    int tTmp;
+    CHR_REF ichr;
+    PRT_REF iprt;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-    returncode = ACTIVE_PRT( tTmp );
+    returncode = ACTIVE_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3639,22 +3663,23 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     // SpawnExactParticle( tmpargument = "particle", tmpx = "x", tmpy = "y", tmpdistance = "z" )
     /// @details ZZ@> This function spawns a particle at a specific x, y, z position
 
-    int tTmp;
+    PRT_REF iprt;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        tTmp = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+        iprt = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
-    returncode = ACTIVE_PRT( tTmp );
+    returncode = ACTIVE_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3908,6 +3933,7 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function sets the current .MD2 frame for the character.  Values are * 4
 
     int iTmp;
+    Uint16 sTmp = 0;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3930,7 +3956,7 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _break_passage( pstate->y, pstate->x, pstate->distance, pstate->turn, pstate->argument, &( pstate->x ), &( pstate->y ) );
+    returncode = _break_passage( pstate->y, pstate->x, pstate->distance, pstate->turn, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4093,22 +4119,23 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     /// @details ZZ@> This function spawns a particle of the specific size attached to the
     /// character. For spell charging effects
 
-    int tTmp;
+    PRT_REF iprt;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = bfalse;
-    if ( ACTIVE_PRT( tTmp ) )
+    if ( ACTIVE_PRT( iprt ) )
     {
-        returncode = prt_set_size( PrtList.lst + tTmp, pstate->turn );
+        returncode = prt_set_size( PrtList.lst + iprt, pstate->turn );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4154,6 +4181,8 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
     // IfFacingTarget()
     /// @details ZZ@> This function proceeds if the character is more or less facing its
     /// target
+
+    Uint16 sTmp = 0;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4201,19 +4230,20 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     /// @details ZZ@> This function spawns a particle attached to the character, facing the
     /// same direction given by tmpturn
 
-    int tTmp;
+    PRT_REF iprt;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-    returncode = ACTIVE_PRT( tTmp );
+    returncode = ACTIVE_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4533,6 +4563,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
     /// Checks all 6 IDSZ types to make sure they match.
 
     int tTmp;
+    Uint16 sTmp = 0;
     cap_t * pcap_chr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4573,19 +4604,20 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 
     /// @details ZZ@> This function spawns a particle attached to the character's holder, or to the character if no holder
 
-    int tTmp;
+    PRT_REF iprt;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
-    tTmp = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, sTmp, pstate->distance, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, ichr, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-    returncode = ACTIVE_PRT( tTmp );
+    returncode = ACTIVE_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4726,15 +4758,17 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
     // IfTargetIsMounted()
     /// @details ZZ@> This function proceeds if the target is riding a mount
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
 
-    sTmp = ChrList.lst[pself->target].attachedto;
+    ichr = ChrList.lst[pself->target].attachedto;
 
-    if ( ACTIVE_CHR( sTmp ) )
+    if ( ACTIVE_CHR( ichr ) )
     {
-        returncode = ChrList.lst[sTmp].ismount;
+        returncode = ChrList.lst[ichr].ismount;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4855,13 +4889,15 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
     /// @details ZZ@> This function sets the target to whoever is blocking the given passage
     /// This function lets passage rectangles be used as event triggers
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = who_is_blocking_passage( pstate->argument, btrue, btrue, bfalse, bfalse, 0 );
+    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, btrue, btrue, bfalse, bfalse, 0 );
     returncode = bfalse;
-    if ( ACTIVE_CHR( sTmp ) )
+    if ( ACTIVE_CHR( ichr ) )
     {
-        pself->target = sTmp;
+        pself->target = ichr;
         returncode = btrue;
     }
 
@@ -4892,7 +4928,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     /// spawned by this character.
     /// Values are 8.8-bit fixed point
 
-    int iTmp;
+    ENC_REF iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4919,6 +4955,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function spawns a character of the same type at a specific location, failing if x,y,z is invalid
 
     fvec3_t   pos;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4926,28 +4963,28 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    sTmp = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, MAX_CHR );
+    ichr = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
 
-    if ( !ACTIVE_CHR( sTmp ) )
+    if ( !ACTIVE_CHR( ichr ) )
     {
-        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
     }
     else
     {
-        chr_t * pchild = ChrList.lst + sTmp;
+        chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
         if ( !pchild->safe_valid )
         {
-            chr_request_terminate( sTmp );
-            sTmp = MAX_CHR;
+            chr_request_terminate( ichr );
+            ichr = ( CHR_REF )MAX_CHR;
         }
         else
         {
-            pself->child = sTmp;
+            pself->child = ichr;
 
             pchild->iskursed   = pchr->iskursed;  /// @details BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -4958,7 +4995,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = ACTIVE_CHR( sTmp );
+    returncode = ACTIVE_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4973,6 +5010,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     /// AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE.
 
     fvec3_t   pos;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4980,10 +5018,10 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, MAX_CHR );
-    if ( !ACTIVE_CHR( sTmp ) )
+    ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
+    if ( !ACTIVE_CHR( ichr ) )
     {
-        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             cap_t * pcap = pro_get_pcap( pchr->iprofile );
 
@@ -4992,17 +5030,17 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = ChrList.lst + sTmp;
+        chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
         if ( !pchild->safe_valid )
         {
-            chr_request_terminate( sTmp );
-            sTmp = MAX_CHR;
+            chr_request_terminate( ichr );
+            ichr = ( CHR_REF )MAX_CHR;
         }
         else
         {
-            pself->child = sTmp;
+            pself->child = ichr;
 
             pchild->iskursed   = pchr->iskursed;  /// @details BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -5013,7 +5051,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = ACTIVE_CHR( sTmp );
+    returncode = ACTIVE_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5030,7 +5068,7 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    change_character_full( pself->target, pstate->argument, 0, ENC_LEAVE_ALL );
+    change_character_full( pself->target, ( PRO_REF )pstate->argument, 0, ENC_LEAVE_ALL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5059,26 +5097,27 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function spawns a particle at a specific x, y, z position,
     /// that will home in on the character's target
 
-    int tTmp;
+    PRT_REF iprt;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        tTmp = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+        iprt = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
-    returncode = ACTIVE_PRT( tTmp );
+    returncode = ACTIVE_PRT( iprt );
 
     if ( returncode )
     {
-        PrtList.lst[tTmp].target_ref = pself->target;
+        PrtList.lst[iprt].target_ref = pself->target;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5094,12 +5133,14 @@ Uint8 scr_CreateOrder( script_state_t * pstate, ai_state_t * pself )
     /// be issued as an order to teammates.  TranslateOrder will undo the
     /// compression
 
+    Uint16 sTmp = 0;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->target << 24;
-    sTmp |= (( pstate->x >> 6 ) & 1023 ) << 14;
-    sTmp |= (( pstate->y >> 6 ) & 1023 ) << 4;
-    sTmp |= ( pstate->argument & 15 );
+    sTmp = ( REF_TO_INT( pself->target ) & 0x00FF ) << 24;
+    sTmp |= (( pstate->x >> 6 ) & 0x03FF ) << 14;
+    sTmp |= (( pstate->y >> 6 ) & 0x03FF ) << 4;
+    sTmp |= ( pstate->argument & 0x000F );
     pstate->argument = sTmp;
 
     SCRIPT_FUNCTION_END();
@@ -5124,29 +5165,31 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     // UnkurseTargetInventory()
     /// @details ZZ@> This function unkurses all items held and in the pockets of the target
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
-    if ( ACTIVE_CHR( sTmp ) )
+    ichr = ChrList.lst[pself->target].holdingwhich[SLOT_LEFT];
+    if ( ACTIVE_CHR( ichr ) )
     {
-        ChrList.lst[sTmp].iskursed = bfalse;
+        ChrList.lst[ichr].iskursed = bfalse;
     }
 
-    sTmp = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
-    if ( ACTIVE_CHR( sTmp ) )
+    ichr = ChrList.lst[pself->target].holdingwhich[SLOT_RIGHT];
+    if ( ACTIVE_CHR( ichr ) )
     {
-        ChrList.lst[sTmp].iskursed = bfalse;
+        ChrList.lst[ichr].iskursed = bfalse;
     }
 
-    sTmp = ChrList.lst[pself->target].pack_next;
-    while ( sTmp != MAX_CHR )
+    ichr = ChrList.lst[pself->target].pack_next;
+    while ( ichr != MAX_CHR )
     {
-        if ( ACTIVE_CHR( sTmp ) )
+        if ( ACTIVE_CHR( ichr ) )
         {
-            ChrList.lst[sTmp].iskursed = bfalse;
+            ChrList.lst[ichr].iskursed = bfalse;
         }
 
-        sTmp = ChrList.lst[sTmp].pack_next;
+        ichr = ChrList.lst[ichr].pack_next;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5184,13 +5227,15 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     // RespawnTarget()
     /// @details ZZ@> This function respawns the target at its current location
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->target;
+    ichr = pself->target;
 
-    ChrList.lst[sTmp].pos_old = ChrList.lst[sTmp].pos;
-    respawn_character( sTmp );
-    ChrList.lst[sTmp].pos = ChrList.lst[sTmp].pos_old;
+    ChrList.lst[ichr].pos_old = ChrList.lst[ichr].pos;
+    respawn_character( ichr );
+    ChrList.lst[ichr].pos = ChrList.lst[ichr].pos_old;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5349,7 +5394,7 @@ Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_passage( pstate->argument, pstate->distance );
+    flash_passage(( PASS_REF )pstate->argument, pstate->distance );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5367,7 +5412,7 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _find_grid_in_passage( pstate->x, pstate->y, pstate->distance, pstate->argument, &( pstate->x ), &( pstate->y ) );
+    returncode = _find_grid_in_passage( pstate->x, pstate->y, pstate->distance, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5380,13 +5425,15 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
     /// left hand.
     /// Usage: Used mostly by enchants that target the item of the other hand
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    sTmp = pchr->attachedto;
-    if ( ACTIVE_CHR( sTmp ) )
+    ichr = pchr->attachedto;
+    if ( ACTIVE_CHR( ichr ) )
     {
-        returncode = ( ChrList.lst[sTmp].holdingwhich[SLOT_LEFT] == pself->index );
+        returncode = ( ChrList.lst[ichr].holdingwhich[SLOT_LEFT] == pself->index );
     }
 
     SCRIPT_FUNCTION_END();
@@ -5455,16 +5502,17 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
     /// Proceeds if the target was unknown
 
     cap_t * pcap;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    sTmp = pself->target;
-    if ( ChrList.lst[sTmp].ammomax != 0 )  ChrList.lst[sTmp].ammoknown = btrue;
-    if ( 0 == strcmp( "Blah", ChrList.lst[sTmp].Name ) )
+    ichr = pself->target;
+    if ( ChrList.lst[ichr].ammomax != 0 )  ChrList.lst[ichr].ammoknown = btrue;
+    if ( 0 == strcmp( "Blah", ChrList.lst[ichr].Name ) )
     {
-        returncode = !ChrList.lst[sTmp].nameknown;
-        ChrList.lst[sTmp].nameknown = btrue;
+        returncode = !ChrList.lst[ichr].nameknown;
+        ChrList.lst[ichr].nameknown = btrue;
     }
 
     pcap = chr_get_pcap( pself->target );
@@ -5601,7 +5649,7 @@ Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, pstate->argument );
+    switch_team( pself->index, ( TEAM_REF )pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5610,11 +5658,11 @@ Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetJoinTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // TargetJoinTeam( tmpargument = "team" )
-    /// @details ZZ@> This makes the Target join a Team specified in tmpargument (A = 0, 23 = Z, etc.)
+    /// @details ZZ@> This makes the Target join a Team specified in tmpargument (A = 0, 25 = Z, etc.)
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->target, pstate->argument );
+    switch_team( pself->target, ( TEAM_REF )pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5627,7 +5675,13 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PassageStack.lst[pstate->argument].music = NO_MUSIC;
+    returncode = bfalse;
+    if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
+    {
+        PASS_REF ipass = ( PASS_REF )pstate->argument;
+
+        PassageStack.lst[ipass].music = NO_MUSIC;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -5685,7 +5739,13 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PassageStack.lst[pstate->argument].music = pstate->distance;
+    returncode = bfalse;
+    if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
+    {
+        PASS_REF ipass = ( PASS_REF )pstate->argument;
+
+        PassageStack.lst[ipass].music = pstate->distance;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -5913,7 +5973,7 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
     // DisenchantAll()
     /// @details ZZ@> This function removes all enchantments in the game
 
-    int iTmp;
+    ENC_REF iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5953,7 +6013,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     volume = -distance;
     volume = volume<<VOLSHIFT;
     if(volume < VOLMIN) volume = VOLMIN;
-    iTmp = CapList[pro_get_icap(pchr->iprofile)].wavelist[pstate->argument];
+    iTmp = CapStack.lst[pro_get_icap(pchr->iprofile)].wavelist[pstate->argument];
     if(iTmp < numsound && iTmp >= 0 && soundon)
     {
     lpDSBuffer[iTmp]->SetVolume(volume);
@@ -5973,7 +6033,7 @@ Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    add_shop_passage( pself->index, pstate->argument );
+    add_shop_passage( pself->index, ( PASS_REF )pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6031,7 +6091,7 @@ Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, TEAM_EVIL );
+    switch_team( pself->index, ( TEAM_REF )TEAM_EVIL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6044,7 +6104,7 @@ Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, TEAM_NULL );
+    switch_team( pself->index, ( TEAM_REF )TEAM_NULL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6057,7 +6117,7 @@ Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    switch_team( pself->index, TEAM_GOOD );
+    switch_team( pself->index, ( TEAM_REF )TEAM_GOOD );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6083,13 +6143,15 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function finds a character who is both in the passage and who has
     /// an item with the given IDSZ
 
+    CHR_REF ichr;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = who_is_blocking_passage( pstate->argument, bfalse, bfalse, bfalse, btrue, pstate->distance );
+    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, bfalse, bfalse, bfalse, btrue, pstate->distance );
     returncode = bfalse;
-    if ( ACTIVE_CHR( sTmp ) )
+    if ( ACTIVE_CHR( ichr ) )
     {
-        pself->target = sTmp;
+        pself->target = ichr;
         returncode = btrue;
     }
 
@@ -6119,26 +6181,27 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     /// When the particle ends, a character is spawned at its final location.
     /// The character is the same type of whatever spawned the particle.
 
-    int tTmp;
+    PRT_REF iprt;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pself->index;
+    ichr = pself->index;
     if ( ACTIVE_CHR( pchr->attachedto ) )
     {
-        sTmp = pchr->attachedto;
+        ichr = pchr->attachedto;
     }
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        tTmp = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, MAX_CHR, 0, pchr->team, sTmp, TOTAL_MAX_PRT, 0, MAX_CHR );
+        iprt = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
-    returncode = ACTIVE_PRT( tTmp );
+    returncode = ACTIVE_PRT( iprt );
 
     if ( returncode )
     {
-        PrtList.lst[sTmp].spawncharacterstate = pstate->turn;
+        PrtList.lst[iprt].spawncharacterstate = pstate->turn;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6165,11 +6228,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     if ( NULL == pcap ) return bfalse;
 
     ppip = pro_get_ppip( pchr->iprofile, pcap->gopoofprt_pip );
-    if ( NULL == ppip && LOADED_PIP( pcap->gopoofprt_pip ) )
-    {
-        // ???just in calse pcap->gopoofprt_pip is supposed to be referencing a global particle???
-        ppip = PipStack.lst + pcap->gopoofprt_pip;
-    }
+    if ( NULL == ppip ) return bfalse;
 
     returncode = bfalse;
     if ( NULL != ppip )
@@ -6182,14 +6241,14 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         // set some values
         ppip->vel_hrz_pair.base     = pstate->x;
         ppip->spacing_hrz_pair.base = pstate->y;
-        ppip->damage.from         = FP8_TO_FLOAT( pstate->argument );
+        ppip->damage.from           = FP8_TO_FLOAT( pstate->argument );
 
         spawn_poof( pself->index, pchr->iprofile );
 
         // Restore the saved values
         ppip->vel_hrz_pair.base     = iTmp;
         ppip->spacing_hrz_pair.base = tTmp;
-        ppip->damage.from         = fTmp;
+        ppip->damage.from           = fTmp;
 
         returncode = btrue;
     }
@@ -6205,7 +6264,7 @@ Uint8 scr_GiveExperienceToGoodTeam( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_team_experience( TEAM_GOOD, pstate->argument, pstate->distance );
+    give_team_experience(( TEAM_REF )TEAM_GOOD, pstate->argument, pstate->distance );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6363,7 +6422,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     message_number = ppro->message_start + pstate->argument;
-    message_index  = MessageOffset.lst[message_number];
+    message_index  = MessageOffset.ary[message_number];
 
     ptext = message_buffer + message_index;
 
@@ -6459,6 +6518,8 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     /// @details ZF@> Proceeds if HitFromBehind, target has [DISA] skill and damage dealt is physical
     /// automatically fails if character has code of conduct
 
+    Uint16 sTmp = 0;
+
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
@@ -6513,15 +6574,17 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     // IfBeatQuestAllPlayers()
     /// @details ZF@> This function marks a IDSZ in the targets quest.txt as beaten
 
+    PLA_REF ipla;
+
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    for ( sTmp = 0; sTmp < MAX_PLAYER; sTmp++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        if ( !PlaList[sTmp].valid ) continue;
+        if ( !PlaStack.lst[ipla].valid ) continue;
 
-        ichr = PlaList[sTmp].index;
+        ichr = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( ichr ) ) continue;
 
         if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )
@@ -6583,18 +6646,18 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     /// @details ZF@> This function adds a quest idsz set in tmpargument into all local player's quest logs
     /// The quest level Is set to tmpdistance if the level Is not already higher or QUEST_BEATEN
 
-    int iTmp;
+    PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    for ( iTmp = 0; iTmp < MAX_PLAYER; iTmp++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
 
-        if ( !PlaList[iTmp].valid ) continue;
+        if ( !PlaStack.lst[ipla].valid ) continue;
 
-        ichr = PlaList[iTmp].index;
+        ichr = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( ichr ) ) continue;
 
         // Try to add it if not already there or beaten
@@ -6623,7 +6686,7 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        local_senseenemiesTeam = TEAM_MAX;
+        local_senseenemiesTeam = ( TEAM_REF )TEAM_MAX;
         local_senseenemiesID   = IDSZ_NONE;
     }
 
@@ -6678,6 +6741,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     /// AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE.
 
     fvec3_t   pos;
+    CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6685,10 +6749,10 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    sTmp = spawn_one_character( pos, pstate->argument, pchr->team, 0, FACE_NORTH, NULL, MAX_CHR );
-    if ( !ACTIVE_CHR( sTmp ) )
+    ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, FACE_NORTH, NULL, ( CHR_REF )MAX_CHR );
+    if ( !ACTIVE_CHR( ichr ) )
     {
-        if ( sTmp > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             cap_t * pcap = pro_get_pcap( pchr->iprofile );
 
@@ -6697,23 +6761,23 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = ChrList.lst + sTmp;
+        chr_t * pchild = ChrList.lst + ichr;
 
         Uint8 grip = CLIP( pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT );
 
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( inventory_add_item( sTmp, pself->target ) )
+            if ( inventory_add_item( ichr, pself->target ) )
             {
                 pchild->ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
-                scr_run_chr_script( sTmp );  // Empty the grabbed messages
+                scr_run_chr_script( ichr );  // Empty the grabbed messages
 
-                pchild->attachedto = MAX_CHR;  // Fix grab
+                pchild->attachedto = ( CHR_REF )MAX_CHR;  // Fix grab
 
                 //Set some AI values
-                pself->child = sTmp;
+                pself->child = ichr;
                 pchild->ai.passage = pself->passage;
                 pchild->ai.owner   = pself->owner;
             }
@@ -6721,8 +6785,8 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //No more room!
             else
             {
-                chr_request_terminate( sTmp );
-                sTmp = MAX_CHR;
+                chr_request_terminate( ichr );
+                ichr = ( CHR_REF )MAX_CHR;
             }
         }
         else if ( grip == ATTACH_LEFT || grip == ATTACH_RIGHT )
@@ -6731,13 +6795,13 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             {
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
-                attach_character_to_mount( sTmp, pself->target, grip_off );
+                attach_character_to_mount( ichr, pself->target, grip_off );
 
                 // Handle the "grabbed" messages
-                scr_run_chr_script( sTmp );
+                scr_run_chr_script( ichr );
 
                 //Set some AI values
-                pself->child = sTmp;
+                pself->child = ichr;
                 pchild->ai.passage = pself->passage;
                 pchild->ai.owner   = pself->owner;
             }
@@ -6745,8 +6809,8 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //Grip is already used
             else
             {
-                chr_request_terminate( sTmp );
-                sTmp = MAX_CHR;
+                chr_request_terminate( ichr );
+                ichr = ( CHR_REF )MAX_CHR;
             }
         }
         else
@@ -6757,13 +6821,13 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // technically this should never occur since we are limiting the attachment points above
             if ( !pchild->safe_valid )
             {
-                chr_request_terminate( sTmp );
-                sTmp = MAX_CHR;
+                chr_request_terminate( ichr );
+                ichr = ( CHR_REF )MAX_CHR;
             }
         }
     }
 
-    returncode = ACTIVE_CHR( sTmp );
+    returncode = ACTIVE_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6831,6 +6895,8 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetSpeech( tmpargument = "sound" )
     /// @details ZZ@> This function sets all of the RTS speech registers to tmpargument
+
+    Uint16 sTmp = 0;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7199,16 +7265,18 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
 {
     // SetTargetToNearestQuestID()
     /// @details ZF@> This function finds the NEAREST ( exact ) player who has the specified quest
+
     float  longdist = 0xFFFFFFFF;
+    PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
 
     //A special version of the get_chr() function
-    for ( sTmp = 0; sTmp < MAX_PLAYER; sTmp++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr_test = PlaList[sTmp].index;
+        CHR_REF ichr_test = PlaStack.lst[ipla].index;
         chr_t * ptst;
         int iTmp;
         fvec3_t   diff;
@@ -7243,7 +7311,7 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int passage, int *ptilex, int *ptiley )
+Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF by_reference passage, int *ptilex, int *ptiley )
 {
     /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
@@ -7285,7 +7353,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, int
 
             if ( img >= starttile && img < endtile )
             {
-                if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+                if ( object_is_in_passage(( PASS_REF )passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
                 {
                     // Remember where the hit occured.
                     *ptilex = pchr->pos.x;
@@ -7324,14 +7392,15 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 {
     /// @details ZZ@> This function appends a message to the end-module text
 
-    int read, message_offset, ichr;
+    int read, message_offset;
+    CHR_REF ichr;
 
     FUNCTION_BEGIN();
 
     if ( !LOADED_PRO( pchr->iprofile ) ) return bfalse;
 
     message_offset = ProList.lst[pchr->iprofile].message_start + message;
-    ichr           = GET_INDEX_PCHR( pchr );
+    ichr           = GET_REF_PCHR( pchr );
 
     if ( message_offset < MessageOffset.count )
     {
@@ -7339,7 +7408,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
         char * dst, * dst_end;
 
         // Copy the message_offset
-        read = MessageOffset.lst[message_offset];
+        read = MessageOffset.ary[message_offset];
 
         src     = message_buffer + read;
         src_end = message_buffer + MESSAGEBUFFERSIZE;
@@ -7358,7 +7427,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, const int passage, int *px1, int *py1 )
+Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, const PASS_REF by_reference passage, int *px1, int *py1 )
 {
     /// @details ZZ@> This function finds the next tile in the passage, x0 and y0
     ///    must be set first, and are set on a find.  Returns btrue or bfalse
@@ -7422,16 +7491,16 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 }
 
 //--------------------------------------------------------------------------------------------
-REF_T _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+CHR_REF _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
     ///     If max_dist is 0 then it searches without a max limit.
 
     float max_dist2;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return MAX_CHR;
+    if ( !ACTIVE_PCHR( pchr ) ) return ( CHR_REF )MAX_CHR;
 
-    if ( TARGET_NONE == target_type ) return MAX_CHR;
+    if ( TARGET_NONE == target_type ) return ( CHR_REF )MAX_CHR;
 
     max_dist2 = max_dist * max_dist;
 
@@ -7439,7 +7508,7 @@ REF_T _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, b
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _display_message( REF_T ichr, REF_T iprofile, int message, script_state_t * pstate )
+Uint8 _display_message( const CHR_REF by_reference ichr, const PRO_REF by_reference iprofile, int message, script_state_t * pstate )
 {
     /// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
 
@@ -7456,16 +7525,16 @@ Uint8 _display_message( REF_T ichr, REF_T iprofile, int message, script_state_t 
         char * dst, * dst_end;
 
         slot = DisplayMsg_get_free();
-        DisplayMsg.lst[slot].time = cfg.message_duration;
+        DisplayMsg.ary[slot].time = cfg.message_duration;
 
         // Copy the message_offset
-        read = MessageOffset.lst[message_offset];
+        read = MessageOffset.ary[message_offset];
 
         src     = message_buffer + read;
         src_end = message_buffer + MESSAGEBUFFERSIZE;
 
-        dst     = DisplayMsg.lst[slot].textdisplay;
-        dst_end = DisplayMsg.lst[slot].textdisplay + MESSAGESIZE - 1;
+        dst     = DisplayMsg.ary[slot].textdisplay;
+        dst_end = DisplayMsg.ary[slot].textdisplay + MESSAGESIZE - 1;
 
         expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
 
@@ -7483,6 +7552,6 @@ Uint8 _display_message( REF_T ichr, REF_T iprofile, int message, script_state_t 
 //    // tmpargument = GetSkillLevel()
 //    /// @details ZZ@> This function sets tmpargument to the shield profiency level of the Target
 //   SCRIPT_FUNCTION_BEGIN();
-//   pstate->argument = CapList[pchr->attachedto].shieldprofiency;
+//   pstate->argument = CapStack.lst[pchr->attachedto].shieldprofiency;
 //   SCRIPT_FUNCTION_END();
 // }

@@ -43,8 +43,8 @@ extern float ptex_hscale[2];
 #define CALCULATE_PRT_V0(IDX,CNT)  (((.05f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
 #define CALCULATE_PRT_V1(IDX,CNT)  (((.95f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
 
-int prt_get_texture_style( Uint32 itex );
-void prt_set_texture_params( Uint32 itex );
+int prt_get_texture_style( const TX_REF by_reference itex );
+void prt_set_texture_params( const TX_REF by_reference itex );
 
 //--------------------------------------------------------------------------------------------
 // Particle graphic data
@@ -56,8 +56,8 @@ struct s_prt_instance
 
     // basic info
     Uint8    type;               ///< particle type
-    Uint32   texture_ref;        ///< which texture
-    Uint32   image_ref;          ///< which texture image
+    TX_REF   texture_ref;        ///< which texture
+    Uint32   image_ref;          ///< which sub image within the texture?
     float    alpha;              ///< base alpha
     Uint8    light;              ///< base self lighting
 
@@ -90,9 +90,9 @@ struct s_prt_instance
 typedef struct s_prt_instance prt_instance_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( REF_T iprt );
-bool_t render_one_prt_trans( REF_T iprt );
-bool_t render_one_prt_ref( REF_T iprt );
+bool_t render_one_prt_solid( const PRT_REF by_reference iprt );
+bool_t render_one_prt_trans( const PRT_REF by_reference iprt );
+bool_t render_one_prt_ref( const PRT_REF by_reference iprt );
 
 void   render_prt( struct s_camera * pcam );
 void   render_prt_ref( struct s_camera * pcam );

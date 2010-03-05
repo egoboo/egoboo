@@ -30,73 +30,86 @@
 // FORWARD DECLARATIONS
 //--------------------------------------------------------------------------------------------
 
-INLINE CAP_REF pro_get_icap( PRO_REF iobj );
-INLINE MAD_REF pro_get_imad( PRO_REF iobj );
-INLINE EVE_REF pro_get_ieve( PRO_REF iobj );
-INLINE PIP_REF pro_get_ipip( PRO_REF iobj, int ipip );
-INLINE IDSZ    pro_get_idsz( PRO_REF iobj, int type );
+INLINE CAP_REF pro_get_icap( const PRO_REF by_reference iobj );
+INLINE MAD_REF pro_get_imad( const PRO_REF by_reference iobj );
+INLINE EVE_REF pro_get_ieve( const PRO_REF by_reference iobj );
+INLINE PIP_REF pro_get_ipip( const PRO_REF by_reference iobj, int ipip );
+INLINE IDSZ    pro_get_idsz( const PRO_REF by_reference iobj, int type );
 
-INLINE cap_t *     pro_get_pcap( PRO_REF iobj );
-INLINE mad_t *     pro_get_pmad( PRO_REF iobj );
-INLINE eve_t *     pro_get_peve( PRO_REF iobj );
-INLINE pip_t *     pro_get_ppip( PRO_REF iobj, int ipip );
-INLINE Mix_Chunk * pro_get_chunk( PRO_REF iobj, int index );
+INLINE cap_t *     pro_get_pcap( const PRO_REF by_reference iobj );
+INLINE mad_t *     pro_get_pmad( const PRO_REF by_reference iobj );
+INLINE eve_t *     pro_get_peve( const PRO_REF by_reference iobj );
+INLINE pip_t *     pro_get_ppip( const PRO_REF by_reference iobj, int pip_index );
+INLINE Mix_Chunk * pro_get_chunk( const PRO_REF by_reference iobj, int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE CAP_REF pro_get_icap( PRO_REF iobj )
+INLINE CAP_REF pro_get_icap( const PRO_REF by_reference iobj )
 {
     pro_t * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return MAX_CAP;
+    if ( !LOADED_PRO( iobj ) ) return ( CAP_REF )MAX_CAP;
     pobj = ProList.lst + iobj;
 
-    return LOADED_CAP( pobj->icap ) ? pobj->icap : MAX_CAP;
+    return LOADED_CAP( pobj->icap ) ? pobj->icap : ( CAP_REF )MAX_CAP;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE MAD_REF pro_get_imad( PRO_REF iobj )
+INLINE MAD_REF pro_get_imad( const PRO_REF by_reference iobj )
 {
     pro_t * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return MAX_MAD;
+    if ( !LOADED_PRO( iobj ) ) return ( MAD_REF )MAX_MAD;
     pobj = ProList.lst + iobj;
 
-    return LOADED_MAD( pobj->imad ) ? pobj->imad : MAX_MAD;
+    return LOADED_MAD( pobj->imad ) ? pobj->imad : ( MAD_REF )MAX_MAD;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE EVE_REF pro_get_ieve( PRO_REF iobj )
+INLINE EVE_REF pro_get_ieve( const PRO_REF by_reference iobj )
 {
     pro_t * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return MAX_EVE;
+    if ( !LOADED_PRO( iobj ) ) return ( EVE_REF )MAX_EVE;
     pobj = ProList.lst + iobj;
 
-    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : MAX_EVE;
+    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : ( EVE_REF )MAX_EVE;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE PIP_REF pro_get_ipip( PRO_REF iobj, int ipip )
+INLINE PIP_REF pro_get_ipip( const PRO_REF by_reference iobj, int pip_index )
 {
     pro_t * pobj;
-    PIP_REF pip_found;
+    PIP_REF found_pip, global_pip;
 
-    if ( !LOADED_PRO( iobj ) ) return MAX_PIP;
-    pobj = ProList.lst + iobj;
+    found_pip = ( PIP_REF )MAX_PIP;
 
-    // find the local pip if it exists
-    pip_found = MAX_PIP;
-    if ( ipip >= 0 && ipip < MAX_PIP_PER_PROFILE )
+    if ( !LOADED_PRO( iobj ) )
     {
-        pip_found = pobj->prtpip[ipip];
+        // check for a global pip
+        global_pip = pip_index;
+        if ( LOADED_PIP( global_pip ) )
+        {
+            found_pip = global_pip;
+        }
+    }
+    else
+    {
+        // this pip is relative to a certain object
+        pobj = ProList.lst + iobj;
+
+        // find the local pip if it exists
+        if ( pip_index < MAX_PIP_PER_PROFILE )
+        {
+            found_pip = pobj->prtpip[pip_index];
+        }
     }
 
-    return LOADED_PIP( pip_found ) ? pip_found : MAX_PIP;
+    return found_pip;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE IDSZ pro_get_idsz( PRO_REF iobj, int type )
+INLINE IDSZ pro_get_idsz( const PRO_REF by_reference iobj, int type )
 {
     cap_t * pcap;
 
@@ -109,7 +122,7 @@ INLINE IDSZ pro_get_idsz( PRO_REF iobj, int type )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE cap_t * pro_get_pcap( PRO_REF iobj )
+INLINE cap_t * pro_get_pcap( const PRO_REF by_reference iobj )
 {
     pro_t * pobj;
 
@@ -118,11 +131,11 @@ INLINE cap_t * pro_get_pcap( PRO_REF iobj )
 
     if ( !LOADED_CAP( pobj->icap ) ) return NULL;
 
-    return CapList + pobj->icap;
+    return CapStack.lst + pobj->icap;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE mad_t * pro_get_pmad( PRO_REF iobj )
+INLINE mad_t * pro_get_pmad( const PRO_REF by_reference iobj )
 {
     pro_t * pobj;
 
@@ -131,11 +144,11 @@ INLINE mad_t * pro_get_pmad( PRO_REF iobj )
 
     if ( !LOADED_MAD( pobj->imad ) ) return NULL;
 
-    return MadList + pobj->imad;
+    return MadStack.lst + pobj->imad;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE eve_t * pro_get_peve( PRO_REF iobj )
+INLINE eve_t * pro_get_peve( const PRO_REF by_reference iobj )
 {
     pro_t * pobj;
 
@@ -148,28 +161,40 @@ INLINE eve_t * pro_get_peve( PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE pip_t * pro_get_ppip( PRO_REF iobj, int ipip )
+INLINE pip_t * pro_get_ppip( const PRO_REF by_reference iobj, int pip_index )
 {
     pro_t * pobj;
-    PIP_REF found_pip;
+    PIP_REF global_pip, local_pip;
 
-    if ( !LOADED_PRO( iobj ) ) return NULL;
+    if ( !LOADED_PRO( iobj ) )
+    {
+        // check for a global pip
+        global_pip = pip_index;
+        if ( LOADED_PIP( global_pip ) )
+        {
+            return PipStack.lst + global_pip;
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
+    // this pip is relative to a certain object
     pobj = ProList.lst + iobj;
 
     // find the local pip if it exists
-    found_pip = MAX_PIP;
-    if ( ipip < MAX_PIP_PER_PROFILE )
+    local_pip = ( PIP_REF )MAX_PIP;
+    if ( pip_index < MAX_PIP_PER_PROFILE )
     {
-        found_pip = pobj->prtpip[ipip];
+        local_pip = pobj->prtpip[pip_index];
     }
 
-    if ( !LOADED_PIP( found_pip ) ) return NULL;
-
-    return PipStack.lst + found_pip;
+    return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : NULL;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE Mix_Chunk * pro_get_chunk( PRO_REF iobj, int index )
+INLINE Mix_Chunk * pro_get_chunk( const PRO_REF by_reference iobj, int index )
 {
     pro_t * pobj;
 

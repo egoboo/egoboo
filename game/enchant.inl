@@ -29,35 +29,35 @@
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS
 //--------------------------------------------------------------------------------------------
-INLINE PRO_REF   enc_get_ipro( ENC_REF ienc );
-INLINE pro_t   * enc_get_ppro( ENC_REF ienc );
+INLINE PRO_REF   enc_get_ipro( const ENC_REF by_reference ienc );
+INLINE pro_t   * enc_get_ppro( const ENC_REF by_reference ienc );
 
-INLINE CHR_REF   enc_get_iowner( ENC_REF ienc );
-INLINE chr_t   * enc_get_powner( ENC_REF ienc );
+INLINE CHR_REF   enc_get_iowner( const ENC_REF by_reference ienc );
+INLINE chr_t   * enc_get_powner( const ENC_REF by_reference ienc );
 
-INLINE EVE_REF   enc_get_ieve( ENC_REF ienc );
-INLINE eve_t   * enc_get_peve( ENC_REF ienc );
+INLINE EVE_REF   enc_get_ieve( const ENC_REF by_reference ienc );
+INLINE eve_t   * enc_get_peve( const ENC_REF by_reference ienc );
 
-INLINE IDSZ      enc_get_idszremove( ENC_REF ienc );
-INLINE bool_t    enc_is_removed( ENC_REF ienc, PRO_REF test_profile );
+INLINE IDSZ      enc_get_idszremove( const ENC_REF by_reference ienc );
+INLINE bool_t    enc_is_removed( const ENC_REF by_reference ienc, const PRO_REF by_reference test_profile );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-CHR_REF enc_get_iowner( ENC_REF ienc )
+CHR_REF enc_get_iowner( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return MAX_CHR;
+    if ( DEFINED_ENC( ienc ) ) return ( CHR_REF )MAX_CHR;
     penc = EncList.lst + ienc;
 
-    if ( !ACTIVE_CHR( penc->owner_ref ) ) return MAX_CHR;
+    if ( !ACTIVE_CHR( penc->owner_ref ) ) return ( CHR_REF )MAX_CHR;
 
     return penc->owner_ref;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * enc_get_powner( ENC_REF ienc )
+chr_t * enc_get_powner( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
@@ -70,20 +70,20 @@ chr_t * enc_get_powner( ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-EVE_REF enc_get_ieve( ENC_REF ienc )
+EVE_REF enc_get_ieve( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return MAX_EVE;
+    if ( DEFINED_ENC( ienc ) ) return ( EVE_REF )MAX_EVE;
     penc = EncList.lst + ienc;
 
-    if ( !LOADED_EVE( penc->eve_ref ) ) return MAX_EVE;
+    if ( !LOADED_EVE( penc->eve_ref ) ) return ( EVE_REF )MAX_EVE;
 
     return penc->eve_ref;
 }
 
 //--------------------------------------------------------------------------------------------
-eve_t * enc_get_peve( ENC_REF ienc )
+eve_t * enc_get_peve( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
@@ -96,20 +96,20 @@ eve_t * enc_get_peve( ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-PRO_REF  enc_get_ipro( ENC_REF ienc )
+PRO_REF  enc_get_ipro( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return MAX_PROFILE;
+    if ( DEFINED_ENC( ienc ) ) return ( PRO_REF )MAX_PROFILE;
     penc = EncList.lst + ienc;
 
-    if ( !LOADED_PRO( penc->profile_ref ) ) return MAX_PROFILE;
+    if ( !LOADED_PRO( penc->profile_ref ) ) return ( PRO_REF )MAX_PROFILE;
 
     return penc->profile_ref;
 }
 
 //--------------------------------------------------------------------------------------------
-pro_t * enc_get_ppro( ENC_REF ienc )
+pro_t * enc_get_ppro( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
@@ -122,7 +122,7 @@ pro_t * enc_get_ppro( ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-IDSZ enc_get_idszremove( ENC_REF ienc )
+IDSZ enc_get_idszremove( const ENC_REF by_reference ienc )
 {
     eve_t * peve = enc_get_peve( ienc );
     if ( NULL == peve ) return IDSZ_NONE;
@@ -131,7 +131,7 @@ IDSZ enc_get_idszremove( ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enc_is_removed( ENC_REF ienc, PRO_REF test_profile )
+bool_t enc_is_removed( const ENC_REF by_reference ienc, const PRO_REF by_reference test_profile )
 {
     IDSZ idsz_remove;
 

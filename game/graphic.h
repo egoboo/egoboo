@@ -87,8 +87,8 @@ enum e_color
 /// An element of the do-list, an all encompassing list of all objects to be drawn by the renderer
 struct s_do_list_data
 {
-    float  dist;
-    REF_T  chr;
+    float   dist;
+    CHR_REF chr;
 };
 typedef struct s_do_list_data do_list_data_t;
 
@@ -96,8 +96,9 @@ typedef struct s_do_list_data do_list_data_t;
 /// Structure for sorting both particles and characters based on their position from the camera
 struct s_obj_registry_entity
 {
-    REF_T  ichr, iprt;
-    float  dist;
+    CHR_REF ichr;
+    PRT_REF iprt;
+    float   dist;
 };
 typedef struct s_obj_registry_entity obj_registry_entity_t;
 
@@ -173,7 +174,9 @@ struct s_msg
 };
 typedef struct s_msg msg_t;
 
-DEFINE_STACK_EXTERN( msg_t, DisplayMsg, MAX_MESSAGE );
+DECLARE_STATIC_ARY_TYPE( DisplayMsgAry, msg_t, MAX_MESSAGE );
+
+DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 //--------------------------------------------------------------------------------------------
 /// camera optimization
@@ -249,10 +252,10 @@ struct s_billboard_data
     bool_t    valid;        ///< has the billboard data been initialized?
 
     Uint32    time;         ///< the time when the billboard will expire
-    int       tex_ref;      ///< our texture index
+    TX_REF    tex_ref;      ///< our texture index
     fvec3_t   pos;          ///< the position of the bottom-missle of the box
 
-    REF_T     ichr;         ///< the character we are attached to
+    CHR_REF   ichr;         ///< the character we are attached to
 
     GLXvector4f tint;       ///< a color to modulate the billboard's r,g,b, and a channels
     GLXvector4f tint_add;   ///< the change in tint per update
@@ -270,14 +273,14 @@ bool_t             billboard_data_free( billboard_data_t * pbb );
 bool_t             billboard_data_update( billboard_data_t * pbb );
 bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct Font *font, SDL_Color color, const char * format, ... );
 
-DEFINE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
+DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 void               BillboardList_init_all();
 void               BillboardList_update_all();
 void               BillboardList_free_all();
 size_t             BillboardList_get_free( Uint32 lifetime_secs );
-bool_t             BillboardList_free_one( REF_T ibb );
-billboard_data_t * BillboardList_get_ptr( REF_T ibb );
+bool_t             BillboardList_free_one( size_t ibb );
+billboard_data_t * BillboardList_get_ptr( const BBOARD_REF by_reference  ibb );
 
 #define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
 #define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
@@ -340,25 +343,25 @@ void   do_flip_pages();
 
 void   dolist_sort( struct s_camera * pcam, bool_t do_reflect );
 void   dolist_make( ego_mpd_t * pmesh );
-bool_t dolist_add_chr( ego_mpd_t * pmesh, REF_T ichr );
-bool_t dolist_add_prt( ego_mpd_t * pmesh, REF_T iprt );
+bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr );
+bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF by_reference iprt );
 
-void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
+void draw_one_icon( const TX_REF by_reference icontype, int x, int y, Uint8 sparkle );
 void draw_one_font( int fonttype, int x, int y );
 void draw_map_texture( int x, int y );
 int  draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks );
 int  draw_string( int x, int y, const char *format, ... );
 int  draw_wrap_string( const char *szText, int x, int y, int maxx );
-int  draw_status( REF_T character, int x, int y );
+int  draw_status( const CHR_REF by_reference character, int x, int y );
 void draw_text();
-void draw_one_character_icon( REF_T item, int x, int y, bool_t draw_ammo );
+void draw_one_character_icon( const CHR_REF by_reference item, int x, int y, bool_t draw_ammo );
 void draw_cursor();
 void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map );
 void draw_all_lines( struct s_camera * pcam );
 
 void   render_world( struct s_camera * pcam );
-void   render_shadow( REF_T character );
-void   render_bad_shadow( REF_T character );
+void   render_shadow( const CHR_REF by_reference character );
+void   render_bad_shadow( const CHR_REF by_reference character );
 void   render_scene( ego_mpd_t * pmesh, struct s_camera * pcam );
 bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
 bool_t render_aabb( aabb_t * pbbox );

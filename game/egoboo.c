@@ -252,7 +252,7 @@ int do_ego_proc_running( ego_process_t * eproc )
         {
             if ( !pchr->isplayer )
             {
-                kill_character( cnt, 511, bfalse );
+                kill_character( cnt, ( CHR_REF )511, bfalse );
             }
         }
         CHR_END_LOOP();

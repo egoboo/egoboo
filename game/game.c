@@ -135,9 +135,9 @@ char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
 // Status displays
-bool_t StatusList_on     = btrue;
-int    StatusList_count    = 0;
-REF_T  StatusList[MAXSTAT];
+bool_t  StatusList_on     = btrue;
+int     StatusList_count    = 0;
+CHR_REF StatusList[MAXSTAT];
 
 ego_mpd_t         * PMesh   = _mesh + 0;
 camera_t          * PCamera = _camera + 0;
@@ -155,8 +155,8 @@ weather_instance_t    weather;
 water_instance_t      water;
 fog_instance_t        fog;
 
-Uint8  local_senseenemiesTeam = TEAM_GOOD; // TEAM_MAX;
-IDSZ   local_senseenemiesID   = IDSZ_NONE;
+TEAM_REF local_senseenemiesTeam = ( TEAM_REF )TEAM_GOOD; // TEAM_MAX;
+IDSZ     local_senseenemiesID   = IDSZ_NONE;
 
 // declare the variables to do profiling
 
@@ -186,7 +186,7 @@ static void   activate_spawn_file();
 static void   activate_alliance_file();
 static void   load_all_global_objects();
 
-static bool_t chr_setup_apply( CHR_REF ichr, spawn_file_info_t *pinfo );
+static bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinfo );
 
 static void   game_reset_players();
 
@@ -204,16 +204,13 @@ static void   game_end_menu( menu_process_t * mproc );
 
 static void   do_game_hud();
 
-static void object_systems_begin( void );
-static void object_systems_end( void );
-
 // manage the game's vfs mount points
 static void   game_clear_vfs();
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void export_one_character( REF_T character, REF_T owner, int number, bool_t is_local )
+void export_one_character( const CHR_REF by_reference character, const CHR_REF by_reference owner, int number, bool_t is_local )
 {
     /// @details ZZ@> This function exports a character
 
@@ -367,7 +364,8 @@ void export_all_players( bool_t require_local )
     ///    PLAYERS directory
 
     bool_t is_local;
-    int cnt, number;
+    PLA_REF ipla;
+    int number;
     CHR_REF character, item;
 
     // Don't export if the module isn't running
@@ -377,14 +375,14 @@ void export_all_players( bool_t require_local )
     if ( !PMod->exportvalid ) return;
 
     // Check each player
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        is_local = ( 0 != PlaList[cnt].device.bits );
+        is_local = ( 0 != PlaStack.lst[ipla].device.bits );
         if ( require_local && !is_local ) continue;
-        if ( !PlaList[cnt].valid ) continue;
+        if ( !PlaStack.lst[ipla].valid ) continue;
 
         // Is it alive?
-        character = PlaList[cnt].index;
+        character = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( character ) || !ChrList.lst[character].alive ) continue;
 
         // Export the character
@@ -427,19 +425,21 @@ void log_madused( const char *savename )
     /// @details ZZ@> This is a debug function for checking model loads
 
     vfs_FILE* hFileWrite;
-    int cnt;
+    PRO_REF cnt;
 
     hFileWrite = vfs_openWrite( savename );
     if ( hFileWrite )
     {
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
         //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
-        cnt = 0;
 
-        while ( cnt < MAX_PROFILE )
+
+        for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
         {
-            vfs_printf( hFileWrite, "%3d %32s %s\n", cnt, CapList[cnt].classname, MadList[cnt].name );
-            cnt++;
+            CAP_REF icap = pro_get_icap( cnt );
+            MAD_REF imad = pro_get_imad( cnt );
+
+            vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
         }
 
         vfs_close( hFileWrite );
@@ -447,7 +447,7 @@ void log_madused( const char *savename )
 }
 
 //--------------------------------------------------------------------------------------------
-void statlist_add( REF_T character )
+void statlist_add( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function adds a status display to the do list
 
@@ -466,7 +466,7 @@ void statlist_add( REF_T character )
 }
 
 //--------------------------------------------------------------------------------------------
-void statlist_move_to_top( REF_T character )
+void statlist_move_to_top( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function puts the character on top of the StatusList
 
@@ -504,19 +504,19 @@ void statlist_sort()
 {
     /// @details ZZ@> This function puts all of the local players on top of the StatusList
 
-    int cnt;
+    PLA_REF ipla;
 
-    for ( cnt = 0; cnt < PlaList_count; cnt++ )
+    for ( ipla = 0; ipla < PlaStack.count; ipla++ )
     {
-        if ( PlaList[cnt].valid && PlaList[cnt].device.bits != INPUT_BITS_NONE )
+        if ( PlaStack.lst[ipla].valid && PlaStack.lst[ipla].device.bits != INPUT_BITS_NONE )
         {
-            statlist_move_to_top( PlaList[cnt].index );
+            statlist_move_to_top( PlaStack.lst[ipla].index );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_frame( REF_T character, int action, int frame, int lip )
+void chr_set_frame( const CHR_REF by_reference character, int action, int frame, int lip )
 {
     /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
@@ -568,7 +568,7 @@ void activate_alliance_file( /*const char *modname*/ )
 {
     /// @details ZZ@> This function reads the alliance file
     STRING szTemp;
-    Uint8 teama, teamb;
+    TEAM_REF teama, teamb;
     vfs_FILE *fileread;
 
     // Load the file
@@ -582,7 +582,7 @@ void activate_alliance_file( /*const char *modname*/ )
 
             fget_string( fileread, szTemp, SDL_arraysize( szTemp ) );
             teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
-            TeamList[teama].hatesteam[teamb] = bfalse;
+            TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = bfalse;
         }
 
         vfs_close( fileread );
@@ -628,8 +628,9 @@ int update_game()
     /// @details ZZ@> This function does several iterations of character movements and such
     ///    to keep the game in sync.
 
-    int cnt, tnc, numdead, numalive;
+    int tnc, numdead, numalive;
     int update_loop_cnt;
+    PLA_REF ipla;
 
     // Check for all local players being dead
     local_allpladead     = bfalse;
@@ -639,19 +640,19 @@ int update_game()
 
     numplayer = 0;
     numdead = numalive = 0;
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
         chr_t * pchr;
 
-        if ( !PlaList[cnt].valid ) continue;
+        if ( !PlaStack.lst[ipla].valid ) continue;
 
         // fix bad players
-        ichr = PlaList[cnt].index;
+        ichr = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( ichr ) )
         {
-            PlaList[cnt].index = MAX_CHR;
-            PlaList[cnt].valid = bfalse;
+            PlaStack.lst[ipla].index = ( CHR_REF )MAX_CHR;
+            PlaStack.lst[ipla].valid = bfalse;
             continue;
         }
         pchr = ChrList.lst + ichr;
@@ -660,7 +661,7 @@ int update_game()
         numplayer++;
 
         // only interested in local players
-        if ( INPUT_BITS_NONE == PlaList[cnt].device.bits ) continue;
+        if ( INPUT_BITS_NONE == PlaStack.lst[ipla].device.bits ) continue;
 
         if ( pchr->alive )
         {
@@ -694,14 +695,14 @@ int update_game()
     }
 
     // check for autorespawn
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
         chr_t * pchr;
 
-        if ( !PlaList[cnt].valid ) continue;
+        if ( !PlaStack.lst[ipla].valid ) continue;
 
-        ichr = PlaList[cnt].index;
+        ichr = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
@@ -1320,8 +1321,8 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-REF_T prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
-                        REF_T particletype, REF_T team, REF_T donttarget, REF_T oldtarget )
+CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
+                         const PIP_REF by_reference particletype, const TEAM_REF by_reference team, const CHR_REF by_reference donttarget, const CHR_REF by_reference oldtarget )
 {
     /// @details ZF@> This is the new improved targeting system for particles. Also includes distance in the Z direction.
 
@@ -1329,10 +1330,10 @@ REF_T prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 
     pip_t * ppip;
 
-    CHR_REF besttarget = MAX_CHR;
+    CHR_REF besttarget = ( CHR_REF )MAX_CHR;
     float  longdist2 = max_dist2;
 
-    if ( !LOADED_PIP( particletype ) ) return MAX_CHR;
+    if ( !LOADED_PIP( particletype ) ) return ( CHR_REF )MAX_CHR;
     ppip = PipStack.lst + particletype;
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
@@ -1353,7 +1354,7 @@ REF_T prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
         if ( cnt == oldtarget || cnt == donttarget ) continue;
 
         target_friend = ppip->onlydamagefriendly && team == chr_get_iteam( cnt );
-        target_enemy  = !ppip->onlydamagefriendly && TeamList[team].hatesteam[chr_get_iteam( cnt )];
+        target_enemy  = !ppip->onlydamagefriendly && team_hates_team( team, chr_get_iteam( cnt ) );
 
         if ( target_friend || target_enemy )
         {
@@ -1383,7 +1384,7 @@ REF_T prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, REF_T ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     bool_t retval;
 
@@ -1407,10 +1408,10 @@ bool_t check_target( chr_t * psrc, REF_T ichr_test, TARGET_TYPE target_type, boo
     if ( target_dead == ptst->alive ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
-    if ( !chr_can_see_object( GET_INDEX_PCHR( psrc ), ichr_test ) ) return bfalse;
+    if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
 
-    is_hated = TeamList[psrc->team].hatesteam[ptst->team];
-    hates_me = TeamList[ptst->team].hatesteam[psrc->team];
+    is_hated = team_hates_team( psrc->team, ptst->team );
+    hates_me = team_hates_team( ptst->team, psrc->team );
 
     // Target neutral items? (still target evil items, could be pets)
     if ( !target_items && (( ptst->isitem && is_hated ) || ptst->invictus ) ) return bfalse;
@@ -1450,7 +1451,7 @@ bool_t check_target( chr_t * psrc, REF_T ichr_test, TARGET_TYPE target_type, boo
 }
 
 //--------------------------------------------------------------------------------------------
-REF_T chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
 {
     /// @details BB@> this is the raw character targeting code, this is not throttled at all. You should call
     ///     scr_get_chr_target() if you are calling this function from the scripting system.
@@ -1458,7 +1459,7 @@ REF_T chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
     line_of_sight_info_t los_info;
 
     Uint16 cnt;
-    CHR_REF best_target = MAX_CHR;
+    CHR_REF best_target = ( CHR_REF )MAX_CHR;
     float  best_dist2;
 
     size_t search_list_size = 0;
@@ -1466,13 +1467,13 @@ REF_T chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
 
     if ( target_players )
     {
-        int i;
+        PLA_REF ipla;
 
-        for ( i = 0; i < MAX_PLAYER; i ++ )
+        for ( ipla = 0; ipla < MAX_PLAYER; ipla ++ )
         {
-            if ( !PlaList[i].valid || !ACTIVE_CHR( PlaList[i].index ) ) continue;
+            if ( !PlaStack.lst[ipla].valid || !ACTIVE_CHR( PlaStack.lst[ipla].index ) ) continue;
 
-            search_list[search_list_size] = PlaList[i].index;
+            search_list[search_list_size] = PlaStack.lst[ipla].index;
             search_list_size++;
         }
     }
@@ -1486,9 +1487,9 @@ REF_T chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
         CHR_END_LOOP();
     }
 
-    if ( TARGET_NONE == target_type ) return MAX_CHR;
+    if ( TARGET_NONE == target_type ) return ( CHR_REF )MAX_CHR;
 
-    if ( !ACTIVE_PCHR( psrc ) ) return MAX_CHR;
+    if ( !ACTIVE_PCHR( psrc ) ) return ( CHR_REF )MAX_CHR;
 
     // set the line-of-sight source
     los_info.x0         = psrc->pos.x;
@@ -1496,7 +1497,7 @@ REF_T chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
     los_info.z0         = psrc->pos.z + psrc->bump.height;
     los_info.stopped_by = psrc->stoppedby;
 
-    best_target = MAX_CHR;
+    best_target = ( CHR_REF )MAX_CHR;
     best_dist2  = max_dist2;
     for ( cnt = 0; cnt < search_list_size; cnt++ )
     {
@@ -1533,7 +1534,7 @@ REF_T chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, b
     }
 
     // make sure the target is valid
-    if ( !ACTIVE_CHR( best_target ) ) best_target = MAX_CHR;
+    if ( !ACTIVE_CHR( best_target ) ) best_target = ( CHR_REF )MAX_CHR;
 
     return best_target;
 }
@@ -1602,7 +1603,7 @@ void do_damage_tiles()
         if ( 0 == pchr->damagetime )
         {
             int actual_damage;
-            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, ( TEAM_REF )TEAM_DAMAGE, ( CHR_REF )MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
             pchr->damagetime = DAMAGETILETIME;
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
@@ -1619,7 +1620,7 @@ void update_pits()
 {
     /// @details ZZ@> This function kills any character in a deep pit...
 
-    Uint16 cnt;
+    PRT_REF iprt;
 
     if ( pits.kill || pits.teleport )
     {
@@ -1632,13 +1633,13 @@ void update_pits()
             clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
-            for ( cnt = 0; cnt < maxparticles; cnt++ )
+            for ( iprt = 0; iprt < maxparticles; iprt++ )
             {
-                if ( !ACTIVE_PRT( cnt ) || !LOADED_PIP( PrtList.lst[cnt].pip_ref ) ) continue;
+                if ( !ACTIVE_PRT( iprt ) || !LOADED_PIP( PrtList.lst[iprt].pip_ref ) ) continue;
 
-                if ( PrtList.lst[cnt].pos.z < PITDEPTH && prt_get_ppip( cnt )->endwater )
+                if ( PrtList.lst[iprt].pos.z < PITDEPTH && prt_get_ppip( iprt )->endwater )
                 {
-                    prt_request_terminate( cnt );
+                    prt_request_terminate( iprt );
                 }
             }
 
@@ -1648,12 +1649,12 @@ void update_pits()
                 // Is it a valid character?
                 if ( pit_chr->invictus || !pit_chr->alive ) continue;
                 if ( ACTIVE_CHR( pit_chr->attachedto ) || pit_chr->pack_ispacked ) continue;
-				
+
                 // Do we kill it?
                 if ( pits.kill && pit_chr->pos.z < PITDEPTH )
                 {
                     // Got one!
-                    kill_character( cnt, MAX_CHR, bfalse );
+                    kill_character( cnt, ( CHR_REF )MAX_CHR, bfalse );
                     pit_chr->vel.x = 0;
                     pit_chr->vel.y = 0;
 
@@ -1673,7 +1674,7 @@ void update_pits()
                     if ( !teleported )
                     {
                         // Kill it instead
-                        kill_character( cnt, MAX_CHR, bfalse );
+                        kill_character( cnt, ( CHR_REF )MAX_CHR, bfalse );
                     }
                     else
                     {
@@ -1693,7 +1694,7 @@ void update_pits()
                         }
 
                         // Do some damage (same as damage tile)
-                        damage_character( cnt, ATK_BEHIND, damagetile.amount, damagetile.type, TEAM_DAMAGE, chr_get_pai( cnt )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
+                        damage_character( cnt, ATK_BEHIND, damagetile.amount, damagetile.type, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( cnt )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
                     }
                 }
             }
@@ -1721,8 +1722,8 @@ void do_weather_spawn_particles()
             foundone = bfalse;
             for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
             {
-                weather.iplayer = ( weather.iplayer + 1 ) & ( MAX_PLAYER - 1 );
-                if ( PlaList[weather.iplayer].valid )
+                weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
+                if ( PlaStack.lst[weather.iplayer].valid )
                 {
                     foundone = btrue;
                     break;
@@ -1733,7 +1734,7 @@ void do_weather_spawn_particles()
             if ( foundone )
             {
                 // Yes, but is the character valid?
-                CHR_REF ichr = PlaList[weather.iplayer].index;
+                CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
                 if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack_ispacked )
                 {
                     // Yes, so spawn over that character
@@ -1775,11 +1776,11 @@ void do_weather_spawn_particles()
         }
     }
 
-    PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 16383;
+    PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 0x3FFF;
 }
 
 //--------------------------------------------------------------------------------------------
-void set_one_player_latch( REF_T player )
+void set_one_player_latch( const PLA_REF by_reference player )
 {
     /// @details ZZ@> This function converts input readings to latch settings, so players can
     ///    move around
@@ -1796,7 +1797,7 @@ void set_one_player_latch( REF_T player )
     input_device_t * pdevice;
 
     if ( INVALID_PLA( player ) ) return;
-    ppla = PlaList + player;
+    ppla = PlaStack.lst + player;
 
     pdevice = &( ppla->device );
 
@@ -2018,7 +2019,7 @@ void set_local_latches( void )
 {
     /// @details ZZ@> This function emulates AI thinkin' by setting latches from input devices
 
-    int cnt;
+    PLA_REF cnt;
 
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
@@ -2058,19 +2059,18 @@ void check_stats()
     // XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        CHR_REF docheat = MAX_CHR;
+        PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
         if ( SDLKEYDOWN( SDLK_1 ) )  docheat = 0;
         else if ( SDLKEYDOWN( SDLK_2 ) )  docheat = 1;
         else if ( SDLKEYDOWN( SDLK_3 ) )  docheat = 2;
         else if ( SDLKEYDOWN( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( ACTIVE_CHR( PlaList[docheat].index ) )
+        if ( ACTIVE_CHR( PlaStack.lst[docheat].index ) )
         {
             Uint32 xpgain;
-            cap_t * pcap;
-            chr_t * pchr = ChrList.lst + PlaList[docheat].index;
-            pcap = pro_get_pcap( pchr->iprofile );
+            chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
+            cap_t * pcap = pro_get_pcap( pchr->iprofile );
 
             //Give 10% of XP needed for next level
             xpgain = 0.1f * ( pcap->experience_forlevel[MIN( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
@@ -2082,17 +2082,18 @@ void check_stats()
     // LIFE CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_z ) )
     {
-        CHR_REF docheat = MAX_CHR;
+        PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
+
         if ( SDLKEYDOWN( SDLK_1 ) )  docheat = 0;
         else if ( SDLKEYDOWN( SDLK_2 ) )  docheat = 1;
         else if ( SDLKEYDOWN( SDLK_3 ) )  docheat = 2;
         else if ( SDLKEYDOWN( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( ACTIVE_CHR( PlaList[docheat].index ) )
+        if ( ACTIVE_CHR( PlaStack.lst[docheat].index ) )
         {
             cap_t * pcap;
-            chr_t * pchr = ChrList.lst + PlaList[docheat].index;
+            chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
             pcap = pro_get_pcap( pchr->iprofile );
 
             //Heal 1 life
@@ -2176,14 +2177,14 @@ void show_stat( int statindex )
             pcap = pro_get_pcap( pchr->iprofile );
 
             // Name
-            debug_printf( "=%s=", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
+            debug_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
 
             // Level and gender and class
             gender[0] = 0;
             if ( pchr->alive )
             {
                 int itmp;
-                char * gender_str;
+                const char * gender_str;
 
                 gender_str = "";
                 switch ( pchr->gender )
@@ -2289,7 +2290,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     ENC_REF enchant;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
-    ichr = GET_INDEX_PCHR( pchr );
+    ichr = GET_REF_PCHR( pchr );
 
     if ( NULL == pliferegen ) pliferegen = &local_liferegen;
     if ( NULL == pmanaregen ) pmanaregen = &local_manaregen;
@@ -2341,7 +2342,7 @@ void show_full_status( int statindex )
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
@@ -2368,7 +2369,7 @@ void show_magic_status( int statindex )
     /// @details ZF@> Displays special enchantment effects for the character
 
     CHR_REF character;
-    char * missile_str;
+    const char * missile_str;
     chr_t * pchr;
 
     if ( statindex >= StatusList_count ) return;
@@ -2382,7 +2383,7 @@ void show_magic_status( int statindex )
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_INDEX_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -2536,7 +2537,7 @@ void game_load_all_profiles( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_setup_apply( CHR_REF ichr, spawn_file_info_t *pinfo )
+bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinfo )
 {
     chr_t * pchr, *pparent;
 
@@ -2565,7 +2566,7 @@ bool_t chr_setup_apply( CHR_REF ichr, spawn_file_info_t *pinfo )
         pchr->attachedto = pinfo->parent;  // Make grab work
         scr_run_chr_script( ichr );  // Empty the grabbed messages
 
-        pchr->attachedto = MAX_CHR;  // Fix grab
+        pchr->attachedto = ( CHR_REF )MAX_CHR;  // Fix grab
 
     }
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
@@ -2626,8 +2627,12 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     ///               slot psp_info->slot
 
     STRING filename;
+    PRO_REF ipro;
 
-    if ( NULL == psp_info || LOADED_PRO( psp_info->slot ) ) return bfalse;
+    if ( NULL == psp_info || psp_info->slot < 0 ) return bfalse;
+
+    ipro = psp_info->slot;
+    if ( LOADED_PRO( ipro ) ) return bfalse;
 
     // trim any excess spaces off the psp_info->spawn_coment
     str_trim( psp_info->spawn_coment );
@@ -2658,11 +2663,14 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     int     tnc, local_index = 0;
     CHR_REF new_object;
     chr_t * pobject;
+    PRO_REF iprofile;
 
-    if ( NULL == psp_info || !psp_info->do_spawn ) return bfalse;
+    if ( NULL == psp_info || !psp_info->do_spawn || psp_info->slot < 0 ) return bfalse;
+
+    iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    new_object = spawn_one_character( psp_info->pos, psp_info->slot, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, MAX_CHR );
+    new_object = spawn_one_character( psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, ( CHR_REF )MAX_CHR );
     if ( !ACTIVE_CHR( new_object ) ) return bfalse;
 
     pobject = ChrList.lst + new_object;
@@ -2677,11 +2685,11 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
     chr_setup_apply( new_object, psp_info );
 
-    // Turn on PlaList_count input devices
+    // Turn on PlaStack.count input devices
     if ( psp_info->stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == PMod->importamount && PlaList_count < PMod->playeramount )
+        if ( 0 == PMod->importamount && PlaStack.count < PMod->playeramount )
         {
             // a single player module
 
@@ -2691,20 +2699,21 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( 0 == local_numlpla )
             {
                 // the first player gets everything
-                player_added = add_player( new_object, PlaList_count, ( Uint32 )( ~0 ) );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, ( Uint32 )( ~0 ) );
             }
             else
             {
+                PLA_REF ipla;
                 Uint32 bits;
 
                 // each new player steals an input device from the 1st player
                 bits = 1 << local_numlpla;
-                for ( tnc = 0; tnc < MAX_PLAYER; tnc++ )
+                for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
                 {
-                    PlaList[tnc].device.bits &= ~bits;
+                    PlaStack.lst[ipla].device.bits &= ~bits;
                 }
 
-                player_added = add_player( new_object, PlaList_count, bits );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, bits );
             }
 
             if ( startNewPlayer && player_added )
@@ -2713,7 +2722,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 pobject->nameknown = btrue;
             }
         }
-        else if ( PlaList_count < PMod->importamount && PlaList_count < PMod->playeramount && PlaList_count < local_import_count )
+        else if ( PlaStack.count < PMod->importamount && PlaStack.count < PMod->playeramount && PlaStack.count < local_import_count )
         {
             // A multiplayer module
 
@@ -2724,7 +2733,9 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             {
                 if ( pobject->iprofile <= import_data.max_slot && pobject->iprofile < MAX_PROFILE )
                 {
-                    if ( import_data.slot_lst[pobject->iprofile] == local_import_slot[tnc] )
+                    int islot = REF_TO_INT( pobject->iprofile );
+
+                    if ( import_data.slot_lst[islot] == local_import_slot[tnc] )
                     {
                         local_index = tnc;
                         break;
@@ -2735,13 +2746,13 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             player_added = bfalse;
             if ( -1 != local_index )
             {
-                // It's a local PlaList_count
-                player_added = add_player( new_object, PlaList_count, local_import_control[local_index] );
+                // It's a local PlaStack.count
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, local_import_control[local_index] );
             }
             else
             {
-                // It's a remote PlaList_count
-                player_added = add_player( new_object, PlaList_count, INPUT_BITS_NONE );
+                // It's a remote PlaStack.count
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, INPUT_BITS_NONE );
             }
 
             // if for SOME REASON your player is not identified, give him
@@ -2769,7 +2780,7 @@ void activate_spawn_file()
 {
     /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
 
-    char             *newloadname;
+    const char       *newloadname;
     vfs_FILE         *fileread;
     spawn_file_info_t sp_info;
 
@@ -2777,15 +2788,15 @@ void activate_spawn_file()
     newloadname = "mp_data/spawn.txt";
     fileread = vfs_openRead( newloadname );
 
-    PlaList_count = 0;
-    sp_info.parent = MAX_CHR;
+    PlaStack.count = 0;
+    sp_info.parent = ( CHR_REF )MAX_CHR;
     if ( NULL == fileread )
     {
         log_error( "Cannot read file: %s\n", newloadname );
     }
     else
     {
-        sp_info.parent = MAX_CHR;
+        sp_info.parent = ( CHR_REF )MAX_CHR;
         while ( spawn_file_scan( fileread, &sp_info ) )
         {
             int save_slot = sp_info.slot;
@@ -2798,13 +2809,14 @@ void activate_spawn_file()
             }
 
             // If nothing is in that slot, try to load it
-            if ( !LOADED_PRO( sp_info.slot ) )
+            if ( sp_info.slot >= 0 && !LOADED_PRO(( PRO_REF )sp_info.slot ) )
             {
                 activate_spawn_file_load_object( &sp_info );
             }
 
+
             // do we have a valid profile, yet?
-            if ( !LOADED_PRO( sp_info.slot ) )
+            if ( sp_info.slot >= 0 && !LOADED_PRO(( PRO_REF )sp_info.slot ) )
             {
                 // no, give a warning if it is useful
                 if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
@@ -2974,7 +2986,7 @@ game_load_module_data_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-void disaffirm_attached_particles( REF_T character )
+void disaffirm_attached_particles( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function makes sure a character has no attached particles
 
@@ -2998,7 +3010,7 @@ void disaffirm_attached_particles( REF_T character )
 }
 
 //--------------------------------------------------------------------------------------------
-int number_of_attached_particles( REF_T character )
+int number_of_attached_particles( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function returns the number of particles attached to the given character
 
@@ -3017,7 +3029,7 @@ int number_of_attached_particles( REF_T character )
 }
 
 //--------------------------------------------------------------------------------------------
-int reaffirm_attached_particles( REF_T character )
+int reaffirm_attached_particles( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function makes sure a character has all of it's particles
 
@@ -3042,7 +3054,7 @@ int reaffirm_attached_particles( REF_T character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, TOTAL_MAX_PRT, number_attached, MAX_CHR );
+        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
         if ( ACTIVE_PRT( particle ) )
         {
             place_particle_at_vertex( particle, character, PrtList.lst[particle].vrt_off );
@@ -3197,9 +3209,9 @@ bool_t game_update_imports()
     ///    and also copies them into the imports dir to prepare for the next module
 
     bool_t is_local;
-    int cnt, tnc, j;
+    int tnc, j;
     CHR_REF character;
-    PLA_REF player;
+    PLA_REF player, ipla;
     STRING srcPlayer, srcDir, destDir;
 
     // do the normal export to save all the player settings
@@ -3217,15 +3229,17 @@ bool_t game_update_imports()
     vfs_mkdir( "/import" );
 
     // export all of the players directly from memory straight to the "import" dir
-    for ( player = 0, cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( player = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        if ( !PlaList[cnt].valid ) continue;
+        size_t player_idx;
+
+        if ( !PlaStack.lst[ipla].valid ) continue;
 
         // Is it alive?
-        character = PlaList[cnt].index;
+        character = PlaStack.lst[ipla].index;
         if ( !ACTIVE_CHR( character ) ) continue;
 
-        is_local = ( INPUT_BITS_NONE != PlaList[cnt].device.bits );
+        is_local = ( INPUT_BITS_NONE != PlaStack.lst[ipla].device.bits );
 
         // find the saved copy of the players that are in memory right now
         for ( tnc = 0; tnc < loadplayer_count; tnc++ )
@@ -3244,8 +3258,9 @@ bool_t game_update_imports()
 
         // grab the controls from the currently loaded players
         // calculate the slot from the current player count
-        local_import_control[player] = PlaList[cnt].device.bits;
-        local_import_slot[player]    = player * MAXIMPORTPERPLAYER;
+        player_idx = REF_TO_INT( player );
+        local_import_control[player_idx] = PlaStack.lst[ipla].device.bits;
+        local_import_slot[player_idx]    = REF_TO_INT( player ) * MAXIMPORTPERPLAYER;
         player++;
 
         // Copy the character to the import directory
@@ -3331,15 +3346,15 @@ void attach_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_player( CHR_REF character, REF_T player, Uint32 device_bits )
+bool_t add_player( const CHR_REF by_reference character, const PLA_REF by_reference player, Uint32 device_bits )
 {
     /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
     bool_t retval = bfalse;
 
-    if ( VALID_PLA_RANGE( player ) && !PlaList[player].valid )
+    if ( VALID_PLA_RANGE( player ) && !PlaStack.lst[player].valid )
     {
-        player_t * ppla = PlaList + player;
+        player_t * ppla = PlaStack.lst + player;
 
         player_init( ppla );
 
@@ -3358,7 +3373,7 @@ bool_t add_player( CHR_REF character, REF_T player, Uint32 device_bits )
             camera_reset_target( PCamera, PMesh );
         }
 
-        PlaList_count++;
+        PlaStack.count++;
 
         retval = btrue;
     }
@@ -3573,13 +3588,13 @@ void reset_end_text()
     endtext_carat = snprintf( endtext, SDL_arraysize( endtext ), "The game has ended..." );
 
     /*
-    if ( PlaList_count > 1 )
+    if ( PlaStack.count > 1 )
     {
         endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "Sadly, they were never heard from again..." );
     }
     else
     {
-        if ( PlaList_count == 0 )
+        if ( PlaStack.count == 0 )
         {
             // No players???
             endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
@@ -3596,7 +3611,7 @@ void reset_end_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void expand_escape_codes( REF_T ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
+void expand_escape_codes( const CHR_REF by_reference ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
 {
     int    cnt;
     STRING szTmp;
@@ -3896,7 +3911,7 @@ bool_t game_choose_module( int imod, int seed )
 
     retval = game_module_setup( PMod, mnu_ModList_get_base( imod ), mnu_ModList_get_name( imod ), seed );
 
-    if( retval )
+    if ( retval )
     {
         // give everyone virtual access to the game directories
         game_setup_vfs( pickedmodule_name );
@@ -4588,7 +4603,7 @@ Uint8 get_local_light( int light )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_drop( REF_T idropper, REF_T iitem )
+bool_t do_shop_drop( const CHR_REF by_reference idropper, const CHR_REF by_reference iitem )
 {
     chr_t * pdropper, * pitem;
     bool_t inshop;
@@ -4645,7 +4660,7 @@ bool_t do_shop_drop( REF_T idropper, REF_T iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_buy( REF_T ipicker, REF_T iitem )
+bool_t do_shop_buy( const CHR_REF by_reference ipicker, const CHR_REF by_reference iitem )
 {
     bool_t can_grab, can_pay, in_shop;
     int price;
@@ -4729,7 +4744,7 @@ bool_t do_shop_buy( REF_T ipicker, REF_T iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_steal( REF_T ithief, REF_T iitem )
+bool_t do_shop_steal( const CHR_REF by_reference ithief, const CHR_REF by_reference iitem )
 {
     // Pets can try to steal in addition to invisible characters
 
@@ -4777,7 +4792,7 @@ bool_t do_shop_steal( REF_T ithief, REF_T iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_item_pickup( REF_T ichr, REF_T iitem )
+bool_t do_item_pickup( const CHR_REF by_reference ichr, const CHR_REF by_reference iitem )
 {
     bool_t can_grab;
     bool_t is_invis, can_steal, in_shop;
@@ -5024,7 +5039,7 @@ egoboo_rv move_water( water_instance_t * pwater )
 }
 
 //--------------------------------------------------------------------------------------------
-void disenchant_character( REF_T cnt )
+void disenchant_character( const CHR_REF by_reference cnt )
 {
     /// @details ZZ@> This function removes all enchantments from a character
 

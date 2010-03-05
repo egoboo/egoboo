@@ -41,13 +41,13 @@ struct s_obj_BSP;
 struct s_CoNode
 {
     // the "colliding" objects
-    REF_T  chra;
-    REF_T  prta;
+    CHR_REF chra;
+    PRT_REF prta;
 
     // the "collided with" objects
-    REF_T  chrb;
-    REF_T  prtb;
-    Uint32 tileb;
+    CHR_REF chrb;
+    PRT_REF prtb;
+    Uint32  tileb;
 
     // some information about the estimated collision
     float    tmin, tmax;
@@ -61,11 +61,11 @@ int        CoNode_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 // a template-like definition of a dynamically allocated array of CoNode_t elements
-DEFINE_ARY( CoNode_ary, CoNode_t );
+DECLARE_DYNAMIC_ARY( CoNode_ary, CoNode_t );
 
 //--------------------------------------------------------------------------------------------
 // a template-like definition of a dynamically allocated array of hash_node_t elements
-DEFINE_ARY( HashNode_ary, hash_node_t );
+DECLARE_DYNAMIC_ARY( HashNode_ary, hash_node_t );
 
 //--------------------------------------------------------------------------------------------
 /// a useful re-typing of the CHashList_t, in case we need to add more variables or functionality later

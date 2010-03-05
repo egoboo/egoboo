@@ -63,9 +63,8 @@ static const char * globalparsename = NULL;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-DECLARE_STACK( ACCESS_TYPE_NONE, opcode_data_t, OpList );
-
-DECLARE_STACK( ACCESS_TYPE_NONE, script_storage_info_t, AisStorage );
+INSTANTIATE_STATIC_ARY( OpListAry, OpList );
+INSTANTIATE_STATIC_ARY( AisStorageAry, AisStorage );
 
 int    AisCompiled_offset = 0;
 Uint32 AisCompiled_buffer[AISMAXCOMPILESIZE];
@@ -821,15 +820,15 @@ int parse_token( int read )
 
     for ( cnt = 0; cnt < OpList.count; cnt++ )
     {
-        if ( 0 == strncmp( Token.cWord, OpList.lst[cnt].cName, MAXCODENAMESIZE ) )
+        if ( 0 == strncmp( Token.cWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
         {
             break;
         }
     }
     if ( cnt < OpList.count )
     {
-        Token.iValue = OpList.lst[cnt].iValue;
-        Token.cType  = OpList.lst[cnt].cType;
+        Token.iValue = OpList.ary[cnt].iValue;
+        Token.cType  = OpList.ary[cnt].cType;
         Token.iIndex = cnt;
     }
     else if ( 0 == strcmp( Token.cWord, "=" ) )
@@ -1070,8 +1069,8 @@ void parse_jumps( int ainumber )
     int index, index_end;
     Uint32 value, iTmp;
 
-    index     = AisStorage.lst[ainumber].iStartPosition;
-    index_end = AisStorage.lst[ainumber].iEndPosition;
+    index     = AisStorage.ary[ainumber].iStartPosition;
+    index_end = AisStorage.ary[ainumber].iEndPosition;
 
     value = AisCompiled_buffer[index];
     while ( index < index_end )
@@ -1127,9 +1126,9 @@ void get_code( int read )
 
     sscanf(( char* )( cLoadBuffer + read ), "%c%d%255s", &cTmp, &iTmp, sTmp );
 
-    strncpy( OpList.lst[OpList.count].cName, sTmp, SDL_arraysize( OpList.lst[OpList.count].cName ) );
-    OpList.lst[OpList.count].cType  = toupper( cTmp );
-    OpList.lst[OpList.count].iValue = iTmp;
+    strncpy( OpList.ary[OpList.count].cName, sTmp, SDL_arraysize( OpList.ary[OpList.count].cName ) );
+    OpList.ary[OpList.count].cType  = toupper( cTmp );
+    OpList.ary[OpList.count].iValue = iTmp;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1176,7 +1175,7 @@ int load_ai_script( const char *loadname )
     {
         log_debug( "I am missing a AI script (%s)\n", loadname );
         log_message( "       Using the default AI script instead (basicdat" SLASH_STR "script.txt)\n" );
-        return 0;			//0 == default AI script
+        return 0;           //0 == default AI script
     }
     if ( AisStorage.count >= MAX_AI )
     {
@@ -1196,19 +1195,19 @@ int load_ai_script( const char *loadname )
     }
 
     // save the filename for error logging
-    strncpy( AisStorage.lst[AisStorage.count].szName, loadname, sizeof( STRING ) );
+    strncpy( AisStorage.ary[AisStorage.count].szName, loadname, sizeof( STRING ) );
     globalparsename = loadname;
 
     // initialize the start and end position
-    AisStorage.lst[AisStorage.count].iStartPosition = AisCompiled_offset;
-    AisStorage.lst[AisStorage.count].iEndPosition   = AisCompiled_offset;
+    AisStorage.ary[AisStorage.count].iStartPosition = AisCompiled_offset;
+    AisStorage.ary[AisStorage.count].iEndPosition   = AisCompiled_offset;
 
     // parse/compile the scripts
     // parse_null_terminate_comments();
     parse_line_by_line();
 
     // set the end position of the script
-    AisStorage.lst[AisStorage.count].iEndPosition = AisCompiled_offset;
+    AisStorage.ary[AisStorage.count].iEndPosition = AisCompiled_offset;
 
     // determine the correct jumps
     parse_jumps( AisStorage.count );

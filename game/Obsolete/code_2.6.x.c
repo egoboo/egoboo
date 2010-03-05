@@ -4429,8 +4429,8 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 // from game.c - 2010-01-25
 //--------------------------------------------------------------------------------------------
 Uint8 find_target_in_block( int x, int y, float chrx, float chry, FACING_T facing,
-                           bool_t onlyfriends, Uint8 anyone, Uint8 team,
-                           Uint16 donttarget, Uint16 oldtarget )
+                            bool_t onlyfriends, Uint8 anyone, Uint8 team,
+                            Uint16 donttarget, Uint16 oldtarget )
 {
     // @details ZZ@> This function helps find a target, returning btrue if it found a decent target
 
@@ -4444,63 +4444,63 @@ Uint8 find_target_in_block( int x, int y, float chrx, float chry, FACING_T facin
     returncode = bfalse;
 
     Current fanblock
-        if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+    if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+    {
+        fanblock = mesh_get_block_int( PMesh, x, y );
+
+        enemies = bfalse;
+        if ( !onlyfriends ) enemies = btrue;
+
+        charb = bumplist[fanblock].chr;
+        cnt = 0;
+        while ( cnt < bumplist[fanblock].chrnum )
         {
-            fanblock = mesh_get_block_int(PMesh, x,y);
-
-            enemies = bfalse;
-            if ( !onlyfriends ) enemies = btrue;
-
-            charb = bumplist[fanblock].chr;
-            cnt = 0;
-            while ( cnt < bumplist[fanblock].chrnum )
+            if ( ChrList.lst[charb].alive && !ChrList.lst[charb].invictus && charb != donttarget && charb != oldtarget )
             {
-                if ( ChrList.lst[charb].alive && !ChrList.lst[charb].invictus && charb != donttarget && charb != oldtarget )
+                if ( anyone || ( chr_get_iteam( charb ) == team && onlyfriends ) || ( TeamList[team].hatesteam[chr_get_iteam( charb )] && enemies ) )
                 {
-                    if ( anyone || ( chr_get_iteam(charb) == team && onlyfriends ) || ( TeamList[team].hatesteam[chr_get_iteam(charb)] && enemies ) )
+                    distance = ABS( ChrList.lst[charb].pos.x - chrx ) + ABS( ChrList.lst[charb].pos.y - chry );
+                    if ( distance < globestdistance )
                     {
-                        distance = ABS( ChrList.lst[charb].pos.x - chrx ) + ABS( ChrList.lst[charb].pos.y - chry );
-                        if ( distance < globestdistance )
+                        angle = vec_to_facing( ChrList.lst[charb].pos.x - chrx , ChrList.lst[charb].pos.y - chry );
+                        angle = facing - angle;
+                        if ( angle < globestangle || angle > ( 0x00010000 - globestangle ) )
                         {
-                            angle = vec_to_facing( ChrList.lst[charb].pos.x - chrx , ChrList.lst[charb].pos.y - chry );
-                            angle = facing - angle;
-                            if ( angle < globestangle || angle > ( 0x00010000 - globestangle ) )
-                            {
-                                returncode = btrue;
-                                globesttarget = charb;
-                                globestdistance = distance;
-                                glouseangle = angle;
-                                if ( angle  > 32767 )
-                                    globestangle = -angle;
-                                else
-                                    globestangle = angle;
-                            }
+                            returncode = btrue;
+                            globesttarget = charb;
+                            globestdistance = distance;
+                            glouseangle = angle;
+                            if ( angle  > 32767 )
+                                globestangle = -angle;
+                            else
+                                globestangle = angle;
                         }
                     }
                 }
-                charb = ChrList.lst[charb].bumplist_next;
-                cnt++;
             }
+            charb = ChrList.lst[charb].bumplist_next;
+            cnt++;
         }
-        return returncode;
+    }
+    return returncode;
 }
 
 //--------------------------------------------------------------------------------------------
 Uint16 find_target( float chrx, float chry, Uint16 facing,
-                   Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
-                   Uint8 team, Uint16 donttarget, Uint16 oldtarget )
+                    Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
+                    Uint8 team, Uint16 donttarget, Uint16 oldtarget )
 {
     This function finds the best target for the given parameters
-        Uint8 done;
-    int x, y;
+    Uint8 done;
+int x, y;
 
-    x = chrx;
-    y = chry;
-    x = x >> BLOCK_BITS;
-    y = y >> BLOCK_BITS;
-    globestdistance = 9999;
-    globestangle = targetangle;
-    done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+x = chrx;
+y = chry;
+x = x >> BLOCK_BITS;
+y = y >> BLOCK_BITS;
+globestdistance = 9999;
+globestangle = targetangle;
+done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
     done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
     done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
     done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );

@@ -55,20 +55,18 @@ enum e_global_tx_type
 //--------------------------------------------------------------------------------------------
 #define TRANSCOLOR                      0           ///< Color index of the transparent color in an 8-bit image, or the rgb components of the transparent color in a 24-bit image
 
-#define TEXTURE_COUNT   (2*(MAX_TEXTURE + MAX_ICON))
-#define INVALID_TEXTURE TEXTURE_COUNT
-
-DECLARE_REF( TX_REF );
+#define TX_TEXTURE_COUNT   (2*(MAX_TEXTURE + MAX_ICON))
+#define INVALID_TX_TEXTURE TX_TEXTURE_COUNT
 
 /// declare special arrays of textures
-DEFINE_LIST_EXTERN( oglx_texture, TxTexture, TEXTURE_COUNT );
+DECLARE_LIST_EXTERN( oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void           TxTexture_init_all();
 void           TxTexture_delete_all();
 void           TxTexture_release_all();
-size_t         TxTexture_get_free( int itex );
-bool_t         TxTexture_free_one( int itex );
-int            TxTexture_load_one( const char *filename, int itex_src, Uint32 key );
-oglx_texture * TxTexture_get_ptr( int itex );
+TX_REF         TxTexture_get_free( const TX_REF by_reference itex );
+bool_t         TxTexture_free_one( const TX_REF by_reference  itex );
+TX_REF         TxTexture_load_one( const char *filename, const TX_REF by_reference  itex_src, Uint32 key );
+oglx_texture_t * TxTexture_get_ptr( const TX_REF by_reference itex );

@@ -28,11 +28,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-IMPLEMENT_ARY( BSP_leaf_ary, BSP_leaf_t );
-IMPLEMENT_ARY( BSP_leaf_pary, BSP_leaf_t * );
+IMPLEMENT_DYNAMIC_ARY( BSP_leaf_ary, BSP_leaf_t );
+IMPLEMENT_DYNAMIC_ARY( BSP_leaf_pary, BSP_leaf_t * );
 
-IMPLEMENT_ARY( BSP_branch_ary, BSP_branch_t );
-IMPLEMENT_ARY( BSP_branch_pary, BSP_branch_t * );
+IMPLEMENT_DYNAMIC_ARY( BSP_branch_ary, BSP_branch_t );
+IMPLEMENT_DYNAMIC_ARY( BSP_branch_pary, BSP_branch_t * );
 
 //--------------------------------------------------------------------------------------------
 // private functions
@@ -1014,7 +1014,7 @@ BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int ind
     BSP_branch_t * pbranch;
 
     if (( NULL == t ) || ( NULL == B ) ) return NULL;
-    if ( index < 0 || index > ( int )B->child_count ) return NULL;
+    if ( index < 0 || ( signed )index > ( signed )B->child_count ) return NULL;
 
     // grab any existing value
     pbranch = B->child_lst[index];
@@ -1048,7 +1048,7 @@ bool_t BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int in
     bool_t retval;
 
     if (( NULL == t ) || ( NULL == B ) || ( NULL == n ) ) return bfalse;
-    if ( index > ( int )B->child_count ) return bfalse;
+    if (( signed )index > ( signed )B->child_count ) return bfalse;
 
     if ( index >= 0 && NULL != B->child_lst[index] )
     {
