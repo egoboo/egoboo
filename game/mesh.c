@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file mesh.c
-/// @brief Functions for creating, reading, and writing egoboo's .mpd mesh file
+/// @brief Functions for creating, reading, and writing Egoboo's .mpd mesh file
 /// @details
 
 #include "mesh.inl"
@@ -501,7 +501,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
         tile_dictionary_load( "mp_data/fans.txt", tile_dict, MAXMESHTYPE );
         pmpd = mpd_load( vfs_resolveReadFilename( "mp_data/level.mpd" ), &local_mpd );
 
-        // convert it into a convenient version for egoboo
+        // convert it into a convenient version for Egoboo
         if ( !mesh_convert( pmesh, pmpd ) )
         {
             pmesh = NULL;

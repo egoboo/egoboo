@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file file_formats/template.c
-/// @brief Functions output egoboo's custom text file types using templates in /basicdat/templates/*.txt
+/// @brief Functions output Egoboo's custom text file types using templates in /basicdat/templates/*.txt
 /// @details
 
 #include "template.h"

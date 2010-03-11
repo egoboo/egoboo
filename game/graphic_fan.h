@@ -41,4 +41,4 @@ void render_water_fan( struct s_ego_mpd * pmesh, Uint32 fan, Uint8 layer );
 
 void animate_tiles( void );
 
-void   do_grid_dynalight( struct s_ego_mpd * pmesh, struct s_camera * pcam );
+void   do_grid_lighting( struct s_ego_mpd * pmesh, struct s_camera * pcam );

@@ -404,16 +404,17 @@ void export_all_players( bool_t require_local )
 
         // Export the inventory
         number = 0;
-        for ( item = ChrList.lst[character].pack_next;
-              number < MAXINVENTORY && item != MAX_CHR;
-              item = ChrList.lst[item].pack_next )
+        PACK_BEGIN_LOOP( item, ChrList.lst[character].pack.next )
         {
+            if( number >= MAXINVENTORY ) break;
+
             if ( ChrList.lst[item].isitem )
             {
                 export_one_character( item, character, number + 2, is_local );
                 number++;
             }
         }
+        PACK_END_LOOP( item );
     }
 
 }
@@ -432,7 +433,6 @@ void log_madused( const char *savename )
     {
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
         //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
-
 
         for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
         {
@@ -1402,7 +1402,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_
     if ( target_players && !ptst->isplayer ) return bfalse;
 
     // Skip held objects and self
-    if ( psrc == ptst || ACTIVE_CHR( ptst->attachedto ) || ptst->pack_ispacked ) return bfalse;
+    if ( psrc == ptst || ACTIVE_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
 
     // Either only target dead stuff or alive stuff
     if ( target_dead == ptst->alive ) return bfalse;
@@ -1559,7 +1559,7 @@ void do_damage_tiles()
         if ( pchr->is_hidden || !pchr->alive ) continue;
 
         // if you are being held by something, you are protected
-        if ( pchr->pack_ispacked ) continue;
+        if ( pchr->pack.is_packed ) continue;
 
         // are we on a damage tile?
         if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) continue;
@@ -1648,7 +1648,7 @@ void update_pits()
             {
                 // Is it a valid character?
                 if ( pit_chr->invictus || !pit_chr->alive ) continue;
-                if ( ACTIVE_CHR( pit_chr->attachedto ) || pit_chr->pack_ispacked ) continue;
+                if ( ACTIVE_CHR( pit_chr->attachedto ) || pit_chr->pack.is_packed ) continue;
 
                 // Do we kill it?
                 if ( pits.kill && pit_chr->pos.z < PITDEPTH )
@@ -1735,7 +1735,7 @@ void do_weather_spawn_particles()
             {
                 // Yes, but is the character valid?
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
-                if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack_ispacked )
+                if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
                 {
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( ChrList.lst[ichr].pos, ATK_FRONT, weather.particle, 0 );
@@ -1811,9 +1811,9 @@ void set_one_player_latch( const PLA_REF by_reference player )
     latch_init( &( sum ) );
 
     // generate the transforms relative to the camera
-    turnsin = PCamera->facing_z >> 2;
-    fsin    = turntosin[turnsin & TRIG_TABLE_MASK ];
-    fcos    = turntocos[turnsin & TRIG_TABLE_MASK ];
+    turnsin = TO_TURN( PCamera->facing_z );
+    fsin    = turntosin[ turnsin ];
+    fcos    = turntocos[ turnsin ];
 
     // Mouse routines
     if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_MOUSE ) && mous.on )
@@ -2814,7 +2814,6 @@ void activate_spawn_file()
                 activate_spawn_file_load_object( &sp_info );
             }
 
-
             // do we have a valid profile, yet?
             if ( sp_info.slot >= 0 && !LOADED_PRO(( PRO_REF )sp_info.slot ) )
             {
@@ -3408,7 +3407,7 @@ void let_all_characters_think()
         is_crushed   = HAS_SOME_BITS( pchr->ai.alert, ALERTIF_CRUSHED );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !pchr->pack_ispacked || pcap->isequipment;
+        can_think = !pchr->pack.is_packed || pcap->isequipment;
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
         if (( pchr->alive && can_think ) || is_crushed || is_cleanedup )

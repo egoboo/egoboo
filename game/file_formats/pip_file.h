@@ -161,7 +161,7 @@ struct s_pip
     Uint32  bump_height;                   ///< Bounding box height
 
     // continuous spawning
-    Uint16  contspawn_time;               ///< Spawn timer
+    Uint16  contspawn_delay;               ///< Spawn timer
     Uint8   contspawn_amount;             ///< Spawn amount
     Uint16  contspawn_facingadd;          ///< Spawn in circle
     int     contspawn_pip;                ///< Spawn type ( local )

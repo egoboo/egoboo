@@ -1270,7 +1270,6 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
         BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
 
         // insert the leaf
-
         retval = BSP_tree_insert_leaf( ptree, pleaf );
     }
 
@@ -1342,7 +1341,8 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 bool_t obj_BSP_empty( obj_BSP_t * pbsp )
 {
-    size_t i;
+    CHR_REF ichr;
+    PRT_REF iprt;
 
     if ( NULL == pbsp ) return bfalse;
 
@@ -1350,21 +1350,15 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
     BSP_tree_clear_nodes( &( pbsp->tree ), btrue );
 
     // unlink all used character nodes
-    for ( i = 0; i < ChrList.used_count; i++ )
+    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        CHR_REF ichr = ( CHR_REF )ChrList.used_ref[i];
-        if ( !VALID_CHR_RANGE( ichr ) ) continue;
-
         ChrList.lst[ichr].bsp_leaf.next = NULL;
     }
 
     // unlink all used particle nodes
     BSP_prt_count = 0;
-    for ( i = 0; i < PrtList.used_count; i++ )
+    for ( iprt = 0; iprt < TOTAL_MAX_PRT; iprt++ )
     {
-        PRT_REF iprt = ( PRT_REF )PrtList.used_ref[i];
-        if ( !VALID_PRT_RANGE( iprt ) ) continue;
-
         PrtList.lst[iprt].bsp_leaf.next = NULL;
     }
 

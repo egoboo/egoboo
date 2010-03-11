@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file file_formats/spawn_file.c
-/// @brief Implementation of a scanner for egoboo's spawn.txt file
+/// @brief Implementation of a scanner for Egoboo's spawn.txt file
 /// @details
 
 #include "spawn_file.h"

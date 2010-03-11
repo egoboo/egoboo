@@ -79,7 +79,7 @@ enum e_camera_turn_mode
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// definition of the egoboo camera object
+/// definition of the Egoboo camera object
 struct s_camera
 {
     fmat_4x4_t mView, mViewSave;      ///< View Matrix

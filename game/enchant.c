@@ -1401,7 +1401,7 @@ void update_all_enchants()
         peve = enc_get_peve( cnt );
         if ( NULL == peve ) continue;
 
-        penc->spawntime = peve->contspawn_time;
+        penc->spawntime = peve->contspawn_delay;
 
         if ( peve->contspawn_amount <= 0 ) continue;
 

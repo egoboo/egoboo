@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file egoboo_vfs.c
-/// @brief Implementation of the egoboo virtual file system
+/// @brief Implementation of the Egoboo virtual file system
 /// @details
 
 #include "egoboo_vfs.h"

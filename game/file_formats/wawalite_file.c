@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file file_formats/wawalite_file.c
-/// @brief Functions to read and write the egoboo's wawalite.txt file
+/// @brief Functions to read and write the Egoboo's wawalite.txt file
 /// @details
 
 #include "wawalite_file.h"

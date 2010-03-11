@@ -45,6 +45,7 @@ BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim );
 BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb );
 
 bool_t       BSP_aabb_empty( BSP_aabb_t * psrc1 );
+bool_t       BSP_aabb_clear( BSP_aabb_t * psrc1 );
 bool_t       BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 );
 bool_t       BSP_aabb_overlap( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 );
 

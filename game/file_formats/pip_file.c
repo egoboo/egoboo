@@ -163,7 +163,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->vel_vrt_pair.rand      = fget_next_int( fileread );
 
     // Continuous spawning of other particles
-    ppip->contspawn_time      = fget_next_int( fileread );
+    ppip->contspawn_delay      = fget_next_int( fileread );
     ppip->contspawn_amount    = fget_next_int( fileread );
     ppip->contspawn_facingadd = fget_next_int( fileread );
     ppip->contspawn_pip       = fget_next_int( fileread );

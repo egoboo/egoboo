@@ -43,8 +43,9 @@ typedef enum e_process_states process_state_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// A rudimantary implementation of "non-preemptive multitasking" in egoboo.
+/// A rudimantary implementation of "non-preemptive multitasking" in Egoboo.
 /// @details All other process types "inherit" from this one
+
 struct s_process_instance
 {
     bool_t          valid;

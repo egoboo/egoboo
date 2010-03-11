@@ -523,7 +523,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         }
     }
 
-    turnsin = pcam->facing_z >> 2;
+    turnsin = TO_TURN(pcam->facing_z);
     pcam->center.x += movex * turntocos[ turnsin & TRIG_TABLE_MASK ] + movey * turntosin[ turnsin & TRIG_TABLE_MASK ];
     pcam->center.y += -movex * turntosin[ turnsin & TRIG_TABLE_MASK ] + movey * turntocos[ turnsin & TRIG_TABLE_MASK ];
 

@@ -86,7 +86,12 @@ typedef Sint32 SFP8_T;
 
 //--------------------------------------------------------------------------------------------
 // the type for the 16-bit value used to stor angles
-typedef Uint16 FACING_T;
+typedef Uint16   FACING_T;
+typedef FACING_T TURN_T;
+
+#define TO_FACING(X) ((FACING_T)(X))
+#define TO_TURN(X)   ((TURN_T)((TO_FACING(X)>>2) & TRIG_TABLE_MASK))
+
 
 //--------------------------------------------------------------------------------------------
 // 16.16 fixed point types
@@ -183,7 +188,7 @@ const char * undo_idsz( IDSZ idsz );
 typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
-/// the "base class" of egoboo profiles
+/// the "base class" of Egoboo profiles
 #define  EGO_PROFILE_STUFF \
     bool_t         loaded;      /* Does it exist? */ \
     STRING         name
@@ -252,7 +257,6 @@ typedef Uint16 REF_T;
 
 #define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) ACCESS struct s_c_list__##TYPE__##NAME NAME = {0, 0}
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // a simple stack structure
@@ -314,8 +318,6 @@ typedef Uint16 REF_T;
     \
     ELEM_T * ARY_T##_pop_back( ARY_T##_t * pary )              { if( NULL == pary || pary->top < 1 ) return NULL; --pary->top; return &(pary->ary[pary->top]); } \
     bool_t   ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { bool_t retval = bfalse; if( NULL == pary ) return bfalse; if (pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = btrue; } return retval; }
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -455,7 +457,6 @@ CPP_DECLARE_REF( tx_request_t, TREQ_REF );
 #    define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
 #    define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
 #    define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
-
 
 C_DECLARE_REF( CAP_REF );
 C_DECLARE_REF( CHR_REF );

@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file file_formats/scancode_file.c
-/// @brief Functions to read and write egoboo's basicdat/scantag.txt file
+/// @brief Functions to read and write Egoboo's basicdat/scantag.txt file
 /// @details
 
 #include "scancode_file.h"

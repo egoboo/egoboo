@@ -95,16 +95,16 @@ INLINE FACING_T vec_to_facing( float dx, float dy )
 //--------------------------------------------------------------------------------------------
 INLINE void facing_to_vec( FACING_T facing, float * dx, float * dy )
 {
-    Uint16 turn = ( facing - 0x8000 ) >> 2;
+    TURN_T turn = TO_TURN( facing - 0x8000 );
 
     if ( NULL != dx )
     {
-        *dx = turntocos[turn & TRIG_TABLE_MASK];
+        *dx = turntocos[ turn ];
     }
 
     if ( NULL != dy )
     {
-        *dy = turntosin[turn & TRIG_TABLE_MASK];
+        *dy = turntosin[ turn ];
     }
 }
 
@@ -116,24 +116,21 @@ INLINE FACING_T terp_dir( FACING_T majordir, FACING_T minordir )
     /// @details ZZ@> This function returns a direction between the major and minor ones, closer
     ///    to the major.
 
-    FACING_T temp;
+    int diff;
 
     // Align major direction with 0
-    minordir -= majordir;
+    diff = (int)minordir - (int)majordir;
 
-    if ( minordir > 0x8000 )
+    if( diff <= -0x8000 )
     {
-        temp = 0xFFFF;
+        diff += 0x00010000;
     }
-    else
+    else if (diff >= 0x8000)
     {
-        temp = 0;
+        diff -= 0x00010000;
     }
 
-    minordir  = ( minordir + ( temp << 3 ) - temp ) >> 3;
-    minordir += majordir;
-
-    return minordir;
+    return majordir + diff / 8;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -142,24 +139,21 @@ FACING_T terp_dir_fast( FACING_T majordir, FACING_T minordir )
     /// @details ZZ@> This function returns a direction between the major and minor ones, closer
     ///    to the major, but not by much.  Makes turning faster.
 
-    FACING_T temp;
+    int diff;
 
     // Align major direction with 0
-    minordir -= majordir;
+    diff = (int)minordir - (int)majordir;
 
-    if ( minordir > 0x8000 )
+    if( diff <= -0x8000 )
     {
-        temp = 0xFFFF;
+        diff += 0x00010000;
     }
-    else
+    else if (diff >= 0x8000)
     {
-        temp = 0;
+        diff -= 0x00010000;
     }
 
-    minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
-    minordir += majordir;
-
-    return minordir;
+    return majordir + diff / 2;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -22,11 +22,12 @@
 /// @details
 
 #include <windows.h>
+#include <shellapi.h>
 #include <shlobj.h>
 #include <shlwapi.h>
-#include <shellapi.h>
 
 #include "file_common.h"
+
 #include "log.h"
 
 #include "egoboo_strutil.h"

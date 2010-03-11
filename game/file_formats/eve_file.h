@@ -119,7 +119,7 @@ struct s_eve
     Uint8   dontdamagetype;              ///< Don't work if ...
     Uint8   onlydamagetype;              ///< Only work if ...
     IDSZ    removedbyidsz;               ///< By particle or [NONE]
-    Uint16  contspawn_time;              ///< Spawn timer
+    Uint16  contspawn_delay;              ///< Spawn timer
     Uint8   contspawn_amount;            ///< Spawn amount
     Uint16  contspawn_facingadd;         ///< Spawn in circle
     int     contspawn_pip;               ///< Spawn type ( local )

@@ -152,7 +152,7 @@ enum e_action
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// The definition of the egoboo model type
+/// The definition of the Egoboo model type
 struct s_mad
 {
     EGO_PROFILE_STUFF;

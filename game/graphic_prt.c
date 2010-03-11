@@ -734,6 +734,10 @@ void prt_instance_update_all( camera_t * pcam )
         pprt = PrtList.lst + iprt;
         pinst = &( pprt->inst );
 
+        // handle the frame counting
+        pprt->frames_count++;
+        if( pprt->frames_remaining > 0 ) pprt->frames_remaining--;
+
         if ( !pprt->inview || pprt->is_hidden || 0 == pprt->size )
         {
             pinst->valid = bfalse;
@@ -935,11 +939,11 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     }
     else
     {
-        float sinval, cosval;
-        Uint16 turn    = pprt->rotate >> 2;
+        float  sinval, cosval;
+        TURN_T turn = TO_TURN( pprt->rotate );
 
-        cosval = turntocos[turn & TRIG_TABLE_MASK ];
-        sinval = turntosin[turn & TRIG_TABLE_MASK ];
+        cosval = turntocos[ turn ];
+        sinval = turntosin[ turn ];
 
         pinst->up.x    = vup.x * cosval - vright.x * sinval;
         pinst->up.y    = vup.y * cosval - vright.y * sinval;

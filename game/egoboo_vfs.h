@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 /// @file egoboo_vfs.h
-/// @brief A virtual filesystem for egoboo.
+/// @brief A virtual filesystem for Egoboo.
 ///
 /// @details Almost all filesystem reads and writes should be handled through this interface. The only possible
 /// exceptions would be the log file (?) or something similar.

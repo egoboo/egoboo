@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file file_formats/eve_file.c
-/// @brief Functions to read and write egoboo's enchant definition files ( /modules/*.mod/objects/*.obj/enchant.txt )
+/// @brief Functions to read and write Egoboo's enchant definition files ( /modules/*.mod/objects/*.obj/enchant.txt )
 /// @details
 
 #include "eve_file.h"
@@ -187,7 +187,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
 
         if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) ) peve->contspawn_amount = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) ) peve->contspawn_pip = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) ) peve->contspawn_time = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) ) peve->contspawn_delay = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) ) peve->contspawn_facingadd = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) ) peve->endsound_index = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = ( 0 != fget_int( fileread ) );
@@ -350,9 +350,9 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'I', 'M', 'E' ), peve->contspawn_facingadd );
     }
 
-    if ( peve->contspawn_time > 0 )
+    if ( peve->contspawn_delay > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawn_time );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawn_delay );
     }
 
     if ( INVALID_SOUND != peve->endsound_index )

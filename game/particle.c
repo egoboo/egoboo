@@ -68,7 +68,6 @@ DECLARE_STATIC_ARY_TYPE( prt_delay_list, spawn_particle_info_t, TOTAL_MAX_PRT );
 
 spawn_particle_info_t * spawn_particle_info_ctor( spawn_particle_info_t * ptr );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 size_t maxparticles = 512;                            // max number of particles
@@ -139,7 +138,6 @@ size_t prt_delay_list_push( spawn_particle_info_t * pinfo )
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -336,17 +334,17 @@ PRT_REF prt_get_free( bool_t force )
     PRT_REF iprt;
 
     // Return TOTAL_MAX_PRT if we can't find one
-    iprt = TOTAL_MAX_PRT;
+    iprt = (PRT_REF)TOTAL_MAX_PRT;
 
     if ( 0 == PrtList.free_count )
     {
         if ( force )
         {
-            PRT_REF  found           = ( PRT_REF )TOTAL_MAX_PRT;
-            int      min_life        = 65535;
-            PRT_REF  min_life_idx    = ( PRT_REF )TOTAL_MAX_PRT;
-            int      min_display     = 65535;
-            PRT_REF  min_display_idx = ( PRT_REF )TOTAL_MAX_PRT;
+            PRT_REF found           = (PRT_REF)TOTAL_MAX_PRT;
+            size_t  min_life        = (size_t)(~0);
+            PRT_REF min_life_idx    = (PRT_REF)TOTAL_MAX_PRT;
+            size_t  min_display     = (size_t)(~0);
+            PRT_REF min_display_idx = (PRT_REF)TOTAL_MAX_PRT;
 
             // Gotta find one, so go through the list and replace a unimportant one
             for ( iprt = 0; iprt < maxparticles; iprt++ )
@@ -360,7 +358,7 @@ PRT_REF prt_get_free( bool_t force )
                     found = iprt;
                     break;
                 }
-                pprt = PrtList.lst + iprt;
+                pprt =  PrtList.lst +  iprt;
 
                 // does it have a valid profile?
                 if ( !LOADED_PIP( pprt->pip_ref ) )
@@ -378,35 +376,30 @@ PRT_REF prt_get_free( bool_t force )
                     // if the particle has been "terminated" but is still waiting around, bump it to the
                     // front of the list
 
-                    int lifetime  = pprt->time_update - update_wld;
-                    int frametime = pprt->time_frame  - frame_all;
-                    int min_time = MIN( lifetime, frametime );
+                    size_t min_time  = MIN( pprt->lifetime_remaining, pprt->frames_remaining );
 
                     if ( min_time < MAX( min_life, min_display ) )
                     {
-                        min_life     = lifetime;
+                        min_life     = pprt->lifetime_remaining;
                         min_life_idx = iprt;
 
-                        min_display     = frametime;
+                        min_display     = pprt->frames_remaining;
                         min_display_idx = iprt;
                     }
                 }
                 else if ( !was_forced )
                 {
-                    int lifetime, frametime;
                     // if the particle has not yet died, let choose the worst one
 
-                    lifetime = pprt->time_update - update_wld;
-                    if ( lifetime < min_life )
+                    if ( pprt->lifetime_remaining < min_life )
                     {
-                        min_life     = lifetime;
+                        min_life     = pprt->lifetime_remaining;
                         min_life_idx = iprt;
                     }
 
-                    frametime = pprt->time_frame - frame_all;
-                    if ( frametime < min_display )
+                    if ( pprt->frames_remaining < min_display )
                     {
-                        min_display     = frametime;
+                        min_display     = pprt->frames_remaining;
                         min_display_idx = iprt;
                     }
                 }
@@ -431,7 +424,7 @@ PRT_REF prt_get_free( bool_t force )
             {
                 // found nothing. this should only happen if all the
                 // particles are forced
-                iprt = TOTAL_MAX_PRT;
+                iprt = (PRT_REF)TOTAL_MAX_PRT;
             }
         }
     }
@@ -449,7 +442,7 @@ PRT_REF prt_get_free( bool_t force )
     }
 
     // return a proper value
-    iprt = ( iprt >= maxparticles ) ? ( PRT_REF )TOTAL_MAX_PRT : iprt;
+    iprt = ( iprt >= maxparticles ) ? (PRT_REF)TOTAL_MAX_PRT : iprt;
 
     if ( VALID_PRT_RANGE( iprt ) )
     {
@@ -458,13 +451,13 @@ PRT_REF prt_get_free( bool_t force )
             free_one_particle_in_game( iprt );
         }
 
-        EGO_OBJECT_ALLOCATE( PrtList.lst + iprt, REF_TO_INT( iprt ) );
+        EGO_OBJECT_ALLOCATE( PrtList.lst +  iprt , REF_TO_INT( iprt ) );
     }
 
     if ( ALLOCATED_PRT( iprt ) )
     {
         // construct the new structure
-        prt_ctor( PrtList.lst + iprt );
+        prt_ctor( PrtList.lst +  iprt );
     }
 
     return iprt;
@@ -510,8 +503,8 @@ prt_t * prt_reconstruct( prt_t * pprt )
     memcpy( POBJ_GET_PBASE( pprt ), &save_base, sizeof( ego_object_base_t ) );
 
     // "no lifetime" = "eternal"
-    pprt->time_update  = ( Uint32 )~0;
-    pprt->time_frame   = ( Uint32 )~0;
+    pprt->lifetime_remaining = ( size_t )(~0);
+    pprt->frames_remaining   = ( size_t )(~0);
 
     pprt->pip_ref      = MAX_PIP;
     pprt->profile_ref  = MAX_PROFILE;
@@ -586,8 +579,6 @@ size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF
 
     return prt_delay_list_push( &info );
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
@@ -755,12 +746,12 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     pprt->facing = facing;
 
     // this is actually pointint in the opposite direction?
-    turn = ( facing + ATK_BEHIND ) >> 2;
+    turn = TO_TURN( facing + ATK_BEHIND );
 
     // Location data from arguments
     newrand = generate_randmask( ppip->spacing_hrz_pair.base, ppip->spacing_hrz_pair.rand );
-    pprt->offset.x = -turntocos[turn & TRIG_TABLE_MASK] * newrand;
-    pprt->offset.y = -turntosin[turn & TRIG_TABLE_MASK] * newrand;
+    pprt->offset.x = -turntocos[ turn ] * newrand;
+    pprt->offset.y = -turntosin[ turn ] * newrand;
 
     tmp_pos.x += pprt->offset.x;
     tmp_pos.y += pprt->offset.y;
@@ -812,8 +803,8 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     // "no lifetime" = "eternal"
     if ( 0 == prt_lifetime )
     {
-        pprt->time_update = ~0;
-        pprt->is_eternal  = btrue;
+        pprt->lifetime_remaining = (size_t)(~0);
+        pprt->is_eternal         = btrue;
     }
     else
     {
@@ -821,12 +812,13 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
         // to keep the number of updates stable, the frames could lag.
         // sooo... we just rescale the prt_lifetime so that it will work with the
         // updates and cross our fingers
-        pprt->time_update = ceil( update_wld + ( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
+        pprt->lifetime_remaining = ceil( ( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
     }
 
     // make the particle display AT LEAST one frame, regardless of how many updates
     // it has or when someone requests for it to terminate
-    pprt->time_frame  = frame_all;
+    pprt->frames_count     = 0;
+    pprt->frames_remaining = MAX( 1, prt_lifetime );
 
     // Set onwhichfan...
     pprt->onwhichgrid  = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
@@ -836,13 +828,13 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     range_to_pair( ppip->damage, &( pprt->damage ) );
 
     // Spawning data
-    pprt->spawntime = ppip->contspawn_time;
-    if ( pprt->spawntime != 0 )
+    pprt->contspawn_delay = ppip->contspawn_delay;
+    if ( pprt->contspawn_delay != 0 )
     {
-        pprt->spawntime = 1;
+        pprt->contspawn_delay = 1;
         if ( ACTIVE_CHR( pprt->attachedto_ref ) )
         {
-            pprt->spawntime++; // Because attachment takes an update before it happens
+            pprt->contspawn_delay++; // Because attachment takes an update before it happens
         }
     }
 
@@ -1169,16 +1161,20 @@ void update_all_particles()
         if ( !LOADED_PIP( pprt->pip_ref ) ) continue;
         ppip = PipStack.lst + pprt->pip_ref;
 
-        // down the spawn timer
-        if ( pprt->spawntime > 0 ) pprt->spawntime--;
+        // down the remaining lifetime of the particle
+        if( pprt->lifetime_remaining > 0 ) 
+            pprt->lifetime_remaining--;
+
+        // down the continuous spawn timer
+        if ( pprt->contspawn_delay > 0 ) pprt->contspawn_delay--;
 
         // Spawn new particles if continually spawning
-        if ( 0 == pprt->spawntime && ppip->contspawn_amount > 0 )
+        if ( 0 == pprt->contspawn_delay && ppip->contspawn_amount > 0 && -1 != ppip->contspawn_pip )
         {
             Uint8 tnc;
 
             // reset the spawn timer
-            pprt->spawntime = ppip->contspawn_time;
+            pprt->contspawn_delay = ppip->contspawn_delay;
 
             facing = pprt->facing;
             for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
@@ -2224,12 +2220,12 @@ void cleanup_all_particles()
         if ( !DEFINED_PRT( iprt ) ) continue;
         pprt = PrtList.lst + iprt;
 
-        time_out = !pprt->is_eternal && ( update_wld >= pprt->time_update );
+        time_out = !pprt->is_eternal && ( 0 == pprt->lifetime_remaining );
         if ( !WAITING_PBASE( POBJ_GET_PBASE( pprt ) ) && !time_out ) continue;
 
         // make sure the particle has been DISPLAYED at least once, or you can get
         // some wierd particle flickering
-        if ( pprt->time_frame >= frame_all + 1 ) continue;
+        if ( pprt->frames_count <= 0 ) continue;
 
         // Spawn new particles if time for old one is up
         if ( pprt->endspawn_amount > 0 && pprt->endspawn_pip >= 0 )
@@ -2400,7 +2396,8 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
             {
                 PRT_REF *vertex_occupied;
                 float   *vertex_distance;
-                float dist;
+                float    dist;
+                TURN_T   turn;
 
                 vertex_occupied = EGOBOO_NEW_ARY( PRT_REF, vertices );
                 vertex_distance = EGOBOO_NEW_ARY( float,   vertices );
@@ -2413,8 +2410,9 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
                 // clear the occupied list
                 z = pprt->pos.z - pchr->pos.z;
                 facing = pprt->facing - pchr->facing_z;
-                fsin = turntosin[( facing >> 2 ) & TRIG_TABLE_MASK ];
-                fcos = turntocos[( facing >> 2 ) & TRIG_TABLE_MASK ];
+                turn   = TO_TURN( facing );
+                fsin = turntosin[ turn ];
+                fcos = turntocos[ turn ];
                 x = dist * fcos;
                 y = dist * fsin;
 
@@ -2890,7 +2888,7 @@ bool_t prt_request_terminate( const PRT_REF by_reference iprt )
 //          Uint8 tnc;
 //
 //          // reset the spawn timer
-//          pprt->spawntime = ppip->contspawn_time;
+//          pprt->spawntime = ppip->contspawn_delay;
 //
 //          facing = pprt->facing;
 //          for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )

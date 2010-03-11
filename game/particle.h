@@ -114,10 +114,11 @@ struct s_prt
     Uint16  image_max;                       ///< End of image loop
     Uint16  image_stt;                       ///< Start of image loop
 
-    int     time_update;                     ///< Duration of particle
-    int     time_frame;                      ///< Duration of particle
-    Uint32  lifetime;                        ///< how long does the particle live?
-    int     spawntime;                       ///< Time until spawn
+    bool_t  is_eternal;                      ///< Does the particle ever time-out?
+    size_t  lifetime_remaining;              ///< How many updates does the particle have left?
+    size_t  frames_remaining;                ///< How many frames does the particle have left?
+    size_t  frames_count;                    ///< How many frames have been rendered?
+    int     contspawn_delay;                 ///< Time until spawn
 
     bumper_t          bump;                            ///< Size of bumpers
     oct_bb_t          chr_prt_cv;                      ///< Collision volume for chr-prt interactions
@@ -125,7 +126,6 @@ struct s_prt
     IPair             damage;                          ///< For strength
     Uint8             damagetype;                      ///< Damage type
 
-    bool_t            is_eternal;
 
     bool_t            is_bumpspawn;                      ///< this particle is like a flame, burning something
     bool_t            inwater;
@@ -180,8 +180,8 @@ DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 #define DEFINED_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
 #define DISPLAY_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) || WAITING_PBASE(POBJ_GET_PBASE(PPRT))) )
 
-#define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT) {size_t IT##internal; for(IT##internal=0;IT##internal<PrtList.used_count;IT##internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##internal]; if(!ACTIVE_PRT(IT)) continue; PPRT = PrtList.lst + IT;
-#define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {size_t IT##internal; for(IT##internal=0;IT##internal<PrtList.used_count;IT##internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##internal]; if(!DISPLAY_PRT(IT)) continue; PPRT = PrtList.lst + IT;
+#define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT) {size_t IT##_internal; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT(IT)) continue; PPRT = PrtList.lst + IT;
+#define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {size_t IT##_internal; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; PPRT = PrtList.lst + IT;
 #define PRT_END_LOOP() }}
 
 extern int prt_wall_tests;

@@ -27,7 +27,7 @@
 /// Don't spoil the optimization by calling a test_interaction* function and then a get_depth* function
 ///
 /// The numbers attached to these functions signify the level of precision that is used in calculating the
-/// collision. The smallest number, 0, indicates the least precise collision and is equivalent to the "old" egoboo method.
+/// collision. The smallest number, 0, indicates the least precise collision and is equivalent to the "old" Egoboo method.
 ///
 /// The _close_ keyword indicates that you are checking for something like whether a character is able to
 /// stand on a platform or something where it will tend to fall off if it starts to step off the edge.

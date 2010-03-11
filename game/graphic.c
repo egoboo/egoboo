@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file graphic.c
-/// @brief Simple egoboo renderer
+/// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
 #include "graphic.h"
@@ -134,7 +134,7 @@ PROFILE_DECLARE( render_scene_trans );
 
 PROFILE_DECLARE( renderlist_make );
 PROFILE_DECLARE( dolist_make );
-PROFILE_DECLARE( do_grid_dynalight );
+PROFILE_DECLARE( do_grid_lighting );
 PROFILE_DECLARE( light_fans );
 PROFILE_DECLARE( update_all_chr_instance );
 PROFILE_DECLARE( prt_instance_update_all );
@@ -261,8 +261,8 @@ void _debug_print( const char *text )
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
-          CSTR_END != *src && dst < dst_end;
-          src++, dst++ )
+        CSTR_END != *src && dst < dst_end;
+        src++, dst++ )
     {
         *dst = *src;
     }
@@ -375,7 +375,7 @@ void gfx_system_begin()
 
     PROFILE_INIT( renderlist_make );
     PROFILE_INIT( dolist_make );
-    PROFILE_INIT( do_grid_dynalight );
+    PROFILE_INIT( do_grid_lighting );
     PROFILE_INIT( light_fans );
     PROFILE_INIT( update_all_chr_instance );
     PROFILE_INIT( prt_instance_update_all );
@@ -405,7 +405,7 @@ void gfx_system_end()
 
     PROFILE_FREE( renderlist_make );
     PROFILE_FREE( dolist_make );
-    PROFILE_FREE( do_grid_dynalight );
+    PROFILE_FREE( do_grid_lighting );
     PROFILE_FREE( light_fans );
     PROFILE_FREE( update_all_chr_instance );
     PROFILE_FREE( prt_instance_update_all );
@@ -1388,8 +1388,8 @@ void draw_map()
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == IDSZ_NONE ||
-                         local_senseenemiesID == pcap->idsz[IDSZ_PARENT] ||
-                         local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ] )
+                        local_senseenemiesID == pcap->idsz[IDSZ_PARENT] ||
+                        local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ] )
                     {
                         // Inside the map?
                         if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
@@ -1486,7 +1486,7 @@ int draw_fps( int y )
 
 #        if defined(DEBUG_PROFILE_INIT)
         y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
-        y = _draw_string_raw( 0, y, "init:do_grid_dynalight %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
+        y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
         y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
         y = _draw_string_raw( 0, y, "init:prt_instance_update_all %2.4f", time_render_scene_init_update_all_prt_instance );
 #        endif
@@ -1554,14 +1554,14 @@ int draw_debug( int y )
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_SLASH] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_CRUSH] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_POKE ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_HOLY ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_EVIL ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_FIRE ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_ICE  ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_ZAP  ] & 3 );
+            ChrList.lst[ichr].damagemodifier[DAMAGE_SLASH] & 3,
+            ChrList.lst[ichr].damagemodifier[DAMAGE_CRUSH] & 3,
+            ChrList.lst[ichr].damagemodifier[DAMAGE_POKE ] & 3,
+            ChrList.lst[ichr].damagemodifier[DAMAGE_HOLY ] & 3,
+            ChrList.lst[ichr].damagemodifier[DAMAGE_EVIL ] & 3,
+            ChrList.lst[ichr].damagemodifier[DAMAGE_FIRE ] & 3,
+            ChrList.lst[ichr].damagemodifier[DAMAGE_ICE  ] & 3,
+            ChrList.lst[ichr].damagemodifier[DAMAGE_ZAP  ] & 3 );
 
         ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_SIZE, ChrList.lst[ichr].pos.y / GRID_SIZE );
@@ -1880,7 +1880,7 @@ void render_shadow( const CHR_REF by_reference character )
     float   alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack.is_packed ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -2012,7 +2012,7 @@ void render_bad_shadow( const CHR_REF by_reference character )
     float   level, height, height_factor, alpha;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack_ispacked ) return;
+    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack.is_packed ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -2170,12 +2170,12 @@ void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
     // because it has to be sorted differently for reflected and non-reflected objects
     // dolist_sort( pcam, bfalse );
 
-    PROFILE_BEGIN( do_grid_dynalight );
+    PROFILE_BEGIN( do_grid_lighting );
     {
         // figure out the terrain lighting
-        do_grid_dynalight( renderlist.pmesh, pcam );
+        do_grid_lighting( renderlist.pmesh, pcam );
     }
-    PROFILE_END( do_grid_dynalight );
+    PROFILE_END( do_grid_lighting );
 
     PROFILE_BEGIN( light_fans );
     {
@@ -2200,7 +2200,7 @@ void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 
     time_render_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make ) * TARGET_FPS;
     time_render_scene_init_dolist_make             = PROFILE_QUERY( dolist_make ) * TARGET_FPS;
-    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_dynalight ) * TARGET_FPS;
+    time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * TARGET_FPS;
     time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * TARGET_FPS;
     time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
     time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( prt_instance_update_all ) * TARGET_FPS;
@@ -2618,7 +2618,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
 
     time_draw_scene       = time_render_scene_init + time_render_scene_mesh +
-                            time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
+        time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4035,7 +4035,7 @@ void dolist_make( ego_mpd_t * pmesh )
     // Now fill it up again
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack_ispacked )
+        if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
         {
             // Add the character
             dolist_add_chr( pmesh, ichr );
@@ -4494,7 +4494,7 @@ void init_all_graphics()
 
     PROFILE_RESET( renderlist_make );
     PROFILE_RESET( dolist_make );
-    PROFILE_RESET( do_grid_dynalight );
+    PROFILE_RESET( do_grid_lighting );
     PROFILE_RESET( light_fans );
     PROFILE_RESET( update_all_chr_instance );
     PROFILE_RESET( prt_instance_update_all );
@@ -4586,7 +4586,7 @@ void load_basic_textures( /* const char *modname */ )
 
     PROFILE_RESET( renderlist_make );
     PROFILE_RESET( dolist_make );
-    PROFILE_RESET( do_grid_dynalight );
+    PROFILE_RESET( do_grid_lighting );
     PROFILE_RESET( light_fans );
     PROFILE_RESET( update_all_chr_instance );
     PROFILE_RESET( prt_instance_update_all );
@@ -5087,7 +5087,7 @@ void light_fans( renderlist_t * prlist )
                     light = CLIP( light, 0.0f, 255.0f );
                     ptmem->clst[vertex][RR] =
                         ptmem->clst[vertex][GG] =
-                            ptmem->clst[vertex][BB] = light * INV_FF;
+                        ptmem->clst[vertex][BB] = light * INV_FF;
                 };
 
                 // clear out the deltas
@@ -5134,7 +5134,7 @@ void light_fans( renderlist_t * prlist )
                 light = CLIP( light, 0.0f, 255.0f );
                 ptmem->clst[vertex][RR] =
                     ptmem->clst[vertex][GG] =
-                        ptmem->clst[vertex][BB] = light * INV_FF;
+                    ptmem->clst[vertex][BB] = light * INV_FF;
             };
 
             for ( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
@@ -5145,7 +5145,7 @@ void light_fans( renderlist_t * prlist )
                 light = CLIP( light, 0.0f, 255.0f );
                 ptmem->clst[vertex][RR] =
                     ptmem->clst[vertex][GG] =
-                        ptmem->clst[vertex][BB] = light * INV_FF;
+                    ptmem->clst[vertex][BB] = light * INV_FF;
             };
 
             // clear out the deltas
@@ -5319,13 +5319,14 @@ void gfx_make_dynalist( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
+void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
 {
-    /// @details ZZ@> This function does dynamic lighting of visible fans
+    /// @details ZZ@> Do all tile lighting, dynamic and global
 
     int   cnt, tnc, fan, entry;
     int ix, iy;
     float x0, y0, local_keep;
+    bool_t needs_dynalight;
 
     lighting_vector_t global_lighting;
 
@@ -5413,19 +5414,22 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         }
     }
 
-    if ( 0 == reg_count || light_bound.xmin >= light_bound.xmax || light_bound.ymin >= light_bound.ymax ) return;
+    needs_dynalight = btrue;
+    if ( 0 == reg_count || light_bound.xmin >= light_bound.xmax || light_bound.ymin >= light_bound.ymax )
+    {
+        needs_dynalight = bfalse;
+    }
 
     // sum up the lighting from global sources
     sum_global_lighting( global_lighting );
 
+    // make the grids update their lighting every 4 frames
     local_keep = POW( dynalight_keep, 4 );
 
     // Add to base light level in normal mode
     for ( entry = 0; entry < renderlist.all_count; entry++ )
     {
-        lighting_cache_t * pcache_old;
-        lighting_cache_t   cache_new;
-        ego_frect_t        ftmp;
+        bool_t resist_lighting_calculation = btrue;
 
         // grab each grid box in the "frustum"
         fan = renderlist.all[entry];
@@ -5434,67 +5438,87 @@ void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
 
-        if ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) ) continue;
+        // Resist the lighting calculation?
+        // This is a speedup for lighting calculations so that
+        // not every light-tile calculation is done every single frame
+        resist_lighting_calculation = (0 != ((( ix ^ iy ) + frame_all ) & 0x03 ));
 
-        // this is not a "bad" grid box, so grab the lighting info
-        pcache_old = &( glist[fan].cache );
-
-        lighting_cache_init( &cache_new );
-
-        // copy the global lighting
-        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+        if( !resist_lighting_calculation )
         {
-            cache_new.low.lighting[tnc] = global_lighting[tnc];
-            cache_new.hgh.lighting[tnc] = global_lighting[tnc];
-        };
+            lighting_cache_t * pcache_old;
+            lighting_cache_t   cache_new;
 
-        // calculate the local lighting
-        if ( gfx.shading != GL_FLAT )
-        {
-            x0 = ix * GRID_SIZE;
-            y0 = iy * GRID_SIZE;
+            int    dynalight_count = 0;
 
-            // check this grid vertex relative to the measured light_bound
-            ftmp.xmin = x0 - GRID_SIZE / 2;
-            ftmp.xmax = x0 + GRID_SIZE / 2;
-            ftmp.ymin = y0 - GRID_SIZE / 2;
-            ftmp.ymax = y0 + GRID_SIZE / 2;
+            // this is not a "bad" grid box, so grab the lighting info
+            pcache_old = &( glist[fan].cache );
 
-            if ( ftmp.xmin <= light_bound.xmax && ftmp.xmax >= light_bound.xmin )
+            lighting_cache_init( &cache_new );
+
+            // copy the global lighting
+            for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
             {
-                if ( ftmp.ymin <= light_bound.ymax && ftmp.ymax >= light_bound.ymin )
+                cache_new.low.lighting[tnc] = global_lighting[tnc];
+                cache_new.hgh.lighting[tnc] = global_lighting[tnc];
+            };
+
+            // do we need any dynamic lighting at all?
+            if ( gfx.shading != GL_FLAT && needs_dynalight )
+            {
+                // calculate the local lighting
+
+                ego_frect_t fgrid_rect;
+
+                x0 = ix * GRID_SIZE;
+                y0 = iy * GRID_SIZE;
+
+                // check this grid vertex relative to the measured light_bound
+                fgrid_rect.xmin = x0 - GRID_SIZE / 2;
+                fgrid_rect.xmax = x0 + GRID_SIZE / 2;
+                fgrid_rect.ymin = y0 - GRID_SIZE / 2;
+                fgrid_rect.ymax = y0 + GRID_SIZE / 2;
+
+                // check the bounding box of this grid vs. the bounding box of the lighting
+                if ( fgrid_rect.xmin <= light_bound.xmax && fgrid_rect.xmax >= light_bound.xmin )
                 {
-                    // add in the dynamic lighting
-                    for ( cnt = 0; cnt < reg_count; cnt++ )
+                    if ( fgrid_rect.ymin <= light_bound.ymax && fgrid_rect.ymax >= light_bound.ymin )
                     {
-                        fvec3_t       nrm;
-                        dynalight_t * pdyna;
+                        // this grid has dynamic lighting. add it.
+                        for ( cnt = 0; cnt < reg_count; cnt++ )
+                        {
+                            fvec3_t       nrm;
+                            dynalight_t * pdyna;
 
-                        // check the bound relative to each valid dynamic light
-                        if ( ftmp.xmin > reg[cnt].bound.xmax || ftmp.xmax < reg[cnt].bound.xmin ) continue;
-                        if ( ftmp.ymin > reg[cnt].bound.ymax || ftmp.ymax < reg[cnt].bound.ymin ) continue;
+                            // does this dynamic light intersects this grid? 
+                            if ( fgrid_rect.xmin > reg[cnt].bound.xmax || fgrid_rect.xmax < reg[cnt].bound.xmin ) continue;
+                            if ( fgrid_rect.ymin > reg[cnt].bound.ymax || fgrid_rect.ymax < reg[cnt].bound.ymin ) continue;
 
-                        // this should be a valid intersection, so proceed
-                        tnc = reg[cnt].reference;
-                        pdyna = dyna_list + tnc;
+                            dynalight_count++;
 
-                        nrm.x = pdyna->pos.x - x0;
-                        nrm.y = pdyna->pos.y - y0;
-                        nrm.z = pdyna->pos.z - ptmem->bbox.mins[ZZ];
-                        sum_dyna_lighting( pdyna, cache_new.low.lighting, nrm.v );
+                            // this should be a valid intersection, so proceed
+                            tnc = reg[cnt].reference;
+                            pdyna = dyna_list + tnc;
 
-                        nrm.z = pdyna->pos.z - ptmem->bbox.maxs[ZZ];
-                        sum_dyna_lighting( pdyna, cache_new.hgh.lighting, nrm.v );
+                            nrm.x = pdyna->pos.x - x0;
+                            nrm.y = pdyna->pos.y - y0;
+                            nrm.z = pdyna->pos.z - ptmem->bbox.mins[ZZ];
+                            sum_dyna_lighting( pdyna, cache_new.low.lighting, nrm.v );
+
+                            nrm.z = pdyna->pos.z - ptmem->bbox.maxs[ZZ];
+                            sum_dyna_lighting( pdyna, cache_new.hgh.lighting, nrm.v );
+                        }
                     }
                 }
             }
+
+            // blend in the global lighting every single time
+
+            // average this in with the existing lighting
+            lighting_cache_blend( pcache_old, &cache_new, local_keep );
+
+            // find the max intensity
+            lighting_cache_max_light( pcache_old );
         }
-
-        // average this in with the existing lighting
-        lighting_cache_blend( pcache_old, &cache_new, local_keep );
-
-        // find the max intensity
-        lighting_cache_max_light( pcache_old );
     }
 }
 

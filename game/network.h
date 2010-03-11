@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 /// @file network.h
-/// @brief Skeleton for egoboo networking
+/// @brief Skeleton for Egoboo networking
 
 #include "egoboo_typedef.h"
 

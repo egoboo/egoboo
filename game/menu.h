@@ -49,7 +49,7 @@ typedef struct s_menu_process menu_process_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// All the possible egoboo menus.  yay!
+/// All the possible Egoboo menus.  yay!
 enum e_which_menu
 {
     emnu_Main,

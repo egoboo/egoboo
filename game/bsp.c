@@ -111,6 +111,24 @@ bool_t BSP_aabb_empty( BSP_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t BSP_aabb_clear( BSP_aabb_t * psrc )
+{
+    /// @details BB@> Return this bounding box to an empty state.
+
+    int cnt;
+
+    if( NULL == psrc ) return bfalse;
+    if( NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary ) return bfalse;
+
+    for ( cnt = 0; cnt < psrc->dim; cnt++ )
+    {
+        psrc->mins.ary[cnt] = psrc->mids.ary[cnt] = psrc->maxs.ary[cnt] = 0.0f;
+    }
+    
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
 {
     /// @details BB@> Is psrc2 contained within psrc1? If psrc2 has less dimensions
@@ -197,7 +215,7 @@ bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc )
     }
 
     // find the mid values
-    for ( cnt = 0; cnt < pdst->dim; cnt ++ )
+    for ( cnt = 0; cnt < pdst->dim; cnt++ )
     {
         pdst->mids.ary[cnt] = 0.5f * ( pdst->mins.ary[cnt] + pdst->maxs.ary[cnt] );
     }
@@ -576,7 +594,10 @@ bool_t BSP_branch_empty( BSP_branch_t * pbranch )
     }
 
     // check to see if there are any nodes in this branch's node_lst
-    if ( empty && NULL != pbranch->node_lst ) empty = bfalse;
+    if ( NULL != pbranch->node_lst )
+    {
+        empty = bfalse;
+    }
 
     return empty;
 }
@@ -982,8 +1003,7 @@ BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t )
 
     if ( NULL == t ) return NULL;
 
-    proot = t->root;
-    if ( NULL != proot ) return proot;
+    if ( NULL != t->root ) return t->root;
 
     proot = BSP_tree_get_free( t );
     if ( NULL == proot ) return NULL;
@@ -1232,16 +1252,25 @@ bool_t BSP_tree_prune_branch( BSP_tree_t * t, int cnt )
         {
             bool_t found = bfalse;
 
-            // unlink the parent and return the node to the free list
+            // unlink this node from its parent
             for ( i = 0; i < B->parent->child_count; i++ )
             {
                 if ( B->parent->child_lst[i] == B )
                 {
+                    // remove it from the parent's list of children
                     B->parent->child_lst[i] = NULL;
+
+                    // blank out the parent
+                    B->parent = NULL;
+
+                    // let them know that we found ourself
                     found = btrue;
+
                     break;
                 }
             }
+
+            // not finding yourself is an error
             EGOBOO_ASSERT( found );
         }
 
@@ -1252,6 +1281,14 @@ bool_t BSP_tree_prune_branch( BSP_tree_t * t, int cnt )
     {
         // reduce the size of the list
         t->branch_used.top--;
+
+        // set B's data to "safe" values
+        B->parent = NULL;
+        for( i = 0; i < B->child_count; i++ ) B->child_lst[i] = NULL;
+        B->node_count = 0;
+        B->node_lst = NULL;
+        B->depth = -1;
+        BSP_aabb_clear( &(B->bbox) );
 
         // move the branch that we found to the top of the list
         SWAP( BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top] );

@@ -225,6 +225,7 @@ bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, cons
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
 bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
 {
     bool_t interact_x  = bfalse;
@@ -690,7 +691,7 @@ bool_t fill_bumplists( obj_BSP_t * pbsp )
 
     // Remove any unused branches from the tree.
     // If you do this after BSP_tree_free_nodes() it will remove all branches
-    if ( 7 == ( update_wld & 7 ) )
+    if ( 7 == ( frame_all & 7 ) )
     {
         BSP_tree_prune( &( pbsp->tree ) );
     }
@@ -708,7 +709,6 @@ bool_t fill_bumplists( obj_BSP_t * pbsp )
 bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
 {
     chr_t * pchr_a, * pchr_b;
-    cap_t * pcap_a, * pcap_b;
 
     bool_t platform_a, platform_b;
     bool_t mount_a, mount_b;
@@ -731,12 +731,6 @@ bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_R
 
     // if you are mounted, only your mount is affected by platforms
     if ( ACTIVE_CHR( pchr_a->attachedto ) || ACTIVE_CHR( pchr_b->attachedto ) ) return bfalse;
-
-    pcap_a = chr_get_pcap( ichr_a );
-    if ( NULL == pcap_a ) return bfalse;
-
-    pcap_b = chr_get_pcap( ichr_b );
-    if ( NULL == pcap_b ) return bfalse;
 
     // only check possible object-platform interactions
     platform_a = pchr_b->canuseplatforms && pchr_a->platform;
@@ -1253,16 +1247,20 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
     {
         d = pcn_ary->ary + cnt;
 
-        // only look at character-character interactions
-        if ( TOTAL_MAX_PRT != d->prtb ) continue;
+        // only look at character-platform or particle-platform interactions interactions
+        if ( TOTAL_MAX_PRT != d->prta && TOTAL_MAX_PRT != d->prtb ) continue;
 
-        if ( TOTAL_MAX_PRT == d->prtb )
+        if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
         {
             do_chr_platform_detection( d->chra, d->chrb );
         }
-        else if ( MAX_CHR == d->chrb )
+        else if ( MAX_CHR != d->chra && TOTAL_MAX_PRT != d->prtb )
         {
             do_prt_platform_detection( d->chra, d->prtb );
+        }
+        if ( TOTAL_MAX_PRT != d->prta && MAX_CHR != d->chrb )
+        {
+            do_prt_platform_detection( d->chrb, d->prta );
         }
     }
 
@@ -1275,9 +1273,9 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
-        if ( TOTAL_MAX_PRT != d->prtb ) continue;
+        if ( TOTAL_MAX_PRT != d->prta && TOTAL_MAX_PRT != d->prtb ) continue;
 
-        if ( TOTAL_MAX_PRT == d->prtb )
+        if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
         {
             if ( ACTIVE_CHR( d->chra ) && ACTIVE_CHR( d->chrb ) )
             {
@@ -1291,13 +1289,23 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
                 }
             }
         }
-        else if ( MAX_CHR == d->chrb )
+        else if ( MAX_CHR != d->chra && TOTAL_MAX_PRT != d->prtb )
         {
             if ( ACTIVE_CHR( d->chra ) && ACTIVE_PRT( d->prtb ) )
             {
                 if ( PrtList.lst[d->prtb].onwhichplatform == d->chra )
                 {
                     attach_prt_to_platform( PrtList.lst + d->prtb, ChrList.lst + d->chra );
+                }
+            }
+        }
+        else if ( MAX_CHR != d->chrb && TOTAL_MAX_PRT != d->prta )
+        {
+            if ( ACTIVE_CHR( d->chrb ) && ACTIVE_PRT( d->prta ) )
+            {
+                if ( PrtList.lst[d->prta].onwhichplatform == d->chrb )
+                {
+                    attach_prt_to_platform( PrtList.lst + d->prta, ChrList.lst + d->chrb );
                 }
             }
         }
@@ -3063,7 +3071,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //        pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 //
 //        // reject characters that are in packs, or are marked as non-colliding
-//        if ( pchr->pack_ispacked ) continue;
+//        if ( pchr->pack.is_packed ) continue;
 //
 //        // reject characters that are hidden
 //        if ( pchr->is_hidden ) continue;

@@ -20,13 +20,13 @@
 //********************************************************************************************
 
 /// @file egoboo_object.h
-/// @details Definitions of data that all egoboo objects should "inherit"
+/// @details Definitions of data that all Egoboo objects should "inherit"
 
 #include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// some basic data that all egoboo objects should have
+// some basic data that all Egoboo objects should have
 
 /// The possible states of an ego_object_base_t object
 enum e_ego_object_state
@@ -39,7 +39,7 @@ enum e_ego_object_state
 };
 
 //--------------------------------------------------------------------------------------------
-/// The data that is "inherited" by every egoboo object.
+/// The data that is "inherited" by every Egoboo object.
 struct s_ego_object_base
 {
     STRING         _name;     ///< what is its "_name"

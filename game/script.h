@@ -43,38 +43,46 @@
 #define NEAREST     0              ///< unlimited range
 
 /// Character AI alerts
-#define ALERTIF_SPAWNED                      ( 1 <<  0 )
-#define ALERTIF_HITVULNERABLE                ( 1 <<  1 )
-#define ALERTIF_ATWAYPOINT                   ( 1 <<  2 )
-#define ALERTIF_ATLASTWAYPOINT               ( 1 <<  3 )
-#define ALERTIF_ATTACKED                     ( 1 <<  4 )
-#define ALERTIF_BUMPED                       ( 1 <<  5 )
-#define ALERTIF_ORDERED                      ( 1 <<  6 )
-#define ALERTIF_CALLEDFORHELP                ( 1 <<  7 )
-#define ALERTIF_KILLED                       ( 1 <<  8 )
-#define ALERTIF_TARGETKILLED                 ( 1 <<  9 )
-#define ALERTIF_DROPPED                      ( 1 << 10 )
-#define ALERTIF_GRABBED                      ( 1 << 11 )
-#define ALERTIF_REAFFIRMED                   ( 1 << 12 )
-#define ALERTIF_LEADERKILLED                 ( 1 << 13 )
-#define ALERTIF_USED                         ( 1 << 14 )
-#define ALERTIF_CLEANEDUP                    ( 1 << 15 )
-#define ALERTIF_SCOREDAHIT                   ( 1 << 16 )
-#define ALERTIF_HEALED                       ( 1 << 17 )
-#define ALERTIF_DISAFFIRMED                  ( 1 << 18 )
-#define ALERTIF_CHANGED                      ( 1 << 19 )
-#define ALERTIF_INWATER                      ( 1 << 20 )
-#define ALERTIF_BORED                        ( 1 << 21 )
-#define ALERTIF_TOOMUCHBAGGAGE               ( 1 << 22 )
-#define ALERTIF_GROGGED                      ( 1 << 23 )
-#define ALERTIF_DAZED                        ( 1 << 24 )
-#define ALERTIF_HITGROUND                    ( 1 << 25 )
-#define ALERTIF_NOTDROPPED                   ( 1 << 26 )
-#define ALERTIF_BLOCKED                      ( 1 << 27 )
-#define ALERTIF_THROWN                       ( 1 << 28 )
-#define ALERTIF_CRUSHED                      ( 1 << 29 )
-#define ALERTIF_NOTPUTAWAY                   ( 1 << 30 )
-#define ALERTIF_TAKENOUT                     ( 1 << 31 )
+enum 
+{
+    ALERT_NONE                           = 0,
+    ALERTIF_SPAWNED                      = 1 <<  0,
+    ALERTIF_HITVULNERABLE                = 1 <<  1,
+    ALERTIF_ATWAYPOINT                   = 1 <<  2,
+    ALERTIF_ATLASTWAYPOINT               = 1 <<  3,
+    ALERTIF_ATTACKED                     = 1 <<  4,
+    ALERTIF_BUMPED                       = 1 <<  5,
+    ALERTIF_ORDERED                      = 1 <<  6,
+    ALERTIF_CALLEDFORHELP                = 1 <<  7,
+    ALERTIF_KILLED                       = 1 <<  8,
+    ALERTIF_TARGETKILLED                 = 1 <<  9,
+    ALERTIF_DROPPED                      = 1 << 10,
+    ALERTIF_GRABBED                      = 1 << 11,
+    ALERTIF_REAFFIRMED                   = 1 << 12,
+    ALERTIF_LEADERKILLED                 = 1 << 13,
+    ALERTIF_USED                         = 1 << 14,
+    ALERTIF_CLEANEDUP                    = 1 << 15,
+    ALERTIF_SCOREDAHIT                   = 1 << 16,
+    ALERTIF_HEALED                       = 1 << 17,
+    ALERTIF_DISAFFIRMED                  = 1 << 18,
+    ALERTIF_CHANGED                      = 1 << 19,
+    ALERTIF_INWATER                      = 1 << 20,
+    ALERTIF_BORED                        = 1 << 21,
+    ALERTIF_TOOMUCHBAGGAGE               = 1 << 22,
+    ALERTIF_GROGGED                      = 1 << 23,
+    ALERTIF_DAZED                        = 1 << 24,
+    ALERTIF_HITGROUND                    = 1 << 25,
+    ALERTIF_NOTDROPPED                   = 1 << 26,
+    ALERTIF_BLOCKED                      = 1 << 27,
+    ALERTIF_THROWN                       = 1 << 28,
+    ALERTIF_CRUSHED                      = 1 << 29,
+    ALERTIF_NOTPUTAWAY                   = 1 << 30,
+    ALERTIF_TAKENOUT                     = 1 << 31,
+
+    // add in some aliases
+    ALERTIF_PUTAWAY     = ALERTIF_ATLASTWAYPOINT,
+    ALERTIF_NOTTAKENOUT = ALERTIF_NOTPUTAWAY
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

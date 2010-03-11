@@ -222,6 +222,20 @@ struct s_chr_environment
 typedef struct s_chr_environment chr_environment_t;
 
 //--------------------------------------------------------------------------------------------
+struct s_pack
+{
+    bool_t         is_packed;    ///< Is it in the inventory?
+    bool_t         was_packed;   ///< Temporary thing...
+    CHR_REF        next;        ///< Link to the next item
+    int            count;       ///< How many
+};
+typedef struct s_pack pack_t;
+
+#define PACK_BEGIN_LOOP(IT,INIT) IT = INIT; while( MAX_CHR != IT ) { CHR_REF IT##_internal = ChrList.lst[IT].pack.next;
+#define PACK_END_LOOP(IT) IT = IT##_internal; }
+
+
+//--------------------------------------------------------------------------------------------
 /// The definition of the character object
 /// This "inherits" for ego_object_base_t
 struct s_chr
@@ -256,11 +270,7 @@ struct s_chr
     Uint32         experience;                    ///< Experience
     Uint8          experiencelevel;               ///< Experience Level
 
-    // what the character is holding
-    Uint8          pack_ispacked;    ///< Is it in the inventory?
-    Uint8          pack_waspacked;   ///< Temporary thing...
-    CHR_REF        pack_next;        ///< Link to the next item
-    Uint8          pack_count;       ///< How many
+    pack_t         pack;             ///< what the character is holding
 
     Sint16         money;            ///< Money
     Uint8          ammomax;          ///< Ammo stuff
@@ -455,6 +465,8 @@ typedef struct s_chr chr_t;
 
 DECLARE_STACK_EXTERN( team_t, TeamStack, TEAM_MAX );
 
+#define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
+
 DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_PROFILE );
 
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
@@ -481,7 +493,7 @@ DECLARE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 #define DEFINED_PCHR( PCHR )        ( VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PCHR) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PCHR) ) )
 #define PRE_TERMINATED_PCHR( PCHR ) ( VALID_CHR_PTR( PCHR ) && ( ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) || WAITING_PBASE( POBJ_GET_PBASE(PCHR) ) ) )
 
-#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR) {size_t IT##internal; for(IT##internal=0;IT##internal<ChrList.used_count;IT##internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##internal]; if(!ACTIVE_CHR(IT)) continue; PCHR = ChrList.lst + IT;
+#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR) {size_t IT##_internal; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR(IT)) continue; PCHR = ChrList.lst + IT;
 #define CHR_END_LOOP() }}
 
 extern int chr_wall_tests;

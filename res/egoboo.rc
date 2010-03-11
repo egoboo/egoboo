@@ -36,7 +36,7 @@ BEGIN
             VALUE "InternalName", "egoboo"
             VALUE "LegalCopyright", "Copyright (C) 1999"
             VALUE "OriginalFilename", "egoboo.rc"
-            VALUE "ProductName", " egoboo"
+            VALUE "ProductName", " Egoboo"
             VALUE "ProductVersion", "2, 6, 0, 0"
         END
     END

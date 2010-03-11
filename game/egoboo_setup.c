@@ -209,7 +209,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
 
     if ( NULL == lConfigSetup || NULL == pcfg ) return bfalse;
 
-    // set the default egoboo values
+    // set the default Egoboo values
     egoboo_config_init();
 
     memcpy( pcfg, &cfg_default, sizeof( egoboo_config_t ) );

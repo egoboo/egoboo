@@ -21,10 +21,10 @@
 /// @brief System Dependent Functions
 /// @details Win32 - specific code
 
-#include "System.h"
-#include "log.h"
-
 #include <windows.h>
+
+#include "system.h"
+#include "log.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

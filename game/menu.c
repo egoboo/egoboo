@@ -832,7 +832,10 @@ int doChooseModule( float deltaTime )
             // Find the module's that we want to allow loading for.  If startNewPlayer
             // is true, we want ones that don't allow imports (e.g. starter modules).
             // Otherwise, we want modules that allow imports
-            memset( validModules, 0, sizeof( int ) * MAX_MODULE );
+            for( i = 0; i<MAX_MODULE; i++ )
+            {
+                memset( validModules + i, 0, sizeof( MOD_REF ) );
+            }
             numValidModules = 0;
             for ( imod = 0; imod < mnu_ModList.count; imod++ )
             {

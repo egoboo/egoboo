@@ -130,7 +130,7 @@ egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
     diff = ovel2[index] - ovel1[index];
-    if ( diff == 0.0f ) return rv_fail;
+    //if ( diff == 0.0f ) return rv_fail;
 
     tolerance1 = (( OCT_Z == index ) && ( test_platform & PHYS_PLATFORM_OBJ1 ) ) ? PLATTOLERANCE : 0.0f;
     tolerance2 = (( OCT_Z == index ) && ( test_platform & PHYS_PLATFORM_OBJ2 ) ) ? PLATTOLERANCE : 0.0f;
@@ -473,7 +473,18 @@ bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oc
     ///               amount of territory that an object will cover in the range [tmin,tmax].
     ///               One update equals [tmin,tmax] == [0,1].
 
+    float abs_vel;
     oct_bb_t tmp_min, tmp_max;
+
+    abs_vel = ABS(vel.x) + ABS(vel.y) + ABS(vel.z);
+    if( 0.0f == abs_vel )
+    {
+        if( NULL != pdst )
+        {
+            *pdst = src;
+        }
+        return btrue;
+    }
 
     // determine the bounding volume at t == tmin
     if ( tmin == 0.0f )
@@ -532,7 +543,6 @@ bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst
     if ( pchr->platform )
     {
         // expand the interaction range so that we will correctly detect interactions with platforms
-        tmp_oct1.mins[OCT_Z] -= PLATTOLERANCE;
         tmp_oct1.maxs[OCT_Z] += PLATTOLERANCE;
     }
 
