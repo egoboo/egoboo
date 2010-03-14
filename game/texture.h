@@ -70,3 +70,5 @@ TX_REF         TxTexture_get_free( const TX_REF by_reference itex );
 bool_t         TxTexture_free_one( const TX_REF by_reference  itex );
 TX_REF         TxTexture_load_one( const char *filename, const TX_REF by_reference  itex_src, Uint32 key );
 oglx_texture_t * TxTexture_get_ptr( const TX_REF by_reference itex );
+
+void           TxTexture_reload_all();

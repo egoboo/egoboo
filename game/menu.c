@@ -321,6 +321,26 @@ oglx_texture_t * TxTitleImage_get_ptr( const TX_REF by_reference itex )
 }
 
 //--------------------------------------------------------------------------------------------
+void TxTitleImage_reload_all()
+{
+    /// @details ZZ@> This function re-loads all the current textures back into 
+    ///               OpenGL texture memory using the cached SDL surfaces
+
+    TX_REF cnt;
+
+    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
+    {
+        oglx_texture_t * ptex = TxTitleImage.lst + cnt;
+
+        if( ptex->valid )
+        {
+            oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 mod_file_t * mnu_ModList_get_base( int imod )
 {

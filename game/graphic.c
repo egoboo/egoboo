@@ -555,10 +555,42 @@ void gfx_init_SDL_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
+bool_t gfx_set_virtual_screen( gfx_config_t * pgfx )
 {
     float kx, ky;
 
+    if( NULL == pgfx ) return bfalse;
+
+    kx = ( float )GFX_WIDTH  / ( float )sdl_scr.x;
+    ky = ( float )GFX_HEIGHT / ( float )sdl_scr.y;
+
+    if ( kx == ky )
+    {
+        pgfx->vw = sdl_scr.x;
+        pgfx->vh = sdl_scr.y;
+    }
+    else if ( kx > ky )
+    {
+        pgfx->vw = sdl_scr.x * kx / ky;
+        pgfx->vh = sdl_scr.y;
+    }
+    else
+    {
+        pgfx->vw = sdl_scr.x;
+        pgfx->vh = sdl_scr.y * ky / kx;
+    }
+
+    pgfx->vdw = ( GFX_WIDTH  - pgfx->vw ) * 0.5f;
+    pgfx->vdh = ( GFX_HEIGHT - pgfx->vh ) * 0.5f;
+
+    ui_set_virtual_screen( pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
+{
     // call gfx_config_init(), even if the config data is invalid
     if ( !gfx_config_init( pgfx ) ) return bfalse;
 
@@ -587,32 +619,11 @@ bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
     pgfx->clearson     = !pgfx->draw_background;
     pgfx->draw_water_1 = !pgfx->draw_background && ( water.layer_count > 1 );
 
-    kx = ( float )GFX_WIDTH  / ( float )sdl_scr.x;
-    ky = ( float )GFX_HEIGHT / ( float )sdl_scr.y;
-
-    if ( kx == ky )
-    {
-        pgfx->vw = sdl_scr.x;
-        pgfx->vh = sdl_scr.y;
-    }
-    else if ( kx > ky )
-    {
-        pgfx->vw = sdl_scr.x * kx / ky;
-        pgfx->vh = sdl_scr.y;
-    }
-    else
-    {
-        pgfx->vw = sdl_scr.x;
-        pgfx->vh = sdl_scr.y * ky / kx;
-    }
-
-    pgfx->vdw = ( GFX_WIDTH  - pgfx->vw ) * 0.5f;
-    pgfx->vdh = ( GFX_HEIGHT - pgfx->vh ) * 0.5f;
-
-    ui_set_virtual_screen( pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT );
+    gfx_set_virtual_screen( pgfx );
 
     return btrue;
 }
+
 
 //--------------------------------------------------------------------------------------------
 bool_t gfx_config_init( gfx_config_t * pgfx )
@@ -5548,3 +5559,9 @@ void render_water( renderlist_t * prlist )
     }
 }
 
+//--------------------------------------------------------------------------------------------
+void gfx_reload_all_textures()
+{
+    TxTitleImage_reload_all();
+    TxTexture_reload_all();
+}

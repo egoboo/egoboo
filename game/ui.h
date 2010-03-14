@@ -81,7 +81,7 @@ void ui_end();
 void ui_Reset();
 
 /// Pass input data from SDL to the ui
-void ui_handleSDLEvent( SDL_Event *evt );
+bool_t ui_handleSDLEvent( SDL_Event *evt );
 
 /// Allow the ui to do work that needs to be done before and after each frame
 void ui_beginFrame( float deltaTime );

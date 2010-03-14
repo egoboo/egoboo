@@ -224,6 +224,7 @@ typedef struct s_gfx_config gfx_config_t;
 extern gfx_config_t gfx;
 
 bool_t gfx_config_init( gfx_config_t * pgfx );
+bool_t gfx_set_virtual_screen( gfx_config_t * pgfx );
 bool_t gfx_synch_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
@@ -334,6 +335,7 @@ void   gfx_main();
 void   gfx_begin_3d( struct s_camera * pcam );
 void   gfx_end_3d();
 bool_t gfx_synch_oglx_texture_parameters( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+void   gfx_reload_all_textures();
 
 void   request_clear_screen();
 void   do_clear_screen();

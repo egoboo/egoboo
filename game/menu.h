@@ -125,6 +125,7 @@ void                    TxTitleImage_ctor();
 void                    TxTitleImage_release_all();
 void                    TxTitleImage_dtor();
 struct s_oglx_texture * TxTitleImage_get_ptr( const TX_REF by_reference itex );
+void                    TxTitleImage_reload_all();
 
 extern bool_t startNewPlayer;
 

@@ -119,30 +119,54 @@ void ui_Reset()
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_handleSDLEvent( SDL_Event *evt )
+bool_t ui_handleSDLEvent( SDL_Event *evt )
 {
-    if ( evt )
+    bool_t handled;
+
+    if ( NULL == evt ) return bfalse;
+
+    handled = btrue;
+    switch ( evt->type )
     {
-        switch ( evt->type )
-        {
-            case SDL_MOUSEBUTTONDOWN:
-                ui_context.mouseReleased = 0;
-                ui_context.mousePressed = 1;
+        case SDL_MOUSEBUTTONDOWN:
+            ui_context.mouseReleased = 0;
+            ui_context.mousePressed = 1;
 
-                break;
+            break;
 
-            case SDL_MOUSEBUTTONUP:
-                ui_context.mousePressed = 0;
-                ui_context.mouseReleased = 1;
+        case SDL_MOUSEBUTTONUP:
+            ui_context.mousePressed = 0;
+            ui_context.mouseReleased = 1;
 
-                break;
+            break;
 
-            case SDL_MOUSEMOTION:
-                // convert the screen coordinates to our "virtual coordinates"
-                ui_screen_to_virtual( evt->motion.x, evt->motion.y, &( ui_context.mouseX ), &( ui_context.mouseY ) );
-                break;
-        }
+        case SDL_MOUSEMOTION:
+            // convert the screen coordinates to our "virtual coordinates"
+            ui_screen_to_virtual( evt->motion.x, evt->motion.y, &( ui_context.mouseX ), &( ui_context.mouseY ) );
+            break;
+
+        case SDL_VIDEORESIZE:
+            if( SDL_VIDEORESIZE == evt->resize.type )
+            {
+                // the video has been resized, if the game is active, the 
+                // view matrix needs to be recalculated and possibly the
+                // auto-formatting for the menu system and the ui system must be
+                // recalculated
+
+                // grab all the new SDL screen info
+                SDLX_Get_Screen_Info( &sdl_scr, bfalse );
+
+                // set the ui's virtual screen size based on the graphic system's
+                // configuration
+                gfx_set_virtual_screen( &gfx );
+            }
+            break;
+
+        default:
+            handled = bfalse;
     }
+
+    return handled;
 }
 
 //--------------------------------------------------------------------------------------------

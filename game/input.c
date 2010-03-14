@@ -35,6 +35,8 @@
 #include "log.h"
 #include "network.h"
 #include "menu.h"
+#include "graphic.h"
+#include "camera.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -244,6 +246,41 @@ void input_read()
 
         switch ( evt.type )
         {
+            case SDL_ACTIVEEVENT:
+                // the application has gained or lost some form of focus
+                if( SDL_APPACTIVE == evt.active.type && 1 == evt.active.gain )
+                {
+                    // the application has recovered from being minimized
+                    // the textures need to be reloaded into OpenGL memory
+
+                    gfx_reload_all_textures();
+                }
+                break;
+
+            case SDL_VIDEORESIZE:
+                if( SDL_VIDEORESIZE == evt.resize.type )
+                {
+                    // The video has been resized.
+                    // If the game is active, some camera info mught need to be recalculated 
+                    // and possibly the auto-formatting for the menu system and the ui system
+                    // The ui will handle its own issues.
+
+                    // grab all the new SDL screen info
+                    SDLX_Get_Screen_Info( &sdl_scr, bfalse );
+
+                    // fix the camera rotation angles to estimate what is in-view
+                    camera_rotmesh_init();
+                }
+                break;
+
+
+            case SDL_VIDEOEXPOSE:
+                // something has been done to the screen and it needs to be re-drawn.
+                // For instance, a window above the app window was moved. This has no
+                // effect on the game at the moment.
+                break;
+
+
             case SDL_MOUSEBUTTONDOWN:
                 if ( evt.button.button == SDL_BUTTON_WHEELUP )
                 {

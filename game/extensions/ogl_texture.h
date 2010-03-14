@@ -85,7 +85,7 @@ void    oglx_texture_Release( oglx_texture_t *texture );
 void    oglx_texture_Bind( oglx_texture_t * texture );
 
 oglx_texture_t * oglx_texture_ctor( oglx_texture_t * texture );
-void           oglx_texture_dtor( oglx_texture_t * texture );
+void             oglx_texture_dtor( oglx_texture_t * texture );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
