@@ -2,7 +2,8 @@
 
 #!!!! do not specify the prefix in this file
 #!!!! if you want to specify a prefix, do it on the command line
-#make PREFIX=$HOME/.local
+#For instance: "make PREFIX=$HOME/.local"
+
 #PREFIX	:= ${HOME}/.local
 
 ifndef ($(PREFIX),"")

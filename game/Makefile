@@ -1,5 +1,4 @@
-# note if you change the prefix also update egoboo.sh
-PREFIX	:= ${HOME}/.local
+# Do not run this file. Run the Makefile in the parent directory, instead
 
 EGO_SRC  := \
 	bbox.c bsp.c camera.c char.c client.c clock.c collision.c \
