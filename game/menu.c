@@ -170,9 +170,9 @@ static int selectedPlayer = 0;           // Which player is currently selected t
 
 static menu_process_t    _mproc;
 
-static int     mnu_selectedPlayerCount;
-static Uint32  mnu_selectedInput[MAX_PLAYER];
-static int     mnu_selectedPlayer[MAX_PLAYER];
+static int     mnu_selectedPlayerCount = 0;
+static Uint32  mnu_selectedInput[MAX_PLAYER] = {0};
+static int     mnu_selectedPlayer[MAX_PLAYER] = {0};
 
 static GameTips_t mnu_GameTip = { 0 };
 
@@ -197,10 +197,6 @@ bool_t mnu_draw_background = btrue;
 
 int              loadplayer_count = 0;
 LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
-
-int     mnu_selectedPlayerCount = 0;
-Uint32  mnu_selectedInput[MAX_PLAYER] = {0};
-int     mnu_selectedPlayer[MAX_PLAYER] = {0};
 
 //--------------------------------------------------------------------------------------------
 // "private" function prototypes
@@ -2804,9 +2800,9 @@ bool_t doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio
     /// @details BB@> coerce the aspect ratio of the screen to some standard size
 
     float req_aspect_ratio;
-    
-    if( 0 == height && NULL == pratio || NULL == psz_ratio ) return bfalse;
-    
+
+    if( 0 == height || NULL == pratio || NULL == psz_ratio ) return bfalse;
+
     req_aspect_ratio = (float)width / (float)height;
 
     if( req_aspect_ratio > 0.0 && req_aspect_ratio < 0.5f*((5.0f / 4.0f) + (4.0f / 3.0f)) )
@@ -2850,7 +2846,7 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
 
     float       aspect_ratio;
 
-    doVideoOptions_coerce_aspect_ratio( pcfg->scrx_req, pcfg->scry_req, &aspect_ratio, &sz_aspect_ratio ); 
+    doVideoOptions_coerce_aspect_ratio( pcfg->scrx_req, pcfg->scry_req, &aspect_ratio, &sz_aspect_ratio );
 
     found_rect = NULL;
     pprect = psdl_scr->video_mode_list;
@@ -2898,12 +2894,12 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
                 strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
                 break;
 
-            case 640: 
+            case 640:
                 pcfg->scry_req = 480;
                 strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
                 break;
 
-            case 800: 
+            case 800:
                 pcfg->scry_req = 600;
                 strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
                 break;
@@ -2940,7 +2936,7 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
 
             // unknown
             default:
-                doVideoOptions_coerce_aspect_ratio( pcfg->scrx_req, pcfg->scry_req, &aspect_ratio, &sz_aspect_ratio ); 
+                doVideoOptions_coerce_aspect_ratio( pcfg->scrx_req, pcfg->scry_req, &aspect_ratio, &sz_aspect_ratio );
                 break;
         }
     }
@@ -2966,7 +2962,6 @@ int doVideoOptions( float deltaTime )
 
     static bool_t widescreen;
     static float  aspect_ratio;
-    static char * sz_aspect_ratio = "unknown";
     static STRING sz_screen_size;
 
     static const char *sz_buttons[] =
@@ -3467,7 +3462,7 @@ int doVideoOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 13, sz_buttons[12], menuFont, buttonLeft + 450, GFX_HEIGHT - 110, 125, 30 ) )
             {
                 float req_area;
-                
+
                 cfg.scrx_req *= 1.2f;
                 cfg.scry_req *= 1.2f;
 

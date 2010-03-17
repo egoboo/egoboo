@@ -65,10 +65,13 @@ struct Font;
 #define DONTFLASH                       255
 #define SEEKURSEAND                     31          ///< Blacking flash
 
-#define GFX_WIDTH                       800         ///< 640
-#define GFX_HEIGHT                      600         ///< 480
+extern int GFX_WIDTH;
+extern int GFX_HEIGHT;
 
-#define SHADOWRAISE         5
+//#define GFX_WIDTH                       800         ///< 640
+//#define GFX_HEIGHT                      600         ///< 480
+
+#define SHADOWRAISE                       5
 
 /// The supported colors of bars and blips
 enum e_color

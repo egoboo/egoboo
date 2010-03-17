@@ -169,6 +169,9 @@ float time_render_scene_mesh_ref_chr        = 0.0f;
 float time_render_scene_mesh_drf_solid      = 0.0f;
 float time_render_scene_mesh_render_shadows = 0.0f;
 
+int GFX_WIDTH  = 800;
+int GFX_HEIGHT = 600;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -547,6 +550,7 @@ void gfx_init_SDL_graphics()
     }
     else
     {
+        GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.height * (float)sdl_vparam.width;
         log_message( "Success!\n" );
     }
 

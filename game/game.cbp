@@ -604,6 +604,7 @@
 		</Unit>
 		<Unit filename="platform\file_win.c">
 			<Option compilerVar="CC" />
+			<Option compile="0" />
 			<Option target="minsys-gcc-debug" />
 			<Option target="minsys-gcc-release" />
 			<Option target="win32-msvc-debug" />
@@ -621,6 +622,7 @@
 		</Unit>
 		<Unit filename="platform\sys_win32.c">
 			<Option compilerVar="CC" />
+			<Option compile="0" />
 			<Option target="minsys-gcc-debug" />
 			<Option target="minsys-gcc-release" />
 			<Option target="win32-msvc-debug" />
