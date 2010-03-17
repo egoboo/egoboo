@@ -95,7 +95,7 @@ void TxTexture_delete_all()
 //--------------------------------------------------------------------------------------------
 void TxTexture_reload_all()
 {
-    /// @details ZZ@> This function re-loads all the current textures back into 
+    /// @details ZZ@> This function re-loads all the current textures back into
     ///               OpenGL texture memory using the cached SDL surfaces
 
     TX_REF cnt;
@@ -104,7 +104,7 @@ void TxTexture_reload_all()
     {
         oglx_texture_t * ptex = TxTexture.lst + cnt;
 
-        if( ptex->valid )
+        if ( ptex->valid )
         {
             oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
         }

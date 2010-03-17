@@ -234,7 +234,6 @@ typedef struct s_pack pack_t;
 #define PACK_BEGIN_LOOP(IT,INIT) IT = INIT; while( MAX_CHR != IT ) { CHR_REF IT##_internal = ChrList.lst[IT].pack.next;
 #define PACK_END_LOOP(IT) IT = IT##_internal; }
 
-
 //--------------------------------------------------------------------------------------------
 /// The definition of the character object
 /// This "inherits" for ego_object_base_t

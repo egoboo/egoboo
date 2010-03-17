@@ -436,7 +436,7 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     // Proceed only if the character's target has just died or is already dead
     returncode = ( HAS_SOME_BITS( pself->alert, ALERTIF_TARGETKILLED ) || !pself_target->alive );
@@ -526,7 +526,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Yep this is it
-    if ( ACTIVE_CHR(pself->target) && pself->target != pself->index )
+    if ( ACTIVE_CHR( pself->target ) && pself->target != pself->index )
     {
         float fx, fy;
 
@@ -666,7 +666,7 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
     if ( ACTIVE_CHR( pself->target ) )
@@ -690,9 +690,9 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 
     ichr = _get_chr_target( pchr, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
-    if ( ichr != pself->index && ACTIVE_CHR(ichr) )
+    if ( ichr != pself->index && ACTIVE_CHR( ichr ) )
     {
-        SET_TARGET_0(ichr);
+        SET_TARGET_0( ichr );
     }
     else
     {
@@ -714,13 +714,13 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
     returncode = bfalse;
     if ( ACTIVE_CHR( ichr ) )
     {
-        SET_TARGET(ichr, pself_target);
+        SET_TARGET( ichr, pself_target );
         returncode = btrue;
     }
 
@@ -739,13 +739,13 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     returncode = bfalse;
     if ( ACTIVE_CHR( ichr ) )
     {
-        SET_TARGET(ichr, pself_target);
+        SET_TARGET( ichr, pself_target );
         returncode = btrue;
     }
 
@@ -762,7 +762,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
 
     if ( ACTIVE_CHR( pself->attacklast ) )
     {
-        SET_TARGET_0(pself->attacklast);
+        SET_TARGET_0( pself->attacklast );
     }
     else
     {
@@ -780,9 +780,9 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( ACTIVE_CHR(pself->bumplast) )
+    if ( ACTIVE_CHR( pself->bumplast ) )
     {
-        SET_TARGET_0(pself->bumplast);
+        SET_TARGET_0( pself->bumplast );
     }
     else
     {
@@ -800,11 +800,11 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( VALID_TEAM_RANGE(pchr->team) )
+    if ( VALID_TEAM_RANGE( pchr->team ) )
     {
         CHR_REF isissy = TeamStack.lst[pchr->team].sissy;
 
-        if( ACTIVE_CHR(isissy) )
+        if ( ACTIVE_CHR( isissy ) )
         {
             SET_TARGET_0( isissy );
         }
@@ -830,7 +830,7 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( ACTIVE_CHR(pself->target_old) )
+    if ( ACTIVE_CHR( pself->target_old ) )
     {
         SET_TARGET_0( pself->target_old );
     }
@@ -1120,11 +1120,11 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( ACTIVE_CHR( pself->target )  )
+    if ( ACTIVE_CHR( pself->target ) )
     {
         chr_t * pself_target = ChrList.lst + pself->target;
 
-        if( pself_target->alive )
+        if ( pself_target->alive )
         {
             int action = mad_get_action( pself_target->inst.imad, pstate->argument );
 
@@ -1404,7 +1404,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->ismount && ChrList.lst[pself_target->holdingwhich[SLOT_LEFT]].openstuff )
     {
@@ -1565,7 +1565,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->alive && chr_get_iteam( pself->target ) != pchr->team );
 
@@ -1582,7 +1582,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->alive && team_hates_team( pchr->team, chr_get_iteam( pself->target ) ) && !pself_target->invictus );
 
@@ -1611,15 +1611,15 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( VALID_TEAM_RANGE(pchr->team) )
+    if ( VALID_TEAM_RANGE( pchr->team ) )
     {
         CHR_REF ileader = TeamStack.lst[pchr->team].leader;
 
-        if( NOLEADER != ileader && ACTIVE_CHR(ileader) )
+        if ( NOLEADER != ileader && ACTIVE_CHR( ileader ) )
         {
             CHR_REF itarget = ChrList.lst[ileader].ai.target;
 
-            if( ACTIVE_CHR(itarget) )
+            if ( ACTIVE_CHR( itarget ) )
             {
                 SET_TARGET_0( itarget );
             }
@@ -1680,7 +1680,7 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = pself_target->skin;
     pstate->x = change_armor( pself->target, pstate->argument );
@@ -1703,7 +1703,7 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = pchr->money;
     tTmp = pself_target->money;
@@ -1769,11 +1769,11 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( VALID_TEAM_RANGE(pchr->team) )
+    if ( VALID_TEAM_RANGE( pchr->team ) )
     {
         CHR_REF ileader = TeamStack.lst[pchr->team].leader;
 
-        if( NOLEADER != ileader && ACTIVE_CHR(ileader) )
+        if ( NOLEADER != ileader && ACTIVE_CHR( ileader ) )
         {
             SET_TARGET_0( ileader );
         }
@@ -2016,7 +2016,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( !pself_target->alive || pself_target->life > pself_target->lifemax - HURTDAMAGE )
         returncode = bfalse;
@@ -2034,7 +2034,7 @@ Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->isplayer;
 
@@ -2115,7 +2115,7 @@ Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->alive;
 
@@ -2187,7 +2187,7 @@ Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->gender == GENDER_MALE );
 
@@ -2204,7 +2204,7 @@ Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->gender == GENDER_FEMALE );
 
@@ -2219,7 +2219,7 @@ Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_TARGET_0(pself->index);
+    SET_TARGET_0( pself->index );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2431,7 +2431,7 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( ACTIVE_CHR(pself->hitlast) )
+    if ( ACTIVE_CHR( pself->hitlast ) )
     {
         SET_TARGET_0( pself->hitlast );
     }
@@ -2455,7 +2455,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 
     ichr = _get_chr_target( pchr, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
-    if ( ( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -2583,7 +2583,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->latch.b |= pstate->argument;
 
@@ -2630,7 +2630,7 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pstate->argument = pself_target->grogtime;
 
@@ -2650,7 +2650,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pstate->argument = pself_target->dazetime;
 
@@ -2783,7 +2783,7 @@ Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->iskursed = bfalse;
 
@@ -2829,7 +2829,7 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = 0;  // Amount of ammo given
 
@@ -2864,7 +2864,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = 0;  // Amount of ammo given
 
@@ -2873,7 +2873,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
         PACK_BEGIN_LOOP( ichr, pself_target->holdingwhich[SLOT_LEFT] )
         {
             iTmp += restock_ammo( ichr, pstate->argument );
-            if( 0 != iTmp ) break;
+            if ( 0 != iTmp ) break;
         }
         PACK_END_LOOP( ichr )
     }
@@ -2883,7 +2883,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
         PACK_BEGIN_LOOP( ichr, pself_target->holdingwhich[SLOT_RIGHT] )
         {
             iTmp += restock_ammo( ichr, pstate->argument );
-            if( 0 != iTmp ) break;
+            if ( 0 != iTmp ) break;
         }
         PACK_END_LOOP( ichr )
     }
@@ -3214,7 +3214,7 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ACTION_IS_TYPE( pself_target->inst.action_which, P );
 
@@ -3231,7 +3231,7 @@ Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->inst.action_which >= ACTION_UA && pself_target->inst.action_which <= ACTION_FD );
 
@@ -3658,7 +3658,7 @@ Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->iskursed;
 
@@ -3767,7 +3767,7 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->vel.x = 0;
     pself_target->vel.y = 0;
@@ -3895,7 +3895,7 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->vel.x += pstate->x;
     pself_target->vel.y += pstate->y;
@@ -3958,7 +3958,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 
     itarget = chr_get_lowest_attachment( pself->target, bfalse );
 
-    if( ACTIVE_CHR(itarget) )
+    if ( ACTIVE_CHR( itarget ) )
     {
         SET_TARGET_0( itarget );
     }
@@ -4137,7 +4137,7 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( ACTIVE_CHR(pself->owner) )
+    if ( ACTIVE_CHR( pself->owner ) )
     {
         SET_TARGET_0( pself->owner );
     }
@@ -4223,7 +4223,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     ichr = _get_chr_target( pchr, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
                             pstate->argument, ( pstate->distance >> 4 ) & 1, ( pstate->distance >> 5 ) & 1 );
 
-    if ( ( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -4246,7 +4246,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
     if ( !pself_target->isplayer )
@@ -4262,7 +4262,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
             // Poof others now
             pself_target->ai.poof_time = update_wld;
 
-            SET_TARGET(pself->index, pself_target);
+            SET_TARGET( pself->index, pself_target );
         }
     }
 
@@ -4417,7 +4417,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     sTmp = vec_to_facing( pself_target->pos.x - pchr->pos.x , pself_target->pos.y - pchr->pos.y );
     sTmp -= pchr->facing_z;
@@ -4507,7 +4507,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 
     ichr = _get_chr_target( pchr, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
-    if ( ( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -4544,7 +4544,7 @@ Uint8 scr_GiveStrengthToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -4567,7 +4567,7 @@ Uint8 scr_GiveWisdomToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -4590,7 +4590,7 @@ Uint8 scr_GiveIntelligenceToTarget( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -4613,7 +4613,7 @@ Uint8 scr_GiveDexterityToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -4636,7 +4636,7 @@ Uint8 scr_GiveLifeToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -4665,7 +4665,7 @@ Uint8 scr_GiveManaToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -4792,7 +4792,7 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -4898,7 +4898,7 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pstate->argument > 0 )
     {
@@ -5037,7 +5037,7 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
 
@@ -5148,7 +5148,7 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( !ACTIVE_CHR( pself->target ) )
     {
@@ -5453,7 +5453,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
     if ( ACTIVE_CHR( ichr ) )
@@ -5489,7 +5489,7 @@ Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->inst.action_which == ACTION_DA || pself_target->inst.action_which == ACTION_WA );
 
@@ -5569,7 +5569,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->see_invisible_level;
 
@@ -5601,7 +5601,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     ichr = _get_chr_target( pchr, NEAREST, blahteam, (( pstate->distance >> 3 ) & 1 ),
                             (( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1 ), ( pstate->distance >> 5 ) & 1 );
 
-    if ( ( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5625,7 +5625,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 
     ichr = _get_chr_target( pchr, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
-    if ( ( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5649,7 +5649,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 
     ichr = _get_chr_target( pchr, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
-    if ( ( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5675,7 +5675,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 
     ichr = _get_chr_target( pchr, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
 
-    if ( ( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5794,7 +5794,7 @@ Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->flyheight > 0 );
 
@@ -5894,7 +5894,7 @@ Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pstate->argument = pself_target->ai.state;
 
@@ -5936,7 +5936,7 @@ Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pstate->argument = pself_target->ai.content;
 
@@ -6234,7 +6234,7 @@ Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->ismount;
 
@@ -6251,7 +6251,7 @@ Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->platform;
 
@@ -6285,7 +6285,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = MAX_ENC != pself_target->firstenchant;
 
@@ -6381,7 +6381,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( !ACTIVE_CHR( pself->target ) ) return bfalse;
 
@@ -6624,7 +6624,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pcap = chr_get_pcap( pself->target );
 
@@ -6649,7 +6649,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( !ACTIVE_CHR( pself->target ) ) return bfalse;
 
@@ -6703,15 +6703,15 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 
     iattached = pchr->attachedto;
 
-    if ( ACTIVE_CHR(iattached) )
+    if ( ACTIVE_CHR( iattached ) )
     {
         Uint32 bits = ChrList.lst[iattached].ai.alert;
 
-        if( HAS_SOME_BITS( bits, ALERTIF_BLOCKED ) )
+        if ( HAS_SOME_BITS( bits, ALERTIF_BLOCKED ) )
         {
             CHR_REF iattacked = ChrList.lst[iattached].ai.attacklast;
 
-            if( ACTIVE_CHR(iattacked) )
+            if ( ACTIVE_CHR( iattacked ) )
             {
                 SET_TARGET_0( iattacked );
             }
@@ -6743,7 +6743,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( !pself_target->alive || pself_target->mana > pself_target->manamax - HURTDAMAGE )
     {
@@ -6774,7 +6774,7 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pself->lastitemused != pself->index && ACTIVE_CHR(pself->lastitemused) )
+    if ( pself->lastitemused != pself->index && ACTIVE_CHR( pself->lastitemused ) )
     {
         SET_TARGET_0( pself->lastitemused );
     }
@@ -6924,7 +6924,7 @@ Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pstate->argument = pself_target->ai.damagetypelast;
 
@@ -6941,7 +6941,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
     if ( pself_target->isplayer && quest_add_idsz( chr_get_dir_name( pself->target ), pstate->argument ) )
@@ -6992,7 +6992,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
     if ( pself_target->isplayer )
@@ -7019,7 +7019,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
     if ( pself_target->isplayer && pstate->distance != 0 )
@@ -7117,7 +7117,7 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( pself_target->alive && pself->owner == pself->target );
 
@@ -7141,7 +7141,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pos.x = pstate->x;
     pos.y = pstate->y;
@@ -7430,7 +7430,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( !ACTIVE_CHR( pself->target ) ) return bfalse;
 
@@ -7457,7 +7457,7 @@ Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -7480,7 +7480,7 @@ Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -7515,7 +7515,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = pself_target->canseekurse;
 
@@ -7532,7 +7532,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->alive )
     {
@@ -7573,7 +7573,7 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
     if ( pself_target->isitem && !pself_target->iskursed )
@@ -7609,7 +7609,7 @@ Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->vel.z += pstate->argument / 100.0f;
 
@@ -7626,7 +7626,7 @@ Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->ammo = pstate->argument;
 
@@ -7688,7 +7688,7 @@ Uint8 scr_SetTargetSize( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SCRIPT_REQUIRE_TARGET(pself_target);
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     pself_target->fat_goto *= pstate->argument / 100.0f;
     pself_target->fat_goto_time += SIZETIME;

@@ -406,7 +406,7 @@ void export_all_players( bool_t require_local )
         number = 0;
         PACK_BEGIN_LOOP( item, ChrList.lst[character].pack.next )
         {
-            if( number >= MAXINVENTORY ) break;
+            if ( number >= MAXINVENTORY ) break;
 
             if ( ChrList.lst[item].isitem )
             {
@@ -3220,8 +3220,8 @@ bool_t game_update_imports()
     }
 
     // reload all of the available players
-    check_player_import( "players", btrue );
-    check_player_import( "remote",  bfalse );
+    mnu_player_check_import( "players", btrue );
+    mnu_player_check_import( "remote",  bfalse );
 
     // build the import directory using the player info
     vfs_empty_import_directory();

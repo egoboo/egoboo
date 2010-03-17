@@ -736,7 +736,7 @@ void prt_instance_update_all( camera_t * pcam )
 
         // handle the frame counting
         pprt->frames_count++;
-        if( pprt->frames_remaining > 0 ) pprt->frames_remaining--;
+        if ( pprt->frames_remaining > 0 ) pprt->frames_remaining--;
 
         if ( !pprt->inview || pprt->is_hidden || 0 == pprt->size )
         {

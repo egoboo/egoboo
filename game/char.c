@@ -296,7 +296,7 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
     else
     {
         pinst->matrix = ScaleXYZRotateXYZTranslate( pchr->fat, pchr->fat, pchr->fat,
-                        TO_TURN(pchr->facing_z),
+                        TO_TURN( pchr->facing_z ),
                         TO_TURN( pchr->map_facing_x - MAP_TURN_OFFSET ),
                         TO_TURN( pchr->map_facing_y - MAP_TURN_OFFSET ),
                         pchr->pos.x, pchr->pos.y, pchr->pos.z );
@@ -1306,11 +1306,11 @@ bool_t pack_add_item( pack_t * ppack, CHR_REF item )
     cap_t  * pitem_cap;
     pack_t * pitem_pack;
 
-    if( NULL == ppack || !ACTIVE_CHR(item) ) return bfalse;
+    if ( NULL == ppack || !ACTIVE_CHR( item ) ) return bfalse;
 
     if ( !ACTIVE_CHR( item ) ) return bfalse;
     pitem      = ChrList.lst + item;
-    pitem_pack = &(pitem->pack);
+    pitem_pack = &( pitem->pack );
     pitem_cap  = chr_get_pcap( item );
 
     oldfirstitem     = ppack->next;
@@ -1328,9 +1328,9 @@ bool_t pack_remove_item( pack_t * ppack, CHR_REF iparent, CHR_REF iitem )
     chr_t * pitem, * pparent;
 
     // convert the iitem it to a pointer
-    old_next = (CHR_REF)MAX_CHR;
-    pitem    = NULL; 
-    if( ALLOCATED_CHR( iitem ) )
+    old_next = ( CHR_REF )MAX_CHR;
+    pitem    = NULL;
+    if ( ALLOCATED_CHR( iitem ) )
     {
         pitem    = ChrList.lst + iitem;
         old_next = pitem->pack.next;
@@ -1338,25 +1338,25 @@ bool_t pack_remove_item( pack_t * ppack, CHR_REF iparent, CHR_REF iitem )
 
     // convert the pparent it to a pointer
     pparent = NULL;
-    if( ALLOCATED_CHR( iparent ) )
+    if ( ALLOCATED_CHR( iparent ) )
     {
-        pparent = ChrList.lst + iparent; 
+        pparent = ChrList.lst + iparent;
     }
- 
+
     // Remove the iitem from the pack
-    if( NULL != pitem )
+    if ( NULL != pitem )
     {
         pitem->pack.was_packed = pitem->pack.is_packed;
         pitem->pack.is_packed  = bfalse;
     }
 
     // adjust the iparent's next
-    if( NULL != pparent )
+    if ( NULL != pparent )
     {
         pparent->pack.next = old_next;
     }
 
-    if( NULL != ppack )
+    if ( NULL != ppack )
     {
         ppack->count--;
     }
@@ -1389,7 +1389,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF by_reference item, const CHR_REF by_
     {
         PACK_BEGIN_LOOP( istack, ChrList.lst[character].pack.next )
         {
-            if( ACTIVE_CHR(istack) )
+            if ( ACTIVE_CHR( istack ) )
             {
                 chr_t * pstack     = ChrList.lst + istack;
                 cap_t * pstack_cap = chr_get_pcap( istack );
@@ -1403,7 +1403,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF by_reference item, const CHR_REF by_
 
                 // you can still stack something even if the profiles don't match exactly,
                 // but they have to have all the same IDSZ properties
-                if ( found && (pstack->iprofile != pitem->iprofile) )
+                if ( found && ( pstack->iprofile != pitem->iprofile ) )
                 {
                     for ( id = 0; id < IDSZ_COUNT && found; id++ )
                     {
@@ -1415,7 +1415,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF by_reference item, const CHR_REF by_
                 }
             }
 
-            if( found ) break;
+            if ( found ) break;
         }
         PACK_END_LOOP( istack );
 
@@ -1442,12 +1442,12 @@ bool_t chr_add_pack_item( const CHR_REF by_reference item, const CHR_REF by_refe
 
     if ( !ACTIVE_CHR( character ) ) return bfalse;
     pchr      = ChrList.lst + character;
-    pchr_pack = &(pchr->pack);
+    pchr_pack = &( pchr->pack );
     pchr_cap  = chr_get_pcap( character );
 
     if ( !ACTIVE_CHR( item ) ) return bfalse;
     pitem      = ChrList.lst + item;
-    pitem_pack = &(pitem->pack);
+    pitem_pack = &( pitem->pack );
     pitem_cap  = chr_get_pcap( item );
 
     // Make sure everything is hunkydori
@@ -1541,15 +1541,15 @@ bool_t chr_remove_pack_item( CHR_REF ichr, CHR_REF iparent, CHR_REF iitem )
 
     bool_t removed;
 
-    if( !ALLOCATED_CHR(ichr) ) return bfalse;
+    if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
-    pchr_pack = &(pchr->pack);
+    pchr_pack = &( pchr->pack );
 
     // remove it from the pack
     removed = pack_remove_item( pchr_pack, iparent, iitem );
 
     // unequip the item
-    if( removed && ALLOCATED_CHR(iitem) )
+    if ( removed && ALLOCATED_CHR( iitem ) )
     {
         ChrList.lst[iitem].isequipped = bfalse;
         ChrList.lst[iitem].team       = chr_get_iteam( ichr );
@@ -1572,7 +1572,7 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
     // does the character exist?
     if ( !ACTIVE_CHR( character ) ) return bfalse;
     pchr      = ChrList.lst + character;
-    pchr_pack = &(pchr->pack);
+    pchr_pack = &( pchr->pack );
 
     // Can the character have a pack?
     if ( pchr_pack->is_packed || pchr->isitem ) return ( CHR_REF )MAX_CHR;
@@ -1591,28 +1591,28 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
     PACK_END_LOOP( item );
 
     // did we find anything?
-    if( character == found_item || MAX_CHR == found_item ) return bfalse;
+    if ( character == found_item || MAX_CHR == found_item ) return bfalse;
 
     // convert the found_item it to a pointer
-    pfound_item      = NULL; 
+    pfound_item      = NULL;
     pfound_item_pack = NULL;
-    if( ALLOCATED_CHR( found_item ) )
+    if ( ALLOCATED_CHR( found_item ) )
     {
-        pfound_item = ChrList.lst + found_item; 
-        pfound_item_pack = &(pfound_item->pack);
+        pfound_item = ChrList.lst + found_item;
+        pfound_item_pack = &( pfound_item->pack );
     }
 
     // convert the pfound_item_parent it to a pointer
     pfound_item_parent      = NULL;
     pfound_item_parent_pack = NULL;
-    if( ALLOCATED_CHR( found_item_parent ) )
+    if ( ALLOCATED_CHR( found_item_parent ) )
     {
-        pfound_item_parent      = ChrList.lst + found_item_parent; 
-        pfound_item_parent_pack = &(pfound_item_parent->pack);
+        pfound_item_parent      = ChrList.lst + found_item_parent;
+        pfound_item_parent_pack = &( pfound_item_parent->pack );
     }
- 
+
     // did we find a valid object?
-    if( !ACTIVE_CHR(found_item) )
+    if ( !ACTIVE_CHR( found_item ) )
     {
         chr_remove_pack_item( character, found_item_parent, found_item );
 
@@ -1650,7 +1650,7 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
         pfound_item->ai.alert |= ALERTIF_TAKENOUT;
     }
 
-    if( MAX_CHR == pchr_pack->next )
+    if ( MAX_CHR == pchr_pack->next )
     {
         pchr_pack->count = 0;
     }
@@ -1692,7 +1692,7 @@ void drop_keys( const CHR_REF by_reference character )
                     TURN_T turn;
 
                     direction = RANDIE;
-                    turn      = TO_TURN(direction);
+                    turn      = TO_TURN( direction );
 
                     // unpack the item
                     ChrList.lst[lastitem].pack.next = pitem->pack.next;
@@ -7588,7 +7588,7 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
     if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     pchr->inst.matrix = ScaleXYZRotateXYZTranslate( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
-                        TO_TURN(mc_tmp->rotate.z), TO_TURN(mc_tmp->rotate.x), TO_TURN(mc_tmp->rotate.y ),
+                        TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
                         mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
 
     memcpy( &( pchr->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );

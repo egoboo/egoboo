@@ -476,10 +476,10 @@ bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oc
     float abs_vel;
     oct_bb_t tmp_min, tmp_max;
 
-    abs_vel = ABS(vel.x) + ABS(vel.y) + ABS(vel.z);
-    if( 0.0f == abs_vel )
+    abs_vel = ABS( vel.x ) + ABS( vel.y ) + ABS( vel.z );
+    if ( 0.0f == abs_vel )
     {
-        if( NULL != pdst )
+        if ( NULL != pdst )
         {
             *pdst = src;
         }

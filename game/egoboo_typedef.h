@@ -92,7 +92,6 @@ typedef FACING_T TURN_T;
 #define TO_FACING(X) ((FACING_T)(X))
 #define TO_TURN(X)   ((TURN_T)((TO_FACING(X)>>2) & TRIG_TABLE_MASK))
 
-
 //--------------------------------------------------------------------------------------------
 // 16.16 fixed point types
 

@@ -30,8 +30,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_oglx_texture;
 struct s_mod_file;
+struct s_gfx_config;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -73,10 +73,13 @@ enum e_which_menu
 };
 typedef enum e_which_menu which_menu_t;
 
-#define MENU_SELECT   1
-#define MENU_NOTHING  0
-#define MENU_END     -1
-#define MENU_QUIT    -2
+enum e_menu_retvals
+{
+    MENU_SELECT   =  1,
+    MENU_NOTHING  =  0,
+    MENU_END      = -1,
+    MENU_QUIT     = -2
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -99,51 +102,48 @@ extern LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern int     mnu_selectedPlayerCount;
-extern Uint32  mnu_selectedInput[MAX_PLAYER];
-extern int     mnu_selectedPlayer[MAX_PLAYER];
-
 extern bool_t mnu_draw_background;
 
 extern menu_process_t * MProc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+// code for initializing and deinitializing the menu system
 int  menu_system_begin();
 void menu_system_end();
 
-void  check_player_import( const char *dirname, bool_t initialize );
-
+// global function to control navigation of the game menus
 int doMenu( float deltaTime );
 
+// code to start and stop menus
 bool_t mnu_begin_menu( which_menu_t which );
 void   mnu_end_menu();
+int    mnu_get_menu_depth();
 
-int mnu_get_menu_depth();
+void  mnu_player_check_import( const char *dirname, bool_t initialize );
 
-void                    TxTitleImage_ctor();
-void                    TxTitleImage_release_all();
-void                    TxTitleImage_dtor();
-struct s_oglx_texture * TxTitleImage_get_ptr( const TX_REF by_reference itex );
-void                    TxTitleImage_reload_all();
+// "public" implmentation of the TxTitleImage array
+void   TxTitleImage_reload_all();
+TX_REF TxTitleImage_load_one( const char *szLoadName );
 
 extern bool_t startNewPlayer;
 
-void                mnu_ModList_release_all();
+// "public" implementation of mnu_ModList
 struct s_mod_file * mnu_ModList_get_base( int imod );
 const char *        mnu_ModList_get_name( int imod );
 
-void   mnu_load_all_module_info();
+// "public" module utilities
 int    mnu_get_mod_number( const char *szModName );
 bool_t mnu_test_by_name( const char *szModName );
 bool_t mnu_test_by_index( const MOD_REF by_reference modnumber );
 
-TX_REF mnu_get_icon_ref( const CAP_REF by_reference icap, const TX_REF by_reference default_ref );
-
+// "public" menu process hooks
 int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );
 menu_process_t     * menu_process_init( menu_process_t * mproc );
 
-TX_REF  TxTitleImage_load_one( const char *szLoadName );
+// "public" reset of the autoformatting
+void autoformat_init( struct s_gfx_config * pgfx );
 
 #define egoboo_Menu_h
 

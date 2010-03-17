@@ -261,8 +261,8 @@ void _debug_print( const char *text )
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
-        CSTR_END != *src && dst < dst_end;
-        src++, dst++ )
+          CSTR_END != *src && dst < dst_end;
+          src++, dst++ )
     {
         *dst = *src;
     }
@@ -559,7 +559,7 @@ bool_t gfx_set_virtual_screen( gfx_config_t * pgfx )
 {
     float kx, ky;
 
-    if( NULL == pgfx ) return bfalse;
+    if ( NULL == pgfx ) return bfalse;
 
     kx = ( float )GFX_WIDTH  / ( float )sdl_scr.x;
     ky = ( float )GFX_HEIGHT / ( float )sdl_scr.y;
@@ -623,7 +623,6 @@ bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t gfx_config_init( gfx_config_t * pgfx )
@@ -1399,8 +1398,8 @@ void draw_map()
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == IDSZ_NONE ||
-                        local_senseenemiesID == pcap->idsz[IDSZ_PARENT] ||
-                        local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ] )
+                         local_senseenemiesID == pcap->idsz[IDSZ_PARENT] ||
+                         local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ] )
                     {
                         // Inside the map?
                         if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
@@ -1565,14 +1564,14 @@ int draw_debug( int y )
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
-            ChrList.lst[ichr].damagemodifier[DAMAGE_SLASH] & 3,
-            ChrList.lst[ichr].damagemodifier[DAMAGE_CRUSH] & 3,
-            ChrList.lst[ichr].damagemodifier[DAMAGE_POKE ] & 3,
-            ChrList.lst[ichr].damagemodifier[DAMAGE_HOLY ] & 3,
-            ChrList.lst[ichr].damagemodifier[DAMAGE_EVIL ] & 3,
-            ChrList.lst[ichr].damagemodifier[DAMAGE_FIRE ] & 3,
-            ChrList.lst[ichr].damagemodifier[DAMAGE_ICE  ] & 3,
-            ChrList.lst[ichr].damagemodifier[DAMAGE_ZAP  ] & 3 );
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_SLASH] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_CRUSH] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_POKE ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_HOLY ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_EVIL ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_FIRE ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_ICE  ] & 3,
+                              ChrList.lst[ichr].damagemodifier[DAMAGE_ZAP  ] & 3 );
 
         ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_SIZE, ChrList.lst[ichr].pos.y / GRID_SIZE );
@@ -2629,7 +2628,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
 
     time_draw_scene       = time_render_scene_init + time_render_scene_mesh +
-        time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
+                            time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5098,7 +5097,7 @@ void light_fans( renderlist_t * prlist )
                     light = CLIP( light, 0.0f, 255.0f );
                     ptmem->clst[vertex][RR] =
                         ptmem->clst[vertex][GG] =
-                        ptmem->clst[vertex][BB] = light * INV_FF;
+                            ptmem->clst[vertex][BB] = light * INV_FF;
                 };
 
                 // clear out the deltas
@@ -5145,7 +5144,7 @@ void light_fans( renderlist_t * prlist )
                 light = CLIP( light, 0.0f, 255.0f );
                 ptmem->clst[vertex][RR] =
                     ptmem->clst[vertex][GG] =
-                    ptmem->clst[vertex][BB] = light * INV_FF;
+                        ptmem->clst[vertex][BB] = light * INV_FF;
             };
 
             for ( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
@@ -5156,7 +5155,7 @@ void light_fans( renderlist_t * prlist )
                 light = CLIP( light, 0.0f, 255.0f );
                 ptmem->clst[vertex][RR] =
                     ptmem->clst[vertex][GG] =
-                    ptmem->clst[vertex][BB] = light * INV_FF;
+                        ptmem->clst[vertex][BB] = light * INV_FF;
             };
 
             // clear out the deltas
@@ -5452,9 +5451,9 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
         // not every light-tile calculation is done every single frame
-        resist_lighting_calculation = (0 != ((( ix ^ iy ) + frame_all ) & 0x03 ));
+        resist_lighting_calculation = ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) );
 
-        if( !resist_lighting_calculation )
+        if ( !resist_lighting_calculation )
         {
             lighting_cache_t * pcache_old;
             lighting_cache_t   cache_new;
@@ -5500,7 +5499,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
                             fvec3_t       nrm;
                             dynalight_t * pdyna;
 
-                            // does this dynamic light intersects this grid? 
+                            // does this dynamic light intersects this grid?
                             if ( fgrid_rect.xmin > reg[cnt].bound.xmax || fgrid_rect.xmax < reg[cnt].bound.xmin ) continue;
                             if ( fgrid_rect.ymin > reg[cnt].bound.ymax || fgrid_rect.ymax < reg[cnt].bound.ymin ) continue;
 

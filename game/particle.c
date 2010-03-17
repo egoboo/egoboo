@@ -334,17 +334,17 @@ PRT_REF prt_get_free( bool_t force )
     PRT_REF iprt;
 
     // Return TOTAL_MAX_PRT if we can't find one
-    iprt = (PRT_REF)TOTAL_MAX_PRT;
+    iprt = ( PRT_REF )TOTAL_MAX_PRT;
 
     if ( 0 == PrtList.free_count )
     {
         if ( force )
         {
-            PRT_REF found           = (PRT_REF)TOTAL_MAX_PRT;
-            size_t  min_life        = (size_t)(~0);
-            PRT_REF min_life_idx    = (PRT_REF)TOTAL_MAX_PRT;
-            size_t  min_display     = (size_t)(~0);
-            PRT_REF min_display_idx = (PRT_REF)TOTAL_MAX_PRT;
+            PRT_REF found           = ( PRT_REF )TOTAL_MAX_PRT;
+            size_t  min_life        = ( size_t )( ~0 );
+            PRT_REF min_life_idx    = ( PRT_REF )TOTAL_MAX_PRT;
+            size_t  min_display     = ( size_t )( ~0 );
+            PRT_REF min_display_idx = ( PRT_REF )TOTAL_MAX_PRT;
 
             // Gotta find one, so go through the list and replace a unimportant one
             for ( iprt = 0; iprt < maxparticles; iprt++ )
@@ -424,7 +424,7 @@ PRT_REF prt_get_free( bool_t force )
             {
                 // found nothing. this should only happen if all the
                 // particles are forced
-                iprt = (PRT_REF)TOTAL_MAX_PRT;
+                iprt = ( PRT_REF )TOTAL_MAX_PRT;
             }
         }
     }
@@ -442,7 +442,7 @@ PRT_REF prt_get_free( bool_t force )
     }
 
     // return a proper value
-    iprt = ( iprt >= maxparticles ) ? (PRT_REF)TOTAL_MAX_PRT : iprt;
+    iprt = ( iprt >= maxparticles ) ? ( PRT_REF )TOTAL_MAX_PRT : iprt;
 
     if ( VALID_PRT_RANGE( iprt ) )
     {
@@ -503,8 +503,8 @@ prt_t * prt_reconstruct( prt_t * pprt )
     memcpy( POBJ_GET_PBASE( pprt ), &save_base, sizeof( ego_object_base_t ) );
 
     // "no lifetime" = "eternal"
-    pprt->lifetime_remaining = ( size_t )(~0);
-    pprt->frames_remaining   = ( size_t )(~0);
+    pprt->lifetime_remaining = ( size_t )( ~0 );
+    pprt->frames_remaining   = ( size_t )( ~0 );
 
     pprt->pip_ref      = MAX_PIP;
     pprt->profile_ref  = MAX_PROFILE;
@@ -803,7 +803,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     // "no lifetime" = "eternal"
     if ( 0 == prt_lifetime )
     {
-        pprt->lifetime_remaining = (size_t)(~0);
+        pprt->lifetime_remaining = ( size_t )( ~0 );
         pprt->is_eternal         = btrue;
     }
     else
@@ -812,7 +812,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
         // to keep the number of updates stable, the frames could lag.
         // sooo... we just rescale the prt_lifetime so that it will work with the
         // updates and cross our fingers
-        pprt->lifetime_remaining = ceil( ( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
+        pprt->lifetime_remaining = ceil(( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
     }
 
     // make the particle display AT LEAST one frame, regardless of how many updates
@@ -1162,7 +1162,7 @@ void update_all_particles()
         ppip = PipStack.lst + pprt->pip_ref;
 
         // down the remaining lifetime of the particle
-        if( pprt->lifetime_remaining > 0 ) 
+        if ( pprt->lifetime_remaining > 0 )
             pprt->lifetime_remaining--;
 
         // down the continuous spawn timer

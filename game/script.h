@@ -43,7 +43,7 @@
 #define NEAREST     0              ///< unlimited range
 
 /// Character AI alerts
-enum 
+enum
 {
     ALERT_NONE                           = 0,
     ALERTIF_SPAWNED                      = 1 <<  0,

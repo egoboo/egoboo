@@ -146,9 +146,9 @@ bool_t ui_handleSDLEvent( SDL_Event *evt )
             break;
 
         case SDL_VIDEORESIZE:
-            if( SDL_VIDEORESIZE == evt->resize.type )
+            if ( SDL_VIDEORESIZE == evt->resize.type )
             {
-                // the video has been resized, if the game is active, the 
+                // the video has been resized, if the game is active, the
                 // view matrix needs to be recalculated and possibly the
                 // auto-formatting for the menu system and the ui system must be
                 // recalculated

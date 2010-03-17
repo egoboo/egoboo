@@ -126,7 +126,6 @@ struct s_prt
     IPair             damage;                          ///< For strength
     Uint8             damagetype;                      ///< Damage type
 
-
     bool_t            is_bumpspawn;                      ///< this particle is like a flame, burning something
     bool_t            inwater;
 

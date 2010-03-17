@@ -119,13 +119,13 @@ INLINE FACING_T terp_dir( FACING_T majordir, FACING_T minordir )
     int diff;
 
     // Align major direction with 0
-    diff = (int)minordir - (int)majordir;
+    diff = ( int )minordir - ( int )majordir;
 
-    if( diff <= -0x8000 )
+    if ( diff <= -0x8000 )
     {
         diff += 0x00010000;
     }
-    else if (diff >= 0x8000)
+    else if ( diff >= 0x8000 )
     {
         diff -= 0x00010000;
     }
@@ -142,13 +142,13 @@ FACING_T terp_dir_fast( FACING_T majordir, FACING_T minordir )
     int diff;
 
     // Align major direction with 0
-    diff = (int)minordir - (int)majordir;
+    diff = ( int )minordir - ( int )majordir;
 
-    if( diff <= -0x8000 )
+    if ( diff <= -0x8000 )
     {
         diff += 0x00010000;
     }
-    else if (diff >= 0x8000)
+    else if ( diff >= 0x8000 )
     {
         diff -= 0x00010000;
     }

@@ -58,7 +58,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 /// The possible states of the menu state machine
 enum e_menu_states
 {
@@ -78,15 +77,14 @@ enum e_menu_states
 // "Slidy" buttons used in some of the menus.  They're shiny.
 struct s_SlidyButtonState
 {
+    char **buttons;
     float lerp;
     int top;
     int left;
-    char **buttons;
 };
-typedef struct s_SlidyButtonState SlidyButtonState_t;
+typedef struct s_SlidyButtonState mnu_SlidyButtonState_t;
 
-static SlidyButtonState_t SlidyButtonState;
-
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// the data to display a chosen player in the load player menu
 struct s_ChoosePlayer_element
@@ -97,6 +95,7 @@ struct s_ChoosePlayer_element
 };
 typedef struct s_ChoosePlayer_element ChoosePlayer_element_t;
 
+//--------------------------------------------------------------------------------------------
 /// The data that menu.c uses to store the users' choice of players
 struct s_ChoosePlayer_profiles
 {
@@ -104,91 +103,6 @@ struct s_ChoosePlayer_profiles
     ChoosePlayer_element_t pro_data[MAXIMPORTPERPLAYER + 1];   ///< the profile data
 };
 typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static int          menu_stack_index = 0;
-static which_menu_t menu_stack[MENU_STACK_COUNT];
-
-static which_menu_t mnu_whichMenu = emnu_Main;
-
-static ui_Widget_t mnu_widgetList[MAXWIDGET];
-
-static int selectedModule = -1;
-
-/* Copyright text variables.  Change these to change how the copyright text appears */
-static const char * copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
-static int  copyrightLeft = 0;
-static int  copyrightTop  = 0;
-
-/* Options info text variables.  Change these to change how the options text appears */
-static const char * tipText = "Put a tip in this box";
-static int tipTextLeft = 0;
-static int tipTextTop  = 0;
-
-/* Button position for the "easy" menus, like the main one */
-static int buttonLeft = 0;
-static int buttonTop = 0;
-
-static int selectedPlayer = 0;           // Which player is currently selected to play
-
-static menu_process_t    _mproc;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define TITLE_TEXTURE_COUNT   MAX_MODULE
-#define INVALID_TITLE_TEXTURE TITLE_TEXTURE_COUNT
-
-INSTANTIATE_STACK_STATIC( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT ); // OpenGL title image surfaces
-
-menu_process_t * MProc          = &_mproc;
-bool_t           startNewPlayer = bfalse;
-
-/* The font used for drawing text.  It's smaller than the button font */
-Font *menuFont = NULL;
-
-bool_t mnu_draw_background = btrue;
-
-int              loadplayer_count = 0;
-LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
-
-int     mnu_selectedPlayerCount = 0;
-Uint32  mnu_selectedInput[MAX_PLAYER] = {0};
-int     mnu_selectedPlayer[MAX_PLAYER] = {0};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static void load_all_menu_images();
-
-static bool_t       menu_stack_push( which_menu_t menu );
-static which_menu_t menu_stack_pop();
-static which_menu_t menu_stack_peek();
-static void         menu_stack_clear();
-
-static void initSlidyButtons( float lerp, const char *button_text[] );
-static void updateSlidyButtons( float deltaTime );
-static void drawSlidyButtons();
-
-static bool_t  mnu_checkSelectedPlayer( int loadplayer_idx );
-static bool_t  mnu_addSelectedPlayer( int loadplayer_idx );
-static bool_t  mnu_removeSelectedPlayer( int loadplayer_idx );
-static bool_t  mnu_addSelectedPlayerInput( int loadplayer_idx, Uint32 input_bits );
-static bool_t  mnu_removeSelectedPlayerInput( int loadplayer_idx, Uint32 input_bits );
-static int     mnu_getSelectedPlayer( int loadplayer_idx );
-
-static void TxTitleImage_clear_data();
-
-static void mnu_release_one_module( const MOD_REF by_reference imod );
-
-// "process" management
-static int do_menu_proc_begin( menu_process_t * mproc );
-static int do_menu_proc_running( menu_process_t * mproc );
-static int do_menu_proc_leaving( menu_process_t * mproc );
-
-// the hint system
-void   load_global_game_hints();
-bool_t load_local_game_hints();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -225,264 +139,337 @@ struct s_GameTips
 };
 typedef struct s_GameTips GameTips_t;
 
+//--------------------------------------------------------------------------------------------
+// declaration of "private" variables
+//--------------------------------------------------------------------------------------------
+
+static int          mnu_stack_index = 0;
+static which_menu_t mnu_stack[MENU_STACK_COUNT];
+
+static which_menu_t mnu_whichMenu = emnu_Main;
+
+static ui_Widget_t mnu_widgetList[MAXWIDGET];
+
+static int selectedModule = -1;
+
+/* Copyright text variables.  Change these to change how the copyright text appears */
+static const char * copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
+static int  copyrightLeft = 0;
+static int  copyrightTop  = 0;
+
+/* Options info text variables.  Change these to change how the options text appears */
+static const char * tipText = "Put a tip in this box";
+static int tipTextLeft = 0;
+static int tipTextTop  = 0;
+
+/* Button position for the "easy" menus, like the main one */
+static int buttonLeft = 0;
+static int buttonTop = 0;
+
+static int selectedPlayer = 0;           // Which player is currently selected to play
+
+static menu_process_t    _mproc;
+
+static int     mnu_selectedPlayerCount;
+static Uint32  mnu_selectedInput[MAX_PLAYER];
+static int     mnu_selectedPlayer[MAX_PLAYER];
+
 static GameTips_t mnu_GameTip = { 0 };
 
+static mnu_SlidyButtonState_t mnu_SlidyButtonState = { NULL };
+
 //--------------------------------------------------------------------------------------------
+// declaration of public variables
 //--------------------------------------------------------------------------------------------
-void TxTitleImage_clear_data()
+
+#define TITLE_TEXTURE_COUNT   MAX_MODULE
+#define INVALID_TITLE_TEXTURE TITLE_TEXTURE_COUNT
+
+INSTANTIATE_STACK_STATIC( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT ); // OpenGL title image surfaces
+
+menu_process_t * MProc          = &_mproc;
+bool_t           startNewPlayer = bfalse;
+
+/* The font used for drawing text.  It's smaller than the button font */
+Font *menuFont = NULL;
+
+bool_t mnu_draw_background = btrue;
+
+int              loadplayer_count = 0;
+LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
+
+int     mnu_selectedPlayerCount = 0;
+Uint32  mnu_selectedInput[MAX_PLAYER] = {0};
+int     mnu_selectedPlayer[MAX_PLAYER] = {0};
+
+//--------------------------------------------------------------------------------------------
+// "private" function prototypes
+//--------------------------------------------------------------------------------------------
+
+// Implementation of the mnu_stack
+static bool_t       mnu_stack_push( which_menu_t menu );
+static which_menu_t mnu_stack_pop();
+static which_menu_t mnu_stack_peek();
+static void         mnu_stack_clear();
+
+// Implementation of the mnu_SlidyButton array
+static void mnu_SlidyButton_init( float lerp, const char *button_text[] );
+static void mnu_SlidyButton_update_all( float deltaTime );
+static void mnu_SlidyButton_draw_all();
+
+// implementation of the mnu_Selected* arrays
+static bool_t  mnu_Selected_check_loadplayer( int loadplayer_idx );
+static bool_t  mnu_Selected_add( int loadplayer_idx );
+static bool_t  mnu_Selected_remove( int loadplayer_idx );
+static bool_t  mnu_Selected_add_input( int loadplayer_idx, Uint32 input_bits );
+static bool_t  mnu_Selected_remove_input( int loadplayer_idx, Uint32 input_bits );
+static int     mnu_Selected_get_loadplayer( int loadplayer_idx );
+
+// implementation of "private" TxTitleImage functions
+static void             TxTitleImage_clear_data();
+static void             TxTitleImage_release_one( const TX_REF by_reference index );
+static void             TxTitleImage_ctor();
+static void             TxTitleImage_release_all();
+static void             TxTitleImage_dtor();
+static oglx_texture_t * TxTitleImage_get_ptr( const TX_REF by_reference itex );
+
+// tipText functions
+static void tipText_set_position( Font * font, const char * text, int spacing );
+
+// copyrightText functions
+static void copyrightText_set_position( Font * font, const char * text, int spacing );
+
+// implementation of "private" ModList functions
+static void mnu_ModList_release_images();
+void        mnu_ModList_release_all();
+
+// "process" management
+static int do_menu_proc_begin( menu_process_t * mproc );
+static int do_menu_proc_running( menu_process_t * mproc );
+static int do_menu_proc_leaving( menu_process_t * mproc );
+
+// the hint system
+static void   mnu_GameTip_load_global();
+static bool_t mnu_GameTip_load_local();
+
+// "private" module utility
+static void   mnu_load_all_module_info();
+
+// "private" asset function
+static TX_REF mnu_get_icon_ref( const CAP_REF by_reference icap, const TX_REF by_reference default_ref );
+
+// implementation of the autoformatting
+static void autoformat_init_slidy_buttons();
+static void autoformat_init_tip_text();
+static void autoformat_init_copyright_text();
+
+// misc other stuff
+static void mnu_release_one_module( const MOD_REF by_reference imod );
+static void load_all_menu_images();
+
+//--------------------------------------------------------------------------------------------
+// implementation of the menu stack
+//--------------------------------------------------------------------------------------------
+bool_t mnu_stack_push( which_menu_t menu )
 {
-    TxTitleImage.count = 0;
+    mnu_stack_index = CLIP( mnu_stack_index, 0, MENU_STACK_COUNT ) ;
+
+    if ( mnu_stack_index >= MENU_STACK_COUNT ) return bfalse;
+
+    mnu_stack[mnu_stack_index] = menu;
+    mnu_stack_index++;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTitleImage_ctor()
+which_menu_t mnu_stack_pop()
 {
-    /// @details ZZ@> This function clears out all of the textures
-
-    TX_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+    if ( mnu_stack_index < 0 )
     {
-        oglx_texture_ctor( TxTitleImage.lst + cnt );
+        mnu_stack_index = 0;
+        return emnu_Main;
+    }
+    if ( mnu_stack_index > MENU_STACK_COUNT )
+    {
+        mnu_stack_index = MENU_STACK_COUNT;
     }
 
-    TxTitleImage_clear_data();
+    if ( mnu_stack_index == 0 ) return emnu_Main;
+
+    mnu_stack_index--;
+    return mnu_stack[mnu_stack_index];
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTitleImage_release_one( const TX_REF by_reference index )
+which_menu_t mnu_stack_peek()
 {
-    if ( index < 0 || index >= MAX_MODULE ) return;
+    which_menu_t return_menu = emnu_Main;
 
-    oglx_texture_Release( TxTitleImage.lst + index );
-}
-
-//--------------------------------------------------------------------------------------------
-void TxTitleImage_release_all()
-{
-    /// @details ZZ@> This function releases all of the textures
-
-    TX_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+    if ( mnu_stack_index > 0 )
     {
-        TxTitleImage_release_one( cnt );
+        return_menu = mnu_stack[mnu_stack_index-1];
     }
 
-    TxTitleImage_clear_data();
+    return return_menu;
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTitleImage_dtor()
+void mnu_stack_clear()
 {
-    /// @details ZZ@> This function clears out all of the textures
+    mnu_stack_index = 0;
+    mnu_stack[0] = emnu_Main;
+}
 
-    TX_REF cnt;
+//--------------------------------------------------------------------------------------------
+// The implementation of the menu process
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_begin( menu_process_t * mproc )
+{
+    // play some music
+    sound_play_song( MENU_SONG, 0, -1 );
 
-    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+    // initialize all these structures
+    menu_system_begin();        // start the menu menu
+
+    // load all module info at menu initialization
+    // this will not change unless a new module is downloaded for a network menu?
+    mnu_load_all_module_info();
+
+    // initialize the process state
+    mproc->base.valid = btrue;
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_running( menu_process_t * mproc )
+{
+    int menuResult;
+
+    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+
+    mproc->was_active = mproc->base.valid;
+
+    if ( mproc->base.paused ) return 0;
+
+    // play the menu music
+    mnu_draw_background = !process_running( PROC_PBASE( GProc ) );
+    menuResult          = game_do_menu( mproc );
+
+    switch ( menuResult )
     {
-        oglx_texture_dtor( TxTitleImage.lst + cnt );
+        case MENU_SELECT:
+            // go ahead and start the game
+            process_pause( PROC_PBASE( mproc ) );
+            break;
+
+        case MENU_QUIT:
+            // the user selected "quit"
+            process_kill( PROC_PBASE( mproc ) );
+            break;
     }
 
-    TxTitleImage_clear_data();
-}
-
-//--------------------------------------------------------------------------------------------
-TX_REF TxTitleImage_load_one( const char *szLoadName )
-{
-    /// @details ZZ@> This function loads a title in the specified image slot, forcing it into
-    ///    system memory.  Returns btrue if it worked
-
-    TX_REF itex;
-
-    if ( INVALID_CSTR( szLoadName ) ) return ( TX_REF )INVALID_TITLE_TEXTURE;
-
-    if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
-
-    itex  = ( TX_REF )TxTitleImage.count;
-    if ( INVALID_TX_ID != ego_texture_load( TxTitleImage.lst + itex, szLoadName, INVALID_KEY ) )
+    if ( mnu_get_menu_depth() <= GProc->menu_depth )
     {
-        TxTitleImage.count++;
-    }
-    else
-    {
-        itex = ( TX_REF )INVALID_TITLE_TEXTURE;
+        GProc->menu_depth   = -1;
+        GProc->escape_latch = bfalse;
+
+        // We have exited the menu and restarted the game
+        GProc->mod_paused = bfalse;
+        process_pause( PROC_PBASE( MProc ) );
     }
 
-    return itex;
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * TxTitleImage_get_ptr( const TX_REF by_reference itex )
+int do_menu_proc_leaving( menu_process_t * mproc )
 {
-    if ( itex >= TxTitleImage.count || itex >= MAX_MODULE ) return NULL;
+    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
 
-    return TxTitleImage.lst + itex;
+    // terminate the menu system
+    menu_system_end();
+
+    // finish the menu song
+    sound_finish_song( 500 );
+
+    return 1;
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTitleImage_reload_all()
+int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
 {
-    /// @details ZZ@> This function re-loads all the current textures back into 
-    ///               OpenGL texture memory using the cached SDL surfaces
+    int result = 0, proc_result = 0;
 
-    TX_REF cnt;
+    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+    mproc->base.dtime = frameDuration;
 
-    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
+    if ( mproc->base.paused ) return 0;
+
+    if ( mproc->base.killme )
     {
-        oglx_texture_t * ptex = TxTitleImage.lst + cnt;
-
-        if( ptex->valid )
-        {
-            oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
-        }
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-mod_file_t * mnu_ModList_get_base( int imod )
-{
-    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
-
-    return &( mnu_ModList.lst[( MOD_REF )imod].base );
-}
-
-//--------------------------------------------------------------------------------------------
-const char * mnu_ModList_get_name( int imod )
-{
-    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
-
-    return mnu_ModList.lst[( MOD_REF )imod].name;
-}
-
-//--------------------------------------------------------------------------------------------
-void mnu_ModList_release_all()
-{
-    MOD_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
-    {
-        // release any allocated data
-        if ( cnt < mnu_ModList.count )
-        {
-            mnu_release_one_module( cnt );
-        }
-
-        memset( mnu_ModList.lst + cnt, 0, sizeof( mnu_module_t ) );
+        mproc->base.state = proc_leaving;
     }
 
-    mnu_ModList.count = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-void mnu_ModList_release_images()
-{
-    MOD_REF cnt;
-    int tnc;
-
-    tnc = -1;
-    for ( cnt = 0; cnt < mnu_ModList.count; cnt++ )
+    switch ( mproc->base.state )
     {
-        if ( !mnu_ModList.lst[cnt].loaded ) continue;
-        tnc = REF_TO_INT( cnt );
+        case proc_begin:
+            proc_result = do_menu_proc_begin( mproc );
 
-        TxTitleImage_release_one( mnu_ModList.lst[cnt].tex_index );
-        mnu_ModList.lst[cnt].tex_index = INVALID_TITLE_TEXTURE;
+            if ( 1 == proc_result )
+            {
+                mproc->base.state = proc_entering;
+            }
+            break;
+
+        case proc_entering:
+            // proc_result = do_menu_proc_entering( mproc );
+
+            mproc->base.state = proc_running;
+            break;
+
+        case proc_running:
+            proc_result = do_menu_proc_running( mproc );
+
+            if ( 1 == proc_result )
+            {
+                mproc->base.state = proc_leaving;
+            }
+            break;
+
+        case proc_leaving:
+            proc_result = do_menu_proc_leaving( mproc );
+
+            if ( 1 == proc_result )
+            {
+                mproc->base.state  = proc_finish;
+                mproc->base.killme = bfalse;
+            }
+            break;
+
+        case proc_finish:
+            process_terminate( PROC_PBASE( mproc ) );
+            break;
     }
-    TxTitleImage.count = 0;
 
-    // make sure that mnu_ModList.count is the right size, in case some modules were unloaded?
-    mnu_ModList.count = tnc + 1;
-
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void initSlidyButtons( float lerp, const char *button_text[] )
+menu_process_t * menu_process_init( menu_process_t * mproc )
 {
-    int i;
+    if ( NULL == mproc ) return NULL;
 
-    // Figure out where to draw the buttons
-    buttonLeft = 40;
-    buttonTop = GFX_HEIGHT - 20;
+    memset( mproc, 0, sizeof( *mproc ) );
 
-    for ( i = 0; button_text[i][0] != 0; i++ )
-    {
-        buttonTop -= 35;
-    }
+    process_init( PROC_PBASE( mproc ) );
 
-    SlidyButtonState.lerp = lerp;
-    SlidyButtonState.buttons = ( char** )button_text;
+    return mproc;
 }
 
 //--------------------------------------------------------------------------------------------
-void updateSlidyButtons( float deltaTime )
-{
-    SlidyButtonState.lerp += ( deltaTime * 1.5f );
-}
-
-//--------------------------------------------------------------------------------------------
-void drawSlidyButtons()
-{
-    int i;
-
-    for ( i = 0; SlidyButtonState.buttons[i][0] != 0; i++ )
-    {
-        int x = buttonLeft - ( 360 - i * 35 )  * SlidyButtonState.lerp;
-        int y = buttonTop + ( i * 35 );
-
-        ui_doButton( UI_Nothing, SlidyButtonState.buttons[i], NULL, x, y, 200, 30 );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void set_tip_position( Font * font, const char * text, int spacing )
-{
-    int w, h;
-
-    if ( NULL == text ) return;
-
-    tipTextLeft = 0;
-    tipTextTop  = 0;
-
-    fnt_getTextBoxSize( font, text, spacing, &w, &h );
-
-    // set the text
-    tipText = text;
-
-    // Draw the options text to the right of the buttons
-    tipTextLeft = 280;
-
-    // And relative to the bottom of the screen
-    tipTextTop = GFX_HEIGHT - h - spacing;
-
-}
-
-//--------------------------------------------------------------------------------------------
-void set_copyright_position( Font * font, const char * text, int spacing )
-{
-    int w, h;
-
-    if ( NULL == text ) return;
-
-    copyrightLeft = 0;
-    copyrightLeft = 0;
-
-    // Figure out where to draw the copyright text
-    fnt_getTextBoxSize( font, text, 20, &w, &h );
-
-    // set the text
-    copyrightText = text;
-
-    // Draw the copyright text to the right of the buttons
-    copyrightLeft = 280;
-
-    // And relative to the bottom of the screen
-    copyrightTop = GFX_HEIGHT - h - spacing;
-}
-
+// Code for global initialization/deinitialization of the menu system
 //--------------------------------------------------------------------------------------------
 int menu_system_begin()
 {
@@ -492,7 +479,7 @@ int menu_system_begin()
     // be positioned.  If we ever allow changing resolution on the fly, this
     // function will have to be updated/called more than once.
 
-    ui_set_virtual_screen( gfx.vw, gfx.vh, GFX_WIDTH, GFX_HEIGHT );
+    autoformat_init( &gfx );
 
     menuFont = ui_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
     if ( NULL == menuFont )
@@ -502,16 +489,16 @@ int menu_system_begin()
     }
 
     // Figure out where to draw the copyright text
-    set_copyright_position( menuFont, copyrightText, 20 );
+    copyrightText_set_position( menuFont, copyrightText, 20 );
 
     // Figure out where to draw the options text
-    set_tip_position( menuFont, tipText, 20 );
+    tipText_set_position( menuFont, tipText, 20 );
 
     // construct the TxTitleImage array
     TxTitleImage_ctor();
 
     // Load game hints
-    load_global_game_hints();
+    mnu_GameTip_load_global();
 
     return 1;
 }
@@ -536,6 +523,29 @@ void menu_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
+// Interface for starting and stopping menus
+//--------------------------------------------------------------------------------------------
+bool_t mnu_begin_menu( which_menu_t which )
+{
+    if ( !mnu_stack_push( mnu_whichMenu ) ) return bfalse;
+    mnu_whichMenu = which;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void mnu_end_menu()
+{
+    mnu_whichMenu = mnu_stack_pop();
+}
+
+//--------------------------------------------------------------------------------------------
+int mnu_get_menu_depth()
+{
+    return mnu_stack_index;
+}
+//--------------------------------------------------------------------------------------------
+// Implementations of the various menus
 //--------------------------------------------------------------------------------------------
 int doMainMenu( float deltaTime )
 {
@@ -591,13 +601,13 @@ int doMainMenu( float deltaTime )
             logo_rect.w = logo.imgW * fmin;
             logo_rect.h = logo.imgH * fmin;
 
-            initSlidyButtons( 1.0f, sz_buttons );
+            mnu_SlidyButton_init( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -608,11 +618,11 @@ int doMainMenu( float deltaTime )
             // "Copyright" text
             ui_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
 
-            drawSlidyButtons();
-            updateSlidyButtons( -deltaTime );
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( -deltaTime );
 
             // Let lerp wind down relative to the time elapsed
-            if ( SlidyButtonState.lerp <= 0.0f )
+            if ( mnu_SlidyButtonState.lerp <= 0.0f )
             {
                 menuState = MM_Running;
             }
@@ -657,14 +667,14 @@ int doMainMenu( float deltaTime )
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
-                initSlidyButtons( 0.0f, sz_buttons );
+                mnu_SlidyButton_init( 0.0f, sz_buttons );
             }
             break;
 
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -676,9 +686,9 @@ int doMainMenu( float deltaTime )
             ui_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
 
             // Buttons
-            drawSlidyButtons();
-            updateSlidyButtons( deltaTime );
-            if ( SlidyButtonState.lerp >= 1.0f )
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( deltaTime );
+            if ( mnu_SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
             }
@@ -726,12 +736,12 @@ int doSinglePlayerMenu( float deltaTime )
 
             menuState = MM_Entering;
 
-            initSlidyButtons( 1.0f, sz_buttons );
+            mnu_SlidyButton_init( 1.0f, sz_buttons );
 
             // Let this fall through
 
         case MM_Entering:
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background image
             if ( mnu_draw_background )
@@ -742,9 +752,9 @@ int doSinglePlayerMenu( float deltaTime )
             // "Copyright" text
             ui_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
 
-            drawSlidyButtons();
-            updateSlidyButtons( -deltaTime );
-            if ( SlidyButtonState.lerp <= 0.0f )
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( -deltaTime );
+            if ( mnu_SlidyButtonState.lerp <= 0.0f )
                 menuState = MM_Running;
 
             break;
@@ -776,14 +786,14 @@ int doSinglePlayerMenu( float deltaTime )
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
-                initSlidyButtons( 0.0f, sz_buttons );
+                mnu_SlidyButton_init( 0.0f, sz_buttons );
             }
             break;
 
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -793,9 +803,9 @@ int doSinglePlayerMenu( float deltaTime )
             // "Copyright" text
             ui_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
 
-            drawSlidyButtons();
-            updateSlidyButtons( deltaTime );
-            if ( SlidyButtonState.lerp >= 1.0f )
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( deltaTime );
+            if ( mnu_SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
             }
@@ -820,9 +830,10 @@ int doSinglePlayerMenu( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-// Choose the module
 int doChooseModule( float deltaTime )
 {
+    /// @details Choose the module
+
     static oglx_texture_t background;
     static int menuState = MM_Begin;
     static int startIndex;
@@ -852,7 +863,7 @@ int doChooseModule( float deltaTime )
             // Find the module's that we want to allow loading for.  If startNewPlayer
             // is true, we want ones that don't allow imports (e.g. starter modules).
             // Otherwise, we want modules that allow imports
-            for( i = 0; i<MAX_MODULE; i++ )
+            for ( i = 0; i < MAX_MODULE; i++ )
             {
                 memset( validModules + i, 0, sizeof( MOD_REF ) );
             }
@@ -887,15 +898,15 @@ int doChooseModule( float deltaTime )
 
             if ( 0 == numValidModules )
             {
-                set_tip_position( menuFont, "Sorry, there are no valid games!\n Please press the \"Back\" button.", 20 );
+                tipText_set_position( menuFont, "Sorry, there are no valid games!\n Please press the \"Back\" button.", 20 );
             }
             else if ( numValidModules <= 3 )
             {
-                set_tip_position( menuFont, "Press an icon to select a game.", 20 );
+                tipText_set_position( menuFont, "Press an icon to select a game.", 20 );
             }
             else
             {
-                set_tip_position( menuFont, "Press an icon to select a game.\nUse the mouse wheel or the \"<-\" and \"->\" buttons to scroll.", 20 );
+                tipText_set_position( menuFont, "Press an icon to select a game.\nUse the mouse wheel or the \"<-\" and \"->\" buttons to scroll.", 20 );
             }
 
             menuState = MM_Entering;
@@ -1363,13 +1374,13 @@ int doChoosePlayer( float deltaTime )
             TxTexture_load_one( "basicdat" SLASH_STR "bars", ( TX_REF )TX_BARS, INVALID_KEY );
 
             // load information for all the players that could be imported
-            check_player_import( "players", btrue );
+            mnu_player_check_import( "players", btrue );
 
             // reset button 0, or it will mess up the menu.
-            // must do it before initSlidyButtons()
+            // must do it before mnu_SlidyButton_init()
             button_text[0] = "N/A";
 
-            initSlidyButtons( 1.0f, button_text );
+            mnu_SlidyButton_init( 1.0f, button_text );
 
             numVertical   = ( buttonTop - y0 ) / button_repeat - 1;
             numHorizontal = 1;
@@ -1394,11 +1405,11 @@ int doChoosePlayer( float deltaTime )
 
             if ( loadplayer_count < 10 )
             {
-                set_tip_position( menuFont, "Choose an input device to select your player(s)", 20 );
+                tipText_set_position( menuFont, "Choose an input device to select your player(s)", 20 );
             }
             else
             {
-                set_tip_position( menuFont, "Choose an input device to select your player(s)\nUse the mouse wheel to scroll.", 20 );
+                tipText_set_position( menuFont, "Choose an input device to select your player(s)\nUse the mouse wheel to scroll.", 20 );
             }
 
             menuState = MM_Entering;
@@ -1406,11 +1417,11 @@ int doChoosePlayer( float deltaTime )
 
         case MM_Entering:
 
-            /*GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
-            drawSlidyButtons();
-            updateSlidyButtons( -deltaTime );
+            /*GL_DEBUG(glColor4f)(1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( -deltaTime );
             // Let lerp wind down relative to the time elapsed
-            if ( SlidyButtonState.lerp <= 0.0f )
+            if ( mnu_SlidyButtonState.lerp <= 0.0f )
             {
                 menuState = MM_Running;
             }*/
@@ -1477,7 +1488,7 @@ int doChoosePlayer( float deltaTime )
                 player = i + startIndex;
                 if ( player >= loadplayer_count ) continue;
 
-                splayer = mnu_getSelectedPlayer( player );
+                splayer = mnu_Selected_get_loadplayer( player );
 
                 // do the character button
                 mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer[player].tx_ref );
@@ -1493,17 +1504,17 @@ int doChoosePlayer( float deltaTime )
 
                 if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
                 {
-                    if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !mnu_checkSelectedPlayer( player ) )
+                    if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !mnu_Selected_check_loadplayer( player ) )
                     {
                         // button has become cursor_clicked
-                        // mnu_addSelectedPlayer(player);
+                        // mnu_Selected_add(player);
                         last_player = player;
                         new_player  = btrue;
                     }
-                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_checkSelectedPlayer( player ) )
+                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_Selected_check_loadplayer( player ) )
                     {
                         // button has become unclicked
-                        if ( mnu_removeSelectedPlayer( player ) )
+                        if ( mnu_Selected_remove( player ) )
                         {
                             last_player = -1;
                         }
@@ -1553,13 +1564,13 @@ int doChoosePlayer( float deltaTime )
                             // button has become cursor_clicked
                             if ( INVALID_PLAYER == splayer )
                             {
-                                if ( mnu_addSelectedPlayer( player ) )
+                                if ( mnu_Selected_add( player ) )
                                 {
                                     last_player = player;
                                     new_player  = btrue;
                                 }
                             }
-                            if ( mnu_addSelectedPlayerInput( player, BitsInput[j] ) )
+                            if ( mnu_Selected_add_input( player, BitsInput[j] ) )
                             {
                                 last_player = player;
                                 new_player  = btrue;
@@ -1568,7 +1579,7 @@ int doChoosePlayer( float deltaTime )
                         else if ( INVALID_PLAYER != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become unclicked
-                            if ( mnu_removeSelectedPlayerInput( player, BitsInput[j] ) )
+                            if ( mnu_Selected_remove_input( player, BitsInput[j] ) )
                             {
                                 last_player = -1;
                             }
@@ -1624,11 +1635,11 @@ int doChoosePlayer( float deltaTime )
             /*
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
             // Buttons
-            drawSlidyButtons();
-            updateSlidyButtons( deltaTime );
-            if ( SlidyButtonState.lerp >= 1.0f )
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( deltaTime );
+            if ( mnu_SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
             }
@@ -1727,15 +1738,15 @@ int doOptions( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-            set_tip_position( menuFont, "Change your audio, input and video\nsettings here.", 20 );
+            tipText_set_position( menuFont, "Change your audio, input and video\nsettings here.", 20 );
 
-            initSlidyButtons( 1.0f, sz_buttons );
+            mnu_SlidyButton_init( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -1743,11 +1754,11 @@ int doOptions( float deltaTime )
                 ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
             }
 
-            drawSlidyButtons();
-            updateSlidyButtons( -deltaTime );
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( -deltaTime );
 
             // Let lerp wind down relative to the time elapsed
-            if ( SlidyButtonState.lerp <= 0.0f )
+            if ( mnu_SlidyButtonState.lerp <= 0.0f )
             {
                 menuState = MM_Running;
             }
@@ -1795,14 +1806,14 @@ int doOptions( float deltaTime )
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
-                initSlidyButtons( 0.0f, sz_buttons );
+                mnu_SlidyButton_init( 0.0f, sz_buttons );
             }
             break;
 
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -1810,9 +1821,9 @@ int doOptions( float deltaTime )
             }
 
             // Buttons
-            drawSlidyButtons();
-            updateSlidyButtons( deltaTime );
-            if ( SlidyButtonState.lerp >= 1.0f )
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( deltaTime );
+            if ( mnu_SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
             }
@@ -1885,7 +1896,7 @@ int doInputOptions( float deltaTime )
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof( STRING ) );
 
-            set_tip_position( menuFont, "Change input settings here.", 20 );
+            tipText_set_position( menuFont, "Change input settings here.", 20 );
 
             // Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
@@ -1893,7 +1904,7 @@ int doInputOptions( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Fall trough
             menuState = MM_Running;
@@ -2211,7 +2222,7 @@ int doInputOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Fall trough
             menuState = MM_Finish;
@@ -2232,9 +2243,10 @@ int doInputOptions( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-// Game options menu
 int doGameOptions( float deltaTime )
 {
+    /// @details Game options menu
+
     static int menuState = MM_Begin;
     static oglx_texture_t background;
     static int menuChoice = 0;
@@ -2265,15 +2277,15 @@ int doGameOptions( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-            set_tip_position( menuFont, "Change game settings here.", 20 );
+            tipText_set_position( menuFont, "Change game settings here.", 20 );
 
-            initSlidyButtons( 1.0f, sz_buttons );
+            mnu_SlidyButton_init( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -2523,7 +2535,7 @@ int doGameOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -2551,9 +2563,10 @@ int doGameOptions( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-// Audio options menu
 int doAudioOptions( float deltaTime )
 {
+    /// @details Audio options menu
+
     static int menuState = MM_Begin;
     static oglx_texture_t background;
     static int menuChoice = 0;
@@ -2585,15 +2598,15 @@ int doAudioOptions( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-            set_tip_position( menuFont, "Change audio settings here.", 20 );
+            tipText_set_position( menuFont, "Change audio settings here.", 20 );
 
-            initSlidyButtons( 1.0f, sz_buttons );
+            mnu_SlidyButton_init( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -2758,7 +2771,7 @@ int doAudioOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -2788,6 +2801,8 @@ int doAudioOptions( float deltaTime )
 //--------------------------------------------------------------------------------------------
 int doVideoOptions( float deltaTime )
 {
+    /// @details Video options menu
+
     static int menuState = MM_Begin;
     static oglx_texture_t background;
     static int    menuChoice = 0;
@@ -2828,15 +2843,15 @@ int doVideoOptions( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-            set_tip_position( menuFont, "Change video settings here.", 20 );
+            tipText_set_position( menuFont, "Change video settings here.", 20 );
 
-            initSlidyButtons( 1.0f, sz_buttons );
+            mnu_SlidyButton_init( 1.0f, sz_buttons );
             // let this fall through into MM_Entering
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -3406,7 +3421,7 @@ int doVideoOptions( float deltaTime )
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
-                initSlidyButtons( 0.0f, sz_buttons );
+                mnu_SlidyButton_init( 0.0f, sz_buttons );
             }
 
             // tool-tip text
@@ -3417,7 +3432,7 @@ int doVideoOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -3445,10 +3460,8 @@ int doVideoOptions( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 int doShowResults( float deltaTime )
 {
-
     static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;
@@ -3481,7 +3494,7 @@ int doShowResults( float deltaTime )
                     // Should be okay to randomize the seed here, the random seed isnt standarized or
                     // used elsewhere before the module is loaded.
                     srand( time( NULL ) );
-                    if ( load_local_game_hints() )       game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
+                    if ( mnu_GameTip_load_local() )       game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
                     else if ( mnu_GameTip.count > 0 )   game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
                 }
             }
@@ -3586,14 +3599,14 @@ int doGamePaused( float deltaTime )
             if ( PMod->exportvalid && !local_allpladead ) buttons[0] = "Save and Exit";
             else                                          buttons[0] = "Quit Module";
 
-            initSlidyButtons( 1.0f, buttons );
+            mnu_SlidyButton_init( 1.0f, buttons );
 
         case MM_Entering:
-            drawSlidyButtons();
-            updateSlidyButtons( -deltaTime );
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( -deltaTime );
 
             // Let lerp wind down relative to the time elapsed
-            if ( SlidyButtonState.lerp <= 0.0f )
+            if ( mnu_SlidyButtonState.lerp <= 0.0f )
             {
                 menuState = MM_Running;
             }
@@ -3620,19 +3633,19 @@ int doGamePaused( float deltaTime )
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
-                initSlidyButtons( 0.0f, buttons );
+                mnu_SlidyButton_init( 0.0f, buttons );
             }
             break;
 
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             // Buttons
-            drawSlidyButtons();
-            updateSlidyButtons( deltaTime );
-            if ( SlidyButtonState.lerp >= 1.0f )
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( deltaTime );
+            if ( mnu_SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
             }
@@ -3676,7 +3689,7 @@ int doShowEndgame( float deltaTime )
             menuState = MM_Entering;
             font = ui_getFont();
 
-            initSlidyButtons( 1.0f, buttons );
+            mnu_SlidyButton_init( 1.0f, buttons );
 
             if ( PMod->exportvalid )
             {
@@ -3694,15 +3707,15 @@ int doShowEndgame( float deltaTime )
 
         case MM_Entering:
 
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             ui_drawTextBox( NULL, endtext, x, y, w, h, 20 );
-            drawSlidyButtons();
+            mnu_SlidyButton_draw_all();
 
-            updateSlidyButtons( -deltaTime );
+            mnu_SlidyButton_update_all( -deltaTime );
 
             // Let lerp wind down relative to the time elapsed
-            if ( SlidyButtonState.lerp <= 0.0f )
+            if ( mnu_SlidyButtonState.lerp <= 0.0f )
             {
                 menuState = MM_Running;
             }
@@ -3736,14 +3749,14 @@ int doShowEndgame( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
 
             ui_drawTextBox( NULL, endtext, x, y, w, h, 20 );
 
             // Buttons
-            drawSlidyButtons();
-            updateSlidyButtons( deltaTime );
-            if ( SlidyButtonState.lerp >= 1.0f )
+            mnu_SlidyButton_draw_all();
+            mnu_SlidyButton_update_all( deltaTime );
+            if ( mnu_SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
             }
@@ -3773,10 +3786,10 @@ int doShowEndgame( float deltaTime )
 
                     // if we beat a beginner module, we want to
                     // go to ChoosePlayer instead of ChooseModule.
-                    if ( menu_stack_peek() == emnu_ChooseModule )
+                    if ( mnu_stack_peek() == emnu_ChooseModule )
                     {
-                        menu_stack_pop();
-                        menu_stack_push( emnu_ChoosePlayer );
+                        mnu_stack_pop();
+                        mnu_stack_push( emnu_ChoosePlayer );
                     }
                 }
 
@@ -3799,13 +3812,16 @@ int doShowEndgame( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+// place this last so that we do not have to prototype every menu function
 int doMenu( float deltaTime )
 {
+    /// @details the global function that controls the navigation between menus
+
     int retval, result = 0;
 
     if ( mnu_whichMenu == emnu_Main )
     {
-        menu_stack_clear();
+        mnu_stack_clear();
     };
 
     retval = MENU_NOTHING;
@@ -3997,241 +4013,106 @@ int doMenu( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+// Auto formatting functions
 //--------------------------------------------------------------------------------------------
-bool_t mnu_checkSelectedPlayer( int loadplayer_idx )
+void autoformat_init( gfx_config_t * pgfx )
 {
-    int i;
-    if ( loadplayer_idx > loadplayer_count ) return bfalse;
+    autoformat_init_slidy_buttons();
+    autoformat_init_tip_text();
+    autoformat_init_copyright_text();
 
-    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+    if ( NULL != pgfx )
     {
-        if ( mnu_selectedPlayer[i] == loadplayer_idx ) return btrue;
+        ui_set_virtual_screen( pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT );
     }
-
-    return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-int mnu_getSelectedPlayer( int loadplayer_idx )
+void autoformat_init_slidy_buttons()
 {
-    int cnt, selected_index;
-
-    if ( loadplayer_idx > loadplayer_count ) return INVALID_PLAYER;
-
-    selected_index = INVALID_PLAYER;
-    for ( cnt = 0; cnt < MAX_PLAYER && cnt < mnu_selectedPlayerCount; cnt++ )
-    {
-        if ( mnu_selectedPlayer[ cnt ] == loadplayer_idx )
-        {
-            selected_index = cnt;
-            break;
-        }
-    }
-
-    return selected_index;
+    // Figure out where to draw the buttons
+    buttonLeft = 40;
+    buttonTop = GFX_HEIGHT - 20;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_addSelectedPlayer( int loadplayer_idx )
+void autoformat_init_tip_text()
 {
-    if ( loadplayer_idx > loadplayer_count || mnu_selectedPlayerCount >= MAX_PLAYER ) return bfalse;
-    if ( mnu_checkSelectedPlayer( loadplayer_idx ) ) return bfalse;
+    // set the text
+    tipText = NULL;
 
-    mnu_selectedPlayer[mnu_selectedPlayerCount] = loadplayer_idx;
-    mnu_selectedInput[mnu_selectedPlayerCount]  = INPUT_BITS_NONE;
-    mnu_selectedPlayerCount++;
+    // Draw the options text to the right of the buttons
+    tipTextLeft = 280;
 
-    return btrue;
+    // And relative to the bottom of the screen
+    tipTextTop = GFX_HEIGHT;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_removeSelectedPlayer( int loadplayer_idx )
+void autoformat_init_copyright_text()
 {
-    int i;
-    bool_t found = bfalse;
+    // set the text
+    copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
 
-    if ( loadplayer_idx > loadplayer_count || mnu_selectedPlayerCount <= 0 ) return bfalse;
+    // Draw the copyright text to the right of the buttons
+    copyrightLeft = 280;
 
-    if ( mnu_selectedPlayerCount == 1 )
-    {
-        if ( mnu_selectedPlayer[0] == loadplayer_idx )
-        {
-            mnu_selectedPlayerCount = 0;
-        };
-    }
-    else
-    {
-        for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
-        {
-            if ( mnu_selectedPlayer[i] == loadplayer_idx )
-            {
-                found = btrue;
-                break;
-            }
-        }
-
-        if ( found )
-        {
-            i++;
-            for ( /* nothing */; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
-            {
-                mnu_selectedPlayer[i-1] = mnu_selectedPlayer[i];
-                mnu_selectedInput[i-1]  = mnu_selectedInput[i];
-            }
-
-            mnu_selectedPlayerCount--;
-        }
-    };
-
-    return found;
+    // And relative to the bottom of the screen
+    copyrightTop = GFX_HEIGHT;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_addSelectedPlayerInput( int loadplayer_idx, Uint32 input_bits )
+// Implementation of tipText
+//--------------------------------------------------------------------------------------------
+void tipText_set_position( Font * font, const char * text, int spacing )
 {
-    int i;
-    bool_t done, retval = bfalse;
+    int w, h;
 
-    int selected_index = -1;
+    autoformat_init_tip_text();
 
-    for ( i = 0; i < mnu_selectedPlayerCount; i++ )
-    {
-        if ( mnu_selectedPlayer[i] == loadplayer_idx )
-        {
-            selected_index = i;
-            break;
-        }
-    }
+    if ( NULL == text ) return;
 
-    if ( -1 == selected_index )
-    {
-        mnu_addSelectedPlayer( loadplayer_idx );
-    }
+    fnt_getTextBoxSize( font, text, spacing, &w, &h );
 
-    if ( selected_index >= 0 && selected_index < mnu_selectedPlayerCount )
-    {
-        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
-        {
-            if ( i == selected_index )
-            {
-                // add in the selected bits for the selected loadplayer_idx
-                mnu_selectedInput[i] |= input_bits;
-                retval = btrue;
-            }
-            else
-            {
-                // remove the selectd bits from all other players
-                mnu_selectedInput[i] &= ~input_bits;
-            }
-        }
-    }
+    // set the text
+    tipText = text;
 
-    // Do the tricky part of removing all players with invalid inputs from the list
-    // It is tricky because removing a loadplayer_idx changes the value of the loop control
-    // value mnu_selectedPlayerCount within the loop.
-    done = bfalse;
-    while ( !done )
-    {
-        // assume the best
-        done = btrue;
+    // Draw the options text to the right of the buttons
+    tipTextLeft = 280;
 
-        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
-        {
-            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
-            {
-                // we found one
-                done = bfalse;
-                mnu_removeSelectedPlayer( mnu_selectedPlayer[i] );
-            }
-        }
-    }
-
-    return retval;
+    // And relative to the bottom of the screen
+    tipTextTop = GFX_HEIGHT - h - spacing;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_removeSelectedPlayerInput( int loadplayer_idx, Uint32 input_bits )
+// Implementation of copyrightText
+//--------------------------------------------------------------------------------------------
+void copyrightText_set_position( Font * font, const char * text, int spacing )
 {
-    int i;
-    bool_t retval = bfalse;
+    int w, h;
 
-    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
-    {
-        if ( mnu_selectedPlayer[i] == loadplayer_idx )
-        {
-            mnu_selectedInput[i] &= ~input_bits;
+    autoformat_init_copyright_text();
 
-            // This part is not so tricky as in mnu_addSelectedPlayerInput.
-            // Even though we are modding the loop control variable, it is never
-            // tested in the loop because we are using the break command to
-            // break out of the loop immediately
+    if ( NULL == text ) return;
 
-            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
-            {
-                mnu_removeSelectedPlayer( loadplayer_idx );
-            }
+    copyrightLeft = 0;
+    copyrightLeft = 0;
 
-            retval = btrue;
+    // Figure out where to draw the copyright text
+    fnt_getTextBoxSize( font, text, 20, &w, &h );
 
-            break;
-        }
-    }
+    // set the text
+    copyrightText = text;
 
-    return retval;
+    // Draw the copyright text to the right of the buttons
+    copyrightLeft = 280;
+
+    // And relative to the bottom of the screen
+    copyrightTop = GFX_HEIGHT - h - spacing;
 }
 
 //--------------------------------------------------------------------------------------------
-void check_player_import( const char *dirname, bool_t initialize )
-{
-    /// @details ZZ@> This function figures out which players may be imported, and loads basic
-    ///     data for each
-
-    STRING filename;
-    const char *foundfile;
-    int skin = 0;
-
-    LOAD_PLAYER_INFO * pinfo;
-
-    if ( initialize )
-    {
-        // restart from nothing
-        loadplayer_count = 0;
-        release_all_profile_textures();
-
-        chop_data_init( &chop_mem );
-    };
-
-    // Search for all objects
-    foundfile = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
-    while ( VALID_CSTR( foundfile ) && loadplayer_count < MAXLOADPLAYER )
-    {
-        pinfo = loadplayer + loadplayer_count;
-
-        snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys(( char* )foundfile, strlen( foundfile ) ) );
-
-        snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "skin.txt", foundfile );
-        skin = read_skin( filename );
-
-        //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
-        //md2_load_one( vfs_resolveReadFilename(filename), &(MadStack.lst[loadplayer_count].md2_data) );
-
-        snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "icon%d", foundfile, skin );
-        pinfo->tx_ref = TxTexture_load_one( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
-
-        // load the chop data
-        snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "naming.txt", foundfile );
-        chop_load( &chop_mem, filename, &( pinfo->chop ) );
-
-        // generate the name from the chop
-        snprintf( pinfo->name, SDL_arraysize( pinfo->name ), "%s", chop_create( &chop_mem, &( pinfo->chop ) ) );
-
-        loadplayer_count++;
-
-        foundfile = vfs_findNext();
-    }
-    vfs_findClose();
-}
-
+// Asset management
 //--------------------------------------------------------------------------------------------
 void load_all_menu_images()
 {
@@ -4283,93 +4164,55 @@ void load_all_menu_images()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_begin_menu( which_menu_t which )
+TX_REF mnu_get_icon_ref( const CAP_REF by_reference icap, const TX_REF by_reference default_ref )
 {
-    if ( !menu_stack_push( mnu_whichMenu ) ) return bfalse;
-    mnu_whichMenu = which;
+    /// @details BB@> This function gets the proper icon for a an object profile.
+    //
+    //     In the character preview section of the menu system, we do not load
+    //     entire profiles, just the character definition file ("data.txt")
+    //     and one icon. Sometimes, though the item is actually a spell effect which means
+    //     that we need to display the book icon.
 
-    return btrue;
-}
+    TX_REF icon_ref = ( TX_REF )ICON_NULL;
+    bool_t is_spell_fx, is_book, draw_book;
 
-//--------------------------------------------------------------------------------------------
-void   mnu_end_menu()
-{
-    mnu_whichMenu = menu_stack_pop();
-}
+    cap_t * pitem_cap;
 
-//--------------------------------------------------------------------------------------------
-int mnu_get_menu_depth()
-{
-    return menu_stack_index;
-}
+    if ( !LOADED_CAP( icap ) ) return icon_ref;
+    pitem_cap = CapStack.lst + icap;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t menu_stack_push( which_menu_t menu )
-{
-    menu_stack_index = CLIP( menu_stack_index, 0, MENU_STACK_COUNT ) ;
+    // what do we need to draw?
+    is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;
+    is_book     = ( SPELLBOOK == icap );
+    draw_book   = ( is_book || is_spell_fx ) && ( bookicon_count > 0 );
 
-    if ( menu_stack_index >= MENU_STACK_COUNT ) return bfalse;
-
-    menu_stack[menu_stack_index] = menu;
-    menu_stack_index++;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-which_menu_t menu_stack_pop()
-{
-    if ( menu_stack_index < 0 )
+    if ( !draw_book )
     {
-        menu_stack_index = 0;
-        return emnu_Main;
+        icon_ref = default_ref;
     }
-    if ( menu_stack_index > MENU_STACK_COUNT )
+    else if ( draw_book )
     {
-        menu_stack_index = MENU_STACK_COUNT;
+        int iskin = 0;
+
+        if ( pitem_cap->spelleffect_type != 0 )
+        {
+            iskin = pitem_cap->spelleffect_type;
+        }
+        else if ( pitem_cap->skinoverride != 0 )
+        {
+            iskin = pitem_cap->skinoverride;
+        }
+
+        iskin = CLIP( iskin, 0, bookicon_count );
+
+        icon_ref = bookicon_ref[ iskin ];
     }
 
-    if ( menu_stack_index == 0 ) return emnu_Main;
-
-    menu_stack_index--;
-    return menu_stack[menu_stack_index];
+    return icon_ref;
 }
 
 //--------------------------------------------------------------------------------------------
-which_menu_t menu_stack_peek()
-{
-    which_menu_t return_menu = emnu_Main;
-
-    if ( menu_stack_index > 0 )
-    {
-        return_menu = menu_stack[menu_stack_index-1];
-    }
-
-    return return_menu;
-}
-
-//--------------------------------------------------------------------------------------------
-void menu_stack_clear()
-{
-    menu_stack_index = 0;
-    menu_stack[0] = emnu_Main;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void mnu_release_one_module( const MOD_REF by_reference imod )
-{
-    mnu_module_t * pmod;
-
-    if ( !VALID_MOD( imod ) ) return;
-    pmod = mnu_ModList.lst + imod;
-
-    TxTitleImage_release_one( pmod->tex_index );
-    pmod->tex_index = INVALID_TITLE_TEXTURE;
-}
-
-//--------------------------------------------------------------------------------------------
+// module utilities
 //--------------------------------------------------------------------------------------------
 int mnu_get_mod_number( const char *szModName )
 {
@@ -4489,202 +4332,193 @@ void mnu_load_all_module_info()
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF mnu_get_icon_ref( const CAP_REF by_reference icap, const TX_REF by_reference default_ref )
+void mnu_release_one_module( const MOD_REF by_reference imod )
 {
-    /// @details BB@> This function gets the proper icon for a an object profile.
-    //
-    //     In the character preview section of the menu system, we do not load
-    //     entire profiles, just the character definition file ("data.txt")
-    //     and one icon. Sometimes, though the item is actually a spell effect which means
-    //     that we need to display the book icon.
+    mnu_module_t * pmod;
 
-    TX_REF icon_ref = ( TX_REF )ICON_NULL;
-    bool_t is_spell_fx, is_book, draw_book;
+    if ( !VALID_MOD( imod ) ) return;
+    pmod = mnu_ModList.lst + imod;
 
-    cap_t * pitem_cap;
+    TxTitleImage_release_one( pmod->tex_index );
+    pmod->tex_index = INVALID_TITLE_TEXTURE;
+}
 
-    if ( !LOADED_CAP( icap ) ) return icon_ref;
-    pitem_cap = CapStack.lst + icap;
+//--------------------------------------------------------------------------------------------
+// Implementation of the ModList struct
+//--------------------------------------------------------------------------------------------
+mod_file_t * mnu_ModList_get_base( int imod )
+{
+    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
 
-    // what do we need to draw?
-    is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;
-    is_book     = ( SPELLBOOK == icap );
-    draw_book   = ( is_book || is_spell_fx ) && ( bookicon_count > 0 );
+    return &( mnu_ModList.lst[( MOD_REF )imod].base );
+}
 
-    if ( !draw_book )
+//--------------------------------------------------------------------------------------------
+const char * mnu_ModList_get_name( int imod )
+{
+    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
+
+    return mnu_ModList.lst[( MOD_REF )imod].name;
+}
+
+//--------------------------------------------------------------------------------------------
+void mnu_ModList_release_all()
+{
+    MOD_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
     {
-        icon_ref = default_ref;
-    }
-    else if ( draw_book )
-    {
-        int iskin = 0;
-
-        if ( pitem_cap->spelleffect_type != 0 )
+        // release any allocated data
+        if ( cnt < mnu_ModList.count )
         {
-            iskin = pitem_cap->spelleffect_type;
+            mnu_release_one_module( cnt );
         }
-        else if ( pitem_cap->skinoverride != 0 )
+
+        memset( mnu_ModList.lst + cnt, 0, sizeof( mnu_module_t ) );
+    }
+
+    mnu_ModList.count = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void mnu_ModList_release_images()
+{
+    MOD_REF cnt;
+    int tnc;
+
+    tnc = -1;
+    for ( cnt = 0; cnt < mnu_ModList.count; cnt++ )
+    {
+        if ( !mnu_ModList.lst[cnt].loaded ) continue;
+        tnc = REF_TO_INT( cnt );
+
+        TxTitleImage_release_one( mnu_ModList.lst[cnt].tex_index );
+        mnu_ModList.lst[cnt].tex_index = INVALID_TITLE_TEXTURE;
+    }
+    TxTitleImage.count = 0;
+
+    // make sure that mnu_ModList.count is the right size, in case some modules were unloaded?
+    mnu_ModList.count = tnc + 1;
+
+}
+
+//--------------------------------------------------------------------------------------------
+// Functions for implementing the TxTitleImage array of textures
+//--------------------------------------------------------------------------------------------
+void TxTitleImage_clear_data()
+{
+    TxTitleImage.count = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void TxTitleImage_ctor()
+{
+    /// @details ZZ@> This function clears out all of the textures
+
+    TX_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+    {
+        oglx_texture_ctor( TxTitleImage.lst + cnt );
+    }
+
+    TxTitleImage_clear_data();
+}
+
+//--------------------------------------------------------------------------------------------
+void TxTitleImage_release_one( const TX_REF by_reference index )
+{
+    if ( index < 0 || index >= MAX_MODULE ) return;
+
+    oglx_texture_Release( TxTitleImage.lst + index );
+}
+
+//--------------------------------------------------------------------------------------------
+void TxTitleImage_release_all()
+{
+    /// @details ZZ@> This function releases all of the textures
+
+    TX_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+    {
+        TxTitleImage_release_one( cnt );
+    }
+
+    TxTitleImage_clear_data();
+}
+
+//--------------------------------------------------------------------------------------------
+void TxTitleImage_dtor()
+{
+    /// @details ZZ@> This function clears out all of the textures
+
+    TX_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+    {
+        oglx_texture_dtor( TxTitleImage.lst + cnt );
+    }
+
+    TxTitleImage_clear_data();
+}
+
+//--------------------------------------------------------------------------------------------
+TX_REF TxTitleImage_load_one( const char *szLoadName )
+{
+    /// @details ZZ@> This function loads a title in the specified image slot, forcing it into
+    ///    system memory.  Returns btrue if it worked
+
+    TX_REF itex;
+
+    if ( INVALID_CSTR( szLoadName ) ) return ( TX_REF )INVALID_TITLE_TEXTURE;
+
+    if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
+
+    itex  = ( TX_REF )TxTitleImage.count;
+    if ( INVALID_TX_ID != ego_texture_load( TxTitleImage.lst + itex, szLoadName, INVALID_KEY ) )
+    {
+        TxTitleImage.count++;
+    }
+    else
+    {
+        itex = ( TX_REF )INVALID_TITLE_TEXTURE;
+    }
+
+    return itex;
+}
+
+//--------------------------------------------------------------------------------------------
+oglx_texture_t * TxTitleImage_get_ptr( const TX_REF by_reference itex )
+{
+    if ( itex >= TxTitleImage.count || itex >= MAX_MODULE ) return NULL;
+
+    return TxTitleImage.lst + itex;
+}
+
+//--------------------------------------------------------------------------------------------
+void TxTitleImage_reload_all()
+{
+    /// @details ZZ@> This function re-loads all the current textures back into
+    ///               OpenGL texture memory using the cached SDL surfaces
+
+    TX_REF cnt;
+
+    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
+    {
+        oglx_texture_t * ptex = TxTitleImage.lst + cnt;
+
+        if ( ptex->valid )
         {
-            iskin = pitem_cap->skinoverride;
+            oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
         }
-
-        iskin = CLIP( iskin, 0, bookicon_count );
-
-        icon_ref = bookicon_ref[ iskin ];
     }
-
-    return icon_ref;
 }
 
 //--------------------------------------------------------------------------------------------
+// Implementation of the mnu_GameTip system
 //--------------------------------------------------------------------------------------------
-int do_menu_proc_begin( menu_process_t * mproc )
-{
-    // play some music
-    sound_play_song( MENU_SONG, 0, -1 );
-
-    // initialize all these structures
-    menu_system_begin();        // start the menu menu
-
-    // load all module info at menu initialization
-    // this will not change unless a new module is downloaded for a network menu?
-    mnu_load_all_module_info();
-
-    // initialize the process state
-    mproc->base.valid = btrue;
-
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------
-int do_menu_proc_running( menu_process_t * mproc )
-{
-    int menuResult;
-
-    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
-
-    mproc->was_active = mproc->base.valid;
-
-    if ( mproc->base.paused ) return 0;
-
-    // play the menu music
-    mnu_draw_background = !process_running( PROC_PBASE( GProc ) );
-    menuResult          = game_do_menu( mproc );
-
-    switch ( menuResult )
-    {
-        case MENU_SELECT:
-            // go ahead and start the game
-            process_pause( PROC_PBASE( mproc ) );
-            break;
-
-        case MENU_QUIT:
-            // the user selected "quit"
-            process_kill( PROC_PBASE( mproc ) );
-            break;
-    }
-
-    if ( mnu_get_menu_depth() <= GProc->menu_depth )
-    {
-        GProc->menu_depth   = -1;
-        GProc->escape_latch = bfalse;
-
-        // We have exited the menu and restarted the game
-        GProc->mod_paused = bfalse;
-        process_pause( PROC_PBASE( MProc ) );
-    }
-
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------
-int do_menu_proc_leaving( menu_process_t * mproc )
-{
-    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
-
-    // terminate the menu system
-    menu_system_end();
-
-    // finish the menu song
-    sound_finish_song( 500 );
-
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------
-int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
-{
-    int result = 0, proc_result = 0;
-
-    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
-    mproc->base.dtime = frameDuration;
-
-    if ( mproc->base.paused ) return 0;
-
-    if ( mproc->base.killme )
-    {
-        mproc->base.state = proc_leaving;
-    }
-
-    switch ( mproc->base.state )
-    {
-        case proc_begin:
-            proc_result = do_menu_proc_begin( mproc );
-
-            if ( 1 == proc_result )
-            {
-                mproc->base.state = proc_entering;
-            }
-            break;
-
-        case proc_entering:
-            // proc_result = do_menu_proc_entering( mproc );
-
-            mproc->base.state = proc_running;
-            break;
-
-        case proc_running:
-            proc_result = do_menu_proc_running( mproc );
-
-            if ( 1 == proc_result )
-            {
-                mproc->base.state = proc_leaving;
-            }
-            break;
-
-        case proc_leaving:
-            proc_result = do_menu_proc_leaving( mproc );
-
-            if ( 1 == proc_result )
-            {
-                mproc->base.state  = proc_finish;
-                mproc->base.killme = bfalse;
-            }
-            break;
-
-        case proc_finish:
-            process_terminate( PROC_PBASE( mproc ) );
-            break;
-    }
-
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------
-menu_process_t * menu_process_init( menu_process_t * mproc )
-{
-    if ( NULL == mproc ) return NULL;
-
-    memset( mproc, 0, sizeof( *mproc ) );
-
-    process_init( PROC_PBASE( mproc ) );
-
-    return mproc;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void load_global_game_hints()
+void mnu_GameTip_load_global()
 {
     /// ZF@> This function loads all of the game hints and tips
     STRING buffer;
@@ -4724,8 +4558,7 @@ void load_global_game_hints()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t load_local_game_hints()
+bool_t mnu_GameTip_load_local()
 {
     /// ZF@> This function loads all module specific hints and tips. If this fails, the game will
     //       default to the global hints and tips instead
@@ -4762,4 +4595,302 @@ bool_t load_local_game_hints()
     vfs_close( fileread );
 
     return mnu_GameTip.local_count > 0;
+}
+
+//--------------------------------------------------------------------------------------------
+// Implementation of the mnu_SlidyButton array
+//--------------------------------------------------------------------------------------------
+void mnu_SlidyButton_init( float lerp, const char *button_text[] )
+{
+    int i;
+
+    autoformat_init_slidy_buttons();
+
+    // Figure out where to draw the buttons
+    for ( i = 0; button_text[i][0] != 0; i++ )
+    {
+        buttonTop -= 35;
+    }
+
+    mnu_SlidyButtonState.lerp = lerp;
+    mnu_SlidyButtonState.buttons = ( char** )button_text;
+}
+
+//--------------------------------------------------------------------------------------------
+void mnu_SlidyButton_update_all( float deltaTime )
+{
+    mnu_SlidyButtonState.lerp += ( deltaTime * 1.5f );
+}
+
+//--------------------------------------------------------------------------------------------
+void mnu_SlidyButton_draw_all()
+{
+    int i;
+
+    for ( i = 0; mnu_SlidyButtonState.buttons[i][0] != 0; i++ )
+    {
+        int x = buttonLeft - ( 360 - i * 35 )  * mnu_SlidyButtonState.lerp;
+        int y = buttonTop + ( i * 35 );
+
+        ui_doButton( UI_Nothing, mnu_SlidyButtonState.buttons[i], NULL, x, y, 200, 30 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+// implementation of the mnu_Selected* arrays
+//--------------------------------------------------------------------------------------------
+bool_t mnu_Selected_check_loadplayer( int loadplayer_idx )
+{
+    int i;
+    if ( loadplayer_idx > loadplayer_count ) return bfalse;
+
+    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+    {
+        if ( mnu_selectedPlayer[i] == loadplayer_idx ) return btrue;
+    }
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+int mnu_Selected_get_loadplayer( int loadplayer_idx )
+{
+    int cnt, selected_index;
+
+    if ( loadplayer_idx > loadplayer_count ) return INVALID_PLAYER;
+
+    selected_index = INVALID_PLAYER;
+    for ( cnt = 0; cnt < MAX_PLAYER && cnt < mnu_selectedPlayerCount; cnt++ )
+    {
+        if ( mnu_selectedPlayer[ cnt ] == loadplayer_idx )
+        {
+            selected_index = cnt;
+            break;
+        }
+    }
+
+    return selected_index;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mnu_Selected_add( int loadplayer_idx )
+{
+    if ( loadplayer_idx > loadplayer_count || mnu_selectedPlayerCount >= MAX_PLAYER ) return bfalse;
+    if ( mnu_Selected_check_loadplayer( loadplayer_idx ) ) return bfalse;
+
+    mnu_selectedPlayer[mnu_selectedPlayerCount] = loadplayer_idx;
+    mnu_selectedInput[mnu_selectedPlayerCount]  = INPUT_BITS_NONE;
+    mnu_selectedPlayerCount++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mnu_Selected_remove( int loadplayer_idx )
+{
+    int i;
+    bool_t found = bfalse;
+
+    if ( loadplayer_idx > loadplayer_count || mnu_selectedPlayerCount <= 0 ) return bfalse;
+
+    if ( mnu_selectedPlayerCount == 1 )
+    {
+        if ( mnu_selectedPlayer[0] == loadplayer_idx )
+        {
+            mnu_selectedPlayerCount = 0;
+        };
+    }
+    else
+    {
+        for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+        {
+            if ( mnu_selectedPlayer[i] == loadplayer_idx )
+            {
+                found = btrue;
+                break;
+            }
+        }
+
+        if ( found )
+        {
+            i++;
+            for ( /* nothing */; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+            {
+                mnu_selectedPlayer[i-1] = mnu_selectedPlayer[i];
+                mnu_selectedInput[i-1]  = mnu_selectedInput[i];
+            }
+
+            mnu_selectedPlayerCount--;
+        }
+    };
+
+    return found;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mnu_Selected_add_input( int loadplayer_idx, Uint32 input_bits )
+{
+    int i;
+    bool_t done, retval = bfalse;
+
+    int selected_index = -1;
+
+    for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+    {
+        if ( mnu_selectedPlayer[i] == loadplayer_idx )
+        {
+            selected_index = i;
+            break;
+        }
+    }
+
+    if ( -1 == selected_index )
+    {
+        mnu_Selected_add( loadplayer_idx );
+    }
+
+    if ( selected_index >= 0 && selected_index < mnu_selectedPlayerCount )
+    {
+        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+        {
+            if ( i == selected_index )
+            {
+                // add in the selected bits for the selected loadplayer_idx
+                mnu_selectedInput[i] |= input_bits;
+                retval = btrue;
+            }
+            else
+            {
+                // remove the selectd bits from all other players
+                mnu_selectedInput[i] &= ~input_bits;
+            }
+        }
+    }
+
+    // Do the tricky part of removing all players with invalid inputs from the list
+    // It is tricky because removing a loadplayer_idx changes the value of the loop control
+    // value mnu_selectedPlayerCount within the loop.
+    done = bfalse;
+    while ( !done )
+    {
+        // assume the best
+        done = btrue;
+
+        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+        {
+            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
+            {
+                // we found one
+                done = bfalse;
+                mnu_Selected_remove( mnu_selectedPlayer[i] );
+            }
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mnu_Selected_remove_input( int loadplayer_idx, Uint32 input_bits )
+{
+    int i;
+    bool_t retval = bfalse;
+
+    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+    {
+        if ( mnu_selectedPlayer[i] == loadplayer_idx )
+        {
+            mnu_selectedInput[i] &= ~input_bits;
+
+            // This part is not so tricky as in mnu_Selected_add_input.
+            // Even though we are modding the loop control variable, it is never
+            // tested in the loop because we are using the break command to
+            // break out of the loop immediately
+
+            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
+            {
+                mnu_Selected_remove( loadplayer_idx );
+            }
+
+            retval = btrue;
+
+            break;
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+// Implementation of the loadplayer array
+//--------------------------------------------------------------------------------------------
+void loadplayer_init()
+{
+    // restart from nothing
+    loadplayer_count = 0;
+    release_all_profile_textures();
+
+    chop_data_init( &chop_mem );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t loadplayer_import_one( const char * foundfile )
+{
+    STRING filename;
+    LOAD_PLAYER_INFO * pinfo;
+    int skin = 0;
+
+    if ( !VALID_CSTR( foundfile ) || !vfs_exists( foundfile ) ) return bfalse;
+
+    if ( loadplayer_count >= MAXLOADPLAYER ) return bfalse;
+
+    pinfo = loadplayer + loadplayer_count;
+
+    snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys(( char* )foundfile, strlen( foundfile ) ) );
+
+    snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "skin.txt", foundfile );
+    skin = read_skin( filename );
+
+    //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
+    //md2_load_one( vfs_resolveReadFilename(filename), &(MadStack.lst[loadplayer_count].md2_data) );
+
+    snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "icon%d", foundfile, skin );
+    pinfo->tx_ref = TxTexture_load_one( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+
+    // load the chop data
+    snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "naming.txt", foundfile );
+    chop_load( &chop_mem, filename, &( pinfo->chop ) );
+
+    // generate the name from the chop
+    snprintf( pinfo->name, SDL_arraysize( pinfo->name ), "%s", chop_create( &chop_mem, &( pinfo->chop ) ) );
+
+    loadplayer_count++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+// Player utilities
+//--------------------------------------------------------------------------------------------
+void mnu_player_check_import( const char *dirname, bool_t initialize )
+{
+    /// @details ZZ@> This function figures out which players may be imported, and loads basic
+    ///     data for each
+
+    const char *foundfile;
+
+    if ( initialize )
+    {
+        loadplayer_init();
+    };
+
+    // Search for all objects
+    foundfile = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
+    while ( VALID_CSTR( foundfile ) && loadplayer_count < MAXLOADPLAYER )
+    {
+        loadplayer_import_one( foundfile );
+
+        foundfile = vfs_findNext();
+    }
+    vfs_findClose();
 }

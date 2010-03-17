@@ -117,14 +117,14 @@ bool_t BSP_aabb_clear( BSP_aabb_t * psrc )
 
     int cnt;
 
-    if( NULL == psrc ) return bfalse;
-    if( NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary ) return bfalse;
+    if ( NULL == psrc ) return bfalse;
+    if ( NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary ) return bfalse;
 
     for ( cnt = 0; cnt < psrc->dim; cnt++ )
     {
         psrc->mins.ary[cnt] = psrc->mids.ary[cnt] = psrc->maxs.ary[cnt] = 0.0f;
     }
-    
+
     return btrue;
 }
 
@@ -1284,11 +1284,11 @@ bool_t BSP_tree_prune_branch( BSP_tree_t * t, int cnt )
 
         // set B's data to "safe" values
         B->parent = NULL;
-        for( i = 0; i < B->child_count; i++ ) B->child_lst[i] = NULL;
+        for ( i = 0; i < B->child_count; i++ ) B->child_lst[i] = NULL;
         B->node_count = 0;
         B->node_lst = NULL;
         B->depth = -1;
-        BSP_aabb_clear( &(B->bbox) );
+        BSP_aabb_clear( &( B->bbox ) );
 
         // move the branch that we found to the top of the list
         SWAP( BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top] );
