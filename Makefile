@@ -4,8 +4,6 @@
 #!!!! if you want to specify a prefix, do it on the command line
 #For instance: "make PREFIX=$HOME/.local"
 
-#PREFIX	:= ${HOME}/.local
-
 ifndef ($(PREFIX),"")
 	# define a value for prefix assuming that the program will be installed in the root directory
 	PREFIX := /usr
