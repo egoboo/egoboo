@@ -158,7 +158,6 @@ void camera_make_matrix( camera_t * pcam )
 
     pcam->vrt = mat_getCamRight( pcam->mView );
     pcam->vrt = fvec3_normalize( pcam->vrt.v );
-
 }
 
 //--------------------------------------------------------------------------------------------

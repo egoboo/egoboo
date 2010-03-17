@@ -248,7 +248,6 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
         }
     }
     gfx_end_3d();
-
 }
 
 //--------------------------------------------------------------------------------------------

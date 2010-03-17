@@ -228,7 +228,6 @@ void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
         GL_DEBUG( glGetFloatv )( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &( pcaps->maxAnisotropy ) );
         pcaps->log2Anisotropy = ( 0 == pcaps->maxAnisotropy ) ? 0.0f : floor( log( pcaps->maxAnisotropy + 1e-6 ) / log( 2.0f ) );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

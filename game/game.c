@@ -416,7 +416,6 @@ void export_all_players( bool_t require_local )
         }
         PACK_END_LOOP( item );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2153,7 +2152,6 @@ void check_stats()
         if ( SDLKEYDOWN( SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
         if ( SDLKEYDOWN( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2431,7 +2429,6 @@ void tilt_characters_to_terrain()
         }
     }
     CHR_END_LOOP();
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2464,7 +2461,6 @@ void import_dir_profiles( const char * dirname )
             import_data.max_slot      = MAX( import_data.max_slot, cnt );
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

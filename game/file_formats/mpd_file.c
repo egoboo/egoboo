@@ -149,7 +149,6 @@ void tile_dictionary_load( const char * filename, tile_definition_t dict[], size
             dict[entry].v[cnt] = (( 0.6f / 64 ) + ( dict[entry].v[cnt] * 62.8f / 64 ) ) / 4;
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

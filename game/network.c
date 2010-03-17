@@ -1866,7 +1866,6 @@ int cl_joinGame( const char* hostname )
 void stop_players_from_joining()
 {
     /// @details ZZ@> This function stops players from joining a game
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2145,5 +2144,4 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
         pdevice->latch.x *= scale;
         pdevice->latch.y *= scale;
     }
-
 }

@@ -719,7 +719,6 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
 
     // Save the value for undo
     penc->addsave[value_idx]  = valuetoadd;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1216,7 +1215,6 @@ void enchant_remove_set( const ENC_REF by_reference ienc, int value_idx )
     }
 
     penc->setyesno[value_idx] = bfalse;
-
 }
 
 //--------------------------------------------------------------------------------------------

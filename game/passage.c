@@ -447,7 +447,6 @@ void add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_refer
             }
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

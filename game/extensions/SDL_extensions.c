@@ -317,7 +317,6 @@ void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL,   &( patt->accelerated_visual ) );
     SDL_GL_GetAttribute( SDL_GL_SWAP_CONTROL,         &( patt->swap_control ) );
 #endif
-
 }
 
 //--------------------------------------------------------------------------------------------

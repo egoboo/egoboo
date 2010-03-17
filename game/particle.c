@@ -2199,7 +2199,6 @@ void move_all_particles( void )
         move_one_particle( pprt );
     }
     PRT_END_LOOP();
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2275,7 +2274,6 @@ void cleanup_all_particles()
                             pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,
                             pinfo->prt_origin, pinfo->multispawn, pinfo->oldtarget );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2700,7 +2698,6 @@ void release_all_pip()
             }
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

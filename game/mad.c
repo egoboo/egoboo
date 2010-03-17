@@ -274,7 +274,6 @@ void action_check_copy( const char* loadname, const MAD_REF by_reference imad )
     }
 
     vfs_close( fileread );
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -587,7 +586,6 @@ void mad_make_framelip( const MAD_REF by_reference imad, int action )
         pframe->framelip = ( frame - pmad->action_stt[action] ) * 15 / framesinaction;
         pframe->framelip = ( pframe->framelip ) & 15;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -663,7 +661,6 @@ void load_action_names( const char* loadname )
     }
 
     vfs_close( fileread );
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -779,7 +776,6 @@ void mad_heal_actions( const MAD_REF by_reference imad, const char * tmploadname
     // Copy entire actions to save frame space COPY.TXT
     make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
     action_check_copy( newloadname, imad );
-
 }
 
 //--------------------------------------------------------------------------------------------

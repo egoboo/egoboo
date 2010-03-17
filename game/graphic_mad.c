@@ -1357,7 +1357,6 @@ egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, 
     retval = chr_instance_set_frame( pinst, frame );
 
     return retval;
-
 }
 
 //--------------------------------------------------------------------------------------------

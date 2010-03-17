@@ -895,7 +895,6 @@ void reset_character_accel( const CHR_REF by_reference character )
         enchant_apply_add( enchant, ADDACCEL, enc_get_ieve( enchant ) );
         enchant = EncList.lst[enchant].nextenchant_ref;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1782,7 +1781,6 @@ bool_t drop_all_items( const CHR_REF by_reference character )
     }
 
     return btrue;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4542,7 +4540,6 @@ void switch_team( const CHR_REF by_reference character, const TEAM_REF by_refere
     {
         TeamStack.lst[team].leader = character;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

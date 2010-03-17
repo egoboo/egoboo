@@ -146,7 +146,6 @@ void egoboo_config_init()
     cfg_default.hide_mouse        = btrue;
     cfg_default.dev_mode          = bfalse;
     cfg_default.sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
-
 }
 
 //--------------------------------------------------------------------------------------------

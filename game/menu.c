@@ -2799,6 +2799,158 @@ int doAudioOptions( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio, STRING * psz_ratio )
+{
+    /// @details BB@> coerce the aspect ratio of the screen to some standard size
+
+    float req_aspect_ratio;
+    
+    if( 0 == height && NULL == pratio || NULL == psz_ratio ) return bfalse;
+    
+    req_aspect_ratio = (float)width / (float)height;
+
+    if( req_aspect_ratio > 0.0 && req_aspect_ratio < 0.5f*((5.0f / 4.0f) + (4.0f / 3.0f)) )
+    {
+        *pratio = 5.0f / 4.0f;
+        strncpy( *psz_ratio, "5:4", sizeof(*psz_ratio) );
+    }
+    else if( req_aspect_ratio >= 0.5f*((5.0f / 4.0f) + (4.0f / 3.0f)) && req_aspect_ratio < 0.5f*((4.0f / 3.0f) + (8.0f / 5.0f)) )
+    {
+        *pratio = 4.0f / 3.0f;
+        strncpy( *psz_ratio, "4:3", sizeof(*psz_ratio) );
+    }
+    else if( req_aspect_ratio >= 0.5f*((4.0f / 3.0f) + (8.0f / 5.0f)) && req_aspect_ratio < 0.5f*((8.0f / 5.0f) + (5.0f / 3.0f)) )
+    {
+        *pratio = 8.0f / 5.0f;
+        strncpy( *psz_ratio, "8:5", sizeof(*psz_ratio) );
+    }
+    else if( req_aspect_ratio >= 0.5f*((8.0f / 5.0f) + (5.0f / 3.0f)) && req_aspect_ratio < 0.5f*((5.0f / 3.0f) + (16.0f / 9.0f)) )
+    {
+        *pratio = 5.0f / 3.0f;
+        strncpy( *psz_ratio, "5:3", sizeof(*psz_ratio) );
+    }
+    else
+    {
+        *pratio = 16.0f / 9.0f;
+        strncpy( *psz_ratio, "16:9", sizeof(*psz_ratio) );
+    }
+
+    return btrue;
+
+}
+
+
+//--------------------------------------------------------------------------------------------
+int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_screen_info_t * psdl_scr, STRING * psz_screen_size )
+{
+    STRING     sz_aspect_ratio = "unknown";
+    float      req_screen_area  = (float)pcfg->scrx_req * (float)pcfg->scry_req;
+    float      min_diff = 0.0f;
+    SDL_Rect * found_rect = NULL, ** pprect = NULL;
+
+    float       aspect_ratio;
+
+    doVideoOptions_coerce_aspect_ratio( pcfg->scrx_req, pcfg->scry_req, &aspect_ratio, &sz_aspect_ratio ); 
+
+    found_rect = NULL;
+    pprect = psdl_scr->video_mode_list;
+    while( NULL != *pprect )
+    {
+        SDL_Rect * prect = *pprect;
+
+        float sdl_aspect_ratio;
+        float sdl_screen_area;
+        float diff, diff1, diff2;
+
+        sdl_aspect_ratio = (float)prect->w / (float)prect->h;
+        sdl_screen_area  = prect->w * prect->h;
+
+        diff1 = log( sdl_aspect_ratio / aspect_ratio );
+        diff2 = log( sdl_screen_area / req_screen_area );
+
+        diff = 2.0f * ABS(diff1) + ABS(diff2);
+
+        if( NULL == found_rect || diff < min_diff )
+        {
+            found_rect = prect;
+            min_diff   = diff;
+
+            if( 0.0f == min_diff ) break;
+        }
+
+        pprect++;
+    }
+
+    if( NULL != found_rect )
+    {
+        pcfg->scrx_req = found_rect->w;
+        pcfg->scry_req = found_rect->h;
+    }
+    else
+    {
+        // we cannot find an approximate screen size
+
+        switch ( pcfg->scrx_req )
+        {
+            // Normal resolutions
+            case 1024:
+                pcfg->scry_req  = 768;
+                strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
+                break;
+
+            case 640: 
+                pcfg->scry_req = 480;
+                strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
+                break;
+
+            case 800: 
+                pcfg->scry_req = 600;
+                strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
+                break;
+
+            // 1280 can be both widescreen and normal
+            case 1280:
+                if( pcfg->scry_req > 800 )
+                {
+                    pcfg->scry_req = 1024;
+                    strncpy( sz_aspect_ratio, "5:4", sizeof(sz_aspect_ratio) );
+                }
+                else
+                {
+                    pcfg->scry_req = 800;
+                    strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                }
+                break;
+
+            // Widescreen resolutions
+            case 1440:
+                pcfg->scry_req = 900;
+                strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                break;
+
+            case 1680:
+                pcfg->scry_req = 1050;
+                strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                break;
+
+            case 1920:
+                pcfg->scry_req = 1200;
+                strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                break;
+
+            // unknown
+            default:
+                doVideoOptions_coerce_aspect_ratio( pcfg->scrx_req, pcfg->scry_req, &aspect_ratio, &sz_aspect_ratio ); 
+                break;
+        }
+    }
+
+    snprintf(*psz_screen_size, sizeof(*psz_screen_size), "%dx%d - %s", pcfg->scrx_req, pcfg->scry_req, sz_aspect_ratio );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 int doVideoOptions( float deltaTime )
 {
     /// @details Video options menu
@@ -2811,7 +2963,12 @@ int doVideoOptions( float deltaTime )
     static STRING Cscrz;
     static STRING Cmaxparticles;
     static STRING Cmaxdyna;
+
     static bool_t widescreen;
+    static float  aspect_ratio;
+    static char * sz_aspect_ratio = "unknown";
+    static STRING sz_screen_size;
+
     static const char *sz_buttons[] =
     {
         "N/A",    // Antialaising
@@ -2968,51 +3125,21 @@ int doVideoOptions( float deltaTime )
             snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i", cfg.particle_count_req );     // Convert the integer to a char we can use
             sz_buttons[14] = Cmaxparticles;
 
-            switch ( cfg.scrx_req )
+            if( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
             {
-                    // Normal resolutions
-                case 1024: sz_buttons[12] = "1024X768";
-                    widescreen = bfalse;
-                    break;
-                case 640: sz_buttons[12] = "640X480";
-                    widescreen = bfalse;
-                    break;
-                case 800: sz_buttons[12] = "800X600";
-                    widescreen = bfalse;
-                    break;
+                doVideoOptions_fix_fullscreen_resolution( &cfg, &sdl_scr, &sz_screen_size );
+                sz_buttons[12] = sz_screen_size;
 
-                    // 1280 can be both widescreen and normal
-                case 1280:
-                    if ( cfg.scry_req == 1280 )
-                    {
-                        sz_buttons[12] = "1280X1024";
-                        widescreen = bfalse;
-                    }
-                    if ( cfg.scry_req == 800 )
-                    {
-                        sz_buttons[12] = "1280X800";
-                        widescreen = btrue;
-                    }
-                    break;
+                aspect_ratio = (float)cfg.scrx_req / (float)cfg.scry_req;
+                widescreen = (aspect_ratio > (4.0f / 3.0f));
+            }
+            else
+            {
+                snprintf(sz_screen_size, sizeof(sz_screen_size), "%dx%d", cfg.scrx_req, cfg.scry_req );
+                sz_buttons[12] = sz_screen_size;
 
-                    // Widescreen resolutions
-                case 1440:
-                    sz_buttons[12] = "1440X900";
-                    widescreen = btrue;
-                    break;
-                case 1680:
-                    sz_buttons[12] = "1680X1050";
-                    widescreen = btrue;
-                    break;
-                case 1920:
-                    sz_buttons[12] = "1920X1200";
-                    widescreen = btrue;
-                    break;
-
-                    // unknown
-                default:
-                    sz_buttons[12] = "Custom";
-                    break;
+                aspect_ratio = (float)cfg.scrx_req / (float)cfg.scry_req;
+                widescreen = (aspect_ratio > (4.0f / 3.0f));
             }
 
             if ( widescreen ) sz_buttons[11] = "X";
@@ -3339,68 +3466,45 @@ int doVideoOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, GFX_HEIGHT - 110, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 13, sz_buttons[12], menuFont, buttonLeft + 450, GFX_HEIGHT - 110, 125, 30 ) )
             {
+                float req_area;
+                
+                cfg.scrx_req *= 1.2f;
+                cfg.scry_req *= 1.2f;
 
-                // Do normal resolutions
-                if ( !widescreen )
+                req_area = cfg.scrx_req * cfg.scry_req;
+
+                if( req_area > 1920 * 1200 )
                 {
-                    switch ( cfg.scrx_req )
+                    if( cfg.scrx_req * 3 > cfg.scry_req * 4 )
                     {
-                        case 640:
-                            cfg.scrx_req = 800;
-                            cfg.scry_req = 600;
-                            sz_buttons[12] = "800x600";
-                            break;
-
-                        case 800:
-                            cfg.scrx_req = 1024;
-                            cfg.scry_req = 768;
-                            sz_buttons[12] = "1024x768";
-                            break;
-
-                        case 1024:
-                            cfg.scrx_req = 1280;
-                            cfg.scry_req = 1024;
-                            sz_buttons[12] = "1280x1024";
-                            break;
-
-                    default: case 1280:
-                            cfg.scrx_req = 640;
-                            cfg.scry_req = 480;
-                            sz_buttons[12] = "640x480";
-                            break;
+                        // "default" widescreen
+                        cfg.scrx_req = 960;
+                        cfg.scrx_req = 600;
+                    }
+                    else
+                    {
+                        // "default"
+                        cfg.scrx_req = 800;
+                        cfg.scrx_req = 600;
                     }
                 }
 
-                // Do widescreen resolutions
+                if( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
+                {
+                    doVideoOptions_fix_fullscreen_resolution( &cfg, &sdl_scr, &sz_screen_size );
+                }
                 else
                 {
-                    switch ( cfg.scrx_req )
-                    {
-                    default: case 1920:
-                            cfg.scrx_req = 1280;
-                            cfg.scry_req = 800;
-                            sz_buttons[12] = "1280x800";
-                            break;
-
-                        case 1280:
-                            cfg.scrx_req = 1440;
-                            cfg.scry_req = 900;
-                            sz_buttons[12] = "1440x900";
-                            break;
-
-                        case 1440:
-                            cfg.scrx_req = 1680;
-                            cfg.scry_req = 1050;
-                            sz_buttons[12] = "1680x1050";
-                            break;
-
-                        case 1680:
-                            cfg.scrx_req = 1920;
-                            cfg.scry_req = 1200;
-                            sz_buttons[12] = "1920x1200";
-                            break;
-                    }
+                    snprintf(sz_screen_size, sizeof(sz_screen_size), "%dx%d", cfg.scrx_req, cfg.scry_req );
                 }
+
+                sz_buttons[12] = sz_screen_size;
+
+                aspect_ratio = (float)cfg.scrx_req / (float)cfg.scry_req;
+                widescreen = (aspect_ratio > (4.0f / 3.0f));
+
+                if ( widescreen ) sz_buttons[11] = "X";
+                else              sz_buttons[11] = " ";
             }
 
             // Save settings button
@@ -4399,7 +4503,6 @@ void mnu_ModList_release_images()
 
     // make sure that mnu_ModList.count is the right size, in case some modules were unloaded?
     mnu_ModList.count = tnc + 1;
-
 }
 
 //--------------------------------------------------------------------------------------------

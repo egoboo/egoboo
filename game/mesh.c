@@ -714,7 +714,6 @@ void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     {
         pgmem->blockstart[cnt] = pgmem->blocks_x * cnt;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

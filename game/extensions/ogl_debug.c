@@ -165,7 +165,6 @@ void gl_grab_blend_state( gl_blend_t * pb )
             default:                     pb->dst_sz = "UNKNOWN";
         };
     };
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -259,7 +258,6 @@ void gl_grab_stencil_state( gl_stencil_t * ps )
 
     GL_DEBUG( glGetIntegerv )( GL_STENCIL_WRITEMASK, ps->writemask );
     GL_DEBUG( glGetIntegerv )( GL_STENCIL_CLEAR_VALUE, ps->clear_value );
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -399,7 +397,6 @@ void gl_grab_state( ogl_state_t * ps )
     {
         ps->error_value_sz = gluErrorString( ps->error_value );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -553,7 +550,6 @@ void gl_grab_render_options_state( gl_render_options_t * po )
     // GL_FOG_END Linear fog _dtor fog 1.0 GL_DEBUG(glGetFloatv)()
     // GL_FOG_MODE Fog mode fog GL_EXP GL_DEBUG(glGetIntegerv)()
     // GL_FOG True if fog enabled fog/enable GL_FALSE GL_DEBUG(glIsEnabled)()
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -633,7 +629,6 @@ void gl_grab_texturing_state( gl_texturing_t * pt )
     {
         gl_grab_texture_gen_state( pt->texture_gen + 3, GL_Q );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -667,7 +662,6 @@ void gl_grab_logic_op_state( gl_logic_op_t * pl )
             default:               pl->mode_sz = "UNKNOWN";
         };
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

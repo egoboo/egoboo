@@ -1579,7 +1579,6 @@ bool_t waypoint_list_advance( waypoint_list_t * plst )
     if ( plst->tail >= MAXWAY ) plst->tail = MAXWAY - 1;
 
     return retval;
-
 }
 
 //--------------------------------------------------------------------------------------------

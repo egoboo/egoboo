@@ -368,7 +368,6 @@ const char * _vfs_strip_mount_point( const char * some_path )
     }
 
     return stripped_pos;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1984,7 +1983,6 @@ void _vfs_translate_error( vfs_FILE * pfile )
             pfile->flags |= VFS_EOF;
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

@@ -166,7 +166,6 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
 
     pcon->output_carat += snprintf( dst, EGOBOO_CONSOLE_OUTPUT - pcon->output_carat, "%s", src );
     pcon->output_buffer[EGOBOO_CONSOLE_OUTPUT-1] = CSTR_END;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -412,7 +411,6 @@ void egoboo_console_draw_all()
         }
     }
     egoboo_console_draw_end();
-
 }
 
 //--------------------------------------------------------------------------------------------

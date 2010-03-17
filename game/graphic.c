@@ -551,7 +551,6 @@ void gfx_init_SDL_graphics()
     }
 
     _sdl_initialized_graphics = btrue;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1095,7 +1094,6 @@ int draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks )
     }
 
     return y;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1448,7 +1446,6 @@ void draw_map()
         // }
     }
     ATTRIB_POP( "draw_map()" )
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2006,7 +2003,6 @@ void render_shadow( const CHR_REF by_reference character )
 
         render_shadow_sprite( alpha_umbra, v );
     };
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2490,7 +2486,6 @@ void render_scene_solid()
 
     // daw some debugging lines
     draw_all_lines( PCamera );
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3372,7 +3367,6 @@ void BillboardList_clear_data()
         BillboardList.free_ref[cnt] = cnt;
     }
     BillboardList.free_count = cnt;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3990,7 +3984,6 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr )
     }
 
     return btrue;
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4656,7 +4649,6 @@ void load_map( /* const char* szModule */ )
     {
         mapvalid = btrue;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4739,7 +4731,6 @@ void load_graphics()
         GL_DEBUG( glDisable )( GL_LINE_SMOOTH );
         GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------

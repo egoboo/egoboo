@@ -399,7 +399,6 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
         default:
         case GENDER_OTHER : vfs_printf( filewrite, "OTHER\n" ); break;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
