@@ -5417,6 +5417,20 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
         }
     }
 
+	// Don't allow users with kursed weapon in the other hand to use longbows
+	if( allowedtoattack && action <= ACTION_LA && action >= ACTION_LD )
+	{
+		CHR_REF test_weapon;
+		test_weapon = pchr->holdingwhich[which_slot == SLOT_LEFT ? SLOT_RIGHT : SLOT_LEFT];
+		if ( ACTIVE_CHR( test_weapon ) )
+		{
+			chr_t * weapon;
+			weapon     = ChrList.lst + test_weapon;
+			if( weapon->iskursed ) allowedtoattack = bfalse;
+		}
+	}
+
+
     if ( !allowedtoattack )
     {
         if ( 0 == pweapon->reloadtime )

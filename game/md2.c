@@ -316,7 +316,11 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 
     // Open up the file, and make sure it's a MD2 model
     f = fopen( szFilename, "rb" );
-    if ( NULL == f ) return NULL;
+    if ( NULL == f )
+	{
+        log_warning( "md2_load() - could not open model (%s)\n", szFilename );
+		return NULL;
+	}
 
     fread( &md2_header, sizeof( md2_header ), 1, f );
 
@@ -342,6 +346,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     if ( md2_header.ident != MD2_MAGIC_NUMBER || md2_header.version != MD2_VERSION )
     {
         fclose( f );
+        log_warning( "md2_load() - model does not have valid header or identifier (%s)\n", szFilename );
         return NULL;
     }
 

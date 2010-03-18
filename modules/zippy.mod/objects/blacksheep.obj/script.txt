@@ -185,10 +185,7 @@ IfTimeOut
     DoNothing
   Else
     SetTargetToOwner
-    IfTargetIsSelf                              //No owner yet, wander
-      tmpx = rand & 1023 - 512 + selfspawnx
-      tmpy = rand & 1023 - 512 + selfspawny
-    Else
+    IfNameIsKnown                              //No owner yet, wander
       tmpargument = 0
       IfContentIs
         SetTargetToNearbyEnemy              //Act normally
@@ -227,6 +224,9 @@ IfTimeOut
           tmpdistance = 600
           tmpturn = targetturnto
           Compass
+    Else
+      tmpx = rand & 1023 - 512 + selfspawnx
+      tmpy = rand & 1023 - 512 + selfspawny
     ClearWaypoints			
     AddWaypoint		
 		

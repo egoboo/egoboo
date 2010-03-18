@@ -8,7 +8,7 @@ Commenting actually works in script files ( Use //)
 Script errors are logged into log.txt (Located under main folder).
 An AI script cannot have more than 2560 lines (Which should be more than enough).
 
-Last updated: 09-10-2009
+Last updated: 28-02-2010
 SOME SCRIPTS MAY ONLY WORK IN LATER VERISONS
 
 SCRIPT FUNCTIONS
@@ -2069,8 +2069,8 @@ CONSTANTS
 16 BLAHINVERTID                       - Do not target specified IDSZ
 32 BLAHPLAYERS                        - Target only players
   // These are for the Blah style functions, to specify exactly what type
-  // of target to find.  These are OR'd together, so I usually figure out the
-  // number and write that exactly, rather than letting the compiler handle it.
+  // of target to find.  These are simply added together, you can either figure out the
+  // number and write that exactly, or add these constants together with a plus operator (+).
   // For example, BLAHFRIENDS + BLAHENEMIES is the same as the number 6.
 
 

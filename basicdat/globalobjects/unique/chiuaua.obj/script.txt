@@ -22,7 +22,6 @@ IfCrushed
 IfDropped				// Make it lie on floor
   KeepAction				  //
   tmpargument = 3			  //
-  tmpdistance = rand & 1023 + 10500	  //
   PlaySound				  //
   
 IfGrabbed				// Tell them what they've won...
@@ -33,7 +32,6 @@ IfGrabbed				// Tell them what they've won...
     
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
   PlaySound				  //
   
 IfNotDropped
@@ -43,7 +41,6 @@ IfNotDropped
   
 IfTakenOut
   tmpargument = 2
-  tmpdistance = rand & 2047 + 10000
   PlaySound
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
@@ -54,7 +51,8 @@ IfNotPutAway
   SetTargetToWhoeverIsHolding
   tmpargument = 3
   SendMessageNear
-  
+
+//Automatically attack closest lifeform  
 IfTimeOut
 
   tmpargument = rand & 15 + 20

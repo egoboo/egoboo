@@ -6,12 +6,13 @@ Version 2.8.0 (xx.02.2010)
   line currently features three new modules and there are two more planned.
 - New Feature: New spells, magical items, monsters and other fun stuff!
 - New Feature: Another new Starter Module based on a classic nethack character - The Valkyrie class!
-- New Feature: A new XP bar is show below your character portrait to display level up progress.
+- New Feature: A new XP bar is shown below your character portrait to display level up progress.
 - New Feature: Major improvements to how Egoboo handles objects and the GOR.
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
-- Update: Reduced the difficulty of the Tourist Starter module.
+- Update: Implemented support for limitless particle types.
+- Update: Reduced the difficulty for the Tourist Starter module.
 - Update: Bats can now fly up and down depending on where their enemies are.
 - Update: Improved the way models are loaded into memory and drawn.
 - Update: Further tweaks to improve the physics engine.
@@ -49,6 +50,8 @@ Version 2.8.0 (xx.02.2010)
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
+- Bugfix: Fixed exploit where player could use Longbow with a Kursed weapon in the other hand.
+- Bugfix: Black sheep AI fix.
 - Bugfix: Wizards can now properly use "The Mageblade".
 - Bugfix: Fixed missing Player spawn points in the Cobol Palace.
 - Bugfix: The Vorpal Blade can no longer deal damage from distance.

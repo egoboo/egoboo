@@ -10,16 +10,13 @@ MASTER TODO LIST:
 
 - Healing cloud for Paladin and Healer is backwards
 - The Jive Elf is no longer loaded properly
-- Something is messing up the waypoints. In Tourist Starter platforms no longer move.
-- Lightning bugs (Areas of strong darkness still appear and stay until you bring a light source)
+- Waypoints might be too sensitive to fail if they come too close to a wall
 - Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
 - SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)
 - Shields held in right hand look buggy
 - You can no longer turn around while holding a shield
-- A very irritating bug where defence pings spawn for almost everything that hits something. A lit lamp that hits a portal for example.
 - Offensive stuff can no longer friendly fire. If they hit stuff it will simply spawn a defence ping and bounce like it was deflected.
   Same with hitting invulnerable stuff like a pillar or table.
-- Certain objects with a bump radius seem to hit stuff when dropped, being held, etc... the torch for example.
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif
