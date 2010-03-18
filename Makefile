@@ -10,13 +10,13 @@ ifndef ($(PREFIX),"")
 endif
 
 
-PROJ_NAME	:= egoboo-2.x
+PROJ_NAME := egoboo-2.x
 
 .PHONY: all clean
 
 all:
 	make -C enet all
-	make -C game all
+	make -C game all PROJ_NAME=$(PROJ_NAME)
 
 clean:
 	make -C enet clean
@@ -26,10 +26,10 @@ enet:
 	make -C enet all
 
 egoboo:
-	make -C game all
+	make -C game all PROJ_NAME=$(PROJ_NAME)
 	
 egoboo_lua:
-	make -F Makefile.lua -C game all	
+	make -F Makefile.lua -C game all PROJ_NAME=$(PROJ_NAME)
 
 install:
 

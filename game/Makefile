@@ -29,11 +29,12 @@ LDFLAGS := ${SDLCONF_L} -L../enet -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -
 
 .PHONY: all clean
 
-EGO_BIN := PROJ_NAME
+EGO_BIN := $(PROJ_NAME)
 
 all: ${EGO_BIN}
 
-${EGO_BIN}: ${EGO_OBJ} ${CC} -o $@ $^ ${LDFLAGS}
+${EGO_BIN}: ${EGO_OBJ} 
+	${CC} -o $@ $^ ${LDFLAGS}
 
 clean:
 	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN}
