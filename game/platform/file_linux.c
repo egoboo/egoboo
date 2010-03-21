@@ -60,17 +60,20 @@ void fs_init()
 
     printf( "Initializing filesystem services...\n" );
 
-    userhome = getenv( "HOME" ); // use other envvars if needed
-
-    // this is just a skeleton. the USER needs to be replaced by an environment variable
+    // grab the user's home directory
+    userhome = getenv( "HOME" );
     snprintf( linux_userdataPath, SDL_arraysize( linux_userdataPath ), "%s/.egoboo-2.x/", userhome );
 
-    // this is a read-only directory
-#if !defined(_NIX_IDE)
+#if !defined(_NIX_PREFIX)
+    // the access to these directories is completely unknown
+    // The default setting from the Makefile is to set PREFIX = "/usr",
+    // so that the program will compile and install just like any other
+    // .rpm or .deb package.
     strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
     strncpy( linux_binaryPath, PREFIX "/games/egoboo-2.x/",       SDL_arraysize( linux_binaryPath ) );
     strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
 #else
+    // these are read-only directories
     strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
     strncpy( linux_binaryPath, "/games/egoboo-2.x/",       SDL_arraysize( linux_binaryPath ) );
     strncpy( linux_dataPath,   "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
@@ -80,8 +83,11 @@ void fs_init()
     // so dump this debug info to stdout
     printf( "Game directories are:\n\tBinaries: %s\n\tData: %s\n\tUser Data: %s\n\tConfig Files: %s\n",
             linux_binaryPath, linux_dataPath, linux_userdataPath, linux_configPath );
+
     if ( !fs_fileIsDirectory( linux_userdataPath ) )
+    {
         fs_createDirectory( linux_userdataPath );
+    }
 }
 
 //--------------------------------------------------------------------------------------------

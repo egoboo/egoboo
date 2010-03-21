@@ -1,5 +1,10 @@
 # Do not run this file. Run the Makefile in the parent directory, instead
 
+EGO_BIN := $(PROJ_NAME)
+
+#---------------------
+# the source files
+
 EGO_SRC  := \
 	bbox.c bsp.c camera.c char.c client.c clock.c collision.c \
 	egoboo_console.c egoboo_endian.c egoboo_fileutil.c \
@@ -17,19 +22,32 @@ EGO_EXTENSIONS  := $(wildcard ./extensions/*.c)
 
 EGO_OBJ := ${EGO_SRC:.c=.o} ${EGO_FILE_FORMAT:.c=.o} ${EGO_EXTENSIONS:.c=.o} ${EGO_PLATFORM:.c=.o}
 
+#---------------------
+# the SDL configuration
+
 SDL_CONF  := sdl-config
 SDLCONF_I := $(shell ${SDL_CONF} --cflags)
 SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
+#---------------------
+# the compiler options
+
 CC      := gcc
-OPT     := -Os -Wall -DPREFIX=\"${PREFIX}\"
 INC     := -I. -I.. -I../enet/include ${SDLCONF_I} -I./extensions -I./file_formats -I./platform
 CFLAGS  := ${OPT} ${INC}
 LDFLAGS := ${SDLCONF_L} -L../enet -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs -lenet
 
-.PHONY: all clean
+# use different options if the environmental variable PREFIX is defined
+ifndef ($(PREFIX),"")
+	OPT := -Os -Wall -DPREFIX=\"${PREFIX}\" -D_NIX_PREFIX
+else
+	OPT := -Os -Wall
+endif
 
-EGO_BIN := $(PROJ_NAME)
+#------------------------------------
+# definitions of the target projects
+
+.PHONY: all clean
 
 all: ${EGO_BIN}
 
