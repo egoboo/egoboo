@@ -34,15 +34,16 @@ SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
 CC      := gcc
 INC     := -I. -I.. -I../enet/include ${SDLCONF_I} -I./extensions -I./file_formats -I./platform
-CFLAGS  := ${OPT} ${INC}
-LDFLAGS := ${SDLCONF_L} -L../enet -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs -lenet
+LDFLAGS := ${SDLCONF_L} -L../enet/lib -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs -lenet
 
 # use different options if the environmental variable PREFIX is defined
 ifndef ($(PREFIX),"")
-	OPT := -Os -Wall -DPREFIX=\"${PREFIX}\" -D_NIX_PREFIX
-else
 	OPT := -Os -Wall
+else
+	OPT := -Os -Wall -D PREFIX=\"${PREFIX}\" -D _NIX_PREFIX
 endif
+
+CFLAGS  := ${OPT} ${INC}
 
 #------------------------------------
 # definitions of the target projects
@@ -52,7 +53,7 @@ endif
 all: ${EGO_BIN}
 
 ${EGO_BIN}: ${EGO_OBJ} 
-	${CC} -o $@ $^ ${LDFLAGS}
+	${CC} -o $@ $^ ${LDFLAGS} ${CFLAGS}
 
 clean:
 	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN}
