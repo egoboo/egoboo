@@ -13,7 +13,7 @@ CFLAGS  := $(OPT) $(INC)
 
 all: $(ENET_OBJLST)
 
-	ar rcs $(ENET_TARGET) $(ENET_OBJLST)
+	ar -rcs ./lib/$(ENET_TARGET) $(ENET_OBJLST)
 
 clean:
 	rm -f $(ENET_TARGET) $(ENET_OBJLST)
