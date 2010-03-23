@@ -30,6 +30,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+//So that error popup boxes work on windows
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define MAX_LOG_MESSAGE 1024
@@ -149,6 +154,19 @@ void log_error( const char *format, ... )
 
     va_start( args, format );
     writeLogMessage( "FATAL ERROR: ", format, args );
+
+	//Windows users get a proper error message popup box
+#ifdef WIN32
+	{
+		STRING message, buffer;
+		snprintf(message, SDL_arraysize( message ), "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n");
+	    EGO_vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
+		strcat(message, buffer);
+		strcat(message, "\n Press OK to exit.");
+		MessageBox(NULL, message, "Egoboo: Fatal Error", MB_ICONSTOP|MB_SETFOREGROUND);
+	}
+#endif
+
     va_end( args );
 
     EGO_fflush( logFile );
