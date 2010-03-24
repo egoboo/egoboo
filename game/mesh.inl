@@ -194,7 +194,7 @@ INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     // if the tile is actually labelled as FANOFF, ignore it completely
     if ( FANOFF == pmesh->tmem.tile_list[itile].img )
     {
-        return flags & ( MPDFX_WALL | MPDFX_IMPASS );
+        return 0;
     }
 
     return pmesh->gmem.grid_list[itile].fx & flags;

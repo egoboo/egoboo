@@ -42,6 +42,8 @@
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, eve_t, EveStack, MAX_EVE );
 INSTANTIATE_LIST( ACCESS_TYPE_NONE, enc_t, EncList, MAX_ENC );
 
+int enc_loop_depth = 0;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static enc_t * enc_ctor( enc_t * penc );
@@ -335,7 +337,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
 
         if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
 
-        //ptarget->invictus = bfalse;   ZF> no longer needed because ignoreinvictus is added in kill_character()?
+        //ptarget->invictus = bfalse;   /// @note ZF@> no longer needed because ignoreinvictus is added in kill_character()?
         kill_character( itarget, ( CHR_REF )MAX_CHR, btrue );
     }
 
@@ -1410,7 +1412,7 @@ void update_all_enchants()
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
         {
             spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
-                                ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
+                                ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 
             facing += peve->contspawn_facingadd;
         }

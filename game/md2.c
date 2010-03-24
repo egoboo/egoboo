@@ -317,10 +317,10 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     // Open up the file, and make sure it's a MD2 model
     f = fopen( szFilename, "rb" );
     if ( NULL == f )
-	{
+    {
         log_warning( "md2_load() - could not open model (%s)\n", szFilename );
-		return NULL;
-	}
+        return NULL;
+    }
 
     fread( &md2_header, sizeof( md2_header ), 1, f );
 

@@ -53,6 +53,14 @@ typedef struct s_ego_object_base ego_object_base_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+/// various modes in which an object can be spawned
+enum
+{
+    EGO_OBJECT_DO_ALLOCATE,
+    EGO_OBJECT_DO_ACTIVATE,
+    EGO_OBJECT_DO_NOTHING
+};
+
 /// Mark a ego_object_base_t object as being allocated
 #define EGO_OBJECT_ALLOCATE( PDATA, INDEX ) \
     if( NULL != PDATA ) \
@@ -86,17 +94,25 @@ typedef struct s_ego_object_base ego_object_base_t;
         (PDATA)->obj_base.state     = ego_object_terminated; \
     }
 
+/// Is the object in the allocated state?
+#define STATE_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
 /// Is the object allocated?
-#define ALLOCATED_PBASE( PBASE )   ( (NULL != (PBASE)) && ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
+#define ALLOCATED_PBASE( PBASE )       ( (NULL != (PBASE)) && STATE_ALLOCATED_PBASE(PBASE) )
 
-/// Is the object "on"
-#define ACTIVE_PBASE( PBASE )      ( ALLOCATED_PBASE( PBASE ) && (ego_object_active == (PBASE)->state) )
+/// Is the object "on" state?
+#define STATE_ACTIVE_PBASE( PBASE ) ( ego_object_active == (PBASE)->state )
+/// Is the object "on"?
+#define ACTIVE_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_ACTIVE_PBASE(PBASE) )
 
-/// Is the object waiting to "die"
-#define WAITING_PBASE( PBASE )     ( ALLOCATED_PBASE( PBASE ) && (ego_object_waiting == (PBASE)->state) )
+/// Is the object "waiting to die" state?
+#define STATE_WAITING_PBASE( PBASE ) ( ego_object_waiting == (PBASE)->state )
+/// Is the object "waiting to die"?
+#define WAITING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_WAITING_PBASE(PBASE) )
 
-/// Has the object been marked as terminated
-#define TERMINATED_PBASE( PBASE )  ( (NULL != (PBASE)) && (ego_object_terminated == (PBASE)->state) )
+/// Has the object in the terminated state?
+#define STATE_TERMINATED_PBASE( PBASE ) ( ego_object_terminated == (PBASE)->state )
+/// Has the object been marked as terminated?
+#define TERMINATED_PBASE( PBASE )       ( (NULL != (PBASE)) && STATE_TERMINATED_PBASE(PBASE) )
 
 /// Grab a pointer to the ego_object_base_t of an object that "inherits" this data
 #define POBJ_GET_PBASE( POBJ )   ( (NULL == (POBJ)) ? NULL : &((POBJ)->obj_base) )

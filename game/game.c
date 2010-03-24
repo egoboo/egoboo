@@ -1632,15 +1632,19 @@ void update_pits()
             clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
-            for ( iprt = 0; iprt < maxparticles; iprt++ )
+            PRT_BEGIN_LOOP_ACTIVE( iprt, pprt )
             {
-                if ( !ACTIVE_PRT( iprt ) || !LOADED_PIP( PrtList.lst[iprt].pip_ref ) ) continue;
+                pip_t * ppip;
 
-                if ( PrtList.lst[iprt].pos.z < PITDEPTH && prt_get_ppip( iprt )->endwater )
+                if ( !LOADED_PIP( pprt->pip_ref ) ) continue;
+                ppip = PipStack.lst + pprt->pip_ref;
+
+                if ( pprt->pos.z < PITDEPTH && ppip->endwater )
                 {
                     prt_request_terminate( iprt );
                 }
             }
+            PRT_END_LOOP();
 
             // Kill or teleport any characters that fell in a pit...
             CHR_BEGIN_LOOP_ACTIVE( cnt, pit_chr )
@@ -1657,9 +1661,9 @@ void update_pits()
                     pit_chr->vel.x = 0;
                     pit_chr->vel.y = 0;
 
-                    //ZF> Disabled, the pitfall sound was intended for pits.teleport only
-                    // Play sound effect
-                    // sound_play_chunk( pit_chr->pos, g_wavelist[GSND_PITFALL] );
+                    /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
+                    /// Play sound effect
+                    /// sound_play_chunk( pit_chr->pos, g_wavelist[GSND_PITFALL] );
                 }
 
                 // Do we teleport it?
@@ -2985,17 +2989,14 @@ void disaffirm_attached_particles( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function makes sure a character has no attached particles
 
-    PRT_REF particle;
-
-    for ( particle = 0; particle < maxparticles; particle++ )
+    PRT_BEGIN_LOOP_ACTIVE( iprt, pprt )
     {
-        if ( !ACTIVE_PRT( particle ) ) continue;
-
-        if ( PrtList.lst[particle].attachedto_ref == character )
+        if ( pprt->attachedto_ref == character )
         {
-            prt_request_terminate( particle );
+            prt_request_terminate( iprt );
         }
     }
+    PRT_END_LOOP();
 
     if ( ACTIVE_CHR( character ) )
     {
@@ -3010,15 +3011,15 @@ int number_of_attached_particles( const CHR_REF by_reference character )
     /// @details ZZ@> This function returns the number of particles attached to the given character
 
     int     cnt = 0;
-    PRT_REF particle;
 
-    for ( particle = 0; particle < maxparticles; particle++ )
+    PRT_BEGIN_LOOP_ACTIVE( iprt, pprt )
     {
-        if ( ACTIVE_PRT( particle ) && PrtList.lst[particle].attachedto_ref == character )
+        if ( pprt->attachedto_ref == character )
         {
             cnt++;
         }
     }
+    PRT_END_LOOP();
 
     return cnt;
 }
@@ -3049,7 +3050,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
+        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
         if ( ACTIVE_PRT( particle ) )
         {
             place_particle_at_vertex( particle, character, PrtList.lst[particle].vrt_off );

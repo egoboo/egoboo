@@ -63,3 +63,9 @@ int main( int argc, char* argv[] )
 {
     return SDL_main( argc, argv );
 }
+
+//--------------------------------------------------------------------------------------------
+void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
+{
+    /// the system popup is not supported on linux at this time.
+}

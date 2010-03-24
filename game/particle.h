@@ -179,11 +179,14 @@ DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 #define DEFINED_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
 #define DISPLAY_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) || WAITING_PBASE(POBJ_GET_PBASE(PPRT))) )
 
-#define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT) {size_t IT##_internal; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT(IT)) continue; PPRT = PrtList.lst + IT;
-#define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {size_t IT##_internal; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; PPRT = PrtList.lst + IT;
-#define PRT_END_LOOP() }}
+#define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT)  {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT (IT)) continue; PPRT =  PrtList.lst + IT;
+#define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; PPRT =  PrtList.lst + IT;
+#define PRT_END_LOOP() } prt_loop_depth--; EGOBOO_ASSERT(prt_loop_start_depth == prt_loop_depth); }
 
 extern int prt_wall_tests;
+
+extern int prt_wall_tests;
+extern int prt_loop_depth;
 
 //--------------------------------------------------------------------------------------------
 /// function prototypes
@@ -209,9 +212,9 @@ void play_particle_sound( const PRT_REF by_reference particle, Sint8 sound );
 
 PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
                             const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
-                            const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
+                            const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget, int spawn_mode );
 
-#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)TOTAL_MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
+#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)TOTAL_MAX_PRT, multispawn, (CHR_REF)MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 
 int     prt_count_free();
 

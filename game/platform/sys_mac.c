@@ -46,3 +46,9 @@ double sys_getTime()
     gettimeofday( &now, NULL );
     return (( double )now.tv_sec ) + now.tv_usec * 1e-6 - _sys_startuptime;
 }
+
+//--------------------------------------------------------------------------------------------
+void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
+{
+    /// the system popup is not supported on osx at this time.
+}

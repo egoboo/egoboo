@@ -2801,46 +2801,45 @@ bool_t doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio
 
     float req_aspect_ratio;
 
-    if( 0 == height || NULL == pratio || NULL == psz_ratio ) return bfalse;
+    if ( 0 == height || NULL == pratio || NULL == psz_ratio ) return bfalse;
 
-    req_aspect_ratio = (float)width / (float)height;
+    req_aspect_ratio = ( float )width / ( float )height;
 
-    if( req_aspect_ratio > 0.0 && req_aspect_ratio < 0.5f*((5.0f / 4.0f) + (4.0f / 3.0f)) )
+    if ( req_aspect_ratio > 0.0 && req_aspect_ratio < 0.5f*(( 5.0f / 4.0f ) + ( 4.0f / 3.0f ) ) )
     {
         *pratio = 5.0f / 4.0f;
-        strncpy( *psz_ratio, "5:4", sizeof(*psz_ratio) );
+        strncpy( *psz_ratio, "5:4", sizeof( *psz_ratio ) );
     }
-    else if( req_aspect_ratio >= 0.5f*((5.0f / 4.0f) + (4.0f / 3.0f)) && req_aspect_ratio < 0.5f*((4.0f / 3.0f) + (8.0f / 5.0f)) )
+    else if ( req_aspect_ratio >= 0.5f*(( 5.0f / 4.0f ) + ( 4.0f / 3.0f ) ) && req_aspect_ratio < 0.5f*(( 4.0f / 3.0f ) + ( 8.0f / 5.0f ) ) )
     {
         *pratio = 4.0f / 3.0f;
-        strncpy( *psz_ratio, "4:3", sizeof(*psz_ratio) );
+        strncpy( *psz_ratio, "4:3", sizeof( *psz_ratio ) );
     }
-    else if( req_aspect_ratio >= 0.5f*((4.0f / 3.0f) + (8.0f / 5.0f)) && req_aspect_ratio < 0.5f*((8.0f / 5.0f) + (5.0f / 3.0f)) )
+    else if ( req_aspect_ratio >= 0.5f*(( 4.0f / 3.0f ) + ( 8.0f / 5.0f ) ) && req_aspect_ratio < 0.5f*(( 8.0f / 5.0f ) + ( 5.0f / 3.0f ) ) )
     {
         *pratio = 8.0f / 5.0f;
-        strncpy( *psz_ratio, "8:5", sizeof(*psz_ratio) );
+        strncpy( *psz_ratio, "8:5", sizeof( *psz_ratio ) );
     }
-    else if( req_aspect_ratio >= 0.5f*((8.0f / 5.0f) + (5.0f / 3.0f)) && req_aspect_ratio < 0.5f*((5.0f / 3.0f) + (16.0f / 9.0f)) )
+    else if ( req_aspect_ratio >= 0.5f*(( 8.0f / 5.0f ) + ( 5.0f / 3.0f ) ) && req_aspect_ratio < 0.5f*(( 5.0f / 3.0f ) + ( 16.0f / 9.0f ) ) )
     {
         *pratio = 5.0f / 3.0f;
-        strncpy( *psz_ratio, "5:3", sizeof(*psz_ratio) );
+        strncpy( *psz_ratio, "5:3", sizeof( *psz_ratio ) );
     }
     else
     {
         *pratio = 16.0f / 9.0f;
-        strncpy( *psz_ratio, "16:9", sizeof(*psz_ratio) );
+        strncpy( *psz_ratio, "16:9", sizeof( *psz_ratio ) );
     }
 
     return btrue;
 
 }
 
-
 //--------------------------------------------------------------------------------------------
 int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_screen_info_t * psdl_scr, STRING * psz_screen_size )
 {
     STRING     sz_aspect_ratio = "unknown";
-    float      req_screen_area  = (float)pcfg->scrx_req * (float)pcfg->scry_req;
+    float      req_screen_area  = ( float )pcfg->scrx_req * ( float )pcfg->scry_req;
     float      min_diff = 0.0f;
     SDL_Rect * found_rect = NULL, ** pprect = NULL;
 
@@ -2850,7 +2849,7 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
 
     found_rect = NULL;
     pprect = psdl_scr->video_mode_list;
-    while( NULL != *pprect )
+    while ( NULL != *pprect )
     {
         SDL_Rect * prect = *pprect;
 
@@ -2858,26 +2857,26 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
         float sdl_screen_area;
         float diff, diff1, diff2;
 
-        sdl_aspect_ratio = (float)prect->w / (float)prect->h;
+        sdl_aspect_ratio = ( float )prect->w / ( float )prect->h;
         sdl_screen_area  = prect->w * prect->h;
 
         diff1 = log( sdl_aspect_ratio / aspect_ratio );
         diff2 = log( sdl_screen_area / req_screen_area );
 
-        diff = 2.0f * ABS(diff1) + ABS(diff2);
+        diff = 2.0f * ABS( diff1 ) + ABS( diff2 );
 
-        if( NULL == found_rect || diff < min_diff )
+        if ( NULL == found_rect || diff < min_diff )
         {
             found_rect = prect;
             min_diff   = diff;
 
-            if( 0.0f == min_diff ) break;
+            if ( 0.0f == min_diff ) break;
         }
 
         pprect++;
     }
 
-    if( NULL != found_rect )
+    if ( NULL != found_rect )
     {
         pcfg->scrx_req = found_rect->w;
         pcfg->scry_req = found_rect->h;
@@ -2888,60 +2887,60 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
 
         switch ( pcfg->scrx_req )
         {
-            // Normal resolutions
+                // Normal resolutions
             case 1024:
                 pcfg->scry_req  = 768;
-                strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
+                strncpy( sz_aspect_ratio, "4:3", sizeof( sz_aspect_ratio ) );
                 break;
 
             case 640:
                 pcfg->scry_req = 480;
-                strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
+                strncpy( sz_aspect_ratio, "4:3", sizeof( sz_aspect_ratio ) );
                 break;
 
             case 800:
                 pcfg->scry_req = 600;
-                strncpy( sz_aspect_ratio, "4:3", sizeof(sz_aspect_ratio) );
+                strncpy( sz_aspect_ratio, "4:3", sizeof( sz_aspect_ratio ) );
                 break;
 
-            // 1280 can be both widescreen and normal
+                // 1280 can be both widescreen and normal
             case 1280:
-                if( pcfg->scry_req > 800 )
+                if ( pcfg->scry_req > 800 )
                 {
                     pcfg->scry_req = 1024;
-                    strncpy( sz_aspect_ratio, "5:4", sizeof(sz_aspect_ratio) );
+                    strncpy( sz_aspect_ratio, "5:4", sizeof( sz_aspect_ratio ) );
                 }
                 else
                 {
                     pcfg->scry_req = 800;
-                    strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                    strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
                 }
                 break;
 
-            // Widescreen resolutions
+                // Widescreen resolutions
             case 1440:
                 pcfg->scry_req = 900;
-                strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
                 break;
 
             case 1680:
                 pcfg->scry_req = 1050;
-                strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
                 break;
 
             case 1920:
                 pcfg->scry_req = 1200;
-                strncpy( sz_aspect_ratio, "8:5", sizeof(sz_aspect_ratio) );
+                strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
                 break;
 
-            // unknown
+                // unknown
             default:
                 doVideoOptions_coerce_aspect_ratio( pcfg->scrx_req, pcfg->scry_req, &aspect_ratio, &sz_aspect_ratio );
                 break;
         }
     }
 
-    snprintf(*psz_screen_size, sizeof(*psz_screen_size), "%dx%d - %s", pcfg->scrx_req, pcfg->scry_req, sz_aspect_ratio );
+    snprintf( *psz_screen_size, sizeof( *psz_screen_size ), "%dx%d - %s", pcfg->scrx_req, pcfg->scry_req, sz_aspect_ratio );
 
     return btrue;
 }
@@ -3120,21 +3119,21 @@ int doVideoOptions( float deltaTime )
             snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i", cfg.particle_count_req );     // Convert the integer to a char we can use
             sz_buttons[14] = Cmaxparticles;
 
-            if( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
+            if ( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
             {
                 doVideoOptions_fix_fullscreen_resolution( &cfg, &sdl_scr, &sz_screen_size );
                 sz_buttons[12] = sz_screen_size;
 
-                aspect_ratio = (float)cfg.scrx_req / (float)cfg.scry_req;
-                widescreen = (aspect_ratio > (4.0f / 3.0f));
+                aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
+                widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
             }
             else
             {
-                snprintf(sz_screen_size, sizeof(sz_screen_size), "%dx%d", cfg.scrx_req, cfg.scry_req );
+                snprintf( sz_screen_size, sizeof( sz_screen_size ), "%dx%d", cfg.scrx_req, cfg.scry_req );
                 sz_buttons[12] = sz_screen_size;
 
-                aspect_ratio = (float)cfg.scrx_req / (float)cfg.scry_req;
-                widescreen = (aspect_ratio > (4.0f / 3.0f));
+                aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
+                widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
             }
 
             if ( widescreen ) sz_buttons[11] = "X";
@@ -3468,9 +3467,9 @@ int doVideoOptions( float deltaTime )
 
                 req_area = cfg.scrx_req * cfg.scry_req;
 
-                if( req_area > 1920 * 1200 )
+                if ( req_area > 1920 * 1200 )
                 {
-                    if( cfg.scrx_req * 3 > cfg.scry_req * 4 )
+                    if ( cfg.scrx_req * 3 > cfg.scry_req * 4 )
                     {
                         // "default" widescreen
                         cfg.scrx_req = 960;
@@ -3484,19 +3483,19 @@ int doVideoOptions( float deltaTime )
                     }
                 }
 
-                if( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
+                if ( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
                 {
                     doVideoOptions_fix_fullscreen_resolution( &cfg, &sdl_scr, &sz_screen_size );
                 }
                 else
                 {
-                    snprintf(sz_screen_size, sizeof(sz_screen_size), "%dx%d", cfg.scrx_req, cfg.scry_req );
+                    snprintf( sz_screen_size, sizeof( sz_screen_size ), "%dx%d", cfg.scrx_req, cfg.scry_req );
                 }
 
                 sz_buttons[12] = sz_screen_size;
 
-                aspect_ratio = (float)cfg.scrx_req / (float)cfg.scry_req;
-                widescreen = (aspect_ratio > (4.0f / 3.0f));
+                aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
+                widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
 
                 if ( widescreen ) sz_buttons[11] = "X";
                 else              sz_buttons[11] = " ";
@@ -3626,7 +3625,7 @@ int doShowResults( float deltaTime )
                     fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
                     fnt_drawText( menuFont, NULL, ( GFX_WIDTH / 2 )  - text_w / 2, GFX_HEIGHT - 150, "GAME TIP" );
 
-                    fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );       //ZF> @todo: this doesnt work as I intended, fnt_get_TextSize() does not take line breaks into account
+                    fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );       /// @todo ZF@> : this doesnt work as I intended, fnt_get_TextSize() does not take line breaks into account
                     ui_drawTextBox( menuFont, game_hint, ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 125, GFX_WIDTH + 150, GFX_HEIGHT, 20 );
                 }
 

@@ -550,7 +550,7 @@ void gfx_init_SDL_graphics()
     }
     else
     {
-        GFX_WIDTH = (float)GFX_HEIGHT / (float)sdl_vparam.height * (float)sdl_vparam.width;
+        GFX_WIDTH = ( float )GFX_HEIGHT / ( float )sdl_vparam.height * ( float )sdl_vparam.width;
         log_message( "Success!\n" );
     }
 
@@ -4049,14 +4049,15 @@ void dolist_make( ego_mpd_t * pmesh )
         }
     }
 
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
-        if ( DISPLAY_PRT( iprt ) && VALID_GRID( pmesh, PrtList.lst[iprt].onwhichgrid ) )
+        if ( VALID_GRID( pmesh, pprt->onwhichgrid ) )
         {
             // Add the character
             dolist_add_prt( pmesh, iprt );
         }
     }
+    PRT_END_LOOP();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5255,21 +5256,20 @@ void gfx_make_dynalist( camera_t * pcam )
     // Don't really make a list, just set to visible or not
     dyna_list_count = 0;
     dyna_distancetobeat = 1e12;
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
-        PrtList.lst[iprt].inview = bfalse;
-        if ( !DISPLAY_PRT( iprt ) ) continue;
+        pprt->inview = bfalse;
 
-        if ( !VALID_GRID( PMesh, PrtList.lst[iprt].onwhichgrid ) ) continue;
+        if ( !VALID_GRID( PMesh, pprt->onwhichgrid ) ) continue;
 
-        PrtList.lst[iprt].inview = PMesh->tmem.tile_list[PrtList.lst[iprt].onwhichgrid].inrenderlist;
+        pprt->inview = PMesh->tmem.tile_list[pprt->onwhichgrid].inrenderlist;
 
         // Set up the lights we need
-        if ( !PrtList.lst[iprt].dynalight.on ) continue;
+        if ( !pprt->dynalight.on ) continue;
 
-        disx = PrtList.lst[iprt].pos.x - pcam->track_pos.x;
-        disy = PrtList.lst[iprt].pos.y - pcam->track_pos.y;
-        disz = PrtList.lst[iprt].pos.z - pcam->track_pos.z;
+        disx = pprt->pos.x - pcam->track_pos.x;
+        disy = pprt->pos.y - pcam->track_pos.y;
+        disz = pprt->pos.z - pcam->track_pos.z;
 
         distance = disx * disx + disy * disy + disz * disz;
         if ( distance < dyna_distancetobeat )
@@ -5315,12 +5315,13 @@ void gfx_make_dynalist( camera_t * pcam )
 
             if ( found )
             {
-                dyna_list[slot].pos     = PrtList.lst[iprt].pos;
-                dyna_list[slot].level   = PrtList.lst[iprt].dynalight.level;
-                dyna_list[slot].falloff = PrtList.lst[iprt].dynalight.falloff;
+                dyna_list[slot].pos     = pprt->pos;
+                dyna_list[slot].level   = pprt->dynalight.level;
+                dyna_list[slot].falloff = pprt->dynalight.falloff;
             }
         }
     }
+    PRT_END_LOOP();
 }
 
 //--------------------------------------------------------------------------------------------

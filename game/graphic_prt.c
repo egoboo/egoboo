@@ -133,18 +133,17 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
     // Original points
     numparticle = 0;
-    for ( iprt = 0; iprt < maxparticles && numparticle < reg_count; iprt++ )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
-        prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !DISPLAY_PRT( iprt ) ) continue;
-        pprt = PrtList.lst + iprt;
+        if ( numparticle >= reg_count ) break;
+
         pinst = &( pprt->inst );
 
         if ( !pprt->inview || pprt->is_hidden ) continue;
 
-        if ( pinst->size != 0 )
+        if ( 0 != pinst->size )
         {
             fvec3_t   vpos;
             float dist;
@@ -163,6 +162,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
             }
         }
     }
+    PRT_END_LOOP();
 
     // sort the particles from close to far
     qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
@@ -393,13 +393,12 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 
     // Original points
     numparticle = 0;
-    for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
-        prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !DISPLAY_PRT( cnt ) ) continue;
-        pprt = PrtList.lst + cnt;
+        if ( numparticle >= reg_count ) break;
+
         pinst = &( pprt->inst );
 
         if ( !pprt->inview || pprt->is_hidden ) continue;
@@ -420,6 +419,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
             }
         }
     }
+    PRT_END_LOOP();
 
     // sort the particles from close to far
     qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
@@ -638,14 +638,13 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 //--------------------------------------------------------------------------------------------
 void render_all_prt_attachment()
 {
-    PRT_REF cnt;
-
     GL_DEBUG( glDisable )( GL_BLEND );
 
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
-        prt_draw_attached_point( PrtList.lst + cnt );
+        prt_draw_attached_point( pprt );
     }
+    PRT_END_LOOP();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -724,13 +723,10 @@ void prt_instance_update_all( camera_t * pcam )
     if ( instance_update == update_wld ) return;
     instance_update = update_wld;
 
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
-        prt_t * pprt;
         prt_instance_t * pinst;
 
-        if ( !DISPLAY_PRT( iprt ) ) continue;
-        pprt = PrtList.lst + iprt;
         pinst = &( pprt->inst );
 
         // handle the frame counting
@@ -747,6 +743,7 @@ void prt_instance_update_all( camera_t * pcam )
             prt_instance_update( pcam, iprt, 255, btrue );
         }
     }
+    PRT_END_LOOP();
 }
 
 //--------------------------------------------------------------------------------------------

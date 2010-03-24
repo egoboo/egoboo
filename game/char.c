@@ -62,6 +62,7 @@ INSTANTIATE_STACK( ACCESS_TYPE_NONE, team_t, TeamStack, TEAM_MAX );
 INSTANTIATE_LIST( ACCESS_TYPE_NONE, chr_t, ChrList, MAX_CHR );
 
 int chr_wall_tests = 0;
+int chr_loop_depth = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -2159,7 +2160,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             // Spawn an attack particle
             if ( pweapon_cap->attack_pip != -1 )
             {
-                particle = spawn_one_particle( pweapon->pos, pchr->facing_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawn_vrt_offset, chr_get_iteam( ichr ), ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                particle = spawn_one_particle( pweapon->pos, pchr->facing_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawn_vrt_offset, chr_get_iteam( ichr ), ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ACTIVATE );
 
                 if ( ACTIVE_PRT( particle ) )
                 {
@@ -2288,7 +2289,8 @@ void call_for_help( const CHR_REF by_reference character )
 //--------------------------------------------------------------------------------------------
 bool_t setup_xp_table( const CAP_REF by_reference icap )
 {
-    //ZF> This calculates the xp needed to reach next level and stores it in an array for later use
+    /// @details ZF@> This calculates the xp needed to reach next level and stores it in an array for later use
+
     Uint8 level;
     cap_t * pcap;
 
@@ -3183,7 +3185,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                         if ( pcap->blud_valid && ( damagetype < DAMAGE_HOLY || pcap->blud_valid == ULTRABLUDY ) )
                         {
                             spawn_one_particle( pchr->pos, pchr->facing_z + direction, pchr->iprofile, pcap->blud_pip,
-                                                ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                                                ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ACTIVATE );
                         }
 
                         // Set attack alert if it wasn't an accident
@@ -3321,8 +3323,10 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 //--------------------------------------------------------------------------------------------
 void spawn_defense_ping( chr_t *pchr, const CHR_REF by_reference attacker )
 {
-    //ZF> Spawn a defend particle
+    /// @details ZF@> Spawn a defend particle
+
     spawn_one_particle_global( pchr->pos, pchr->facing_z, PIP_DEFEND, 0 );
+
     pchr->damagetime    = DEFENDTIME;
     pchr->ai.alert     |= ALERTIF_BLOCKED;
     pchr->ai.attacklast = attacker;                 // For the ones attacking a shield
@@ -3351,7 +3355,7 @@ void spawn_poof( const CHR_REF by_reference character, const PRO_REF by_referenc
     for ( cnt = 0; cnt < pcap->gopoofprt_amount; cnt++ )
     {
         spawn_one_particle( pchr->pos_old, facing_z, profile, pcap->gopoofprt_pip,
-                            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, origin, ( PRT_REF )TOTAL_MAX_PRT, cnt, ( CHR_REF )MAX_CHR );
+                            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, origin, ( PRT_REF )TOTAL_MAX_PRT, cnt, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 
         facing_z += pcap->gopoofprt_facingadd;
     }
@@ -3820,7 +3824,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
         spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip,
-                            ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
+                            ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
     }
 
     // is the object part of a shop's inventory?
@@ -4337,11 +4341,11 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     pchr->hascodeofconduct      = pcap_new->hascodeofconduct;
     pchr->darkvision_level      = pcap_new->darkvision_level;
 
-    // changing this could be disasterous, in case you can't un-morph youself???
-    //pchr->canusearcane          = pcap_new->canusearcane;
-    //ZF> No, we want this, I have specifically scripted morph books to handle unmorphing
-    // even if you cannot cast arcane spells. Some morph spells specifically morph the player
-    // into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
+    /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
+    /// pchr->canusearcane          = pcap_new->canusearcane;
+    /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
+    /// even if you cannot cast arcane spells. Some morph spells specifically morph the player
+    /// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
 
     // Character size and bumping
     // set the character size so that the new model is the same size as the old model
@@ -4447,7 +4451,7 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
 
     // Reaffirm them particles...
     pchr->reaffirmdamagetype = pcap_new->attachedprt_reaffirmdamagetype;
-    //reaffirm_attached_particles( ichr );              //ZF> so that books dont burn when dropped
+    //reaffirm_attached_particles( ichr );              /// @note ZF@> so that books dont burn when dropped
     new_attached_prt_count = number_of_attached_particles( ichr );
 
     ai_state_set_changed( &( pchr->ai ) );
@@ -5417,19 +5421,18 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
         }
     }
 
-	// Don't allow users with kursed weapon in the other hand to use longbows
-	if( allowedtoattack && action <= ACTION_LA && action >= ACTION_LD )
-	{
-		CHR_REF test_weapon;
-		test_weapon = pchr->holdingwhich[which_slot == SLOT_LEFT ? SLOT_RIGHT : SLOT_LEFT];
-		if ( ACTIVE_CHR( test_weapon ) )
-		{
-			chr_t * weapon;
-			weapon     = ChrList.lst + test_weapon;
-			if( weapon->iskursed ) allowedtoattack = bfalse;
-		}
-	}
-
+    // Don't allow users with kursed weapon in the other hand to use longbows
+    if ( allowedtoattack && action <= ACTION_LA && action >= ACTION_LD )
+    {
+        CHR_REF test_weapon;
+        test_weapon = pchr->holdingwhich[which_slot == SLOT_LEFT ? SLOT_RIGHT : SLOT_LEFT];
+        if ( ACTIVE_CHR( test_weapon ) )
+        {
+            chr_t * weapon;
+            weapon     = ChrList.lst + test_weapon;
+            if ( weapon->iskursed ) allowedtoattack = bfalse;
+        }
+    }
 
     if ( !allowedtoattack )
     {

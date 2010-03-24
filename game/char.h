@@ -492,10 +492,11 @@ DECLARE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 #define DEFINED_PCHR( PCHR )        ( VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PCHR) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PCHR) ) )
 #define PRE_TERMINATED_PCHR( PCHR ) ( VALID_CHR_PTR( PCHR ) && ( ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) || WAITING_PBASE( POBJ_GET_PBASE(PCHR) ) ) )
 
-#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR) {size_t IT##_internal; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR(IT)) continue; PCHR = ChrList.lst + IT;
-#define CHR_END_LOOP() }}
+#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR) {int IT##_internal; int chr_loop_start_depth = chr_loop_depth; chr_loop_depth++; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR(IT)) continue; PCHR =  ChrList.lst +  IT;
+#define CHR_END_LOOP() } chr_loop_depth--; EGOBOO_ASSERT(chr_loop_start_depth == chr_loop_depth); }
 
 extern int chr_wall_tests;
+extern int chr_loop_depth;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

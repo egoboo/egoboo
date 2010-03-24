@@ -2176,7 +2176,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    // ZF> Simply ignore characters with invictus for now, it causes some strange effects
+    /// @note ZF@> Simply ignore characters with invictus for now, it causes some strange effects
     if ( pchr->invictus ) return btrue;
 
     // find the "attack direction" of the particle
@@ -2504,7 +2504,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 
         // we're supposed to blank out the damage here so that swords and such don't
         // kill everything in one swipe?
-        //pprt->damage = loc_damage;        //ZF> I see no reason why this should be, it even causes a bug
+        //pprt->damage = loc_damage;        /// @note ZF@> I see no reason why this should be, it even causes a bug
     }
 
     //---- estimate the impulse on the particle
