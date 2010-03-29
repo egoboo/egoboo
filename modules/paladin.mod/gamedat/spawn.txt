@@ -84,12 +84,13 @@ fright:   NONE    60  42.5   38.5   1.0   N    0   0  0   0   0   F   F   E
 fright:   NONE    60  38.5   48.5   1.0   N    0   0  0   0   0   F   F   E
 evilaltar:   NONE    66  61.5   39.0   1.0   W    0   0  18   0   0   F   F   E
   keyb:   NONE    64  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Mount:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 irondoor:   NONE    61  24.0   47.0   1.0   N    0   0  16   0   0   F   F   N
 Mimic:   NONE    68  39.5   51.5   1.0   N    12   0  0   0   0   F   F   E
 rockhead:   NONE    52  13.5   38.5   1.0   N    0   0  0   0   0   F   F   S
   XBow:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 pchest:   NONE    65  36.5   51.5   1.0   N    0   0  0   0   0   F   F   N
-  XBow:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Lance:   NONE    38  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Hatchet:   NONE    42  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 tomb:   NONE    51  47.5   19.0   1.0   W    0   0  0   0   0   F   F   N
 tomb:   NONE    51  47.5   28.0   1.0   E    0   0  0   0   0   F   F   N

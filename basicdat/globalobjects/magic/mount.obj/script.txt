@@ -193,34 +193,41 @@ IfStateIs0
   // Allow it to be used
   IfUsed
   
-    //Summon any existing mount
+    //Unsummon any existing mount
     UndoEnchant
       tmpargument = 50
       SetReloadTime
       UnsparkleIcon
-    
-    SetTargetToWhoeverIsHolding
-    tmpargument = [WMAG]
-    IfTargetHasSkillID
-      tmpx = selfcontent			//Current spellpower
-      tmpy = 2048				      //8 spellpower is max
-      IfXIsLessThanY				//Not already max power?
-        tmpy = targetmanaflow			//High enough level to continue casting?
-        IfXIsLessThanY
-          tmpargument = 6				//Casting cost
-          CostTargetMana
-            GetContent
-            tmpargument = tmpargument + 6		//Casting speed
-            SetContent
-
-      //Spell effect around caster
+      
+    Else    
       SetTargetToWhoeverIsHolding
-        tmpx = targetx
-        tmpy = targety
-        tmpdistance = targetz
-        tmpargument = 3
-        SpawnExactParticle
+      tmpargument = [HMAG]
+      IfTargetHasSkillID
+        tmpx = selfcontent			//Current spellpower
+        tmpy = 2048				      //8 spellpower is max
+        IfXIsLessThanY				//Not already max power?
+          tmpy = targetmanaflow			//High enough level to continue casting?
+          IfXIsLessThanY
+            tmpargument = 6				//Casting cost
+            CostTargetMana
+              GetContent
+              tmpargument = tmpargument + 6		//Casting speed
+              SetContent
 
+        //Spell effect around caster
+        SetTargetToWhoeverIsHolding
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          tmpargument = 3
+          SpawnExactParticle
+          
+      //Tell them they need HMAG
+      Else
+        tmpargument = 8
+        SendMessageNear
+        tmpargument = 50
+        SetReloadTime
   Else				//Spell released
     tmpx = selfcontent
     tmpy = 512			//Minimum needed casting

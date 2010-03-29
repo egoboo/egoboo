@@ -2891,7 +2891,7 @@ bool_t heal_character( const CHR_REF by_reference character, const CHR_REF by_re
     ChrList.lst[character].life = CLIP( ChrList.lst[character].life, ChrList.lst[character].life + ABS( amount ), ChrList.lst[character].lifemax );
 
     // Dont alert that we healed ourselves
-    if ( healer != character && ChrList.lst[healer].attachedto != character && amount > HURTDAMAGE )
+    if ( healer != character && ChrList.lst[healer].attachedto != character && ABS(amount) > HURTDAMAGE )
     {
         chr_get_pai( character )->alert |= ALERTIF_HEALED;
         chr_get_pai( character )->attacklast = healer;

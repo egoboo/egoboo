@@ -33,7 +33,6 @@ IfBumped				// Attack whoever it bumped
 
 IfKilled				// This reduces the height of the char
   tmpargument = 0
-  tmpdistance = rand & 1023 + 10500
   PlaySound
 
   tmpargument = 0			    //
