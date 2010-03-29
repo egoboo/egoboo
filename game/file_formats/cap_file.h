@@ -63,7 +63,7 @@ enum e_damage_type
 };
 
 /// A list of the possible special experience types
-enum e_xp_type
+typedef enum e_xp_type
 {
     XP_FINDSECRET = 0,                          ///< Finding a secret
     XP_WINQUEST,                                ///< Beating a module or a subquest
@@ -77,6 +77,7 @@ enum e_xp_type
 
     XP_DIRECT     = 255                         ///< No modification
 };
+typedef enum e_xp_type xp_type;
 
 /// BB@> enumerated "speech" soun
 /// @details We COULD ge the scripts to classify which

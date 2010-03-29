@@ -2403,7 +2403,7 @@ void do_level_up( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-void give_experience( const CHR_REF by_reference character, int amount, Uint8 xptype, bool_t override_invictus )
+void give_experience( const CHR_REF by_reference character, int amount, xp_type xptype, bool_t override_invictus )
 {
     /// @details ZZ@> This function gives a character experience
 
@@ -2463,19 +2463,19 @@ void give_team_experience( const TEAM_REF by_reference team, int amount, Uint8 x
 void resize_all_characters()
 {
     /// @details ZZ@> This function makes the characters get bigger or smaller, depending
-    ///    on their fat_goto and fat_goto_time
+    ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
 
     bool_t willgetcaught;
     float newsize;
 
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        if ( pchr->fat_goto_time < 0 ) continue;
-
+		if ( pchr->fat_goto_time < 0 ) continue;
+		
         if ( pchr->fat_goto != pchr->fat )
         {
             int bump_increase;
-
+			
             bump_increase = ( pchr->fat_goto - pchr->fat ) * 0.10f * pchr->bump.size;
 
             // Make sure it won't get caught in a wall
@@ -4362,6 +4362,9 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
         {
             new_fat = ( pcap_new->bump_size * pcap_new->size ) / pchr->bump.size;
         }
+
+		// Spellbooks should stay the same size, even if their spell effect cause changes in size
+		if( pchr->iprofile == SPELLBOOK ) new_fat = old_fat = 1.00f;
 
         // copy all the cap size info over, as normal
         chr_init_size( pchr, pcap_new );
@@ -7040,7 +7043,7 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
     // what do we need to draw?
     is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = ( SPELLBOOK == pitem->iprofile );
-    draw_book = ( is_book || ( is_spell_fx && !pitem->icon ) ) && ( bookicon_count > 0 );
+	draw_book = ( is_book || ( is_spell_fx && !pitem->icon ) || is_spell_fx && pitem->attachedto != MAX_CHR ) && ( bookicon_count > 0 );
 
     if ( !draw_book )
     {

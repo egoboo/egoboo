@@ -9,7 +9,6 @@ IfSpawned
   IfStateIs0
     // It's an imported spell in hand
     KeepAction
-    MakeCrushValid
   Else			//Setup monster!
     
     //This is a monster
@@ -21,21 +20,20 @@ IfSpawned
     SpawnPoof		  
     
     //Use summoner stats to determine power
+    tmpargument = selfstate
+    GiveExperienceToTarget
+        
+    //Level 3 or 4 mounts get 25% bonus speed!
     SetTargetToOwner
     tmpdistance = targetwis > 8           //Every point of wisdom adds 1% speed
-    tmpargument = selfstate * 256	        //Every charge adds 1 life
-    SetTargetToSelf		                  //Modify own hp, not the owner
-    GiveLifeToTarget		                //Modify the hp
-    
-    //Level 3 or 4 mounts get 25% bonus speed!
     tmpx = selfstate
     tmpy = 3
     IfXIsMoreThanY
-      tmpdistance = tmpdistance + 25
-            
+      tmpdistance = tmpdistance + 25       
     tmpargument = 100 + tmpdistance
     SetContent
     
+    //Make him look right
     tmpargument = selfstate - 1
     ChangeArmor
     
@@ -46,24 +44,14 @@ IfSpawned
     
     //Slow reaction time when summoned
     tmpargument = 50
-    SetTime			
+    SetTime
     
     //Summon sound effect
     tmpargument = 2
     PlaySound
-
-IfCrushed
-  tmpx = selfx
-  tmpy = selfy
-  tmpdistance = selfz
-  tmpargument = 6
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  GoPoof			//Destroy body
-  tmpargument = 3		//Tell them
-  SendMessageNear
+    
+    //Show our life and stats
+    AddStat
 
 // It's a spell in hand
 IfChanged
@@ -76,32 +64,59 @@ IfChanged
 tmpargument = 0
 IfStateIsNot		//State 0 is spellbook
 
-  // Character screams
+  // Mount got hurt
   IfAttacked
-    tmpargument = 0
+    tmpargument = rand & 1
     PlaySound
+    
+    //33% per level not to buckle rider
+    tmpx = rand % 100
+    tmpy = selfstate * 33
+    IfXIsMoreThanY
+      DropWeapons
 
   // Character death
   IfKilled
     tmpargument = 30
     SetBumpHeight		// Make the character body
-    tmpargument = 1
+    tmpargument = 4
     PlaySound
+
+    //Get rid of our rider
+    DropWeapons
     
-    tmpargument = 2
+    //Death message
+    tmpargument = 7
     SendMessageNear
     
     //Owner gets hurt too!
     SetTargetToOwner
-    tmpargument = selfstate * 256
+    JoinEvilTeam
+    tmpargument = selfstate * 256     //1 damage per level
     DamageTarget
 
     //Unsummon body
-    GoPoof			
+    SpawnPoof
+    GoPoof
+    
+  //Natural attack
+  IfUsed
+    tmpargument = 3
+    PlaySound
+    tmpargument = 25
+    SetReloadTime
 
   //New round
   IfTimeOut				// This is done every so often
     SetTargetToOwner
+    
+    //We are always on our creators side
+    tmpargument = targetteam
+    JoinTeam
+    SetTargetToRider
+    IfTargetIsOnHatedTeam
+      DropWeapons
+    
     tmpx = targetdistance
     tmpy = 512
     IfXIsMoreThanY
@@ -184,7 +199,7 @@ IfStateIs0
       UnsparkleIcon
     
     SetTargetToWhoeverIsHolding
-    tmpargument = [HMAG]
+    tmpargument = [WMAG]
     IfTargetHasSkillID
       tmpx = selfcontent			//Current spellpower
       tmpy = 2048				      //8 spellpower is max

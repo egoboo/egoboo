@@ -503,7 +503,7 @@ extern int chr_loop_depth;
 /// Function prototypes
 void drop_money( const CHR_REF by_reference character, int money );
 void call_for_help( const CHR_REF by_reference character );
-void give_experience( const CHR_REF by_reference character, int amount, Uint8 xptype, bool_t override_invictus );
+void give_experience( const CHR_REF by_reference character, int amount, xp_type xptype, bool_t override_invictus );
 void give_team_experience( const TEAM_REF by_reference team, int amount, Uint8 xptype );
 int  damage_character( const CHR_REF by_reference character, FACING_T direction,
                        IPair damage, Uint8 damagetype, TEAM_REF team,
