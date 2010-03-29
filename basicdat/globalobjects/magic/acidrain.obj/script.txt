@@ -1,0 +1,71 @@
+// Create the character
+IfSpawned
+  KeepAction
+  tmpargument = 0
+  SetContent
+
+// Say they pour over a book...
+IfTakenOut
+  tmpargument = 0
+  SetState
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+      
+//Spawn another acid drop
+tmpx = selfstate
+tmpy = 0
+IfXIsMoreThanY
+  tmpx = rand & 1023 + targetx - 512
+  tmpy = rand & 1023 + targety - 512
+  tmpdistance = rand & 511 + targetz + 700      
+  SpawnExactParticle
+  
+  tmpargument = selfstate - 1
+  SetState  
+      
+// Allow it to be used
+IfUsed
+  SetTargetToWhoeverIsHolding
+    tmpargument = 128
+    CostTargetMana
+      tmpargument = 0
+      
+      //Spawn 1 raindrop per caster int
+      tmpx = targetint > 8
+      tmpargument = selfstate + tmpx
+      SetState
+      
+      //Sound effect
+      tmpargument = 0
+      PlaySound
+      
+      // Give experience...
+      IfNameIsKnown
+        DoNothing
+      Else
+        MakeUsageKnown
+        MakeNameKnown
+        tmpargument = 30
+        tmpdistance = EXPSECRET
+        GiveExperienceToTarget
+        
+    //Not enough mana!
+    Else
+      tmpargument = 1
+      SendMessageNear
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  SetState
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+End

@@ -9,11 +9,11 @@ End message ( -1 for none )			: 4
 
 
 // Enchantment draining/sustaining
-Owner's mana boost each second ( -1.0 to 1.0 )	: -0.35      //Set in script.txt
+Owner's mana boost each second ( -1.0 to 1.0 )	: -0.5      //Set in script.txt
 Target's mana boost each second ( -1.0 to 1.0 ) : 0.0
 End if mana can't be payed ( TRUE or FALSE )	: TRUE
 Owner's life boost each second ( -1.0 to 1.0 )	: 0.0
-Target's life boost each second ( -1.0 to 1.0 )	: -0.60      //Set in script.txt
+Target's life boost each second ( -1.0 to 1.0 )	: -0.50      //Set in script.txt
 
 
 // Stuff to make the enchantment more specific
@@ -73,7 +73,7 @@ Dexterity boost ( -3.0 to 3.0 )			: -4.0
 
 // Expansions...
 :[AMOU] 1       // Amount to spawn each time
-:[TIME] 2       // Spawn every update... 20 spawns per second
+:[TIME] 5       // Spawn every update... 10 spawns per second
 :[TYPE] 0       // Spawn particles of type 0
 :[FACE] 1500    // Facing add for each one...
-:[SEND] 0	      // The end sound
+:[SEND] 3	      // The end sound
