@@ -1,0 +1,203 @@
+// Create the character
+IfSpawned
+  KeepAction
+  tmpargument = 0
+  IfStateIsNot
+    // It's a glacial spike
+    MakeNameUnknown
+    NotAnItem
+    MakeCrushValid
+        
+    // Spawn another spike?
+    tmpx = selfstate
+    tmpy = 1
+    IfXIsMoreThanY
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = 50
+      tmpturn = selfturn
+      Compass
+      tmpdistance = selfz
+      SpawnCharacterXYZ
+        tmpargument = selfstate - 1	// Child will spawn the next spike
+        SetChildState
+        tmpargument = selfcontent
+        SetChildContent
+
+    //Stay hidden
+    tmpargument = ACTIONMJ
+    DoAction
+    tmpargument = 0
+    SetLight
+    SetAlpha
+    tmpx = selfcontent
+    tmpx = tmpx*25
+    tmpy = selfstate*20
+    tmpargument = tmpx - tmpy
+    SetTime
+    
+    //This makes the spikes look a lot better
+    tmpx = rand & 255 + selfx - 128
+    tmpy = rand & 255 + selfy - 128
+    ClearWaypoints
+    AddWaypoint
+
+IfChanged
+  // It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+
+IfStateIs0
+  DoNothing
+Else
+
+  //Its breakable
+  IfCrushed
+    tmpargument = 1
+    PlaySound
+    GoPoof
+  
+  //Handle AI
+  IfTimeOut
+    
+    //Die away
+    tmpargument = 0
+    IfContentIs
+      tmpargument = ACTIONKA
+      DoAction
+      tmpargument = 300
+      SetTime
+      
+      //Sound effect
+      tmpargument = 1
+      PlaySound
+      
+    //Show ourselves!
+    Else
+    
+      //Deal damage
+      tmpargument = 0
+      tmpdistance = SPAWNLAST
+      SpawnAttachedParticle
+
+      //This makes us visible
+      tmpargument = ACTIONDA
+      DoAction
+      KeepAction
+      tmpargument = 128
+      SetLight
+      SetAlpha
+
+      //When we die
+      tmpargument = selfcontent*50    //2 seconds 
+      SetTime
+      tmpargument = 0
+      SetContent
+      
+      // Cast sound
+      tmpargument = 0
+      PlaySound
+
+// Spell AI
+IfStateIs0
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 1
+        IfNameIsKnown
+          tmpargument = 2
+        SendMessageNear
+  // Allow it to be used
+  IfUsed
+    SetTargetToWhoeverIsHolding
+    tmpargument = [WMAG]
+    IfTargetHasSkillID
+      tmpx = selfcontent
+      tmpy = 256*8
+      IfXIsLessThanY
+        tmpy = targetmanaflow
+        IfXIsLessThanY
+          tmpx = 10
+          tmpargument = tmpx
+          CostTargetMana
+            tmpargument = selfcontent + tmpx
+            SetContent
+            
+    //Targeting particles
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpargument = 1      
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = selfcontent > 8
+      tmpdistance = tmpdistance * 100
+      tmpturn = targetturn
+      Compass
+      tmpdistance = targetz
+      SpawnExactParticle
+      
+      tmpargument = 1     
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 100
+      tmpturn = targetturn
+      Compass
+      tmpdistance = targetz
+      SpawnExactParticle
+  Else
+    tmpx = selfcontent
+    tmpy = 255
+    IfXIsMoreThanY
+      // Make the holder cast it
+      SetTargetToWhoeverIsHolding
+        tmpargument = ACTIONZA
+        CorrectActionForHand
+        TargetDoAction
+
+        // Start dropping swords
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = 175
+        tmpturn = targetturn
+        Compass
+        tmpdistance = targetz
+        SpawnCharacterXYZ
+          // Set starting state
+          tmpargument = selfcontent > 7	// Child will spawn the next spike
+          SetChildState
+          SetChildContent
+          
+          // Identify stuff
+          MakeNameKnown
+          MakeUsageKnown
+
+        Else
+          // Tried to cast in a wall?
+          tmpargument = 0
+          SendMessageNear
+    Else
+      tmpy = 0
+      IfXIsMoreThanY
+        // Didn't pump it enough
+        tmpargument = 0
+        SendMessageNear
+        
+    // Reset the charge counter
+    tmpargument = 0
+    SetContent
+    
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+End

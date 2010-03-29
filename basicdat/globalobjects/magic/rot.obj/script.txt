@@ -12,6 +12,7 @@ IfSpawned
     SpawnPoof
     tmpargument = 100
     SetTime
+    
 IfChanged
   // It's a spell in hand
   tmpargument = 0
@@ -20,10 +21,11 @@ IfChanged
 
 // Monster AI
 IfStateIs0
-  GetState
+  DoNothing
 Else
   // Character death and explosion for states 1, 2, and 3
   IfKilled
+  
     // Explode
     JoinNullTeam
     tmpx = selfx
@@ -31,11 +33,13 @@ Else
     tmpdistance = selfz
     tmpargument = 0
     SpawnExactParticle
+    
     // Tell everyone it died
     tmpargument = 1
     PlaySound
     tmpargument = MESSAGEDEATH
     SendMessage
+    
 IfStateIs3
   // Wait for something to get too close
   IfBumped
@@ -43,18 +47,20 @@ IfStateIs3
     SetTargetToSelf
     KillTarget
   IfTimeOut
-    tmpdistance = 128*3 // Square of distance
+    tmpdistance = 128 // Square of distance
     SetTargetToDistantEnemy
       // Self destruct
       SetTargetToSelf
       KillTarget
     tmpargument = 25
     SetTime
+    
 IfStateIs2
   // Delay so it doesn't explode right away...
   IfTimeOut
     tmpargument = 3
     SetState
+    
 IfStateIs1
   // Delay so it doesn't explode right away...
   tmpargument = 2
@@ -62,6 +68,7 @@ IfStateIs1
 
 // Spell AI
 IfStateIs0
+
   // Remove the charge
   IfTakenOut
     tmpargument = 0
@@ -72,6 +79,7 @@ IfStateIs0
         IfNameIsKnown
           tmpargument = 4
         SendMessageNear
+        
   // Allow it to be used
   IfUsed
     SetTargetToWhoeverIsHolding
@@ -92,15 +100,17 @@ IfStateIs0
             tmpdistance = targetz
             tmpargument = 4
             SpawnExactParticle
+            
       // Put particles around the target
       tmpargument = [HUMA]
-      tmpdistance = 7  // Dead Friends and Enemies...
-      SetTargetToNearestBlahID
+      tmpdistance = BLAHDEAD + BLAHFRIENDS + BLAHENEMIES
+      SetTargetToWideBlahID
         tmpx = targetx
         tmpy = targety
         tmpdistance = targetz
         tmpargument = 4
         SpawnExactParticle
+        
   Else
     tmpx = selfcontent
     tmpy = 255
@@ -110,10 +120,11 @@ IfStateIs0
         tmpargument = ACTIONZA
         CorrectActionForHand
         TargetDoAction
+        
       // Find a dead humanoid
       tmpargument = [HUMA]
-      tmpdistance = 7  // Dead friends or enemies...
-      SetTargetToNearestBlahID
+      tmpdistance = BLAHDEAD + BLAHFRIENDS + BLAHENEMIES
+      SetTargetToWideBlahID
         // Poof that target ( players can't be )
         MakeNameKnown
         MakeUsageKnown
@@ -129,7 +140,6 @@ IfStateIs0
             EnchantChild
 
             // Raise it from the dead
-            GetContent
             tmpargument = 1
             SetChildState
             tmpargument = ACTIONMD
@@ -155,6 +165,7 @@ IfStateIs0
     // Reset the charge counter
     tmpargument = 0
     SetContent
+    
   // Return to spellbook, Do last!
   IfDropped
     tmpargument = 0

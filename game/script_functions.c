@@ -4212,8 +4212,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     blahteam = TARGET_NONE;
-    returncode = bfalse;
-
+    
     // Determine which team to target
     if (( pstate->distance >> 3 ) & 1 ) blahteam = TARGET_ALL;
     if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
@@ -4222,15 +4221,16 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     // Try to find one
     ichr = _get_chr_target( pchr, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
                             pstate->argument, ( pstate->distance >> 4 ) & 1, ( pstate->distance >> 5 ) & 1 );
-
-    if (( ichr != pself->index ) && ACTIVE_CHR( ichr ) )
+	
+    if (/*( ichr != pself->index ) &&*/ ACTIVE_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
+        returncode = btrue;
     }
-    else
-    {
-        returncode = bfalse;
-    }
+	else
+	{
+		returncode = bfalse;
+	}
 
     SCRIPT_FUNCTION_END();
 }
@@ -5590,7 +5590,6 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_BEGIN();
 
     blahteam = TARGET_NONE;
-    returncode = bfalse;
 
     // Determine which team to target
     if (( pstate->distance >> 3 ) & 1 ) blahteam = TARGET_ALL;

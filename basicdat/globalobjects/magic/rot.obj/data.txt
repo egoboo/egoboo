@@ -1,4 +1,4 @@
-Slot number    : 101
+Slot number    : -1
 Class name     : Wight
 Uniform light  : FALSE
 Maximum ammo   : 0

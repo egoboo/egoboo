@@ -1,3 +1,3 @@
-:'the_bracelet_of_sorcery'
+:'the_bracelet_of_Sorcery'
 :STOP
 

@@ -12,8 +12,7 @@ IfSpawned
     tmpargument = 0
     tmpdistance = SPAWNLAST
     SpawnAttachedParticle
-    GetState
-    tmpargument = tmpargument < 4 + 450
+    tmpargument = selfstate < 4 + 600     //Sword duration
     SetTime
     // Spawn another sword?
     IfStateIs1
@@ -21,13 +20,12 @@ IfSpawned
     Else
       tmpx = selfx
       tmpy = selfy
-      tmpdistance = 100
-      tmpturn = selfturn + 8192
+      tmpdistance = 55
+      tmpturn = selfturn + 4192
       Compass
       tmpdistance = selfz + 100
       SpawnCharacterXYZ
-        GetState
-        tmpargument = tmpargument - 1	// Child will spawn more swords
+        tmpargument = selfstate - 1	// Child will spawn more swords
         SetChildState
 
 IfChanged
@@ -66,17 +64,15 @@ IfStateIs0
     SetTargetToWhoeverIsHolding
     tmpargument = [WMAG]
     IfTargetHasSkillID
-      GetContent
-      tmpx = tmpargument
-      tmpy = 1536
+      tmpx = selfcontent
+      tmpy = 256*6
       IfXIsLessThanY
         tmpy = targetmanaflow
         IfXIsLessThanY
           tmpx = 6
           tmpargument = tmpx
           CostTargetMana
-            GetContent
-            tmpargument = tmpargument + 6
+            tmpargument = selfcontent + 6
             SetContent
             tmpx = targetx
             tmpy = targety
@@ -84,8 +80,7 @@ IfStateIs0
             tmpargument = 1
             SpawnExactParticle
   Else
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 255
     IfXIsMoreThanY
       // Make the holder cast it
@@ -98,16 +93,15 @@ IfStateIs0
         tmpx = targetx
         tmpy = targety
         tmpdistance = 130
-        GetContent
-        tmpargument = tmpargument > 8 + 1 < 12
+        tmpargument = selfcontent > 8 + 1 < 12
         tmpturn = targetturn - tmpargument
         Compass
+        tmpturn = tmpturn + 12192
         tmpdistance = targetz + 500
-        tmpturn = tmpturn + 8192
         SpawnCharacterXYZ
           // Set starting state
-          GetContent
-          tmpargument = tmpargument > 8 + 2	// Child will spawn more swords
+          tmpargument = selfcontent > 8 + 1	// Child will spawn more swords
+          tmpargument = tmpargument < 1
           SetChildState
 
           // Identify stuff

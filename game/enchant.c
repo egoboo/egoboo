@@ -1593,6 +1593,11 @@ void cleanup_all_enchants()
             // the enchant's target has died
             do_remove = btrue;
         }
+		else if( ACTIVE_CHR( penc->owner_ref ) && peve->endifcantpay )
+		{
+			// Undo enchants that cannot be sustained anymore
+			if( ChrList.lst[penc->owner_ref].mana == 0 ) do_remove = btrue;
+		}
         else
         {
             // the enchant has timed out

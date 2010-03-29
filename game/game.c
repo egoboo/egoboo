@@ -169,7 +169,6 @@ static void reset_timers();
 // looping - stuff called every loop - not accessible by scripts
 static void check_stats();
 static void tilt_characters_to_terrain();
-//static void stat_return();
 static void update_pits();
 static int  update_game();
 static void game_update_timers();
@@ -1464,6 +1463,9 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
     size_t search_list_size = 0;
     CHR_REF search_list[MAX_CHR];
 
+    if ( TARGET_NONE == target_type ) return ( CHR_REF )MAX_CHR;
+    if ( !ACTIVE_PCHR( psrc ) ) return ( CHR_REF )MAX_CHR;
+
     if ( target_players )
     {
         PLA_REF ipla;
@@ -1485,10 +1487,6 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
         }
         CHR_END_LOOP();
     }
-
-    if ( TARGET_NONE == target_type ) return ( CHR_REF )MAX_CHR;
-
-    if ( !ACTIVE_PCHR( psrc ) ) return ( CHR_REF )MAX_CHR;
 
     // set the line-of-sight source
     los_info.x0         = psrc->pos.x;

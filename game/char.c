@@ -4807,38 +4807,41 @@ void update_all_characters()
         // Reset the clock
         clock_chr_stat -= ONESECOND;
 
-        // Do all the characters
-        for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-        {
-            if ( !ACTIVE_CHR( cnt ) ) continue;
-
+        CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+		{       
             // check for a level up
             do_level_up( cnt );
 
             // do the mana and life regen for "living" characters
-            if ( ChrList.lst[cnt].alive )
+			if ( pchr->alive )
             {
-                ChrList.lst[cnt].mana += ( ChrList.lst[cnt].manareturn / MANARETURNSHIFT );
-                ChrList.lst[cnt].mana = MAX( 0, MIN( ChrList.lst[cnt].mana, ChrList.lst[cnt].manamax ) );
+				int manaregen = 0;
+				int liferegen = 0;
+				get_chr_regeneration( pchr, &liferegen, &manaregen );
 
-                ChrList.lst[cnt].life += ChrList.lst[cnt].life_return;
-                ChrList.lst[cnt].life = MAX( 1, MIN( ChrList.lst[cnt].life, ChrList.lst[cnt].lifemax ) );
+				pchr->mana += manaregen;
+				pchr->mana = MAX( 0, MIN( pchr->mana, pchr->manamax ) );
+
+				pchr->life += liferegen;
+				pchr->life = MAX( 1, MIN( pchr->life, pchr->lifemax ) );
             }
 
-            // countdown cofuse effects
-            if ( ChrList.lst[cnt].grogtime > 0 )
+            // countdown confuse effects
+            if ( pchr->grogtime > 0 )
             {
-                ChrList.lst[cnt].grogtime--;
+				pchr->grogtime--;
             }
 
-            if ( ChrList.lst[cnt].dazetime > 0 )
+            if ( pchr->dazetime > 0 )
             {
-                ChrList.lst[cnt].dazetime--;
+                pchr->dazetime--;
             }
 
             // possibly gain/lose darkvision
             update_chr_darkvision( cnt );
-        }
+       	}
+		CHR_END_LOOP();
+
     }
 
     resize_all_characters();
