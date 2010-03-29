@@ -21,6 +21,7 @@ IfSpawned
     
     //Use summoner stats to determine power
     tmpargument = selfstate
+    tmpdistance = 255               //255 = Direct XP, ignore any modifications
     GiveExperienceToTarget
         
     //Level 3 or 4 mounts get 25% bonus speed!
