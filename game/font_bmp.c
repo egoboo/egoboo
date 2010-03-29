@@ -101,7 +101,7 @@ void font_bmp_load( const char* szBitmap, const char* szSpacing )
 
     // Figure out where each font is and its spacing
     fileread = vfs_openRead( szSpacing );
-    if ( fileread == NULL )
+    if ( NULL == fileread )
     {
         log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
     }

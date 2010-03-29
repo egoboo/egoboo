@@ -751,7 +751,7 @@ void load_all_music_sounds()
     // Open the playlist listing all music files
     snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "music" SLASH_STR "playlist.txt" );
     playlist = vfs_openRead( loadpath );
-    if ( playlist == NULL )
+    if ( NULL == playlist )
     {
         log_warning( "Error reading music list. (%s)\n", loadpath );
         return;

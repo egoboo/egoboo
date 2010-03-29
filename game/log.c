@@ -46,7 +46,7 @@ static int _atexit_registered = 0;
 //--------------------------------------------------------------------------------------------
 static void writeLogMessage( const char *prefix, const char *format, va_list args )
 {
-    if ( logFile != NULL )
+    if ( NULL != logFile )
     {
         EGO_vsnprintf( logBuffer, MAX_LOG_MESSAGE - 1, format, args );
         EGO_fputs( prefix, logFile );
@@ -78,7 +78,7 @@ void log_init( const char * logname )
 //--------------------------------------------------------------------------------------------
 void log_shutdown()
 {
-    if ( logFile != NULL )
+    if ( NULL != logFile )
     {
         EGO_fclose( logFile );
         logFile = NULL;

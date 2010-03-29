@@ -203,7 +203,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     {
         strncpy( searchSpec, searchDir, MAX_PATH );
     }
-    if ( searchExtension != NULL )
+    if ( NULL != searchExtension )
     {
         _snprintf( searchSpec, MAX_PATH, "%s*.%s", searchSpec, searchExtension );
     }
@@ -232,7 +232,7 @@ const char *fs_findNextFile( fs_find_context_t * fs_search )
     pcnt = fs_search->ptr.w;
     if ( NULL == pcnt ) return NULL;
 
-    if ( pcnt->hFind == NULL || pcnt->hFind == INVALID_HANDLE_VALUE )
+    if ( NULL == pcnt->hFind || INVALID_HANDLE_VALUE == pcnt->hFind )
     {
         return NULL;
     }

@@ -2496,7 +2496,7 @@ void game_load_module_profiles( const char *modname )
     make_newloadname( modname, "objects", newloadname );
 
     filehandle = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
-    while ( filehandle != NULL )
+    while ( NULL != filehandle )
     {
         load_one_profile( filehandle, MAX_PROFILE );
         filehandle = vfs_findNext();

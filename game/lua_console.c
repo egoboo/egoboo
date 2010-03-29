@@ -251,7 +251,7 @@ int lua_console_print( lua_State * L )
         lua_pushvalue( L, i ); /* value to print */
         lua_call( L, 1, 1 );
         s = lua_tostring( L, -1 );  /* get result */
-        if ( s == NULL )
+        if ( NULL == s )
         {
             return SDL_FALSE;
         }

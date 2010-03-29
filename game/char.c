@@ -3801,7 +3801,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
     // Name the character
-    if ( name == NULL )
+    if ( NULL == name )
     {
         // Generate a random name
         snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", pro_create_chop( profile ) );

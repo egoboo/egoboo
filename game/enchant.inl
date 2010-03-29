@@ -48,7 +48,7 @@ CHR_REF enc_get_iowner( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return ( CHR_REF )MAX_CHR;
+    if ( !DEFINED_ENC( ienc ) ) return ( CHR_REF )MAX_CHR;
     penc = EncList.lst + ienc;
 
     if ( !ACTIVE_CHR( penc->owner_ref ) ) return ( CHR_REF )MAX_CHR;
@@ -61,7 +61,7 @@ chr_t * enc_get_powner( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return NULL;
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList.lst + ienc;
 
     if ( !ACTIVE_CHR( penc->owner_ref ) ) return NULL;
@@ -74,7 +74,7 @@ EVE_REF enc_get_ieve( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return ( EVE_REF )MAX_EVE;
+    if ( !DEFINED_ENC( ienc ) ) return ( EVE_REF )MAX_EVE;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return ( EVE_REF )MAX_EVE;
@@ -100,7 +100,7 @@ PRO_REF  enc_get_ipro( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return ( PRO_REF )MAX_PROFILE;
+    if ( !DEFINED_ENC( ienc ) ) return ( PRO_REF )MAX_PROFILE;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_PRO( penc->profile_ref ) ) return ( PRO_REF )MAX_PROFILE;
@@ -113,7 +113,7 @@ pro_t * enc_get_ppro( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return NULL;
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_PRO( penc->profile_ref ) ) return NULL;

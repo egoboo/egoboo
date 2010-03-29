@@ -499,7 +499,7 @@ void gfx_init_SDL_graphics()
 
         strcpy( fileload, "basicdat" SLASH_STR "icon.bmp" );
         theSurface = IMG_Load( fileload );
-        if ( theSurface == NULL ) log_warning( "Unable to load icon (%s)\n", fileload );
+        if ( NULL == theSurface ) log_warning( "Unable to load icon (%s)\n", fileload );
         else SDL_WM_SetIcon( theSurface, NULL );
     }
 #endif
@@ -2969,7 +2969,7 @@ bool_t dump_screenshot()
         // create a SDL surface
         temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24, sdl_r_mask, sdl_g_mask, sdl_b_mask, 0 );
 
-        if ( temp == NULL )
+        if ( NULL == temp )
         {
             //Something went wrong
             SDL_FreeSurface( temp );

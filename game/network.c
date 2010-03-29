@@ -1151,7 +1151,7 @@ void net_handlePacket( ENetEvent *event )
 
             // Try and save the file
             file = vfs_openWriteB( filename );
-            if ( file != NULL )
+            if ( NULL != file )
             {
                 vfs_write( net_readPacket->data + net_readLocation, 1, fileSize, file );
                 vfs_close( file );
@@ -1823,7 +1823,7 @@ int cl_joinGame( const char* hostname )
         // Create my host thingamabober
         /// @todo Should I limit client bandwidth here?
         net_myHost = enet_host_create( NULL, 1, 0, 0 );
-        if ( net_myHost == NULL )
+        if ( NULL == net_myHost )
         {
             // can't create a network connection at all
             log_info( "Failure!\n" );
@@ -1839,7 +1839,7 @@ int cl_joinGame( const char* hostname )
         enet_address_set_host( &address, hostname );
         address.port = NET_EGOBOO_PORT;
         net_gameHost = enet_host_connect( net_myHost, &address, NET_EGOBOO_NUM_CHANNELS );
-        if ( net_gameHost == NULL )
+        if ( NULL == net_gameHost )
         {
             log_info( "cl_joinGame: No available peers to create a connection!\n" );
             return bfalse;
@@ -1882,7 +1882,7 @@ int sv_hostGame()
 
         log_info( "sv_hostGame: Creating game on port %d\n", NET_EGOBOO_PORT );
         net_myHost = enet_host_create( &address, MAX_PLAYER, 0, 0 );
-        if ( net_myHost == NULL )
+        if ( NULL == net_myHost )
         {
             log_info( "sv_hostGame: Could not create network connection!\n" );
             return bfalse;

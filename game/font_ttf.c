@@ -358,7 +358,7 @@ void fnt_drawTextBox( Font *font, SDL_Surface ** ppSurface, int x, int y, int wi
 
     line = strtok( buffer, "\n" );
 
-    while ( line != NULL )
+    while ( NULL != line )
     {
         fnt_drawText_raw( font, x, y, line, pptmp );
         y += spacing;
@@ -394,7 +394,7 @@ void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, 
     line = strtok( buffer, "\n" );
     *width = *height = 0;
 
-    while ( line != NULL )
+    while ( NULL != line )
     {
         TTF_SizeText( font->ttfFont, line, &tmp_w, &tmp_h );
         *width = ( *width > tmp_w ) ? *width : tmp_w;

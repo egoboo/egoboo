@@ -4255,7 +4255,7 @@ void load_all_menu_images()
         }
     }
 
-    if ( filesave != NULL )
+    if ( NULL != filesave )
     {
         vfs_close( filesave );
     }

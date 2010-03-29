@@ -2804,7 +2804,7 @@ void release_all_pip()
     if ( tnc > 0 && max_request > 0 )
     {
         FILE * ftmp = EGO_fopen( "pip_usage.txt", "w" );
-        if ( ftmp != NULL )
+        if ( NULL != ftmp )
         {
             fprintf( ftmp, "List of used pips\n\n" );
 

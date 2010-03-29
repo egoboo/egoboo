@@ -332,7 +332,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
 	// recursive call to this function through cleanup_one_character()
 	// @note all of the values in the penc are now invalid. we have to use previously evaluated
 	// values of itarget and penc to kill the target (if necessary)
-	if ( ACTIVE_CHR( itarget ) && peve != NULL && peve->killtargetonend )
+	if ( ACTIVE_CHR( itarget ) && NULL != peve && peve->killtargetonend )
 	{
 		chr_t * ptarget = ChrList.lst + itarget;
 		if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
