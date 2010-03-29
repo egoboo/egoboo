@@ -123,7 +123,6 @@ int cmp_prt_registry_entity( const void * vlhs, const void * vrhs )
 size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
     fvec3_t vfwd, vcam;
-    PRT_REF iprt;
     size_t  numparticle;
 
     prt_instance_update_all( pcam );
@@ -383,7 +382,6 @@ void render_prt( camera_t * pcam )
 size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
     fvec3_t vfwd, vcam;
-    PRT_REF cnt;
     size_t  numparticle;
 
     prt_instance_update_all( pcam );
@@ -413,7 +411,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 
             if ( dist > 0 )
             {
-                reg[numparticle].index = REF_TO_INT( cnt );
+                reg[numparticle].index = REF_TO_INT( iprt );
                 reg[numparticle].dist  = dist;
                 numparticle++;
             }
@@ -714,7 +712,6 @@ void prt_draw_attached_point( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 void prt_instance_update_all( camera_t * pcam )
 {
-    PRT_REF iprt;
 
     if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam ) return;

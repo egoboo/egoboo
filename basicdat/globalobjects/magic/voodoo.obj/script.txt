@@ -1,0 +1,187 @@
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  
+//Crushed in a passage
+IfCrushed
+  tmpargument = 3
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 6
+  SendMessageNear
+  
+IfDropped				// Make it lie on floor
+  KeepAction
+IfGrabbed				// Tell them what they've won, Johnny!
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+IfHeld			//Hide in hand
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+//Spell stuff
+IfUsed
+  UndoEnchant       //Undo existing kurse first
+    UnsparkleIcon
+    tmpargument = 25
+    SetReloadTime
+  Else
+    SetTargetToWhoeverIsHolding
+    SetOwnerToTarget
+    tmpargument = [HMAG]
+    IfTargetHasSkillID				//Need divine spell skill
+      tmpx = selfcontent
+      tmpy = 512					//Max charge
+      IfXIsLessThanY
+        tmpx = selfcontent
+        tmpy = targetmanaflow			//Enough spell power?
+        IfYIsMoreThanX
+          tmpargument = 4				//Casting Time
+          CostTargetMana
+            tmpargument = selfcontent + tmpargument	    //Increase the charge
+            SetContent
+            
+      //Make the target glow
+      tmpdistance = 128*4
+      SetTargetToDistantEnemy
+        DoNothing
+      Else
+        SetTargetToWhoeverIsHolding
+      tmpx = rand & 1
+      tmpy = 0
+      IfXIsEqualToY
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        tmpargument = 0
+        SpawnExactParticle
+Else
+  tmpx = selfcontent
+  tmpy = 511
+  IfXIsMoreThanY		//Minimum charge needed
+    tmpargument = 50		//Set cooldown time
+    SetReloadTime
+    
+    //Only kurse enemies
+    IfTargetIsOnHatedTeam
+      
+      //Handle target stuff
+      SetOldTarget
+      SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      SetTargetToOldTarget
+      
+      //See if they are immune
+      tmpargument = [XENC]
+      IfTargetHasAnyID
+        tmpargument = 5
+        SendMessageNear		//Tell what happened
+        tmpargument = 2
+        PlaySound
+      Else
+        //Award xp and stuff for daring to do it
+        IfNameIsKnown
+          DoNothing
+        Else
+          tmpargument = 20
+          tmpdistance = EXPDARE
+          GiveExperienceToTarget
+          MakeNameKnown
+          MakeUsageKnown
+        tmpargument = 50
+        SetReloadTime
+        
+        //Check if they resist it
+        tmpx = targetint > 8
+        tmpx = rand % 10 + tmpx       //1-10 + INT
+        SetTargetToOwner
+        tmpy = targetwis > 8
+        tmpy = rand % 10 + tmpy      //1-10 + WIS
+        SetTargetToOldTarget
+        IfXIsLessThanY
+        
+          //Success!
+          EnchantTarget
+            //Daze as well
+            tmpargument = 3
+            DazeTarget
+            
+            //Damage
+            SetTargetToOwner
+            tmpargument = targetwis > 9     // 1 damage per 2 wisdom
+            SetTargetToOldTarget
+            DamageTarget
+            
+            //Sparklies!
+            tmpargument = GREEN
+            SparkleIcon        
+            
+            //Sound effect
+            tmpargument = 3
+            SendMessageNear		
+            tmpargument = 1
+            PlaySound
+            
+          Else
+            tmpargument = 5
+            SendMessageNear		//Resisted!
+            tmpargument = 2
+            PlaySound        
+        Else
+          tmpargument = 5
+          SendMessageNear		//Resisted!
+          tmpargument = 2
+          PlaySound
+          
+    //Not valid enemy
+    Else
+      tmpargument = 1
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound
+
+  //Not charged enough
+  Else
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY		//Only if there was a charge
+      tmpargument = 1
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound
+
+  //Reset counter
+  tmpargument = 0
+  SetContent			
+  
+
+// Put the little mana ball on the
+// character's hand
+tmpx = selfcontent
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = selfcontent < 4 + 3000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 2
+  SpawnAttachedSizedParticle
+
+End					// All done

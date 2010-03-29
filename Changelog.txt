@@ -1,4 +1,4 @@
-Version 2.8.0 (xx.02.2010)
+Version 2.8.0 (??.??.2010)
 - New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
   without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
 - New Feature: New side quest called "The Imprisoned One". A great ancient evil is breaking free from
@@ -11,7 +11,9 @@ Version 2.8.0 (xx.02.2010)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
-- Update: Implemented support for limitless particle types.
+- Update: Paladins are more powerful than before.
+- Update: Implemented support for limitless particle types. Added about 15 new particle effects at the
+  same time.
 - Update: Reduced the difficulty for the Tourist Starter module.
 - Update: Bats can now fly up and down depending on where their enemies are.
 - Update: Improved the way models are loaded into memory and drawn.
@@ -50,6 +52,7 @@ Version 2.8.0 (xx.02.2010)
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
+- Bugfix: Fixed Divine Shield spell regenerating mana instead of draining over time.
 - Bugfix: Fixed exploit where player could use Longbow with a Kursed weapon in the other hand.
 - Bugfix: Black sheep AI fix.
 - Bugfix: Wizards can now properly use "The Mageblade".

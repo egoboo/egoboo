@@ -72,7 +72,7 @@ IfKilled
   tmpargument = 150			//Award some quest xp
   tmpdistance = EXPQUEST
   GiveExperienceToGoodTeam
-  tmpargument = 512			//Give abillity to cast divine spells!
+  tmpargument = 768			//Give abillity to cast divine spells!
   GiveManaToTarget
 
   //Make the module spawn monsters!

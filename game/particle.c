@@ -833,7 +833,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
                iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 #endif
 
-    // c  ount ou all the requests for this particle type
+    // count out all the requests for this particle type
     ppip->prt_create_count++;
 
     return iprt;

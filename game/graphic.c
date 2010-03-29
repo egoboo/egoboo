@@ -4023,7 +4023,6 @@ void dolist_make( ego_mpd_t * pmesh )
 
     int cnt;
     CHR_REF ichr;
-    PRT_REF iprt;
 
     // Remove everyone from the dolist
     for ( cnt = 0; cnt < dolist_count; cnt++ )
@@ -5249,7 +5248,6 @@ void gfx_make_dynalist( camera_t * pcam )
     /// @details ZZ@> This function figures out which particles are visible, and it sets up dynamic
     ///    lighting
 
-    PRT_REF iprt;
     int tnc, slot;
     float disx, disy, disz, distance;
 

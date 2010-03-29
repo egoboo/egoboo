@@ -122,7 +122,7 @@ dropper: NONE 112 19 56  0    S   0 0   0   0   0   F   F   NULL
 dropper: NONE 112 22 55  0    S   0 0   0   0   0   F   F   NULL
   Object:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 21 55  0    S   0 0   0   0   0   F   F   NULL
-  LPotion:    NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+  object:    NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 20 55  0    S   0 0   0   0   0   F   F   NULL
   object:    NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
 dropper: NONE 112 19 55  0    S   0 0   0   0   0   F   F   NULL

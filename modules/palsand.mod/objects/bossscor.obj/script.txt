@@ -167,7 +167,7 @@ IfAttacked
   tmpx = tmpargument
   tmpy = DAMAGESLASH
   IfXIsEqualToY
-    tmpx = rand & 255
+    tmpx = rand & 255   //50% chance
     tmpy = 128
     IfXIsMoreThanY
       // Drop a claw

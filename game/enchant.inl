@@ -87,7 +87,7 @@ eve_t * enc_get_peve( const ENC_REF by_reference ienc )
 {
     enc_t * penc;
 
-    if ( DEFINED_ENC( ienc ) ) return NULL;
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList.lst + ienc;
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return NULL;

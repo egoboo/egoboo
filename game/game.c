@@ -1619,8 +1619,6 @@ void update_pits()
 {
     /// @details ZZ@> This function kills any character in a deep pit...
 
-    PRT_REF iprt;
-
     if ( pits.kill || pits.teleport )
     {
         //Decrease the timer

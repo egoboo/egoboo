@@ -220,14 +220,14 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
     }
 
     // Now fix dem weapons
-    if ( ACTIVE_CHR( penc->target_ref ) )
+    if ( ACTIVE_CHR( itarget) )
     {
-        chr_t * ptarget = ChrList.lst + penc->target_ref;
+        chr_t * ptarget = ChrList.lst + itarget;
         reset_character_alpha( ptarget->holdingwhich[SLOT_LEFT] );
         reset_character_alpha( ptarget->holdingwhich[SLOT_RIGHT] );
     }
 
-    // Unlink it from the spawner (if possible)
+		// Unlink it from the spawner (if possible)
     if ( ALLOCATED_CHR( penc->spawner_ref ) )
     {
         chr_t * pspawner = ChrList.lst + penc->spawner_ref;
@@ -281,7 +281,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
     }
 
     // nothing above this demends on having a valid enchant profile
-    if ( NULL != peve )
+	if ( NULL != peve )
     {
         // Play the end sound
         iwave = peve->endsound_index;
@@ -313,33 +313,33 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
             spawn_poof( penc->target_ref, penc->profile_ref );
         }
 
+        // Remove see kurse enchant
         if ( ACTIVE_CHR( itarget ) )
         {
             chr_t * ptarget = ChrList.lst + penc->target_ref;
 
-            // Remove see kurse enchant
             if ( peve->seekurse && !chr_get_pcap( itarget )->canseekurse )
             {
                 ptarget->canseekurse = bfalse;
             }
-        }
-    }
+        }    
+	}
+
 
     EncList_free_one( ienc );
 
-    // save this until the enchant is completely dead, since kill character can generate a
-    // recursive call to this function through cleanup_one_character()
-    // @note all of the values in the penc are now invalid. we have to use previously evaluated
-    // values of itarget and penc to kill the target (if necessary)
-    if ( ACTIVE_CHR( itarget ) && NULL != peve && peve->killtargetonend )
-    {
-        chr_t * ptarget = ChrList.lst + itarget;
+	// save this until the enchant is completely dead, since kill character can generate a
+	// recursive call to this function through cleanup_one_character()
+	// @note all of the values in the penc are now invalid. we have to use previously evaluated
+	// values of itarget and penc to kill the target (if necessary)
+	if ( ACTIVE_CHR( itarget ) && peve != NULL && peve->killtargetonend )
+	{
+		chr_t * ptarget = ChrList.lst + itarget;
+		if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
 
-        if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
-
-        //ptarget->invictus = bfalse;   /// @note ZF@> no longer needed because ignoreinvictus is added in kill_character()?
-        kill_character( itarget, ( CHR_REF )MAX_CHR, btrue );
-    }
+		//ptarget->invictus = bfalse;   /// @note ZF@> no longer needed because ignoreinvictus is added in kill_character()?
+		kill_character( itarget, ( CHR_REF )MAX_CHR, btrue );
+	}
 
     return btrue;
 }

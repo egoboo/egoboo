@@ -168,7 +168,7 @@ magicshop:   Zambini    80  72.0   96.0   0.0   N    999   0  6   0   0   F   F 
   randommagic:   NONE    99  75.5   98.5   0.0   N    0   0  0   3   0   F   F   N
   randommagic:   NONE    99  68.5   98.5   0.0   N    0   0  0   3   0   F   F   N
   randommagic:   NONE    99  68.5   94.5   0.0   N    0   0  0   3   0   F   F   N
-
+  
 //Spell books
 moduletool:   NONE    99  70.5   97.5   0.0   N    0   0  0   0   0   F   F   N
   Teleport:   NONE    104  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

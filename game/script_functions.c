@@ -3089,7 +3089,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     // clean up the enchant list before doing anything
     pchr->undoenchant = cleanup_enchant_list( pchr->undoenchant );
-
+	
     returncode = remove_enchant( pchr->undoenchant );
 
     SCRIPT_FUNCTION_END();
@@ -7785,7 +7785,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
         fan = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
         if ( VALID_GRID( PMesh, fan ) )
         {
-            int img      = PMesh->tmem.tile_list[fan].img & 0x00FF;
+            Uint16 img      = PMesh->tmem.tile_list[fan].img & 0x00FF;
             int highbits = PMesh->tmem.tile_list[fan].img & 0xFF00;
 
             if ( img >= starttile && img < endtile )
