@@ -37,7 +37,7 @@ INC     := -I. -I.. -I../enet/include ${SDLCONF_I} -I./extensions -I./file_forma
 LDFLAGS := ${SDLCONF_L} -L../enet/lib -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs -lenet
 
 # use different options if the environmental variable PREFIX is defined
-ifndef ($(PREFIX),"")
+ifdef ($(PREFIX),"")
 	OPT := -Os -Wall
 else
 	OPT := -Os -Wall -D PREFIX=\"${PREFIX}\" -D _NIX_PREFIX

@@ -450,9 +450,12 @@ prt_t * prt_reconstruct( prt_t * pprt )
     ///      @details The c equivalent of the particle prt::new() function.
 
     ego_object_base_t save_base;
+    ego_object_base_t * base_ptr;
 
     // save the base object data
-    memcpy( &save_base, POBJ_GET_PBASE( pprt ), sizeof( save_base ) );
+    base_ptr = POBJ_GET_PBASE( pprt );
+    assert( NULL != base_ptr );
+    memcpy( &save_base, base_ptr, sizeof( save_base ) );
 
     if ( ALLOCATED_PPRT( pprt ) )
     {
@@ -462,7 +465,7 @@ prt_t * prt_reconstruct( prt_t * pprt )
     memset( pprt, 0, sizeof( *pprt ) );
 
     // restore the base object data
-    memcpy( POBJ_GET_PBASE( pprt ), &save_base, sizeof( save_base ) );
+    memcpy( base_ptr, &save_base, sizeof( save_base ) );
 
     // "no lifetime" = "eternal"
     pprt->lifetime_remaining = ( size_t )( ~0 );

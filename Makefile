@@ -31,29 +31,39 @@ egoboo_lua:
 
 install:
 
+	######################################
 	# Thank you for installing egoboo! 
-	# The default install of egoboo will require the commandline "sudo make install", and
-	# the required password
 	#
-	# If you do not have root access on this machine, you can specify a prefix
-	# on the command line: "make install PREFIX=$HOME/.local", where the environment
-	# variable PREFIX specifies a virtual root for your installation. In this example,
-	# it is a local installation for this username, only.
+	# The default install of egoboo will require the commandline 
+	#     "sudo make install"
+	# and the required password
+	#
+	# If you do not have root access on this machine, 
+	# you can specify a prefix on the command line: 
+	#     "make install PREFIX=$$HOME/.local"
+	# where the environment variable PREFIX specifies a
+	# virtual root for your installation. In this example,
+	# it is a local installation for this username only.
 	#
 
 #	copy the binary to the games folder
-	mkdir -p ${PREFIX}/games/
+	mkdir -p ${PREFIX}/games
 	install -m 755 ./game/${PROJ_NAME} ${PREFIX}/games/${PROJ_NAME}
 	
 #	copy the data to the games folder
 	mkdir -p ${PREFIX}/share/games/${PROJ_NAME}
-	cp -r ./basicdat ./modules ${PREFIX}/share/games/${PROJ_NAME}
+	cp -rdf ./basicdat ${PREFIX}/share/games/${PROJ_NAME}
+	cp -rdf ./modules ${PREFIX}/share/games/${PROJ_NAME}
 
 #	copy the players to the user's data folder
 	mkdir -p ${HOME}/.${PROJ_NAME}
-	cp -r ./players ${HOME}/.${PROJ_NAME}
+	cp -rdf ./players ${HOME}/.${PROJ_NAME}
 
 #	copy the basic configuration files to the config directory
 	mkdir -p ${PREFIX}/etc/${PROJ_NAME}
-	cp -r setup.txt ${PREFIX}/etc/${PROJ_NAME}/setup.txt
-	cp -r controls.txt ${PREFIX}/etc/${PROJ_NAME}/controls.txt
+	cp -rdf setup.txt ${PREFIX}/etc/${PROJ_NAME}/setup.txt
+	cp -rdf controls.txt ${PREFIX}/etc/${PROJ_NAME}/controls.txt
+	#####################################
+	# Egoboo installation is finished
+	#####################################
+

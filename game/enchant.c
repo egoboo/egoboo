@@ -322,7 +322,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
             {
                 ptarget->canseekurse = bfalse;
             }
-        }    
+        }
 	}
 
 
@@ -739,9 +739,14 @@ bool_t  enc_free( enc_t * penc )
 enc_t * enc_reconstruct( enc_t * penc )
 {
     ego_object_base_t save_base;
+    ego_object_base_t * base_ptr;
+
+    if ( NULL == penc ) return NULL;
 
     // save the base object data
-    memcpy( &save_base, POBJ_GET_PBASE( penc ), sizeof( ego_object_base_t ) );
+    base_ptr = POBJ_GET_PBASE( penc );
+    assert( NULL != base_ptr );
+    memcpy( &save_base, base_ptr, sizeof( ego_object_base_t ) );
 
     if ( ALLOCATED_PENC( penc ) )
     {
@@ -752,7 +757,7 @@ enc_t * enc_reconstruct( enc_t * penc )
     memset( penc, 0, sizeof( *penc ) );
 
     // restore the base object data
-    memcpy( POBJ_GET_PBASE( penc ), &save_base, sizeof( ego_object_base_t ) );
+    memcpy( base_ptr, &save_base, sizeof( ego_object_base_t ) );
 
     penc->profile_ref      = MAX_PROFILE;
     penc->eve_ref          = MAX_EVE;

@@ -63,7 +63,7 @@ enum e_damage_type
 };
 
 /// A list of the possible special experience types
-typedef enum e_xp_type
+enum e_xp_type
 {
     XP_FINDSECRET = 0,                          ///< Finding a secret
     XP_WINQUEST,                                ///< Beating a module or a subquest

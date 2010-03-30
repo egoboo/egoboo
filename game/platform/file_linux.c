@@ -70,13 +70,13 @@ void fs_init()
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
     strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
-    strncpy( linux_binaryPath, PREFIX "/games/egoboo-2.x/",       SDL_arraysize( linux_binaryPath ) );
-    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
+    strncpy( linux_binaryPath, PREFIX "/games/",                  SDL_arraysize( linux_binaryPath ) );
+    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath   ) );
 #else
     // these are read-only directories
     strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
-    strncpy( linux_binaryPath, "/games/egoboo-2.x/",       SDL_arraysize( linux_binaryPath ) );
-    strncpy( linux_dataPath,   "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
+    strncpy( linux_binaryPath, "/games/",                  SDL_arraysize( linux_binaryPath ) );
+    strncpy( linux_dataPath,   "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath   ) );
 #endif
 
     // the log file cannot be started until there is a user data path to dump the file into
