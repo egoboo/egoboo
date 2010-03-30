@@ -113,9 +113,9 @@ IfSpawned
   SpawnExactParticle
 
   //Do we turn the player into a Jiive Elf?
-  tmpx = rand % 20
-  tmpy = 0          //5%
-  IfXIsEqualToY
+  tmpx = timehours
+  tmpy = 7            //Only after 0 AM and before 6 AM
+  IfXIsLessThanY
     tmpargument = [ELFF]
     tmpdistance = BLAHPLAYERS + BLAHENEMIES + BLAHFRIENDS  //SetTargetToNearestPlayer
     SetTargetToNearestBlahID

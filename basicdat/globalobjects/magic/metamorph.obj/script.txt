@@ -22,24 +22,25 @@ IfHitGround
 // Allow it to be used
 IfUsed
   UndoEnchant
-  SetTargetToWhoeverIsHolding
-  GetContent
-  tmpx = tmpargument
-  tmpy = 1280			//Max charge
-  IfXIsLessThanY
-    tmpy = targetmanaflow
+    tmpargument = 50
+    SetReloadTime
+    UnsparkleIcon
+  Else
+    SetTargetToWhoeverIsHolding
+    tmpx = selfcontent
+    tmpy = 1280			//Max charge
     IfXIsLessThanY
-      tmpx = 4			//Cast speed
-      tmpargument = tmpx
-      CostTargetMana
-        GetContent
-        tmpargument = tmpargument + tmpx
-        SetContent
+      tmpy = targetmanaflow
+      IfXIsLessThanY
+        tmpx = 4			//Cast speed
+        tmpargument = tmpx
+        CostTargetMana
+          tmpargument = selfcontent + tmpx
+          SetContent
 
 // Allow it to be cast or fizzle
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 1279						//Needed charge
   IfXIsMoreThanY
     // Make the holder cast it
@@ -49,16 +50,22 @@ Else
       CorrectActionForHand
       TargetDoAction
 
-    tmpx = targetx
-    tmpy = targety
-    tmpdistance = targetz
-    tmpargument = 2
-    SpawnExactParticle		//Spawn some Dust
-    tmpargument = 1
-    SendMessageNear
     EnchantTarget
-    tmpargument = 1
-    PlaySound
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = targetz
+      tmpargument = 2
+      SpawnExactParticle		//Spawn some Dust
+      tmpargument = 1
+      SendMessageNear
+      tmpargument = 1
+      PlaySound
+      tmpargument = PURPLE
+      SparkleIcon
+    Else
+      tmpargument = 2
+      SendMessageNear
+      PlaySound
     tmpargument = 70
     SetReloadTime
 

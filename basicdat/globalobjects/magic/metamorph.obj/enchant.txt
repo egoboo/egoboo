@@ -63,12 +63,12 @@ Darkening red shift change ( -3 to 3 )		: 3
 Darkening green shift ( -3 to 3 )		: -2
 Darkening blue shift ( -3 to 3 )		: -1
 Base defense increase ( -50 to 50 )		: 50
-Maximum mana increase ( -3.0 to 3.0 )		: 3.0
-Maximum life increase ( -3.0 to 3.0 )		: 3.0
-Strength boost ( -3.0 to 3.0 )			: 5.0
-Wisdom boost ( -3.0 to 3.0 )			: 5.0
-Intelligence boost ( -3.0 to 3.0 )		: 5.0
-Dexterity boost ( -3.0 to 3.0 )			: 5.0
+Maximum mana increase ( -3.0 to 3.0 )		: 5.0
+Maximum life increase ( -3.0 to 3.0 )		: 5.0
+Strength boost ( -3.0 to 3.0 )			: 10.0
+Wisdom boost ( -3.0 to 3.0 )			: 10.0
+Intelligence boost ( -3.0 to 3.0 )		: 10.0
+Dexterity boost ( -3.0 to 3.0 )			: 10.0
 
 // Expansions...
 :[AMOU] 1       // Amount to spawn each time

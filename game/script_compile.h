@@ -595,7 +595,12 @@ enum e_script_variables
     VARTARGETMAXLIFE,    // == 74
     VARTARGETTEAM,       // == 75
     VARTARGETARMOR,      // == 76
-    VARDIFFICULTY        // == 77
+    VARDIFFICULTY,       // == 77
+    VARTIMEHOURS,        // == 78
+    VARTIMEMINUTES,      // == 79
+    VARTIMESECONDS,      // == 80
+    VARDATEMONTH,        // == 81
+    VARDATEDAY           // == 82
 };
 
 //--------------------------------------------------------------------------------------------

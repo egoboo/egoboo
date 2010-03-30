@@ -735,7 +735,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     // Image data
     pprt->rotate     = generate_irand_pair( ppip->rotate_pair );
     pprt->rotate_add = ppip->rotate_add;
-    pprt->size_stt   = pprt->size = MAX( ppip->size_base, 1 );
+    pprt->size_stt   = MAX( ppip->size_base, 1 );
     pprt->size_add   = ppip->size_add;
     pprt->image_add  = generate_irand_pair( ppip->image_add );
     pprt->image_stt  = INT_TO_FP8( ppip->image_base );

@@ -1343,7 +1343,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTEAM:
                 varname = "TARGETTEAM";
-                iTmp = REF_TO_INT( chr_get_iteam( pself->target ) );
+				iTmp = ChrList.lst[pself->target].team;
+                //iTmp = REF_TO_INT( chr_get_iteam( pself->target ) );
                 break;
 
             case VARTARGETARMOR:
@@ -1355,6 +1356,31 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "DIFFICULTY";
                 iTmp = cfg.difficulty;
                 break;
+
+			case VARTIMEHOURS:
+				varname = "TIMEHOURS";				
+				iTmp = getCurrentTime()->tm_hour;
+                break;
+
+			case VARTIMEMINUTES:
+				varname = "TIMEMINUTES";				
+				iTmp = getCurrentTime()->tm_min;
+                break;
+
+			case VARTIMESECONDS:
+				varname = "TIMESECONDS";				
+				iTmp = getCurrentTime()->tm_sec;
+                break;
+
+			case VARDATEMONTH:
+				varname = "DATEMONTH";				
+				iTmp = getCurrentTime()->tm_mon + 1;
+                break;
+
+			case VARDATEDAY:
+				varname = "DATEDAY";				
+				iTmp = getCurrentTime()->tm_mday;
+				break;
 
             default:
                 log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", REF_TO_INT( script_error_model ), script_error_classname );

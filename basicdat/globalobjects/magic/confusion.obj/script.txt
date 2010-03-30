@@ -127,11 +127,10 @@ Else
 
 // Put the little mana ball on the
 // character's hand
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
-  tmpturn = tmpargument < 4 + 3000
+  tmpturn = selfcontent < 4 + 3000
   tmpdistance = SPAWNORIGIN
   tmpargument = 0
   SpawnAttachedSizedParticle

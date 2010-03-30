@@ -4361,8 +4361,8 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     }
 
     iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
+	returncode = bfalse;
 
-    returncode = bfalse;
     if ( ACTIVE_PRT( iprt ) )
     {
         returncode = prt_set_size( PrtList.lst + iprt, pstate->turn );

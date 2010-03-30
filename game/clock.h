@@ -26,12 +26,15 @@
 ///   Game Programming Gems 4.
 
 #include <SDL_types.h>
+#include <time.h>
+
 #include "egoboo_typedef.h"
 
 struct s_ClockState;
 
 typedef double( *clock_source_ptr_t )( void );
 typedef struct s_ClockState ClockState_t;
+typedef struct tm* EGO_TIME;
 
 void clk_init( void );                                 ///< Init the clock module
 void clk_shutdown( void );                             ///< Shut down the clock module
@@ -46,6 +49,7 @@ double clk_getTime( ClockState_t * cs );            ///< Returns the current tim
 double clk_getFrameDuration( ClockState_t * cs );   ///< Return the length of the current frame. (Sort of.)
 Uint32 clk_getFrameNumber( ClockState_t * cs );     ///< Return which frame we're on
 float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current instantaneous FPS
+EGO_TIME getCurrentTime();							///< Returns a structure containing current time and date
 
 //--------------------------------------------------------------------------------------------
 /// macros to use the high resolution timer for profiling

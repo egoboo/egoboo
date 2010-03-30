@@ -655,6 +655,11 @@ The symbol itself follows
 :V 075 targetteam
 :V 076 targetarmor
 :V 077 difficulty
+:V 078 timehours
+:V 079 timeminutes
+:V 080 timeseconds
+:V 081 datemonth
+:V 082 dateday
 :O 000 +
 :O 001 -
 :O 002 &
