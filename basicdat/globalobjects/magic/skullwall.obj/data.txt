@@ -29,7 +29,7 @@ Dexterity increase per level ( eg. 0-1 )	: 1
 
 
 // More physical attributes
-Size ( eg. 1.0 )				: 1.0
+Size ( eg. 1.0 )				: 1.25
 Size increase per level ( eg. 0.05 )		: 0.05
 Shadow size ( eg. 30, 0 is none )		: 15
 Bump size ( eg. 30 )				: 35
@@ -103,9 +103,9 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 // IDSZ Identification tags ( [NONE] is valid )
 Parent ID ( eg. [FROG] for Trogs )		: [MAGI]
-Type ID ( eg. [TROG] for Trogs )		: [SWOR]
+Type ID ( eg. [TROG] for Trogs )		: [SKUL]
 Skill ID ( eg. [WMAG] for wizard spells )	: [WMAG]
-Special ID ( eg. [SUM0] for animated bones )	: [NONE]
+Special ID ( eg. [SUM0] for animated bones )	: [ESKU]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
 Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
 
@@ -194,7 +194,7 @@ Sound of Jump ( -1 for none )			: -1
 
 // Expansion
 :[HIDE] 0       // Don't draw the character when state is 0
-
+:[BOOK] 0
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

@@ -61,7 +61,7 @@ H damage shift :   0   1   2   2
 E damage shift :   3   3   1   3
 F damage shift :   1   1   3   1
 I damage shift :   1   1   1   1
-Z damage shift :   1   1  1   3
+Z damage shift :   1   1   1   3
 S damage code  :   F   F   F   F
 C damage code  :   F   F   F   F
 P damage code  :   F   F   F   F

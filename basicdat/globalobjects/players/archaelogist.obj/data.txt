@@ -55,12 +55,12 @@ I angle        : 16000
 
 Base defense   :   15  50  80 50 
 S damage shift :   1   1   1   1 
-C damage shift :   1   2   2   1 
+C damage shift :   1   1   2   1 
 P damage shift :   1   1   2   1 
 H damage shift :   1   1   1   1 
-E damage shift :   1   1   1   2 
-F damage shift :   1   1   1   2 
-I damage shift :   1   2   1   1 
+E damage shift :   1   1   1   1
+F damage shift :   1   1   1   1
+I damage shift :   1   1   1   1 
 Z damage shift :   1   1   1   1 
 S damage code  :   F   F   F   F 
 C damage code  :   F   F   F   F 
@@ -70,7 +70,7 @@ E damage code  :   F   F   F   F
 F damage code  :   F   F   F   F 
 I damage code  :   F   F   F   F 
 Z damage code  :   F   F   F   F 
-Acceleration   :  60  50  55  70 
+Acceleration   :  60  55  50  70 
 EXP for 2nd    : 300
 EXP for 3rd    : 1200
 EXP for 4th    : 2500

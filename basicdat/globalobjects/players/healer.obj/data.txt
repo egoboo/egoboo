@@ -67,7 +67,7 @@ SLASH defense shift ( eg. 1 1 1 1 )		:  1  2  2  2
 CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 POKE defense shift ( eg. 1 1 1 1 )		:  2  1  1  2
 HOLY defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  3  3
+EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  2  2
 FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 ICE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 ZAP defense shift ( eg. 1 1 1 1 )		:  1  1  1  1

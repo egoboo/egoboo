@@ -29,8 +29,9 @@
 #dependency Vengance       95
 #dependency Gnugnr         114
 #dependency Myolnr         88
-
 #dependency AmuletOfYore   85
+#dependency DragonTongue   97
+
 #dependency AnimatedSword 109
 #dependency AnimatedMace  111
 #dependency AnimatedXBow  110

@@ -1,0 +1,133 @@
+//Make it fall to the floor
+IfSpawned				
+  tmpargument = ACTIONJB		
+  DoAction				 
+  KeepAction				
+  MakeCrushValid
+  tmpargument = 20
+  SetTime
+  tmpargument = 0
+  SetState
+
+//Attatch all particles (The black orb)
+IfTakenOut
+  ReaffirmCharacter
+
+//What happens if the item is crushed?
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 3
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+//Make it lie on the floor
+IfDropped				
+  KeepAction
+  tmpargument = 0
+  SetState
+
+//Make a sound if it is dropped
+IfHitGround				
+  tmpargument = 3			 
+  PlaySound				//Sound effect when dropped
+
+//What to do if the item is used
+IfUsed				
+  MakeNameKnown				//Reveal usage to TECH users
+  tmpargument = 50    //1 seconds
+  SetReloadTime			  //Cannot be used again for some time
+  
+  //No cooldown?
+  IfStateIs0
+    SetTargetToWhoeverIsHolding
+    
+    //Check if it malfunctions
+    tmpx = targetint > 8
+    tmpx = 40 - tmpx        //40% -1% per holder INT
+    tmpy = rand % 100
+    IfXIsMoreThanY
+      tmpargument = 4
+      PlaySound
+      JoinEvilTeam
+      tmpargument = 512
+      DamageTarget
+      tmpargument = 7
+      SendMessageNear
+    Else
+      SetOwnerToTarget
+      EnchantTarget
+      tmpargument = 10			//Number of timers before fire
+      SetState
+      tmpargument = 1
+      PlaySound				//Charging sound effect
+  
+  //Cooldown
+  Else
+    tmpargument = 5
+    SendMessageNear
+
+
+// This function damages the target
+IfTimeOut
+  tmpargument = 25
+  SetTime
+  
+  tmpx = selfstate
+  tmpy = 0
+  IfXIsMoreThanY			//Only if the number of timers is more than 1
+    tmpargument = selfstate - 1
+    SetState				//Reduce number of timers left by 1
+    
+    //Spawn the ray
+    IfStateIs0
+      tmpargument = 0
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpturn = selfturn
+      SpawnExactParticle
+      
+      //Just in case
+      UndoEnchant
+      
+//Spawn spell effects
+tmpargument = 0
+IfStateIsNot
+  tmpx = rand & 1
+  tmpy = 0
+  IfXIsEqualToY
+    SetTargetToWhoeverIsHolding
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = selfz
+    tmpargument = 4
+    SpawnExactParticle
+  
+//See if they got completely destroyed
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  IfTargetKilled
+    tmpargument = 6
+    SendMessageNear
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    SpawnExactParticle
+    PoofTarget
+
+  
+//Tell the players what they have found
+IfGrabbed				
+  SetTargetToWhoeverIsHolding		 
+  IfTargetIsAPlayer			
+    tmpargument = 0			  
+    SendMessageNear
+    
+End

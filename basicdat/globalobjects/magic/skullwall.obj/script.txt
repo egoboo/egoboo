@@ -15,14 +15,16 @@ IfSpawned
     //tmpdistance = SPAWNLAST
     //SpawnAttachedParticle
     
+    //Life time
     tmpargument = selfstate < 4 + 1000
     SetTime
+    
     // Spawn another skull?
     tmpargument = 1
     IfStateIsNot
       tmpx = selfx
       tmpy = selfy
-      tmpdistance = 100
+      tmpdistance = 50
       tmpturn = selfturn
       Compass
       tmpdistance = selfz + 100
@@ -53,21 +55,29 @@ IfChanged
   SetState
   KeepAction
 
-
-
-// Sword AI
+// Skull AI
 tmpargument = 0
 IfStateIsNot
+  
   IfTimeOut
     tmpargument = ACTIONKA
     DoAction
     tmpargument = 300
     SetTime
+    
   IfHitGround
     tmpargument = 1
     PlaySound
-
-
+    
+  IfOrdered
+    tmpx = selforder
+    tmpy = [ESKU]
+    IfXIsEqualToY
+      tmpargument = ACTIONKA
+      DoAction
+      tmpargument = 300
+      SetTime
+  
 
 // Spell AI
 IfStateIs0
@@ -81,13 +91,14 @@ IfStateIs0
         IfNameIsKnown
           tmpargument = 2
         SendMessageNear
+        
   // Allow it to be used
-  IfUsed
+  IfUsed    
     SetTargetToWhoeverIsHolding
     tmpargument = [WMAG]
     IfTargetHasSkillID
       tmpx = selfcontent
-      tmpy = 2048 //1536
+      tmpy = 2048
       IfXIsLessThanY
         tmpy = targetmanaflow
         IfXIsLessThanY
@@ -111,7 +122,10 @@ IfStateIs0
         CorrectActionForHand
         TargetDoAction
 
-
+        //Dispel any existing wall first
+        tmpargument = [ESKU]
+        tmpdistance = [ESKU]
+        OrderSpecialID
 
         // Start dropping skulls
         tmpx = targetx
@@ -124,7 +138,7 @@ IfStateIs0
         tmpturn = targetturn + 16000
         SpawnCharacterXYZ
           // Set starting state
-          tmpargument = selfcontent > 8 + 2	// Child will spawn more swords
+          tmpargument = selfcontent > 7 + 2	// Child will spawn more skulls
           SetChildState
 
           // Identify stuff
