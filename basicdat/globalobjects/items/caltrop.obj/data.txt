@@ -1,9 +1,9 @@
 // Real general data
 Object slot number ( 0 to 63, don't use twice )	: -1
-Object class name ( use underscore for spaces ) : Gonne
+Object class name ( use underscore for spaces ) : Bag_of_Caltrops
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
-Maximum ammo ( 0 for doesn't matter )		: 20
-Starting ammo ( 0 for doesn't matter )		: 20
+Maximum ammo ( 0 for doesn't matter )		: 12
+Starting ammo ( 0 for doesn't matter )		: 12
 Gender ( MALE or FEMALE or OTHER )		: OTHER
 
 
@@ -35,7 +35,7 @@ Shadow size ( eg. 30, 0 is none )		: 15
 Bump size ( eg. 30 )				: 1
 Bump height ( eg. 70 )				: 0
 Bump dampen ( 0.0 to 1.0, lower is massive )	: .8
-Weight ( 0 to 255 )				: 15
+Weight ( 0 to 255 )				: 10
 Jump power ( eg. 14.0 )				: 0.0
 Number of jumps ( eg. 1 )			: 0
 Sneak speed ( 1 to 20, 1 is good )		: 1
@@ -102,12 +102,12 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 
 // IDSZ Identification tags ( [NONE] is valid )
-Parent ID ( eg. [FROG] for Trogs )		: [GONN]
-Type ID ( eg. [TROG] for Trogs )		: [SHOT]
-Skill ID ( eg. [WMAG] for wizard spells )	: [TECH]
+Parent ID ( eg. [FROG] for Trogs )		: [CALT]
+Type ID ( eg. [TROG] for Trogs )		: [IRON]
+Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
 Special ID ( eg. [SUM0] for animated bones )	: [XWEP]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
-Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
+Vuilnerability ID ( eg. [SILV] for werewolves )	: [RUST]
 
 
 // Item and damage flags
@@ -117,7 +117,7 @@ Object is stackable ( TRUE or FALSE )		: FALSE
 Object's name is known ( TRUE or FALSE )	: FALSE
 Item of known usage ( TRUE or FALSE )		: TRUE
 Item carries to next module ( TRUE or FALSE )	: TRUE
-Item requires skill ID to use ( TRUE or FALSE )	: TRUE
+Item requires skill ID to use ( TRUE or FALSE )	: FALSE
 Object is a platform ( TRUE or FALSE)		: FALSE
 Object collects money ( TRUE or FALSE )		: FALSE
 Object can open chests/doors ( TRUE or FALSE )	: FALSE
@@ -125,7 +125,7 @@ Object can open chests/doors ( TRUE or FALSE )	: FALSE
 
 // Other item and damage stuff
 DamageTarget type ( SLASH, CRUSH, POKE, HOLY,
-                    EVIL, FIRE, ICE, or ZAP )	: CRUSH
+                    EVIL, FIRE, ICE, or ZAP )	: POKE
 Attack type if it's a weapon ( UNARMED, THRUST,
                      SLICE, CHOP, BASH, LONGBOW,
                      XBOW, FLINGED, PARRY, ZAP)	: XBOW
@@ -151,11 +151,11 @@ Particle type ( 0 to 3 )			: 0
 // Particle spawning for GoPoof
 Amount to spawn ( 0 to 10, 0 is NoPoof )	: 0
 Facing add for each one ( 0 to 65535 )		: 0
-Particle type ( 0 to 3 )			: 0
+Particle type ( 0 to 3 )			: 1
 
 
-// Particle spawning for Blud ( If you want it, you put it in... )
-Blud valid ( TRUE or FALSE )			: FALSE
+// Particle spawning for Blood ( If you want it, you put it in... )
+Blood valid ( TRUE or FALSE )			: FALSE
 Particle type ( 0 to 3 )			: 0
 
 
@@ -173,10 +173,10 @@ Skin Name 0 ( use underscores for spaces )	: Skin_0
 Skin Name 1 ( use underscores for spaces )	: Skin_1
 Skin Name 2 ( use underscores for spaces )	: Skin_2
 Skin Name 3 ( use underscores for spaces )	: Skin_3
-Skin Cost 0 ( 0 to 65535 )			: 140
-Skin Cost 1 ( 0 to 65535 )			: 0
-Skin Cost 2 ( 0 to 65535 )			: 0
-Skin Cost 3 ( 0 to 65535 )			: 0
+Skin Cost 0 ( 0 to 65535 )			: 40
+Skin Cost 1 ( 0 to 65535 )			: 40
+Skin Cost 2 ( 0 to 65535 )			: 40
+Skin Cost 3 ( 0 to 65535 )			: 40
 Strength dampen for weapons ( 0.0 to 1.0 )	: 0.00
 
 
@@ -193,7 +193,7 @@ Sound of Jump ( -1 for none )			: -1
 
 
 // Expansions
-:[RANG] 1	// Ranged weapon
+:[HIDE] 1	// Hide in hand
 
 
 //-Notes------------------------------------------------------------------------

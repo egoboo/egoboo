@@ -67,7 +67,7 @@
 :ME	Grab Item Left
 :MF	Grab Item Right
 :MG	Open Chest
-:MH	Sit ( Not implemented )
+:MH	Sit ( Riding a mount )
 :MI	Ride
 :MJ	Activated ( For items )
 :MK	Snoozing

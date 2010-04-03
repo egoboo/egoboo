@@ -3,7 +3,7 @@ IfSpawned
   tmpargument = STATEGUARD
   SetState
   KeepAction
-  tmpargument = 100
+  tmpargument = 200
   SetTime
   
 //-------------------------------------------------------------------------------------------

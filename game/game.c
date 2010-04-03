@@ -1738,17 +1738,18 @@ void do_weather_spawn_particles()
                 {
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( ChrList.lst[ichr].pos, ATK_FRONT, weather.particle, 0 );
-                    if ( ACTIVE_PRT( particle ) )
+                    
+					if ( ALLOCATED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList.lst + particle;
 
                         bool_t destroy_particle = bfalse;
 
-                        if ( prt_test_wall( pprt ) )
+                        if ( weather.over_water && !prt_is_over_water( particle ) )
                         {
                             destroy_particle = btrue;
                         }
-                        else if ( weather.over_water && !prt_is_over_water( particle ) )
+                        else if ( prt_test_wall( pprt ) )
                         {
                             destroy_particle = btrue;
                         }
@@ -1759,7 +1760,7 @@ void do_weather_spawn_particles()
                             {
                                 destroy_particle = btrue;
                             }
-                            if ( pprt->pos.y < EDGE || pprt->pos.y > PMesh->gmem.edge_y - EDGE )
+                            else if ( pprt->pos.y < EDGE || pprt->pos.y > PMesh->gmem.edge_y - EDGE )
                             {
                                 destroy_particle = btrue;
                             }
@@ -1768,7 +1769,7 @@ void do_weather_spawn_particles()
                         if ( destroy_particle )
                         {
                             PrtList_free_one( particle );
-                        };
+                        }
                     }
                 }
             }

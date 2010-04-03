@@ -71,6 +71,8 @@
 #dependency AmmoBox          123
 #dependency Bomb             118
 #dependency Gonne            100
+#dependency Caltrop          160
+#dependency Grog             156
     
 // Divine shop
 #dependency Ressurection      63

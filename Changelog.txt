@@ -1,4 +1,5 @@
 Version 2.8.0 (??.??.2010)
+- New Feature: New Caltrop weapon... Watch your feet! Also added new Grog drink for G'nomes.
 - New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
   without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
 - New Feature: New side quest called "The Imprisoned One". A great ancient evil is breaking free from
@@ -11,6 +12,7 @@ Version 2.8.0 (??.??.2010)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Various balance tweaks around the game to smooth gameplay.
 - Update: Paladins are more powerful than before.
 - Update: Implemented support for limitless particle types. Added about 15 new particle effects at the
   same time.

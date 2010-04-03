@@ -26,6 +26,7 @@ IfAttacked
   
 //Flying Mode
 SetTargetToRider
+  Run
   tmpargument = ACTIONWA		  //
   DoAction				  //
 
@@ -48,10 +49,7 @@ SetTargetToRider
   tmpdistance = selfz
   SpawnExactParticle
 Else
-  tmpx = selfx
-  tmpy = selfy
-  ClearWaypoints
-  AddWaypoint
+  Stop
   tmpargument = 0
   SetFlyHeight
 

@@ -6350,7 +6350,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return btrue;
 
-    // if the exxect is armor piercing, ignore shielding
+    // if the effect is armor piercing, ignore shielding
     if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return bfalse;
 
     // if the character's frame is invictus, then check the angles

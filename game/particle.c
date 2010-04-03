@@ -2637,9 +2637,9 @@ bool_t prt_is_over_water( const PRT_REF by_reference iprt )
 {
     /// ZZ@> This function returns btrue if the particle is over a water tile
     Uint32 fan;
-
-    if ( !ACTIVE_PRT( iprt ) ) return bfalse;
-
+				
+    if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
+	
     fan = mesh_get_tile( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
     if ( VALID_GRID( PMesh, fan ) )
     {

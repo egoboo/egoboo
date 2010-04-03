@@ -5,6 +5,11 @@ IfOrdered
   IfXIsEqualToY
     tmpargument = 1
     SetContent
+    
+//Do a cooldown on starting to talk
+IfSpawned
+  tmpargument = 100
+  SetTime
 
 //Do the AI
 IfTimeOut

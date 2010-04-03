@@ -58,7 +58,7 @@ IfStateIsNot
       IfXIsEqualToY
       
         //Did we reach the final game?
-        tmpargument = 7 + difficulty          //Modify this to set the puzzle level limit! (limit=state+1)
+        tmpargument = 6 + difficulty          //Modify this to set the puzzle level limit! (limit=state+1)
         IfStateIs
           SetTargetToOwner
           tmpargument = 120
