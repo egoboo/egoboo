@@ -962,11 +962,11 @@ bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst )
     pdst->mins[OCT_Y] = -src.size;
     pdst->maxs[OCT_Y] =  src.size;
 
-    pdst->mins[OCT_XY] = -src.sizebig;
-    pdst->maxs[OCT_XY] =  src.sizebig;
+    pdst->mins[OCT_XY] = -src.size_big;
+    pdst->maxs[OCT_XY] =  src.size_big;
 
-    pdst->mins[OCT_YX] = -src.sizebig;
-    pdst->maxs[OCT_YX] =  src.sizebig;
+    pdst->mins[OCT_YX] = -src.size_big;
+    pdst->maxs[OCT_YX] =  src.size_big;
 
     pdst->mins[OCT_Z] = -src.height;
     pdst->maxs[OCT_Z] =  src.height;
@@ -1118,9 +1118,9 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
             pdst_bump->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
         }
 
-        if ( 0 == bump_base.sizebig )
+        if ( 0 == bump_base.size_big )
         {
-            pdst_bump->sizebig = 0;
+            pdst_bump->size_big = 0;
         }
         else
         {
@@ -1128,7 +1128,7 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
             val2 = -psrc_bb->mins[OCT_YX];
             val3 =  psrc_bb->maxs[OCT_XY];
             val4 = -psrc_bb->mins[OCT_XY];
-            pdst_bump->sizebig = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+            pdst_bump->size_big = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
         }
     }
 

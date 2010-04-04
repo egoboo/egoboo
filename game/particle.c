@@ -92,11 +92,15 @@ static PRT_REF prt_get_free( bool_t force );
 
 static size_t prt_delay_list_push( spawn_particle_info_t * pinfo );
 
-size_t spawn_all_delayed_particles();
-
 size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
                                      const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
                                      const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
+
+static size_t  prt_activation_count = 0;
+static PRT_REF prt_activation_list[TOTAL_MAX_PRT];
+
+static size_t  prt_termination_count = 0;
+static PRT_REF prt_termination_list[TOTAL_MAX_PRT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -110,9 +114,12 @@ void PrtList_init()
 {
     PRT_REF cnt;
 
+    // fix any problems with maxparticles
+    if( maxparticles > TOTAL_MAX_PRT ) maxparticles = TOTAL_MAX_PRT;
+
     // free all the particles
     PrtList.free_count = 0;
-    for ( cnt = 0; cnt < maxparticles && cnt < TOTAL_MAX_PRT; cnt++ )
+    for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         prt_t * pprt = PrtList.lst + cnt;
 
@@ -172,6 +179,19 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
 
     if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
     pprt = PrtList.lst + iprt;
+
+    // if we are inside a PrtList loop, do not actually change the length of the
+    // list. This will cause some problems later.
+    if( prt_loop_depth > 0 )
+    {
+        prt_termination_list[prt_termination_count] = iprt;
+        prt_termination_count++;
+
+        // at least mark the object as "waiting to be terminated"
+        EGO_OBJECT_REQUST_TERMINATE( pprt );
+
+        return btrue;
+    }
 
     // particle "reinitializer"
     // sets all boolean values to false, including the "on" flag
@@ -574,12 +594,23 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     // components of the original vector.
     tmp_pos = pos;
 
+    // fix the spawn mode
+    if ( prt_loop_depth > 0 )
+    {
+        spawn_mode = EGO_OBJECT_DO_ALLOCATE;
+    }
+
     // determine when the particle is spawned
     switch ( spawn_mode )
     {
         case EGO_OBJECT_DO_ALLOCATE:
             // Allocate it, but delay the actual particle activation until the end of this the update loop
             EGO_OBJECT_ALLOCATE( pprt, REF_TO_INT( iprt ) );
+
+            // put this particle into the activation list so that it can be activated right after
+            // the PrtList loop is completed
+            prt_activation_list[prt_activation_count] = iprt;
+            prt_activation_count++;
             break;
 
         case EGO_OBJECT_DO_ACTIVATE:
@@ -624,8 +655,8 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     }
 
     // Set character attachments ( chr_attach==MAX_CHR means none )
-    pprt->attachedto_ref = chr_attach;
-    pprt->vrt_off = vrt_offset;
+    pprt->attachedto_ref     = chr_attach;
+    pprt->attachedto_vrt_off = vrt_offset;
 
     // Correct facing
     facing += ppip->facing_pair.base;
@@ -728,7 +759,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
 
     // Template values
     pprt->bump.size    = ppip->bump_size;
-    pprt->bump.sizebig = ppip->bump_size * SQRT_TWO;
+    pprt->bump.size_big = ppip->bump_size * SQRT_TWO;
     pprt->bump.height  = ppip->bump_height;
     pprt->type         = ppip->type;
 
@@ -774,7 +805,6 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
 
     // make the particle display AT LEAST one frame, regardless of how many updates
     // it has or when someone requests for it to terminate
-    pprt->frames_count     = 0;
     pprt->frames_remaining = MAX( 1, prt_lifetime );
 
     // Set onwhichfan...
@@ -920,7 +950,7 @@ bool_t update_one_particle( prt_t * pprt )
 
     // ASSUME that this function is only going to be called from update_all_particles(), where we already did this test
     //if( !DEFINED_PPRT(pprt) ) return bfalse;
-    iprt = GET_INDEX_PPRT( pprt );
+    iprt = GET_REF_PPRT( pprt );
 
     prt_active  = ACTIVE_PBASE( POBJ_GET_PBASE( pprt ) );
     prt_display = prt_active || WAITING_PBASE( POBJ_GET_PBASE( pprt ) );
@@ -928,6 +958,12 @@ bool_t update_one_particle( prt_t * pprt )
     // update various iprt states
     ppip = prt_get_ppip( iprt );
     if ( NULL == ppip ) return bfalse;
+
+    // clear out the attachment if the character doesn't exist at all
+    if( !DEFINED_CHR(pprt->attachedto_ref) )
+    {
+        pprt->attachedto_ref = (CHR_REF)MAX_CHR;
+    }
 
     // figure out where the particle is on the mesh and update iprt states
     if ( prt_display )
@@ -1047,32 +1083,18 @@ bool_t update_one_particle( prt_t * pprt )
             size_new = CLIP( size_new, 0, 0xFFFF );
 
             prt_set_size( pprt, size_new );
-
-            /*if( pprt->type != SPRITE_SOLID && pprt->inst.alpha != 0.0f )
-            {
-                // adjust the iprt alpha
-                if( size_new > 0 )
-                {
-                    float ftmp = 1.0f - (float)ABS(pprt->size_add) / (float)size_new;
-                    pprt->inst.alpha *= ftmp;
-                }
-                else
-                {
-                    pprt->inst.alpha = 0xFF;
-                }
-            }*/
         }
 
         // Change dyna light values
         if ( pprt->dynalight.level > 0 )
         {
-            pprt->dynalight.level   += ppip->dynalight.level_add;
+            pprt->dynalight.level += ppip->dynalight.level_add;
             if ( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
         }
         else if ( pprt->dynalight.level < 0 )
         {
             // try to guess what should happen for negative lighting
-            pprt->dynalight.level   += ppip->dynalight.level_add;
+            pprt->dynalight.level += ppip->dynalight.level_add;
             if ( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
         }
         else
@@ -1159,6 +1181,48 @@ void update_all_particles()
     PRT_REF iprt;
     prt_t * pprt;
 
+    // activate any particles might have been generated last update in an in-active state
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    {
+        prt_t * pprt;
+        pip_t * ppip;
+
+        bool_t prt_allocated, prt_active, prt_waiting, prt_terminated;
+        bool_t needs_activation;
+
+        pprt = PrtList.lst + iprt;
+
+        prt_allocated = STATE_ALLOCATED_PBASE( POBJ_GET_PBASE( pprt ) );
+        if ( !prt_allocated ) continue;
+
+        prt_terminated = STATE_TERMINATED_PBASE( POBJ_GET_PBASE( pprt ) );
+        if ( prt_terminated ) continue;
+
+        prt_active     = STATE_ACTIVE_PBASE( POBJ_GET_PBASE( pprt ) );
+        if ( prt_active ) continue;
+
+        prt_waiting    = STATE_WAITING_PBASE( POBJ_GET_PBASE( pprt ) );
+        if ( prt_waiting ) continue;
+
+        // prt_allocated is already true
+        needs_activation  = !prt_active && !prt_waiting && !prt_terminated;
+
+        ppip = NULL;
+        if ( LOADED_PIP( pprt->pip_ref ) )
+        {
+            ppip = PipStack.lst + pprt->pip_ref;
+        }
+
+        if ( NULL == ppip )
+        {
+            EGO_OBJECT_ACTIVATE( pprt, "UNKNOWN" );
+        }
+        else
+        {
+            EGO_OBJECT_ACTIVATE( pprt, ppip->name );
+        }
+    }
+
     for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
         if ( !DISPLAY_PRT( iprt ) ) continue;
@@ -1166,7 +1230,6 @@ void update_all_particles()
 
         update_one_particle( pprt );
     }
-
 }
 
 //void update_all_particles()
@@ -1401,7 +1464,7 @@ void update_all_particles()
 //                PRT_REF prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
 //                                                        ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, particle, tnc, pprt->target_ref );
 //
-//                if ( ppip->facingadd != 0 && ACTIVE_PRT( prt_child ) )
+//                if ( ppip->facingadd != 0 && ALLOCATED_PRT( prt_child ) )
 //                {
 //                    // Hack to fix velocity
 //                    PrtList.lst[prt_child].vel.x += pprt->vel.x;
@@ -1830,6 +1893,7 @@ void move_one_particle_do_homing( prt_t * pprt )
 {
     PRT_REF iprt;
     pip_t * ppip;
+    chr_t * ptarget;
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
     iprt = GET_REF_PPRT( pprt );
@@ -1839,71 +1903,78 @@ void move_one_particle_do_homing( prt_t * pprt )
     if ( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    if ( !ChrList.lst[pprt->target_ref].alive )
+    if( !ACTIVE_CHR(pprt->target_ref) )
     {
-        prt_request_terminate( iprt );
+        goto move_one_particle_do_homing_fail;
     }
-    else
-    {
-        chr_t * ptarget = ChrList.lst + pprt->target_ref;
+    ptarget = ChrList.lst + pprt->target_ref;
 
-        if ( !ACTIVE_CHR( pprt->attachedto_ref ) )
+    if ( !ptarget->alive )
+    {
+        goto move_one_particle_do_homing_fail;
+    }
+    else if ( !ACTIVE_CHR( pprt->attachedto_ref ) )
+    {
+        int       ival;
+        float     vlen, min_length, uncertainty;
+        fvec3_t   vdiff, vdither;
+
+        vdiff = fvec3_sub( ptarget->pos.v, pprt->pos.v );
+        vdiff.z += ptarget->bump.height * 0.5f;
+
+        min_length = ( 2 * 5 * 256 * ChrList.lst[pprt->owner_ref].wisdom ) / PERFECTBIG;
+
+        // make a little incertainty about the target
+        uncertainty = 256 - ( 256 * ChrList.lst[pprt->owner_ref].intelligence ) / PERFECTBIG;
+
+        ival = RANDIE;
+        vdither.x = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
+
+        ival = RANDIE;
+        vdither.y = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
+
+        ival = RANDIE;
+        vdither.z = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
+
+        // take away any dithering along the direction of motion of the particle
+        vlen = fvec3_dot_product( pprt->vel.v, pprt->vel.v );
+        if ( vlen > 0.0f )
         {
-            int       ival;
-            float     vlen, min_length, uncertainty;
-            fvec3_t   vdiff, vdither;
+            float vdot = fvec3_dot_product( vdither.v, pprt->vel.v ) / vlen;
 
-            vdiff = fvec3_sub( ptarget->pos.v, pprt->pos.v );
-            vdiff.z += ptarget->bump.height * 0.5f;
-
-            min_length = ( 2 * 5 * 256 * ChrList.lst[pprt->owner_ref].wisdom ) / PERFECTBIG;
-
-            // make a little incertainty about the target
-            uncertainty = 256 - ( 256 * ChrList.lst[pprt->owner_ref].intelligence ) / PERFECTBIG;
-
-            ival = RANDIE;
-            vdither.x = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
-
-            ival = RANDIE;
-            vdither.y = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
-
-            ival = RANDIE;
-            vdither.z = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
-
-            // take away any dithering along the direction of motion of the particle
-            vlen = fvec3_dot_product( pprt->vel.v, pprt->vel.v );
-            if ( vlen > 0.0f )
-            {
-                float vdot = fvec3_dot_product( vdither.v, pprt->vel.v ) / vlen;
-
-                vdither.x -= vdot * vdiff.x / vlen;
-                vdither.y -= vdot * vdiff.y / vlen;
-                vdither.z -= vdot * vdiff.z / vlen;
-            }
-
-            // add in the dithering
-            vdiff.x += vdither.x;
-            vdiff.y += vdither.y;
-            vdiff.z += vdither.z;
-
-            // Make sure that vdiff doesn't ever get too small.
-            // That just makes the particle slooooowww down when it approaches the target.
-            // Do a real kludge here. this should be a lot faster than a square root, but ...
-            vlen = ABS( vdiff.x ) + ABS( vdiff.y ) + ABS( vdiff.z );
-            if ( vlen != 0.0f )
-            {
-                float factor = min_length / vlen;
-
-                vdiff.x *= factor;
-                vdiff.y *= factor;
-                vdiff.z *= factor;
-            }
-
-            pprt->vel.x = ( pprt->vel.x + vdiff.x * ppip->homingaccel ) * ppip->homingfriction;
-            pprt->vel.y = ( pprt->vel.y + vdiff.y * ppip->homingaccel ) * ppip->homingfriction;
-            pprt->vel.z = ( pprt->vel.z + vdiff.z * ppip->homingaccel ) * ppip->homingfriction;
+            vdither.x -= vdot * vdiff.x / vlen;
+            vdither.y -= vdot * vdiff.y / vlen;
+            vdither.z -= vdot * vdiff.z / vlen;
         }
+
+        // add in the dithering
+        vdiff.x += vdither.x;
+        vdiff.y += vdither.y;
+        vdiff.z += vdither.z;
+
+        // Make sure that vdiff doesn't ever get too small.
+        // That just makes the particle slooooowww down when it approaches the target.
+        // Do a real kludge here. this should be a lot faster than a square root, but ...
+        vlen = ABS( vdiff.x ) + ABS( vdiff.y ) + ABS( vdiff.z );
+        if ( vlen != 0.0f )
+        {
+            float factor = min_length / vlen;
+
+            vdiff.x *= factor;
+            vdiff.y *= factor;
+            vdiff.z *= factor;
+        }
+
+        pprt->vel.x = ( pprt->vel.x + vdiff.x * ppip->homingaccel ) * ppip->homingfriction;
+        pprt->vel.y = ( pprt->vel.y + vdiff.y * ppip->homingaccel ) * ppip->homingfriction;
+        pprt->vel.z = ( pprt->vel.z + vdiff.z * ppip->homingaccel ) * ppip->homingfriction;
     }
+
+    return;
+
+move_one_particle_do_homing_fail:
+
+    prt_request_terminate( iprt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2423,6 +2494,56 @@ void PrtList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
+void PrtList_cleanup()
+{
+    int     cnt;
+    pip_t * ppip;
+    prt_t * pprt;
+
+    // go through the list and activate all the particles that
+    // were created while the list was iterating
+    for( cnt = 0; cnt < prt_activation_count; cnt++ )
+    {
+        PRT_REF iprt = prt_activation_list[cnt];
+
+        if( !ALLOCATED_PRT(iprt) ) continue;
+        pprt = PrtList.lst + iprt;
+
+        if( ACTIVE_PRT(iprt) ) continue;
+
+        ppip = NULL;
+        if ( LOADED_PIP( pprt->pip_ref ) )
+        {
+            ppip = PipStack.lst + pprt->pip_ref;
+        }
+
+        if ( NULL == ppip )
+        {
+            EGO_OBJECT_ACTIVATE( pprt, "UNKNOWN" );
+        }
+        else
+        {
+            EGO_OBJECT_ACTIVATE( pprt, ppip->name );
+        }
+    }
+    prt_activation_count = 0;
+
+    // go through and delete any particles that were
+    // supsed to be deleted while the list was iterating
+    for( cnt = 0; cnt < prt_termination_count; cnt++ )
+    {
+        PRT_REF iprt = prt_termination_list[cnt];
+
+        PrtList_free_one( iprt );
+    }
+    prt_termination_count = 0;
+
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void particle_system_begin()
 {
     /// @details ZZ@> This function sets up particle data
@@ -2452,7 +2573,6 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
     int      amount;
     FACING_T direction;
     float    fsin, fcos;
-    PRT_REF  iprt;
 
     pip_t * ppip;
     chr_t * pchr;
@@ -2558,7 +2678,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
                 }
 
                 // determine if some of the vertex sites are already occupied
-                for ( iprt = 0; iprt < maxparticles; iprt++ )
+                PRT_BEGIN_LOOP_ACTIVE ( iprt, pprt )
                 {
                     prt_t * pprt;
                     if ( !ACTIVE_PRT( iprt ) ) continue;
@@ -2566,11 +2686,12 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
 
                     if ( character != pprt->attachedto_ref ) continue;
 
-                    if ( pprt->vrt_off >= 0 && pprt->vrt_off < vertices )
+                    if ( pprt->attachedto_vrt_off >= 0 && pprt->attachedto_vrt_off < vertices )
                     {
-                        vertex_occupied[pprt->vrt_off] = iprt;
+                        vertex_occupied[pprt->attachedto_vrt_off] = iprt;
                     }
                 }
+                PRT_END_LOOP()
 
                 // Find best vertices to attach the particles to
                 for ( cnt = 0; cnt < amount; cnt++ )
@@ -2597,7 +2718,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
                     bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
                                                   character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character, EGO_OBJECT_DO_ALLOCATE );
 
-                    if ( ACTIVE_PRT( bs_part ) )
+                    if ( ALLOCATED_PRT( bs_part ) )
                     {
                         vertex_occupied[bestvertex] = bs_part;
                         PrtList.lst[bs_part].is_bumpspawn = btrue;
@@ -2615,7 +2736,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
                 //        bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
                 //                            character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character, EGO_OBJECT_DO_ALLOCATE );
 
-                //        if( ACTIVE_PRT(bs_part) )
+                //        if( ALLOCATED_PRT(bs_part) )
                 //        {
                 //            PrtList.lst[bs_part].is_bumpspawn = btrue;
                 //            bs_count++;
@@ -2859,11 +2980,175 @@ bool_t prt_request_terminate( const PRT_REF by_reference iprt )
     /// @note prt_request_terminate() will call force the game to
     ///       (eventually) call free_one_particle_in_game() on this particle
 
-    if ( !ACTIVE_PRT( iprt ) ) return bfalse;
+    if ( !ALLOCATED_PRT( iprt ) || TERMINATED_PRT( iprt ) ) return bfalse;
 
     EGO_OBJECT_REQUST_TERMINATE( PrtList.lst + iprt );
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void cleanup_all_particles()
+{
+    PRT_REF iprt;
+
+    // do end-of-life care for particles. Must iterate over all particles since the
+    // number of particles could change inside this list
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
+    {
+        prt_t * pprt;
+
+        bool_t prt_allocated, prt_active, prt_waiting, prt_terminated;
+
+        pprt = PrtList.lst + iprt;
+
+        prt_allocated = STATE_ALLOCATED_PBASE( POBJ_GET_PBASE( pprt ) );
+        if ( !prt_allocated ) continue;
+
+        prt_terminated = STATE_TERMINATED_PBASE( POBJ_GET_PBASE( pprt ) );
+        if ( prt_terminated ) continue;
+
+        prt_active     = STATE_ACTIVE_PBASE( POBJ_GET_PBASE( pprt ) );
+        prt_waiting    = STATE_WAITING_PBASE( POBJ_GET_PBASE( pprt ) );      
+
+        if ( prt_active || prt_waiting )
+        {
+            bool_t needs_termination;
+
+            // do not time out unless the particle has been active for at least one update!
+            bool_t time_out = !pprt->is_eternal && (pprt->obj_base.update_count > 0) && ( 0 == pprt->lifetime_remaining );
+
+            needs_termination = prt_waiting;
+            if ( time_out )
+            {
+                // make sure that the particle is marked as "waiting for termination"
+                EGO_OBJECT_REQUST_TERMINATE( pprt );
+                needs_termination = btrue;
+            }
+
+            if ( needs_termination )
+            {
+                // Spawn new particles if time for old one is up
+                if ( pprt->endspawn_amount > 0 && LOADED_PIP( pprt->endspawn_pip ) )
+                {
+                    FACING_T facing;
+                    int      tnc;
+
+                    facing = pprt->facing;
+                    for ( tnc = 0; tnc < pprt->endspawn_amount; tnc++ )
+                    {
+                        // we have been given the absolute pip reference when the particle was spawned
+                        // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
+                        // value of pprt->endspawn_pip will be used directly
+                        delay_spawn_particle_request( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, REF_TO_INT( pprt->endspawn_pip ),
+                                                      ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
+
+                        facing += pprt->endspawn_facingadd;
+                    }
+
+                    // we have already spawned these particles, so set this amount to
+                    // zero in case we are not actually calling free_one_particle_in_game()
+                    // this time around.
+                    pprt->endspawn_amount = 0;
+                }
+
+                // do not completely delete the particle until it has been DISPLAYED at least once, or you can get
+                // some wierd particle flickering.
+                if ( (pprt->obj_base.frame_count > 0 || 0 == pprt->size_stt) )
+                {
+                    free_one_particle_in_game( iprt );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void bump_all_particles_update_counters()
+{
+    PRT_REF cnt;
+
+    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    {
+        ego_object_base_t * pbase;
+
+        pbase = POBJ_GET_PBASE( PrtList.lst + cnt );
+        if ( !ACTIVE_PBASE( pbase ) ) continue;
+
+        pbase->update_count++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+size_t spawn_all_delayed_particles()
+{
+    /// @details BB@> delay the spawning of particles.
+    /// This function should be used any time you are creating particles inside a loop controlled
+    /// by the PrtList.used_ref[] array, including the use of the PRT_LOOP_* macros().
+    ///
+    /// Otherwise, you will be changing the values in the PrtList.used_ref[] array while scanning it,
+    /// which is always a bad idea.
+
+    size_t count;
+    int    tnc;
+
+    if ( 0 == prt_delay_list.count ) return 0;
+
+    count = 0;
+    for ( tnc = 0; tnc < prt_delay_list.count && tnc < TOTAL_MAX_PRT; tnc++ )
+    {
+        PRT_REF iprt;
+        spawn_particle_info_t * pinfo = prt_delay_list.ary + tnc;
+
+        if ( !ACTIVE_PRT( pinfo->prt_origin ) ) pinfo->prt_origin = ( PRT_REF )TOTAL_MAX_PRT;
+        if ( !ACTIVE_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = ( CHR_REF )MAX_CHR;
+        if ( !ACTIVE_CHR( pinfo->chr_attach ) ) pinfo->chr_attach = ( CHR_REF )MAX_CHR;
+        if ( !ACTIVE_CHR( pinfo->oldtarget ) ) pinfo->oldtarget  = ( CHR_REF )MAX_CHR;
+        if ( !LOADED_PRO( pinfo->iprofile ) ) pinfo->iprofile   = ( PRO_REF )MAX_PROFILE;
+
+        // spawn the particle. EGO_OBJECT_DO_ACTIVATE == activate it immediately.
+        iprt = spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->pip_index,
+                                   pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,
+                                   pinfo->prt_origin, pinfo->multispawn, pinfo->oldtarget, EGO_OBJECT_DO_ACTIVATE );
+
+        // count the number of successful spawns
+        if ( ALLOCATED_PRT( iprt ) ) count++;
+    }
+
+    // reset the spawn list
+    prt_delay_list.count = 0;
+
+    return count;
+}
+
+//--------------------------------------------------------------------------------------------
+size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
+                                     const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
+                                     const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget )
+{
+    /// @details BB@> Store a request to spawn a particle, and return the index to the pre-active
+    ///               index to the particle
+
+    spawn_particle_info_t info;
+
+    // initialize the structure
+    spawn_particle_info_ctor( &info );
+
+    // fill in the structure
+    info.pos        = pos;
+    info.facing     = facing;
+    info.iprofile   = iprofile;
+    info.pip_index  = pip_index;
+    info.chr_attach = chr_attach;
+    info.vrt_offset = vrt_offset;
+    info.team       = team;
+    info.chr_origin = chr_origin;
+    info.prt_origin = prt_origin;
+    info.multispawn = multispawn;
+    info.oldtarget  = oldtarget;
+
+    return prt_delay_list_push( &info );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2945,203 +3230,4 @@ size_t prt_delay_list_push( spawn_particle_info_t * pinfo )
     prt_delay_list.ary[retval] = *pinfo;
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void cleanup_all_particles()
-{
-    PRT_REF iprt;
-
-    // do end-of-life care for particles. Must iterate over all particles since the
-    // number of particles could change inside this list
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
-    {
-        prt_t * pprt;
-        pip_t * ppip;
-
-        bool_t prt_allocated, prt_active, prt_waiting, prt_terminated;
-        bool_t needs_activation, needs_termination;
-
-        pprt = PrtList.lst + iprt;
-
-        prt_allocated = STATE_ALLOCATED_PBASE( POBJ_GET_PBASE( pprt ) );
-        if ( !prt_allocated ) continue;
-
-        prt_terminated = STATE_TERMINATED_PBASE( POBJ_GET_PBASE( pprt ) );
-        if ( prt_terminated ) continue;
-
-        prt_active     = STATE_ACTIVE_PBASE( POBJ_GET_PBASE( pprt ) );
-        prt_waiting    = STATE_WAITING_PBASE( POBJ_GET_PBASE( pprt ) );
-
-        // prt_allocated is already true
-        needs_activation  = !prt_active && !prt_waiting && !prt_terminated;
-        needs_termination = prt_waiting;
-
-        ppip = NULL;
-        if ( LOADED_PIP( pprt->pip_ref ) )
-        {
-            ppip = PipStack.lst + pprt->pip_ref;
-        }
-
-        if ( needs_activation )
-        {
-            if ( NULL == ppip )
-            {
-                EGO_OBJECT_ACTIVATE( pprt, "UNKNOWN" );
-            }
-            else
-            {
-                EGO_OBJECT_ACTIVATE( pprt, ppip->name );
-            }
-        }
-        else
-        {
-            bool_t time_out = !pprt->is_eternal && ( 0 == pprt->lifetime_remaining );
-
-            if ( time_out )
-            {
-                // make sure that the particle is marked as "waiting for termination"
-                EGO_OBJECT_REQUST_TERMINATE( pprt );
-                needs_termination = btrue;
-            }
-
-            if ( needs_termination )
-            {
-                // Spawn new particles if time for old one is up
-                if ( pprt->endspawn_amount > 0 && LOADED_PIP( pprt->endspawn_pip ) )
-                {
-                    FACING_T facing;
-                    int      tnc;
-
-                    facing = pprt->facing;
-                    for ( tnc = 0; tnc < pprt->endspawn_amount; tnc++ )
-                    {
-                        // we have been given the absolute pip reference when the particle was spawned
-                        // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
-                        // value of pprt->endspawn_pip will be used directly
-                        delay_spawn_particle_request( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, REF_TO_INT( pprt->endspawn_pip ),
-                                                      ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
-
-                        facing += pprt->endspawn_facingadd;
-                    }
-
-                    // we have already spawned these particles, so set this amount to
-                    // zero in case we are not actually calling free_one_particle_in_game()
-                    // this time around.
-                    pprt->endspawn_amount = 0;
-                }
-
-                // do not completely delete the particle until it has been DISPLAYED at least once, or you can get
-                // some wierd particle flickering.
-                if ( pprt->frames_count > 0 )
-                {
-                    free_one_particle_in_game( iprt );
-                }
-            }
-        }
-    }
-
-    // spawn all particles that have been put on the delay list, including all
-    // particles that might have been generated when a particle died.
-    spawn_all_delayed_particles();
-}
-
-//--------------------------------------------------------------------------------------------
-size_t spawn_all_delayed_particles()
-{
-    /// @details BB@> delay the spawning of particles.
-    /// This function should be used any time you are creating particles inside a loop controlled
-    /// by the PrtList.used_ref[] array, including the use of the PRT_LOOP_* macros().
-    ///
-    /// Otherwise, you will be changing the values in the PrtList.used_ref[] array while scanning it,
-    /// which is always a bad idea.
-
-    size_t count;
-    int    tnc;
-
-    if ( 0 == prt_delay_list.count ) return 0;
-
-    count = 0;
-    for ( tnc = 0; tnc < prt_delay_list.count && tnc < TOTAL_MAX_PRT; tnc++ )
-    {
-        PRT_REF iprt;
-        spawn_particle_info_t * pinfo = prt_delay_list.ary + tnc;
-
-        if ( !ACTIVE_PRT( pinfo->prt_origin ) ) pinfo->prt_origin = ( PRT_REF )TOTAL_MAX_PRT;
-        if ( !ACTIVE_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = ( CHR_REF )MAX_CHR;
-        if ( !ACTIVE_CHR( pinfo->chr_attach ) ) pinfo->chr_attach = ( CHR_REF )MAX_CHR;
-        if ( !ACTIVE_CHR( pinfo->oldtarget ) ) pinfo->oldtarget  = ( CHR_REF )MAX_CHR;
-        if ( !LOADED_PRO( pinfo->iprofile ) ) pinfo->iprofile   = ( PRO_REF )MAX_PROFILE;
-
-        // spawn the particle. EGO_OBJECT_DO_ACTIVATE == activate it immediately.
-        iprt = spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->pip_index,
-                                   pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,
-                                   pinfo->prt_origin, pinfo->multispawn, pinfo->oldtarget, EGO_OBJECT_DO_ACTIVATE );
-
-        // count the number of successful spawns
-        if ( ACTIVE_PRT( iprt ) ) count++;
-    }
-
-    // reset the spawn list
-    prt_delay_list.count = 0;
-
-    return count;
-}
-
-//--------------------------------------------------------------------------------------------
-//size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
-//                                     const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
-//                                     const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget )
-//{
-//    /// @details BB@> Store a request to spawn a particle, and return the index to the pre-active
-//    ///               index to the particle
-//
-//    spawn_particle_info_t info;
-//
-//    // initialize the structure
-//    spawn_particle_info_ctor( &info );
-//
-//    // fill in the structure
-//    info.pos        = pos;
-//    info.facing     = facing;
-//    info.iprofile   = iprofile;
-//    info.pip_index  = pip_index;
-//    info.chr_attach = chr_attach;
-//    info.vrt_offset = vrt_offset;
-//    info.team       = team;
-//    info.chr_origin = chr_origin;
-//    info.prt_origin = prt_origin;
-//    info.multispawn = multispawn;
-//    info.oldtarget  = oldtarget;
-//
-//    return prt_delay_list_push( &info );
-//}
-
-//--------------------------------------------------------------------------------------------
-size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
-                                     const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
-                                     const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget )
-{
-    /// @details BB@> Store a request to spawn a particle, and return the index to the pre-active
-    ///               index to the particle
-
-    spawn_particle_info_t info;
-
-    // initialize the structure
-    spawn_particle_info_ctor( &info );
-
-    // fill in the structure
-    info.pos        = pos;
-    info.facing     = facing;
-    info.iprofile   = iprofile;
-    info.pip_index  = pip_index;
-    info.chr_attach = chr_attach;
-    info.vrt_offset = vrt_offset;
-    info.team       = team;
-    info.chr_origin = chr_origin;
-    info.prt_origin = prt_origin;
-    info.multispawn = multispawn;
-    info.oldtarget  = oldtarget;
-
-    return prt_delay_list_push( &info );
 }

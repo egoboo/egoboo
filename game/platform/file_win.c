@@ -21,9 +21,10 @@
 /// @brief Windows-specific filesystem functions.
 /// @details
 
+
 #include <windows.h>
-#include <shellapi.h>
 #include <shlobj.h>
+#include <shellapi.h>
 #include <shlwapi.h>
 
 #include "file_common.h"
@@ -34,6 +35,8 @@
 #include "egoboo.h"
 
 #include "egoboo_mem.h"
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

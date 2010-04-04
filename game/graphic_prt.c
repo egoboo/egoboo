@@ -705,7 +705,7 @@ void prt_draw_attached_point( prt_t * pprt )
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
 
-    draw_one_attacment_point( &( pholder->inst ), pholder_mad, pprt->vrt_off );
+    draw_one_attacment_point( &( pholder->inst ), pholder_mad, pprt->attachedto_vrt_off );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -726,8 +726,8 @@ void prt_instance_update_all( camera_t * pcam )
 
         pinst = &( pprt->inst );
 
-        // handle the frame counting
-        pprt->frames_count++;
+        // only do frame counting for particles that are fully activated!
+        pprt->obj_base.frame_count++;
         if ( pprt->frames_remaining > 0 ) pprt->frames_remaining--;
 
         if ( !pprt->inview || pprt->is_hidden || 0 == pprt->size )

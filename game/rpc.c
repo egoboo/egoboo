@@ -45,21 +45,21 @@ static bool_t TxReqList_timestep();
 static size_t TxReqList_get_free( int type );
 static bool_t TxReqList_free_one( int index );
 
-static int rpc_system_get_guid();
+static int ego_rpc_system_get_guid();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-rpc_base_t * rpc_base_ctor( rpc_base_t * prpc, int data_type, void * data )
+ego_rpc_base_t * ego_rpc_base_ctor( ego_rpc_base_t * prpc, int data_type, void * data )
 {
     /// @details BB@> construct the somple rpc data element
 
-    if ( rpc_valid( prpc ) ) return NULL;
+    if ( ego_rpc_valid( prpc ) ) return NULL;
 
     prpc->allocated = btrue;
     prpc->finished  = bfalse;
     prpc->abort     = bfalse;
 
-    prpc->guid      = rpc_system_get_guid();
+    prpc->guid      = ego_rpc_system_get_guid();
     prpc->data_type = data_type;
     prpc->data      = data;
 
@@ -67,12 +67,12 @@ rpc_base_t * rpc_base_ctor( rpc_base_t * prpc, int data_type, void * data )
 }
 
 //--------------------------------------------------------------------------------------------
-rpc_base_t * rpc_base_dtor( rpc_base_t * prpc )
+ego_rpc_base_t * ego_rpc_base_dtor( ego_rpc_base_t * prpc )
 {
     /// @details BB@> deconstruct the somple rpc data element
 
     if ( NULL == prpc ) return NULL;
-    if ( !rpc_valid( prpc ) ) return prpc;
+    if ( !ego_rpc_valid( prpc ) ) return prpc;
 
     memset( prpc, 0, sizeof( *prpc ) );
 
@@ -85,7 +85,7 @@ tx_request_t * tx_request_ctor( tx_request_t * preq, int type )
 {
     if ( NULL == preq ) return NULL;
 
-    if ( NULL == rpc_base_ctor( &( preq->rpc_base ), type, preq ) ) return NULL;
+    if ( NULL == ego_rpc_base_ctor( &( preq->ego_rpc_base ), type, preq ) ) return NULL;
 
     preq->filename[0] = '\0';
     preq->index       = ( TX_REF )INVALID_TX_TEXTURE;
@@ -97,27 +97,27 @@ tx_request_t * tx_request_ctor( tx_request_t * preq, int type )
 //--------------------------------------------------------------------------------------------
 tx_request_t * tx_request_dtor( tx_request_t * preq )
 {
-    rpc_base_t save_base;
+    ego_rpc_base_t save_base;
 
     if ( NULL == preq ) return NULL;
 
-    if ( NULL == rpc_base_dtor( &( preq->rpc_base ) ) ) return NULL;
+    if ( NULL == ego_rpc_base_dtor( &( preq->ego_rpc_base ) ) ) return NULL;
 
     // store the deconstructed base
-    memcpy( &save_base, &( preq->rpc_base ), sizeof( save_base ) );
+    memcpy( &save_base, &( preq->ego_rpc_base ), sizeof( save_base ) );
 
     // zro out the memory
     memset( preq, 0, sizeof( *preq ) );
 
     // restore the deconstructed base
-    memcpy( &save_base, &( preq->rpc_base ), sizeof( save_base ) );
+    memcpy( &save_base, &( preq->ego_rpc_base ), sizeof( save_base ) );
 
     return preq;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t rpc_system_begin()
+bool_t ego_rpc_system_begin()
 {
     /// @details BB@> initialize all the rpc arrays here
 
@@ -131,7 +131,7 @@ bool_t rpc_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void rpc_system_end()
+void ego_rpc_system_end()
 {
     /// @details BB@> de-initialize all the rpc arrays here
 
@@ -143,17 +143,17 @@ void rpc_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t rpc_system_timestep()
+bool_t ego_rpc_system_timestep()
 {
     /// @details BB@> step through a single request of each type
 
-    if ( !rpc_system_begin() ) return bfalse;
+    if ( !ego_rpc_system_begin() ) return bfalse;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-int rpc_system_get_guid()
+int ego_rpc_system_get_guid()
 {
     return ++_rpc_system_guid;
 }
@@ -176,7 +176,7 @@ void TxReqList_ctor()
         tx_request_ctor( preq, -1 );
 
         // set the index
-        preq->rpc_base.index = REF_TO_INT( cnt );
+        preq->ego_rpc_base.index = REF_TO_INT( cnt );
 
         // push the characters onto the free stack
         TxReqList.free_ref[TxReqList.free_count] = TxReqList.free_count;
@@ -276,31 +276,31 @@ bool_t TxReqList_timestep()
 
     // ??lock the list??
 
-    if ( preq->rpc_base.abort )
+    if ( preq->ego_rpc_base.abort )
     {
-        TxReqList_free_one( preq->rpc_base.index );
+        TxReqList_free_one( preq->ego_rpc_base.index );
         return btrue;
     }
 
     retval = bfalse;
-    switch ( preq->rpc_base.data_type )
+    switch ( preq->ego_rpc_base.data_type )
     {
         case 1:
             // TxTexture_load_one()
             preq->index = TxTexture_load_one( preq->filename, preq->itex_src, preq->key );
-            preq->rpc_base.finished = btrue;
+            preq->ego_rpc_base.finished = btrue;
             retval = btrue;
             break;
 
         case 2:
             // TxTitleImage_load_one()
             preq->index = TxTitleImage_load_one( preq->filename );
-            preq->rpc_base.finished = btrue;
+            preq->ego_rpc_base.finished = btrue;
             retval = btrue;
             break;
 
         default:
-            TxReqList_free_one( preq->rpc_base.index );
+            TxReqList_free_one( preq->ego_rpc_base.index );
             break;
     }
 
@@ -311,7 +311,7 @@ bool_t TxReqList_timestep()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-tx_request_t * rpc_load_TxTexture( const char *filename, int itex_src, Uint32 key )
+tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint32 key )
 {
     /// @details BB@> request that the main thread loads the texture
 
@@ -332,7 +332,7 @@ tx_request_t * rpc_load_TxTexture( const char *filename, int itex_src, Uint32 ke
 }
 
 //--------------------------------------------------------------------------------------------
-tx_request_t * rpc_load_TxTitleImage( const char *filename )
+tx_request_t * ego_rpc_load_TxTitleImage( const char *filename )
 {
     /// @details BB@> request that the main thread loads the texture
 

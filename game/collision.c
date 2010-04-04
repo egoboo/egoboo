@@ -276,7 +276,7 @@ bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_
     // detect x-y interactions based on a potentially gigantor bounding box
     interact_x  = ( dx  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
     interact_y  = ( dy  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
-    interact_xy = ( dxy <= pchr_a->bump_1.sizebig + pchr_b->bump_1.sizebig );
+    interact_xy = ( dxy <= pchr_a->bump_1.size_big + pchr_b->bump_1.size_big );
 
     if (( pchr_a->platform && pchr_b->canuseplatforms ) ||
         ( pchr_b->platform && pchr_a->canuseplatforms ) )
@@ -350,7 +350,7 @@ bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_
     // estimate the horizontal interactions this frame
     interact_x  = ( dx  <= ( pchr_a->bump_1.size    + pprt_b->bump.size ) );
     interact_y  = ( dy  <= ( pchr_a->bump_1.size    + pprt_b->bump.size ) );
-    interact_xy = ( dxy <= ( pchr_a->bump_1.sizebig + pprt_b->bump.sizebig ) );
+    interact_xy = ( dxy <= ( pchr_a->bump_1.size_big + pprt_b->bump.size_big ) );
 
     if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
 
@@ -1226,7 +1226,7 @@ void bump_all_objects( obj_BSP_t * pbsp )
 
     // The following functions need to be called any time you actually change a charcter's position
     keep_weapons_with_holders();
-    attach_particles();
+    attach_all_particles();
     make_all_character_matrices( update_wld != 0 );
 }
 
@@ -1554,7 +1554,7 @@ bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference 
             // estimate the collisions this frame
             collide_x  = ( dx <= pchr_a->bump.size * 2 );
             collide_y  = ( dy <= pchr_a->bump.size * 2 );
-            collide_xy = ( dist <= pchr_a->bump.sizebig * 2 );
+            collide_xy = ( dist <= pchr_a->bump.size_big * 2 );
 
             if ( collide_x && collide_y && collide_xy )
             {
@@ -1600,7 +1600,7 @@ bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference 
             // estimate the collisions this frame
             collide_x  = ( dx <= pchr_b->bump.size * 2 );
             collide_y  = ( dy <= pchr_b->bump.size * 2 );
-            collide_xy = ( dist <= pchr_b->bump.sizebig * 2 );
+            collide_xy = ( dist <= pchr_b->bump.size_big * 2 );
 
             if ( collide_x && collide_y && collide_xy )
             {

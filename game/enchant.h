@@ -123,6 +123,9 @@ void EncList_update_used();
 
 void    update_all_enchants();
 void    cleanup_all_enchants();
+size_t  spawn_all_delayed_enchants( void );
+void    bump_all_enchants_update_counters( void );
+
 ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc );
 
 ENC_REF enchant_value_filled( const ENC_REF by_reference enchant_idx, int value_idx );

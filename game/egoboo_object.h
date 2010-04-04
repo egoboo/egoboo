@@ -42,11 +42,17 @@ enum e_ego_object_state
 /// The data that is "inherited" by every Egoboo object.
 struct s_ego_object_base
 {
+    // basic object definitions
     STRING         _name;     ///< what is its "_name"
     size_t         index;     ///< what is the index position in the object list?
     bool_t         allocated; ///< Does it exist?
     int            state;     ///< what state is it in?
     Uint32         guid;      ///< a globally unique identifier
+
+    // things related to spawning/despawning
+    size_t         update_count;    ///< How many updates have been made to this object?
+    size_t         frame_count;     ///< How many frames have been rendered?
+
 };
 
 typedef struct s_ego_object_base ego_object_base_t;

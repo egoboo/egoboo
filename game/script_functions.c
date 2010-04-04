@@ -2077,13 +2077,13 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
     iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 
-    returncode = ACTIVE_PRT( iprt );
+    returncode = ALLOCATED_PRT( iprt );
     if ( returncode )
     {
         prt_t * pprt = PrtList.lst + iprt;
 
         // Detach the particle
-        place_particle_at_vertex( iprt, pself->index, pstate->distance );
+        place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
         // Correct X, Y, Z spacing
@@ -3853,7 +3853,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
 
     iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 
-    returncode = ACTIVE_PRT( iprt );
+    returncode = ALLOCATED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3880,7 +3880,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
         iprt = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
     }
 
-    returncode = ACTIVE_PRT( iprt );
+    returncode = ALLOCATED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4363,7 +4363,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 	returncode = bfalse;
 
-    if ( ACTIVE_PRT( iprt ) )
+    if ( ALLOCATED_PRT( iprt ) )
     {
         returncode = prt_set_size( PrtList.lst + iprt, pstate->turn );
     }
@@ -4476,7 +4476,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 
     iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 
-    returncode = ACTIVE_PRT( iprt );
+    returncode = ALLOCATED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4881,7 +4881,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 
     iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, ichr, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
 
-    returncode = ACTIVE_PRT( iprt );
+    returncode = ALLOCATED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5396,7 +5396,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
         iprt = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
     }
 
-    returncode = ACTIVE_PRT( iprt );
+    returncode = ALLOCATED_PRT( iprt );
 
     if ( returncode )
     {
@@ -6530,7 +6530,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
         iprt = spawn_one_particle( vtmp, pchr->facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
     }
 
-    returncode = ACTIVE_PRT( iprt );
+    returncode = ALLOCATED_PRT( iprt );
 
     if ( returncode )
     {

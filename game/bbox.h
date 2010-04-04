@@ -42,7 +42,7 @@ typedef struct s_aabb aabb_t;
 struct s_bumper
 {
     float  size;        ///< Size of bumpers
-    float  sizebig;     ///< For octagonal bumpers
+    float  size_big;     ///< For octagonal bumpers
     float  height;      ///< Distance from head to toe
 };
 typedef struct s_bumper bumper_t;

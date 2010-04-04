@@ -531,6 +531,8 @@ void make_one_character_matrix( const CHR_REF by_reference cnt );
 void update_all_characters( void );
 void move_all_characters( void );
 void cleanup_all_characters( void );
+size_t spawn_all_delayed_characters( void );
+void bump_all_characters_update_counters( void );
 
 void do_level_up( const CHR_REF by_reference character );
 bool_t setup_xp_table( const CHR_REF by_reference character );

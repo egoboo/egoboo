@@ -39,6 +39,7 @@ struct s_wawalite_fog;
 struct s_menu_process;
 
 struct s_chr;
+struct s_prt;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -295,7 +296,7 @@ void reset_end_text();
 /// Particles
 int    number_of_attached_particles( const CHR_REF by_reference character );
 int    spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by_reference particle );
-void   place_particle_at_vertex( const PRT_REF by_reference particle, const CHR_REF by_reference character, int vertex_offset );
+bool_t place_particle_at_vertex( struct s_prt * pprt, const CHR_REF by_reference character, int vertex_offset );
 void   disaffirm_attached_particles( const CHR_REF by_reference character );
 int    reaffirm_attached_particles( const CHR_REF by_reference character );
 
@@ -348,7 +349,7 @@ bool_t game_module_stop( game_module_t * pinst );
 
 bool_t check_target( struct s_chr * psrc, const CHR_REF by_reference ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
 
-void attach_particles();
+void attach_all_particles();
 
 struct s_wawalite_data * read_wawalite();
 bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );

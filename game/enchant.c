@@ -1616,10 +1616,33 @@ void cleanup_all_enchants()
     }
 }
 
+
+//--------------------------------------------------------------------------------------------
+size_t spawn_all_delayed_enchants()
+{
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void bump_all_enchants_update_counters()
+{
+    ENC_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
+    {
+        ego_object_base_t * pbase;
+
+        pbase = POBJ_GET_PBASE( EncList.lst + cnt );
+        if ( !ACTIVE_PBASE( pbase ) ) continue;
+
+        pbase->update_count++;
+    }
+}
+
 //--------------------------------------------------------------------------------------------
 bool_t enc_request_terminate( const ENC_REF by_reference ienc )
 {
-    if ( !ACTIVE_ENC( ienc ) ) return bfalse;
+    if ( !ALLOCATED_ENC( ienc ) || TERMINATED_ENC( ienc ) ) return bfalse;
 
     EGO_OBJECT_REQUST_TERMINATE( EncList.lst + ienc );
 

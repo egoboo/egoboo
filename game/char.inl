@@ -537,7 +537,7 @@ INLINE void chr_update_size( chr_t * pchr )
 
     pchr->shadow_size  = pchr->shadow_size_save  * pchr->fat;
     pchr->bump.size    = pchr->bump_save.size    * pchr->fat;
-    pchr->bump.sizebig = pchr->bump_save.sizebig * pchr->fat;
+    pchr->bump.size_big = pchr->bump_save.size_big * pchr->fat;
     pchr->bump.height  = pchr->bump_save.height  * pchr->fat;
 
     chr_update_collision_size( pchr, btrue );
@@ -554,7 +554,7 @@ INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
     pchr->fat               = pcap->size;
     pchr->shadow_size_save  = pcap->shadow_size;
     pchr->bump_save.size    = pcap->bump_size;
-    pchr->bump_save.sizebig = pcap->bump_sizebig;
+    pchr->bump_save.size_big = pcap->bump_sizebig;
     pchr->bump_save.height  = pcap->bump_height;
 
     chr_update_size( pchr );
@@ -573,7 +573,7 @@ INLINE void chr_set_size( chr_t * pchr, float size )
 
     pchr->shadow_size_save  *= ratio;
     pchr->bump_save.size    *= ratio;
-    pchr->bump_save.sizebig *= ratio;
+    pchr->bump_save.size_big *= ratio;
     pchr->bump_save.height  *= ratio;
 
     chr_update_size( pchr );
@@ -592,7 +592,7 @@ INLINE void chr_set_width( chr_t * pchr, float width )
 
     pchr->shadow_size_save    *= ratio;
     pchr->bump_save.size    *= ratio;
-    pchr->bump_save.sizebig *= ratio;
+    pchr->bump_save.size_big *= ratio;
 
     chr_update_size( pchr );
 }

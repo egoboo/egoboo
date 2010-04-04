@@ -604,6 +604,15 @@ void update_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
+void move_all_objects()
+{
+    mesh_wall_tests = 0;
+
+    move_all_particles();
+    move_all_characters();
+}
+
+//--------------------------------------------------------------------------------------------
 void cleanup_all_objects()
 {
     cleanup_all_characters();
@@ -612,12 +621,46 @@ void cleanup_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void move_all_objects()
+void spawn_all_delayed_objects()
 {
-    mesh_wall_tests = 0;
+    spawn_all_delayed_characters();
+    spawn_all_delayed_particles();
+    spawn_all_delayed_enchants();
+}
 
-    move_all_particles();
-    move_all_characters();
+//--------------------------------------------------------------------------------------------
+void bump_all_update_counters()
+{
+    bump_all_characters_update_counters();
+    bump_all_particles_update_counters();
+    bump_all_enchants_update_counters();
+}
+
+//--------------------------------------------------------------------------------------------
+void initialize_all_objects()
+{
+    /// @details BB@> begin the code for updating in-game objects
+
+    // update all object timers etc.
+    update_all_objects();
+
+    // fix the list optimization, in case update_all_objects() turned some objects off. 
+    update_used_lists();
+}
+
+//--------------------------------------------------------------------------------------------
+void finalize_all_objects()
+{
+    /// @details BB@> end the code for updating in-game objects
+
+    // update the object's update counter for every active object
+    bump_all_update_counters();
+
+    // do end-of-life care for all objects
+    cleanup_all_objects();
+
+    // actually spawn any objects that were delayed until the end of this update
+    spawn_all_delayed_objects();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -752,19 +795,20 @@ int update_game()
                 }
                 //---- end the code for updating misc. game stuff
 
-                //---- begin the code for updating in-game objects
+                //---- begin the code object I/O
                 {
-                    update_all_objects();
-                    update_used_lists();
-
                     let_all_characters_think();           // sets the non-player latches
                     unbuffer_player_latches();            // sets the player latches
-
-                    move_all_objects();                   // clears some latches
-                    bump_all_objects( &obj_BSP_root );
-
-                    cleanup_all_objects();
                 }
+                //---- end the code object I/O
+
+                //---- begin the code for updating in-game objects
+                initialize_all_objects();
+                {
+                    move_all_objects();                   // clears some latches
+                    bump_all_objects( &obj_BSP_root );    // do the actual object interaction
+                }
+                finalize_all_objects();
                 //---- end the code for updating in-game objects
 
                 game_update_timers();
@@ -1736,10 +1780,11 @@ void do_weather_spawn_particles()
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
                 if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
                 {
+                    chr_t * pchr = ChrList.lst + ichr;
+
                     // Yes, so spawn over that character
-                    PRT_REF particle = spawn_one_particle_global( ChrList.lst[ichr].pos, ATK_FRONT, weather.particle, 0 );
-                    
-					if ( ALLOCATED_PRT( particle ) )
+                    PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.particle, 0 );
+                    if ( ALLOCATED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList.lst + particle;
 
@@ -1769,11 +1814,11 @@ void do_weather_spawn_particles()
                         if ( destroy_particle )
                         {
                             PrtList_free_one( particle );
-                        }
                     }
                 }
             }
         }
+    }
     }
 
     PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 0x3FFF;
@@ -3048,9 +3093,10 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
         particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
-        if ( ACTIVE_PRT( particle ) )
+        if ( ALLOCATED_PRT( particle ) )
         {
-            place_particle_at_vertex( particle, character, PrtList.lst[particle].vrt_off );
+            prt_t * pprt = PrtList.lst + particle;
+            place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
             number_added++;
             number_attached++;
         }
@@ -3177,7 +3223,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     game_module_reset( PMod, seed );
     camera_reset( PCamera, PMesh );
     make_all_character_matrices( update_wld != 0 );
-    attach_particles();
+    attach_all_particles();
 
     // log debug info for every object loaded into the module
     if ( cfg.dev_mode ) log_madused( "debug" SLASH_STR "slotused.txt" );
@@ -3312,28 +3358,43 @@ void game_release_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void attach_particles()
+bool_t attach_one_particle( prt_t * pprt )
+{
+    PRT_REF iprt;
+    chr_t * pchr;
+
+    if( !DEFINED_PPRT(pprt) ) return bfalse;
+    iprt = GET_INDEX_PPRT( pprt );
+
+    if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) return bfalse;
+    pchr = ChrList.lst + pprt->attachedto_ref;
+
+    place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
+
+    // the previous function can inactivate a particle
+    if ( ACTIVE_PPRT( pprt ) )
+    {
+        pip_t * ppip = prt_get_ppip( GET_INDEX_PPRT( pprt ) );
+
+        // Correct facing so swords knock characters in the right direction...
+        if ( NULL != ppip && 0 != (ppip->damfx & DAMFX_TURN) )
+        {
+            pprt->facing = pchr->facing_z;
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void attach_all_particles()
 {
     /// @details ZZ@> This function attaches particles to their characters so everything gets
     ///    drawn right
 
     PRT_BEGIN_LOOP_DISPLAY( cnt, pprt )
     {
-        if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) continue;
-
-        place_particle_at_vertex( cnt, pprt->attachedto_ref, pprt->vrt_off );
-
-        // the previous function can inactivate a particle
-        if ( ACTIVE_PRT( cnt ) )
-        {
-            pip_t * ppip = prt_get_ppip( cnt );
-
-            // Correct facing so swords knock characters in the right direction...
-            if ( NULL != ppip && ppip->damfx & DAMFX_TURN )
-            {
-                pprt->facing = ChrList.lst[pprt->attachedto_ref].facing_z;
-            }
-        }
+        attach_one_particle( pprt );
     }
     PRT_END_LOOP()
 }

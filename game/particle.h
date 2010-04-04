@@ -74,7 +74,7 @@ typedef struct s_prt_environment prt_environment_t;
 /// This "inherits" for ego_object_base_t
 struct s_prt
 {
-    ego_object_base_t obj_base;
+    ego_object_base_t obj_base;              ///< the "inheritance" from ego_object_base_t
 
     // profiles
     PIP_REF pip_ref;                         ///< The part template
@@ -87,7 +87,7 @@ struct s_prt
     PRT_REF parent_ref;                      ///< Did a another particle spawn this one?
     Uint32  parent_guid;                     ///< Just in case, the parent particle was despawned and a differnt particle now has the parent_ref
 
-    Uint16   vrt_off;                         ///< It's vertex offset
+    Uint16   attachedto_vrt_off;              ///< It's vertex offset
     Uint8    type;                            ///< Transparency mode, 0-2
     FACING_T facing;                          ///< Direction of the part
     TEAM_REF team;                            ///< Team
@@ -117,7 +117,6 @@ struct s_prt
     bool_t  is_eternal;                      ///< Does the particle ever time-out?
     size_t  lifetime_remaining;              ///< How many updates does the particle have left?
     size_t  frames_remaining;                ///< How many frames does the particle have left?
-    size_t  frames_count;                    ///< How many frames have been rendered?
     int     contspawn_delay;                 ///< Time until spawn
 
     bumper_t          bump;                            ///< Size of bumpers
@@ -181,7 +180,7 @@ DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 
 #define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT)  {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT (IT)) continue; PPRT =  PrtList.lst + IT;
 #define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; PPRT =  PrtList.lst + IT;
-#define PRT_END_LOOP() } prt_loop_depth--; EGOBOO_ASSERT(prt_loop_start_depth == prt_loop_depth); }
+#define PRT_END_LOOP() } prt_loop_depth--; EGOBOO_ASSERT(prt_loop_start_depth == prt_loop_depth); PrtList_cleanup(); }
 
 extern int prt_wall_tests;
 
@@ -190,6 +189,8 @@ extern int prt_loop_depth;
 
 //--------------------------------------------------------------------------------------------
 /// function prototypes
+
+void PrtList_cleanup();
 
 void   init_all_pip();
 void   release_all_pip();
@@ -207,6 +208,7 @@ void particle_system_end();
 void update_all_particles( void );
 void move_all_particles( void );
 void cleanup_all_particles( void );
+void bump_all_particles_update_counters( void );
 
 void play_particle_sound( const PRT_REF by_reference particle, Sint8 sound );
 
@@ -231,3 +233,5 @@ bool_t release_one_pip( const PIP_REF by_reference ipip );
 bool_t prt_request_terminate( const PRT_REF by_reference iprt );
 
 void particle_set_level( prt_t * pprt, float level );
+
+size_t spawn_all_delayed_particles();

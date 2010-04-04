@@ -43,15 +43,15 @@ struct s_rpc_base
     int    data_type;  ///< a the type of the "inherited" data
     void * data;       ///< a pointer to the "inherited" data
 };
-typedef struct s_rpc_base rpc_base_t;
+typedef struct s_rpc_base ego_rpc_base_t;
 
-INLINE bool_t rpc_valid( rpc_base_t * prpc )           { return ( NULL != prpc ) && prpc->allocated; }
-INLINE bool_t rpc_matches( rpc_base_t * prpc, int guid ) { return ( NULL != prpc ) && prpc->allocated && ( guid == prpc->guid ); }
-INLINE bool_t rpc_finished( rpc_base_t * prpc, int guid ) { return !rpc_matches( prpc, guid ) || ( prpc->finished ); }
-INLINE bool_t rpc_abort( rpc_base_t * prpc, int guid ) { if ( !rpc_matches( prpc, guid ) ) return bfalse; prpc->abort = btrue; return btrue; }
+INLINE bool_t ego_rpc_valid( ego_rpc_base_t * prpc )           { return ( NULL != prpc ) && prpc->allocated; }
+INLINE bool_t ego_rpc_matches( ego_rpc_base_t * prpc, int guid ) { return ( NULL != prpc ) && prpc->allocated && ( guid == prpc->guid ); }
+INLINE bool_t ego_rpc_finished( ego_rpc_base_t * prpc, int guid ) { return !ego_rpc_matches( prpc, guid ) || ( prpc->finished ); }
+INLINE bool_t ego_rpc_abort( ego_rpc_base_t * prpc, int guid ) { if ( !ego_rpc_matches( prpc, guid ) ) return bfalse; prpc->abort = btrue; return btrue; }
 
-rpc_base_t * rpc_base_ctor( rpc_base_t * prpc, int data_type, void * data ) ;
-rpc_base_t * rpc_base_dtor( rpc_base_t * prpc );
+ego_rpc_base_t * ego_rpc_base_ctor( ego_rpc_base_t * prpc, int data_type, void * data ) ;
+ego_rpc_base_t * ego_rpc_base_dtor( ego_rpc_base_t * prpc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ rpc_base_t * rpc_base_dtor( rpc_base_t * prpc );
 struct s_tx_request
 {
     // "base class" stuff
-    rpc_base_t rpc_base;
+    ego_rpc_base_t ego_rpc_base;
 
     // the function call parameters
     STRING filename;
@@ -77,11 +77,11 @@ typedef struct s_tx_request tx_request_t;
 tx_request_t * tx_request_ctor( tx_request_t * preq, int type );
 tx_request_t * tx_request_dtor( tx_request_t * preq );
 
-tx_request_t * rpc_load_TxTexture( const char *filename, int itex_src, Uint32 key );
-tx_request_t * rpc_load_TxTitleImage( const char *filename );
+tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint32 key );
+tx_request_t * ego_rpc_load_TxTitleImage( const char *filename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t rpc_system_begin();
-void   rpc_system_end();
-bool_t rpc_system_timestep();
+bool_t ego_rpc_system_begin();
+void   ego_rpc_system_end();
+bool_t ego_rpc_system_timestep();

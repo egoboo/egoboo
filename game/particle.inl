@@ -63,9 +63,34 @@ INLINE pip_t * prt_get_ppip( const PRT_REF by_reference iprt )
 //--------------------------------------------------------------------------------------------
 INLINE bool_t prt_set_size( prt_t * pprt, int size )
 {
+    float real_size;
+
     if ( !DEFINED_PPRT( pprt ) ) return bfalse;
 
     pprt->size = size;
+    real_size  = size / 256.0;
+
+    if( 0 == pprt->size_stt )
+    {
+        // make the particle non-interacting if the initial size was 0
+        pprt->bump.size = 0;
+    }
+    else if( 0.0f == pprt->bump.size || 0.0f == size )
+    {
+        // just set the size, assuming a spherical particle
+        pprt->bump.size     = real_size;
+        pprt->bump.size_big = real_size * SQRT_TWO;
+        pprt->bump.height   = real_size;
+    }
+    else
+    {
+        float mag = real_size / pprt->bump.size;
+
+        // resize all dimensions equally
+        pprt->bump.size     *= mag;
+        pprt->bump.size_big *= mag;
+        pprt->bump.height   *= mag;
+    }
 
     bumper_to_oct_bb_0( pprt->bump, &( pprt->chr_prt_cv ) );
 

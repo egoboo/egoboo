@@ -561,7 +561,7 @@ void free_inventory_in_game( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-void place_particle_at_vertex( const PRT_REF by_reference particle, const CHR_REF by_reference character, int vertex_offset )
+bool_t place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference character, int vertex_offset )
 {
     /// @details ZZ@> This function sets one particle's position to be attached to a character.
     ///    It will kill the particle if the character is no longer around
@@ -570,19 +570,21 @@ void place_particle_at_vertex( const PRT_REF by_reference particle, const CHR_RE
     fvec4_t point[1], nupoint[1];
 
     chr_t * pchr;
-    prt_t * pprt;
 
-    if ( !ACTIVE_PRT( particle ) ) return;
-    pprt = PrtList.lst + particle;
+    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
 
-    // Check validity of attachment
-    if ( !ACTIVE_CHR( character ) || ChrList.lst[character].pack.is_packed )
+    if( !ACTIVE_CHR( character ) )
     {
-        prt_request_terminate( particle );
-        return;
+        goto place_particle_at_vertex_fail;
     }
     pchr = ChrList.lst + character;
 
+    // Check validity of attachment
+    if ( pchr->pack.is_packed )
+    {
+        goto place_particle_at_vertex_fail;
+    }
+    
     // Do we have a matrix???
     if ( !chr_matrix_valid( pchr ) )
     {
@@ -600,7 +602,7 @@ void place_particle_at_vertex( const PRT_REF by_reference particle, const CHR_RE
             pprt->pos.x = pchr->inst.matrix.CNV( 3, 0 );
             pprt->pos.y = pchr->inst.matrix.CNV( 3, 1 );
             pprt->pos.z = pchr->inst.matrix.CNV( 3, 2 );
-            return;
+            return btrue;
         }
 
         vertex = 0;
@@ -637,6 +639,13 @@ void place_particle_at_vertex( const PRT_REF by_reference particle, const CHR_RE
         // No matrix, so just wing it...
         pprt->pos = pchr->pos;
     }
+
+    return btrue;
+
+place_particle_at_vertex_fail:
+
+        prt_request_terminate( GET_REF_PPRT( pprt ) );
+        return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2162,7 +2171,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             {
                 particle = spawn_one_particle( pweapon->pos, pchr->facing_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawn_vrt_offset, chr_get_iteam( ichr ), ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ACTIVATE );
 
-                if ( ACTIVE_PRT( particle ) )
+                if ( ALLOCATED_PRT( particle ) )
                 {
                     prt_t * pprt = PrtList.lst + particle;
 
@@ -2175,7 +2184,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
                         pprt->vel_stt.y *= dampen;
                         pprt->vel_stt.z *= dampen;
 
-                        place_particle_at_vertex( particle, weapon, spawn_vrt_offset );
+                        place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
                     }
                     else
                     {
@@ -2185,7 +2194,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
                         // Detach the particle
                         if ( !prt_get_ppip( particle )->startontarget || !ACTIVE_CHR( pprt->target_ref ) )
                         {
-                            place_particle_at_vertex( particle, weapon, spawn_vrt_offset );
+                            place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
 
                             // Correct Z spacing base, but nothing else...
                             pprt->pos.z += prt_get_ppip( particle )->spacing_vrt_pair.base;
@@ -6295,7 +6304,7 @@ void move_all_characters( void )
 
     // The following functions need to be called any time you actually change a charcter's position
     keep_weapons_with_holders();
-    attach_particles();
+    attach_all_particles();
     make_all_character_matrices( update_wld != 0 );
 }
 
@@ -6324,6 +6333,28 @@ void cleanup_all_characters()
 
         // free the character
         free_one_character_in_game( cnt );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+size_t spawn_all_delayed_characters()
+{
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void bump_all_characters_update_counters()
+{
+    CHR_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        ego_object_base_t * pbase;
+
+        pbase = POBJ_GET_PBASE( ChrList.lst + cnt );
+        if ( !ACTIVE_PBASE( pbase ) ) continue;
+
+        pbase->update_count++;
     }
 }
 
@@ -7211,7 +7242,7 @@ bool_t chr_request_terminate( const CHR_REF by_reference ichr )
 {
     /// @details BB@> Mark this character for deletion
 
-    if ( !ACTIVE_CHR( ichr ) ) return bfalse;
+    if ( !ALLOCATED_CHR( ichr ) || TERMINATED_CHR( ichr ) ) return bfalse;
 
     EGO_OBJECT_REQUST_TERMINATE( ChrList.lst + ichr );
 
