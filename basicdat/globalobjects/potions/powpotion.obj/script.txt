@@ -71,6 +71,10 @@ IfUsed
     tmpdistance = SPAWNORIGIN
     tmpargument = 1
     SpawnAttachedHolderParticle
+    
+    //Fill their new life
+    tmpargument = 256*4
+    HealTarget
 
     //Decrease max stats
     tmpargument = 0 - 11

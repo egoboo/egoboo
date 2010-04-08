@@ -3090,6 +3090,11 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
     // Let it's AI script run one last time
     pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
     scr_run_chr_script( ichr );
+
+	// Stop any looped sounds
+	if( pchr->loopedsound_channel != INVALID_SOUND ) sound_stop_channel(pchr->loopedsound_channel);
+	looped_stop_object_sounds(ichr);
+	pchr->loopedsound_channel = INVALID_SOUND;
 }
 
 //--------------------------------------------------------------------------------------------

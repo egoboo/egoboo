@@ -1,9 +1,12 @@
+//Make it squishy
+IfSpawned
+  MakeCrushValid
+
 //------------------------------------------------------------------------------
 // ZZ> Animate the character
 IfStateIs2
   // Full of blud
-  GetContent
-  tmpargument = tmpargument + 2 & 15 + 40
+  tmpargument = selfcontent + 2 & 15 + 40
   SetContent
 IfStateIs1
   // Filling up with blud
@@ -12,32 +15,28 @@ IfStateIs1
     SetState
     tmpargument = 32
     SetTime
-  GetContent
-  tmpargument = tmpargument + 2 & 15 + 20
+  tmpargument = selfcontent + 2 & 15 + 20
   SetContent
 IfStateIs0
   // Normal
-  IfSpawned
-    MakeCrushValid
-  GetContent
-  tmpargument = tmpargument + 2 & 15
+  tmpargument = selfcontent + 2 & 15
   SetContent
 SetFrame
-
-//Buzzing sound
-SetTargetToWideEnemy
-  SetTargetToLeader
-  IfTargetIsSelf
-    tmpargument = 1
-    PlaySoundLooped
-Else
-  StopSound
 
 //------------------------------------------------------------------------------
 // ZZ> Do movement AI
 IfTimeOut
-  tmpargument = 32
+  tmpargument = rand & 15 + 24
   SetTime
+  
+  //Buzzing sound
+  SetTargetToWideEnemy
+    SetTargetToLeader
+    IfTargetIsSelf
+      tmpargument = 1
+      PlaySoundLooped
+  Else
+    StopSound
 
   // Find someone to poke
   SetTargetToWideEnemy
@@ -82,25 +81,22 @@ IfCrushed
   SendMessageNear
   GoPoof
 
-  // Check sound
-  tmpx = selfmorale
-  tmpy = 1
-  IfXIsLessThanY
-    tmpargument = 1
-    StopSound
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff...
 IfKilled
+  SetTargetToWhoeverAttacked
+  
   // Sound
   tmpargument = 0
   PlaySound
 
   // Die or Pop?
   IfStateIs2
+    
     // Pop
     tmpargument = ACTIONKB
     DoActionOverride
+    
     // Particle spawn
     SpawnPoof
     tmpargument = 1
@@ -121,13 +117,6 @@ IfKilled
 
   // Message
   SendMessageNear
-
-  // Check sound
-  tmpx = selfmorale
-  tmpy = 1
-  IfXIsLessThanY
-    tmpargument = 1
-    StopSound
 
   // Don't move
   SetTargetToSelf

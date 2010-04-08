@@ -161,7 +161,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     peve->addvalue[ADDBUMPDAMPEN]   = fget_next_float( fileread ) / 256.0f;    // Stored as 8.8-fixed, used as float
     peve->addvalue[ADDBOUNCINESS]   = fget_next_float( fileread ) / 256.0f;    // Stored as 8.8-fixed, used as float
     peve->addvalue[ADDDAMAGE]       = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
-    peve->addvalue[ADDSIZE]         = fget_next_float( fileread ) / 256.0f;    // Stored as 8.8-fixed, used as float
+    peve->addvalue[ADDSIZE]         = fget_next_float( fileread );             // Stored as float, used as float
     peve->addvalue[ADDACCEL]        = fget_next_int( fileread )   / 80.0f;     // Stored as int, used as float
     peve->addvalue[ADDRED]          = fget_next_int( fileread );
     peve->addvalue[ADDGRN]          = fget_next_int( fileread );
@@ -185,7 +185,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
     {
         idsz = fget_idsz( fileread );
 
-        if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) ) peve->contspawn_amount = fget_int( fileread );
+        if      ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) ) peve->contspawn_amount = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) ) peve->contspawn_pip = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) ) peve->contspawn_delay = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) ) peve->contspawn_facingadd = fget_int( fileread );
@@ -319,7 +319,7 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
     template_put_float( filetemp, filewrite, peve->addvalue[ADDBUMPDAMPEN] * 256.0f );
     template_put_float( filetemp, filewrite, peve->addvalue[ADDBOUNCINESS] * 256.0f );
     template_put_float( filetemp, filewrite, peve->addvalue[ADDDAMAGE] / 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDSIZE] * 256.0f );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDSIZE] );
     template_put_int( filetemp, filewrite, peve->addvalue[ADDACCEL] * 80.0f );
     template_put_int( filetemp, filewrite, peve->addvalue[ADDRED] );
     template_put_int( filetemp, filewrite, peve->addvalue[ADDGRN] );

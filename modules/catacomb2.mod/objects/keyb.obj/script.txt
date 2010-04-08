@@ -8,7 +8,6 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Do a sound
   tmpargument = 0			  //
-  tmpdistance = rand % 2047 + 7000	  //
   PlaySound				  //
 IfGrabbed				// The model is pretty bad...
   SetTargetToWhoeverIsHolding		  //

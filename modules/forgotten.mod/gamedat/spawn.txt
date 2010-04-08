@@ -236,13 +236,13 @@ unknown:   NONE    54  14.0   26.0   0.0   N    0   0  24   4   0   F   F   N
 unknown:   NONE    54  21.0   52.0   0.0   N    0   0  25   5   0   F   F   N
 unknown:   NONE    54  02.0   17.0   0.0   N    0   0  26   6   0   F   F   N
 
-unknown:   NONE    25  46.0   7.0   1.0   N    0   0  0   0   0   F   F   I
-unknown:   NONE    25  41.0   2.0   1.0   N    0   0  0   0   0   F   F   I
-unknown:   NONE    25  40.0   5.0   1.0   N    0   0  0   0   0   F   F   I
-unknown:   NONE    25  42.0   8.0   1.0   N    0   0  0   0   0   F   F   I
-unknown:   NONE    25  51.0   5.0   1.0   N    0   0  0   0   0   F   F   I
-unknown:   NONE    25  32.0   1.5   1.0   N    0   0  0   0   0   F   F   I
-unknown:   NONE    25  35.0   5.0   1.0   N    0   0  0   0   0   F   F   I
+Mosquito:   NONE    25  46.0   7.0   1.0   N    0   0  0   0   0   F   F   I
+Mosquito:   NONE    25  41.0   2.0   1.0   N    0   0  0   0   0   F   F   I
+Mosquito:   NONE    25  40.0   5.0   1.0   N    0   0  0   0   0   F   F   I
+Mosquito:   NONE    25  42.0   8.0   1.0   N    0   0  0   0   0   F   F   I
+Mosquito:   NONE    25  51.0   5.0   1.0   N    0   0  0   0   0   F   F   I
+Mosquito:   NONE    25  32.0   1.5   1.0   N    0   0  0   0   0   F   F   I
+Mosquito:   NONE    25  35.0   5.0   1.0   N    0   0  0   0   0   F   F   I
 
 //Extra hard extension!
 GrubBug:   NONE    37  36.0   18.0   1.0   N    0   0  0   0   0   F   F   I

@@ -4049,7 +4049,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = ( -1 != pchr->loopedsound_channel );
+    returncode = ( INVALID_SOUND_CHANNEL != pchr->loopedsound_channel );
 
     SCRIPT_FUNCTION_END();
 }

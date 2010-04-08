@@ -19,22 +19,27 @@ IfOrdered
     IfStateIs
       tmpargument = 2
       SendMessageNear		//Tell it dint work
-      tmpdistance = 11000
       PlaySound			//Funky sound
 
 //------------------------------------------------------------------
-//Open if both keys are used
+//Open if key was used
 IfTimeOut
+  tmpargument = rand & 15 + 10
+  SetTime
   tmpargument = passage
   SetTargetToWhoeverIsInPassage
   tmpargument = [KEYB]
-  IfTargetHasItemID
-    CostTargetItemID
-      tmpargument = passage
-      OpenPassage			//Yep
-      tmpargument = 0
-      SendMessageNear
-
+  CostTargetItemID
+    tmpargument = passage
+    OpenPassage			//Yep
+    tmpargument = 0
+    SendMessageNear
+  Else
+    tmpargument = 3
+    SendMessageNear
+    tmpargument = 100
+    SetTime
+    
 //------------------------------------------------------------------
 // Handle the animation and sound
 KeepAction

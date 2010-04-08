@@ -627,7 +627,7 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
         case ADDACCEL:
             fnewvalue = ptarget->maxaccel;
             fvaluetoadd = peve->addvalue[value_idx];
-            fgetadd( 0.0f, fnewvalue, 1.5f, &fvaluetoadd );
+            fgetadd( 0.0f, fnewvalue, 1.50f, &fvaluetoadd );
             ptarget->maxaccel += fvaluetoadd;
             break;
 
@@ -658,7 +658,7 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
         case ADDDEFENSE:
             newvalue = ptarget->defense;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 55, newvalue, 255, &valuetoadd );  // Don't fix again!
+            getadd( 55, newvalue, 255, &valuetoadd );  // Don't fix again!	//ZF> why limit min to 55?
             ptarget->defense += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
@@ -668,9 +668,10 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
             valuetoadd = peve->addvalue[value_idx];
             getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->manamax += valuetoadd;
-            ptarget->mana    += valuetoadd;
-            if ( ptarget->mana < 0 )  ptarget->mana = 0;
-            fvaluetoadd = valuetoadd;
+            //ptarget->mana    += valuetoadd;
+            //if ( ptarget->mana < 0 )  ptarget->mana = 0;
+            if ( ptarget->mana < ptarget->manamax )  ptarget->mana = ptarget->manamax;
+			fvaluetoadd = valuetoadd;
             break;
 
         case ADDLIFE:
@@ -678,9 +679,10 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
             valuetoadd = peve->addvalue[value_idx];
             getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->lifemax += valuetoadd;
-            ptarget->life += valuetoadd;
-            if ( ptarget->life < 1 )  ptarget->life = 1;
-            fvaluetoadd = valuetoadd;
+            //ptarget->life += valuetoadd;
+            //if ( ptarget->life < 1 )  ptarget->life = 1;
+            if ( ptarget->life < ptarget->lifemax )  ptarget->life = ptarget->lifemax;
+			fvaluetoadd = valuetoadd;
             break;
 
         case ADDSTRENGTH:
