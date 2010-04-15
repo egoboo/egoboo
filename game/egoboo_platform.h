@@ -21,8 +21,6 @@
 
 /// @file egoboo_platform.h
 /// @brief System-dependent global parameters.
-///   @todo  move more of the typical config stuff to this file.
-///   @todo  add in linux and mac stuff.
 ///   @todo  some of this stuff is compiler dependent, rather than system dependent.
 
 #include <SDL.h>  ///< use the basic SDL platform definitions

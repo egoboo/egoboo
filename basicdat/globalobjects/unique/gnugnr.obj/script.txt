@@ -1,29 +1,37 @@
 //Make it throw or used in melee
 IfUsed
-  GetContent
-  tmpargument = tmpargument +1
+  tmpargument = selfcontent +1
   SetContent
 
   //Tell its ready to be thrown
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 60             //50 is 1 second
   IfXIsMoreThanY
     tmpargument = YELLOW
     SparkleIcon
+    
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 1
   IfXIsMoreThanY
     tmpy = 60               //The time needed before it's thrown
     IfXIsMoreThanY
-      DetachFromHolder
       SetTargetToWhoeverIsHolding
         tmpargument = ACTIONTA  // Must be an A...  ZA, BA, CA, DA, etc...
         CorrectActionForHand    // ZA or ZB if in left hand, ZC or ZD if in right
         TargetDoAction
+      DetachFromHolder
+        
+      //Make it fly
       tmpargument = targetstr > 7
-      tmpdistance = 50 + tmpargument          //+1 range pr. strength
+      tmpdistance = 50 + tmpargument          //+2 range pr. strength     
+      //SetTargetToNearestEnemy
+      //IfFacingTarget
+      //  tmpturn = targetturnto
+      //Else
+      //  SetTargetToWhoeverIsHolding
+      //  tmpturn = targetturn
+      tmpdistance = -1600
       tmpturn = targetturn
       tmpx = 0
       tmpy = 0

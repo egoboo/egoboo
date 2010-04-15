@@ -13,7 +13,7 @@
 //11		Daze attacks
 //12		n/a
 //13		Explosive Death attack
-//Each level up increases attack speed and life steal effect.
+//Each level up increases unarmed attack speed and life steal effect.
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
@@ -35,12 +35,8 @@ IfScoredAHit
     tmpy = 9
     IfXIsMoreThanY				//Gain daze attack at 11th level
       SetTargetToWhoeverWasHit
-      GetTargetDazeTime
-      tmpx = tmpargument
-      tmpy = 1
-      IfXIsLessThanY				//Dont stack this with itself
-        tmpargument = 1
-        DazeTarget
+      tmpargument = 1
+      DazeTarget
 
 //-----------------------------------------------------------------------------
 //Immune vs. kurses abillity
@@ -144,21 +140,19 @@ IfAttacked
     tmpargument = rand & 1 + 11
     PlaySound
   
-  //Holy damage is a instant kill
+  //Holy damage causes confusion
   tmpx = 3
   tmpy = selflevel
-  IfXIsLessThanY			//Immune to instant kill after 3rd level
+  IfXIsLessThanY			//Immune to banishment after 3rd level
     GetDamageType
     tmpx = tmpargument
     tmpy = DAMAGEHOLY
     IfXIsEqualToY
-      tmpargument = 30
-      tmpdistance = EXPREVENGE
-      GiveExperienceToTarget		//Give extra xp for banish kill
       tmpargument = 1
       SendMessageNear
       SetTargetToSelf
-      KillTarget
+      tmpargument = 6
+      DazeTarget
 
 //------------------------------------------------------------------------------
 //Change to butcher form at level 9 and above

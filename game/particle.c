@@ -641,6 +641,8 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     pprt->parent_ref  = prt_origin;
     pprt->parent_guid = ALLOCATED_PRT( prt_origin ) ? PrtList.lst[prt_origin].obj_base.guid : (( Uint32 )( ~0 ) );
     pprt->damagetype  = ppip->damagetype;
+	pprt->lifedrain   = ppip->lifedrain;
+	pprt->manadrain   = ppip->manadrain;
 
     // Lighting and sound
     pprt->dynalight    = ppip->dynalight;

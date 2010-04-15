@@ -207,6 +207,11 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->homingfriction = fget_next_float( fileread );
     ppip->homingaccel    = fget_next_float( fileread );
     ppip->rotatetoface   = fget_next_bool( fileread );
+    
+    goto_colon( NULL, fileread, bfalse );  // !!Respawn on hit is unused
+    
+	ppip->manadrain		 = fget_next_int( fileread )*256;
+    ppip->lifedrain		 = fget_next_int( fileread )*256;
 
     // assume default endwall
     ppip->endwall = ppip->endground;

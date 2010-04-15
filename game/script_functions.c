@@ -6650,12 +6650,11 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !ACTIVE_CHR( pself->target ) ) return bfalse;
-
     pcap = chr_get_pcap( pself->target );
 
+	// Characters who manage to daze themselves are ignore their daze immunity
     returncode = bfalse;
-    if ( NULL != pcap && pcap->canbedazed )
+	if ( NULL != pcap && (pcap->canbedazed || pself->index == pself->target) )
     {
         pself_target->dazetime += pstate->argument;
         returncode = btrue;

@@ -2490,7 +2490,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
             loc_damage.rand *= 1.00f + percent;
         }
 
-        // handle vulnerabilities
+        // handle vulnerabilities, double the damage
         if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
         {
             loc_damage.base = ( loc_damage.base << 1 );
@@ -2499,12 +2499,33 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
             pchr->ai.alert |= ALERTIF_HITVULNERABLE;
         }
 
+		//Do life and mana drain
+		if ( ACTIVE_CHR( pprt->owner_ref ) )
+		{
+	    	int drain;
+		    chr_t * powner = ChrList.lst + pprt->owner_ref;
+
+			//Steal some life
+			if( pprt->lifedrain > 0 )
+			{
+				drain = pchr->life;
+				pchr->life = CLIP(pchr->life, 1, pchr->life - pprt->lifedrain);
+				drain -= pchr->life;
+				powner->life = MIN(powner->life + drain, powner->lifemax);
+			}
+
+			//Steal some mana
+			if( pprt->manadrain > 0 )
+			{
+				drain = pchr->mana;
+				pchr->mana = CLIP(pchr->mana, 0, pchr->mana - pprt->manadrain);
+				drain -= pchr->mana;
+				powner->mana = MIN(powner->mana + drain, powner->manamax);
+			}
+		}
+
         // Damage the character
         pdata->actual_damage = damage_character( GET_REF_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
-
-        // we're supposed to blank out the damage here so that swords and such don't
-        // kill everything in one swipe?
-        //pprt->damage = loc_damage;        /// @note ZF@> I see no reason why this should be, it even causes a bug
     }
 
     //---- estimate the impulse on the particle

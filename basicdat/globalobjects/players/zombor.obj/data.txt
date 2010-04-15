@@ -53,11 +53,11 @@ NonI angle     : 0
 I facing       : 0
 I angle        : 16000
 
-Base defense   :   20  20  90  40
+Base defense   :   20  40  90  40
 S damage shift :   1   1   2   1
 C damage shift :   2   2   1   1
 P damage shift :   1   2   2   1
-H damage shift :   0   1   2   2
+H damage shift :   1   1   2   2
 E damage shift :   3   3   1   3
 F damage shift :   1   1   3   1
 I damage shift :   1   1   1   1
@@ -70,7 +70,7 @@ E damage code  :   F   F   F   F
 F damage code  :   F   F   F   F
 I damage code  :   F   F   F   F
 Z damage code  :   F   F   F   F
-Acceleration   :  60  60  60  60
+Acceleration   :  60  50  60  60
 
 EXP for 2nd    : 200
 EXP for 3rd    : 400
@@ -135,7 +135,7 @@ Mana cost      : 0.000
 Life return    : 0
 Stopped by     : 48
 Skin 0 name    : Rags
-Skin 1 name    : Butcher_Form
+Skin 1 name    : Butcher's_Outfit
 Skin 2 name    : BAD
 Skin 3 name    : BAD
 Skin 0 cost    : 0

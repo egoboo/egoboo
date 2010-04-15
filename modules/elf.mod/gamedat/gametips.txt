@@ -5,3 +5,4 @@ Tip 2: You_can_only_destroy_statues_with_crushing_weapons.
 Tip 3: There_is_a_secret_level_in_this_module.
 Tip 4: The_mushroom_ring_is_outside_the_fortress.
 Tip 5: Elves_have_great_mana_regeneration_but_rather_low_mana_pool.
+Tip 6: The_Jiive_elves_come_out_at_night...

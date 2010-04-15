@@ -1,13 +1,3 @@
-//Magic sparks
-IfTimeOut
-  tmpargument = 2
-  tmpx = selfx
-  tmpy = selfy
-  tmpdistance = selfz
-  SpawnExactParticle
-  tmpargument = 10
-  SetTime
-
 // General item stuff
 IfSpawned
   SetTargetToSelf
@@ -20,6 +10,7 @@ IfDropped
   KeepAction
 IfHitGround
   tmpargument = 0
+  tmpdistance = rand & 511 + 21000
   PlaySound
 IfGrabbed
   SetTargetToWhoeverIsHolding
@@ -43,7 +34,7 @@ IfCrushed
 
 // Equip the item
 IfPutAway
-  tmpargument = [NECK]
+  tmpargument = [FOOT]
   IfTargetHasItemIDEquipped
     IfTargetIsAPlayer
       tmpargument = 1
@@ -61,7 +52,7 @@ IfPutAway
       EnchantTarget
       IfTargetIsAPlayer
         IfUsageIsKnown
-          DoNothing
+          GetState // NOP
         Else
           MakeUsageKnown
           tmpargument = 30
@@ -87,7 +78,7 @@ IfTakenOut
   tmpargument = 0
   SetState
 
-// Say it's kursed
+// Say it's kursed  
 IfNotTakenOut
   IfTargetIsAPlayer
     tmpargument = 6

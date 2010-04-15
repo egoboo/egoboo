@@ -2162,6 +2162,7 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 //--------------------------------------------------------------------------------------------
 void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 {
+	int i = 0;
     PROFILE_BEGIN( renderlist_make );
     {
         // Which tiles can be displayed
