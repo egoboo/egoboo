@@ -23,36 +23,48 @@
 /// @details Definitions of data that all Egoboo objects should "inherit"
 
 #include "egoboo_typedef.h"
+#include "egoboo_state_machine.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // some basic data that all Egoboo objects should have
 
-/// The possible states of an ego_object_base_t object
+/// The possible states of an ego_object_base_t object. The object is essentially
+/// a state machine in the same way that the "egoboo process" is, so they use analagous
+/// states
 enum e_ego_object_state
 {
-    ego_object_invalid = 0,
-    ego_object_pre_active,               ///< in the process of being activated
-    ego_object_active,                   ///< fully activated
-    ego_object_waiting,                  ///< waiting to be terminated
-    ego_object_terminated                ///< fully terminated
+    ego_object_invalid        = ego_state_invalid,
+    ego_object_constructing   = ego_state_begin,     ///< The object has been allocated and had it's critical variables filled with safe values
+    ego_object_initializing   = ego_state_entering,  ///< The object is being initialized/re-initialized
+    ego_object_active         = ego_state_running,   ///< The object is fully activated
+    ego_object_deinitializing = ego_state_leaving,   ///< The object is being de-initialized
+    ego_object_destructing    = ego_state_finish,    ///< The object is being destructed
+
+    // the states that are specific to objects
+    ego_object_waiting,                         ///< The object has been fully destructed and is awaiting final "deletion"
+    ego_object_terminated                       ///< The object is fully "deleted" and should now be on the free-store
 };
+typedef enum e_ego_object_state ego_object_state_t;
 
 //--------------------------------------------------------------------------------------------
 /// The data that is "inherited" by every Egoboo object.
 struct s_ego_object_base
 {
     // basic object definitions
-    STRING         _name;     ///< what is its "_name"
-    size_t         index;     ///< what is the index position in the object list?
-    bool_t         allocated; ///< Does it exist?
-    int            state;     ///< what state is it in?
-    Uint32         guid;      ///< a globally unique identifier
+    STRING             _name;     ///< what is its "_name"
+    size_t             index;     ///< what is the index position in the object list?
+    ego_object_state_t state;     ///< what state is it in?
+    Uint32             guid;      ///< a globally unique identifier
 
-    // things related to spawning/despawning
-    size_t         update_count;    ///< How many updates have been made to this object?
-    size_t         frame_count;     ///< How many frames have been rendered?
+    // "process" control control
+    bool_t             allocated; ///< Does it exist?
+    bool_t             on;        ///< Can it be accessed?
+    bool_t             kill_me;   ///< Has someone requested that the object be destroyed?
 
+    // things related to the updating of objects
+    size_t         update_count;  ///< How many updates have been made to this object?
+    size_t         frame_count;   ///< How many frames have been rendered?
 };
 
 typedef struct s_ego_object_base ego_object_base_t;
@@ -72,14 +84,15 @@ enum
     if( NULL != PDATA ) \
     { \
         (PDATA)->obj_base.allocated = btrue; \
+        (PDATA)->obj_base.kill_me   = bfalse; \
         (PDATA)->obj_base.index     = INDEX; \
-        (PDATA)->obj_base.state     = ego_object_pre_active; \
+        (PDATA)->obj_base.state     = ego_object_constructing; \
         (PDATA)->obj_base.guid      = ego_object_guid++; \
     }
 
 /// Turn on an ego_object_base_t object
 #define EGO_OBJECT_ACTIVATE( PDATA, NAME ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    if( NULL != PDATA && (PDATA)->obj_base.allocated && !(PDATA)->obj_base.kill_me && ego_object_invalid != (PDATA)->obj_base.state ) \
     { \
         strncpy( (PDATA)->obj_base._name, NAME, SDL_arraysize((PDATA)->obj_base._name) ); \
         (PDATA)->obj_base.state  = ego_object_active; \
@@ -87,9 +100,12 @@ enum
 
 /// Begin turning off an ego_object_base_t object
 #define EGO_OBJECT_REQUST_TERMINATE( PDATA ) \
-    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    if( NULL != PDATA && (PDATA)->obj_base.allocated && ego_object_invalid != (PDATA)->obj_base.state ) \
     { \
-        (PDATA)->obj_base.state = ego_object_waiting; \
+        if( ego_object_terminated != (PDATA)->obj_base.state ) \
+        { \
+            (PDATA)->obj_base.kill_me = btrue; \
+        } \
     }
 
 /// Completely turn off an ego_object_base_t object and mark it as no longer allocated
@@ -100,15 +116,45 @@ enum
         (PDATA)->obj_base.state     = ego_object_terminated; \
     }
 
-/// Is the object in the allocated state?
-#define STATE_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
+/// Is the object flagged as requesting termination?
+#define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
 /// Is the object allocated?
-#define ALLOCATED_PBASE( PBASE )       ( (NULL != (PBASE)) && STATE_ALLOCATED_PBASE(PBASE) )
+#define ALLOCATED_PBASE( PBASE )       ( (NULL != (PBASE)) && FLAG_ALLOCATED_PBASE(PBASE) )
 
-/// Is the object "on" state?
+/// Is the object flagged as requesting termination?
+#define FLAG_ON_PBASE( PBASE )  ( ( (PBASE)->on ) && (ego_object_invalid != (PBASE)->state) )
+/// Is the object on?
+#define ON_PBASE( PBASE )       ( (NULL != (PBASE)) && FLAG_ON_PBASE(PBASE) )
+
+/// Is the object flagged as kill_me?
+#define FLAG_REQ_TERMINATION_PBASE( PBASE ) ( ( (PBASE)->kill_me ) && (ego_object_invalid != (PBASE)->state) )
+/// Is the object kill_me?
+#define REQ_TERMINATION_PBASE( PBASE )      ( (NULL != (PBASE)) && FLAG_REQ_TERMINATION_PBASE(PBASE) )
+
+/// Has the object been created yet?
+#define STATE_CONSTRUCTING_PBASE( PBASE ) ( ego_object_constructing == (PBASE)->state )
+/// Has the object been created yet?
+#define CONSTRUCTING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_CONSTRUCTING_PBASE(PBASE) )
+
+/// Is the object in the initializing state?
+#define STATE_INITIALIZING_PBASE( PBASE ) ( ego_object_initializing == (PBASE)->state )
+/// Is the object being initialized right now?
+#define INITIALIZING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_INITIALIZING_PBASE(PBASE) )
+
+/// Is the object in the active state?
 #define STATE_ACTIVE_PBASE( PBASE ) ( ego_object_active == (PBASE)->state )
 /// Is the object "on"?
 #define ACTIVE_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_ACTIVE_PBASE(PBASE) )
+
+/// Is the object in the deinitializing state?
+#define STATE_DEINITIALIZING_PBASE( PBASE ) ( ego_object_deinitializing == (PBASE)->state )
+/// Is the object being deinitialized right now?
+#define DEINITIALIZING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_DEINITIALIZING_PBASE(PBASE) )
+
+/// Is the object in the destructing state?
+#define STATE_DESTRUCTING_PBASE( PBASE ) ( ego_object_destructing == (PBASE)->state )
+/// Is the object being deinitialized right now?
+#define DESTRUCTING_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_DESTRUCTING_PBASE(PBASE) )
 
 /// Is the object "waiting to die" state?
 #define STATE_WAITING_PBASE( PBASE ) ( ego_object_waiting == (PBASE)->state )

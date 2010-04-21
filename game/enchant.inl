@@ -51,7 +51,7 @@ CHR_REF enc_get_iowner( const ENC_REF by_reference ienc )
     if ( !DEFINED_ENC( ienc ) ) return ( CHR_REF )MAX_CHR;
     penc = EncList.lst + ienc;
 
-    if ( !ACTIVE_CHR( penc->owner_ref ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( penc->owner_ref ) ) return ( CHR_REF )MAX_CHR;
 
     return penc->owner_ref;
 }
@@ -64,7 +64,7 @@ chr_t * enc_get_powner( const ENC_REF by_reference ienc )
     if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList.lst + ienc;
 
-    if ( !ACTIVE_CHR( penc->owner_ref ) ) return NULL;
+    if ( !INGAME_CHR( penc->owner_ref ) ) return NULL;
 
     return ChrList.lst + penc->owner_ref;
 }
@@ -135,7 +135,7 @@ bool_t enc_is_removed( const ENC_REF by_reference ienc, const PRO_REF by_referen
 {
     IDSZ idsz_remove;
 
-    if ( !ACTIVE_ENC( ienc ) ) return bfalse;
+    if ( !INGAME_ENC( ienc ) ) return bfalse;
     idsz_remove = enc_get_idszremove( ienc );
 
     // if nothing can remove it, just go on with your business

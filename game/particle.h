@@ -168,7 +168,8 @@ DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 #define TERMINATED_PRT( IPRT )  ( VALID_PRT_RANGE( IPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
 
 #define DEFINED_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && (ACTIVE_PBASE    (POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT)))) )
+#define INGAME_PRT(IPRT)        ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && ON_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT)))) )
 
 #define GET_INDEX_PPRT( PPRT )  ((size_t)GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT ))
 #define GET_REF_PPRT( PPRT )    ((PRT_REF)GET_INDEX_PPRT( PPRT ))
@@ -177,8 +178,9 @@ DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 #define TERMINATED_PPRT( PPRT ) ( VALID_PRT_PTR( PPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PPRT)) )
 #define ACTIVE_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) )
 
-#define DEFINED_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
-#define DISPLAY_PPRT( PPRT )    ( VALID_PRT_PTR( PPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) || WAITING_PBASE(POBJ_GET_PBASE(PPRT))) )
+#define DEFINED_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PPRT)) && !TERMINATED_PBASE (POBJ_GET_PBASE(PPRT)) )
+#define INGAME_PPRT ( PPRT )     ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) && ON_PBASE(POBJ_GET_PBASE(PPRT)) )
+#define DISPLAY_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) || WAITING_PBASE(POBJ_GET_PBASE(PPRT))) )
 
 #define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT)  {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT (IT)) continue; PPRT =  PrtList.lst + IT;
 #define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; PPRT =  PrtList.lst + IT;

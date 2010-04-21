@@ -202,11 +202,11 @@ bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, cons
     if ( ichr_a == ichr_b ) return bfalse;
 
     // Ignore invalid characters
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     // Ignore invalid characters
-    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     // don't interact if there is no interaction
@@ -243,14 +243,14 @@ bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_
     if ( !detect_chr_chr_interaction_valid( ichr_a, ichr_b ) ) return bfalse;
 
     // Ignore invalid characters
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // Ignore invalid characters
-    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
@@ -298,11 +298,11 @@ bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, cons
     prt_t * pprt_b;
 
     // Ignore invalid characters
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     // Ignore invalid characters
-    if ( !ACTIVE_PRT( iprt_b ) ) return bfalse;
+    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
     pprt_b = PrtList.lst + iprt_b;
 
     // reject characters that are hidden
@@ -335,11 +335,11 @@ bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_
     if ( !detect_chr_prt_interaction_valid( ichr_a, iprt_b ) ) return bfalse;
 
     // Ignore invalid characters
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     // Ignore invalid characters
-    if ( !ACTIVE_PRT( iprt_b ) ) return bfalse;
+    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
     pprt_b = PrtList.lst + iprt_b;
 
     // First check absolute value diamond
@@ -355,7 +355,7 @@ bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_
     if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
 
     interact_platform = bfalse;
-    if ( pchr_a->platform && !ACTIVE_CHR( pprt_b->attachedto_ref ) )
+    if ( pchr_a->platform && !INGAME_CHR( pprt_b->attachedto_ref ) )
     {
         // estimate the vertical interactions this frame
         depth_z = pprt_b->pos.z - ( pchr_a->pos.z + pchr_a->bump_1.height );
@@ -620,7 +620,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
     //for ( i = 0; i < ChrList.used_count; i++ )
     //{
     //    CHR_REF ichra = ChrList.used_ref[i];
-    //    if ( !ACTIVE_CHR( ichra ) ) continue;
+    //    if ( !INGAME_CHR( ichra ) ) continue;
 
     //    // find all character collisions with mesh tiles
     //    mesh_BSP_collide( &mesh_BSP_root, &( ChrList.lst[ichra].chr_prt_cv ), &_coll_leaf_lst );
@@ -649,7 +649,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
     //for ( i = 0; i < PrtList.used_count; i++ )
     //{
     //    PRT_REF iprta = PrtList.used_ref[i];
-    //    if ( !ACTIVE_PRT( iprta ) ) continue;
+    //    if ( !INGAME_PRT( iprta ) ) continue;
 
     //    // find all particle collisions with mesh tiles
     //    mesh_BSP_collide( &mesh_BSP_root, &( PrtList.lst[iprta].chr_prt_cv ), &_coll_leaf_lst );
@@ -722,15 +722,15 @@ bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_R
     bool_t chara_on_top;
 
     // make sure that A is valid
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     // make sure that B is valid
-    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     // if you are mounted, only your mount is affected by platforms
-    if ( ACTIVE_CHR( pchr_a->attachedto ) || ACTIVE_CHR( pchr_b->attachedto ) ) return bfalse;
+    if ( INGAME_CHR( pchr_a->attachedto ) || INGAME_CHR( pchr_b->attachedto ) ) return bfalse;
 
     // only check possible object-platform interactions
     platform_a = pchr_b->canuseplatforms && pchr_a->platform;
@@ -885,14 +885,14 @@ bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_R
     oct_vec_t odepth;
 
     // make sure that B is valid
-    if ( !ACTIVE_PRT( iprt_b ) ) return bfalse;
+    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
     pprt_b = PrtList.lst + iprt_b;
 
     // if the particle is attached to something, it can't be affected by a platform
-    if ( ACTIVE_CHR( pprt_b->attachedto_ref ) ) return bfalse;
+    if ( INGAME_CHR( pprt_b->attachedto_ref ) ) return bfalse;
 
     // make sure that A is valid
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     // only check possible particle-platform interactions
@@ -1043,7 +1043,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 //    for ( i = 0; i < ChrList.used_count; i++ )
 //    {
 //        CHR_REF ichra = ChrList.used_ref[i];
-//        if ( !ACTIVE_CHR( ichra ) ) continue;
+//        if ( !INGAME_CHR( ichra ) ) continue;
 //
 //        // find all collisions with other characters and particles
 //        obj_BSP_collide( &( obj_BSP_root ), &( ChrList.lst[ichra].chr_prt_cv ), &coll_lst );
@@ -1101,7 +1101,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 //    //for ( i = 0; i < ChrList.used_count; i++ )
 //    //{
 //    //    CHR_REF ichra = ChrList.used_ref[i];
-//    //    if ( !ACTIVE_CHR( ichra ) ) continue;
+//    //    if ( !INGAME_CHR( ichra ) ) continue;
 //
 //    //    // find all character collisions with mesh tiles
 //    //    mesh_BSP_collide( &mesh_BSP_root, &( ChrList.lst[ichra].chr_prt_cv ), &coll_lst );
@@ -1131,7 +1131,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 //    //for ( i = 0; i < PrtList.used_count; i++ )
 //    //{
 //    //    PRT_REF iprta = PrtList.used_ref[i];
-//    //    if ( !ACTIVE_PRT( iprta ) ) continue;
+//    //    if ( !INGAME_PRT( iprta ) ) continue;
 //
 //    //    // find all particle collisions with mesh tiles
 //    //    mesh_BSP_collide( &mesh_BSP_root, &( PrtList.lst[iprta].chr_prt_cv ), &coll_lst );
@@ -1277,7 +1277,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 
         if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
         {
-            if ( ACTIVE_CHR( d->chra ) && ACTIVE_CHR( d->chrb ) )
+            if ( INGAME_CHR( d->chra ) && INGAME_CHR( d->chrb ) )
             {
                 if ( ChrList.lst[d->chra].onwhichplatform == d->chrb )
                 {
@@ -1291,7 +1291,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         }
         else if ( MAX_CHR != d->chra && TOTAL_MAX_PRT != d->prtb )
         {
-            if ( ACTIVE_CHR( d->chra ) && ACTIVE_PRT( d->prtb ) )
+            if ( INGAME_CHR( d->chra ) && INGAME_PRT( d->prtb ) )
             {
                 if ( PrtList.lst[d->prtb].onwhichplatform == d->chra )
                 {
@@ -1301,7 +1301,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         }
         else if ( MAX_CHR != d->chrb && TOTAL_MAX_PRT != d->prta )
         {
-            if ( ACTIVE_CHR( d->chrb ) && ACTIVE_PRT( d->prta ) )
+            if ( INGAME_CHR( d->chrb ) && INGAME_PRT( d->prta ) )
             {
                 if ( PrtList.lst[d->prta].onwhichplatform == d->chrb )
                 {
@@ -1388,7 +1388,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         float bump_str;
 
         bump_str = 1.0f;
-        if ( ACTIVE_CHR( pchr->attachedto ) )
+        if ( INGAME_CHR( pchr->attachedto ) )
         {
             bump_str = 0;
         }
@@ -1491,14 +1491,14 @@ bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference 
     bool_t mounted;
 
     // make sure that A is valid
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // make sure that B is valid
-    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
@@ -1559,7 +1559,7 @@ bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference 
             if ( collide_x && collide_y && collide_xy )
             {
                 attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
-                mounted = ACTIVE_CHR( pchr_a->attachedto );
+                mounted = INGAME_CHR( pchr_a->attachedto );
             }
         }
     }
@@ -1605,7 +1605,7 @@ bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference 
             if ( collide_x && collide_y && collide_xy )
             {
                 attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
-                mounted = ACTIVE_CHR( pchr_a->attachedto );
+                mounted = INGAME_CHR( pchr_a->attachedto );
             }
         }
     }
@@ -1753,14 +1753,14 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     ichr_b = d->chrb;
 
     // make sure that it is on
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // make sure that it is on
-    if ( !ACTIVE_CHR( ichr_b ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
 
     pcap_b = chr_get_pcap( ichr_b );
@@ -2084,7 +2084,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     if ( !ACTIVE_PCHR( pplat ) || !pplat->platform ) return bfalse;
 
     // can the particle interact with it?
-    if ( !ACTIVE_PPRT( pprt ) || ACTIVE_CHR( pprt->attachedto_ref ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) || INGAME_CHR( pprt->attachedto_ref ) ) return bfalse;
 
     // this is handled elsewhere
     if ( GET_REF_PCHR( pplat ) == pprt->onwhichplatform ) return bfalse;
@@ -2347,7 +2347,7 @@ bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 
     // if the particle is attached to a weapon, the particle can force the
     // weapon (actually, the weapon's holder) to rebound.
-    if ( ACTIVE_CHR( pprt->attachedto_ref ) )
+    if ( INGAME_CHR( pprt->attachedto_ref ) )
     {
         chr_t * ptarget;
         CHR_REF iholder;
@@ -2358,14 +2358,14 @@ bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         // holding the weapon
 
         iholder = chr_get_lowest_attachment( pprt->attachedto_ref, bfalse );
-        if ( ACTIVE_CHR( iholder ) )
+        if ( INGAME_CHR( iholder ) )
         {
             ptarget = ChrList.lst + iholder;
         }
         else
         {
             iholder = chr_get_lowest_attachment( pprt->owner_ref, bfalse );
-            if ( ACTIVE_CHR( iholder ) )
+            if ( INGAME_CHR( iholder ) )
             {
                 ptarget = ChrList.lst + iholder;
             }
@@ -2452,8 +2452,8 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     //---- Damage the character, if necessary
-    prt_needs_impact = pdata->ppip->rotatetoface || ACTIVE_CHR( pprt->attachedto_ref );
-    if ( ACTIVE_CHR( pprt->owner_ref ) )
+    prt_needs_impact = pdata->ppip->rotatetoface || INGAME_CHR( pprt->attachedto_ref );
+    if ( INGAME_CHR( pprt->owner_ref ) )
     {
         chr_t * powner = ChrList.lst + pprt->owner_ref;
         cap_t * powner_cap = pro_get_pcap( powner->iprofile );
@@ -2565,7 +2565,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     //---- Notify the attacker of a scored hit
-    if ( ACTIVE_CHR( pprt->owner_ref ) )
+    if ( INGAME_CHR( pprt->owner_ref ) )
     {
         CHR_REF item;
 
@@ -2574,13 +2574,13 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 
         //Tell the weapons who the attacker hit last
         item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( item ) )
+        if ( INGAME_CHR( item ) )
         {
             ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
         }
 
         item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR( item ) )
+        if ( INGAME_CHR( item ) )
         {
             ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
         }
@@ -2610,13 +2610,13 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     {
         // no simple owner relationship. Check for something deeper.
         CHR_REF prt_owner = prt_get_iowner( GET_REF_PPRT( pprt ), 0 );
-        if ( ACTIVE_CHR( prt_owner ) )
+        if ( INGAME_CHR( prt_owner ) )
         {
             CHR_REF chr_wielder = chr_get_lowest_attachment( GET_REF_PCHR( pchr ),   btrue );
             CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, btrue );
 
-            if ( !ACTIVE_CHR( chr_wielder ) ) chr_wielder = GET_REF_PCHR( pchr );
-            if ( !ACTIVE_CHR( prt_wielder ) ) prt_wielder = prt_owner;
+            if ( !INGAME_CHR( chr_wielder ) ) chr_wielder = GET_REF_PCHR( pchr );
+            if ( !INGAME_CHR( prt_wielder ) ) prt_wielder = prt_owner;
 
             prt_belongs_to_chr = ( chr_wielder == prt_wielder );
         }
@@ -2666,7 +2666,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_col
             chr_t * pcollector = pchr;
 
             // Let mounts collect money for their riders
-            if ( pchr->ismount && ACTIVE_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+            if ( pchr->ismount && INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
             {
                 pcollector = ChrList.lst + pchr->holdingwhich[SLOT_LEFT];
 
@@ -2761,12 +2761,12 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     iprt_b = d->prtb;
 
     // make sure that it is on
-    if ( !ACTIVE_CHR( ichr_a ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
     if ( !pchr_a->alive ) return bfalse;
 
-    if ( !ACTIVE_PRT( iprt_b ) ) return bfalse;
+    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
     pprt_b = PrtList.lst + iprt_b;
 
     if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
@@ -2777,7 +2777,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // platform interaction. we can still have a platform interaction even if there
     // is not a "full_collision" since the z-distance thes
     plat_collision = bfalse;
-    if ( pchr_a->platform && !ACTIVE_CHR( pprt_b->attachedto_ref ) )
+    if ( pchr_a->platform && !INGAME_CHR( pprt_b->attachedto_ref ) )
     {
         plat_collision = do_prt_platform_physics( pprt_b, pchr_a, &cn_lst );
     }
@@ -2888,21 +2888,21 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
     REF_T AA, BB;
 
     AA = ( Uint32 )( ~0 );
-    if ( ACTIVE_CHR( coll->chra ) )
+    if ( INGAME_CHR( coll->chra ) )
     {
         AA = REF_TO_INT( coll->chra );
     }
-    else if ( ACTIVE_PRT( coll->prta ) )
+    else if ( INGAME_PRT( coll->prta ) )
     {
         AA = REF_TO_INT( coll->prta );
     }
 
     BB = ( Uint32 )( ~0 );
-    if ( ACTIVE_CHR( coll->chrb ) )
+    if ( INGAME_CHR( coll->chrb ) )
     {
         BB = REF_TO_INT( coll->chra );
     }
-    else if ( ACTIVE_PRT( coll->prtb ) )
+    else if ( INGAME_PRT( coll->prtb ) )
     {
         BB = REF_TO_INT( coll->prta );
     }
@@ -3079,7 +3079,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //    {
 //        chr_t * pchr;
 //
-//        if ( !ACTIVE_CHR( character ) ) continue;
+//        if ( !INGAME_CHR( character ) ) continue;
 //        pchr = ChrList.lst + character;
 //
 //        // reset the platform stuff each update
@@ -3111,7 +3111,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //        prt_t * pprt;
 //
 //        // reject invalid particles
-//        if ( !ACTIVE_PRT( particle ) ) continue;
+//        if ( !INGAME_PRT( particle ) ) continue;
 //        pprt = PrtList.lst + particle;
 //
 //        pprt->onwhichplatform = (CHR_REF)MAX_CHR;

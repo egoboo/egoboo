@@ -60,13 +60,13 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
 {
     /// @details ZF@> Windows users get a proper error message popup box
 
-	STRING message, buffer;
+    STRING message, buffer;
 
-	snprintf(message, SDL_arraysize( message ), warning);
+    snprintf( message, SDL_arraysize( message ), warning );
 
-	EGO_vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
-	strcat(message, buffer);
-	strcat(message, "\n Press OK to exit.");
+    EGO_vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
+    strcat( message, buffer );
+    strcat( message, "\n Press OK to exit." );
 
-	MessageBox(NULL, message, popup_title, MB_ICONSTOP|MB_SETFOREGROUND);
+    MessageBox( NULL, message, popup_title, MB_ICONSTOP | MB_SETFOREGROUND );
 }

@@ -215,11 +215,11 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, bool_t tar
     {
         chr_t * pchr;
 
-        if ( !ACTIVE_CHR( character ) ) continue;
+        if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
         // no carried items
-        if ( pchr->pack.is_packed || ACTIVE_CHR( pchr->attachedto ) ) continue;
+        if ( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
 
         // do not do invulnerable or scenery items
         if (( pchr->invictus && !pchr->isitem ) || pchr->phys.weight == INFINITE_WEIGHT ) continue;
@@ -308,7 +308,7 @@ void check_passage_music()
 
             character = PlaStack.lst[ipla].index;
 
-            if ( !ACTIVE_CHR( character ) ) continue;
+            if ( !INGAME_CHR( character ) ) continue;
             pchr = ChrList.lst + character;
 
             if ( pchr->pack.is_packed || !pchr->alive || !pchr->isplayer ) continue;
@@ -351,11 +351,11 @@ bool_t close_passage( const PASS_REF by_reference passage )
         {
             chr_t * pchr;
 
-            if ( !ACTIVE_CHR( character ) ) continue;
+            if ( !INGAME_CHR( character ) ) continue;
             pchr = ChrList.lst + character;
 
             bump_size = pchr->bump.size;
-            if ( !pchr->pack.is_packed && !ACTIVE_CHR( pchr->attachedto ) && pchr->bump.size != 0 )
+            if ( !pchr->pack.is_packed && !INGAME_CHR( pchr->attachedto ) && pchr->bump.size != 0 )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
                 {
@@ -415,7 +415,7 @@ void add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_refer
 
     if ( !VALID_PASSAGE( passage ) ) return;
 
-    if ( !ACTIVE_CHR( owner ) || !ChrList.lst[owner].alive ) return;
+    if ( !INGAME_CHR( owner ) || !ChrList.lst[owner].alive ) return;
 
     ishop = ShopStack_get_free();
     if ( !VALID_SHOP( ishop ) ) return;
@@ -429,10 +429,10 @@ void add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_refer
     {
         chr_t * pchr;
 
-        if ( !ACTIVE_CHR( ichr ) ) continue;
+        if ( !INGAME_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
-        if ( !ACTIVE_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack.is_packed )
+        if ( !INGAME_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack.is_packed )
         {
             if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
             {

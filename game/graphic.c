@@ -1204,7 +1204,7 @@ void draw_one_character_icon( const CHR_REF by_reference item, int x, int y, boo
     TX_REF icon_ref;
     Uint8  draw_sparkle;
 
-    chr_t * pitem = !ACTIVE_CHR( item ) ? NULL : ChrList.lst + item;
+    chr_t * pitem = !INGAME_CHR( item ) ? NULL : ChrList.lst + item;
 
     // grab the icon reference
     icon_ref = chr_get_icon_ref( item );
@@ -1235,7 +1235,7 @@ int draw_character_xp_bar( const CHR_REF by_reference character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( !ACTIVE_CHR( character ) ) return y;
+    if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
@@ -1273,7 +1273,7 @@ int draw_status( const CHR_REF by_reference character, int x, int y )
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( !ACTIVE_CHR( character ) ) return y;
+    if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList.lst + character;
 
     pcap = chr_get_pcap( character );
@@ -1389,7 +1389,7 @@ void draw_map()
                 chr_t * pchr;
                 cap_t * pcap;
 
-                if ( !ACTIVE_CHR( ichr ) ) continue;
+                if ( !INGAME_CHR( ichr ) ) continue;
                 pchr = ChrList.lst + ichr;
 
                 pcap = chr_get_pcap( ichr );
@@ -1435,7 +1435,7 @@ void draw_map()
                 if ( INPUT_BITS_NONE != PlaStack.lst[iplayer].device.bits )
                 {
                     CHR_REF ichr = PlaStack.lst[iplayer].index;
-                    if ( ACTIVE_CHR( ichr ) && ChrList.lst[ichr].alive )
+                    if ( INGAME_CHR( ichr ) && ChrList.lst[ichr].alive )
                     {
                         draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[ichr].pos.x, ChrList.lst[ichr].pos.y, btrue );
                     }
@@ -1891,7 +1891,7 @@ void render_shadow( const CHR_REF by_reference character )
     float   alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack.is_packed ) return;
+    if ( character >= MAX_CHR || !INGAME_CHR( character ) || ChrList.lst[character].pack.is_packed ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -2022,7 +2022,7 @@ void render_bad_shadow( const CHR_REF by_reference character )
     float   level, height, height_factor, alpha;
     chr_t * pchr;
 
-    if ( character >= MAX_CHR || !ACTIVE_CHR( character ) || ChrList.lst[character].pack.is_packed ) return;
+    if ( character >= MAX_CHR || !INGAME_CHR( character ) || ChrList.lst[character].pack.is_packed ) return;
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -2111,7 +2111,7 @@ void update_all_chr_instance()
     {
         chr_t * pchr;
 
-        if ( !ACTIVE_CHR( cnt ) ) continue;
+        if ( !INGAME_CHR( cnt ) ) continue;
         pchr = ChrList.lst + cnt;
 
         if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) continue;
@@ -2301,7 +2301,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                 for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
                 {
-                    if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
+                    if ( TOTAL_MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
                     {
                         CHR_REF ichr;
                         Uint32 itile;
@@ -2510,7 +2510,7 @@ void render_scene_trans()
     // Now render all transparent and light objects
     for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
     {
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
+        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
         {
             CHR_REF  ichr = dolist[cnt].ichr;
             chr_t * pchr = ChrList.lst + ichr;
@@ -3291,7 +3291,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
-    if ( !ACTIVE_CHR( pbb->ichr ) ) return bfalse;
+    if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
     pchr = ChrList.lst + pbb->ichr;
 
     // determine where the new position should be
@@ -3409,7 +3409,7 @@ void BillboardList_update_all()
             is_invalid = btrue;
         }
 
-        if ( !ACTIVE_CHR( pbb->ichr ) || ACTIVE_CHR( ChrList.lst[pbb->ichr].attachedto ) )
+        if ( !INGAME_CHR( pbb->ichr ) || INGAME_CHR( ChrList.lst[pbb->ichr].attachedto ) )
         {
             is_invalid = btrue;
         }
@@ -3419,7 +3419,7 @@ void BillboardList_update_all()
             // the billboard has expired
 
             // unlink it from the character
-            if ( ACTIVE_CHR( pbb->ichr ) )
+            if ( INGAME_CHR( pbb->ichr ) )
             {
                 ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD;
             }
@@ -3542,7 +3542,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // do not display for objects that are mounted or being held
-    if ( ACTIVE_CHR( pbb->ichr ) && ACTIVE_CHR( ChrList.lst[pbb->ichr].attachedto ) ) return bfalse;
+    if ( INGAME_CHR( pbb->ichr ) && INGAME_CHR( ChrList.lst[pbb->ichr].attachedto ) ) return bfalse;
 
     ptex = TxTexture_get_ptr( pbb->tex_ref );
 
@@ -3950,7 +3950,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr )
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
-    if ( !ACTIVE_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
     pchr  = ChrList.lst + ichr;
     pinst = &( pchr->inst );
 
@@ -4042,7 +4042,7 @@ void dolist_make( ego_mpd_t * pmesh )
     // Now fill it up again
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
+        if ( INGAME_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
         {
             // Add the character
             dolist_add_chr( pmesh, ichr );
@@ -4080,7 +4080,7 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
         fvec3_t   vtmp;
         float dist;
 
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && ACTIVE_CHR( dolist[cnt].ichr ) )
+        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;
@@ -4748,7 +4748,7 @@ void do_chr_flashing()
     {
         CHR_REF ichr = dolist[i].ichr;
 
-        if ( !ACTIVE_CHR( ichr ) ) continue;
+        if ( !INGAME_CHR( ichr ) ) continue;
 
         // Do flashing
         if ( HAS_NO_BITS( true_frame, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )

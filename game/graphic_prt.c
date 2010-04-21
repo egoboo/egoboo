@@ -696,7 +696,7 @@ void prt_draw_attached_point( prt_t * pprt )
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
-    if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) return;
+    if ( !INGAME_CHR( pprt->attachedto_ref ) ) return;
     pholder = ChrList.lst + pprt->attachedto_ref;
 
     pholder_cap = pro_get_pcap( pholder->iprofile );
@@ -776,7 +776,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     vfwd_ref = fvec3_normalize( vfwd_ref.v );
 
     // set the up and right vectors
-    if ( ppip->rotatetoface && !ACTIVE_CHR( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
+    if ( ppip->rotatetoface && !INGAME_CHR( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
     {
         // the particle points along its direction of travel
 
@@ -862,7 +862,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
         vright_ref = vright;
         vup_ref    = vup;
     }
-    else if ( ACTIVE_CHR( pprt->attachedto_ref ) )
+    else if ( INGAME_CHR( pprt->attachedto_ref ) )
     {
         chr_instance_t * cinst = chr_get_pinstance( pprt->attachedto_ref );
 

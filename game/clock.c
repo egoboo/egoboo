@@ -323,7 +323,7 @@ float clk_getFrameRate( ClockState_t * cs )
 EGO_TIME getCurrentTime()
 {
     time_t rawtime = time( NULL );
-	EGO_TIME timeinfo = localtime( &rawtime );
+    EGO_TIME timeinfo = localtime( &rawtime );
 
-	return timeinfo;
+    return timeinfo;
 }

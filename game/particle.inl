@@ -70,12 +70,12 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
     pprt->size = size;
     real_size  = size / 256.0;
 
-    if( 0 == pprt->size_stt )
+    if ( 0 == pprt->size_stt )
     {
         // make the particle non-interacting if the initial size was 0
         pprt->bump.size = 0;
     }
-    else if( 0.0f == pprt->bump.size || 0.0f == size )
+    else if ( 0.0f == pprt->bump.size || 0.0f == size )
     {
         // just set the size, assuming a spherical particle
         pprt->bump.size     = real_size;
@@ -124,7 +124,7 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
     if ( !DEFINED_PRT( iprt ) ) return ( CHR_REF )MAX_CHR;
     pprt = PrtList.lst + iprt;
 
-    if ( ACTIVE_CHR( pprt->owner_ref ) )
+    if ( INGAME_CHR( pprt->owner_ref ) )
     {
         iowner = pprt->owner_ref;
     }

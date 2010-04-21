@@ -49,7 +49,7 @@ double clk_getTime( ClockState_t * cs );            ///< Returns the current tim
 double clk_getFrameDuration( ClockState_t * cs );   ///< Return the length of the current frame. (Sort of.)
 Uint32 clk_getFrameNumber( ClockState_t * cs );     ///< Return which frame we're on
 float  clk_getFrameRate( ClockState_t * cs );       ///< Return the current instantaneous FPS
-EGO_TIME getCurrentTime();							///< Returns a structure containing current time and date
+EGO_TIME getCurrentTime();                          ///< Returns a structure containing current time and date
 
 //--------------------------------------------------------------------------------------------
 /// macros to use the high resolution timer for profiling

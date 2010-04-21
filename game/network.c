@@ -1649,7 +1649,7 @@ void unbuffer_player_latches()
         ppla = PlaStack.lst + ipla;
 
         character = PlaStack.lst[ipla].index;
-        if ( !ACTIVE_CHR( character ) ) continue;
+        if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
         pchr->latch = ppla->net_latch;
@@ -1665,7 +1665,7 @@ void unbuffer_player_latches()
         ppla = PlaStack.lst + ipla;
 
         character = PlaStack.lst[ipla].index;
-        if ( !ACTIVE_CHR( character ) ) continue;
+        if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
         if ( cfg.difficulty < GAME_HARD && ( pchr->latch.b & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
@@ -2039,7 +2039,7 @@ CHR_REF pla_get_ichr( const PLA_REF by_reference iplayer )
     if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return ( CHR_REF )MAX_CHR;
     pplayer = PlaStack.lst + iplayer;
 
-    if ( !ACTIVE_CHR( pplayer->index ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( pplayer->index ) ) return ( CHR_REF )MAX_CHR;
 
     return pplayer->index;
 }
@@ -2052,7 +2052,7 @@ chr_t  * pla_get_pchr( const PLA_REF by_reference iplayer )
     if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return NULL;
     pplayer = PlaStack.lst + iplayer;
 
-    if ( !ACTIVE_CHR( pplayer->index ) ) return NULL;
+    if ( !INGAME_CHR( pplayer->index ) ) return NULL;
 
     return ChrList.lst + pplayer->index;
 }

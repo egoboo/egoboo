@@ -22,6 +22,7 @@
 /// @file egoboo_process.h
 
 #include "egoboo_typedef.h"
+#include "egoboo_state_machine.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -33,11 +34,12 @@
 /// The various states that a process can occupy
 enum e_process_states
 {
-    proc_begin,
-    proc_entering,
-    proc_running,
-    proc_leaving,
-    proc_finish
+    proc_invalid  = ego_state_invalid,
+    proc_begin    = ego_state_begin,
+    proc_entering = ego_state_entering,
+    proc_running  = ego_state_running,
+    proc_leaving  = ego_state_leaving,
+    proc_finish   = ego_state_finish
 };
 typedef enum e_process_states process_state_t;
 

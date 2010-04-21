@@ -51,15 +51,21 @@ INLINE int generate_irand_range( FRange num );
 INLINE int generate_randmask( int base, int mask );
 
 // vector functions
-INLINE bool_t fvec2_clear( fvec2_t * A );
-INLINE bool_t fvec3_clear( fvec3_t * A );
-INLINE bool_t fvec4_clear( fvec4_t * A );
-INLINE bool_t fvec3_scale( fvec3_t * A, const float B );
+INLINE bool_t  fvec2_clear( fvec2_t * A );
+INLINE bool_t  fvec2_scale( fvec2_t * A, const float B );
+INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B );
+INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec );
+INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
+INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
 
+INLINE bool_t  fvec3_clear( fvec3_t * A );
+INLINE bool_t  fvec3_scale( fvec3_t * A, const float B );
 INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B );
 INLINE fvec3_t fvec3_normalize( const fvec3_base_t A );
 INLINE fvec3_t fvec3_sub( const fvec3_base_t A, const fvec3_base_t B );
 INLINE fvec3_t fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B );
+
+INLINE bool_t fvec4_clear( fvec4_t * A );
 
 // matrix functions
 INLINE fmat_4x4_t IdentityMatrix( void );
@@ -268,22 +274,67 @@ INLINE bool_t fvec2_clear( fvec2_t * A )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t fvec3_clear( fvec3_t * A )
+INLINE bool_t fvec2_scale( fvec2_t * A, const float B )
 {
     if ( NULL == A ) return bfalse;
 
-    ( *A ).x = ( *A ).y = ( *A ).z = 0.0f;
+    ( *A ).x /= B;
+    ( *A ).y /= B;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t fvec4_clear( fvec4_t * A )
+INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B )
+{
+    fvec2_t tmp;
+
+    tmp.x = A[kX] - B[kX];
+    tmp.y = A[kY] - B[kY];
+
+    return tmp;
+}
+
+//--------------------------------------------------------------------------------------------
+INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec )
+{
+    fvec2_t tmp = ZERO_VECT2;
+
+    if ( ABS( vec[kX] ) + ABS( vec[kY] ) > 0 )
+    {
+        float len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY];
+        float inv_len = 1.0f / SQRT( len2 );
+        LOG_NAN( inv_len );
+
+        tmp.x = vec[kX] * inv_len;
+        LOG_NAN( tmp.x );
+
+        tmp.y = vec[kY] * inv_len;
+        LOG_NAN( tmp.y );
+    }
+
+    return tmp;
+}
+
+//--------------------------------------------------------------------------------------------
+INLINE float fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B )
+{
+    return A[kX] * B[kY] - A[kY] * B[kX];
+}
+
+//--------------------------------------------------------------------------------------------
+INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B )
+{
+    return A[kX]*B[kX] + A[kY]*B[kY];
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+INLINE bool_t fvec3_clear( fvec3_t * A )
 {
     if ( NULL == A ) return bfalse;
 
     ( *A ).x = ( *A ).y = ( *A ).z = 0.0f;
-    ( *A ).w = 1.0f;
 
     return btrue;
 }
@@ -353,6 +404,19 @@ INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B )
 {
     return A[kX]*B[kX] + A[kY]*B[kY] + A[kZ]*B[kZ];
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+INLINE bool_t fvec4_clear( fvec4_t * A )
+{
+    if ( NULL == A ) return bfalse;
+
+    ( *A ).x = ( *A ).y = ( *A ).z = 0.0f;
+    ( *A ).w = 1.0f;
+
+    return btrue;
+}
+
 //--------------------------------------------------------------------------------------------
 // MATIX FUNCTIONS
 //--------------------------------------------------------------------------------------------

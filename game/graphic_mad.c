@@ -71,7 +71,7 @@ bool_t render_one_mad_enviro( const CHR_REF by_reference character, GLXvector4f 
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
-    if ( !ACTIVE_CHR( character ) ) return bfalse;
+    if ( !INGAME_CHR( character ) ) return bfalse;
     pchr  = ChrList.lst + character;
     pinst = &( pchr->inst );
 
@@ -254,7 +254,7 @@ bool_t render_one_mad_tex( const CHR_REF by_reference character, GLXvector4f tin
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
-    if ( !ACTIVE_CHR( character ) ) return bfalse;
+    if ( !INGAME_CHR( character ) ) return bfalse;
     pchr  = ChrList.lst + character;
     pinst = &( pchr->inst );
 
@@ -423,7 +423,7 @@ bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, U
     chr_t * pchr;
     bool_t retval;
 
-    if ( !ACTIVE_CHR( character ) ) return bfalse;
+    if ( !INGAME_CHR( character ) ) return bfalse;
     pchr = ChrList.lst + character;
 
     if ( pchr->is_hidden ) return bfalse;
@@ -464,7 +464,7 @@ bool_t render_one_mad_ref( const CHR_REF by_reference ichr )
     chr_instance_t * pinst;
     GLXvector4f tint;
 
-    if ( !ACTIVE_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
     pinst = &( pchr->inst );
 
@@ -702,7 +702,7 @@ void chr_draw_attached_grip( chr_t * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    if ( !ACTIVE_CHR( pchr->attachedto ) ) return;
+    if ( !INGAME_CHR( pchr->attachedto ) ) return;
     pholder = ChrList.lst + pchr->attachedto;
 
     pholder_cap = pro_get_pcap( pholder->iprofile );
@@ -1434,7 +1434,7 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
         else if ( pinst->action_loop )
         {
             // Convert the action into a riding action if the character is mounted
-            if ( ACTIVE_CHR( imount ) )
+            if ( INGAME_CHR( imount ) )
             {
                 tmp_action = mad_get_action( pinst->imad, ACTION_MI );
                 chr_instance_start_anim( pinst, tmp_action, btrue, btrue );

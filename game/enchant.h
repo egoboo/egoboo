@@ -93,8 +93,8 @@ DECLARE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 #define WAITING_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
 #define TERMINATED_ENC( IENC )  ( VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
 
-#define DEFINED_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define PRE_TERMINATED_ENC( IENC ) ( VALID_ENC_RANGE( IENC ) && ( ACTIVE_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) || WAITING_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) ) )
+#define DEFINED_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE (POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define INGAME_ENC(IENC)        ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && ON_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
 
 #define GET_INDEX_PENC( PENC )      ((size_t)GET_INDEX_POBJ( PENC, MAX_ENC ))
 #define GET_REF_PENC( PENC )        ((ENC_REF)GET_INDEX_PENC( PENC ))
@@ -102,8 +102,8 @@ DECLARE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 #define ALLOCATED_PENC( PENC )      ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PENC) ) )
 #define ACTIVE_PENC( PENC )         ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) )
 
-#define DEFINED_PENC( PENC )        ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PENC) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PENC) ) )
-#define PRE_TERMINATED_PENC( PENC ) ( VALID_ENC_PTR( PENC ) && ( ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) || WAITING_PBASE( POBJ_GET_PBASE(PENC) ) ) )
+#define DEFINED_PENC( IENC )     ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE(POBJ_GET_PBASE(PENC)) && !TERMINATED_PBASE (POBJ_GET_PBASE(PENC)) )
+#define INGAME_PENC ( IENC )     ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE(POBJ_GET_PBASE(PENC)) && ON_PBASE(POBJ_GET_PBASE(PENC)) )
 
 #define ENC_BEGIN_LOOP_ACTIVE(IT, PENC) {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC(IT)) continue; PENC =  EncList.lst +  IT;
 #define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); }

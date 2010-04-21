@@ -405,7 +405,7 @@ INLINE bool_t chr_has_vulnie( const CHR_REF by_reference item, const PRO_REF by_
 
     IDSZ vulnie;
 
-    if ( !ACTIVE_CHR( item ) ) return bfalse;
+    if ( !INGAME_CHR( item ) ) return bfalse;
     vulnie = chr_get_idsz( item, IDSZ_VULNERABILITY );
 
     // not vulnerable if there is no specific weakness

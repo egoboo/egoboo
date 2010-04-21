@@ -17,14 +17,14 @@ PROJ_NAME := egoboo-2.x
 all: enet egoboo
 
 clean:
-	make -C enet clean
-	make -C game clean
+	make -C ./enet clean
+	make -C ./game clean
 
 enet:
-	make -C enet all
+	make -C ./enet all
 
 egoboo:
-	make -C game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
+	make -C ./game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
 	
 egoboo_lua:
 	make -F Makefile.lua -C game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)

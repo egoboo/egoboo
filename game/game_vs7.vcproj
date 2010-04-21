@@ -229,6 +229,9 @@
 				RelativePath=".\egoboo_setup.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_state_machine.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_strutil.h">
 			</File>
 			<File

@@ -134,7 +134,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     // make sure that this module is initialized
     scripting_system_begin();
 
-    if ( !ACTIVE_CHR( character ) )  return;
+    if ( !INGAME_CHR( character ) )  return;
     pchr  = ChrList.lst + character;
     pself = &( pchr->ai );
 
@@ -266,7 +266,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
 
         ai_state_ensure_wp( pself );
 
-        if ( pchr->ismount && ACTIVE_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+        if ( pchr->ismount && INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Mount
             pchr->latch.x = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.x;
@@ -1343,7 +1343,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTEAM:
                 varname = "TARGETTEAM";
-				iTmp = ChrList.lst[pself->target].team;
+                iTmp = ChrList.lst[pself->target].team;
                 //iTmp = REF_TO_INT( chr_get_iteam( pself->target ) );
                 break;
 
@@ -1357,30 +1357,30 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
                 iTmp = cfg.difficulty;
                 break;
 
-			case VARTIMEHOURS:
-				varname = "TIMEHOURS";				
-				iTmp = getCurrentTime()->tm_hour;
+            case VARTIMEHOURS:
+                varname = "TIMEHOURS";
+                iTmp = getCurrentTime()->tm_hour;
                 break;
 
-			case VARTIMEMINUTES:
-				varname = "TIMEMINUTES";				
-				iTmp = getCurrentTime()->tm_min;
+            case VARTIMEMINUTES:
+                varname = "TIMEMINUTES";
+                iTmp = getCurrentTime()->tm_min;
                 break;
 
-			case VARTIMESECONDS:
-				varname = "TIMESECONDS";				
-				iTmp = getCurrentTime()->tm_sec;
+            case VARTIMESECONDS:
+                varname = "TIMESECONDS";
+                iTmp = getCurrentTime()->tm_sec;
                 break;
 
-			case VARDATEMONTH:
-				varname = "DATEMONTH";				
-				iTmp = getCurrentTime()->tm_mon + 1;
+            case VARDATEMONTH:
+                varname = "DATEMONTH";
+                iTmp = getCurrentTime()->tm_mon + 1;
                 break;
 
-			case VARDATEDAY:
-				varname = "DATEDAY";				
-				iTmp = getCurrentTime()->tm_mday;
-				break;
+            case VARDATEDAY:
+                varname = "DATEDAY";
+                iTmp = getCurrentTime()->tm_mday;
+                break;
 
             default:
                 log_message( "SCRIPT ERROR: scr_run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", REF_TO_INT( script_error_model ), script_error_classname );
@@ -1612,7 +1612,7 @@ bool_t ai_state_get_wp( ai_state_t * pself )
 {
     // try to load up the top waypoint
 
-    if ( NULL == pself || !ACTIVE_CHR( pself->index ) ) return bfalse;
+    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return bfalse;
 
     pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
 
@@ -1624,7 +1624,7 @@ bool_t ai_state_ensure_wp( ai_state_t * pself )
 {
     // is the current waypoint is not valid, try to load up the top waypoint
 
-    if ( NULL == pself || !ACTIVE_CHR( pself->index ) ) return bfalse;
+    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return bfalse;
 
     if ( pself->wp_valid ) return btrue;
 
@@ -1642,7 +1642,7 @@ void set_alerts( const CHR_REF by_reference character )
     bool_t at_waypoint;
 
     // invalid characters do not think
-    if ( !ACTIVE_CHR( character ) ) return;
+    if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
     pai  = chr_get_pai( character );
 
@@ -1653,7 +1653,7 @@ void set_alerts( const CHR_REF by_reference character )
     // waypoints around a track or something
 
     // mounts do not get alerts
-    // if ( ACTIVE_CHR(pchr->attachedto) ) return;
+    // if ( INGAME_CHR(pchr->attachedto) ) return;
 
     // is the current waypoint is not valid, try to load up the top waypoint
     ai_state_ensure_wp( pai );
@@ -1704,7 +1704,7 @@ void issue_order( const CHR_REF by_reference character, Uint32 value )
 
     for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( !ACTIVE_CHR( cnt ) ) continue;
+        if ( !INGAME_CHR( cnt ) ) continue;
 
         if ( chr_get_iteam( cnt ) == chr_get_iteam( character ) )
         {
@@ -1726,7 +1726,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     {
         cap_t * pcap;
 
-        if ( !ACTIVE_CHR( cnt ) ) continue;
+        if ( !INGAME_CHR( cnt ) ) continue;
 
         pcap = chr_get_pcap( cnt );
         if ( NULL == pcap ) continue;

@@ -382,21 +382,21 @@ void export_all_players( bool_t require_local )
 
         // Is it alive?
         character = PlaStack.lst[ipla].index;
-        if ( !ACTIVE_CHR( character ) || !ChrList.lst[character].alive ) continue;
+        if ( !INGAME_CHR( character ) || !ChrList.lst[character].alive ) continue;
 
         // Export the character
         export_one_character( character, character, 0, is_local );
 
         // Export the left hand item
         item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
-        if ( ACTIVE_CHR( item ) && ChrList.lst[item].isitem )
+        if ( INGAME_CHR( item ) && ChrList.lst[item].isitem )
         {
             export_one_character( item, character, SLOT_LEFT, is_local );
         }
 
         // Export the right hand item
         item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
-        if ( ACTIVE_CHR( item ) && ChrList.lst[item].isitem )
+        if ( INGAME_CHR( item ) && ChrList.lst[item].isitem )
         {
             export_one_character( item, character, SLOT_RIGHT, is_local );
         }
@@ -453,7 +453,7 @@ void statlist_add( const CHR_REF by_reference character )
 
     if ( StatusList_count >= MAXSTAT ) return;
 
-    if ( !ACTIVE_CHR( character ) ) return;
+    if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     if ( pchr->StatusList_on ) return;
@@ -523,7 +523,7 @@ void chr_set_frame( const CHR_REF by_reference character, int action, int frame,
     mad_t * pmad;
     int frame_stt, frame_nxt;
 
-    if ( !ACTIVE_CHR( character ) ) return;
+    if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     pmad = chr_get_pmad( character );
@@ -644,7 +644,7 @@ void initialize_all_objects()
     // update all object timers etc.
     update_all_objects();
 
-    // fix the list optimization, in case update_all_objects() turned some objects off. 
+    // fix the list optimization, in case update_all_objects() turned some objects off.
     update_used_lists();
 }
 
@@ -690,7 +690,7 @@ int update_game()
 
         // fix bad players
         ichr = PlaStack.lst[ipla].index;
-        if ( !ACTIVE_CHR( ichr ) )
+        if ( !INGAME_CHR( ichr ) )
         {
             PlaStack.lst[ipla].index = ( CHR_REF )MAX_CHR;
             PlaStack.lst[ipla].valid = bfalse;
@@ -744,7 +744,7 @@ int update_game()
         if ( !PlaStack.lst[ipla].valid ) continue;
 
         ichr = PlaStack.lst[ipla].index;
-        if ( !ACTIVE_CHR( ichr ) ) continue;
+        if ( !INGAME_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
         if ( !pchr->alive )
@@ -1382,7 +1382,7 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
     {
         bool_t target_friend, target_enemy;
 
-        if ( !pchr->alive || pchr->isitem || ACTIVE_CHR( pchr->attachedto ) ) continue;
+        if ( !pchr->alive || pchr->isitem || INGAME_CHR( pchr->attachedto ) ) continue;
 
         // ignore invictus
         if ( pchr->invictus ) continue;
@@ -1437,14 +1437,14 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_
     // Skip non-existing objects
     if ( !ACTIVE_PCHR( psrc ) ) return bfalse;
 
-    if ( !ACTIVE_CHR( ichr_test ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_test ) ) return bfalse;
     ptst = ChrList.lst + ichr_test;
 
     // Players only?
     if ( target_players && !ptst->isplayer ) return bfalse;
 
     // Skip held objects and self
-    if ( psrc == ptst || ACTIVE_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
+    if ( psrc == ptst || INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
 
     // Either only target dead stuff or alive stuff
     if ( target_dead == ptst->alive ) return bfalse;
@@ -1516,7 +1516,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
 
         for ( ipla = 0; ipla < MAX_PLAYER; ipla ++ )
         {
-            if ( !PlaStack.lst[ipla].valid || !ACTIVE_CHR( PlaStack.lst[ipla].index ) ) continue;
+            if ( !PlaStack.lst[ipla].valid || !INGAME_CHR( PlaStack.lst[ipla].index ) ) continue;
 
             search_list[search_list_size] = PlaStack.lst[ipla].index;
             search_list_size++;
@@ -1547,7 +1547,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
         chr_t * ptst;
         CHR_REF ichr_test = search_list[cnt];
 
-        if ( !ACTIVE_CHR( ichr_test ) ) continue;
+        if ( !INGAME_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
 
         if ( !check_target( psrc, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players ) )
@@ -1575,7 +1575,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
     }
 
     // make sure the target is valid
-    if ( !ACTIVE_CHR( best_target ) ) best_target = ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( best_target ) ) best_target = ( CHR_REF )MAX_CHR;
 
     return best_target;
 }
@@ -1590,7 +1590,7 @@ void do_damage_tiles()
         cap_t * pcap;
         chr_t * pchr;
 
-        if ( !ACTIVE_CHR( character ) ) continue;
+        if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
         pcap = pro_get_pcap( pchr->iprofile );
@@ -1611,7 +1611,7 @@ void do_damage_tiles()
 
         // allow reaffirming damage to things like torches, even if they are being held,
         // but make the tolerance closer so that books won't burn so easily
-        if ( !ACTIVE_CHR( pchr->attachedto ) || pchr->pos.z < pchr->enviro.floor_level + DAMAGERAISE )
+        if ( !INGAME_CHR( pchr->attachedto ) || pchr->pos.z < pchr->enviro.floor_level + DAMAGERAISE )
         {
             if ( pchr->reaffirmdamagetype == damagetile.type )
             {
@@ -1623,7 +1623,7 @@ void do_damage_tiles()
         }
 
         // do not do direct damage to items that are being held
-        if ( ACTIVE_CHR( pchr->attachedto ) ) continue;
+        if ( INGAME_CHR( pchr->attachedto ) ) continue;
 
         // don't do direct damage to invulnerable objects
         if ( pchr->invictus ) continue;
@@ -1691,7 +1691,7 @@ void update_pits()
             {
                 // Is it a valid character?
                 if ( pit_chr->invictus || !pit_chr->alive ) continue;
-                if ( ACTIVE_CHR( pit_chr->attachedto ) || pit_chr->pack.is_packed ) continue;
+                if ( INGAME_CHR( pit_chr->attachedto ) || pit_chr->pack.is_packed ) continue;
 
                 // Do we kill it?
                 if ( pits.kill && pit_chr->pos.z < PITDEPTH )
@@ -1778,7 +1778,7 @@ void do_weather_spawn_particles()
             {
                 // Yes, but is the character valid?
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
-                if ( ACTIVE_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
+                if ( INGAME_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
                 {
                     chr_t * pchr = ChrList.lst + ichr;
 
@@ -1814,11 +1814,11 @@ void do_weather_spawn_particles()
                         if ( destroy_particle )
                         {
                             PrtList_free_one( particle );
+                        }
                     }
                 }
             }
         }
-    }
     }
 
     PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 0x3FFF;
@@ -1846,7 +1846,7 @@ void set_one_player_latch( const PLA_REF by_reference player )
 
     pdevice = &( ppla->device );
 
-    if ( !ACTIVE_CHR( ppla->index ) ) return;
+    if ( !INGAME_CHR( ppla->index ) ) return;
     pchr = ChrList.lst + ppla->index;
 
     // is the device a local device or an internet device?
@@ -2014,7 +2014,7 @@ void set_one_player_latch( const PLA_REF by_reference player )
         // Movement
 
         // ???? is this if statement doing anything ????
-        if ( ACTIVE_CHR( pchr->attachedto ) )
+        if ( INGAME_CHR( pchr->attachedto ) )
         {
             // Mounted
             inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
@@ -2111,7 +2111,7 @@ void check_stats()
         else if ( SDLKEYDOWN( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( ACTIVE_CHR( PlaStack.lst[docheat].index ) )
+        if ( INGAME_CHR( PlaStack.lst[docheat].index ) )
         {
             Uint32 xpgain;
             chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
@@ -2135,7 +2135,7 @@ void check_stats()
         else if ( SDLKEYDOWN( SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
-        if ( ACTIVE_CHR( PlaStack.lst[docheat].index ) )
+        if ( INGAME_CHR( PlaStack.lst[docheat].index ) )
         {
             cap_t * pcap;
             chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
@@ -2213,7 +2213,7 @@ void show_stat( int statindex )
     {
         character = StatusList[statindex];
 
-        if ( ACTIVE_CHR( character ) )
+        if ( INGAME_CHR( character ) )
         {
             cap_t * pcap;
             chr_t * pchr = ChrList.lst + character;
@@ -2284,7 +2284,7 @@ void show_armor( int statindex )
     if ( statindex >= StatusList_count ) return;
 
     ichr = StatusList[statindex];
-    if ( !ACTIVE_CHR( ichr ) ) return;
+    if ( !INGAME_CHR( ichr ) ) return;
 
     pchr = ChrList.lst + ichr;
     skinlevel = pchr->skin;
@@ -2348,7 +2348,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     {
         enc_t * penc;
 
-        if ( !ACTIVE_ENC( enchant ) ) continue;
+        if ( !INGAME_ENC( enchant ) ) continue;
         penc = EncList.lst + enchant;
 
         if ( penc->target_ref == ichr )
@@ -2379,14 +2379,14 @@ void show_full_status( int statindex )
     if ( statindex >= StatusList_count ) return;
 
     character = StatusList[statindex];
-    if ( !ACTIVE_CHR( character ) ) return;
+    if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     // clean up the enchant list
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
@@ -2420,14 +2420,14 @@ void show_magic_status( int statindex )
 
     character = StatusList[statindex];
 
-    if ( !ACTIVE_CHR( character ) ) return;
+    if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     // clean up the enchant list
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), ACTIVE_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -2460,7 +2460,7 @@ void tilt_characters_to_terrain()
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
-        if ( !ACTIVE_CHR( cnt ) ) continue;
+        if ( !INGAME_CHR( cnt ) ) continue;
 
         if ( pchr->stickybutt && VALID_GRID( PMesh, pchr->onwhichgrid ) )
         {
@@ -2586,11 +2586,11 @@ bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinf
     // trap bad pointers
     if ( NULL == pinfo ) return bfalse;
 
-    if ( !ACTIVE_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     pparent = NULL;
-    if ( ACTIVE_CHR( pinfo->parent ) ) pparent = ChrList.lst + pinfo->parent;
+    if ( INGAME_CHR( pinfo->parent ) ) pparent = ChrList.lst + pinfo->parent;
 
     pchr->money += pinfo->money;
     if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
@@ -2713,7 +2713,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
     // Spawn the character
     new_object = spawn_one_character( psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, ( CHR_REF )MAX_CHR );
-    if ( !ACTIVE_CHR( new_object ) ) return bfalse;
+    if ( !INGAME_CHR( new_object ) ) return bfalse;
 
     pobject = ChrList.lst + new_object;
 
@@ -3040,7 +3040,7 @@ void disaffirm_attached_particles( const CHR_REF by_reference character )
     }
     PRT_END_LOOP();
 
-    if ( ACTIVE_CHR( character ) )
+    if ( INGAME_CHR( character ) )
     {
         // Set the alert for disaffirmation ( wet torch )
         ChrList.lst[character].ai.alert |= ALERTIF_DISAFFIRMED;
@@ -3077,7 +3077,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     chr_t * pchr;
     cap_t * pcap;
 
-    if ( !ACTIVE_CHR( character ) ) return 0;
+    if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
@@ -3276,7 +3276,7 @@ bool_t game_update_imports()
 
         // Is it alive?
         character = PlaStack.lst[ipla].index;
-        if ( !ACTIVE_CHR( character ) ) continue;
+        if ( !INGAME_CHR( character ) ) continue;
 
         is_local = ( INPUT_BITS_NONE != PlaStack.lst[ipla].device.bits );
 
@@ -3363,10 +3363,10 @@ bool_t attach_one_particle( prt_t * pprt )
     PRT_REF iprt;
     chr_t * pchr;
 
-    if( !DEFINED_PPRT(pprt) ) return bfalse;
+    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
     iprt = GET_INDEX_PPRT( pprt );
 
-    if ( !ACTIVE_CHR( pprt->attachedto_ref ) ) return bfalse;
+    if ( !INGAME_CHR( pprt->attachedto_ref ) ) return bfalse;
     pchr = ChrList.lst + pprt->attachedto_ref;
 
     place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
@@ -3377,7 +3377,7 @@ bool_t attach_one_particle( prt_t * pprt )
         pip_t * ppip = prt_get_ppip( GET_INDEX_PPRT( pprt ) );
 
         // Correct facing so swords knock characters in the right direction...
-        if ( NULL != ppip && 0 != (ppip->damfx & DAMFX_TURN) )
+        if ( NULL != ppip && 0 != ( ppip->damfx & DAMFX_TURN ) )
         {
             pprt->facing = pchr->facing_z;
         }
@@ -3673,11 +3673,11 @@ void expand_escape_codes( const CHR_REF by_reference ichr, script_state_t * psta
     chr_t      * pchr, *ptarget, *powner;
     ai_state_t * pai;
 
-    pchr    = !ACTIVE_CHR( ichr ) ? NULL : ChrList.lst + ichr;
+    pchr    = !INGAME_CHR( ichr ) ? NULL : ChrList.lst + ichr;
     pai     = ( NULL == pchr )    ? NULL : &( pchr->ai );
 
-    ptarget = (( NULL == pai ) || !ACTIVE_CHR( pai->target ) ) ? pchr : ChrList.lst + pai->target;
-    powner  = (( NULL == pai ) || !ACTIVE_CHR( pai->owner ) ) ? pchr : ChrList.lst + pai->owner;
+    ptarget = (( NULL == pai ) || !INGAME_CHR( pai->target ) ) ? pchr : ChrList.lst + pai->target;
+    powner  = (( NULL == pai ) || !INGAME_CHR( pai->owner ) ) ? pchr : ChrList.lst + pai->owner;
 
     cnt = 0;
     while ( CSTR_END != *src && src < src_end && dst < dst_end )
@@ -4665,10 +4665,10 @@ bool_t do_shop_drop( const CHR_REF by_reference idropper, const CHR_REF by_refer
     // ?? lol what ??
     if ( idropper == iitem ) return bfalse;
 
-    if ( !ACTIVE_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
 
-    if ( !ACTIVE_CHR( idropper ) ) return bfalse;
+    if ( !INGAME_CHR( idropper ) ) return bfalse;
     pdropper = ChrList.lst + idropper;
 
     inshop = bfalse;
@@ -4683,7 +4683,7 @@ bool_t do_shop_drop( const CHR_REF by_reference idropper, const CHR_REF by_refer
         if ( pdropper->isshopitem ) pitem->isshopitem = btrue;
 
         iowner = shop_get_owner( ix, iy );
-        if ( ACTIVE_CHR( iowner ) )
+        if ( INGAME_CHR( iowner ) )
         {
             int price;
             chr_t * powner = ChrList.lst + iowner;
@@ -4724,10 +4724,10 @@ bool_t do_shop_buy( const CHR_REF by_reference ipicker, const CHR_REF by_referen
     // ?? lol what ??
     if ( ipicker == iitem ) return bfalse;
 
-    if ( !ACTIVE_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
 
-    if ( !ACTIVE_CHR( ipicker ) ) return bfalse;
+    if ( !INGAME_CHR( ipicker ) ) return bfalse;
     ppicker = ChrList.lst + ipicker;
 
     can_grab = btrue;
@@ -4742,7 +4742,7 @@ bool_t do_shop_buy( const CHR_REF by_reference ipicker, const CHR_REF by_referen
         int iy = pitem->pos.y / GRID_SIZE;
 
         iowner = shop_get_owner( ix, iy );
-        if ( ACTIVE_CHR( iowner ) )
+        if ( INGAME_CHR( iowner ) )
         {
             chr_t * powner = ChrList.lst + iowner;
 
@@ -4809,10 +4809,10 @@ bool_t do_shop_steal( const CHR_REF by_reference ithief, const CHR_REF by_refere
     // ?? lol what ??
     if ( ithief == iitem ) return bfalse;
 
-    if ( !ACTIVE_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
 
-    if ( !ACTIVE_CHR( ithief ) ) return bfalse;
+    if ( !INGAME_CHR( ithief ) ) return bfalse;
     pthief = ChrList.lst + ithief;
 
     can_steal = btrue;
@@ -4824,7 +4824,7 @@ bool_t do_shop_steal( const CHR_REF by_reference ithief, const CHR_REF by_refere
         int iy = pitem->pos.y / GRID_SIZE;
 
         iowner = shop_get_owner( ix, iy );
-        if ( ACTIVE_CHR( iowner ) )
+        if ( INGAME_CHR( iowner ) )
         {
             IPair  tmp_rand = {1, 100};
             Uint8  detection;
@@ -4856,17 +4856,17 @@ bool_t do_item_pickup( const CHR_REF by_reference ichr, const CHR_REF by_referen
     // ?? lol what ??
     if ( ichr == iitem ) return bfalse;
 
-    if ( !ACTIVE_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
-    if ( !ACTIVE_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
     ix = pitem->pos.x / GRID_SIZE;
     iy = pitem->pos.y / GRID_SIZE;
 
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
-    in_shop = ACTIVE_CHR( shop_get_owner( ix, iy ) );
+    in_shop = INGAME_CHR( shop_get_owner( ix, iy ) );
 
     if ( in_shop )
     {

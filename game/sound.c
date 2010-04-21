@@ -970,7 +970,7 @@ size_t LoopedList_add( Mix_Chunk * sound, int channel, const CHR_REF by_referenc
 
     size_t index;
 
-    if ( NULL == sound || INVALID_SOUND_CHANNEL == channel || !ACTIVE_CHR( ichr ) ) return LOOPED_COUNT;
+    if ( NULL == sound || INVALID_SOUND_CHANNEL == channel || !INGAME_CHR( ichr ) ) return LOOPED_COUNT;
 
     if ( LoopedList.used_count >= LOOPED_COUNT ) return LOOPED_COUNT;
     if ( !LoopedList_validate() ) return LOOPED_COUNT;
@@ -1054,7 +1054,7 @@ void looped_update_all_sound()
         if ( INVALID_SOUND_CHANNEL == LoopedList.lst[ref].channel ) continue;
         plooped = LoopedList.lst + ref;
 
-        if ( !ACTIVE_CHR( plooped->object ) )
+        if ( !INGAME_CHR( plooped->object ) )
         {
             // not a valid object
             fvec3_t   diff = VECT3( 0, 0, 0 );
