@@ -69,7 +69,6 @@ void fs_init()
     // The default setting from the Makefile is to set PREFIX = "/usr",
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
-#error
     strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
     strncpy( linux_binaryPath, PREFIX "/games/",                  SDL_arraysize( linux_binaryPath ) );
     strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
