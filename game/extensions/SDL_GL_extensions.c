@@ -218,7 +218,7 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
 }
 
 //--------------------------------------------------------------------------------------------
-SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new )
+SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new, SDL_bool has_valid_mode )
 {
     /// @details BB@> let SDL_GL try to set a new video mode.
 
@@ -226,31 +226,41 @@ SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX
     SDLX_video_parameters_t * retval = NULL;
 
     // initialize v_old and param_old
-    if ( NULL == v_old )
+    if( has_valid_mode )
     {
-        SDLX_video_parameters_default( &param_old );
-        v_old = &param_old;
+        if ( NULL == v_old )
+        {
+            SDLX_video_parameters_default( &param_old );
+            v_old = &param_old;
+        }
+        else
+        {
+            memcpy( &param_old, v_old, sizeof( SDLX_video_parameters_t ) );
+        }
     }
     else
     {
-        memcpy( &param_old, v_old, sizeof( SDLX_video_parameters_t ) );
+        v_old = NULL;
     }
 
     // use the sdl extensions to set the SDL video mode
-    retval = SDLX_set_mode( v_old, v_new, SDL_FALSE );
+    retval = SDLX_set_mode( v_old, v_new, has_valid_mode, SDL_FALSE );
 
-    // report on the success or failure to set the mode
-    SDL_GL_report_mode( retval );
-
-    // set the opengl parameters
-    gl_new->multisample     = GL_FALSE;
-    gl_new->multisample_arb = GL_FALSE;
-    if ( NULL != retval->surface && retval->flags.opengl )
+    if( NULL != retval )
     {
-        // correct the multisampling
-        gl_new->multisample_arb = retval->gl_att.multi_samples > 1;
+        // report on the success or failure to set the mode
+        SDL_GL_report_mode( retval );
 
-        SDL_GL_set_gl_mode( gl_new );
+        // set the opengl parameters
+        gl_new->multisample     = GL_FALSE;
+        gl_new->multisample_arb = GL_FALSE;
+        if ( NULL != retval->surface && retval->flags.opengl )
+        {
+            // correct the multisampling
+            gl_new->multisample_arb = retval->gl_att.multi_samples > 1;
+
+            SDL_GL_set_gl_mode( gl_new );
+        }
     }
 
     return retval;

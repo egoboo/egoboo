@@ -495,12 +495,20 @@ void gfx_init_SDL_graphics()
     {
         //Setup the cute windows manager icon, don't do this on Mac
         SDL_Surface *theSurface;
+        char * fname = "icon.bmp";
         STRING fileload;
 
-        strcpy( fileload, "basicdat" SLASH_STR "icon.bmp" );
-        theSurface = IMG_Load( fileload );
-        if ( NULL == theSurface ) log_warning( "Unable to load icon (%s)\n", fileload );
-        else SDL_WM_SetIcon( theSurface, NULL );
+        snprintf( fileload, SDL_arraysize(fileload), "mp_data/%s", fname );
+
+        theSurface = IMG_Load( vfs_resolveReadFilename( fileload ) );
+        if ( NULL == theSurface )
+        {
+            log_warning( "Unable to load icon (%s)\n", fname );
+        }
+        else
+        {
+            SDL_WM_SetIcon( theSurface, NULL );
+        }
     }
 #endif
 
@@ -537,13 +545,13 @@ void gfx_init_SDL_graphics()
     ogl_vparam.shading        = GL_SMOOTH;
     ogl_vparam.userAnisotropy = 16.0f * MAX( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
 
-    log_info( "Opening SDL Video Mode... " );
+    log_info( "Opening SDL Video Mode...\n" );
 
     // redirect the output of the SDL_GL_* debug functions
     SDL_GL_set_stdout( log_get_file() );
 
     // actually set the video mode
-    if ( NULL == SDL_GL_set_mode( NULL, &sdl_vparam, &ogl_vparam ) )
+    if ( NULL == SDL_GL_set_mode( NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics ) )
     {
         log_message( "Failed!\n" );
         log_error( "I can't get SDL to set any video mode: %s\n", SDL_GetError() );
@@ -2162,7 +2170,7 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 //--------------------------------------------------------------------------------------------
 void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 {
-	int i = 0;
+
     PROFILE_BEGIN( renderlist_make );
     {
         // Which tiles can be displayed

@@ -7217,7 +7217,7 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
     // what do we need to draw?
     is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = ( SPELLBOOK == pitem->iprofile );
-    draw_book = ( is_book || ( is_spell_fx && !pitem->icon ) || is_spell_fx && pitem->attachedto != MAX_CHR ) && ( bookicon_count > 0 );
+    draw_book = ( is_book || ( is_spell_fx && !pitem->icon ) || (is_spell_fx && MAX_CHR != pitem->attachedto) ) && ( bookicon_count > 0 );
 
     if ( !draw_book )
     {

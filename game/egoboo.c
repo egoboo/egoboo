@@ -114,9 +114,13 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // read the "setup.txt" file
     tmpname = "setup.txt";
-    if ( !setup_read( tmpname ) )
+    if ( setup_read( tmpname ) )
     {
-        log_error( "Could not find \"%s\".\n", tmpname );
+        log_info( "Loaded setup file \"%s\".\n", tmpname );
+    }
+    else
+    {
+        log_error( "Could not find setup file\"%s\".\n", tmpname );
     }
 
     // download the "setup.txt" values into the cfg struct
@@ -132,8 +136,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     GLSetup_SupportedFormats();
 
     // read all the scantags
-    scantag_read_all( "basicdat" SLASH_STR "scancode.txt" );
-    input_settings_load( "controls.txt" );
+    scantag_read_all( vfs_resolveReadFilename( "mp_data/scancode.txt" ) );
+    input_settings_load( vfs_resolveReadFilename( "mp_data/controls.txt" ) );
 
     // synchronoze the config values with the various game subsystems
     // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped
@@ -639,7 +643,12 @@ void egoboo_setup_vfs()
 {
     /// @details BB@> set the basic mount points used by the main program
 
+    STRING tmp_dir;
+
     // mount all of the default global data directories
-    vfs_add_mount_point( "basicdat",                 "mp_data", 0 );
-    vfs_add_mount_point( "basicdat/globalparticles", "mp_data", 1 );
+    snprintf( tmp_dir, SDL_arraysize(tmp_dir), "%s/basicdat", fs_getDataDirectory() );
+    vfs_add_mount_point( tmp_dir,                 "mp_data", 0 );
+
+    snprintf( tmp_dir, SDL_arraysize(tmp_dir), "%s/basicdat/globalparticles", fs_getDataDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_data", 1 );
 }

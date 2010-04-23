@@ -280,6 +280,8 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
 {
     /// @details BB@> make a report
 
+    if( NULL == v ) return;
+
     fprintf( LOCAL_STDOUT, "\twidth == %d, height == %d, depth == %d\n", v->width, v->height, v->depth );
 
     SDLX_output_sdl_video_flags( v->flags );
@@ -392,6 +394,7 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
 SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_report )
 {
     Uint32 flags;
+    int sdl_nearset_bpp = -1;
     SDL_Surface * ret = NULL;
 
     if ( NULL == v ) return ret;
@@ -403,9 +406,15 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
         // do our one-and-only video initialization
         ret = NULL;
-        if ( 0 != SDL_VideoModeOK( v->width, v->height, v->depth, flags ) )
+        sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, v->depth, flags );
+        if ( 0 != sdl_nearset_bpp )
         {
-            ret = SDL_SetVideoMode( v->width, v->height, v->depth, flags );
+            ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+
+            if( NULL == ret )
+            {
+                fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+            }
         }
     }
     else
@@ -459,9 +468,15 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         // try a softer video initialization
         // if it fails, then it tries to get the closest possible valid video mode
         ret = NULL;
-        if ( 0 != SDL_VideoModeOK( v->width, v->height, buffer_size, flags ) )
+        sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags );
+        if ( 0 != sdl_nearset_bpp )
         {
-            ret = SDL_SetVideoMode( v->width, v->height, buffer_size, flags );
+            ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+
+            if( NULL == ret )
+            {
+                fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+            }
         }
 
 #if !defined(__unix__)
@@ -486,9 +501,14 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
                 SDLX_set_sdl_gl_attrib( v );
 
-                if ( 0 != SDL_VideoModeOK( v->width, v->height, buffer_size, flags ) )
+                sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags )
+                if ( 0 != sdl_nearset_bpp )
                 {
-                    ret = SDL_SetVideoMode( v->width, v->height, buffer_size, flags );
+                    ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+                    if( NULL == ret )
+                    {
+                        fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+                    }
                 }
 
                 actual_multi_buffers = 0;
@@ -507,9 +527,14 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
             SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 0 );
             SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 0 );
 
-            if ( 0 != SDL_VideoModeOK( v->width, v->height, buffer_size, flags ) )
+            sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags );
+            if ( 0 != sdl_nearset_bpp )
             {
-                ret = SDL_SetVideoMode( v->width, v->height, buffer_size, flags );
+                ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+                if( NULL == ret )
+                {
+                    fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+                }
             }
         }
 
@@ -615,7 +640,7 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
 }
 
 //--------------------------------------------------------------------------------------------
-SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report )
+SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool has_valid_mode, SDL_bool make_report )
 {
     /// @details BB@> let SDL try to set a new video mode.
 
@@ -624,14 +649,21 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     SDL_Surface             * surface;
 
     // initialize v_old and param_old
-    if ( NULL == v_old )
+    if( has_valid_mode )
     {
-        SDLX_video_parameters_default( &param_old );
-        v_old = &param_old;
+        if ( NULL == v_old )
+        {
+            SDLX_video_parameters_default( &param_old );
+            v_old = &param_old;
+        }
+        else
+        {
+            memcpy( &param_old, v_old, sizeof( SDLX_video_parameters_t ) );
+        }
     }
     else
     {
-        memcpy( &param_old, v_old, sizeof( SDLX_video_parameters_t ) );
+        v_old = NULL;
     }
 
     // initialize v_new and param_new
@@ -663,19 +695,19 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
         }
         retval = v_new;
     }
-    else
+    else if ( NULL != v_old )
     {
-        surface = SDLX_RequestVideoMode( &param_old, make_report );
+        surface = SDLX_RequestVideoMode( v_old, make_report );
 
         if ( NULL == surface )
         {
-            // log_error("Could not restore the old video mode. Terminating.\n");
+            fprintf( LOCAL_STDOUT, "Could not restore the old video mode. Terminating.\n" );
             exit( -1 );
         }
         else
         {
             param_old.surface = surface;
-            if ( NULL != v_old )
+            if ( v_old != &param_old )
             {
                 memcpy( v_old, &param_old, sizeof( SDLX_video_parameters_t ) );
             }

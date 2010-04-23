@@ -175,7 +175,7 @@ extern "C"
     /// Use a SDLX_video_parameters_t structure to try to set a SDL video mode directly
     /// on success, it returns a pointer to the actual data used to set the mode. On failure,
     /// it resets the mode to v_old (if possible), and returns a pointer to the restored parameters
-    SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report );
+    SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool has_valid_mode, SDL_bool make_report );
 
     /// Determine the minimum changes to the current pixel format to accomodate the requested format
     // Mostly used to add an alpha channel to a SDL_Surface

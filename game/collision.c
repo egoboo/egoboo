@@ -125,7 +125,7 @@ IMPLEMENT_DYNAMIC_ARY( HashNode_ary, hash_node_t );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bumplist_t bumplist[MAXMESHFAN/16];
+//static bumplist_t bumplist[MAXMESHFAN/16];
 
 static CHashList_t   * _CHashList_ptr = NULL;
 static HashNode_ary_t  _hn_ary;                 ///< the available hash_node_t collision nodes for the CHashList_t

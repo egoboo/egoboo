@@ -89,63 +89,63 @@ egoboo_config_t cfg;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void egoboo_config_init()
+void egoboo_config_init( egoboo_config_t * pcfg )
 {
     memset( &cfg_default, 0, sizeof( cfg_default ) );
 
     // {GRAPHIC}
-    cfg_default.fullscreen_req        = bfalse;        // Start in fullscreen?
-    cfg_default.scrd_req              = 32;                 // Screen bit depth
-    cfg_default.scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
-    cfg_default.scrx_req              = 640;               // Screen X size
-    cfg_default.scry_req              = 480;               // Screen Y size
-    cfg_default.use_perspective       = bfalse;      // Perspective correct textures?
-    cfg_default.use_dither            = bfalse;           // Dithering?
-    cfg_default.reflect_fade          = btrue;            // 255 = Don't fade reflections
-    cfg_default.reflect_allowed       = bfalse;            // Reflections?
-    cfg_default.reflect_prt           = bfalse;         // Reflect particles?
-    cfg_default.shadow_allowed        = bfalse;            // Shadows?
-    cfg_default.shadow_sprite         = bfalse;        // Shadow sprites?
-    cfg_default.use_phong             = btrue;              // Do phong overlay?
-    cfg_default.twolayerwater_allowed = btrue;      // Two layer water?
-    cfg_default.overlay_allowed       = bfalse;               // Allow large overlay?
-    cfg_default.background_allowed    = bfalse;            // Allow large background?
-    cfg_default.fog_allowed           = btrue;
-    cfg_default.gourard_req           = btrue;              // Gourad shading?
-    cfg_default.multisamples          = 0;                  // Antialiasing?
-    cfg_default.texturefilter_req     = TX_UNFILTERED;      // Texture filtering?
-    cfg_default.dyna_count_req        = 12;                 // Max number of lights to draw
-    cfg_default.framelimit            = 30;
-    cfg_default.particle_count_req    = 512;                              // max number of particles
+    pcfg->fullscreen_req        = bfalse;        // Start in fullscreen?
+    pcfg->scrd_req              = 32;                 // Screen bit depth
+    pcfg->scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
+    pcfg->scrx_req              = 640;               // Screen X size
+    pcfg->scry_req              = 480;               // Screen Y size
+    pcfg->use_perspective       = bfalse;      // Perspective correct textures?
+    pcfg->use_dither            = bfalse;           // Dithering?
+    pcfg->reflect_fade          = btrue;            // 255 = Don't fade reflections
+    pcfg->reflect_allowed       = bfalse;            // Reflections?
+    pcfg->reflect_prt           = bfalse;         // Reflect particles?
+    pcfg->shadow_allowed        = bfalse;            // Shadows?
+    pcfg->shadow_sprite         = bfalse;        // Shadow sprites?
+    pcfg->use_phong             = btrue;              // Do phong overlay?
+    pcfg->twolayerwater_allowed = btrue;      // Two layer water?
+    pcfg->overlay_allowed       = bfalse;               // Allow large overlay?
+    pcfg->background_allowed    = bfalse;            // Allow large background?
+    pcfg->fog_allowed           = btrue;
+    pcfg->gourard_req           = btrue;              // Gourad shading?
+    pcfg->multisamples          = 0;                  // Antialiasing?
+    pcfg->texturefilter_req     = TX_UNFILTERED;      // Texture filtering?
+    pcfg->dyna_count_req        = 12;                 // Max number of lights to draw
+    pcfg->framelimit            = 30;
+    pcfg->particle_count_req    = 512;                              // max number of particles
 
     // {SOUND}
-    cfg_default.sound_allowed         = bfalse;
-    cfg_default.music_allowed         = bfalse;
-    cfg_default.music_volume          = 50;                            // The sound volume of music
-    cfg_default.sound_volume          = 75;          // Volume of sounds played
-    cfg_default.sound_channel_count   = 16;      // Max number of sounds playing at the same time
-    cfg_default.sound_buffer_size     = 2048;
+    pcfg->sound_allowed         = bfalse;
+    pcfg->music_allowed         = bfalse;
+    pcfg->music_volume          = 50;                            // The sound volume of music
+    pcfg->sound_volume          = 75;          // Volume of sounds played
+    pcfg->sound_channel_count   = 16;      // Max number of sounds playing at the same time
+    pcfg->sound_buffer_size     = 2048;
 
     // {GAME}
-    cfg_default.message_count_req     = 6;
-    cfg_default.message_duration      = 50;                     // Time to keep the message alive
-    cfg_default.StatusList_on         = btrue;               // Draw the status bars?
-    cfg_default.feedback              = FEEDBACK_TEXT;    // What feedback does the player want
-    cfg_default.difficulty            = GAME_NORMAL;      // What is the current game difficulty
-    cfg_default.autoturncamera        = 255;              // Type of camera control...
+    pcfg->message_count_req     = 6;
+    pcfg->message_duration      = 50;                     // Time to keep the message alive
+    pcfg->StatusList_on         = btrue;               // Draw the status bars?
+    pcfg->feedback              = FEEDBACK_TEXT;    // What feedback does the player want
+    pcfg->difficulty            = GAME_NORMAL;      // What is the current game difficulty
+    pcfg->autoturncamera        = 255;              // Type of camera control...
 
     // {NETWORK}
-    cfg_default.network_allowed       = bfalse;            // Try to connect?
-    cfg_default.network_lag           = 2;                             // Lag tolerance
-    strncpy( cfg_default.network_hostname,    "no host",      SDL_arraysize( cfg_default.network_hostname ) );                            // Name for hosting session
-    strncpy( cfg_default.network_messagename, "little Raoul", SDL_arraysize( cfg_default.network_messagename ) );                      // Name for messages
+    pcfg->network_allowed       = bfalse;            // Try to connect?
+    pcfg->network_lag           = 2;                             // Lag tolerance
+    strncpy( pcfg->network_hostname,    "no host",      SDL_arraysize( pcfg->network_hostname ) );                            // Name for hosting session
+    strncpy( pcfg->network_messagename, "little Raoul", SDL_arraysize( pcfg->network_messagename ) );                      // Name for messages
 
     // {DEBUG}
-    cfg_default.fps_allowed       = btrue;             // FPS displayed?
-    cfg_default.grab_mouse        = btrue;
-    cfg_default.hide_mouse        = btrue;
-    cfg_default.dev_mode          = bfalse;
-    cfg_default.sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
+    pcfg->fps_allowed       = btrue;             // FPS displayed?
+    pcfg->grab_mouse        = btrue;
+    pcfg->hide_mouse        = btrue;
+    pcfg->dev_mode          = bfalse;
+    pcfg->sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
 }
 
 //--------------------------------------------------------------------------------------------
@@ -209,9 +209,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
     if ( NULL == lConfigSetup || NULL == pcfg ) return bfalse;
 
     // set the default Egoboo values
-    egoboo_config_init();
-
-    memcpy( pcfg, &cfg_default, sizeof( egoboo_config_t ) );
+    egoboo_config_init( &cfg_default );
 
     //*********************************************
     //* GRAPHIC Section
@@ -221,6 +219,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
 
     // Do fullscreen?
     GetKey_bool( "FULLSCREEN", pcfg->fullscreen_req, cfg_default.fullscreen_req );
+    log_info( "fullscreen %s\n", pcfg->fullscreen_req ? "TRUE" : "FALSE" );
 
     // Screen Size
     GetKey_int( "SCREENSIZE_X", pcfg->scrx_req, cfg_default.scrx_req );
