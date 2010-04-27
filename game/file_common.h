@@ -64,15 +64,20 @@ typedef struct s_fs_find_context fs_find_context_t;
 
 void fs_init();
 
-const char *fs_getBinaryDirectory();
-const char *fs_getDataDirectory();
-const char *fs_getUserDirectory();
-const char *fs_getConfigDirectory();
+const char * fs_getBinaryDirectory();
+const char * fs_getDataDirectory();
+const char * fs_getUserDirectory();
+const char * fs_getConfigDirectory();
 
-FILE * fs_openBinaryDirectoryFile( const char * pathname );
-FILE * fs_openDataDirectoryFile( const char * pathname );
-FILE * fs_openUserDirectoryFile( const char * pathname );
-FILE * fs_openConfigDirectoryFile( const char * pathname );
+const char * fs_createBinaryDirectoryFilename( const char * relative_pathname );
+const char * fs_createDataDirectoryFilename( const char * relative_pathname );
+const char * fs_createUserDirectoryFilename( const char * relative_pathname );
+const char * fs_createConfigDirectoryFilename( const char * relative_pathname );
+
+FILE * fs_openBinaryDirectoryFile( const char * relative_pathname, const char * mode );
+FILE * fs_openDataDirectoryFile( const char * relative_pathname, const char * mode );
+FILE * fs_openUserDirectoryFile( const char * relative_pathname, const char * mode );
+FILE * fs_openConfigDirectoryFile( const char * relative_pathname, const char * mode );
 
 int    fs_fileExists( const char *filename );
 int    fs_fileIsDirectory( const char *filename );

@@ -533,7 +533,7 @@ void chr_log_script_time( const CHR_REF by_reference ichr )
     pcap = chr_get_pcap( ichr );
     if ( NULL == pcap ) return;
 
-    ftmp = fopen( "script_timing.txt", "a+" );
+    ftmp = fopen( vfs_resolveWriteFilename( "/debug/script_timing.txt"), "a+" );
     if ( NULL != ftmp )
     {
         fprintf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n",

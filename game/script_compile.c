@@ -510,8 +510,8 @@ static void load_ai_codes( const char* loadname );
 
 // functions for debugging the scripts
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(USE_DEBUG)
-static void print_token();
-static void print_line();
+    static void print_token();
+    static void print_line();
 #else
 #   define print_token()
 #   define print_line()
@@ -528,7 +528,7 @@ void script_compiler_init()
 
     load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
 
-    debug_script_file = fopen( "script_debug.txt", "wt" );
+    debug_script_file = fopen( vfs_resolveWriteFilename( "/debug/script_debug.txt" ), "wt" );
 }
 
 //--------------------------------------------------------------------------------------------

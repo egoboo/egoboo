@@ -3044,7 +3044,7 @@ void release_all_pip()
 
     if ( tnc > 0 && max_request > 0 )
     {
-        FILE * ftmp = fopen( "pip_usage.txt", "w" );
+        FILE * ftmp = fopen( vfs_resolveWriteFilename( "/debug/pip_usage.txt" ), "w" );
         if ( NULL != ftmp )
         {
             fprintf( ftmp, "List of used pips\n\n" );

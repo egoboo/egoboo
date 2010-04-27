@@ -96,7 +96,7 @@ void scripting_system_end()
 
 #if (DEBUG_SCRIPT_LEVEL > 1 ) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
         {
-            FILE * ftmp = fopen( "script_function_timing.txt", "a+" );
+            FILE * ftmp = fopen( vfs_resolveWriteFilename( "/debug/script_function_timing.txt" ), "a+" );
 
             if ( NULL != ftmp )
             {
