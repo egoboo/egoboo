@@ -69,6 +69,9 @@ struct s_ego_object_base
 
 typedef struct s_ego_object_base ego_object_base_t;
 
+ego_object_base_t * ego_object_ctor( ego_object_base_t * pbase );
+ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// various modes in which an object can be spawned

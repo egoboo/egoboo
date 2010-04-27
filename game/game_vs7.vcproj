@@ -162,6 +162,9 @@
 				RelativePath=".\egoboo_math.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_object.c">
+			</File>
+			<File
 				RelativePath=".\egoboo_process.c">
 			</File>
 			<File
