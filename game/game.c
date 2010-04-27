@@ -3168,34 +3168,34 @@ bool_t game_setup_vfs( const char * modname )
     vfs_add_mount_point( tmpDir, "mp_objects", 0 );
 
     // mount all of the default global objects directories
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/items", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/items", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/magic", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/magic", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/magic_item", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/magic_item", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/misc", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/misc", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/monsters", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/monsters", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/players", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/players", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/potions", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/potions", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/unique", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/unique", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/weapons", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/weapons", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize(tmpDir), "%s/basicdat/globalobjects/work_in_progress", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/work_in_progress", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
     // mount the module's gamedat directory at the beginning of the mount point list

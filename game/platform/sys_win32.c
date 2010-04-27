@@ -64,7 +64,7 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
 
     snprintf( message, SDL_arraysize( message ), warning );
 
-    EGO_vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
+    vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
     strcat( message, buffer );
     strcat( message, "\n Press OK to exit." );
 

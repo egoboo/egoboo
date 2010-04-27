@@ -28,7 +28,8 @@
 #include "egoboo.h"
 
 #include <unistd.h>
-#include <pwd.h>
+#include <pwd.h>ga
+#include <pwd.h>ga
 #include <grp.h>
 #include <glob.h>
 #include <sys/types.h>
@@ -136,23 +137,23 @@ bool_t fs_copyFile( const char *source, const char *dest )
     char buf[4096] = EMPTY_CSTR;
     int bytes_read;
 
-    sourcef = EGO_fopen( source, "rb" );
+    sourcef = fopen( source, "rb" );
     if ( !sourcef )
         return bfalse;
 
-    destf = EGO_fopen( source, "wb" );
+    destf = fopen( source, "wb" );
     if ( !destf )
     {
-        EGO_fclose( sourcef );
+        fclose( sourcef );
         return bfalse;
     }
 
-    while (( bytes_read = EGO_fread( buf, 1, sizeof( buf ), sourcef ) ) )
-        EGO_fwrite( buf, 1, bytes_read, destf );
+    while (( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
+        fwrite( buf, 1, bytes_read, destf );
 
     //Finish it up
-    EGO_fclose( sourcef );
-    EGO_fclose( destf );
+    fclose( sourcef );
+    fclose( destf );
     return btrue;
 }
 

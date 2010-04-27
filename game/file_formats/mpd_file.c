@@ -207,40 +207,40 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     pinfo = &( pmesh->info );
     pmem  = &( pmesh->mem );
 
-    fileread = EGO_fopen( loadname, "rb" );
+    fileread = fopen( loadname, "rb" );
     if ( NULL == fileread )
     {
         log_warning( "mpd_load() - cannot find \"%s\"!!\n", loadname );
         return NULL;
     }
 
-    EGO_fread( &itmp, 4, 1, fileread );
+    fread( &itmp, 4, 1, fileread );
     if ( MAPID != ( Uint32 )ENDIAN_INT32( itmp ) )
     {
         log_warning( "mpd_load() - this is not a valid level.mpd!!\n" );
-        EGO_fclose( fileread );
+        fclose( fileread );
         return NULL;
     }
 
     // Read the number of vertices
-    EGO_fread( &itmp, 4, 1, fileread );  pinfo->vertcount   = ( int )ENDIAN_INT32( itmp );
+    fread( &itmp, 4, 1, fileread );  pinfo->vertcount   = ( int )ENDIAN_INT32( itmp );
 
     // grab the tiles in x and y
-    EGO_fread( &itmp, 4, 1, fileread );  pinfo->tiles_x = ( int )ENDIAN_INT32( itmp );
+    fread( &itmp, 4, 1, fileread );  pinfo->tiles_x = ( int )ENDIAN_INT32( itmp );
     if ( pinfo->tiles_x >= MAXMESHTILEY )
     {
         mpd_dtor( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in x direction.\n" );
-        EGO_fclose( fileread );
+        fclose( fileread );
         return NULL;
     }
 
-    EGO_fread( &itmp, 4, 1, fileread );  pinfo->tiles_y = ( int )ENDIAN_INT32( itmp );
+    fread( &itmp, 4, 1, fileread );  pinfo->tiles_y = ( int )ENDIAN_INT32( itmp );
     if ( pinfo->tiles_y >= MAXMESHTILEY )
     {
         mpd_dtor( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in y direction.\n" );
-        EGO_fclose( fileread );
+        fclose( fileread );
         return NULL;
     }
 
@@ -248,7 +248,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     if ( !mpd_mem_alloc( pmem, pinfo ) )
     {
         mpd_dtor( pmesh );
-        EGO_fclose( fileread );
+        fclose( fileread );
         log_warning( "mpd_load() - could not allocate memory for the mesh!!\n" );
         return NULL;
     }
@@ -258,7 +258,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     // Load fan data
     for ( fan = 0; fan < tiles_count; fan++ )
     {
-        EGO_fread( &itmp, 4, 1, fileread );
+        fread( &itmp, 4, 1, fileread );
         pmem->tile_list[fan].type = CLIP_TO_08BITS( ENDIAN_INT32( itmp ) >> 24 );
         pmem->tile_list[fan].fx   = CLIP_TO_08BITS( ENDIAN_INT32( itmp ) >> 16 );
         pmem->tile_list[fan].img  = CLIP_TO_16BITS( ENDIAN_INT32( itmp ) >>  0 );
@@ -267,39 +267,39 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     // Load twist data
     for ( fan = 0; fan < tiles_count; fan++ )
     {
-        EGO_fread( &itmp, 1, 1, fileread );
+        fread( &itmp, 1, 1, fileread );
         pmem->tile_list[fan].twist = ENDIAN_INT32( itmp );
     }
 
     // Load vertex x data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        EGO_fread( &ftmp, 4, 1, fileread );
+        fread( &ftmp, 4, 1, fileread );
         pmem->vlst[cnt].pos.x = ENDIAN_FLOAT( ftmp );
     }
 
     // Load vertex y data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        EGO_fread( &ftmp, 4, 1, fileread );
+        fread( &ftmp, 4, 1, fileread );
         pmem->vlst[cnt].pos.y = ENDIAN_FLOAT( ftmp );
     }
 
     // Load vertex z data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        EGO_fread( &ftmp, 4, 1, fileread );
+        fread( &ftmp, 4, 1, fileread );
         pmem->vlst[cnt].pos.z = ENDIAN_FLOAT( ftmp ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
     }
 
     // Load vertex a data
     for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
-        EGO_fread( &btemp, 1, 1, fileread );
+        fread( &btemp, 1, 1, fileread );
         pmem->vlst[cnt].a = 0; // btemp;
     }
 
-    EGO_fclose( fileread );
+    fclose( fileread );
 
     return pmesh;
 }

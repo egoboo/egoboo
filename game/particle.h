@@ -124,8 +124,8 @@ struct s_prt
     PRT_REF           bumplist_next;                   ///< Next particle on fanblock
     IPair             damage;                          ///< For strength
     Uint8             damagetype;                      ///< Damage type
-	Uint16			  lifedrain;
-	Uint16			  manadrain;
+    Uint16              lifedrain;
+    Uint16              manadrain;
 
     bool_t            is_bumpspawn;                      ///< this particle is like a flame, burning something
     bool_t            inwater;

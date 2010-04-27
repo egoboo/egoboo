@@ -533,14 +533,14 @@ void chr_log_script_time( const CHR_REF by_reference ichr )
     pcap = chr_get_pcap( ichr );
     if ( NULL == pcap ) return;
 
-    ftmp = EGO_fopen( "script_timing.txt", "a+" );
+    ftmp = fopen( "script_timing.txt", "a+" );
     if ( NULL != ftmp )
     {
         fprintf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n",
                  update_wld, REF_TO_INT( ichr ), pchr->Name, pcap->classname,
                  pchr->ai._clktime, pchr->ai._clkcount );
-        EGO_fflush( ftmp );
-        EGO_fclose( ftmp );
+        fflush( ftmp );
+        fclose( ftmp );
     }
 }
 
@@ -7217,7 +7217,7 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
     // what do we need to draw?
     is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = ( SPELLBOOK == pitem->iprofile );
-    draw_book = ( is_book || ( is_spell_fx && !pitem->icon ) || (is_spell_fx && MAX_CHR != pitem->attachedto) ) && ( bookicon_count > 0 );
+    draw_book = ( is_book || ( is_spell_fx && !pitem->icon ) || ( is_spell_fx && MAX_CHR != pitem->attachedto ) ) && ( bookicon_count > 0 );
 
     if ( !draw_book )
     {

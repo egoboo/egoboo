@@ -563,8 +563,6 @@ prt_t * prt_run_config( prt_t * pprt )
     return pprt;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t prt_free( prt_t * pprt )
 {
@@ -801,8 +799,8 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     pprt->parent_ref  = prt_origin;
     pprt->parent_guid = ALLOCATED_PRT( prt_origin ) ? PrtList.lst[prt_origin].obj_base.guid : (( Uint32 )( ~0 ) );
     pprt->damagetype  = ppip->damagetype;
-	pprt->lifedrain   = ppip->lifedrain;
-	pprt->manadrain   = ppip->manadrain;
+    pprt->lifedrain   = ppip->lifedrain;
+    pprt->manadrain   = ppip->manadrain;
 
     // Lighting and sound
     pprt->dynalight    = ppip->dynalight;
@@ -3046,7 +3044,7 @@ void release_all_pip()
 
     if ( tnc > 0 && max_request > 0 )
     {
-        FILE * ftmp = EGO_fopen( "pip_usage.txt", "w" );
+        FILE * ftmp = fopen( "pip_usage.txt", "w" );
         if ( NULL != ftmp )
         {
             fprintf( ftmp, "List of used pips\n\n" );
@@ -3060,9 +3058,9 @@ void release_all_pip()
                 }
             }
 
-            EGO_fflush( ftmp );
+            fflush( ftmp );
 
-            EGO_fclose( ftmp );
+            fclose( ftmp );
 
             for ( cnt = 0; cnt < MAX_PIP; cnt++ )
             {

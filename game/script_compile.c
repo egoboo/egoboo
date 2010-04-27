@@ -528,7 +528,7 @@ void script_compiler_init()
 
     load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
 
-    debug_script_file = EGO_fopen( "script_debug.txt", "wt" );
+    debug_script_file = fopen( "script_debug.txt", "wt" );
 }
 
 //--------------------------------------------------------------------------------------------

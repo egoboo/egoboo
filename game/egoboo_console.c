@@ -105,7 +105,7 @@ void egoboo_console_write( egoboo_console_t * pcon, const char *format, va_list 
 
     if ( NULL != pcon )
     {
-        EGO_vsnprintf( buffer, EGOBOO_CONSOLE_WRITE_LEN - 1, format, args );
+        vsnprintf( buffer, EGOBOO_CONSOLE_WRITE_LEN - 1, format, args );
 
         egoboo_console_add_output( pcon, buffer );
     }

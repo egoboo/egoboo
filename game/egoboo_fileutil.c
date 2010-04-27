@@ -676,7 +676,7 @@ int fget_version( vfs_FILE* fileread )
     vfs_seek( fileread, filepos );
 
     // flear any error we may have generated
-    /* EGO_clearerr( fileread ); */
+    /* clearerr( fileread ); */
 
     return file_version;
 }

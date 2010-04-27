@@ -646,9 +646,9 @@ void egoboo_setup_vfs()
     STRING tmp_dir;
 
     // mount all of the default global data directories
-    snprintf( tmp_dir, SDL_arraysize(tmp_dir), "%s/basicdat", fs_getDataDirectory() );
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s/basicdat", fs_getDataDirectory() );
     vfs_add_mount_point( tmp_dir,                 "mp_data", 0 );
 
-    snprintf( tmp_dir, SDL_arraysize(tmp_dir), "%s/basicdat/globalparticles", fs_getDataDirectory() );
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s/basicdat/globalparticles", fs_getDataDirectory() );
     vfs_add_mount_point( tmp_dir, "mp_data", 1 );
 }

@@ -191,7 +191,7 @@ int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint i
     STRING szText = EMPTY_CSTR;
 
     // evaluate the variable args
-    rv = EGO_vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
+    rv = vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
     if ( rv < 0 ) return rv;
 
     return fnt_print_raw( font, color, ppSurface, itex, texCoords, szText );
@@ -345,7 +345,7 @@ void fnt_drawTextBox( Font *font, SDL_Surface ** ppSurface, int x, int y, int wi
     }
 
     va_start( args, format );
-    rv = EGO_vsnprintf( text, SDL_arraysize( text ), format, args );
+    rv = vsnprintf( text, SDL_arraysize( text ), format, args );
     va_end( args );
 
     // some problem printing the text

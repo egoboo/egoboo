@@ -96,7 +96,7 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     // read the 1 line comment at the top of the file
     vfs_gets( ppip->comment, SDL_arraysize( ppip->comment ) - 1, fileread );
 
-    // EGO_rewind the file
+    // rewind the file
     vfs_seek( fileread, 0 );
 
     // General data
@@ -207,11 +207,11 @@ pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip )
     ppip->homingfriction = fget_next_float( fileread );
     ppip->homingaccel    = fget_next_float( fileread );
     ppip->rotatetoface   = fget_next_bool( fileread );
-    
+
     goto_colon( NULL, fileread, bfalse );  // !!Respawn on hit is unused
-    
-	ppip->manadrain		 = fget_next_int( fileread )*256;
-    ppip->lifedrain		 = fget_next_int( fileread )*256;
+
+    ppip->manadrain         = fget_next_int( fileread ) * 256;
+    ppip->lifedrain         = fget_next_int( fileread ) * 256;
 
     // assume default endwall
     ppip->endwall = ppip->endground;

@@ -72,8 +72,6 @@
 #undef  DEBUG_ENC_LIST      ///< Track every single deletion from the EncList to make sure the same element is not deleted twice. Prevents corruption of the EncList.free_lst
 #undef  DEBUG_CHR_LIST      ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst
 
-#undef  DEBUG_STDIO         ///< Route stdio calls through wrapper functions so that we can track io calls. This needs to be removed.
-
 #define CLIP_LIGHT_FANS      ///< is the light_fans() function going to be throttled?
 #define CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
 

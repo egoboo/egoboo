@@ -96,7 +96,7 @@ void scripting_system_end()
 
 #if (DEBUG_SCRIPT_LEVEL > 1 ) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
         {
-            FILE * ftmp = EGO_fopen( "script_function_timing.txt", "a+" );
+            FILE * ftmp = fopen( "script_function_timing.txt", "a+" );
 
             if ( NULL != ftmp )
             {
@@ -111,8 +111,8 @@ void scripting_system_end()
                     }
                 }
 
-                EGO_fflush( ftmp );
-                EGO_fclose( ftmp );
+                fflush( ftmp );
+                fclose( ftmp );
             }
         }
 #endif

@@ -46,7 +46,7 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     FILE *fp;
     int i;
 
-    fp = EGO_fopen( filename, "rb" );
+    fp = fopen( filename, "rb" );
     if ( !fp )
     {
         fprintf( stderr, "Error: couldn't open \"%s\"!\n", filename );
@@ -61,14 +61,14 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     if ( NULL == mdl ) return NULL;
 
     /* Read header */
-    EGO_fread( &mdl->header, 1, sizeof( id_md2_header_t ), fp );
+    fread( &mdl->header, 1, sizeof( id_md2_header_t ), fp );
 
     if (( mdl->header.ident != MD2_MAGIC_NUMBER ) ||
         ( mdl->header.version != MD2_VERSION ) )
     {
         /* Error! */
         fprintf( stderr, "Error: bad version or identifier\n" );
-        EGO_fclose( fp );
+        fclose( fp );
         return 0;
     }
 
@@ -80,33 +80,33 @@ id_md2_model_t * id_md2_load( const char *filename, id_md2_model_t * mdl )
     mdl->glcmds    = ( int               * ) calloc( mdl->header.size_glcmds, sizeof( int ) );
 
     /* Read model data */
-    EGO_fseek( fp, mdl->header.offset_skins, SEEK_SET );
-    EGO_fread( mdl->skins, sizeof( id_md2_skin_t ), mdl->header.num_skins, fp );
+    fseek( fp, mdl->header.offset_skins, SEEK_SET );
+    fread( mdl->skins, sizeof( id_md2_skin_t ), mdl->header.num_skins, fp );
 
-    EGO_fseek( fp, mdl->header.offset_st, SEEK_SET );
-    EGO_fread( mdl->texcoords, sizeof( id_md2_texcoord_t ), mdl->header.num_st, fp );
+    fseek( fp, mdl->header.offset_st, SEEK_SET );
+    fread( mdl->texcoords, sizeof( id_md2_texcoord_t ), mdl->header.num_st, fp );
 
-    EGO_fseek( fp, mdl->header.offset_tris, SEEK_SET );
-    EGO_fread( mdl->triangles, sizeof( id_md2_triangle_t ), mdl->header.num_tris, fp );
+    fseek( fp, mdl->header.offset_tris, SEEK_SET );
+    fread( mdl->triangles, sizeof( id_md2_triangle_t ), mdl->header.num_tris, fp );
 
-    EGO_fseek( fp, mdl->header.offset_glcmds, SEEK_SET );
-    EGO_fread( mdl->glcmds, sizeof( int ), mdl->header.size_glcmds, fp );
+    fseek( fp, mdl->header.offset_glcmds, SEEK_SET );
+    fread( mdl->glcmds, sizeof( int ), mdl->header.size_glcmds, fp );
 
     /* Read frames */
-    EGO_fseek( fp, mdl->header.offset_frames, SEEK_SET );
+    fseek( fp, mdl->header.offset_frames, SEEK_SET );
     for ( i = 0; i < mdl->header.num_frames; ++i )
     {
         /* Memory allocation for vertices of this frame */
         mdl->frames[i].verts = ( id_md2_vertex_t * )calloc( mdl->header.num_vertices, sizeof( id_md2_vertex_t ) );
 
         /* Read frame data */
-        EGO_fread( mdl->frames[i].scale, sizeof( float ), 3, fp );
-        EGO_fread( mdl->frames[i].translate, sizeof( float ), 3, fp );
-        EGO_fread( mdl->frames[i].name, sizeof( char ), 16, fp );
-        EGO_fread( mdl->frames[i].verts, sizeof( id_md2_vertex_t ), mdl->header.num_vertices, fp );
+        fread( mdl->frames[i].scale, sizeof( float ), 3, fp );
+        fread( mdl->frames[i].translate, sizeof( float ), 3, fp );
+        fread( mdl->frames[i].name, sizeof( char ), 16, fp );
+        fread( mdl->frames[i].verts, sizeof( id_md2_vertex_t ), mdl->header.num_vertices, fp );
     }
 
-    EGO_fclose( fp );
+    fclose( fp );
     return mdl;
 }
 

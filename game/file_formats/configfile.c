@@ -318,11 +318,11 @@ ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
 {
     char lc;
 
-    lc = EGO_fgetc( pConfigFile->f );
+    lc = fgetc( pConfigFile->f );
 
-    while ( lc != 13 && lc != 10 && 0 == EGO_feof( pConfigFile->f ) )
+    while ( lc != 13 && lc != 10 && 0 == feof( pConfigFile->f ) )
     {
-        lc = EGO_fgetc( pConfigFile->f );
+        lc = fgetc( pConfigFile->f );
     }
 
     return ConfigFile_fail;
@@ -340,10 +340,10 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     size_t lLengthName = 0;
     char lc;
 
-    lc = EGO_fgetc( pConfigFile->f );
+    lc = fgetc( pConfigFile->f );
     memset( pSection->SectionName, 0, sizeof( pSection->SectionName ) );
 
-    while ( '}' != lc && 0 == EGO_feof( pConfigFile->f ) )
+    while ( '}' != lc && 0 == feof( pConfigFile->f ) )
     {
         if ( lLengthName < MAX_CONFIG_SECTION_LENGTH )
         {
@@ -351,9 +351,9 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
         }
 
         lLengthName++;
-        lc = EGO_fgetc( pConfigFile->f );
+        lc = fgetc( pConfigFile->f );
     }
-    if ( EGO_feof( pConfigFile->f ) )
+    if ( feof( pConfigFile->f ) )
     {
         return 0;
     }
@@ -373,10 +373,10 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     size_t lLengthName = 0;
     char lc;
 
-    lc = EGO_fgetc( pConfigFile->f );
+    lc = fgetc( pConfigFile->f );
     memset( pValue->KeyName, 0, sizeof( pValue->KeyName ) );
 
-    while ( ']' != lc && 0 == EGO_feof( pConfigFile->f ) )
+    while ( ']' != lc && 0 == feof( pConfigFile->f ) )
     {
         if ( lLengthName < MAX_CONFIG_KEY_LENGTH )
         {
@@ -384,9 +384,9 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
         }
 
         lLengthName++;
-        lc = EGO_fgetc( pConfigFile->f );
+        lc = fgetc( pConfigFile->f );
     }
-    if ( EGO_feof( pConfigFile->f ) )
+    if ( feof( pConfigFile->f ) )
     {
         return ConfigFile_fail;
     }
@@ -413,7 +413,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
 
     while ( 0 == lEndScan )
     {
-        lc = EGO_fgetc( pConfigFile->f );
+        lc = fgetc( pConfigFile->f );
 
         switch ( lState )
         {
@@ -425,7 +425,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
                     // state change :
                     lState = 1;
                 }
-                else if ( lc == 13 || lc == 10 || EGO_feof( pConfigFile->f ) )
+                else if ( lc == 13 || lc == 10 || feof( pConfigFile->f ) )
                 {
                     // error
                     lEndScan = 1;
@@ -459,7 +459,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
                 else
                 {
                     // restore the char for next scan
-                    EGO_ungetc( lc, pConfigFile->f );
+                    ungetc( lc, pConfigFile->f );
                     // succesfull scan
                     // allocate memory for value
                     pValue->Value = ConfigFileString_create( lLengthName + 1 );
@@ -501,7 +501,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 
     while ( 0 == lEndScan )
     {
-        lc = EGO_fgetc( pConfigFile->f );
+        lc = fgetc( pConfigFile->f );
 
         switch ( lState )
         {
@@ -512,7 +512,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
                 {
                     // continue scan until a letter appears
                 }
-                else if ( lc == 13 || lc == 10 || EGO_feof( pConfigFile->f ) )
+                else if ( lc == 13 || lc == 10 || feof( pConfigFile->f ) )
                 {
                     // error
                     lEndScan = 1;
@@ -534,7 +534,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
             case 1:
 
                 // check if really _dtor of string
-                if ( lc == 13 || lc == 10 || EGO_feof( pConfigFile->f ) )
+                if ( lc == 13 || lc == 10 || feof( pConfigFile->f ) )
                 {
                     // allocate memory for commentary
                     pValue->Commentary = CONFIG_NEW_ARY( char, lLengthName + 1 );
@@ -604,7 +604,7 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
     }
 
     // open a file stream for access using the szAttribute attribute
-    lTempFile = EGO_fopen( szFileName, local_attribute );
+    lTempFile = fopen( szFileName, local_attribute );
     if ( NULL == lTempFile )
     {
         return pConfigFile;
@@ -631,12 +631,12 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     char    lc;
 
     if ( NULL == pConfigFile ) return ConfigFile_fail;
-    if ( NULL == pConfigFile->f || EGO_feof( pConfigFile->f ) ) return ConfigFile_fail;
+    if ( NULL == pConfigFile->f || feof( pConfigFile->f ) ) return ConfigFile_fail;
 
     // load all values in memory
-    while ( 0 == lError && !EGO_feof( pConfigFile->f ) )
+    while ( 0 == lError && !feof( pConfigFile->f ) )
     {
-        lc = EGO_fgetc( pConfigFile->f );
+        lc = fgetc( pConfigFile->f );
 
         switch ( lState )
         {
@@ -1041,7 +1041,7 @@ ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 
     if ( NULL != pConfigFile->f )
     {
-        EGO_fclose( pConfigFile->f );
+        fclose( pConfigFile->f );
         pConfigFile->f = NULL;
     }
 
@@ -1058,21 +1058,21 @@ ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
     if ( NULL == pFile )  return ConfigFile_fail;
     if ( NULL == pValue || NULL == pValue->Value || '\0' == pValue->Value[0] ) return ConfigFile_fail;
 
-    EGO_fputc( '"', pFile );
+    fputc( '"', pFile );
 
     while ( pValue->Value[lPos] != 0 )
     {
-        EGO_fputc( pValue->Value[lPos], pFile );
+        fputc( pValue->Value[lPos], pFile );
         if ( '"' == pValue->Value[lPos] )
         {
             // double the '"'
-            EGO_fputc( '"', pFile );
+            fputc( '"', pFile );
         }
 
         lPos++;
     }
 
-    EGO_fputc( '"', pFile );
+    fputc( '"', pFile );
 
     return ConfigFile_succeed;
 }
@@ -1091,7 +1091,7 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
 
     lTempSection = pConfigFile->ConfigSectionList;
     // rewrite the file
-    EGO_rewind( pConfigFile->f );
+    rewind( pConfigFile->f );
 
     // saves all sections
     while ( NULL != lTempSection )

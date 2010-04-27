@@ -280,7 +280,7 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
 {
     /// @details BB@> make a report
 
-    if( NULL == v ) return;
+    if ( NULL == v ) return;
 
     fprintf( LOCAL_STDOUT, "\twidth == %d, height == %d, depth == %d\n", v->width, v->height, v->depth );
 
@@ -384,7 +384,6 @@ SDL_bool SDLX_set_sdl_gl_attrib( SDLX_video_parameters_t * v )
         SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL,         patt->swap_control );
 
 #endif
-
     }
 
     return SDL_TRUE;
@@ -411,7 +410,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         {
             ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
 
-            if( NULL == ret )
+            if ( NULL == ret )
             {
                 fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
             }
@@ -419,7 +418,6 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
     }
     else
     {
-        int actual_multi_buffers = 0;                      // ignored in linux
         int buffer_size = v->gl_att.buffer_size;
 
         if ( 0 == buffer_size ) buffer_size = v->depth;
@@ -473,48 +471,52 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         {
             ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
 
-            if( NULL == ret )
+            if ( NULL == ret )
             {
                 fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
             }
         }
 
 #if !defined(__unix__)
-        // attempt to see if our antialiasing setting is valid
-
-        SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
-
-        if ( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
         {
-            // could not create the multi-buffer with this pixel format
-            // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and
-            // wglGetPixelFormatAttribivARB could not be found
-            //
-            // This is the only feedback we have that the initialization failed
-            //
-            // we will try to reduce the amount of super sampling and try again
+            int actual_multi_buffers = 0;                      // ignored in linux
 
-            v->gl_att.multi_samples -= 1;
-            while ( v->gl_att.multi_samples > 1 && actual_multi_buffers == 0 )
+            // attempt to see if our antialiasing setting is valid
+
+            SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
+
+            if ( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
             {
-                v->gl_att.multi_buffers = 1;
-
-                SDLX_set_sdl_gl_attrib( v );
-
-                sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags )
-                if ( 0 != sdl_nearset_bpp )
-                {
-                    ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
-                    if( NULL == ret )
-                    {
-                        fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
-                    }
-                }
-
-                actual_multi_buffers = 0;
-                SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
+                // could not create the multi-buffer with this pixel format
+                // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and
+                // wglGetPixelFormatAttribivARB could not be found
+                //
+                // This is the only feedback we have that the initialization failed
+                //
+                // we will try to reduce the amount of super sampling and try again
 
                 v->gl_att.multi_samples -= 1;
+                while ( v->gl_att.multi_samples > 1 && actual_multi_buffers == 0 )
+                {
+                    v->gl_att.multi_buffers = 1;
+
+                    SDLX_set_sdl_gl_attrib( v );
+
+                    sdl_nearset_bpp = SDL_VideoModeOK( v->width, v->height, buffer_size, flags );
+                    if ( 0 != sdl_nearset_bpp )
+                    {
+                        ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
+                        if ( NULL == ret )
+                        {
+                            fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+                        }
+                    }
+
+                    actual_multi_buffers = 0;
+                    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
+
+                    v->gl_att.multi_samples -= 1;
+                }
             }
         }
 #endif
@@ -531,7 +533,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
             if ( 0 != sdl_nearset_bpp )
             {
                 ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
-                if( NULL == ret )
+                if ( NULL == ret )
                 {
                     fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
                 }
@@ -649,7 +651,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
     SDL_Surface             * surface;
 
     // initialize v_old and param_old
-    if( has_valid_mode )
+    if ( has_valid_mode )
     {
         if ( NULL == v_old )
         {

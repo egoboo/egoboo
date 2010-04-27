@@ -179,8 +179,8 @@ struct s_pip
     bool_t  friendlyfire;                 ///< Friendly fire
     bool_t  hateonly;                     ///< Only hit hategroup
     bool_t  causepancake;                 ///< @todo Not implemented!!
-	Uint16  lifedrain;					  ///< Steal this much life
-	Uint16  manadrain;					  ///< Steal this much mana
+    Uint16  lifedrain;                      ///< Steal this much life
+    Uint16  manadrain;                      ///< Steal this much mana
 
     // homing
     bool_t   homing;                       ///< Homing?

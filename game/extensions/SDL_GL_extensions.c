@@ -214,7 +214,7 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
         oglx_report_caps();
     }
 
-    EGO_fflush( LOCAL_STDOUT );
+    fflush( LOCAL_STDOUT );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX
     SDLX_video_parameters_t * retval = NULL;
 
     // initialize v_old and param_old
-    if( has_valid_mode )
+    if ( has_valid_mode )
     {
         if ( NULL == v_old )
         {
@@ -246,7 +246,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX
     // use the sdl extensions to set the SDL video mode
     retval = SDLX_set_mode( v_old, v_new, has_valid_mode, SDL_FALSE );
 
-    if( NULL != retval )
+    if ( NULL != retval )
     {
         // report on the success or failure to set the mode
         SDL_GL_report_mode( retval );

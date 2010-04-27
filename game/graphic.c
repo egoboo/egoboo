@@ -284,7 +284,7 @@ int _debug_vprintf( const char *format, va_list args )
     {
         STRING szTmp;
 
-        retval = EGO_vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
+        retval = vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
         _debug_print( szTmp );
     }
 
@@ -299,7 +299,7 @@ int _va_draw_string( int x, int y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    if ( EGO_vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
+    if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
     {
         return y;
     }
@@ -498,7 +498,7 @@ void gfx_init_SDL_graphics()
         char * fname = "icon.bmp";
         STRING fileload;
 
-        snprintf( fileload, SDL_arraysize(fileload), "mp_data/%s", fname );
+        snprintf( fileload, SDL_arraysize( fileload ), "mp_data/%s", fname );
 
         theSurface = IMG_Load( vfs_resolveReadFilename( fileload ) );
         if ( NULL == theSurface )
