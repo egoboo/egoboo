@@ -46,12 +46,20 @@ int enc_loop_depth = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static enc_t * enc_ctor( enc_t * penc );
-static enc_t * enc_dtor( enc_t * penc );
 static bool_t  enc_free( enc_t * penc );
+
+static enc_t * enc_run_config( enc_t * penc );
+static enc_t * enc_config_ctor( enc_t * penc );
 static enc_t * enc_config_init( enc_t * penc );
 static enc_t * enc_config_deinit( enc_t * penc );
 static enc_t * enc_config_active( enc_t * penc );
+static enc_t * enc_config_dtor( enc_t * penc );
+
+enc_t * enc_config_construct( enc_t * pprt, int max_iterations );
+enc_t * enc_config_initialize( enc_t * pprt, int max_iterations );
+enc_t * enc_config_activate( enc_t * pprt, int max_iterations );
+enc_t * enc_config_deinitialize( enc_t * pprt, int max_iterations );
+enc_t * enc_config_deconstruct( enc_t * pprt, int max_iterations );
 
 static void    EncList_init( void );
 static void    EncList_dtor( void );
@@ -88,8 +96,8 @@ void EncList_init()
         // blank out all the data, including the obj_base data
         memset( penc, 0, sizeof( *penc ) );
 
-        // enchant "initializer"
-        enc_ctor( penc );
+        // construct the base object
+        ego_object_ctor( POBJ_GET_PBASE(penc) );
 
         EncList.free_ref[EncList.free_count] = EncList.free_count;
         EncList.free_count++;
@@ -101,12 +109,13 @@ void EncList_dtor()
 {
     ENC_REF cnt;
 
-    EncList.free_count = 0;
-    EncList.used_count = 0;
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        enc_dtor( EncList.lst + cnt );
+        enc_config_deconstruct( EncList.lst + cnt, 100 );
     }
+
+    EncList.free_count = 0;
+    EncList.used_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -196,7 +205,7 @@ bool_t EncList_free_one( const ENC_REF by_reference ienc )
     }
 
     // enchant "initializer"
-    enc_dtor( penc );
+    enc_config_deconstruct( penc, 100 );
 
     return retval;
 }
@@ -248,7 +257,7 @@ ENC_REF EncList_allocate( const ENC_REF override )
 
     if ( ALLOCATED_ENC( ienc ) )
     {
-        enc_ctor( EncList.lst + ienc );
+        enc_config_construct( EncList.lst + ienc, 100 );
     }
 
     return ienc;
@@ -820,7 +829,205 @@ bool_t  enc_free( enc_t * penc )
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_ctor( enc_t * penc )
+//--------------------------------------------------------------------------------------------
+enc_t * enc_config_construct( enc_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it and start over
+    if( pbase->state > (int)(ego_object_constructing + 1) )
+    {
+        enc_t * tmp_enc = enc_config_deconstruct( pprt, max_iterations );
+        if( tmp_enc == pprt ) return NULL;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    {
+        enc_t * ptmp = enc_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+enc_t * enc_config_initialize( enc_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it and start over
+    if( pbase->state > (int)(ego_object_initializing + 1) )
+    {
+        enc_t * tmp_enc = enc_config_deconstruct( pprt, max_iterations );
+        if( tmp_enc == pprt ) return NULL;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    {
+        enc_t * ptmp = enc_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+enc_t * enc_config_activate( enc_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it and start over
+    if( pbase->state > (int)(ego_object_active + 1) )
+    {
+        enc_t * tmp_enc = enc_config_deconstruct( pprt, max_iterations );
+        if( tmp_enc == pprt ) return NULL;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
+    {
+        enc_t * ptmp = enc_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+enc_t * enc_config_deinitialize( enc_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deinitialize it
+    if( pbase->state > (int)(ego_object_deinitializing + 1) )
+    {
+        return pprt;
+    }
+    else if( pbase->state < ego_object_deinitializing )
+    {
+        pbase->state = ego_object_deinitializing;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    {
+        enc_t * ptmp = enc_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+enc_t * enc_config_deconstruct( enc_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it
+    if( pbase->state > (int)(ego_object_destructing + 1) )
+    {
+        return pprt;
+    }
+    else if( pbase->state < ego_object_deinitializing )
+    {
+        pbase->state = ego_object_deinitializing;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    {
+        enc_t * ptmp = enc_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+enc_t * enc_run_config( enc_t * penc )
+{
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( penc );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // set the object to deinitialize if it is not "dangerous" and if was requested
+    if ( pbase->kill_me )
+    {
+        if ( pbase->state > ego_object_constructing && pbase->state < ego_object_deinitializing )
+        {
+            pbase->state = ego_object_deinitializing;
+        }
+    }
+
+    switch ( pbase->state )
+    {
+        default:
+        case ego_object_invalid:
+            penc = NULL;
+            break;
+
+        case ego_object_constructing:
+            penc = enc_config_ctor( penc );
+            break;
+
+        case ego_object_initializing:
+            penc = enc_config_init( penc );
+            break;
+
+        case ego_object_active:
+            penc = enc_config_active( penc );
+            break;
+
+        case ego_object_deinitializing:
+            penc = enc_config_deinit( penc );
+            break;
+
+        case ego_object_destructing:
+            penc = enc_config_dtor( penc );
+            break;
+
+        case ego_object_waiting:
+        case ego_object_terminated:
+            /* do nothing */
+            break;
+    }
+
+    return penc;
+}
+
+
+//--------------------------------------------------------------------------------------------
+enc_t * enc_config_ctor( enc_t * penc )
 {
     ego_object_base_t save_base;
     ego_object_base_t * pbase;
@@ -889,7 +1096,7 @@ enc_t * enc_config_deinit( enc_t * penc )
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_dtor( enc_t * penc )
+enc_t * enc_config_dtor( enc_t * penc )
 {
     ego_object_base_t * pbase;
 
@@ -921,60 +1128,6 @@ enc_t * enc_config_active( enc_t * penc )
 
     return penc;
 }
-
-//--------------------------------------------------------------------------------------------
-enc_t * enc_run_config( enc_t * penc )
-{
-    ego_object_base_t * pbase;
-
-    pbase = POBJ_GET_PBASE( penc );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
-
-    // set the object to deinitialize if it is not "dangerous" and if was requested
-    if ( pbase->kill_me )
-    {
-        if ( pbase->state > ego_object_constructing && pbase->state < ego_object_deinitializing )
-        {
-            pbase->state = ego_object_deinitializing;
-        }
-    }
-
-    switch ( pbase->state )
-    {
-        default:
-        case ego_object_invalid:
-            penc = NULL;
-            break;
-
-        case ego_object_constructing:
-            penc = enc_ctor( penc );
-            break;
-
-        case ego_object_initializing:
-            penc = enc_config_init( penc );
-            break;
-
-        case ego_object_active:
-            penc = enc_config_active( penc );
-            break;
-
-        case ego_object_deinitializing:
-            penc = enc_config_deinit( penc );
-            break;
-
-        case ego_object_destructing:
-            penc = enc_dtor( penc );
-            break;
-
-        case ego_object_waiting:
-        case ego_object_terminated:
-            /* do nothing */
-            break;
-    }
-
-    return penc;
-}
-
 //--------------------------------------------------------------------------------------------
 ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_reference target, const CHR_REF by_reference spawner, const ENC_REF by_reference enc_override, const PRO_REF by_reference modeloptional )
 {

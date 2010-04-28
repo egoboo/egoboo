@@ -83,12 +83,21 @@ static BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lif
 
 static void resize_all_characters();
 
-static chr_t * chr_ctor( chr_t * pchr );
-static chr_t * chr_dtor( chr_t * pchr );
 static bool_t  chr_free( chr_t * pchr );
+
+chr_t * chr_run_config( chr_t * pchr );
+
+static chr_t * chr_config_ctor( chr_t * pchr );
 static chr_t * chr_config_init( chr_t * pchr );
 static chr_t * chr_config_deinit( chr_t * pchr );
 static chr_t * chr_config_active( chr_t * pchr );
+static chr_t * chr_config_dtor( chr_t * pchr );
+
+chr_t * chr_config_construct( chr_t * pprt, int max_iterations );
+chr_t * chr_config_initialize( chr_t * pprt, int max_iterations );
+chr_t * chr_config_activate( chr_t * pprt, int max_iterations );
+chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations );
+chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations );
 
 static int get_grip_verts( Uint16 grip_verts[], const CHR_REF by_reference imount, int vrt_offset );
 
@@ -338,7 +347,7 @@ void ChrList_init()
         memset( pchr, 0, sizeof( *pchr ) );
 
         // character "initializer"
-        chr_ctor( pchr );
+        ego_object_ctor( POBJ_GET_PBASE(pchr) );
 
         // push the characters onto the free stack
         ChrList.free_ref[ChrList.free_count] = ChrList.free_count;
@@ -355,7 +364,7 @@ void ChrList_dtor()
     ChrList.used_count = 0;
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        chr_dtor( ChrList.lst + cnt );
+        chr_config_deconstruct( ChrList.lst + cnt, 100 );
     }
 }
 
@@ -429,7 +438,7 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
         retval = btrue;
     }
 
-    pchr = chr_dtor( pchr );
+    pchr = chr_config_dtor( pchr );
     if ( NULL == pchr ) return bfalse;
 
     return retval;
@@ -509,7 +518,7 @@ CHR_REF ChrList_allocate( const CHR_REF by_reference override )
     if ( ALLOCATED_CHR( ichr ) )
     {
         // construct the new structure
-        chr_ctor( ChrList.lst + ichr );
+        chr_config_construct( ChrList.lst + ichr, 100 );
     }
 
     return ichr;
@@ -3478,7 +3487,7 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF by_reference index, const
 //--------------------------------------------------------------------------------------------
 #if defined(__cplusplus)
 s_chr::s_chr() { memset( this, 0, sizeof( *this ) ); };
-s_chr::~s_chr() { chr_dtor( this ); };
+s_chr::~s_chr() { chr_config_dtor( this ); };
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -3510,6 +3519,151 @@ bool_t chr_free( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+chr_t * chr_config_construct( chr_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it and start over
+    if( pbase->state > (int)(ego_object_constructing + 1) )
+    {
+        chr_t * tmp_chr = chr_config_deconstruct( pprt, max_iterations );
+        if( tmp_chr == pprt ) return NULL;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    {
+        chr_t * ptmp = chr_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_config_initialize( chr_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it and start over
+    if( pbase->state > (int)(ego_object_initializing + 1) )
+    {
+        chr_t * tmp_chr = chr_config_deconstruct( pprt, max_iterations );
+        if( tmp_chr == pprt ) return NULL;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    {
+        chr_t * ptmp = chr_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_config_activate( chr_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it and start over
+    if( pbase->state > (int)(ego_object_active + 1) )
+    {
+        chr_t * tmp_chr = chr_config_deconstruct( pprt, max_iterations );
+        if( tmp_chr == pprt ) return NULL;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
+    {
+        chr_t * ptmp = chr_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deinitialize it
+    if( pbase->state > (int)(ego_object_deinitializing + 1) )
+    {
+        return pprt;
+    }
+    else if( pbase->state < ego_object_deinitializing )
+    {
+        pbase->state = ego_object_deinitializing;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    {
+        chr_t * ptmp = chr_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations )
+{
+    int                 iterations;
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    // if the particle is already beyond this stage, deconstruct it
+    if( pbase->state > (int)(ego_object_destructing + 1) )
+    {
+        return pprt;
+    }
+    else if( pbase->state < ego_object_deinitializing )
+    {
+        pbase->state = ego_object_deinitializing;
+    }
+
+    iterations = 0;
+    while( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    {
+        chr_t * ptmp = chr_run_config( pprt );
+        if( ptmp != pprt ) return NULL;
+        iterations++;
+    }
+
+    return pprt;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 chr_t * chr_run_config( chr_t * pchr )
 {
     ego_object_base_t * pbase;
@@ -3534,7 +3688,7 @@ chr_t * chr_run_config( chr_t * pchr )
             break;
 
         case ego_object_constructing:
-            pchr = chr_ctor( pchr );
+            pchr = chr_config_ctor( pchr );
             break;
 
         case ego_object_initializing:
@@ -3550,7 +3704,7 @@ chr_t * chr_run_config( chr_t * pchr )
             break;
 
         case ego_object_destructing:
-            pchr = chr_dtor( pchr );
+            pchr = chr_config_dtor( pchr );
             break;
 
         case ego_object_waiting:
@@ -3563,7 +3717,7 @@ chr_t * chr_run_config( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_ctor( chr_t * pchr )
+chr_t * chr_config_ctor( chr_t * pchr )
 {
     /// @details BB@> initialize the character data to safe values
     ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
@@ -3740,7 +3894,7 @@ chr_t * chr_config_deinit( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_dtor( chr_t * pchr )
+chr_t * chr_config_dtor( chr_t * pchr )
 {
     /// @details BB@> deinitialize the character data
 
@@ -3761,6 +3915,7 @@ chr_t * chr_dtor( chr_t * pchr )
     return pchr;
 }
 
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, const TEAM_REF by_reference team,
                              Uint8 skin, FACING_T facing, const char *name, const CHR_REF by_reference override )
