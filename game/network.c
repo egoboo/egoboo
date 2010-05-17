@@ -37,7 +37,7 @@
 #include "egoboo_setup.h"
 #include "egoboo.h"
 
-#include <enet/enet.h>
+#include "enet/enet.h"
 #include "file_common.h"
 
 #include <stdarg.h>

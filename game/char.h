@@ -25,7 +25,7 @@
 
 #include "egoboo_object.h"
 
-#include "cap_file.h"
+#include "file_formats/cap_file.h"
 #include "graphic_mad.h"
 
 #include "sound.h"

@@ -23,7 +23,7 @@
 
 #include "egoboo_typedef.h"
 
-#include "id_md2.h"
+#include "file_formats/id_md2.h"
 #include "md2.h"
 
 #include <SDL_opengl.h>

@@ -1,0 +1,562 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{44c427bb-9032-4a78-b167-22a4e5dac362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SDL Extensions">
+      <UniqueIdentifier>{7990de6a-89bb-42a1-a26d-d7016a3f925a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File System">
+      <UniqueIdentifier>{61c77dd7-e4ac-4f38-a956-03aede20153d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{7e67cd1c-9e82-46f6-bff6-33deea9c44b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File System\Headers">
+      <UniqueIdentifier>{6d9e457b-b37c-4432-98da-e2c9483c15a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File System\Source">
+      <UniqueIdentifier>{6a653bb4-77b5-4fa0-b881-b475b4aac71a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bbox.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="char.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="client.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="clock.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="collision.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ego_wrap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_console.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_endian.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_fileutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_math.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_process.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_setup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_strutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_typedef.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_vfs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="enchant.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="file_common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="font_bmp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="font_ttf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="game.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_fan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_mad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_prt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lighting.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="link.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="log.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_console.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="md2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="menu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="passage.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="physics.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="profile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="quest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rpc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script_compile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="script_functions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="server.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sound.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_debug.c">
+      <Filter>SDL Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_texture.c">
+      <Filter>SDL Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_extensions.c">
+      <Filter>SDL Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_include.c">
+      <Filter>SDL Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\SDL_GL_extensions.c">
+      <Filter>SDL Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\SDL_extensions.c">
+      <Filter>SDL Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_object.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\file_win.c">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sys_linux.c">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sys_mac.c">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sys_win32.c">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\file_linux.c">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\cap_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\wawalite_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\configfile.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\eve_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\id_md2.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\module_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\mpd_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\passage_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\pip_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\scancode_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\SDL_md2.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\spawn_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\template.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="char.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_doxygen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_fileutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_mem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_process.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_setup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_strutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_typedef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_typedef_cpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_vfs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="enchant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="font_bmp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="font_ttf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_fan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_mad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_prt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lighting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="link.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="md2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="passage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="profile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rpc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script_compile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="script_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\res\resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\SDL_extensions.h">
+      <Filter>SDL Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\SDL_GL_extensions.h">
+      <Filter>SDL Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_texture.h">
+      <Filter>SDL Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_debug.h">
+      <Filter>SDL Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_extensions.h">
+      <Filter>SDL Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_include.h">
+      <Filter>SDL Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_state_machine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\cap_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\configfile.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\eve_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\id_md2.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\module_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\mpd_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\passage_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\pip_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\scancode_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\SDL_md2.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\spawn_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\template.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\wawalite_file.h">
+      <Filter>File System\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="char.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="egoboo_console.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="egoboo_math.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="enchant.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="md2.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="mesh.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="particle.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="physics.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="profile.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\res\egoboo3.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\egoboo.aps">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\egoboo.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\install.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\old-egoboo.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="platform\file_mac.m">
+      <Filter>Platform</Filter>
+    </None>
+    <None Include="file_formats\id_normals.inl">
+      <Filter>File System\Headers</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\res\egoboo.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -1471,7 +1471,6 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     Uint32 itile;
     int   ix_min, ix_max, iy_min, iy_max;
     float fx_min, fx_max, fy_min, fy_max, obj_area;
-    float dist2;
     int ix, iy;
     bool_t invalid;
 

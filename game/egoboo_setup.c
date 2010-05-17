@@ -24,7 +24,7 @@
 #include "egoboo_setup.h"
 
 #include "log.h"
-#include "configfile.h"
+#include "file_formats/configfile.h"
 #include "graphic.h"
 #include "input.h"
 #include "particle.inl"

@@ -19,8 +19,8 @@
 //*
 //********************************************************************************************
 
-#include "mpd_file.h"
-#include "ogl_include.h"
+#include "file_formats/mpd_file.h"
+#include "extensions/ogl_include.h"
 
 #include "lighting.h"
 #include "bsp.h"

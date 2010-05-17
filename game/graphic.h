@@ -20,8 +20,8 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
-#include "ogl_texture.h"
-#include "module_file.h"
+#include "extensions/ogl_texture.h"
+#include "file_formats/module_file.h"
 #include "mesh.h"
 #include "mad.h"
 

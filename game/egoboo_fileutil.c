@@ -23,7 +23,7 @@
 
 #include "egoboo_fileutil.h"
 
-#include "ogl_texture.h"
+#include "extensions/ogl_texture.h"
 #include "log.h"
 
 #include "mad.h"

@@ -468,6 +468,17 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
 }
 
 //--------------------------------------------------------------------------------------------
+void vfs_listSearchPaths()
+{
+	//JJ> Lists all search paths that PhysFS uses (for debug use)
+	char **i;
+	printf("LISTING ALL PHYSFS SEARCH PATHS:\n");
+	printf("----------------------------------\n");
+	for (i = PHYSFS_getSearchPath(); *i != NULL; i++)	printf("[%s] is in the search path.\n", *i);
+	printf("----------------------------------\n");
+}
+
+//--------------------------------------------------------------------------------------------
 const char * vfs_resolveReadFilename( const char * src_filename )
 {
     static STRING read_name_str = EMPTY_CSTR;
@@ -522,27 +533,24 @@ const char * vfs_resolveReadFilename( const char * src_filename )
     }
     else
     {
-        const char * tmp_dirnane;
+        const char * tmp_dirname;
         const char * ptmp = loc_fname;
 
         // make PHYSFS grab the actual directory
-        tmp_dirnane = PHYSFS_getRealDir( loc_fname );
+		tmp_dirname = PHYSFS_getRealDir( loc_fname );
 
-        if ( INVALID_CSTR( tmp_dirnane ) )
+		if ( INVALID_CSTR( tmp_dirname ) )
         {
             // not found... just punt
             strncpy( read_name_str, loc_fname, SDL_arraysize( read_name_str ) );
-            retval     = read_name_str;
-            retval_len = SDL_arraysize( read_name_str );
         }
         else
         {
             ptmp = _vfs_strip_mount_point( loc_fname );
-
-            snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s" SLASH_STR "%s", tmp_dirnane, ptmp );
-            retval     = read_name_str;
-            retval_len = SDL_arraysize( read_name_str );
+            snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s" SLASH_STR "%s", tmp_dirname, ptmp );
         }
+        retval     = read_name_str;
+        retval_len = SDL_arraysize( read_name_str );
     }
 
     if ( VALID_CSTR( retval ) && retval_len > 0 )
@@ -590,7 +598,7 @@ vfs_FILE * vfs_openRead( const char * filename )
     vfs_FILE    * vfs_file;
     FILE        * ftmp;
 
-    parse_filename = "";
+   // parse_filename = "";
 
     real_filename = vfs_resolveReadFilename( filename );
     if ( NULL == real_filename ) return NULL;

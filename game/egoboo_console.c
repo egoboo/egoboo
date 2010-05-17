@@ -27,8 +27,8 @@
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 
-#include "ogl_debug.h"
-#include "SDL_extensions.h"
+#include "extensions/ogl_debug.h"
+#include "extensions/SDL_extensions.h"
 
 #include "file_common.h"
 
