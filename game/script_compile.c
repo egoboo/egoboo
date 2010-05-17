@@ -526,7 +526,7 @@ void script_compiler_init()
     // necessary for loading up the ai script
     init_all_ai_scripts();
 
-    load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
+    load_ai_codes( "mp_data/aicodes.txt" );
 
     debug_script_file = fopen( vfs_resolveWriteFilename( "/debug/script_debug.txt" ), "wt" );
 }

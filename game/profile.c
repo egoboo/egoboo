@@ -132,7 +132,7 @@ void profile_system_begin()
     script_compiler_init();
 
     // necessary for loading up the copy.txt file
-    load_action_names( "basicdat" SLASH_STR "actions.txt" );
+    load_action_names( "mp_data/actions.txt" );
 
     // necessary for properly reading the "message.txt"
     reset_messages();

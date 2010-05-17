@@ -374,4 +374,4 @@ egoboo_rv move_water( water_instance_t * pwater );
 void disenchant_character( const CHR_REF by_reference ichr );
 
 // manage the game's vfs mount points
-bool_t game_setup_vfs( const char * modname );
+bool_t game_setup_vfs( const char * mod_path );

@@ -146,7 +146,7 @@ EXTERN int             update_lag  EQ( 0 );
 EXTERN bool_t          soundon  EQ( btrue );              ///< Is the sound alive?
 
 EXTERN bool_t          pickedmodule_ready;              ///< Is there a new picked module?
-EXTERN char            pickedmodule_name[64];           ///< The module load name
+EXTERN char            pickedmodule_path[64];           ///< The module load name
 EXTERN int             pickedmodule_index;                ///< The module index number
 
 /// Respawning

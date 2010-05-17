@@ -477,10 +477,10 @@ int menu_system_begin()
 
     autoformat_init( &gfx );
 
-    menuFont = ui_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
+    menuFont = ui_loadFont( vfs_resolveReadFilename("mp_data/Negatori.ttf"), 18 );
     if ( NULL == menuFont )
     {
-        log_error( "Could not load the menu font! (Negatori.ttf)\n" );
+        log_error( "Could not load the menu font! (\"mp_data/Negatori.ttf\")\n" );
         return 0;
     }
 
@@ -574,10 +574,10 @@ int doMainMenu( float deltaTime )
             menuState = MM_Entering;
 
             // load the menu image
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", INVALID_KEY );
+            ego_texture_load( &background, "mp_data/menu/menu_main", INVALID_KEY );
 
             // load the logo image
-            ego_texture_load( &logo,       "basicdat" SLASH_STR "menu" SLASH_STR "menu_logo", INVALID_KEY );
+            ego_texture_load( &logo,       "mp_data/menu/menu_logo", INVALID_KEY );
 
             // calculate the centered position of the background
             fminw = ( float ) MIN( GFX_WIDTH , background.imgW ) / ( float ) background.imgW;
@@ -727,7 +727,7 @@ int doSinglePlayerMenu( float deltaTime )
     {
         case MM_Begin:
             // Load resources for this menu
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
+            ego_texture_load( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
             menuChoice = 0;
 
             menuState = MM_Entering;
@@ -852,7 +852,7 @@ int doChooseModule( float deltaTime )
             load_all_menu_images();
 
             // Load font & background
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
+            ego_texture_load( &background, "mp_data/menu/menu_sleepy", TRANSCOLOR );
             startIndex = 0;
             selectedModule = -1;
 
@@ -1081,7 +1081,7 @@ int doChooseModule( float deltaTime )
             {
                 // Save the name of the module that we've picked
                 pickedmodule_index = selectedModule;
-                strncpy( pickedmodule_name, mnu_ModList.lst[( MOD_REF )selectedModule].name, SDL_arraysize( pickedmodule_name ) );
+                strncpy( pickedmodule_path, mnu_ModList.lst[( MOD_REF )selectedModule].name, SDL_arraysize( pickedmodule_path ) );
 
                 if ( !game_choose_module( selectedModule, -1 ) )
                 {
@@ -1118,7 +1118,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 
     if ( 0 == bookicon_count )
     {
-        load_one_profile( "basicdat" SLASH_STR "globalobjects" SLASH_STR "book.obj", SPELLBOOK );
+        load_one_profile( "mp_data/globalobjects/book.obj", SPELLBOOK );
     }
 
     // release any data that we have accumulated
@@ -1347,30 +1347,30 @@ int doChoosePlayer( float deltaTime )
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
 
-            TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
+            TxTexture_load_one( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
 
-            TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
+            TxTexture_load_one( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
             BitsInput[0] = INPUT_BITS_KEYBOARD;
             device_on[0] = keyb.on;
 
-            TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
+            TxTexture_load_one( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
             BitsInput[1] = INPUT_BITS_MOUSE;
             device_on[1] = mous.on;
 
-            TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
+            TxTexture_load_one( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
             BitsInput[2] = INPUT_BITS_JOYA;
             device_on[2] = joy[0].on;
 
-            TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
+            TxTexture_load_one( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
             BitsInput[3] = INPUT_BITS_JOYB;
             device_on[3] = joy[1].on;
 
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
+            ego_texture_load( &background, "mp_data/menu/menu_sleepy", TRANSCOLOR );
 
-            TxTexture_load_one( "basicdat" SLASH_STR "bars", ( TX_REF )TX_BARS, INVALID_KEY );
+            TxTexture_load_one( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
 
             // load information for all the players that could be imported
-            mnu_player_check_import( "players", btrue );
+            mnu_player_check_import( "mp_players", btrue );
 
             // reset button 0, or it will mess up the menu.
             // must do it before mnu_SlidyButton_init()
@@ -1730,7 +1730,7 @@ int doOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            ego_texture_load( &background, "mp_data/menu/menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
 
@@ -2268,7 +2268,7 @@ int doGameOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_fairy", TRANSCOLOR );
+            ego_texture_load( &background, "mp_data/menu/menu_fairy", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -2589,7 +2589,7 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_draco", TRANSCOLOR );
+            ego_texture_load( &background, "mp_data/menu/menu_draco", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -2989,7 +2989,7 @@ int doVideoOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_video", TRANSCOLOR );
+            ego_texture_load( &background, "mp_data/menu/menu_video", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -4243,7 +4243,7 @@ void load_all_menu_images()
         else if ( mnu_test_by_index( imod ) )
         {
             // @note just because we can't load the title image DOES NOT mean that we ignore the module
-            snprintf( loadname, SDL_arraysize( loadname ), "%s" SLASH_STR "gamedat" SLASH_STR "title", mnu_ModList.lst[imod].name );
+            snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", mnu_ModList.lst[imod].name );
 
             mnu_ModList.lst[imod].tex_index = TxTitleImage_load_one( loadname );
 
@@ -4399,15 +4399,19 @@ void mnu_module_init( mnu_module_t * pmod )
 //--------------------------------------------------------------------------------------------
 void mnu_load_all_module_info()
 {
-    STRING loadname;
+    vfs_search_context_t * ctxt;
+
     const char *FileName;
+    STRING      loadname;
 
     // reset the module list
     mnu_ModList_release_all();
 
     // Search for all .mod directories and load the module info
-    FileName = vfs_findFirst( "modules", "mod", VFS_SEARCH_DIR );
-    while ( VALID_CSTR( FileName ) && mnu_ModList.count < MAX_MODULE )
+    ctxt = vfs_findFirst( "mp_modules", "mod", VFS_SEARCH_DIR );
+    FileName = vfs_search_context_get_current( ctxt );
+
+    while ( NULL != ctxt && VALID_CSTR( FileName ) && mnu_ModList.count < MAX_MODULE )
     {
         mnu_module_t * pmod = mnu_ModList.lst + ( MOD_REF )mnu_ModList.count;
 
@@ -4420,13 +4424,14 @@ void mnu_load_all_module_info()
         if ( NULL != module_load_info( loadname, &( pmod->base ) ) )
         {
             pmod->loaded = btrue;
-            strncpy( pmod->name, vfs_convert_fname_sys( FileName ), SDL_arraysize( pmod->name ) );
+            strncpy( pmod->name, FileName, SDL_arraysize( pmod->name ) );
             mnu_ModList.count++;
         };
 
-        FileName = vfs_findNext();
+        ctxt = vfs_findNext( &ctxt );
+        FileName = vfs_search_context_get_current( ctxt );
     }
-    vfs_findClose();
+    vfs_findClose( &ctxt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4629,7 +4634,7 @@ void mnu_GameTip_load_global()
     fileread = vfs_openRead( "mp_data/gametips.txt" );
     if ( NULL == fileread )
     {
-        log_warning( "Could not load the game tips and hints. (basicdat" SLASH_STR "gametips.txt)\n" );
+        log_warning( "Could not load the game tips and hints. (\"mp_data/gametips.txt\")\n" );
         return;
     }
 
@@ -4974,6 +4979,7 @@ void mnu_player_check_import( const char *dirname, bool_t initialize )
     /// @details ZZ@> This function figures out which players may be imported, and loads basic
     ///     data for each
 
+    vfs_search_context_t * ctxt;
     const char *foundfile;
 
     if ( initialize )
@@ -4982,12 +4988,15 @@ void mnu_player_check_import( const char *dirname, bool_t initialize )
     };
 
     // Search for all objects
-    foundfile = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
-    while ( VALID_CSTR( foundfile ) && loadplayer_count < MAXLOADPLAYER )
+    ctxt = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
+    foundfile = vfs_search_context_get_current( ctxt );
+
+    while ( NULL != ctxt && VALID_CSTR( foundfile ) && loadplayer_count < MAXLOADPLAYER )
     {
         loadplayer_import_one( foundfile );
 
-        foundfile = vfs_findNext();
+        ctxt = vfs_findNext( &ctxt );
+        foundfile = vfs_search_context_get_current( ctxt );
     }
-    vfs_findClose();
+    vfs_findClose( &ctxt );
 }

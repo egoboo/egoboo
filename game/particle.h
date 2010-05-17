@@ -239,3 +239,5 @@ bool_t prt_request_terminate( const PRT_REF by_reference iprt );
 void particle_set_level( prt_t * pprt, float level );
 
 size_t spawn_all_delayed_particles();
+
+prt_t * prt_run_config( prt_t * pprt );

@@ -88,7 +88,6 @@ static prt_t * prt_config_init( prt_t * pprt );
 static prt_t * prt_config_active( prt_t * pprt );
 static prt_t * prt_config_deinit( prt_t * pprt );
 static prt_t * prt_config_dtor( prt_t * pprt );
-static prt_t * prt_run_config( prt_t * pprt );
 
 prt_t * prt_config_construct( prt_t * pprt, int max_iterations );
 prt_t * prt_config_initialize( prt_t * pprt, int max_iterations );
@@ -410,7 +409,6 @@ void PrtList_free_all()
 void PrtList_cleanup()
 {
     int     cnt;
-    pip_t * ppip;
     prt_t * pprt;
 
     // go through the list and activate all the particles that
@@ -424,25 +422,12 @@ void PrtList_cleanup()
 
         if ( INGAME_PRT( iprt ) ) continue;
 
-        ppip = NULL;
-        if ( LOADED_PIP( pprt->pip_ref ) )
-        {
-            ppip = PipStack.lst + pprt->pip_ref;
-        }
-
-        if ( NULL == ppip )
-        {
-            EGO_OBJECT_ACTIVATE( pprt, "UNKNOWN" );
-        }
-        else
-        {
-            EGO_OBJECT_ACTIVATE( pprt, ppip->name );
-        }
+        prt_config_activate( pprt, 100 );
     }
     prt_activation_count = 0;
 
     // go through and delete any particles that were
-    // supsed to be deleted while the list was iterating
+    // supposed to be deleted while the list was iterating
     for ( cnt = 0; cnt < prt_termination_count; cnt++ )
     {
         PRT_REF iprt = prt_termination_list[cnt];
@@ -782,6 +767,7 @@ prt_t * prt_config_ctor( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_init( prt_t * pprt )
 {
+    pip_t * ppip;
     ego_object_base_t * pbase;
 
     pbase = POBJ_GET_PBASE( pprt );
@@ -789,7 +775,20 @@ prt_t * prt_config_init( prt_t * pprt )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pprt;
 
-    pbase->state = ego_object_active;
+    ppip = NULL;
+    if ( LOADED_PIP( pprt->pip_ref ) )
+    {
+        ppip = PipStack.lst + pprt->pip_ref;
+    }
+
+    if ( NULL == ppip )
+    {
+        EGO_OBJECT_ACTIVATE( pprt, "UNKNOWN" );
+    }
+    else
+    {
+        EGO_OBJECT_ACTIVATE( pprt, ppip->name );
+    }
 
     return pprt;
 }
@@ -3332,6 +3331,8 @@ void cleanup_all_particles()
                 }
             }
         }
+
+        prt_run_config( pprt );
     }
 }
 

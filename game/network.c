@@ -774,15 +774,19 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
 {
     /// @details ZZ@> This function copies all files in a directory
 
+    vfs_search_context_t * ctxt;
+    const char *searchResult;
+
     STRING fromname;
     STRING toname;
-    const char *searchResult;
 
     log_info( "net_copyDirectoryToHost: %s, %s\n", dirname, todirname );
 
     // Search for all files
-    searchResult = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
-    if ( VALID_CSTR( searchResult ) )
+    ctxt = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+    searchResult = vfs_search_context_get_current( ctxt );
+
+    if ( NULL != ctxt && VALID_CSTR( searchResult ) )
     {
         // Make the new directory
         net_copyFileToHost( dirname, todirname );
@@ -797,7 +801,8 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
             snprintf( fromname, SDL_arraysize( fromname ), "%s" SLASH_STR "%s", dirname, searchResult );
             if ( '.' == searchResult[0] || vfs_isDirectory( fromname ) )
             {
-                searchResult = vfs_findNext();
+                ctxt = vfs_findNext( &ctxt );
+                searchResult = vfs_search_context_get_current( ctxt );
                 continue;
             }
 
@@ -805,11 +810,13 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
             snprintf( toname, SDL_arraysize( toname ), "%s" SLASH_STR "%s", todirname, searchResult );
 
             net_copyFileToHost( fromname, toname );
-            searchResult = vfs_findNext();
+
+            ctxt = vfs_findNext( &ctxt );
+            searchResult = vfs_search_context_get_current( ctxt );
         }
     }
 
-    vfs_findClose();
+    vfs_findClose( &ctxt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -817,15 +824,19 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 {
     /// @details ZZ@> This function copies all files in a directory
 
-    STRING fromname;
-    STRING toname;
+    vfs_search_context_t * ctxt;
     const char *searchResult;
 
+    STRING fromname;
+    STRING toname;
+    
     log_info( "net_copyDirectoryToAllPlayers: %s, %s\n", dirname, todirname );
 
     // Search for all files
-    searchResult = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
-    if ( VALID_CSTR( searchResult ) )
+    ctxt = vfs_findFirst( dirname, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+    searchResult = vfs_search_context_get_current( ctxt );
+
+    if ( NULL != ctxt && VALID_CSTR( searchResult ) )
     {
         // Make the new directory
         net_copyFileToAllPlayers( dirname, todirname );
@@ -838,7 +849,9 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
             // directories, /., and /.. from being copied
             if ( '.' == searchResult[0] )
             {
-                searchResult = vfs_findNext();
+                ctxt = vfs_findNext( &ctxt );
+                searchResult = vfs_search_context_get_current( ctxt );
+
                 continue;
             }
 
@@ -846,11 +859,12 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
             snprintf( toname, SDL_arraysize( toname ), "%s" SLASH_STR "%s", todirname, searchResult );
             net_copyFileToAllPlayers( fromname, toname );
 
-            searchResult = vfs_findNext();
+            ctxt = vfs_findNext( &ctxt );
+            searchResult = vfs_search_context_get_current( ctxt );
         }
     }
 
-    vfs_findClose();
+    vfs_findClose( &ctxt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1292,10 +1306,10 @@ void net_handlePacket( ENetEvent *event )
             {
                 PMod->seed = packet_readUnsignedInt();
                 packet_readString( filename, 255 );
-                strncpy( pickedmodule_name, filename, SDL_arraysize( pickedmodule_name ) );
+                strncpy( pickedmodule_path, filename, SDL_arraysize( pickedmodule_path ) );
 
                 // Check to see if the module exists
-                pickedmodule_index = mnu_get_mod_number( pickedmodule_name );
+                pickedmodule_index = mnu_get_mod_number( pickedmodule_path );
                 if ( -1 != pickedmodule_index )
                 {
                     pickedmodule_ready = btrue;

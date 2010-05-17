@@ -113,6 +113,8 @@ int fs_fileExists( const char *filename )
 
     int retval = 0;
 
+    if( NULL == filename || '\0' == filename[0] ) return retval;
+
     ptmp = fopen( filename, "rb" );
     if ( NULL != ptmp )
     {

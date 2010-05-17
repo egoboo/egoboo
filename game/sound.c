@@ -749,7 +749,7 @@ void load_all_music_sounds()
     if ( musicinmemory || !snd.musicvalid ) return;
 
     // Open the playlist listing all music files
-    snprintf( loadpath, SDL_arraysize( loadpath ), "basicdat" SLASH_STR "music" SLASH_STR "playlist.txt" );
+    snprintf( loadpath, SDL_arraysize( loadpath ), "mp_data/music/playlist.txt" );
     playlist = vfs_openRead( loadpath );
     if ( NULL == playlist )
     {
@@ -764,8 +764,8 @@ void load_all_music_sounds()
         {
             fget_string( playlist, songname, SDL_arraysize( songname ) );
 
-            snprintf( loadpath, SDL_arraysize( loadpath ), ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
-            musictracksloaded[cnt] = Mix_LoadMUS( loadpath );
+            snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/%s" ), songname );
+            musictracksloaded[cnt] = Mix_LoadMUS( vfs_resolveReadFilename(loadpath) );
         }
     }
     musicinmemory = btrue;

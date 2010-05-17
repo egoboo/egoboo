@@ -29,6 +29,9 @@
 #include "file_common.h"
 #include <SDL_types.h>
 
+struct s_vfs_search_context;
+typedef struct s_vfs_search_context vfs_search_context_t;
+
 /// What type of things are we searching for?
 enum e_vfs_serach_bits
 {
@@ -94,9 +97,11 @@ int    vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val );
 char ** vfs_enumerateFiles( const char * dir_name );
 void    vfs_freeList( void * listVar );
 
-const char * vfs_findFirst( const char * search_path, const char * search_extension, Uint32 search_bits );
-const char * vfs_findNext();
-void         vfs_findClose();
+const char * vfs_search_context_get_current( struct s_vfs_search_context * ctxt );
+
+vfs_search_context_t * vfs_findFirst( const char * search_path, const char * search_extension, Uint32 search_bits );
+vfs_search_context_t * vfs_findNext( vfs_search_context_t ** pctxt );
+void                   vfs_findClose( vfs_search_context_t ** pctxt );
 
 long         vfs_fileLength( vfs_FILE * pfile );
 

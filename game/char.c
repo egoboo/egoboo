@@ -85,8 +85,6 @@ static void resize_all_characters();
 
 static bool_t  chr_free( chr_t * pchr );
 
-chr_t * chr_run_config( chr_t * pchr );
-
 static chr_t * chr_config_ctor( chr_t * pchr );
 static chr_t * chr_config_init( chr_t * pchr );
 static chr_t * chr_config_deinit( chr_t * pchr );

@@ -216,7 +216,7 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
     filewrite = vfs_openWrite( szLoadName );
     if ( NULL == filewrite ) return bfalse;
 
-    filetemp = template_open( "/basicdat/templates/enchant.txt" );
+    filetemp = template_open( "mp_data/templates/enchant.txt" );
 
     // btrue/bfalse values
     template_put_bool( filetemp, filewrite, peve->retarget );

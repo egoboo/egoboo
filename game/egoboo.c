@@ -48,6 +48,7 @@
 #include "egoboo_setup.h"
 #include "egoboo_vfs.h"
 #include "egoboo_console.h"
+#include "egoboo_strutil.h"
 #include "egoboo.h"
 
 #include <SDL.h>
@@ -100,7 +101,6 @@ int do_ego_proc_begin( ego_process_t * eproc )
     egoboo_setup_vfs();
 
     // Initialize logging next, so that we can use it everywhere.
-    vfs_mkdir( "/debug" );
     log_init( vfs_resolveWriteFilename( "/debug/log.txt" ) );
     log_setLoggingLevel( 3 );
 
@@ -137,7 +137,29 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // read all the scantags
     scantag_read_all( vfs_resolveReadFilename( "mp_data/scancode.txt" ) );
-    input_settings_load( vfs_resolveReadFilename( "mp_data/controls.txt" ) );
+
+    {
+        // we can't use the vfs to do this in win32 because of the dir structure and
+        // the fact that PHYSFS will not add the same directory to 2 different mount points...
+        // seems pretty stupid to me, but there you have it.
+        
+        STRING path_str;
+
+        snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
+        str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
+        if( !fs_fileExists(path_str) )
+        {
+            snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
+            str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
+
+            if( !fs_fileExists(path_str) )
+            {
+                log_error( "Cannot find the file \"controls.txt\".\n" );
+            }
+        }
+
+        input_settings_load( path_str );
+    }
 
     // synchronoze the config values with the various game subsystems
     // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped
@@ -156,8 +178,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     profile_system_begin();
 
     // setup the menu system's gui
-    ui_begin( "basicdat" SLASH_STR "Negatori.ttf", 24 );
-    font_bmp_load( "basicdat" SLASH_STR "font_new_shadow", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
+    ui_begin( vfs_resolveReadFilename("mp_data/Negatori.ttf"), 24 );
+    font_bmp_load( "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory
     vfs_empty_import_directory();
@@ -635,7 +657,10 @@ void egoboo_clear_vfs()
 {
     /// @details BB@> clear out the basic mount points
 
-    vfs_remove_mount_point( "mp_data" );
+    vfs_remove_mount_point( "mp_data"    );
+    vfs_remove_mount_point( "mp_modules" );
+    vfs_remove_mount_point( "mp_players" );
+    vfs_remove_mount_point( "mp_remote"  );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -645,10 +670,32 @@ void egoboo_setup_vfs()
 
     STRING tmp_dir;
 
-    // mount all of the default global data directories
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s/basicdat", fs_getDataDirectory() );
-    vfs_add_mount_point( tmp_dir,                 "mp_data", 0 );
+    //---- mount all of the default global directories
 
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s/basicdat/globalparticles", fs_getDataDirectory() );
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "basicdat", fs_getDataDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_data", 0 );
+
+    // put the globalparticles data in front of the other game data
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalparticles", fs_getDataDirectory() );
     vfs_add_mount_point( tmp_dir, "mp_data", 1 );
+
+    // Create a mount point for the /data/modules directory
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "modules", fs_getDataDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_modules", 0 );
+
+    // Create a mount point for the /user/modules directory
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "modules", fs_getUserDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_modules", 0 );
+
+    // Create a mount point for the /data/players directory
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "players", fs_getDataDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_players", 0 );
+
+    // Create a mount point for the /user/players directory
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "players", fs_getUserDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_players", 0 );
+
+    // Create a mount point for the /user/remote directory
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "remote", fs_getUserDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_remote", 0 );
 }

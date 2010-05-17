@@ -141,3 +141,5 @@ bool_t enc_request_terminate( const ENC_REF by_reference  ienc );
 
 void enchant_system_begin();
 void enchant_system_end();
+
+enc_t * enc_run_config( enc_t * penc );

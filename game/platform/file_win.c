@@ -62,7 +62,7 @@ void fs_init()
     // according to Microsoft's standards.  Will people like this, or
     // should I stick saves someplace easier to find, like My Documents?
     SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, win32_userDataPath );
-    strncat( win32_userDataPath, SLASH_STR "egoboo" SLASH_STR, MAX_PATH );
+    strncat( win32_userDataPath, SLASH_STR "egoboo", MAX_PATH );
 
     // grab the actual location of the binary
     GetModuleFileName( NULL, win32_binaryPath, MAX_PATH );

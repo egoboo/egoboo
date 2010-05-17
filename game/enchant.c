@@ -48,7 +48,6 @@ int enc_loop_depth = 0;
 //--------------------------------------------------------------------------------------------
 static bool_t  enc_free( enc_t * penc );
 
-static enc_t * enc_run_config( enc_t * penc );
 static enc_t * enc_config_ctor( enc_t * penc );
 static enc_t * enc_config_init( enc_t * penc );
 static enc_t * enc_config_deinit( enc_t * penc );

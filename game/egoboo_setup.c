@@ -33,6 +33,7 @@
 #include "camera.h"
 
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -160,13 +161,39 @@ bool_t setup_read( const char* filename )
 {
     /// @details BB@> read the setup file
 
+    STRING path_str;
+
     if ( INVALID_CSTR( filename ) ) return bfalse;
 
-    strncpy( _config_filename, filename, SDL_arraysize( _config_filename ) );
+    if( filename[0] != '/' )
+    {
+        // we can't use the vfs to do this in win32 because of the dir structure and
+        // the fact that PHYSFS will not add the same directory to 2 different mount points...
+        // seems pretty stupid to me, but there you have it.
+        
+        snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
+        str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
+        if( !fs_fileExists(path_str) )
+        {
+            snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
+            str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
+
+            if( !fs_fileExists(path_str) )
+            {
+                log_error( "Cannot find the file \"%s\".\n", filename );
+            }
+        }
+    }
+    else
+    {
+        strncpy( path_str, filename, SDL_arraysize( path_str ) );
+    }
+
+    strncpy( _config_filename, path_str, SDL_arraysize( _config_filename ) );
 
     // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
     // linux if the directory is read-only
-    lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ), bfalse );
+    lConfigSetup = LoadConfigFile( _config_filename, bfalse );
 
     // if the file can't be opened, try to create something
     if ( NULL == lConfigSetup )

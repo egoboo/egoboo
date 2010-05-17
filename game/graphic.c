@@ -4560,11 +4560,11 @@ bool_t load_all_global_icons()
     bool_t result = bfalse;
 
     // Now load every icon
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "basicdat" SLASH_STR "joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
 
     return result;
 }
@@ -4670,7 +4670,7 @@ bool_t load_blips()
     /// ZZ@> This function loads the blip bitmaps
     if ( INVALID_TX_TEXTURE == TxTexture_load_one( "mp_data/blip", ( TX_REF )TX_BLIP, INVALID_KEY ) )
     {
-        log_warning( "Blip bitmap not loaded! (\"%s\")\n", "basicdat" SLASH_STR "blip" );
+        log_warning( "Blip bitmap not loaded! (\"mp_data/blip\")\n" );
         return bfalse;
     }
 

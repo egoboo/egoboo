@@ -647,3 +647,5 @@ void character_system_end();
 MAD_REF        chr_get_imad( const CHR_REF by_reference ichr );
 struct s_mad * chr_get_pmad( const CHR_REF by_reference ichr );
 TX_REF         chr_get_icon_ref( const CHR_REF by_reference item );
+
+chr_t * chr_run_config( chr_t * pchr );

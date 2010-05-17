@@ -424,7 +424,7 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     if ( NULL == filewrite ) return bfalse;
 
     // open the template file
-    filetemp = template_open( "/basicdat/templates/data.txt" );
+    filetemp = template_open( "mp_data/templates/data.txt" );
     if ( NULL == filetemp )
     {
         vfs_close( filewrite );

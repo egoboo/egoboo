@@ -253,11 +253,11 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
         // players/twink.obj or players/twink.obj/sword.obj
         if ( is_local )
         {
-            snprintf( todir, SDL_arraysize( todir ), "players" SLASH_STR "%s", todirfullname );
+            snprintf( todir, SDL_arraysize( todir ), "mp_players" SLASH_STR "%s", todirfullname );
         }
         else
         {
-            snprintf( todir, SDL_arraysize( todir ), "remote" SLASH_STR "%s", todirfullname );
+            snprintf( todir, SDL_arraysize( todir ), "mp_remote" SLASH_STR "%s", todirfullname );
         }
 
         // modules/advent.mod/objects/advent.obj
@@ -1042,7 +1042,7 @@ int do_game_proc_begin( game_process_t * gproc )
 
     // Linking system
     log_info( "Initializing module linking... " );
-    if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
+    if ( link_build( "mp_data/link.txt", LinkList ) ) log_message( "Success!\n" );
     else log_message( "Failure!\n" );
 
     // initialize the collision system
@@ -1057,7 +1057,7 @@ int do_game_proc_begin( game_process_t * gproc )
     camera_ctor( PCamera );
 
     // try to start a new module
-    if ( !game_begin_module( pickedmodule_name, ( Uint32 )~0 ) )
+    if ( !game_begin_module( pickedmodule_path, ( Uint32 )~0 ) )
     {
         // failure - kill the game process
         process_kill( PROC_PBASE( gproc ) );
@@ -2535,26 +2535,31 @@ void game_load_module_profiles( const char *modname )
 {
     /// @details BB@> Search for .obj directories int the module directory and load them
 
+    vfs_search_context_t * ctxt;
     const char *filehandle;
     STRING newloadname;
 
     import_data.slot = -100;
     make_newloadname( modname, "objects", newloadname );
 
-    filehandle = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
-    while ( NULL != filehandle )
+    ctxt = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
+    filehandle = vfs_search_context_get_current( ctxt );
+
+    while ( NULL != ctxt && VALID_CSTR(filehandle) )
     {
         load_one_profile( filehandle, MAX_PROFILE );
-        filehandle = vfs_findNext();
+
+        ctxt = vfs_findNext( &ctxt );
+        filehandle = vfs_search_context_get_current( ctxt );
     }
-    vfs_findClose();
+    vfs_findClose( &ctxt );
 }
 
 //--------------------------------------------------------------------------------------------
 void game_load_global_profiles()
 {
     // load all special objects
-    load_one_profile( "basicdat" SLASH_STR "globalobjects" SLASH_STR "book.obj", SPELLBOOK );
+    load_one_profile( "mp_data/globalobjects/book.obj", SPELLBOOK );
 
     // load the objects from various import directories
     load_all_profiles_import();
@@ -2887,22 +2892,27 @@ void activate_spawn_file()
 //--------------------------------------------------------------------------------------------
 void load_all_global_objects()
 {
-    /// @details ZF@> This function loads all global objects found in the basicdat folder
+    /// @details ZF@> This function loads all global objects found on the mp_data mount point
 
+    vfs_search_context_t * ctxt;
     const char *filehandle;
 
     // Warn the user for any duplicate slots
     overrideslots = bfalse;
 
     // Search for .obj directories and load them
-    filehandle = vfs_findFirst( "basicdat" SLASH_STR "globalobjects", "obj", VFS_SEARCH_DIR );
-    while ( VALID_CSTR( filehandle ) )
+    ctxt = vfs_findFirst( "mp_data/globalobjects", "obj", VFS_SEARCH_DIR );
+    filehandle = vfs_search_context_get_current( ctxt );
+
+    while ( NULL != ctxt && VALID_CSTR( filehandle ) )
     {
         load_one_profile( filehandle, MAX_PROFILE );
-        filehandle = vfs_findNext();
+
+        ctxt = vfs_findNext( &ctxt );
+        filehandle = vfs_search_context_get_current( ctxt );
     }
 
-    vfs_findClose();
+    vfs_findClose( &ctxt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3151,59 +3161,82 @@ void game_clear_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_setup_vfs( const char * modname )
+bool_t game_setup_vfs( const char * mod_path )
 {
     /// @details BB@> set up the virtual mount points for the module's data
     ///               and objects
 
-    STRING tmpDir;
+    const char * path_seperator_1, * path_seperator_2;
+    const char * mod_dir_ptr;
+    STRING mod_dir_string;
 
-    if ( INVALID_CSTR( modname ) ) return bfalse;
+    STRING tmpStr, tmpDir;
+
+    if ( INVALID_CSTR( mod_path ) ) return bfalse;
 
     // revert to the program's basic mount points
     game_clear_vfs();
 
+    path_seperator_1 = strrchr(mod_path, SLASH_CHR);
+    path_seperator_2 = strrchr(mod_path, NET_SLASH_CHR);
+    path_seperator_1 = MAX(path_seperator_1, path_seperator_2 );
+
+    if( NULL == path_seperator_1 )
+    {
+        mod_dir_ptr = mod_path;
+    }
+    else
+    {
+        mod_dir_ptr = path_seperator_1 + 1;
+    }
+
+    strncpy( mod_dir_string, mod_dir_ptr, SDL_arraysize(mod_dir_string) );
+
     // set the module-dependent mount points
-    snprintf( tmpDir, sizeof( tmpDir ), "%s" SLASH_STR "objects", modname );
+    // mount the user's module gamedat directory at the beginning of the mount point list
+    snprintf( tmpDir, sizeof( tmpDir ), "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "objects", fs_getDataDirectory(), mod_dir_string );
+    vfs_add_mount_point( tmpDir, "mp_objects", 0 );
+
+    snprintf( tmpDir, sizeof( tmpDir ), "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "objects", fs_getUserDirectory(), mod_dir_string );
     vfs_add_mount_point( tmpDir, "mp_objects", 0 );
 
     // mount all of the default global objects directories
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/items", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "items", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/magic", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/magic_item", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic_item", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/misc", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "misc", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/monsters", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "monsters", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/players", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "players", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/potions", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "potions", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/unique", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "unique", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/weapons", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "weapons", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s/basicdat/globalobjects/work_in_progress", fs_getDataDirectory() );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalobjects" SLASH_STR "work_in_progress", fs_getDataDirectory() );
     vfs_add_mount_point( tmpDir, "mp_objects", 1 );
 
     // mount the module's gamedat directory at the beginning of the mount point list
-    snprintf( tmpDir, sizeof( tmpDir ), "%s/%s/gamedat", fs_getDataDirectory(), modname );
+    snprintf( tmpDir, sizeof( tmpDir ), "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "gamedat", fs_getDataDirectory(), mod_dir_string );
     vfs_add_mount_point( tmpDir, "mp_data", 0 );
 
     // mount the user's module gamedat directory at the beginning of the mount point list
-    snprintf( tmpDir, sizeof( tmpDir ), "%s/%s/gamedat", fs_getUserDirectory(), modname );
+    snprintf( tmpDir, sizeof( tmpDir ), "%s" SLASH_STR "modules" SLASH_STR "%s" SLASH_STR "gamedat", fs_getUserDirectory(), mod_dir_string );
     vfs_add_mount_point( tmpDir, "mp_data", 0 );
 
     return btrue;
@@ -3281,8 +3314,8 @@ bool_t game_update_imports()
     }
 
     // reload all of the available players
-    mnu_player_check_import( "players", btrue );
-    mnu_player_check_import( "remote",  bfalse );
+    mnu_player_check_import( "mp_players", btrue );
+    mnu_player_check_import( "mp_remote",  bfalse );
 
     // build the import directory using the player info
     vfs_empty_import_directory();
@@ -3989,7 +4022,7 @@ bool_t game_choose_module( int imod, int seed )
     if ( retval )
     {
         // give everyone virtual access to the game directories
-        game_setup_vfs( pickedmodule_name );
+        game_setup_vfs( pickedmodule_path );
     }
 
     return retval;
