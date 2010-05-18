@@ -147,7 +147,7 @@ typedef struct s_eve eve_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-eve_t *  load_one_enchant_file( const char* szLoadName, eve_t * peve );
-bool_t   save_one_enchant_file( const char* szLoadName, eve_t * peve );
+eve_t *  load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve );
+bool_t   save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve );
 
 eve_t * eve_init( eve_t * peve );

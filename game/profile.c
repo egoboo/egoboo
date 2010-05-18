@@ -132,7 +132,7 @@ void profile_system_begin()
     script_compiler_init();
 
     // necessary for loading up the copy.txt file
-    load_action_names( "mp_data/actions.txt" );
+    load_action_names_vfs( "mp_data/actions.txt" );
 
     // necessary for properly reading the "message.txt"
     reset_messages();
@@ -483,7 +483,7 @@ void release_all_pro_data()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int load_profile_skins( const char * tmploadname, const PRO_REF by_reference object )
+int load_profile_skins_vfs( const char * tmploadname, const PRO_REF by_reference object )
 {
     TX_REF min_skin_tx, min_icon_tx;
     int    max_skin, max_icon, max_tex;
@@ -502,9 +502,9 @@ int load_profile_skins( const char * tmploadname, const PRO_REF by_reference obj
     min_skin_tx = min_icon_tx = INVALID_TX_TEXTURE;
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "tris%d", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%d", tmploadname, cnt );
 
-        pobj->tex_ref[cnt] = TxTexture_load_one( newloadname, ( TX_REF )INVALID_TX_TEXTURE, TRANSCOLOR );
+        pobj->tex_ref[cnt] = TxTexture_load_one_vfs( newloadname, ( TX_REF )INVALID_TX_TEXTURE, TRANSCOLOR );
         if ( INVALID_TX_TEXTURE != pobj->tex_ref[cnt] )
         {
             max_skin = cnt;
@@ -514,8 +514,8 @@ int load_profile_skins( const char * tmploadname, const PRO_REF by_reference obj
             }
         }
 
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "icon%d", tmploadname, cnt );
-        pobj->ico_ref[cnt] = TxTexture_load_one( newloadname, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", tmploadname, cnt );
+        pobj->ico_ref[cnt] = TxTexture_load_one_vfs( newloadname, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
 
         if ( INVALID_TX_TEXTURE != pobj->ico_ref[cnt] )
         {
@@ -614,7 +614,7 @@ void get_message( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages( const char *loadname, const PRO_REF by_reference object )
+void load_all_messages_vfs( const char *loadname, const PRO_REF by_reference object )
 {
     /// @details ZZ@> This function loads all of an objects messages
     vfs_FILE *fileread;
@@ -678,13 +678,13 @@ void release_all_local_pips()
 }
 
 //--------------------------------------------------------------------------------------------
-int obj_read_slot( const char * tmploadname )
+int obj_read_slot_vfs( const char * tmploadname )
 {
     vfs_FILE* fileread;
     int slot;
     STRING szLoadName;
 
-    make_newloadname( tmploadname, SLASH_STR "data.txt", szLoadName );
+    make_newloadname( tmploadname, "/data.txt", szLoadName );
 
     // Open the file
     fileread = vfs_openRead( szLoadName );
@@ -699,18 +699,18 @@ int obj_read_slot( const char * tmploadname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_verify_file( const char * tmploadname )
+bool_t obj_verify_file_vfs( const char * tmploadname )
 {
     STRING szLoadName;
 
-    make_newloadname( tmploadname, SLASH_STR "data.txt", szLoadName );
+    make_newloadname( tmploadname, "/data.txt", szLoadName );
 
     // Open the file
     return ( 0 != vfs_exists( szLoadName ) );
 }
 
 //--------------------------------------------------------------------------------------------
-int pro_get_slot( const char * tmploadname, int slot_override )
+int pro_get_slot_vfs( const char * tmploadname, int slot_override )
 {
     int slot;
 
@@ -723,7 +723,7 @@ int pro_get_slot( const char * tmploadname, int slot_override )
     else
     {
         // grab the slot from the file
-        int tmp_slot = obj_read_slot( tmploadname );
+        int tmp_slot = obj_read_slot_vfs( tmploadname );
 
         // set the slot slot
         if ( tmp_slot >= 0 )
@@ -737,7 +737,7 @@ int pro_get_slot( const char * tmploadname, int slot_override )
     }
 
     // return an error value if the file does not exist
-    if ( !obj_verify_file( tmploadname ) )
+    if ( !obj_verify_file_vfs( tmploadname ) )
     {
         slot = -1;
     }
@@ -762,7 +762,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
     required = !VALID_CAP_RANGE( slot_override );
 
     // get a slot value
-    islot = pro_get_slot( tmploadname, slot_override );
+    islot = pro_get_slot_vfs( tmploadname, slot_override );
 
     // throw an error code if the slot is invalid of if the file doesn't exist
     if ( islot < 0 || islot > MAX_PROFILE )
@@ -817,48 +817,48 @@ int load_one_profile( const char* tmploadname, int slot_override )
     pobj  = ProList.lst + iobj;
 
     // load the character profile
-    pobj->icap = load_one_character_profile( tmploadname, islot, bfalse );
+    pobj->icap = load_one_character_profile_vfs( tmploadname, islot, bfalse );
     islot = REF_TO_INT( pobj->icap );
 
     // Load the model for this iobj
-    pobj->imad = load_one_model_profile( tmploadname, ( MAD_REF )islot );
+    pobj->imad = load_one_model_profile_vfs( tmploadname, ( MAD_REF )islot );
 
     // Load the enchantment for this iobj
-    make_newloadname( tmploadname, SLASH_STR "enchant.txt", newloadname );
-    pobj->ieve = load_one_enchant_profile( newloadname, ( EVE_REF )islot );
+    make_newloadname( tmploadname, "/enchant.txt", newloadname );
+    pobj->ieve = load_one_enchant_profile_vfs( newloadname, ( EVE_REF )islot );
 
     // Load the AI script for this iobj
-    make_newloadname( tmploadname, SLASH_STR "script.txt", newloadname );
-    pobj->iai = load_ai_script( newloadname );
+    make_newloadname( tmploadname, "/script.txt", newloadname );
+    pobj->iai = load_ai_script_vfs( newloadname );
 
     // Load the messages for this iobj
-    make_newloadname( tmploadname, SLASH_STR "message.txt", newloadname );
-    load_all_messages( newloadname, iobj );
+    make_newloadname( tmploadname, "/message.txt", newloadname );
+    load_all_messages_vfs( newloadname, iobj );
 
     // Load the particles for this iobj
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/part%d.txt", tmploadname, cnt );
 
         // Make sure it's referenced properly
-        pobj->prtpip[cnt] = load_one_particle_profile( newloadname, ( PIP_REF )MAX_PIP );
+        pobj->prtpip[cnt] = load_one_particle_profile_vfs( newloadname, ( PIP_REF )MAX_PIP );
     }
 
-    pobj->skins = load_profile_skins( tmploadname, iobj );
+    pobj->skins = load_profile_skins_vfs( tmploadname, iobj );
 
     // Load the waves for this iobj
     for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
     {
         STRING  szLoadName, wavename;
 
-        snprintf( wavename, SDL_arraysize( wavename ), SLASH_STR "sound%d", cnt );
+        snprintf( wavename, SDL_arraysize( wavename ), "/sound%d", cnt );
         make_newloadname( tmploadname, wavename, szLoadName );
-        pobj->wavelist[cnt] = sound_load_chunk( szLoadName );
+        pobj->wavelist[cnt] = sound_load_chunk_vfs( szLoadName );
     }
 
     // Load the random naming table for this icap
-    make_newloadname( tmploadname, SLASH_STR "naming.txt", newloadname );
-    pro_load_chop( iobj, newloadname );
+    make_newloadname( tmploadname, "/naming.txt", newloadname );
+    pro_load_chop_vfs( iobj, newloadname );
 
     // Fix lighting if need be
     if ( CapStack.lst[pobj->icap].uniformlit )
@@ -937,7 +937,7 @@ const char * pro_create_chop( const PRO_REF by_reference iprofile )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t pro_load_chop( const PRO_REF by_reference iprofile, const char *szLoadname )
+bool_t pro_load_chop_vfs( const PRO_REF by_reference iprofile, const char *szLoadname )
 {
     /// BB@> load the chop for the given profile
     pro_t * ppro;
@@ -948,7 +948,7 @@ bool_t pro_load_chop( const PRO_REF by_reference iprofile, const char *szLoadnam
     // clear out any current definition
     chop_definition_init( &( ppro->chop ) );
 
-    return chop_load( &chop_mem, szLoadname, &( ppro->chop ) );
+    return chop_load_vfs( &chop_mem, szLoadname, &( ppro->chop ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1029,7 +1029,7 @@ const char * chop_create( chop_data_t * pdata, chop_definition_t * pdefinition )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t * pdefinition )
+bool_t chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_definition_t * pdefinition )
 {
     /// @details ZZ@> This function reads a naming.txt file into the chop data buffer and sets the
     ///               values of a chop definition
@@ -1106,7 +1106,7 @@ bool_t chop_load( chop_data_t * pdata, const char *szLoadname, chop_definition_t
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chop_export( const char *szSaveName, const char * szChop )
+bool_t chop_export_vfs( const char *szSaveName, const char * szChop )
 {
     /// @details ZZ@> This function exports a simple string to the naming.txt file
 

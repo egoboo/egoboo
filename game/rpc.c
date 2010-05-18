@@ -286,15 +286,15 @@ bool_t TxReqList_timestep()
     switch ( preq->ego_rpc_base.data_type )
     {
         case 1:
-            // TxTexture_load_one()
-            preq->index = TxTexture_load_one( preq->filename, preq->itex_src, preq->key );
+            // TxTexture_load_one_vfs()
+            preq->index = TxTexture_load_one_vfs( preq->filename, preq->itex_src, preq->key );
             preq->ego_rpc_base.finished = btrue;
             retval = btrue;
             break;
 
         case 2:
-            // TxTitleImage_load_one()
-            preq->index = TxTitleImage_load_one( preq->filename );
+            // TxTitleImage_load_one_vfs()
+            preq->index = TxTitleImage_load_one_vfs( preq->filename );
             preq->ego_rpc_base.finished = btrue;
             retval = btrue;
             break;

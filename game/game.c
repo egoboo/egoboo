@@ -190,7 +190,7 @@ static bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_
 static void   game_reset_players();
 
 // Model stuff
-static void log_madused( const char *savename );
+static void log_madused_vfs( const char *savename );
 
 // "process" management
 static int do_game_proc_begin( game_process_t * gproc );
@@ -242,7 +242,7 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
         if ( owner != character )
         {
             // Item is a subdirectory of the owner directory...
-            snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s" SLASH_STR "%d.obj", todirname, number );
+            snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s/%d.obj", todirname, number );
         }
         else
         {
@@ -253,11 +253,11 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
         // players/twink.obj or players/twink.obj/sword.obj
         if ( is_local )
         {
-            snprintf( todir, SDL_arraysize( todir ), "mp_players" SLASH_STR "%s", todirfullname );
+            snprintf( todir, SDL_arraysize( todir ), "mp_players/%s", todirfullname );
         }
         else
         {
-            snprintf( todir, SDL_arraysize( todir ), "mp_remote" SLASH_STR "%s", todirfullname );
+            snprintf( todir, SDL_arraysize( todir ), "mp_remote/%s", todirfullname );
         }
 
         // modules/advent.mod/objects/advent.obj
@@ -268,7 +268,7 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
         {
             for ( tnc = 0; tnc < MAXIMPORTOBJECTS; tnc++ )
             {
-                snprintf( tofile, SDL_arraysize( tofile ), "%s" SLASH_STR "%d.obj", todir, tnc ); /*.OBJ*/
+                snprintf( tofile, SDL_arraysize( tofile ), "%s/%d.obj", todir, tnc ); /*.OBJ*/
                 vfs_removeDirectoryAndContents( tofile, btrue );
             }
         }
@@ -277,63 +277,63 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
         vfs_mkdir( todir );
 
         // Build the DATA.TXT file
-        snprintf( tofile, SDL_arraysize( tofile ), "%s" SLASH_STR "data.txt", todir ); /*DATA.TXT*/
-        export_one_character_profile( tofile, character );
+        snprintf( tofile, SDL_arraysize( tofile ), "%s/data.txt", todir ); /*DATA.TXT*/
+        export_one_character_profile_vfs( tofile, character );
 
         // Build the SKIN.TXT file
-        snprintf( tofile, SDL_arraysize( tofile ), "%s" SLASH_STR "skin.txt", todir ); /*SKIN.TXT*/
-        export_one_character_skin( tofile, character );
+        snprintf( tofile, SDL_arraysize( tofile ), "%s/skin.txt", todir ); /*SKIN.TXT*/
+        export_one_character_skin_vfs( tofile, character );
 
         // Build the NAMING.TXT file
-        snprintf( tofile, SDL_arraysize( tofile ), "%s" SLASH_STR "naming.txt", todir ); /*NAMING.TXT*/
-        export_one_character_name( tofile, character );
+        snprintf( tofile, SDL_arraysize( tofile ), "%s/naming.txt", todir ); /*NAMING.TXT*/
+        export_one_character_name_vfs( tofile, character );
 
         // Copy all of the misc. data files
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "message.txt", fromdir ); /*MESSAGE.TXT*/
-        snprintf( tofile, SDL_arraysize( tofile ), "%s" SLASH_STR "message.txt", todir ); /*MESSAGE.TXT*/
+        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/message.txt", fromdir ); /*MESSAGE.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile ), "/%s/message.txt", todir ); /*MESSAGE.TXT*/
         vfs_copyFile( fromfile, tofile );
 
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "tris.md2", fromdir ); /*TRIS.MD2*/
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "tris.md2", todir ); /*TRIS.MD2*/
+        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/tris.md2", fromdir ); /*TRIS.MD2*/
+        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/tris.md2", todir ); /*TRIS.MD2*/
         vfs_copyFile( fromfile, tofile );
 
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "copy.txt", fromdir ); /*COPY.TXT*/
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "copy.txt", todir ); /*COPY.TXT*/
+        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/copy.txt", fromdir ); /*COPY.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/copy.txt", todir ); /*COPY.TXT*/
         vfs_copyFile( fromfile, tofile );
 
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "script.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "script.txt", todir );
+        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/script.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/script.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "enchant.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "enchant.txt", todir );
+        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/enchant.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/enchant.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "credits.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "credits.txt", todir );
+        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/credits.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "quest.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "quest.txt", todir );
+        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/quest.txt", fromdir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/quest.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
         for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
         {
-            snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "part%d.txt", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "part%d.txt", todir,   tnc );
+            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/part%d.txt", fromdir, tnc );
+            snprintf( tofile, SDL_arraysize( tofile ),   "/%s/part%d.txt", todir,   tnc );
             vfs_copyFile( fromfile, tofile );
         }
 
         // Copy all of the sound files
         for ( tnc = 0; tnc < MAX_WAVE; tnc++ )
         {
-            snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "sound%d.wav", todir,   tnc );
+            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/sound%d.wav", fromdir, tnc );
+            snprintf( tofile, SDL_arraysize( tofile ),   "/%s/sound%d.wav", todir,   tnc );
             vfs_copyFile( fromfile, tofile );
 
-            snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "sound%d.ogg", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "sound%d.ogg", todir,   tnc );
+            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/sound%d.ogg", fromdir, tnc );
+            snprintf( tofile, SDL_arraysize( tofile ),   "/%s/sound%d.ogg", todir,   tnc );
             vfs_copyFile( fromfile, tofile );
         }
 
@@ -344,12 +344,12 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
 
             for ( type = 0; type < maxformattypes; type++ )
             {
-                snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "tris%d%s", fromdir, tnc, TxFormatSupported[type] );
-                snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "tris%d%s", todir,   tnc, TxFormatSupported[type] );
+                snprintf( fromfile, SDL_arraysize( fromfile ), "%s/tris%d%s", fromdir, tnc, TxFormatSupported[type] );
+                snprintf( tofile, SDL_arraysize( tofile ),   "/%s/tris%d%s", todir,   tnc, TxFormatSupported[type] );
                 vfs_copyFile( fromfile, tofile );
 
-                snprintf( fromfile, SDL_arraysize( fromfile ), "%s" SLASH_STR "icon%d%s", fromdir, tnc, TxFormatSupported[type] );
-                snprintf( tofile, SDL_arraysize( tofile ),   "%s" SLASH_STR "icon%d%s", todir,   tnc, TxFormatSupported[type] );
+                snprintf( fromfile, SDL_arraysize( fromfile ), "%s/icon%d%s", fromdir, tnc, TxFormatSupported[type] );
+                snprintf( tofile, SDL_arraysize( tofile ),   "/%s/icon%d%s", todir,   tnc, TxFormatSupported[type] );
                 vfs_copyFile( fromfile, tofile );
             }
         }
@@ -419,7 +419,7 @@ void export_all_players( bool_t require_local )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void log_madused( const char *savename )
+void log_madused_vfs( const char *savename )
 {
     /// @details ZZ@> This is a debug function for checking model loads
 
@@ -2491,8 +2491,8 @@ void import_dir_profiles( const char * dirname )
     for ( cnt = 0; cnt < PMod->importamount*MAXIMPORTPERPLAYER; cnt++ )
     {
         // Make sure the object exists...
-        snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "temp%04d.obj", dirname, cnt );
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s" SLASH_STR "data.txt", filename );
+        snprintf( filename, SDL_arraysize( filename ), "%s/temp%04d.obj", dirname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/data.txt", filename );
 
         if ( vfs_exists( newloadname ) )
         {
@@ -2945,7 +2945,7 @@ void game_load_global_assets()
     }
     load_blips();
     load_bars();
-    font_bmp_load( "mp_data/font", "mp_data/font.txt" );
+    font_bmp_load_vfs( "mp_data/font", "mp_data/font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3001,7 +3001,7 @@ bool_t game_load_module_data( const char *smallname )
 
     log_info( "Loading module \"%s\"\n", smallname );
 
-    if ( load_ai_script( "mp_data/script.txt" ) < 0 )
+    if ( load_ai_script_vfs( "mp_data/script.txt" ) < 0 )
     {
         log_warning( "game_load_module_data() - cannot load the default script\n" );
         goto game_load_module_data_fail;
@@ -3280,7 +3280,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     attach_all_particles();
 
     // log debug info for every object loaded into the module
-    if ( cfg.dev_mode ) log_madused( "debug" SLASH_STR "slotused.txt" );
+    if ( cfg.dev_mode ) log_madused_vfs( "/debug/slotused.txt" );
 
     // initialize the network
     net_initialize();
@@ -3363,17 +3363,17 @@ bool_t game_update_imports()
         }
         else
         {
-            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "remote" SLASH_STR "%s", str_encode_path( loadplayer[tnc].name ) );
+            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "mp_remote/%s", str_encode_path( loadplayer[tnc].name ) );
         }
 
-        snprintf( destDir, SDL_arraysize( destDir ), "import" SLASH_STR "temp%04d.obj", local_import_slot[tnc] );
+        snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[tnc] );
         vfs_copyDirectory( srcPlayer, destDir );
 
         // Copy all of the character's items to the import directory
         for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
         {
-            snprintf( srcDir, SDL_arraysize( srcDir ), "%s" SLASH_STR "%d.obj", srcPlayer, j );
-            snprintf( destDir, SDL_arraysize( destDir ), "import" SLASH_STR "temp%04d.obj", local_import_slot[tnc] + j + 1 );
+            snprintf( srcDir, SDL_arraysize( srcDir ), "%s/%d.obj", srcPlayer, j );
+            snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[tnc] + j + 1 );
 
             vfs_copyDirectory( srcDir, destDir );
         }
@@ -4643,7 +4643,7 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
 
     // if( INVALID_CSTR(modname) ) return NULL;
 
-    pdata = read_wawalite_file( "mp_data/wawalite.txt", NULL );
+    pdata = read_wawalite_file_vfs( "mp_data/wawalite.txt", NULL );
     if ( NULL == pdata ) return NULL;
 
     memcpy( &wawalite_data, pdata, sizeof( wawalite_data_t ) );
@@ -4679,9 +4679,9 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
         pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, 0, 63 );
     }
 
-    //snprintf( filename, SDL_arraysize(filename), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", modname );
+    //snprintf( filename, SDL_arraysize(filename), "/modules/%s/gamedat/menu.txt", modname );
 
-    return write_wawalite_file( pdata );
+    return write_wawalite_file_vfs( pdata );
 }
 
 //--------------------------------------------------------------------------------------------

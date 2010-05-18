@@ -43,7 +43,7 @@ eve_t * eve_init( eve_t * peve )
 }
 
 //--------------------------------------------------------------------------------------------
-eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
+eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
 {
     /// @details ZZ@> This function loads the enchantment associated with an object
 
@@ -206,7 +206,7 @@ eve_t * load_one_enchant_file( const char* szLoadName, eve_t * peve )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
+bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve )
 {
     /// @details ZZ@> This function loads the enchantment associated with an object
     vfs_FILE* filewrite, * filetemp;
@@ -216,7 +216,19 @@ bool_t save_one_enchant_file( const char* szLoadName, eve_t * peve )
     filewrite = vfs_openWrite( szLoadName );
     if ( NULL == filewrite ) return bfalse;
 
-    filetemp = template_open( "mp_data/templates/enchant.txt" );
+    filetemp = NULL;
+
+    // try the given template file
+    if( NULL != szTemplateName && '\0' != szTemplateName )
+    {
+        filetemp = template_open( szTemplateName );
+    }
+
+    // try a default template file
+    if ( NULL == filetemp )
+    {
+        filetemp = template_open( "mp_data/templates/enchant.txt" );
+    }
 
     // btrue/bfalse values
     template_put_bool( filetemp, filewrite, peve->retarget );

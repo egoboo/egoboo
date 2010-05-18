@@ -70,7 +70,7 @@ void font_bmp_init()
 }
 
 //--------------------------------------------------------------------------------------------
-void font_bmp_load( const char* szBitmap, const char* szSpacing )
+void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
 {
     /// @details ZZ@> This function loads the font bitmap and sets up the coordinates
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
@@ -82,7 +82,7 @@ void font_bmp_load( const char* szBitmap, const char* szSpacing )
     vfs_FILE *fileread;
 
     font_bmp_init();
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one( szBitmap, ( TX_REF )TX_FONT, TRANSCOLOR ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( szBitmap, ( TX_REF )TX_FONT, TRANSCOLOR ) )
     {
         log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }

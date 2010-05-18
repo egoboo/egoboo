@@ -192,7 +192,7 @@ bool_t TxTexture_free_one( const TX_REF by_reference itex )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxTexture_load_one( const char *filename, const TX_REF by_reference itex_src, Uint32 key )
+TX_REF TxTexture_load_one_vfs( const char *filename, const TX_REF by_reference itex_src, Uint32 key )
 {
     /// @details BB@> load a texture into TxTexture.
     ///     If INVALID_TX_TEXTURE == itex, then we just get the next free index
@@ -205,7 +205,7 @@ TX_REF TxTexture_load_one( const char *filename, const TX_REF by_reference itex_
     // handle an error
     if ( retval >= 0 && retval < TX_TEXTURE_COUNT )
     {
-        Uint32 txid = ego_texture_load( TxTexture.lst + retval, filename, key );
+        Uint32 txid = ego_texture_load_vfs( TxTexture.lst + retval, filename, key );
         if ( INVALID_TX_ID == txid )
         {
             TxTexture_free_one( retval );

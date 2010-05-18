@@ -136,13 +136,13 @@ int do_ego_proc_begin( ego_process_t * eproc )
     GLSetup_SupportedFormats();
 
     // read all the scantags
-    scantag_read_all( vfs_resolveReadFilename( "mp_data/scancode.txt" ) );
+    scantag_read_all_vfs( "mp_data/scancode.txt" );
 
     {
         // we can't use the vfs to do this in win32 because of the dir structure and
         // the fact that PHYSFS will not add the same directory to 2 different mount points...
         // seems pretty stupid to me, but there you have it.
-        
+
         STRING path_str;
 
         snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
@@ -158,7 +158,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
             }
         }
 
-        input_settings_load( path_str );
+        input_settings_load_vfs( path_str );
     }
 
     // synchronoze the config values with the various game subsystems
@@ -179,7 +179,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // setup the menu system's gui
     ui_begin( vfs_resolveReadFilename("mp_data/Negatori.ttf"), 24 );
-    font_bmp_load( "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
+    font_bmp_load_vfs( "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory
     vfs_empty_import_directory();
@@ -474,7 +474,7 @@ void memory_cleanUp( void )
     delete_all_graphics();
 
     // make sure that the current control configuration is written
-    input_settings_save( "controls.txt" );
+    input_settings_save_vfs( "controls.txt" );
 
     // shut down the ui
     ui_end();

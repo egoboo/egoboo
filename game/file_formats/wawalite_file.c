@@ -293,7 +293,7 @@ wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdat
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_file( const char *filename, wawalite_data_t * pdata )
+wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t * pdata )
 {
     /// @details ZZ@> This function sets up water and lighting for the module
 
@@ -503,7 +503,7 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_file( wawalite_data_t * pdata )
+bool_t write_wawalite_file_vfs( wawalite_data_t * pdata )
 {
     /// @details ZZ@> This function sets up water and lighting for the module
 

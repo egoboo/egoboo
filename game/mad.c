@@ -48,7 +48,7 @@ static char    cActionName[ACTION_COUNT][2];      ///< Two letter name code
 static STRING  cActionComent[ACTION_COUNT];       ///< Strings explaining the action codes
 
 static int    action_number( const char * cFrameName );
-static void   action_check_copy( const char* loadname, const MAD_REF by_reference imad );
+static void   action_check_copy_vfs( const char* loadname, const MAD_REF by_reference imad );
 static void   action_copy_correct( const MAD_REF by_reference imad, int actiona, int actionb );
 
 static void   mad_get_framefx( const char * cFrameName, const MAD_REF by_reference model, int frame );
@@ -245,7 +245,7 @@ int mad_get_action( const MAD_REF by_reference imad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-void action_check_copy( const char* loadname, const MAD_REF by_reference imad )
+void action_check_copy_vfs( const char* loadname, const MAD_REF by_reference imad )
 {
     /// @details ZZ@> This function copies a model's actions
 
@@ -614,7 +614,7 @@ void mad_make_equally_lit( const MAD_REF by_reference imad )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_action_names( const char* loadname )
+void load_action_names_vfs( const char* loadname )
 {
     /// @details ZZ@> This function loads all of the 2 letter action names
 
@@ -664,7 +664,7 @@ void load_action_names( const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-MAD_REF load_one_model_profile( const char* tmploadname, const MAD_REF by_reference imad )
+MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF by_reference imad )
 {
     mad_t * pmad;
     STRING  newloadname;
@@ -683,7 +683,7 @@ MAD_REF load_one_model_profile( const char* tmploadname, const MAD_REF by_refere
     pmad->name[ SDL_arraysize( pmad->name ) - 1 ] = CSTR_END;
 
     // Load the imad model
-    make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
+    make_newloadname( tmploadname, "/tris.md2", newloadname );
 
     // do this for now. maybe make it dynamic later...
     //pmad->md2_ref = imad;
@@ -774,8 +774,8 @@ void mad_heal_actions( const MAD_REF by_reference imad, const char * tmploadname
     action_copy_correct( imad, ACTION_MM, ACTION_MN );
 
     // Copy entire actions to save frame space COPY.TXT
-    make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
-    action_check_copy( newloadname, imad );
+    make_newloadname( tmploadname, "/copy.txt", newloadname );
+    action_check_copy_vfs( newloadname, imad );
 }
 
 //--------------------------------------------------------------------------------------------

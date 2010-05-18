@@ -937,7 +937,7 @@ void GLSetup_SupportedFormats()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32  ego_texture_load( oglx_texture_t *texture, const char *filename, Uint32 key )
+Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uint32 key )
 {
     STRING fullname;
     Uint32 retval;
@@ -1009,7 +1009,7 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-int read_skin( const char *filename )
+int read_skin_vfs( const char *filename )
 {
     /// @details ZZ@> This function reads the skin.txt file...
     vfs_FILE*   fileread;

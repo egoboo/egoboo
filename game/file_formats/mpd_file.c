@@ -56,7 +56,7 @@ tile_definition_t tile_dict[MAXMESHTYPE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void tile_dictionary_load( const char * filename, tile_definition_t dict[], size_t dict_size )
+void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], size_t dict_size )
 {
     /// @details ZZ@> This function loads fan types for the terrain
 

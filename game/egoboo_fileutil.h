@@ -96,6 +96,6 @@ void fput_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz );
 void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );
 
 void    GLSetup_SupportedFormats();
-Uint32  ego_texture_load( struct s_oglx_texture *texture, const char *filename, Uint32 key );
+Uint32  ego_texture_load_vfs( struct s_oglx_texture *texture, const char *filename, Uint32 key );
 
-int read_skin( const char *filename );
+int read_skin_vfs( const char *filename );

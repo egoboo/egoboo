@@ -65,7 +65,7 @@ bool_t scantag_read_one( vfs_FILE *fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void scantag_read_all( const char *szFilename )
+void scantag_read_all_vfs( const char *szFilename )
 {
     /// @details ZZ@> This function reads the scancode.txt file
     vfs_FILE* fileread;

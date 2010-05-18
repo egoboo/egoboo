@@ -185,10 +185,10 @@ void MadList_dtor();
 void    init_all_mad();
 void    release_all_mad();
 bool_t  release_one_mad( const MAD_REF by_reference imad );
-MAD_REF load_one_model_profile( const char* tmploadname, const MAD_REF by_reference object );
+MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF by_reference object );
 
 int    action_which( char cTmp );
-void   load_action_names( const char* loadname );
+void   load_action_names_vfs( const char* loadname );
 
 void   mad_make_equally_lit( const MAD_REF by_reference imad );
 

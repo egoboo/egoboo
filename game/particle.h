@@ -224,7 +224,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
 
 int     prt_count_free();
 
-PIP_REF load_one_particle_profile( const char *szLoadName, const PIP_REF by_reference pip_override );
+PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF by_reference pip_override );
 void    reset_particles();
 
 Uint32 prt_hit_wall( prt_t * pprt, float nrm[], float * pressure );

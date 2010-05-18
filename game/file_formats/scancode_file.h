@@ -50,6 +50,6 @@ extern scantag_t scantag[MAXTAG];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void        scantag_read_all( const char *szFilename );
+void        scantag_read_all_vfs( const char *szFilename );
 int         scantag_get_value( const char *string );
 const char* scantag_get_string( Sint32 device, Uint32 tag, bool_t onlykeys );

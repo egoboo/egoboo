@@ -133,7 +133,7 @@ bool_t  remove_enchant( const ENC_REF by_reference  enchant_idx );
 void    enchant_apply_set( const ENC_REF by_reference  enchant_idx, int value_idx, const PRO_REF by_reference profile );
 void    enchant_apply_add( const ENC_REF by_reference  enchant_idx, int value_idx, const EVE_REF by_reference enchanttype );
 ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_reference target, const CHR_REF by_reference spawner, const ENC_REF by_reference enc_override, const PRO_REF by_reference modeloptional );
-EVE_REF load_one_enchant_profile( const char* szLoadName, const EVE_REF by_reference profile );
+EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF by_reference profile );
 void    enchant_remove_set( const ENC_REF by_reference  enchant_idx, int value_idx );
 void    enchant_remove_add( const ENC_REF by_reference  enchant_idx, int value_idx );
 

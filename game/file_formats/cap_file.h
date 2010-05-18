@@ -346,7 +346,7 @@ typedef struct s_cap cap_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap );
-bool_t  save_one_cap_file( const char * szSaveName, cap_t * pcap );
+cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap );
+bool_t  save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateFile, cap_t * pcap );
 
 cap_t * cap_init( cap_t * pcap );

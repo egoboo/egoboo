@@ -558,10 +558,10 @@ void    drop_keys( const CHR_REF by_reference character );
 bool_t  drop_all_items( const CHR_REF by_reference character );
 bool_t  character_grab_stuff( const CHR_REF by_reference chara, grip_offset_t grip, bool_t people );
 
-bool_t  export_one_character_name( const char *szSaveName, const CHR_REF by_reference character );
-bool_t  export_one_character_profile( const char *szSaveName, const CHR_REF by_reference character );
-bool_t  export_one_character_skin( const char *szSaveName, const CHR_REF by_reference character );
-CAP_REF load_one_character_profile( const char *szLoadName, int slot_override, bool_t required );
+bool_t  export_one_character_name_vfs( const char *szSaveName, const CHR_REF by_reference character );
+bool_t  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF by_reference character );
+bool_t  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF by_reference character );
+CAP_REF load_one_character_profile_vfs( const char *szLoadName, int slot_override, bool_t required );
 
 void character_swipe( const CHR_REF by_reference cnt, slot_t slot );
 

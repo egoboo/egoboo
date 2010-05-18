@@ -47,7 +47,7 @@ static void export_control( vfs_FILE * filewrite, const char * text, Sint32 devi
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_load( const char *szFilename )
+bool_t input_settings_load_vfs( const char *szFilename )
 {
     /// @details ZZ@> This function reads the controls.txt file
     vfs_FILE* fileread;
@@ -106,7 +106,7 @@ bool_t input_settings_load( const char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_save( const char* szFilename )
+bool_t input_settings_save_vfs( const char* szFilename )
 {
     /// @details ZF@> This function saves all current game settings to "controls.txt"
 

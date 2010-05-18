@@ -116,5 +116,5 @@ bool_t setup_download( egoboo_config_t * pcfg );
 bool_t setup_upload( egoboo_config_t * pcfg );
 bool_t setup_synch( egoboo_config_t * pcfg );
 
-bool_t input_settings_save( const char* whichfile );
-bool_t input_settings_load( const char *szFilename );
+bool_t input_settings_save_vfs( const char* whichfile );
+bool_t input_settings_load_vfs( const char *szFilename );

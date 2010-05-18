@@ -95,7 +95,6 @@ prt_t * prt_config_activate( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
 
-
 static void    PrtList_init();
 static size_t  PrtList_get_free();
 static PRT_REF PrtList_allocate( bool_t force );
@@ -520,7 +519,6 @@ bool_t prt_free( prt_t * pprt )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -3056,7 +3054,7 @@ PIP_REF PipStack_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-PIP_REF load_one_particle_profile( const char *szLoadName, const PIP_REF by_reference pip_override )
+PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF by_reference pip_override )
 {
     /// @details ZZ@> This function loads a particle template, returning bfalse if the file wasn't
     ///    found
@@ -3081,7 +3079,7 @@ PIP_REF load_one_particle_profile( const char *szLoadName, const PIP_REF by_refe
     }
     ppip = PipStack.lst + ipip;
 
-    if ( NULL == load_one_pip_file( szLoadName, ppip ) )
+    if ( NULL == load_one_pip_file_vfs( szLoadName, ppip ) )
     {
         return ( PIP_REF )MAX_PIP;
     }
@@ -3104,57 +3102,57 @@ void reset_particles( /* const char* modname */ )
 
     // Load in the standard global particles ( the coins for example )
     loadpath = "mp_data/1money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN1 ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN1 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/5money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN5 ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN5 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/25money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN25 ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN25 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/100money.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_COIN100 ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN100 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     // Load module specific information
     loadpath = "mp_data/weather4.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_WEATHER4 ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER4 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/weather5.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_WEATHER5 ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER5 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/splash.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_SPLASH ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_SPLASH ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     loadpath = "mp_data/ripple.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_RIPPLE ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_RIPPLE ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
 
     // This is also global...
     loadpath = "mp_data/defend.txt";
-    if ( MAX_PIP == load_one_particle_profile( loadpath, ( PIP_REF )PIP_DEFEND ) )
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_DEFEND ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }

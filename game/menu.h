@@ -125,7 +125,7 @@ void  mnu_player_check_import( const char *dirname, bool_t initialize );
 
 // "public" implmentation of the TxTitleImage array
 void   TxTitleImage_reload_all();
-TX_REF TxTitleImage_load_one( const char *szLoadName );
+TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
 
 extern bool_t startNewPlayer;
 

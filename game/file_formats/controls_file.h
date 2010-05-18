@@ -143,5 +143,5 @@ extern Uint32 input_device_count;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t input_settings_load( const char *szFilename );
-bool_t input_settings_save( const char* szFilename );
+bool_t input_settings_load_vfs( const char *szFilename );
+bool_t input_settings_save_vfs( const char* szFilename );

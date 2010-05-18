@@ -506,7 +506,7 @@ static void   parse_jumps( int ainumber );
 static int    ai_goto_colon( int read );
 static void   get_code( int read );
 
-static void load_ai_codes( const char* loadname );
+static void load_ai_codes_vfs( const char* loadname );
 
 // functions for debugging the scripts
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(USE_DEBUG)
@@ -526,7 +526,7 @@ void script_compiler_init()
     // necessary for loading up the ai script
     init_all_ai_scripts();
 
-    load_ai_codes( "mp_data/aicodes.txt" );
+    load_ai_codes_vfs( "mp_data/aicodes.txt" );
 
     debug_script_file = fopen( vfs_resolveWriteFilename( "/debug/script_debug.txt" ), "wt" );
 }
@@ -1132,7 +1132,7 @@ void get_code( int read )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_ai_codes( const char* loadname )
+void load_ai_codes_vfs( const char* loadname )
 {
     /// @details ZZ@> This function loads all of the function and variable names
 
@@ -1159,7 +1159,7 @@ void load_ai_codes( const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_ai_script( const char *loadname )
+int load_ai_script_vfs( const char *loadname )
 {
     /// @details ZZ@> This function loads a script to memory and
     ///    returns the index of the script, returns -1 if it fails
@@ -1174,7 +1174,7 @@ int load_ai_script( const char *loadname )
     if ( NULL == fileread )
     {
         log_debug( "I am missing a AI script (%s)\n", loadname );
-        log_message( "       Using the default AI script instead (basicdat" SLASH_STR "script.txt)\n" );
+        log_message( "       Using the default AI script instead (\"mp_data/script.txt\")\n" );
         return 0;           //0 == default AI script
     }
     if ( AisStorage.count >= MAX_AI )

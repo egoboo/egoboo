@@ -303,7 +303,7 @@ bool_t sound_initialize()
 }
 
 //--------------------------------------------------------------------------------------------
-Mix_Chunk * sound_load_chunk( const char * szFileName )
+Mix_Chunk * sound_load_chunk_vfs( const char * szFileName )
 {
     STRING      full_file_name;
     Mix_Chunk * tmp_chunk;
@@ -409,7 +409,7 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
             break;
 
         case MIX_SND:
-            pptr->ptr.snd = sound_load_chunk( szFileName );
+            pptr->ptr.snd = sound_load_chunk_vfs( szFileName );
             if ( NULL != pptr->ptr.snd )
             {
                 pptr->type = MIX_SND;
@@ -702,19 +702,19 @@ void load_global_waves()
 
     // Grab these sounds from the basicdat dir
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_GETCOIN] );
-    g_wavelist[GSND_GETCOIN] = sound_load_chunk( wavename );
+    g_wavelist[GSND_GETCOIN] = sound_load_chunk_vfs( wavename );
 
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_DEFEND] );
-    g_wavelist[GSND_DEFEND] = sound_load_chunk( wavename );
+    g_wavelist[GSND_DEFEND] = sound_load_chunk_vfs( wavename );
 
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_COINFALL] );
-    g_wavelist[GSND_COINFALL] = sound_load_chunk( wavename );
+    g_wavelist[GSND_COINFALL] = sound_load_chunk_vfs( wavename );
 
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_LEVELUP] );
-    g_wavelist[GSND_LEVELUP] = sound_load_chunk( wavename );
+    g_wavelist[GSND_LEVELUP] = sound_load_chunk_vfs( wavename );
 
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_PITFALL] );
-    g_wavelist[GSND_PITFALL] = sound_load_chunk( wavename );
+    g_wavelist[GSND_PITFALL] = sound_load_chunk_vfs( wavename );
 
     /*
     // These new values todo should determine global sound and particle effects
@@ -727,7 +727,7 @@ void load_global_waves()
         Mix_Chunk * ptmp;
 
         snprintf( wavename, SDL_arraysize( wavename ), "mp_data/sound%d", cnt );
-        ptmp = sound_load_chunk( wavename );
+        ptmp = sound_load_chunk_vfs( wavename );
 
         // only overwrite with a valid sound file
         if ( NULL != ptmp )

@@ -36,7 +36,6 @@ ego_object_base_t * ego_object_ctor( ego_object_base_t * pbase )
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;
 
-
     return pbase;
 }
 

@@ -612,7 +612,7 @@ extern bool_t parseerror;
 //--------------------------------------------------------------------------------------------
 /// function prototypes
 
-int  load_ai_script( const char *loadname );
+int  load_ai_script_vfs( const char *loadname );
 
 void init_all_ai_scripts();
 void release_all_ai_scripts();

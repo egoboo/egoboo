@@ -969,7 +969,6 @@ enc_t * enc_config_deconstruct( enc_t * pprt, int max_iterations )
     return pprt;
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 enc_t * enc_run_config( enc_t * penc )
@@ -1023,7 +1022,6 @@ enc_t * enc_run_config( enc_t * penc )
 
     return penc;
 }
-
 
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_ctor( enc_t * penc )
@@ -1329,7 +1327,7 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
 }
 
 //--------------------------------------------------------------------------------------------
-EVE_REF load_one_enchant_profile( const char* szLoadName, const EVE_REF by_reference ieve )
+EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF by_reference ieve )
 {
     /// @details ZZ@> This function loads an enchantment profile into the EveStack
 
@@ -1339,7 +1337,7 @@ EVE_REF load_one_enchant_profile( const char* szLoadName, const EVE_REF by_refer
     {
         eve_t * peve = EveStack.lst + ieve;
 
-        if ( NULL != load_one_enchant_file( szLoadName, peve ) )
+        if ( NULL != load_one_enchant_file_vfs( szLoadName, peve ) )
         {
             retval = ieve;
 

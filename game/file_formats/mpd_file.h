@@ -164,4 +164,4 @@ bool_t       mpd_free( mpd_t * pmesh );
 bool_t twist_to_normal( Uint8 twist, float v[], float slide );
 Uint8  cartman_get_twist( int x, int y );
 
-void tile_dictionary_load( const char * filename, tile_definition_t dict[], size_t dict_size );
+void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], size_t dict_size );

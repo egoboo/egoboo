@@ -552,7 +552,7 @@ void net_copyFileToAllPlayers( const char *source, const char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToAllPlayersOld( const char *source, const char *dest )
+void net_copyFileToAllPlayersOld_vfs( const char *source, const char *dest )
 {
     /// @details ZZ@> This function copies a file on the host to every remote computer.
     ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
@@ -679,7 +679,7 @@ void net_copyFileToHost( const char *source, const char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToHostOld( const char *source, const char *dest )
+void net_copyFileToHostOld_vfs( const char *source, const char *dest )
 {
     /// @details ZZ@> This function copies a file on the remote to the host computer.
     ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
@@ -798,7 +798,7 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
             // that we don't want to copy.  This keeps repository
             // directories, /., and /.. from being copied
             // Also avoid copying directories in general.
-            snprintf( fromname, SDL_arraysize( fromname ), "%s" SLASH_STR "%s", dirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname ), "%s/%s", dirname, searchResult );
             if ( '.' == searchResult[0] || vfs_isDirectory( fromname ) )
             {
                 ctxt = vfs_findNext( &ctxt );
@@ -806,8 +806,8 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
                 continue;
             }
 
-            snprintf( fromname, SDL_arraysize( fromname ), "%s" SLASH_STR "%s", dirname, searchResult );
-            snprintf( toname, SDL_arraysize( toname ), "%s" SLASH_STR "%s", todirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname ), "%s/%s", dirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname ), "/%s/%s", todirname, searchResult );
 
             net_copyFileToHost( fromname, toname );
 
@@ -829,7 +829,7 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 
     STRING fromname;
     STRING toname;
-    
+
     log_info( "net_copyDirectoryToAllPlayers: %s, %s\n", dirname, todirname );
 
     // Search for all files
@@ -855,8 +855,8 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
                 continue;
             }
 
-            snprintf( fromname, SDL_arraysize( fromname ), "%s" SLASH_STR "%s", dirname, searchResult );
-            snprintf( toname, SDL_arraysize( toname ), "%s" SLASH_STR "%s", todirname, searchResult );
+            snprintf( fromname, SDL_arraysize( fromname ), "%s/%s", dirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname ), "/%s/%s", todirname, searchResult );
             net_copyFileToAllPlayers( fromname, toname );
 
             ctxt = vfs_findNext( &ctxt );

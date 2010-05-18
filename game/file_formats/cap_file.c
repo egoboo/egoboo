@@ -78,7 +78,7 @@ cap_t * cap_init( cap_t * pcap )
 }
 
 //--------------------------------------------------------------------------------------------
-cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
+cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 {
     /// @details ZZ@> This function fills a character profile with data from data.txt, returning
     ///     the icap slot that the profile was stuck into.  It may cause the program
@@ -98,7 +98,7 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
 
     if ( NULL == pcap ) return NULL;
 
-    make_newloadname( tmploadname, SLASH_STR "data.txt", szLoadName );
+    make_newloadname( tmploadname, "/data.txt", szLoadName );
 
     // Open the file
     fileread = vfs_openRead( szLoadName );
@@ -402,13 +402,13 @@ cap_t * load_one_cap_file( const char * tmploadname, cap_t * pcap )
     }
     vfs_close( fileread );
 
-    //log_info( "load_one_character_profile() - loaded icap %s (%d)\n", pcap->classname, icap );
+    //log_info( "load_one_character_profile_vfs() - loaded icap %s (%d)\n", pcap->classname, icap );
 
     return pcap;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
+bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateName, cap_t * pcap )
 {
     /// @details BB@> export one cap_t struct to a "data.txt" file
     ///     converted to using the template file
@@ -424,7 +424,21 @@ bool_t save_one_cap_file( const char * szSaveName, cap_t * pcap )
     if ( NULL == filewrite ) return bfalse;
 
     // open the template file
-    filetemp = template_open( "mp_data/templates/data.txt" );
+    filetemp = NULL;
+
+    // try the given template file
+    if( VALID_CSTR(szTemplateName) )
+    {
+        filetemp = template_open( szTemplateName );
+    }
+
+    // try a default template file
+    if ( NULL == filetemp )
+    {
+        filetemp = template_open( "mp_data/templates/data.txt" );
+    }
+
+    //did we find a template file?
     if ( NULL == filetemp )
     {
         vfs_close( filewrite );

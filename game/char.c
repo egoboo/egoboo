@@ -2601,13 +2601,13 @@ void resize_all_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t export_one_character_name( const char *szSaveName, const CHR_REF by_reference character )
+bool_t export_one_character_name_vfs( const char *szSaveName, const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function makes the naming.txt file for the character
 
     if ( !INGAME_CHR( character ) ) return bfalse;
 
-    return chop_export( szSaveName, ChrList.lst[character].Name );
+    return chop_export_vfs( szSaveName, ChrList.lst[character].Name );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2832,7 +2832,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t export_one_character_profile( const char *szSaveName, const CHR_REF by_reference character )
+bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function creates a data.txt file for the given character.
     ///    it is assumed that all enchantments have been done away with
@@ -2855,11 +2855,11 @@ bool_t export_one_character_profile( const char *szSaveName, const CHR_REF by_re
     // fill in the cap values with the ones we want to export from the character profile
     chr_upload_cap( pchr, &cap_tmp );
 
-    return save_one_cap_file( szSaveName, &cap_tmp );
+    return save_one_cap_file_vfs( szSaveName, NULL, &cap_tmp );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t export_one_character_skin( const char *szSaveName, const CHR_REF by_reference character )
+bool_t export_one_character_skin_vfs( const char *szSaveName, const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function creates a skin.txt file for the given character.
 
@@ -2878,7 +2878,7 @@ bool_t export_one_character_skin( const char *szSaveName, const CHR_REF by_refer
 }
 
 //--------------------------------------------------------------------------------------------
-CAP_REF load_one_character_profile( const char * tmploadname, int slot_override, bool_t required )
+CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_override, bool_t required )
 {
     /// @details ZZ@> This function fills a character profile with data from data.txt, returning
     /// the icap slot that the profile was stuck into.  It may cause the program
@@ -2894,7 +2894,7 @@ CAP_REF load_one_character_profile( const char * tmploadname, int slot_override,
     }
     else
     {
-        icap = pro_get_slot( tmploadname, MAX_PROFILE );
+        icap = pro_get_slot_vfs( tmploadname, MAX_PROFILE );
     }
 
     if ( !VALID_CAP_RANGE( icap ) )
@@ -2902,11 +2902,11 @@ CAP_REF load_one_character_profile( const char * tmploadname, int slot_override,
         // The data file wasn't found
         if ( required )
         {
-            log_debug( "load_one_character_profile() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
+            log_debug( "load_one_character_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
         }
         else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "load_one_character_profile() - Not able to open file \"%s\"\n", szLoadName );
+            log_warning( "load_one_character_profile_vfs() - Not able to open file \"%s\"\n", szLoadName );
         }
 
         return ( CAP_REF )MAX_CAP;
@@ -2936,7 +2936,7 @@ CAP_REF load_one_character_profile( const char * tmploadname, int slot_override,
         release_one_cap( icap );
     }
 
-    if ( NULL == load_one_cap_file( tmploadname, pcap ) )
+    if ( NULL == load_one_cap_file_vfs( tmploadname, pcap ) )
     {
         return ( CAP_REF )MAX_CAP;
     }
@@ -3657,8 +3657,6 @@ chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations )
 
     return pprt;
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -574,10 +574,10 @@ int doMainMenu( float deltaTime )
             menuState = MM_Entering;
 
             // load the menu image
-            ego_texture_load( &background, "mp_data/menu/menu_main", INVALID_KEY );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_main", INVALID_KEY );
 
             // load the logo image
-            ego_texture_load( &logo,       "mp_data/menu/menu_logo", INVALID_KEY );
+            ego_texture_load_vfs( &logo,       "mp_data/menu/menu_logo", INVALID_KEY );
 
             // calculate the centered position of the background
             fminw = ( float ) MIN( GFX_WIDTH , background.imgW ) / ( float ) background.imgW;
@@ -727,7 +727,7 @@ int doSinglePlayerMenu( float deltaTime )
     {
         case MM_Begin:
             // Load resources for this menu
-            ego_texture_load( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
             menuChoice = 0;
 
             menuState = MM_Entering;
@@ -852,7 +852,7 @@ int doChooseModule( float deltaTime )
             load_all_menu_images();
 
             // Load font & background
-            ego_texture_load( &background, "mp_data/menu/menu_sleepy", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_sleepy", TRANSCOLOR );
             startIndex = 0;
             selectedModule = -1;
 
@@ -1138,7 +1138,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
     if ( player < 0 || player >= MAXLOADPLAYER || player >= loadplayer_count ) return bfalse;
 
     // grab the player data
-    ref_temp = load_one_character_profile( loadplayer[player].dir, 0, bfalse );
+    ref_temp = load_one_character_profile_vfs( loadplayer[player].dir, 0, bfalse );
     if ( !LOADED_CAP( ref_temp ) )
     {
         return bfalse;
@@ -1156,10 +1156,10 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
     {
         int slot = i + 1;
 
-        snprintf( szFilename, SDL_arraysize( szFilename ), "%s" SLASH_STR "%d.obj", loadplayer[player].dir, i );
+        snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer[player].dir, i );
 
         // load the profile
-        ref_temp = load_one_character_profile( szFilename, slot, bfalse );
+        ref_temp = load_one_character_profile_vfs( szFilename, slot, bfalse );
         if ( LOADED_CAP( ref_temp ) )
         {
             cap_t * pcap = CapStack.lst + ref_temp;
@@ -1171,12 +1171,12 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
             pdata->cap_ref = ref_temp;
 
             // load the icon
-            snprintf( szFilename, SDL_arraysize( szFilename ), "%s" SLASH_STR "%d.obj" SLASH_STR "icon%d", loadplayer[player].dir, i, MAX( 0, pcap->skinoverride ) );
-            pdata->tx_ref = TxTexture_load_one( szFilename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer[player].dir, i, MAX( 0, pcap->skinoverride ) );
+            pdata->tx_ref = TxTexture_load_one_vfs( szFilename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
 
             // load the naming
-            snprintf( szFilename, SDL_arraysize( szFilename ), "%s" SLASH_STR "%d.obj" SLASH_STR "naming.txt", loadplayer[player].dir, i );
-            chop_load( &chop_mem, szFilename, &( pdata->chop ) );
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/naming.txt", loadplayer[player].dir, i );
+            chop_load_vfs( &chop_mem, szFilename, &( pdata->chop ) );
         }
     }
 
@@ -1347,27 +1347,27 @@ int doChoosePlayer( float deltaTime )
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
 
-            TxTexture_load_one( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
+            TxTexture_load_one_vfs( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
 
-            TxTexture_load_one( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
+            TxTexture_load_one_vfs( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
             BitsInput[0] = INPUT_BITS_KEYBOARD;
             device_on[0] = keyb.on;
 
-            TxTexture_load_one( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
+            TxTexture_load_one_vfs( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
             BitsInput[1] = INPUT_BITS_MOUSE;
             device_on[1] = mous.on;
 
-            TxTexture_load_one( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
+            TxTexture_load_one_vfs( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
             BitsInput[2] = INPUT_BITS_JOYA;
             device_on[2] = joy[0].on;
 
-            TxTexture_load_one( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
+            TxTexture_load_one_vfs( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
             BitsInput[3] = INPUT_BITS_JOYB;
             device_on[3] = joy[1].on;
 
-            ego_texture_load( &background, "mp_data/menu/menu_sleepy", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_sleepy", TRANSCOLOR );
 
-            TxTexture_load_one( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
+            TxTexture_load_one_vfs( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
 
             // load information for all the players that could be imported
             mnu_player_check_import( "mp_players", btrue );
@@ -1678,18 +1678,18 @@ int doChoosePlayer( float deltaTime )
 
                     // Copy the character to the import directory
                     strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize( srcDir ) );
-                    snprintf( destDir, SDL_arraysize( destDir ), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] );
+                    snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[i] );
                     vfs_copyDirectory( srcDir, destDir );
 
                     // Copy all of the character's items to the import directory
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
-                        snprintf( srcDir, SDL_arraysize( srcDir ), "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
+                        snprintf( srcDir, SDL_arraysize( srcDir ), "%s/%d.obj", loadplayer[selectedPlayer].dir, j );
 
                         // make sure the source directory exists
                         if ( vfs_isDirectory( srcDir ) )
                         {
-                            snprintf( destDir, SDL_arraysize( destDir ), "import" SLASH_STR "temp%04d.obj", local_import_slot[i] + j + 1 );
+                            snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[i] + j + 1 );
                             vfs_copyDirectory( srcDir, destDir );
                         }
                     }
@@ -1730,7 +1730,7 @@ int doOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "mp_data/menu/menu_gnome", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
 
@@ -2206,7 +2206,7 @@ int doInputOptions( float deltaTime )
             {
                 // save settings and go back
                 player = 0;
-                input_settings_save( "controls.txt" );
+                input_settings_save_vfs( "controls.txt" );
                 menuState = MM_Leaving;
             }
 
@@ -2268,7 +2268,7 @@ int doGameOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "mp_data/menu/menu_fairy", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_fairy", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -2589,7 +2589,7 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "mp_data/menu/menu_draco", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -2989,7 +2989,7 @@ int doVideoOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load( &background, "mp_data/menu/menu_video", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_video", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
@@ -4225,7 +4225,7 @@ void load_all_menu_images()
     mnu_ModList_release_images();
 
     // Log a directory list
-    filesave = vfs_openWrite( "debug" SLASH_STR "modules.txt" );
+    filesave = vfs_openWrite( "/debug/modules.txt" );
     if ( NULL != filesave )
     {
         vfs_printf( filesave, "This file logs all of the modules found\n" );
@@ -4245,7 +4245,7 @@ void load_all_menu_images()
             // @note just because we can't load the title image DOES NOT mean that we ignore the module
             snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", mnu_ModList.lst[imod].name );
 
-            mnu_ModList.lst[imod].tex_index = TxTitleImage_load_one( loadname );
+            mnu_ModList.lst[imod].tex_index = TxTitleImage_load_one_vfs( loadname );
 
             vfs_printf( filesave, "%02d.  %s\n", REF_TO_INT( imod ), mnu_ModList.lst[imod].name );
         }
@@ -4566,7 +4566,7 @@ void TxTitleImage_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxTitleImage_load_one( const char *szLoadName )
+TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
 {
     /// @details ZZ@> This function loads a title in the specified image slot, forcing it into
     ///    system memory.  Returns btrue if it worked
@@ -4578,7 +4578,7 @@ TX_REF TxTitleImage_load_one( const char *szLoadName )
     if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
 
     itex  = ( TX_REF )TxTitleImage.count;
-    if ( INVALID_TX_ID != ego_texture_load( TxTitleImage.lst + itex, szLoadName, INVALID_KEY ) )
+    if ( INVALID_TX_ID != ego_texture_load_vfs( TxTitleImage.lst + itex, szLoadName, INVALID_KEY ) )
     {
         TxTitleImage.count++;
     }
@@ -4950,18 +4950,18 @@ bool_t loadplayer_import_one( const char * foundfile )
 
     snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys(( char* )foundfile, strlen( foundfile ) ) );
 
-    snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "skin.txt", foundfile );
-    skin = read_skin( filename );
+    snprintf( filename, SDL_arraysize( filename ), "%s/skin.txt", foundfile );
+    skin = read_skin_vfs( filename );
 
     //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
     //md2_load_one( vfs_resolveReadFilename(filename), &(MadStack.lst[loadplayer_count].md2_data) );
 
-    snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "icon%d", foundfile, skin );
-    pinfo->tx_ref = TxTexture_load_one( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+    snprintf( filename, SDL_arraysize( filename ), "%s/icon%d", foundfile, skin );
+    pinfo->tx_ref = TxTexture_load_one_vfs( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
 
     // load the chop data
-    snprintf( filename, SDL_arraysize( filename ), "%s" SLASH_STR "naming.txt", foundfile );
-    chop_load( &chop_mem, filename, &( pinfo->chop ) );
+    snprintf( filename, SDL_arraysize( filename ), "%s/naming.txt", foundfile );
+    chop_load_vfs( &chop_mem, filename, &( pinfo->chop ) );
 
     // generate the name from the chop
     snprintf( pinfo->name, SDL_arraysize( pinfo->name ), "%s", chop_create( &chop_mem, &( pinfo->chop ) ) );

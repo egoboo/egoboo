@@ -55,8 +55,8 @@ ego_rpc_base_t * ego_rpc_base_dtor( ego_rpc_base_t * prpc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// a "remote procedure call" structure for handling calls to TxTexture_load_one()
-/// and TxTitleImage_load_one()
+/// a "remote procedure call" structure for handling calls to TxTexture_load_one_vfs()
+/// and TxTitleImage_load_one_vfs()
 
 struct s_tx_request
 {

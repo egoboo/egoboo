@@ -116,7 +116,7 @@ extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   ///< This is a specif
 bool_t sound_initialize();
 void   sound_restart();
 
-Mix_Chunk * sound_load_chunk( const char * szFileName );
+Mix_Chunk * sound_load_chunk_vfs( const char * szFileName );
 Mix_Music * sound_load_music( const char * szFileName );
 bool_t      sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type );
 

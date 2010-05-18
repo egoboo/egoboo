@@ -150,7 +150,7 @@ void vfs_init( const char * argv0 )
     {
         char tmp_path[1024] = EMPTY_CSTR;
 
-        snprintf( tmp_path, SDL_arraysize( tmp_path ), "%s" SLASH_STR "debug", fs_getUserDirectory() );
+        snprintf( tmp_path, SDL_arraysize( tmp_path ), "%s/debug", fs_getUserDirectory() );
 
         str_convert_slash_sys( tmp_path, SDL_arraysize( tmp_path ) );
         fs_createDirectory( tmp_path );
@@ -370,7 +370,6 @@ int _vfs_is_virtual_path( const char * some_path )
     return retval;
 }
 
-
 //--------------------------------------------------------------------------------------------
 const char * _vfs_strip_mount_point( const char * some_path )
 {
@@ -496,7 +495,7 @@ const char * vfs_resolveReadFilename( const char * src_filename )
     // to see if the filename is already resolved
     strncpy( loc_fname, szTemp, SDL_arraysize( loc_fname ) );
     str_convert_slash_sys(loc_fname, SDL_arraysize( loc_fname ));
-    
+
     if( fs_fileExists(loc_fname) )
     {
         strncpy( read_name_str, loc_fname, SDL_arraysize( read_name_str ) );
@@ -520,13 +519,13 @@ const char * vfs_resolveReadFilename( const char * src_filename )
 
             if( VALID_CSTR(ptmp) )
             {
-                snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s" SLASH_STR "%s", retval, ptmp );
+                snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/%s", retval, ptmp );
             }
             else
             {
-                snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s" SLASH_STR, retval );
+                snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/", retval );
             }
-            
+
             retval     = read_name_str;
             retval_len = SDL_arraysize( read_name_str );
         }
@@ -537,20 +536,23 @@ const char * vfs_resolveReadFilename( const char * src_filename )
         const char * ptmp = loc_fname;
 
         // make PHYSFS grab the actual directory
-		tmp_dirname = PHYSFS_getRealDir( loc_fname );
+        tmp_dirname = PHYSFS_getRealDir( loc_fname );
 
-		if ( INVALID_CSTR( tmp_dirname ) )
+        if ( INVALID_CSTR( tmp_dirname ) )
         {
             // not found... just punt
             strncpy( read_name_str, loc_fname, SDL_arraysize( read_name_str ) );
+            retval     = read_name_str;
+            retval_len = SDL_arraysize( read_name_str );
         }
         else
         {
             ptmp = _vfs_strip_mount_point( loc_fname );
-            snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s" SLASH_STR "%s", tmp_dirname, ptmp );
+
+            snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/%s", tmp_dirname, ptmp );
+            retval     = read_name_str;
+            retval_len = SDL_arraysize( read_name_str );
         }
-        retval     = read_name_str;
-        retval_len = SDL_arraysize( read_name_str );
     }
 
     if ( VALID_CSTR( retval ) && retval_len > 0 )
@@ -1829,8 +1831,8 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
         // Ignore files that begin with a .
         if ( '.' != fileName[0] )
         {
-            snprintf( srcPath, SDL_arraysize( srcPath ), "%s" SLASH_STR "%s", sourceDir, fileName );
-            snprintf( destPath, SDL_arraysize( destPath ), "%s" SLASH_STR "%s", destDir, fileName );
+            snprintf( srcPath, SDL_arraysize( srcPath ), "%s/%s", sourceDir, fileName );
+            snprintf( destPath, SDL_arraysize( destPath ), "/%s/%s", destDir, fileName );
 
             if ( !vfs_copyFile( srcPath, destPath ) )
             {
@@ -2308,7 +2310,6 @@ int vfs_remove_mount_point( const char * mount_point )
 
     return retval;
 }
-
 
 const char * vfs_search_context_get_current( vfs_search_context_t * ctxt )
 {

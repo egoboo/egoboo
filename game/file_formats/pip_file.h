@@ -214,6 +214,6 @@ extern particle_direction_t prt_direction[256];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-pip_t * load_one_pip_file( const char *szLoadName, pip_t * ppip );
+pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip );
 
 pip_t * pip_init( pip_t * ppip );

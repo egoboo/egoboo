@@ -4560,11 +4560,11 @@ bool_t load_all_global_icons()
     bool_t result = bfalse;
 
     // Now load every icon
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
 
     return result;
 }
@@ -4575,24 +4575,24 @@ void load_basic_textures( /* const char *modname */ )
     /// @details ZZ@> This function loads the standard textures for a module
 
     // Particle sprites
-    TxTexture_load_one( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
     prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
 
-    TxTexture_load_one( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
+    TxTexture_load_one_vfs( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
     prt_set_texture_params(( TX_REF )TX_PARTICLE_LIGHT );
 
     // Module background tiles
-    TxTexture_load_one( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
 
     // Water textures
-    TxTexture_load_one( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
-    TxTexture_load_one( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
 
     // Texture 7 is the phong map
-    TxTexture_load_one( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
 
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
@@ -4627,13 +4627,13 @@ void load_bars()
     const char * pname;
 
     pname = "mp_data/bars";
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one( pname, ( TX_REF )TX_BARS, TRANSCOLOR ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( pname, ( TX_REF )TX_BARS, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 
     pname = "mp_data/xpbar";
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR ) )
     {
         log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
@@ -4654,7 +4654,7 @@ void load_map( /* const char* szModule */ )
 
     // Load the images
     szMap = "mp_data/plan";
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one( szMap, ( TX_REF )TX_MAP, INVALID_KEY ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY ) )
     {
         log_warning( "load_map() - Cannot load file! (\"%s\")\n", szMap );
     }
@@ -4668,7 +4668,7 @@ void load_map( /* const char* szModule */ )
 bool_t load_blips()
 {
     /// ZZ@> This function loads the blip bitmaps
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one( "mp_data/blip", ( TX_REF )TX_BLIP, INVALID_KEY ) )
+    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( "mp_data/blip", ( TX_REF )TX_BLIP, INVALID_KEY ) )
     {
         log_warning( "Blip bitmap not loaded! (\"mp_data/blip\")\n" );
         return bfalse;

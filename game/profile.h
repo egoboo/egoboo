@@ -71,7 +71,7 @@ typedef struct s_chop_data chop_data_t;
 
 chop_data_t * chop_data_init( chop_data_t * pdata );
 
-bool_t        chop_export( const char *szSaveName, const char * szChop );
+bool_t        chop_export_vfs( const char *szSaveName, const char * szChop );
 
 //--------------------------------------------------------------------------------------------
 /// Defintion of a single chop secttion
@@ -131,9 +131,9 @@ typedef struct s_object_profile pro_t;
 
 DECLARE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
 
-int          pro_get_slot( const char * tmploadname, int slot_override );
+int          pro_get_slot_vfs( const char * tmploadname, int slot_override );
 const char * pro_create_chop( const PRO_REF by_reference profile_ref );
-bool_t       pro_load_chop( const PRO_REF by_reference profile_ref, const char *szLoadname );
+bool_t       pro_load_chop_vfs( const PRO_REF by_reference profile_ref, const char *szLoadname );
 
 void    ProList_init();
 //void    ProList_free_all();
@@ -194,8 +194,8 @@ void profile_system_begin();
 void profile_system_end();
 
 void   init_all_profiles();
-int    load_profile_skins( const char * tmploadname, const PRO_REF by_reference object_ref );
-void   load_all_messages( const char *loadname, const PRO_REF by_reference object_ref );
+int    load_profile_skins_vfs( const char * tmploadname, const PRO_REF by_reference object_ref );
+void   load_all_messages_vfs( const char *loadname, const PRO_REF by_reference object_ref );
 void   release_all_pro_data();
 void   release_all_profiles();
 void   release_all_pro();
@@ -208,4 +208,4 @@ int load_one_profile( const char* tmploadname, int slot_override );
 void reset_messages();
 
 const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );
-bool_t        chop_load( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );
+bool_t        chop_load_vfs( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );
