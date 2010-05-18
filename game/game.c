@@ -2984,7 +2984,7 @@ void game_setup_module( const char *smallname )
 
     // generate the module directory
     strncpy( modname, smallname, SDL_arraysize( modname ) );
-    str_append_slash( modname, SDL_arraysize( modname ) );
+    str_append_slash_net( modname, SDL_arraysize( modname ) );
 
     // ust the information in these files to load the module
     activate_passages_file();        // read and implement the "passage script" passages.txt

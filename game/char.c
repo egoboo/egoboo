@@ -3518,99 +3518,319 @@ bool_t chr_free( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-chr_t * chr_config_construct( chr_t * pprt, int max_iterations )
+chr_t * chr_config_do_init( chr_t * pchr )
+{
+    CHR_REF  ichr;
+    CAP_REF  icap;
+    TEAM_REF loc_team;
+    int      tnc, iteam, kursechance;
+    float    pressure;
+    fvec3_t  nrm;
+
+    cap_t * pcap;
+    fvec3_t pos_tmp;
+
+    if ( NULL == pchr ) return NULL;
+    ichr = GET_INDEX_PCHR( pchr );
+
+    // can't use chr_get_pcap() because pchr is not a valid character yet
+    icap = pro_get_icap( pchr->spawn_data.profile );
+    pcap = pro_get_pcap( pchr->spawn_data.profile );
+
+    // make a copy of the data in pchr->spawn_data.pos
+    pos_tmp = pchr->spawn_data.pos;
+
+    // download all the values from the character pchr->spawn_data.profile
+    chr_download_cap( pchr, pcap );
+
+    // Make sure the pchr->spawn_data.team is valid
+    loc_team = pchr->spawn_data.team;
+    iteam = REF_TO_INT( loc_team );
+    iteam = CLIP( iteam, 0, TEAM_MAX );
+    loc_team = ( TEAM_REF )iteam;
+
+    // IMPORTANT!!!
+    pchr->missilehandler = ichr;
+
+    // Set up model stuff
+    pchr->iprofile  = pchr->spawn_data.profile;
+    pchr->basemodel = pchr->spawn_data.profile;
+
+    // Kurse state
+    if ( pcap->isitem )
+    {
+        IPair loc_rand = {1, 100};
+
+        kursechance = pcap->kursechance;
+        if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
+        if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
+        pchr->iskursed = ( generate_irand_pair( loc_rand ) <= kursechance );
+    }
+
+    // AI stuff
+    ai_state_spawn( &( pchr->ai ), ichr, pchr->iprofile, TeamStack.lst[loc_team].morale );
+
+    // Team stuff
+    pchr->team     = loc_team;
+    pchr->baseteam = loc_team;
+    if ( !pchr->invictus )  TeamStack.lst[loc_team].morale++;
+
+    // Firstborn becomes the leader
+    if ( TeamStack.lst[loc_team].leader == NOLEADER )
+    {
+        TeamStack.lst[loc_team].leader = ichr;
+    }
+
+    // Skin
+    if ( pcap->skinoverride != NOSKINOVERRIDE )
+    {
+        // pchr->spawn_data.override the value passed into the function from spawn.txt
+        // with the calue from the expansion in data.txt
+        pchr->spawn_data.skin = pchr->skin;
+    }
+    if ( pchr->spawn_data.skin >= ProList.lst[pchr->spawn_data.profile].skins )
+    {
+        // place this here so that the random number generator advances
+        // no matter the state of ProList.lst[pchr->spawn_data.profile].skins... Eases
+        // possible synch problems with other systems?
+        int irand = RANDIE;
+
+        pchr->spawn_data.skin = 0;
+        if ( 0 != ProList.lst[pchr->spawn_data.profile].skins )
+        {
+            pchr->spawn_data.skin = irand % ProList.lst[pchr->spawn_data.profile].skins;
+        }
+    }
+    pchr->skin = pchr->spawn_data.skin;
+
+    // fix the pchr->spawn_data.skin-related parameters, in case there was some funy business with overriding
+    // the pchr->spawn_data.skin from the data.txt file
+    if ( pchr->spawn_data.skin != pchr->skin )
+    {
+        pchr->skin = pchr->spawn_data.skin;
+
+        pchr->defense = pcap->defense[pchr->skin];
+        for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
+        {
+            pchr->damagemodifier[tnc] = pcap->damagemodifier[tnc][pchr->skin];
+        }
+
+        pchr->maxaccel  = pcap->maxaccel[pchr->skin];
+    }
+
+    // pchr->spawn_data.override the default behavior for an "easy" game
+    if ( cfg.difficulty < GAME_NORMAL )
+    {
+        pchr->life = pchr->lifemax;
+        pchr->mana = pchr->manamax;
+    }
+
+    // Character size and bumping
+    pchr->fat_goto      = pchr->fat;
+    pchr->fat_goto_time = 0;
+
+    // Set up position
+    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
+    pchr->enviro.level       = pchr->enviro.floor_level;
+    pchr->enviro.fly_level   = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, btrue ) + RAISE;
+
+    if ( 0 != pchr->flyheight )
+    {
+        if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
+    }
+
+    if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
+
+    pchr->pos      = pos_tmp;
+    pchr->safe_pos = pos_tmp;
+    pchr->pos_stt  = pos_tmp;
+    pchr->pos_old  = pos_tmp;
+
+    pchr->facing_z     = pchr->spawn_data.facing;
+    pchr->facing_z_old = pchr->facing_z;
+
+    pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+    pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+
+    // Name the character
+    if ( CSTR_END == pchr->spawn_data.name[0] )
+    {
+        // Generate a random pchr->spawn_data.name
+        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", pro_create_chop( pchr->spawn_data.profile ) );
+    }
+    else
+    {
+        // A pchr->spawn_data.name has been given
+        tnc = 0;
+
+        while ( tnc < MAXCAPNAMESIZE - 1 )
+        {
+            pchr->Name[tnc] = pchr->spawn_data.name[tnc];
+            tnc++;
+        }
+
+        pchr->Name[tnc] = CSTR_END;
+    }
+
+    // Particle attachments
+    for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
+    {
+        spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip,
+                            ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
+    }
+
+    // is the object part of a shop's inventory?
+    if ( !INGAME_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack.is_packed )
+    {
+        SHOP_REF ishop;
+
+        // Items that are spawned inside shop passages are more expensive than normal
+        pchr->isshopitem = bfalse;
+        for ( ishop = 0; ishop < ShopStack.count; ishop++ )
+        {
+            // Make sure the owner is not dead
+            if ( SHOP_NOOWNER == ShopStack.lst[ishop].owner ) continue;
+
+            if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+            {
+                pchr->isshopitem = btrue;               // Full value
+                pchr->iskursed   = bfalse;              // Shop items are never kursed
+
+                // Identify cheap items in a shop
+                if ( chr_get_price( ichr ) <= SHOP_IDENTIFY )
+                {
+                    pchr->nameknown  = btrue;
+                }
+                break;
+            }
+        }
+    }
+
+    // pchr->spawn_data.override the shopitem flag if the item is known to be valuable
+    if ( pcap->isvaluable )
+    {
+        pchr->isshopitem = btrue;
+    }
+
+    // initalize the character instance
+    chr_spawn_instance( &( pchr->inst ), pchr->spawn_data.profile, pchr->spawn_data.skin );
+    chr_update_matrix( pchr, btrue );
+
+    // determine whether the object is hidden
+    chr_update_hide( pchr );
+
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
+
+    // determine whether the spawn position is a safe position
+    pchr->safe_valid = ( 0 == chr_hit_wall( pchr, nrm.v, &pressure ) );
+    if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
+
+#if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
+    if ( INGAME_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
+    {
+        log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
+                     pchr->pos.x, pchr->pos.y, nrm.x, nrm.y );
+    }
+#endif
+
+    return pchr;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
-    // if the particle is already beyond this stage, deconstruct it and start over
+    // if the character is already beyond this stage, deconstruct it and start over
     if( pbase->state > (int)(ego_object_constructing + 1) )
     {
-        chr_t * tmp_chr = chr_config_deconstruct( pprt, max_iterations );
-        if( tmp_chr == pprt ) return NULL;
+        chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
+        if( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    while( NULL != pchr && pbase->state <= ego_object_constructing && iterations < max_iterations )
     {
-        chr_t * ptmp = chr_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        chr_t * ptmp = chr_run_config( pchr );
+        if( ptmp != pchr ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_config_initialize( chr_t * pprt, int max_iterations )
+chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
-    // if the particle is already beyond this stage, deconstruct it and start over
+    // if the character is already beyond this stage, deconstruct it and start over
     if( pbase->state > (int)(ego_object_initializing + 1) )
     {
-        chr_t * tmp_chr = chr_config_deconstruct( pprt, max_iterations );
-        if( tmp_chr == pprt ) return NULL;
+        chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
+        if( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    while( NULL != pchr && pbase->state <= ego_object_initializing && iterations < max_iterations )
     {
-        chr_t * ptmp = chr_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        chr_t * ptmp = chr_run_config( pchr );
+        if( ptmp != pchr ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_config_activate( chr_t * pprt, int max_iterations )
+chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
-    // if the particle is already beyond this stage, deconstruct it and start over
+    // if the character is already beyond this stage, deconstruct it and start over
     if( pbase->state > (int)(ego_object_active + 1) )
     {
-        chr_t * tmp_chr = chr_config_deconstruct( pprt, max_iterations );
-        if( tmp_chr == pprt ) return NULL;
+        chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
+        if( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
+    while( NULL != pchr && pbase->state < ego_object_active && iterations < max_iterations )
     {
-        chr_t * ptmp = chr_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        chr_t * ptmp = chr_run_config( pchr );
+        if( ptmp != pchr ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations )
+chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
-    // if the particle is already beyond this stage, deinitialize it
+    // if the character is already beyond this stage, deinitialize it
     if( pbase->state > (int)(ego_object_deinitializing + 1) )
     {
-        return pprt;
+        return pchr;
     }
     else if( pbase->state < ego_object_deinitializing )
     {
@@ -3618,29 +3838,29 @@ chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations )
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    while( NULL != pchr && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
     {
-        chr_t * ptmp = chr_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        chr_t * ptmp = chr_run_config( pchr );
+        if( ptmp != pchr ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations )
+chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
-    // if the particle is already beyond this stage, deconstruct it
+    // if the character is already beyond this stage, deconstruct it
     if( pbase->state > (int)(ego_object_destructing + 1) )
     {
-        return pprt;
+        return pchr;
     }
     else if( pbase->state < ego_object_deinitializing )
     {
@@ -3648,14 +3868,14 @@ chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations )
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    while( NULL != pchr && pbase->state <= ego_object_destructing && iterations < max_iterations )
     {
-        chr_t * ptmp = chr_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        chr_t * ptmp = chr_run_config( pchr );
+        if( ptmp != pchr ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return pchr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3852,6 +4072,13 @@ chr_t * chr_config_init( chr_t * pchr )
 
     pbase->state = ego_object_active;
 
+    pchr = chr_config_do_init( pchr );
+
+    if( NULL != pchr )
+    {
+        pchr->obj_base.on = btrue;
+    }
+
     return pchr;
 }
 
@@ -3913,23 +4140,18 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, const TEAM_REF by_reference team,
                              Uint8 skin, FACING_T facing, const char *name, const CHR_REF by_reference override )
 {
     /// @details ZZ@> This function spawns a character and returns the character's index number
     ///               if it worked, MAX_CHR otherwise
 
-    CHR_REF ichr;
-    int tnc, iteam, kursechance;
-    chr_t * pchr;
-    cap_t * pcap;
-    fvec3_t pos_tmp;
+    CHR_REF   ichr;
+    chr_t   * pchr;
 
-    float   pressure;
-    fvec3_t nrm;
-
-    CAP_REF  icap;
-    TEAM_REF loc_team;
+    // fix a "bad" name
+    if( NULL == name ) name = "";
 
     if ( profile >= MAX_PROFILE )
     {
@@ -3956,208 +4178,17 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
 
     pchr = ChrList.lst + ichr;
 
-    // can't use chr_get_pcap() because pchr is not a valid character yet
-    icap = pro_get_icap( profile );
-    pcap = pro_get_pcap( profile );
+    // just set the spawn info
+    pchr->spawn_data.pos      = pos;
+    pchr->spawn_data.profile  = profile;
+    pchr->spawn_data.team     = team;
+    pchr->spawn_data.skin     = skin; 
+    pchr->spawn_data.facing   = facing;
+    strncpy( pchr->spawn_data.name, name, SDL_arraysize(pchr->spawn_data.name) );
+    pchr->spawn_data.override = override;
 
-    // make a copy of the data in pos
-    pos_tmp = pos;
-
-    // turn the character on here. you can't fail to spawn after this point.
-    EGO_OBJECT_ACTIVATE( pchr, pcap->name );
-
-    // download all the values from the character profile
-    chr_download_cap( pchr, pcap );
-
-    // Make sure the team is valid
-    loc_team = team;
-    iteam = REF_TO_INT( loc_team );
-    iteam = CLIP( iteam, 0, TEAM_MAX );
-    loc_team = ( TEAM_REF )iteam;
-
-    // IMPORTANT!!!
-    pchr->missilehandler = ichr;
-
-    // Set up model stuff
-    pchr->iprofile  = profile;
-    pchr->basemodel = profile;
-
-    // Kurse state
-    if ( pcap->isitem )
-    {
-        IPair loc_rand = {1, 100};
-
-        kursechance = pcap->kursechance;
-        if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
-        if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses
-        pchr->iskursed = ( generate_irand_pair( loc_rand ) <= kursechance );
-    }
-
-    // AI stuff
-    ai_state_spawn( &( pchr->ai ), ichr, pchr->iprofile, TeamStack.lst[loc_team].morale );
-
-    // Team stuff
-    pchr->team     = loc_team;
-    pchr->baseteam = loc_team;
-    if ( !pchr->invictus )  TeamStack.lst[loc_team].morale++;
-
-    // Firstborn becomes the leader
-    if ( TeamStack.lst[loc_team].leader == NOLEADER )
-    {
-        TeamStack.lst[loc_team].leader = ichr;
-    }
-
-    // Skin
-    if ( pcap->skinoverride != NOSKINOVERRIDE )
-    {
-        // override the value passed into the function from spawn.txt
-        // with the calue from the expansion in data.txt
-        skin = pchr->skin;
-    }
-    if ( skin >= ProList.lst[profile].skins )
-    {
-        // place this here so that the random number generator advances
-        // no matter the state of ProList.lst[profile].skins... Eases
-        // possible synch problems with other systems?
-        int irand = RANDIE;
-
-        skin = 0;
-        if ( 0 != ProList.lst[profile].skins )
-        {
-            skin = irand % ProList.lst[profile].skins;
-        }
-    }
-    pchr->skin = skin;
-
-    // fix the skin-related parameters, in case there was some funy business with overriding
-    // the skin from the data.txt file
-    if ( skin != pchr->skin )
-    {
-        pchr->skin = skin;
-
-        pchr->defense = pcap->defense[pchr->skin];
-        for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
-        {
-            pchr->damagemodifier[tnc] = pcap->damagemodifier[tnc][pchr->skin];
-        }
-
-        pchr->maxaccel  = pcap->maxaccel[pchr->skin];
-    }
-
-    // override the default behavior for an "easy" game
-    if ( cfg.difficulty < GAME_NORMAL )
-    {
-        pchr->life = pchr->lifemax;
-        pchr->mana = pchr->manamax;
-    }
-
-    // Character size and bumping
-    pchr->fat_goto      = pchr->fat;
-    pchr->fat_goto_time = 0;
-
-    // Set up position
-    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
-    pchr->enviro.level       = pchr->enviro.floor_level;
-    pchr->enviro.fly_level   = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, btrue ) + RAISE;
-
-    if ( 0 != pchr->flyheight )
-    {
-        if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
-    }
-
-    if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
-
-    pchr->pos      = pos_tmp;
-    pchr->safe_pos = pos_tmp;
-    pchr->pos_stt  = pos_tmp;
-    pchr->pos_old  = pos_tmp;
-
-    pchr->facing_z     = facing;
-    pchr->facing_z_old = pchr->facing_z;
-
-    pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-    pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
-
-    // Name the character
-    if ( NULL == name )
-    {
-        // Generate a random name
-        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", pro_create_chop( profile ) );
-    }
-    else
-    {
-        // A name has been given
-        tnc = 0;
-
-        while ( tnc < MAXCAPNAMESIZE - 1 )
-        {
-            pchr->Name[tnc] = name[tnc];
-            tnc++;
-        }
-
-        pchr->Name[tnc] = CSTR_END;
-    }
-
-    // Particle attachments
-    for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
-    {
-        spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip,
-                            ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
-    }
-
-    // is the object part of a shop's inventory?
-    if ( !INGAME_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack.is_packed )
-    {
-        SHOP_REF ishop;
-
-        // Items that are spawned inside shop passages are more expensive than normal
-        pchr->isshopitem = bfalse;
-        for ( ishop = 0; ishop < ShopStack.count; ishop++ )
-        {
-            // Make sure the owner is not dead
-            if ( SHOP_NOOWNER == ShopStack.lst[ishop].owner ) continue;
-
-            if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
-            {
-                pchr->isshopitem = btrue;               // Full value
-                pchr->iskursed   = bfalse;              // Shop items are never kursed
-
-                // Identify cheap items in a shop
-                if ( chr_get_price( ichr ) <= SHOP_IDENTIFY )
-                {
-                    pchr->nameknown  = btrue;
-                }
-                break;
-            }
-        }
-    }
-
-    // override the shopitem flag if the item is known to be valuable
-    if ( pcap->isvaluable )
-    {
-        pchr->isshopitem = btrue;
-    }
-
-    // initalize the character instance
-    chr_spawn_instance( &( pchr->inst ), profile, skin );
-    chr_update_matrix( pchr, btrue );
-
-    // determine whether the object is hidden
-    chr_update_hide( pchr );
-
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
-
-    // determine whether the spawn position is a safe position
-    pchr->safe_valid = ( 0 == chr_hit_wall( pchr, nrm.v, &pressure ) );
-    if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
-
-#if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
-    if ( INGAME_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
-    {
-        log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
-                     pchr->pos.x, pchr->pos.y, nrm.x, nrm.y );
-    }
-#endif
+    // actually force the character to spawn
+    chr_config_activate( pchr, 100 );
 
     return ichr;
 }

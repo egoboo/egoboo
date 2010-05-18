@@ -234,12 +234,30 @@ typedef struct s_pack pack_t;
 #define PACK_BEGIN_LOOP(IT,INIT) IT = INIT; while( MAX_CHR != IT ) { CHR_REF IT##_internal = ChrList.lst[IT].pack.next;
 #define PACK_END_LOOP(IT) IT = IT##_internal; }
 
+
+//--------------------------------------------------------------------------------------------
+/// the data used to define the spawning of a character
+struct s_chr_spawn_data
+{
+    fvec3_t     pos;
+    PRO_REF     profile;
+    TEAM_REF    team;
+    Uint8       skin;
+    FACING_T    facing;
+    STRING      name;
+    CHR_REF     override;
+};
+
+typedef struct s_chr_spawn_data chr_spawn_data_t;
+
 //--------------------------------------------------------------------------------------------
 /// The definition of the character object
 /// This "inherits" for ego_object_base_t
 struct s_chr
 {
     ego_object_base_t obj_base;
+
+    chr_spawn_data_t  spawn_data;
 
     // character state
     ai_state_t     ai;              ///< ai data
