@@ -1100,7 +1100,7 @@ enc_t * enc_config_dtor( enc_t * penc )
     pbase = POBJ_GET_PBASE( penc );
     if ( NULL == pbase ) return NULL;
 
-    if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return penc;
+    if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return penc;
 
     // Destroy the base object.
     // Sets the state to ego_object_terminated automatically.

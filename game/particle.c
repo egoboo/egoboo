@@ -201,36 +201,37 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
 
         // at least mark the object as "waiting to be terminated"
         EGO_OBJECT_REQUST_TERMINATE( pprt );
-
-        return btrue;
-    }
-
-#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
-    {
-        int cnt;
-        // determine whether this particle is already in the list of free textures
-        // that is an error
-        for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
-        {
-            if ( iprt == PrtList.free_ref[cnt] )
-            {
-                return bfalse;
-            }
-        }
-    }
-#endif
-
-    // push it on the free stack
-    retval = bfalse;
-    if ( PrtList.free_count < TOTAL_MAX_PRT )
-    {
-        PrtList.free_ref[PrtList.free_count] = REF_TO_INT( iprt );
-        PrtList.free_count++;
         retval = btrue;
     }
+    else
+    {
+#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
+        {
+            int cnt;
+            // determine whether this particle is already in the list of free textures
+            // that is an error
+            for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
+            {
+                if ( iprt == PrtList.free_ref[cnt] )
+                {
+                    return bfalse;
+                }
+            }
+        }
+#endif
 
-    // particle "destructor"
-    prt_config_deconstruct( pprt, 100 );
+        // push it on the free stack
+        retval = bfalse;
+        if ( PrtList.free_count < TOTAL_MAX_PRT )
+        {
+            PrtList.free_ref[PrtList.free_count] = REF_TO_INT( iprt );
+            PrtList.free_count++;
+            retval = btrue;
+        }
+
+        // particle "destructor"
+        prt_config_deconstruct( pprt, 100 );
+    }
 
     return retval;
 }
@@ -373,7 +374,7 @@ PRT_REF PrtList_allocate( bool_t force )
 
     if ( VALID_PRT_RANGE( iprt ) )
     {
-        if ( ALLOCATED_PRT( iprt ) && !TERMINATED_PRT( iprt ) )
+        if ( DEFINED_PRT( iprt ) )
         {
             free_one_particle_in_game( iprt );
         }
@@ -524,21 +525,18 @@ bool_t prt_free( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_do_init( prt_t * pprt )
 {
-    PIP_REF ipip;
-    PRT_REF iprt;
+    PRT_REF            iprt;
+    pip_t            * ppip;
+    prt_spawn_data_t * pdata;
 
     int     velocity;
     fvec3_t vel;
     float   tvel;
     int     offsetfacing = 0, newrand;
-    pip_t * ppip;
     Uint32  prt_lifetime;
     fvec3_t tmp_pos;
     Uint16  turn;
 
-    prt_spawn_data_t * pdata;
-
-    int loc_spawn_mode;
     FACING_T loc_facing;
     CHR_REF loc_chr_origin;
 
@@ -546,17 +544,19 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pdata = &(pprt->spawn_data);
     iprt  = GET_INDEX_PPRT( pprt );
 
-    // Convert from local ipip to global ipip
-    ipip = pro_get_ipip( pdata->iprofile, pdata->pip_index );
-    if ( !LOADED_PIP( ipip ) )
+    // Convert from local pdata->ipip to global pdata->ipip
+    if ( !LOADED_PIP( pdata->ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                   REF_TO_INT( ipip ), REF_TO_INT( pdata->chr_origin ), INGAME_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
+                   REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), INGAME_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
                    REF_TO_INT( pdata->iprofile ), LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 
         return NULL;
     }
-    ppip = PipStack.lst + ipip;
+    ppip = PipStack.lst + pdata->ipip;
+
+    // let the object be activated
+    EGO_OBJECT_ACTIVATE( pprt, ppip->name );
 
     // make some local copies of the spawn data
     loc_facing     = pdata->facing;
@@ -566,39 +566,6 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // components of the original vector.
     tmp_pos = pdata->pos;
 
-    // fix the spawn mode
-    loc_spawn_mode = EGO_OBJECT_DO_ACTIVATE;
-    if ( prt_loop_depth > 0 )
-    {
-        loc_spawn_mode = EGO_OBJECT_DO_ALLOCATE;
-    }
-
-    // determine when the particle is spawned
-    switch ( loc_spawn_mode )
-    {
-        case EGO_OBJECT_DO_ALLOCATE:
-            // Allocate it, but delay the actual particle activation until the end of this the update loop
-            EGO_OBJECT_ALLOCATE( pprt, REF_TO_INT( iprt ) );
-
-            // put this particle into the activation list so that it can be activated right after
-            // the PrtList loop is completed
-            prt_activation_list[prt_activation_count] = iprt;
-            prt_activation_count++;
-            break;
-
-        case EGO_OBJECT_DO_ACTIVATE:
-            // activate the particle immediately
-            EGO_OBJECT_ACTIVATE( pprt, ppip->name );
-
-            // do not allow this if you are inside a particle loop
-            EGOBOO_ASSERT( 0 == prt_loop_depth );
-            break;
-
-        case EGO_OBJECT_DO_NOTHING:
-            // do nothing, return the particle in an completely raw, unallocated state
-            break;
-    }
-
     // try to get an idea of who our owner is even if we are
     // given bogus info
     loc_chr_origin = pdata->chr_origin;
@@ -607,7 +574,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         loc_chr_origin = prt_get_iowner( pdata->prt_origin, 0 );
     }
 
-    pprt->pip_ref     = ipip;
+    pprt->pip_ref     = pdata->ipip;
     pprt->profile_ref = pdata->iprofile;
     pprt->team        = pdata->team;
     pprt->owner_ref   = loc_chr_origin;
@@ -653,7 +620,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         else
         {
             // Find a target
-            pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
+            pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
             if ( INGAME_CHR( pprt->target_ref ) && !ppip->homing )
             {
                 loc_facing -= glouseangle;
@@ -749,7 +716,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     prt_lifetime     = ppip->time;
     if ( ppip->endlastframe && pprt->image_add != 0 )
     {
-        if ( ppip->time == 0 )
+        if ( 0 == ppip->time )
         {
             // Part time is set to 1 cycle
             int frames = ( pprt->image_max / pprt->image_add ) - 1;
@@ -836,8 +803,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                iprt,
                update_wld, pprt->time_update, frame_all, pprt->time_frame,
                loc_chr_origin, INGAME_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
-               ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
-               LOADED_PIP( ipip ) ? PipStack.lst[ipip].comment : "",
+               pdata->ipip, (NULL != ppip) ? ppip->name : "INVALID", (NULL != ppip) ? ppip->comment : "",
                pdata->iprofile, LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 #endif
 
@@ -1100,13 +1066,21 @@ prt_t * prt_config_init( prt_t * pprt )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pprt;
 
-    pbase->state = ego_object_active;
-
     pprt = prt_config_do_init( pprt );
 
-    if( NULL != pprt && prt_loop_depth == 0 )
+    if( NULL != pprt )
     {
-        pprt->obj_base.on = btrue;
+        if( 0 == prt_loop_depth )
+        {
+            pprt->obj_base.on = btrue;
+        }
+        else
+        {
+            // put this particle into the activation list so that it can be activated right after
+            // the PrtList loop is completed
+            prt_activation_list[prt_activation_count] = GET_INDEX_PPRT(pprt);
+            prt_activation_count++;
+        }
     }
 
     return pprt;
@@ -1154,7 +1128,7 @@ prt_t * prt_config_dtor( prt_t * pprt )
     pbase = POBJ_GET_PBASE( pprt );
     if ( NULL == pbase ) return NULL;
 
-    if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pprt;
+    if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pprt;
 
     // destruct/free any allocated data
     prt_free( pprt );
@@ -1180,7 +1154,6 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
 
     prt_t * pprt;
     pip_t * ppip;
-
 
     // Convert from local ipip to global ipip
     ipip = pro_get_ipip( iprofile, pip_index );
@@ -1215,7 +1188,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     pprt->spawn_data.pos        = pos;
     pprt->spawn_data.facing     = facing;
     pprt->spawn_data.iprofile   = iprofile;
-    pprt->spawn_data.pip_index  = pip_index;
+    pprt->spawn_data.ipip       = ipip;
                                 
     pprt->spawn_data.chr_attach = chr_attach;
     pprt->spawn_data.vrt_offset = vrt_offset;
@@ -1227,10 +1200,13 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     pprt->spawn_data.oldtarget  = oldtarget;
 
     // actually force the character to spawn
-    prt_config_activate( pprt, 100 );
+    pprt = prt_config_activate( pprt, 100 );
 
     // count out all the requests for this particle type
-    ppip->prt_create_count++;
+    if( NULL != pprt )
+    {
+        ppip->prt_create_count++;
+    }
 
     return iprt;
 }
@@ -1494,7 +1470,7 @@ bool_t update_one_particle( prt_t * pprt )
                 PRT_REF prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
                                                         ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, iprt, tnc, pprt->target_ref );
 
-                if ( ppip->facingadd != 0 && ALLOCATED_PRT( prt_child ) )
+                if ( ALLOCATED_PRT( prt_child ) )
                 {
                     // Hack to fix velocity
                     PrtList.lst[prt_child].vel.x += pprt->vel.x;

@@ -72,7 +72,7 @@ struct s_prt_spawn_data
     fvec3_t  pos;
     FACING_T facing;
     PRO_REF  iprofile;
-    int      pip_index;
+    PIP_REF  ipip;
 
     CHR_REF  chr_attach;
     Uint16   vrt_offset;

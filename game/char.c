@@ -4126,7 +4126,7 @@ chr_t * chr_config_dtor( chr_t * pchr )
     pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase ) return NULL;
 
-    if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pchr;
+    if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pchr;
 
     // destruct/free any allocated data
     chr_free( pchr );
