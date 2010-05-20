@@ -137,7 +137,7 @@ void PrtList_init()
         memset( pprt, 0, sizeof( *pprt ) );
 
         // construct the base object
-        ego_object_ctor( POBJ_GET_PBASE(pprt) );
+        ego_object_ctor( POBJ_GET_PBASE( pprt ) );
 
         PrtList.free_ref[PrtList.free_count] = PrtList.free_count;
         PrtList.free_count++;
@@ -540,8 +540,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
     FACING_T loc_facing;
     CHR_REF loc_chr_origin;
 
-    if( NULL == pprt ) return NULL;
-    pdata = &(pprt->spawn_data);
+    if ( NULL == pprt ) return NULL;
+    pdata = &( pprt->spawn_data );
     iprt  = GET_INDEX_PPRT( pprt );
 
     // Convert from local pdata->ipip to global pdata->ipip
@@ -803,7 +803,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                iprt,
                update_wld, pprt->time_update, frame_all, pprt->time_frame,
                loc_chr_origin, INGAME_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
-               pdata->ipip, (NULL != ppip) ? ppip->name : "INVALID", (NULL != ppip) ? ppip->comment : "",
+               pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
                pdata->iprofile, LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 #endif
 
@@ -824,17 +824,17 @@ prt_t * prt_config_construct( prt_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_constructing + 1) )
+    if ( pbase->state > ( int )( ego_object_constructing + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
-        if( tmp_prt == pprt ) return NULL;
+        if ( tmp_prt == pprt ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -851,17 +851,17 @@ prt_t * prt_config_initialize( prt_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_initializing + 1) )
+    if ( pbase->state > ( int )( ego_object_initializing + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
-        if( tmp_prt == pprt ) return NULL;
+        if ( tmp_prt == pprt ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -878,17 +878,17 @@ prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_active + 1) )
+    if ( pbase->state > ( int )( ego_object_active + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
-        if( tmp_prt == pprt ) return NULL;
+        if ( tmp_prt == pprt ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -905,20 +905,20 @@ prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deinitialize it
-    if( pbase->state > (int)(ego_object_deinitializing + 1) )
+    if ( pbase->state > ( int )( ego_object_deinitializing + 1 ) )
     {
         return pprt;
     }
-    else if( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < ego_object_deinitializing )
     {
         pbase->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -935,20 +935,20 @@ prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it
-    if( pbase->state > (int)(ego_object_destructing + 1) )
+    if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
     {
         return pprt;
     }
-    else if( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < ego_object_deinitializing )
     {
         pbase->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -1068,9 +1068,9 @@ prt_t * prt_config_init( prt_t * pprt )
 
     pprt = prt_config_do_init( pprt );
 
-    if( NULL != pprt )
+    if ( NULL != pprt )
     {
-        if( 0 == prt_loop_depth )
+        if ( 0 == prt_loop_depth )
         {
             pprt->obj_base.on = btrue;
         }
@@ -1078,7 +1078,7 @@ prt_t * prt_config_init( prt_t * pprt )
         {
             // put this particle into the activation list so that it can be activated right after
             // the PrtList loop is completed
-            prt_activation_list[prt_activation_count] = GET_INDEX_PPRT(pprt);
+            prt_activation_list[prt_activation_count] = GET_INDEX_PPRT( pprt );
             prt_activation_count++;
         }
     }
@@ -1189,11 +1189,11 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     pprt->spawn_data.facing     = facing;
     pprt->spawn_data.iprofile   = iprofile;
     pprt->spawn_data.ipip       = ipip;
-                                
+
     pprt->spawn_data.chr_attach = chr_attach;
     pprt->spawn_data.vrt_offset = vrt_offset;
     pprt->spawn_data.team       = team;
-                                
+
     pprt->spawn_data.chr_origin = chr_origin;
     pprt->spawn_data.prt_origin = prt_origin;
     pprt->spawn_data.multispawn = multispawn;
@@ -1203,7 +1203,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     pprt = prt_config_activate( pprt, 100 );
 
     // count out all the requests for this particle type
-    if( NULL != pprt )
+    if ( NULL != pprt )
     {
         ppip->prt_create_count++;
     }

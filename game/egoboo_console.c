@@ -178,7 +178,7 @@ egoboo_console_t * egoboo_console_ctor( egoboo_console_t * pcon, SDL_Rect Con_re
     memset( pcon, 0, sizeof( *pcon ) );
 
     // set the console's font
-    pcon->pfont = fnt_loadFont( vfs_resolveReadFilename("mp_data/pc8x8.fon"), 12 );
+    pcon->pfont = fnt_loadFont( vfs_resolveReadFilename( "mp_data/pc8x8.fon" ), 12 );
 
     // set the console's rectangle
     pcon->rect = Con_rect;

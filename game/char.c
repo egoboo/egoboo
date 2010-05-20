@@ -345,7 +345,7 @@ void ChrList_init()
         memset( pchr, 0, sizeof( *pchr ) );
 
         // character "initializer"
-        ego_object_ctor( POBJ_GET_PBASE(pchr) );
+        ego_object_ctor( POBJ_GET_PBASE( pchr ) );
 
         // push the characters onto the free stack
         ChrList.free_ref[ChrList.free_count] = ChrList.free_count;
@@ -540,7 +540,7 @@ void chr_log_script_time( const CHR_REF by_reference ichr )
     pcap = chr_get_pcap( ichr );
     if ( NULL == pcap ) return;
 
-    ftmp = fopen( vfs_resolveWriteFilename( "/debug/script_timing.txt"), "a+" );
+    ftmp = fopen( vfs_resolveWriteFilename( "/debug/script_timing.txt" ), "a+" );
     if ( NULL != ftmp )
     {
         fprintf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n",
@@ -3747,17 +3747,17 @@ chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_constructing + 1) )
+    if ( pbase->state > ( int )( ego_object_constructing + 1 ) )
     {
         chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
-        if( tmp_chr == pchr ) return NULL;
+        if ( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pchr && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    while ( NULL != pchr && pbase->state <= ego_object_constructing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
-        if( ptmp != pchr ) return NULL;
+        if ( ptmp != pchr ) return NULL;
         iterations++;
     }
 
@@ -3774,17 +3774,17 @@ chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_initializing + 1) )
+    if ( pbase->state > ( int )( ego_object_initializing + 1 ) )
     {
         chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
-        if( tmp_chr == pchr ) return NULL;
+        if ( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pchr && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    while ( NULL != pchr && pbase->state <= ego_object_initializing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
-        if( ptmp != pchr ) return NULL;
+        if ( ptmp != pchr ) return NULL;
         iterations++;
     }
 
@@ -3801,17 +3801,17 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_active + 1) )
+    if ( pbase->state > ( int )( ego_object_active + 1 ) )
     {
         chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
-        if( tmp_chr == pchr ) return NULL;
+        if ( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pchr && pbase->state < ego_object_active && iterations < max_iterations )
+    while ( NULL != pchr && pbase->state < ego_object_active && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
-        if( ptmp != pchr ) return NULL;
+        if ( ptmp != pchr ) return NULL;
         iterations++;
     }
 
@@ -3828,20 +3828,20 @@ chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deinitialize it
-    if( pbase->state > (int)(ego_object_deinitializing + 1) )
+    if ( pbase->state > ( int )( ego_object_deinitializing + 1 ) )
     {
         return pchr;
     }
-    else if( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < ego_object_deinitializing )
     {
         pbase->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while( NULL != pchr && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    while ( NULL != pchr && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
-        if( ptmp != pchr ) return NULL;
+        if ( ptmp != pchr ) return NULL;
         iterations++;
     }
 
@@ -3858,20 +3858,20 @@ chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it
-    if( pbase->state > (int)(ego_object_destructing + 1) )
+    if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
     {
         return pchr;
     }
-    else if( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < ego_object_deinitializing )
     {
         pbase->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while( NULL != pchr && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    while ( NULL != pchr && pbase->state <= ego_object_destructing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
-        if( ptmp != pchr ) return NULL;
+        if ( ptmp != pchr ) return NULL;
         iterations++;
     }
 
@@ -4074,7 +4074,7 @@ chr_t * chr_config_init( chr_t * pchr )
 
     pchr = chr_config_do_init( pchr );
 
-    if( NULL != pchr )
+    if ( NULL != pchr )
     {
         pchr->obj_base.on = btrue;
     }
@@ -4151,7 +4151,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
     chr_t   * pchr;
 
     // fix a "bad" name
-    if( NULL == name ) name = "";
+    if ( NULL == name ) name = "";
 
     if ( profile >= MAX_PROFILE )
     {
@@ -4182,9 +4182,9 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
     pchr->spawn_data.pos      = pos;
     pchr->spawn_data.profile  = profile;
     pchr->spawn_data.team     = team;
-    pchr->spawn_data.skin     = skin; 
+    pchr->spawn_data.skin     = skin;
     pchr->spawn_data.facing   = facing;
-    strncpy( pchr->spawn_data.name, name, SDL_arraysize(pchr->spawn_data.name) );
+    strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
     pchr->spawn_data.override = override;
 
     // actually force the character to spawn

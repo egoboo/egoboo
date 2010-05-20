@@ -29,9 +29,9 @@
 //--------------------------------------------------------------------------------------------
 ego_object_base_t * ego_object_ctor( ego_object_base_t * pbase )
 {
-    if( NULL == pbase ) return pbase;
+    if ( NULL == pbase ) return pbase;
 
-    memset( pbase, 0, sizeof(*pbase) );
+    memset( pbase, 0, sizeof( *pbase ) );
 
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;
@@ -42,9 +42,9 @@ ego_object_base_t * ego_object_ctor( ego_object_base_t * pbase )
 //--------------------------------------------------------------------------------------------
 ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase )
 {
-    if( NULL == pbase ) return pbase;
+    if ( NULL == pbase ) return pbase;
 
-    memset( pbase, 0, sizeof(*pbase) );
+    memset( pbase, 0, sizeof( *pbase ) );
 
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;

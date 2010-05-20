@@ -2545,7 +2545,7 @@ void game_load_module_profiles( const char *modname )
     ctxt = vfs_findFirst( newloadname, "obj", VFS_SEARCH_DIR );
     filehandle = vfs_search_context_get_current( ctxt );
 
-    while ( NULL != ctxt && VALID_CSTR(filehandle) )
+    while ( NULL != ctxt && VALID_CSTR( filehandle ) )
     {
         load_one_profile( filehandle, MAX_PROFILE );
 
@@ -3177,11 +3177,11 @@ bool_t game_setup_vfs( const char * mod_path )
     // revert to the program's basic mount points
     game_clear_vfs();
 
-    path_seperator_1 = strrchr(mod_path, SLASH_CHR);
-    path_seperator_2 = strrchr(mod_path, NET_SLASH_CHR);
-    path_seperator_1 = MAX(path_seperator_1, path_seperator_2 );
+    path_seperator_1 = strrchr( mod_path, SLASH_CHR );
+    path_seperator_2 = strrchr( mod_path, NET_SLASH_CHR );
+    path_seperator_1 = MAX( path_seperator_1, path_seperator_2 );
 
-    if( NULL == path_seperator_1 )
+    if ( NULL == path_seperator_1 )
     {
         mod_dir_ptr = mod_path;
     }
@@ -3190,7 +3190,7 @@ bool_t game_setup_vfs( const char * mod_path )
         mod_dir_ptr = path_seperator_1 + 1;
     }
 
-    strncpy( mod_dir_string, mod_dir_ptr, SDL_arraysize(mod_dir_string) );
+    strncpy( mod_dir_string, mod_dir_ptr, SDL_arraysize( mod_dir_string ) );
 
     // set the module-dependent mount points
     // mount the user's module gamedat directory at the beginning of the mount point list

@@ -234,7 +234,6 @@ typedef struct s_pack pack_t;
 #define PACK_BEGIN_LOOP(IT,INIT) IT = INIT; while( MAX_CHR != IT ) { CHR_REF IT##_internal = ChrList.lst[IT].pack.next;
 #define PACK_END_LOOP(IT) IT = IT##_internal; }
 
-
 //--------------------------------------------------------------------------------------------
 /// the data used to define the spawning of a character
 struct s_chr_spawn_data

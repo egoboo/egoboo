@@ -165,20 +165,20 @@ bool_t setup_read( const char* filename )
 
     if ( INVALID_CSTR( filename ) ) return bfalse;
 
-    if( filename[0] != '/' )
+    if ( filename[0] != '/' )
     {
         // we can't use the vfs to do this in win32 because of the dir structure and
         // the fact that PHYSFS will not add the same directory to 2 different mount points...
         // seems pretty stupid to me, but there you have it.
 
-        snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
-        str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
-        if( !fs_fileExists(path_str) )
+        snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
+        str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
+        if ( !fs_fileExists( path_str ) )
         {
-            snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
-            str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
+            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
+            str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
 
-            if( !fs_fileExists(path_str) )
+            if ( !fs_fileExists( path_str ) )
             {
                 log_error( "Cannot find the file \"%s\".\n", filename );
             }

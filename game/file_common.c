@@ -113,7 +113,7 @@ int fs_fileExists( const char *filename )
 
     int retval = 0;
 
-    if( NULL == filename || '\0' == filename[0] ) return retval;
+    if ( NULL == filename || '\0' == filename[0] ) return retval;
 
     ptmp = fopen( filename, "rb" );
     if ( NULL != ptmp )
@@ -133,17 +133,17 @@ const char * fs_createBinaryDirectoryFilename( const char * relative_pathname )
     const char * dir_name_ptr;
 
     path[0] = CSTR_END;
-    if( !VALID_CSTR(relative_pathname) ) return path;
+    if ( !VALID_CSTR( relative_pathname ) ) return path;
 
     dir_name_ptr = fs_getBinaryDirectory();
 
-    if( VALID_CSTR(dir_name_ptr) )
+    if ( VALID_CSTR( dir_name_ptr ) )
     {
-        snprintf( path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
     }
     else
     {
-        snprintf( path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
     }
 
     return path;
@@ -156,17 +156,17 @@ const char * fs_createDataDirectoryFilename( const char * relative_pathname )
     const char * dir_name_ptr;
 
     path[0] = CSTR_END;
-    if( !VALID_CSTR(relative_pathname) ) return path;
+    if ( !VALID_CSTR( relative_pathname ) ) return path;
 
     dir_name_ptr = fs_getDataDirectory();
 
-    if( VALID_CSTR(dir_name_ptr) )
+    if ( VALID_CSTR( dir_name_ptr ) )
     {
-        snprintf( path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
     }
     else
     {
-        snprintf( path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
     }
 
     return path;
@@ -179,17 +179,17 @@ const char * fs_createUserDirectoryFilename( const char * relative_pathname )
     const char * dir_name_ptr;
 
     path[0] = CSTR_END;
-    if( !VALID_CSTR(relative_pathname) ) return path;
+    if ( !VALID_CSTR( relative_pathname ) ) return path;
 
     dir_name_ptr = fs_getUserDirectory();
 
-    if( VALID_CSTR(dir_name_ptr) )
+    if ( VALID_CSTR( dir_name_ptr ) )
     {
-        snprintf( path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
     }
     else
     {
-        snprintf( path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
     }
 
     return path;
@@ -202,17 +202,17 @@ const char * fs_createConfigDirectoryFilename( const char * relative_pathname )
     const char * dir_name_ptr;
 
     path[0] = CSTR_END;
-    if( !VALID_CSTR(relative_pathname) ) return path;
+    if ( !VALID_CSTR( relative_pathname ) ) return path;
 
     dir_name_ptr = fs_getConfigDirectory();
 
-    if( VALID_CSTR(dir_name_ptr) )
+    if ( VALID_CSTR( dir_name_ptr ) )
     {
-        snprintf( path, SDL_arraysize(path), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "%s" SLASH_STR "%s", dir_name_ptr, relative_pathname );
     }
     else
     {
-        snprintf( path, SDL_arraysize(path), "." SLASH_STR "%s", relative_pathname );
+        snprintf( path, SDL_arraysize( path ), "." SLASH_STR "%s", relative_pathname );
     }
 
     return path;
@@ -225,11 +225,11 @@ FILE * fs_openBinaryDirectoryFile( const char * relative_pathname, const char * 
     FILE       * file_ptr = NULL;
     const char * path_ptr;
 
-    if( !VALID_CSTR(relative_pathname) ) return NULL;
+    if ( !VALID_CSTR( relative_pathname ) ) return NULL;
 
     path_ptr = fs_createBinaryDirectoryFilename( relative_pathname );
 
-    if( VALID_CSTR(path_ptr) )
+    if ( VALID_CSTR( path_ptr ) )
     {
         file_ptr = fopen( path_ptr, mode );
     }
@@ -247,11 +247,11 @@ FILE * fs_openDataDirectoryFile( const char * relative_pathname, const char * mo
     FILE       * file_ptr = NULL;
     const char * path_ptr;
 
-    if( !VALID_CSTR(relative_pathname) ) return NULL;
+    if ( !VALID_CSTR( relative_pathname ) ) return NULL;
 
     path_ptr = fs_createDataDirectoryFilename( relative_pathname );
 
-    if( VALID_CSTR(path_ptr) )
+    if ( VALID_CSTR( path_ptr ) )
     {
         file_ptr = fopen( path_ptr, mode );
     }
@@ -269,11 +269,11 @@ FILE * fs_openUserDirectoryFile( const char * relative_pathname, const char * mo
     FILE       * file_ptr = NULL;
     const char * path_ptr;
 
-    if( !VALID_CSTR(relative_pathname) ) return NULL;
+    if ( !VALID_CSTR( relative_pathname ) ) return NULL;
 
     path_ptr = fs_createUserDirectoryFilename( relative_pathname );
 
-    if( VALID_CSTR(path_ptr) )
+    if ( VALID_CSTR( path_ptr ) )
     {
         file_ptr = fopen( path_ptr, mode );
     }
@@ -291,11 +291,11 @@ FILE * fs_openConfigDirectoryFile( const char * relative_pathname, const char * 
     FILE       * file_ptr = NULL;
     const char * path_ptr;
 
-    if( !VALID_CSTR(relative_pathname) ) return NULL;
+    if ( !VALID_CSTR( relative_pathname ) ) return NULL;
 
     path_ptr = fs_createConfigDirectoryFilename( relative_pathname );
 
-    if( VALID_CSTR(path_ptr) )
+    if ( VALID_CSTR( path_ptr ) )
     {
         file_ptr = fopen( path_ptr, mode );
     }

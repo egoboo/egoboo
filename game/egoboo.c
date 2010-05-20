@@ -145,14 +145,14 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
         STRING path_str;
 
-        snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
-        str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
-        if( !fs_fileExists(path_str) )
+        snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
+        str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
+        if ( !fs_fileExists( path_str ) )
         {
-            snprintf( path_str, SDL_arraysize(path_str), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
-            str_convert_slash_sys( path_str, SDL_arraysize(path_str) );
+            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
+            str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
 
-            if( !fs_fileExists(path_str) )
+            if ( !fs_fileExists( path_str ) )
             {
                 log_error( "Cannot find the file \"controls.txt\".\n" );
             }
@@ -178,7 +178,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     profile_system_begin();
 
     // setup the menu system's gui
-    ui_begin( vfs_resolveReadFilename("mp_data/Negatori.ttf"), 24 );
+    ui_begin( vfs_resolveReadFilename( "mp_data/Negatori.ttf" ), 24 );
     font_bmp_load_vfs( "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory
@@ -657,10 +657,10 @@ void egoboo_clear_vfs()
 {
     /// @details BB@> clear out the basic mount points
 
-    vfs_remove_mount_point( "mp_data"    );
+    vfs_remove_mount_point( "mp_data" );
     vfs_remove_mount_point( "mp_modules" );
     vfs_remove_mount_point( "mp_players" );
-    vfs_remove_mount_point( "mp_remote"  );
+    vfs_remove_mount_point( "mp_remote" );
 }
 
 //--------------------------------------------------------------------------------------------

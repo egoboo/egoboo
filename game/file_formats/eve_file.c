@@ -219,7 +219,7 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
     filetemp = NULL;
 
     // try the given template file
-    if( NULL != szTemplateName && '\0' != szTemplateName )
+    if ( NULL != szTemplateName && '\0' != szTemplateName )
     {
         filetemp = template_open( szTemplateName );
     }

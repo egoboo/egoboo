@@ -765,7 +765,7 @@ void load_all_music_sounds()
             fget_string( playlist, songname, SDL_arraysize( songname ) );
 
             snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/%s" ), songname );
-            musictracksloaded[cnt] = Mix_LoadMUS( vfs_resolveReadFilename(loadpath) );
+            musictracksloaded[cnt] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
         }
     }
     musicinmemory = btrue;

@@ -96,7 +96,7 @@ void EncList_init()
         memset( penc, 0, sizeof( *penc ) );
 
         // construct the base object
-        ego_object_ctor( POBJ_GET_PBASE(penc) );
+        ego_object_ctor( POBJ_GET_PBASE( penc ) );
 
         EncList.free_ref[EncList.free_count] = EncList.free_count;
         EncList.free_count++;
@@ -838,17 +838,17 @@ enc_t * enc_config_construct( enc_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_constructing + 1) )
+    if ( pbase->state > ( int )( ego_object_constructing + 1 ) )
     {
         enc_t * tmp_enc = enc_config_deconstruct( pprt, max_iterations );
-        if( tmp_enc == pprt ) return NULL;
+        if ( tmp_enc == pprt ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
     {
         enc_t * ptmp = enc_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -865,17 +865,17 @@ enc_t * enc_config_initialize( enc_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_initializing + 1) )
+    if ( pbase->state > ( int )( ego_object_initializing + 1 ) )
     {
         enc_t * tmp_enc = enc_config_deconstruct( pprt, max_iterations );
-        if( tmp_enc == pprt ) return NULL;
+        if ( tmp_enc == pprt ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
     {
         enc_t * ptmp = enc_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -892,17 +892,17 @@ enc_t * enc_config_activate( enc_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if( pbase->state > (int)(ego_object_active + 1) )
+    if ( pbase->state > ( int )( ego_object_active + 1 ) )
     {
         enc_t * tmp_enc = enc_config_deconstruct( pprt, max_iterations );
-        if( tmp_enc == pprt ) return NULL;
+        if ( tmp_enc == pprt ) return NULL;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
     {
         enc_t * ptmp = enc_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -919,20 +919,20 @@ enc_t * enc_config_deinitialize( enc_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deinitialize it
-    if( pbase->state > (int)(ego_object_deinitializing + 1) )
+    if ( pbase->state > ( int )( ego_object_deinitializing + 1 ) )
     {
         return pprt;
     }
-    else if( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < ego_object_deinitializing )
     {
         pbase->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
     {
         enc_t * ptmp = enc_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
@@ -949,20 +949,20 @@ enc_t * enc_config_deconstruct( enc_t * pprt, int max_iterations )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it
-    if( pbase->state > (int)(ego_object_destructing + 1) )
+    if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
     {
         return pprt;
     }
-    else if( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < ego_object_deinitializing )
     {
         pbase->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    while ( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
     {
         enc_t * ptmp = enc_run_config( pprt );
-        if( ptmp != pprt ) return NULL;
+        if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 

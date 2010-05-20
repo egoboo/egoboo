@@ -510,8 +510,8 @@ static void load_ai_codes_vfs( const char* loadname );
 
 // functions for debugging the scripts
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(USE_DEBUG)
-    static void print_token();
-    static void print_line();
+static void print_token();
+static void print_line();
 #else
 #   define print_token()
 #   define print_line()

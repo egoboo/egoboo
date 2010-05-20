@@ -320,7 +320,7 @@ const char * vfs_convert_fname( const char * fname )
     // a literal string or a pointer to local_fname
     strncpy( copy_fname, fname, SDL_arraysize( copy_fname ) );
 
-    if( _vfs_is_virtual_path( copy_fname ) )
+    if ( _vfs_is_virtual_path( copy_fname ) )
     {
         snprintf( local_fname, SDL_arraysize( local_fname ), "%s", copy_fname );
     }
@@ -345,22 +345,22 @@ int _vfs_is_virtual_path( const char * some_path )
     int cnt, retval = VFS_FALSE;
     VFS_PATH temp_path;
 
-    if( !VALID_CSTR(some_path) ) return retval;
+    if ( !VALID_CSTR( some_path ) ) return retval;
 
     for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
     {
         int len;
 
-        if( 0 == strcmp( _vfs_mount_info[cnt].mount, some_path ) )
+        if ( 0 == strcmp( _vfs_mount_info[cnt].mount, some_path ) )
         {
             retval = VFS_TRUE;
             break;
         }
 
-        snprintf( temp_path, SDL_arraysize(temp_path), "%s" NET_SLASH_STR, _vfs_mount_info[cnt].mount );
+        snprintf( temp_path, SDL_arraysize( temp_path ), "%s" NET_SLASH_STR, _vfs_mount_info[cnt].mount );
         len = strlen( temp_path );
 
-        if( 0 == strncmp( temp_path, some_path, len ) )
+        if ( 0 == strncmp( temp_path, some_path, len ) )
         {
             retval = VFS_TRUE;
             break;
@@ -469,12 +469,12 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
 //--------------------------------------------------------------------------------------------
 void vfs_listSearchPaths()
 {
-	//JJ> Lists all search paths that PhysFS uses (for debug use)
-	char **i;
-	printf("LISTING ALL PHYSFS SEARCH PATHS:\n");
-	printf("----------------------------------\n");
-	for (i = PHYSFS_getSearchPath(); *i != NULL; i++)	printf("[%s] is in the search path.\n", *i);
-	printf("----------------------------------\n");
+    //JJ> Lists all search paths that PhysFS uses (for debug use)
+    char **i;
+    printf( "LISTING ALL PHYSFS SEARCH PATHS:\n" );
+    printf( "----------------------------------\n" );
+    for ( i = PHYSFS_getSearchPath(); *i != NULL; i++ )   printf( "[%s] is in the search path.\n", *i );
+    printf( "----------------------------------\n" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -494,9 +494,9 @@ const char * vfs_resolveReadFilename( const char * src_filename )
     // make a temporary copy of the given filename with system-dependent slashes
     // to see if the filename is already resolved
     strncpy( loc_fname, szTemp, SDL_arraysize( loc_fname ) );
-    str_convert_slash_sys(loc_fname, SDL_arraysize( loc_fname ));
+    str_convert_slash_sys( loc_fname, SDL_arraysize( loc_fname ) );
 
-    if( fs_fileExists(loc_fname) )
+    if ( fs_fileExists( loc_fname ) )
     {
         strncpy( read_name_str, loc_fname, SDL_arraysize( read_name_str ) );
 
@@ -517,7 +517,7 @@ const char * vfs_resolveReadFilename( const char * src_filename )
         {
             const char * ptmp = _vfs_strip_mount_point( loc_fname );
 
-            if( VALID_CSTR(ptmp) )
+            if ( VALID_CSTR( ptmp ) )
             {
                 snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/%s", retval, ptmp );
             }
@@ -600,7 +600,7 @@ vfs_FILE * vfs_openRead( const char * filename )
     vfs_FILE    * vfs_file;
     FILE        * ftmp;
 
-   // parse_filename = "";
+    // parse_filename = "";
 
     real_filename = vfs_resolveReadFilename( filename );
     if ( NULL == real_filename ) return NULL;
@@ -1420,56 +1420,56 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
     const char * retval = NULL;
     static VFS_PATH  path_buffer = EMPTY_CSTR;
 
-    if( NULL == pctxt ) return NULL;
+    if ( NULL == pctxt ) return NULL;
 
     // uninitialized file list?
-    if ( NULL == (*pctxt) || NULL == (*pctxt)->file_list )
+    if ( NULL == ( *pctxt ) || NULL == ( *pctxt )->file_list )
     {
-        (*pctxt)->found[0] = CSTR_END;
-        return (*pctxt);
+        ( *pctxt )->found[0] = CSTR_END;
+        return ( *pctxt );
     }
 
     // emptry file list?
-    if ( NULL == *( (*pctxt)->file_list ) )
+    if ( NULL == *(( *pctxt )->file_list ) )
     {
         goto _vfs_search_file_error;
     }
 
-    if ( NULL == (*pctxt)->ptr )
+    if ( NULL == ( *pctxt )->ptr )
     {
         // if we haven't begun the search yet, get started
-        (*pctxt)->ptr = (*pctxt)->file_list;
+        ( *pctxt )->ptr = ( *pctxt )->file_list;
     }
     else
     {
-        (*pctxt)->ptr++;
+        ( *pctxt )->ptr++;
     }
 
     // NULL == *((*pctxt)->ptr) signals the end of the list
     // if we exhausted the list, reset everything
-    if ( NULL == (*pctxt)->ptr || NULL == *( (*pctxt)->ptr ) )
+    if ( NULL == ( *pctxt )->ptr || NULL == *(( *pctxt )->ptr ) )
     {
         goto _vfs_search_file_error;
     }
 
     // search for the correct extension (if any)
     retval = NULL;
-    if ( CSTR_END == *(*pctxt)->ext )
+    if ( CSTR_END == *( *pctxt )->ext )
     {
         int  found;
 
-        for ( /* nothing */; NULL != *( (*pctxt)->ptr ); (*pctxt)->ptr++ )
+        for ( /* nothing */; NULL != *(( *pctxt )->ptr ); ( *pctxt )->ptr++ )
         {
             int is_dir;
             char * loc_path;
 
-            if ( INVALID_CSTR( (*pctxt)->path ) )
+            if ( INVALID_CSTR(( *pctxt )->path ) )
             {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), NET_SLASH_STR "%s", *( (*pctxt)->ptr ) );
+                snprintf( path_buffer, SDL_arraysize( path_buffer ), NET_SLASH_STR "%s", *(( *pctxt )->ptr ) );
             }
             else
             {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), "%s" NET_SLASH_STR "%s", (*pctxt)->path, *( (*pctxt)->ptr ) );
+                snprintf( path_buffer, SDL_arraysize( path_buffer ), "%s" NET_SLASH_STR "%s", ( *pctxt )->path, *(( *pctxt )->ptr ) );
             }
 
             loc_path = ( char * )vfs_convert_fname( path_buffer );
@@ -1478,11 +1478,11 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
             found  = VFS_FALSE;
             is_dir = vfs_isDirectory( loc_path );
 
-            if ( 0 != ( VFS_SEARCH_FILE & (*pctxt)->bits ) )
+            if ( 0 != ( VFS_SEARCH_FILE & ( *pctxt )->bits ) )
             {
                 found = !is_dir;
             }
-            else if ( 0 != ( VFS_SEARCH_DIR & (*pctxt)->bits ) )
+            else if ( 0 != ( VFS_SEARCH_DIR & ( *pctxt )->bits ) )
             {
                 found = is_dir;
             }
@@ -1500,10 +1500,10 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
     }
     else
     {
-        size_t extension_length = strlen( (*pctxt)->ext );
+        size_t extension_length = strlen(( *pctxt )->ext );
 
         // scan through the list
-        for ( /* nothing */; NULL != *( (*pctxt)->ptr ); (*pctxt)->ptr++ )
+        for ( /* nothing */; NULL != *(( *pctxt )->ptr ); ( *pctxt )->ptr++ )
         {
             int found, is_dir;
             size_t string_length;
@@ -1512,24 +1512,24 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
 
             //---- have we found the correct type of object?
 
-            if ( INVALID_CSTR( (*pctxt)->path ) )
+            if ( INVALID_CSTR(( *pctxt )->path ) )
             {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), NET_SLASH_STR "%s", *( (*pctxt)->ptr ) );
+                snprintf( path_buffer, SDL_arraysize( path_buffer ), NET_SLASH_STR "%s", *(( *pctxt )->ptr ) );
             }
             else
             {
-                snprintf( path_buffer, SDL_arraysize( path_buffer ), "%s" NET_SLASH_STR "%s", (*pctxt)->path, *( (*pctxt)->ptr ) );
+                snprintf( path_buffer, SDL_arraysize( path_buffer ), "%s" NET_SLASH_STR "%s", ( *pctxt )->path, *(( *pctxt )->ptr ) );
             }
 
             loc_path = ( char * )vfs_convert_fname( path_buffer );
 
             found = VFS_FALSE;
             is_dir = vfs_isDirectory( loc_path );
-            if ( 0 != ( VFS_SEARCH_FILE & (*pctxt)->bits ) )
+            if ( 0 != ( VFS_SEARCH_FILE & ( *pctxt )->bits ) )
             {
                 found = !is_dir;
             }
-            else if ( 0 != ( VFS_SEARCH_DIR & (*pctxt)->bits ) )
+            else if ( 0 != ( VFS_SEARCH_DIR & ( *pctxt )->bits ) )
             {
                 found = is_dir;
             }
@@ -1541,7 +1541,7 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
             if ( !found ) continue;
 
             //---- does the extension match?
-            sztest = *( (*pctxt)->ptr );
+            sztest = *(( *pctxt )->ptr );
 
             // get the length
             string_length = strlen( sztest );
@@ -1557,7 +1557,7 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
             }
             if ( INVALID_CSTR( sztest ) ) continue;
 
-            if ( 0 == strcmp( sztest, (*pctxt)->ext ) )
+            if ( 0 == strcmp( sztest, ( *pctxt )->ext ) )
             {
                 retval = loc_path;
                 break;
@@ -1569,20 +1569,20 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
     path_buffer[0] = CSTR_END;
 
     // test for the end condition again
-    if ( NULL == (*pctxt)->ptr || NULL == *( (*pctxt)->ptr ) )
+    if ( NULL == ( *pctxt )->ptr || NULL == *(( *pctxt )->ptr ) )
     {
         vfs_findClose( pctxt );
         retval = NULL;
     }
     else
     {
-        if ( 0 != ( VFS_SEARCH_BARE & (*pctxt)->bits ) )
+        if ( 0 != ( VFS_SEARCH_BARE & ( *pctxt )->bits ) )
         {
             // do the "bare" option
             retval = NULL;
-            if ( VALID_CSTR( *( (*pctxt)->ptr ) ) )
+            if ( VALID_CSTR( *(( *pctxt )->ptr ) ) )
             {
-                strncpy( path_buffer, *( (*pctxt)->ptr ), SDL_arraysize( path_buffer ) );
+                strncpy( path_buffer, *(( *pctxt )->ptr ), SDL_arraysize( path_buffer ) );
                 retval = path_buffer;
             }
         }
@@ -1601,13 +1601,13 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
         }
     }
 
-    if( NULL == retval )
+    if ( NULL == retval )
     {
-        (*pctxt)->found[0] = CSTR_END;
+        ( *pctxt )->found[0] = CSTR_END;
     }
     else
     {
-        strncpy( (*pctxt)->found, path_buffer, SDL_arraysize((*pctxt)->found) );
+        strncpy(( *pctxt )->found, path_buffer, SDL_arraysize(( *pctxt )->found ) );
     }
 
     return *pctxt;
@@ -1623,8 +1623,8 @@ vfs_search_context_t * vfs_findFirst( const char * search_path, const char * sea
     vfs_search_context_t * ctxt;
 
     // create the new context
-    ctxt = EGOBOO_NEW(vfs_search_context_t);
-    if( NULL == ctxt) return NULL;
+    ctxt = EGOBOO_NEW( vfs_search_context_t );
+    if ( NULL == ctxt ) return NULL;
 
     // grab all the files
     ctxt->file_list = vfs_enumerateFiles( vfs_convert_fname( search_path ) );
@@ -1671,13 +1671,13 @@ vfs_search_context_t * vfs_findFirst( const char * search_path, const char * sea
 }
 
 //--------------------------------------------------------------------------------------------
-vfs_search_context_t * vfs_findNext(vfs_search_context_t ** pctxt)
+vfs_search_context_t * vfs_findNext( vfs_search_context_t ** pctxt )
 {
     // if there are no files, return an error value
 
-    if( NULL == pctxt || NULL == *pctxt ) return NULL;
+    if ( NULL == pctxt || NULL == *pctxt ) return NULL;
 
-    if ( NULL == (*pctxt)->file_list )
+    if ( NULL == ( *pctxt )->file_list )
     {
         return NULL;
     }
@@ -1690,10 +1690,10 @@ vfs_search_context_t * vfs_findNext(vfs_search_context_t ** pctxt)
 //--------------------------------------------------------------------------------------------
 void vfs_findClose( vfs_search_context_t ** ctxt )
 {
-    if( NULL != ctxt )
+    if ( NULL != ctxt )
     {
         _vfs_findClose( *ctxt );
-        EGOBOO_DELETE( (*ctxt) );
+        EGOBOO_DELETE(( *ctxt ) );
     }
 }
 
@@ -2254,10 +2254,10 @@ int vfs_add_mount_point( const char * dirname, const char * mount_point, int app
 
     loc_dirname = vfs_convert_fname_sys( dirname );
 
-    if( _vfs_add_mount_info( mount_point, loc_dirname ) )
+    if ( _vfs_add_mount_info( mount_point, loc_dirname ) )
     {
         retval = PHYSFS_mount( loc_dirname, mount_point, append );
-        if( 1 != retval )
+        if ( 1 != retval )
         {
             // go back and remove the mount info, since PHYSFS rejected the
             // data we gave it
@@ -2313,7 +2313,7 @@ int vfs_remove_mount_point( const char * mount_point )
 
 const char * vfs_search_context_get_current( vfs_search_context_t * ctxt )
 {
-    if( NULL == ctxt ) return NULL;
+    if ( NULL == ctxt ) return NULL;
 
     return ctxt->found;
 }

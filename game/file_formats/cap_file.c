@@ -427,7 +427,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     filetemp = NULL;
 
     // try the given template file
-    if( VALID_CSTR(szTemplateName) )
+    if ( VALID_CSTR( szTemplateName ) )
     {
         filetemp = template_open( szTemplateName );
     }
