@@ -142,6 +142,10 @@ struct s_eve
 
     // other values that are enchanted
     bool_t  seekurse;                    ///< Allow target to see kurses
+
+    // debugging parameters
+    int enc_request_count;                ///< a way to tell how popular this enchant is
+    int enc_create_count;                 ///< if this number is significantly less than the enc_request_count, there is a problem.
 };
 typedef struct s_eve eve_t;
 

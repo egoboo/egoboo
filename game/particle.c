@@ -1076,6 +1076,8 @@ prt_t * prt_config_init( prt_t * pprt )
         }
         else
         {
+            pprt->obj_base.turn_me_on = btrue;
+
             // put this particle into the activation list so that it can be activated right after
             // the PrtList loop is completed
             prt_activation_list[prt_activation_count] = GET_INDEX_PPRT( pprt );

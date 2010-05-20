@@ -51,12 +51,26 @@ DECLARE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
 #define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
 
+
+//--------------------------------------------------------------------------------------------
+struct s_enc_spawn_data
+{
+    CHR_REF owner_ref;
+    CHR_REF target_ref;
+    CHR_REF spawner_ref;
+    PRO_REF profile_ref;
+    EVE_REF eve_ref;
+};
+typedef struct s_enc_spawn_data enc_spawn_data_t;
+
 //--------------------------------------------------------------------------------------------
 /// The difinition of a single Egoboo enchantment
 /// This "inherits" from ego_object_base_t
 struct s_enc
 {
     ego_object_base_t obj_base;
+
+    enc_spawn_data_t  spawn_data;
 
     int     time;                    ///< Time before end
     int     spawntime;               ///< Time before spawn
@@ -105,14 +119,16 @@ DECLARE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
 #define DEFINED_PENC( IENC )     ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE(POBJ_GET_PBASE(PENC)) && !TERMINATED_PBASE (POBJ_GET_PBASE(PENC)) )
 #define INGAME_PENC ( IENC )     ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE(POBJ_GET_PBASE(PENC)) && ON_PBASE(POBJ_GET_PBASE(PENC)) )
 
-#define ENC_BEGIN_LOOP_ACTIVE(IT, PENC) {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC(IT)) continue; PENC =  EncList.lst +  IT;
-#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); }
+#define ENC_BEGIN_LOOP_ACTIVE(IT, PENC)  {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC (IT)) continue; PENC =  EncList.lst + IT;
+#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); EncList_cleanup(); }
 
 extern int enc_loop_depth;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Prototypes
+
+void EncList_cleanup();
 
 void   init_all_eve();
 void   release_all_eve();

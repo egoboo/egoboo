@@ -2344,13 +2344,8 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     ( *pliferegen ) = pchr->life_return;
 
     // Don't forget to add gains and costs from enchants
-    for ( enchant = 0; enchant < MAX_ENC; enchant++ )
+    ENC_BEGIN_LOOP_ACTIVE ( enchant, penc )
     {
-        enc_t * penc;
-
-        if ( !INGAME_ENC( enchant ) ) continue;
-        penc = EncList.lst + enchant;
-
         if ( penc->target_ref == ichr )
         {
             ( *pliferegen ) += penc->target_life;
@@ -2363,6 +2358,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
             ( *pmanaregen ) += penc->owner_mana;
         }
     }
+    ENC_END_LOOP();
 
     return btrue;
 }

@@ -58,9 +58,10 @@ struct s_ego_object_base
     Uint32             guid;      ///< a globally unique identifier
 
     // "process" control control
-    bool_t             allocated; ///< Does it exist?
-    bool_t             on;        ///< Can it be accessed?
-    bool_t             kill_me;   ///< Has someone requested that the object be destroyed?
+    bool_t             allocated;   ///< Does it exist?
+    bool_t             on;          ///< Can it be accessed?
+    bool_t             turn_me_on;    ///< Has someone requested that the object be turned on?
+    bool_t             kill_me;     ///< Has someone requested that the object be destroyed?
 
     // things related to the updating of objects
     size_t         update_count;  ///< How many updates have been made to this object?
