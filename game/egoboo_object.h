@@ -116,6 +116,7 @@ enum
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     { \
         (PDATA)->obj_base.allocated = bfalse; \
+        (PDATA)->obj_base.on        = bfalse; \
         (PDATA)->obj_base.state     = ego_object_terminated; \
     }
 
@@ -146,7 +147,7 @@ enum
 
 /// Is the object in the active state?
 #define STATE_ACTIVE_PBASE( PBASE ) ( ego_object_active == (PBASE)->state )
-/// Is the object "on"?
+/// Is the object active?
 #define ACTIVE_PBASE( PBASE )       ( ALLOCATED_PBASE( PBASE ) && STATE_ACTIVE_PBASE(PBASE) )
 
 /// Is the object in the deinitializing state?

@@ -67,6 +67,27 @@ struct s_prt_environment
 typedef struct s_prt_environment prt_environment_t;
 
 //--------------------------------------------------------------------------------------------
+struct s_prt_spawn_data
+{
+    fvec3_t  pos;
+    FACING_T facing;
+    PRO_REF  iprofile;
+    int      pip_index;
+
+    CHR_REF  chr_attach;
+    Uint16   vrt_offset;
+    TEAM_REF team;
+
+    CHR_REF  chr_origin;
+    PRT_REF  prt_origin;
+    int      multispawn;
+    CHR_REF  oldtarget;
+};
+
+typedef struct s_prt_spawn_data prt_spawn_data_t;
+
+
+//--------------------------------------------------------------------------------------------
 // Particle variables
 //--------------------------------------------------------------------------------------------
 
@@ -75,6 +96,8 @@ typedef struct s_prt_environment prt_environment_t;
 struct s_prt
 {
     ego_object_base_t obj_base;              ///< the "inheritance" from ego_object_base_t
+
+    prt_spawn_data_t  spawn_data;
 
     // profiles
     PIP_REF pip_ref;                         ///< The part template
@@ -169,7 +192,7 @@ DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
 
 #define DEFINED_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
 #define INGAME_PRT(IPRT)        ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && ON_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT)))) )
+#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT)))) && ON_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
 
 #define GET_INDEX_PPRT( PPRT )  ((size_t)GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT ))
 #define GET_REF_PPRT( PPRT )    ((PRT_REF)GET_INDEX_PPRT( PPRT ))
@@ -218,9 +241,9 @@ void play_particle_sound( const PRT_REF by_reference particle, Sint8 sound );
 
 PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
                             const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
-                            const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget, int spawn_mode );
+                            const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
 
-#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)TOTAL_MAX_PRT, multispawn, (CHR_REF)MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
+#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)TOTAL_MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
 
 int     prt_count_free();
 

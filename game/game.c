@@ -3102,7 +3102,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR, EGO_OBJECT_DO_ALLOCATE );
+        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
         if ( ALLOCATED_PRT( particle ) )
         {
             prt_t * pprt = PrtList.lst + particle;
@@ -3170,7 +3170,7 @@ bool_t game_setup_vfs( const char * mod_path )
     const char * mod_dir_ptr;
     STRING mod_dir_string;
 
-    STRING tmpStr, tmpDir;
+    STRING tmpDir;
 
     if ( INVALID_CSTR( mod_path ) ) return bfalse;
 
