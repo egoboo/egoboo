@@ -746,7 +746,7 @@ int pro_get_slot_vfs( const char * tmploadname, int slot_override )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_profile( const char* tmploadname, int slot_override )
+int load_one_profile_vfs( const char* tmploadname, int slot_override )
 {
     /// @details ZZ@> This function loads one object and returns the object slot
 
@@ -770,11 +770,11 @@ int load_one_profile( const char* tmploadname, int slot_override )
         // The data file wasn't found
         if ( required )
         {
-            log_warning( "load_one_profile() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
+            log_warning( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
         }
         else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "load_one_profile() - Not able to open file \"%s\"\n", tmploadname );
+            log_warning( "load_one_profile_vfs() - Not able to open file \"%s\"\n", tmploadname );
         }
 
         return MAX_PROFILE;
@@ -792,11 +792,11 @@ int load_one_profile( const char* tmploadname, int slot_override )
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
         {
-            log_error( "load_one_profile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, tmploadname );
+            log_error( "load_one_profile_vfs() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, tmploadname );
         }
         else if ( required && overrideslots )
         {
-            log_error( "load_one_profile() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), pobj->name, tmploadname );
+            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), pobj->name, tmploadname );
         }
         else
         {
@@ -809,7 +809,7 @@ int load_one_profile( const char* tmploadname, int slot_override )
     iobj = ProList_get_free( iobj );
     if ( !VALID_PRO_RANGE( iobj ) )
     {
-        log_warning( "load_one_profile() - Cannot allocate object %d (\"%s\")\n", REF_TO_INT( iobj ), tmploadname );
+        log_warning( "load_one_profile_vfs() - Cannot allocate object %d (\"%s\")\n", REF_TO_INT( iobj ), tmploadname );
         return MAX_PROFILE;
     }
 

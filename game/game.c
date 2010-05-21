@@ -2474,7 +2474,7 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-void import_dir_profiles( const char * dirname )
+void import_dir_profiles_vfs( const char * dirname )
 {
     STRING newloadname;
     STRING filename;
@@ -2499,7 +2499,7 @@ void import_dir_profiles( const char * dirname )
             import_data.slot = cnt;
 
             // load it
-            import_data.slot_lst[cnt] = load_one_profile( filename, MAX_PROFILE );
+            import_data.slot_lst[cnt] = load_one_profile_vfs( filename, MAX_PROFILE );
             import_data.max_slot      = MAX( import_data.max_slot, cnt );
         }
     }
@@ -2522,8 +2522,8 @@ void load_all_profiles_import()
     import_data.player = -1;
     import_data.slot   = -100;
 
-    import_dir_profiles( "import" );
-    import_dir_profiles( "remote" );
+    import_dir_profiles_vfs( "mp_import" );
+    import_dir_profiles_vfs( "mp_remote" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2543,7 +2543,7 @@ void game_load_module_profiles( const char *modname )
 
     while ( NULL != ctxt && VALID_CSTR( filehandle ) )
     {
-        load_one_profile( filehandle, MAX_PROFILE );
+        load_one_profile_vfs( filehandle, MAX_PROFILE );
 
         ctxt = vfs_findNext( &ctxt );
         filehandle = vfs_search_context_get_current( ctxt );
@@ -2555,7 +2555,7 @@ void game_load_module_profiles( const char *modname )
 void game_load_global_profiles()
 {
     // load all special objects
-    load_one_profile( "mp_data/globalobjects/book.obj", SPELLBOOK );
+    load_one_profile_vfs( "mp_data/globalobjects/book.obj", SPELLBOOK );
 
     // load the objects from various import directories
     load_all_profiles_import();
@@ -2694,7 +2694,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
         // the vfs/PHYSFS file naming conventions
         snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info->spawn_coment );
 
-        psp_info->slot = load_one_profile( filename, psp_info->slot );
+        psp_info->slot = load_one_profile_vfs( filename, psp_info->slot );
     }
 
     return btrue;
@@ -2902,7 +2902,7 @@ void load_all_global_objects()
 
     while ( NULL != ctxt && VALID_CSTR( filehandle ) )
     {
-        load_one_profile( filehandle, MAX_PROFILE );
+        load_one_profile_vfs( filehandle, MAX_PROFILE );
 
         ctxt = vfs_findNext( &ctxt );
         filehandle = vfs_search_context_get_current( ctxt );

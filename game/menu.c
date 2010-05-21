@@ -1118,7 +1118,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 
     if ( 0 == bookicon_count )
     {
-        load_one_profile( "mp_data/globalobjects/book.obj", SPELLBOOK );
+        load_one_profile_vfs( "mp_data/globalobjects/book.obj", SPELLBOOK );
     }
 
     // release any data that we have accumulated

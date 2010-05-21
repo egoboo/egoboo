@@ -203,7 +203,7 @@ void   release_all_local_pips();
 bool_t release_one_pro( const PRO_REF by_reference object_ref );
 bool_t release_one_local_pips( const PRO_REF by_reference object_ref );
 
-int load_one_profile( const char* tmploadname, int slot_override );
+int load_one_profile_vfs( const char* tmploadname, int slot_override );
 
 void reset_messages();
 

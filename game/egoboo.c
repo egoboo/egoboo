@@ -696,6 +696,10 @@ void egoboo_setup_vfs()
     vfs_add_mount_point( tmp_dir, "mp_players", 0 );
 
     // Create a mount point for the /user/remote directory
+    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "import", fs_getUserDirectory() );
+    vfs_add_mount_point( tmp_dir, "mp_import", 0 );
+
+    // Create a mount point for the /user/remote directory
     snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "remote", fs_getUserDirectory() );
     vfs_add_mount_point( tmp_dir, "mp_remote", 0 );
 }
