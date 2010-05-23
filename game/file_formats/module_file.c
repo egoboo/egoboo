@@ -153,7 +153,7 @@ int module_has_idsz( const char *szLoadName, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-void module_add_idsz( const char *szLoadName, IDSZ idsz )
+void module_add_idsz_vfs( const char *szLoadName, IDSZ idsz )
 {
     /// @details ZZ@> This function appends an IDSZ to the module's menu.txt file
     vfs_FILE *filewrite;
@@ -163,7 +163,7 @@ void module_add_idsz( const char *szLoadName, IDSZ idsz )
     if ( !module_has_idsz( szLoadName, idsz ) )
     {
         // Try to open the file in append mode
-        snprintf( newloadname, SDL_arraysize( newloadname ), "/%s/gamedat/menu.txt", szLoadName );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/gamedat/menu.txt", szLoadName );
 
         filewrite = vfs_openAppend( newloadname );
         if ( filewrite )

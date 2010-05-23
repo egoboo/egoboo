@@ -290,38 +290,38 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
 
         // Copy all of the misc. data files
         snprintf( fromfile, SDL_arraysize( fromfile ), "%s/message.txt", fromdir ); /*MESSAGE.TXT*/
-        snprintf( tofile, SDL_arraysize( tofile ), "/%s/message.txt", todir ); /*MESSAGE.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile ), "%s/message.txt", todir ); /*MESSAGE.TXT*/
         vfs_copyFile( fromfile, tofile );
 
         snprintf( fromfile, SDL_arraysize( fromfile ), "%s/tris.md2", fromdir ); /*TRIS.MD2*/
-        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/tris.md2", todir ); /*TRIS.MD2*/
+        snprintf( tofile, SDL_arraysize( tofile ),   "%s/tris.md2", todir ); /*TRIS.MD2*/
         vfs_copyFile( fromfile, tofile );
 
         snprintf( fromfile, SDL_arraysize( fromfile ), "%s/copy.txt", fromdir ); /*COPY.TXT*/
-        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/copy.txt", todir ); /*COPY.TXT*/
+        snprintf( tofile, SDL_arraysize( tofile ),   "%s/copy.txt", todir ); /*COPY.TXT*/
         vfs_copyFile( fromfile, tofile );
 
         snprintf( fromfile, SDL_arraysize( fromfile ), "%s/script.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/script.txt", todir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "%s/script.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
         snprintf( fromfile, SDL_arraysize( fromfile ), "%s/enchant.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/enchant.txt", todir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "%s/enchant.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
         snprintf( fromfile, SDL_arraysize( fromfile ), "%s/credits.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/credits.txt", todir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "%s/credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
         snprintf( fromfile, SDL_arraysize( fromfile ), "%s/quest.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "/%s/quest.txt", todir );
+        snprintf( tofile, SDL_arraysize( tofile ),   "%s/quest.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
         for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
         {
             snprintf( fromfile, SDL_arraysize( fromfile ), "%s/part%d.txt", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "/%s/part%d.txt", todir,   tnc );
+            snprintf( tofile, SDL_arraysize( tofile ),   "%s/part%d.txt", todir,   tnc );
             vfs_copyFile( fromfile, tofile );
         }
 
@@ -329,11 +329,11 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
         for ( tnc = 0; tnc < MAX_WAVE; tnc++ )
         {
             snprintf( fromfile, SDL_arraysize( fromfile ), "%s/sound%d.wav", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "/%s/sound%d.wav", todir,   tnc );
+            snprintf( tofile, SDL_arraysize( tofile ),   "%s/sound%d.wav", todir,   tnc );
             vfs_copyFile( fromfile, tofile );
 
             snprintf( fromfile, SDL_arraysize( fromfile ), "%s/sound%d.ogg", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "/%s/sound%d.ogg", todir,   tnc );
+            snprintf( tofile, SDL_arraysize( tofile ),   "%s/sound%d.ogg", todir,   tnc );
             vfs_copyFile( fromfile, tofile );
         }
 
@@ -345,11 +345,11 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
             for ( type = 0; type < maxformattypes; type++ )
             {
                 snprintf( fromfile, SDL_arraysize( fromfile ), "%s/tris%d%s", fromdir, tnc, TxFormatSupported[type] );
-                snprintf( tofile, SDL_arraysize( tofile ),   "/%s/tris%d%s", todir,   tnc, TxFormatSupported[type] );
+                snprintf( tofile, SDL_arraysize( tofile ),   "%s/tris%d%s", todir,   tnc, TxFormatSupported[type] );
                 vfs_copyFile( fromfile, tofile );
 
                 snprintf( fromfile, SDL_arraysize( fromfile ), "%s/icon%d%s", fromdir, tnc, TxFormatSupported[type] );
-                snprintf( tofile, SDL_arraysize( tofile ),   "/%s/icon%d%s", todir,   tnc, TxFormatSupported[type] );
+                snprintf( tofile, SDL_arraysize( tofile ),   "%s/icon%d%s", todir,   tnc, TxFormatSupported[type] );
                 vfs_copyFile( fromfile, tofile );
             }
         }

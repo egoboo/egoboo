@@ -58,6 +58,6 @@ typedef struct s_mod_file mod_file_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int    module_has_idsz( const char *szLoadName, IDSZ idsz );
-void   module_add_idsz( const char *szLoadName, IDSZ idsz );
+void   module_add_idsz_vfs( const char *szLoadName, IDSZ idsz );
 
 mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod );

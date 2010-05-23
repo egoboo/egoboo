@@ -1832,7 +1832,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
         if ( '.' != fileName[0] )
         {
             snprintf( srcPath, SDL_arraysize( srcPath ), "%s/%s", sourceDir, fileName );
-            snprintf( destPath, SDL_arraysize( destPath ), "/%s/%s", destDir, fileName );
+            snprintf( destPath, SDL_arraysize( destPath ), "%s/%s", destDir, fileName );
 
             if ( !vfs_copyFile( srcPath, destPath ) )
             {

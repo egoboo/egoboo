@@ -807,7 +807,7 @@ void net_copyDirectoryToHost( const char *dirname, const char *todirname )
             }
 
             snprintf( fromname, SDL_arraysize( fromname ), "%s/%s", dirname, searchResult );
-            snprintf( toname, SDL_arraysize( toname ), "/%s/%s", todirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname ), "%s/%s", todirname, searchResult );
 
             net_copyFileToHost( fromname, toname );
 
@@ -856,7 +856,7 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
             }
 
             snprintf( fromname, SDL_arraysize( fromname ), "%s/%s", dirname, searchResult );
-            snprintf( toname, SDL_arraysize( toname ), "/%s/%s", todirname, searchResult );
+            snprintf( toname, SDL_arraysize( toname ), "%s/%s", todirname, searchResult );
             net_copyFileToAllPlayers( fromname, toname );
 
             ctxt = vfs_findNext( &ctxt );
