@@ -81,7 +81,8 @@ static bool_t set_weapongrip( const CHR_REF by_reference iitem, const CHR_REF by
 
 static BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lifetime_secs );
 
-static void resize_all_characters();
+static chr_t * resize_one_character( chr_t * pchr );
+//static void    resize_all_characters();
 
 static bool_t  chr_free( chr_t * pchr );
 
@@ -122,6 +123,8 @@ static bool_t  ChrList_free_one( const CHR_REF by_reference ichr );
 static void    ChrList_free_all();
 
 static void chr_log_script_time( const CHR_REF by_reference ichr );
+
+static bool_t update_chr_darkvision( const CHR_REF by_reference character );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -2538,67 +2541,87 @@ void give_team_experience( const TEAM_REF by_reference team, int amount, Uint8 x
 }
 
 //--------------------------------------------------------------------------------------------
-void resize_all_characters()
+chr_t * resize_one_character( chr_t * pchr )
 {
     /// @details ZZ@> This function makes the characters get bigger or smaller, depending
     ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
+    ///    BB@> assume that this will only be called from inside chr_config_do_active(),
+    ///         so pchr is just right to be used here
 
-    bool_t willgetcaught;
-    float newsize;
+    CHR_REF ichr;
+    cap_t * pcap;
+    bool_t  willgetcaught;
+    float   newsize;
 
-    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
+    if( NULL == pchr ) return pchr;
+
+    ichr = GET_REF_PCHR( pchr );
+    pcap = chr_get_pcap( ichr );
+
+    if ( pchr->fat_goto_time < 0 ) return pchr;
+
+    if ( pchr->fat_goto != pchr->fat )
     {
-        if ( pchr->fat_goto_time < 0 ) continue;
+        int bump_increase;
 
-        if ( pchr->fat_goto != pchr->fat )
+        bump_increase = ( pchr->fat_goto - pchr->fat ) * 0.10f * pchr->bump.size;
+
+        // Make sure it won't get caught in a wall
+        willgetcaught = bfalse;
+        if ( pchr->fat_goto > pchr->fat )
         {
-            int bump_increase;
+            pchr->bump.size += bump_increase;
 
-            bump_increase = ( pchr->fat_goto - pchr->fat ) * 0.10f * pchr->bump.size;
-
-            // Make sure it won't get caught in a wall
-            willgetcaught = bfalse;
-            if ( pchr->fat_goto > pchr->fat )
+            if ( chr_test_wall( pchr ) )
             {
-                pchr->bump.size += bump_increase;
-
-                if ( chr_test_wall( pchr ) )
-                {
-                    willgetcaught = btrue;
-                }
-
-                pchr->bump.size -= bump_increase;
+                willgetcaught = btrue;
             }
 
-            // If it is getting caught, simply halt growth until later
-            if ( !willgetcaught )
+            pchr->bump.size -= bump_increase;
+        }
+
+        // If it is getting caught, simply halt growth until later
+        if ( !willgetcaught )
+        {
+            // Figure out how big it is
+            pchr->fat_goto_time--;
+
+            newsize = pchr->fat_goto;
+            if ( pchr->fat_goto_time > 0 )
             {
-                // Figure out how big it is
-                pchr->fat_goto_time--;
+                newsize = ( pchr->fat * 0.90f ) + ( newsize * 0.10f );
+            }
 
-                newsize = pchr->fat_goto;
-                if ( pchr->fat_goto_time > 0 )
-                {
-                    newsize = ( pchr->fat * 0.90f ) + ( newsize * 0.10f );
-                }
+            // Make it that big...
+            chr_set_fat( pchr, newsize );
 
-                // Make it that big...
-                chr_set_fat( pchr, newsize );
-
-                if ( chr_get_pcap( ichr )->weight == 0xFF )
-                {
-                    pchr->phys.weight = INFINITE_WEIGHT;
-                }
-                else
-                {
-                    Uint32 itmp = chr_get_pcap( ichr )->weight * pchr->fat * pchr->fat * pchr->fat;
-                    pchr->phys.weight = MIN( itmp, MAX_WEIGHT );
-                }
+            if ( pcap->weight == 0xFF )
+            {
+                pchr->phys.weight = INFINITE_WEIGHT;
+            }
+            else
+            {
+                Uint32 itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
+                pchr->phys.weight = MIN( itmp, MAX_WEIGHT );
             }
         }
     }
-    CHR_END_LOOP();
+
+    return pchr;
 }
+
+//--------------------------------------------------------------------------------------------
+//void resize_all_characters()
+//{
+//    /// @details ZZ@> This function makes the characters get bigger or smaller, depending
+//    ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
+//
+//    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
+//    {
+//        resize_one_character( pchr );
+//    }
+//    CHR_END_LOOP();
+//}
 
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_name_vfs( const char *szSaveName, const CHR_REF by_reference character )
@@ -3736,6 +3759,161 @@ chr_t * chr_config_do_init( chr_t * pchr )
     return pchr;
 }
 
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_config_do_active( chr_t * pchr )
+{
+    cap_t * pcap;
+    int     ripand;
+    CHR_REF ichr;
+
+    if( NULL == pchr ) return pchr;
+    ichr = GET_REF_PCHR( pchr );
+
+    // First figure out which fan each character is in
+    pchr->onwhichgrid  = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
+    pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+
+    //then do status updates
+    chr_update_hide( pchr );
+
+    if ( pchr->pack.is_packed || pchr->is_hidden ) return pchr;
+
+    // do the character interaction with water
+    pcap = pro_get_pcap( pchr->iprofile );
+    if ( NULL == pcap ) return pchr;
+
+    if ( pchr->pos.z < water.surface_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
+    {
+        // do splash and ripple
+        if ( !pchr->enviro.inwater )
+        {
+            // Splash
+            fvec3_t vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
+
+            spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
+
+            if ( water.is_water )
+            {
+                pchr->ai.alert |= ALERTIF_INWATER;
+            }
+        }
+        else
+        {
+            // Ripples
+            if ( pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.mins[OCT_Z] < water.surface_level )
+            {
+                int ripple_suppression;
+
+                // suppress ripples if we are far below the surface
+                ripple_suppression = water.surface_level - ( pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] );
+                ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
+                ripple_suppression = CLIP( ripple_suppression, 0, 4 );
+
+                // make more ripples if we are moving
+                ripple_suppression -= (( int )pchr->vel.x != 0 ) | (( int )pchr->vel.y != 0 );
+
+                if ( ripple_suppression > 0 )
+                {
+                    ripand = ~(( ~RIPPLEAND ) << ripple_suppression );
+                }
+                else
+                {
+                    ripand = RIPPLEAND >> ( -ripple_suppression );
+                }
+
+                if ( 0 == (( update_wld + pchr->obj_base.guid ) & ripand ) && pchr->pos.z < water.surface_level && pchr->alive )
+                {
+                    fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
+
+                    spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
+                }
+            }
+
+            if ( water.is_water && HAS_NO_BITS( update_wld, 7 ) )
+            {
+                pchr->jumpready = btrue;
+                pchr->jumpnumber = 1;
+            }
+        }
+
+        pchr->enviro.inwater  = btrue;
+    }
+    else
+    {
+        pchr->enviro.inwater = bfalse;
+    }
+
+    // the following functions should not be done the first time through the update loop
+    if ( 0 == update_wld ) return pchr;
+
+    // Do timers and such
+
+    // reduce attack cooldowns
+    if ( pchr->reloadtime > 0 )
+    {
+        pchr->reloadtime--;
+    }
+
+    // Texture movement
+    pchr->inst.uoffset += pchr->uoffvel;
+    pchr->inst.voffset += pchr->voffvel;
+
+    if ( !pchr->pack.is_packed )
+    {
+        // Down that ol' damage timer
+        if ( pchr->damagetime > 0 )
+        {
+            pchr->damagetime--;
+        }
+
+        // Do "Be careful!" delay
+        if ( pchr->carefultime > 0 )
+        {
+            pchr->carefultime--;
+        }
+    }
+
+    // Do stats once every second
+    if ( clock_chr_stat >= ONESECOND )
+    {
+        // check for a level up
+        do_level_up( ichr );
+
+        // do the mana and life regen for "living" characters
+        if ( pchr->alive )
+        {
+            int manaregen = 0;
+            int liferegen = 0;
+            get_chr_regeneration( pchr, &liferegen, &manaregen );
+
+            pchr->mana += manaregen;
+            pchr->mana = MAX( 0, MIN( pchr->mana, pchr->manamax ) );
+
+            pchr->life += liferegen;
+            pchr->life = MAX( 1, MIN( pchr->life, pchr->lifemax ) );
+        }
+
+        // countdown confuse effects
+        if ( pchr->grogtime > 0 )
+        {
+            pchr->grogtime--;
+        }
+
+        if ( pchr->dazetime > 0 )
+        {
+            pchr->dazetime--;
+        }
+
+        // possibly gain/lose darkvision
+        update_chr_darkvision( ichr );
+    }
+
+    pchr = resize_one_character( pchr );
+
+    return pchr;
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
@@ -4094,7 +4272,7 @@ chr_t * chr_config_active( chr_t * pchr )
 
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return pchr;
 
-    // if anything was needed, it would go here
+    pchr = chr_config_do_active( pchr );
 
     return pchr;
 }
@@ -4987,173 +5165,25 @@ void update_all_characters()
 {
     /// @details ZZ@> This function updates stats and such for every character
 
-    int     ripand;
-    CHR_REF cnt;
+    CHR_REF ichr;
 
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        cap_t * pcap;
-        chr_t * pchr;
-
-        if ( !INGAME_CHR( cnt ) ) continue;
-        pchr = ChrList.lst + cnt;
-
-        // First figure out which fan each character is in
-        pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-        pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
-
-        //then do status updates
-        chr_update_hide( pchr );
-
-        if ( pchr->pack.is_packed || pchr->is_hidden ) continue;
-
-        // do the character interaction with water
-        pcap = pro_get_pcap( pchr->iprofile );
-        if ( NULL == pcap ) continue;
-
-        if ( pchr->pos.z < water.surface_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
-        {
-            // do splash and ripple
-            if ( !pchr->enviro.inwater )
-            {
-                // Splash
-                fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
-
-                spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
-
-                if ( water.is_water )
-                {
-                    pchr->ai.alert |= ALERTIF_INWATER;
-                }
-            }
-            else
-            {
-                // Ripples
-                if ( pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.mins[OCT_Z] < water.surface_level )
-                {
-                    int ripple_suppression;
-
-                    // suppress ripples if we are far below the surface
-                    ripple_suppression = water.surface_level - ( pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] );
-                    ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
-                    ripple_suppression = CLIP( ripple_suppression, 0, 4 );
-
-                    // make more ripples if we are moving
-                    ripple_suppression -= (( int )pchr->vel.x != 0 ) | (( int )pchr->vel.y != 0 );
-
-                    if ( ripple_suppression > 0 )
-                    {
-                        ripand = ~(( ~RIPPLEAND ) << ripple_suppression );
-                    }
-                    else
-                    {
-                        ripand = RIPPLEAND >> ( -ripple_suppression );
-                    }
-
-                    if ( 0 == (( update_wld + pchr->obj_base.guid ) & ripand ) && pchr->pos.z < water.surface_level && pchr->alive )
-                    {
-                        fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
-
-                        spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
-                    }
-                }
-
-                if ( water.is_water && HAS_NO_BITS( update_wld, 7 ) )
-                {
-                    pchr->jumpready = btrue;
-                    pchr->jumpnumber = 1;
-                }
-            }
-
-            pchr->enviro.inwater  = btrue;
-        }
-        else
-        {
-            pchr->enviro.inwater = bfalse;
-        }
-    }
-
-    // the following functions should not be done the first time through the update loop
-    if ( 0 == update_wld ) return;
-
-    // Do timers and such
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
         chr_t * pchr;
 
-        if ( !INGAME_CHR( cnt ) ) continue;
-        pchr = ChrList.lst + cnt;
+        if ( !INGAME_CHR( ichr ) ) continue;
+        pchr = ChrList.lst + ichr;
 
-        // reduce attack cooldowns
-        if ( pchr->reloadtime > 0 )
-        {
-            pchr->reloadtime--;
-        }
-
-        // Texture movement
-        pchr->inst.uoffset += pchr->uoffvel;
-        pchr->inst.voffset += pchr->voffvel;
-
-        if ( !pchr->pack.is_packed )
-        {
-            // Down that ol' damage timer
-            if ( pchr->damagetime > 0 )
-            {
-                pchr->damagetime--;
-            }
-
-            // Do "Be careful!" delay
-            if ( pchr->carefultime > 0 )
-            {
-                pchr->carefultime--;
-            }
-        }
+        chr_run_config( pchr );
     }
 
-    // Do stats once every second
+    // fix the stat timer
     if ( clock_chr_stat >= ONESECOND )
     {
         // Reset the clock
         clock_chr_stat -= ONESECOND;
-
-        CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
-        {
-            // check for a level up
-            do_level_up( cnt );
-
-            // do the mana and life regen for "living" characters
-            if ( pchr->alive )
-            {
-                int manaregen = 0;
-                int liferegen = 0;
-                get_chr_regeneration( pchr, &liferegen, &manaregen );
-
-                pchr->mana += manaregen;
-                pchr->mana = MAX( 0, MIN( pchr->mana, pchr->manamax ) );
-
-                pchr->life += liferegen;
-                pchr->life = MAX( 1, MIN( pchr->life, pchr->lifemax ) );
-            }
-
-            // countdown confuse effects
-            if ( pchr->grogtime > 0 )
-            {
-                pchr->grogtime--;
-            }
-
-            if ( pchr->dazetime > 0 )
-            {
-                pchr->dazetime--;
-            }
-
-            // possibly gain/lose darkvision
-            update_chr_darkvision( cnt );
-        }
-        CHR_END_LOOP();
-
     }
 
-    resize_all_characters();
 }
 
 //--------------------------------------------------------------------------------------------

@@ -814,6 +814,245 @@ prt_t * prt_config_do_init( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
+prt_t * prt_config_do_active( prt_t * pprt )
+{
+    /// @details BB@> update everything about a particle that does not depend on collisions
+    ///               or interactions with characters
+
+    int size_new;
+    bool_t prt_display, prt_on;
+
+    PRT_REF iprt;
+    pip_t * ppip;
+
+    if( NULL == pprt ) return pprt;
+
+    // ASSUME that this function is only going to be called from prt_config_active(), 
+    // where we already determined that the particle was in its "active" state
+    iprt = GET_REF_PPRT( pprt );
+
+    // destermine some other state parameters
+    prt_on      = ON_PBASE( POBJ_GET_PBASE( pprt ) );
+    prt_display = ALLOCATED_PBASE( POBJ_GET_PBASE( pprt ) );
+
+    // update various iprt states
+    ppip = prt_get_ppip( iprt );
+    if ( NULL == ppip ) return pprt;
+
+    // clear out the attachment if the character doesn't exist at all
+    if ( !DEFINED_CHR( pprt->attachedto_ref ) )
+    {
+        pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
+    }
+
+    // figure out where the particle is on the mesh and update iprt states
+    if ( prt_display )
+    {
+        pprt->onwhichgrid  = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
+
+        // determine whether the iprt is hidden
+        pprt->is_hidden = bfalse;
+        if ( INGAME_CHR( pprt->attachedto_ref ) )
+        {
+            pprt->is_hidden = ChrList.lst[pprt->attachedto_ref].is_hidden;
+        }
+
+        pprt->is_homing = ppip->homing && !INGAME_CHR( pprt->attachedto_ref );
+    }
+
+    // figure out where the particle is on the mesh and update iprt states
+    if ( prt_on && !pprt->is_hidden )
+    {
+        bool_t inwater;
+
+        // do the iprt interaction with water
+        inwater = ( pprt->pos.z < water.surface_level ) && ( 0 != mesh_test_fx( PMesh, pprt->onwhichgrid, MPDFX_WATER ) );
+
+        if ( inwater && water.is_water && ppip->endwater )
+        {
+            // Check for disaffirming character
+            if ( INGAME_CHR( pprt->attachedto_ref ) && pprt->owner_ref == pprt->attachedto_ref )
+            {
+                // Disaffirm the whole character
+                disaffirm_attached_particles( pprt->attachedto_ref );
+            }
+            else
+            {
+                // destroy the particle
+                prt_request_terminate( iprt );
+            }
+        }
+        else if ( inwater )
+        {
+            bool_t  spawn_valid     = bfalse;
+            int     spawn_pip_index = -1;
+            fvec3_t vtmp            = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
+
+            if ( MAX_CHR == pprt->owner_ref &&
+                 ( PIP_SPLASH == pprt->pip_ref || PIP_RIPPLE == pprt->pip_ref ) )
+            {
+                /* do not spawn anything for a splash or a ripple */
+                spawn_valid = bfalse;
+            }
+            else
+            {
+                if ( !pprt->inwater )
+                {
+                    if ( SPRITE_SOLID == pprt->type )
+                    {
+                        spawn_pip_index = PIP_SPLASH;
+                    }
+                    else
+                    {
+                        spawn_pip_index = PIP_RIPPLE;
+                    }
+                    spawn_valid = btrue;
+                }
+                else
+                {
+                    if ( SPRITE_SOLID == pprt->type && !INGAME_CHR( pprt->attachedto_ref ) )
+                    {
+                        // only spawn ripples if you are touching the water surface!
+                        if ( pprt->pos.z + pprt->bump.height > water.surface_level && pprt->pos.z - pprt->bump.height < water.surface_level )
+                        {
+                            int ripand = ~(( ~RIPPLEAND ) << 1 );
+                            if ( 0 == (( update_wld + pprt->obj_base.guid ) & ripand ) )
+                            {
+
+                                spawn_valid = btrue;
+                                spawn_pip_index = PIP_RIPPLE;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( spawn_valid )
+            {
+                // Splash for particles is just a ripple
+                spawn_one_particle( vtmp, 0, ( PRO_REF )MAX_PROFILE, spawn_pip_index, ( CHR_REF )MAX_CHR, GRIP_LAST,
+                                    ( TEAM_REF )TEAM_NULL, ( CHR_REF )MAX_CHR, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+            }
+
+            pprt->inwater  = btrue;
+        }
+        else
+        {
+            pprt->inwater = bfalse;
+        }
+    }
+
+    // the following functions should not be done the first time through the update loop
+    if ( 0 == update_wld ) return pprt;
+
+    if ( prt_display )
+    {
+        // animate the particle
+        pprt->image = pprt->image + pprt->image_add;
+        if ( pprt->image >= pprt->image_max ) pprt->image = 0;
+
+        // rotate the particle
+        pprt->rotate += pprt->rotate_add;
+
+        // update the particle size
+        if ( 0 != pprt->size_add )
+        {
+            // resize the paricle
+            size_new = pprt->size + pprt->size_add;
+            size_new = CLIP( size_new, 0, 0xFFFF );
+
+            prt_set_size( pprt, size_new );
+        }
+
+        // Change dyna light values
+        if ( pprt->dynalight.level > 0 )
+        {
+            pprt->dynalight.level += ppip->dynalight.level_add;
+            if ( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
+        }
+        else if ( pprt->dynalight.level < 0 )
+        {
+            // try to guess what should happen for negative lighting
+            pprt->dynalight.level += ppip->dynalight.level_add;
+            if ( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
+        }
+        else
+        {
+            pprt->dynalight.level += ppip->dynalight.level_add;
+        }
+
+        pprt->dynalight.falloff += ppip->dynalight.falloff_add;
+
+        // spin the iprt
+        pprt->facing += ppip->facingadd;
+    }
+
+    if ( prt_on )
+    {
+        // down the remaining lifetime of the particle
+        if ( pprt->lifetime_remaining > 0 ) pprt->lifetime_remaining--;
+
+        // down the continuous spawn timer
+        if ( pprt->contspawn_delay > 0 ) pprt->contspawn_delay--;
+
+        // Spawn new particles if continually spawning
+        if ( 0 == pprt->contspawn_delay && ppip->contspawn_amount > 0 && -1 != ppip->contspawn_pip )
+        {
+            FACING_T facing;
+            Uint8    tnc;
+
+            // reset the spawn timer
+            pprt->contspawn_delay = ppip->contspawn_delay;
+
+            facing = pprt->facing;
+            for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
+            {
+                PRT_REF prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
+                                                        ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, iprt, tnc, pprt->target_ref );
+
+                if ( ALLOCATED_PRT( prt_child ) )
+                {
+                    // Hack to fix velocity
+                    PrtList.lst[prt_child].vel.x += pprt->vel.x;
+                    PrtList.lst[prt_child].vel.y += pprt->vel.y;
+                }
+                facing += ppip->contspawn_facingadd;
+            }
+        }
+    }
+
+    // apply damage from  attatched bump particles (about once a second)
+    if ( 0 == ( update_wld & 31 ) )
+    {
+        CHR_REF ichr;
+
+        // do nothing if the particle is hidden
+        if ( prt_on && !pprt->is_hidden && pprt->attachedto_ref != pprt->owner_ref )
+        {
+            ichr = pprt->attachedto_ref;
+
+            // is this is not a damage particle for me?
+            if ( INGAME_CHR( ichr ) )
+            {
+                // Attached particle damage ( Burning )
+                if ( ppip->allowpush && 0 == ppip->vel_hrz_pair.base )
+                {
+                    // Make character limp
+                    ChrList.lst[ichr].vel.x *= 0.5f;
+                    ChrList.lst[ichr].vel.y *= 0.5f;
+                }
+
+                /// @note  Why is this commented out? Attached arrows need to do damage.
+                //damage_character( ichr, ATK_BEHIND, pprt->damage, pprt->damagetype, pprt->team, pprt->owner_ref, ppip->damfx, bfalse );
+            }
+        }
+    }
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_construct( prt_t * pprt, int max_iterations )
 {
@@ -1100,7 +1339,7 @@ prt_t * prt_config_active( prt_t * pprt )
 
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return pprt;
 
-    // if anything was needed, it would go here
+    pprt = prt_config_do_active( pprt );
 
     return pprt;
 }
@@ -1518,58 +1757,14 @@ void update_all_particles()
 {
     /// @details BB@> main loop for updating particles. Do not use the
     ///               PRT_BEGIN_LOOP_* macro.
+    ///               Converted all the update functions to the prt_run_config() paradigm.
 
     PRT_REF iprt;
-    prt_t * pprt;
 
     // activate any particles might have been generated last update in an in-active state
     for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
-        prt_t * pprt;
-        pip_t * ppip;
-
-        bool_t prt_allocated, prt_active, prt_waiting, prt_terminated;
-        bool_t needs_activation;
-
-        pprt = PrtList.lst + iprt;
-
-        prt_allocated = FLAG_ALLOCATED_PBASE( POBJ_GET_PBASE( pprt ) );
-        if ( !prt_allocated ) continue;
-
-        prt_terminated = STATE_TERMINATED_PBASE( POBJ_GET_PBASE( pprt ) );
-        if ( prt_terminated ) continue;
-
-        prt_active     = STATE_ACTIVE_PBASE( POBJ_GET_PBASE( pprt ) );
-        if ( prt_active ) continue;
-
-        prt_waiting    = STATE_WAITING_PBASE( POBJ_GET_PBASE( pprt ) );
-        if ( prt_waiting ) continue;
-
-        // prt_allocated is already true
-        needs_activation  = !prt_active && !prt_waiting && !prt_terminated;
-
-        ppip = NULL;
-        if ( LOADED_PIP( pprt->pip_ref ) )
-        {
-            ppip = PipStack.lst + pprt->pip_ref;
-        }
-
-        if ( NULL == ppip )
-        {
-            EGO_OBJECT_ACTIVATE( pprt, "UNKNOWN" );
-        }
-        else
-        {
-            EGO_OBJECT_ACTIVATE( pprt, ppip->name );
-        }
-    }
-
-    for ( iprt = 0; iprt < maxparticles; iprt++ )
-    {
-        if ( !DISPLAY_PRT( iprt ) ) continue;
-        pprt = PrtList.lst + iprt;
-
-        update_one_particle( pprt );
+        prt_run_config( PrtList.lst + iprt );
     }
 }
 

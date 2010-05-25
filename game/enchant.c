@@ -967,6 +967,134 @@ enc_t * enc_config_do_init( enc_t * penc )
 }
 
 //--------------------------------------------------------------------------------------------
+enc_t * enc_config_do_active( enc_t * penc )
+{
+    /// @details ZZ@> This function lets enchantments spawn particles
+
+    ENC_REF  ienc;
+    int      tnc;
+    FACING_T facing;
+    CHR_REF  owner, target;
+    EVE_REF  eve;
+    eve_t * peve;
+    chr_t * ptarget;
+
+    if( NULL == penc ) return penc;
+    ienc = GET_REF_PENC( penc );
+
+    // the following functions should not be done the first time through the update loop
+    if ( 0 == clock_wld ) return penc;
+
+    // check to see whether the enchant needs to spawn some particles
+    if ( penc->spawntime > 0 ) penc->spawntime--;
+    if ( penc->spawntime > 0 ) return penc;
+
+    peve = enc_get_peve( ienc );
+    if ( NULL == peve ) return penc;
+
+    penc->spawntime = peve->contspawn_delay;
+
+    if ( peve->contspawn_amount <= 0 ) return penc;
+
+    if ( !INGAME_CHR( penc->target_ref ) ) return penc;
+    ptarget = ChrList.lst + penc->target_ref;
+
+    facing = ptarget->facing_z;
+    for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
+    {
+        spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
+            ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
+
+        facing += peve->contspawn_facingadd;
+    }
+
+    // check to see if any enchant
+    if ( clock_enc_stat >= ONESECOND )
+    {
+        if ( 0 == penc->time )
+        {
+            enc_request_terminate( ienc );
+        }
+        else
+        {
+            // Do enchant timer
+            if ( penc->time > 0 ) penc->time--;
+
+            // To make life easier
+            owner  = enc_get_iowner( ienc );
+            target = penc->target_ref;
+            eve    = enc_get_ieve( ienc );
+
+            // Do drains
+            if ( ChrList.lst[owner].alive )
+            {
+                bool_t mana_paid;
+
+                // Change life
+                ChrList.lst[owner].life += penc->owner_life;
+                if ( ChrList.lst[owner].life <= 0 )
+                {
+                    kill_character( owner, target, bfalse );
+                }
+
+                if ( ChrList.lst[owner].life > ChrList.lst[owner].lifemax )
+                {
+                    ChrList.lst[owner].life = ChrList.lst[owner].lifemax;
+                }
+
+                // Change mana
+                mana_paid = cost_mana( owner, -penc->owner_mana, target );
+                if ( EveStack.lst[eve].endifcantpay && !mana_paid )
+                {
+                    enc_request_terminate( ienc );
+                }
+            }
+            else if ( !EveStack.lst[eve].stayifnoowner )
+            {
+                enc_request_terminate( ienc );
+            }
+
+            // the enchant could have been inactivated by the stuff above
+            // check it again
+            if ( INGAME_ENC( ienc ) )
+            {
+                if ( ChrList.lst[target].alive )
+                {
+                    bool_t mana_paid;
+
+                    // Change life
+                    ChrList.lst[target].life += penc->target_life;
+                    if ( ChrList.lst[target].life <= 0 )
+                    {
+                        kill_character( target, owner, bfalse );
+                    }
+                    if ( ChrList.lst[target].life > ChrList.lst[target].lifemax )
+                    {
+                        ChrList.lst[target].life = ChrList.lst[target].lifemax;
+                    }
+
+                    // Change mana
+                    mana_paid = cost_mana( target, -penc->target_mana, owner );
+                    if ( EveStack.lst[eve].endifcantpay && !mana_paid )
+                    {
+                        enc_request_terminate( ienc );
+                    }
+                }
+                else if ( !EveStack.lst[eve].stayiftargetdead )
+                {
+                    enc_request_terminate( ienc );
+                }
+            }
+        }
+    }
+
+    return penc;
+}
+
+
+
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_construct( enc_t * pprt, int max_iterations )
 {
@@ -1276,7 +1404,7 @@ enc_t * enc_config_active( enc_t * penc )
 
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return penc;
 
-    // if anything was needed, it would go here
+    penc = enc_config_do_active( penc );
 
     return penc;
 }
@@ -1723,134 +1851,22 @@ bool_t release_one_eve( const EVE_REF by_reference ieve )
 //--------------------------------------------------------------------------------------------
 void update_all_enchants()
 {
-    /// @details ZZ@> This function lets enchantments spawn particles
+    ENC_REF ienc;
 
-    int      tnc;
-    FACING_T facing;
-    CHR_REF  owner, target;
-    EVE_REF  eve;
-
-    // the following functions should not be done the first time through the update loop
-    if ( clock_wld == 0 ) return;
-
-    // check to see whether the enchant needs to spawn some particles
-    ENC_BEGIN_LOOP_ACTIVE( ienc, penc )
+    // update all enchants
+    for( ienc = 0; ienc < MAX_ENC; ienc++ )
     {
-        eve_t * peve;
-        chr_t * ptarget;
-
-        if ( penc->spawntime > 0 ) penc->spawntime--;
-        if ( penc->spawntime > 0 ) continue;
-
-        peve = enc_get_peve( ienc );
-        if ( NULL == peve ) continue;
-
-        penc->spawntime = peve->contspawn_delay;
-
-        if ( peve->contspawn_amount <= 0 ) continue;
-
-        if ( !INGAME_CHR( penc->target_ref ) ) continue;
-        ptarget = ChrList.lst + penc->target_ref;
-
-        facing = ptarget->facing_z;
-        for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
-        {
-            spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
-                                ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
-
-            facing += peve->contspawn_facingadd;
-        }
+        enc_run_config( EncList.lst + ienc );
     }
-    ENC_END_LOOP();
 
-    // check to see if any enchant
+    // fix the stat timer
     if ( clock_enc_stat >= ONESECOND )
     {
         // Reset the clock
         clock_enc_stat -= ONESECOND;
-
-        // Run through all the enchants as well
-        ENC_BEGIN_LOOP_ACTIVE( ienc, penc )
-        {
-            if ( 0 == penc->time )
-            {
-                enc_request_terminate( ienc );
-            }
-            else
-            {
-                // Do enchant timer
-                if ( penc->time > 0 ) penc->time--;
-
-                // To make life easier
-                owner  = enc_get_iowner( ienc );
-                target = penc->target_ref;
-                eve    = enc_get_ieve( ienc );
-
-                // Do drains
-                if ( ChrList.lst[owner].alive )
-                {
-                    bool_t mana_paid;
-
-                    // Change life
-                    ChrList.lst[owner].life += penc->owner_life;
-                    if ( ChrList.lst[owner].life <= 0 )
-                    {
-                        kill_character( owner, target, bfalse );
-                    }
-
-                    if ( ChrList.lst[owner].life > ChrList.lst[owner].lifemax )
-                    {
-                        ChrList.lst[owner].life = ChrList.lst[owner].lifemax;
-                    }
-
-                    // Change mana
-                    mana_paid = cost_mana( owner, -penc->owner_mana, target );
-                    if ( EveStack.lst[eve].endifcantpay && !mana_paid )
-                    {
-                        enc_request_terminate( ienc );
-                    }
-                }
-                else if ( !EveStack.lst[eve].stayifnoowner )
-                {
-                    enc_request_terminate( ienc );
-                }
-
-                // the enchant could have been inactivated by the stuff above
-                // check it again
-                if ( INGAME_ENC( ienc ) )
-                {
-                    if ( ChrList.lst[target].alive )
-                    {
-                        bool_t mana_paid;
-
-                        // Change life
-                        ChrList.lst[target].life += penc->target_life;
-                        if ( ChrList.lst[target].life <= 0 )
-                        {
-                            kill_character( target, owner, bfalse );
-                        }
-                        if ( ChrList.lst[target].life > ChrList.lst[target].lifemax )
-                        {
-                            ChrList.lst[target].life = ChrList.lst[target].lifemax;
-                        }
-
-                        // Change mana
-                        mana_paid = cost_mana( target, -penc->target_mana, owner );
-                        if ( EveStack.lst[eve].endifcantpay && !mana_paid )
-                        {
-                            enc_request_terminate( ienc );
-                        }
-                    }
-                    else if ( !EveStack.lst[eve].stayiftargetdead )
-                    {
-                        enc_request_terminate( ienc );
-                    }
-                }
-            }
-        }
-        ENC_END_LOOP();
     }
 }
+
 
 //--------------------------------------------------------------------------------------------
 ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc )
