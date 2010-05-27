@@ -1,0 +1,33 @@
+IfBumped
+  IfStateIs0
+    SetTargetToWhoeverBumped
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+      tmpargument = 50
+      SetTime
+      SetState
+      
+IfTimeOut
+
+  IfStateIs0
+    tmpargument = 0
+    PlaySound
+  
+  tmpargument = 0
+  SetState
+  
+  tmpargument = rand % 400 + 250
+  SetTime
+  
+//Spawn some smoke
+tmpx = rand & 255
+tmpy = 5
+IfXIsLessThanY  
+  tmpargument = 0
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz + 100
+  SpawnExactParticle
+  
+End					// All done

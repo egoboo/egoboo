@@ -24,6 +24,7 @@
 #include "log.h"
 #include "system.h"
 
+//	#include <unistd.h>
 #include "file_common.h" /* for NULL */
 #include <sys/time.h>
 
@@ -67,5 +68,19 @@ int main( int argc, char* argv[] )
 //--------------------------------------------------------------------------------------------
 void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
 {
-    /// the system popup is not supported on linux at this time.
+    //ZF> Basic untested implementation of error messaging in Linux
+ 
+/*	STRING message, buffer;
+    snprintf( message, SDL_arraysize( message ), warning );
+    vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
+	strcat( message, buffer );
+    strcat( message, "\n Press OK to exit." );
+
+    sprintf(buffer, "xmessage -center \"%s\"", message);
+
+    if( fork() == 0 )
+	{
+        close(1); close(2);
+        system(cmd);
+    }*/
 }

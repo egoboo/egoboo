@@ -6468,7 +6468,7 @@ void move_one_character_do_animation( chr_t * pchr )
     // Get running, walking, sneaking, or dancing, from speed
     if ( !pinst->action_keep && !pinst->action_loop && !( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD ) )
     {
-        int           frame_count = md2_get_numFrames( pmad->md2_ptr );
+        //int           frame_count = md2_get_numFrames( pmad->md2_ptr );
         MD2_Frame_t * frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmad->md2_ptr );
         MD2_Frame_t * pframe_nxt  = frame_list + pinst->frame_nxt;
         EGOBOO_ASSERT( pinst->frame_nxt < frame_count );

@@ -12,6 +12,7 @@ Version 2.8.0 (??.??.2010)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: A LOT of code restructuring.
 - Update: Various balance tweaks around the game to smooth gameplay.
 - Update: Paladins are more powerful than before.
 - Update: Implemented support for limitless particle types. Added about 15 new particle effects at the
@@ -86,7 +87,7 @@ Version 2.8.0 (??.??.2010)
 - Bugfix: Lich boss in the crypt now properly holds an attack spell instead of a treasure chest.
 - Bugfix: Fixed a serious bug with morphing.
 - Bugfix: Fixed two impassable passages in Catacombs 2 module. (Credits to Rygwryr)
-- Bugfix: Fixed bug that made Ghosts invincible and Life Drain caused by Ghosts to disappear
+- Bugfix: Fixed bug that made Ghosts invincible and Life Drain caused by Ghosts to heal
   without a proper restoration.
 - Bugfix: Catacombs 1 and Abyss 2 now properly allows up to 4 player imports instead of 1.
 - Bugfix: Major bug fixed that caused modules not to unlock properly when exporting.
