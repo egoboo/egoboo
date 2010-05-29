@@ -42,6 +42,8 @@
 //--------------------------------------------------------------------------------------------
 #define PRT_TRANS 0x80
 
+const float buoyancy_friction = 0.3f;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_spawn_particle_info
@@ -206,7 +208,7 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
     else
     {
         // deallocate any dynamically allocated memory
-        pprt = prt_config_deinit( pprt );
+        pprt = prt_config_deinitialize( pprt, 100 );
         if ( NULL == pprt ) return bfalse;
 
 #if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
@@ -554,7 +556,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     if ( !LOADED_PIP( pdata->ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                   REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), INGAME_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
+                   REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), DEFINED_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
                    REF_TO_INT( pdata->iprofile ), LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 
         return NULL;
@@ -575,7 +577,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // try to get an idea of who our owner is even if we are
     // given bogus info
     loc_chr_origin = pdata->chr_origin;
-    if ( !INGAME_CHR( pdata->chr_origin ) && INGAME_PRT( pdata->prt_origin ) )
+    if ( !DEFINED_CHR( pdata->chr_origin ) && DEFINED_PRT( pdata->prt_origin ) )
     {
         loc_chr_origin = prt_get_iowner( pdata->prt_origin, 0 );
     }
@@ -627,7 +629,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         {
             // Find a target
             pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
-            if ( INGAME_CHR( pprt->target_ref ) && !ppip->homing )
+            if ( DEFINED_CHR( pprt->target_ref ) && !ppip->homing )
             {
                 loc_facing -= glouseangle;
             }
@@ -641,7 +643,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                 offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECTSTAT;
             }
 
-            if ( INGAME_CHR( pprt->target_ref ) && ppip->zaimspd != 0 )
+            if ( DEFINED_CHR( pprt->target_ref ) && ppip->zaimspd != 0 )
             {
                 // These aren't velocities...  This is to do aiming on the Z axis
                 if ( velocity > 0 )
@@ -660,14 +662,14 @@ prt_t * prt_config_do_init( prt_t * pprt )
         }
 
         // Does it go away?
-        if ( !INGAME_CHR( pprt->target_ref ) && ppip->needtarget )
+        if ( !DEFINED_CHR( pprt->target_ref ) && ppip->needtarget )
         {
             prt_request_terminate( iprt );
             return NULL;
         }
 
         // Start on top of target
-        if ( INGAME_CHR( pprt->target_ref ) && ppip->startontarget )
+        if ( DEFINED_CHR( pprt->target_ref ) && ppip->startontarget )
         {
             tmp_pos.x = ChrList.lst[pprt->target_ref].pos.x;
             tmp_pos.y = ChrList.lst[pprt->target_ref].pos.y;
@@ -739,7 +741,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // "no lifetime" = "eternal"
     if ( 0 == prt_lifetime )
     {
-        pprt->lifetime_remaining = ( size_t )( ~0 );
+        pprt->lifetime           = ( size_t )( ~0 );
+        pprt->lifetime_remaining = pprt->lifetime;
         pprt->is_eternal         = btrue;
     }
     else
@@ -748,7 +751,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
         // to keep the number of updates stable, the frames could lag.
         // sooo... we just rescale the prt_lifetime so that it will work with the
         // updates and cross our fingers
-        pprt->lifetime_remaining = ceil(( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
+        pprt->lifetime           = ceil(( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
+        pprt->lifetime_remaining = pprt->lifetime;
     }
 
     // make the particle display AT LEAST one frame, regardless of how many updates
@@ -767,7 +771,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     if ( pprt->contspawn_delay != 0 )
     {
         pprt->contspawn_delay = 1;
-        if ( INGAME_CHR( pprt->attachedto_ref ) )
+        if ( DEFINED_CHR( pprt->attachedto_ref ) )
         {
             pprt->contspawn_delay++; // Because attachment takes an update before it happens
         }
@@ -791,7 +795,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     if ( pprt->safe_valid ) pprt->safe_grid  = pprt->onwhichgrid;
 
     // gat an initial value for the is_homing variable
-    pprt->is_homing = ppip->homing && !INGAME_CHR( pprt->attachedto_ref );
+    pprt->is_homing = ppip->homing && !DEFINED_CHR( pprt->attachedto_ref );
 
     prt_set_size( pprt, pprt->size_stt );
 
@@ -808,7 +812,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                "\n",
                iprt,
                update_wld, pprt->time_update, frame_all, pprt->time_frame,
-               loc_chr_origin, INGAME_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
+               loc_chr_origin, DEFINED_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
                pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
                pdata->iprofile, LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 #endif
@@ -1184,8 +1188,9 @@ prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations )
     {
         return pprt;
     }
-    else if ( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < ego_object_destructing )
     {
+        // make sure that you deinitialize before destructing
         pbase->state = ego_object_deinitializing;
     }
 
@@ -1281,7 +1286,8 @@ prt_t * prt_config_ctor( prt_t * pprt )
     memcpy( base_ptr, &save_base, sizeof( save_base ) );
 
     // "no lifetime" = "eternal"
-    pprt->lifetime_remaining = ( size_t )( ~0 );
+    pprt->lifetime           = ( size_t )( ~0 );
+    pprt->lifetime_remaining = pprt->lifetime;
     pprt->frames_remaining   = ( size_t )( ~0 );
 
     pprt->pip_ref      = MAX_PIP;
@@ -2213,137 +2219,148 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
-    // limit friction effects to solid objects?
-    if ( SPRITE_SOLID != pprt->type ) return;
-
     // if the particle is homing in on something, ignore friction
     if ( pprt->is_homing ) return;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    // figure out the acceleration due to the current "floor"
-    floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
-    temp_friction_xy = 1.0f;
-    if ( INGAME_CHR( pprt->onwhichplatform ) )
+    // limit floor friction effects to solid objects
+    if ( SPRITE_SOLID == pprt->type )
     {
-        chr_t * pplat = ChrList.lst + pprt->onwhichplatform;
 
-        temp_friction_xy = platstick;
-
-        floor_acc.x = pplat->vel.x - pplat->vel_old.x;
-        floor_acc.y = pplat->vel.y - pplat->vel_old.y;
-        floor_acc.z = pplat->vel.z - pplat->vel_old.z;
-
-        chr_getMatUp( pplat, &vup );
-    }
-    else
-        // if ( !pprt->alive || pprt->isitem )
-    {
-        temp_friction_xy = 0.5f;
-        floor_acc.x = -pprt->vel.x;
-        floor_acc.y = -pprt->vel.y;
-        floor_acc.z = -pprt->vel.z;
-
-        if ( TWIST_FLAT == pprt->enviro.twist )
+        // figure out the acceleration due to the current "floor"
+        floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
+        temp_friction_xy = 1.0f;
+        if ( INGAME_CHR( pprt->onwhichplatform ) )
         {
-            vup.x = vup.y = 0.0f;
-            vup.z = 1.0f;
+            chr_t * pplat = ChrList.lst + pprt->onwhichplatform;
+
+            temp_friction_xy = platstick;
+
+            floor_acc.x = pplat->vel.x - pplat->vel_old.x;
+            floor_acc.y = pplat->vel.y - pplat->vel_old.y;
+            floor_acc.z = pplat->vel.z - pplat->vel_old.z;
+
+            chr_getMatUp( pplat, &vup );
         }
         else
+            // if ( !pprt->alive || pprt->isitem )
         {
-            vup = map_twist_nrm[pprt->enviro.twist];
+            temp_friction_xy = 0.5f;
+            floor_acc.x = -pprt->vel.x;
+            floor_acc.y = -pprt->vel.y;
+            floor_acc.z = -pprt->vel.z;
+
+            if ( TWIST_FLAT == pprt->enviro.twist )
+            {
+                vup.x = vup.y = 0.0f;
+                vup.z = 1.0f;
+            }
+            else
+            {
+                vup = map_twist_nrm[pprt->enviro.twist];
+            }
         }
-    }
-    //else
-    //{
-    //    temp_friction_xy = pprt->enviro.friction_hrz;
+        //else
+        //{
+        //    temp_friction_xy = pprt->enviro.friction_hrz;
 
-    //    if( TWIST_FLAT == pprt->enviro.twist )
-    //    {
-    //        vup.x = vup.y = 0.0f;
-    //        vup.z = 1.0f;
-    //    }
-    //    else
-    //    {
-    //        vup = map_twist_nrm[pprt->enviro.twist];
-    //    }
+        //    if( TWIST_FLAT == pprt->enviro.twist )
+        //    {
+        //        vup.x = vup.y = 0.0f;
+        //        vup.z = 1.0f;
+        //    }
+        //    else
+        //    {
+        //        vup = map_twist_nrm[pprt->enviro.twist];
+        //    }
 
-    //    if( ABS(pprt->vel.x) + ABS(pprt->vel.y) + ABS(pprt->vel.z) > 0.0f )
-    //    {
-    //        float ftmp;
-    //        fvec3_t   vfront = mat_getChrForward( pprt->inst.matrix );
+        //    if( ABS(pprt->vel.x) + ABS(pprt->vel.y) + ABS(pprt->vel.z) > 0.0f )
+        //    {
+        //        float ftmp;
+        //        fvec3_t   vfront = mat_getChrForward( pprt->inst.matrix );
 
-    //        floor_acc.x = -pprt->vel.x;
-    //        floor_acc.y = -pprt->vel.y;
-    //        floor_acc.z = -pprt->vel.z;
+        //        floor_acc.x = -pprt->vel.x;
+        //        floor_acc.y = -pprt->vel.y;
+        //        floor_acc.z = -pprt->vel.z;
 
-    //        //---- get the "bad" velocity (perpendicular to the direction of motion)
-    //        vfront = fvec3_normalize( vfront.v );
-    //        ftmp = fvec3_dot_product( floor_acc.v, vfront.v );
+        //        //---- get the "bad" velocity (perpendicular to the direction of motion)
+        //        vfront = fvec3_normalize( vfront.v );
+        //        ftmp = fvec3_dot_product( floor_acc.v, vfront.v );
 
-    //        floor_acc.x -= ftmp * vfront.x;
-    //        floor_acc.y -= ftmp * vfront.y;
-    //        floor_acc.z -= ftmp * vfront.z;
-    //    }
-    //}
+        //        floor_acc.x -= ftmp * vfront.x;
+        //        floor_acc.y -= ftmp * vfront.y;
+        //        floor_acc.z -= ftmp * vfront.z;
+        //    }
+        //}
 
-    // the first guess about the floor friction
-    fric_floor.x = floor_acc.x * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
-    fric_floor.y = floor_acc.y * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
-    fric_floor.z = floor_acc.z * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
-
-    // the total "friction" due to the floor
-    fric.x = fric_floor.x + pprt->enviro.acc.x;
-    fric.y = fric_floor.y + pprt->enviro.acc.y;
-    fric.z = fric_floor.z + pprt->enviro.acc.z;
-
-    //---- limit the friction to whatever is horizontal to the mesh
-    if ( TWIST_FLAT == pprt->enviro.twist )
-    {
-        floor_acc.z = 0.0f;
-        fric.z      = 0.0f;
-    }
-    else
-    {
-        float ftmp;
-        fvec3_t   vup = map_twist_nrm[pprt->enviro.twist];
-
-        ftmp = fvec3_dot_product( floor_acc.v, vup.v );
-
-        floor_acc.x -= ftmp * vup.x;
-        floor_acc.y -= ftmp * vup.y;
-        floor_acc.z -= ftmp * vup.z;
-
-        ftmp = fvec3_dot_product( fric.v, vup.v );
-
-        fric.x -= ftmp * vup.x;
-        fric.y -= ftmp * vup.y;
-        fric.z -= ftmp * vup.z;
-    }
-
-    // test to see if the player has any more friction left?
-    pprt->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pprt->enviro.friction_hrz );
-
-    if ( pprt->enviro.is_slipping )
-    {
-        pprt->enviro.traction *= 0.5f;
-        temp_friction_xy  = SQRT( temp_friction_xy );
-
+        // the first guess about the floor friction
         fric_floor.x = floor_acc.x * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
         fric_floor.y = floor_acc.y * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
         fric_floor.z = floor_acc.z * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
+
+        // the total "friction" due to the floor
+        fric.x = fric_floor.x + pprt->enviro.acc.x;
+        fric.y = fric_floor.y + pprt->enviro.acc.y;
+        fric.z = fric_floor.z + pprt->enviro.acc.z;
+
+        //---- limit the friction to whatever is horizontal to the mesh
+        if ( TWIST_FLAT == pprt->enviro.twist )
+        {
+            floor_acc.z = 0.0f;
+            fric.z      = 0.0f;
+        }
+        else
+        {
+            float ftmp;
+            fvec3_t   vup = map_twist_nrm[pprt->enviro.twist];
+
+            ftmp = fvec3_dot_product( floor_acc.v, vup.v );
+
+            floor_acc.x -= ftmp * vup.x;
+            floor_acc.y -= ftmp * vup.y;
+            floor_acc.z -= ftmp * vup.z;
+
+            ftmp = fvec3_dot_product( fric.v, vup.v );
+
+            fric.x -= ftmp * vup.x;
+            fric.y -= ftmp * vup.y;
+            fric.z -= ftmp * vup.z;
+        }
+
+        // test to see if the player has any more friction left?
+        pprt->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pprt->enviro.friction_hrz );
+
+        if ( pprt->enviro.is_slipping )
+        {
+            pprt->enviro.traction *= 0.5f;
+            temp_friction_xy  = SQRT( temp_friction_xy );
+
+            fric_floor.x = floor_acc.x * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
+            fric_floor.y = floor_acc.y * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
+            fric_floor.z = floor_acc.z * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
+        }
+
+        //apply the floor friction
+        pprt->vel.x += fric_floor.x;
+        pprt->vel.y += fric_floor.y;
+        pprt->vel.z += fric_floor.z;
     }
 
-    //apply the floor friction
-    pprt->vel.x += fric_floor.x;
-    pprt->vel.y += fric_floor.y;
-    pprt->vel.z += fric_floor.z;
+    // Apply fluid friction for all particles
+    if( ppip->spdlimit < 0 )
+    {
+        pprt->vel.x += -pprt->vel.x * ( 1.0f - buoyancy_friction );
+        pprt->vel.y += -pprt->vel.y * ( 1.0f - buoyancy_friction );
+    }
+    else
+    {
+        pprt->vel.x += -pprt->vel.x * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+        pprt->vel.y += -pprt->vel.y * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+        pprt->vel.z += -pprt->vel.z * ( 1.0f - pprt->enviro.fluid_friction_vrt );
+    }
 
-    // Apply fluid friction from last time
-    pprt->vel.x += -pprt->vel.x * ( 1.0f - pprt->enviro.fluid_friction_hrz );
-    pprt->vel.y += -pprt->vel.y * ( 1.0f - pprt->enviro.fluid_friction_hrz );
-    pprt->vel.z += -pprt->vel.z * ( 1.0f - pprt->enviro.fluid_friction_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2539,13 +2556,13 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 
     if ( pprt->is_homing || INGAME_CHR( pprt->attachedto_ref ) ) return;
 
-    // Do particle buoyancy. This is kinda BS the way it is calculated
-    if ( pprt->vel.z < -ppip->spdlimit )
-    {
-        pprt->vel.z = -ppip->spdlimit;
-    }
-
     loc_zlerp = CLIP( pprt->enviro.zlerp, 0.0f, 1.0f );
+
+    // Do particle buoyancy. This is kinda BS the way it is calculated
+    if( 0 != ppip->spdlimit )
+    {
+        pprt->vel.z += (-ppip->spdlimit - pprt->vel.z) * buoyancy_friction - gravity * loc_zlerp;
+    }
 
     // do gravity
     if ( pprt->enviro.is_slippy && pprt->enviro.twist != TWIST_FLAT && loc_zlerp < 1.0f )

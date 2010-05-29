@@ -428,7 +428,7 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
     else
     {
         // deallocate any dynamically allocated memory
-        pchr = chr_config_deinit( pchr );
+        pchr = chr_config_deinitialize( pchr, 100 );
         if ( NULL == pchr ) return bfalse;
 
 #if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
@@ -4058,13 +4058,14 @@ chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
     pbase = POBJ_GET_PBASE( pchr );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
-    // if the character is already beyond this stage, deconstruct it
+    // if the character is already beyond this stage, do nothing
     if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
     {
         return pchr;
     }
     else if ( pbase->state < ego_object_deinitializing )
     {
+        // make sure that you deinitialize before destructing
         pbase->state = ego_object_deinitializing;
     }
 

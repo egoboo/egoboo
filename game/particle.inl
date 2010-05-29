@@ -124,7 +124,7 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
     if ( !DEFINED_PRT( iprt ) ) return ( CHR_REF )MAX_CHR;
     pprt = PrtList.lst + iprt;
 
-    if ( INGAME_CHR( pprt->owner_ref ) )
+    if ( DEFINED_CHR( pprt->owner_ref ) )
     {
         iowner = pprt->owner_ref;
     }

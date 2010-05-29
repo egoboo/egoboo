@@ -137,6 +137,7 @@ struct s_prt
     Uint16  image_stt;                       ///< Start of image loop
 
     bool_t  is_eternal;                      ///< Does the particle ever time-out?
+    size_t  lifetime;                        ///< Total particle lifetime in updates
     size_t  lifetime_remaining;              ///< How many updates does the particle have left?
     size_t  frames_remaining;                ///< How many frames does the particle have left?
     int     contspawn_delay;                 ///< Time until spawn

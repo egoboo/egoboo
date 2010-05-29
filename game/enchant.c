@@ -54,11 +54,11 @@ static enc_t * enc_config_deinit( enc_t * penc );
 static enc_t * enc_config_active( enc_t * penc );
 static enc_t * enc_config_dtor( enc_t * penc );
 
-enc_t * enc_config_construct( enc_t * pprt, int max_iterations );
-enc_t * enc_config_initialize( enc_t * pprt, int max_iterations );
-enc_t * enc_config_activate( enc_t * pprt, int max_iterations );
-enc_t * enc_config_deinitialize( enc_t * pprt, int max_iterations );
-enc_t * enc_config_deconstruct( enc_t * pprt, int max_iterations );
+enc_t * enc_config_construct( enc_t * penc, int max_iterations );
+enc_t * enc_config_initialize( enc_t * penc, int max_iterations );
+enc_t * enc_config_activate( enc_t * penc, int max_iterations );
+enc_t * enc_config_deinitialize( enc_t * penc, int max_iterations );
+enc_t * enc_config_deconstruct( enc_t * penc, int max_iterations );
 
 static void    EncList_init( void );
 static void    EncList_dtor( void );
@@ -201,7 +201,7 @@ bool_t EncList_free_one( const ENC_REF by_reference ienc )
     else
     {
         // deallocate any dynamically allocated memory
-        penc = enc_config_deinit( penc );
+        penc = enc_config_deinitialize( penc, 100 );
         if ( NULL == penc ) return bfalse;
 
 #if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
@@ -513,7 +513,7 @@ void enchant_apply_set( const ENC_REF by_reference  ienc, int value_idx, const P
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
-    if ( !INGAME_ENC( ienc ) ) return;
+    if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList.lst + ienc;
 
     peve = pro_get_peve( profile );
@@ -542,7 +542,7 @@ void enchant_apply_set( const ENC_REF by_reference  ienc, int value_idx, const P
             }
 
             // Set the value, and save the character's real stat
-            if ( INGAME_CHR( penc->target_ref ) )
+            if ( DEFINED_CHR( penc->target_ref ) )
             {
                 character = penc->target_ref;
                 ptarget = ChrList.lst + character;
@@ -693,7 +693,7 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
-    if ( !INGAME_ENC( ienc ) ) return;
+    if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList.lst + ienc;
 
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
@@ -706,7 +706,7 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
         return;
     }
 
-    if ( !INGAME_CHR( penc->target_ref ) ) return;
+    if ( !DEFINED_CHR( penc->target_ref ) ) return;
     character = penc->target_ref;
     ptarget = ChrList.lst + character;
 
@@ -900,7 +900,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     penc->target_mana  = peve->target_mana;
     penc->target_life  = peve->target_life;
 
-    if( !INGAME_CHR( pdata->target_ref ) )
+    if( !DEFINED_CHR( pdata->target_ref ) )
     {
         penc->target_ref = ( CHR_REF )MAX_CHR;
         ptarget          = NULL;
@@ -911,7 +911,7 @@ enc_t * enc_config_do_init( enc_t * penc )
         ptarget = ChrList.lst + penc->target_ref;
     }
 
-    if( !INGAME_CHR( pdata->owner_ref ) )
+    if( !DEFINED_CHR( pdata->owner_ref ) )
     {
         penc->owner_ref = ( CHR_REF )MAX_CHR;
     }
@@ -920,7 +920,7 @@ enc_t * enc_config_do_init( enc_t * penc )
         penc->owner_ref = pdata->owner_ref; 
     }
 
-    if( !INGAME_CHR( pdata->spawner_ref ) )
+    if( !DEFINED_CHR( pdata->spawner_ref ) )
     {
         penc->spawner_ref      = ( CHR_REF )MAX_CHR;
         penc->spawnermodel_ref = ( PRO_REF )MAX_PROFILE;
@@ -956,7 +956,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     if ( peve->spawn_overlay && NULL != ptarget )
     {
         overlay = spawn_one_character( ptarget->pos, pdata->profile_ref, ptarget->team, 0, ptarget->facing_z, NULL, ( CHR_REF )MAX_CHR );
-        if ( INGAME_CHR( overlay ) )
+        if ( DEFINED_CHR( overlay ) )
         {
             chr_t * povl;
             mad_t * povl_mad;
@@ -1176,45 +1176,45 @@ enc_t * enc_config_initialize( enc_t * pprt, int max_iterations )
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_config_activate( enc_t * pprt, int max_iterations )
+enc_t * enc_config_activate( enc_t * penc, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( penc );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
     if ( pbase->state > ( int )( ego_object_active + 1 ) )
     {
-        enc_t * tmp_enc = enc_config_deconstruct( pprt, max_iterations );
-        if ( tmp_enc == pprt ) return NULL;
+        enc_t * tmp_enc = enc_config_deconstruct( penc, max_iterations );
+        if ( tmp_enc == penc ) return NULL;
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
+    while ( NULL != penc && pbase->state < ego_object_active && iterations < max_iterations )
     {
-        enc_t * ptmp = enc_run_config( pprt );
-        if ( ptmp != pprt ) return NULL;
+        enc_t * ptmp = enc_run_config( penc );
+        if ( ptmp != penc ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return penc;
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_config_deinitialize( enc_t * pprt, int max_iterations )
+enc_t * enc_config_deinitialize( enc_t * penc, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( penc );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deinitialize it
     if ( pbase->state > ( int )( ego_object_deinitializing + 1 ) )
     {
-        return pprt;
+        return penc;
     }
     else if ( pbase->state < ego_object_deinitializing )
     {
@@ -1222,44 +1222,45 @@ enc_t * enc_config_deinitialize( enc_t * pprt, int max_iterations )
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    while ( NULL != penc && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
     {
-        enc_t * ptmp = enc_run_config( pprt );
-        if ( ptmp != pprt ) return NULL;
+        enc_t * ptmp = enc_run_config( penc );
+        if ( ptmp != penc ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return penc;
 }
 
 //--------------------------------------------------------------------------------------------
-enc_t * enc_config_deconstruct( enc_t * pprt, int max_iterations )
+enc_t * enc_config_deconstruct( enc_t * penc, int max_iterations )
 {
     int                 iterations;
     ego_object_base_t * pbase;
 
-    pbase = POBJ_GET_PBASE( pprt );
+    pbase = POBJ_GET_PBASE( penc );
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it
     if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
     {
-        return pprt;
+        return penc;
     }
     else if ( pbase->state < ego_object_deinitializing )
     {
+        // make sure that you deinitialize before destructing
         pbase->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    while ( NULL != penc && pbase->state <= ego_object_destructing && iterations < max_iterations )
     {
-        enc_t * ptmp = enc_run_config( pprt );
-        if ( ptmp != pprt ) return NULL;
+        enc_t * ptmp = enc_run_config( penc );
+        if ( ptmp != penc ) return NULL;
         iterations++;
     }
 
-    return pprt;
+    return penc;
 }
 
 //--------------------------------------------------------------------------------------------
