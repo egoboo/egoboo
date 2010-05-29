@@ -533,7 +533,7 @@ INLINE void chr_update_size( chr_t * pchr )
 {
     /// @details BB@> Convert the base size values to the size values that are used in the game
 
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if ( !ALLOCATED_PCHR( pchr ) ) return;
 
     pchr->shadow_size  = pchr->shadow_size_save  * pchr->fat;
     pchr->bump.size    = pchr->bump_save.size    * pchr->fat;
@@ -548,7 +548,7 @@ INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 {
     /// @details BB@> initalize the character size info
 
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    if ( !ALLOCATED_PCHR( pchr ) ) return;
     if ( NULL == pcap || !pcap->loaded ) return;
 
     pchr->fat               = pcap->size;

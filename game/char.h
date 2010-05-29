@@ -507,8 +507,8 @@ DECLARE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 
 #define INGAME_CHR(ICHR)            ( VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && ON_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
 
-#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR) {int IT##_internal; int chr_loop_start_depth = chr_loop_depth; chr_loop_depth++; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR(IT)) continue; PCHR =  ChrList.lst +  IT;
-#define CHR_END_LOOP() } chr_loop_depth--; EGOBOO_ASSERT(chr_loop_start_depth == chr_loop_depth); }
+#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR)  {int IT##_internal; int chr_loop_start_depth = chr_loop_depth; chr_loop_depth++; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PCHR =  ChrList.lst + IT;
+#define CHR_END_LOOP() } chr_loop_depth--; EGOBOO_ASSERT(chr_loop_start_depth == chr_loop_depth); ChrList_cleanup(); }
 
 extern int chr_wall_tests;
 extern int chr_loop_depth;
@@ -666,3 +666,5 @@ struct s_mad * chr_get_pmad( const CHR_REF by_reference ichr );
 TX_REF         chr_get_icon_ref( const CHR_REF by_reference item );
 
 chr_t * chr_run_config( chr_t * pchr );
+
+void ChrList_cleanup();

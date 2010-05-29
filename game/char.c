@@ -126,6 +126,12 @@ static void chr_log_script_time( const CHR_REF by_reference ichr );
 
 static bool_t update_chr_darkvision( const CHR_REF by_reference character );
 
+static size_t  chr_activation_count = 0;
+static CHR_REF chr_activation_list[MAX_CHR];
+
+static size_t  chr_termination_count = 0;
+static CHR_REF chr_termination_list[MAX_CHR];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void character_system_begin()
@@ -401,46 +407,56 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
     bool_t retval;
     chr_t * pchr;
 
-    if ( !ALLOCATED_CHR( ichr ) )
-    {
-        EGOBOO_ASSERT( NULL == ChrList.lst[ichr].inst.vrt_lst );
-        return bfalse;
-    }
+    if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
+    pchr = ChrList.lst + ichr;
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
     chr_log_script_time( ichr );
 #endif
 
-    pchr = ChrList.lst + ichr;
-
-    // deallocate any dynamically allocated memory
-    pchr = chr_config_deinit( pchr );
-    if ( NULL == pchr ) return bfalse;
-
-#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
+    // if we are inside a ChrList loop, do not actually change the length of the
+    // list. This will cause some problems later.
+    if ( chr_loop_depth > 0 )
     {
-        int cnt;
-        // determine whether this character is already in the list of free textures
-        // that is an error
-        for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
-        {
-            if ( ichr == ChrList.free_ref[cnt] ) return bfalse;
-        }
-    }
-#endif
+        chr_termination_list[chr_termination_count] = ichr;
+        chr_termination_count++;
 
-    // push it on the free stack
-    retval = bfalse;
-    if ( ChrList.free_count < MAX_CHR )
-    {
-        ChrList.free_ref[ChrList.free_count] = REF_TO_INT( ichr );
-        ChrList.free_count++;
-
+        // at least mark the object as "waiting to be terminated"
+        EGO_OBJECT_REQUEST_TERMINATE( pchr );
         retval = btrue;
     }
+    else
+    {
+        // deallocate any dynamically allocated memory
+        pchr = chr_config_deinit( pchr );
+        if ( NULL == pchr ) return bfalse;
 
-    pchr = chr_config_dtor( pchr );
-    if ( NULL == pchr ) return bfalse;
+#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
+        {
+            int cnt;
+            // determine whether this character is already in the list of free textures
+            // that is an error
+            for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
+            {
+                if ( ichr == ChrList.free_ref[cnt] ) return bfalse;
+            }
+        }
+#endif
+
+        // push it on the free stack
+        retval = bfalse;
+        if ( ChrList.free_count < MAX_CHR )
+        {
+            ChrList.free_ref[ChrList.free_count] = REF_TO_INT( ichr );
+            ChrList.free_count++;
+
+            retval = btrue;
+        }
+
+        // character "destructor"
+        pchr = chr_config_dtor( pchr );
+        if ( NULL == pchr ) return bfalse;
+    }
 
     return retval;
 }
@@ -511,9 +527,16 @@ CHR_REF ChrList_allocate( const CHR_REF by_reference override )
         }
     }
 
-    if ( MAX_CHR != ichr )
+    if ( VALID_CHR_RANGE( ichr ) )
     {
-        EGO_OBJECT_ALLOCATE( ChrList.lst + ichr, REF_TO_INT( ichr ) );
+        // if the character is already being used, make sure to destroy the old one
+        if ( DEFINED_CHR( ichr ) )
+        {
+            ChrList_free_one( ichr );
+        }
+
+        // allocate the new one
+        EGO_OBJECT_ALLOCATE( ChrList.lst +  ichr , REF_TO_INT( ichr ) );
     }
 
     if ( ALLOCATED_CHR( ichr ) )
@@ -535,7 +558,7 @@ void chr_log_script_time( const CHR_REF by_reference ichr )
     cap_t * pcap;
     FILE * ftmp;
 
-    if ( !ALLOCATED_CHR( ichr ) ) return;
+    if ( !DEFINED_CHR( ichr ) ) return;
     pchr = ChrList.lst + ichr;
 
     if ( pchr->ai._clkcount <= 0 ) return;
@@ -565,7 +588,7 @@ void free_one_character_in_game( const CHR_REF by_reference character )
     cap_t * pcap;
     chr_t * pchr;
 
-    if ( !ALLOCATED_CHR( character ) ) return;
+    if ( !DEFINED_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
@@ -646,7 +669,7 @@ void free_inventory_in_game( const CHR_REF by_reference character )
 
     CHR_REF cnt;
 
-    if ( !ALLOCATED_CHR( character ) ) return;
+    if ( !DEFINED_CHR( character ) ) return;
 
     PACK_BEGIN_LOOP( cnt, ChrList.lst[character].pack.next )
     {
@@ -894,7 +917,7 @@ Uint32 chr_hit_wall( chr_t * pchr, float nrm[], float * pressure )
     fvec3_base_t loc_nrm;
     Uint32       retval;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return 0;
+    if ( !DEFINED_PCHR( pchr ) ) return 0;
 
     if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
@@ -1205,7 +1228,7 @@ void attach_character_to_mount( const CHR_REF by_reference iitem, const CHR_REF 
 
     // Make sure the character/item is valid
     // this could be called before the item is fully instantiated
-    if ( !ALLOCATED_CHR( iitem ) || ChrList.lst[iitem].pack.is_packed ) return;
+    if ( !DEFINED_CHR( iitem ) || ChrList.lst[iitem].pack.is_packed ) return;
     pitem = ChrList.lst + iitem;
 
     // make a reasonable time for the character to remount something
@@ -1411,7 +1434,7 @@ bool_t pack_remove_item( pack_t * ppack, CHR_REF iparent, CHR_REF iitem )
     // convert the iitem it to a pointer
     old_next = ( CHR_REF )MAX_CHR;
     pitem    = NULL;
-    if ( ALLOCATED_CHR( iitem ) )
+    if ( DEFINED_CHR( iitem ) )
     {
         pitem    = ChrList.lst + iitem;
         old_next = pitem->pack.next;
@@ -1419,7 +1442,7 @@ bool_t pack_remove_item( pack_t * ppack, CHR_REF iparent, CHR_REF iitem )
 
     // convert the pparent it to a pointer
     pparent = NULL;
-    if ( ALLOCATED_CHR( iparent ) )
+    if ( DEFINED_CHR( iparent ) )
     {
         pparent = ChrList.lst + iparent;
     }
@@ -1622,7 +1645,7 @@ bool_t chr_remove_pack_item( CHR_REF ichr, CHR_REF iparent, CHR_REF iitem )
 
     bool_t removed;
 
-    if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
+    if ( !DEFINED_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
     pchr_pack = &( pchr->pack );
 
@@ -1630,7 +1653,7 @@ bool_t chr_remove_pack_item( CHR_REF ichr, CHR_REF iparent, CHR_REF iitem )
     removed = pack_remove_item( pchr_pack, iparent, iitem );
 
     // unequip the item
-    if ( removed && ALLOCATED_CHR( iitem ) )
+    if ( removed && DEFINED_CHR( iitem ) )
     {
         ChrList.lst[iitem].isequipped = bfalse;
         ChrList.lst[iitem].team       = chr_get_iteam( ichr );
@@ -1651,7 +1674,7 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
     pack_t * pchr_pack, * pfound_item_pack, *pfound_item_parent_pack;
 
     // does the character exist?
-    if ( !INGAME_CHR( character ) ) return bfalse;
+    if ( !DEFINED_CHR( character ) ) return bfalse;
     pchr      = ChrList.lst + character;
     pchr_pack = &( pchr->pack );
 
@@ -1677,7 +1700,7 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
     // convert the found_item it to a pointer
     pfound_item      = NULL;
     pfound_item_pack = NULL;
-    if ( ALLOCATED_CHR( found_item ) )
+    if ( DEFINED_CHR( found_item ) )
     {
         pfound_item = ChrList.lst + found_item;
         pfound_item_pack = &( pfound_item->pack );
@@ -1686,7 +1709,7 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
     // convert the pfound_item_parent it to a pointer
     pfound_item_parent      = NULL;
     pfound_item_parent_pack = NULL;
-    if ( ALLOCATED_CHR( found_item_parent ) )
+    if ( DEFINED_CHR( found_item_parent ) )
     {
         pfound_item_parent      = ChrList.lst + found_item_parent;
         pfound_item_parent_pack = &( pfound_item_parent->pack );
@@ -2641,7 +2664,7 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     ///     DO NOT pass the pointer returned by chr_get_pcap(). Instead, use a custom cap_t declared on the stack,
     ///     or something similar
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
     if ( NULL == pcap || !pcap->loaded ) return bfalse;
 
@@ -2706,7 +2729,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     int iTmp, tnc;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
     if ( NULL == pcap || !pcap->loaded ) return bfalse;
 
@@ -2866,7 +2889,7 @@ bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF b
     // a local version of the cap, so that the CapStack data won't be corrupted
     cap_t cap_tmp;
 
-    if ( INVALID_CSTR( szSaveName ) && !ALLOCATED_CHR( character ) ) return bfalse;
+    if ( INVALID_CSTR( szSaveName ) && !DEFINED_CHR( character ) ) return bfalse;
     pchr = ChrList.lst + character;
 
     pcap = pro_get_pcap( pchr->iprofile );
@@ -3095,7 +3118,7 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
     Uint16 experience;
     TEAM_REF killer_team;
 
-    if ( !ALLOCATED_CHR( ichr ) ) return;
+    if ( !DEFINED_CHR( ichr ) ) return;
     pchr = ChrList.lst + ichr;
 
     //No need to continue is there?
@@ -3476,7 +3499,7 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF by_reference index, const
 
     pself = ai_state_ctor( pself );
 
-    if ( NULL == pself || !ALLOCATED_CHR( index ) ) return;
+    if ( NULL == pself || !DEFINED_CHR( index ) ) return;
     pchr = ChrList.lst + index;
 
     // a character cannot be spawned without a valid profile
@@ -3703,7 +3726,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // is the object part of a shop's inventory?
-    if ( !INGAME_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack.is_packed )
+    if ( !DEFINED_CHR( pchr->attachedto ) && pchr->isitem && !pchr->pack.is_packed )
     {
         SHOP_REF ishop;
 
@@ -3749,7 +3772,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
 
 #if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
-    if ( INGAME_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
+    if ( DEFINED_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
         log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
                      pchr->pos.x, pchr->pos.y, nrm.x, nrm.y );
@@ -4072,6 +4095,8 @@ chr_t * chr_run_config( chr_t * pchr )
         {
             pbase->state = ego_object_deinitializing;
         }
+
+        pbase->kill_me = bfalse;
     }
 
     switch ( pbase->state )
@@ -4248,13 +4273,25 @@ chr_t * chr_config_init( chr_t * pchr )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pchr;
 
-    pbase->state = ego_object_active;
-
     pchr = chr_config_do_init( pchr );
 
     if ( NULL != pchr )
     {
-        pchr->obj_base.on = btrue;
+        if ( 0 == chr_loop_depth )
+        {
+            pchr->obj_base.on = btrue;
+        }
+        else
+        {
+            pchr->obj_base.turn_me_on = btrue;
+
+            // put this particle into the activation list so that it can be activated right after
+            // the PrtList loop is completed
+            chr_activation_list[chr_activation_count] = GET_INDEX_PPRT( pchr );
+            chr_activation_count++;
+        }
+
+        pbase->state = ego_object_active;
     }
 
     return pchr;
@@ -4290,6 +4327,7 @@ chr_t * chr_config_deinit( chr_t * pchr )
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pchr;
 
     pbase->state = ego_object_destructing;
+    pbase->on    = bfalse;
 
     return pchr;
 }
@@ -4348,7 +4386,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
 
     // allocate a new character
     ichr = ChrList_allocate( override );
-    if ( !ALLOCATED_CHR( ichr ) )
+    if ( !DEFINED_CHR( ichr ) )
     {
         log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( ichr ) );
         return ( CHR_REF )MAX_CHR;
@@ -6468,7 +6506,7 @@ void move_one_character_do_animation( chr_t * pchr )
     // Get running, walking, sneaking, or dancing, from speed
     if ( !pinst->action_keep && !pinst->action_loop && !( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD ) )
     {
-        //int           frame_count = md2_get_numFrames( pmad->md2_ptr );
+        int           frame_count = md2_get_numFrames( pmad->md2_ptr );
         MD2_Frame_t * frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmad->md2_ptr );
         MD2_Frame_t * pframe_nxt  = frame_list + pinst->frame_nxt;
         EGOBOO_ASSERT( pinst->frame_nxt < frame_count );
@@ -7169,7 +7207,7 @@ const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits )
 {
     static STRING szName;
 
-    if ( !ALLOCATED_CHR( ichr ) && !WAITING_CHR( ichr ) )
+    if ( !DEFINED_CHR( ichr ) )
     {
         // the default name
         strncpy( szName, "Unknown", SDL_arraysize( szName ) );
@@ -7239,7 +7277,7 @@ const char * chr_get_dir_name( const CHR_REF by_reference ichr )
 
     strncpy( buffer, "/debug", SDL_arraysize( buffer ) );
 
-    if ( !ALLOCATED_CHR( ichr ) && !WAITING_CHR( ichr ) ) return buffer;
+    if ( !DEFINED_CHR( ichr ) ) return buffer;
     pchr = ChrList.lst + ichr;
 
     if ( !LOADED_PRO( pchr->iprofile ) )
@@ -7287,7 +7325,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     mad_t * pmad;
     oct_bb_t * pbmp;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if ( !DEFINED_PCHR( pchr ) ) return rv_error;
     pbmp = &( pchr->chr_chr_cv );
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
@@ -7417,7 +7455,7 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
     chr_t * pitem;
     pro_t * pitem_pro;
 
-    if ( !INGAME_CHR( item ) ) return icon_ref;
+    if ( !DEFINED_CHR( item ) ) return icon_ref;
     pitem = ChrList.lst + item;
 
     if ( !LOADED_PRO( pitem->iprofile ) ) return icon_ref;
@@ -7594,9 +7632,9 @@ bool_t chr_request_terminate( const CHR_REF by_reference ichr )
 {
     /// @details BB@> Mark this character for deletion
 
-    if ( !ALLOCATED_CHR( ichr ) || TERMINATED_CHR( ichr ) ) return bfalse;
+    if ( !DEFINED_CHR( ichr ) ) return bfalse;
 
-    EGO_OBJECT_REQUST_TERMINATE( ChrList.lst + ichr );
+    EGO_OBJECT_REQUEST_TERMINATE( ChrList.lst + ichr );
 
     return btrue;
 }
@@ -7610,7 +7648,7 @@ chr_t * chr_update_hide( chr_t * pchr )
     Sint8 hide;
     cap_t * pcap;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return pchr;
+    if ( !DEFINED_PCHR( pchr ) ) return pchr;
 
     hide = NOHIDE;
     pcap = chr_get_pcap( GET_REF_PCHR( pchr ) );
@@ -7682,7 +7720,7 @@ bool_t chr_matrix_valid( chr_t * pchr )
 {
     /// @details BB@> Determine whether the character has a valid matrix
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
     // both the cache and the matrix need to be valid
     return pchr->inst.matrix_cache.valid && pchr->inst.matrix_cache.matrix_valid;
@@ -7753,7 +7791,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     CHR_REF itarget, ichr;
 
     if ( NULL == mc_tmp ) return bfalse;
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
     ichr = GET_REF_PCHR( pchr );
 
     handled = bfalse;
@@ -7790,7 +7828,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
         itarget = GET_REF_PCHR( pchr );
 
         //---- update the MAT_WEAPON data
-        if ( INGAME_CHR( pchr->attachedto ) )
+        if ( DEFINED_CHR( pchr->attachedto ) )
         {
             chr_t * pmount = ChrList.lst + pchr->attachedto;
 
@@ -7813,7 +7851,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
         }
 
         //---- update the MAT_CHARACTER data
-        if ( ALLOCATED_CHR( itarget ) )
+        if ( DEFINED_CHR( itarget ) )
         {
             chr_t * ptarget = ChrList.lst + itarget;
 
@@ -7924,7 +7962,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 
     if ( NULL == mc_tmp || !mc_tmp->valid || 0 == ( MAT_WEAPON & mc_tmp->type_bits ) ) return bfalse;
 
-    if ( !ALLOCATED_PCHR( pweap ) ) return bfalse;
+    if ( !DEFINED_PCHR( pweap ) ) return bfalse;
     pweap_mcache = &( pweap->inst.matrix_cache );
 
     if ( !INGAME_CHR( mc_tmp->grip_chr ) ) return bfalse;
@@ -7988,7 +8026,7 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     pchr->inst.matrix_cache.matrix_valid = bfalse;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
     pchr->inst.matrix = ScaleXYZRotateXYZTranslate( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
                         TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
@@ -8034,12 +8072,12 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     bool_t applied = bfalse;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
     if ( NULL == mc_tmp || !mc_tmp->valid ) return bfalse;
 
     if ( 0 != ( MAT_WEAPON & mc_tmp->type_bits ) )
     {
-        if ( INGAME_CHR( mc_tmp->grip_chr ) )
+        if ( DEFINED_CHR( mc_tmp->grip_chr ) )
         {
             applied = apply_one_weapon_matrix( pchr, mc_tmp );
         }
@@ -8204,7 +8242,7 @@ egoboo_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
     matrix_cache_t local_mc;
     bool_t needs_cache_update;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if ( !DEFINED_PCHR( pchr ) ) return rv_error;
 
     if ( NULL == pmc ) pmc = &local_mc;
 
@@ -8230,10 +8268,10 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     matrix_cache_t mc_tmp;
     egoboo_rv      retval;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if ( !DEFINED_PCHR( pchr ) ) return rv_error;
 
     // recursively make sure that any mount matrices are updated
-    if ( INGAME_CHR( pchr->attachedto ) )
+    if ( DEFINED_CHR( pchr->attachedto ) )
     {
         // if this fails, we should probably do something...
         if ( rv_error == chr_update_matrix( ChrList.lst + pchr->attachedto, btrue ) )
@@ -8508,7 +8546,7 @@ int chr_get_price( const CHR_REF by_reference ichr )
 //--------------------------------------------------------------------------------------------
 void chr_set_floor_level( chr_t * pchr, float level )
 {
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
+    if ( !DEFINED_PCHR( pchr ) ) return;
 
     if ( level != pchr->enviro.floor_level )
     {
@@ -8520,7 +8558,7 @@ void chr_set_floor_level( chr_t * pchr, float level )
 //--------------------------------------------------------------------------------------------
 void chr_set_redshift( chr_t * pchr, int rs )
 {
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
+    if ( !DEFINED_PCHR( pchr ) ) return;
 
     pchr->inst.redshift = rs;
 
@@ -8530,7 +8568,7 @@ void chr_set_redshift( chr_t * pchr, int rs )
 //--------------------------------------------------------------------------------------------
 void chr_set_grnshift( chr_t * pchr, int gs )
 {
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
+    if ( !DEFINED_PCHR( pchr ) ) return;
 
     pchr->inst.grnshift = gs;
 
@@ -8540,7 +8578,7 @@ void chr_set_grnshift( chr_t * pchr, int gs )
 //--------------------------------------------------------------------------------------------
 void chr_set_blushift( chr_t * pchr, int bs )
 {
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
+    if ( !DEFINED_PCHR( pchr ) ) return;
 
     pchr->inst.blushift = bs;
 
@@ -8550,7 +8588,7 @@ void chr_set_blushift( chr_t * pchr, int bs )
 //--------------------------------------------------------------------------------------------
 void chr_set_sheen( chr_t * pchr, int sheen )
 {
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
+    if ( !DEFINED_PCHR( pchr ) ) return;
 
     pchr->inst.sheen = sheen;
 
@@ -8560,7 +8598,7 @@ void chr_set_sheen( chr_t * pchr, int sheen )
 //--------------------------------------------------------------------------------------------
 void chr_set_alpha( chr_t * pchr, int alpha )
 {
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
+    if ( !DEFINED_PCHR( pchr ) ) return;
 
     pchr->inst.alpha = CLIP( alpha, 0, 255 );
 
@@ -8570,7 +8608,7 @@ void chr_set_alpha( chr_t * pchr, int alpha )
 //--------------------------------------------------------------------------------------------
 void chr_set_light( chr_t * pchr, int light )
 {
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
+    if ( !DEFINED_PCHR( pchr ) ) return;
 
     pchr->inst.light = CLIP( light, 0, 255 );
 
@@ -8826,7 +8864,7 @@ Uint32 chr_get_framefx( chr_t * pchr )
     mad_t       * pmad;
     MD2_Model_t * pmd2;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return 0;
+    if ( !DEFINED_PCHR( pchr ) ) return 0;
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return 0;
@@ -8962,7 +9000,7 @@ MAD_REF chr_get_imad( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
-    if ( !INGAME_CHR( ichr ) && !WAITING_CHR( ichr ) ) return ( MAD_REF )MAX_MAD;
+    if ( !DEFINED_CHR( ichr ) ) return ( MAD_REF )MAX_MAD;
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
@@ -8987,7 +9025,7 @@ mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
 {
     chr_t * pchr;
 
-    if ( !INGAME_CHR( ichr ) && !WAITING_CHR( ichr ) ) return NULL;
+    if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
     // try to repair a bad model if it exists
@@ -9003,6 +9041,37 @@ mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
     if ( !LOADED_MAD( pchr->inst.imad ) ) return NULL;
 
     return MadStack.lst + pchr->inst.imad;
+}
+
+//--------------------------------------------------------------------------------------------
+void ChrList_cleanup()
+{
+    int     cnt;
+    chr_t * pchr;
+
+    // go through the list and activate all the characters that
+    // were created while the list was iterating
+    for ( cnt = 0; cnt < chr_activation_count; cnt++ )
+    {
+        CHR_REF ichr = chr_activation_list[cnt];
+
+        if ( !ALLOCATED_CHR( ichr ) ) continue;
+        pchr = ChrList.lst + ichr;
+
+        if ( !pchr->obj_base.turn_me_on ) continue;
+
+        pchr->obj_base.on         = btrue;
+        pchr->obj_base.turn_me_on = bfalse;
+    }
+    chr_activation_count = 0;
+
+    // go through and delete any characters that were
+    // supposed to be deleted while the list was iterating
+    for ( cnt = 0; cnt < chr_termination_count; cnt++ )
+    {
+        ChrList_free_one( chr_termination_list[cnt] );
+    }
+    chr_termination_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------

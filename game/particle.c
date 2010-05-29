@@ -200,11 +200,15 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
         prt_termination_count++;
 
         // at least mark the object as "waiting to be terminated"
-        EGO_OBJECT_REQUST_TERMINATE( pprt );
+        EGO_OBJECT_REQUEST_TERMINATE( pprt );
         retval = btrue;
     }
     else
     {
+        // deallocate any dynamically allocated memory
+        pprt = prt_config_deinit( pprt );
+        if ( NULL == pprt ) return bfalse;
+
 #if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
         {
             int cnt;
@@ -230,7 +234,8 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
         }
 
         // particle "destructor"
-        prt_config_deconstruct( pprt, 100 );
+        pprt = prt_config_deconstruct( pprt, 100 );
+        if ( NULL == pprt ) return bfalse;
     }
 
     return retval;
@@ -374,11 +379,13 @@ PRT_REF PrtList_allocate( bool_t force )
 
     if ( VALID_PRT_RANGE( iprt ) )
     {
+        // if the particle is already being used, make sure to destroy the old one
         if ( DEFINED_PRT( iprt ) )
         {
             free_one_particle_in_game( iprt );
         }
 
+        // allocate the new one
         EGO_OBJECT_ALLOCATE( PrtList.lst +  iprt , REF_TO_INT( iprt ) );
     }
 
@@ -420,9 +427,10 @@ void PrtList_cleanup()
         if ( !ALLOCATED_PRT( iprt ) ) continue;
         pprt = PrtList.lst + iprt;
 
-        if ( INGAME_PRT( iprt ) ) continue;
+        if ( !pprt->obj_base.turn_me_on ) continue;
 
-        prt_config_activate( pprt, 100 );
+        pprt->obj_base.on         = btrue;
+        pprt->obj_base.turn_me_on = bfalse;
     }
     prt_activation_count = 0;
 
@@ -430,9 +438,7 @@ void PrtList_cleanup()
     // supposed to be deleted while the list was iterating
     for ( cnt = 0; cnt < prt_termination_count; cnt++ )
     {
-        PRT_REF iprt = prt_termination_list[cnt];
-
-        PrtList_free_one( iprt );
+        PrtList_free_one( prt_termination_list[cnt] );
     }
     prt_termination_count = 0;
 }
@@ -1210,6 +1216,8 @@ prt_t * prt_run_config( prt_t * pprt )
         {
             pbase->state = ego_object_deinitializing;
         }
+
+        pbase->kill_me = bfalse;
     }
 
     switch ( pbase->state )
@@ -1221,7 +1229,6 @@ prt_t * prt_run_config( prt_t * pprt )
 
         case ego_object_constructing:
             pprt = prt_config_ctor( pprt );
-            pprt->obj_base.state = ego_object_initializing;
             break;
 
         case ego_object_initializing:
@@ -1292,6 +1299,8 @@ prt_t * prt_config_ctor( prt_t * pprt )
     BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, 2 );
     pprt->bsp_leaf.index = GET_INDEX_PPRT( pprt );
 
+    pprt->obj_base.state = ego_object_initializing;
+
     return pprt;
 }
 
@@ -1322,6 +1331,8 @@ prt_t * prt_config_init( prt_t * pprt )
             prt_activation_list[prt_activation_count] = GET_INDEX_PPRT( pprt );
             prt_activation_count++;
         }
+
+        pbase->state = ego_object_active;
     }
 
     return pprt;
@@ -3473,9 +3484,12 @@ bool_t prt_request_terminate( const PRT_REF by_reference iprt )
     /// @note prt_request_terminate() will call force the game to
     ///       (eventually) call free_one_particle_in_game() on this particle
 
-    if ( !ALLOCATED_PRT( iprt ) || TERMINATED_PRT( iprt ) ) return bfalse;
+    prt_t * pprt = NULL;
 
-    EGO_OBJECT_REQUST_TERMINATE( PrtList.lst + iprt );
+    if ( !ALLOCATED_PRT( iprt ) || TERMINATED_PRT( iprt ) ) return bfalse;
+    pprt = PrtList.lst + iprt;
+
+    EGO_OBJECT_REQUEST_TERMINATE( PrtList.lst + iprt );
 
     return btrue;
 }
@@ -3515,7 +3529,7 @@ void cleanup_all_particles()
             if ( time_out )
             {
                 // make sure that the particle is marked as "waiting for termination"
-                EGO_OBJECT_REQUST_TERMINATE( pprt );
+                EGO_OBJECT_REQUEST_TERMINATE( pprt );
                 needs_termination = btrue;
             }
 

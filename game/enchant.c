@@ -176,7 +176,7 @@ void EncList_update_used()
 //--------------------------------------------------------------------------------------------
 bool_t EncList_free_one( const ENC_REF by_reference ienc )
 {
-    /// @details ZZ@> This function sticks an enchant back on the free enchant stack
+    /// @details ZZ@> This function sticks a enchant back on the free enchant stack
     ///
     /// @note Tying ALLOCATED_ENC() and EGO_OBJECT_TERMINATE() to EncList_free_one()
     /// should be enough to ensure that no enchant is freed more than once
@@ -187,30 +187,51 @@ bool_t EncList_free_one( const ENC_REF by_reference ienc )
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
     penc = EncList.lst + ienc;
 
-#if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
+    // if we are inside a EncList loop, do not actually change the length of the
+    // list. This will cause some problems later.
+    if ( enc_loop_depth > 0 )
     {
-        int cnt;
-        // determine whether this texture is already in the list of free textures
-        // that is an error
-        for ( cnt = 0; cnt < EncList.free_count; cnt++ )
-        {
-            if ( ienc == EncList.free_ref[cnt] ) return bfalse;
-        }
-    }
-#endif
+        enc_termination_list[enc_termination_count] = ienc;
+        enc_termination_count++;
 
-    // push it on the free stack
-    retval = bfalse;
-    if ( EncList.free_count < MAX_ENC )
-    {
-        EncList.free_ref[EncList.free_count] = REF_TO_INT( ienc );
-        EncList.free_count++;
-
+        // at least mark the object as "waiting to be terminated"
+        EGO_OBJECT_REQUEST_TERMINATE( penc );
         retval = btrue;
     }
+    else
+    {
+        // deallocate any dynamically allocated memory
+        penc = enc_config_deinit( penc );
+        if ( NULL == penc ) return bfalse;
 
-    // enchant "initializer"
-    enc_config_deconstruct( penc, 100 );
+#if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
+        {
+            int cnt;
+            // determine whether this enchant is already in the list of free textures
+            // that is an error
+            for ( cnt = 0; cnt < EncList.free_count; cnt++ )
+            {
+                if ( ienc == EncList.free_ref[cnt] )
+                {
+                    return bfalse;
+                }
+            }
+        }
+#endif
+
+        // push it on the free stack
+        retval = bfalse;
+        if ( EncList.free_count < MAX_ENC )
+        {
+            EncList.free_ref[EncList.free_count] = REF_TO_INT( ienc );
+            EncList.free_count++;
+            retval = btrue;
+        }
+
+        // enchant "destructor"
+        penc = enc_config_deconstruct( penc, 100 );
+        if ( NULL == penc ) return bfalse;
+    }
 
     return retval;
 }
@@ -255,9 +276,17 @@ ENC_REF EncList_allocate( const ENC_REF override )
         }
     }
 
-    if ( MAX_ENC != ienc )
+    if ( VALID_ENC_RANGE( ienc ) )
     {
-        EGO_OBJECT_ALLOCATE( EncList.lst + ienc, REF_TO_INT( ienc ) );
+        // if the enchant is already being used, make sure to destroy the old one
+        if ( DEFINED_ENC( ienc ) )
+        {
+            remove_enchant( ienc );
+            EncList_free_one( ienc );
+        }
+
+        // allocate the new one
+        EGO_OBJECT_ALLOCATE( EncList.lst +  ienc , REF_TO_INT( ienc ) );
     }
 
     if ( ALLOCATED_ENC( ienc ) )
@@ -960,9 +989,6 @@ enc_t * enc_config_do_init( enc_t * penc )
         ptarget->canseekurse = btrue;
     }
 
-    // count out all the requests for this enchant type
-    peve->enc_create_count++;
-
     return penc;
 }
 
@@ -1252,6 +1278,8 @@ enc_t * enc_run_config( enc_t * penc )
         {
             pbase->state = ego_object_deinitializing;
         }
+
+        pbase->kill_me = bfalse;
     }
 
     switch ( pbase->state )
@@ -1321,6 +1349,9 @@ enc_t * enc_config_ctor( enc_t * penc )
 
     penc->nextenchant_ref  = ( ENC_REF )MAX_ENC;
 
+    // we are done constructing. move on to initializing.
+    pbase->state = ego_object_initializing;
+
     return penc;
 }
 
@@ -1351,6 +1382,8 @@ enc_t * enc_config_init( enc_t * penc )
             enc_activation_list[enc_activation_count] = GET_INDEX_PPRT( penc );
             enc_activation_count++;
         }
+
+        pbase->state = ego_object_active;
     }
 
     return penc;
@@ -1368,9 +1401,8 @@ enc_t * enc_config_deinit( enc_t * penc )
 
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return penc;
 
-    enc_free( penc );
-
     pbase->state = ego_object_destructing;
+    pbase->on    = bfalse;
 
     return penc;
 }
@@ -1384,6 +1416,9 @@ enc_t * enc_config_dtor( enc_t * penc )
     if ( NULL == pbase ) return NULL;
 
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return penc;
+
+    // destroy the object
+    enc_free( penc );
 
     // Destroy the base object.
     // Sets the state to ego_object_terminated automatically.
@@ -1429,7 +1464,7 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
     loc_target = target;
     if ( !INGAME_CHR( loc_target ) )
     {
-        log_warning( "spawn_one_enchant() - failed because loc_target does not exist.\n" );
+        log_warning( "spawn_one_enchant() - failed because the target does not exist.\n" );
         return ( ENC_REF )MAX_ENC;
     }
     ptarget = ChrList.lst + loc_target;
@@ -1498,7 +1533,7 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
     // make sure the loc_target is valid
     if ( !INGAME_CHR( loc_target ) || !ptarget->alive )
     {
-        log_warning( "spawn_one_enchant() - failed because the loc_target is not alive.\n" );
+        log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
         return ( ENC_REF )MAX_ENC;
     }
     ptarget = ChrList.lst + loc_target;
@@ -1507,9 +1542,9 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
     if ( peve->dontdamagetype != DAMAGE_NONE )
     {
         if (( ptarget->damagemodifier[peve->dontdamagetype]&DAMAGESHIFT ) >= 3 ||
-            ptarget->damagemodifier[peve->dontdamagetype]&DAMAGECHARGE )
+              ptarget->damagemodifier[peve->dontdamagetype]&DAMAGECHARGE )
         {
-            log_warning( "spawn_one_enchant() - failed because the loc_target is immune to the enchant.\n" );
+            log_warning( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
             return ( ENC_REF )MAX_ENC;
         }
     }
@@ -1519,7 +1554,7 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
     {
         if ( ptarget->damagetargettype != peve->onlydamagetype )
         {
-            log_warning( "spawn_one_enchant() - failed because the loc_target not have the right damagetargettype.\n" );
+            log_warning( "spawn_one_enchant() - failed because the target not have the right damagetargettype.\n" );
             return ( ENC_REF )MAX_ENC;
         }
     }
@@ -1988,7 +2023,7 @@ bool_t enc_request_terminate( const ENC_REF by_reference ienc )
 {
     if ( !ALLOCATED_ENC( ienc ) || TERMINATED_ENC( ienc ) ) return bfalse;
 
-    EGO_OBJECT_REQUST_TERMINATE( EncList.lst + ienc );
+    EGO_OBJECT_REQUEST_TERMINATE( EncList.lst + ienc );
 
     return btrue;
 }
@@ -2008,10 +2043,10 @@ void EncList_cleanup()
         if ( !ALLOCATED_ENC( ienc ) ) continue;
         penc = EncList.lst + ienc;
 
-        if ( !penc->obj_base.turn_me_on ) 
-            continue;
+        if ( !penc->obj_base.turn_me_on )  continue;
 
-        penc->obj_base.on = btrue;
+        penc->obj_base.on         = btrue;
+        penc->obj_base.turn_me_on = bfalse;
     }
     enc_activation_count = 0;
 
@@ -2019,9 +2054,7 @@ void EncList_cleanup()
     // supposed to be deleted while the list was iterating
     for ( cnt = 0; cnt < enc_termination_count; cnt++ )
     {
-        ENC_REF ienc = enc_termination_list[cnt];
-
-        EncList_free_one( ienc );
+        EncList_free_one( enc_termination_list[cnt] );
     }
     enc_termination_count = 0;
 }

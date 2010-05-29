@@ -103,13 +103,14 @@ enum
     }
 
 /// Begin turning off an ego_object_base_t object
-#define EGO_OBJECT_REQUST_TERMINATE( PDATA ) \
+#define EGO_OBJECT_REQUEST_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated && ego_object_invalid != (PDATA)->obj_base.state ) \
     { \
         if( ego_object_terminated != (PDATA)->obj_base.state ) \
         { \
             (PDATA)->obj_base.kill_me = btrue; \
         } \
+        (PDATA)->obj_base.on = bfalse; \
     }
 
 /// Completely turn off an ego_object_base_t object and mark it as no longer allocated
