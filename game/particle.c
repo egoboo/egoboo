@@ -42,7 +42,7 @@
 //--------------------------------------------------------------------------------------------
 #define PRT_TRANS 0x80
 
-const float buoyancy_friction = 0.3f;
+const float buoyancy_friction = 0.2f;          // how fast does a "cloud-like" object slow down?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -2228,7 +2228,6 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     // limit floor friction effects to solid objects
     if ( SPRITE_SOLID == pprt->type )
     {
-
         // figure out the acceleration due to the current "floor"
         floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
         temp_friction_xy = 1.0f;
@@ -2245,7 +2244,6 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
             chr_getMatUp( pplat, &vup );
         }
         else
-            // if ( !pprt->alive || pprt->isitem )
         {
             temp_friction_xy = 0.5f;
             floor_acc.x = -pprt->vel.x;
@@ -2262,38 +2260,6 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
                 vup = map_twist_nrm[pprt->enviro.twist];
             }
         }
-        //else
-        //{
-        //    temp_friction_xy = pprt->enviro.friction_hrz;
-
-        //    if( TWIST_FLAT == pprt->enviro.twist )
-        //    {
-        //        vup.x = vup.y = 0.0f;
-        //        vup.z = 1.0f;
-        //    }
-        //    else
-        //    {
-        //        vup = map_twist_nrm[pprt->enviro.twist];
-        //    }
-
-        //    if( ABS(pprt->vel.x) + ABS(pprt->vel.y) + ABS(pprt->vel.z) > 0.0f )
-        //    {
-        //        float ftmp;
-        //        fvec3_t   vfront = mat_getChrForward( pprt->inst.matrix );
-
-        //        floor_acc.x = -pprt->vel.x;
-        //        floor_acc.y = -pprt->vel.y;
-        //        floor_acc.z = -pprt->vel.z;
-
-        //        //---- get the "bad" velocity (perpendicular to the direction of motion)
-        //        vfront = fvec3_normalize( vfront.v );
-        //        ftmp = fvec3_dot_product( floor_acc.v, vfront.v );
-
-        //        floor_acc.x -= ftmp * vfront.x;
-        //        floor_acc.y -= ftmp * vfront.y;
-        //        floor_acc.z -= ftmp * vfront.z;
-        //    }
-        //}
 
         // the first guess about the floor friction
         fric_floor.x = floor_acc.x * ( 1.0f - pprt->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pprt->enviro.traction;
@@ -2351,14 +2317,15 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     // Apply fluid friction for all particles
     if( ppip->spdlimit < 0 )
     {
-        pprt->vel.x += -pprt->vel.x * ( 1.0f - buoyancy_friction );
-        pprt->vel.y += -pprt->vel.y * ( 1.0f - buoyancy_friction );
+        pprt->vel.x += (windspeed.x-pprt->vel.x) * ( 1.0f - buoyancy_friction );
+        pprt->vel.y += (windspeed.y-pprt->vel.y) * ( 1.0f - buoyancy_friction );
+        pprt->vel.y += (windspeed.z-pprt->vel.z) * ( 1.0f - buoyancy_friction );
     }
     else
     {
-        pprt->vel.x += -pprt->vel.x * ( 1.0f - pprt->enviro.fluid_friction_hrz );
-        pprt->vel.y += -pprt->vel.y * ( 1.0f - pprt->enviro.fluid_friction_hrz );
-        pprt->vel.z += -pprt->vel.z * ( 1.0f - pprt->enviro.fluid_friction_vrt );
+        pprt->vel.x += (windspeed.x-pprt->vel.x) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+        pprt->vel.y += (windspeed.y-pprt->vel.y) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+        pprt->vel.z += (windspeed.z-pprt->vel.z) * ( 1.0f - pprt->enviro.fluid_friction_vrt );
     }
 
 }

@@ -26,13 +26,14 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float hillslide       =  1.00f;
-float slippyfriction  =  1.00f;
-float airfriction     =  0.91f;
-float waterfriction   =  0.80f;
-float noslipfriction  =  0.91f;
-float gravity         = -1.00f;
-float platstick       =  0.01f;
+float   hillslide       =  1.00f;
+float   slippyfriction  =  1.00f;
+float   airfriction     =  0.91f;
+float   waterfriction   =  0.80f;
+float   noslipfriction  =  0.91f;
+float   gravity         = -1.00f;
+float   platstick       =  0.01f;
+fvec3_t windspeed       = ZERO_VECT3;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

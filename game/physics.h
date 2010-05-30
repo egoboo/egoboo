@@ -56,13 +56,14 @@ typedef struct s_phys_data phys_data_t;
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values
-extern float hillslide;                   ///< Extra downhill force
-extern float airfriction;                 ///< 0.9868 is approximately real world air friction
-extern float waterfriction;               ///< Water resistance
-extern float slippyfriction;              ///< Friction on tiles that are marked with MPDFX_SLIPPY
-extern float noslipfriction;              ///< Friction on normal tiles
-extern float gravity;                     ///< Gravitational accel
-extern float platstick;                   ///< Friction between characters and platforms
+extern float   hillslide;                   ///< Extra downhill force
+extern float   airfriction;                 ///< 0.9868 is approximately real world air friction
+extern float   waterfriction;               ///< Water resistance
+extern float   slippyfriction;              ///< Friction on tiles that are marked with MPDFX_SLIPPY
+extern float   noslipfriction;              ///< Friction on normal tiles
+extern float   gravity;                     ///< Gravitational accel
+extern float   platstick;                   ///< Friction between characters and platforms
+extern fvec3_t windspeed;                   ///< The game's windspeed
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

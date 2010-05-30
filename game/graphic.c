@@ -2805,7 +2805,7 @@ void render_world_overlay( const TX_REF by_reference texture )
 
     oglx_texture_t           * ptex;
 
-    water_instance_layer_t * ilayer = water.layer      + 1;
+    water_instance_layer_t * ilayer = water.layer + 1;
 
     vforw_wind.x = ilayer->tx_add.x;
     vforw_wind.y = ilayer->tx_add.y;

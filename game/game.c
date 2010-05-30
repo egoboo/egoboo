@@ -2950,10 +2950,12 @@ void game_load_module_assets( const char *modname )
     // load a bunch of assets that are used in the module
     load_global_waves();
     reset_particles();
+
     if ( NULL == read_wawalite() )
     {
         log_warning( "wawalite.txt not loaded for %s.\n", modname );
     }
+
     load_basic_textures();
     load_map();
 
@@ -4651,6 +4653,40 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     {
         wawalite_data.water.layer[cnt].light_dir = CLIP( wawalite_data.water.layer[cnt].light_dir, 0, 63 );
         wawalite_data.water.layer[cnt].light_add = CLIP( wawalite_data.water.layer[cnt].light_add, 0, 63 );
+    }
+
+    fvec3_clear( &windspeed );
+
+    if( wawalite_data.water.background_req )
+    {
+        wawalite_water_layer_t * ilayer = wawalite_data.water.layer + 0;
+
+        windspeed.x = -ilayer->tx_add.x * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.x * 0.04f;
+        windspeed.y = -ilayer->tx_add.y * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.y * 0.04f;
+        windspeed.z = -0;
+    }
+
+    if( wawalite_data.water.overlay_req )
+    {
+        fvec3_t fgspeed;
+        float fgspd2, bgspd2;
+
+        wawalite_water_layer_t * ilayer = wawalite_data.water.layer + 1;
+
+        fvec3_clear( &fgspeed );
+
+        bgspd2 = fvec3_dot_product( windspeed.v, windspeed.v );
+
+        fgspeed.x = -600 * ilayer->tx_add.x * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
+        fgspeed.y = -600 * ilayer->tx_add.y * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
+        fgspeed.z = -0;
+
+        fgspd2 = fvec3_dot_product( fgspeed.v, fgspeed.v );
+
+        if( fgspd2 > bgspd2 )
+        {
+            windspeed = fgspeed;
+        }
     }
 
     return &wawalite_data;
