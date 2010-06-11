@@ -4274,26 +4274,27 @@ chr_t * chr_config_init( chr_t * pchr )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pchr;
 
+	EGO_OBJECT_BEGIN_SPAWN(pchr);
+
     pchr = chr_config_do_init( pchr );
+    if ( NULL == pchr ) return NULL;
 
-    if ( NULL != pchr )
+    if ( 0 == chr_loop_depth )
     {
-        if ( 0 == chr_loop_depth )
-        {
-            pchr->obj_base.on = btrue;
-        }
-        else
-        {
-            pchr->obj_base.turn_me_on = btrue;
-
-            // put this particle into the activation list so that it can be activated right after
-            // the PrtList loop is completed
-            chr_activation_list[chr_activation_count] = GET_INDEX_PPRT( pchr );
-            chr_activation_count++;
-        }
-
-        pbase->state = ego_object_active;
+        pchr->obj_base.on = btrue;
     }
+    else
+    {
+        pchr->obj_base.turn_me_on = btrue;
+
+        // put this particle into the activation list so that it can be activated right after
+        // the PrtList loop is completed
+        chr_activation_list[chr_activation_count] = GET_INDEX_PPRT( pchr );
+        chr_activation_count++;
+    }
+
+    pbase->state = ego_object_active;
+
 
     return pchr;
 }
@@ -4309,6 +4310,8 @@ chr_t * chr_config_active( chr_t * pchr )
     if ( NULL == pbase || !pbase->allocated ) return NULL;
 
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return pchr;
+
+	EGO_OBJECT_END_SPAWN( pchr );
 
     pchr = chr_config_do_active( pchr );
 
@@ -4326,6 +4329,8 @@ chr_t * chr_config_deinit( chr_t * pchr )
     if ( NULL == pbase ) return NULL;
 
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pchr;
+
+	EGO_OBJECT_END_SPAWN( pchr );
 
     pbase->state = ego_object_destructing;
     pbase->on    = bfalse;
@@ -4345,7 +4350,9 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pchr;
 
-    // destruct/free any allocated data
+	EGO_OBJECT_END_SPAWN( pchr );
+	
+	// destruct/free any allocated data
     chr_free( pchr );
 
     // Destroy the base object.

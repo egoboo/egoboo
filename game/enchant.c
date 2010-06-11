@@ -1366,26 +1366,45 @@ enc_t * enc_config_init( enc_t * penc )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return penc;
 
+	EGO_OBJECT_BEGIN_SPAWN(penc);
+
     penc = enc_config_do_init( penc );
+    if ( NULL == penc ) return NULL;
 
-    if ( NULL != penc )
+    if ( 0 == enc_loop_depth )
     {
-        if ( 0 == enc_loop_depth )
-        {
-            penc->obj_base.on = btrue;
-        }
-        else
-        {
-            penc->obj_base.turn_me_on = btrue;
-
-            // put this particle into the activation list so that it can be activated right after
-            // the PrtList loop is completed
-            enc_activation_list[enc_activation_count] = GET_INDEX_PPRT( penc );
-            enc_activation_count++;
-        }
-
-        pbase->state = ego_object_active;
+        penc->obj_base.on = btrue;
     }
+    else
+    {
+        penc->obj_base.turn_me_on = btrue;
+
+        // put this particle into the activation list so that it can be activated right after
+        // the PrtList loop is completed
+        enc_activation_list[enc_activation_count] = GET_INDEX_PPRT( penc );
+        enc_activation_count++;
+    }
+
+    pbase->state = ego_object_active;
+
+    return penc;
+}
+
+//--------------------------------------------------------------------------------------------
+enc_t * enc_config_active( enc_t * penc )
+{
+    // there's nothing to configure if the object is active...
+
+    ego_object_base_t * pbase;
+
+    pbase = POBJ_GET_PBASE( penc );
+    if ( NULL == pbase || !pbase->allocated ) return NULL;
+
+    if ( !STATE_ACTIVE_PBASE( pbase ) ) return penc;
+
+	EGO_OBJECT_END_SPAWN( penc );
+
+    penc = enc_config_do_active( penc );
 
     return penc;
 }
@@ -1401,6 +1420,8 @@ enc_t * enc_config_deinit( enc_t * penc )
     if ( NULL == pbase ) return NULL;
 
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return penc;
+
+	EGO_OBJECT_END_SPAWN( penc );
 
     pbase->state = ego_object_destructing;
     pbase->on    = bfalse;
@@ -1418,29 +1439,14 @@ enc_t * enc_config_dtor( enc_t * penc )
 
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return penc;
 
+	EGO_OBJECT_END_SPAWN( penc );
+
     // destroy the object
     enc_free( penc );
 
     // Destroy the base object.
     // Sets the state to ego_object_terminated automatically.
     EGO_OBJECT_TERMINATE( penc );
-
-    return penc;
-}
-
-//--------------------------------------------------------------------------------------------
-enc_t * enc_config_active( enc_t * penc )
-{
-    // there's nothing to configure if the object is active...
-
-    ego_object_base_t * pbase;
-
-    pbase = POBJ_GET_PBASE( penc );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
-
-    if ( !STATE_ACTIVE_PBASE( pbase ) ) return penc;
-
-    penc = enc_config_do_active( penc );
 
     return penc;
 }

@@ -60,8 +60,9 @@ struct s_ego_object_base
     // "process" control control
     bool_t             allocated;   ///< Does it exist?
     bool_t             on;          ///< Can it be accessed?
-    bool_t             turn_me_on;    ///< Has someone requested that the object be turned on?
+    bool_t             turn_me_on;  ///< Has someone requested that the object be turned on?
     bool_t             kill_me;     ///< Has someone requested that the object be destroyed?
+	bool_t             spawning;    ///< is the object in the midst of being created?
 
     // things related to the updating of objects
     size_t         update_count;  ///< How many updates have been made to this object?
@@ -87,11 +88,14 @@ enum
 #define EGO_OBJECT_ALLOCATE( PDATA, INDEX ) \
     if( NULL != PDATA ) \
     { \
-        (PDATA)->obj_base.allocated = btrue; \
-        (PDATA)->obj_base.kill_me   = bfalse; \
-        (PDATA)->obj_base.index     = INDEX; \
-        (PDATA)->obj_base.state     = ego_object_constructing; \
-        (PDATA)->obj_base.guid      = ego_object_guid++; \
+        (PDATA)->obj_base.allocated  = btrue;  \
+		(PDATA)->obj_base.on         = bfalse; \
+		(PDATA)->obj_base.turn_me_on = bfalse; \
+        (PDATA)->obj_base.kill_me    = bfalse; \
+		(PDATA)->obj_base.spawning   = bfalse; \
+        (PDATA)->obj_base.index      = INDEX;  \
+        (PDATA)->obj_base.state      = ego_object_constructing; \
+        (PDATA)->obj_base.guid       = ego_object_guid++; \
     }
 
 /// Turn on an ego_object_base_t object
@@ -121,6 +125,26 @@ enum
         (PDATA)->obj_base.on        = bfalse; \
         (PDATA)->obj_base.state     = ego_object_terminated; \
     }
+
+#define EGO_OBJECT_BEGIN_SPAWN( PDATA ) \
+	if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+	{\
+		if( !(PDATA)->obj_base.spawning )\
+		{\
+			(PDATA)->obj_base.spawning = btrue;\
+			ego_object_spawn_depth++;\
+		}\
+	}\
+
+#define EGO_OBJECT_END_SPAWN( PDATA ) \
+	if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+	{\
+		if( (PDATA)->obj_base.spawning )\
+		{\
+			(PDATA)->obj_base.spawning = bfalse;\
+			ego_object_spawn_depth--;\
+		}\
+	}\
 
 /// Is the object flagged as requesting termination?
 #define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
@@ -186,6 +210,8 @@ enum
 //--------------------------------------------------------------------------------------------
 /// A variable to hold the object guid counter
 extern Uint32 ego_object_guid;
+
+extern Uint32 ego_object_spawn_depth;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -632,7 +632,7 @@ void spawn_all_delayed_objects()
 void bump_all_update_counters()
 {
     bump_all_characters_update_counters();
-    bump_all_particles_update_counters();
+    //bump_all_particles_update_counters();
     bump_all_enchants_update_counters();
 }
 
@@ -1687,57 +1687,57 @@ void update_pits()
             PRT_END_LOOP();
 
             // Kill or teleport any characters that fell in a pit...
-            CHR_BEGIN_LOOP_ACTIVE( cnt, pit_chr )
+            CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
             {
                 // Is it a valid character?
-                if ( pit_chr->invictus || !pit_chr->alive ) continue;
-                if ( INGAME_CHR( pit_chr->attachedto ) || pit_chr->pack.is_packed ) continue;
+                if ( pchr->invictus || !pchr->alive ) continue;
+                if ( INGAME_CHR( pchr->attachedto ) || pchr->pack.is_packed ) continue;
 
                 // Do we kill it?
-                if ( pits.kill && pit_chr->pos.z < PITDEPTH )
+                if ( pits.kill && pchr->pos.z < PITDEPTH )
                 {
                     // Got one!
-                    kill_character( cnt, ( CHR_REF )MAX_CHR, bfalse );
-                    pit_chr->vel.x = 0;
-                    pit_chr->vel.y = 0;
+                    kill_character( ichr, ( CHR_REF )MAX_CHR, bfalse );
+                    pchr->vel.x = 0;
+                    pchr->vel.y = 0;
 
                     /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
                     /// Play sound effect
-                    /// sound_play_chunk( pit_chr->pos, g_wavelist[GSND_PITFALL] );
+                    /// sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
                 }
 
                 // Do we teleport it?
-                if ( pits.teleport && pit_chr->pos.z < PITDEPTH << 2 )
+                if ( pits.teleport && pchr->pos.z < PITDEPTH * 4 )
                 {
                     bool_t teleported;
 
                     // Teleport them back to a "safe" spot
-                    teleported = chr_teleport( cnt, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pit_chr->facing_z );
+                    teleported = chr_teleport( ichr, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pchr->facing_z );
 
                     if ( !teleported )
                     {
                         // Kill it instead
-                        kill_character( cnt, ( CHR_REF )MAX_CHR, bfalse );
+                        kill_character( ichr, ( CHR_REF )MAX_CHR, bfalse );
                     }
                     else
                     {
                         // Stop movement
-                        pit_chr->vel.z = 0;
-                        pit_chr->vel.x = 0;
-                        pit_chr->vel.y = 0;
+                        pchr->vel.z = 0;
+                        pchr->vel.x = 0;
+                        pchr->vel.y = 0;
 
                         // Play sound effect
-                        if ( pit_chr->isplayer )
+                        if ( pchr->isplayer )
                         {
                             sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_PITFALL] );
                         }
                         else
                         {
-                            sound_play_chunk( pit_chr->pos, g_wavelist[GSND_PITFALL] );
+                            sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
                         }
 
                         // Do some damage (same as damage tile)
-                        damage_character( cnt, ATK_BEHIND, damagetile.amount, damagetile.type, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( cnt )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
+                        damage_character( ichr, ATK_BEHIND, damagetile.amount, damagetile.type, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( ichr )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
                     }
                 }
             }
