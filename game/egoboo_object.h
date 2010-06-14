@@ -64,6 +64,9 @@ struct s_ego_object_base
     bool_t             kill_me;     ///< Has someone requested that the object be destroyed?
 	bool_t             spawning;    ///< is the object in the midst of being created?
 
+	bool_t             in_free_list; ///< the object is currently in the free list
+	bool_t             in_used_list; ///< the object is currently in the used list
+
     // things related to the updating of objects
     size_t         update_count;  ///< How many updates have been made to this object?
     size_t         frame_count;   ///< How many frames have been rendered?

@@ -122,6 +122,13 @@ static CHR_REF ChrList_allocate( const CHR_REF by_reference override );
 static bool_t  ChrList_free_one( const CHR_REF by_reference ichr );
 static void    ChrList_free_all();
 
+static bool_t ChrList_add_used( const PRT_REF by_reference ichr );
+static bool_t ChrList_remove_used( const PRT_REF by_reference ichr );
+static bool_t ChrList_remove_used_index( int index );
+static bool_t ChrList_add_free( const PRT_REF by_reference ichr );
+static bool_t ChrList_remove_free( const PRT_REF by_reference ichr );
+static bool_t ChrList_remove_free_index( int index );
+
 static void chr_log_script_time( const CHR_REF by_reference ichr );
 
 static bool_t update_chr_darkvision( const CHR_REF by_reference character );
@@ -359,6 +366,8 @@ void ChrList_init()
         // push the characters onto the free stack
         ChrList.free_ref[ChrList.free_count] = ChrList.free_count;
         ChrList.free_count++;
+
+		pchr->obj_base.in_free_list = btrue;
     }
 }
 
@@ -378,21 +387,70 @@ void ChrList_dtor()
 //--------------------------------------------------------------------------------------------
 void ChrList_update_used()
 {
-    CHR_REF cnt;
-    size_t tnc;
+    size_t cnt;
+	CHR_REF ichr;
 
-    ChrList.used_count = 0;
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+	// prune the used list
+    for ( cnt = 0; cnt < ChrList.used_count; cnt++ )
     {
-        if ( !INGAME_CHR( cnt ) ) continue;
+		ichr = ChrList.used_ref[cnt];
 
-        ChrList.used_ref[ChrList.used_count] = REF_TO_INT( cnt );
-        ChrList.used_count++;
+		if ( !DEFINED_CHR(ichr) ) 
+		{
+			ChrList_remove_used_index( cnt );
+
+			if( !ChrList.lst[ichr].obj_base.in_free_list )
+			{
+				ChrList_add_free( ichr );
+			}
+		}
+	}
+
+	// prune the free list
+    for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
+    {
+		ichr = ChrList.free_ref[cnt];
+
+		if ( DEFINED_CHR(ichr) ) 
+		{
+			ChrList_remove_free_index( cnt );
+
+			if( !ChrList.lst[ichr].obj_base.in_used_list )
+			{
+				ChrList_add_used( ichr );
+			}
+		}
+	}
+
+	// go through the character list to see if there are any dangling characters
+	for( ichr = 0; ichr < MAX_CHR; ichr++ )
+	{
+        if ( DEFINED_CHR( cnt ) )
+		{
+			if( !ChrList.lst[cnt].obj_base.in_used_list )
+			{
+				ChrList_add_used( cnt );
+			}
+		}
+		else
+		{
+			if( !ChrList.lst[cnt].obj_base.in_free_list )
+			{
+				ChrList_add_free( cnt );
+			}
+		}
+	}
+
+	// blank out the unused elements of the used list
+    for ( ichr = ChrList.used_count; ichr < MAX_CHR; ichr++ )
+    {
+        ChrList.used_ref[ichr] = MAX_CHR;
     }
 
-    for ( tnc = ChrList.used_count; tnc < MAX_CHR; tnc++ )
+	// blank out the unused elements of the free list
+    for ( ichr = ChrList.free_count; ichr < MAX_CHR; ichr++ )
     {
-        ChrList.used_ref[tnc] = MAX_CHR;
+        ChrList.free_ref[ichr] = MAX_CHR;
     }
 }
 
@@ -406,9 +464,13 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
 
     bool_t retval;
     chr_t * pchr;
+	ego_object_base_t * pbase;
 
     if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
+
+	pbase = POBJ_GET_PBASE( pchr );
+	if( NULL == pbase ) return bfalse;
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
     chr_log_script_time( ichr );
@@ -431,27 +493,8 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
         pchr = chr_config_deinitialize( pchr, 100 );
         if ( NULL == pchr ) return bfalse;
 
-#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
-        {
-            int cnt;
-            // determine whether this character is already in the list of free textures
-            // that is an error
-            for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
-            {
-                if ( ichr == ChrList.free_ref[cnt] ) return bfalse;
-            }
-        }
-#endif
-
-        // push it on the free stack
-        retval = bfalse;
-        if ( ChrList.free_count < MAX_CHR )
-        {
-            ChrList.free_ref[ChrList.free_count] = REF_TO_INT( ichr );
-            ChrList.free_count++;
-
-            retval = btrue;
-        }
+		ChrList_remove_used( ichr );
+		retval = ChrList_add_free( ichr );
 
         // character "destructor"
         pchr = chr_config_dtor( pchr );
@@ -472,6 +515,15 @@ size_t ChrList_get_free()
     {
         ChrList.free_count--;
         retval = ChrList.free_ref[ChrList.free_count];
+
+		// completely remove it from the free list
+		ChrList.free_ref[ChrList.free_count] = MAX_CHR;
+
+		if( VALID_CHR_RANGE(retval) )
+		{
+			// let the object know it is not in the free list any more
+			ChrList.lst[retval].obj_base.in_free_list = bfalse;
+		}
     }
 
     return retval;
@@ -489,9 +541,188 @@ void ChrList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
+int ChrList_get_free_list_index( const CHR_REF by_reference ichr )
+{
+	int retval = -1, cnt;
+
+	if( !VALID_CHR_RANGE(ichr) ) return retval;
+
+    for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
+    {
+        if ( ichr == ChrList.free_ref[cnt] )
+        {
+			assert( ChrList.lst[ichr].obj_base.in_free_list );
+            retval = cnt;
+			break;
+        }
+    }
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_add_free( const CHR_REF by_reference ichr )
+{
+	bool_t retval;
+
+	if( !VALID_CHR_RANGE(ichr) ) return bfalse;
+
+#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
+	if( ChrList_get_free_list_index(ichr) > 0 )
+	{
+		return bfalse;
+	}
+#endif
+
+	assert( !ChrList.lst[ichr].obj_base.in_free_list );
+
+	retval = bfalse;
+	if( ChrList.free_count < MAX_CHR )
+	{
+		ChrList.free_ref[ChrList.free_count] = ichr;
+		ChrList.free_count++;
+
+		ChrList.lst[ichr].obj_base.in_free_list = btrue;
+
+		retval = btrue;
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_remove_free_index( int index )
+{
+	CHR_REF ichr;
+
+	// was it found?
+	if( index < 0 || index >= ChrList.free_count ) return bfalse;
+
+	ichr = ChrList.free_ref[index];
+
+	// blank out the index in the list
+	ChrList.free_ref[index] = MAX_CHR;
+
+	if( VALID_CHR_RANGE(ichr) )
+	{
+		// let the object know it is not in the list anymore
+		ChrList.lst[ichr].obj_base.in_free_list = bfalse;
+	}
+
+	// shorten the list
+	ChrList.free_count--;
+
+	if( ChrList.free_count > 0 )
+	{
+		// swap the last element for the deleted element
+		SWAP( size_t, ChrList.free_ref[index], ChrList.free_ref[ChrList.free_count] );
+	}
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_remove_free( const CHR_REF by_reference ichr )
+{
+	// find the object in the free list
+	int index = ChrList_get_free_list_index(ichr);
+
+	return ChrList_remove_free_index( index );
+}
+
+//--------------------------------------------------------------------------------------------
+int ChrList_get_used_list_index( const CHR_REF by_reference ichr )
+{
+	int retval = -1, cnt;
+
+	if( !VALID_CHR_RANGE(ichr) ) return retval;
+
+    for ( cnt = 0; cnt < ChrList.used_count; cnt++ )
+    {
+        if ( ichr == ChrList.used_ref[cnt] )
+        {
+			assert( ChrList.lst[ichr].obj_base.in_used_list );
+            retval = cnt;
+			break;
+        }
+    }
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_add_used( const CHR_REF by_reference ichr )
+{
+	bool_t retval;
+
+	if( !VALID_CHR_RANGE(ichr) ) return bfalse;
+
+#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
+	if( ChrList_get_used_list_index(ichr) > 0 )
+	{
+		return bfalse;
+	}
+#endif
+
+	assert( !ChrList.lst[ichr].obj_base.in_used_list );
+
+	retval = bfalse;
+	if( ChrList.used_count < MAX_CHR )
+	{
+		ChrList.used_ref[ChrList.used_count] = ichr;
+		ChrList.used_count++;
+
+		ChrList.lst[ichr].obj_base.in_used_list = btrue;
+
+		retval = btrue;
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_remove_used_index( int index )
+{
+	CHR_REF ichr;
+
+	// was it found?
+	if( index < 0 || index >= ChrList.used_count ) return bfalse;
+
+	ichr = ChrList.used_ref[index];
+
+	// blank out the index in the list
+	ChrList.used_ref[index] = MAX_CHR;
+
+	if( VALID_CHR_RANGE(ichr) )
+	{
+		// let the object know it is not in the list anymore
+		ChrList.lst[ichr].obj_base.in_used_list = bfalse;
+	}
+
+	// shorten the list
+	ChrList.used_count--;
+
+	if( ChrList.used_count > 0 )
+	{
+		// swap the last element for the deleted element
+		SWAP( size_t, ChrList.used_ref[index], ChrList.used_ref[ChrList.used_count] );
+	}
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_remove_used( const CHR_REF by_reference ichr )
+{
+	// find the object in the used list
+	int index = ChrList_get_used_list_index(ichr);
+
+	return ChrList_remove_used_index( index );
+}
+
+//--------------------------------------------------------------------------------------------
 CHR_REF ChrList_allocate( const CHR_REF by_reference override )
 {
-    int    tnc;
     CHR_REF ichr = ( CHR_REF )MAX_CHR;
 
     if ( VALID_CHR_RANGE( override ) )
@@ -499,18 +730,23 @@ CHR_REF ChrList_allocate( const CHR_REF by_reference override )
         ichr = ChrList_get_free();
         if ( override != ichr )
         {
-            // Picked the wrong one, so put this one back and find the right one
+			int override_index = ChrList_get_free_list_index( override );
 
-            for ( tnc = 0; tnc < MAX_CHR; tnc++ )
-            {
-                if ( override == ChrList.free_ref[tnc] )
-                {
-                    ChrList.free_ref[tnc] = REF_TO_INT( ichr );
-                    break;
-                }
-            }
+			if( override_index < 0 || override_index >= ChrList.free_count ) 
+			{
+				ichr = (CHR_REF)MAX_CHR;
+			}
+			else
+			{
+				// store the "wrong" value in the override character's index
+				ChrList.free_ref[override_index] = ichr;
 
-            ichr = override;
+				// fix the in_free_list values
+				ChrList.lst[ichr].obj_base.in_free_list = btrue;
+				ChrList.lst[override].obj_base.in_free_list = bfalse;
+
+				ichr = override;
+			}
         }
 
         if ( MAX_CHR == ichr )
@@ -683,7 +919,7 @@ void free_inventory_in_game( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference character, int vertex_offset )
+prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference character, int vertex_offset )
 {
     /// @details ZZ@> This function sets one particle's position to be attached to a character.
     ///    It will kill the particle if the character is no longer around
@@ -693,7 +929,7 @@ bool_t place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference charac
 
     chr_t * pchr;
 
-    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+    if ( !DEFINED_PPRT( pprt ) ) return pprt;
 
     if ( !INGAME_CHR( character ) )
     {
@@ -724,7 +960,7 @@ bool_t place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference charac
             pprt->pos.x = pchr->inst.matrix.CNV( 3, 0 );
             pprt->pos.y = pchr->inst.matrix.CNV( 3, 1 );
             pprt->pos.z = pchr->inst.matrix.CNV( 3, 2 );
-            return btrue;
+            return pprt;
         }
 
         vertex = 0;
@@ -762,12 +998,13 @@ bool_t place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference charac
         pprt->pos = pchr->pos;
     }
 
-    return btrue;
+    return pprt;
 
 place_particle_at_vertex_fail:
 
     prt_request_terminate( GET_REF_PPRT( pprt ) );
-    return bfalse;
+
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2279,7 +2516,8 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
                         pprt->vel_stt.y *= dampen;
                         pprt->vel_stt.z *= dampen;
 
-                        place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
+                        pprt = place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
+						if( NULL == pprt ) return;
                     }
                     else
                     {
@@ -2289,7 +2527,8 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
                         // Detach the particle
                         if ( !prt_get_ppip( particle )->startontarget || !INGAME_CHR( pprt->target_ref ) )
                         {
-                            place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
+                            pprt = place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
+							if( NULL == pprt ) return;
 
                             // Correct Z spacing base, but nothing else...
                             pprt->pos.z += prt_get_ppip( particle )->spacing_vrt_pair.base;
@@ -4016,6 +4255,12 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
         iterations++;
     }
 
+	assert( pbase->state == ego_object_active );
+	if( pbase->state == ego_object_active )
+	{
+		ChrList_add_used( GET_INDEX_PCHR( pchr ) );
+	}
+
     return pchr;
 }
 
@@ -4364,7 +4609,6 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, const TEAM_REF by_reference team,
                              Uint8 skin, FACING_T facing, const char *name, const CHR_REF by_reference override )
 {

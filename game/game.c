@@ -3104,7 +3104,10 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
         if ( ALLOCATED_PRT( particle ) )
         {
             prt_t * pprt = PrtList.lst + particle;
-            place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
+
+            pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
+			if( NULL == pprt ) continue;
+
             number_added++;
             number_attached++;
         }
@@ -3421,7 +3424,8 @@ bool_t attach_one_particle( prt_t * pprt )
     if ( !INGAME_CHR( pprt->attachedto_ref ) ) return bfalse;
     pchr = ChrList.lst + pprt->attachedto_ref;
 
-    place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
+    pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
+	if( NULL == pprt ) return bfalse;
 
     // the previous function can inactivate a particle
     if ( ACTIVE_PPRT( pprt ) )

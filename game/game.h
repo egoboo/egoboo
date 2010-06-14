@@ -294,12 +294,12 @@ void show_magic_status( int statindex );
 void reset_end_text();
 
 /// Particles
-int    number_of_attached_particles( const CHR_REF by_reference character );
-int    spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by_reference particle );
-bool_t place_particle_at_vertex( struct s_prt * pprt, const CHR_REF by_reference character, int vertex_offset );
-void   disaffirm_attached_particles( const CHR_REF by_reference character );
-int    reaffirm_attached_particles( const CHR_REF by_reference character );
-
+int     number_of_attached_particles( const CHR_REF by_reference character );
+int     spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by_reference particle );
+struct s_prt * place_particle_at_vertex( struct s_prt * pprt, const CHR_REF by_reference character, int vertex_offset );
+void    disaffirm_attached_particles( const CHR_REF by_reference character );
+int     reaffirm_attached_particles( const CHR_REF by_reference character );
+ 
 /// Statlist
 void statlist_add( const CHR_REF by_reference character );
 void statlist_move_to_top( const CHR_REF by_reference character );
