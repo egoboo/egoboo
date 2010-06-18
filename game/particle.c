@@ -1492,16 +1492,38 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     // Apply fluid friction for all particles
     if( ppip->spdlimit < 0 )
     {
-        pprt->vel.x += (windspeed.x-pprt->vel.x) * ( 1.0f - buoyancy_friction );
-        pprt->vel.y += (windspeed.y-pprt->vel.y) * ( 1.0f - buoyancy_friction );
-        pprt->vel.y += (windspeed.z-pprt->vel.z) * ( 1.0f - buoyancy_friction );
+		// this is a buoyant particle, like smoke
+		if( pprt->inwater )
+		{
+			float water_friction = POW( buoyancy_friction, 2.0f );
+
+			pprt->vel.x += (waterspeed.x-pprt->vel.x) * ( 1.0f - water_friction  );
+			pprt->vel.y += (waterspeed.y-pprt->vel.y) * ( 1.0f - water_friction  );
+			pprt->vel.z += (waterspeed.z-pprt->vel.z) * ( 1.0f - water_friction  );
+		}
+		else
+		{
+			pprt->vel.x += (windspeed.x-pprt->vel.x) * ( 1.0f - buoyancy_friction  );
+			pprt->vel.y += (windspeed.y-pprt->vel.y) * ( 1.0f - buoyancy_friction  );
+			pprt->vel.z += (windspeed.z-pprt->vel.z) * ( 1.0f - buoyancy_friction  );
+		}
     }
     else
     {
-        pprt->vel.x += (windspeed.x-pprt->vel.x) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
-        pprt->vel.y += (windspeed.y-pprt->vel.y) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
-        pprt->vel.z += (windspeed.z-pprt->vel.z) * ( 1.0f - pprt->enviro.fluid_friction_vrt );
-    }
+		// this is a normal particle
+		if( pprt->inwater )
+		{
+			pprt->vel.x += (waterspeed.x-pprt->vel.x) * ( 1.0f - pprt->enviro.fluid_friction_hrz  );
+			pprt->vel.y += (waterspeed.y-pprt->vel.y) * ( 1.0f - pprt->enviro.fluid_friction_hrz  );
+			pprt->vel.z += (waterspeed.z-pprt->vel.z) * ( 1.0f - pprt->enviro.fluid_friction_vrt  );
+		}
+		else
+		{
+			pprt->vel.x += (windspeed.x-pprt->vel.x) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+			pprt->vel.y += (windspeed.y-pprt->vel.y) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
+			pprt->vel.z += (windspeed.z-pprt->vel.z) * ( 1.0f - pprt->enviro.fluid_friction_vrt );
+		}	
+	}
 
 }
 

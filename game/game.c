@@ -4628,8 +4628,10 @@ bool_t game_module_stop( game_module_t * pinst )
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * read_wawalite( /* const char *modname */ )
 {
-    int cnt;
+    int cnt, waterspeed_count, windspeed_count;
+
     wawalite_data_t * pdata;
+	wawalite_water_layer_t * ilayer;
 
     // if( INVALID_CSTR(modname) ) return NULL;
 
@@ -4647,39 +4649,61 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
         wawalite_data.water.layer[cnt].light_add = CLIP( wawalite_data.water.layer[cnt].light_add, 0, 63 );
     }
 
+	windspeed_count = 0;
     fvec3_clear( &windspeed );
 
+	waterspeed_count = 0;
+	fvec3_clear( &waterspeed );
+
+    ilayer = wawalite_data.water.layer + 0;
     if( wawalite_data.water.background_req )
     {
-        wawalite_water_layer_t * ilayer = wawalite_data.water.layer + 0;
+		windspeed_count++;
 
-        windspeed.x = -ilayer->tx_add.x * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.x * 0.04f;
-        windspeed.y = -ilayer->tx_add.y * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.y * 0.04f;
-        windspeed.z = -0;
+        windspeed.x += -ilayer->tx_add.x * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.x * 0.04f;
+        windspeed.y += -ilayer->tx_add.y * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.y * 0.04f;
+        windspeed.z += -0;
     }
+	else
+	{
+		waterspeed_count++;
 
+        waterspeed.x += -ilayer->tx_add.x * 128.0f;
+        waterspeed.y += -ilayer->tx_add.y * 128.0f;
+        waterspeed.z += -0;
+	}
+
+	ilayer = wawalite_data.water.layer + 1;
     if( wawalite_data.water.overlay_req )
     {
-        fvec3_t fgspeed;
-        float fgspd2, bgspd2;
+		windspeed_count++;
 
-        wawalite_water_layer_t * ilayer = wawalite_data.water.layer + 1;
-
-        fvec3_clear( &fgspeed );
-
-        bgspd2 = fvec3_dot_product( windspeed.v, windspeed.v );
-
-        fgspeed.x = -600 * ilayer->tx_add.x * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
-        fgspeed.y = -600 * ilayer->tx_add.y * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
-        fgspeed.z = -0;
-
-        fgspd2 = fvec3_dot_product( fgspeed.v, fgspeed.v );
-
-        if( fgspd2 > bgspd2 )
-        {
-            windspeed = fgspeed;
-        }
+        windspeed.x += -600 * ilayer->tx_add.x * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
+        windspeed.y += -600 * ilayer->tx_add.y * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
+        windspeed.z += -0;
     }
+	else
+	{
+		waterspeed_count++;
+
+        waterspeed.x += -ilayer->tx_add.x * 128.0f;
+        waterspeed.y += -ilayer->tx_add.y * 128.0f;
+        waterspeed.z += -0;
+	}
+
+	if( waterspeed_count > 1 )
+	{
+        waterspeed.x /= (float)waterspeed_count;
+        waterspeed.y /= (float)waterspeed_count;
+        waterspeed.z /= (float)waterspeed_count;
+	}
+
+	if( windspeed_count > 1 )
+	{
+        windspeed.x /= (float)windspeed_count;
+        windspeed.y /= (float)windspeed_count;
+        windspeed.z /= (float)windspeed_count;
+	}
 
     return &wawalite_data;
 }

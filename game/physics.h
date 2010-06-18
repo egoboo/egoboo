@@ -64,6 +64,7 @@ extern float   noslipfriction;              ///< Friction on normal tiles
 extern float   gravity;                     ///< Gravitational accel
 extern float   platstick;                   ///< Friction between characters and platforms
 extern fvec3_t windspeed;                   ///< The game's windspeed
+extern fvec3_t waterspeed;                  ///< The game's waterspeed
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
