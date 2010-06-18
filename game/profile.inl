@@ -23,8 +23,8 @@
 
 #include "char.h"
 #include "particle.h"
-#include "mad.h"
 #include "enchant.h"
+#include "mad.h"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

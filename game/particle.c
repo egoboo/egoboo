@@ -21,9 +21,8 @@
 /// @brief Manages particle systems.
 
 #include "particle.inl"
-#include "enchant.inl"
-#include "mad.h"
-#include "profile.inl"
+
+#include "PrtList.h"
 
 #include "log.h"
 #include "sound.h"
@@ -38,6 +37,11 @@
 
 #include "egoboo_mem.h"
 
+#include "enchant.inl"
+#include "mad.h"
+#include "profile.inl"
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define PRT_TRANS 0x80
@@ -46,40 +50,10 @@ const float buoyancy_friction = 0.2f;          // how fast does a "cloud-like" o
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_spawn_particle_info
-{
-    PRT_REF  allocated_ref;    ///< the reference to the particle that has been allocated, but not yet spawned
-
-    fvec3_t  pos;
-    FACING_T facing;
-    PRO_REF  iprofile;
-    int      pip_index;    ///< either local or global pip reference, depending on the value of iprofile
-
-    CHR_REF  chr_attach;
-    size_t   vrt_offset;
-    TEAM_REF team;
-
-    CHR_REF  chr_origin;
-    PRT_REF  prt_origin;
-    int      multispawn;
-    CHR_REF  oldtarget;
-};
-typedef struct s_spawn_particle_info spawn_particle_info_t;
-
-DECLARE_STATIC_ARY_TYPE( prt_delay_list, spawn_particle_info_t, TOTAL_MAX_PRT );
-
-spawn_particle_info_t * spawn_particle_info_ctor( spawn_particle_info_t * ptr );
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-size_t maxparticles = 512;                            // max number of particles
-
 int prt_wall_tests = 0;
-int prt_loop_depth = 0;
 
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack, MAX_PIP );
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, prt_t, PrtList, TOTAL_MAX_PRT );
-INSTANTIATE_STATIC_ARY( prt_delay_list, prt_delay_list );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -95,35 +69,6 @@ static prt_t * prt_config_do_init( prt_t * pprt );
 static prt_t * prt_config_do_active( prt_t * pprt );
 static prt_t * prt_config_do_deinit( prt_t * pprt );
 
-prt_t * prt_config_construct( prt_t * pprt, int max_iterations );
-prt_t * prt_config_initialize( prt_t * pprt, int max_iterations );
-prt_t * prt_config_activate( prt_t * pprt, int max_iterations );
-prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
-prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
-
-static void    PrtList_init();
-static size_t  PrtList_get_free();
-static PRT_REF PrtList_allocate( bool_t force );
-
-static bool_t PrtList_add_used( const PRT_REF by_reference iprt );
-static bool_t PrtList_remove_used( const PRT_REF by_reference iprt );
-static bool_t PrtList_remove_used_index( int index );
-static bool_t PrtList_add_free( const PRT_REF by_reference iprt );
-static bool_t PrtList_remove_free( const PRT_REF by_reference iprt );
-static bool_t PrtList_remove_free_index( int index );
-
-static size_t prt_delay_list_push( spawn_particle_info_t * pinfo );
-
-size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
-                                     const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
-                                     const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
-
-static size_t  prt_activation_count = 0;
-static PRT_REF prt_activation_list[TOTAL_MAX_PRT];
-
-static size_t  prt_termination_count = 0;
-static PRT_REF prt_termination_list[TOTAL_MAX_PRT];
-
 int prt_do_endspawn( const PRT_REF by_reference iprt );
 int prt_do_contspawn( prt_t * pprt, pip_t * ppip );
 void prt_do_bump_damage( prt_t * pprt, pip_t * ppip );
@@ -136,557 +81,96 @@ prt_t * prt_update_ingame( prt_t * pprt, pip_t * ppip  );
 prt_t * prt_update_display( prt_t * pprt, pip_t * ppip );
 prt_t * prt_update( prt_t * pprt );
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t prt_free( prt_t * pprt )
+{
+    if ( !ALLOCATED_PPRT( pprt ) ) return bfalse;
+
+    // do not allow this if you are inside a particle loop
+    EGOBOO_ASSERT( 0 == prt_loop_depth );
+
+    if ( TERMINATED_PPRT( pprt ) ) return btrue;
+
+    // deallocate any dynamic data
+    BSP_leaf_dtor( &( pprt->bsp_leaf ) );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+prt_t * prt_ctor( prt_t * pprt )
+{
+    /// BB@> Set all particle parameters to safe values.
+    ///      @details The c equivalent of the particle prt::new() function.
+
+    ego_object_base_t save_base;
+    ego_object_base_t * base_ptr;
+
+    // save the base object data, do not construct it with this function.
+    base_ptr = POBJ_GET_PBASE( pprt );
+	if( NULL == base_ptr ) return NULL;
+
+    memcpy( &save_base, base_ptr, sizeof( save_base ) );
+
+    memset( pprt, 0, sizeof( *pprt ) );
+
+    // restore the base object data
+    memcpy( base_ptr, &save_base, sizeof( save_base ) );
+
+    // "no lifetime" = "eternal"
+    pprt->lifetime           = ( size_t )( ~0 );
+    pprt->lifetime_remaining = pprt->lifetime;
+    pprt->frames_remaining   = ( size_t )( ~0 );
+
+    pprt->pip_ref      = MAX_PIP;
+    pprt->profile_ref  = MAX_PROFILE;
+
+    pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
+    pprt->owner_ref      = ( CHR_REF )MAX_CHR;
+    pprt->target_ref     = ( CHR_REF )MAX_CHR;
+    pprt->parent_ref     = TOTAL_MAX_PRT;
+    pprt->parent_guid    = 0xFFFFFFFF;
+
+    pprt->onwhichplatform = ( CHR_REF )MAX_CHR;
+
+    // initialize the bsp node for this particle
+    BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, 2 );
+    pprt->bsp_leaf.index = GET_INDEX_PPRT( pprt );
+
+    pprt->obj_base.state = ego_object_initializing;
+
+    return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+prt_t * prt_dtor( prt_t * pprt )
+{
+	if( NULL == pprt ) return pprt;
+
+    // destruct/free any allocated data
+    prt_free( pprt );
+
+    // Destroy the base object.
+    // Sets the state to ego_object_terminated automatically.
+    POBJ_TERMINATE( pprt );
+
+	return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+s_prt::s_prt() { prt_ctor( this ); }
+s_prt::~s_prt() { prt_dtor( this ); }
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int prt_count_free()
 {
     return PrtList.free_count;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void PrtList_init()
-{
-    PRT_REF cnt;
-
-    // fix any problems with maxparticles
-    if ( maxparticles > TOTAL_MAX_PRT ) maxparticles = TOTAL_MAX_PRT;
-
-    // free all the particles
-    PrtList.free_count = 0;
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
-    {
-        prt_t * pprt = PrtList.lst + cnt;
-
-        // blank out all the data, including the obj_base data
-        memset( pprt, 0, sizeof( *pprt ) );
-
-        // construct the base object
-        ego_object_ctor( POBJ_GET_PBASE( pprt ) );
-
-        PrtList.free_ref[PrtList.free_count] = PrtList.free_count;
-        PrtList.free_count++;
-
-		pprt->obj_base.in_free_list = btrue;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void PrtList_dtor()
-{
-    PRT_REF cnt;
-
-    PrtList.free_count = 0;
-    PrtList.used_count = 0;
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        prt_config_deconstruct( PrtList.lst + cnt, 100 );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void PrtList_update_used()
-{
-    size_t cnt;
-	PRT_REF iprt;
-
-	// prune the used list
-    for ( cnt = 0; cnt < PrtList.used_count; cnt++ )
-    {
-		iprt = PrtList.used_ref[cnt];
-
-		if ( !DEFINED_PRT(iprt) ) 
-		{
-			PrtList_remove_used_index( cnt );
-
-			if( !PrtList.lst[iprt].obj_base.in_free_list )
-			{
-				PrtList_add_free( iprt );
-			}
-		}
-	}
-
-	// prune the free list
-    for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
-    {
-		iprt = PrtList.free_ref[cnt];
-
-		if ( DEFINED_PRT(iprt) ) 
-		{
-			PrtList_remove_free_index( cnt );
-
-			if( !PrtList.lst[iprt].obj_base.in_used_list )
-			{
-				PrtList_add_used( iprt );
-			}
-		}
-	}
-
-	// go through the particle list to see if there are any dangling particles
-	for( iprt = 0; iprt < TOTAL_MAX_PRT; iprt++ )
-	{
-        if ( DEFINED_PRT( cnt ) )
-		{
-			if( !PrtList.lst[cnt].obj_base.in_used_list )
-			{
-				PrtList_add_used( cnt );
-			}
-		}
-		else
-		{
-			if( !PrtList.lst[cnt].obj_base.in_free_list )
-			{
-				PrtList_add_free( cnt );
-			}
-		}
-	}
-
-	// blank out the unused elements of the used list
-    for ( iprt = PrtList.used_count; iprt < TOTAL_MAX_PRT; iprt++ )
-    {
-        PrtList.used_ref[iprt] = TOTAL_MAX_PRT;
-    }
-
-	// blank out the unused elements of the free list
-    for ( iprt = PrtList.free_count; iprt < TOTAL_MAX_PRT; iprt++ )
-    {
-        PrtList.free_ref[iprt] = TOTAL_MAX_PRT;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t PrtList_free_one( const PRT_REF by_reference iprt )
-{
-    /// @details ZZ@> This function sticks a particle back on the free particle stack
-    ///
-    /// @note Tying ALLOCATED_PRT() and EGO_OBJECT_TERMINATE() to PrtList_free_one()
-    /// should be enough to ensure that no particle is freed more than once
-
-    bool_t retval;
-    prt_t * pprt;
-	ego_object_base_t * pbase;
-
-    if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
-    pprt = PrtList.lst + iprt;
-
-	pbase = POBJ_GET_PBASE( pprt );
-	if( NULL == pbase ) return bfalse;
-
-    // if we are inside a PrtList loop, do not actually change the length of the
-    // list. This will cause some problems later.
-    if ( prt_loop_depth > 0 )
-    {
-        prt_termination_list[prt_termination_count] = iprt;
-        prt_termination_count++;
-
-        // at least mark the object as "waiting to be terminated"
-        EGO_OBJECT_REQUEST_TERMINATE( pprt );
-        retval = btrue;
-    }
-    else
-    {
-        // deallocate any dynamically allocated memory
-        pprt = prt_config_deinitialize( pprt, 100 );
-        if ( NULL == pprt ) return bfalse;
-
-		PrtList_remove_used( iprt );
-		retval = PrtList_add_free( iprt );
-
-        // particle "destructor"
-        pprt = prt_config_deconstruct( pprt, 100 );
-        if ( NULL == pprt ) return bfalse;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-size_t PrtList_get_free()
-{
-    /// @details ZZ@> This function returns the next free particle or TOTAL_MAX_PRT if there are none
-
-    size_t retval = TOTAL_MAX_PRT;
-
-    if ( PrtList.free_count > 0 )
-    {
-        PrtList.free_count--;
-        retval = PrtList.free_ref[PrtList.free_count];
-
-		// completely remove it from the free list
-		PrtList.free_ref[PrtList.free_count] = TOTAL_MAX_PRT;
-
-		if( VALID_PRT_RANGE(retval) )
-		{
-			// let the object know it is not in the free list any more
-			PrtList.lst[retval].obj_base.in_free_list = bfalse;
-		}
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-PRT_REF PrtList_allocate( bool_t force )
-{
-    /// @details ZZ@> This function gets an unused particle.  If all particles are in use
-    ///    and force is set, it grabs the first unimportant one.  The iprt
-    ///    index is the return value
-
-    PRT_REF iprt;
-
-    // Return TOTAL_MAX_PRT if we can't find one
-    iprt = ( PRT_REF )TOTAL_MAX_PRT;
-
-    if ( 0 == PrtList.free_count )
-    {
-        if ( force )
-        {
-            PRT_REF found           = ( PRT_REF )TOTAL_MAX_PRT;
-            size_t  min_life        = ( size_t )( ~0 );
-            PRT_REF min_life_idx    = ( PRT_REF )TOTAL_MAX_PRT;
-            size_t  min_display     = ( size_t )( ~0 );
-            PRT_REF min_display_idx = ( PRT_REF )TOTAL_MAX_PRT;
-
-            // Gotta find one, so go through the list and replace a unimportant one
-            for ( iprt = 0; iprt < maxparticles; iprt++ )
-            {
-                bool_t was_forced = bfalse;
-                prt_t * pprt;
-
-                // Is this an invalid particle? The particle allocation count is messed up! :(
-                if ( !DEFINED_PRT( iprt ) )
-                {
-                    found = iprt;
-                    break;
-                }
-                pprt =  PrtList.lst +  iprt;
-
-                // does it have a valid profile?
-                if ( !LOADED_PIP( pprt->pip_ref ) )
-                {
-                    found = iprt;
-                    free_one_particle_in_game( iprt );
-                    break;
-                }
-
-                // do not bump another
-                was_forced = ( PipStack.lst[pprt->pip_ref].force );
-
-                if ( WAITING_PRT( iprt ) )
-                {
-                    // if the particle has been "terminated" but is still waiting around, bump it to the
-                    // front of the list
-
-                    size_t min_time  = MIN( pprt->lifetime_remaining, pprt->frames_remaining );
-
-                    if ( min_time < MAX( min_life, min_display ) )
-                    {
-                        min_life     = pprt->lifetime_remaining;
-                        min_life_idx = iprt;
-
-                        min_display     = pprt->frames_remaining;
-                        min_display_idx = iprt;
-                    }
-                }
-                else if ( !was_forced )
-                {
-                    // if the particle has not yet died, let choose the worst one
-
-                    if ( pprt->lifetime_remaining < min_life )
-                    {
-                        min_life     = pprt->lifetime_remaining;
-                        min_life_idx = iprt;
-                    }
-
-                    if ( pprt->frames_remaining < min_display )
-                    {
-                        min_display     = pprt->frames_remaining;
-                        min_display_idx = iprt;
-                    }
-                }
-            }
-
-            if ( VALID_PRT_RANGE( found ) )
-            {
-                // found a "bad" particle
-                iprt = found;
-            }
-            else if ( VALID_PRT_RANGE( min_display_idx ) )
-            {
-                // found a "terminated" particle
-                iprt = min_display_idx;
-            }
-            else if ( VALID_PRT_RANGE( min_life_idx ) )
-            {
-                // found a particle that closest to death
-                iprt = min_life_idx;
-            }
-            else
-            {
-                // found nothing. this should only happen if all the
-                // particles are forced
-                iprt = ( PRT_REF )TOTAL_MAX_PRT;
-            }
-        }
-    }
-    else
-    {
-        if ( PrtList.free_count > ( maxparticles / 4 ) )
-        {
-            // Just grab the next one
-            iprt = PrtList_get_free();
-        }
-        else if ( force )
-        {
-            iprt = PrtList_get_free();
-        }
-    }
-
-    // return a proper value
-    iprt = ( iprt >= maxparticles ) ? ( PRT_REF )TOTAL_MAX_PRT : iprt;
-
-    if ( VALID_PRT_RANGE( iprt ) )
-    {
-        // if the particle is already being used, make sure to destroy the old one
-        if ( DEFINED_PRT( iprt ) )
-        {
-            free_one_particle_in_game( iprt );
-        }
-
-        // allocate the new one
-        EGO_OBJECT_ALLOCATE( PrtList.lst +  iprt , REF_TO_INT( iprt ) );
-    }
-
-    if ( ALLOCATED_PRT( iprt ) )
-    {
-        // construct the new structure
-        prt_config_construct( PrtList.lst +  iprt, 100 );
-    }
-
-    return iprt;
-}
-
-//--------------------------------------------------------------------------------------------
-void PrtList_free_all()
-{
-    /// @details ZZ@> This function resets the particle allocation lists
-
-    PRT_REF cnt;
-
-    // free all the particles
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
-    {
-        PrtList_free_one( cnt );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int PrtList_get_free_list_index( const PRT_REF by_reference iprt )
-{
-	int retval = -1, cnt;
-
-	if( !VALID_PRT_RANGE(iprt) ) return retval;
-
-    for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
-    {
-        if ( iprt == PrtList.free_ref[cnt] )
-        {
-			assert( PrtList.lst[iprt].obj_base.in_free_list );
-            retval = cnt;
-			break;
-        }
-    }
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t PrtList_add_free( const PRT_REF by_reference iprt )
-{
-	bool_t retval;
-
-	if( !VALID_PRT_RANGE(iprt) ) return bfalse;
-
-#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
-	if( PrtList_get_free_list_index(iprt) > 0 )
-	{
-		return bfalse;
-	}
-#endif
-
-	assert( !PrtList.lst[iprt].obj_base.in_free_list );
-
-	retval = bfalse;
-	if( PrtList.free_count < maxparticles )
-	{
-		PrtList.free_ref[PrtList.free_count] = iprt;
-		PrtList.free_count++;
-
-		PrtList.lst[iprt].obj_base.in_free_list = btrue;
-
-		retval = btrue;
-	}
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_free_index( int index )
-{
-	PRT_REF iprt;
-
-	// was it found?
-	if( index < 0 || index >= PrtList.free_count ) return bfalse;
-
-	iprt = PrtList.free_ref[index];
-
-	// blank out the index in the list
-	PrtList.free_ref[index] = TOTAL_MAX_PRT;
-
-	if( VALID_PRT_RANGE(iprt) )
-	{
-		// let the object know it is not in the list anymore
-		PrtList.lst[iprt].obj_base.in_free_list = bfalse;
-	}
-
-	// shorten the list
-	PrtList.free_count--;
-
-	if( PrtList.free_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, PrtList.free_ref[index], PrtList.free_ref[PrtList.free_count] );
-	}
-
-	return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_free( const PRT_REF by_reference iprt )
-{
-	// find the object in the free list
-	int index = PrtList_get_free_list_index(iprt);
-
-	return PrtList_remove_free_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
-int PrtList_get_used_list_index( const PRT_REF by_reference iprt )
-{
-	int retval = -1, cnt;
-
-	if( !VALID_PRT_RANGE(iprt) ) return retval;
-
-    for ( cnt = 0; cnt < TOTAL_MAX_PRT; cnt++ )
-    {
-        if ( iprt == PrtList.used_ref[cnt] )
-        {
-			assert( PrtList.lst[iprt].obj_base.in_used_list );
-            retval = cnt;
-			break;
-        }
-    }
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t PrtList_add_used( const PRT_REF by_reference iprt )
-{
-	bool_t retval;
-
-	if( !VALID_PRT_RANGE(iprt) ) return bfalse;
-
-#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
-	if( PrtList_get_used_list_index(iprt) > 0 )
-	{
-		return bfalse;
-	}
-#endif
-
-	assert( !PrtList.lst[iprt].obj_base.in_used_list );
-
-	retval = bfalse;
-	if( PrtList.used_count < maxparticles )
-	{
-		PrtList.used_ref[PrtList.used_count] = iprt;
-		PrtList.used_count++;
-
-		retval = btrue;
-	}
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_used_index( int index )
-{
-	PRT_REF iprt;
-
-	// was it found?
-	if( index < 0 || index >= PrtList.used_count ) return bfalse;
-
-	iprt = PrtList.used_ref[index];
-
-	// blank out the index in the list
-	PrtList.used_ref[index] = TOTAL_MAX_PRT;
-
-	if( VALID_PRT_RANGE(iprt) )
-	{
-		// let the object know it is not in the list anymore
-		PrtList.lst[iprt].obj_base.in_used_list = bfalse;
-	}
-
-	// shorten the list
-	PrtList.used_count--;
-
-	if( PrtList.used_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, PrtList.used_ref[index], PrtList.used_ref[PrtList.used_count] );
-	}
-
-	return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_used( const PRT_REF by_reference iprt )
-{
-	// find the object in the used list
-	int index = PrtList_get_used_list_index(iprt);
-
-	return PrtList_remove_used_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
-void PrtList_cleanup()
-{
-    int     cnt;
-    prt_t * pprt;
-
-    // go through the list and activate all the particles that
-    // were created while the list was iterating
-    for ( cnt = 0; cnt < prt_activation_count; cnt++ )
-    {
-        PRT_REF iprt = prt_activation_list[cnt];
-
-        if ( !ALLOCATED_PRT( iprt ) ) continue;
-        pprt = PrtList.lst + iprt;
-
-        if ( !pprt->obj_base.turn_me_on ) continue;
-
-        pprt->obj_base.on         = btrue;
-        pprt->obj_base.turn_me_on = bfalse;
-    }
-    prt_activation_count = 0;
-
-    // go through and delete any particles that were
-    // supposed to be deleted while the list was iterating
-    for ( cnt = 0; cnt < prt_termination_count; cnt++ )
-    {
-        PrtList_free_one( prt_termination_list[cnt] );
-    }
-    prt_termination_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -752,28 +236,6 @@ void free_one_particle_in_game( const PRT_REF by_reference particle )
 }
 
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_prt::s_prt() { prt_ctor( this ); }
-s_prt::~s_prt() { prt_dtor( this ); }
-#endif
-
-//--------------------------------------------------------------------------------------------
-bool_t prt_free( prt_t * pprt )
-{
-    if ( !ALLOCATED_PPRT( pprt ) ) return bfalse;
-
-    // do not allow this if you are inside a particle loop
-    EGOBOO_ASSERT( 0 == prt_loop_depth );
-
-    if ( TERMINATED_PPRT( pprt ) ) return btrue;
-
-    // deallocate any dynamic data
-    BSP_leaf_dtor( &( pprt->bsp_leaf ) );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_do_init( prt_t * pprt )
 {
@@ -808,7 +270,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     ppip = PipStack.lst + pdata->ipip;
 
     // let the object be activated
-    EGO_OBJECT_ACTIVATE( pprt, ppip->name );
+    POBJ_ACTIVATE( pprt, ppip->name );
 
     // make some local copies of the spawn data
     loc_facing     = pdata->facing;
@@ -1247,10 +709,13 @@ prt_t * prt_run_config( prt_t * pprt )
     // set the object to deinitialize if it is not "dangerous" and if was requested
     if ( pbase->kill_me )
     {
-        if ( pbase->state > ego_object_constructing && pbase->state < ego_object_deinitializing )
-        {
-            pbase->state = ego_object_deinitializing;
-        }
+		if( !TERMINATED_PBASE(pbase) )
+		{
+			if( pbase->state < ego_object_deinitializing )
+			{
+				pbase->state = ego_object_deinitializing;
+			}
+		}
 
         pbase->kill_me = bfalse;
     }
@@ -1294,50 +759,16 @@ prt_t * prt_run_config( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_ctor( prt_t * pprt )
 {
-    /// BB@> Set all particle parameters to safe values.
-    ///      @details The c equivalent of the particle prt::new() function.
+    ego_object_base_t * pbase;
 
-    ego_object_base_t save_base;
-    ego_object_base_t * base_ptr;
+    // grab the base object
+    pbase = POBJ_GET_PBASE( pprt );
+    if ( NULL == pbase ) return NULL;
 
-    // save the base object data, do not construct it with this function.
-    base_ptr = POBJ_GET_PBASE( pprt );
-    assert( NULL != base_ptr );
-    memcpy( &save_base, base_ptr, sizeof( save_base ) );
+    // if we aren't in the correct state, abort.
+    if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return pprt;
 
-    if ( ALLOCATED_PPRT( pprt ) )
-    {
-        prt_free( pprt );
-    }
-
-    memset( pprt, 0, sizeof( *pprt ) );
-
-    // restore the base object data
-    memcpy( base_ptr, &save_base, sizeof( save_base ) );
-
-    // "no lifetime" = "eternal"
-    pprt->lifetime           = ( size_t )( ~0 );
-    pprt->lifetime_remaining = pprt->lifetime;
-    pprt->frames_remaining   = ( size_t )( ~0 );
-
-    pprt->pip_ref      = MAX_PIP;
-    pprt->profile_ref  = MAX_PROFILE;
-
-    pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
-    pprt->owner_ref      = ( CHR_REF )MAX_CHR;
-    pprt->target_ref     = ( CHR_REF )MAX_CHR;
-    pprt->parent_ref     = TOTAL_MAX_PRT;
-    pprt->parent_guid    = 0xFFFFFFFF;
-
-    pprt->onwhichplatform = ( CHR_REF )MAX_CHR;
-
-    // initialize the bsp node for this particle
-    BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, 2 );
-    pprt->bsp_leaf.index = GET_INDEX_PPRT( pprt );
-
-    pprt->obj_base.state = ego_object_initializing;
-
-    return pprt;
+    return prt_ctor( pprt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1350,7 +781,7 @@ prt_t * prt_config_init( prt_t * pprt )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pprt;
 
-	EGO_OBJECT_BEGIN_SPAWN( pprt );
+	POBJ_BEGIN_SPAWN( pprt );
 
     pprt = prt_config_do_init( pprt );
 	if( NULL == pprt ) return NULL;
@@ -1361,12 +792,7 @@ prt_t * prt_config_init( prt_t * pprt )
     }
     else
     {
-        pprt->obj_base.turn_me_on = btrue;
-
-        // put this particle into the activation list so that it can be activated right after
-        // the PrtList loop is completed
-        prt_activation_list[prt_activation_count] = GET_INDEX_PPRT( pprt );
-        prt_activation_count++;
+		PrtList_add_activation( GET_INDEX_PPRT( pprt ) );
     }
 
     pbase->state = ego_object_active;
@@ -1386,7 +812,7 @@ prt_t * prt_config_active( prt_t * pprt )
 
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return pprt;
 
-	EGO_OBJECT_END_SPAWN( pprt );
+	POBJ_END_SPAWN( pprt );
 
     pprt = prt_config_do_active( pprt );
 
@@ -1405,7 +831,7 @@ prt_t * prt_config_deinit( prt_t * pprt )
 
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pprt;
 
-	EGO_OBJECT_END_SPAWN( pprt );
+	POBJ_END_SPAWN( pprt );
 
 	pprt = prt_config_do_deinit( pprt );
 
@@ -1422,16 +848,9 @@ prt_t * prt_config_dtor( prt_t * pprt )
 
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pprt;
 
-	EGO_OBJECT_END_SPAWN( pprt );
+	POBJ_END_SPAWN( pprt );
 
-    // destruct/free any allocated data
-    prt_free( pprt );
-
-    // Destroy the base object.
-    // Sets the state to ego_object_terminated automatically.
-    EGO_OBJECT_TERMINATE( pprt );
-
-    return pprt;
+    return prt_dtor( pprt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1822,7 +1241,7 @@ void update_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void particle_set_level( prt_t * pprt, float level )
+void prt_set_level( prt_t * pprt, float level )
 {
     float loc_height;
 
@@ -1872,7 +1291,7 @@ void move_one_particle_get_environment( prt_t * pprt )
     {
         loc_level = MAX( pprt->enviro.floor_level, ChrList.lst[pprt->onwhichplatform].pos.z + ChrList.lst[pprt->onwhichplatform].chr_chr_cv.maxs[OCT_Z] );
     }
-    particle_set_level( pprt, loc_level );
+    prt_set_level( pprt, loc_level );
 
     //---- the "twist" of the floor
     pprt->enviro.twist = TWIST_FLAT;
@@ -3232,7 +2651,7 @@ bool_t prt_request_terminate( const PRT_REF by_reference iprt )
 
     if ( !ALLOCATED_PRT( iprt ) || TERMINATED_PRT( iprt ) ) return bfalse;
 
-    EGO_OBJECT_REQUEST_TERMINATE( PrtList.lst + iprt );
+    POBJ_REQUEST_TERMINATE( PrtList.lst + iprt );
 
     return btrue;
 }
@@ -3326,158 +2745,6 @@ void bump_all_particles_update_counters()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-size_t spawn_all_delayed_particles()
-{
-    /// @details BB@> delay the spawning of particles.
-    /// This function should be used any time you are creating particles inside a loop controlled
-    /// by the PrtList.used_ref[] array, including the use of the PRT_LOOP_* macros().
-    ///
-    /// Otherwise, you will be changing the values in the PrtList.used_ref[] array while scanning it,
-    /// which is always a bad idea.
-
-    size_t count;
-    int    tnc;
-
-    if ( 0 == prt_delay_list.count ) return 0;
-
-    count = 0;
-    for ( tnc = 0; tnc < prt_delay_list.count && tnc < TOTAL_MAX_PRT; tnc++ )
-    {
-        PRT_REF iprt;
-        spawn_particle_info_t * pinfo = prt_delay_list.ary + tnc;
-
-        if ( !INGAME_PRT( pinfo->prt_origin ) ) pinfo->prt_origin = ( PRT_REF )TOTAL_MAX_PRT;
-        if ( !INGAME_CHR( pinfo->chr_origin ) ) pinfo->chr_origin = ( CHR_REF )MAX_CHR;
-        if ( !INGAME_CHR( pinfo->chr_attach ) ) pinfo->chr_attach = ( CHR_REF )MAX_CHR;
-        if ( !INGAME_CHR( pinfo->oldtarget ) ) pinfo->oldtarget  = ( CHR_REF )MAX_CHR;
-        if ( !LOADED_PRO( pinfo->iprofile ) ) pinfo->iprofile   = ( PRO_REF )MAX_PROFILE;
-
-        // spawn the particle. EGO_OBJECT_DO_ACTIVATE == activate it immediately.
-        iprt = spawn_one_particle( pinfo->pos, pinfo->facing, pinfo->iprofile, pinfo->pip_index,
-                                   pinfo->chr_attach, pinfo->vrt_offset, pinfo->team, pinfo->chr_origin,
-                                   pinfo->prt_origin, pinfo->multispawn, pinfo->oldtarget );
-
-        // count the number of successful spawns
-        if ( ALLOCATED_PRT( iprt ) ) count++;
-    }
-
-    // reset the spawn list
-    prt_delay_list.count = 0;
-
-    return count;
-}
-
-//--------------------------------------------------------------------------------------------
-size_t delay_spawn_particle_request( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
-                                     const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
-                                     const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget )
-{
-    /// @details BB@> Store a request to spawn a particle, and return the index to the pre-active
-    ///               index to the particle
-
-    spawn_particle_info_t info;
-
-    // initialize the structure
-    spawn_particle_info_ctor( &info );
-
-    // fill in the structure
-    info.pos        = pos;
-    info.facing     = facing;
-    info.iprofile   = iprofile;
-    info.pip_index  = pip_index;
-    info.chr_attach = chr_attach;
-    info.vrt_offset = vrt_offset;
-    info.team       = team;
-    info.chr_origin = chr_origin;
-    info.prt_origin = prt_origin;
-    info.multispawn = multispawn;
-    info.oldtarget  = oldtarget;
-
-    return prt_delay_list_push( &info );
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//spawn_particle_info_t * spawn_particle_info_ctor( spawn_particle_info_t * ptr )
-//{
-//    if ( NULL == ptr ) return NULL;
-//
-//    memset( ptr, 0, sizeof( *ptr ) );
-//
-//    ptr->allocated_ref = ( PRT_REF )TOTAL_MAX_PRT;
-//
-//    ptr->iprofile   = ( PRO_REF )MAX_PROFILE;
-//    ptr->pip_index  = MAX_PIP;
-//
-//    ptr->chr_attach = ( CHR_REF )MAX_CHR;
-//    ptr->team       = ( TEAM_REF )TEAM_NULL;
-//
-//    ptr->chr_origin = ( CHR_REF )MAX_CHR;
-//    ptr->prt_origin = ( PRT_REF )TOTAL_MAX_PRT;
-//    ptr->oldtarget  = ( CHR_REF )MAX_CHR;
-//
-//    return ptr;
-//}
-
-//--------------------------------------------------------------------------------------------
-spawn_particle_info_t * spawn_particle_info_ctor( spawn_particle_info_t * ptr )
-{
-    if ( NULL == ptr ) return NULL;
-
-    memset( ptr, 0, sizeof( *ptr ) );
-
-    ptr->allocated_ref = ( PRT_REF )TOTAL_MAX_PRT;
-
-    ptr->iprofile   = ( PRO_REF )MAX_PROFILE;
-    ptr->pip_index  = MAX_PIP;
-
-    ptr->chr_attach = ( CHR_REF )MAX_CHR;
-    ptr->team       = ( TEAM_REF )TEAM_NULL;
-
-    ptr->chr_origin = ( CHR_REF )MAX_CHR;
-    ptr->prt_origin = ( PRT_REF )TOTAL_MAX_PRT;
-    ptr->oldtarget  = ( CHR_REF )MAX_CHR;
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-//size_t prt_delay_list_push( spawn_particle_info_t * pinfo )
-//{
-//    size_t retval;
-//
-//    // do not spawn particles while iterating through the list of particles
-//    if ( prt_delay_list.count >= TOTAL_MAX_PRT ) return TOTAL_MAX_PRT;
-//
-//    // grab a free index
-//    retval = prt_delay_list.count;
-//    prt_delay_list.count++;
-//
-//    // put the info onto the stack
-//    prt_delay_list.ary[retval] = *pinfo;
-//
-//    return retval;
-//}
-
-//--------------------------------------------------------------------------------------------
-size_t prt_delay_list_push( spawn_particle_info_t * pinfo )
-{
-    size_t retval;
-
-    // do not spawn particles while iterating through the list of particles
-    if ( prt_delay_list.count >= TOTAL_MAX_PRT ) return TOTAL_MAX_PRT;
-
-    // grab a free index
-    retval = prt_delay_list.count;
-    prt_delay_list.count++;
-
-    // put the info onto the stack
-    prt_delay_list.ary[retval] = *pinfo;
-
-    return retval;
-}
-
 //--------------------------------------------------------------------------------------------
 prt_t * prt_update_do_water( prt_t * pprt, pip_t * ppip )
 {
@@ -3818,11 +3085,10 @@ prt_t * prt_update_display( prt_t * pprt, pip_t * ppip )
     pbase = POBJ_GET_PBASE( pprt );
 	if( NULL == pbase ) return pprt;
 
-    if( NULL == pprt ) return pprt;
     iprt = GET_REF_PPRT( pprt );
 
 	// if it is not displaying, we are done here
-	prt_display = (0 == pbase->frame_count);
+	prt_display = (0 == pbase->frame_count) && (pprt->size > 0) && (pprt->inst.alpha > 0);
 	if( !prt_display )
 	{
 		prt_request_terminate( iprt );
@@ -3869,22 +3135,29 @@ prt_t * prt_update( prt_t * pprt )
 	PRT_REF iprt;
 	pip_t * ppip;
 
+	// do the next step in the particle configuration
+	pprt = prt_run_config( pprt );
+	if( NULL == pprt ) return pprt;
+
+	// is the particle is no longer allocated, return
 	if( !ALLOCATED_PPRT(pprt) ) return pprt;
 
-	// ASSUME that this function is only going to be called from prt_config_active(), 
-    // where we already determined that the particle was in its "active" state
     iprt = GET_REF_PPRT( pprt );
 
     // update various iprt states
     ppip = prt_get_ppip( iprt );
-    if ( NULL == ppip ) return pprt;
+	if( NULL == ppip ) 
+		return pprt;
 
-	if( INGAME_PPRT_BASE(pprt) )
+	// handle different particle states differently
+	if( ON_PBASE(POBJ_GET_PBASE(pprt)) )
 	{
+		// the particle is on
 		pprt = prt_update_ingame( pprt, ppip );
 	}
 	else
 	{
+		// the particle is not on
 		pprt = prt_update_display( pprt, ppip );
 	}
 

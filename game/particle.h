@@ -180,65 +180,23 @@ struct s_prt
 };
 typedef struct s_prt prt_t;
 
-extern size_t maxparticles;                              ///< max number of particles
-
-DECLARE_LIST_EXTERN( prt_t, PrtList, TOTAL_MAX_PRT );
-
-#define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
-#define ALLOCATED_PRT( IPRT )   ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
-#define ACTIVE_PRT( IPRT )      ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE    (POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
-#define WAITING_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && WAITING_PBASE   (POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
-#define TERMINATED_PRT( IPRT )  ( VALID_PRT_RANGE( IPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
-
-#define DEFINED_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define DISPLAY_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) || WAITING_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT)))) && ON_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
-
-#define GET_INDEX_PPRT( PPRT )  ((size_t)GET_INDEX_POBJ( PPRT, TOTAL_MAX_PRT ))
-#define GET_REF_PPRT( PPRT )    ((PRT_REF)GET_INDEX_PPRT( PPRT ))
-#define VALID_PRT_PTR( PPRT )   ( (NULL != (PPRT)) && VALID_PRT_RANGE( GET_REF_POBJ( PPRT, TOTAL_MAX_PRT) ) )
-#define ALLOCATED_PPRT( PPRT )  ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PPRT) ) )
-#define TERMINATED_PPRT( PPRT ) ( VALID_PRT_PTR( PPRT ) && TERMINATED_PBASE(POBJ_GET_PBASE(PPRT)) )
-#define ACTIVE_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) )
-
-#define DEFINED_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE (POBJ_GET_PBASE(PPRT)) && !TERMINATED_PBASE (POBJ_GET_PBASE(PPRT)) )
-#define DISPLAY_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && (ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) || WAITING_PBASE(POBJ_GET_PBASE(PPRT))) )
-
-// Macros automate looping through the PrtList. This hides code which defers the creation and deletion of
-// objects until the loop terminates, so tha the length of the list will not change during the loop.
-#define PRT_BEGIN_LOOP_ACTIVE(IT, PPRT)  {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT (IT)) continue; PPRT =  PrtList.lst + IT;
-#define PRT_BEGIN_LOOP_DISPLAY(IT, PPRT) {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_t * PPRT = NULL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; PPRT =  PrtList.lst + IT;
-#define PRT_END_LOOP() } prt_loop_depth--; EGOBOO_ASSERT(prt_loop_start_depth == prt_loop_depth); PrtList_cleanup(); }
-
-extern int prt_loop_depth;
-
-// Macros to determine whether the particle is in the game or not.
-// If objects are being spawned, then any object that is just "defined" is treated as "in game"
-#define INGAME_PRT_BASE(IPRT)       ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && ON_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define INGAME_PPRT_BASE(PPRT)      ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) && ON_PBASE( POBJ_GET_PBASE(PPRT) ) )
-
-#define INGAME_PRT(IPRT)            ( (ego_object_spawn_depth) > 0 ? DEFINED_PRT(IPRT) : INGAME_PRT_BASE(IPRT) )
-#define INGAME_PPRT(PPRT)           ( (ego_object_spawn_depth) > 0 ? DEFINED_PPRT(PPRT) : INGAME_PPRT_BASE(PPRT) )
-
 // counters for debugging wall collisions
 extern int prt_wall_tests;
 
 //--------------------------------------------------------------------------------------------
 /// function prototypes
 
-void PrtList_cleanup();
+void particle_system_begin();
+void particle_system_end();
+
+prt_t * prt_ctor( prt_t * pprt );
+prt_t * prt_dtor( prt_t * pprt );
 
 void   init_all_pip();
 void   release_all_pip();
 bool_t release_one_pip( const PIP_REF by_reference ipip );
 
-bool_t PrtList_free_one( const PRT_REF by_reference particle );
-void   PrtList_free_all();
-void   PrtList_update_used();
-
 void   free_one_particle_in_game( const PRT_REF by_reference particle );
-
-void particle_system_begin();
-void particle_system_end();
 
 void update_all_particles( void );
 void move_all_particles( void );
@@ -267,8 +225,11 @@ bool_t release_one_pip( const PIP_REF by_reference ipip );
 
 bool_t prt_request_terminate( const PRT_REF by_reference iprt );
 
-void particle_set_level( prt_t * pprt, float level );
-
-size_t spawn_all_delayed_particles();
+void prt_set_level( prt_t * pprt, float level );
 
 prt_t * prt_run_config( prt_t * pprt );
+prt_t * prt_config_construct( prt_t * pprt, int max_iterations );
+prt_t * prt_config_initialize( prt_t * pprt, int max_iterations );
+prt_t * prt_config_activate( prt_t * pprt, int max_iterations );
+prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
+prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );

@@ -488,44 +488,19 @@ DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_PROFILE );
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
 #define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapStack.lst[ICAP].loaded )
 
-DECLARE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
-
-#define VALID_CHR_RANGE( ICHR )    ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
-#define DEFINED_CHR( ICHR )        ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define ALLOCATED_CHR( ICHR )      ( VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define ACTIVE_CHR( ICHR )         ( VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define WAITING_CHR( ICHR )        ( VALID_CHR_RANGE( ICHR ) && WAITING_PBASE   ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define TERMINATED_CHR( ICHR )     ( VALID_CHR_RANGE( ICHR ) && TERMINATED_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-
-#define GET_INDEX_PCHR( PCHR )      ((size_t)GET_INDEX_POBJ( PCHR, MAX_CHR ))
-#define GET_REF_PCHR( PCHR )        ((CHR_REF)GET_INDEX_PCHR( PCHR ))
-#define DEFINED_PCHR( PCHR )        ( VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PCHR) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PCHR) ) )
-#define VALID_CHR_PTR( PCHR )       ( (NULL != (PCHR)) && VALID_CHR_RANGE( GET_REF_POBJ( PCHR, MAX_CHR) ) )
-#define ALLOCATED_PCHR( PCHR )      ( VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PCHR) ) )
-#define ACTIVE_PCHR( PCHR )         ( VALID_CHR_PTR( PCHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) )
-#define TERMINATED_PCHR( PCHR )     ( VALID_CHR_PTR( PCHR ) && TERMINATED_PBASE( POBJ_GET_PBASE(PCHR) ) )
-
-// Macros automate looping through the ChrList. This hides code which defers the creation and deletion of
-// objects until the loop terminates, so tha the length of the list will not change during the loop.
-#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR)  {int IT##_internal; int chr_loop_start_depth = chr_loop_depth; chr_loop_depth++; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PCHR =  ChrList.lst + IT;
-#define CHR_END_LOOP() } chr_loop_depth--; EGOBOO_ASSERT(chr_loop_start_depth == chr_loop_depth); ChrList_cleanup(); }
-
-extern int chr_loop_depth;
-
-// Macros to determine whether the character is in the game or not.
-// If objects are being spawned, then any object that is just "defined" is treated as "in game"
-#define INGAME_CHR_BASE(ICHR)       ( VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && ON_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define INGAME_PCHR_BASE(PCHR)      ( VALID_CHR_PTR( PCHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) && ON_PBASE( POBJ_GET_PBASE(PCHR) ) )
-
-#define INGAME_CHR(ICHR)            ( (ego_object_spawn_depth) > 0 ? DEFINED_CHR(ICHR) : INGAME_CHR_BASE(ICHR) )
-#define INGAME_PCHR(PCHR)           ( (ego_object_spawn_depth) > 0 ? DEFINED_PCHR(PCHR) : INGAME_PCHR_BASE(PCHR) )
-
 // counters for debugging fall collisions
 extern int chr_wall_tests;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Function prototypes
+
+void character_system_begin();
+void character_system_end();
+
+chr_t * chr_ctor( chr_t * pchr );
+chr_t * chr_dtor( chr_t * pchr );
+
 void drop_money( const CHR_REF by_reference character, int money );
 void call_for_help( const CHR_REF by_reference character );
 void give_experience( const CHR_REF by_reference character, int amount, xp_type xptype, bool_t override_invictus );
@@ -556,7 +531,7 @@ void make_one_character_matrix( const CHR_REF by_reference cnt );
 void update_all_characters( void );
 void move_all_characters( void );
 void cleanup_all_characters( void );
-size_t spawn_all_delayed_characters( void );
+
 void bump_all_characters_update_counters( void );
 
 void do_level_up( const CHR_REF by_reference character );
@@ -603,8 +578,6 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 struct s_billboard_data * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color color, int lifetime_secs );
 const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits );
 const char * chr_get_dir_name( const CHR_REF by_reference ichr );
-
-void   ChrList_update_used();
 
 //--------------------------------------------------------------------------------------------
 /// helper functions
@@ -677,4 +650,8 @@ TX_REF         chr_get_icon_ref( const CHR_REF by_reference item );
 
 chr_t * chr_run_config( chr_t * pchr );
 
-void ChrList_cleanup();
+chr_t * chr_config_construct( chr_t * pprt, int max_iterations );
+chr_t * chr_config_initialize( chr_t * pprt, int max_iterations );
+chr_t * chr_config_activate( chr_t * pprt, int max_iterations );
+chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations );
+chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations );

@@ -40,9 +40,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, eve_t, EveStack, MAX_EVE );
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, enc_t, EncList, MAX_ENC );
-
-int enc_loop_depth = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,31 +50,6 @@ static enc_t * enc_config_init( enc_t * penc );
 static enc_t * enc_config_deinit( enc_t * penc );
 static enc_t * enc_config_active( enc_t * penc );
 static enc_t * enc_config_dtor( enc_t * penc );
-
-enc_t * enc_config_construct( enc_t * penc, int max_iterations );
-enc_t * enc_config_initialize( enc_t * penc, int max_iterations );
-enc_t * enc_config_activate( enc_t * penc, int max_iterations );
-enc_t * enc_config_deinitialize( enc_t * penc, int max_iterations );
-enc_t * enc_config_deconstruct( enc_t * penc, int max_iterations );
-
-static void    EncList_init( void );
-static void    EncList_dtor( void );
-static size_t  EncList_get_free( void );
-static ENC_REF EncList_allocate( const ENC_REF override );
-static bool_t  EncList_free_one( const ENC_REF by_reference ienc );
-
-static bool_t EncList_add_used( const PRT_REF by_reference ienc );
-static bool_t EncList_remove_used( const PRT_REF by_reference ienc );
-static bool_t EncList_remove_used_index( int index );
-static bool_t EncList_add_free( const PRT_REF by_reference ienc );
-static bool_t EncList_remove_free( const PRT_REF by_reference ienc );
-static bool_t EncList_remove_free_index( int index );
-
-static size_t  enc_activation_count = 0;
-static ENC_REF enc_activation_list[MAX_ENC];
-
-static size_t  enc_termination_count = 0;
-static ENC_REF enc_termination_list[MAX_ENC];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -96,439 +68,70 @@ void enchant_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void EncList_init()
+bool_t  enc_free( enc_t * penc )
 {
-    ENC_REF cnt;
+    if ( !ALLOCATED_PENC( penc ) ) return bfalse;
 
-    EncList.free_count = 0;
-    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
-    {
-        enc_t * penc = EncList.lst + cnt;
+    // nothing to do yet
 
-        // blank out all the data, including the obj_base data
-        memset( penc, 0, sizeof( *penc ) );
-
-        // construct the base object
-        ego_object_ctor( POBJ_GET_PBASE( penc ) );
-
-        EncList.free_ref[EncList.free_count] = EncList.free_count;
-        EncList.free_count++;
-
-		penc->obj_base.in_free_list = btrue;
-    }
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_dtor()
+enc_t * enc_ctor( enc_t * penc )
 {
-    ENC_REF cnt;
+    ego_object_base_t save_base;
+    ego_object_base_t * pbase;
 
-    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
-    {
-        enc_config_deconstruct( EncList.lst + cnt, 100 );
-    }
+    // grab the base object
+    pbase = POBJ_GET_PBASE( penc );
+    if ( NULL == pbase ) return NULL;
 
-    EncList.free_count = 0;
-    EncList.used_count = 0;
+    memcpy( &save_base, pbase, sizeof( ego_object_base_t ) );
+
+    memset( penc, 0, sizeof( *penc ) );
+
+    // restore the base object data
+    memcpy( pbase, &save_base, sizeof( ego_object_base_t ) );
+
+    penc->profile_ref      = ( PRO_REF )MAX_PROFILE;
+    penc->eve_ref          = ( EVE_REF )MAX_EVE;
+
+    penc->target_ref       = ( CHR_REF )MAX_CHR;
+    penc->owner_ref        = ( CHR_REF )MAX_CHR;
+    penc->spawner_ref      = ( CHR_REF )MAX_CHR;
+    penc->spawnermodel_ref = ( PRO_REF )MAX_PROFILE;
+    penc->overlay_ref      = ( CHR_REF )MAX_CHR;
+
+    penc->nextenchant_ref  = ( ENC_REF )MAX_ENC;
+
+    // we are done constructing. move on to initializing.
+    pbase->state = ego_object_initializing;
+
+	return penc;
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_free_all()
+enc_t * enc_dtor( enc_t * penc )
 {
-    /// @details ZZ@> This functions frees all of the enchantments
+	if( NULL == penc ) return penc;
 
-    ENC_REF cnt;
+    // destroy the object
+    enc_free( penc );
 
-    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
-    {
-        EncList_free_one( cnt );
-    }
+    // Destroy the base object.
+    // Sets the state to ego_object_terminated automatically.
+    POBJ_TERMINATE( penc );
+
+	return penc;
 }
 
 //--------------------------------------------------------------------------------------------
-int EncList_get_free_list_index( const ENC_REF by_reference ienc )
-{
-	int retval = -1, cnt;
-
-	if( !VALID_ENC_RANGE(ienc) ) return retval;
-
-    for ( cnt = 0; cnt < EncList.free_count; cnt++ )
-    {
-        if ( ienc == EncList.free_ref[cnt] )
-        {
-			assert( EncList.lst[ienc].obj_base.in_free_list );
-            retval = cnt;
-			break;
-        }
-    }
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t EncList_add_free( const ENC_REF by_reference ienc )
-{
-	bool_t retval;
-
-	if( !VALID_ENC_RANGE(ienc) ) return bfalse;
-
-#if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
-	if( EncList_get_free_list_index(ienc) > 0 )
-	{
-		return bfalse;
-	}
+#if defined(__cplusplus)
+s_enc::s_enc() { enc_ctor(this) };
+s_enc::~s_enc() { enc_dtor( this ); };
 #endif
 
-	assert( !EncList.lst[ienc].obj_base.in_free_list );
-
-	retval = bfalse;
-	if( EncList.free_count < MAX_ENC )
-	{
-		EncList.free_ref[EncList.free_count] = ienc;
-		EncList.free_count++;
-
-		EncList.lst[ienc].obj_base.in_free_list = btrue;
-
-		retval = btrue;
-	}
-
-	return retval;
-}
-
-bool_t EncList_remove_free_index( int index )
-{
-	ENC_REF ienc;
-
-	// was it found?
-	if( index < 0 || index >= EncList.free_count ) return bfalse;
-
-	ienc = EncList.free_ref[index];
-
-	// blank out the index in the list
-	EncList.free_ref[index] = MAX_ENC;
-
-	if( VALID_ENC_RANGE(ienc) )
-	{
-		// let the object know it is not in the list anymore
-		EncList.lst[ienc].obj_base.in_free_list = bfalse;
-	}
-
-	// shorten the list
-	EncList.free_count--;
-
-	if( EncList.free_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, EncList.free_ref[index], EncList.free_ref[EncList.free_count] );
-	}
-
-	return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t EncList_remove_free( const ENC_REF by_reference ienc )
-{
-	// find the object in the free list
-	int index = EncList_get_free_list_index(ienc);
-
-	return EncList_remove_free_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
-int EncList_get_used_list_index( const ENC_REF by_reference ienc )
-{
-	int retval = -1, cnt;
-
-	if( !VALID_ENC_RANGE(ienc) ) return retval;
-
-    for ( cnt = 0; cnt < EncList.used_count; cnt++ )
-    {
-        if ( ienc == EncList.used_ref[cnt] )
-        {
-			assert( EncList.lst[ienc].obj_base.in_used_list );
-            retval = cnt;
-			break;
-        }
-    }
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t EncList_add_used( const ENC_REF by_reference ienc )
-{
-	bool_t retval;
-
-	if( !VALID_ENC_RANGE(ienc) ) return bfalse;
-
-#if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
-	if( EncList_get_used_list_index(ienc) > 0 )
-	{
-		return bfalse;
-	}
-#endif
-
-	assert( !EncList.lst[ienc].obj_base.in_used_list );
-
-	retval = bfalse;
-	if( EncList.used_count < MAX_ENC )
-	{
-		EncList.used_ref[EncList.used_count] = ienc;
-		EncList.used_count++;
-
-		EncList.lst[ienc].obj_base.in_used_list = btrue;
-
-		retval = btrue;
-	}
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t EncList_remove_used_index( int index )
-{
-	ENC_REF ienc;
-
-	// was it found?
-	if( index < 0 || index >= EncList.used_count ) return bfalse;
-
-	ienc = EncList.used_ref[index];
-
-	// blank out the index in the list
-	EncList.used_ref[index] = MAX_ENC;
-
-	if( VALID_ENC_RANGE(ienc) )
-	{
-		// let the object know it is not in the list anymore
-		EncList.lst[ienc].obj_base.in_used_list = bfalse;
-	}
-
-	// shorten the list
-	EncList.used_count--;
-
-	if( EncList.used_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, EncList.used_ref[index], EncList.used_ref[EncList.used_count] );
-	}
-
-	return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t EncList_remove_used( const ENC_REF by_reference ienc )
-{
-	// find the object in the used list
-	int index = EncList_get_used_list_index(ienc);
-
-	return EncList_remove_used_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
-size_t EncList_get_free()
-{
-    /// @details ZZ@> This function returns the next free enchantment or MAX_ENC if there are none
-
-    size_t retval = MAX_ENC;
-
-    if ( EncList.free_count > 0 )
-    {
-		// grab the reference
-        EncList.free_count--;
-        retval = EncList.free_ref[EncList.free_count];
-
-		// completely remove it from the free list
-		EncList.free_ref[EncList.free_count] = MAX_CHR;
-
-		if( VALID_ENC_RANGE(retval) )
-		{
-			// let the object know it is not in the free list any more
-			EncList.lst[retval].obj_base.in_free_list = bfalse;
-		}
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void EncList_update_used()
-{
-    size_t cnt;
-	ENC_REF ienc;
-
-	// prune the used list
-    for ( cnt = 0; cnt < EncList.used_count; cnt++ )
-    {
-		ienc = EncList.used_ref[cnt];
-
-		if ( !DEFINED_ENC(ienc) ) 
-		{
-			EncList_remove_used_index( cnt );
-
-			if( !EncList.lst[ienc].obj_base.in_free_list )
-			{
-				EncList_add_free( ienc );
-			}
-		}
-	}
-
-	// prune the free list
-    for ( cnt = 0; cnt < EncList.free_count; cnt++ )
-    {
-		ienc = EncList.free_ref[cnt];
-
-		if ( DEFINED_ENC(ienc) ) 
-		{
-			EncList_remove_free_index( cnt );
-
-			if( !EncList.lst[ienc].obj_base.in_used_list )
-			{
-				EncList_add_used( ienc );
-			}
-		}
-	}
-
-	// go through the enchant list to see if there are any dangling characters
-	for( ienc = 0; ienc < MAX_ENC; ienc++ )
-	{
-        if ( DEFINED_ENC( cnt ) )
-		{
-			if( !EncList.lst[cnt].obj_base.in_used_list )
-			{
-				EncList_add_used( cnt );
-			}
-		}
-		else
-		{
-			if( !EncList.lst[cnt].obj_base.in_free_list )
-			{
-				EncList_add_free( cnt );
-			}
-		}
-	}
-
-	// blank out the unused elements of the used list
-    for ( ienc = EncList.used_count; ienc < MAX_ENC; ienc++ )
-    {
-        EncList.used_ref[ienc] = MAX_ENC;
-    }
-
-	// blank out the unused elements of the free list
-    for ( ienc = EncList.free_count; ienc < MAX_ENC; ienc++ )
-    {
-        EncList.free_ref[ienc] = MAX_ENC;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t EncList_free_one( const ENC_REF by_reference ienc )
-{
-    /// @details ZZ@> This function sticks a enchant back on the free enchant stack
-    ///
-    /// @note Tying ALLOCATED_ENC() and EGO_OBJECT_TERMINATE() to EncList_free_one()
-    /// should be enough to ensure that no enchant is freed more than once
-
-    bool_t retval;
-    enc_t * penc;
-	ego_object_base_t * pbase;
-
-    if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
-    penc = EncList.lst + ienc;
-
-	pbase = POBJ_GET_PBASE( penc );
-	if( NULL == pbase ) return bfalse;
-
-    // if we are inside a EncList loop, do not actually change the length of the
-    // list. This will cause some problems later.
-    if ( enc_loop_depth > 0 )
-    {
-        enc_termination_list[enc_termination_count] = ienc;
-        enc_termination_count++;
-
-        // at least mark the object as "waiting to be terminated"
-        EGO_OBJECT_REQUEST_TERMINATE( penc );
-        retval = btrue;
-    }
-    else
-    {
-        // deallocate any dynamically allocated memory
-        penc = enc_config_deinitialize( penc, 100 );
-        if ( NULL == penc ) return bfalse;
-
-		EncList_remove_used( ienc );
-		retval = EncList_add_free( ienc );
-
-        // enchant "destructor"
-        penc = enc_config_deconstruct( penc, 100 );
-        if ( NULL == penc ) return bfalse;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-ENC_REF EncList_allocate( const ENC_REF by_reference override )
-{
-    ENC_REF ienc = ( ENC_REF )MAX_ENC;
-
-    if ( VALID_ENC_RANGE( override ) )
-    {
-        ienc = EncList_get_free();
-        if ( override != ienc )
-        {
-			int override_index = EncList_get_free_list_index( override );
-
-			if( override_index < 0 || override_index >= EncList.free_count ) 
-			{
-				ienc = (ENC_REF)MAX_ENC;
-			}
-			else
-			{
-				// store the "wrong" value in the override enchant's index
-				EncList.free_ref[override_index] = ienc;
-
-				// fix the in_free_list values
-				EncList.lst[ienc].obj_base.in_free_list = btrue;
-				EncList.lst[override].obj_base.in_free_list = bfalse;
-
-				ienc = override;
-			}
-        }
-
-        if ( MAX_ENC == ienc )
-        {
-            log_warning( "EncList_allocate() - failed to override a enchant? enchant %d already spawned? \n", REF_TO_INT( override ) );
-        }
-    }
-    else
-    {
-        ienc = EncList_get_free();
-        if ( MAX_ENC == ienc )
-        {
-            log_warning( "EncList_allocate() - failed to allocate a new enchant\n" );
-        }
-    }
-
-    if ( VALID_ENC_RANGE( ienc ) )
-    {
-        // if the enchant is already being used, make sure to destroy the old one
-        if ( DEFINED_ENC( ienc ) )
-        {
-            EncList_free_one( ienc );
-        }
-
-        // allocate the new one
-        EGO_OBJECT_ALLOCATE( EncList.lst +  ienc , REF_TO_INT( ienc ) );
-    }
-
-    if ( ALLOCATED_ENC( ienc ) )
-    {
-        // construct the new structure
-        enc_config_construct( EncList.lst + ienc, 100 );
-    }
-
-    return ienc;
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1086,16 +689,6 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t  enc_free( enc_t * penc )
-{
-    if ( !ALLOCATED_PENC( penc ) ) return bfalse;
-
-    // nothing to do yet
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_do_init( enc_t * penc )
 {
@@ -1122,7 +715,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     peve = EveStack.lst + pdata->eve_ref;
 
     // turn the enchant on here. you can't fail to spawn after this point.
-    EGO_OBJECT_ACTIVATE( penc, peve->name );
+    POBJ_ACTIVATE( penc, peve->name );
 
     penc->eve_ref      = pdata->eve_ref;
     penc->profile_ref  = pdata->profile_ref;
@@ -1561,7 +1154,6 @@ enc_t * enc_run_config( enc_t * penc )
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_ctor( enc_t * penc )
 {
-    ego_object_base_t save_base;
     ego_object_base_t * pbase;
 
     // grab the base object
@@ -1571,28 +1163,7 @@ enc_t * enc_config_ctor( enc_t * penc )
     // if we aren't in the correct state, abort.
     if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return penc;
 
-    memcpy( &save_base, pbase, sizeof( ego_object_base_t ) );
-
-    memset( penc, 0, sizeof( *penc ) );
-
-    // restore the base object data
-    memcpy( pbase, &save_base, sizeof( ego_object_base_t ) );
-
-    penc->profile_ref      = ( PRO_REF )MAX_PROFILE;
-    penc->eve_ref          = ( EVE_REF )MAX_EVE;
-
-    penc->target_ref       = ( CHR_REF )MAX_CHR;
-    penc->owner_ref        = ( CHR_REF )MAX_CHR;
-    penc->spawner_ref      = ( CHR_REF )MAX_CHR;
-    penc->spawnermodel_ref = ( PRO_REF )MAX_PROFILE;
-    penc->overlay_ref      = ( CHR_REF )MAX_CHR;
-
-    penc->nextenchant_ref  = ( ENC_REF )MAX_ENC;
-
-    // we are done constructing. move on to initializing.
-    pbase->state = ego_object_initializing;
-
-    return penc;
+    return enc_ctor( penc );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1605,7 +1176,7 @@ enc_t * enc_config_init( enc_t * penc )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return penc;
 
-	EGO_OBJECT_BEGIN_SPAWN(penc);
+	POBJ_BEGIN_SPAWN(penc);
 
     penc = enc_config_do_init( penc );
     if ( NULL == penc ) return NULL;
@@ -1616,12 +1187,7 @@ enc_t * enc_config_init( enc_t * penc )
     }
     else
     {
-        penc->obj_base.turn_me_on = btrue;
-
-        // put this particle into the activation list so that it can be activated right after
-        // the PrtList loop is completed
-        enc_activation_list[enc_activation_count] = GET_INDEX_PPRT( penc );
-        enc_activation_count++;
+		EncList_add_activation( GET_INDEX_PPRT( penc ) );
     }
 
     pbase->state = ego_object_active;
@@ -1641,7 +1207,7 @@ enc_t * enc_config_active( enc_t * penc )
 
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return penc;
 
-	EGO_OBJECT_END_SPAWN( penc );
+	POBJ_END_SPAWN( penc );
 
     penc = enc_config_do_active( penc );
 
@@ -1660,7 +1226,7 @@ enc_t * enc_config_deinit( enc_t * penc )
 
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return penc;
 
-	EGO_OBJECT_END_SPAWN( penc );
+	POBJ_END_SPAWN( penc );
 
     pbase->state = ego_object_destructing;
     pbase->on    = bfalse;
@@ -1678,16 +1244,9 @@ enc_t * enc_config_dtor( enc_t * penc )
 
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return penc;
 
-	EGO_OBJECT_END_SPAWN( penc );
+	POBJ_END_SPAWN( penc );
 
-    // destroy the object
-    enc_free( penc );
-
-    // Destroy the base object.
-    // Sets the state to ego_object_terminated automatically.
-    EGO_OBJECT_TERMINATE( penc );
-
-    return penc;
+    return enc_dtor( penc );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2243,12 +1802,6 @@ void cleanup_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t spawn_all_delayed_enchants()
-{
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------
 void bump_all_enchants_update_counters()
 {
     ENC_REF cnt;
@@ -2269,38 +1822,7 @@ bool_t enc_request_terminate( const ENC_REF by_reference ienc )
 {
     if ( !ALLOCATED_ENC( ienc ) || TERMINATED_ENC( ienc ) ) return bfalse;
 
-    EGO_OBJECT_REQUEST_TERMINATE( EncList.lst + ienc );
+    POBJ_REQUEST_TERMINATE( EncList.lst + ienc );
 
     return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-void EncList_cleanup()
-{
-    int     cnt;
-    enc_t * penc;
-
-    // go through the list and activate all the enchants that
-    // were created while the list was iterating
-    for ( cnt = 0; cnt < enc_activation_count; cnt++ )
-    {
-        ENC_REF ienc = enc_activation_list[cnt];
-
-        if ( !ALLOCATED_ENC( ienc ) ) continue;
-        penc = EncList.lst + ienc;
-
-        if ( !penc->obj_base.turn_me_on )  continue;
-
-        penc->obj_base.on         = btrue;
-        penc->obj_base.turn_me_on = bfalse;
-    }
-    enc_activation_count = 0;
-
-    // go through and delete any enchants that were
-    // supposed to be deleted while the list was iterating
-    for ( cnt = 0; cnt < enc_termination_count; cnt++ )
-    {
-        EncList_free_one( enc_termination_list[cnt] );
-    }
-    enc_termination_count = 0;
 }

@@ -79,16 +79,9 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// various modes in which an object can be spawned
-enum
-{
-    EGO_OBJECT_DO_ALLOCATE,
-    EGO_OBJECT_DO_ACTIVATE,
-    EGO_OBJECT_DO_NOTHING
-};
 
 /// Mark a ego_object_base_t object as being allocated
-#define EGO_OBJECT_ALLOCATE( PDATA, INDEX ) \
+#define POBJ_ALLOCATE( PDATA, INDEX ) \
     if( NULL != PDATA ) \
     { \
         (PDATA)->obj_base.allocated  = btrue;  \
@@ -102,7 +95,7 @@ enum
     }
 
 /// Turn on an ego_object_base_t object
-#define EGO_OBJECT_ACTIVATE( PDATA, NAME ) \
+#define POBJ_ACTIVATE( PDATA, NAME ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated && !(PDATA)->obj_base.kill_me && ego_object_invalid != (PDATA)->obj_base.state ) \
     { \
         strncpy( (PDATA)->obj_base._name, NAME, SDL_arraysize((PDATA)->obj_base._name) ); \
@@ -110,7 +103,7 @@ enum
     }
 
 /// Begin turning off an ego_object_base_t object
-#define EGO_OBJECT_REQUEST_TERMINATE( PDATA ) \
+#define POBJ_REQUEST_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated && ego_object_invalid != (PDATA)->obj_base.state ) \
     { \
         if( ego_object_terminated != (PDATA)->obj_base.state ) \
@@ -121,7 +114,7 @@ enum
     }
 
 /// Completely turn off an ego_object_base_t object and mark it as no longer allocated
-#define EGO_OBJECT_TERMINATE( PDATA ) \
+#define POBJ_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     { \
         (PDATA)->obj_base.allocated = bfalse; \
@@ -129,7 +122,7 @@ enum
         (PDATA)->obj_base.state     = ego_object_terminated; \
     }
 
-#define EGO_OBJECT_BEGIN_SPAWN( PDATA ) \
+#define POBJ_BEGIN_SPAWN( PDATA ) \
 	if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
 	{\
 		if( !(PDATA)->obj_base.spawning )\
@@ -139,7 +132,7 @@ enum
 		}\
 	}\
 
-#define EGO_OBJECT_END_SPAWN( PDATA ) \
+#define POBJ_END_SPAWN( PDATA ) \
 	if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
 	{\
 		if( (PDATA)->obj_base.spawning )\

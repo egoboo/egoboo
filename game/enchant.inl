@@ -21,9 +21,10 @@
 
 /// @file enchant.inl
 
-#include "enchant.h"
+#include "EncList.h"
+#include "ChrList.h"
 
-#include "char.h"
+#include "char.inl"
 #include "profile.inl"
 
 //--------------------------------------------------------------------------------------------

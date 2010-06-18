@@ -279,6 +279,9 @@
 				RelativePath=".\char.c">
 			</File>
 			<File
+				RelativePath=".\ChrList.c">
+			</File>
+			<File
 				RelativePath=".\client.c">
 			</File>
 			<File
@@ -296,6 +299,9 @@
 			</File>
 			<File
 				RelativePath=".\enchant.c">
+			</File>
+			<File
+				RelativePath=".\EncList.c">
 			</File>
 			<File
 				RelativePath=".\game.c">
@@ -352,6 +358,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\PrtList.c">
+			</File>
+			<File
 				RelativePath=".\rpc.c">
 			</File>
 			<File
@@ -378,6 +387,9 @@
 				RelativePath=".\char.h">
 			</File>
 			<File
+				RelativePath=".\ChrList.h">
+			</File>
+			<File
 				RelativePath=".\client.h">
 			</File>
 			<File
@@ -388,6 +400,9 @@
 			</File>
 			<File
 				RelativePath=".\enchant.h">
+			</File>
+			<File
+				RelativePath=".\EncList.h">
 			</File>
 			<File
 				RelativePath=".\game.h">
@@ -436,6 +451,9 @@
 			</File>
 			<File
 				RelativePath=".\profile.h">
+			</File>
+			<File
+				RelativePath=".\PrtList.h">
 			</File>
 			<File
 				RelativePath=".\rpc.h">

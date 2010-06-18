@@ -621,14 +621,6 @@ void cleanup_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void spawn_all_delayed_objects()
-{
-    spawn_all_delayed_characters();
-    spawn_all_delayed_particles();
-    spawn_all_delayed_enchants();
-}
-
-//--------------------------------------------------------------------------------------------
 void bump_all_update_counters()
 {
     bump_all_characters_update_counters();
@@ -658,9 +650,6 @@ void finalize_all_objects()
 
     // do end-of-life care for all objects
     cleanup_all_objects();
-
-    // actually spawn any objects that were delayed until the end of this update
-    spawn_all_delayed_objects();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2331,7 +2320,6 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
 
     int local_liferegen, local_manaregen;
     CHR_REF ichr;
-    ENC_REF enchant;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     ichr = GET_REF_PCHR( pchr );

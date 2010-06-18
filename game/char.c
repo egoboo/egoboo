@@ -22,6 +22,7 @@
 /// @details
 
 #include "char.inl"
+#include "ChrList.h"
 
 #include "mad.h"
 #include "md2.inl"
@@ -59,10 +60,8 @@ static IDSZ    inventory_idsz[INVEN_COUNT];
 //--------------------------------------------------------------------------------------------
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, cap_t, CapStack, MAX_PROFILE );
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, team_t, TeamStack, TEAM_MAX );
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, chr_t, ChrList, MAX_CHR );
 
 int chr_wall_tests = 0;
-int chr_loop_depth = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -92,12 +91,6 @@ static chr_t * chr_config_deinit( chr_t * pchr );
 static chr_t * chr_config_active( chr_t * pchr );
 static chr_t * chr_config_dtor( chr_t * pchr );
 
-chr_t * chr_config_construct( chr_t * pprt, int max_iterations );
-chr_t * chr_config_initialize( chr_t * pprt, int max_iterations );
-chr_t * chr_config_activate( chr_t * pprt, int max_iterations );
-chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations );
-chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations );
-
 static int get_grip_verts( Uint16 grip_verts[], const CHR_REF by_reference imount, int vrt_offset );
 
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
@@ -115,29 +108,9 @@ void cleanup_one_character( chr_t * pchr );
 
 bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix );
 
-static void    ChrList_init();
-static void    ChrList_dtor();
-static size_t  ChrList_get_free();
-static CHR_REF ChrList_allocate( const CHR_REF by_reference override );
-static bool_t  ChrList_free_one( const CHR_REF by_reference ichr );
-static void    ChrList_free_all();
-
-static bool_t ChrList_add_used( const PRT_REF by_reference ichr );
-static bool_t ChrList_remove_used( const PRT_REF by_reference ichr );
-static bool_t ChrList_remove_used_index( int index );
-static bool_t ChrList_add_free( const PRT_REF by_reference ichr );
-static bool_t ChrList_remove_free( const PRT_REF by_reference ichr );
-static bool_t ChrList_remove_free_index( int index );
-
 static void chr_log_script_time( const CHR_REF by_reference ichr );
 
 static bool_t update_chr_darkvision( const CHR_REF by_reference character );
-
-static size_t  chr_activation_count = 0;
-static CHR_REF chr_activation_list[MAX_CHR];
-
-static size_t  chr_termination_count = 0;
-static CHR_REF chr_termination_list[MAX_CHR];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -153,6 +126,180 @@ void character_system_end()
     release_all_cap();
     ChrList_dtor();
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t chr_free( chr_t * pchr )
+{
+    /// Free all allocated memory
+
+    if ( !ALLOCATED_PCHR( pchr ) )
+    {
+        EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
+        return bfalse;
+    }
+
+    // do some list clean-up
+    disenchant_character( GET_REF_PCHR( pchr ) );
+
+    // deallocate
+    BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
+
+    LoopedList_remove( pchr->loopedsound_channel );
+
+    chr_instance_dtor( &( pchr->inst ) );
+    BSP_leaf_dtor( &( pchr->bsp_leaf ) );
+    ai_state_dtor( &( pchr->ai ) );
+
+    EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_ctor( chr_t * pchr )
+{
+    /// @details BB@> initialize the character data to safe values
+    ///     since we use memset(..., 0, ...), everything == 0 == false == 0.0f
+    ///     statements are redundant
+
+    int cnt;
+    ego_object_base_t save_base;
+    ego_object_base_t * pbase;
+
+	if( NULL == pchr ) return pchr;
+
+    // grab the base object
+    pbase = POBJ_GET_PBASE( pchr );
+    if ( NULL == pbase ) return NULL;
+
+    //---- construct the character object
+
+    // save the base object data
+    memcpy( &save_base, pbase, sizeof( ego_object_base_t ) );
+
+    if ( ALLOCATED_PCHR( pchr ) )
+    {
+        // deallocate any existing data
+        chr_free( pchr );
+
+        EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
+    }
+
+    // clear out all data
+    memset( pchr, 0, sizeof( *pchr ) );
+
+    // restore the base object data
+    memcpy( pbase, &save_base, sizeof( ego_object_base_t ) );
+
+    // IMPORTANT!!!
+    pchr->ibillboard = INVALID_BILLBOARD;
+    pchr->sparkle = NOSPARKLE;
+    pchr->loopedsound_channel = INVALID_SOUND_CHANNEL;
+
+    // Set up model stuff
+    pchr->inwhich_slot = SLOT_LEFT;
+    pchr->hitready = btrue;
+    pchr->boretime = BORETIME;
+    pchr->carefultime = CAREFULTIME;
+
+    // Enchant stuff
+    pchr->firstenchant = MAX_ENC;
+    pchr->undoenchant = MAX_ENC;
+    pchr->missiletreatment = MISSILE_NORMAL;
+
+    // Character stuff
+    pchr->turnmode = TURNMODE_VELOCITY;
+    pchr->alive = btrue;
+
+    // Jumping
+    pchr->jumptime = JUMPDELAY;
+
+    // Grip info
+    pchr->attachedto = ( CHR_REF )MAX_CHR;
+    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    {
+        pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
+    }
+
+    // pack/inventory info
+    pchr->pack.next = ( CHR_REF )MAX_CHR;
+    for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
+    {
+        pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
+    }
+
+    // Set up position
+    pchr->map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    pchr->map_facing_x = MAP_TURN_OFFSET;
+
+    // start the character out in the "dance" animation
+    chr_start_anim( pchr, ACTION_DA, btrue, btrue );
+
+    // I think we have to set the dismount timer, otherwise objects that
+    // are spawned by chests will behave strangely...
+    // nope this did not fix it
+    // ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
+    pchr->dismount_timer  = 0;
+    pchr->dismount_object = ( CHR_REF )MAX_CHR;
+
+    // set all of the integer references to invalid values
+    pchr->firstenchant = MAX_ENC;
+    pchr->undoenchant  = MAX_ENC;
+    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    {
+        pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
+    }
+
+    pchr->pack.next = ( CHR_REF )MAX_CHR;
+    for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
+    {
+        pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
+    }
+
+    pchr->onwhichplatform = ( CHR_REF )MAX_CHR;
+    pchr->attachedto      = ( CHR_REF )MAX_CHR;
+
+    // initialize the bsp node for this character
+    pchr->bsp_leaf.data      = pchr;
+    pchr->bsp_leaf.data_type = 1;
+    pchr->bsp_leaf.index     = GET_INDEX_PCHR( pchr );
+
+    //---- call the constructors of the "has a" classes
+
+    // set the insance values to safe values
+    chr_instance_ctor( &( pchr->inst ) );
+
+    // intialize the ai_state
+    ai_state_ctor( &( pchr->ai ) );
+
+    // initialize the bsp node for this character
+    BSP_leaf_ctor( &( pchr->bsp_leaf ), 3, pchr, 1 );
+    pchr->bsp_leaf.index = GET_INDEX_PCHR( pchr );
+
+    return pchr;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_dtor( chr_t * pchr )
+{
+	if( NULL == pchr ) return pchr;
+
+	// destruct/free any allocated data
+    chr_free( pchr );
+
+    // Destroy the base object.
+    // Sets the state to ego_object_terminated automatically.
+    POBJ_TERMINATE( pchr );
+
+	return pchr;
+}
+
+//--------------------------------------------------------------------------------------------
+#if defined(__cplusplus)
+s_chr::s_chr() { chr_ctor(this); };
+s_chr::~s_chr() { chr_dtor( this ); };
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -344,444 +491,6 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
 
         pinst->matrix_cache.pos = pchr->pos;
     }
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ChrList_init()
-{
-    CHR_REF cnt;
-
-    ChrList.free_count = 0;
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        chr_t * pchr = ChrList.lst + cnt;
-
-        // blank out all the data, including the obj_base data
-        memset( pchr, 0, sizeof( *pchr ) );
-
-        // character "initializer"
-        ego_object_ctor( POBJ_GET_PBASE( pchr ) );
-
-        // push the characters onto the free stack
-        ChrList.free_ref[ChrList.free_count] = ChrList.free_count;
-        ChrList.free_count++;
-
-		pchr->obj_base.in_free_list = btrue;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_dtor()
-{
-    CHR_REF cnt;
-
-    ChrList.free_count = 0;
-    ChrList.used_count = 0;
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        chr_config_deconstruct( ChrList.lst + cnt, 100 );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_update_used()
-{
-    size_t cnt;
-	CHR_REF ichr;
-
-	// prune the used list
-    for ( cnt = 0; cnt < ChrList.used_count; cnt++ )
-    {
-		ichr = ChrList.used_ref[cnt];
-
-		if ( !DEFINED_CHR(ichr) ) 
-		{
-			ChrList_remove_used_index( cnt );
-
-			if( !ChrList.lst[ichr].obj_base.in_free_list )
-			{
-				ChrList_add_free( ichr );
-			}
-		}
-	}
-
-	// prune the free list
-    for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
-    {
-		ichr = ChrList.free_ref[cnt];
-
-		if ( DEFINED_CHR(ichr) ) 
-		{
-			ChrList_remove_free_index( cnt );
-
-			if( !ChrList.lst[ichr].obj_base.in_used_list )
-			{
-				ChrList_add_used( ichr );
-			}
-		}
-	}
-
-	// go through the character list to see if there are any dangling characters
-	for( ichr = 0; ichr < MAX_CHR; ichr++ )
-	{
-        if ( DEFINED_CHR( cnt ) )
-		{
-			if( !ChrList.lst[cnt].obj_base.in_used_list )
-			{
-				ChrList_add_used( cnt );
-			}
-		}
-		else
-		{
-			if( !ChrList.lst[cnt].obj_base.in_free_list )
-			{
-				ChrList_add_free( cnt );
-			}
-		}
-	}
-
-	// blank out the unused elements of the used list
-    for ( ichr = ChrList.used_count; ichr < MAX_CHR; ichr++ )
-    {
-        ChrList.used_ref[ichr] = MAX_CHR;
-    }
-
-	// blank out the unused elements of the free list
-    for ( ichr = ChrList.free_count; ichr < MAX_CHR; ichr++ )
-    {
-        ChrList.free_ref[ichr] = MAX_CHR;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ChrList_free_one( const CHR_REF by_reference ichr )
-{
-    /// @details ZZ@> This function sticks a character back on the free enchant stack
-    ///
-    /// @note Tying ALLOCATED_CHR() and EGO_OBJECT_TERMINATE() to ChrList_free_one()
-    /// should be enough to ensure that no character is freed more than once
-
-    bool_t retval;
-    chr_t * pchr;
-	ego_object_base_t * pbase;
-
-    if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
-
-	pbase = POBJ_GET_PBASE( pchr );
-	if( NULL == pbase ) return bfalse;
-
-#if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
-    chr_log_script_time( ichr );
-#endif
-
-    // if we are inside a ChrList loop, do not actually change the length of the
-    // list. This will cause some problems later.
-    if ( chr_loop_depth > 0 )
-    {
-        chr_termination_list[chr_termination_count] = ichr;
-        chr_termination_count++;
-
-        // at least mark the object as "waiting to be terminated"
-        EGO_OBJECT_REQUEST_TERMINATE( pchr );
-        retval = btrue;
-    }
-    else
-    {
-        // deallocate any dynamically allocated memory
-        pchr = chr_config_deinitialize( pchr, 100 );
-        if ( NULL == pchr ) return bfalse;
-
-		ChrList_remove_used( ichr );
-		retval = ChrList_add_free( ichr );
-
-        // character "destructor"
-        pchr = chr_config_dtor( pchr );
-        if ( NULL == pchr ) return bfalse;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-size_t ChrList_get_free()
-{
-    /// @details ZZ@> This function returns the next free character or MAX_CHR if there are none
-
-    size_t retval = MAX_CHR;
-
-    if ( ChrList.free_count > 0 )
-    {
-        ChrList.free_count--;
-        retval = ChrList.free_ref[ChrList.free_count];
-
-		// completely remove it from the free list
-		ChrList.free_ref[ChrList.free_count] = MAX_CHR;
-
-		if( VALID_CHR_RANGE(retval) )
-		{
-			// let the object know it is not in the free list any more
-			ChrList.lst[retval].obj_base.in_free_list = bfalse;
-		}
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_free_all()
-{
-    CHR_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        ChrList_free_one( cnt );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int ChrList_get_free_list_index( const CHR_REF by_reference ichr )
-{
-	int retval = -1, cnt;
-
-	if( !VALID_CHR_RANGE(ichr) ) return retval;
-
-    for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
-    {
-        if ( ichr == ChrList.free_ref[cnt] )
-        {
-			assert( ChrList.lst[ichr].obj_base.in_free_list );
-            retval = cnt;
-			break;
-        }
-    }
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ChrList_add_free( const CHR_REF by_reference ichr )
-{
-	bool_t retval;
-
-	if( !VALID_CHR_RANGE(ichr) ) return bfalse;
-
-#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
-	if( ChrList_get_free_list_index(ichr) > 0 )
-	{
-		return bfalse;
-	}
-#endif
-
-	assert( !ChrList.lst[ichr].obj_base.in_free_list );
-
-	retval = bfalse;
-	if( ChrList.free_count < MAX_CHR )
-	{
-		ChrList.free_ref[ChrList.free_count] = ichr;
-		ChrList.free_count++;
-
-		ChrList.lst[ichr].obj_base.in_free_list = btrue;
-
-		retval = btrue;
-	}
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_free_index( int index )
-{
-	CHR_REF ichr;
-
-	// was it found?
-	if( index < 0 || index >= ChrList.free_count ) return bfalse;
-
-	ichr = ChrList.free_ref[index];
-
-	// blank out the index in the list
-	ChrList.free_ref[index] = MAX_CHR;
-
-	if( VALID_CHR_RANGE(ichr) )
-	{
-		// let the object know it is not in the list anymore
-		ChrList.lst[ichr].obj_base.in_free_list = bfalse;
-	}
-
-	// shorten the list
-	ChrList.free_count--;
-
-	if( ChrList.free_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, ChrList.free_ref[index], ChrList.free_ref[ChrList.free_count] );
-	}
-
-	return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_free( const CHR_REF by_reference ichr )
-{
-	// find the object in the free list
-	int index = ChrList_get_free_list_index(ichr);
-
-	return ChrList_remove_free_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
-int ChrList_get_used_list_index( const CHR_REF by_reference ichr )
-{
-	int retval = -1, cnt;
-
-	if( !VALID_CHR_RANGE(ichr) ) return retval;
-
-    for ( cnt = 0; cnt < ChrList.used_count; cnt++ )
-    {
-        if ( ichr == ChrList.used_ref[cnt] )
-        {
-			assert( ChrList.lst[ichr].obj_base.in_used_list );
-            retval = cnt;
-			break;
-        }
-    }
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ChrList_add_used( const CHR_REF by_reference ichr )
-{
-	bool_t retval;
-
-	if( !VALID_CHR_RANGE(ichr) ) return bfalse;
-
-#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
-	if( ChrList_get_used_list_index(ichr) > 0 )
-	{
-		return bfalse;
-	}
-#endif
-
-	assert( !ChrList.lst[ichr].obj_base.in_used_list );
-
-	retval = bfalse;
-	if( ChrList.used_count < MAX_CHR )
-	{
-		ChrList.used_ref[ChrList.used_count] = ichr;
-		ChrList.used_count++;
-
-		ChrList.lst[ichr].obj_base.in_used_list = btrue;
-
-		retval = btrue;
-	}
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_used_index( int index )
-{
-	CHR_REF ichr;
-
-	// was it found?
-	if( index < 0 || index >= ChrList.used_count ) return bfalse;
-
-	ichr = ChrList.used_ref[index];
-
-	// blank out the index in the list
-	ChrList.used_ref[index] = MAX_CHR;
-
-	if( VALID_CHR_RANGE(ichr) )
-	{
-		// let the object know it is not in the list anymore
-		ChrList.lst[ichr].obj_base.in_used_list = bfalse;
-	}
-
-	// shorten the list
-	ChrList.used_count--;
-
-	if( ChrList.used_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, ChrList.used_ref[index], ChrList.used_ref[ChrList.used_count] );
-	}
-
-	return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_used( const CHR_REF by_reference ichr )
-{
-	// find the object in the used list
-	int index = ChrList_get_used_list_index(ichr);
-
-	return ChrList_remove_used_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF ChrList_allocate( const CHR_REF by_reference override )
-{
-    CHR_REF ichr = ( CHR_REF )MAX_CHR;
-
-    if ( VALID_CHR_RANGE( override ) )
-    {
-        ichr = ChrList_get_free();
-        if ( override != ichr )
-        {
-			int override_index = ChrList_get_free_list_index( override );
-
-			if( override_index < 0 || override_index >= ChrList.free_count ) 
-			{
-				ichr = (CHR_REF)MAX_CHR;
-			}
-			else
-			{
-				// store the "wrong" value in the override character's index
-				ChrList.free_ref[override_index] = ichr;
-
-				// fix the in_free_list values
-				ChrList.lst[ichr].obj_base.in_free_list = btrue;
-				ChrList.lst[override].obj_base.in_free_list = bfalse;
-
-				ichr = override;
-			}
-        }
-
-        if ( MAX_CHR == ichr )
-        {
-            log_warning( "ChrList_allocate() - failed to override a character? character %d already spawned? \n", REF_TO_INT( override ) );
-        }
-    }
-    else
-    {
-        ichr = ChrList_get_free();
-        if ( MAX_CHR == ichr )
-        {
-            log_warning( "ChrList_allocate() - failed to allocate a new character\n" );
-        }
-    }
-
-    if ( VALID_CHR_RANGE( ichr ) )
-    {
-        // if the character is already being used, make sure to destroy the old one
-        if ( DEFINED_CHR( ichr ) )
-        {
-            ChrList_free_one( ichr );
-        }
-
-        // allocate the new one
-        EGO_OBJECT_ALLOCATE( ChrList.lst +  ichr , REF_TO_INT( ichr ) );
-    }
-
-    if ( ALLOCATED_CHR( ichr ) )
-    {
-        // construct the new structure
-        chr_config_construct( ChrList.lst + ichr, 100 );
-    }
-
-    return ichr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3768,40 +3477,6 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF by_reference index, const
 }
 
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_chr::s_chr() { memset( this, 0, sizeof( *this ) ); };
-s_chr::~s_chr() { chr_config_dtor( this ); };
-#endif
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_free( chr_t * pchr )
-{
-    /// Free all allocated memory
-
-    if ( !ALLOCATED_PCHR( pchr ) )
-    {
-        EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
-        return bfalse;
-    }
-
-    // do some list clean-up
-    disenchant_character( GET_REF_PCHR( pchr ) );
-
-    // deallocate
-    BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
-
-    LoopedList_remove( pchr->loopedsound_channel );
-
-    chr_instance_dtor( &( pchr->inst ) );
-    BSP_leaf_dtor( &( pchr->bsp_leaf ) );
-    ai_state_dtor( &( pchr->ai ) );
-
-    EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_do_init( chr_t * pchr )
 {
@@ -4388,8 +4063,6 @@ chr_t * chr_config_ctor( chr_t * pchr )
     ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
     ///     statements are redundant
 
-    int cnt;
-    ego_object_base_t save_base;
     ego_object_base_t * pbase;
 
     // grab the base object
@@ -4399,112 +4072,11 @@ chr_t * chr_config_ctor( chr_t * pchr )
     // if we aren't in the correct state, abort.
     if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return pchr;
 
-    //---- construct the character object
-
-    // save the base object data
-    memcpy( &save_base, pbase, sizeof( ego_object_base_t ) );
-
-    if ( ALLOCATED_PCHR( pchr ) )
-    {
-        // deallocate any existing data
-        chr_free( pchr );
-
-        EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
-    }
-
-    // clear out all data
-    memset( pchr, 0, sizeof( *pchr ) );
-
-    // restore the base object data
-    memcpy( pbase, &save_base, sizeof( ego_object_base_t ) );
-
-    // IMPORTANT!!!
-    pchr->ibillboard = INVALID_BILLBOARD;
-    pchr->sparkle = NOSPARKLE;
-    pchr->loopedsound_channel = INVALID_SOUND_CHANNEL;
-
-    // Set up model stuff
-    pchr->inwhich_slot = SLOT_LEFT;
-    pchr->hitready = btrue;
-    pchr->boretime = BORETIME;
-    pchr->carefultime = CAREFULTIME;
-
-    // Enchant stuff
-    pchr->firstenchant = MAX_ENC;
-    pchr->undoenchant = MAX_ENC;
-    pchr->missiletreatment = MISSILE_NORMAL;
-
-    // Character stuff
-    pchr->turnmode = TURNMODE_VELOCITY;
-    pchr->alive = btrue;
-
-    // Jumping
-    pchr->jumptime = JUMPDELAY;
-
-    // Grip info
-    pchr->attachedto = ( CHR_REF )MAX_CHR;
-    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
-    {
-        pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
-    }
-
-    // pack/inventory info
-    pchr->pack.next = ( CHR_REF )MAX_CHR;
-    for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
-    {
-        pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
-    }
-
-    // Set up position
-    pchr->map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    pchr->map_facing_x = MAP_TURN_OFFSET;
-
-    // start the character out in the "dance" animation
-    chr_start_anim( pchr, ACTION_DA, btrue, btrue );
-
-    // I think we have to set the dismount timer, otherwise objects that
-    // are spawned by chests will behave strangely...
-    // nope this did not fix it
-    // ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
-    pchr->dismount_timer  = 0;
-    pchr->dismount_object = ( CHR_REF )MAX_CHR;
-
-    // set all of the integer references to invalid values
-    pchr->firstenchant = MAX_ENC;
-    pchr->undoenchant  = MAX_ENC;
-    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
-    {
-        pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
-    }
-
-    pchr->pack.next = ( CHR_REF )MAX_CHR;
-    for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
-    {
-        pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
-    }
-
-    pchr->onwhichplatform = ( CHR_REF )MAX_CHR;
-    pchr->attachedto      = ( CHR_REF )MAX_CHR;
-
-    // initialize the bsp node for this character
-    pchr->bsp_leaf.data      = pchr;
-    pchr->bsp_leaf.data_type = 1;
-    pchr->bsp_leaf.index     = GET_INDEX_PCHR( pchr );
-
-    //---- call the constructors of the "has a" classes
-
-    // set the insance values to safe values
-    chr_instance_ctor( &( pchr->inst ) );
-
-    // intialize the ai_state
-    ai_state_ctor( &( pchr->ai ) );
-
-    // initialize the bsp node for this character
-    BSP_leaf_ctor( &( pchr->bsp_leaf ), 3, pchr, 1 );
-    pchr->bsp_leaf.index = GET_INDEX_PCHR( pchr );
+	pchr = chr_ctor( pchr );
+	if( NULL == pchr ) return pchr;
 
     // we are done constructing. move on to initializing.
-    pbase->state = ego_object_initializing;
+    pchr->obj_base.state = ego_object_initializing;
 
     return pchr;
 }
@@ -4519,7 +4091,7 @@ chr_t * chr_config_init( chr_t * pchr )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pchr;
 
-	EGO_OBJECT_BEGIN_SPAWN(pchr);
+	POBJ_BEGIN_SPAWN(pchr);
 
     pchr = chr_config_do_init( pchr );
     if ( NULL == pchr ) return NULL;
@@ -4530,12 +4102,7 @@ chr_t * chr_config_init( chr_t * pchr )
     }
     else
     {
-        pchr->obj_base.turn_me_on = btrue;
-
-        // put this particle into the activation list so that it can be activated right after
-        // the PrtList loop is completed
-        chr_activation_list[chr_activation_count] = GET_INDEX_PPRT( pchr );
-        chr_activation_count++;
+		ChrList_add_activation( GET_INDEX_PPRT( pchr ) );
     }
 
     pbase->state = ego_object_active;
@@ -4556,7 +4123,7 @@ chr_t * chr_config_active( chr_t * pchr )
 
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return pchr;
 
-	EGO_OBJECT_END_SPAWN( pchr );
+	POBJ_END_SPAWN( pchr );
 
     pchr = chr_config_do_active( pchr );
 
@@ -4575,7 +4142,7 @@ chr_t * chr_config_deinit( chr_t * pchr )
 
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pchr;
 
-	EGO_OBJECT_END_SPAWN( pchr );
+	POBJ_END_SPAWN( pchr );
 
     pbase->state = ego_object_destructing;
     pbase->on    = bfalse;
@@ -4595,16 +4162,9 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pchr;
 
-	EGO_OBJECT_END_SPAWN( pchr );
+	POBJ_END_SPAWN( pchr );
 	
-	// destruct/free any allocated data
-    chr_free( pchr );
-
-    // Destroy the base object.
-    // Sets the state to ego_object_terminated automatically.
-    EGO_OBJECT_TERMINATE( pchr );
-
-    return pchr;
+    return chr_dtor( pchr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5459,12 +5019,7 @@ void update_all_characters()
 
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        chr_t * pchr;
-
-        if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
-
-        chr_run_config( pchr );
+        chr_run_config( ChrList.lst + ichr );
     }
 
     // fix the stat timer
@@ -6979,12 +6534,6 @@ void cleanup_all_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t spawn_all_delayed_characters()
-{
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------
 void bump_all_characters_update_counters()
 {
     CHR_REF cnt;
@@ -7886,7 +7435,7 @@ bool_t chr_request_terminate( const CHR_REF by_reference ichr )
 
     if ( !DEFINED_CHR( ichr ) ) return bfalse;
 
-    EGO_OBJECT_REQUEST_TERMINATE( ChrList.lst + ichr );
+    POBJ_REQUEST_TERMINATE( ChrList.lst + ichr );
 
     return btrue;
 }
@@ -9293,37 +8842,6 @@ mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
     if ( !LOADED_MAD( pchr->inst.imad ) ) return NULL;
 
     return MadStack.lst + pchr->inst.imad;
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_cleanup()
-{
-    int     cnt;
-    chr_t * pchr;
-
-    // go through the list and activate all the characters that
-    // were created while the list was iterating
-    for ( cnt = 0; cnt < chr_activation_count; cnt++ )
-    {
-        CHR_REF ichr = chr_activation_list[cnt];
-
-        if ( !ALLOCATED_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
-
-        if ( !pchr->obj_base.turn_me_on ) continue;
-
-        pchr->obj_base.on         = btrue;
-        pchr->obj_base.turn_me_on = bfalse;
-    }
-    chr_activation_count = 0;
-
-    // go through and delete any characters that were
-    // supposed to be deleted while the list was iterating
-    for ( cnt = 0; cnt < chr_termination_count; cnt++ )
-    {
-        ChrList_free_one( chr_termination_list[cnt] );
-    }
-    chr_termination_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------

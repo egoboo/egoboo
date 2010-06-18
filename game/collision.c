@@ -1005,7 +1005,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     pprt->onwhichplatform = GET_REF_PCHR( pplat );
 
     // update the character's relationship to the ground
-    particle_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] ) );
+    prt_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] ) );
 
     return btrue;
 }
@@ -3115,7 +3115,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //        pprt = PrtList.lst + particle;
 //
 //        pprt->onwhichplatform = (CHR_REF)MAX_CHR;
-//        particle_set_level( pprt, pprt->enviro.floor_level );
+//        prt_set_level( pprt, pprt->enviro.floor_level );
 //
 //        // reject characters that are hidden
 //        if ( pprt->is_hidden ) continue;

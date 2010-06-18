@@ -99,58 +99,24 @@ struct s_enc
 };
 typedef struct s_enc enc_t;
 
-DECLARE_LIST_EXTERN( enc_t, EncList, MAX_ENC );
-
-#define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
-#define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define ACTIVE_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define WAITING_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define TERMINATED_ENC( IENC )  ( VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-
-#define DEFINED_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE (POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-
-#define GET_INDEX_PENC( PENC )      ((size_t)GET_INDEX_POBJ( PENC, MAX_ENC ))
-#define GET_REF_PENC( PENC )        ((ENC_REF)GET_INDEX_PENC( PENC ))
-#define VALID_ENC_PTR( PENC )       ( (NULL != (PENC)) && VALID_ENC_RANGE( GET_REF_POBJ( PENC, MAX_ENC) ) )
-#define ALLOCATED_PENC( PENC )      ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PENC) ) )
-#define ACTIVE_PENC( PENC )         ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) )
-
-#define DEFINED_PENC( IENC )     ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE(POBJ_GET_PBASE(PENC)) && !TERMINATED_PBASE (POBJ_GET_PBASE(PENC)) )
-
-// Macros automate looping through the EncList. This hides code which defers the creation and deletion of
-// objects until the loop terminates, so tha the length of the list will not change during the loop.
-#define ENC_BEGIN_LOOP_ACTIVE(IT, PENC)  {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC (IT)) continue; PENC =  EncList.lst + IT;
-#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); EncList_cleanup(); }
-
-extern int enc_loop_depth;
-
-// Macros to determine whether the enchant is in the game or not.
-// If objects are being spawned, then any object that is just "defined" is treated as "in game"
-#define INGAME_ENC_BASE(IENC)       ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && ON_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define INGAME_PENC_BASE(PENC)      ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) && ON_PBASE( POBJ_GET_PBASE(PENC) ) )
-
-#define INGAME_ENC(IENC)            ( (ego_object_spawn_depth) > 0 ? DEFINED_ENC(IENC) : INGAME_ENC_BASE(IENC) )
-#define INGAME_PENC(PENC)           ( (ego_object_spawn_depth) > 0 ? DEFINED_PENC(PENC) : INGAME_PENC_BASE(PENC) )
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Prototypes
 
-void EncList_cleanup();
+void enchant_system_begin();
+void enchant_system_end();
+
+enc_t * enc_ctor( enc_t * penc );
+enc_t * enc_dtor( enc_t * penc );
 
 void   init_all_eve();
 void   release_all_eve();
 bool_t release_one_eve( const EVE_REF by_reference ieve );
 
-void EncList_free_all();
-void EncList_update_used();
-
 void    update_all_enchants();
 void    cleanup_all_enchants();
-size_t  spawn_all_delayed_enchants( void );
-void    bump_all_enchants_update_counters( void );
 
-ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc );
+void    bump_all_enchants_update_counters( void );
 
 ENC_REF enchant_value_filled( const ENC_REF by_reference enchant_idx, int value_idx );
 bool_t  remove_enchant( const ENC_REF by_reference  enchant_idx );
@@ -163,7 +129,13 @@ void    enchant_remove_add( const ENC_REF by_reference  enchant_idx, int value_i
 
 bool_t enc_request_terminate( const ENC_REF by_reference  ienc );
 
-void enchant_system_begin();
-void enchant_system_end();
 
 enc_t * enc_run_config( enc_t * penc );
+
+ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc );
+
+enc_t * enc_config_construct( enc_t * penc, int max_iterations );
+enc_t * enc_config_initialize( enc_t * penc, int max_iterations );
+enc_t * enc_config_activate( enc_t * penc, int max_iterations );
+enc_t * enc_config_deinitialize( enc_t * penc, int max_iterations );
+enc_t * enc_config_deconstruct( enc_t * penc, int max_iterations );
