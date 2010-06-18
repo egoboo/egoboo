@@ -2367,7 +2367,7 @@ void show_full_status( int statindex )
     pchr = ChrList.lst + character;
 
     // clean up the enchant list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
+    cleanup_character_enchants( pchr );
 
     // Enchanted?
     debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
@@ -2408,7 +2408,7 @@ void show_magic_status( int statindex )
     pchr = ChrList.lst + character;
 
     // clean up the enchant list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
+    cleanup_character_enchants( pchr );
 
     // Enchanted?
     debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
@@ -5207,9 +5207,18 @@ void disenchant_character( const CHR_REF by_reference cnt )
     while ( MAX_ENC != pchr->firstenchant )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
-        if ( !remove_enchant( pchr->firstenchant ) )
+        if ( !remove_enchant( pchr->firstenchant, &(pchr->firstenchant) ) )
         {
             break;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------
+void cleanup_character_enchants( chr_t * pchr )
+{
+	if( NULL == pchr ) return;
+
+    // clean up the enchant list
+	pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &(pchr->firstenchant) );
 }

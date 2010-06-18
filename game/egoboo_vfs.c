@@ -1603,7 +1603,10 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
 
     if ( NULL == retval )
     {
-        ( *pctxt )->found[0] = CSTR_END;
+		if( NULL != *pctxt )
+		{
+			( *pctxt )->found[0] = CSTR_END;
+		}
     }
     else
     {
@@ -1613,6 +1616,7 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
     return *pctxt;
 
 _vfs_search_file_error:
+
     vfs_findClose( pctxt );
     return NULL;
 }

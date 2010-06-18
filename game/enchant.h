@@ -119,7 +119,7 @@ void    cleanup_all_enchants();
 void    bump_all_enchants_update_counters( void );
 
 ENC_REF enchant_value_filled( const ENC_REF by_reference enchant_idx, int value_idx );
-bool_t  remove_enchant( const ENC_REF by_reference  enchant_idx );
+bool_t  remove_enchant( const ENC_REF by_reference  enchant_idx, const ENC_REF *  enchant_parent );
 void    enchant_apply_set( const ENC_REF by_reference  enchant_idx, int value_idx, const PRO_REF by_reference profile );
 void    enchant_apply_add( const ENC_REF by_reference  enchant_idx, int value_idx, const EVE_REF by_reference enchanttype );
 ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_reference target, const CHR_REF by_reference spawner, const ENC_REF by_reference enc_override, const PRO_REF by_reference modeloptional );
@@ -132,7 +132,7 @@ bool_t enc_request_terminate( const ENC_REF by_reference  ienc );
 
 enc_t * enc_run_config( enc_t * penc );
 
-ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc );
+ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_parent );
 
 enc_t * enc_config_construct( enc_t * penc, int max_iterations );
 enc_t * enc_config_initialize( enc_t * penc, int max_iterations );

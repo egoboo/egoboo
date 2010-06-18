@@ -923,6 +923,9 @@ void reset_character_accel( const CHR_REF by_reference character )
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
+	// cleanup the enchant list
+	cleanup_character_enchants( pchr );
+
     // Okay, remove all acceleration enchants
     enchant = pchr->firstenchant;
     while ( enchant != MAX_ENC )
@@ -938,6 +941,9 @@ void reset_character_accel( const CHR_REF by_reference character )
     {
         pchr->maxaccel = pcap->maxaccel[pchr->skin];
     }
+
+	// cleanup the enchant list
+	cleanup_character_enchants( pchr );
 
     // Put the acceleration enchants back on
     enchant = pchr->firstenchant;
@@ -1077,6 +1083,9 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
     // Reset transparency
     if ( pchr->isitem && pmount->transferblend )
     {
+		// cleanup the enchant list
+		cleanup_character_enchants( pchr );
+
         // Okay, reset transparency
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
@@ -1089,6 +1098,11 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
 
         chr_set_alpha( pchr, pchr->alpha_base );
         chr_set_light( pchr, pchr->light_base );
+
+		// cleanup the enchant list
+		cleanup_character_enchants( pchr );
+
+		// apply the blend enchants
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
         {
@@ -1133,6 +1147,9 @@ void reset_character_alpha( const CHR_REF by_reference character )
 
     if ( pchr->isitem && pmount->transferblend )
     {
+		// cleanup the enchant list
+		cleanup_character_enchants( pchr );
+
         // Okay, reset transparency
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
@@ -1145,6 +1162,9 @@ void reset_character_alpha( const CHR_REF by_reference character )
 
         chr_set_alpha( pchr, pchr->alpha_base );
         chr_set_light( pchr, pchr->light_base );
+
+		// cleanup the enchant list
+		cleanup_character_enchants( pchr );
 
         enchant = pchr->firstenchant;
         while ( enchant != MAX_ENC )
@@ -3023,7 +3043,7 @@ void cleanup_one_character( chr_t * pchr )
     }
 
     // start with a clean list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
+    cleanup_character_enchants( pchr );
 
     // remove enchants from the character
     if ( pchr->life >= 0 )
@@ -3035,6 +3055,9 @@ void cleanup_one_character( chr_t * pchr )
         eve_t * peve;
         ENC_REF enc_now, enc_next;
 
+		// cleanup the enchant list
+		cleanup_character_enchants( pchr );
+
         // remove all invalid enchants
         enc_now = pchr->firstenchant;
         while ( enc_now != MAX_ENC )
@@ -3044,7 +3067,7 @@ void cleanup_one_character( chr_t * pchr )
             peve = enc_get_peve( enc_now );
             if ( NULL != peve && !peve->stayiftargetdead )
             {
-                remove_enchant( enc_now );
+                remove_enchant( enc_now, NULL );
             }
 
             enc_now = enc_next;
@@ -4385,11 +4408,16 @@ int change_armor( const CHR_REF by_reference character, int skin )
     ENC_REF enchant;
     int     iTmp;
     cap_t * pcap;
+	chr_t * pchr;
 
     if ( !INGAME_CHR( character ) ) return 0;
+	pchr = ChrList.lst + character;
+
+	// cleanup the enchant list
+	cleanup_character_enchants( pchr );
 
     // Remove armor enchantments
-    enchant = ChrList.lst[character].firstenchant;
+    enchant = pchr->firstenchant;
     while ( enchant < MAX_ENC )
     {
         enchant_remove_set( enchant, SETSLASHMODIFIER );
@@ -4409,19 +4437,22 @@ int change_armor( const CHR_REF by_reference character, int skin )
     skin = chr_change_skin( character, skin );
 
     // Change stats associated with skin
-    ChrList.lst[character].defense = pcap->defense[skin];
+    pchr->defense = pcap->defense[skin];
 
     for ( iTmp = 0; iTmp < DAMAGE_COUNT; iTmp++ )
     {
-        ChrList.lst[character].damagemodifier[iTmp] = pcap->damagemodifier[iTmp][skin];
+        pchr->damagemodifier[iTmp] = pcap->damagemodifier[iTmp][skin];
     }
 
-    ChrList.lst[character].maxaccel = pcap->maxaccel[skin];
+    pchr->maxaccel = pcap->maxaccel[skin];
+
+	// cleanup the enchant list
+	cleanup_character_enchants( pchr );
 
     // Reset armor enchantments
     /// @todo These should really be done in reverse order ( Start with last enchant ), but
     /// I don't care at this point !!!BAD!!!
-    enchant = ChrList.lst[character].firstenchant;
+    enchant = pchr->firstenchant;
     while ( enchant < MAX_ENC )
     {
         PRO_REF ipro = enc_get_ipro( enchant );
@@ -4598,18 +4629,25 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     disaffirm_attached_particles( ichr );
 
     // clean up the enchant list before doing anything
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
+    cleanup_character_enchants( pchr );
+
 
     // Remove enchantments
     if ( leavewhich == ENC_LEAVE_FIRST )
     {
+		// cleanup the enchant list
+		cleanup_character_enchants( pchr );
+
         // Remove all enchantments except top one
         enchant = pchr->firstenchant;
         if ( enchant != MAX_ENC )
         {
-            while ( MAX_ENC != EncList.lst[enchant].nextenchant_ref )
+			enchant = EncList.lst[enchant].nextenchant_ref;
+            while ( MAX_ENC != enchant )
             {
-                if ( !remove_enchant( EncList.lst[enchant].nextenchant_ref ) ) break;
+                remove_enchant( enchant, NULL );
+
+				enchant = EncList.lst[enchant].nextenchant_ref;
             }
         }
     }
@@ -4982,9 +5020,11 @@ bool_t update_chr_darkvision( const CHR_REF by_reference character )
     if ( !INGAME_CHR( character ) ) return bfalse;
     pchr = ChrList.lst + character;
 
+	// cleanup the enchant list
+	cleanup_character_enchants( pchr );
+
     // grab the life loss due poison to determine how much darkvision a character has earned, he he he!
     // clean up the enchant list before doing anything
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
     enc_now = pchr->firstenchant;
     while ( enc_now != MAX_ENC )
     {

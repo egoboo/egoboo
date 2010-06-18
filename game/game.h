@@ -375,3 +375,5 @@ void disenchant_character( const CHR_REF by_reference ichr );
 
 // manage the game's vfs mount points
 bool_t game_setup_vfs( const char * mod_path );
+
+void cleanup_character_enchants( struct s_chr * pchr );

@@ -3087,10 +3087,15 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // clean up the enchant list before doing anything
-    pchr->undoenchant = cleanup_enchant_list( pchr->undoenchant );
-
-    returncode = remove_enchant( pchr->undoenchant );
+	if( INGAME_ENC(pchr->undoenchant) )
+	{
+		returncode = remove_enchant( pchr->undoenchant, NULL );
+	}
+	else
+	{
+		pchr->undoenchant = MAX_ENC;
+		returncode = bfalse;
+	}
 
     SCRIPT_FUNCTION_END();
 }
@@ -4758,7 +4763,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
         returncode = btrue;
 
         // clean up the enchant list before doing anything
-        pself_target->firstenchant = cleanup_enchant_list( pself_target->firstenchant );
+        cleanup_character_enchants( pself_target );
 
         // Check all enchants to see if they are removed
         enc_now = pself_target->firstenchant;
@@ -4770,7 +4775,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
             peve = enc_get_peve( enc_now );
             if ( NULL != peve && test == peve->removedbyidsz )
             {
-                remove_enchant( enc_now );
+                remove_enchant( enc_now, NULL );
             }
 
             enc_now = enc_next;
@@ -6305,7 +6310,7 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
 
     for ( iTmp = 0; iTmp < MAX_ENC; iTmp++ )
     {
-        remove_enchant( iTmp );
+        remove_enchant( iTmp, NULL );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7541,7 +7546,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
         IDSZ idsz = pstate->argument;
 
         // clean up the enchant list before doing anything
-        pself_target->firstenchant = cleanup_enchant_list( pself_target->firstenchant );
+        cleanup_character_enchants( pself_target );
 
         enc_now = pself_target->firstenchant;
         while ( enc_now != MAX_ENC )
@@ -7551,7 +7556,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
             peve = enc_get_peve( enc_now );
             if ( NULL != peve && idsz == peve->removedbyidsz )
             {
-                remove_enchant( enc_now );
+                remove_enchant( enc_now, NULL );
             }
 
             enc_now = enc_next;

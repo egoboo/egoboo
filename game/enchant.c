@@ -132,16 +132,73 @@ s_enc::s_enc() { enc_ctor(this) };
 s_enc::~s_enc() { enc_dtor( this ); };
 #endif
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t unlink_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
+{
+    enc_t * penc;
+
+    if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
+    penc = EncList.lst + ienc;
+
+    // Unlink it from the spawner (if possible)
+    if ( ALLOCATED_CHR( penc->spawner_ref ) )
+    {
+        chr_t * pspawner = ChrList.lst + penc->spawner_ref;
+
+        if ( ienc == pspawner->undoenchant )
+        {
+            pspawner->undoenchant = MAX_ENC;
+        }
+    }
+
+	// find the parent reference for the enchant
+	if( NULL == enc_parent && ALLOCATED_CHR( penc->target_ref ) )
+    {
+		ENC_REF ienc_last, ienc_now;
+		chr_t * ptarget;
+
+        ptarget =  ChrList.lst + penc->target_ref;
+
+        if ( ptarget->firstenchant == ienc )
+        {
+            // It was the first in the list
+			enc_parent = &(ptarget->firstenchant);
+        }
+        else
+        {
+            // Search until we find it
+            ienc_last = ienc_now = ptarget->firstenchant;
+            while ( MAX_ENC != ienc_now && ienc_now != ienc )
+            {
+                ienc_last    = ienc_now;
+                ienc_now = EncList.lst[ienc_now].nextenchant_ref;
+            }
+
+            // Relink the last enchantment
+            if ( ienc_now == ienc )
+            {
+                enc_parent = &(EncList.lst[ienc_last].nextenchant_ref);
+            }
+        }
+    }
+
+	// unlink the enchant from the parent reference
+	if( NULL != enc_parent )
+	{
+		*enc_parent = EncList.lst[ienc].nextenchant_ref;
+	}
+
+	return NULL != enc_parent;
+}
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t remove_enchant( const ENC_REF by_reference ienc )
+bool_t remove_enchant( const ENC_REF by_reference ienc, const ENC_REF * enc_parent )
 {
     /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
 
     int     iwave;
     CHR_REF overlay_ref;
-    ENC_REF ienc_last, ienc_now;
     int add_type, set_type;
 
     enc_t * penc;
@@ -169,7 +226,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
         }
     }
 
-    // Remove all the enchant stuff in exactly the opposite order to how it was applied
+    //---- Remove all the enchant stuff in exactly the opposite order to how it was applied
 
     // Remove all of the cumulative values first, since we did it
     for ( add_type = ENC_ADD_LAST; add_type >= ENC_ADD_FIRST; add_type-- )
@@ -191,44 +248,8 @@ bool_t remove_enchant( const ENC_REF by_reference ienc )
         reset_character_alpha( ptarget->holdingwhich[SLOT_RIGHT] );
     }
 
-    // Unlink it from the spawner (if possible)
-    if ( ALLOCATED_CHR( penc->spawner_ref ) )
-    {
-        chr_t * pspawner = ChrList.lst + penc->spawner_ref;
-
-        if ( ienc == pspawner->undoenchant )
-        {
-            pspawner->undoenchant = MAX_ENC;
-        }
-    }
-
-    // Unlink it from the target
-    if ( ALLOCATED_CHR( penc->target_ref ) )
-    {
-        chr_t * ptarget =  ChrList.lst + penc->target_ref;
-
-        if ( ptarget->firstenchant == ienc )
-        {
-            // It was the first in the list
-            ptarget->firstenchant = EncList.lst[ienc].nextenchant_ref;
-        }
-        else
-        {
-            // Search until we find it
-            ienc_last = ienc_now = ptarget->firstenchant;
-            while ( MAX_ENC != ienc_now && ienc_now != ienc )
-            {
-                ienc_last    = ienc_now;
-                ienc_now = EncList.lst[ienc_now].nextenchant_ref;
-            }
-
-            // Relink the last enchantment
-            if ( ienc_now == ienc )
-            {
-                EncList.lst[ienc_last].nextenchant_ref = EncList.lst[ienc].nextenchant_ref;
-            }
-        }
-    }
+	// unlink this enchant from its parent
+	unlink_enchant( ienc, enc_parent );
 
     // Kill overlay too...
     overlay_ref = penc->overlay_ref;
@@ -316,20 +337,28 @@ ENC_REF enchant_value_filled( const ENC_REF by_reference  ienc, int value_idx )
 
     CHR_REF character;
     ENC_REF currenchant;
+	chr_t * pchr;
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return ( ENC_REF )MAX_ENC;
 
     if ( !INGAME_ENC( ienc ) ) return ( ENC_REF )MAX_ENC;
 
     character = EncList.lst[ienc].target_ref;
+	if( !INGAME_CHR(character) ) return ( ENC_REF )MAX_ENC;
+	pchr = ChrList.lst + character;
 
-    currenchant = ChrList.lst[character].firstenchant;
+	// cleanup the enchant list
+	cleanup_character_enchants( pchr );
+
+	// scan the enchant list
+    currenchant = pchr->firstenchant;
     while ( currenchant != MAX_ENC )
     {
         if ( INGAME_ENC( currenchant ) && EncList.lst[currenchant].setyesno[value_idx] )
         {
             break;
         }
+
         currenchant = EncList.lst[currenchant].nextenchant_ref;
     }
 
@@ -368,7 +397,7 @@ void enchant_apply_set( const ENC_REF by_reference  ienc, int value_idx, const P
                 if ( peve->removeoverridden )
                 {
                     // Kill the old enchantment
-                    remove_enchant( conflict );
+                    remove_enchant( conflict, NULL );
                 }
                 else
                 {
@@ -1709,30 +1738,61 @@ void update_all_enchants()
 
 
 //--------------------------------------------------------------------------------------------
-ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc )
+ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 {
     /// @details BB@> remove all the dead enchants from the enchant list
     ///     and report back the first non-dead enchant in the list.
 
+	bool_t enc_used[MAX_ENC];
+
     ENC_REF first_valid_enchant;
     ENC_REF enc_now, enc_next;
 
+	if( !VALID_ENC_RANGE(ienc) ) return MAX_ENC;
+
+	// clear the list
+	memset( enc_used, 0, sizeof(enc_used) );
+
+	// scan the list of enchants
     first_valid_enchant = MAX_ENC;
+	enc_next            = MAX_ENC;
     enc_now             = ienc;
-    while ( MAX_ENC != enc_now )
+    while ( enc_now < MAX_ENC )
     {
         enc_next = EncList.lst[enc_now].nextenchant_ref;
 
+		// coerce the list of enchants to a valid value
+		if( !VALID_ENC_RANGE(enc_next) ) 
+		{
+			enc_next = EncList.lst[enc_now].nextenchant_ref = MAX_ENC;
+		}
+
+		// fix any loops in the enchant list
+		if( enc_used[enc_next] )
+		{
+			EncList.lst[enc_now].nextenchant_ref = MAX_ENC;
+			break;
+		}
+
+		// remove any expired enchants
         if ( !INGAME_ENC( enc_now ) )
         {
-            remove_enchant( enc_now );
+            remove_enchant( enc_now, enc_parent );
         }
-        else if ( MAX_ENC == first_valid_enchant )
-        {
-            first_valid_enchant = enc_now;
-        }
+        else 
+		{
+			// store this enchant in the list of used enchants
+			enc_used[enc_now] = btrue;
 
-        enc_now = enc_next;
+			// keep track of the first valid enchant
+			if ( MAX_ENC == first_valid_enchant )
+			{
+				first_valid_enchant = enc_now;
+			}
+		}	
+
+		enc_parent = &(EncList.lst[enc_now].nextenchant_ref);
+        enc_now    = enc_next;
     }
 
     return first_valid_enchant;
@@ -1795,7 +1855,7 @@ void cleanup_all_enchants()
 
         if ( do_remove )
         {
-            remove_enchant( ienc );
+            remove_enchant( ienc, NULL );
         }
     }
     ENC_END_LOOP();

@@ -2413,7 +2413,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     if ( pchr->damagetime > 0 || ( pprt->damage.base + pprt->damage.base ) == 0 ) return bfalse;
 
     // clean up the enchant list before doing anything
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant );
+    cleanup_character_enchants( pchr );
 
     // Check all enchants to see if they are removed
     enchant = pchr->firstenchant;
@@ -2422,7 +2422,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         enc_next = EncList.lst[enchant].nextenchant_ref;
         if ( enc_is_removed( enchant, pprt->profile_ref ) )
         {
-            remove_enchant( enchant );
+            remove_enchant( enchant, NULL );
         }
         enchant = enc_next;
     }
