@@ -41,7 +41,6 @@
 #include "mad.h"
 #include "profile.inl"
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define PRT_TRANS 0x80
@@ -80,7 +79,6 @@ prt_t * prt_update_do_water( prt_t * pprt, pip_t * ppip );
 prt_t * prt_update_ingame( prt_t * pprt, pip_t * ppip  );
 prt_t * prt_update_display( prt_t * pprt, pip_t * ppip );
 prt_t * prt_update( prt_t * pprt );
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1522,7 +1520,7 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
 			pprt->vel.x += (windspeed.x-pprt->vel.x) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
 			pprt->vel.y += (windspeed.y-pprt->vel.y) * ( 1.0f - pprt->enviro.fluid_friction_hrz );
 			pprt->vel.z += (windspeed.z-pprt->vel.z) * ( 1.0f - pprt->enviro.fluid_friction_vrt );
-		}	
+		}
 	}
 
 }
@@ -1912,6 +1910,104 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 //    }
 //}
 
+prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
+{
+    /// @details BB@> A helper function that figures out the next valid position of the particle.
+    ///               Collisions with the mesh are included in this step.
+
+    pip_t * ppip;
+
+    float ftmp, loc_level;
+    PRT_REF iprt;
+    bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
+    fvec3_t nrm_total;
+
+	// if the particle is not still in "display mode" there is no point in going on
+    if ( !DISPLAY_PPRT( pprt ) ) return pprt;
+    iprt = GET_INDEX_PPRT( pprt );
+
+	// only deal with attached particles
+	if( MAX_CHR == pprt->attachedto_ref ) return pprt;
+
+	// if the particle profile is not defined, there is some error
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return pprt;
+    ppip =  PipStack.lst +  pprt->pip_ref;
+
+    hit_a_floor = bfalse;
+    hit_a_wall  = bfalse;
+    nrm_total.x = nrm_total.y = nrm_total.z = 0;
+
+    loc_level = pprt->enviro.adj_level;
+
+    // Move the particle
+    if ( pprt->pos.z < loc_level )
+    {
+        hit_a_floor = btrue;
+    }
+
+    // handle the collision
+    if ( hit_a_floor && ( ppip->endground || ppip->endbump ) )
+    {
+        prt_request_terminate( iprt );
+        return NULL;
+    }
+
+    // interaction with the mesh walls
+    hit_a_wall = bfalse;
+    updated_2d = bfalse;
+    needs_test = bfalse;
+    if ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) > 0.0f )
+    {
+        if ( prt_test_wall( pprt ) )
+        {
+            Uint32  hit_bits;
+            fvec2_t nrm;
+            float   pressure;
+
+            // how is the character hitting the wall?
+            hit_bits = prt_hit_wall( pprt, nrm.v, &pressure );
+
+            if ( 0 != hit_bits )
+            {
+                hit_a_wall = btrue;
+            }
+        }
+    }
+
+    // handle the collision
+    if ( hit_a_wall && ( ppip->endwall || ppip->endbump ) )
+    {
+        prt_request_terminate( iprt );
+        return NULL;
+    }
+
+    // handle the sounds
+    if ( hit_a_wall )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( iprt, ppip->soundend_wall );
+    }
+
+    if ( hit_a_floor )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( iprt, ppip->soundend_floor );
+    }
+
+    if ( !hit_a_wall )
+    {
+        Uint32 new_tile = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+        if ( new_tile != pprt->safe_grid )
+        {
+			pprt->safe_pos   = pprt->pos;
+			pprt->safe_valid = btrue;
+			pprt->safe_grid  = pprt->onwhichgrid;
+        }
+    }
+
+    return pprt;
+}
+
 prt_t * move_one_particle_integrate_motion( prt_t * pprt )
 {
     /// @details BB@> A helper function that figures out the next valid position of the particle.
@@ -1924,9 +2020,17 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
     fvec3_t nrm_total;
 
+	// if the particle is not still in "display mode" there is no point in going on
     if ( !DISPLAY_PPRT( pprt ) ) return pprt;
     iprt = GET_INDEX_PPRT( pprt );
 
+	// no point in doing this if the particle thinks it's attached
+	if( MAX_CHR != pprt->attachedto_ref )
+	{
+		return move_one_particle_integrate_motion_attached( pprt );
+	}
+
+	// if the particle profile is not defined, there is some error
     if ( !LOADED_PIP( pprt->pip_ref ) ) return pprt;
     ppip =  PipStack.lst +  pprt->pip_ref;
 
@@ -3031,7 +3135,7 @@ prt_t * prt_update_ingame( prt_t * pprt, pip_t * ppip  )
 		return pprt;
 	}
 
-    // ASSUME that this function is only going to be called from prt_config_active(), 
+    // ASSUME that this function is only going to be called from prt_config_active(),
     // where we already determined that the particle was in its "active" state
     iprt = GET_REF_PPRT( pprt );
 
@@ -3168,7 +3272,7 @@ prt_t * prt_update( prt_t * pprt )
 
     // update various iprt states
     ppip = prt_get_ppip( iprt );
-	if( NULL == ppip ) 
+	if( NULL == ppip )
 		return pprt;
 
 	// handle different particle states differently

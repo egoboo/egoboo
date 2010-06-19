@@ -4658,18 +4658,24 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     ilayer = wawalite_data.water.layer + 0;
     if( wawalite_data.water.background_req )
     {
+		// this is a bit complicated. it is the best I can do at reverse engineering what I did in
+		// render_world_background()
+
+		const float cam_height = 1500.0f;
+		const float default_bg_repeat = 4.0f;
+
 		windspeed_count++;
 
-        windspeed.x += -ilayer->tx_add.x * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.x * 0.04f;
-        windspeed.y += -ilayer->tx_add.y * 128.0f / wawalite_data.water.backgroundrepeat / ilayer->dist.y * 0.04f;
+        windspeed.x += -ilayer->tx_add.x * GRID_SIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.x) / cam_height;
+        windspeed.y += -ilayer->tx_add.y * GRID_SIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.y) / cam_height;
         windspeed.z += -0;
     }
 	else
 	{
 		waterspeed_count++;
 
-        waterspeed.x += -ilayer->tx_add.x * 128.0f;
-        waterspeed.y += -ilayer->tx_add.y * 128.0f;
+        waterspeed.x += -ilayer->tx_add.x * GRID_SIZE;
+        waterspeed.y += -ilayer->tx_add.y * GRID_SIZE;
         waterspeed.z += -0;
 	}
 
@@ -4678,16 +4684,16 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     {
 		windspeed_count++;
 
-        windspeed.x += -600 * ilayer->tx_add.x * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
-        windspeed.y += -600 * ilayer->tx_add.y * 128.0f / wawalite_data.water.foregroundrepeat * 0.04f;
+        windspeed.x += -600 * ilayer->tx_add.x * GRID_SIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        windspeed.y += -600 * ilayer->tx_add.y * GRID_SIZE / wawalite_data.water.foregroundrepeat * 0.04f;
         windspeed.z += -0;
     }
 	else
 	{
 		waterspeed_count++;
 
-        waterspeed.x += -ilayer->tx_add.x * 128.0f;
-        waterspeed.y += -ilayer->tx_add.y * 128.0f;
+        waterspeed.x += -ilayer->tx_add.x * GRID_SIZE;
+        waterspeed.y += -ilayer->tx_add.y * GRID_SIZE;
         waterspeed.z += -0;
 	}
 

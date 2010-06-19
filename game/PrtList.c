@@ -74,7 +74,6 @@ void PrtList_init()
 		PrtList.used_ref[cnt] = TOTAL_MAX_PRT;
 	}
 
-
     for ( cnt = 0; cnt < TOTAL_MAX_PRT; cnt++ )
     {
 		PRT_REF iprt = (TOTAL_MAX_PRT-1) - cnt;
@@ -645,7 +644,6 @@ void PrtList_cleanup()
     }
     prt_termination_count = 0;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_add_activation( PRT_REF iprt )

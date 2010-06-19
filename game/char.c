@@ -3719,7 +3719,6 @@ chr_t * chr_config_do_init( chr_t * pchr )
     return pchr;
 }
 
-
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_do_active( chr_t * pchr )
 {
@@ -4130,7 +4129,6 @@ chr_t * chr_config_init( chr_t * pchr )
 
     pbase->state = ego_object_active;
 
-
     return pchr;
 }
 
@@ -4186,7 +4184,7 @@ chr_t * chr_config_dtor( chr_t * pchr )
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pchr;
 
 	POBJ_END_SPAWN( pchr );
-	
+
     return chr_dtor( pchr );
 }
 
@@ -4630,7 +4628,6 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
 
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pchr );
-
 
     // Remove enchantments
     if ( leavewhich == ENC_LEAVE_FIRST )

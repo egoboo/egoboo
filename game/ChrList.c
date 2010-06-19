@@ -51,7 +51,6 @@ static bool_t ChrList_add_free( const CHR_REF by_reference ichr );
 static bool_t ChrList_remove_free( const CHR_REF by_reference ichr );
 static bool_t ChrList_remove_free_index( int index );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void ChrList_init()
@@ -242,7 +241,6 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
 		{
 			retval = ChrList_add_free( ichr );
 		}
-
 
         // character "destructor"
         pchr = chr_dtor( pchr );
@@ -480,7 +478,7 @@ CHR_REF ChrList_allocate( const CHR_REF by_reference override )
         {
 			int override_index = ChrList_get_free_list_index( override );
 
-			if( override_index < 0 || override_index >= ChrList.free_count ) 
+			if( override_index < 0 || override_index >= ChrList.free_count )
 			{
 				ichr = (CHR_REF)MAX_CHR;
 			}

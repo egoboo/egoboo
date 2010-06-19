@@ -2812,7 +2812,8 @@ void render_world_overlay( const TX_REF by_reference texture )
     vforw_wind.z = 0;
     vforw_wind = fvec3_normalize( vforw_wind.v );
 
-    vforw_cam  = mat_getCamForward( PCamera->mView );
+    vforw_cam = mat_getCamForward( PCamera->mView );
+	vforw_cam = fvec3_normalize( vforw_cam.v );
 
     // make the texture begin to disappear if you are not looking straight down
     ftmp = fvec3_dot_product( vforw_wind.v, vforw_cam.v );

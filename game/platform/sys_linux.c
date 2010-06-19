@@ -69,7 +69,7 @@ int main( int argc, char* argv[] )
 void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
 {
     //ZF> Basic untested implementation of error messaging in Linux
- 
+
 /*	STRING message, buffer;
     snprintf( message, SDL_arraysize( message ), warning );
     vsnprintf( buffer, SDL_arraysize( buffer ), format, args );

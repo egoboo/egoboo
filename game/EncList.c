@@ -244,7 +244,6 @@ bool_t EncList_free_one( const ENC_REF by_reference ienc )
 			retval = EncList_add_free( ienc );
 		}
 
-
         // enchant "destructor"
         penc = enc_dtor( penc );
         if ( NULL == penc ) return bfalse;
@@ -481,7 +480,7 @@ ENC_REF EncList_allocate( const ENC_REF by_reference override )
         {
 			int override_index = EncList_get_free_list_index( override );
 
-			if( override_index < 0 || override_index >= EncList.free_count ) 
+			if( override_index < 0 || override_index >= EncList.free_count )
 			{
 				ienc = (ENC_REF)MAX_ENC;
 			}

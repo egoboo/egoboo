@@ -772,7 +772,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     }
     else
     {
-        penc->owner_ref = pdata->owner_ref; 
+        penc->owner_ref = pdata->owner_ref;
     }
 
     if( !DEFINED_CHR( pdata->spawner_ref ) )
@@ -971,9 +971,6 @@ enc_t * enc_config_do_active( enc_t * penc )
 
     return penc;
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1421,8 +1418,6 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
     return enc_ref;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF by_reference ieve )
 {
@@ -1736,7 +1731,6 @@ void update_all_enchants()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 {
@@ -1762,7 +1756,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_par
         enc_next = EncList.lst[enc_now].nextenchant_ref;
 
 		// coerce the list of enchants to a valid value
-		if( !VALID_ENC_RANGE(enc_next) ) 
+		if( !VALID_ENC_RANGE(enc_next) )
 		{
 			enc_next = EncList.lst[enc_now].nextenchant_ref = MAX_ENC;
 		}
@@ -1779,7 +1773,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_par
         {
             remove_enchant( enc_now, enc_parent );
         }
-        else 
+        else
 		{
 			// store this enchant in the list of used enchants
 			enc_used[enc_now] = btrue;
@@ -1789,7 +1783,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_par
 			{
 				first_valid_enchant = enc_now;
 			}
-		}	
+		}
 
 		enc_parent = &(EncList.lst[enc_now].nextenchant_ref);
         enc_now    = enc_next;

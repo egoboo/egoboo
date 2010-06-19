@@ -51,7 +51,6 @@ DECLARE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
 #define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
 
-
 //--------------------------------------------------------------------------------------------
 struct s_enc_spawn_data
 {
@@ -128,7 +127,6 @@ void    enchant_remove_set( const ENC_REF by_reference  enchant_idx, int value_i
 void    enchant_remove_add( const ENC_REF by_reference  enchant_idx, int value_idx );
 
 bool_t enc_request_terminate( const ENC_REF by_reference  ienc );
-
 
 enc_t * enc_run_config( enc_t * penc );
 
