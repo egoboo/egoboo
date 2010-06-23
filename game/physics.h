@@ -55,6 +55,36 @@ struct s_phys_data
 typedef struct s_phys_data phys_data_t;
 
 //--------------------------------------------------------------------------------------------
+struct s_breadcrumb
+{
+    bool_t         valid;                    /// is this position valid
+    fvec3_t        pos;                      ///< A stored safe position
+    Uint32         grid;                     ///< the grid index of this position
+	float          radius;                   ///< the size of the object at this position
+	float          bits;                     ///< the collision buts of the object at this position
+	Uint32         time;                     ///< the time when the breadcrumb was created
+	Uint32         id;                       ///< an id for differentiating the timing of several events at the same "time"
+};
+typedef struct s_breadcrumb breadcrumb_t;
+
+breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, struct s_chr * pchr );
+breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
+
+//--------------------------------------------------------------------------------------------
+#define MAX_BREADCRUMB 32
+
+struct s_breadcrumb_list
+{
+	int          count;
+	breadcrumb_t lst[MAX_BREADCRUMB];
+};
+typedef struct s_breadcrumb_list breadcrumb_list_t;
+
+void           breadcrumb_list_validate( breadcrumb_list_t * lst );
+bool_t         breadcrumb_list_add(breadcrumb_list_t * lst, breadcrumb_t * pnew );
+breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst );
+
+//--------------------------------------------------------------------------------------------
 // the global physics/friction values
 extern float   hillslide;                   ///< Extra downhill force
 extern float   airfriction;                 ///< 0.9868 is approximately real world air friction

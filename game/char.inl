@@ -521,7 +521,7 @@ INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_t   *pvec )
     }
     else
     {
-        ( *pvec ) = pchr->pos;
+        ( *pvec ) = chr_get_pos( pchr );
     }
 
     return btrue;

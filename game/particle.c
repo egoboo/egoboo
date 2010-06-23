@@ -463,7 +463,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // it has or when someone requests for it to terminate
     pprt->frames_remaining = MAX( 1, prt_lifetime );
 
-    // Set onwhichfan...
+    // Set onwhichgrid...
     pprt->onwhichgrid  = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
     pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
@@ -3288,4 +3288,91 @@ prt_t * prt_update( prt_t * pprt )
 	}
 
 	return pprt;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t prt_update_safe_raw( prt_t * pprt )
+{
+	bool_t retval = bfalse;
+
+	bool_t hit_a_wall;
+	float  pressure;
+
+	if( !ALLOCATED_PPRT( pprt ) ) return bfalse;
+
+	hit_a_wall = prt_hit_wall( pprt, NULL, &pressure );
+	if( hit_a_wall && 0.0f == pressure )
+	{
+		pprt->safe_valid = btrue;
+		pprt->safe_pos   = prt_get_pos( pprt );
+		pprt->safe_time  = update_wld;
+		pprt->safe_grid  = mesh_get_tile(PMesh, pprt->pos.x, pprt->pos.y);
+
+		retval = btrue;
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_update_safe( prt_t * pprt, bool_t force )
+{
+	Uint32 new_grid;
+	bool_t retval = bfalse;
+	bool_t needs_update = bfalse;
+
+	if( !ALLOCATED_PPRT(pprt) ) return bfalse;
+
+	if( force || !pprt->safe_valid )
+	{
+		needs_update = btrue;
+	}
+	else
+	{
+		new_grid = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+
+		if( INVALID_TILE == new_grid )
+		{
+			if( ABS(pprt->pos.x - pprt->safe_pos.x) > GRID_SIZE ||
+				ABS(pprt->pos.y - pprt->safe_pos.y) > GRID_SIZE )
+			{
+				needs_update = btrue;
+			}
+		}
+		else if ( new_grid != pprt->safe_grid )
+		{
+			needs_update = btrue;
+		}
+	}
+
+	if( needs_update )
+	{
+		retval = prt_update_safe_raw( pprt );
+    }
+
+	return retval;
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+fvec3_t prt_get_pos( prt_t * pprt )
+{
+	fvec3_t vtmp = ZERO_VECT3;
+
+	if( !ALLOCATED_PPRT(pprt) ) return vtmp;
+
+	return pprt->pos;
+}
+
+bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos )
+{
+	if( !ALLOCATED_PPRT(pprt) ) return bfalse;
+
+	memcpy( pprt->pos.v, pos, sizeof(fvec3_base_t) );
+
+	prt_update_safe( pprt, btrue );
+
+	return btrue;
 }

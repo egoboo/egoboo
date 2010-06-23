@@ -259,3 +259,6 @@ float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xm
 
 bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
 bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile );
+
+fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float center_pressure, Uint32 bits );
+float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits );

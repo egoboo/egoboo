@@ -1088,9 +1088,14 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( ichr, btrue, btrue );
         if ( pchr->ismount )
         {
-            ChrList.lst[ichr].vel.z = DISMOUNTZVEL;
-            ChrList.lst[ichr].pos.z += DISMOUNTZVEL;
+			fvec3_t tmp_pos;
+
+            ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
             ChrList.lst[ichr].jumptime = JUMPDELAY;
+
+			tmp_pos = chr_get_pos( ChrList.lst + ichr );
+            tmp_pos.z += DISMOUNTZVEL;
+			chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
         }
     }
 
@@ -1100,9 +1105,14 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( ichr, btrue, btrue );
         if ( pchr->ismount )
         {
-            ChrList.lst[ichr].vel.z = DISMOUNTZVEL;
-            ChrList.lst[ichr].pos.z += DISMOUNTZVEL;
+			fvec3_t tmp_pos;
+
+            ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
             ChrList.lst[ichr].jumptime = JUMPDELAY;
+
+			tmp_pos = chr_get_pos( ChrList.lst + ichr );
+            tmp_pos.z += DISMOUNTZVEL;
+			chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
         }
     }
 
@@ -1406,14 +1416,22 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->ismount && ChrList.lst[pself_target->holdingwhich[SLOT_LEFT]].openstuff )
+    if ( pself_target->ismount )
     {
-        returncode = btrue;
+		CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
+
+		if( DEFINED_CHR(iheld) )
+		{
+			// can the rider open the
+			returncode = ChrList.lst[iheld].openstuff;
+		}
     }
-    else
-    {
-        returncode = pself_target->openstuff;
-    }
+
+	if( !returncode )
+	{
+		// if a rider can't openstuff, can the target openstuff?
+		returncode = pself_target->openstuff;
+	}
 
     SCRIPT_FUNCTION_END();
 }
@@ -1824,7 +1842,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
-        if ( !pchild->safe_valid )
+		if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
         {
             chr_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
@@ -2082,7 +2100,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     {
         prt_t * pprt = PrtList.lst + iprt;
 
-        // Detach the particle
+        // attach the particle
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
@@ -5265,7 +5283,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
-        if ( !pchild->safe_valid )
+        if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
         {
             chr_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
@@ -5321,7 +5339,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
-        if ( !pchild->safe_valid )
+        if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
         {
             chr_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
@@ -5520,15 +5538,13 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     // RespawnTarget()
     /// @details ZZ@> This function respawns the target at its current location
 
-    CHR_REF ichr;
+	chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->target;
+	SCRIPT_REQUIRE_TARGET( pself_target );
 
-    ChrList.lst[ichr].pos_old = ChrList.lst[ichr].pos;
-    respawn_character( ichr );
-    ChrList.lst[ichr].pos = ChrList.lst[ichr].pos_old;
+    respawn_character( pself->target );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7220,7 +7236,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // still allow the character to spawn if it is not in an invalid area
 
             // technically this should never occur since we are limiting the attachment points above
-            if ( !pchild->safe_valid )
+            if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
             {
                 chr_request_terminate( ichr );
                 ichr = ( CHR_REF )MAX_CHR;

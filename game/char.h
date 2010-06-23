@@ -437,11 +437,6 @@ struct s_chr
     FACING_T       map_facing_x;                    ///< Character's x-rotation 0 to 0xFFFF
 
     fvec3_t        pos_old;                       ///< Character's last position
-
-    bool_t         safe_valid;
-    fvec3_t        safe_pos;                      ///< Character's last safe position
-    Uint32         safe_grid;
-
     fvec3_t        vel_old;                       ///< Character's last velocity
 
     FACING_T       facing_z_old;
@@ -466,6 +461,13 @@ struct s_chr
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     CHR_REF           dismount_object;               ///< the object that you were dismounting from
+
+	bool_t         safe_valid;                    ///< is the last "safe" position valid?
+	fvec3_t        safe_pos;                      ///< the last "safe" position
+	Uint32         safe_time;                     ///< the last "safe" time
+	Uint32         safe_grid;                     ///< the last "safe" grid
+
+	breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 #if defined(__cplusplus)
     s_chr();
@@ -539,8 +541,8 @@ bool_t setup_xp_table( const CHR_REF by_reference character );
 
 void free_all_chraracters();
 
-Uint32 chr_hit_wall( chr_t * pchr, float nrm[], float * pressure );
-bool_t chr_test_wall( chr_t * pchr );
+Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure );
+bool_t chr_test_wall( chr_t * pchr, float test_pos[] );
 
 int chr_count_free();
 
@@ -655,3 +657,13 @@ chr_t * chr_config_initialize( chr_t * pprt, int max_iterations );
 chr_t * chr_config_activate( chr_t * pprt, int max_iterations );
 chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations );
 chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations );
+
+bool_t chr_update_safe( chr_t * pchr, bool_t force );
+
+bool_t chr_update_breadcrumb_raw( chr_t * pchr );
+bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force );
+bool_t chr_update_safe_raw( chr_t * pchr );
+bool_t chr_update_safe( chr_t * pchr, bool_t force );
+
+fvec3_t chr_get_pos( chr_t * pchr );
+bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );

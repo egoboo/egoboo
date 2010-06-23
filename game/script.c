@@ -891,6 +891,21 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
     Uint32 iTmp;
 
+	chr_t * pchr = NULL, * ptarget = NULL, * powner = NULL;
+
+	if( !DEFINED_CHR( pself->index) ) return;
+	pchr = ChrList.lst + pself->index;
+
+	if( DEFINED_CHR( pself->target ) )
+	{
+		ptarget = ChrList.lst + pself->target;
+	}
+
+	if( DEFINED_CHR( pself->owner ) )
+	{
+		powner = ChrList.lst + pself->owner;
+	}
+
     // get the operator
     iTmp      = 0;
     varname   = buffer;
@@ -904,10 +919,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
     else
     {
         // Get the variable opcode from a register
-        chr_t * pchr;
         variable = pself->opcode & VALUE_BITS;
-
-        pchr = ChrList.lst + pself->index;
 
         switch ( variable )
         {
@@ -922,7 +934,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
                 break;
 
             case VARTMPDISTANCE:
-                varname = "TMPdistance";
+                varname = "TMPDISTANCE";
                 iTmp = pstate->distance;
                 break;
 
@@ -978,23 +990,29 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETX:
                 varname = "TARGETX";
-                iTmp = ChrList.lst[pself->target].pos.x;
+				iTmp = (NULL == ptarget) ? 0 : ptarget->pos.x;
                 break;
 
             case VARTARGETY:
                 varname = "TARGETY";
-                iTmp = ChrList.lst[pself->target].pos.y;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->pos.y;
                 break;
 
             case VARTARGETDISTANCE:
-                varname = "TARGETdistance";
-                iTmp = ABS(( int )( ChrList.lst[pself->target].pos.x - pchr->pos.x ) ) +
-                       ABS(( int )( ChrList.lst[pself->target].pos.y - pchr->pos.y ) );
+                varname = "TARGETDISTANCE";
+				if( NULL == ptarget )
+				{
+					iTmp = 0x7FFFFFFF;
+				}
+				else
+				{
+					iTmp = ABS(ptarget->pos.x - pchr->pos.x ) + ABS( ptarget->pos.y - pchr->pos.y );
+				}
                 break;
 
             case VARTARGETTURN:
                 varname = "TARGETTURN";
-                iTmp = ChrList.lst[pself->target].facing_z;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->facing_z;
                 break;
 
             case VARLEADERX:
@@ -1014,12 +1032,21 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
                 break;
 
             case VARLEADERDISTANCE:
-                varname = "LEADERdistance";
-                iTmp = 10000;
-                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
-                    iTmp = ABS(( int )( team_get_pleader( pchr->team )->pos.x - pchr->pos.x ) ) +
-                           ABS(( int )( team_get_pleader( pchr->team )->pos.y - pchr->pos.y ) );
+				{
+					chr_t * pleader;
+					varname = "LEADERDISTANCE";
 
+					pleader = team_get_pleader( pchr->team );
+
+					if ( NULL == pleader )
+					{
+						iTmp = 0x7FFFFFFF;
+					}
+					else
+					{
+						iTmp = ABS( pleader->pos.x - pchr->pos.x ) + ABS( pleader->pos.y - pchr->pos.y );
+					}
+				}
                 break;
 
             case VARLEADERTURN:
@@ -1067,7 +1094,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
                 if ( !pself->wp_valid )
                 {
-                    iTmp = 0;
+                    iTmp = 0x7FFFFFFF;
                 }
                 else
                 {
@@ -1078,8 +1105,15 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURNTO:
                 varname = "TARGETTURNTO";
-                iTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
-                iTmp = CLIP_TO_16BITS( iTmp );
+				if( NULL == ptarget )
+				{
+					iTmp = 0;
+				}
+				else
+				{
+					iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
+					iTmp = CLIP_TO_16BITS( iTmp );
+				}
                 break;
 
             case VARPASSAGE:
@@ -1116,54 +1150,61 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETSTR:
                 varname = "TARGETSTR";
-                iTmp = ChrList.lst[pself->target].strength;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->strength;
                 break;
 
             case VARTARGETWIS:
                 varname = "TARGETWIS";
-                iTmp = ChrList.lst[pself->target].wisdom;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->wisdom;
                 break;
 
             case VARTARGETINT:
                 varname = "TARGETINT";
-                iTmp = ChrList.lst[pself->target].intelligence;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->intelligence;
                 break;
 
             case VARTARGETDEX:
                 varname = "TARGETDEX";
-                iTmp = ChrList.lst[pself->target].dexterity;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->dexterity;
                 break;
 
             case VARTARGETLIFE:
                 varname = "TARGETLIFE";
-                iTmp = ChrList.lst[pself->target].life;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->life;
                 break;
 
             case VARTARGETMANA:
                 varname = "TARGETMANA";
-                iTmp = ChrList.lst[pself->target].mana;
-                if ( ChrList.lst[pself->target].canchannel )  iTmp += ChrList.lst[pself->target].life;
+				if( NULL == ptarget )
+				{
+					iTmp = 0;
+				}
+				else
+				{
+					iTmp = ptarget->mana;
+					if ( ptarget->canchannel ) iTmp += ptarget->life;
+				}
 
                 break;
 
             case VARTARGETLEVEL:
                 varname = "TARGETLEVEL";
-                iTmp = ChrList.lst[pself->target].experiencelevel;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->experiencelevel;
                 break;
 
             case VARTARGETSPEEDX:
                 varname = "TARGETSPEEDX";
-                iTmp = ABS( ChrList.lst[pself->target].vel.x );
+                iTmp = (NULL == ptarget) ? 0 : ABS( ptarget->vel.x );
                 break;
 
             case VARTARGETSPEEDY:
                 varname = "TARGETSPEEDY";
-                iTmp = ABS( ChrList.lst[pself->target].vel.y );
+                iTmp = (NULL == ptarget) ? 0 : ABS( ptarget->vel.y );
                 break;
 
             case VARTARGETSPEEDZ:
                 varname = "TARGETSPEEDZ";
-                iTmp = ABS( ChrList.lst[pself->target].vel.z );
+                iTmp = (NULL == ptarget) ? 0 : ABS( ptarget->vel.z );
                 break;
 
             case VARSELFSPAWNX:
@@ -1213,7 +1254,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETMANAFLOW:
                 varname = "TARGETMANAFLOW";
-                iTmp = ChrList.lst[pself->target].manaflow;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->manaflow;
                 break;
 
             case VARSELFATTACHED:
@@ -1227,7 +1268,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
                 break;
 
             case VARXYDISTANCE:
-                varname = "XYdistance";
+                varname = "XYDISTANCE";
                 iTmp = SQRT( pstate->x * pstate->x + pstate->y * pstate->y );
                 break;
 
@@ -1238,12 +1279,12 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETALTITUDE:
                 varname = "TARGETALTITUDE";
-                iTmp = ChrList.lst[pself->target].pos.z - ChrList.lst[pself->target].enviro.floor_level;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->pos.z - ptarget->enviro.floor_level;
                 break;
 
             case VARTARGETZ:
                 varname = "TARGETZ";
-                iTmp = ChrList.lst[pself->target].pos.z;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->pos.z;
                 break;
 
             case VARSELFINDEX:
@@ -1253,29 +1294,42 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERX:
                 varname = "OWNERX";
-                iTmp = ChrList.lst[pself->owner].pos.x;
+				iTmp = (NULL == powner) ? 0 : powner->pos.x;
                 break;
 
             case VAROWNERY:
                 varname = "OWNERY";
-                iTmp = ChrList.lst[pself->owner].pos.y;
+                iTmp = (NULL == powner) ? 0 : powner->pos.y;
                 break;
 
             case VAROWNERTURN:
                 varname = "OWNERTURN";
-                iTmp = ChrList.lst[pself->owner].facing_z;
+                iTmp = (NULL == powner) ? 0 : powner->facing_z;
                 break;
 
             case VAROWNERDISTANCE:
                 varname = "OWNERDISTANCE";
-                iTmp = ABS(( int )( ChrList.lst[pself->owner].pos.x - pchr->pos.x ) ) +
-                       ABS(( int )( ChrList.lst[pself->owner].pos.y - pchr->pos.y ) );
+				if( NULL == powner )
+				{
+					iTmp = 0x7FFFFFFF;
+				}
+				else
+				{
+					iTmp = ABS( powner->pos.x - pchr->pos.x ) + ABS( powner->pos.y - pchr->pos.y );
+				}
                 break;
 
             case VAROWNERTURNTO:
                 varname = "OWNERTURNTO";
-                iTmp = vec_to_facing( ChrList.lst[pself->owner].pos.x - pchr->pos.x , ChrList.lst[pself->owner].pos.y - pchr->pos.y );
-                iTmp = CLIP_TO_16BITS( iTmp );
+				if( NULL == powner )
+				{
+					iTmp = 0;
+				}
+				else
+				{
+					iTmp = vec_to_facing( powner->pos.x - pchr->pos.x , powner->pos.y - pchr->pos.y );
+					iTmp = CLIP_TO_16BITS( iTmp );
+				}
                 break;
 
             case VARXYTURNTO:
@@ -1296,7 +1350,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETEXP:
                 varname = "TARGETEXP";
-                iTmp = ChrList.lst[pself->target].experience;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->experience;
                 break;
 
             case VARSELFAMMO:
@@ -1306,18 +1360,25 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETAMMO:
                 varname = "TARGETAMMO";
-                iTmp = ChrList.lst[pself->target].ammo;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->ammo;
                 break;
 
             case VARTARGETMONEY:
                 varname = "TARGETMONEY";
-                iTmp = ChrList.lst[pself->target].money;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->money;
                 break;
 
             case VARTARGETTURNAWAY:
                 varname = "TARGETTURNAWAY";
-                iTmp = vec_to_facing( ChrList.lst[pself->target].pos.x - pchr->pos.x , ChrList.lst[pself->target].pos.y - pchr->pos.y );
-                iTmp = CLIP_TO_16BITS( iTmp );
+				if( NULL == ptarget )
+				{
+					iTmp = 0;
+				}
+				else
+				{
+					iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
+					iTmp = CLIP_TO_16BITS( iTmp );
+				}
                 break;
 
             case VARSELFLEVEL:
@@ -1327,29 +1388,28 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETRELOADTIME:
                 varname = "TARGETRELOADTIME";
-                iTmp = ChrList.lst[pself->target].reloadtime;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->reloadtime;
                 break;
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-                iTmp = ABS(( int )( pchr->pos_stt.x - pchr->pos.x ) ) +
-                       ABS(( int )( pchr->pos_stt.y - pchr->pos.y ) );
+                iTmp = ABS( pchr->pos_stt.x - pchr->pos.x ) + ABS( pchr->pos_stt.y - pchr->pos.y );
                 break;
 
             case VARTARGETMAXLIFE:
                 varname = "TARGETMAXLIFE";
-                iTmp = ChrList.lst[pself->target].lifemax;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->lifemax;
                 break;
 
             case VARTARGETTEAM:
                 varname = "TARGETTEAM";
-                iTmp = ChrList.lst[pself->target].team;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->team;
                 //iTmp = REF_TO_INT( chr_get_iteam( pself->target ) );
                 break;
 
             case VARTARGETARMOR:
                 varname = "TARGETARMOR";
-                iTmp = ChrList.lst[pself->target].skin;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->skin;
                 break;
 
             case VARDIFFICULTY:

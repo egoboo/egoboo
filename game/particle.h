@@ -155,10 +155,6 @@ struct s_prt
 
     int               spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
-    bool_t            safe_valid;
-    fvec3_t           safe_pos;                         ///< Character's last safe position
-    Uint32            safe_grid;
-
     bool_t            is_homing;                 ///< Is the particle in control of its motion?
 
     // some data that needs to be copied from the particle profile
@@ -170,6 +166,11 @@ struct s_prt
     prt_instance_t    inst;                   ///< Everything needed for rendering
     prt_environment_t enviro;                 ///< the particle's environment
     phys_data_t       phys;                   ///< the particle's physics data
+
+	bool_t         safe_valid;                    ///< is the last "safe" position valid?
+	fvec3_t        safe_pos;                      ///< the last "safe" position
+	Uint32         safe_time;                     ///< the last "safe" time
+	Uint32         safe_grid;                     ///< the last "safe" grid
 
     BSP_leaf_t        bsp_leaf;
 
@@ -233,3 +234,6 @@ prt_t * prt_config_initialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_activate( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
+
+bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos );
+fvec3_t prt_get_pos( prt_t * pprt );

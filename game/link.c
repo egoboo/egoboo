@@ -184,13 +184,11 @@ bool_t link_pop_module()
             // is the character is found, restore the old position
             if ( NULL != pchr )
             {
-                pchr->pos      = phero->pos;
+                chr_set_pos( pchr, phero->pos.v );
                 pchr->pos_old  = phero->pos;
-                pchr->safe_pos = phero->pos;
                 pchr->pos_stt  = phero->pos_stt;
 
-                pchr->safe_valid = !chr_test_wall( pchr );
-                if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
+				chr_update_safe( pchr, btrue );
             }
         };
     }
@@ -242,9 +240,7 @@ bool_t link_push_module()
             phero->pos_stt.y    = pchr->pos_stt.y;
             phero->pos_stt.z    = pchr->pos_stt.z;
 
-            phero->pos.x        = pchr->pos.y;
-            phero->pos.y        = pchr->pos.y;
-            phero->pos.z        = pchr->pos.z;
+            phero->pos = chr_get_pos( pchr );
         }
     }
 

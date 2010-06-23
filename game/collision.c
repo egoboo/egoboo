@@ -1382,10 +1382,13 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
     }
 
     // accumulate the accumulators
-    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        float tmpx, tmpy, tmpz;
+		float tmpx, tmpy, tmpz;
         float bump_str;
+		bool_t position_updated = bfalse;
+
+		fvec3_t tmp_pos = chr_get_pos( pchr );
 
         bump_str = 1.0f;
         if ( INGAME_CHR( pchr->attachedto ) )
@@ -1414,57 +1417,70 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         pchr->vel.y += pchr->phys.avel.y;
         pchr->vel.z += pchr->phys.avel.z;
 
+		position_updated = bfalse;
+
         // do the "integration" on the position
         if ( ABS( pchr->phys.apos_0.x + pchr->phys.apos_1.x ) > 0 )
         {
-            tmpx = pchr->pos.x;
-            pchr->pos.x += pchr->phys.apos_0.x + pchr->phys.apos_1.x;
-            if ( chr_test_wall( pchr ) )
+            tmpx = tmp_pos.x;
+            tmp_pos.x += pchr->phys.apos_0.x + pchr->phys.apos_1.x;
+            if ( chr_test_wall( pchr, tmp_pos.v ) )
             {
                 // restore the old values
-                pchr->pos.x = tmpx;
+                tmp_pos.x = tmpx;
             }
             else
             {
                 pchr->vel.x += pchr->phys.apos_1.x * bump_str;
-                pchr->safe_pos.x = tmpx;
+				position_updated = btrue;
             }
         }
 
         if ( ABS( pchr->phys.apos_0.y + pchr->phys.apos_1.y ) > 0 )
         {
-            tmpy = pchr->pos.y;
-            pchr->pos.y += pchr->phys.apos_0.y + pchr->phys.apos_1.y;
-            if ( chr_test_wall( pchr ) )
+            tmpy = tmp_pos.y;
+            tmp_pos.y += pchr->phys.apos_0.y + pchr->phys.apos_1.y;
+            if ( chr_test_wall( pchr, tmp_pos.v ) )
             {
                 // restore the old values
-                pchr->pos.y = tmpy;
+                tmp_pos.y = tmpy;
             }
             else
             {
                 pchr->vel.y += pchr->phys.apos_1.y * bump_str;
-                pchr->safe_pos.y = tmpy;
+				position_updated = btrue;
             }
         }
 
         if ( ABS( pchr->phys.apos_0.z + pchr->phys.apos_1.z ) > 0 )
         {
-            tmpz = pchr->pos.z;
-            pchr->pos.z += pchr->phys.apos_0.z + pchr->phys.apos_1.z;
-            if ( pchr->pos.z < pchr->enviro.floor_level )
+            tmpz = tmp_pos.z;
+            tmp_pos.z += pchr->phys.apos_0.z + pchr->phys.apos_1.z;
+            if ( tmp_pos.z < pchr->enviro.floor_level )
             {
                 // restore the old values
-                pchr->pos.z = tmpz;
+                tmp_pos.z = pchr->enviro.floor_level;
+				if( pchr->vel.z < 0 )
+				{
+					cap_t * pcap = chr_get_pcap( ichr );
+					if( NULL != pcap )
+					{
+						pchr->vel.z += -(1.0f + pcap->dampen) * pchr->vel.z;
+					}
+				}
+				position_updated = btrue;
             }
             else
             {
                 pchr->vel.z += pchr->phys.apos_1.z * bump_str;
-                pchr->safe_pos.z = tmpz;
+				position_updated = btrue;
             }
         }
 
-        pchr->safe_valid = !chr_test_wall( pchr );
-        if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
+		if( position_updated )
+		{
+			chr_set_pos( pchr, tmp_pos.v );
+		}
     }
     CHR_END_LOOP();
 

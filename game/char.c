@@ -106,11 +106,14 @@ static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 
 void cleanup_one_character( chr_t * pchr );
 
-bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix );
+static bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix );
 
 static void chr_log_script_time( const CHR_REF by_reference ichr );
 
 static bool_t update_chr_darkvision( const CHR_REF by_reference character );
+
+static fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure );
+float          chr_get_mesh_pressure( chr_t * pchr, float test_pos[] );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -366,11 +369,11 @@ void keep_weapons_with_holders()
             // Keep in hand weapons with iattached
             if ( chr_matrix_valid( pchr ) )
             {
-                pchr->pos = mat_getTranslate( pchr->inst.matrix );
+				chr_set_pos( pchr, mat_getTranslate( pchr->inst.matrix ).v );
             }
             else
             {
-                pchr->pos = pattached->pos;
+                chr_set_pos( pchr, chr_get_pos(pattached).v );
             }
 
             pchr->facing_z = pattached->facing_z;
@@ -425,7 +428,7 @@ void keep_weapons_with_holders()
             {
                 PACK_BEGIN_LOOP( iattached, pchr->pack.next )
                 {
-                    ChrList.lst[iattached].pos = pchr->pos;
+                    chr_set_pos( ChrList.lst + iattached, chr_get_pos( pchr ).v );
 
                     // Copy olds to make SendMessageNear work
                     ChrList.lst[iattached].pos_old = pchr->pos_old;
@@ -460,7 +463,7 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
         {
             chr_t * ptarget = ChrList.lst + pchr->ai.target;
 
-            pchr->pos = ptarget->pos;
+            chr_set_pos( pchr, chr_get_pos(ptarget).v );
 
             // copy the matrix
             CopyMatrix( &( pinst->matrix ), &( ptarget->inst.matrix ) );
@@ -489,7 +492,7 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
         pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->map_facing_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.z = pchr->facing_z;
 
-        pinst->matrix_cache.pos = pchr->pos;
+        pinst->matrix_cache.pos = chr_get_pos( pchr );
     }
 }
 
@@ -666,10 +669,10 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference chara
 
         if ( vertex_offset == GRIP_ORIGIN )
         {
-            pprt->pos.x = pchr->inst.matrix.CNV( 3, 0 );
-            pprt->pos.y = pchr->inst.matrix.CNV( 3, 1 );
-            pprt->pos.z = pchr->inst.matrix.CNV( 3, 2 );
-            return pprt;
+			fvec3_t tmp_pos = { pchr->inst.matrix.CNV( 3, 0 ), pchr->inst.matrix.CNV( 3, 1 ), pchr->inst.matrix.CNV( 3, 2 ) };
+			prt_set_pos( pprt, tmp_pos.v );
+
+			return pprt;
         }
 
         vertex = 0;
@@ -697,14 +700,12 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference chara
         // Do the transform
         TransformVertices( &( pchr->inst.matrix ), point, nupoint, 1 );
 
-        pprt->pos.x = nupoint[0].x;
-        pprt->pos.y = nupoint[0].y;
-        pprt->pos.z = nupoint[0].z;
+        prt_set_pos( pprt, nupoint[0].v );
     }
     else
     {
         // No matrix, so just wing it...
-        pprt->pos = pchr->pos;
+        prt_set_pos( pprt, chr_get_pos( pchr ).v );
     }
 
     return pprt;
@@ -754,10 +755,13 @@ void make_all_character_matrices( bool_t do_physics )
     ////    {
     ////        float nrm[2];
     ////        float tmpx, tmpy, tmpz;
+	////        fvec3_t tmp_pos;
     ////        chr_t * pchr;
 
     ////        if ( !INGAME_CHR(ichr) ) continue;
     ////        pchr = ChrList.lst + ichr;
+
+	////        tmp_pos = chr_get_pos( pchr );
 
     ////        // do the "integration" of the accumulated accelerations
     ////        pchr->vel.x += pchr->phys.avel.x;
@@ -767,12 +771,12 @@ void make_all_character_matrices( bool_t do_physics )
     ////        // do the "integration" on the position
     ////        if ( ABS(pchr->phys.apos_1.x) > 0 )
     ////        {
-    ////            tmpx = pchr->pos.x;
-    ////            pchr->pos.x += pchr->phys.apos_1.x;
+    ////            tmpx = tmp_pos.x;
+    ////            tmp_pos.x += pchr->phys.apos_1.x;
     ////            if ( chr_hit_wall(ichr, nrm, NULL) )
     ////            {
     ////                // restore the old values
-    ////                pchr->pos.x = tmpx;
+    ////                tmp_pos.x = tmpx;
     ////            }
     ////            else
     ////            {
@@ -783,12 +787,12 @@ void make_all_character_matrices( bool_t do_physics )
 
     ////        if ( ABS(pchr->phys.apos_1.y) > 0 )
     ////        {
-    ////            tmpy = pchr->pos.y;
-    ////            pchr->pos.y += pchr->phys.apos_1.y;
+    ////            tmpy = tmp_pos.y;
+    ////            tmp_pos.y += pchr->phys.apos_1.y;
     ////            if ( chr_hit_wall(ichr, nrm, NULL) )
     ////            {
     ////                // restore the old values
-    ////                pchr->pos.y = tmpy;
+    ////                tmp_pos.y = tmpy;
     ////            }
     ////            else
     ////            {
@@ -799,12 +803,12 @@ void make_all_character_matrices( bool_t do_physics )
 
     ////        if ( ABS(pchr->phys.apos_1.z) > 0 )
     ////        {
-    ////            tmpz = pchr->pos.z;
-    ////            pchr->pos.z += pchr->phys.apos_1.z;
-    ////            if ( pchr->pos.z < pchr->enviro.level )
+    ////            tmpz = tmp_pos.z;
+    ////            tmp_pos.z += pchr->phys.apos_1.z;
+    ////            if ( tmp_pos.z < pchr->enviro.level )
     ////            {
     ////                // restore the old values
-    ////                pchr->pos.z = tmpz;
+    ////                tmp_pos.z = tmpz;
     ////            }
     ////            else
     ////            {
@@ -817,6 +821,7 @@ void make_all_character_matrices( bool_t do_physics )
     ////        {
     ////            pchr->safe_valid = btrue;
     ////        }
+	////        chr_set_pos( pchr, tmp_pos.v );
     ////    }
 
     ////    // fix the matrix positions
@@ -854,7 +859,63 @@ void free_all_chraracters()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 chr_hit_wall( chr_t * pchr, float nrm[], float * pressure )
+float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
+{
+    float retval = 0.0f;
+	float radius = 0.0f;
+
+    if ( !DEFINED_PCHR( pchr ) ) return retval;
+
+    if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return retval;
+
+    // deal with the optional parameters
+ 	if ( NULL == test_pos ) test_pos = pchr->pos.v;
+
+	// calculate the radius based on whether the character is on camera
+    radius = 0.0f;
+    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    {
+        if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+        {
+            radius = pchr->bump.size;
+        }
+    }
+
+	retval = mesh_get_pressure( PMesh, test_pos, radius, pchr->stoppedby );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
+{
+    fvec2_t retval = ZERO_VECT2;
+	float   radius;
+
+    if ( !DEFINED_PCHR( pchr ) ) return retval;
+
+    if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return retval;
+
+    // deal with the optional parameters
+ 	if ( NULL == test_pos ) test_pos = pchr->pos.v;
+
+	// calculate the radius based on whether the character is on camera
+    radius = 0.0f;
+    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    {
+        if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+        {
+            radius = pchr->bump.size;
+        }
+    }
+
+	retval = mesh_get_diff( PMesh, test_pos, radius, center_pressure, pchr->stoppedby );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
@@ -862,6 +923,7 @@ Uint32 chr_hit_wall( chr_t * pchr, float nrm[], float * pressure )
     float        loc_pressure;
     fvec3_base_t loc_nrm;
     Uint32       retval;
+	float        radius;
 
     if ( !DEFINED_PCHR( pchr ) ) return 0;
 
@@ -869,19 +931,30 @@ Uint32 chr_hit_wall( chr_t * pchr, float nrm[], float * pressure )
 
     // deal with the optional parameters
     if ( NULL == pressure ) pressure = &loc_pressure;
-    if ( NULL == nrm ) nrm      =  loc_nrm;
+    if ( NULL == nrm      ) nrm      =  loc_nrm;
+	if ( NULL == test_pos ) test_pos = pchr->pos.v;
+
+	// calculate the radius based on whether the character is on camera
+    radius = 0.0f;
+    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    {
+        if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+        {
+            radius = pchr->bump.size;
+        }
+    }
 
     mesh_wall_tests = 0;
-
-    retval = mesh_hit_wall( PMesh, pchr->pos.v, pchr->bump.size, pchr->stoppedby, nrm, pressure );
-
+	{
+		retval = mesh_hit_wall( PMesh, test_pos, radius, pchr->stoppedby, nrm, pressure );
+	}
     chr_wall_tests += mesh_wall_tests;
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_test_wall( chr_t * pchr )
+bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
@@ -902,10 +975,13 @@ bool_t chr_test_wall( chr_t * pchr )
         }
     }
 
+	if( NULL == test_pos ) test_pos = pchr->pos.v;
+
+	// do the wall test
     mesh_wall_tests = 0;
-
-    retval = mesh_test_wall( PMesh, pchr->pos.v, radius, pchr->stoppedby );
-
+	{
+		retval = mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby );
+	}
     chr_wall_tests += mesh_wall_tests;
 
     return retval;
@@ -1011,37 +1087,25 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
     // Set the positions
     if ( chr_matrix_valid( pchr ) )
     {
-        pchr->pos = mat_getTranslate( pchr->inst.matrix );
+        chr_set_pos( pchr, mat_getTranslate( pchr->inst.matrix ).v );
     }
     else
     {
-        pchr->pos = pmount->pos;
+        chr_set_pos( pchr, chr_get_pos(pmount).v );
     }
 
     // Make sure it's not dropped in a wall...
-    if ( chr_test_wall( pchr ) )
+    if ( chr_test_wall( pchr, NULL ) )
     {
-        pchr->pos.x = pmount->pos.x;
-        pchr->pos.y = pmount->pos.y;
+		fvec3_t pos_tmp;
 
-        if ( pmount->safe_valid )
-        {
-            pchr->safe_valid = pmount->safe_valid;
-            pchr->safe_pos   = pmount->safe_pos;
-            pchr->safe_grid  = pmount->safe_grid;
-        }
-        else
-        {
-            pchr->safe_valid = bfalse;
-            pchr->safe_pos   = pmount->pos;
-            pchr->safe_grid  = pmount->onwhichgrid;
-        }
-    }
-    else
-    {
-        pchr->safe_valid = btrue;
-        pchr->safe_pos   = pchr->pos;
-        pchr->safe_grid  = pchr->onwhichgrid;
+		pos_tmp.x = pmount->pos.x;
+		pos_tmp.y = pmount->pos.y;
+		pos_tmp.z = pchr->pos.z;
+
+		chr_set_pos( pchr, pos_tmp.v );
+
+		chr_update_breadcrumb( pchr, btrue );
     }
 
     // Check for shop passages
@@ -1230,7 +1294,7 @@ void attach_character_to_mount( const CHR_REF by_reference iitem, const CHR_REF 
 
     chr_update_matrix( pitem, btrue );
 
-    pitem->pos      = mat_getTranslate( pitem->inst.matrix );
+    chr_set_pos( pitem, mat_getTranslate( pitem->inst.matrix ).v );
 
     pitem->enviro.inwater  = bfalse;
     pitem->jumptime = JUMPDELAY * 4;
@@ -1775,12 +1839,13 @@ void drop_keys( const CHR_REF by_reference character )
                     pitem->pack.is_packed  = bfalse;
                     pitem->isequipped    = bfalse;
 
-                    pitem->facing_z           = direction + ATK_BEHIND;
+                    chr_set_pos( pitem, chr_get_pos( pchr ).v );
+
+					pitem->facing_z           = direction + ATK_BEHIND;
                     pitem->enviro.floor_level = pchr->enviro.floor_level;
                     pitem->enviro.level       = pchr->enviro.level;
                     pitem->enviro.fly_level   = pchr->enviro.fly_level;
                     pitem->onwhichplatform    = pchr->onwhichplatform;
-                    pitem->pos                = pchr->pos;
                     pitem->vel.x              = turntocos[ turn ] * DROPXYVEL;
                     pitem->vel.y              = turntosin[ turn ] * DROPXYVEL;
                     pitem->vel.z              = DROPZVEL;
@@ -1828,9 +1893,9 @@ bool_t drop_all_items( const CHR_REF by_reference character )
 
                 detach_character_from_mount( item, btrue, btrue );
 
+				chr_set_pos( pitem, chr_get_pos(pchr).v );
                 pitem->hitready           = btrue;
                 pitem->ai.alert          |= ALERTIF_DROPPED;
-                pitem->pos                = pchr->pos;
                 pitem->enviro.floor_level = pchr->enviro.floor_level;
                 pitem->enviro.level       = pchr->enviro.level;
                 pitem->enviro.fly_level   = pchr->enviro.fly_level;
@@ -2234,7 +2299,10 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
 
                 if ( ALLOCATED_PRT( particle ) )
                 {
+					fvec3_t tmp_pos;
                     prt_t * pprt = PrtList.lst + particle;
+
+					tmp_pos = prt_get_pos( pprt );
 
                     if ( pweapon_cap->attack_attached )
                     {
@@ -2260,18 +2328,18 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
 							if( NULL == pprt ) return;
 
                             // Correct Z spacing base, but nothing else...
-                            pprt->pos.z += prt_get_ppip( particle )->spacing_vrt_pair.base;
+                            tmp_pos.z += prt_get_ppip( particle )->spacing_vrt_pair.base;
                         }
 
                         // Don't spawn in walls
                         if ( prt_test_wall( pprt ) )
                         {
-                            pprt->pos.x = pweapon->pos.x;
-                            pprt->pos.y = pweapon->pos.y;
+                            tmp_pos.x = pweapon->pos.x;
+                            tmp_pos.y = pweapon->pos.y;
                             if ( prt_test_wall( pprt ) )
                             {
-                                pprt->pos.x = pchr->pos.x;
-                                pprt->pos.y = pchr->pos.y;
+                                tmp_pos.x = pchr->pos.x;
+                                tmp_pos.y = pchr->pos.y;
                             }
                         }
                     }
@@ -2284,6 +2352,8 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
 
                     // Initial particles get an enchantment bonus
                     pprt->damage.base += pweapon->damageboost;
+
+					prt_set_pos( pprt, tmp_pos.v );
                 }
             }
         }
@@ -2563,7 +2633,7 @@ chr_t * resize_one_character( chr_t * pchr )
         {
             pchr->bump.size += bump_increase;
 
-            if ( chr_test_wall( pchr ) )
+            if ( chr_test_wall( pchr, NULL ) )
             {
                 willgetcaught = btrue;
             }
@@ -3507,8 +3577,6 @@ chr_t * chr_config_do_init( chr_t * pchr )
     CAP_REF  icap;
     TEAM_REF loc_team;
     int      tnc, iteam, kursechance;
-    float    pressure;
-    fvec3_t  nrm;
 
     cap_t * pcap;
     fvec3_t pos_tmp;
@@ -3624,8 +3692,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
 
     if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
 
-    pchr->pos      = pos_tmp;
-    pchr->safe_pos = pos_tmp;
+    chr_set_pos( pchr, pos_tmp.v );
     pchr->pos_stt  = pos_tmp;
     pchr->pos_old  = pos_tmp;
 
@@ -3634,6 +3701,9 @@ chr_t * chr_config_do_init( chr_t * pchr )
 
     pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+
+	// update the breadcrumb list
+	chr_update_breadcrumb( pchr, btrue );
 
     // Name the character
     if ( CSTR_END == pchr->spawn_data.name[0] )
@@ -3705,8 +3775,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
 
     // determine whether the spawn position is a safe position
-    pchr->safe_valid = ( 0 == chr_hit_wall( pchr, nrm.v, &pressure ) );
-    if ( pchr->safe_valid ) pchr->safe_grid = pchr->onwhichgrid;
+	chr_update_safe( pchr, btrue );
 
 #if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
     if ( DEFINED_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
@@ -3732,6 +3801,9 @@ chr_t * chr_config_do_active( chr_t * pchr )
     // First figure out which fan each character is in
     pchr->onwhichgrid  = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+
+	// update the breadcrumb list
+	chr_update_breadcrumb( pchr, bfalse );
 
     //then do status updates
     chr_update_hide( pchr );
@@ -4269,7 +4341,7 @@ void respawn_character( const CHR_REF by_reference character )
     pchr->carefultime = CAREFULTIME;
     pchr->life = pchr->lifemax;
     pchr->mana = pchr->manamax;
-    pchr->pos  = pchr->pos_stt;
+    chr_set_pos( pchr, pchr->pos_stt.v );
     pchr->vel.x = 0;
     pchr->vel.y = 0;
     pchr->vel.z = 0;
@@ -4604,9 +4676,14 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
         detach_character_from_mount( item_ref, btrue, btrue );
         if ( pchr->ismount )
         {
+			fvec3_t tmp_pos;
+
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[item_ref].pos.z   += DISMOUNTZVEL;
             ChrList.lst[item_ref].jumptime = JUMPDELAY;
+
+			tmp_pos = chr_get_pos( ChrList.lst + item_ref );
+            tmp_pos.z += DISMOUNTZVEL;
+			chr_set_pos( ChrList.lst + item_ref, tmp_pos.v );
         }
     }
 
@@ -4617,9 +4694,14 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
         detach_character_from_mount( item_ref, btrue, btrue );
         if ( pchr->ismount )
         {
+			fvec3_t tmp_pos;
+
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[item_ref].pos.z   += DISMOUNTZVEL;
             ChrList.lst[item_ref].jumptime = JUMPDELAY;
+
+			tmp_pos = chr_get_pos( ChrList.lst + item_ref );
+            tmp_pos.z += DISMOUNTZVEL;
+			chr_set_pos( ChrList.lst + item_ref, tmp_pos.v );
         }
     }
 
@@ -5795,6 +5877,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         if ( INGAME_CHR( pchr->attachedto ) && ChrList.lst[pchr->attachedto].ismount )
         {
             int ijump;
+			fvec3_t tmp_pos;
 
             detach_character_from_mount( ichr, btrue, btrue );
             pchr->jumptime = JUMPDELAY;
@@ -5807,7 +5890,10 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->vel.z += DISMOUNTZVEL;
             }
 
-            pchr->pos.z += pchr->vel.z;
+			tmp_pos = chr_get_pos( pchr );
+            tmp_pos.z += pchr->vel.z;
+			chr_set_pos( pchr, tmp_pos.v );
+
             if ( pchr->jumpnumberreset != JUMPINFINITE && pchr->jumpnumber != 0 )
                 pchr->jumpnumber--;
 
@@ -6036,6 +6122,162 @@ void move_one_character_do_z_motion( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_update_safe_raw( chr_t * pchr )
+{
+	bool_t retval = bfalse;
+
+	bool_t hit_a_wall;
+
+	if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+
+	hit_a_wall = chr_hit_wall( pchr, NULL, NULL, NULL );
+	if( !hit_a_wall )
+	{
+		pchr->safe_valid = btrue;
+		pchr->safe_pos   = chr_get_pos( pchr );
+		pchr->safe_time  = update_wld;
+		pchr->safe_grid  = mesh_get_tile(PMesh, pchr->pos.x, pchr->pos.y);
+
+		retval = btrue;
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_update_safe( chr_t * pchr, bool_t force )
+{
+	Uint32 new_grid;
+	bool_t retval = bfalse;
+	bool_t needs_update = bfalse;
+
+	if( !ALLOCATED_PCHR(pchr) ) return bfalse;
+
+	if( force || !pchr->safe_valid )
+	{
+		needs_update = btrue;
+	}
+	else
+	{
+		new_grid = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+
+		if( INVALID_TILE == new_grid )
+		{
+			if( ABS(pchr->pos.x - pchr->safe_pos.x) > GRID_SIZE ||
+				ABS(pchr->pos.y - pchr->safe_pos.y) > GRID_SIZE )
+			{
+				needs_update = btrue;
+			}
+		}
+		else if ( new_grid != pchr->safe_grid )
+		{
+			needs_update = btrue;
+		}
+	}
+
+	if( needs_update )
+	{
+		retval = chr_update_safe_raw( pchr );
+    }
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_update_breadcrumb_raw( chr_t * pchr )
+{
+	breadcrumb_t bc;
+	bool_t retval = bfalse;
+
+	if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+
+	breadcrumb_init_chr( &bc, pchr );
+
+	if( bc.valid )
+	{
+		retval = breadcrumb_list_add( &(pchr->crumbs), &bc );
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force )
+{
+	Uint32 new_grid;
+	bool_t retval = bfalse;
+	bool_t needs_update = bfalse;
+	breadcrumb_t * bc_ptr, bc;
+
+	if( !ALLOCATED_PCHR(pchr) ) return bfalse;
+
+	bc_ptr = breadcrumb_list_last_valid( &(pchr->crumbs) );
+	if( NULL == bc_ptr )
+	{
+		force  = btrue;
+		bc_ptr = &bc;
+		breadcrumb_init_chr( bc_ptr, pchr );
+	}
+
+	if( force )
+	{
+		needs_update = btrue;
+	}
+	else
+	{
+		new_grid = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+
+		if( INVALID_TILE == new_grid )
+		{
+			if( ABS(pchr->pos.x - bc_ptr->pos.x) > GRID_SIZE ||
+				ABS(pchr->pos.y - bc_ptr->pos.y) > GRID_SIZE )
+			{
+				needs_update = btrue;
+			}
+		}
+		else if ( new_grid != bc_ptr->grid )
+		{
+			needs_update = btrue;
+		}
+	}
+
+	if( needs_update )
+	{
+		retval = chr_update_breadcrumb_raw( pchr );
+    }
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+breadcrumb_t * chr_get_last_safe( chr_t * pchr )
+{
+	if( !ALLOCATED_PCHR(pchr) ) return NULL;
+
+	if( 0 == pchr->crumbs.count ) return NULL;
+
+	return breadcrumb_list_last_valid( &(pchr->crumbs) );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t move_one_character_integrate_motion_attached( chr_t * pchr )
+{
+	Uint32 chr_update;
+
+	if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+    // make a timer that is individual for each object
+    chr_update = pchr->obj_base.guid + update_wld;
+
+    if (  0 == ( chr_update & 7 ) )
+    {
+		chr_update_safe( pchr, btrue );
+    }
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t move_one_character_integrate_motion( chr_t * pchr )
 {
     /// @details BB@> Figure out the next position of the character.
@@ -6047,7 +6289,17 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     float   bumpdampen;
     bool_t  needs_test, updated_2d;
 
+	fvec3_t tmp_pos;
+
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+	if( ACTIVE_CHR(pchr->attachedto) )
+	{
+		return move_one_character_integrate_motion_attached( pchr );
+	}
+
+	tmp_pos = chr_get_pos( pchr );
+
     pai = &( pchr->ai );
     ichr = pai->index;
 
@@ -6055,23 +6307,23 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     bumpdampen = ( bumpdampen + 1.0f ) / 2.0f;
 
     // interaction with the mesh
-    if ( ABS( pchr->vel.z ) > 0.0f )
+    //if ( ABS( pchr->vel.z ) > 0.0f )
     {
-        pchr->pos.z += pchr->vel.z;
-        LOG_NAN( pchr->pos.z );
-        if ( pchr->pos.z < pchr->enviro.floor_level )
+        tmp_pos.z += pchr->vel.z;
+        LOG_NAN( tmp_pos.z );
+        if ( tmp_pos.z < pchr->enviro.floor_level )
         {
             pchr->vel.z *= -pchr->phys.bumpdampen;
 
             if ( ABS( pchr->vel.z ) < STOPBOUNCING )
             {
                 pchr->vel.z = 0.0f;
-                pchr->pos.z = pchr->enviro.level;
+                tmp_pos.z = pchr->enviro.level;
             }
             else
             {
-                float diff = pchr->enviro.level - pchr->pos.z;
-                pchr->pos.z = pchr->enviro.level + diff;
+                float diff = pchr->enviro.level - tmp_pos.z;
+                tmp_pos.z = pchr->enviro.level + diff;
             }
         }
     }
@@ -6079,29 +6331,29 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     // fixes to the z-position
     if ( 0.0f != pchr->flyheight )
     {
-        if ( pchr->pos.z < 0.0f ) pchr->pos.z = 0.0f;  // Don't fall in pits...
+        if ( tmp_pos.z < 0.0f ) tmp_pos.z = 0.0f;  // Don't fall in pits...
     }
 
     updated_2d = bfalse;
     needs_test = bfalse;
 
-    // interaction with the mesh walls
+    // interaction with the grid flags
     updated_2d = bfalse;
     needs_test = bfalse;
-    if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0.0f )
+    //if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0.0f )
     {
         float old_x, old_y, new_x, new_y;
 
-        old_x = pchr->pos.x; LOG_NAN( old_x );
-        old_y = pchr->pos.y; LOG_NAN( old_y );
+        old_x = tmp_pos.x; LOG_NAN( old_x );
+        old_y = tmp_pos.y; LOG_NAN( old_y );
 
         new_x = old_x + pchr->vel.x; LOG_NAN( new_x );
         new_y = old_y + pchr->vel.y; LOG_NAN( new_y );
 
-        pchr->pos.x = new_x;
-        pchr->pos.y = new_y;
+        tmp_pos.x = new_x;
+        tmp_pos.y = new_y;
 
-        if ( !chr_test_wall( pchr ) )
+        if ( !chr_test_wall( pchr, tmp_pos.v ) )
         {
             updated_2d = btrue;
         }
@@ -6109,102 +6361,183 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
         {
             fvec2_t nrm;
             float   pressure;
+			bool_t diff_function_called = bfalse;
+
+			chr_hit_wall( pchr, tmp_pos.v, nrm.v, &pressure );
 
             // how is the character hitting the wall?
-            if ( chr_hit_wall( pchr, nrm.v, &pressure ) )
-            {
-                if ( 0.0f == nrm.x && 0.0f == nrm.y )
-                {
-                    // this can happen if the object is completely inside a wall,
-                    // like if it got pushed in there or if a passage closed around it.
-                    // restore the safe position
-                    //pchr->pos = pchr->safe_pos;
-                }
-                else
-                {
-                    bool_t old_safe;
-                    fvec2_t diff, v_para, v_perp;
+			if ( 0.0f != pressure )
+			{
+				bool_t         found_nrm  = bfalse;
+				bool_t         found_safe = bfalse;
+				fvec3_t        safe_pos   = ZERO_VECT3;
 
-                    // check to see whether the last position was valid
-                    pchr->pos.x = old_x;
-                    pchr->pos.y = old_y;
-                    old_safe = !chr_test_wall( pchr );
+				bool_t         found_diff = bfalse;
+				fvec2_t        diff       = ZERO_VECT2;
+				fvec2_t        diff_para  = ZERO_VECT2;
 
-                    // the amount that you would have to move to get back to a valid position
-                    diff.x = diff.y = 0.0f;
-                    if ( old_safe )
-                    {
-                        diff.x = old_x - new_x;
-                        diff.y = old_y - new_y;
-                    }
-                    else if ( pchr->safe_valid )
-                    {
-                        diff.x = ( pchr->safe_pos.x - new_x ) * 0.2f;
-                        diff.y = ( pchr->safe_pos.y - new_y ) * 0.2f;
-                    }
+				breadcrumb_t * bc         = NULL;
 
-                    // lower pressure should mean less bumping
-                    bumpdampen = 1.0f - ( 1.0f - bumpdampen ) * ( pressure + 1.0f ) * 0.5f;
-                    diff.x *= ( pressure + 1.0f ) * 0.5f;
-                    diff.y *= ( pressure + 1.0f ) * 0.5f;
+				// try to get the correct "outward" pressure from nrm
+				if( !found_nrm && ABS(nrm.x) + ABS(nrm.y) > 0.0f )
+				{
+					found_nrm = btrue;
+				}
 
-                    if ( 0.0f == nrm.x )
-                    {
-                        // reflect the velocity off the wall
-                        pchr->vel.y *= - bumpdampen;
+				if( !found_diff && pchr->safe_valid )
+				{
+					if( !found_safe )
+					{
+						found_safe = btrue;
+						safe_pos   = pchr->safe_pos;
+					}
 
-                        // find the projection of diff perp to the surface
-                        diff.x = 0.0f;
-                    }
-                    else if ( 0.0f == nrm.y )
-                    {
-                        // reflect the velocity off the wall
-                        pchr->vel.x *= - bumpdampen;
+					diff.x = pchr->safe_pos.x - pchr->pos.x;
+					diff.y = pchr->safe_pos.y - pchr->pos.y;
 
-                        // find the projection of diff perp to the surface
-                        diff.y = 0.0f;
-                    }
-                    else
-                    {
-                        float dot;
+					if( ABS(diff.x) + ABS(diff.y) > 0.0f )
+					{
+						found_diff = btrue;
+					}
+				}
 
-                        // decompose the velocity into parallel and perp cpmponents
-                        dot = fvec2_dot_product( pchr->vel.v, nrm.v );
-                        if ( dot < 0.0f )
-                        {
-                            v_perp.x = dot * nrm.x;
-                            v_perp.y = dot * nrm.y;
+				// try to get a diff from a breadcrumb
+				if( !found_diff )
+				{
+					bc = chr_get_last_safe( pchr );
 
-                            v_para.x = pchr->vel.x - v_perp.x;
-                            v_para.y = pchr->vel.y - v_perp.y;
+					if( NULL != bc && bc->valid )
+					{
+						if( !found_safe )
+						{
+							found_safe = btrue;
+							safe_pos   = pchr->safe_pos;
+						}
 
-                            // reflect the velocity off the wall
-                            pchr->vel.x = v_para.x - bumpdampen * v_perp.x;
-                            pchr->vel.y = v_para.y - bumpdampen * v_perp.y;
-                        }
+						diff.x = bc->pos.x - pchr->pos.x;
+						diff.y = bc->pos.y - pchr->pos.y;
 
-                        // find the projection of diff perp to the surface
-                        dot = fvec2_dot_product( diff.v, nrm.v );
-                        if ( dot > 0.0f )
-                        {
-                            diff.x = dot * nrm.x * 1024;
-                            diff.y = dot * nrm.y * 1024;
-                        }
-                        else
-                        {
-                            diff.x = 0.0f;
-                            diff.y = 0.0f;
-                        }
-                    }
+						if( ABS(diff.x) + ABS(diff.y) > 0.0f )
+						{
+							found_diff = btrue;
+						}
+					}
+				}
 
-                    pchr->pos.x = new_x + diff.x;
-                    pchr->pos.y = new_y + diff.y;
+				// try to get a normal from the mesh_get_diff() function
+				if( !found_nrm )
+				{
+					fvec2_t diff;
+					
+					diff = chr_get_diff( pchr, tmp_pos.v, pressure );
+					diff_function_called = btrue;
 
-                    needs_test = ( new_x != pchr->pos.x ) || ( new_y != pchr->pos.y );
-                }
+					nrm.x = diff.x;
+					nrm.y = diff.y;
+
+					if( ABS(nrm.x) + ABS(nrm.y) > 0.0f )
+					{
+						found_nrm = btrue;
+					}
+				}
+
+				if( !found_diff )
+				{
+					// try to get the diff from the character velocity
+					diff.x = pchr->vel.x;
+					diff.y = pchr->vel.y;
+
+					// make sure that the diff is in the same direction as the velocity
+					if( fvec2_dot_product(diff.v, nrm.v) < 0.0f  )
+					{
+						diff.x *= -1.0f;
+						diff.y *= -1.0f;
+					}
+
+					if( ABS(diff.x) + ABS(diff.y) > 0.0f )
+					{
+						found_diff = btrue;
+					}
+				}
+
+				if( !found_nrm )
+				{
+					// After all of our best efforts, we can't generate a normal to the wall.
+					// This can happen if the object is completely inside a wall,
+					// (like if it got pushed in there) or if a passage closed around it.
+					// Just teleport the character to a "safe" position.
+
+					if( !found_safe && NULL == bc )
+					{
+						bc = chr_get_last_safe( pchr );
+
+						if( NULL != bc && bc->valid )
+						{
+							found_safe = btrue;
+							safe_pos   = pchr->safe_pos;
+						}
+					}
+
+					if( !found_safe )
+					{
+						// the only safe position is the spawn point???
+						found_safe = btrue;
+						safe_pos = pchr->pos_stt;
+					}
+
+					tmp_pos = safe_pos;
+				}
+				else if( found_diff && found_nrm )
+				{
+					float ftmp, dot, pressure_old, pressure_new;
+					fvec3_t save_pos;
+					//fvec2_t diff, v_para, v_perp;
+
+					save_pos = tmp_pos;
+
+					// make the diff point "out"
+					dot = fvec2_dot_product( diff.v, nrm.v );
+					if( dot < 0.0f )
+					{
+						diff.x *= -1.0f;
+						diff.y *= -1.0f;
+						dot    *= -1.0f;
+					}
+
+					// find the part of the diff that is parallel to the normal
+					diff_para.x = nrm.x * dot;
+					diff_para.y = nrm.y * dot;
+
+					// normalize the diff_para so that it is at most 1/2 of a grid in any direction
+					ftmp = MAX(ABS(diff_para.x),ABS(diff_para.y));
+					assert(ftmp > 0.0f);
+					diff_para.x *= 0.1f * GRID_SIZE / ftmp;
+					diff_para.y *= 0.1f * GRID_SIZE / ftmp;
+
+					// try moving the character by up to half a tile
+					tmp_pos.x += diff_para.x;
+					tmp_pos.y += diff_para.y;
+
+					// determine whether the pressure is less at this location
+					pressure_old = chr_get_mesh_pressure( pchr, save_pos.v );
+					pressure_new = chr_get_mesh_pressure( pchr, tmp_pos.v );
+
+					if( pressure_new < pressure_old )
+					{
+						// !!success!!
+						needs_test = ( tmp_pos.x != save_pos.x ) || ( tmp_pos.y != save_pos.y );
+					}
+					else
+					{
+						// !!failure!! restore the saved position
+						tmp_pos = save_pos;
+					}
+				}
             }
         }
     }
+
+	chr_set_pos( pchr, tmp_pos.v );
 
     // we need to test the validity of the current position every 8 frames or so,
     // no matter what
@@ -6218,16 +6551,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
     if ( needs_test || updated_2d )
     {
-        Uint32 new_grid = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-        if ( new_grid != pchr->safe_grid )
-        {
-            if ( !chr_hit_wall( pchr, NULL, NULL ) )
-            {
-                pchr->safe_pos   = pchr->pos;
-                pchr->safe_valid = btrue;
-                pchr->safe_grid  = new_grid;
-            }
-        }
+		chr_update_safe( pchr, needs_test );
     }
 
     return btrue;
@@ -6479,7 +6803,7 @@ void move_one_character( chr_t * pchr )
     pchr->enviro.acc = fvec3_sub( pchr->vel.v, pchr->vel_old.v );
 
     // Character's old location
-    pchr->pos_old        = pchr->pos;
+    pchr->pos_old        = chr_get_pos( pchr );
     pchr->vel_old        = pchr->vel;
     pchr->facing_z_old     = pchr->facing_z;
 
@@ -7420,8 +7744,8 @@ bool_t chr_teleport( const CHR_REF by_reference ichr, float x, float y, float z,
     ///               and do it, if possible. Success returns btrue, failure returns bfalse;
 
     chr_t  * pchr;
-    FACING_T facing_save;
-    fvec3_t  pos_save;
+    FACING_T facing_old, facing_new;
+    fvec3_t  pos_old, pos_new;
     bool_t   retval;
 
     if ( !INGAME_CHR( ichr ) ) return bfalse;
@@ -7430,28 +7754,33 @@ bool_t chr_teleport( const CHR_REF by_reference ichr, float x, float y, float z,
     if ( x < 0.0f || x > PMesh->gmem.edge_x ) return bfalse;
     if ( y < 0.0f || y > PMesh->gmem.edge_y ) return bfalse;
 
-    pos_save  = pchr->pos;
-    facing_save = pchr->facing_z;
+    pos_old  = chr_get_pos( pchr );
+    facing_old = pchr->facing_z;
 
-    pchr->pos.x  = x;
-    pchr->pos.y  = y;
-    pchr->pos.z  = z;
-    pchr->facing_z = facing_z;
+    pos_new.x  = x;
+    pos_new.y  = y;
+    pos_new.z  = z;
+    facing_new = facing_z;
 
-    if ( chr_hit_wall( pchr, NULL, NULL ) )
+    if ( chr_hit_wall( pchr, pos_new.v, NULL, NULL ) )
     {
         // No it didn't...
-        pchr->pos    = pos_save;
-        pchr->facing_z = facing_save;
+        chr_set_pos( pchr, pos_old.v );
+        pchr->facing_z = facing_old;
 
         retval = bfalse;
     }
     else
     {
         // Yeah!  It worked!
-        pchr->pos_old      = pchr->pos;
-        pchr->safe_pos     = pchr->pos;
-        pchr->facing_z_old = pchr->facing_z;
+
+		// update the old position
+        pchr->pos_old      = pos_new;
+        pchr->facing_z_old = facing_new;
+
+		// update the new position
+		chr_set_pos( pchr, pos_new.v );
+		pchr->facing_z = facing_new;
 
         if ( !detach_character_from_mount( ichr, btrue, bfalse ) )
         {
@@ -7700,7 +8029,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->map_facing_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->facing_z;
 
-            mc_tmp->pos = ptarget->pos;
+            mc_tmp->pos = chr_get_pos( ptarget );
 
             mc_tmp->grip_scale.x = mc_tmp->grip_scale.y = mc_tmp->grip_scale.z = ptarget->fat;
         }
@@ -7819,9 +8148,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
         pweap->inst.matrix = FourPoints( nupoint[0].v, nupoint[1].v, nupoint[2].v, nupoint[3].v, mc_tmp->self_scale.z );
 
         // update the weapon position
-        pweap->pos.x = nupoint[3].x;
-        pweap->pos.y = nupoint[3].y;
-        pweap->pos.z = nupoint[3].z;
+		chr_set_pos( pweap, nupoint[3].v );
 
         memcpy( &( pweap->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
 
@@ -7833,9 +8160,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
         // ignore the shape of the grip and just stick the character to the single mount point
 
         // update the character position
-        pweap->pos.x = nupoint[0].x;
-        pweap->pos.y = nupoint[0].y;
-        pweap->pos.z = nupoint[0].z;
+        chr_set_pos( pweap, nupoint[0].v );
 
         // make sure we have the right data
         chr_get_matrix_cache( pweap, mc_tmp );
@@ -7943,7 +8268,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
                 mcache->rotate.y = CLIP_TO_16BITS( pchr->map_facing_y - MAP_TURN_OFFSET );
                 mcache->rotate.z = pchr->facing_z;
 
-                mcache->pos = pchr->pos;
+                mcache->pos = chr_get_pos( pchr );
 
                 applied = btrue;
             }
@@ -8922,3 +9247,23 @@ mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
         pchr->damagethreshold = threshold;
     }
 }*/
+
+fvec3_t chr_get_pos( chr_t * pchr )
+{
+	fvec3_t vtmp = ZERO_VECT3;
+
+	if( !ALLOCATED_PCHR(pchr) ) return vtmp;
+
+	return pchr->pos;
+}
+
+bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
+{
+	if( !ALLOCATED_PCHR(pchr) ) return bfalse;
+
+	memcpy( pchr->pos.v, pos, sizeof(fvec3_base_t) );
+
+	chr_update_safe_raw( pchr );
+
+	return btrue;
+}
