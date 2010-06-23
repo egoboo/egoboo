@@ -1,0 +1,68 @@
+//------------------------------------------------------------------------------
+IfHealed
+  GetDamageType
+  tmpx = tmpargument
+  tmpy = DAMAGEFIRE
+  IfXIsEqualToY		//Only if not fire damage
+    DoNothing
+  Else
+    // Damage is inverted to make the Gelfeet invincible...
+    tmpargument = 0
+    PlaySound
+
+    // Drop the item it's carrying
+    tmpargument = ACTIONHA
+    DoAction
+
+IfTimeOut
+  tmpargument = 100
+  SetTime
+  SetTargetToRider
+    IfTargetIsAlive
+      // Hurt the character
+      tmpargument = 1024
+      DamageTarget
+
+      // Corrode items
+      tmpx = rand & 1
+      tmpy = 0
+      IfXIsEqualToY
+        SetTargetToTargetLeftHand
+          tmpargument = [RUST]
+          IfTargetHasVulnerabilityID
+            tmpargument = 0
+            SendMessageNear
+            PoofTarget
+      Else
+        SetTargetToTargetRightHand
+          tmpargument = [RUST]
+          IfTargetHasVulnerabilityID
+            tmpargument = 0
+            SendMessageNear
+            PoofTarget
+    Else
+      // Corrode items
+      tmpargument = [RUST]
+      IfTargetHasVulnerabilityID
+        tmpargument = 0
+        SendMessageNear
+        PoofTarget
+
+IfBumped				// Eat the enemy
+  SetTargetToWhoeverBumped
+  tmpx = targetz
+  tmpy = selfz + 30
+  IfXIsLessThanY
+    IfFacingTarget
+      tmpargument = ACTIONME
+      DoAction
+      tmpargument = 0
+      PlaySound
+
+IfSpawned				// This is done once in a lifetime
+  tmpy = 30*128
+  tmpx = 32*128				  //
+  ClearWaypoints			  // Now go there
+  AddWaypoint				  //
+
+End					// Finished with this character

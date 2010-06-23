@@ -1,0 +1,48 @@
+//Special script for the Imprisoned One Part 4 module
+IfSpawned
+  tmpargument = rand % 4
+  ChangeArmor
+  
+// This reduces the height of the char
+IfKilled
+  IfTargetIsOnHatedTeam			  // Final words
+    tmpargument = 0
+    SendMessageNear
+  tmpargument = 30			  // Dead height
+  SetBumpHeight
+  tmpargument = 1			  // Sound
+  PlaySound
+  
+// Don't take kindly to attackers
+IfAttacked				
+  SetTargetToWhoeverAttacked
+    tmpargument = 0			    // Sound
+    PlaySound
+
+// Attack whoever it bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam			  // Make sure it's an enemy
+    tmpargument = LATCHLEFT		    // Bite 'em
+    PressLatchButton
+  Else					  // Scooch around friendly
+    tmpx = rand & 1023 + targetx - 512
+    tmpy = rand & 1023 + targety - 512
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+
+// This is done every so often
+IfTimeOut
+  SetTargetToNearbyEnemy		  // Look for enemies
+    tmpx = rand & 511 - 256 + targetx
+    tmpy = rand & 511 - 256 + targety
+  Else					  // Move towards the shrine
+    tmpx = 32*128
+    tmpy = 30*128
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 63 + 20		  // Wait a while and try again
+  SetTime
+  
+End					// Finished with this character

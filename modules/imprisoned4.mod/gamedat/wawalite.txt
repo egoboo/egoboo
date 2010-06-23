@@ -1,0 +1,69 @@
+//file_version 2          This lets egoboo know that this is a new type of wawalite 
+
+//   This file tells the game how to model lighting and water...
+// Please fill in all of the data even if you only use one layer of
+// water.  2 is the maximum number of layers.
+//   This file also gives information regarding damage tiles and
+// friction for the module.
+
+
+Random map ( TRUE or FALSE ) ( doesn't work )           : FALSE
+Number of Water Layers ( 1=Fast, 2=Good )		: 2
+Water specular start ( 0-255 )				: 128
+Water specular level ( 0-255 )				: 128
+Water douse level ( For torches, 90 )			: 85
+Water surface level ( For water striders, 55 )		: 65
+Water light ( TRUE or FALSE )				: FALSE
+Water is really water? ( TRUE or FALSE )		: TRUE
+Use watertop.bmp as an overlay? ( TRUE or FALSE )	: FALSE
+Use waterlow.bmp as a background? ( TRUE or FALSE )     : FALSE
+Foreground distance effect X ( 0.0 to 1.0 )		: 0.000
+Foreground distance effect Y ( 0.0 to 1.0 )		: 0.000
+Background distance effect X ( 0.0 to 1.0 )             : 0.000
+Background distance effect Y ( 0.0 to 1.0 )             : 0.000
+Number of foreground repeats ( 1 to 5 )                 : 1
+Number of background repeats ( 1 to 5 )                 : 2
+
+Level 0... Base water level ( 85 )			: 55
+Level 0... Alpha level ( 100 )				: 110
+Level 0... Wave speed ( 3 )				: 8
+Level 0... Brightness ( 15 )				: 15
+Level 0... Ambient light ( 15 )				: 15
+Level 0... Wave amplitude ( 7.0 )			: 5.0
+Level 0... U speed ( .0002 )				: -.0010
+Level 0... V speed ( .0002 )				: -.0025
+
+Level 1... Base water level ( 80 )			: 55
+Level 1... Alpha level ( 100 )				: 170
+Level 1... Wave speed ( 2 )				: 6
+Level 1... Brightness ( 31 )				: 31
+Level 1... Ambient light ( 15 )				: 15
+Level 1... Wave amplitude ( 8.0 )			: 3.0
+Level 1... U speed ( -.0005 )				:  .0005
+Level 1... V speed ( .0005 )				: -.0044
+
+Light X direction ( 1.00 )				: 1.20
+Light Y direction ( 1.00 )				: 1.20
+Light Z direction ( 0.50 )				: 1.20
+Ambient light ( 0.20 )					: 3.45
+
+Hillslide ( 1.00 )					:  2.00
+Slippy friction ( 1.00 )				:  0.80
+Air friction ( .95 )					:  0.91
+Water friction ( .85 )					:  0.80
+Normal friction ( .95 )					:  0.91
+Gravity ( -1.0 )					: -1.00
+Animated tile update AND ( 0, 1, 3, 7, 15, 31 )		:  3
+Animated tile frame AND ( 3 == 4 frame, 7 == 8 frame )  :  3
+Damage tile damage ( 0 to 65535, 512 is 1 life block )	:  512
+Damage tile damage type ( SLASH, CRUSH, POKE, HOLY
+                          EVIL, FIRE, ICE, ZAP )	:  FIRE
+
+Weather particle effect ( 0 to 10, RAIN or SNOW )  : 4
+Weather particles only over water ( TRUE or FALSE )	: FALSE
+Weather particle spawn rate ( 0 to 100, 0 is none )	: 0
+
+Explore mode ( TRUE or FALSE )				: FALSE
+Far Edge mode...  For outside levels ( TRUE or FALSE )	: FALSE
+Camera swing rate ( 0 to 100 )				: 0
+Camera swing amplitude ( 0, or .002 to .100 )		: .000

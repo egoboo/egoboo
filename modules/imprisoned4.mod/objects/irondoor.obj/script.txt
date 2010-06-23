@@ -1,0 +1,49 @@
+// Make it stay open or close
+IfSpawned
+  KeepAction
+  tmpargument = passage
+  ClosePassage
+
+//Open door and close it
+IfTimeOut
+  KeepAction
+  tmpargument = 10
+  SetTime
+  tmpargument = passage + 1
+  SetTargetToWhoeverIsInPassage
+    tmpargument = passage
+    OpenPassage
+  Else
+    tmpargument = passage
+    ClosePassage
+
+//Magic unlock
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    tmpargument = passage
+    OpenPassage
+
+// Handle the animation and sound
+tmpargument = passage 	// Is the passage clear?
+IfPassageOpen			// 
+  tmpargument = 0		  //
+  IfStateIs			  // State 0 ( Closed )
+    tmpargument = ACTIONMG	    //
+    DoAction			    //
+      tmpargument = 1		      // Open it
+      SetState			      //
+      tmpargument = 0		      //
+      PlaySound			      //
+Else
+  tmpargument = 1		  //
+  IfStateIs			  // State 1 ( Open )
+    tmpargument = ACTIONMJ	    //
+    DoAction			    //
+      tmpargument = 0		      // Close it
+      SetState			      //
+      tmpargument = 1		      //
+      PlaySound			      //
+
+End				// Finished with this character

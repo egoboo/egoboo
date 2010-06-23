@@ -1,0 +1,374 @@
+IfSpawned
+  tmpargument = 100
+  SetTime
+
+IfHitVulnerable
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    tmpargument = 4
+    SendMessageNear
+  
+//------------------------------------------------------------------------------
+IfBumped
+  SetTargetToWhoeverBumped
+  tmpargument = 1
+  IfContentIs
+    IfTargetIsOnHatedTeam
+      tmpargument = 0
+      SetContent            //no more hiding
+      tmpargument = 3
+      PlaySound
+      tmpargument = 1
+      SetState
+      tmpargument = 2
+      SendMessageNear
+  // Jump over barriers, onto mounts
+  IfTargetIsAlive
+    IfTargetIsAPlatform
+      // Jump over some stuff
+      tmpargument = LATCHJUMP
+      PressLatchButton
+    IfTargetIsAMount
+      // Jump onto mounts
+      tmpx = targetx
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+
+      tmpargument = 30
+      SetTime
+  Else
+    // Jump over corpses
+    tmpargument = LATCHJUMP
+    PressLatchButton
+  SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+IfKilled
+    
+  // Tell the players
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 1
+  SendMessageNear
+
+  // Just to be sure
+  tmpargument = ACTIONKA
+  DoActionOverride
+  KeepAction
+
+  //Death cry
+  tmpargument = 1
+  PlaySound
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 40
+  SetBumpHeight
+
+  // Make the next part not happen...
+  tmpargument = 50
+  SetTime
+
+  //Make em crushable
+  MakeCrushValid
+  
+  //Remove invicibillity
+  tmpargument = 255
+  SetLight
+  
+//Mooshed in a passage
+IfCrushed
+  tmpargument = 1
+  tmpx = 0
+  tmpy = 0
+  tmpdistance = SPAWNORIGIN
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  GoPoof
+
+//------------------------------------------------------------------------------
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    // Counter attack
+    tmpargument = 1
+    IfContentIs
+      tmpargument = 0
+      SetContent            //no more hiding
+      tmpargument = 3
+      PlaySound
+      tmpargument = 3
+      SendMessageNear
+    tmpargument = 1
+    SetState
+
+    // Check for instant death
+    IfBackstabbed
+      // Allow Rogues to backstab 
+      tmpargument = 8
+      SendMessageNear
+
+      tmpargument = 30
+      tmpdistance = EXPMURDER
+      GiveExperienceToTarget
+
+      // Do it
+      tmpargument = 2
+      ChangeArmor
+      SetTargetToSelf
+      KillTarget
+  Else
+    // Friendly fire, get out of the way
+    tmpx = rand & 511 - 256 + selfx
+    tmpy = rand & 511 - 256 + selfy
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+
+  tmpargument = rand & 1 + 2
+  PlaySound
+
+//------------------------------------------------------------------------------
+IfTimeOut
+  tmpargument = 15
+  SetTime
+
+  IfSitting
+    // Riding some type of animal...
+    // Acquire a target
+    SetTurnModeToVelocity
+    SetTargetToWideEnemy
+      // Charge towards enemy
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = targetturnto
+      tmpdistance = 300
+      Compass
+      ClearWaypoints
+      AddWaypoint
+
+      // Check for special mount attacks
+      tmpx = targetdistance
+      tmpy = 200
+      IfXIsLessThanY
+        tmpargument = [XFUN]
+        SetOldTarget
+        SetTargetToWhoeverIsHolding
+        IfTargetHasAnyID
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+          SetTargetToOldTarget
+        Else
+          // Don't let the enemy jump over
+          SetTargetToOldTarget
+          tmpx = selfz
+          tmpy = targetz - 40
+          IfXIsLessThanY
+            IfHoldingMeleeWeapon
+              PressLatchButton
+
+      tmpargument = rand & 15 + 15 // TIme
+    Else
+      // Guard the start position
+      tmpx = 32*128
+      tmpy = 30*128
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = rand & 31 + 30 // TIme
+  Else
+    
+    //Sneaky mode
+    IfStateIs0
+      Sneak
+      tmpx = 32*128           //The portal
+      tmpy = 30*128
+      SetTargetToWideEnemy
+      IfTargetIsOnHatedTeam
+        IfTargetIsAlive
+          SetTurnModeToWatchTarget
+          
+          //Sneak from behind
+          tmpturn = targetturnto
+          tmpdistance = 400
+          
+          //If target facing self and closing in, move around instead
+          tmpx = targetdistance
+          tmpy = 350
+          IfXIsLessThanY
+            tmpx = selfturn - targetturn
+            tmpy = 10768
+            IfXIsMoreThanY
+              tmpy = 55768
+              IfXIsLessThanY
+                tmpargument = 5
+                SetTime
+                Run
+                tmpturn = targetturnto + 16000
+                tmpdistance = 0 - 350
+                
+          tmpx = targetx
+          tmpy = targety
+          Compass
+      Else
+        SetTurnModeToVelocity
+      ClearWaypoints
+      AddWaypoint
+        
+    //Combat mode
+    IfStateIs1
+      Run
+      tmpargument = 0
+      SetContent
+      tmpdistance = 128*16        //Up to 16 tiles, assassins keep their prey!
+      SetTargetToDistantEnemy
+        SetTurnModeToWatchTarget
+        tmpx = rand & 511 + targetx - 256
+        tmpy = rand & 511 + targety - 256
+        IfHoldingRangedWeapon
+          tmpdistance = 0 - 500
+          tmpturn = rand % 32000 + targetturnto - 16000
+        Else
+          tmpdistance = 0-40
+          tmpturn = targetturn
+        Compass
+        ClearWaypoints
+        AddWaypoint
+      Else
+        SetTurnModeToVelocity
+        tmpargument = 0
+        SetState
+        
+    //Attack
+    IfTargetIsOnHatedTeam
+      IfTargetIsAlive
+        IfFacingTarget
+          IfHoldingMeleeWeapon
+            tmpx = targetdistance
+            tmpy = 100
+            IfXIsLessThanY
+              PressLatchButton    
+          IfHoldingRangedWeapon
+            SetOldTarget
+            tmpx = targetdistance
+            tmpy = 550
+            IfXIsLessThanY
+              SetTargetToNearestFriend
+              IfFacingTarget
+                tmpx = targetx                 //Avoid shooting friends
+                tmpy = targety
+                tmpdistance = 100
+                tmpturn = targetturn + 49152
+                Compass
+                ClearWaypoints
+                AddWaypoint
+              Else
+                PressLatchButton
+            SetTargetToOldTarget
+              
+    //Hide and unhide
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 255
+      SetLight
+
+      IfStateIs0
+        SetOldTarget
+        tmpargument = 1
+        SetContent
+        SetTargetToNearestEnemy
+          
+          //Cant hide in plain sight
+          IfTargetIsAlive
+            tmpx = targetdistance
+            tmpy = 128*4           
+            IfXIsLessThanY
+              tmpargument = 0         //They are too close
+              SetContent
+            tmpy = 128*10
+            IfXIsLessThanY
+              tmpx = selfturn - targetturn
+              tmpy = 10768
+              IfXIsMoreThanY
+                tmpy = 55768
+                IfXIsLessThanY
+                  tmpargument = 0     //They are looking at us
+                  SetContent
+              
+        //Do it!
+        tmpargument = 1
+        IfContentIs
+          tmpargument = 0
+          SetLight
+          tmpargument = 9
+          SendMessageNear
+          tmpargument = 11
+          PlaySound
+        SetTargetToOldTarget
+
+    //Check for detection
+    tmpargument = 1
+    IfContentIs
+      IfTargetIsOnHatedTeam
+        IfTargetIsAlive
+          tmpdistance = targetdistance * 2
+          tmpx = targetwis - tmpdistance        //-3 wisdom for every tile the target is away
+          tmpy = selfdex
+          IfXIsMoreThanY
+            tmpargument = 0
+            SetContent
+            tmpargument = 3
+            SendMessageNear
+            tmpargument = 12
+            PlaySound
+            
+//------------------------------------------------------------------------------
+//Backstab!
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  IfTargetIsOnHatedTeam
+    tmpargument = 1
+    IfContentIs
+      tmpargument = 12
+      PlaySound
+      
+      //Backstab bonus
+      tmpx = selfturn - targetturn
+      tmpy = 10768
+      IfXIsMoreThanY
+        tmpy = 55768
+        IfXIsLessThanY
+          tmpargument = 0
+          SetContent
+           
+      //Proceed if content is still 1
+      tmpargument = 1
+      IfContentIs
+        tmpargument = 10
+        SendMessageNear
+        tmpargument = 0
+        SetContent
+        tmpargument = 13
+        PlaySound
+        
+        //4 bonus damage
+        tmpargument = 1024
+        DamageTarget
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+IfHealed
+  tmpargument = 7
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

@@ -1,0 +1,22 @@
+Module Name :Imprisoned_One_Part_IV
+Reference Directory :NONE
+Required reference IDSZ :[NONE]
+Number of imports ( 0 to 4 ) :4
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :4
+Respawning ( TRUE or FALSE ) :FALSE
+RTS control (TRUE, FALSE, ALL) :FALSE
+Level rating ( * to  ***** ) :*******
+
+// Module summary
+:Protect_the_portal_to_the_final_level
+:before_it_is_destroyed_by_the_invading
+:forces!_Escape_through_the_portal_to
+:the_final_level_as_soon_as_it_is_ready.
+:_
+:_
+:_
+:_
+
+// IDZs

@@ -1,0 +1,143 @@
+IfSpawned
+  
+  //Mana potion
+  tmpargument = 44
+  tmpdistance = INVENTORY
+  SpawnAttachedCharacter
+  
+  //Life potion
+  tmpargument = 43
+  tmpdistance = INVENTORY
+  SpawnAttachedCharacter
+  
+  //Spawn a random reward
+  tmpargument = rand % 17 + 45
+  tmpdistance = INVENTORY
+  SpawnAttachedCharacter
+
+  //Spawn a random reward
+  tmpargument = rand % 17 + 45
+  tmpdistance = INVENTORY
+  SpawnAttachedCharacter
+  
+  //Add some cash into there as well
+  tmpargument = rand % 10
+  SetMoney
+  
+//------------------------------------------------------------------------------
+//Spawn sparklies around (To make it more visible)
+SetTargetToSelf
+tmpx = targetx
+tmpy = targety
+tmpdistance = targetz
+tmpargument = 2
+SpawnExactParticle
+
+//------------------------------------------------------------------------------------
+// Someone cast an unlock spell
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs    
+      tmpargument = ACTIONMG
+      DoAction
+        tmpargument = 1
+        SetState
+        tmpargument = 60
+        SetBumpHeight
+        KeepAction
+        tmpargument = 0
+        PlaySound
+        
+        // Wait a while
+        tmpargument = 40
+        SetTime
+        
+        // Tell the players...
+        tmpargument = 3
+        SendMessageNear
+
+          
+//------------------------------------------------------------------------------------
+// Someone is trying to open it
+IfBumped
+  // Can they open the chest?
+  SetTargetToWhoeverBumped
+  IfTargetCanOpenStuff
+    IfFacingTarget
+      // Is it closed?
+      tmpargument = 0
+      IfStateIs
+        //Animate the target
+        tmpargument = ACTIONMG
+        TargetDoAction      
+        
+          // Give some experience
+          tmpargument = 5
+          tmpdistance = EXPDARE
+          GiveExperienceToTarget
+            
+          //Open stuff
+          tmpargument = ACTIONMG
+          DoAction
+          tmpargument = 1
+          SetState
+          tmpargument = 60
+          SetBumpHeight
+          KeepAction
+          tmpargument = 0
+          PlaySound
+      
+          // Wait a while
+          tmpargument = 40
+          SetTime
+
+          // Tell the players...
+          tmpargument = 0
+          SendMessageNear
+      Else
+        IfStateIs1
+          // Wait before allowing loot
+          IfTimeOut
+            // Reset the timer
+            tmpargument = 40
+            SetTime
+            
+            // Tell the players...
+            tmpargument = 1
+            SendMessageNear
+            
+            // Make target crouch
+            IfFacingTarget
+              tmpargument = ACTIONMG
+              TargetDoAction
+            
+            //Drop everything
+            tmpargument = selfmoney
+            DropItems
+            DropKeys
+            DropMoney
+            
+            //Poof State
+            tmpargument = 2
+            SetState
+
+//------------------------------------------------------------------------------------
+//No longer needed
+IfTimeOut
+  IfStateIs2    
+    //Portal cloud
+    tmpargument = 0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle
+    GoPoof
+
+//------------------------------------------------------------------------------------
+// All done
+End
+//------------------------------------------------------------------------------------

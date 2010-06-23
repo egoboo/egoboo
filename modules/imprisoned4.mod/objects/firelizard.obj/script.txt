@@ -1,0 +1,204 @@
+//------------------------------------------------------------------------------------
+IfSpawned
+  tmpargument = STATEWANDER
+  SetState
+
+//------------------------------------------------------------------------------------
+//Deader than dead
+IfKilled				// This reduces the height of the char
+  SetTargetToWhoeverAttacked
+  IfTargetIsSelf
+    tmpargument = 3
+  Else
+    tmpargument = 0			    //
+  SendMessageNear			    //
+  
+  //Make body
+  tmpargument = 40			  //
+  SetBumpSize				  //
+  tmpargument = 45			  //
+  SetBumpHeight				  //
+  
+  tmpargument = selfmoney			  // Drop money
+  DropMoney				  //
+  DropKeys
+  tmpargument = 2			  //
+  PlaySound				  //
+  tmpargument = 1
+  ChangeArmor
+
+//------------------------------------------------------------------------------------
+//Say ouch
+IfAttacked				// Counter attack
+  SetTargetToWhoeverAttacked		  
+    IfTargetIsOnHatedTeam		    
+      BecomeLeader
+      tmpargument = 1			      // Enter combat mode
+      SetState	
+    Else			    
+      SetTargetToOldTarget
+  tmpargument = rand & 1
+  PlaySound
+  
+  //Take 2 extra damage if hit in the face
+  IfHitFromFront
+    SetTargetToSelf
+    tmpargument = 512
+    DamageTarget
+
+  //Run away!
+  tmpargument = STATECHARGE
+  IfStateIsNot
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpargument = STATERETREAT
+      SetState
+
+//Run away!
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    
+    //Bite!
+    tmpx = selfcontent
+    tmpy = 50
+    IfXIsLessThanY
+      IfFacingTarget
+        tmpargument = rand & 511 + 256
+        DamageTarget
+        tmpargument = 6
+        PlaySound
+        tmpargument = 100
+        SetTime        
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------------
+//The main AI loop
+IfTimeOut			// This is done every so often	
+  tmpargument = rand & 15 + 30
+  SetTime		    
+
+  // Play a random grunt?
+  tmpx = rand & 255			  
+  tmpy = 15				  
+  IfXIsLessThanY			  
+    tmpargument = 5			    
+    PlaySound	
+
+  IfStateIsWander
+    Walk
+    SetTargetToNearbyEnemy		  // Look for enemies
+      tmpargument = STATECOMBAT			    // Enter combat mode
+      SetState				    
+      BecomeLeader
+    Else				//No enemies?
+      tmpargument = STATEWANDER			//Then wander around again
+      SetState
+      tmpx = 32*128
+      tmpy = 30*128
+      ClearWaypoints			  
+      AddWaypoint				  
+
+  IfStateIsCombat
+    Run
+    tmpdistance = 128*7
+    SetTargetToDistantEnemy
+      tmpx = targetdistance
+      tmpy = 128*4
+      IfXIsLessThanY			//Charge or maneouver?
+        tmpargument = 0
+        IfContentIs
+          tmpargument = STATECHARGE
+          SetState
+      
+      tmpx = rand & 255 + targetx - 128                  //Always get in combat position
+      tmpy = rand & 255 + targety - 128      
+      tmpdistance = 1500		//Move fast if target is far away
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+    Else				//Target too far away
+      tmpargument = STATEWANDER
+      SetState
+
+  IfStateIsRetreat
+    Run
+    tmpargument = 120
+    SetTime
+    tmpx = rand & 511 + targetx - 256                  //Always get in combat position     
+    tmpy = rand & 511 + targety - 256      
+    tmpturn = targetturnto
+    tmpdistance = -1500
+    Compass
+    ClearWaypoints			  
+    AddWaypoint
+    tmpargument = STATECOMBAT
+    SetState
+    
+  IfStateIsCharge
+    Run
+    SetTargetToNearestEnemy
+    SetTurnModeToWatchTarget
+
+    //Close enough for breath attack?
+    tmpy = targetdistance
+    tmpx = 128*3
+    IfXIsLessThanY			
+      tmpx = selfx                  //Breath attack position
+      tmpy = selfy      
+      tmpturn = targetturnto
+      tmpdistance = -200
+      Compass			
+      ClearWaypoints			  
+      AddWaypoint
+    Else
+      tmpx = rand & 255 + targetx - 128                  //Breath attack position
+      tmpy = rand & 255 + targety - 128      
+      tmpturn = targetturnto
+      tmpdistance = -400
+      Compass			
+      ClearWaypoints			  
+      AddWaypoint
+  Else
+    SetTurnModeToVelocity
+
+//Do breath attack
+IfStateIsCharge
+  IfFacingTarget
+    tmpx = selfcontent
+    tmpy = 150
+    IfXIsLessThanY	     //This stuff makes the breath correctly
+      tmpdistance = selfz     //appear out of the lizards mouth
+      tmpturn = targetturnto
+      tmpx = selfx
+      tmpy = selfy 
+      Compass    
+      tmpargument = 0
+      SpawnExactParticle
+      
+      tmpargument = 0
+      IfContentIs
+        tmpargument = 3
+        PlaySound
+        tmpargument = 4
+        PlaySound
+      tmpargument = selfcontent + 3   //3 second cooldown
+      SetContent
+
+      //Animate
+      tmpargument = ACTIONUA
+      DoAction
+    Else
+      tmpargument = STATECOMBAT
+      SetState      
+//Recharge breath attack
+tmpx = selfcontent
+tmpy = 0
+IfXIsMoreThanY
+  tmpargument = selfcontent - 1
+  SetContent				
+
+End					// Finished with this character
