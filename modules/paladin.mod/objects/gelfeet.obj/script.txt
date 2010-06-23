@@ -7,6 +7,7 @@ IfHealed
   // Drop the item it's carrying
   tmpargument = ACTIONHA
   DoAction
+  DropItems
 
 IfTimeOut
   tmpargument = 100

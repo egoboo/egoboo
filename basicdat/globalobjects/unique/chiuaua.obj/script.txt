@@ -1,5 +1,4 @@
-// ZZ> This function makes an item fall to the floor when spawned
-
+//This function makes an item fall to the floor when spawned
 IfSpawned				//
   tmpargument = ACTIONJB		  //
   DoAction				  //

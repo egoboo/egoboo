@@ -1,3 +1,9 @@
+//This manages attack speed
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = 66
+  SetReloadTime
+  
 //Magic sparkles
 IfHeld
   tmpargument = RED

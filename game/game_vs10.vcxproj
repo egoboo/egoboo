@@ -15,6 +15,7 @@
     <ClCompile Include="bsp.c" />
     <ClCompile Include="camera.c" />
     <ClCompile Include="char.c" />
+    <ClCompile Include="ChrList.c" />
     <ClCompile Include="client.c" />
     <ClCompile Include="clock.c" />
     <ClCompile Include="collision.c" />
@@ -34,6 +35,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="enchant.c" />
+    <ClCompile Include="EncList.c" />
     <ClCompile Include="extensions\ogl_debug.c" />
     <ClCompile Include="extensions\ogl_extensions.c" />
     <ClCompile Include="extensions\ogl_include.c" />
@@ -94,6 +96,7 @@
     </ClCompile>
     <ClCompile Include="platform\sys_win32.c" />
     <ClCompile Include="profile.c" />
+    <ClCompile Include="PrtList.c" />
     <ClCompile Include="quest.c" />
     <ClCompile Include="rpc.c" />
     <ClCompile Include="script.c" />
@@ -110,6 +113,7 @@
     <ClInclude Include="bsp.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="char.h" />
+    <ClInclude Include="ChrList.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="clock.h" />
     <ClInclude Include="collision.h" />
@@ -131,6 +135,7 @@
     <ClInclude Include="egoboo_typedef_cpp.h" />
     <ClInclude Include="egoboo_vfs.h" />
     <ClInclude Include="enchant.h" />
+    <ClInclude Include="EncList.h" />
     <ClInclude Include="extensions\ogl_debug.h" />
     <ClInclude Include="extensions\ogl_extensions.h" />
     <ClInclude Include="extensions\ogl_include.h" />
@@ -174,6 +179,7 @@
     <ClInclude Include="passage.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="profile.h" />
+    <ClInclude Include="PrtList.h" />
     <ClInclude Include="quest.h" />
     <ClInclude Include="rpc.h" />
     <ClInclude Include="script.h" />

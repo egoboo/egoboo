@@ -264,6 +264,15 @@
     <ClCompile Include="file_formats\template.c">
       <Filter>File System\Source</Filter>
     </ClCompile>
+    <ClCompile Include="PrtList.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChrList.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EncList.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bbox.h">
@@ -502,6 +511,15 @@
     </ClInclude>
     <ClInclude Include="file_formats\wawalite_file.h">
       <Filter>File System\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="EncList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChrList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PrtList.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

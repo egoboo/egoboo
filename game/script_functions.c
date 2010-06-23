@@ -1413,6 +1413,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
+	returncode = bfalse;
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 

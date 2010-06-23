@@ -10,7 +10,6 @@ IfDropped
   KeepAction
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand & 511 + 21000
   PlaySound
 IfGrabbed
   SetTargetToWhoeverIsHolding

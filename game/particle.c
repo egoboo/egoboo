@@ -1917,7 +1917,7 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
 
     pip_t * ppip;
 
-    float ftmp, loc_level;
+    float loc_level;
     PRT_REF iprt;
     bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
     fvec3_t nrm_total;

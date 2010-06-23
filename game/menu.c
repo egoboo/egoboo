@@ -3593,7 +3593,7 @@ int doShowResults( float deltaTime )
                     // used elsewhere before the module is loaded.
                     srand( time( NULL ) );
                     if ( mnu_GameTip_load_local() )       game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
-                    else if ( mnu_GameTip.count > 0 )   game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
+                    else if ( mnu_GameTip.count > 0 )     game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
                 }
             }
             // pass through
@@ -4649,7 +4649,7 @@ void mnu_GameTip_load_global()
 
             //Make it look nice
             str_decode( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), mnu_GameTip.hint[cnt] );
-            str_add_linebreaks( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), 50 );
+            //str_add_linebreaks( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), 50 );
 
             //Keep track of how many we have total
             mnu_GameTip.count++;
@@ -4687,7 +4687,7 @@ bool_t mnu_GameTip_load_local()
 
             //Make it look nice
             str_decode( mnu_GameTip.local_hint[cnt], SDL_arraysize( mnu_GameTip.local_hint[cnt] ), mnu_GameTip.local_hint[cnt] );
-            str_add_linebreaks( mnu_GameTip.local_hint[cnt], SDL_arraysize( mnu_GameTip.local_hint[cnt] ), 50 );
+            //str_add_linebreaks( mnu_GameTip.local_hint[cnt], SDL_arraysize( mnu_GameTip.local_hint[cnt] ), 50 );
 
             //Keep track of how many we have total
             mnu_GameTip.local_count++;
