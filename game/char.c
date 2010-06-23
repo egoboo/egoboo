@@ -6766,7 +6766,7 @@ void move_one_character_do_animation( chr_t * pchr )
                         }
                     }
                 }
-                else
+                else if ( pchr->runspd != 0 )
                 {
                     //Run
                     int tmp_action = mad_get_action( pinst->imad, ACTION_WC );
