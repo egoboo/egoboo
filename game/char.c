@@ -6374,7 +6374,6 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
 				bool_t         found_diff = bfalse;
 				fvec2_t        diff       = ZERO_VECT2;
-				fvec2_t        diff_para  = ZERO_VECT2;
 
 				breadcrumb_t * bc         = NULL;
 
@@ -6489,9 +6488,15 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 				}
 				else if( found_diff && found_nrm )
 				{
+					const float tile_fraction = 0.1f;
 					float ftmp, dot, pressure_old, pressure_new;
 					fvec3_t save_pos;
-					//fvec2_t diff, v_para, v_perp;
+					float nrm2;
+
+					fvec2_t v_perp = ZERO_VECT2;
+					fvec2_t diff_perp = ZERO_VECT2;
+
+					nrm2 = fvec2_dot_product( nrm.v, nrm.v );
 
 					save_pos = tmp_pos;
 
@@ -6505,18 +6510,18 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 					}
 
 					// find the part of the diff that is parallel to the normal
-					diff_para.x = nrm.x * dot;
-					diff_para.y = nrm.y * dot;
+					diff_perp.x = nrm.x * dot / nrm2;
+					diff_perp.y = nrm.y * dot / nrm2;
 
-					// normalize the diff_para so that it is at most 1/2 of a grid in any direction
-					ftmp = MAX(ABS(diff_para.x),ABS(diff_para.y));
+					// normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
+					ftmp = MAX(ABS(diff_perp.x),ABS(diff_perp.y));
 					assert(ftmp > 0.0f);
-					diff_para.x *= 0.1f * GRID_SIZE / ftmp;
-					diff_para.y *= 0.1f * GRID_SIZE / ftmp;
+					diff_perp.x *= tile_fraction * GRID_SIZE / ftmp;
+					diff_perp.y *= tile_fraction * GRID_SIZE / ftmp;
 
-					// try moving the character by up to half a tile
-					tmp_pos.x += diff_para.x;
-					tmp_pos.y += diff_para.y;
+					// try moving the character
+					tmp_pos.x += diff_perp.x * pressure;
+					tmp_pos.y += diff_perp.y * pressure;
 
 					// determine whether the pressure is less at this location
 					pressure_old = chr_get_mesh_pressure( pchr, save_pos.v );
@@ -6531,6 +6536,24 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 					{
 						// !!failure!! restore the saved position
 						tmp_pos = save_pos;
+					}
+
+					dot = fvec2_dot_product( pchr->vel.v, nrm.v );
+					if( dot < 0.0f )
+					{
+						float bumpdampen;
+						cap_t * pcap = chr_get_pcap( GET_REF_PCHR(pchr) );
+
+						bumpdampen = 0.0f;
+						if( NULL == pcap )
+						{
+							bumpdampen = pcap->bumpdampen;
+						}
+						v_perp.x = nrm.x * dot / nrm2;
+						v_perp.y = nrm.y * dot / nrm2;
+
+						pchr->vel.x += - (1.0f + bumpdampen) * v_perp.x * pressure;
+						pchr->vel.y += - (1.0f + bumpdampen) * v_perp.y * pressure;
 					}
 				}
             }
