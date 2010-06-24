@@ -193,7 +193,7 @@ bool_t unlink_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t remove_enchant( const ENC_REF by_reference ienc, const ENC_REF * enc_parent )
+bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 {
     /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
 

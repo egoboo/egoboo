@@ -369,11 +369,11 @@ void keep_weapons_with_holders()
             // Keep in hand weapons with iattached
             if ( chr_matrix_valid( pchr ) )
             {
-				chr_set_pos( pchr, mat_getTranslate( pchr->inst.matrix ).v );
+				chr_set_pos( pchr, mat_getTranslate_v( pchr->inst.matrix ) );
             }
             else
             {
-                chr_set_pos( pchr, chr_get_pos(pattached).v );
+                chr_set_pos( pchr, chr_get_pos_v(pattached) );
             }
 
             pchr->facing_z = pattached->facing_z;
@@ -428,7 +428,7 @@ void keep_weapons_with_holders()
             {
                 PACK_BEGIN_LOOP( iattached, pchr->pack.next )
                 {
-                    chr_set_pos( ChrList.lst + iattached, chr_get_pos( pchr ).v );
+                    chr_set_pos( ChrList.lst + iattached, chr_get_pos_v( pchr ) );
 
                     // Copy olds to make SendMessageNear work
                     ChrList.lst[iattached].pos_old = pchr->pos_old;
@@ -463,7 +463,7 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
         {
             chr_t * ptarget = ChrList.lst + pchr->ai.target;
 
-            chr_set_pos( pchr, chr_get_pos(ptarget).v );
+            chr_set_pos( pchr, chr_get_pos_v(ptarget) );
 
             // copy the matrix
             CopyMatrix( &( pinst->matrix ), &( ptarget->inst.matrix ) );
@@ -669,7 +669,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference chara
 
         if ( vertex_offset == GRIP_ORIGIN )
         {
-			fvec3_t tmp_pos = { pchr->inst.matrix.CNV( 3, 0 ), pchr->inst.matrix.CNV( 3, 1 ), pchr->inst.matrix.CNV( 3, 2 ) };
+			fvec3_t tmp_pos = VECT3( pchr->inst.matrix.CNV( 3, 0 ), pchr->inst.matrix.CNV( 3, 1 ), pchr->inst.matrix.CNV( 3, 2 ) );
 			prt_set_pos( pprt, tmp_pos.v );
 
 			return pprt;
@@ -705,7 +705,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference chara
     else
     {
         // No matrix, so just wing it...
-        prt_set_pos( pprt, chr_get_pos( pchr ).v );
+        prt_set_pos( pprt, chr_get_pos_v( pchr ) );
     }
 
     return pprt;
@@ -1087,11 +1087,11 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
     // Set the positions
     if ( chr_matrix_valid( pchr ) )
     {
-        chr_set_pos( pchr, mat_getTranslate( pchr->inst.matrix ).v );
+        chr_set_pos( pchr, mat_getTranslate_v( pchr->inst.matrix ) );
     }
     else
     {
-        chr_set_pos( pchr, chr_get_pos(pmount).v );
+        chr_set_pos( pchr, chr_get_pos_v(pmount) );
     }
 
     // Make sure it's not dropped in a wall...
@@ -1294,7 +1294,7 @@ void attach_character_to_mount( const CHR_REF by_reference iitem, const CHR_REF 
 
     chr_update_matrix( pitem, btrue );
 
-    chr_set_pos( pitem, mat_getTranslate( pitem->inst.matrix ).v );
+    chr_set_pos( pitem, mat_getTranslate_v( pitem->inst.matrix ) );
 
     pitem->enviro.inwater  = bfalse;
     pitem->jumptime = JUMPDELAY * 4;
@@ -1839,7 +1839,7 @@ void drop_keys( const CHR_REF by_reference character )
                     pitem->pack.is_packed  = bfalse;
                     pitem->isequipped    = bfalse;
 
-                    chr_set_pos( pitem, chr_get_pos( pchr ).v );
+                    chr_set_pos( pitem, chr_get_pos_v( pchr ) );
 
 					pitem->facing_z           = direction + ATK_BEHIND;
                     pitem->enviro.floor_level = pchr->enviro.floor_level;
@@ -1893,7 +1893,7 @@ bool_t drop_all_items( const CHR_REF by_reference character )
 
                 detach_character_from_mount( item, btrue, btrue );
 
-				chr_set_pos( pitem, chr_get_pos(pchr).v );
+				chr_set_pos( pitem, chr_get_pos_v(pchr) );
                 pitem->hitready           = btrue;
                 pitem->ai.alert          |= ALERTIF_DROPPED;
                 pitem->enviro.floor_level = pchr->enviro.floor_level;
@@ -6428,7 +6428,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 				if( !found_nrm )
 				{
 					fvec2_t diff;
-					
+
 					diff = chr_get_diff( pchr, tmp_pos.v, pressure );
 					diff_function_called = btrue;
 
@@ -6674,7 +6674,7 @@ void move_one_character_do_animation( chr_t * pchr )
     // Get running, walking, sneaking, or dancing, from speed
     if ( !pinst->action_keep && !pinst->action_loop && !( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD ) )
     {
-        //int           frame_count = md2_get_numFrames( pmad->md2_ptr );
+        int           frame_count = md2_get_numFrames( pmad->md2_ptr );
         MD2_Frame_t * frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmad->md2_ptr );
         MD2_Frame_t * pframe_nxt  = frame_list + pinst->frame_nxt;
         EGOBOO_ASSERT( pinst->frame_nxt < frame_count );
@@ -9255,6 +9255,15 @@ fvec3_t chr_get_pos( chr_t * pchr )
 	if( !ALLOCATED_PCHR(pchr) ) return vtmp;
 
 	return pchr->pos;
+}
+
+float * chr_get_pos_v( chr_t * pchr )
+{
+	static fvec3_t vtmp = ZERO_VECT3;
+
+	if( !ALLOCATED_PCHR(pchr) ) return vtmp.v;
+
+	return pchr->pos.v;
 }
 
 bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )

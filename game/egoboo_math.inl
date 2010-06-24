@@ -90,6 +90,9 @@ INLINE fvec3_t   mat_getCamRight( const fmat_4x4_t mat );
 INLINE fvec3_t   mat_getCamForward( const fmat_4x4_t mat );
 INLINE fvec3_t   mat_getTranslate( const fmat_4x4_t mat );
 
+
+INLINE float *   mat_getTranslate_v( const fmat_4x4_t mat );
+
 //--------------------------------------------------------------------------------------------
 // CONVERSION FUNCTIONS
 //--------------------------------------------------------------------------------------------
@@ -432,6 +435,18 @@ INLINE fvec3_t mat_getTranslate( const fmat_4x4_t mat )
 }
 
 //--------------------------------------------------------------------------------------------
+INLINE float * mat_getTranslate_v( const fmat_4x4_t mat )
+{
+    static fvec3_t pos;
+
+    pos.x = mat.CNV( 3, 0 );
+    pos.y = mat.CNV( 3, 1 );
+    pos.z = mat.CNV( 3, 2 );
+
+    return pos.v;
+}
+
+//--------------------------------------------------------------------------------------------
 INLINE fvec3_t mat_getChrUp( const fmat_4x4_t mat )
 {
     fvec3_t   up;
@@ -722,7 +737,7 @@ INLINE fmat_4x4_t FourPoints( const fvec4_base_t ori, const fvec4_base_t wid, co
 //--------------------------------------------------------------------------------------------
 INLINE fmat_4x4_t ViewMatrix( const fvec3_base_t   from,     // camera location
                               const fvec3_base_t   at,        // camera look-at target
-                              const fvec3_base_t   world_up,  // world’s up, usually 0, 0, 1
+                              const fvec3_base_t   world_up,  // worldâ€™s up, usually 0, 0, 1
                               const float roll )         // clockwise roll around
 //   viewing direction,
 //   in radians

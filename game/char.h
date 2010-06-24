@@ -667,3 +667,5 @@ bool_t chr_update_safe( chr_t * pchr, bool_t force );
 
 fvec3_t chr_get_pos( chr_t * pchr );
 bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
+
+float * chr_get_pos_v( chr_t * pchr );

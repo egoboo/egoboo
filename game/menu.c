@@ -447,6 +447,10 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
         case proc_finish:
             process_terminate( PROC_PBASE( mproc ) );
             break;
+
+        default:
+        case proc_invalid:
+            break;
     }
 
     return result;
