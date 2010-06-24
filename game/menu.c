@@ -852,7 +852,7 @@ int doChooseModule( float deltaTime )
             load_all_menu_images();
 
             // Load font & background
-            ego_texture_load_vfs( &background, "mp_data/menu/menu_sleepy", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR );
             startIndex = 0;
             selectedModule = -1;
 
@@ -2589,7 +2589,7 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR );
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_sound", TRANSCOLOR );
 
             menuChoice = 0;
             menuState = MM_Entering;
