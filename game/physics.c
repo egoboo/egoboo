@@ -595,7 +595,7 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
 	bc->pos.z  = pchr->pos.z;
 
 	bc->grid   = mesh_get_tile( PMesh, bc->pos.x, bc->pos.y );
-	bc->valid  = (0 == mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits));
+	bc->valid  = (0 == mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL));
 
 	bc->id = breadcrumb_guid++;
 
@@ -628,7 +628,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
 	bc->pos.z  = pprt->pos.z;
 
 	bc->grid   = mesh_get_tile( PMesh, bc->pos.x, bc->pos.y );
-	bc->valid  = (0 == mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits));
+	bc->valid  = (0 == mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL));
 
 	bc->id = breadcrumb_guid++;
 
@@ -658,7 +658,7 @@ int breadcrumb_cmp( const void * lhs, const void * rhs )
 //--------------------------------------------------------------------------------------------
 bool_t breadcrumb_list_full( breadcrumb_list_t *  lst )
 {
-	if( NULL == lst ) return btrue;
+	if( NULL == lst || !lst->on ) return btrue;
 
 	lst->count = CLIP(lst->count, 0, MAX_BREADCRUMB);
 
@@ -668,7 +668,7 @@ bool_t breadcrumb_list_full( breadcrumb_list_t *  lst )
 //--------------------------------------------------------------------------------------------
 bool_t breadcrumb_list_empty( breadcrumb_list_t * lst )
 {
-	if( NULL == lst ) return btrue;
+	if( NULL == lst || !lst->on ) return btrue;
 
 	lst->count = CLIP(lst->count, 0, MAX_BREADCRUMB);
 
@@ -680,7 +680,7 @@ void breadcrumb_list_compact( breadcrumb_list_t * lst )
 {
 	int cnt, tnc;
 
-	if( NULL == lst ) return;
+	if( NULL == lst || !lst->on ) return;
 
 	// compact the list of breadcrumbs
 	for( cnt = 0, tnc = 0; cnt < lst->count; cnt ++)
@@ -706,7 +706,7 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
 {
 	int cnt, invalid_cnt;
 
-	if( NULL == lst ) return;
+	if( NULL == lst || !lst->on ) return;
 
 	// invalidate all bad breadcrumbs
 	for( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++)
@@ -719,7 +719,7 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
 		}
 		else
 		{
-			if( 0 != mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits ) )
+			if( 0 != mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) )
 			{
 				bc->valid = bfalse;
 				invalid_cnt++;
@@ -745,7 +745,7 @@ breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst )
 {
 	breadcrumb_t * retval = NULL;
 
-	if( NULL == lst ) return NULL;
+	if( NULL == lst || !lst->on ) return NULL;
 
 	breadcrumb_list_validate( lst );
 
@@ -765,7 +765,7 @@ breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst )
 	Uint32         old_time = 0xFFFFFFFF;
 	breadcrumb_t * old_ptr = NULL;
 
-	if( NULL == lst ) return NULL;
+	if( NULL == lst || !lst->on ) return NULL;
 
 	for( cnt = 0; cnt < lst->count; cnt ++)
 	{
@@ -811,7 +811,7 @@ breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst )
 	Uint32         old_time = 0xFFFFFFFF;
 	breadcrumb_t * old_ptr = NULL;
 
-	if( NULL == lst ) return NULL;
+	if( NULL == lst || !lst->on ) return NULL;
 
 	for( cnt = 0; cnt < lst->count; cnt ++)
 	{
@@ -857,7 +857,7 @@ breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 matc
 	Uint32         old_time = 0xFFFFFFFF;
 	breadcrumb_t * old_ptr = NULL;
 
-	if( NULL == lst ) return NULL;
+	if( NULL == lst || !lst->on ) return NULL;
 
 	for( cnt = 0; cnt < lst->count; cnt ++)
 	{
@@ -928,7 +928,9 @@ bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
 	bool_t retval;
 	breadcrumb_t * pold, *ptmp;
 
-	if( NULL == lst || NULL == pnew ) return bfalse;
+	if( NULL == lst || !lst->on) return bfalse;
+
+	if( NULL == pnew ) return bfalse;
 
 	for( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++)
 	{

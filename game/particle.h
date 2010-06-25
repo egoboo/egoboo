@@ -182,7 +182,8 @@ struct s_prt
 typedef struct s_prt prt_t;
 
 // counters for debugging wall collisions
-extern int prt_wall_tests;
+extern int prt_stoppedby_tests;
+extern int prt_pressure_tests;
 
 //--------------------------------------------------------------------------------------------
 /// function prototypes
@@ -217,8 +218,8 @@ int     prt_count_free();
 PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF by_reference pip_override );
 void    reset_particles();
 
-Uint32 prt_hit_wall( prt_t * pprt, float nrm[], float * pressure );
-bool_t prt_test_wall( prt_t * pprt );
+Uint32 prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure );
+bool_t prt_test_wall( prt_t * pprt, float test_pos[] );
 
 bool_t prt_is_over_water( const PRT_REF by_reference particle );
 

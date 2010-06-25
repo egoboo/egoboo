@@ -606,7 +606,7 @@ void update_all_objects()
 //--------------------------------------------------------------------------------------------
 void move_all_objects()
 {
-    mesh_wall_tests = 0;
+    mesh_mpdfx_tests = 0;
 
     move_all_particles();
     move_all_characters();
@@ -1592,7 +1592,7 @@ void do_damage_tiles()
         if ( pchr->pack.is_packed ) continue;
 
         // are we on a damage tile?
-        if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) continue;
+        if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
         if ( 0 == mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_DAMAGE ) ) continue;
 
         // are we low enough?
@@ -1783,7 +1783,7 @@ void do_weather_spawn_particles()
                         {
                             destroy_particle = btrue;
                         }
-                        else if ( prt_test_wall( pprt ) )
+                        else if ( prt_test_wall( pprt, NULL ) )
                         {
                             destroy_particle = btrue;
                         }
@@ -2446,7 +2446,7 @@ void tilt_characters_to_terrain()
     {
         if ( !INGAME_CHR( cnt ) ) continue;
 
-        if ( pchr->stickybutt && VALID_GRID( PMesh, pchr->onwhichgrid ) )
+        if ( pchr->stickybutt && mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
         {
             twist = PMesh->gmem.grid_list[pchr->onwhichgrid].twist;
             pchr->map_facing_y = map_twist_y[twist];

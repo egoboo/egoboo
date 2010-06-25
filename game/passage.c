@@ -142,7 +142,7 @@ void flash_passage( const PASS_REF by_reference passage, Uint8 color )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( !VALID_GRID( PMesh, fan ) ) continue;
+            if ( !mesh_grid_is_valid( PMesh, fan ) ) continue;
 
             for ( cnt = 0; cnt < 4; cnt++ )
             {

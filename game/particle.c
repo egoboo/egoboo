@@ -49,8 +49,8 @@ const float buoyancy_friction = 0.2f;          // how fast does a "cloud-like" o
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int prt_wall_tests = 0;
+int prt_stoppedby_tests = 0;
+int prt_pressure_tests = 0;
 
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack, MAX_PIP );
 
@@ -494,9 +494,12 @@ prt_t * prt_config_do_init( prt_t * pprt )
     }
 
     // is the spawn location safe?
-    pprt->safe_pos = tmp_pos;
-    pprt->safe_valid = ( 0 == prt_hit_wall( pprt, NULL, NULL ) );
-    if ( pprt->safe_valid ) pprt->safe_grid  = pprt->onwhichgrid;
+	if( 0 == prt_hit_wall( pprt, tmp_pos.v, NULL, NULL ) )
+	{
+		pprt->safe_pos   = tmp_pos;
+		pprt->safe_valid = btrue;
+		pprt->safe_grid  = pprt->onwhichgrid;
+	}
 
     // gat an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !DEFINED_CHR( pprt->attachedto_ref );
@@ -921,67 +924,146 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
 
     return iprt;
 }
+//--------------------------------------------------------------------------------------------
+float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
+{
+    float retval = 0.0f;
+	Uint32       stoppedby;
+    pip_t      * ppip;
+
+    if ( !DEFINED_PPRT( pprt ) ) return retval;
+
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
+    ppip = PipStack.lst + pprt->pip_ref;
+
+    stoppedby = MPDFX_IMPASS;
+    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
+
+    // deal with the optional parameters
+ 	if ( NULL == test_pos ) test_pos = pprt->pos.v;
+
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	{
+		retval = mesh_get_pressure( PMesh, test_pos, 0.0f, stoppedby );
+	}
+    prt_stoppedby_tests += mesh_mpdfx_tests;
+	prt_pressure_tests += mesh_pressure_tests;
+
+
+    return retval;
+}
 
 //--------------------------------------------------------------------------------------------
-Uint32 prt_hit_wall( prt_t * pprt, float nrm[], float * pressure )
+fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
 {
-    /// @details ZZ@> This function returns nonzero if the character hit a wall that the
-    ///    character is not allowed to cross
+    fvec2_t retval = ZERO_VECT2;
+	float   radius;
+	Uint32       stoppedby;
+    pip_t      * ppip;
 
-    pip_t * ppip;
-    Uint32 bits;
-    Uint32 retval;
+    if ( !DEFINED_PPRT( pprt ) ) return retval;
 
-    float        loc_pressure;
-    fvec3_base_t loc_nrm;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
+    ppip = PipStack.lst + pprt->pip_ref;
 
-    if ( !ACTIVE_PPRT( pprt ) ) return 0;
+    stoppedby = MPDFX_IMPASS;
+    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
+
+    // deal with the optional parameters
+ 	if ( NULL == test_pos ) test_pos = pprt->pos.v;
+
+	// calculate the radius based on whether the particle is on camera
+    radius = 0.0f;
+    if ( mesh_grid_is_valid( PMesh, pprt->onwhichgrid ) )
+    {
+        if ( PMesh->tmem.tile_list[ pprt->onwhichgrid ].inrenderlist )
+        {
+            radius = pprt->bump.size;
+        }
+    }
+
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	{
+		retval = mesh_get_diff( PMesh, test_pos, radius, center_pressure, stoppedby );
+	}
+    prt_stoppedby_tests += mesh_mpdfx_tests;
+	prt_pressure_tests += mesh_pressure_tests;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure )
+{
+    /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
+    ///    particle is not allowed to cross
+
+    Uint32       retval;
+	Uint32       stoppedby;
+    pip_t      * ppip;
+
+    if ( !DEFINED_PPRT( pprt ) ) return 0;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return 0;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    bits = MPDFX_IMPASS;
-    if ( ppip->bumpmoney ) bits |= MPDFX_WALL;
+    stoppedby = MPDFX_IMPASS;
+    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
 
     // deal with the optional parameters
-    if ( NULL == pressure ) pressure = &loc_pressure;
-    if ( NULL == nrm ) nrm      =  loc_nrm;
+	if ( NULL == test_pos ) test_pos = pprt->pos.v;
 
-    mesh_wall_tests = 0;
-
-    retval = mesh_hit_wall( PMesh, pprt->pos.v, 0.0f, bits, nrm, pressure );
-
-    prt_wall_tests += mesh_wall_tests;
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	{
+		retval = mesh_hit_wall( PMesh, test_pos, 0.0f, stoppedby, nrm, pressure );
+	}
+    prt_stoppedby_tests += mesh_mpdfx_tests;
+	prt_pressure_tests += mesh_pressure_tests;
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_test_wall( prt_t * pprt )
+bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
 {
-    /// @details ZZ@> This function returns nonzero if the character hit a wall that the
-    ///    character is not allowed to cross
+    /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
+    ///    particle is not allowed to cross
 
+    bool_t retval;
     pip_t * ppip;
-    Uint32  bits;
-    bool_t  retval;
+    Uint32  stoppedby;
 
-    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return 0;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    bits = MPDFX_IMPASS;
-    if ( ppip->bumpmoney ) bits |= MPDFX_WALL;
+    stoppedby = MPDFX_IMPASS;
+    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
 
-    mesh_wall_tests = 0;
+    if ( 0 == pprt->bump.size || INFINITE_WEIGHT == pprt->phys.weight ) return bfalse;
 
-    retval = mesh_test_wall( PMesh, pprt->pos.v, 0.0f, bits );
+	if( NULL == test_pos ) test_pos = pprt->pos.v;
 
-    prt_wall_tests += mesh_wall_tests;
+	// do the wall test
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	{
+		retval = mesh_test_wall( PMesh, test_pos, 0.0f, stoppedby, NULL );
+	}
+    prt_stoppedby_tests += mesh_mpdfx_tests;
+	prt_pressure_tests += mesh_pressure_tests;
 
     return retval;
 }
+
 
 ////--------------------------------------------------------------------------------------------
 //// This is BB's most recent version of the update_one_particle() function that should treat
@@ -1304,7 +1386,7 @@ void move_one_particle_get_environment( prt_t * pprt )
         itile = pprt->onwhichgrid;
     }
 
-    if ( VALID_GRID( PMesh, itile ) )
+    if ( mesh_grid_is_valid( PMesh, itile ) )
     {
         pprt->enviro.twist = PMesh->gmem.grid_list[itile].twist;
     }
@@ -1338,7 +1420,7 @@ void move_one_particle_get_environment( prt_t * pprt )
             pprt->enviro.traction /= hillslide * ( 1.0f - pprt->enviro.zlerp ) + 1.0f * pprt->enviro.zlerp;
         }
     }
-    else if ( VALID_GRID( PMesh, pprt->onwhichgrid ) )
+    else if ( mesh_grid_is_valid( PMesh, pprt->onwhichgrid ) )
     {
         pprt->enviro.traction = ABS( map_twist_nrm[pprt->enviro.twist].z ) * ( 1.0f - pprt->enviro.zlerp ) + 0.25 * pprt->enviro.zlerp;
 
@@ -1366,7 +1448,7 @@ void move_one_particle_get_environment( prt_t * pprt )
     {
         // Make the characters slide
         float temp_friction_xy = noslipfriction;
-        if ( VALID_GRID( PMesh, pprt->onwhichgrid ) && pprt->enviro.is_slippy )
+        if ( mesh_grid_is_valid( PMesh, pprt->onwhichgrid ) && pprt->enviro.is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = slippyfriction;
@@ -1921,10 +2003,14 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
     PRT_REF iprt;
     bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
     fvec3_t nrm_total;
+	fvec3_t tmp_pos;
 
 	// if the particle is not still in "display mode" there is no point in going on
     if ( !DISPLAY_PPRT( pprt ) ) return pprt;
     iprt = GET_INDEX_PPRT( pprt );
+
+	// capture the particle position
+	tmp_pos = prt_get_pos( pprt );
 
 	// only deal with attached particles
 	if( MAX_CHR == pprt->attachedto_ref ) return pprt;
@@ -1940,7 +2026,7 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
     loc_level = pprt->enviro.adj_level;
 
     // Move the particle
-    if ( pprt->pos.z < loc_level )
+    if ( tmp_pos.z < loc_level )
     {
         hit_a_floor = btrue;
     }
@@ -1958,14 +2044,14 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
     needs_test = bfalse;
     if ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) > 0.0f )
     {
-        if ( prt_test_wall( pprt ) )
+        if ( prt_test_wall( pprt, tmp_pos.v ) )
         {
             Uint32  hit_bits;
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_hit_wall( pprt, nrm.v, &pressure );
+            hit_bits = prt_hit_wall( pprt, tmp_pos.v, nrm.v, &pressure );
 
             if ( 0 != hit_bits )
             {
@@ -1994,12 +2080,17 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
         play_particle_sound( iprt, ppip->soundend_floor );
     }
 
+	if( (tmp_pos.x != tmp_pos.x) || (tmp_pos.y != tmp_pos.y) || (tmp_pos.z != tmp_pos.z) )
+	{
+		prt_set_pos( pprt, tmp_pos.v );
+	}
+
     if ( !hit_a_wall )
     {
-        Uint32 new_tile = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+        Uint32 new_tile = mesh_get_tile( PMesh, tmp_pos.x, tmp_pos.y );
         if ( new_tile != pprt->safe_grid )
         {
-			pprt->safe_pos   = pprt->pos;
+			pprt->safe_pos   = tmp_pos;
 			pprt->safe_valid = btrue;
 			pprt->safe_grid  = pprt->onwhichgrid;
         }
@@ -2019,10 +2110,14 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     PRT_REF iprt;
     bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
     fvec3_t nrm_total;
+    fvec3_t tmp_pos;
 
 	// if the particle is not still in "display mode" there is no point in going on
     if ( !DISPLAY_PPRT( pprt ) ) return pprt;
     iprt = GET_INDEX_PPRT( pprt );
+
+	// capture the position
+	tmp_pos = prt_get_pos( pprt );
 
 	// no point in doing this if the particle thinks it's attached
 	if( MAX_CHR != pprt->attachedto_ref )
@@ -2041,10 +2136,10 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     loc_level = pprt->enviro.adj_level;
 
     // Move the particle
-    ftmp = pprt->pos.z;
-    pprt->pos.z += pprt->vel.z;
-    LOG_NAN( pprt->pos.z );
-    if ( pprt->pos.z < loc_level )
+    ftmp = tmp_pos.z;
+    tmp_pos.z += pprt->vel.z;
+    LOG_NAN( tmp_pos.z );
+    if ( tmp_pos.z < loc_level )
     {
         hit_a_floor = btrue;
 
@@ -2052,17 +2147,17 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         {
             // the particle will bounce
             nrm_total.z -= SGN( gravity );
-            pprt->pos.z = ftmp;
+            tmp_pos.z = ftmp;
         }
         else if ( pprt->vel.z > 0.0f )
         {
             // the particle is not bouncing, it is just at the wrong height
-            pprt->pos.z = loc_level;
+            tmp_pos.z = loc_level;
         }
         else
         {
             // the particle is in the "stop bouncing zone"
-            pprt->pos.z = loc_level + 0.0001f;
+            tmp_pos.z = loc_level + 0.0001f;
             pprt->vel.z = 0.0f;
         }
     }
@@ -2082,16 +2177,16 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     {
         float old_x, old_y, new_x, new_y;
 
-        old_x = pprt->pos.x; LOG_NAN( old_x );
-        old_y = pprt->pos.y; LOG_NAN( old_y );
+        old_x = tmp_pos.x; LOG_NAN( old_x );
+        old_y = tmp_pos.y; LOG_NAN( old_y );
 
         new_x = old_x + pprt->vel.x; LOG_NAN( new_x );
         new_y = old_y + pprt->vel.y; LOG_NAN( new_y );
 
-        pprt->pos.x = new_x;
-        pprt->pos.y = new_y;
+        tmp_pos.x = new_x;
+        tmp_pos.y = new_y;
 
-        if ( !prt_test_wall( pprt ) )
+        if ( !prt_test_wall( pprt, tmp_pos.v ) )
         {
             updated_2d = btrue;
         }
@@ -2102,14 +2197,14 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_hit_wall( pprt, nrm.v, &pressure );
+            hit_bits = prt_hit_wall( pprt, tmp_pos.v, nrm.v, &pressure );
 
             if ( 0 != hit_bits )
             {
                 hit_a_wall = btrue;
 
-                pprt->pos.x = old_x;
-                pprt->pos.y = old_y;
+                tmp_pos.x = old_x;
+                tmp_pos.y = old_y;
 
                 nrm_total.x += nrm.x;
                 nrm_total.y += nrm.y;
@@ -2194,7 +2289,7 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         {
             // this is the very last bounce
             pprt->vel.z = 0.0f;
-            pprt->pos.z = loc_level + 0.0001f;
+            tmp_pos.z = loc_level + 0.0001f;
         }
 
         if ( hit_a_wall )
@@ -2218,9 +2313,9 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
-    if ( pprt->is_homing && pprt->pos.z < 0 )
+    if ( pprt->is_homing && tmp_pos.z < 0 )
     {
-        pprt->pos.z = 0;  // Don't fall in pits...
+        tmp_pos.z = 0;  // Don't fall in pits...
     }
 
     if ( ppip->rotatetoface )
@@ -2235,9 +2330,14 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
             chr_t * ptarget =  ChrList.lst +  pprt->target_ref;
 
             // face your target
-            pprt->facing = vec_to_facing( ptarget->pos.x - pprt->pos.x , ptarget->pos.y - pprt->pos.y );
+            pprt->facing = vec_to_facing( ptarget->pos.x - tmp_pos.x , ptarget->pos.y - tmp_pos.y );
         }
     }
+
+	if( (tmp_pos.x != tmp_pos.x) || (tmp_pos.y != tmp_pos.y) || (tmp_pos.z != tmp_pos.z) )
+	{
+		prt_set_pos( pprt, tmp_pos.v );
+	}
 
     // we need to test the validity of the current position every 8 frames or so,
     // no matter what
@@ -2254,7 +2354,7 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         Uint32 new_tile = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
         if ( new_tile != pprt->safe_grid )
         {
-            if ( !prt_hit_wall( pprt, NULL, NULL ) )
+            if ( !prt_hit_wall( pprt, NULL, NULL, NULL ) )
             {
                 pprt->safe_pos   = pprt->pos;
                 pprt->safe_valid = btrue;
@@ -2323,7 +2423,7 @@ void move_all_particles( void )
     const float air_friction = 0.9868f;  // gives the same terminal velocity in terms of the size of the game characters
     const float ice_friction = 0.9738f;  // the square of air_friction
 
-    prt_wall_tests = 0;
+    prt_stoppedby_tests = 0;
 
     // move every particle
     PRT_BEGIN_LOOP_DISPLAY( cnt, pprt )
@@ -2557,7 +2657,7 @@ bool_t prt_is_over_water( const PRT_REF by_reference iprt )
     if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
 
     fan = mesh_get_tile( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
-    if ( VALID_GRID( PMesh, fan ) )
+    if ( mesh_grid_is_valid( PMesh, fan ) )
     {
         if ( 0 != mesh_test_fx( PMesh, fan, MPDFX_WATER ) )  return btrue;
     }
@@ -3078,7 +3178,7 @@ void prt_do_bump_damage( prt_t * pprt, pip_t * ppip )
 {
     // apply damage from  attatched bump particles (about once a second)
 
-	CHR_REF ichr;
+	CHR_REF ichr, iholder;
 	Uint32  update_count;
 	IPair  local_damage;
 
@@ -3095,8 +3195,12 @@ void prt_do_bump_damage( prt_t * pprt, pip_t * ppip )
 	ichr = pprt->attachedto_ref;
 	if( !INGAME_CHR(ichr) ) return;
 
+	// find out who is holding the owner of this object
+	iholder = chr_get_lowest_attachment( ichr, btrue );
+	if ( MAX_CHR == iholder ) iholder = ichr;
+
 	// do nothing if you are attached to your owner
-	if( pprt->attachedto_ref == pprt->owner_ref ) return;
+	if( (MAX_CHR != pprt->owner_ref) && (iholder == pprt->owner_ref || ichr == pprt->owner_ref) ) return;
 
     // Attached particle damage ( Burning )
     if ( ppip->allowpush && 0 == ppip->vel_hrz_pair.base )
@@ -3107,10 +3211,14 @@ void prt_do_bump_damage( prt_t * pprt, pip_t * ppip )
     }
 
     /// @note  Why is this commented out? Attached arrows need to do damage.
+	local_damage = pprt->damage;
 
 	// distribute the damage over the particle's lifetime
-	local_damage.base = pprt->damage.base / pprt->lifetime / 32;
-	local_damage.rand = pprt->damage.rand / pprt->lifetime / 32;
+	if( !pprt->is_eternal )
+	{
+		local_damage.base /= pprt->lifetime;
+		local_damage.rand /= pprt->lifetime;
+	}
 
     damage_character( ichr, ATK_BEHIND, local_damage, pprt->damagetype, pprt->team, pprt->owner_ref, ppip->damfx, bfalse );
 }
@@ -3301,7 +3409,7 @@ bool_t prt_update_safe_raw( prt_t * pprt )
 
 	if( !ALLOCATED_PPRT( pprt ) ) return bfalse;
 
-	hit_a_wall = prt_hit_wall( pprt, NULL, &pressure );
+	hit_a_wall = prt_hit_wall( pprt, NULL, NULL, &pressure );
 	if( hit_a_wall && 0.0f == pressure )
 	{
 		pprt->safe_valid = btrue;

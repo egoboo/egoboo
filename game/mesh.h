@@ -29,6 +29,8 @@
 struct s_ego_mpd;
 typedef struct s_ego_mpd ego_mpd_t;
 
+struct s_mesh_wall_data;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define BLOCK_BITS    9
@@ -229,7 +231,9 @@ extern float     map_twistvel_y[256];
 extern float     map_twistvel_z[256];
 extern Uint8     map_twist_flat[256];
 
-extern int mesh_wall_tests;
+extern int mesh_mpdfx_tests;
+extern int mesh_bound_tests;
+extern int mesh_pressure_tests;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -252,7 +256,7 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
 Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure );
-bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits );
+bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, struct s_mesh_wall_data * private_data );
 
 float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y );
 float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );

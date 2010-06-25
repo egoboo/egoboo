@@ -1484,7 +1484,7 @@ int draw_fps( int y )
 #    if defined(DEBUG_BSP)
         y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", BSP_chr_count, MAX_CHR - chr_count_free(), BSP_prt_count, maxparticles - prt_count_free() );
         y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
-        y = _draw_string_raw( 0, y, "chr_wall_tests %04d - prt_wall_tests %04d", chr_wall_tests, prt_wall_tests );
+        y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
 
 #    if defined(DEBUG_PROFILE_DISPLAY)
@@ -1906,7 +1906,7 @@ void render_shadow( const CHR_REF by_reference character )
     if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) return;
+    if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return;
 
     // no shadow if invalid tile image
     if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichgrid] ) ) return;
@@ -2037,7 +2037,7 @@ void render_bad_shadow( const CHR_REF by_reference character )
     if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) return;
+    if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return;
 
     // no shadow if invalid tile image
     if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichgrid] ) ) return;
@@ -2122,7 +2122,7 @@ void update_all_chr_instance()
         if ( !INGAME_CHR( cnt ) ) continue;
         pchr = ChrList.lst + cnt;
 
-        if ( !VALID_GRID( PMesh, pchr->onwhichgrid ) ) continue;
+        if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 
         if ( rv_success == chr_update_instance( pchr ) )
         {
@@ -2323,7 +2323,7 @@ void render_scene_mesh( renderlist_t * prlist )
                         ichr  = dolist[cnt].ichr;
                         itile = ChrList.lst[ichr].onwhichgrid;
 
-                        if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                        if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
                             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
                             render_one_mad_ref( ichr );
@@ -2342,7 +2342,7 @@ void render_scene_mesh( renderlist_t * prlist )
                         GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT - allow transparent objects
                         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT - set the default particle blending
 
-                        if ( VALID_GRID( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                        if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
                         {
                             render_one_prt_ref( iprt );
                         }
@@ -3154,7 +3154,7 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
-        if ( VALID_GRID( pmesh, fan[cnt] ) )
+        if ( mesh_grid_is_valid( pmesh, fan[cnt] ) )
         {
             cache_list[cnt] = &( glist[fan[cnt]].cache );
         }
@@ -3190,7 +3190,7 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
-        if ( VALID_GRID( pmesh, fan[cnt] ) )
+        if ( mesh_grid_is_valid( pmesh, fan[cnt] ) )
         {
             cache_list[cnt] = &( glist[fan[cnt]].cache );
         }
@@ -3969,7 +3969,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr )
     if ( NULL == pcap ) return bfalse;
 
     itile = pchr->onwhichgrid;
-    if ( !VALID_GRID( pmesh, itile ) ) return bfalse;
+    if ( !mesh_grid_is_valid( pmesh, itile ) ) return bfalse;
 
     if ( pmesh->tmem.tile_list[itile].inrenderlist )
     {
@@ -4015,7 +4015,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF by_reference iprt )
 
     if ( pinst->indolist ) return btrue;
 
-    if ( 0 == pinst->size || pprt->is_hidden || !VALID_GRID( pmesh, pprt->onwhichgrid ) ) return bfalse;
+    if ( 0 == pinst->size || pprt->is_hidden || !mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) ) return bfalse;
 
     dolist[dolist_count].ichr = ( CHR_REF )MAX_CHR;
     dolist[dolist_count].iprt = iprt;
@@ -4060,7 +4060,7 @@ void dolist_make( ego_mpd_t * pmesh )
 
     PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
     {
-        if ( VALID_GRID( pmesh, pprt->onwhichgrid ) )
+        if ( mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) )
         {
             // Add the character
             dolist_add_prt( pmesh, iprt );
@@ -5042,7 +5042,7 @@ void light_fans( renderlist_t * prlist )
         ego_tile_info_t * ptile;
 
         fan = prlist->all[entry];
-        if ( !VALID_GRID( pmesh, fan ) ) continue;
+        if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
 
         ptile = ptmem->tile_list + fan;
 
@@ -5131,7 +5131,7 @@ void light_fans( renderlist_t * prlist )
             ego_tile_info_t * ptile;
 
             fan = prlist->all[entry];
-            if ( !VALID_GRID( pmesh, fan ) ) continue;
+            if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
 
             ptile = ptmem->tile_list + fan;
 
@@ -5268,7 +5268,7 @@ void gfx_make_dynalist( camera_t * pcam )
     {
         pprt->inview = bfalse;
 
-        if ( !VALID_GRID( PMesh, pprt->onwhichgrid ) ) continue;
+        if ( !mesh_grid_is_valid( PMesh, pprt->onwhichgrid ) ) continue;
 
         pprt->inview = PMesh->tmem.tile_list[pprt->onwhichgrid].inrenderlist;
 
@@ -5372,7 +5372,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
     for ( entry = 0; entry < renderlist.all_count; entry++ )
     {
         fan = renderlist.all[entry];
-        if ( !VALID_GRID( pmesh, fan ) ) continue;
+        if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
 
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
@@ -5447,7 +5447,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
 
         // grab each grid box in the "frustum"
         fan = renderlist.all[entry];
-        if ( !VALID_GRID( pmesh, fan ) ) continue;
+        if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
 
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;

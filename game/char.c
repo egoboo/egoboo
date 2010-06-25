@@ -61,7 +61,8 @@ static IDSZ    inventory_idsz[INVEN_COUNT];
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, cap_t, CapStack, MAX_PROFILE );
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, team_t, TeamStack, TEAM_MAX );
 
-int chr_wall_tests = 0;
+int chr_stoppedby_tests = 0;
+int chr_pressure_tests = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -873,7 +874,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 
 	// calculate the radius based on whether the character is on camera
     radius = 0.0f;
-    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
         if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
         {
@@ -881,7 +882,14 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
         }
     }
 
-	retval = mesh_get_pressure( PMesh, test_pos, radius, pchr->stoppedby );
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	{
+		retval = mesh_get_pressure( PMesh, test_pos, radius, pchr->stoppedby );
+	}
+    chr_stoppedby_tests += mesh_mpdfx_tests;
+	chr_pressure_tests += mesh_pressure_tests;
 
     return retval;
 }
@@ -901,7 +909,7 @@ fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
 
 	// calculate the radius based on whether the character is on camera
     radius = 0.0f;
-    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
         if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
         {
@@ -909,7 +917,14 @@ fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
         }
     }
 
-	retval = mesh_get_diff( PMesh, test_pos, radius, center_pressure, pchr->stoppedby );
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
+	{
+		retval = mesh_get_diff( PMesh, test_pos, radius, center_pressure, pchr->stoppedby );
+	}
+    chr_stoppedby_tests += mesh_mpdfx_tests;
+	chr_pressure_tests += mesh_pressure_tests;
 
     return retval;
 }
@@ -920,8 +935,6 @@ Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressu
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
 
-    float        loc_pressure;
-    fvec3_base_t loc_nrm;
     Uint32       retval;
 	float        radius;
 
@@ -930,13 +943,11 @@ Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressu
     if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
     // deal with the optional parameters
-    if ( NULL == pressure ) pressure = &loc_pressure;
-    if ( NULL == nrm      ) nrm      =  loc_nrm;
 	if ( NULL == test_pos ) test_pos = pchr->pos.v;
 
 	// calculate the radius based on whether the character is on camera
     radius = 0.0f;
-    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
         if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
         {
@@ -944,11 +955,14 @@ Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressu
         }
     }
 
-    mesh_wall_tests = 0;
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
 	{
 		retval = mesh_hit_wall( PMesh, test_pos, radius, pchr->stoppedby, nrm, pressure );
 	}
-    chr_wall_tests += mesh_wall_tests;
+    chr_stoppedby_tests += mesh_mpdfx_tests;
+	chr_pressure_tests  += mesh_pressure_tests;
 
     return retval;
 }
@@ -967,7 +981,7 @@ bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
     if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return bfalse;
 
     radius = 0.0f;
-    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
         if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
         {
@@ -978,11 +992,14 @@ bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
 	if( NULL == test_pos ) test_pos = pchr->pos.v;
 
 	// do the wall test
-    mesh_wall_tests = 0;
+	mesh_mpdfx_tests = 0;
+	mesh_bound_tests = 0;
+	mesh_pressure_tests = 0;
 	{
-		retval = mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby );
+		retval = mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby, NULL );
 	}
-    chr_wall_tests += mesh_wall_tests;
+    chr_stoppedby_tests += mesh_mpdfx_tests;
+	chr_pressure_tests += mesh_pressure_tests;
 
     return retval;
 }
@@ -2213,51 +2230,56 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
 {
     /// @details ZZ@> This function spawns an attack particle
 
-    CHR_REF weapon, thrown;
-    PRT_REF particle;
+    CHR_REF iweapon, ithrown, iholder;
+    chr_t * pchr, * pweapon;
+    cap_t * pweapon_cap;
+
+	PRT_REF iparticle;
+
     int   spawn_vrt_offset;
     Uint8 action;
     Uint16 turn;
     float dampen;
     float velocity;
-    chr_t * pchr, * pweapon;
-    cap_t * pweapon_cap;
 
     bool_t unarmed_attack;
 
     if ( !INGAME_CHR( ichr ) ) return;
     pchr = ChrList.lst + ichr;
 
-    weapon = pchr->holdingwhich[slot];
-    action = pchr->inst.action_which;
+    iweapon = pchr->holdingwhich[slot];
 
     // See if it's an unarmed attack...
-    if ( INGAME_CHR( weapon ) )
+	if ( MAX_CHR == iweapon )
+    {
+        unarmed_attack   = btrue;
+        iweapon          = ichr;
+        spawn_vrt_offset = slot_to_grip_offset( slot );  // SLOT_LEFT -> GRIP_LEFT, SLOT_RIGHT -> GRIP_RIGHT
+    }
+	else
     {
         unarmed_attack   = bfalse;
         spawn_vrt_offset = GRIP_LAST;
-    }
-    else
-    {
-        unarmed_attack   = btrue;
-        weapon           = ichr;
-        spawn_vrt_offset = slot_to_grip_offset( slot );  // SLOT_LEFT -> GRIP_LEFT, SLOT_RIGHT -> GRIP_RIGHT
+	    action = pchr->inst.action_which;
     }
 
-    if ( !INGAME_CHR( weapon ) ) return;
-    pweapon = ChrList.lst + weapon;
+    if ( !INGAME_CHR( iweapon ) ) return;
+    pweapon = ChrList.lst + iweapon;
 
-    pweapon_cap = chr_get_pcap( weapon );
+    pweapon_cap = chr_get_pcap( iweapon );
     if ( NULL == pweapon_cap ) return;
 
+	// find the 1st non-item that is holding the weapon
+	iholder = chr_get_lowest_attachment( iweapon, btrue );
+
     // What kind of attack are we going to do?
-    if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
+    if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        thrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam( ichr ), 0, pchr->facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
-        if ( INGAME_CHR( thrown ) )
+        ithrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam( iholder ), 0, pchr->facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
+        if ( INGAME_CHR( ithrown ) )
         {
-            chr_t * pthrown = ChrList.lst + thrown;
+            chr_t * pthrown = ChrList.lst + ithrown;
 
             pthrown->iskursed = bfalse;
             pthrown->ammo = 1;
@@ -2273,7 +2295,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             if ( pweapon->ammo <= 1 )
             {
                 // Poof the item
-                detach_character_from_mount( weapon, btrue, bfalse );
+                detach_character_from_mount( iweapon, btrue, bfalse );
                 chr_request_terminate( GET_REF_PCHR( pweapon ) );
             }
             else
@@ -2295,12 +2317,14 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             // Spawn an attack particle
             if ( pweapon_cap->attack_pip != -1 )
             {
-                particle = spawn_one_particle( pweapon->pos, pchr->facing_z, pweapon->iprofile, pweapon_cap->attack_pip, weapon, spawn_vrt_offset, chr_get_iteam( ichr ), ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+				// make the weapon's holder the owner of the attack particle?
+				// will this mess up wands?
+                iparticle = spawn_one_particle( pweapon->pos, pchr->facing_z, pweapon->iprofile, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-                if ( ALLOCATED_PRT( particle ) )
+                if ( ALLOCATED_PRT( iparticle ) )
                 {
 					fvec3_t tmp_pos;
-                    prt_t * pprt = PrtList.lst + particle;
+                    prt_t * pprt = PrtList.lst + iparticle;
 
 					tmp_pos = prt_get_pos( pprt );
 
@@ -2313,7 +2337,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
                         pprt->vel_stt.y *= dampen;
                         pprt->vel_stt.z *= dampen;
 
-                        pprt = place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
+                        pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
 						if( NULL == pprt ) return;
                     }
                     else
@@ -2322,21 +2346,21 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
                         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
                         // Detach the particle
-                        if ( !prt_get_ppip( particle )->startontarget || !INGAME_CHR( pprt->target_ref ) )
+                        if ( !prt_get_ppip( iparticle )->startontarget || !INGAME_CHR( pprt->target_ref ) )
                         {
-                            pprt = place_particle_at_vertex( pprt, weapon, spawn_vrt_offset );
+                            pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
 							if( NULL == pprt ) return;
 
                             // Correct Z spacing base, but nothing else...
-                            tmp_pos.z += prt_get_ppip( particle )->spacing_vrt_pair.base;
+                            tmp_pos.z += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
                         }
 
                         // Don't spawn in walls
-                        if ( prt_test_wall( pprt ) )
+                        if ( prt_test_wall( pprt, tmp_pos.v ) )
                         {
                             tmp_pos.x = pweapon->pos.x;
                             tmp_pos.y = pweapon->pos.y;
-                            if ( prt_test_wall( pprt ) )
+                            if ( prt_test_wall( pprt, tmp_pos.v ) )
                             {
                                 tmp_pos.x = pchr->pos.x;
                                 tmp_pos.y = pchr->pos.y;
@@ -5202,7 +5226,7 @@ void move_one_character_get_environment( chr_t * pchr )
         itile = pchr->onwhichgrid;
     }
 
-    if ( VALID_GRID( PMesh, itile ) )
+    if ( mesh_grid_is_valid( PMesh, itile ) )
     {
         pchr->enviro.twist = PMesh->gmem.grid_list[itile].twist;
     }
@@ -5236,7 +5260,7 @@ void move_one_character_get_environment( chr_t * pchr )
             pchr->enviro.traction /= hillslide * ( 1.0f - pchr->enviro.zlerp ) + 1.0f * pchr->enviro.zlerp;
         }
     }
-    else if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    else if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
         pchr->enviro.traction = ABS( map_twist_nrm[pchr->enviro.twist].z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25 * pchr->enviro.zlerp;
 
@@ -5273,7 +5297,7 @@ void move_one_character_get_environment( chr_t * pchr )
     {
         // Make the characters slide
         float temp_friction_xy = noslipfriction;
-        if ( VALID_GRID( PMesh, pchr->onwhichgrid ) && pchr->enviro.is_slippy )
+        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) && pchr->enviro.is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = slippyfriction;
@@ -6870,7 +6894,7 @@ void move_all_characters( void )
     const float air_friction = 0.9868f;  // gives the same terminal velocity in terms of the size of the game characters
     const float ice_friction = 0.9738f;  // the square of air_friction
 
-    chr_wall_tests = 0;
+    chr_stoppedby_tests = 0;
 
     // Move every character
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
@@ -9293,9 +9317,12 @@ bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
 {
 	if( !ALLOCATED_PCHR(pchr) ) return bfalse;
 
-	memcpy( pchr->pos.v, pos, sizeof(fvec3_base_t) );
+	if( (pos[kX] != pchr->pos.v[kX]) || (pos[kY] != pchr->pos.v[kY]) || (pos[kZ] != pchr->pos.v[kZ]) )
+	{
+		memmove( pchr->pos.v, pos, sizeof(fvec3_base_t) );
 
-	chr_update_safe_raw( pchr );
+		chr_update_safe_raw( pchr );
+	}
 
 	return btrue;
 }

@@ -75,6 +75,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
 
 struct s_breadcrumb_list
 {
+	bool_t       on;
 	int          count;
 	breadcrumb_t lst[MAX_BREADCRUMB];
 };

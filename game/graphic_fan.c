@@ -73,7 +73,7 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
     if ( NULL == pmesh ) return bfalse;
     ptmem  = &( pmesh->tmem );
 
-    if ( !VALID_GRID( pmesh, itile ) ) return bfalse;
+    if ( !mesh_grid_is_valid( pmesh, itile ) ) return bfalse;
     ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
@@ -126,7 +126,7 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
     if ( NULL == pmesh ) return;
     ptmem  = &( pmesh->tmem );
 
-    if ( !VALID_GRID( pmesh, itile ) ) return;
+    if ( !mesh_grid_is_valid( pmesh, itile ) ) return;
     ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
@@ -215,7 +215,7 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     pgmem  = &( pmesh->gmem );
     pinfo  = &( pmesh->info );
 
-    if ( !VALID_GRID( pmesh, itile ) ) return;
+    if ( !mesh_grid_is_valid( pmesh, itile ) ) return;
     ptile = ptmem->tile_list + itile;
     pgrid = pgmem->grid_list + itile;
 
@@ -302,7 +302,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
 
-    if ( !VALID_GRID( pmesh, itile ) ) return;
+    if ( !mesh_grid_is_valid( pmesh, itile ) ) return;
     ptile = ptmem->tile_list + itile;
 
     falpha = FF_TO_FLOAT( water.layer[layer].alpha );

@@ -78,7 +78,9 @@ mesh_BSP_t mesh_BSP_root =
 };
 #endif
 
-int mesh_wall_tests = 0;
+int mesh_mpdfx_tests = 0;
+int mesh_bound_tests = 0;
+int mesh_pressure_tests = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -303,7 +305,7 @@ bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image )
     ego_tile_info_t * ptile;
     Uint16 tile_value, tile_upper, tile_lower;
 
-    if ( !VALID_GRID( pmesh, tile ) ) return bfalse;
+    if ( !mesh_grid_is_valid( pmesh, tile ) ) return bfalse;
     ptile = pmesh->tmem.tile_list + tile;
 
     // get the upper and lower bits for this tile image
@@ -337,7 +339,7 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile )
     pgmem = &( pmesh->gmem );
     pinfo = &( pmesh->info );
 
-    if ( !VALID_GRID( pmesh, tile ) ) return bfalse;
+    if ( !mesh_grid_is_valid( pmesh, tile ) ) return bfalse;
     ptile = ptmem->tile_list + tile;
 
     image = TILE_GET_LOWER_BITS( ptile->img );
@@ -920,7 +922,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
             int i, j, k;
 
             fan0 = mesh_get_tile_int( pmesh, ix, iy );
-            if ( !VALID_GRID( pmesh, fan0 ) ) continue;
+            if ( !mesh_grid_is_valid( pmesh, fan0 ) ) continue;
 
             nrm_lst[0].x = ptmem->nlst[fan0][XX];
             nrm_lst[0].y = ptmem->nlst[fan0][YY];
@@ -956,7 +958,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
 
                     fan1 = mesh_get_tile_int( pmesh, jx, jy );
 
-                    if ( VALID_GRID( pmesh, fan1 ) )
+                    if ( mesh_grid_is_valid( pmesh, fan1 ) )
                     {
                         nrm_lst[j].x = ptmem->nlst[fan1][XX];
                         nrm_lst[j].y = ptmem->nlst[fan1][YY];
@@ -1043,7 +1045,7 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
     //                    jx = ix + dx;
 
     //                    fan1 = mesh_get_tile_int(pmesh, jx, jy);
-    //                    if ( VALID_GRID(pmesh, fan1) )
+    //                    if ( mesh_grid_is_valid(pmesh, fan1) )
     //                    {
     //                        float wt;
 
@@ -1097,7 +1099,7 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
     bool_t             reflective;
     lighting_cache_t * lighting;
 
-    if ( NULL == pmesh || NULL == plight || !VALID_GRID( pmesh, fan ) ) return bfalse;
+    if ( NULL == pmesh || NULL == plight || !mesh_grid_is_valid( pmesh, fan ) ) return bfalse;
 
     // get the grid lighting
     lighting = &( pmesh->gmem.grid_list[fan].cache );
@@ -1152,7 +1154,7 @@ bool_t mesh_light_one_corner( ego_mpd_t * pmesh, int itile, GLXvector3f pos, GLX
     lighting_cache_t grid_light;
     bool_t reflective;
 
-    if ( !VALID_GRID( pmesh, itile ) ) return bfalse;
+    if ( !mesh_grid_is_valid( pmesh, itile ) ) return bfalse;
 
     // add in the effect of this lighting cache node
     reflective = ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) );
@@ -1187,7 +1189,7 @@ bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold )
     light_cache_t * lcache;
     light_cache_t * d1_cache;
 
-    if ( NULL == pmesh || !VALID_GRID( pmesh, itile ) ) return bfalse;
+    if ( NULL == pmesh || !mesh_grid_is_valid( pmesh, itile ) ) return bfalse;
     ptmem = &( pmesh->tmem );
 
     // get the normal and lighting cache for this tile
@@ -1239,7 +1241,7 @@ float mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep
     light_cache_t  * lcache;
     light_cache_t  * d1_cache, * d2_cache;
 
-    if ( NULL == pmesh || !VALID_GRID( pmesh, itile ) ) return 0.0f;
+    if ( NULL == pmesh || !mesh_grid_is_valid( pmesh, itile ) ) return 0.0f;
     pinfo = &( pmesh->info );
     ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
@@ -1369,92 +1371,105 @@ float grid_get_mix( float u0, float u, float v0, float v )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits )
+struct s_mesh_wall_data
+{
+    int   ix_min, ix_max, iy_min, iy_max;
+    float fx_min, fx_max, fy_min, fy_max;
+
+	ego_mpd_info_t  * pinfo;
+    ego_tile_info_t * tlist;
+    ego_grid_info_t * glist;
+};
+typedef struct s_mesh_wall_data mesh_wall_data_t;
+    
+//--------------------------------------------------------------------------------------------
+bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, mesh_wall_data_t * pdata )
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
+	mesh_wall_data_t loc_data;
+
     Uint32 pass;
-    int   ix_min, ix_max, iy_min, iy_max;
-    float fx_min, fx_max, fy_min, fy_max;
     int   ix, iy;
-    int   iarea;
 
-    ego_mpd_info_t  * pinfo;
-    ego_tile_info_t * tlist;
-    ego_grid_info_t * glist;
+	// deal with the optional parameters
+	if( NULL == pdata ) pdata = &loc_data;
 
-    // deal with the optional parameters
-    if ( NULL == pos || 0 == bits ) return 0;
+	// if there is no interaction with the mesh, return 0
+	if( 0 == bits ) return 0;
 
+	// if the mesh is empty, return 0
     if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
-    pinfo = &( pmesh->info );
-    tlist = pmesh->tmem.tile_list;
-    glist = pmesh->gmem.grid_list;
+    pdata->pinfo = &( pmesh->info );
+    pdata->tlist = pmesh->tmem.tile_list;
+    pdata->glist = pmesh->gmem.grid_list;
+
+    // require a valid position
+    if ( NULL == pos ) return 0;
 
     if ( 0.0f == radius )
     {
-        fx_min = fx_max = pos[kX];
-        fy_min = fy_max = pos[kY];
+        pdata->fx_min = pdata->fx_max = pos[kX];
+        pdata->fy_min = pdata->fy_max = pos[kY];
     }
     else
     {
         // make sure it is positive
         radius = ABS( radius );
 
-        fx_min = pos[kX] - radius;
-        fx_max = pos[kX] + radius;
+        pdata->fx_min = pos[kX] - radius;
+        pdata->fx_max = pos[kX] + radius;
 
-        fy_min = pos[kY] - radius;
-        fy_max = pos[kY] + radius;
+        pdata->fy_min = pos[kY] - radius;
+        pdata->fy_max = pos[kY] + radius;
     }
 
-    ix_min = floor( fx_min / GRID_SIZE );
-    ix_max = floor( fx_max / GRID_SIZE );
+    pdata->ix_min = floor( pdata->fx_min / GRID_SIZE );
+    pdata->ix_max = floor( pdata->fx_max / GRID_SIZE );
 
-    iy_min = floor( fy_min / GRID_SIZE );
-    iy_max = floor( fy_max / GRID_SIZE );
+    pdata->iy_min = floor( pdata->fy_min / GRID_SIZE );
+    pdata->iy_max = floor( pdata->fy_max / GRID_SIZE );
 
     pass = 0;
 
     // detect out of bounds in the y-direction
-    if ( iy_min < 0 || iy_max >= pinfo->tiles_y )
+    if ( pdata->iy_min < 0 || pdata->iy_max >= pdata->pinfo->tiles_y )
     {
         pass |= ( MPDFX_IMPASS | MPDFX_WALL );
-        mesh_wall_tests++;
+        mesh_bound_tests++;
     }
     if ( 0 != ( pass & bits ) ) return btrue;
 
     // detect out of bounds in the x-direction
-    if ( ix_min < 0 || ix_max >= pinfo->tiles_x )
+    if ( pdata->ix_min < 0 || pdata->ix_max >= pdata->pinfo->tiles_x )
     {
         pass |= ( MPDFX_IMPASS | MPDFX_WALL );
-        mesh_wall_tests++;
+        mesh_bound_tests++;
     }
     if ( 0 != ( pass & bits ) ) return btrue;
 
     // limit the test values to be in-bounds
-    ix_min = MAX( ix_min, 0 );
-    ix_max = MIN( ix_max, pinfo->tiles_x - 1 );
+    pdata->ix_min = MAX( pdata->ix_min, 0 );
+    pdata->ix_max = MIN( pdata->ix_max, pdata->pinfo->tiles_x - 1 );
 
-    iy_min = MAX( iy_min, 0 );
-    iy_max = MIN( iy_max, pinfo->tiles_y - 1 );
+    pdata->iy_min = MAX( pdata->iy_min, 0 );
+    pdata->iy_max = MIN( pdata->iy_max, pdata->pinfo->tiles_y - 1 );
 
-    iarea = ( ix_max + 1 - ix_min ) * ( iy_max + 1 - iy_min );
-    //printf( "mesh_test_wall() - area == %d\n", iarea );
-
-    for ( iy = iy_min; iy <= iy_max; iy++ )
+    for ( iy = pdata->iy_min; iy <= pdata->iy_max; iy++ )
     {
         // since we KNOW that this is in range, allow raw access to the data strucutre
         int irow = pmesh->gmem.tilestart[iy];
 
-        for ( ix = ix_min; ix <= ix_max; ix++ )
+        for ( ix = pdata->ix_min; ix <= pdata->ix_max; ix++ )
         {
             int itile = ix + irow;
 
-            if ( 0 != ( glist[itile].fx & bits ) ) return btrue;
-        }
+			// since we KNOW that this is in range, allow raw access to the data strucutre
+			pass |= pdata->glist[itile].fx;
+			mesh_mpdfx_tests++;
 
-        mesh_wall_tests++;
+			if( 0 != (pass & bits) ) return btrue;
+        }
     }
 
     return 0 != ( pass & bits );
@@ -1547,14 +1562,14 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bi
 			if( tile_valid )
 			{
 				itile = mesh_get_tile_int( pmesh, ix, iy );
-				tile_valid = VALID_GRID( pmesh, itile );
+				tile_valid = mesh_grid_is_valid( pmesh, itile );
 				if( !tile_valid )
 				{
 					is_blocked = btrue;
 				}
 				else
 				{
-					is_blocked = HAS_SOME_BITS( glist[itile].fx, bits );
+					is_blocked = mesh_has_some_mpdfx( glist[itile].fx, bits );
 				}
 			}
 
@@ -1605,6 +1620,8 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bi
 				}
 
 				loc_pressure += area_ratio;
+
+				mesh_pressure_tests++;
 			}
         }
     }
@@ -1697,20 +1714,16 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 
     Uint32 pass, loc_pass;
     Uint32 itile;
-    int   ix_min, ix_max, iy_min, iy_max;
-    float fx_min, fx_max, fy_min, fy_max;
     int ix, iy;
     bool_t invalid;
 
     float  loc_pressure;
     fvec3_base_t loc_nrm;
 
-    ego_mpd_info_t  * pinfo;
-    ego_tile_info_t * tlist;
-    ego_grid_info_t * glist;
-
 	bool_t needs_pressure = (NULL != pressure);
 	bool_t needs_nrm      = (NULL != nrm);
+
+	mesh_wall_data_t data;
 
     // deal with the optional parameters
     if ( NULL == pressure ) pressure = &loc_pressure;
@@ -1719,39 +1732,14 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     if ( NULL == nrm ) nrm = loc_nrm;
     nrm[kX] = nrm[kY] = 0.0f;
 
-    if ( NULL == pos || 0 == bits ) return 0;
-
-    if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
-    pinfo = &( pmesh->info );
-    tlist = pmesh->tmem.tile_list;
-    glist = pmesh->gmem.grid_list;
-
-    if ( 0.0f == radius )
-    {
-        fx_min = fx_max = pos[kX];
-        fy_min = fy_max = pos[kY];
-    }
-    else
-    {
-        // make sure it is positive
-        radius = ABS( radius );
-
-        fx_min = pos[kX] - radius;
-        fx_max = pos[kX] + radius;
-
-        fy_min = pos[kY] - radius;
-        fy_max = pos[kY] + radius;
-    }
-
-    ix_min = floor( fx_min / GRID_SIZE );
-    ix_max = floor( fx_max / GRID_SIZE );
-
-    iy_min = floor( fy_min / GRID_SIZE );
-    iy_max = floor( fy_max / GRID_SIZE );
+	// Do te simplest test.
+	// Initializes the shared mesh_wall_data_t struct, so no need to do it again
+	// Eliminates all cases of bad source data, so no need to test them again.
+	if( !mesh_test_wall( pmesh, pos, radius, bits, &data ) ) return 0;
 
     pass = loc_pass = 0;
     nrm[kX] = nrm[kY] = 0.0f;
-    for ( iy = iy_min; iy <= iy_max; iy++ )
+    for ( iy = data.iy_min; iy <= data.iy_max; iy++ )
     {
         float ty_min, ty_max;
 
@@ -1760,7 +1748,7 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
         ty_min = ( iy + 0 ) * GRID_SIZE;
         ty_max = ( iy + 1 ) * GRID_SIZE;
 
-        if ( iy < 0 || iy >= pinfo->tiles_y )
+        if ( iy < 0 || iy >= data.pinfo->tiles_y )
         {
             loc_pass |= ( MPDFX_IMPASS | MPDFX_WALL );
 
@@ -1770,17 +1758,17 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 			}
 			
             invalid = btrue;
-            mesh_wall_tests++;
+            mesh_bound_tests++;
         }
 
-        for ( ix = ix_min; ix <= ix_max; ix++ )
+        for ( ix = data.ix_min; ix <= data.ix_max; ix++ )
         {
             float tx_min, tx_max;
 
             tx_min = ( ix + 0 ) * GRID_SIZE;
             tx_max = ( ix + 1 ) * GRID_SIZE;
 
-            if ( ix < 0 || ix >= pinfo->tiles_x )
+            if ( ix < 0 || ix >= data.pinfo->tiles_x )
             {
                 loc_pass |=  MPDFX_IMPASS | MPDFX_WALL;
 
@@ -1790,17 +1778,20 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 				}
 
                 invalid = btrue;
-                mesh_wall_tests++;
+                mesh_bound_tests++;
             }
 
             if ( !invalid )
             {
                 itile = mesh_get_tile_int( pmesh, ix, iy );
-                if ( VALID_GRID( pmesh, itile ) )
+                if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
-                    if ( HAS_SOME_BITS( glist[itile].fx, bits ) )
+					Uint32 mpdfx      = data.glist[itile].fx;
+					bool_t is_blocked = mesh_has_some_mpdfx( mpdfx, bits );
+
+                    if ( is_blocked )
                     {
-                        loc_pass |=  glist[itile].fx;
+                        loc_pass |=  mpdfx;
 
 						if( needs_nrm )
 						{
@@ -1809,7 +1800,6 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 						}
                     }
                 }
-                mesh_wall_tests++;
             }
         }
     }
@@ -1824,15 +1814,15 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 	}
 	else
 	{
-		if ( 0.0f == nrm[kX] && 0.0f == nrm[kY] )
-		{
-			*pressure = 0.0f;
-		}
-
-		if( needs_nrm && 0.0f != *pressure )
+		if( needs_nrm )
 		{
 			// special cases happen a lot. try to avoid computing the square root
-			if ( 0.0f == nrm[kX] )
+			if ( 0.0f == nrm[kX] && 0.0f == nrm[kY] )
+			{
+				// no normal does not mean no net pressure, 
+				// just that all the simplistic normal calculations balance
+			}
+			else if ( 0.0f == nrm[kX] )
 			{
 				nrm[kY] = SGN( nrm[kY] );
 			}
@@ -1848,7 +1838,6 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 				nrm[kX] /= dist;
 				nrm[kY] /= dist;
 			}
-
 		}
 
 		if( needs_pressure )

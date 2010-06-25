@@ -2099,26 +2099,32 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     returncode = ALLOCATED_PRT( iprt );
     if ( returncode )
     {
+		fvec3_t tmp_pos;
         prt_t * pprt = PrtList.lst + iprt;
 
         // attach the particle
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
+		tmp_pos = pprt->pos;
+
         // Correct X, Y, Z spacing
-        pprt->pos.x += pstate->x;
-        pprt->pos.y += pstate->y;
-        pprt->pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
+        tmp_pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
 
         // Don't spawn in walls
-        if ( prt_test_wall( pprt ) )
+        tmp_pos.x += pstate->x;
+        if ( prt_test_wall( pprt, tmp_pos.v ) )
         {
-            pprt->pos.x = pchr->pos.x;
-            if ( prt_test_wall( pprt ) )
+            tmp_pos.x = pprt->pos.x;
+
+	        tmp_pos.y += pstate->y;
+			if ( prt_test_wall( pprt, tmp_pos.v ) )
             {
-                pprt->pos.y = pchr->pos.y;
+                tmp_pos.y = pprt->pos.y;
             }
         }
+
+		prt_set_pos( pprt, tmp_pos.v );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3719,7 +3725,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( VALID_GRID( PMesh, pchr->onwhichgrid ) )
+    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
         returncode = (( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) && water.is_water );
     }
@@ -3864,15 +3870,16 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     // SpawnAttachedParticle( tmpargument = "particle", tmpdistance = "vertex" )
     /// @details ZZ@> This function spawns a particle attached to the character
 
-    CHR_REF ichr;
+    CHR_REF ichr, iholder;
     PRT_REF iprt;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->index;
-    if ( INGAME_CHR( pchr->attachedto ) )
+    ichr    = pself->index;
+	iholder = chr_get_lowest_attachment( ichr, btrue );
+    if ( INGAME_CHR( iholder ) )
     {
-        ichr = pchr->attachedto;
+        ichr = iholder;
     }
 
     iprt = spawn_one_particle( pchr->pos, pchr->facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
@@ -5122,7 +5129,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     returncode = bfalse;
     iTmp = mesh_get_tile( PMesh, pstate->x, pstate->y );
-    if ( VALID_GRID( PMesh, iTmp ) )
+    if ( mesh_grid_is_valid( PMesh, iTmp ) )
     {
         returncode = btrue;
         pstate->argument = CLIP_TO_08BITS( PMesh->tmem.tile_list[iTmp].img );
@@ -7803,7 +7810,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
         fan = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-        if ( VALID_GRID( PMesh, fan ) )
+        if ( mesh_grid_is_valid( PMesh, fan ) )
         {
             Uint16 img      = PMesh->tmem.tile_list[fan].img & 0x00FF;
             int highbits = PMesh->tmem.tile_list[fan].img & 0xFF00;
@@ -7910,7 +7917,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( VALID_GRID( PMesh, fan ) )
+            if ( mesh_grid_is_valid( PMesh, fan ) )
             {
                 if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
                 {
@@ -7931,7 +7938,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( VALID_GRID( PMesh, fan ) )
+            if ( mesh_grid_is_valid( PMesh, fan ) )
             {
 
                 if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )

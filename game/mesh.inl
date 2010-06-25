@@ -22,6 +22,7 @@
 /// @file mesh.inl
 
 #include "mesh.h"
+#include "SDL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS
@@ -38,10 +39,33 @@ INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 
+INLINE Uint32 mesh_has_some_mpdfx( Uint32 mpdfx, Uint32 test );
+INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id );
+
+
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
+INLINE Uint32 mesh_has_some_mpdfx(Uint32 MPDFX, Uint32 TEST) 
+{ 
+	mesh_mpdfx_tests++; 
+	return HAS_SOME_BITS(MPDFX,TEST); 
+}
 
+//--------------------------------------------------------------------------------------------
+INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id ) 
+{ 
+	if( NULL == pmpd ) return bfalse;
+
+	mesh_bound_tests++;
+
+	if( INVALID_TILE == id ) return bfalse;
+	
+	return id < pmpd->info.tiles_count;
+};
+
+
+//--------------------------------------------------------------------------------------------
 INLINE float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
 {
     /// @details ZZ@> This function returns the height of a point within a mesh fan, precisely
@@ -53,7 +77,7 @@ INLINE float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
     float zleft, zright, zdone;   // Weighted height of each side
 
     tile = mesh_get_tile( pmesh, x, y );
-    if ( !VALID_GRID( pmesh, tile ) ) return 0;
+    if ( !mesh_grid_is_valid( pmesh, tile ) ) return 0;
 
     ix = x;
     iy = y;
@@ -146,6 +170,7 @@ INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( NULL == pmesh ) return bfalse;
 
     // test for invalid tile
+	mesh_bound_tests++;
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     // save a copy of the fx
@@ -167,6 +192,7 @@ INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( NULL == pmesh ) return bfalse;
 
     // test for invalid tile
+	mesh_bound_tests++;
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     // save a copy of the fx
@@ -186,6 +212,7 @@ INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( NULL == pmesh ) return 0;
 
     // test for invalid tile
+	mesh_bound_tests++;
     if ( itile > pmesh->info.tiles_count )
     {
         return flags & ( MPDFX_WALL | MPDFX_IMPASS );
@@ -197,6 +224,5 @@ INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
         return 0;
     }
 
-    return pmesh->gmem.grid_list[itile].fx & flags;
+    return mesh_has_some_mpdfx(pmesh->gmem.grid_list[itile].fx, flags);
 }
-
