@@ -2079,8 +2079,9 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
         // Play the sound for hitting the floor [FSND]
         play_particle_sound( iprt, ppip->soundend_floor );
     }
+	
 
-	if( (tmp_pos.x != tmp_pos.x) || (tmp_pos.y != tmp_pos.y) || (tmp_pos.z != tmp_pos.z) )
+	if( (pprt->pos.x != tmp_pos.x) || (pprt->pos.y != tmp_pos.y) || (pprt->pos.z != tmp_pos.z) )
 	{
 		prt_set_pos( pprt, tmp_pos.v );
 	}
@@ -2162,6 +2163,13 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
+	// handle the sounds
+    if ( hit_a_floor )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( iprt, ppip->soundend_floor );
+    }
+
     // handle the collision
     if ( hit_a_floor && ( ppip->endground || ppip->endbump ) )
     {
@@ -2212,24 +2220,18 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
+	// handle the sounds
+    if ( hit_a_wall )
+    {
+        // Play the sound for hitting the wall [WSND]
+        play_particle_sound( iprt, ppip->soundend_wall );
+    }
+	
     // handle the collision
     if ( hit_a_wall && ( ppip->endwall || ppip->endbump ) )
     {
         prt_request_terminate( iprt );
         return NULL;
-    }
-
-    // handle the sounds
-    if ( hit_a_wall )
-    {
-        // Play the sound for hitting the floor [FSND]
-        play_particle_sound( iprt, ppip->soundend_wall );
-    }
-
-    if ( hit_a_floor )
-    {
-        // Play the sound for hitting the floor [FSND]
-        play_particle_sound( iprt, ppip->soundend_floor );
     }
 
     // do the reflections off the walls and floors
@@ -2334,7 +2336,7 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
-	if( (tmp_pos.x != tmp_pos.x) || (tmp_pos.y != tmp_pos.y) || (tmp_pos.z != tmp_pos.z) )
+	if( (pprt->pos.x != tmp_pos.x) || (pprt->pos.y != tmp_pos.y) || (pprt->pos.z != tmp_pos.z) )
 	{
 		prt_set_pos( pprt, tmp_pos.v );
 	}
@@ -3189,12 +3191,12 @@ void prt_do_bump_damage( prt_t * pprt, pip_t * ppip )
 	if ( 0 != (update_count & 31) ) return;
 
 	// do nothing if the particle is hidden
-	if ( pprt->is_hidden ) return;
+	//if ( pprt->is_hidden ) return;		//ZF> This is already checked in prt_update_ingame()
 
 	// we must be attached to something
 	ichr = pprt->attachedto_ref;
 	if( !INGAME_CHR(ichr) ) return;
-
+	
 	// find out who is holding the owner of this object
 	iholder = chr_get_lowest_attachment( ichr, btrue );
 	if ( MAX_CHR == iholder ) iholder = ichr;

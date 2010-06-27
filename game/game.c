@@ -434,11 +434,15 @@ void log_madused_vfs( const char *savename )
 
         for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
         {
-            CAP_REF icap = pro_get_icap( cnt );
-            MAD_REF imad = pro_get_imad( cnt );
+			if ( LOADED_PRO( cnt ) )
+			{
+				CAP_REF icap = pro_get_icap( cnt );
+				MAD_REF imad = pro_get_imad( cnt );
 
-            vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
-        }
+				vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
+			}
+			else	vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot Unused" );
+		}
 
         vfs_close( hFileWrite );
     }

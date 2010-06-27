@@ -22,7 +22,8 @@
 //         A-Z ( caps only ).
 //         Null is predefined to be the neutral team.
 
-#dependency Rogue 0
+#dependency Rogue    0
+#dependency IronBall 76
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 PRISONER:  Harry     96   7.5  8.5  0.0  S   0   0   0   0   0   F   F   Null

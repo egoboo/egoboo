@@ -113,7 +113,7 @@ void PrtList_prune_used()
 {
 	// prune the used list
 
-	size_t cnt;
+	int cnt;
 	PRT_REF iprt;
 
     for ( cnt = 0; cnt < PrtList.used_count; cnt++ )
@@ -139,7 +139,7 @@ void PrtList_prune_free()
 {
 	// prune the free list
 
-	size_t cnt;
+	int cnt;
 	PRT_REF iprt;
 
     for ( cnt = 0; cnt < PrtList.free_count; cnt++ )

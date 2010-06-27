@@ -328,8 +328,8 @@ void check_passage_music()
 bool_t close_passage( const PASS_REF by_reference passage )
 {
     /// @details ZZ@> This function makes a passage impassable, and returns btrue if it isn't blocked
-    int x, y, cnt;
-    Uint32 fan;
+    int x, y;
+    Uint32 fan, cnt;
     CHR_REF character;
     float bump_size;
     passage_t * ppass;

@@ -52,11 +52,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.8.0"                         ///< Version of the game
-
-#define MAXINVENTORY        6
-#define MAXIMPORTOBJECTS    (MAXINVENTORY + 2)      ///< left hand + right hand + MAXINVENTORY
-#define MAXIMPORTPERPLAYER  (1 + MAXIMPORTOBJECTS)  ///< player + MAXIMPORTOBJECTS
+#define VERSION "2.8.0"								///< Version of the game
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model
@@ -80,15 +76,6 @@
 #define UPDATE_SCALE                    (EMULATE_UPS/(stabilized_ups_sum/stabilized_ups_weight))
 #define UPDATE_SKIP                     (TICKS_PER_SEC/TARGET_UPS)    ///< 1000 tics per sec / 50 fps = 20 ticks per frame
 #define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)    ///< 1000 tics per sec / 20 ticks per frame = 50 fps
-
-//------------------------------------
-// Character defines
-//------------------------------------
-
-//Dismounting
-#define DISMOUNTZVEL        16
-#define DISMOUNTZVELFLY     4
-#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.5f)          ///< time delay for full object-object interaction (approximately 0.5 second)
 
 //------------------------------------
 // Timers

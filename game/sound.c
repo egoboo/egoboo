@@ -892,7 +892,7 @@ bool_t LoopedList_validate()
 bool_t LoopedList_free_one( size_t index )
 {
     /// @details BB@> free a looped sound only if it is actually being used
-    Uint32   cnt;
+    int   cnt;
     LOOP_REF ref;
 
     if ( !LoopedList_validate() ) return bfalse;
@@ -994,7 +994,7 @@ bool_t LoopedList_remove( int channel )
 {
     /// @details BB@> remove a looped sound from the used list
 
-    Uint32 cnt;
+    int cnt;
     bool_t retval;
 
     if ( 0 == LoopedList.used_count ) return bfalse;
@@ -1037,7 +1037,7 @@ bool_t _update_stereo_channel( int channel, fvec3_t   diff )
 //--------------------------------------------------------------------------------------------
 void looped_update_all_sound()
 {
-    Uint32 cnt;
+    int cnt;
 
     for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
     {
@@ -1076,7 +1076,7 @@ bool_t looped_stop_object_sounds( const CHR_REF by_reference  ichr )
 {
     /// @details BB@> free any looped sound(s) being made by a certain character
     int freed;
-    Uint32 cnt;
+    int cnt;
     bool_t found;
 
     if ( !ALLOCATED_CHR( ichr ) ) return bfalse;

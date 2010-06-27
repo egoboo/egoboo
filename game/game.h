@@ -88,6 +88,11 @@ extern game_process_t * GProc;
 #define WATERFRAMEAND (MAXWATERFRAME-1)
 #define WATERPOINTS 4                               ///< Points in a water fan
 
+//Inventory stuff
+#define MAXINVENTORY        6
+#define MAXIMPORTOBJECTS    (MAXINVENTORY + 2)      ///< left hand + right hand + MAXINVENTORY
+#define MAXIMPORTPERPLAYER  (1 + MAXIMPORTOBJECTS)  ///< player + MAXIMPORTOBJECTS
+
 /// The bitmasks for various in-game actions
 enum e_latchbutton_bits
 {

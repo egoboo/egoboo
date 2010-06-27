@@ -992,7 +992,8 @@ void sv_talkToRemotes()
         numplatimes = 0;
         for ( player = 0; player < MAX_PLAYER; player++ )
         {
-            int index, cnt;
+            int index;
+			Uint32 cnt;
             player_t * ppla;
 
             if ( !PlaStack.lst[player].valid ) continue;
@@ -1551,8 +1552,7 @@ void unbuffer_player_latches()
     numplatimes = 0;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        int tnc;
-        Uint32 latch_count;
+        Uint32 latch_count, tnc;
         latch_t tmp_latch;
         player_t * ppla;
         time_latch_t * tlatch_list;

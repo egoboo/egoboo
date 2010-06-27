@@ -111,6 +111,12 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 #define HURTDAMAGE           256                     ///< Minimum damage for hurt animation
 
+
+//Dismounting
+#define DISMOUNTZVEL        16
+#define DISMOUNTZVELFLY     4
+#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.5f)          ///< time delay for full object-object interaction (approximately 0.5 second)
+
 //Knockbacks
 #define REEL                7600.0f     ///< Dampen for melee knock back
 #define REELBASE            0.35f

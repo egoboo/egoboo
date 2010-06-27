@@ -60,7 +60,7 @@
 #undef  DEBUG_MESH_NORMALS    ///< render the mesh normals
 #define LOG_TO_CONSOLE        ///< dump all logginfo to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt
 
-#define DEBUG_BSP             ///< Print debugging info about the BSP/octree state
+#undef DEBUG_BSP             ///< Print debugging info about the BSP/octree state
 
 #undef  DEBUG_PROFILE        ///< Switch the profiling functions on and off
 #undef  DEBUG_PROFILE_DISPLAY ///< Display the results for the performance profiling
