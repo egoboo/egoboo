@@ -38,25 +38,25 @@ IfTimeOut				// This is done every so often
   // State 2 ( Helper )
   IfStateIs2
     SetTargetToNearestFriend
-    tmpx = targetdistance
-    tmpy = 128*6
-    IfXIsLessThanY
-      IfTargetIsHurt			    // Heal wounded
-        tmpx = targetdistance		      //
-        tmpy = 300			      //
-        IfXIsLessThanY			      // In Range?
-          tmpx = 260			        //
-          tmpy = selfmana			        //
-          IfXIsLessThanY				// Enough to cast?
-            IfFacingTarget
-              tmpargument = LATCHLEFT	          // Left Attack == 1
-              PressLatchButton		          //
-          Else					        //Not enough mana, do something else
-            tmpargument = 0
-            SetState
-      Else				    
-        tmpargument = 0     // Switch to follow
-        SetState				      //    
+      tmpx = targetdistance
+      tmpy = 128*6
+      IfXIsLessThanY
+        IfTargetIsHurt			    // Heal wounded
+          tmpx = targetdistance		      //
+          tmpy = 300			      //
+          IfXIsLessThanY			      // In Range?
+            tmpx = 260			        //
+            tmpy = selfmana			        //
+            IfXIsLessThanY				// Enough to cast?
+              IfFacingTarget
+                tmpargument = LATCHLEFT	          // Left Attack == 1
+                PressLatchButton		          //
+            Else					        //Not enough mana, do something else
+              tmpargument = 0
+              SetState
+        Else				    
+          tmpargument = 0     // Switch to follow
+          SetState				      //    
 
       //move towards target
       tmpx = targetx			    //
@@ -106,7 +106,7 @@ IfTimeOut				// This is done every so often
       tmpy = 128*6
       IfXIsMoreThanY
         tmpx = targetdistance
-        tmpy = 250
+        tmpy = 200
         IfXIsLessThanY
           tmpargument = 0
           SetState
@@ -114,7 +114,7 @@ IfTimeOut				// This is done every so often
       //Move towards enemy
       tmpargument = [CUBE]
       IfTargetHasID
-        tmpdistance = -250     //Keep away from the gelfeet
+        tmpdistance = -350     //Keep away from the gelfeet
       Else
         tmpdistance = -50			//Else move in to attack
       
@@ -148,27 +148,33 @@ IfAttacked				// Counter attack if not healing
       SetTargetToOldTarget		        //  
 
 IfBumped				// Bumped
-  SetTargetToWhoeverBumped		  //
+  SetTargetToWhoeverBumped
+  IfTargetIsAlive
+    // Heal 'em
+    IfTargetIsOnSameTeam
+      IfTargetIsHurt			  
+        tmpargument = 2			      // State 2 ( Helper )
+        SetState				      //
+    
+    //Bash 'em
+    IfTargetIsOnHatedTeam
+      IfFacingTarget
+        IfHoldingMeleeWeapon
+          PressLatchButton			      //
+        
+    SetTargetToOldTarget		    //
+    tmpx = rand & 511 + selfx - 256		  //
+    tmpy = rand & 511 + selfy - 256		  //
+    ClearWaypoints			  //
+    AddWaypoint				  //
+    tmpargument = 40			  // Try again soon
+    SetTime				  //
   
-  // Heal 'em
-  IfTargetIsOnSameTeam
-    IfTargetIsHurt			  
-      tmpargument = 2			      // State 2 ( Helper )
-      SetState				      //
-  
-  //Bash 'em
-  IfTargetIsOnHatedTeam
-    IfFacingTarget
-      IfHoldingMeleeWeapon
-        PressLatchButton			      //
-      
-  SetTargetToOldTarget		    //
-  tmpx = rand & 511 + selfx - 256		  //
-  tmpy = rand & 511 + selfy - 256		  //
-  ClearWaypoints			  //
-  AddWaypoint				  //
-  tmpargument = 40			  // Try again soon
-  SetTime				  //
+  //Jump over bodies
+  Else
+    tmpargument = LATCHJUMP
+    PressLatchButton
+    
 
 IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode

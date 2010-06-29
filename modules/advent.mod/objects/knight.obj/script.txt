@@ -114,10 +114,11 @@ IfTimeOut				// This is done every so often
       IfXIsMoreThanY                
         tmpargument = 0
         SetState
+        
       tmpx = leaderdistance
       IfXIsMoreThanY
         tmpx = targetdistance
-        tmpy = 350            //Only retreat if not in close combat
+        tmpy = 200            //Only retreat if not in close combat
         IfXIsMoreThanY
           tmpargument = 0
           SetState
@@ -129,7 +130,7 @@ IfTimeOut				// This is done every so often
         IfTargetHoldingItemID
           tmpdistance = 200         //Go save the humanoid who is trapped inside!
         Else
-          tmpdistance = -250     //Keep away from the gelfeet
+          tmpdistance = -300     //Keep away from the gelfeet
       Else
         tmpdistance = 200			//Else move in to attack
         
@@ -154,24 +155,30 @@ IfTargetIsAttacking
       PressLatchButton
 
 IfBumped				// Bumped
-  SetTargetToWhoeverBumped		  //
-  IfTargetIsOnHatedTeam			  // Try to counter
-    tmpargument = LATCHRIGHT		    //
-    PressLatchButton			    //
-  Else					  // Get around other character
-    SetTargetToNearbyEnemy		    // Look out for enemies
-      tmpargument = 1			      // Stay in combat state
-    Else				    // Revert
-      tmpargument = 0			    // Return to follow state
-      SetTargetToOldTarget		      //
-    SetState				    //
-    tmpx = rand & 511 + selfx - 256		    //
-    tmpy = rand & 511 + selfy - 256		    //
-    ClearWaypoints			    //
-    AddWaypoint				    //
-    tmpargument = 40			    // Try again soon
-    SetTime				    //
-
+  SetTargetToWhoeverBumped
+  IfTargetIsAlive
+    IfTargetIsOnHatedTeam			  // Try to counter
+      tmpargument = LATCHRIGHT		    //
+      PressLatchButton			    //
+    Else					  // Get around other character
+      SetTargetToNearbyEnemy		    // Look out for enemies
+        tmpargument = 1			      // Stay in combat state
+      Else				    // Revert
+        tmpargument = 0			    // Return to follow state
+        SetTargetToOldTarget		      //
+      SetState				    //
+      tmpx = rand & 511 + selfx - 256		    //
+      tmpy = rand & 511 + selfy - 256		    //
+      ClearWaypoints			    //
+      AddWaypoint				    //
+      tmpargument = 40			    // Try again soon
+      SetTime				    //
+  
+  //Jump over bodies
+  Else
+    tmpargument = LATCHJUMP
+    PressLatchButton
+    
 // Ya!  Unarmed attack sound
 IfUsed
   tmpargument = 7

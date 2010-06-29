@@ -441,7 +441,8 @@ void log_madused_vfs( const char *savename )
 
 				vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
 			}
-			else	vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot Unused" );
+			else if ( cnt <= 36 )	vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot reserved for import players" );
+			else					vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot Unused" );
 		}
 
         vfs_close( hFileWrite );
@@ -1553,17 +1554,20 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
 
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( MAX_CHR == best_target || dist2 < best_dist2 ) )
         {
-            // set the line-of-sight source
-            los_info.x1 = ptst->pos.x;
-            los_info.y1 = ptst->pos.y;
-            los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
-
             //Invictus chars do not need a line of sight
-            if ( psrc->invictus || !do_line_of_sight( &los_info ) )
-            {
-                best_target = ichr_test;
-                best_dist2  = dist2;
-            }
+			if ( !psrc->invictus )
+			{
+				// set the line-of-sight source
+				los_info.x1 = ptst->pos.x;
+				los_info.y1 = ptst->pos.y;
+				los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
+
+				if ( do_line_of_sight( &los_info ) ) continue;
+			}
+
+			//Set the new best target found
+            best_target = ichr_test;
+            best_dist2  = dist2;
         }
     }
 

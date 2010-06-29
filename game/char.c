@@ -5304,7 +5304,7 @@ void move_one_character_get_environment( chr_t * pchr )
         pchr->jumpready = pchr->enviro.grounded;
 
         // Down jump timer
-        if ( pchr->jumptime > 0 ) pchr->jumptime--;
+        if ( (pchr->jumpready || pchr->jumpnumber > 0) && pchr->jumptime > 0 ) pchr->jumptime--;
 
         // Do ground hits
         if ( pchr->enviro.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
@@ -5884,7 +5884,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
     {
         //pchr->latch.b &= ~LATCHBUTTON_JUMP;
 
-        if ( INGAME_CHR( pchr->attachedto ) && ChrList.lst[pchr->attachedto].ismount )
+        if ( INGAME_CHR( pchr->attachedto ) )
         {
             int ijump;
 			fvec3_t tmp_pos;
@@ -5927,13 +5927,14 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->hitready = btrue;
                 if ( pchr->enviro.inwater )
                 {
-                    pchr->vel.z += WATERJUMP * 1.5;
+                    //pchr->vel.z += WATERJUMP;
                     pchr->jumptime = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
+					pchr->vel.z += WATERJUMP;
                 }
                 else
                 {
                     pchr->jumptime = JUMPDELAY;
-                    pchr->vel.z += pchr->jump_power * 1.5;
+					pchr->vel.z += pchr->jump_power * 2;
                 }
 
                 pchr->jumpready = bfalse;
@@ -7151,6 +7152,12 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF by_reference 
 
     if ( !LOADED_MAD( imad ) ) return bfalse;
     pmad = MadStack.lst + imad;
+
+	if ( NULL == pmad || pmad->md2_ptr == NULL ) 
+	{
+		log_error("Invalid pmad instance spawn. (Slot number %i)\n", imad );
+		return bfalse;
+	}
 
     if ( pinst->imad != imad )
     {

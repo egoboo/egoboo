@@ -58,10 +58,11 @@ Version 2.8.0 (??.??.2010)
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
+- Bugfix: Fixed some AI issues with Brom and Mim.
 - Bugfix: Fixed bug where certain magic items were always identified.
-- Bugfix: Fixed exploit where one could use enchants to heal life.
-- Bugfix: Fixed enchants not resizing their target.
+- Bugfix: Enchants should now properly resize their target.
 - Bugfix: Removed annoying click sound in mosquito buzz loop.
+- Bugfix: Fixed exploit where one could use enchants to heal life.
 - Bugfix: Boss door in Catacombs 2 not opening.
 - Bugfix: Fixed Divine Shield spell regenerating mana instead of draining over time.
 - Bugfix: Fixed exploit where player could use Longbow with a Kursed weapon in the other hand.

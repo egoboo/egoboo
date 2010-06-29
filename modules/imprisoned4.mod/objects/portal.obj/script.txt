@@ -11,7 +11,7 @@ IfSpawned
     SpawnExactCharacterXYZ
   
   //Display all enemies on this level
-  tmpargument = [IMPA]
+  tmpargument = [IMPC]
   SetTargetToNearestQuestID
   IfTargetHasQuest                  //Get the current quest level
     tmpargument = [NONE]

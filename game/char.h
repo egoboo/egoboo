@@ -122,7 +122,6 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define REELBASE            0.35f
 
 //Water
-#define WATERJUMP           12
 #define RIPPLETOLERANCE     60          ///< For deep water
 #define SPLASHTOLERANCE     10
 #define RIPPLEAND           15          ///< How often ripples spawn
@@ -146,6 +145,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 /// Z velocity
 #define FLYDAMPEN           0.001f                    ///< Levelling rate for flyers
 #define JUMPDELAY           20                      ///< Time between jumps
+#define WATERJUMP           25						///< How good we jump in water
 #define JUMPINFINITE        255                     ///< Flying character
 #define SLIDETOLERANCE      10                      ///< Stick to ground better
 #define PLATADD             -10                     ///< Height add...
