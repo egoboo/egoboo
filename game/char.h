@@ -437,17 +437,13 @@ struct s_chr
     fvec3_t        pos_stt;                       ///< Starting position
     fvec3_t        pos;                           ///< Character's position
     fvec3_t        vel;                           ///< Character's velocity
-
-    FACING_T       facing_z;                        ///< Character's z-rotation 0 to 0xFFFF
-    FACING_T       map_facing_y;                    ///< Character's y-rotation 0 to 0xFFFF
-    FACING_T       map_facing_x;                    ///< Character's x-rotation 0 to 0xFFFF
+    orientation_t  ori;                           ///< Character's orientation
 
     fvec3_t        pos_old;                       ///< Character's last position
     fvec3_t        vel_old;                       ///< Character's last velocity
+    orientation_t  ori_old;                       ///< Character's last orientation
 
-    FACING_T       facing_z_old;
-
-    Uint32         onwhichgrid;                    ///< Where the char is
+    Uint32         onwhichgrid;                   ///< Where the char is
     Uint32         onwhichblock;                  ///< The character's collision block
     CHR_REF        bumplist_next;                 ///< Next character on fanblock
 

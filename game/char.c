@@ -234,8 +234,8 @@ chr_t * chr_ctor( chr_t * pchr )
     }
 
     // Set up position
-    pchr->map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    pchr->map_facing_x = MAP_TURN_OFFSET;
+    pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    pchr->ori.map_facing_x = MAP_TURN_OFFSET;
 
     // start the character out in the "dance" animation
     chr_start_anim( pchr, ACTION_DA, btrue, btrue );
@@ -377,7 +377,7 @@ void keep_weapons_with_holders()
                 chr_set_pos( pchr, chr_get_pos_v(pattached) );
             }
 
-            pchr->facing_z = pattached->facing_z;
+            pchr->ori.facing_z = pattached->ori.facing_z;
 
             // Copy this stuff ONLY if it's a weapon, not for mounts
             if ( pattached->transferblend && pchr->isitem )
@@ -476,9 +476,9 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
     else
     {
         pinst->matrix = ScaleXYZRotateXYZTranslate( pchr->fat, pchr->fat, pchr->fat,
-                        TO_TURN( pchr->facing_z ),
-                        TO_TURN( pchr->map_facing_x - MAP_TURN_OFFSET ),
-                        TO_TURN( pchr->map_facing_y - MAP_TURN_OFFSET ),
+                        TO_TURN( pchr->ori.facing_z ),
+                        TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
+                        TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
                         pchr->pos.x, pchr->pos.y, pchr->pos.z );
 
         pinst->matrix_cache.valid        = btrue;
@@ -489,9 +489,9 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
         pinst->matrix_cache.self_scale.y = pchr->fat;
         pinst->matrix_cache.self_scale.z = pchr->fat;
 
-        pinst->matrix_cache.rotate.x = CLIP_TO_16BITS( pchr->map_facing_x - MAP_TURN_OFFSET );
-        pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->map_facing_y - MAP_TURN_OFFSET );
-        pinst->matrix_cache.rotate.z = pchr->facing_z;
+        pinst->matrix_cache.rotate.x = CLIP_TO_16BITS( pchr->ori.map_facing_x - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_facing_y - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate.z = pchr->ori.facing_z;
 
         pinst->matrix_cache.pos = chr_get_pos( pchr );
     }
@@ -1200,8 +1200,8 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
     }
 
     // Set twist
-    pchr->map_facing_y = MAP_TURN_OFFSET;
-    pchr->map_facing_x = MAP_TURN_OFFSET;
+    pchr->ori.map_facing_y = MAP_TURN_OFFSET;
+    pchr->ori.map_facing_x = MAP_TURN_OFFSET;
 
     chr_update_matrix( pchr, btrue );
 
@@ -1858,7 +1858,7 @@ void drop_keys( const CHR_REF by_reference character )
 
                     chr_set_pos( pitem, chr_get_pos_v( pchr ) );
 
-					pitem->facing_z           = direction + ATK_BEHIND;
+					pitem->ori.facing_z           = direction + ATK_BEHIND;
                     pitem->enviro.floor_level = pchr->enviro.floor_level;
                     pitem->enviro.level       = pchr->enviro.level;
                     pitem->enviro.fly_level   = pchr->enviro.fly_level;
@@ -1897,7 +1897,7 @@ bool_t drop_all_items( const CHR_REF by_reference character )
     detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], btrue, bfalse );
     if ( pchr->pack.count > 0 )
     {
-        direction = pchr->facing_z + ATK_BEHIND;
+        direction = pchr->ori.facing_z + ATK_BEHIND;
         diradd    = 0x00010000 / pchr->pack.count;
 
         while ( pchr->pack.count > 0 )
@@ -1917,7 +1917,7 @@ bool_t drop_all_items( const CHR_REF by_reference character )
                 pitem->enviro.level       = pchr->enviro.level;
                 pitem->enviro.fly_level   = pchr->enviro.fly_level;
                 pitem->onwhichplatform    = pchr->onwhichplatform;
-                pitem->facing_z           = direction + ATK_BEHIND;
+                pitem->ori.facing_z           = direction + ATK_BEHIND;
                 pitem->vel.x              = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
                 pitem->vel.y              = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
                 pitem->vel.z              = DROPZVEL;
@@ -2276,7 +2276,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        ithrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam( iholder ), 0, pchr->facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
+        ithrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
         if ( INGAME_CHR( ithrown ) )
         {
             chr_t * pthrown = ChrList.lst + ithrown;
@@ -2288,7 +2288,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             velocity += MINTHROWVELOCITY;
             velocity = MIN( velocity, MAXTHROWVELOCITY );
 
-            turn = TO_TURN( pchr->facing_z + ATK_BEHIND );
+            turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pthrown->vel.x += turntocos[ turn ] * velocity;
             pthrown->vel.y += turntosin[ turn ] * velocity;
             pthrown->vel.z = DROPZVEL;
@@ -2319,7 +2319,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             {
 				// make the weapon's holder the owner of the attack particle?
 				// will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos, pchr->facing_z, pweapon->iprofile, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->iprofile, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
                 if ( ALLOCATED_PRT( iparticle ) )
                 {
@@ -3378,7 +3378,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                         // Spawn blud particles
                         if ( pcap->blud_valid && ( damagetype < DAMAGE_HOLY || pcap->blud_valid == ULTRABLUDY ) )
                         {
-                            spawn_one_particle( pchr->pos, pchr->facing_z + direction, pchr->iprofile, pcap->blud_pip,
+                            spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->iprofile, pcap->blud_pip,
                                                 ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
                         }
 
@@ -3519,7 +3519,7 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF by_reference attacker )
 {
     /// @details ZF@> Spawn a defend particle
 
-    spawn_one_particle_global( pchr->pos, pchr->facing_z, PIP_DEFEND, 0 );
+    spawn_one_particle_global( pchr->pos, pchr->ori.facing_z, PIP_DEFEND, 0 );
 
     pchr->damagetime    = DEFENDTIME;
     pchr->ai.alert     |= ALERTIF_BLOCKED;
@@ -3545,7 +3545,7 @@ void spawn_poof( const CHR_REF by_reference character, const PRO_REF by_referenc
     if ( NULL == pcap ) return;
 
     origin = pchr->ai.owner;
-    facing_z   = pchr->facing_z;
+    facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < pcap->gopoofprt_amount; cnt++ )
     {
         spawn_one_particle( pchr->pos_old, facing_z, profile, pcap->gopoofprt_pip,
@@ -3709,25 +3709,21 @@ chr_t * chr_config_do_init( chr_t * pchr )
     pchr->enviro.level       = pchr->enviro.floor_level;
     pchr->enviro.fly_level   = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, btrue ) + RAISE;
 
-    if ( 0 != pchr->flyheight )
-    {
-        if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
-    }
+    if ( 0 != pchr->flyheight && pchr->enviro.fly_level < 0 ) 
+	{
+		// fly above pits...
+		pchr->enviro.fly_level = 0;
+	}
 
     if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
 
     chr_set_pos( pchr, pos_tmp.v );
+
     pchr->pos_stt  = pos_tmp;
     pchr->pos_old  = pos_tmp;
 
-    pchr->facing_z     = pchr->spawn_data.facing;
-    pchr->facing_z_old = pchr->facing_z;
-
-    pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-    pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
-
-	// update the breadcrumb list
-	chr_update_breadcrumb( pchr, btrue );
+    pchr->ori.facing_z     = pchr->spawn_data.facing;
+    pchr->ori_old.facing_z = pchr->ori.facing_z;
 
     // Name the character
     if ( CSTR_END == pchr->spawn_data.name[0] )
@@ -3798,9 +3794,6 @@ chr_t * chr_config_do_init( chr_t * pchr )
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
 
-    // determine whether the spawn position is a safe position
-	chr_update_safe( pchr, btrue );
-
 #if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
     if ( DEFINED_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
@@ -3821,13 +3814,6 @@ chr_t * chr_config_do_active( chr_t * pchr )
 
     if( NULL == pchr ) return pchr;
     ichr = GET_REF_PCHR( pchr );
-
-    // First figure out which fan each character is in
-    pchr->onwhichgrid  = mesh_get_tile ( PMesh, pchr->pos.x, pchr->pos.y );
-    pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
-
-	// update the breadcrumb list
-	chr_update_breadcrumb( pchr, bfalse );
 
     //then do status updates
     chr_update_hide( pchr );
@@ -4371,8 +4357,8 @@ void respawn_character( const CHR_REF by_reference character )
     pchr->vel.z = 0;
     pchr->team = pchr->baseteam;
     pchr->canbecrushed = bfalse;
-    pchr->map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    pchr->map_facing_x = MAP_TURN_OFFSET;
+    pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    pchr->ori.map_facing_x = MAP_TURN_OFFSET;
     if ( NOLEADER == TeamStack.lst[pchr->team].leader )  TeamStack.lst[pchr->team].leader = character;
     if ( !pchr->invictus )  TeamStack.lst[pchr->baseteam].morale++;
 
@@ -5644,12 +5630,12 @@ void move_one_character_do_voluntary( chr_t * pchr )
                     if ( pchr->isplayer )
                     {
                         // Players turn quickly
-                        pchr->facing_z = terp_dir_fast( pchr->facing_z, vec_to_facing( dvx , dvy ) );
+                        pchr->ori.facing_z = terp_dir_fast( pchr->ori.facing_z, vec_to_facing( dvx , dvy ) );
                     }
                     else
                     {
                         // AI turn slowly
-                        pchr->facing_z = terp_dir( pchr->facing_z, vec_to_facing( dvx , dvy ) );
+                        pchr->ori.facing_z = terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ) );
                     }
                 }
             }
@@ -5660,7 +5646,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
             {
                 if (( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
                 {
-                    pchr->facing_z = terp_dir( pchr->facing_z, vec_to_facing( dvx , dvy ) );
+                    pchr->ori.facing_z = terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ) );
                 }
             }
             break;
@@ -5670,7 +5656,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
             {
                 if ( ichr != pchr->ai.target )
                 {
-                    pchr->facing_z = terp_dir( pchr->facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
+                    pchr->ori.facing_z = terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
                 }
             }
             break;
@@ -5678,7 +5664,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
             // Otherwise make it spin
         case TURNMODE_SPIN:
             {
-                pchr->facing_z += SPINRATE;
+                pchr->ori.facing_z += SPINRATE;
             }
             break;
 
@@ -6721,7 +6707,7 @@ void move_one_character_do_animation( chr_t * pchr )
     // Get running, walking, sneaking, or dancing, from speed
     if ( !pinst->action_keep && !pinst->action_loop && !( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD ) )
     {
-        //int           frame_count = md2_get_numFrames( pmad->md2_ptr );
+        int           frame_count = md2_get_numFrames( pmad->md2_ptr );
         MD2_Frame_t * frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmad->md2_ptr );
         MD2_Frame_t * pframe_nxt  = frame_list + pinst->frame_nxt;
         EGOBOO_ASSERT( pinst->frame_nxt < frame_count );
@@ -6852,7 +6838,7 @@ void move_one_character( chr_t * pchr )
     // Character's old location
     pchr->pos_old        = chr_get_pos( pchr );
     pchr->vel_old        = pchr->vel;
-    pchr->facing_z_old     = pchr->facing_z;
+    pchr->ori_old.facing_z     = pchr->ori.facing_z;
 
     pchr->enviro.new_vx = pchr->vel.x;
     pchr->enviro.new_vy = pchr->vel.y;
@@ -6880,8 +6866,8 @@ void move_one_character( chr_t * pchr )
 
         if ( fnew > 0 )
         {
-            pchr->map_facing_x = pchr->map_facing_x * fkeep + map_twist_x[pchr->enviro.twist] * fnew;
-            pchr->map_facing_y = pchr->map_facing_y * fkeep + map_twist_y[pchr->enviro.twist] * fnew;
+            pchr->ori.map_facing_x = pchr->ori.map_facing_x * fkeep + map_twist_x[pchr->enviro.twist] * fnew;
+            pchr->ori.map_facing_y = pchr->ori.map_facing_y * fkeep + map_twist_y[pchr->enviro.twist] * fnew;
         }
     }
 }
@@ -7802,7 +7788,7 @@ bool_t chr_teleport( const CHR_REF by_reference ichr, float x, float y, float z,
     if ( y < 0.0f || y > PMesh->gmem.edge_y ) return bfalse;
 
     pos_old  = chr_get_pos( pchr );
-    facing_old = pchr->facing_z;
+    facing_old = pchr->ori.facing_z;
 
     pos_new.x  = x;
     pos_new.y  = y;
@@ -7813,7 +7799,7 @@ bool_t chr_teleport( const CHR_REF by_reference ichr, float x, float y, float z,
     {
         // No it didn't...
         chr_set_pos( pchr, pos_old.v );
-        pchr->facing_z = facing_old;
+        pchr->ori.facing_z = facing_old;
 
         retval = bfalse;
     }
@@ -7822,12 +7808,12 @@ bool_t chr_teleport( const CHR_REF by_reference ichr, float x, float y, float z,
         // Yeah!  It worked!
 
 		// update the old position
-        pchr->pos_old      = pos_new;
-        pchr->facing_z_old = facing_new;
+        pchr->pos_old          = pos_new;
+        pchr->ori_old.facing_z = facing_new;
 
 		// update the new position
 		chr_set_pos( pchr, pos_new.v );
-		pchr->facing_z = facing_new;
+		pchr->ori.facing_z = facing_new;
 
         if ( !detach_character_from_mount( ichr, btrue, bfalse ) )
         {
@@ -8072,9 +8058,9 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->valid   = btrue;
             mc_tmp->type_bits   |= MAT_CHARACTER;  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
-            mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->map_facing_x - MAP_TURN_OFFSET );
-            mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->map_facing_y - MAP_TURN_OFFSET );
-            mc_tmp->rotate.z = ptarget->facing_z;
+            mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->ori.map_facing_x - MAP_TURN_OFFSET );
+            mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_facing_y - MAP_TURN_OFFSET );
+            mc_tmp->rotate.z = ptarget->ori.facing_z;
 
             mc_tmp->pos = chr_get_pos( ptarget );
 
@@ -8311,9 +8297,9 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
                 mcache->grip_scale = mcache->self_scale;
 
-                mcache->rotate.x = CLIP_TO_16BITS( pchr->map_facing_x - MAP_TURN_OFFSET );
-                mcache->rotate.y = CLIP_TO_16BITS( pchr->map_facing_y - MAP_TURN_OFFSET );
-                mcache->rotate.z = pchr->facing_z;
+                mcache->rotate.x = CLIP_TO_16BITS( pchr->ori.map_facing_x - MAP_TURN_OFFSET );
+                mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_facing_y - MAP_TURN_OFFSET );
+                mcache->rotate.z = pchr->ori.facing_z;
 
                 mcache->pos = chr_get_pos( pchr );
 
@@ -9295,6 +9281,8 @@ mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
     }
 }*/
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 fvec3_t chr_get_pos( chr_t * pchr )
 {
 	fvec3_t vtmp = ZERO_VECT3;
@@ -9304,6 +9292,7 @@ fvec3_t chr_get_pos( chr_t * pchr )
 	return pchr->pos;
 }
 
+//--------------------------------------------------------------------------------------------
 float * chr_get_pos_v( chr_t * pchr )
 {
 	static fvec3_t vtmp = ZERO_VECT3;
@@ -9313,16 +9302,38 @@ float * chr_get_pos_v( chr_t * pchr )
 	return pchr->pos.v;
 }
 
-bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
+//--------------------------------------------------------------------------------------------
+bool_t chr_update_pos( chr_t * pchr )
 {
 	if( !ALLOCATED_PCHR(pchr) ) return bfalse;
+
+    pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+    pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+
+	// update whether the current character position is safe
+	chr_update_safe( pchr, bfalse );
+
+	// update the breadcrumb list
+	chr_update_breadcrumb( pchr, bfalse );
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
+{
+	bool_t retval = bfalse;
+
+	if( !ALLOCATED_PCHR(pchr) ) return retval;
+
+	retval = btrue;
 
 	if( (pos[kX] != pchr->pos.v[kX]) || (pos[kY] != pchr->pos.v[kY]) || (pos[kZ] != pchr->pos.v[kZ]) )
 	{
 		memmove( pchr->pos.v, pos, sizeof(fvec3_base_t) );
 
-		chr_update_safe_raw( pchr );
+		retval = chr_update_pos( pchr );
 	}
 
-	return btrue;
+	return retval;
 }

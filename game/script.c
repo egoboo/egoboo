@@ -965,7 +965,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFTURN:
                 varname = "SELFTURN";
-                iTmp = pchr->facing_z;
+                iTmp = pchr->ori.facing_z;
                 break;
 
             case VARSELFCOUNTER:
@@ -1012,7 +1012,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURN:
                 varname = "TARGETTURN";
-                iTmp = (NULL == ptarget) ? 0 : ptarget->facing_z;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->ori.facing_z;
                 break;
 
             case VARLEADERX:
@@ -1051,9 +1051,9 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARLEADERTURN:
                 varname = "LEADERTURN";
-                iTmp = pchr->facing_z;
+                iTmp = pchr->ori.facing_z;
                 if ( TeamStack.lst[pchr->team].leader != NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->facing_z;
+                    iTmp = team_get_pleader( pchr->team )->ori.facing_z;
 
                 break;
 
@@ -1304,7 +1304,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERTURN:
                 varname = "OWNERTURN";
-                iTmp = (NULL == powner) ? 0 : powner->facing_z;
+                iTmp = (NULL == powner) ? 0 : powner->ori.facing_z;
                 break;
 
             case VAROWNERDISTANCE:

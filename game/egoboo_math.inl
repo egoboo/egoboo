@@ -57,6 +57,7 @@ INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B );
 INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec );
 INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
 INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
+INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B );
 
 INLINE bool_t  fvec3_clear( fvec3_t * A );
 INLINE bool_t  fvec3_scale( fvec3_t * A, const float B );
@@ -64,6 +65,7 @@ INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B );
 INLINE fvec3_t fvec3_normalize( const fvec3_base_t A );
 INLINE fvec3_t fvec3_sub( const fvec3_base_t A, const fvec3_base_t B );
 INLINE fvec3_t fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B );
+INLINE float   fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B );
 
 INLINE bool_t fvec4_clear( fvec4_t * A );
 
@@ -299,6 +301,13 @@ INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B )
 }
 
 //--------------------------------------------------------------------------------------------
+INLINE float fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B )
+{
+	return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]);
+}
+
+
+//--------------------------------------------------------------------------------------------
 INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec )
 {
     fvec2_t tmp = ZERO_VECT2;
@@ -400,6 +409,12 @@ INLINE fvec3_t fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B )
     tmp.z = A[kX] * B[kY] - A[kY] * B[kX];
 
     return tmp;
+}
+
+//--------------------------------------------------------------------------------------------
+INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B )
+{
+	return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]) + ABS(A[kZ] - B[kZ]);
 }
 
 //--------------------------------------------------------------------------------------------

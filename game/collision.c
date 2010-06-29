@@ -591,7 +591,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( pchr_a->chr_prt_cv, pchr_a->pos, pchr_a->vel, pprt_b->chr_prt_cv, pprt_b->pos, pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( pchr_a->chr_prt_cv, pchr_a->pos, pchr_a->vel, pprt_b->chr_prt_cv, prt_get_pos(pprt_b), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.prtb = iprt_b;
@@ -1652,20 +1652,20 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     vlerp_z  = 1.0f - CLIP( vlerp_z, 0.0f, 1.0f );
 
     // determine the rotation rates
-    rot_b = pitem->facing_z - pitem->facing_z_old;
-    rot_a = pplat->facing_z - pplat->facing_z_old;
+    rot_b = pitem->ori.facing_z - pitem->ori_old.facing_z;
+    rot_a = pplat->ori.facing_z - pplat->ori_old.facing_z;
 
     if ( lerp_z == 1.0f )
     {
         pitem->phys.apos_0.z += ( pitem->enviro.level - pitem->pos.z ) * 0.125f;
         pitem->phys.avel.z += ( pplat->vel.z  - pitem->vel.z ) * 0.25f;
-        pitem->facing_z      += ( rot_a         - rot_b ) * platstick;
+        pitem->ori.facing_z      += ( rot_a         - rot_b ) * platstick;
     }
     else
     {
         pitem->phys.apos_0.z += ( pitem->enviro.level - pitem->pos.z ) * 0.125f * lerp_z * vlerp_z;
         pitem->phys.avel.z += ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z;
-        pitem->facing_z      += ( rot_a         - rot_b ) * platstick * lerp_z * vlerp_z;
+        pitem->ori.facing_z      += ( rot_a         - rot_b ) * platstick * lerp_z * vlerp_z;
     };
 
     return btrue;
@@ -2108,7 +2108,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( pplat->chr_prt_cv, pplat->pos, pprt->bump, pprt->pos, btrue );
+    plat_collision = test_interaction_close_1( pplat->chr_prt_cv, pplat->pos, pprt->bump, prt_get_pos(pprt), btrue );
 
     if ( !plat_collision ) return bfalse;
 
@@ -2197,7 +2197,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 
     // find the "attack direction" of the particle
     direction = vec_to_facing( pchr->pos.x - pprt->pos.x, pchr->pos.y - pprt->pos.y );
-    direction = pchr->facing_z - direction + ATK_BEHIND;
+    direction = pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
     chr_is_invictus = is_invictus_direction( direction, GET_REF_PCHR( pchr ), ppip->damfx );
@@ -2484,7 +2484,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         IPair loc_damage = pprt->damage;
 
         direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
-        direction = pchr->facing_z - direction + ATK_BEHIND;
+        direction = pchr->ori.facing_z - direction + ATK_BEHIND;
 
         // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
         // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
@@ -2732,7 +2732,7 @@ bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     pdata->ppip = PipStack.lst + pprt->pip_ref;
 
     // measure the collision depth
-    full_collision = get_depth_1( pchr->chr_prt_cv, pchr->pos, pprt->bump, pprt->pos, btrue, pdata->odepth );
+    full_collision = get_depth_1( pchr->chr_prt_cv, pchr->pos, pprt->bump, prt_get_pos(pprt), btrue, pdata->odepth );
 
     //// measure the collision depth in the last update
     //// the objects were not touching last frame, so they must have collided this frame

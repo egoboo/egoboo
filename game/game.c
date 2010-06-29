@@ -1705,7 +1705,7 @@ void update_pits()
                     bool_t teleported;
 
                     // Teleport them back to a "safe" spot
-                    teleported = chr_teleport( ichr, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pchr->facing_z );
+                    teleported = chr_teleport( ichr, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pchr->ori.facing_z );
 
                     if ( !teleported )
                     {
@@ -1793,7 +1793,7 @@ void do_weather_spawn_particles()
                         }
                         else
                         {
-                            //Weather particles spawned at the edge of the map look ugly, so don't spawn them there
+                            // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
                             if ( pprt->pos.x < EDGE || pprt->pos.x > PMesh->gmem.edge_x - EDGE )
                             {
                                 destroy_particle = btrue;
@@ -1849,7 +1849,7 @@ void set_one_player_latch( const PLA_REF by_reference player )
     latch_init( &( sum ) );
 
     // generate the transforms relative to the camera
-    turnsin = TO_TURN( PCamera->facing_z );
+    turnsin = TO_TURN( PCamera->ori.facing_z );
     fsin    = turntosin[ turnsin ];
     fcos    = turntocos[ turnsin ];
 
@@ -2453,13 +2453,13 @@ void tilt_characters_to_terrain()
         if ( pchr->stickybutt && mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
         {
             twist = PMesh->gmem.grid_list[pchr->onwhichgrid].twist;
-            pchr->map_facing_y = map_twist_y[twist];
-            pchr->map_facing_x = map_twist_x[twist];
+            pchr->ori.map_facing_y = map_twist_y[twist];
+            pchr->ori.map_facing_x = map_twist_x[twist];
         }
         else
         {
-            pchr->map_facing_y = MAP_TURN_OFFSET;
-            pchr->map_facing_x = MAP_TURN_OFFSET;
+            pchr->ori.map_facing_y = MAP_TURN_OFFSET;
+            pchr->ori.map_facing_x = MAP_TURN_OFFSET;
         }
     }
     CHR_END_LOOP();
@@ -3264,8 +3264,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     setup_synch( &cfg );
 
     // initialize the game objects
-    update_all_objects();
-    update_used_lists();
+    initialize_all_objects();
     cursor_reset();
     game_module_reset( PMod, seed );
     camera_reset( PCamera, PMesh );
@@ -3427,7 +3426,7 @@ bool_t attach_one_particle( prt_t * pprt )
         // Correct facing so swords knock characters in the right direction...
         if ( NULL != ppip && 0 != ( ppip->damfx & DAMFX_TURN ) )
         {
-            pprt->facing = pchr->facing_z;
+            pprt->facing = pchr->ori.facing_z;
         }
     }
 

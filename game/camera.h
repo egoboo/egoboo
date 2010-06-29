@@ -23,6 +23,7 @@
 
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
+#include "physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -90,24 +91,26 @@ struct s_camera
     Uint8  turn_mode;               ///< what is the camera mode
     Uint8  turn_time;               ///< time for the smooth turn
 
-    int       swing;                   ///< Camera swingin'
-    int       swingrate;
-    float     swingamp;
-    fvec3_t   pos;                       ///< Camera position (z = 500-1000)
-    float     zoom;                    ///< Distance from the trackee
-    fvec3_t   track_pos;                  ///< Trackee position
-    float     track_level;
-    fvec3_t   center;                 ///< Move character to side before tracking
-    float     zadd;                    ///< Camera height above terrain
-    float     zaddgoto;                ///< Desired z position
-    float     zgoto;
-    float     turn_z_rad;           ///< Camera rotations
-    float     turn_z_one;
-    FACING_T  facing_z;
-    float     turnadd;                 ///< Turning rate
-    float     sustain;                 ///< Turning rate falloff
-    float     turnupdown;
-    float     roll;
+    int           swing;                   ///< Camera swingin'
+    int           swingrate;
+    float         swingamp;
+
+    fvec3_t       pos;                       ///< Camera position (z = 500-1000)
+    orientation_t ori;
+
+	float         zoom;                    ///< Distance from the trackee
+    fvec3_t       track_pos;                  ///< Trackee position
+    float         track_level;
+    fvec3_t       center;                 ///< Move character to side before tracking
+    float         zadd;                    ///< Camera height above terrain
+    float         zaddgoto;                ///< Desired z position
+    float         zgoto;
+    float         turn_z_rad;           ///< Camera rotations
+    float         turn_z_one;
+    float         turnadd;                 ///< Turning rate
+    float         sustain;                 ///< Turning rate falloff
+    float         turnupdown;
+    float         roll;
 
     fvec3_t   vfw;                 ///< the camera forward vector
     fvec3_t   vup;                 ///< the camera up vector

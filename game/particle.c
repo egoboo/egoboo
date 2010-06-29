@@ -186,11 +186,11 @@ void play_particle_sound( const PRT_REF by_reference particle, Sint8 sound )
 
     if ( LOADED_PRO( pprt->profile_ref ) )
     {
-        sound_play_chunk( pprt->pos, pro_get_chunk( pprt->profile_ref, sound ) );
+        sound_play_chunk( prt_get_pos(pprt), pro_get_chunk( pprt->profile_ref, sound ) );
     }
     else
     {
-        sound_play_chunk( pprt->pos, g_wavelist[sound] );
+        sound_play_chunk( prt_get_pos(pprt), g_wavelist[sound] );
     }
 }
 
@@ -216,7 +216,7 @@ void free_one_particle_in_game( const PRT_REF by_reference particle )
 
         if ( pprt->spawncharacterstate )
         {
-            child = spawn_one_character( pprt->pos, pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
+            child = spawn_one_character( prt_get_pos(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
             if ( INGAME_CHR( child ) )
             {
                 chr_get_pai( child )->state = pprt->spawncharacterstate;
@@ -401,7 +401,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     tmp_pos.x = CLIP( tmp_pos.x, 0, PMesh->gmem.edge_x - 2 );
     tmp_pos.y = CLIP( tmp_pos.y, 0, PMesh->gmem.edge_y - 2 );
 
-    pprt->pos      = tmp_pos;
+	prt_set_pos( pprt, tmp_pos.v );
     pprt->pos_old  = tmp_pos;
     pprt->pos_stt  = tmp_pos;
 
@@ -462,10 +462,6 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // make the particle display AT LEAST one frame, regardless of how many updates
     // it has or when someone requests for it to terminate
     pprt->frames_remaining = MAX( 1, prt_lifetime );
-
-    // Set onwhichgrid...
-    pprt->onwhichgrid  = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-    pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
     // Damage stuff
     range_to_pair( ppip->damage, &( pprt->damage ) );
@@ -940,7 +936,8 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
 
     // deal with the optional parameters
- 	if ( NULL == test_pos ) test_pos = pprt->pos.v;
+ 	if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
+	if ( NULL == test_pos ) return 0;
 
 	mesh_mpdfx_tests = 0;
 	mesh_bound_tests = 0;
@@ -972,7 +969,8 @@ fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
     if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
 
     // deal with the optional parameters
- 	if ( NULL == test_pos ) test_pos = pprt->pos.v;
+ 	if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
+	if ( NULL == test_pos ) return retval;
 
 	// calculate the radius based on whether the particle is on camera
     radius = 0.0f;
@@ -1015,7 +1013,8 @@ Uint32 prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressu
     if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
 
     // deal with the optional parameters
-	if ( NULL == test_pos ) test_pos = pprt->pos.v;
+ 	if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
+	if ( NULL == test_pos ) return 0;
 
 	mesh_mpdfx_tests = 0;
 	mesh_bound_tests = 0;
@@ -1049,7 +1048,8 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
 
     if ( 0 == pprt->bump.size || INFINITE_WEIGHT == pprt->phys.weight ) return bfalse;
 
-	if( NULL == test_pos ) test_pos = pprt->pos.v;
+ 	if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
+	if ( NULL == test_pos ) return 0;
 
 	// do the wall test
 	mesh_mpdfx_tests = 0;
@@ -1728,7 +1728,7 @@ prt_t * move_one_particle_do_homing( prt_t * pprt )
         float     vlen, min_length, uncertainty;
         fvec3_t   vdiff, vdither;
 
-        vdiff = fvec3_sub( ptarget->pos.v, pprt->pos.v );
+        vdiff = fvec3_sub( ptarget->pos.v, prt_get_pos_v(pprt) );
         vdiff.z += ptarget->bump.height * 0.5f;
 
         min_length = ( 2 * 5 * 256 * ChrList.lst[pprt->owner_ref].wisdom ) / PERFECTBIG;
@@ -2080,22 +2080,7 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
         play_particle_sound( iprt, ppip->soundend_floor );
     }
 	
-
-	if( (pprt->pos.x != tmp_pos.x) || (pprt->pos.y != tmp_pos.y) || (pprt->pos.z != tmp_pos.z) )
-	{
-		prt_set_pos( pprt, tmp_pos.v );
-	}
-
-    if ( !hit_a_wall )
-    {
-        Uint32 new_tile = mesh_get_tile( PMesh, tmp_pos.x, tmp_pos.y );
-        if ( new_tile != pprt->safe_grid )
-        {
-			pprt->safe_pos   = tmp_pos;
-			pprt->safe_valid = btrue;
-			pprt->safe_grid  = pprt->onwhichgrid;
-        }
-    }
+	prt_set_pos( pprt, tmp_pos.v );
 
     return pprt;
 }
@@ -2336,34 +2321,7 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
-	if( (pprt->pos.x != tmp_pos.x) || (pprt->pos.y != tmp_pos.y) || (pprt->pos.z != tmp_pos.z) )
-	{
-		prt_set_pos( pprt, tmp_pos.v );
-	}
-
-    // we need to test the validity of the current position every 8 frames or so,
-    // no matter what
-    if ( !needs_test )
-    {
-        // make a timer that is individual for each object
-        Uint32 prt_update = pprt->obj_base.guid + update_wld;
-
-        needs_test = ( 0 == ( prt_update & 7 ) );
-    }
-
-    if ( needs_test || updated_2d )
-    {
-        Uint32 new_tile = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-        if ( new_tile != pprt->safe_grid )
-        {
-            if ( !prt_hit_wall( pprt, NULL, NULL, NULL ) )
-            {
-                pprt->safe_pos   = pprt->pos;
-                pprt->safe_valid = btrue;
-                pprt->safe_grid  = pprt->onwhichgrid;
-            }
-        }
-    }
+	prt_set_pos( pprt, tmp_pos.v );
 
     return pprt;
 }
@@ -2393,11 +2351,11 @@ bool_t move_one_particle( prt_t * pprt )
     // determine the actual velocity for attached particles
     if ( INGAME_CHR( pprt->attachedto_ref ) )
     {
-        pprt->vel = fvec3_sub( pprt->pos.v, pprt->pos_old.v );
+        pprt->vel = fvec3_sub( prt_get_pos_v(pprt), pprt->pos_old.v );
     }
 
     // Particle's old location
-    pprt->pos_old = pprt->pos;
+    pprt->pos_old = prt_get_pos(pprt);
     pprt->vel_old = pprt->vel;
 
     // what is the local environment like?
@@ -2500,7 +2458,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
 
     // Only damage if hitting from proper direction
     direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
-    direction = ATK_BEHIND + ( pchr->facing_z - direction );
+    direction = ATK_BEHIND + ( pchr->ori.facing_z - direction );
 
     // Check that direction
     if ( !is_invictus_direction( direction, character, ppip->damfx ) )
@@ -2551,12 +2509,11 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-
-                dist = ABS( pprt->pos.x - pchr->pos.x ) + ABS( pprt->pos.y - pchr->pos.y ) + ABS( pprt->pos.z - pchr->pos.z );
+                dist = fvec3_dist_abs( prt_get_pos_v(pprt), chr_get_pos_v(pchr) );
 
                 // clear the occupied list
                 z = pprt->pos.z - pchr->pos.z;
-                facing = pprt->facing - pchr->facing_z;
+                facing = pprt->facing - pchr->ori.facing_z;
                 turn   = TO_TURN( facing );
                 fsin = turntosin[ turn ];
                 fcos = turntocos[ turn ];
@@ -3090,7 +3047,7 @@ int prt_do_contspawn( prt_t * pprt, pip_t * ppip )
         facing = pprt->facing;
         for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
         {
-            PRT_REF prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
+            PRT_REF prt_child = spawn_one_particle( prt_get_pos(pprt), facing, pprt->profile_ref, ppip->contspawn_pip,
                                                     ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, iprt, tnc, pprt->target_ref );
 
             if ( ALLOCATED_PRT( prt_child ) )
@@ -3257,9 +3214,6 @@ prt_t * prt_update_ingame( prt_t * pprt, pip_t * ppip  )
 
     // figure out where the particle is on the mesh and update the particle states
     {
-        pprt->onwhichgrid  = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-
         // determine whether the iprt is hidden
         pprt->is_hidden = bfalse;
         if ( INGAME_CHR( pprt->attachedto_ref ) )
@@ -3337,11 +3291,7 @@ prt_t * prt_update_display( prt_t * pprt, pip_t * ppip )
         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
     }
 
-    // figure out where the particle is on the mesh and update iprt states
-    pprt->onwhichgrid  = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-    pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-
-    // determine whether the iprt is hidden
+	// determine whether the iprt is hidden
     pprt->is_hidden = bfalse;
     if ( INGAME_CHR( pprt->attachedto_ref ) )
     {
@@ -3476,13 +3426,48 @@ fvec3_t prt_get_pos( prt_t * pprt )
 	return pprt->pos;
 }
 
-bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos )
+//--------------------------------------------------------------------------------------------
+float * prt_get_pos_v( prt_t * pprt )
+{
+	static fvec3_t vtmp = ZERO_VECT3;
+
+	if( !ALLOCATED_PPRT(pprt) ) return vtmp.v;
+
+	return pprt->pos.v;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_update_pos( prt_t * pprt )
 {
 	if( !ALLOCATED_PPRT(pprt) ) return bfalse;
 
-	memcpy( pprt->pos.v, pos, sizeof(fvec3_base_t) );
+    pprt->onwhichgrid  = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
+    pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
-	prt_update_safe( pprt, btrue );
+	// update whether the current character position is safe
+	prt_update_safe( pprt, bfalse );
+
+	// update the breadcrumb list (does not exist for particles )
+	// prt_update_breadcrumb( pprt, bfalse );
 
 	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos )
+{
+	bool_t retval = bfalse;
+
+	if( !ALLOCATED_PPRT(pprt) ) return retval;
+
+	retval = btrue;
+
+	if( (pos[kX] != pprt->pos.v[kX]) || (pos[kY] != pprt->pos.v[kY]) || (pos[kZ] != pprt->pos.v[kZ]) )
+	{
+		memmove( pprt->pos.v, pos, sizeof(fvec3_base_t) );
+
+		retval = prt_update_pos( pprt );
+	}
+
+	return retval;
 }

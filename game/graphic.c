@@ -5259,7 +5259,8 @@ void gfx_make_dynalist( camera_t * pcam )
     ///    lighting
 
     int tnc, slot;
-    float disx, disy, disz, distance;
+	fvec3_t  vdist;
+    float    distance;
 
     // Don't really make a list, just set to visible or not
     dyna_list_count = 0;
@@ -5275,11 +5276,9 @@ void gfx_make_dynalist( camera_t * pcam )
         // Set up the lights we need
         if ( !pprt->dynalight.on ) continue;
 
-        disx = pprt->pos.x - pcam->track_pos.x;
-        disy = pprt->pos.y - pcam->track_pos.y;
-        disz = pprt->pos.z - pcam->track_pos.z;
+        vdist = fvec3_sub( prt_get_pos_v(pprt), pcam->track_pos.v );
 
-        distance = disx * disx + disy * disy + disz * disz;
+		distance = vdist.x * vdist.x + vdist.y * vdist.y + vdist.z * vdist.z;
         if ( distance < dyna_distancetobeat )
         {
             bool_t found = bfalse;
@@ -5323,7 +5322,7 @@ void gfx_make_dynalist( camera_t * pcam )
 
             if ( found )
             {
-                dyna_list[slot].pos     = pprt->pos;
+                dyna_list[slot].pos     = prt_get_pos( pprt );
                 dyna_list[slot].level   = pprt->dynalight.level;
                 dyna_list[slot].falloff = pprt->dynalight.falloff;
             }

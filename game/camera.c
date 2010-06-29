@@ -81,7 +81,7 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->zgoto     =  800;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
+    pcam->ori.facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
     pcam->turnadd    =  0;
     pcam->sustain    =  0.60f;
     pcam->turnupdown = ( float )( PI / 4 );
@@ -529,7 +529,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         }
     }
 
-    turnsin = TO_TURN( pcam->facing_z );
+    turnsin = TO_TURN( pcam->ori.facing_z );
     pcam->center.x += movex * turntocos[ turnsin & TRIG_TABLE_MASK ] + movey * turntosin[ turnsin & TRIG_TABLE_MASK ];
     pcam->center.y += -movex * turntosin[ turnsin & TRIG_TABLE_MASK ] + movey * turntocos[ turnsin & TRIG_TABLE_MASK ];
 
@@ -543,7 +543,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     camera_make_matrix( pcam );
 
     pcam->turn_z_one = ( pcam->turn_z_rad ) / ( TWO_PI );
-    pcam->facing_z     = CLIP_TO_16BITS( FLOAT_TO_FP16( pcam->turn_z_one ) );
+    pcam->ori.facing_z     = CLIP_TO_16BITS( FLOAT_TO_FP16( pcam->turn_z_one ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -568,7 +568,7 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->zgoto = 1500;
     pcam->turn_z_rad = -PI / 4.0f;
     pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
+    pcam->ori.facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
     pcam->turnupdown = PI / 4.0f;
     pcam->roll = 0;
 

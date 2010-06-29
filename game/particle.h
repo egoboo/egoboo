@@ -237,4 +237,5 @@ prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
 
 bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos );
+float * prt_get_pos_v( prt_t * pprt );
 fvec3_t prt_get_pos( prt_t * pprt );

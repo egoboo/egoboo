@@ -41,6 +41,16 @@ enum
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_orientation
+{
+    FACING_T       facing_z;                        ///< Character's z-rotation 0 to 0xFFFF
+    FACING_T       map_facing_y;                    ///< Character's y-rotation 0 to 0xFFFF
+    FACING_T       map_facing_x;                    ///< Character's x-rotation 0 to 0xFFFF
+};
+typedef struct s_orientation orientation_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// Data for doing the physics in bump_all_objects()
 /// @details should prevent you from being bumped into a wall
 struct s_phys_data

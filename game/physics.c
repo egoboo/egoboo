@@ -571,7 +571,7 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // add in the current position to the bounding volume
-    oct_bb_add_vector( pprt->chr_prt_cv, pprt->pos, &tmp_oct );
+    oct_bb_add_vector( pprt->chr_prt_cv, prt_get_pos(pprt), &tmp_oct );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( tmp_oct, pprt->vel, tmin, tmax, pdst );
@@ -623,9 +623,10 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
 
 	bc->bits   = bits;
 	bc->radius = pprt->bump.size;
-	bc->pos.x  = (floor(pprt->pos.x / GRID_SIZE) + 0.5f) * GRID_SIZE;
-	bc->pos.y  = (floor(pprt->pos.y / GRID_SIZE) + 0.5f) * GRID_SIZE;
-	bc->pos.z  = pprt->pos.z;
+
+	bc->pos = prt_get_pos(pprt);
+	bc->pos.x  = (floor(bc->pos.x / GRID_SIZE) + 0.5f) * GRID_SIZE;
+	bc->pos.y  = (floor(bc->pos.y / GRID_SIZE) + 0.5f) * GRID_SIZE;
 
 	bc->grid   = mesh_get_tile( PMesh, bc->pos.x, bc->pos.y );
 	bc->valid  = (0 == mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL));

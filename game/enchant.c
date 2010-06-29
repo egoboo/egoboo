@@ -388,10 +388,10 @@ void enchant_apply_set( const ENC_REF by_reference  ienc, int value_idx, const P
     if ( peve->setyesno[value_idx] )
     {
         conflict = enchant_value_filled( ienc, value_idx );
-        if ( conflict == MAX_ENC || peve->override )
+        if ( MAX_ENC != conflict || peve->override )
         {
             // Check for multiple enchantments
-            if ( conflict < MAX_ENC )
+            if ( DEFINED_ENC( conflict ) )
             {
                 // Multiple enchantments aren't allowed for sets
                 if ( peve->removeoverridden )
@@ -731,50 +731,54 @@ enc_t * enc_config_do_init( enc_t * penc )
     int add_type, set_type;
 
     if ( NULL == penc ) return NULL;
-    pdata = &( penc->spawn_data );
     ienc  = GET_INDEX_PENC( penc );
 
-    // Convert from local pdata->eve_ref to global pdata->eve_ref
+	// get the profile data
+    pdata = &( penc->spawn_data );
+
+	// store the profile
+    penc->profile_ref  = pdata->profile_ref;
+
+    // Convert from local pdata->eve_ref to global enchant profile
     if ( !LOADED_EVE( pdata->eve_ref ) )
     {
         log_debug( "spawn_one_enchant() - cannot spawn enchant with invalid enchant template (\"eve\") == %d\n", REF_TO_INT( pdata->eve_ref ) );
 
         return NULL;
     }
+	penc->eve_ref = pdata->eve_ref;
     peve = EveStack.lst + pdata->eve_ref;
 
     // turn the enchant on here. you can't fail to spawn after this point.
     POBJ_ACTIVATE( penc, peve->name );
 
-    penc->eve_ref      = pdata->eve_ref;
-    penc->profile_ref  = pdata->profile_ref;
-    penc->time         = peve->time;
-    penc->spawntime    = 1;
-    penc->owner_mana   = peve->owner_mana;
-    penc->owner_life   = peve->owner_life;
-    penc->target_mana  = peve->target_mana;
-    penc->target_life  = peve->target_life;
-
+	// does the target exist?
     if( !DEFINED_CHR( pdata->target_ref ) )
     {
-        penc->target_ref = ( CHR_REF )MAX_CHR;
-        ptarget          = NULL;
-    }
+        penc->target_ref   = ( CHR_REF )MAX_CHR;
+        ptarget            = NULL;
+	}
     else
     {
-        penc->target_ref = penc->target_ref;
+        penc->target_ref = pdata->target_ref;
         ptarget = ChrList.lst + penc->target_ref;
     }
+	penc->target_mana  = peve->target_mana;
+	penc->target_life  = peve->target_life;
 
+	// does the owner exist?
     if( !DEFINED_CHR( pdata->owner_ref ) )
     {
         penc->owner_ref = ( CHR_REF )MAX_CHR;
     }
     else
     {
-        penc->owner_ref = pdata->owner_ref;
+        penc->owner_ref  = pdata->owner_ref;
     }
+	penc->owner_mana = peve->owner_mana;
+	penc->owner_life = peve->owner_life;
 
+	// does the spawner exist?
     if( !DEFINED_CHR( pdata->spawner_ref ) )
     {
         penc->spawner_ref      = ( CHR_REF )MAX_CHR;
@@ -787,6 +791,10 @@ enc_t * enc_config_do_init( enc_t * penc )
 
         ChrList.lst[penc->spawner_ref].undoenchant = ienc;
     }
+
+	// set some other spawning parameters
+    penc->time         = peve->time;
+    penc->spawntime    = 1;
 
     // Now set all of the specific values, morph first
     for ( set_type = ENC_SET_FIRST; set_type <= ENC_SET_LAST; set_type++ )
@@ -810,7 +818,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     // Create an overlay character?
     if ( peve->spawn_overlay && NULL != ptarget )
     {
-        overlay = spawn_one_character( ptarget->pos, pdata->profile_ref, ptarget->team, 0, ptarget->facing_z, NULL, ( CHR_REF )MAX_CHR );
+        overlay = spawn_one_character( ptarget->pos, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, ( CHR_REF )MAX_CHR );
         if ( DEFINED_CHR( overlay ) )
         {
             chr_t * povl;
@@ -880,7 +888,7 @@ enc_t * enc_config_do_active( enc_t * penc )
     if ( !INGAME_CHR( penc->target_ref ) ) return penc;
     ptarget = ChrList.lst + penc->target_ref;
 
-    facing = ptarget->facing_z;
+    facing = ptarget->ori.facing_z;
     for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
     {
         spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
