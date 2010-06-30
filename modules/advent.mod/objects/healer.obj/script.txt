@@ -1,79 +1,64 @@
+//------------------------------------------------------------------------------
 // Show the character's location
 tmpx = selfx
 tmpy = selfy
 tmpargument = YELLOW
 ShowBlipXY
 
+//------------------------------------------------------------------------------
+//Follow the leader!
+IfSpawned
+  tmpargument = STATEFOLLOW
+  SetState
+
+//------------------------------------------------------------------------------
 IfKilled				// This reduces the height of the char
   tmpargument = 1
   PlaySound
 
-  tmpargument = 0			  // Last words...
-  SetState				  //
+  //Last words
+  tmpargument = 0
   IfTargetIsOnSameTeam			  // Fragged!
-    tmpargument = 3			    //
+    tmpargument = 3
     IfTargetIsSelf			    // No, just a damage tile
-      tmpargument = 4			      //
-  SendMessage				  //
+      tmpargument = 4
+  SendMessage
+  
   tmpargument = selfmoney			  // Drop money
-  DropMoney				  //
-  tmpargument = 45			  //
-  SetBumpHeight				  //
-      
+  DropMoney
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
 IfTimeOut				// This is done every so often
   tmpargument = rand & 15 + 15		  // Try again later
   SetTime				  //
 
   //Find someone to heal
-  tmpargument = 2
+  tmpargument = STATEGUARD
   IfStateIsNot
-    SetTargetToNearestFriend
-    IfTargetIsHurt
-      tmpx = targetdistance
-      tmpy = 400
-      IfXIsLessThanY
-        tmpargument = 2
-        SetState
-
-  // State 2 ( Helper )
-  IfStateIs2
-    SetTargetToNearestFriend
-      tmpx = targetdistance
-      tmpy = 128*6
-      IfXIsLessThanY
-        IfTargetIsHurt			    // Heal wounded
-          tmpx = targetdistance		      //
-          tmpy = 300			      //
-          IfXIsLessThanY			      // In Range?
-            tmpx = 260			        //
-            tmpy = selfmana			        //
-            IfXIsLessThanY				// Enough to cast?
-              IfFacingTarget
-                tmpargument = LATCHLEFT	          // Left Attack == 1
-                PressLatchButton		          //
-            Else					        //Not enough mana, do something else
-              tmpargument = 0
-              SetState
-        Else				    
-          tmpargument = 0     // Switch to follow
-          SetState				      //    
-
-      //move towards target
-      tmpx = targetx			    //
-      tmpy = targety			    //
-      ClearWaypoints			  //
-      AddWaypoint				  //
-    Else
-      tmpargument = 0
-      SetState
+    tmpx = selfmana
+    tmpy = 260
+    IfXIsMoreThanY				// Enough mana to heal?
+      SetTargetToNearestFriend
+        IfTargetIsHurt
+          tmpx = targetdistance
+          tmpy = 400
+          IfXIsLessThanY
+            tmpargument = STATEGUARD
+            SetState
       
-  // State 0 ( Follow )
-  IfStateIs0				  
-    //Find someone to bash
-    SetTargetToWideEnemy
-      tmpargument = 1
-      SetState
-    Else    
+    //move towards target
+    tmpx = targetx
+    tmpy = targety
+    ClearWaypoints
+    AddWaypoint
+      
+      
+  IfStateIsFollow
+    SetTargetToLeader
+    IfTargetIsAlive
+
       //Follow the player
       tmpx = leaderdistance
       tmpy = 128*6
@@ -81,22 +66,34 @@ IfTimeOut				// This is done every so often
         tmpargument = 133        //Catch up fast!
         SetSpeedPercent
       Else
-        tmpargument = 100
+        tmpargument = 100        //Walk normal
         SetSpeedPercent
-      tmpdistance = 100         //Walk normal
-      tmpx = leaderx			    //
-      tmpy = leadery			    //
+        
+      tmpdistance = 100         
+      tmpx = leaderx
+      tmpy = leadery
       tmpturn = 49152 + leaderturn	    // Stand to side
       Compass
-      ClearWaypoints			  //
-      AddWaypoint				  //
-
-  // State 1 ( Combat )
-  IfStateIs1				  
-    SetTargetToNearbyEnemy		    //
+      ClearWaypoints
+      AddWaypoint
+      
+      //Find someone to bash
+      tmpx = leaderdistance
+      tmpy = 128*6
+      IfXIsLessThanY
+        SetTargetToWideEnemy
+          tmpargument = STATECOMBAT
+          SetState
+    Else
+      tmpargument = STATEWANDER
+      SetState
+      
+  IfStateIsCombat
+  
+    SetTargetToWideEnemy
       tmpx = targetdistance		    // Close enough to attack?
-      tmpy = 250				    //
-      IfXIsLessThanY			    //
+      tmpy = 300
+      IfXIsLessThanY
         IfFacingTarget
           IfHoldingMeleeWeapon
             PressLatchButton
@@ -107,29 +104,101 @@ IfTimeOut				// This is done every so often
       IfXIsMoreThanY
         tmpx = targetdistance
         tmpy = 200
-        IfXIsLessThanY
-          tmpargument = 0
+        IfXIsMoreThanY
+          tmpargument = STATEFOLLOW
           SetState
       
-      //Move towards enemy
+      //Special movement in case its the jelly cube
       tmpargument = [CUBE]
       IfTargetHasID
-        tmpdistance = -350     //Keep away from the gelfeet
+        tmpargument = [HUMA]
+        IfTargetHoldingItemID
+          tmpdistance = 0         //Go save the humanoid who is trapped inside!
+        Else
+          tmpdistance = -400     //Keep away from the gelfeet
       Else
-        tmpdistance = -50			//Else move in to attack
+        tmpdistance = 0			//Else move in to attack
       
       tmpx = targetx			    
       tmpy = targety			    
-      tmpturn = targetturnto		    //
+      tmpturn = targetturnto
       Compass				    
-      ClearWaypoints			  //
+      ClearWaypoints
       AddWaypoint
     
-    //No enemies around, return to wander
+    //No enemies around, return to follow
     Else
-      tmpargument = 0
+      tmpargument = STATEFOLLOW
       SetState
+  
+  
+  IfStateIsWander
+    tmpx = rand & 511 + selfx - 256
+    tmpy = rand & 511 + selfy - 256
+    ClearWaypoints
+    AddWaypoint
+
+    //Follow the leader if he has respawned
+    SetTargetToLeader
+      IfTargetIsAlive
+        tmpargument = STATEFOLLOW
+        SetState
+        
+    //Look out for enemies
+    SetTargetToNearbyEnemy		  
+      tmpargument = STATECOMBAT
+      SetState				      // Change to combat mode
+
+  //Healing state
+  IfStateIsGuard    
+    tmpargument = STATEFOLLOW
+    SetState
+    
+    //Heal closest friend
+    SetTargetToNearestFriend
+      IfTargetIsHurt			    // Heal wounded only
+
+        //Enough mana to cast?
+        tmpx = selfmana
+        tmpy = 260
+        IfXIsMoreThanY				
       
+          //Only if he didn't run away
+          tmpx = targetdistance
+          tmpy = 128*6
+          IfXIsLessThanY
+            tmpargument = STATEGUARD
+            SetState
+          
+            //Close enough to cast spell?
+            tmpx = targetdistance
+            tmpy = 300
+            IfXIsLessThanY
+              IfFacingTarget
+                tmpargument = LATCHLEFT	          // Left Attack == 1
+                PressLatchButton
+
+//------------------------------------------------------------------------------
+// Heal sound and effect
+IfUsed  
+  //Heal friendlies
+  IfTargetIsOnSameTeam
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 0
+    SpawnExactParticle
+
+    tmpargument = rand & 511 + 512
+    HealTarget
+
+    //Make a sound
+    tmpargument = 0
+    PlaySound
+    tmpargument = 50
+    SetReloadTime
+      
+//------------------------------------------------------------------------------
 IfAttacked				// Counter attack if not healing
   SetTargetToWhoeverAttacked		    //
     IfTargetIsAlive			      //
@@ -147,53 +216,45 @@ IfAttacked				// Counter attack if not healing
     Else				      // Attacker dead already
       SetTargetToOldTarget		        //  
 
-IfBumped				// Bumped
+//------------------------------------------------------------------------------
+IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsAlive
+    
     // Heal 'em
     IfTargetIsOnSameTeam
       IfTargetIsHurt			  
-        tmpargument = 2			      // State 2 ( Helper )
-        SetState				      //
-    
+        tmpargument = STATEGUARD
+        SetState
+        SetTargetToOldTarget
+      Else
+        tmpargument = STATECOMBAT
+        IfStateIsNot
+          //Move out of the way
+          tmpx = rand & 511 + selfx - 256
+          tmpy = rand & 511 + selfy - 256
+          ClearWaypoints
+          AddWaypoint
+          tmpargument = 40			  // Try again soon
+          SetTime
+
     //Bash 'em
     IfTargetIsOnHatedTeam
       IfFacingTarget
         IfHoldingMeleeWeapon
-          PressLatchButton			      //
-        
-    SetTargetToOldTarget		    //
-    tmpx = rand & 511 + selfx - 256		  //
-    tmpy = rand & 511 + selfy - 256		  //
-    ClearWaypoints			  //
-    AddWaypoint				  //
-    tmpargument = 40			  // Try again soon
-    SetTime				  //
-  
+          PressLatchButton
+          
   //Jump over bodies
   Else
     tmpargument = LATCHJUMP
     PressLatchButton
     
 
+//------------------------------------------------------------------------------
 IfTargetKilled				// Mode switch
-  tmpargument = 0			  // Return to follow mode
-  SetState				  //
+  tmpargument = STATEFOLLOW			  // Return to follow mode
+  SetState
 
-// Heal sound and effect
-IfUsed
-  tmpargument = 0
-  PlayFullSound
-  tmpargument = 50
-  SetReloadTime
-  IfTargetIsOnSameTeam
-    tmpx = targetx
-    tmpy = targety
-    tmpdistance = targetz
-    tmpargument = 0
-    SpawnExactParticle
-
-    tmpargument = rand & 511 + 512
-    HealTarget
-
+//------------------------------------------------------------------------------
 End					// Finished with this character
+//------------------------------------------------------------------------------

@@ -80,7 +80,7 @@ extern game_process_t * GProc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define TILESOUNDTIME 16
+//#define TILESOUNDTIME 16				///< Not used anywhere
 #define TILEREAFFIRMAND  3
 
 #define MAXWATERLAYER 2                             ///< Maximum water layers
@@ -235,7 +235,7 @@ typedef struct s_game_module game_module_t;
 //--------------------------------------------------------------------------------------------
 /// Status displays
 
-#define MAXSTAT             16                      ///< Maximum status displays
+#define MAXSTAT             10                      ///< Maximum status displays
 
 extern bool_t  StatusList_on;
 extern int     StatusList_count;

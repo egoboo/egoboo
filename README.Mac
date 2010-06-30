@@ -21,3 +21,7 @@ Extract the Egoboo source code, and open the "osx" folder inside, then open "Ego
 Step 3:
 
 Make sure the active build configuration is set to "Release" (Project->Set Active Build Configuration->Release), and click "Build and Go".
+
+
+
+Get more help at: http://egoboo.sourceforge.net/forum/

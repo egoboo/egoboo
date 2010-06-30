@@ -68,6 +68,8 @@
 #undef  DEBUG_PROFILE_MESH    ///< Display the results for the performance profiling of the mesh rendering sub-system
 #undef  DEBUG_PROFILE_INIT    ///< Display the results for the performance profiling of the rendering initialization
 
+#undef DEBUG_OBJECT_SPAWN	  ///< Log debug info for every object spawned
+
 #undef  DEBUG_PRT_LIST      ///< Track every single deletion from the PrtList to make sure the same element is not deleted twice. Prevents corruption of the PrtList.free_lst
 #undef  DEBUG_ENC_LIST      ///< Track every single deletion from the EncList to make sure the same element is not deleted twice. Prevents corruption of the EncList.free_lst
 #undef  DEBUG_CHR_LIST      ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst

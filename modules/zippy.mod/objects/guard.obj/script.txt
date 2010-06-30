@@ -44,9 +44,12 @@ IfTargetIsOnHatedTeam
         
 //----------------------------------------------------------------------------------
 IfKilled				// This reduces the height of the char
+  SetTargetToWhoeverAttacked
   CallForHelp			//Alert friends
-  tmpargument = TEAME
-  TargetJoinTeam
+  
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
 
   IfTargetIsOnSameTeam			  // Fragged!
     tmpargument = 3			    //

@@ -1,22 +1,16 @@
 MASTER TODO LIST:
-- Spellbooks not being spellbooks when spawning instead of dropped.
-- The Bishopia walls should be flagged as a Wall, not as Impassable.
-- Sand Troll in Sand Palace seems to get stuck on the pyramid in new physics system. (We might need a FindPath algorithm here)
-- also i found a bug, equipping jewelry doesn't always bestow enchant on user, i had much trouble with amulet on strength it seemed to 
-  work 1 on 4 tries, weird (tires of throwing away and grabbing back)
+- Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
+  (Probably Max Speed that causes a lot of particle problems)
+- Exporting no longer works.
+- Enchants do not work properly.
+- Enchants on jewlery when module spawns aren't activated.
 - Runes need to be repriced much like Arcane Spellbooks were
 - Troll in Griffin tower doesnt die properly
-- Rare crash bug with Tile Mimics in Sand Palace
-
-- Healing cloud for Paladin and Healer is backwards
-- The Jive Elf is no longer loaded properly
-- Waypoints might be too sensitive to fail if they come too close to a wall
-- Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
 - SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)
-- Shields held in right hand look buggy
 - You can no longer turn around while holding a shield
-- Offensive stuff can no longer friendly fire. If they hit stuff it will simply spawn a defence ping and bounce like it was deflected.
-  Same with hitting invulnerable stuff like a pillar or table.
+- The Bishopia walls should be flagged as a Wall, not as Impassable.
 
 EGOBOO AWARDS:
 http://img.informer.com/awards/si_editor4.gif
+http://static.greatgamesexperiment.com/userimages/1/1cc842248a81c67574f54e1c7bf1feae_s.gif
+http://www.greatgamesexperiment.com/gamelist/view/6476/

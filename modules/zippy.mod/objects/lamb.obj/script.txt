@@ -1,20 +1,24 @@
 // Get mean if characters wanna be bad
 IfAttacked
   SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
   CallForHelp
-  tmpargument = TEAME
-  TargetJoinTeam
   
 //------------------------------------------------------------------------------
 // ZZ> Move around...  Start at state 0
 IfTimeOut
+  
+  //Make sheep sounds
   tmpx = rand & 63
   tmpy = 0
   IfXIsEqualToY
     tmpargument = 0
     PlaySound
+    
+  // Find shepherd
   IfStateIs0
-    // Find shepherd
     tmpargument = [SHEP]
     tmpdistance = BLAHFRIENDS
     SetTargetToNearestBlahID
@@ -23,6 +27,8 @@ IfTimeOut
       SetState
     tmpargument = 5
     SetTime
+   
+  //Follow the herd
   IfStateIs1
     SetTargetToOwner
     tmpx = ownerx
@@ -45,7 +51,7 @@ IfTimeOut
     SetTime
 
 //------------------------------------------------------------------------------
-// ZZ> Handle death by sending a message and other stuff
+//Handle death by sending a message and other stuff
 IfKilled
   SetTargetToWhoeverAttacked
   IfTargetIsSelf
@@ -67,11 +73,10 @@ IfOrdered
   tmpx = [SHEP]
   tmpy = selforder
   IfXIsEqualToY
-    GetContent
-    tmpargument = tmpargument + 1
+    tmpargument = selfcontent + 1
     SetContent
-    tmpx = tmpargument
-    tmpy = 8            //How many to kill
+    tmpx = selfcontent
+    tmpy = 8                //How many to kill
     IfXIsEqualToY
       tmpargument = 78
       tmpx = selfx

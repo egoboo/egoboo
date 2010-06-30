@@ -1030,13 +1030,9 @@ int randomize_action( int action, int slot )
 
     //---- actions that can be randomized, but are not left/right sensitive
     // D = dance
-    else if ( ACTION_IS_TYPE( action, D ) )
-    {
-        action = ACTION_TYPE( D ) + generate_randmask( 0, 3 );
-    }
+    else if ( ACTION_IS_TYPE( action, D ) ) action = ACTION_TYPE( D ) + generate_randmask( 0, 3 );
 
     //---- handle all the normal attack/defense animations
-
     // U = unarmed
     else if ( ACTION_IS_TYPE( action, U ) ) action = ACTION_TYPE( U ) + diff + generate_randmask( 0, 1 );
     // T = thrust
@@ -1059,10 +1055,10 @@ int randomize_action( int action, int slot )
     else if ( ACTION_IS_TYPE( action, Z ) ) action = ACTION_TYPE( Z ) + diff + generate_randmask( 0, 1 );
 
     //---- these are passive actions
-    // H = hit
-    else if ( ACTION_IS_TYPE( action, H ) ) action = ACTION_TYPE( H ) + diff + generate_randmask( 0, 1 );
-    // K= killed
-    else if ( ACTION_IS_TYPE( action, K ) ) action = ACTION_TYPE( K ) + diff + generate_randmask( 0, 1 );
+    // H = hurt
+    else if ( ACTION_IS_TYPE( action, H ) ) action = ACTION_TYPE( H ) + generate_randmask( 0, 3 );
+    // K = killed
+    else if ( ACTION_IS_TYPE( action, K ) ) action = ACTION_TYPE( K ) + generate_randmask( 0, 3 );
 
     return action;
 }

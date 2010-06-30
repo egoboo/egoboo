@@ -1788,6 +1788,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+	returncode = bfalse;
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
         CHR_REF ileader = TeamStack.lst[pchr->team].leader;
@@ -1795,15 +1796,8 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
         if ( NOLEADER != ileader && INGAME_CHR( ileader ) )
         {
             SET_TARGET_0( ileader );
+			returncode = btrue;
         }
-        else
-        {
-            returncode = bfalse;
-        }
-    }
-    else
-    {
-        returncode = bfalse;
     }
 
     SCRIPT_FUNCTION_END();

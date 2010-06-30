@@ -2256,7 +2256,8 @@ int vfs_add_mount_point( const char * dirname, const char * mount_point, int app
     if ( !VALID_CSTR( dirname ) ) return 0;
     if ( 0 == strcmp( mount_point, "/" ) ) return 0;
 
-    loc_dirname = vfs_convert_fname_sys( dirname );
+	//loc_dirname = vfs_convert_fname_sys( dirname );		//ZF> uncommented atm, it broke the Linux version
+    loc_dirname = dirname; 
 
     if ( _vfs_add_mount_info( mount_point, loc_dirname ) )
     {

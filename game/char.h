@@ -56,7 +56,7 @@ struct s_billboard_data_t;
 
 #define MAP_TURN_OFFSET 0x8000
 
-#define MAXXP           200000                        ///< Maximum experience
+#define MAXXP           200000                      ///< Maximum experience
 #define MAXMONEY        9999                        ///< Maximum money
 #define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
@@ -65,10 +65,10 @@ struct s_billboard_data_t;
 #define INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
 #define MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
 
-#define GRABSIZE            90.0f                      ///< Grab tolerance
+#define GRABSIZE            135.0f //90.0f             ///< Grab tolerance
 #define NOHIDE              127                        ///< Don't hide
 #define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
-#define RESPAWN_ANYTIME     0xFF          ///< Code for respawnvalid...
+#define RESPAWN_ANYTIME     0xFF					   ///< Code for respawnvalid...
 
 #define RAISE               12                  ///< Helps correct z level
 
@@ -593,6 +593,7 @@ bool_t release_one_cap( const CAP_REF by_reference icap );
 
 const char * describe_value( float value, float maxval, int * rank_ptr );
 const char* describe_damage( float value, float maxval, int * rank_ptr );
+const char* describe_wounds( float max, float current );
 
 void reset_teams();
 

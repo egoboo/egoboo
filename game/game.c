@@ -746,11 +746,11 @@ int update_game()
             if ( cfg.difficulty < GAME_HARD && local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && PMod->respawnvalid && 0 == revivetimer )
             {
                 respawn_character( ichr );
-                pchr->experience *= EXPKEEP;  // Apply xp Penality
+                pchr->experience *= EXPKEEP;		// Apply xp Penality
 
                 if ( cfg.difficulty > GAME_EASY )
                 {
-                    pchr->money *= EXPKEEP;
+                    pchr->money *= EXPKEEP;		//Apply money loss
                 }
             }
         }
@@ -4836,9 +4836,6 @@ bool_t do_shop_buy( const CHR_REF by_reference ipicker, const CHR_REF by_referen
 
     chr_t * ppicker, * pitem;
 
-    // ?? lol what ??
-    if ( ipicker == iitem ) return bfalse;
-
     if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
 
@@ -4889,7 +4886,7 @@ bool_t do_shop_buy( const CHR_REF by_reference ipicker, const CHR_REF by_referen
     }
 
     /// print some feedback messages
-    /// @todo: some of these are handled in scripts, so they could be disabled
+    /// @note: some of these are handled in scripts, so they could be disabled
     /*if( can_grab )
     {
         if( in_shop )
@@ -4920,9 +4917,6 @@ bool_t do_shop_steal( const CHR_REF by_reference ithief, const CHR_REF by_refere
     bool_t can_steal;
 
     chr_t * pthief, * pitem;
-
-    // ?? lol what ??
-    if ( ithief == iitem ) return bfalse;
 
     if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;

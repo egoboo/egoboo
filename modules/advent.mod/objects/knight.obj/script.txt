@@ -1,33 +1,43 @@
+//------------------------------------------------------------------------------
 // Show the character's location
 tmpx = selfx
 tmpy = selfy
 tmpargument = BLUE
 ShowBlipXY
 
+//------------------------------------------------------------------------------
+//Follow the leader!
+IfSpawned
+  tmpargument = STATEFOLLOW
+  SetState
+
+//------------------------------------------------------------------------------
 IfKilled				// This reduces the height of the char
   tmpargument = 6
   PlaySound
 
-  tmpargument = 0			  // Last words...
-  SetState				  //
+  //Last words
+  tmpargument = 0
   IfTargetIsOnSameTeam			  // Fragged!
     tmpargument = 3			    //
     IfTargetIsSelf			    // No, just a damage tile
       tmpargument = 4			      //
-  SendMessage				  //
+  SendMessage
+  
   tmpargument = selfmoney			  // Drop money
-  DropMoney				  //
-  tmpargument = 45			  //
-  SetBumpHeight				  //
+  DropMoney
+  tmpargument = 45
+  SetBumpHeight
 
+//------------------------------------------------------------------------------
 IfAttacked				// Attacked
-  SetTargetToWhoeverAttacked		  //
+  SetTargetToWhoeverAttacked
     IfTargetIsAlive			    //
       IfTargetIsOnHatedTeam		      // Go after 'em
-        tmpargument = 1			        //
+        tmpargument = STATECOMBAT
         SetState			              // Ouch!
-        tmpargument = tmpdistance & 1 + 4
-        PlaySound			        //
+        tmpargument = rand & 1 + 4
+        PlaySound
       Else				      // Complain
         tmpargument = 2			        //
         SendMessageNear			        //
@@ -37,90 +47,109 @@ IfAttacked				// Attacked
     Else				    //Attacker died already
       SetTargetToOldTarget		      //
 
+//------------------------------------------------------------------------------
 IfTargetKilled				// Return to follow mode
-  tmpargument = 0			  // State 0 ( Follow )
-  SetState				  //
+  tmpargument = STATEFOLLOW
+  SetState
 
+//------------------------------------------------------------------------------
 IfTimeOut				// This is done every so often
   tmpargument = rand & 15 + 10			  // Try again later
   SetTime
 
+  // Say "After Her"
   tmpx = selfcontent
-  tmpy = 1
-  IfXIsEqualToY
-    // Say "After Her"
-    tmpargument = 8
-    PlayFullSound
-
-    tmpargument = 5
-    SendMessageNear
-
-    tmpargument = 0
+  tmpy = 0
+  IfXIsMoreThanY
+    tmpargument = selfcontent - 1
     SetContent
-  Else
-    IfXIsMoreThanY
-      // Say it next time
-      tmpargument = tmpx - 1
-      SetContent
-      
-  IfStateIs0				  // State 0 ( Follow )
-    tmpx = leaderdistance
-    tmpy = 128*5
-    IfXIsMoreThanY
-      tmpargument = 133        //Catch up fast! 33% bonus speed
-      SetSpeedPercent
-    Else
-      tmpargument = 100
-      SetSpeedPercent
-    tmpdistance = 100         //Walk normal
-    tmpx = leaderx			    //
-    tmpy = leadery			    //
-    tmpturn = 16384 + leaderturn	    // Stand to side
-    Compass				    //
-    ClearWaypoints			  //
-    AddWaypoint				  //
+    
+    //Say it now!
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 8
+      PlayFullSound
+      tmpargument = 5
+      SendMessage
 
+  IfStateIsFollow
+    SetTargetToLeader
+    IfTargetIsAlive
+      tmpx = leaderdistance
+      tmpy = 128*5
+      IfXIsMoreThanY
+        tmpargument = 133        //Catch up fast! 33% bonus speed
+        SetSpeedPercent
+      Else
+        tmpargument = 100
+        SetSpeedPercent
+      tmpdistance = 100         //Walk normal
+      tmpx = leaderx			    //
+      tmpy = leadery			    //
+      tmpturn = 16384 + leaderturn	    // Stand to side
+      Compass				    //
+      ClearWaypoints			  //
+      AddWaypoint				  //
+
+      //Look out for enemies
+      tmpx = leaderdistance
+      tmpy = 128*6
+      IfXIsLessThanY                    //Onlu if player is nearby
+        SetTargetToNearbyEnemy		  
+          tmpargument = STATECOMBAT
+          SetState				      // Change to combat mode
+          
+          //Cry out if it's the mimic!
+          tmpargument = selfhateid		      //
+          IfTargetHasID			      // Battle cry versus hate group
+            IfTargetIsOldTarget		        //
+              DoNothing
+            Else				        //
+              tmpargument = 1			          //
+              SendMessageNear			          //
+              tmpargument = 3			          //
+              PlaySound			          //
+    Else
+      tmpargument = STATEWANDER
+      SetState
+  
+  IfStateIsWander
+    tmpx = rand & 511 + selfx - 256
+    tmpy = rand & 511 + selfy - 256
+    ClearWaypoints
+    AddWaypoint
+
+    //Follow the leader if he has respawned
+    SetTargetToLeader
+      IfTargetIsAlive
+        tmpargument = STATEFOLLOW
+        SetState
+      
     //Look out for enemies
     SetTargetToNearbyEnemy		  
-      tmpargument = 1			      //
+      tmpargument = STATECOMBAT
       SetState				      // Change to combat mode
-      
-      //Cry out if it's the mimic!
-      tmpargument = selfhateid		      //
-      IfTargetHasID			      // Battle cry versus hate group
-        IfTargetIsOldTarget		        //
-          DoNothing
-        Else				        //
-          tmpargument = 1			          //
-          SendMessageNear			          //
-          tmpargument = 3			          //
-          PlaySound			          //
-
-  // State 1 ( Combat )
-  IfStateIs1					  
-    SetTargetToNearbyEnemy
+ 
+ 
+  IfStateIsCombat
+    SetTargetToWideEnemy
       
       //Attack
       IfFacingTarget
         tmpx = targetdistance		    // Close enough to attack?
-        tmpy = 200				    //
-        IfXIsLessThanY			    //
+        tmpy = 200
+        IfXIsLessThanY
           tmpargument = LATCHRIGHT		      // Right Attack == 2
-          PressLatchButton			      //
+          PressLatchButton
       
-      //Keep within 6 tiles distance of enemy or player
-      tmpx = targetdistance
-      tmpy = 128*6                
-      IfXIsMoreThanY                
-        tmpargument = 0
-        SetState
-        
+      //Keep within 6 tiles distance of the player        
       tmpx = leaderdistance
+      tmpy = 128*6
       IfXIsMoreThanY
         tmpx = targetdistance
         tmpy = 200            //Only retreat if not in close combat
         IfXIsMoreThanY
-          tmpargument = 0
+          tmpargument = STATEFOLLOW
           SetState
       
       //Special movement in case its the jelly cube
@@ -130,57 +159,61 @@ IfTimeOut				// This is done every so often
         IfTargetHoldingItemID
           tmpdistance = 200         //Go save the humanoid who is trapped inside!
         Else
-          tmpdistance = -300     //Keep away from the gelfeet
+          tmpdistance = -400     //Keep away from the gelfeet
       Else
         tmpdistance = 200			//Else move in to attack
         
       // Move towards enemy (tmpdistance is calculated above)
-      tmpx = targetx			    
-      tmpy = targety			    //
-      tmpturn = targetturnto		    //
-      Compass				    //
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = targetturnto
+      Compass
       ClearWaypoints			  //
       AddWaypoint				  //
 
     //No enemies around
     Else
-      tmpargument = 0
+      tmpargument = STATEFOLLOW
       SetState
       
+//------------------------------------------------------------------------------
 // Use shield?
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
-    IfFacingTarget
-      tmpargument = LATCHLEFT
-      PressLatchButton
+    IfHoldingShield
+      IfFacingTarget
+        PressLatchButton
 
+//------------------------------------------------------------------------------
 IfBumped				// Bumped
   SetTargetToWhoeverBumped
   IfTargetIsAlive
     IfTargetIsOnHatedTeam			  // Try to counter
-      tmpargument = LATCHRIGHT		    //
-      PressLatchButton			    //
-    Else					  // Get around other character
-      SetTargetToNearbyEnemy		    // Look out for enemies
-        tmpargument = 1			      // Stay in combat state
-      Else				    // Revert
-        tmpargument = 0			    // Return to follow state
-        SetTargetToOldTarget		      //
-      SetState				    //
-      tmpx = rand & 511 + selfx - 256		    //
-      tmpy = rand & 511 + selfy - 256		    //
-      ClearWaypoints			    //
-      AddWaypoint				    //
-      tmpargument = 40			    // Try again soon
-      SetTime				    //
+      tmpargument = LATCHRIGHT
+      PressLatchButton
+    Else					  
+    
+      //Get around other character
+      tmpargument = STATECOMBAT
+      IfStateIsNot
+        tmpx = rand & 511 + selfx - 256
+        tmpy = rand & 511 + selfy - 256
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 40			    // Try again soon
+        SetTime
   
   //Jump over bodies
   Else
     tmpargument = LATCHJUMP
     PressLatchButton
     
+//------------------------------------------------------------------------------
 // Ya!  Unarmed attack sound
 IfUsed
   tmpargument = 7
   PlaySound
+  
+//------------------------------------------------------------------------------
 End					// Finished with this character
+//------------------------------------------------------------------------------

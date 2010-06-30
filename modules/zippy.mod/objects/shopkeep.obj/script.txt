@@ -1,11 +1,15 @@
 // Get mean if characters wanna be bad
 IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    tmpargument = TEAME       //Team EVIL
+    TargetJoinTeam
   CallForHelp
-  tmpargument = TEAME       //Team EVIL
-  TargetJoinTeam
 IfKilled
-  tmpargument = TEAME       //Team EVIL
-  TargetJoinTeam
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    tmpargument = TEAME       //Team EVIL
+    TargetJoinTeam
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
   tmpargument = TEAME       //Team EVIL

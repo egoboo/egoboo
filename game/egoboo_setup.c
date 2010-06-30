@@ -246,7 +246,6 @@ bool_t setup_download( egoboo_config_t * pcfg )
 
     // Do fullscreen?
     GetKey_bool( "FULLSCREEN", pcfg->fullscreen_req, cfg_default.fullscreen_req );
-    log_info( "fullscreen %s\n", pcfg->fullscreen_req ? "TRUE" : "FALSE" );
 
     // Screen Size
     GetKey_int( "SCREENSIZE_X", pcfg->scrx_req, cfg_default.scrx_req );

@@ -3373,16 +3373,19 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 
                     pchr->life -= actual_damage;
 
-                    if ( base_damage > HURTDAMAGE )
+					// Spawn blud particles
+                    if ( pcap->blud_valid )
                     {
-                        // Spawn blud particles
-                        if ( pcap->blud_valid && ( damagetype < DAMAGE_HOLY || pcap->blud_valid == ULTRABLUDY ) )
+                        if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && damagetype < DAMAGE_HOLY ) )
                         {
                             spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->iprofile, pcap->blud_pip,
                                                 ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
                         }
+					}
 
-                        // Set attack alert if it wasn't an accident
+                    // Set attack alert if it wasn't an accident
+                    if ( base_damage > HURTDAMAGE )
+                    {
                         if ( team == TEAM_DAMAGE )
                         {
                             pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
@@ -3424,50 +3427,52 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                         }
                     }
                 }
-            }
+            
+				/// @test spawn a fly-away damage indicator?
+				if ( cfg.feedback != FEEDBACK_OFF && attacker != character && INGAME_CHR( attacker ) )
+				{
+					const char * tmpstr;
+					int rank;
+					const float lifetime = 3;
+					billboard_data_t * pbb;
+					STRING text_buffer = EMPTY_CSTR;
+					SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-            /// @test spawn a fly-away damage indicator?
-            if ( cfg.feedback != FEEDBACK_OFF && attacker != character && INGAME_CHR( attacker ) )
-            {
-                const char * tmpstr;
-                int rank;
-                const float lifetime = 3;
-                billboard_data_t * pbb;
-                STRING text_buffer = EMPTY_CSTR;
-                SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
+					/*tmpstr = describe_value( actual_damage, 10 * 256, &rank );
+					if ( rank < 4 )
+					{
+						tmpstr = describe_damage( actual_damage, pchr->lifemax, &rank );
+						if ( rank >= -1 && rank <= 0 )
+						{
+							tmpstr = NULL;
+						}
+					}*/
 
-                tmpstr = describe_value( actual_damage, 10 * 256, &rank );
-                if ( rank < 4 )
-                {
-                    tmpstr = describe_damage( actual_damage, pchr->lifemax, &rank );
-                    if ( rank >= -1 && rank <= 0 )
-                    {
-                        tmpstr = NULL;
-                    }
-                }
+					tmpstr = describe_wounds( pchr->lifemax, pchr->life );
 
-                if ( NULL != tmpstr )
-                {
-                    snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
+					if ( NULL != tmpstr )
+					{
+						snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
 
-                    pbb = chr_make_text_billboard( character, text_buffer, color, lifetime );
-                    if ( NULL != pbb )
-                    {
-                        // damage == red
-                        pbb->tint[GG] = pbb->tint[BB] = 0.75f;
-                        pbb->tint_add[GG] = pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
-                        pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
+						pbb = chr_make_text_billboard( character, text_buffer, color, lifetime );
+						if ( NULL != pbb )
+						{
+							// damage == red
+							pbb->tint[GG] = pbb->tint[BB] = 0.75f;
+							pbb->tint_add[GG] = pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
+							pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
 
-                        pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-                        pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-                        pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+							pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+							pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+							pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
 
-                        pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
-                        pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
-                        pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
-                    }
-                }
-            }
+							pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
+							pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
+							pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
+						}
+					}
+				}
+			}
         }
         else if ( actual_damage < 0 )
         {
@@ -4320,6 +4325,13 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
 
     // actually force the character to spawn
     chr_config_activate( pchr, 100 );
+
+#ifdef DEBUG_OBJECT_SPAWN
+	{
+		CAP_REF icap = pro_get_icap( profile );
+		log_debug("spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( ichr ), name, CapStack.lst[icap].classname);
+	}
+#endif
 
     return ichr;
 }
@@ -7591,7 +7603,7 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
     *rank_ptr = -5;
     strcpy( retval, "Unknown" );
 
-    if ( fval >= .83 ) { strcpy( retval, "Godlike!" );   *rank_ptr =  8; }
+    if ( fval >= .83 )		{ strcpy( retval, "Godlike!" );   *rank_ptr =  8; }
     else if ( fval >= .66 ) { strcpy( retval, "Ultimate" );   *rank_ptr =  7; }
     else if ( fval >= .56 ) { strcpy( retval, "Epic" );       *rank_ptr =  6; }
     else if ( fval >= .50 ) { strcpy( retval, "Powerful" );   *rank_ptr =  5; }
@@ -7603,7 +7615,7 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
     else if ( fval >= .11 ) { strcpy( retval, "Pretty Low" ); *rank_ptr = -1; }
     else if ( fval >= .07 ) { strcpy( retval, "Bad" );        *rank_ptr = -2; }
     else if ( fval >  .00 ) { strcpy( retval, "Terrible" );   *rank_ptr = -3; }
-    else                   { strcpy( retval, "None" );       *rank_ptr = -4; }
+    else                    { strcpy( retval, "None" );       *rank_ptr = -4; }
 
     return retval;
 }
@@ -7631,15 +7643,54 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     *rank_ptr = -5;
     strcpy( retval, "Unknown" );
 
-    if ( fval >= 1.50 ) { strcpy( retval, "Max Overkill!" ); *rank_ptr =  4; }
-    else if ( fval >= 1.00 ) { strcpy( retval, "Overkill!" );     *rank_ptr =  3; }
-    else if ( fval >= 0.80 ) { strcpy( retval, "Crippling" );     *rank_ptr =  2; }
+    if ( fval >= 1.50 )		 { strcpy( retval, "Annihilation!" ); *rank_ptr =  5; }
+    else if ( fval >= 1.00 ) { strcpy( retval, "Overkill!" );     *rank_ptr =  4; }
+    else if ( fval >= 0.80 ) { strcpy( retval, "Deadly" );        *rank_ptr =  3; }
+    else if ( fval >= 0.70 ) { strcpy( retval, "Crippling" );     *rank_ptr =  2; }
     else if ( fval >= 0.50 ) { strcpy( retval, "Devastating" );   *rank_ptr =  1; }
     else if ( fval >= 0.25 ) { strcpy( retval, "Hurtful" );       *rank_ptr =  0; }
     else if ( fval >= 0.10 ) { strcpy( retval, "A Scratch" );     *rank_ptr = -1; }
     else if ( fval >= 0.05 ) { strcpy( retval, "Ticklish" );      *rank_ptr = -2; }
     else if ( fval >= 0.00 ) { strcpy( retval, "Fumble!" );       *rank_ptr = -3; }
 
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+const char* describe_wounds( float max, float current )
+{
+    /// @details ZF@> This tells us how badly someone is injured
+
+    static STRING retval;
+	float fval;
+
+	//Is it already dead?
+	if( current <= 0 )
+	{
+		strcpy( retval, "Dead!" );
+		return retval;
+	}
+
+	//Calculate the percentage
+	if( max == 0 ) return NULL;
+	fval = (current/ max) * 100;
+
+    if ( cfg.feedback == FEEDBACK_NUMBER )
+    {
+        snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( current ) );
+        return retval;
+    }
+
+    strcpy( retval, "Uninjured" );
+    if	( fval <= 5  )			strcpy( retval, "Almost Dead!" );
+    else if ( fval <= 10 )	    strcpy( retval, "Near Death" );
+    else if ( fval <= 25 )	    strcpy( retval, "Mortally Wounded" );
+    else if ( fval <= 40 )		strcpy( retval, "Badly Wounded" );
+    else if ( fval <= 60 )		strcpy( retval, "Injured" );
+    else if ( fval <= 75 )		strcpy( retval, "Hurt" );
+    else if ( fval <= 90 )		strcpy( retval, "Bruised" );
+	else if ( fval < 100 )		strcpy( retval, "Scratched" );
+    
     return retval;
 }
 
