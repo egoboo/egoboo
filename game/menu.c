@@ -2954,7 +2954,29 @@ int doVideoOptions( float deltaTime )
 {
     /// @details Video options menu
 
-    static int menuState = MM_Begin;
+	enum
+	{
+		but_antialiasing =  0,  // Antialaising
+		but_unused           ,	// Unused button
+		but_dither           ,	// Fast & ugly
+		but_fullscreen       ,	// Fullscreen
+		but_reflections      ,	// Reflections
+		but_filtering        ,	// Texture filtering
+		but_shadow           ,	// Shadows
+		but_zbuffer          ,	// Z bit
+		but_maxlights        ,	// Fog
+		but_3dfx             ,	// 3D effects
+		but_multiwater       ,	// Multi water layer
+		but_widescreen       ,	// Widescreen
+		but_screensize       ,	// Screen resolution
+		but_save             ,	
+		but_maxparticles 	 ,  // Max particles
+		but_end,
+
+		but_last
+	};
+	
+	static int menuState = MM_Begin;
     static oglx_texture_t background;
     static int    menuChoice = 0;
     static STRING Cantialiasing;
@@ -2967,31 +2989,18 @@ int doVideoOptions( float deltaTime )
     static float  aspect_ratio;
     static STRING sz_screen_size;
 
-    static const char *sz_buttons[] =
-    {
-        "N/A",    // Antialaising
-        "NOT_USED",    // Unused button
-        "N/A",    // Fast & ugly
-        "N/A",    // Fullscreen
-        "N/A",    // Reflections
-        "N/A",    // Texture filtering
-        "N/A",    // Shadows
-        "N/A",    // Z bit
-        "N/A",    // Fog
-        "N/A",    // 3D effects
-        "N/A",    // Multi water layer
-        "N/A",    // Widescreen
-        "N/A",    // Screen resolution
-        "Save Settings",
-        "N/A",    // Max particles
-        ""
-    };
+    static const char *sz_buttons[but_last];
 
-    int result = 0;
+	int cnt, result = 0;
 
     switch ( menuState )
     {
         case MM_Begin:
+
+			// set up the button text
+			for ( cnt = 0; cnt <but_last; cnt++ ) sz_buttons[cnt] = "N/A";
+			sz_buttons[but_end] = "";
+
             // set up menu variables
             ego_texture_load_vfs( &background, "mp_data/menu/menu_video", TRANSCOLOR );
 
@@ -3017,88 +3026,88 @@ int doVideoOptions( float deltaTime )
             // Load all the current video settings
             if ( cfg.multisamples == 0 ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
             else snprintf( Cantialiasing, SDL_arraysize( Cantialiasing ), "X%i", cfg.multisamples );
-            sz_buttons[0] = Cantialiasing;
+            sz_buttons[but_antialiasing] = Cantialiasing;
 
             // Texture filtering
             switch ( cfg.texturefilter_req )
             {
                 case TX_UNFILTERED:
-                    sz_buttons[5] = "Unfiltered";
+                    sz_buttons[but_filtering] = "Unfiltered";
                     break;
                 case TX_LINEAR:
-                    sz_buttons[5] = "Linear";
+                    sz_buttons[but_filtering] = "Linear";
                     break;
                 case TX_MIPMAP:
-                    sz_buttons[5] = "Mipmap";
+                    sz_buttons[but_filtering] = "Mipmap";
                     break;
                 case TX_BILINEAR:
-                    sz_buttons[5] = "Bilinear";
+                    sz_buttons[but_filtering] = "Bilinear";
                     break;
                 case TX_TRILINEAR_1:
-                    sz_buttons[5] = "Trilinear 1";
+                    sz_buttons[but_filtering] = "Trilinear 1";
                     break;
                 case TX_TRILINEAR_2:
-                    sz_buttons[5] = "Trilinear 2";
+                    sz_buttons[but_filtering] = "Trilinear 2";
                     break;
                 case TX_ANISOTROPIC:
-                    sz_buttons[5] = "Ansiotropic";
+                    sz_buttons[but_filtering] = "Ansiotropic";
                     break;
                 default:                  // Set to defaults
-                    sz_buttons[5] = "Linear";
+                    sz_buttons[but_filtering] = "Linear";
                     cfg.texturefilter_req = TX_LINEAR;
                     break;
             }
 
-            sz_buttons[2] = cfg.use_dither ? "Yes" : "No";
+            sz_buttons[but_dither] = cfg.use_dither ? "Yes" : "No";
 
-            sz_buttons[3] = cfg.fullscreen_req ? "True" : "False";
+            sz_buttons[but_fullscreen] = cfg.fullscreen_req ? "True" : "False";
 
             if ( cfg.reflect_allowed )
             {
-                sz_buttons[4] = "Low";
+                sz_buttons[but_reflections] = "Low";
                 if ( cfg.reflect_prt )
                 {
-                    sz_buttons[4] = "Medium";
+                    sz_buttons[but_reflections] = "Medium";
                     if ( cfg.reflect_fade == 0 )
                     {
-                        sz_buttons[4] = "High";
+                        sz_buttons[but_reflections] = "High";
                     }
                 }
             }
             else
             {
-                sz_buttons[4] = "Off";
+                sz_buttons[but_reflections] = "Off";
             }
 
             if ( cfg.shadow_allowed )
             {
-                sz_buttons[6] = "Normal";
+                sz_buttons[but_shadow] = "Normal";
                 if ( !cfg.shadow_sprite )
                 {
-                    sz_buttons[6] = "Best";
+                    sz_buttons[but_shadow] = "Best";
                 }
             }
-            else sz_buttons[6] = "Off";
+            else sz_buttons[but_shadow] = "Off";
 
             if ( cfg.scrz_req != 32 && cfg.scrz_req != 16 && cfg.scrz_req != 24 )
             {
                 cfg.scrz_req = 16;              // Set to default
             }
             snprintf( Cscrz, SDL_arraysize( Cscrz ), "%i", cfg.scrz_req );     // Convert the integer to a char we can use
-            sz_buttons[7] = Cscrz;
+            sz_buttons[but_zbuffer] = Cscrz;
 
             snprintf( Cmaxlights, SDL_arraysize( Cmaxlights ), "%i", cfg.dyna_count_req );
-            sz_buttons[8] = Cmaxlights;
+            sz_buttons[but_maxlights] = Cmaxlights;
 
             if ( cfg.use_phong )
             {
-                sz_buttons[9] = "Okay";
+                sz_buttons[but_3dfx] = "Okay";
                 if ( cfg.overlay_allowed && cfg.background_allowed )
                 {
-                    sz_buttons[9] = "Good";
+                    sz_buttons[but_3dfx] = "Good";
                     if ( cfg.use_perspective )
                     {
-                        sz_buttons[9] = "Superb";
+                        sz_buttons[but_3dfx] = "Superb";
                     }
                 }
                 else                            // Set to defaults
@@ -3106,7 +3115,7 @@ int doVideoOptions( float deltaTime )
                     cfg.use_perspective    = bfalse;
                     cfg.background_allowed = bfalse;
                     cfg.overlay_allowed    = bfalse;
-                    sz_buttons[9] = "Off";
+                    sz_buttons[but_3dfx] = "Off";
                 }
             }
             else                              // Set to defaults
@@ -3114,19 +3123,19 @@ int doVideoOptions( float deltaTime )
                 cfg.use_perspective    = bfalse;
                 cfg.background_allowed = bfalse;
                 cfg.overlay_allowed    = bfalse;
-                sz_buttons[9] = "Off";
+                sz_buttons[but_3dfx] = "Off";
             }
 
-            if ( cfg.twolayerwater_allowed ) sz_buttons[10] = "On";
-            else sz_buttons[10] = "Off";
+            if ( cfg.twolayerwater_allowed ) sz_buttons[but_multiwater] = "On";
+            else sz_buttons[but_multiwater] = "Off";
 
             snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i", cfg.particle_count_req );     // Convert the integer to a char we can use
-            sz_buttons[14] = Cmaxparticles;
+            sz_buttons[but_maxparticles] = Cmaxparticles;
 
             if ( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
             {
                 doVideoOptions_fix_fullscreen_resolution( &cfg, &sdl_scr, &sz_screen_size );
-                sz_buttons[12] = sz_screen_size;
+                sz_buttons[but_screensize] = sz_screen_size;
 
                 aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
                 widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
@@ -3134,14 +3143,14 @@ int doVideoOptions( float deltaTime )
             else
             {
                 snprintf( sz_screen_size, sizeof( sz_screen_size ), "%dx%d", cfg.scrx_req, cfg.scry_req );
-                sz_buttons[12] = sz_screen_size;
+                sz_buttons[but_screensize] = sz_screen_size;
 
                 aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
                 widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
             }
 
-            if ( widescreen ) sz_buttons[11] = "X";
-            else             sz_buttons[11] = " ";
+            if ( widescreen ) sz_buttons[but_widescreen] = "X";
+            else             sz_buttons[but_widescreen] = " ";
 
             menuState = MM_Running;
             break;
@@ -3158,7 +3167,7 @@ int doVideoOptions( float deltaTime )
 
             // Antialiasing Button
             ui_drawTextBox( menuFont, "Antialiasing:", buttonLeft, GFX_HEIGHT - 215, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, GFX_HEIGHT - 215, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 1, sz_buttons[but_antialiasing], menuFont, buttonLeft + 150, GFX_HEIGHT - 215, 100, 30 ) )
             {
                 // make the multi-sampling even
 
@@ -3177,29 +3186,29 @@ int doVideoOptions( float deltaTime )
                 if ( cfg.multisamples == 0 ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
                 else snprintf( Cantialiasing, SDL_arraysize( Cantialiasing ), "X%i", cfg.multisamples );
 
-                sz_buttons[0] = Cantialiasing;
+                sz_buttons[but_antialiasing] = Cantialiasing;
             }
 
             // Dithering
             ui_drawTextBox( menuFont, "Dithering:", buttonLeft, GFX_HEIGHT - 145, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 3, sz_buttons[2], menuFont, buttonLeft + 150, GFX_HEIGHT - 145, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 3, sz_buttons[but_dither], menuFont, buttonLeft + 150, GFX_HEIGHT - 145, 100, 30 ) )
             {
                 cfg.use_dither = !cfg.use_dither;
-                sz_buttons[2] = cfg.use_dither ? "Yes" : "No";
+                sz_buttons[but_dither] = cfg.use_dither ? "Yes" : "No";
             }
 
             // Fullscreen
             ui_drawTextBox( menuFont, "Fullscreen:", buttonLeft, GFX_HEIGHT - 110, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 4, sz_buttons[3], menuFont, buttonLeft + 150, GFX_HEIGHT - 110, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 4, sz_buttons[but_fullscreen], menuFont, buttonLeft + 150, GFX_HEIGHT - 110, 100, 30 ) )
             {
                 cfg.fullscreen_req = !cfg.fullscreen_req;
 
-                sz_buttons[3] = cfg.fullscreen_req ? "True" : "False";
+                sz_buttons[but_fullscreen] = cfg.fullscreen_req ? "True" : "False";
             }
 
             // Reflection
             ui_drawTextBox( menuFont, "Reflections:", buttonLeft, GFX_HEIGHT - 250, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 5, sz_buttons[4], menuFont, buttonLeft + 150, GFX_HEIGHT - 250, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 5, sz_buttons[but_reflections], menuFont, buttonLeft + 150, GFX_HEIGHT - 250, 100, 30 ) )
             {
 
                 if ( cfg.reflect_allowed && cfg.reflect_fade == 0 && cfg.reflect_prt )
@@ -3207,13 +3216,13 @@ int doVideoOptions( float deltaTime )
                     cfg.reflect_allowed = bfalse;
                     cfg.reflect_fade = 255;
                     cfg.reflect_prt = bfalse;
-                    sz_buttons[4] = "Off";
+                    sz_buttons[but_reflections] = "Off";
                 }
                 else
                 {
                     if ( cfg.reflect_allowed && !cfg.reflect_prt )
                     {
-                        sz_buttons[4] = "Medium";
+                        sz_buttons[but_reflections] = "Medium";
                         cfg.reflect_fade = 255;
                         cfg.reflect_prt = btrue;
                     }
@@ -3221,14 +3230,14 @@ int doVideoOptions( float deltaTime )
                     {
                         if ( cfg.reflect_allowed && cfg.reflect_fade == 255 && cfg.reflect_prt )
                         {
-                            sz_buttons[4] = "High";
+                            sz_buttons[but_reflections] = "High";
                             cfg.reflect_fade = 0;
                         }
                         else
                         {
                             cfg.reflect_allowed = btrue;
                             cfg.reflect_fade = 255;
-                            sz_buttons[4] = "Low";
+                            sz_buttons[but_reflections] = "Low";
                             cfg.reflect_prt = bfalse;
                         }
                     }
@@ -3237,7 +3246,7 @@ int doVideoOptions( float deltaTime )
 
             // Texture Filtering
             ui_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, GFX_HEIGHT - 285, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 6, sz_buttons[5], menuFont, buttonLeft + 150, GFX_HEIGHT - 285, 130, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 6, sz_buttons[but_filtering], menuFont, buttonLeft + 150, GFX_HEIGHT - 285, 130, 30 ) )
             {
                 if ( cfg.texturefilter_req < TX_UNFILTERED )
                 {
@@ -3257,69 +3266,69 @@ int doVideoOptions( float deltaTime )
                 {
 
                     case TX_UNFILTERED:
-                        sz_buttons[5] = "Unfiltered";
+                        sz_buttons[but_filtering] = "Unfiltered";
                         break;
 
                     case TX_LINEAR:
-                        sz_buttons[5] = "Linear";
+                        sz_buttons[but_filtering] = "Linear";
                         break;
 
                     case TX_MIPMAP:
-                        sz_buttons[5] = "Mipmap";
+                        sz_buttons[but_filtering] = "Mipmap";
                         break;
 
                     case TX_BILINEAR:
-                        sz_buttons[5] = "Bilinear";
+                        sz_buttons[but_filtering] = "Bilinear";
                         break;
 
                     case TX_TRILINEAR_1:
-                        sz_buttons[5] = "Trilinear 1";
+                        sz_buttons[but_filtering] = "Trilinear 1";
                         break;
 
                     case TX_TRILINEAR_2:
-                        sz_buttons[5] = "Trilinear 2";
+                        sz_buttons[but_filtering] = "Trilinear 2";
                         break;
 
                     case TX_ANISOTROPIC:
-                        sz_buttons[5] = "Anisotropic";
+                        sz_buttons[but_filtering] = "Anisotropic";
                         break;
 
                     default:
                         cfg.texturefilter_req = TX_UNFILTERED;
-                        sz_buttons[5] = "Unfiltered";
+                        sz_buttons[but_filtering] = "Unfiltered";
                         break;
                 }
             }
 
             // Shadows
             ui_drawTextBox( menuFont, "Shadows:", buttonLeft, GFX_HEIGHT - 320, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft + 150, GFX_HEIGHT - 320, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 7, sz_buttons[but_shadow], menuFont, buttonLeft + 150, GFX_HEIGHT - 320, 100, 30 ) )
             {
                 if ( cfg.shadow_allowed && !cfg.shadow_sprite )
                 {
                     cfg.shadow_allowed = bfalse;
                     cfg.shadow_sprite = bfalse;                // Just in case
-                    sz_buttons[6] = "Off";
+                    sz_buttons[but_shadow] = "Off";
                 }
                 else
                 {
                     if ( cfg.shadow_allowed && cfg.shadow_sprite )
                     {
-                        sz_buttons[6] = "Best";
+                        sz_buttons[but_shadow] = "Best";
                         cfg.shadow_sprite = bfalse;
                     }
                     else
                     {
                         cfg.shadow_allowed = btrue;
                         cfg.shadow_sprite = btrue;
-                        sz_buttons[6] = "Normal";
+                        sz_buttons[but_shadow] = "Normal";
                     }
                 }
             }
 
             // Z bit
             ui_drawTextBox( menuFont, "Z Bit:", buttonLeft + 300, GFX_HEIGHT - 320, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 8, sz_buttons[7], menuFont, buttonLeft + 450, GFX_HEIGHT - 320, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 8, sz_buttons[but_zbuffer], menuFont, buttonLeft + 450, GFX_HEIGHT - 320, 100, 30 ) )
             {
                 if ( cfg.scrz_req < 0 )
                 {
@@ -3333,12 +3342,12 @@ int doVideoOptions( float deltaTime )
                 if ( cfg.scrz_req > 32 ) cfg.scrz_req = 8;
 
                 snprintf( Cscrz, SDL_arraysize( Cscrz ), "%d", cfg.scrz_req );
-                sz_buttons[7] = Cscrz;
+                sz_buttons[but_zbuffer] = Cscrz;
             }
 
             // Max dynamic lights
             ui_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, GFX_HEIGHT - 285, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 9, sz_buttons[8], menuFont, buttonLeft + 450, GFX_HEIGHT - 285, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 9, sz_buttons[but_maxlights], menuFont, buttonLeft + 450, GFX_HEIGHT - 285, 100, 30 ) )
             {
                 if ( cfg.dyna_count_req < 8 )
                 {
@@ -3355,12 +3364,12 @@ int doVideoOptions( float deltaTime )
                 }
 
                 snprintf( Cmaxdyna, SDL_arraysize( Cmaxdyna ), "%d", cfg.dyna_count_req );
-                sz_buttons[8] = Cmaxdyna;
+                sz_buttons[but_maxlights] = Cmaxdyna;
             }
 
             // Perspective correction, overlay, underlay and phong mapping
             ui_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, GFX_HEIGHT - 250, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 10, sz_buttons[9], menuFont, buttonLeft + 450, GFX_HEIGHT - 250, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 10, sz_buttons[but_3dfx], menuFont, buttonLeft + 450, GFX_HEIGHT - 250, 100, 30 ) )
             {
                 if ( cfg.use_phong && cfg.use_perspective && cfg.overlay_allowed && cfg.background_allowed )
                 {
@@ -3368,27 +3377,27 @@ int doVideoOptions( float deltaTime )
                     cfg.use_perspective    = bfalse;
                     cfg.overlay_allowed    = bfalse;
                     cfg.background_allowed = bfalse;
-                    sz_buttons[9] = "Off";
+                    sz_buttons[but_3dfx] = "Off";
                 }
                 else
                 {
                     if ( !cfg.use_phong )
                     {
-                        sz_buttons[9] = "Okay";
+                        sz_buttons[but_3dfx] = "Okay";
                         cfg.use_phong = btrue;
                     }
                     else
                     {
                         if ( !cfg.use_perspective && cfg.overlay_allowed && cfg.background_allowed )
                         {
-                            sz_buttons[9] = "Superb";
+                            sz_buttons[but_3dfx] = "Superb";
                             cfg.use_perspective = btrue;
                         }
                         else
                         {
                             cfg.overlay_allowed = btrue;
                             cfg.background_allowed = btrue;
-                            sz_buttons[9] = "Good";
+                            sz_buttons[but_3dfx] = "Good";
                         }
                     }
                 }
@@ -3396,16 +3405,16 @@ int doVideoOptions( float deltaTime )
 
             // Water Quality
             ui_drawTextBox( menuFont, "Good Water:", buttonLeft + 300, GFX_HEIGHT - 215, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 11, sz_buttons[10], menuFont, buttonLeft + 450, GFX_HEIGHT - 215, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 11, sz_buttons[but_multiwater], menuFont, buttonLeft + 450, GFX_HEIGHT - 215, 100, 30 ) )
             {
                 if ( cfg.twolayerwater_allowed )
                 {
-                    sz_buttons[10] = "Off";
+                    sz_buttons[but_multiwater] = "Off";
                     cfg.twolayerwater_allowed = bfalse;
                 }
                 else
                 {
-                    sz_buttons[10] = "On";
+                    sz_buttons[but_multiwater] = "On";
                     cfg.twolayerwater_allowed = btrue;
                 }
             }
@@ -3418,7 +3427,7 @@ int doVideoOptions( float deltaTime )
                 snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i (%i currently used)", maxparticles, maxparticles - prt_count_free() );
                 ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
             }
-            else if ( BUTTON_UP == ui_doButton( 15, sz_buttons[14], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )
+            else if ( BUTTON_UP == ui_doButton( 15, sz_buttons[but_maxparticles], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )
             {
                 if ( cfg.particle_count_req < 256 )
                 {
@@ -3432,81 +3441,93 @@ int doVideoOptions( float deltaTime )
                 if ( cfg.particle_count_req > TOTAL_MAX_PRT ) cfg.particle_count_req = 256;
 
                 snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i", cfg.particle_count_req );  // Convert integer to a char we can use
-                sz_buttons[14] =  Cmaxparticles;
+                sz_buttons[but_maxparticles] =  Cmaxparticles;
             }
 
             // Widescreen
             ui_drawTextBox( menuFont, "Widescreen:", buttonLeft + 300, GFX_HEIGHT - 70, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 12, sz_buttons[11], menuFont, buttonLeft + 450, GFX_HEIGHT - 70, 25, 25 ) )
+            if ( BUTTON_UP == ui_doButton( 12, sz_buttons[but_widescreen], menuFont, buttonLeft + 450, GFX_HEIGHT - 70, 25, 25 ) )
             {
+				bool_t old_widescreen = widescreen;
+
+				// toggle widescreen
                 widescreen = !widescreen;
-                if ( !widescreen )
+
+                if ( old_widescreen )
                 {
-                    sz_buttons[11] = " ";
+					// switch the display from widescreen to non-widescreen
+                    sz_buttons[but_widescreen] = " ";
 
                     // Set to default non-widescreen resolution
-                    cfg.scrx_req = 640;
-                    cfg.scry_req = 480;
-                    sz_buttons[12] = "640x480";
+                    cfg.scrx_req = 800;
+                    cfg.scry_req = 600;
+                    sz_buttons[but_screensize] = "800x600";
                 }
                 else
                 {
-                    sz_buttons[11] = "X";
+					// switch the display from non-widescreen to widescreen
+                    sz_buttons[but_widescreen] = "X";
 
-                    // Set to default widescreen resolution
-                    cfg.scrx_req = 1280;
-                    cfg.scry_req = 800;
-                    sz_buttons[12] = "1280x800";
+                    // Set to "default" widescreen resolution
+                    cfg.scrx_req = 960;
+                    cfg.scry_req = 600;
+                    sz_buttons[but_screensize] = "960x600";
                 }
             }
 
             // Screen Resolution
             ui_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, GFX_HEIGHT - 110, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 13, sz_buttons[12], menuFont, buttonLeft + 450, GFX_HEIGHT - 110, 125, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 13, sz_buttons[but_screensize], menuFont, buttonLeft + 450, GFX_HEIGHT - 110, 125, 30 ) )
             {
                 float req_area;
 
-                cfg.scrx_req *= 1.2f;
-                cfg.scry_req *= 1.2f;
+                cfg.scrx_req *= 1.1f;
+                cfg.scry_req *= 1.1f;
 
                 req_area = cfg.scrx_req * cfg.scry_req;
 
+				// use 1920x1200 as a kind of max resolution
                 if ( req_area > 1920 * 1200 )
                 {
-                    if ( cfg.scrx_req * 3 > cfg.scry_req * 4 )
+					// reset the screen size to the minimum
+                    if ( widescreen )
                     {
                         // "default" widescreen
                         cfg.scrx_req = 960;
-                        cfg.scrx_req = 600;
+                        cfg.scry_req = 600;
                     }
                     else
                     {
                         // "default"
                         cfg.scrx_req = 800;
-                        cfg.scrx_req = 600;
+                        cfg.scry_req = 600;
                     }
                 }
 
-                if ( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
+				if ( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
                 {
+					// coerce the screen size to a valid fullscreen mode
                     doVideoOptions_fix_fullscreen_resolution( &cfg, &sdl_scr, &sz_screen_size );
                 }
                 else
                 {
+					// just accept whatever we are given
                     snprintf( sz_screen_size, sizeof( sz_screen_size ), "%dx%d", cfg.scrx_req, cfg.scry_req );
                 }
 
-                sz_buttons[12] = sz_screen_size;
+                sz_buttons[but_screensize] = sz_screen_size;
 
                 aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
-                widescreen = ( aspect_ratio > ( 4.0f / 3.0f ) );
 
-                if ( widescreen ) sz_buttons[11] = "X";
-                else              sz_buttons[11] = " ";
+				// 1.539 is "half way" between normal aspect ratio (4/3) and anamorphic (16/9)
+                widescreen = ( aspect_ratio > ( 1.539f ) );
+
+                if ( widescreen ) sz_buttons[but_widescreen] = "X";
+                else              sz_buttons[but_widescreen] = " ";
             }
 
             // Save settings button
-            if ( BUTTON_UP == ui_doButton( 14, sz_buttons[13], NULL, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 14, "Save Settings", NULL, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 menuChoice = 1;
 
