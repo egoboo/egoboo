@@ -2175,14 +2175,14 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
 			for ( cnt = 0; cnt < grab_count; cnt++ )
 			{
 				ichr_b = grab_list[cnt].ichr;
-				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, 5 );
+				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, 5, bfalse );
 			}
 
 			// things that can't be grabbed (5 secs and red)
 			for ( cnt = 0; cnt < ungrab_count; cnt++ )
 			{
 				ichr_b = ungrab_list[cnt].ichr;
-				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, 5 );
+				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, 5, bfalse );
 			}
 		}
 
@@ -3071,16 +3071,27 @@ CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_overr
 bool_t heal_character( const CHR_REF by_reference character, const CHR_REF by_reference healer, int amount, bool_t ignore_invictus )
 {
 	/// @details ZF@> This function gives some pure life points to the target, ignoring any resistances and so forth
+	chr_t * pchr, *pchr_h;
 
-	if ( !INGAME_CHR( character ) || !ChrList.lst[character].alive || ( ChrList.lst[character].invictus && !ignore_invictus ) ) return bfalse;
+	//Setup the healed character
+	if ( !INGAME_CHR( character ) ) return bfalse;
+	pchr = ChrList.lst + character;
 
-	ChrList.lst[character].life = CLIP( ChrList.lst[character].life, ChrList.lst[character].life + ABS( amount ), ChrList.lst[character].lifemax );
+	//Setup the healer
+	if ( !INGAME_CHR( healer ) ) return bfalse;
+	pchr_h = ChrList.lst + healer;
+	
+	//Don't heal dead and invincible stuff
+	if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return bfalse;
 
-	// Dont alert that we healed ourselves
-	if ( healer != character && ChrList.lst[healer].attachedto != character && ABS( amount ) > HURTDAMAGE )
+	//This actually heals the character
+	pchr->life = CLIP( pchr->life, pchr->life + ABS( amount ), pchr->lifemax );
+
+	// Set alerts, but don't alert that we healed ourselves
+	if ( healer != character && pchr_h->attachedto != character && ABS( amount ) > HURTDAMAGE )
 	{
-		chr_get_pai( character )->alert |= ALERTIF_HEALED;
-		chr_get_pai( character )->attacklast = healer;
+		pchr->ai.alert |= ALERTIF_HEALED;
+		pchr->ai.attacklast = healer;
 	}
 
 	return btrue;
@@ -3469,10 +3480,8 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 				{
 					const char * tmpstr;
 					int rank;
-					const float lifetime = 3;
-					billboard_data_t * pbb;
-					STRING text_buffer = EMPTY_CSTR;
-					SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
+					
+					tmpstr = describe_wounds( pchr->lifemax, pchr->life );
 
 					tmpstr = describe_value( actual_damage, INT_TO_FP8(10), &rank );
 					if ( rank < 4 )
@@ -3492,12 +3501,17 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 						}
 					}
 
-
-					if ( NULL != tmpstr )
+					if( NULL != tmpstr )
 					{
+						const float lifetime = 3;
+						STRING text_buffer = EMPTY_CSTR;
+						SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
+						billboard_data_t * pbb;
+	
+						//Create a buffer
 						snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
 
-						pbb = chr_make_text_billboard( character, text_buffer, color, lifetime );
+						pbb = chr_make_text_billboard( character, text_buffer, color, lifetime, btrue );
 						if ( NULL != pbb )
 						{
 							if( friendly_fire )
@@ -3517,19 +3531,6 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 								pbb->tint[GG] = pbb->tint[BB] = 0.75f;
 								pbb->tint_add[GG] = pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
 							}
-
-							// make the billboard fade to transparency
-							pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
-
-							// make a random offset from the character
-							pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-							pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-							pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-
-							// make the text fly away in a random direction
-							pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
-							pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
-							pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
 						}
 					}
 				}
@@ -3541,7 +3542,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 			heal_character( character, attacker, actual_damage, ignore_invictus );
 
 			// Isssue an alert
-			if ( team != TEAM_DAMAGE )
+			if ( team == TEAM_DAMAGE )
 			{
 				pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
 			}
@@ -3554,28 +3555,16 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 				STRING text_buffer = EMPTY_CSTR;
 				SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
+				//Create a buffer
 				snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
 
-				pbb = chr_make_text_billboard( character, text_buffer, color, 3 );
+				pbb = chr_make_text_billboard( character, text_buffer, color, 3, btrue );
 				if ( NULL != pbb )
 				{
 					// heal == yellow, right ;)
 					// fade from { 1.00, 1.00, 0.75 } to { 1.00, 1.00, 0.00 }
 					pbb->tint[BB] = 0.75f;
 					pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
-
-					// make the billboard fade to transparency
-					pbb->tint_add[AA] = -1.0f / lifetime / TARGET_UPS;
-
-					// make a random offset from the character
-					pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-					pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-					pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-
-					// make the text fly away in a random direction
-					pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
-					pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
-					pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime / TARGET_UPS;
 				}
 			}
 		}
@@ -7451,7 +7440,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lifetime_s
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color color, int lifetime_secs )
+billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color color, int lifetime_secs, bool_t randomize_offset )
 {
 	chr_t            * pchr;
 	billboard_data_t * pbb;
@@ -7475,6 +7464,21 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, con
 			pchr->ibillboard = INVALID_BILLBOARD;
 			BillboardList_free_one( REF_TO_INT( ibb ) );
 			pbb = NULL;
+		}
+		else if( randomize_offset )
+		{
+			// make the billboard fade to transparency
+			pbb->tint_add[AA] = -1.0f / lifetime_secs / TARGET_UPS;
+
+			// make a random offset from the character
+			pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+			pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+			pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+
+			// make the text fly away in a random direction
+			pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
+			pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
+			pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
 		}
 	}
 

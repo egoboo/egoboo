@@ -671,8 +671,8 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
             valuetoadd = peve->addvalue[value_idx];
             getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->lifemax += valuetoadd;
-            //ptarget->life += valuetoadd;
-            //if ( ptarget->life < 1 )  ptarget->life = 1;
+            //ptarget->life += valuetoadd;						//ZF> bit of a problem here, we dont want players to
+            //if ( ptarget->life < 1 )  ptarget->life = 1;		//    heal or lose life by requipping magic ornaments
             if ( ptarget->life < ptarget->lifemax )  ptarget->life = ptarget->lifemax;
             fvaluetoadd = valuetoadd;
             break;
@@ -858,11 +858,10 @@ enc_t * enc_config_do_init( enc_t * penc )
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_do_active( enc_t * penc )
 {
-    /// @details ZZ@> This function lets enchantments spawn particles
+    /// @details ZZ@> This function allows enchantments to update, spawn particles, 
+	//  do drains, stat boosts and despawn.
 
     ENC_REF  ienc;
-    int      tnc;
-    FACING_T facing;
     CHR_REF  owner, target;
     EVE_REF  eve;
     eve_t * peve;
@@ -874,30 +873,29 @@ enc_t * enc_config_do_active( enc_t * penc )
     // the following functions should not be done the first time through the update loop
     if ( 0 == clock_wld ) return penc;
 
-    // check to see whether the enchant needs to spawn some particles
-    if ( penc->spawntime > 0 ) penc->spawntime--;
-    if ( penc->spawntime > 0 ) return penc;
-
-    peve = enc_get_peve( ienc );
+	peve = enc_get_peve( ienc );
     if ( NULL == peve ) return penc;
 
-    penc->spawntime = peve->contspawn_delay;
+    // check to see whether the enchant needs to spawn some particles
+    if ( penc->spawntime > 0 ) penc->spawntime--;
+    if ( penc->spawntime == 0 && peve->contspawn_amount <= 0 && INGAME_CHR( penc->target_ref ) )
+	{
+		int      tnc;
+		FACING_T facing;
+		penc->spawntime = peve->contspawn_delay;
+		ptarget = ChrList.lst + penc->target_ref;
 
-    if ( peve->contspawn_amount <= 0 ) return penc;
+		facing = ptarget->ori.facing_z;
+		for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
+		{
+			spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
+				( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
 
-    if ( !INGAME_CHR( penc->target_ref ) ) return penc;
-    ptarget = ChrList.lst + penc->target_ref;
+			facing += peve->contspawn_facingadd;
+		}
+	}
 
-    facing = ptarget->ori.facing_z;
-    for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
-    {
-        spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
-            ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
-
-        facing += peve->contspawn_facingadd;
-    }
-
-    // check to see if any enchant
+    // Do enchant drains and regeneration
     if ( clock_enc_stat >= ONESECOND )
     {
         if ( 0 == penc->time )
@@ -917,26 +915,31 @@ enc_t * enc_config_do_active( enc_t * penc )
             // Do drains
             if ( ChrList.lst[owner].alive )
             {
-                bool_t mana_paid;
 
                 // Change life
-                ChrList.lst[owner].life += penc->owner_life;
-                if ( ChrList.lst[owner].life <= 0 )
-                {
-                    kill_character( owner, target, bfalse );
-                }
-
-                if ( ChrList.lst[owner].life > ChrList.lst[owner].lifemax )
-                {
-                    ChrList.lst[owner].life = ChrList.lst[owner].lifemax;
-                }
+				if( penc->owner_life != 0 )
+				{
+					ChrList.lst[owner].life += penc->owner_life;
+					if ( ChrList.lst[owner].life <= 0 )
+					{
+						kill_character( owner, target, bfalse );
+					}
+					if ( ChrList.lst[owner].life > ChrList.lst[owner].lifemax )
+					{
+						ChrList.lst[owner].life = ChrList.lst[owner].lifemax;
+					}
+				}
 
                 // Change mana
-                mana_paid = cost_mana( owner, -penc->owner_mana, target );
-                if ( EveStack.lst[eve].endifcantpay && !mana_paid )
-                {
-                    enc_request_terminate( ienc );
-                }
+				if( penc->owner_mana != 0 )
+				{
+					bool_t mana_paid = cost_mana( owner, -penc->owner_mana, target );
+					if ( EveStack.lst[eve].endifcantpay && !mana_paid )
+					{
+						enc_request_terminate( ienc );
+					}
+				}
+
             }
             else if ( !EveStack.lst[eve].stayifnoowner )
             {
@@ -949,25 +952,31 @@ enc_t * enc_config_do_active( enc_t * penc )
             {
                 if ( ChrList.lst[target].alive )
                 {
-                    bool_t mana_paid;
 
                     // Change life
-                    ChrList.lst[target].life += penc->target_life;
-                    if ( ChrList.lst[target].life <= 0 )
-                    {
-                        kill_character( target, owner, bfalse );
-                    }
-                    if ( ChrList.lst[target].life > ChrList.lst[target].lifemax )
-                    {
-                        ChrList.lst[target].life = ChrList.lst[target].lifemax;
-                    }
+					if( penc->target_life != 0 )
+					{
+						ChrList.lst[target].life += penc->target_life;
+						if ( ChrList.lst[target].life <= 0 )
+						{
+							kill_character( target, owner, bfalse );
+						}
+						if ( ChrList.lst[target].life > ChrList.lst[target].lifemax )
+						{
+							ChrList.lst[target].life = ChrList.lst[target].lifemax;
+						}
+					}
 
                     // Change mana
-                    mana_paid = cost_mana( target, -penc->target_mana, owner );
-                    if ( EveStack.lst[eve].endifcantpay && !mana_paid )
-                    {
-                        enc_request_terminate( ienc );
-                    }
+                    if( penc->target_mana != 0 )
+					{
+						bool_t mana_paid = cost_mana( target, -penc->target_mana, owner );
+						if ( EveStack.lst[eve].endifcantpay && !mana_paid )
+						{
+							enc_request_terminate( ienc );
+						}
+					}
+
                 }
                 else if ( !EveStack.lst[eve].stayiftargetdead )
                 {

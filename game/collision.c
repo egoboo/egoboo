@@ -2825,7 +2825,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     if ( !prt_deflected && 0 == pchr_a->damagetime && ( full_collision || plat_collision ) )
     {
         // Check reaffirmation of particles
-        if ( pchr_a->reaffirmdamagetype == pprt_b->damagetype )
+        if ( (pprt_b->damage.base > 0 || pprt_b->damage.rand > 0) && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
         {
             retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
         }
