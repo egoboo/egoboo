@@ -1,3 +1,5 @@
+#dependency Zombi         52
+
 //--------------------------------------------------------------------------------------------
 //         Name    Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 PlayerAtBoss   NONE    0  	69.5   58.5   0.0   N    0   0  0   0   0   T   F   G

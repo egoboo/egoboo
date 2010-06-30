@@ -48,7 +48,6 @@ IfTimeOut
 
           // Play the sound
           tmpargument = 2
-          tmpdistance = rand & 1023 + 10500
           PlaySound
       tmpx = targetx
       tmpy = targety

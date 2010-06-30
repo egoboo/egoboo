@@ -64,8 +64,11 @@ INLINE pip_t * prt_get_ppip( const PRT_REF by_reference iprt )
 INLINE bool_t prt_set_size( prt_t * pprt, int size )
 {
     float real_size;
-
-    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+	pip_t *ppip;
+    
+	if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
+    ppip = PipStack.lst + pprt->pip_ref;
 
     pprt->size = size;
     real_size  = size / 256.0;
@@ -78,13 +81,18 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
     else if ( 0.0f == pprt->bump.size || 0.0f == size )
     {
         // just set the size, assuming a spherical particle
-        pprt->bump.size     = real_size;
-        pprt->bump.size_big = real_size * SQRT_TWO;
-        pprt->bump.height   = real_size;
+        pprt->bump.size     = real_size + ppip->bump_size;
+        pprt->bump.size_big = (real_size + ppip->bump_size) * SQRT_TWO;
+        pprt->bump.height   = real_size + ppip->bump_height;
     }
     else
     {
         float mag = real_size / pprt->bump.size;
+
+		//Add in the virtual bump space
+		pprt->bump.size     += ppip->bump_size;
+		pprt->bump.size_big += ppip->bump_size;
+		pprt->bump.height   += ppip->bump_height;
 
         // resize all dimensions equally
         pprt->bump.size     *= mag;

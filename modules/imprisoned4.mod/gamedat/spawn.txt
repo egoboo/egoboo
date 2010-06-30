@@ -4,7 +4,7 @@
 #dependency Tranch        42
 #dependency GrubBug       38
 #dependency Crab          41
-#dependency Trog          71
+#dependency Zombi         71
 #dependency FireLizard    73
 #dependency Lumpkin       74
 #dependency Assassin      76

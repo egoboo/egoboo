@@ -65,7 +65,6 @@ IfStateIsNot			//If not acting as a dead body
   // Character screams
   IfAttacked
     tmpargument = 3
-    tmpdistance = rand % 2047 + 10000
     PlaySound
 
   // Character death
@@ -75,7 +74,6 @@ IfStateIsNot			//If not acting as a dead body
     SetBumpHeight
     // Tell everyone it died
     tmpargument = 4
-    tmpdistance = rand % 2047 + 10000
     PlaySound
     tmpargument = 0
     IfTargetIsOnSameTeam
@@ -104,7 +102,6 @@ IfStateIsNot			//If not acting as a dead body
       tmpargument = 200
       SetTime
       tmpargument = rand & 1 + 1
-      tmpdistance = rand % 2047 + 10000
       PlaySound
     IfBumped
       // Attack anyone
@@ -127,7 +124,6 @@ IfStateIsNot			//If not acting as a dead body
             tmpargument = rand & 2 + ACTIONBA
             DoAction  // Couldn't use latches...
             tmpargument = rand & 1 + 1
-            tmpdistance = rand % 2047 + 10000
             PlaySound
           // Chase the enemy
           tmpx = targetx
@@ -219,7 +215,6 @@ IfStateIsNot			//If not acting as a dead body
                 tmpargument = rand & 2 + ACTIONBB
               DoAction  // Couldn't use latches...
               tmpargument = rand & 1 + 1
-              tmpdistance = rand % 2047 + 10000
               PlaySound
           // Chase the enemy
           tmpargument = 0
@@ -291,8 +286,7 @@ IfStateIsNot			//If not acting as a dead body
 
 //Badass zombi is ready for breath attack
 IfStateIs4
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 150
   IfXIsMoreThanY		//Long enough charge?
     Sneak			//33% speed
@@ -313,15 +307,15 @@ IfStateIs4
       SetContent		//reset charge
   Else
     Run			//100% speed
-    tmpargument = tmpargument +1
+    tmpargument = selfcontent +1
     SetContent		//need more charge
     tmpargument = 4
     tmpx = selfx
     tmpy = selfy
     tmpdistance = selfz
     SpawnExactParticle		//Charging effect
-    GetContent
-    tmpx = tmpargument
+    
+    tmpx = selfcontent
     tmpy = 150
     IfXIsMoreThanY		//Begin playing breath sound?
       tmpargument = 6

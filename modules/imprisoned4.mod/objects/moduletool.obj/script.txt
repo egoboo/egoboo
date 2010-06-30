@@ -29,7 +29,7 @@ IfOrdered
     //Wave 3 - PAUSE AND RESTING
     //--------------------------
 
-    //Wave 4 - Troglodytes
+    //Wave 4 - Zombis!
     IfStateIs4
       tmpargument = 71
       tmpx = selfx
@@ -38,7 +38,7 @@ IfOrdered
       
       //Give him a weapon
       SetTargetToChild
-      tmpx = rand & 2
+      tmpx = rand % 7
       tmpy = 0
       IfXIsEqualToY
         tmpargument = 83          //Trident
@@ -48,6 +48,18 @@ IfOrdered
       tmpy = 2
       IfXIsEqualToY
         tmpargument = 87          //Cinqueda
+      tmpy = 3
+      IfXIsEqualToY
+        tmpargument = 81          //Hatchet
+      tmpy = 4
+      IfXIsEqualToY
+        tmpargument = 82          //Mace
+      tmpy = 5
+      IfXIsEqualToY
+        tmpargument = 88          //Battleaxes
+      tmpy = 6
+      IfXIsEqualToY
+        tmpargument = 79          //Claw
       tmpdistance = RIGHT
       SpawnAttachedCharacter
 
