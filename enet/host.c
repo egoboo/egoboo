@@ -3,8 +3,8 @@
  @brief ENet host management functions
 */
 #define ENET_BUILDING_LIB 1
-#include "enet\memory.h"
-#include "enet\enet.h"
+#include "enet/memory.h"
+#include "enet/enet.h"
 
 /** @defgroup host ENet host functions
     @{

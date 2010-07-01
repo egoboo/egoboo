@@ -22,7 +22,8 @@
 /// @details
 
 #include "EncList.h"
-#include "Log.h"
+#include "log.h"
+#include "egoboo_object.h"
 
 #include "enchant.inl"
 

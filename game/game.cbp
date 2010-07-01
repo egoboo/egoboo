@@ -350,6 +350,18 @@
 			<Option target="nix-gcc-debug" />
 			<Option target="nix-gcc-release" />
 		</Unit>
+		<Unit filename="ChrList.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ChrList.h" />
+		<Unit filename="EncList.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="EncList.h" />
+		<Unit filename="PrtList.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="PrtList.h" />
 		<Unit filename="bbox.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -409,6 +421,9 @@
 		<Unit filename="egoboo_math.h" />
 		<Unit filename="egoboo_math.inl" />
 		<Unit filename="egoboo_mem.h" />
+		<Unit filename="egoboo_object.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="egoboo_object.h" />
 		<Unit filename="egoboo_platform.h" />
 		<Unit filename="egoboo_process.c">

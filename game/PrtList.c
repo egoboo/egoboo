@@ -23,7 +23,9 @@
 
 #include "PrtList.h"
 
-#include "Log.h"
+#include "log.h"
+#include "egoboo_object.h"
+
 #include "particle.inl"
 
 //--------------------------------------------------------------------------------------------

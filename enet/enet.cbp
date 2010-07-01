@@ -61,13 +61,13 @@
 					<Add option="-Wmain" />
 					<Add option="-pedantic" />
 					<Add option="-Wfatal-errors" />
-					<Add option="-W" />
 					<Add option="-Wall" />
 					<Add option="-pg" />
 					<Add option="-g" />
+					<Add option="-W" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_LIB" />
-					<Add directory="../enet/include" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg" />
@@ -84,11 +84,10 @@
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-Wmain" />
-					<Add option="-W" />
 					<Add option="-Wall" />
+					<Add option="-W" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_LIB" />
-					<Add directory="../enet/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />

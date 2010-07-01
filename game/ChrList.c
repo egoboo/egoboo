@@ -22,7 +22,9 @@
 /// @details
 
 #include "ChrList.h"
-#include "Log.h"
+#include "log.h"
+#include "egoboo_object.h"
+
 #include "char.inl"
 
 //--------------------------------------------------------------------------------------------

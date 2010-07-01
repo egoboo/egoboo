@@ -28,8 +28,7 @@
 #include "egoboo.h"
 
 #include <unistd.h>
-#include <pwd.h>ga
-#include <pwd.h>ga
+#include <pwd.h>
 #include <grp.h>
 #include <glob.h>
 #include <sys/types.h>

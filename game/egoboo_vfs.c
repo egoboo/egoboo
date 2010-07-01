@@ -272,7 +272,7 @@ const char * vfs_convert_fname_sys( const char * fname )
     // when converting to system dependent filenames, it will reference the filename relative to the
     // root point, rather than relative to the current directory.
 	//
-	// Added complication: if you are trying to specify a root filename, 
+	// Added complication: if you are trying to specify a root filename,
 	// then you might expect a SLASH_CHR at the beginning of the pathname.
 	// To fix this, call str_convert_slash_sys(), and then check to see if the
 	// directory exists in the filesystem.
@@ -301,15 +301,19 @@ const char * vfs_convert_fname_sys( const char * fname )
 		return local_fname;
 	}
 
+    // make a local copy of the original filename, in case fname is
+    // a string literal or a pointer to local_fname
+    strncpy( copy_fname, fname, SDL_arraysize( copy_fname ) );
+
 	// convert the path string to local notation
-	string_ptr = str_convert_slash_sys( fname, strlen( fname ) );
+	string_ptr = str_convert_slash_sys( copy_fname, strlen( fname ) );
 	if( !VALID_CSTR(string_ptr) )
 	{
 		strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
 		return local_fname;
 	}
 
-	// resolve the conflict between 
+	// resolve the conflict between
 	//    -1- directories relative to the PHYSFS root path starting with NET_SLASH
 	// and
 	//    -2- directories relative to the root of the filesystem beginning with a slash
@@ -319,9 +323,9 @@ const char * vfs_convert_fname_sys( const char * fname )
 	// root directories using this code...
 
 	// if the path already exists, just return the path
-	if( fs_fileExists( string_ptr ) )
+	if( fs_fileExists( copy_fname ) )
 	{
-        strncpy( local_fname, string_ptr, strlen( string_ptr ) );
+	    strncpy( local_fname, copy_fname, SDL_arraysize( local_fname ) );
         return local_fname;
 	}
 
@@ -329,10 +333,6 @@ const char * vfs_convert_fname_sys( const char * fname )
 	// no solution to that problem, yet.
 
 	// ---- if we got to this point, we need to strip off any beginning slashes
-
-    // make a copy of the original filename, in case fname is
-    // actualy a pointer to local_fname
-    strncpy( copy_fname, fname, SDL_arraysize( copy_fname ) );
 
     offset = 0;
     if ( '.' == copy_fname[0] && '.' == copy_fname[1] )
