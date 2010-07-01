@@ -41,30 +41,26 @@ INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
 
 INLINE Uint32 mesh_has_some_mpdfx( Uint32 mpdfx, Uint32 test );
 INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id );
-
-
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-INLINE Uint32 mesh_has_some_mpdfx(Uint32 MPDFX, Uint32 TEST) 
-{ 
-	mesh_mpdfx_tests++; 
-	return HAS_SOME_BITS(MPDFX,TEST); 
+INLINE Uint32 mesh_has_some_mpdfx(Uint32 MPDFX, Uint32 TEST)
+{
+	mesh_mpdfx_tests++;
+	return HAS_SOME_BITS(MPDFX,TEST);
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id ) 
-{ 
+INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id )
+{
 	if( NULL == pmpd ) return bfalse;
 
 	mesh_bound_tests++;
 
 	if( INVALID_TILE == id ) return bfalse;
-	
+
 	return id < pmpd->info.tiles_count;
 };
-
-
 //--------------------------------------------------------------------------------------------
 INLINE float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
 {

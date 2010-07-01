@@ -3346,7 +3346,6 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 		}
 	}
 
-
 	actual_damage = 0;
 	max_damage = ABS(damage.base) + ABS(damage.rand);
 	if ( pchr->alive && damage.base + damage.rand > 0 )

@@ -63,44 +63,52 @@ INLINE pip_t * prt_get_ppip( const PRT_REF by_reference iprt )
 //--------------------------------------------------------------------------------------------
 INLINE bool_t prt_set_size( prt_t * pprt, int size )
 {
-    float real_size;
 	pip_t *ppip;
     
 	if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
 
+	// set the graphical size
     pprt->size = size;
-    real_size  = size / 256.0;
 
-    if ( 0 == pprt->size_stt )
+	// set the bumper size, if available
+    if ( 0 == pprt->bump_size_stt )
     {
-        // make the particle non-interacting if the initial size was 0
-        pprt->bump.size = 0;
+        // make the particle non-interacting if the initial bumper size was 0
+        pprt->bump_real.size   = 0;
+		pprt->bump_padded.size = 0;
     }
-    else if ( 0.0f == pprt->bump.size || 0.0f == size )
-    {
-        // just set the size, assuming a spherical particle
-        pprt->bump.size     = real_size + ppip->bump_size;
-        pprt->bump.size_big = (real_size + ppip->bump_size) * SQRT_TWO;
-        pprt->bump.height   = real_size + ppip->bump_height;
-    }
-    else
-    {
-        float mag = real_size / pprt->bump.size;
+    else 
+	{
+		float real_size  = FP8_TO_FLOAT(size);
 
-		//Add in the virtual bump space
-		pprt->bump.size     += ppip->bump_size;
-		pprt->bump.size_big += ppip->bump_size;
-		pprt->bump.height   += ppip->bump_height;
+		if ( 0.0f == pprt->bump_real.size || 0.0f == size )
+		{
+			// just set the size, assuming a spherical particle
+			pprt->bump_real.size     = real_size;
+			pprt->bump_real.size_big = real_size * SQRT_TWO;
+			pprt->bump_real.height   = real_size;
+		}
+		else
+		{
+			float mag = real_size / pprt->bump_real.size;
 
-        // resize all dimensions equally
-        pprt->bump.size     *= mag;
-        pprt->bump.size_big *= mag;
-        pprt->bump.height   *= mag;
-    }
+			// resize all dimensions equally
+			pprt->bump_real.size     *= mag;
+			pprt->bump_real.size_big *= mag;
+			pprt->bump_real.height   *= mag;
+		}
 
-    bumper_to_oct_bb_0( pprt->bump, &( pprt->chr_prt_cv ) );
+		// make sure that the virtual bumper size is at least as big as what is in the pip file
+		pprt->bump_padded.size     = MAX(pprt->bump_real.size,     ppip->bump_size);
+		pprt->bump_padded.size_big = MAX(pprt->bump_real.size_big, ppip->bump_size * SQRT_TWO);
+		pprt->bump_padded.height   = MAX(pprt->bump_real.height,   ppip->bump_height );
+	}
+
+	// use the padded bumper to figure out the chr_prt_cv
+    bumper_to_oct_bb_0( pprt->bump_padded, &( pprt->chr_prt_cv ) );
 
     return btrue;
 }

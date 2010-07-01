@@ -126,8 +126,8 @@ struct s_prt
     FACING_T rotate;                          ///< Rotation direction
     Sint16   rotate_add;                      ///< Rotation rate
 
-    int     size;                            ///< Size of particle (8.8-bit fixed point)
-    UFP8_T  size_stt;                        ///< the starting size of the particle (8.8-bit fixed point)
+	UFP8_T  size_stt;                        ///< The initial size of particle (8.8-bit fixed point)
+    UFP8_T  size;                            ///< Size of particle (8.8-bit fixed point)
     SFP8_T  size_add;                        ///< Change in size
 
     bool_t  inview;                          ///< Render this one?
@@ -142,7 +142,9 @@ struct s_prt
     size_t  frames_remaining;                ///< How many frames does the particle have left?
     int     contspawn_delay;                 ///< Time until spawn
 
-    bumper_t          bump;                            ///< Size of bumpers
+    Uint32            bump_size_stt;                   ///< the starting size of the particle (8.8-bit fixed point)
+    bumper_t          bump_real;                       ///< Actual size of the particle
+	bumper_t          bump_padded;                     ///< The size of the particle with the additional bumpers added in
     oct_bb_t          chr_prt_cv;                      ///< Collision volume for chr-prt interactions
     PRT_REF           bumplist_next;                   ///< Next particle on fanblock
     IPair             damage;                          ///< For strength

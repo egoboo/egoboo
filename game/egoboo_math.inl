@@ -91,8 +91,6 @@ INLINE fvec3_t   mat_getCamUp( const fmat_4x4_t mat );
 INLINE fvec3_t   mat_getCamRight( const fmat_4x4_t mat );
 INLINE fvec3_t   mat_getCamForward( const fmat_4x4_t mat );
 INLINE fvec3_t   mat_getTranslate( const fmat_4x4_t mat );
-
-
 INLINE float *   mat_getTranslate_v( const fmat_4x4_t mat );
 
 //--------------------------------------------------------------------------------------------
@@ -305,8 +303,6 @@ INLINE float fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B )
 {
 	return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]);
 }
-
-
 //--------------------------------------------------------------------------------------------
 INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec )
 {

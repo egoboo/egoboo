@@ -1381,7 +1381,7 @@ struct s_mesh_wall_data
     ego_grid_info_t * glist;
 };
 typedef struct s_mesh_wall_data mesh_wall_data_t;
-    
+
 //--------------------------------------------------------------------------------------------
 bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, mesh_wall_data_t * pdata )
 {
@@ -1685,9 +1685,7 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
 			}
 		}
 	}
-
-
-	// normalize the displacement by dividing by the weight... 
+	// normalize the displacement by dividing by the weight...
 	// unnecessary if the following normalization is kept in
 	//if( sum_diff > 0.0f )
 	//{
@@ -1756,7 +1754,7 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 			{
 				nrm[kY] += pos[kY] - (ty_max + ty_min) * 0.5f;
 			}
-			
+
             invalid = btrue;
             mesh_bound_tests++;
         }
@@ -1819,7 +1817,7 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
 			// special cases happen a lot. try to avoid computing the square root
 			if ( 0.0f == nrm[kX] && 0.0f == nrm[kY] )
 			{
-				// no normal does not mean no net pressure, 
+				// no normal does not mean no net pressure,
 				// just that all the simplistic normal calculations balance
 			}
 			else if ( 0.0f == nrm[kX] )

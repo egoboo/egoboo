@@ -412,20 +412,22 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->vel = pprt->vel_old = pprt->vel_stt = vel;
 
     // Template values
-    pprt->bump.size    = ppip->bump_size;
-    pprt->bump.size_big = ppip->bump_size * SQRT_TWO;
-    pprt->bump.height  = ppip->bump_height;
-    pprt->type         = ppip->type;
+    pprt->bump_size_stt = ppip->bump_size;
+    pprt->type          = ppip->type;
 
     // Image data
-    pprt->rotate     = generate_irand_pair( ppip->rotate_pair );
-    pprt->rotate_add = ppip->rotate_add;
-    pprt->size_stt   = MAX( ppip->size_base, 1 );
-    pprt->size_add   = ppip->size_add;
-    pprt->image_add  = generate_irand_pair( ppip->image_add );
-    pprt->image_stt  = INT_TO_FP8( ppip->image_base );
-    pprt->image_max  = INT_TO_FP8( ppip->numframes );
-    prt_lifetime     = ppip->time;
+    pprt->rotate        = generate_irand_pair( ppip->rotate_pair );
+    pprt->rotate_add    = ppip->rotate_add;
+
+	pprt->size_stt      = ppip->size_base;
+    pprt->size_add      = ppip->size_add;
+
+    pprt->image_stt     = INT_TO_FP8( ppip->image_base );
+    pprt->image_add     = generate_irand_pair( ppip->image_add );
+    pprt->image_max     = INT_TO_FP8( ppip->numframes );
+
+	// figure out the actual particle lifetime
+    prt_lifetime        = ppip->time;
     if ( ppip->endlastframe && pprt->image_add != 0 )
     {
         if ( 0 == ppip->time )
@@ -500,7 +502,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // gat an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !DEFINED_CHR( pprt->attachedto_ref );
 
-    prt_set_size( pprt, pprt->size_stt );
+    prt_set_size( pprt, ppip->size_base );
 
 #if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
 
@@ -948,7 +950,6 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     prt_stoppedby_tests += mesh_mpdfx_tests;
 	prt_pressure_tests += mesh_pressure_tests;
 
-
     return retval;
 }
 
@@ -978,7 +979,7 @@ fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
     {
         if ( PMesh->tmem.tile_list[ pprt->onwhichgrid ].inrenderlist )
         {
-            radius = pprt->bump.size;
+            radius = pprt->bump_real.size;
         }
     }
 
@@ -1046,7 +1047,7 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
     stoppedby = MPDFX_IMPASS;
     if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
 
-    if ( 0 == pprt->bump.size || INFINITE_WEIGHT == pprt->phys.weight ) return bfalse;
+    if ( 0 == pprt->bump_real.size || INFINITE_WEIGHT == pprt->phys.weight ) return bfalse;
 
  	if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
 	if ( NULL == test_pos ) return 0;
@@ -1063,7 +1064,6 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
 
     return retval;
 }
-
 
 ////--------------------------------------------------------------------------------------------
 //// This is BB's most recent version of the update_one_particle() function that should treat
@@ -2989,7 +2989,7 @@ prt_t * prt_update_do_water( prt_t * pprt, pip_t * ppip )
                 if ( SPRITE_SOLID == pprt->type && !INGAME_CHR( pprt->attachedto_ref ) )
                 {
                     // only spawn ripples if you are touching the water surface!
-                    if ( pprt->pos.z + pprt->bump.height > water.surface_level && pprt->pos.z - pprt->bump.height < water.surface_level )
+                    if ( pprt->pos.z + pprt->bump_real.height > water.surface_level && pprt->pos.z - pprt->bump_real.height < water.surface_level )
                     {
                         int ripand = ~(( ~RIPPLEAND ) << 1 );
                         if ( 0 == (( update_wld + pprt->obj_base.guid ) & ripand ) )
@@ -3413,7 +3413,6 @@ bool_t prt_update_safe( prt_t * pprt, bool_t force )
 
 	return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -622,7 +622,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     if ( ppip->bumpmoney ) bits |= MPDFX_WALL;
 
 	bc->bits   = bits;
-	bc->radius = pprt->bump.size;
+	bc->radius = pprt->bump_real.size;
 
 	bc->pos = prt_get_pos(pprt);
 	bc->pos.x  = (floor(bc->pos.x / GRID_SIZE) + 0.5f) * GRID_SIZE;

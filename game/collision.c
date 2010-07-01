@@ -348,9 +348,9 @@ bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_
     dxy = dx + dy;
 
     // estimate the horizontal interactions this frame
-    interact_x  = ( dx  <= ( pchr_a->bump_1.size    + pprt_b->bump.size ) );
-    interact_y  = ( dy  <= ( pchr_a->bump_1.size    + pprt_b->bump.size ) );
-    interact_xy = ( dxy <= ( pchr_a->bump_1.size_big + pprt_b->bump.size_big ) );
+    interact_x  = ( dx  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
+    interact_y  = ( dy  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
+    interact_xy = ( dxy <= ( pchr_a->bump_1.size_big + pprt_b->bump_padded.size_big ) );
 
     if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
 
@@ -362,7 +362,7 @@ bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_
         interact_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
     }
 
-    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.maxs[OCT_Z], pprt_b->pos.z + pprt_b->bump.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.mins[OCT_Z], pprt_b->pos.z - pprt_b->bump.height );
+    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.maxs[OCT_Z], pprt_b->pos.z + pprt_b->bump_padded.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.mins[OCT_Z], pprt_b->pos.z - pprt_b->bump_padded.height );
     interact_z  = ( depth_z > 0 ) || interact_platform;
 
     return interact_z;
@@ -902,7 +902,7 @@ bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_R
     if ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] > pprt_b->enviro.level ) return bfalse;
 
     //---- determine the interaction depth for each dimension
-    odepth[OCT_Z] = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z - pprt_b->bump.height );
+    odepth[OCT_Z] = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z - pprt_b->bump_padded.height );
     if ( odepth[OCT_Z] < -PLATTOLERANCE || odepth[OCT_Z] > PLATTOLERANCE ) return bfalse;
 
     odepth[OCT_X]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pprt_b->pos.x,
@@ -1677,9 +1677,9 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     fvec3_t collision_size;
     float dot;
 
-    collision_size.x = MAX( pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f * pprt->bump.size );
-    collision_size.y = MAX( pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f * pprt->bump.size );
-    collision_size.z = MAX( pchr->chr_prt_cv.maxs[OCT_Z] - pchr->chr_prt_cv.mins[OCT_Z], 2.0f * pprt->bump.height );
+    collision_size.x = MAX( pchr->chr_prt_cv.maxs[OCT_X] - pchr->chr_prt_cv.mins[OCT_X], 2.0f * pprt->bump_padded.size );
+    collision_size.y = MAX( pchr->chr_prt_cv.maxs[OCT_Y] - pchr->chr_prt_cv.mins[OCT_Y], 2.0f * pprt->bump_padded.size );
+    collision_size.z = MAX( pchr->chr_prt_cv.maxs[OCT_Z] - pchr->chr_prt_cv.mins[OCT_Z], 2.0f * pprt->bump_padded.height );
 
     // estimate the "normal" for the collision, using the center-of-mass difference
     nrm[kX] = pprt->pos.x - pchr->pos.x;
@@ -2108,7 +2108,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( pplat->chr_prt_cv, pplat->pos, pprt->bump, prt_get_pos(pprt), btrue );
+    plat_collision = test_interaction_close_1( pplat->chr_prt_cv, pplat->pos, pprt->bump_padded, prt_get_pos(pprt), btrue );
 
     if ( !plat_collision ) return bfalse;
 
@@ -2732,7 +2732,7 @@ bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     pdata->ppip = PipStack.lst + pprt->pip_ref;
 
     // measure the collision depth
-    full_collision = get_depth_1( pchr->chr_prt_cv, pchr->pos, pprt->bump, prt_get_pos(pprt), btrue, pdata->odepth );
+    full_collision = get_depth_1( pchr->chr_prt_cv, pchr->pos, pprt->bump_padded, prt_get_pos(pprt), btrue, pdata->odepth );
 
     //// measure the collision depth in the last update
     //// the objects were not touching last frame, so they must have collided this frame

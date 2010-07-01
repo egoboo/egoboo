@@ -106,11 +106,8 @@ grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 #define PITDEPTH            -60                     ///< Depth to kill character
-
-#define NOSKINOVERRIDE      -1          ///< For import
-
-#define HURTDAMAGE           256                     ///< Minimum damage for hurt animation
-
+#define NOSKINOVERRIDE      -1                      ///< For import
+#define HURTDAMAGE           256                    ///< Minimum damage for hurt animation
 
 //Dismounting
 #define DISMOUNTZVEL        16

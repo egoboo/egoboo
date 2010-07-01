@@ -858,7 +858,7 @@ enc_t * enc_config_do_init( enc_t * penc )
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_do_active( enc_t * penc )
 {
-    /// @details ZZ@> This function allows enchantments to update, spawn particles, 
+    /// @details ZZ@> This function allows enchantments to update, spawn particles,
 	//  do drains, stat boosts and despawn.
 
     ENC_REF  ienc;

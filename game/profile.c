@@ -1311,7 +1311,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
 
     does_special_effect = ppip->causepancake;
 
-    if ( 0 == pprt->bump.size && !has_enchant && !does_damage && !does_grog_daze && !needs_bump && !does_special_effect )
+    if ( 0 == pprt->bump_padded.size && !has_enchant && !does_damage && !does_grog_daze && !needs_bump && !does_special_effect )
         return bfalse;
 
     pleaf = &( pprt->bsp_leaf );
