@@ -2171,18 +2171,20 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
 		//---- generate billboards for things that players can interact with
 		if ( cfg.feedback != FEEDBACK_OFF && pchr_a->isplayer )
 		{
+			GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
+
 			// things that can be grabbed (5 secs and green)
 			for ( cnt = 0; cnt < grab_count; cnt++ )
 			{
 				ichr_b = grab_list[cnt].ichr;
-				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, 5, bfalse );
+				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, default_tint, 5, bb_opt_none );
 			}
 
 			// things that can't be grabbed (5 secs and red)
 			for ( cnt = 0; cnt < ungrab_count; cnt++ )
 			{
 				ichr_b = ungrab_list[cnt].ichr;
-				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, 5, bfalse );
+				chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, default_tint, 5, bb_opt_none );
 			}
 		}
 
@@ -3505,33 +3507,20 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 					{
 						const float lifetime = 3;
 						STRING text_buffer = EMPTY_CSTR;
-						SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
-						billboard_data_t * pbb;
+
+						// "white" text
+						SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+
+						// friendly fire damage = "purple"
+						GLXvector4f tint_friend = { 0.88f, 0.75f, 1.00f, 1.00f };
+
+						// enemy damage = "red"
+						GLXvector4f tint_enemy  = { 1.00f, 0.75f, 0.75f, 1.00f };
 	
-						//Create a buffer
+						// write the string into the buffer
 						snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
 
-						pbb = chr_make_text_billboard( character, text_buffer, color, lifetime, btrue );
-						if ( NULL != pbb )
-						{
-							if( friendly_fire )
-							{
-								// damage == purple
-								// fade from { 0.88, 0.75, 1.00 } to { 0.50, 0.00, 1.00 }
-								pbb->tint[RR] = 0.88f;
-								pbb->tint_add[RR] = -0.33f / lifetime / TARGET_UPS;
-
-								pbb->tint[GG] = 0.75f;
-								pbb->tint_add[GG] = -0.75f / lifetime / TARGET_UPS;
-							}
-							else
-							{
-								// damage == red
-								// fade from { 1.00, 0.75, 0.75 } to { 1.00, 0.00, 0.00 }
-								pbb->tint[GG] = pbb->tint[BB] = 0.75f;
-								pbb->tint_add[GG] = pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
-							}
-						}
+						chr_make_text_billboard( character, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, bb_opt_all );
 					}
 				}
 			}
@@ -3551,21 +3540,18 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 			if ( do_feedback )
 			{
 				const float lifetime = 3;
-				billboard_data_t * pbb;
 				STRING text_buffer = EMPTY_CSTR;
-				SDL_Color color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-				//Create a buffer
+				// "white" text
+				SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+
+				// heal == yellow, right ;)
+				GLXvector4f tint = { 1.00f, 1.00f, 0.75f, 1.00f };
+
+				// write the string into the buffer
 				snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
 
-				pbb = chr_make_text_billboard( character, text_buffer, color, 3, btrue );
-				if ( NULL != pbb )
-				{
-					// heal == yellow, right ;)
-					// fade from { 1.00, 1.00, 0.75 } to { 1.00, 1.00, 0.00 }
-					pbb->tint[BB] = 0.75f;
-					pbb->tint_add[BB] = -0.75f / lifetime / TARGET_UPS;
-				}
+				chr_make_text_billboard( character, text_buffer, text_color, tint, 3, bb_opt_all );
 			}
 		}
 	}
@@ -7440,10 +7426,11 @@ BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lifetime_s
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color color, int lifetime_secs, bool_t randomize_offset )
+billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, Uint32 opt_bits )
 {
 	chr_t            * pchr;
 	billboard_data_t * pbb;
+	int                rv;
 
 	BBOARD_REF ibb = ( BBOARD_REF )INVALID_BILLBOARD;
 
@@ -7455,30 +7442,64 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, con
 	if ( INVALID_BILLBOARD == ibb ) return NULL;
 
 	pbb = BillboardList_get_ptr( pchr->ibillboard );
-	if ( NULL != pbb )
+	if ( NULL == pbb ) return pbb;
+
+	rv = billboard_data_printf_ttf( pbb, ui_getFont(), text_color, "%s", txt );
+
+	if ( rv < 0 )
 	{
-		int rv = billboard_data_printf_ttf( pbb, ui_getFont(), color, "%s", txt );
+		pchr->ibillboard = INVALID_BILLBOARD;
+		BillboardList_free_one( REF_TO_INT( ibb ) );
+		pbb = NULL;
+	}
+	else
+	{
+		// copy the tint over
+		memmove( pbb->tint, tint, sizeof(GLXvector4f) );
 
-		if ( rv < 0 )
+		if( HAS_SOME_BITS(opt_bits, bb_opt_randomize_pos) )
 		{
-			pchr->ibillboard = INVALID_BILLBOARD;
-			BillboardList_free_one( REF_TO_INT( ibb ) );
-			pbb = NULL;
-		}
-		else if( randomize_offset )
-		{
-			// make the billboard fade to transparency
-			pbb->tint_add[AA] = -1.0f / lifetime_secs / TARGET_UPS;
-
 			// make a random offset from the character
 			pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
 			pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
 			pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+		}
 
+		if( HAS_SOME_BITS(opt_bits, bb_opt_randomize_vel) )
+		{
 			// make the text fly away in a random direction
 			pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
 			pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
 			pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
+		}
+
+		if( HAS_SOME_BITS(opt_bits, bb_opt_fade) )
+		{
+			// make the billboard fade to transparency
+			pbb->tint_add[AA] = -1.0f / lifetime_secs / TARGET_UPS;
+		}
+
+		if( HAS_SOME_BITS(opt_bits, bb_opt_burn) )
+		{
+			float minval, maxval;
+
+			minval = MIN(MIN(pbb->tint[RR], pbb->tint[GG]),pbb->tint[BB]);
+			maxval = MAX(MAX(pbb->tint[RR], pbb->tint[GG]),pbb->tint[BB]);
+
+			if( pbb->tint[RR] != maxval )
+			{
+				pbb->tint_add[RR] = -pbb->tint[RR] / lifetime_secs / TARGET_UPS;
+			}
+
+			if( pbb->tint[GG] != maxval )
+			{
+				pbb->tint_add[GG] = -pbb->tint[GG] / lifetime_secs / TARGET_UPS;
+			}
+
+			if( pbb->tint[BB] != maxval )
+			{
+				pbb->tint_add[BB] = -pbb->tint[BB] / lifetime_secs / TARGET_UPS;
+			}
 		}
 	}
 

@@ -120,10 +120,11 @@ static bool_t       _vfs_ensure_destination_file( const char * filename );
 
 static void _vfs_translate_error( vfs_FILE * pfile );
 
-static bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path );
-static int    _vfs_mount_point_matches( const char * mount_point, const char * local_path );
-static bool_t _vfs_remove_mount_info( int cnt );
-static int    _vfs_is_virtual_path( const char * some_path );
+static bool_t       _vfs_mount_info_add( const char * mount_point, const char * local_path );
+static int          _vfs_mount_info_matches( const char * mount_point, const char * local_path );
+static bool_t       _vfs_mount_info_remove( int cnt );
+static int          _vfs_mount_info_search( const char * some_path );
+static const char * _vfs_mount_info_strip_path( const char * some_path );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -270,17 +271,64 @@ const char * vfs_convert_fname_sys( const char * fname )
     // PHYSFS and this vfs use a "/" at the front of relative filenames. if this is not removed
     // when converting to system dependent filenames, it will reference the filename relative to the
     // root point, rather than relative to the current directory.
+	//
+	// Added complication: if you are trying to specify a root filename, 
+	// then you might expect a SLASH_CHR at the beginning of the pathname.
+	// To fix this, call str_convert_slash_sys(), and then check to see if the
+	// directory exists in the filesystem.
+	//
+	// This is not an ideal solution since we may be trying to specify a path for
+	// a tile that needs to be created. The optimal solution might be to check to see if
+	// the path belongs to a registered virtual mount point?
 
-    size_t          offset;
-    VFS_PATH        copy_fname  = EMPTY_CSTR;
     static VFS_PATH local_fname = EMPTY_CSTR;
 
-    // test for a bad iput filename
+	size_t   offset;
+    VFS_PATH copy_fname  = EMPTY_CSTR;
+	char *   string_ptr;
+
+    // test for a bad input filename
     if ( INVALID_CSTR( fname ) )
     {
         strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
         return local_fname;
     }
+
+	if( VFS_TRUE == _vfs_mount_info_search( fname ) )
+	{
+		// this path contains a virtual mount point
+		assert( bfalse );
+		return local_fname;
+	}
+
+	// convert the path string to local notation
+	string_ptr = str_convert_slash_sys( fname, strlen( fname ) );
+	if( !VALID_CSTR(string_ptr) )
+	{
+		strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
+		return local_fname;
+	}
+
+	// resolve the conflict between 
+	//    -1- directories relative to the PHYSFS root path starting with NET_SLASH
+	// and
+	//    -2- directories relative to the root of the filesystem beginning with a slash
+	// by trying to find the original path
+	//
+	// The following method is not exactly secure, since it would allow access to generic
+	// root directories using this code...
+
+	// if the path already exists, just return the path
+	if( fs_fileExists( string_ptr ) )
+	{
+        strncpy( local_fname, string_ptr, strlen( string_ptr ) );
+        return local_fname;
+	}
+
+	// if the path didn't exist it might be because it contains a file that has not yet been created...
+	// no solution to that problem, yet.
+
+	// ---- if we got to this point, we need to strip off any beginning slashes
 
     // make a copy of the original filename, in case fname is
     // actualy a pointer to local_fname
@@ -292,7 +340,8 @@ const char * vfs_convert_fname_sys( const char * fname )
         offset++;
     }
 
-    while (( NET_SLASH_CHR == copy_fname[offset] || WIN32_SLASH_CHR == copy_fname[offset] ) && offset < SDL_arraysize( copy_fname ) )
+	// the string has already been converted to a system filename, so just check SLASH_CHR
+    while ( SLASH_CHR == copy_fname[offset] && offset < SDL_arraysize( copy_fname ) )
     {
         offset++;
     }
@@ -300,7 +349,7 @@ const char * vfs_convert_fname_sys( const char * fname )
     // copy the proper relative filename
     strncpy( local_fname, copy_fname + offset, SDL_arraysize( local_fname ) );
 
-    return str_convert_slash_sys( local_fname, strlen( local_fname ) );
+    return local_fname;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -320,7 +369,7 @@ const char * vfs_convert_fname( const char * fname )
     // a literal string or a pointer to local_fname
     strncpy( copy_fname, fname, SDL_arraysize( copy_fname ) );
 
-    if ( _vfs_is_virtual_path( copy_fname ) )
+    if ( _vfs_mount_info_search( copy_fname ) )
     {
         snprintf( local_fname, SDL_arraysize( local_fname ), "%s", copy_fname );
     }
@@ -334,76 +383,6 @@ const char * vfs_convert_fname( const char * fname )
     }
 
     return str_convert_slash_net( local_fname, strlen( local_fname ) );
-}
-
-//--------------------------------------------------------------------------------------------
-int _vfs_is_virtual_path( const char * some_path )
-{
-    /// @details BB@> check to see if the given path is actually relative to a registered
-    ///               virtual mount point
-
-    int cnt, retval = VFS_FALSE;
-    VFS_PATH temp_path;
-
-    if ( !VALID_CSTR( some_path ) ) return retval;
-
-    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
-    {
-        int len;
-
-        if ( 0 == strcmp( _vfs_mount_info[cnt].mount, some_path ) )
-        {
-            retval = VFS_TRUE;
-            break;
-        }
-
-        snprintf( temp_path, SDL_arraysize( temp_path ), "%s" NET_SLASH_STR, _vfs_mount_info[cnt].mount );
-        len = strlen( temp_path );
-
-        if ( 0 == strncmp( temp_path, some_path, len ) )
-        {
-            retval = VFS_TRUE;
-            break;
-        }
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-const char * _vfs_strip_mount_point( const char * some_path )
-{
-    int cnt;
-    size_t offset;
-    const char * ptmp, * stripped_pos;
-
-    stripped_pos = some_path;
-
-    // strip any starting slashes
-    for ( ptmp = some_path; ( CSTR_END != *ptmp ) && ptmp < some_path + VFS_MAX_PATH; ptmp++ )
-    {
-        if ( NET_SLASH_CHR != *ptmp && WIN32_SLASH_CHR != *ptmp )
-        {
-            break;
-        }
-    }
-    some_path = ptmp;
-
-    ptmp   = NULL;
-    offset = 0;
-    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
-    {
-        offset = strlen( _vfs_mount_info[cnt].mount );
-        if ( offset <= 0 ) continue;
-
-        if ( 0 == strncmp( some_path, _vfs_mount_info[cnt].mount, offset ) )
-        {
-            stripped_pos = some_path + offset;
-            break;
-        }
-    }
-
-    return stripped_pos;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -463,7 +442,7 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
     }
 
     // return the potential mount point in system-dependent format
-    return vfs_convert_fname_sys( found_path );
+    return str_convert_slash_sys( found_path, strlen(found_path) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -515,7 +494,7 @@ const char * vfs_resolveReadFilename( const char * src_filename )
 
         if ( VALID_CSTR( retval ) )
         {
-            const char * ptmp = _vfs_strip_mount_point( loc_fname );
+            const char * ptmp = _vfs_mount_info_strip_path( loc_fname );
 
             if ( VALID_CSTR( ptmp ) )
             {
@@ -547,7 +526,7 @@ const char * vfs_resolveReadFilename( const char * src_filename )
         }
         else
         {
-            ptmp = _vfs_strip_mount_point( loc_fname );
+            ptmp = _vfs_mount_info_strip_path( loc_fname );
 
             snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/%s", tmp_dirname, ptmp );
             retval     = read_name_str;
@@ -2126,7 +2105,160 @@ const char * vfs_getError()
 }
 
 //--------------------------------------------------------------------------------------------
-int _vfs_mount_point_matches( const char * mount_point, const char * local_path )
+int vfs_add_mount_point( const char * dirname, const char * mount_point, int append )
+{
+    /// @details BB@> a wrapper for PHYSFS_mount
+
+    int retval = -1;
+    const char * loc_dirname;
+
+    if ( !VALID_CSTR( dirname ) ) return 0;
+
+	// a bare slash is taken to mean the PHYSFS root directory, not the root of the currently mounted volume
+    if ( 0 == strcmp( mount_point, "/" ) ) return 0;
+
+	/// @note ZF@> 2010-06-30 vfs_convert_fname_sys() broke the Linux version
+	/// @note BB@> 2010-06-30 the error in vfs_convert_fname_sys() might be fixed now
+	loc_dirname = vfs_convert_fname_sys( dirname );
+
+    if ( _vfs_mount_info_add( mount_point, loc_dirname ) )
+    {
+        retval = PHYSFS_mount( loc_dirname, mount_point, append );
+        if ( 1 != retval )
+        {
+            // go back and remove the mount info, since PHYSFS rejected the
+            // data we gave it
+            int i = _vfs_mount_info_matches( mount_point, loc_dirname );
+            _vfs_mount_info_remove( i );
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_remove_mount_point( const char * mount_point )
+{
+    /// @details BB@> Remove every single search path related to the given mount point.
+
+    int retval, cnt;
+
+    // don't allow it to remove the default directory
+    if ( !VALID_CSTR( mount_point ) ) return 0;
+    if ( 0 == strcmp( mount_point, "/" ) ) return 0;
+
+    // assume we are going to fail
+    retval = 0;
+
+    // see if we have the mount point
+    cnt = _vfs_mount_info_matches( mount_point, NULL );
+
+    // does it exist in the list?
+    if ( cnt < 0 ) return bfalse;
+
+    while ( cnt >= 0 )
+    {
+        int tmp_retval;
+        // we have to use the path name to remove the search path, not the mount point name
+        tmp_retval = PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].path );
+
+        // if we succedded once, we succeeded
+        if ( 0 != tmp_retval )
+        {
+            retval = 1;
+
+            // remove the mount info from this index
+            // ?should it be removed if PHYSFS_removeFromSearchPath() fails?
+            _vfs_mount_info_remove( cnt );
+        }
+
+        cnt = _vfs_mount_info_matches( mount_point, NULL );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+const char * vfs_search_context_get_current( vfs_search_context_t * ctxt )
+{
+    if ( NULL == ctxt ) return NULL;
+
+    return ctxt->found;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int _vfs_mount_info_search( const char * some_path )
+{
+    /// @details BB@> check to see if the given path is actually relative to a registered
+    ///               virtual mount point
+
+    int cnt, retval = VFS_FALSE;
+    VFS_PATH temp_path;
+
+    if ( !VALID_CSTR( some_path ) ) return retval;
+
+    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
+    {
+        int len;
+
+        if ( 0 == strcmp( _vfs_mount_info[cnt].mount, some_path ) )
+        {
+            retval = VFS_TRUE;
+            break;
+        }
+
+        snprintf( temp_path, SDL_arraysize( temp_path ), "%s" NET_SLASH_STR, _vfs_mount_info[cnt].mount );
+        len = strlen( temp_path );
+
+        if ( 0 == strncmp( temp_path, some_path, len ) )
+        {
+            retval = VFS_TRUE;
+            break;
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+const char * _vfs_mount_info_strip_path( const char * some_path )
+{
+    int cnt;
+    size_t offset;
+    const char * ptmp, * stripped_pos;
+
+    stripped_pos = some_path;
+
+    // strip any starting slashes
+    for ( ptmp = some_path; ( CSTR_END != *ptmp ) && ptmp < some_path + VFS_MAX_PATH; ptmp++ )
+    {
+        if ( NET_SLASH_CHR != *ptmp && WIN32_SLASH_CHR != *ptmp )
+        {
+            break;
+        }
+    }
+    some_path = ptmp;
+
+    ptmp   = NULL;
+    offset = 0;
+    for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
+    {
+        offset = strlen( _vfs_mount_info[cnt].mount );
+        if ( offset <= 0 ) continue;
+
+        if ( 0 == strncmp( some_path, _vfs_mount_info[cnt].mount, offset ) )
+        {
+            stripped_pos = some_path + offset;
+            break;
+        }
+    }
+
+    return stripped_pos;
+}
+
+//--------------------------------------------------------------------------------------------
+int _vfs_mount_info_matches( const char * mount_point, const char * local_path )
 {
     int cnt, retval;
     const char * ptmp;
@@ -2194,7 +2326,7 @@ int _vfs_mount_point_matches( const char * mount_point, const char * local_path 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path )
+bool_t _vfs_mount_info_add( const char * mount_point, const char * local_path )
 {
     const char * ptmp;
 
@@ -2204,7 +2336,7 @@ bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path )
     // do we want to add it?
     if ( !VALID_CSTR( local_path ) ) return bfalse;
 
-    if ( _vfs_mount_point_matches( mount_point, local_path ) >= 0 ) return bfalse;
+    if ( _vfs_mount_info_matches( mount_point, local_path ) >= 0 ) return bfalse;
 
     // strip any starting slashes
     for ( ptmp = mount_point; ptmp < mount_point + VFS_MAX_PATH; ptmp++ )
@@ -2227,7 +2359,7 @@ bool_t _vfs_add_mount_info( const char * mount_point, const char * local_path )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _vfs_remove_mount_info( int cnt )
+bool_t _vfs_mount_info_remove( int cnt )
 {
 
     // does it exist in the list?
@@ -2245,80 +2377,3 @@ bool_t _vfs_remove_mount_info( int cnt )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
-int vfs_add_mount_point( const char * dirname, const char * mount_point, int append )
-{
-    /// @details BB@> a wrapper for PHYSFS_mount
-
-    int retval = -1;
-    const char * loc_dirname;
-
-    if ( !VALID_CSTR( dirname ) ) return 0;
-    if ( 0 == strcmp( mount_point, "/" ) ) return 0;
-
-	//loc_dirname = vfs_convert_fname_sys( dirname );		//ZF> uncommented atm, it broke the Linux version
-    loc_dirname = dirname; 
-
-    if ( _vfs_add_mount_info( mount_point, loc_dirname ) )
-    {
-        retval = PHYSFS_mount( loc_dirname, mount_point, append );
-        if ( 1 != retval )
-        {
-            // go back and remove the mount info, since PHYSFS rejected the
-            // data we gave it
-            int i = _vfs_mount_point_matches( mount_point, loc_dirname );
-            _vfs_remove_mount_info( i );
-        }
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-int vfs_remove_mount_point( const char * mount_point )
-{
-    /// @details BB@> Remove every single search path related to the given mount point.
-
-    int retval, cnt;
-
-    // don't allow it to remove the default directory
-    if ( !VALID_CSTR( mount_point ) ) return 0;
-    if ( 0 == strcmp( mount_point, "/" ) ) return 0;
-
-    // assume we are going to fail
-    retval = 0;
-
-    // see if we have the mount point
-    cnt = _vfs_mount_point_matches( mount_point, NULL );
-
-    // does it exist in the list?
-    if ( cnt < 0 ) return bfalse;
-
-    while ( cnt >= 0 )
-    {
-        int tmp_retval;
-        // we have to use the path name to remove the search path, not the mount point name
-        tmp_retval = PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].path );
-
-        // if we succedded once, we succeeded
-        if ( 0 != tmp_retval )
-        {
-            retval = 1;
-
-            // remove the mount info from this index
-            // ?should it be removed if PHYSFS_removeFromSearchPath() fails?
-            _vfs_remove_mount_info( cnt );
-        }
-
-        cnt = _vfs_mount_point_matches( mount_point, NULL );
-    }
-
-    return retval;
-}
-
-const char * vfs_search_context_get_current( vfs_search_context_t * ctxt )
-{
-    if ( NULL == ctxt ) return NULL;
-
-    return ctxt->found;
-}

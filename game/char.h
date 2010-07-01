@@ -580,7 +580,7 @@ void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
-struct s_billboard_data * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color color, int lifetime_secs, bool_t randomize_offset );
+struct s_billboard_data * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, Uint32 opt_bits );
 const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits );
 const char * chr_get_dir_name( const CHR_REF by_reference ichr );
 
