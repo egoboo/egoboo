@@ -106,7 +106,7 @@ grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 #define PITDEPTH            -60                     ///< Depth to kill character
-#define NOSKINOVERRIDE      -1                      ///< For import
+#define NO_SKIN_OVERRIDE    -1                      ///< For import
 #define HURTDAMAGE           256                    ///< Minimum damage for hurt animation
 
 //Dismounting
@@ -378,7 +378,7 @@ struct s_chr
     // graphica info
     Uint8          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
     bool_t         transferblend;   ///< Give transparency to weapons?
-    bool_t         icon;            ///< Show the icon?
+    bool_t         draw_icon;       ///< Show the icon?
     Uint8          sparkle;         ///< Sparkle color or 0 for off
     bool_t         StatusList_on;   ///< Display stats?
     SFP8_T         uoffvel;         ///< Moving texture speed

@@ -179,10 +179,10 @@ struct s_cap
     Uint8        skindressy;                           ///< Bits to tell whether the skins are "dressy"
 
     // overrides
-    int          skinoverride;                  ///< -1 or 0-3.. For import
-    Uint8        leveloverride;                 ///< 0 for normal
-    int          stateoverride;                 ///< 0 for normal
-    int          contentoverride;               ///< 0 for normal
+    int          skin_override;                  ///< -1 or 0-3.. For import
+    Uint8        level_override;                 ///< 0 for normal
+    int          state_override;                 ///< 0 for normal
+    int          content_override;               ///< 0 for normal
 
     IDSZ         idsz[IDSZ_COUNT];              ///< ID strings
 
@@ -236,7 +236,7 @@ struct s_cap
     // status graphics
     Uint8        lifecolor;                     ///< Life bar color
     Uint8        manacolor;                     ///< Mana bar color
-    bool_t       icon;                           ///< Draw icon
+    bool_t       draw_icon;                     ///< Draw icon
 
     // model graphics
     Uint8        flashand;                      ///< Flashing rate
@@ -260,7 +260,7 @@ struct s_cap
     Uint16       nframeangle;
 
     // defense
-    Uint8        resistbumpspawn;                        ///< Don't catch fire
+    bool_t       resistbumpspawn;                        ///< Don't catch fire
     Uint8        defense[MAX_SKIN];                      ///< Defense for each skin
     Uint8        damagemodifier[DAMAGE_COUNT][MAX_SKIN];
 

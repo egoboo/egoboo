@@ -61,7 +61,8 @@ cap_t * cap_init( cap_t * pcap )
     // Clear expansions...
     pcap->reflect = btrue;
     pcap->hidestate = NOHIDE;
-    pcap->skinoverride = NOSKINOVERRIDE;
+    pcap->skin_override = NO_SKIN_OVERRIDE;
+	pcap->isvaluable = -1;
 
     // either these will be overridden by data in the data.txt, or
     // they will be limited by the spawning character's max stats
@@ -72,7 +73,7 @@ cap_t * cap_init( cap_t * pcap )
     pcap->stoppedby  = MPDFX_IMPASS;
 
     // Skills
-    pcap->spelleffect_type = NOSKINOVERRIDE;
+    pcap->spelleffect_type = NO_SKIN_OVERRIDE;
 
     return pcap;
 }
@@ -352,7 +353,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     pcap->bump_sizebig = pcap->bump_size * SQRT_TWO;
 
     // assume the normal icon usage
-    pcap->icon = pcap->usageknown;
+    pcap->draw_icon = pcap->usageknown;
 
     // assume normal platform usage
     pcap->canuseplatforms = !pcap->platform;
@@ -364,26 +365,26 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
         if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'G', 'O', 'L', 'D' ) ) pcap->money = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = ( 0 == fget_int( fileread ) );
-        else if ( idsz == MAKE_IDSZ( 'V', 'A', 'M', 'P' ) ) pcap->reflect = ( 0 == fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = (0 != (1 - fget_int( fileread )));
+        else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = !( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'V', 'A', 'M', 'P' ) ) pcap->reflect = !( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'W' ) ) pcap->alwaysdraw = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'R', 'A', 'N', 'G' ) ) pcap->isranged = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'H', 'I', 'D', 'E' ) ) pcap->hidestate = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'E', 'Q', 'U', 'I' ) ) pcap->isequipment = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'S', 'Q', 'U', 'A' ) ) pcap->bump_sizebig = pcap->bump_size * 2;
-        else if ( idsz == MAKE_IDSZ( 'I', 'C', 'O', 'N' ) ) pcap->icon = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'I', 'C', 'O', 'N' ) ) pcap->draw_icon = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) pcap->canseekurse = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) pcap->skinoverride = fget_int( fileread ) & 3;
-        else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->contentoverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->stateoverride = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L', 'E', 'V', 'L' ) ) pcap->leveloverride = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) pcap->skin_override = fget_int( fileread ) & 3;
+        else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->content_override = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->state_override = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L', 'E', 'V', 'L' ) ) pcap->level_override = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'P', 'L', 'A', 'T' ) ) pcap->canuseplatforms = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'R', 'I', 'P', 'P' ) ) pcap->ripple = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'V', 'A', 'L', 'U' ) ) pcap->isvaluable = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->life_spawn = 256 * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 256 * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->life_spawn = 256.0f * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 256.0f * fget_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->spelleffect_type = fget_int( fileread );
 
         // Read Skills
@@ -686,8 +687,8 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     if ( pcap->bump_sizebig >= pcap->bump_size * 2 )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'Q', 'U', 'A' ), 1 );
 
-    if ( pcap->icon != pcap->usageknown )
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), pcap->icon );
+    if ( pcap->draw_icon != pcap->usageknown )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), pcap->draw_icon );
 
     if ( pcap->forceshadow )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'H', 'A', 'D' ), 1 );
@@ -695,19 +696,19 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     if ( pcap->ripple == pcap->isitem )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'R', 'I', 'P', 'P' ), pcap->ripple );
 
-    if ( pcap->isvaluable != -1 )
+    if ( -1 != pcap->isvaluable )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), pcap->isvaluable );
 
-    if ( pcap->spelleffect_type != NOSKINOVERRIDE )
+    if ( NO_SKIN_OVERRIDE != pcap->spelleffect_type )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), pcap->spelleffect_type );
 
     // Basic stuff that is always written
     fput_expansion( filewrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), pcap->money );
     fput_expansion( filewrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), pcap->canuseplatforms );
-    fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'K', 'I', 'N' ), pcap->skinoverride );
-    fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), pcap->contentoverride );
-    fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), pcap->stateoverride );
-    fput_expansion( filewrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), pcap->leveloverride );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'K', 'I', 'N' ), pcap->skin_override );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), pcap->content_override );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), pcap->state_override );
+    fput_expansion( filewrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), pcap->level_override );
 
     vfs_printf( filewrite, ": [LIFE] %4.2f\n", FP8_TO_FLOAT( pcap->life_spawn ) );
     vfs_printf( filewrite, ": [MANA] %4.2f\n", FP8_TO_FLOAT( pcap->mana_spawn ) );

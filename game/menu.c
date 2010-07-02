@@ -1175,7 +1175,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
             pdata->cap_ref = ref_temp;
 
             // load the icon
-            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer[player].dir, i, MAX( 0, pcap->skinoverride ) );
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer[player].dir, i, MAX( 0, pcap->skin_override ) );
             pdata->tx_ref = TxTexture_load_one_vfs( szFilename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
 
             // load the naming
@@ -1228,7 +1228,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
         if ( LOADED_CAP( icap ) )
         {
             cap_t * pcap = CapStack.lst + icap;
-            Uint8 skin = MAX( 0, pcap->skinoverride );
+            Uint8 skin = MAX( 0, pcap->skin_override );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
@@ -1237,7 +1237,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
             // fix class name capitalization
             pcap->classname[0] = toupper( pcap->classname[0] );
-            fnt_drawText( menuFont, NULL, x1, y1, "A level %d %s", pcap->leveloverride + 1, pcap->classname );
+            fnt_drawText( menuFont, NULL, x1, y1, "A level %d %s", pcap->level_override + 1, pcap->classname );
             y1 += 20;
 
             // Armor
@@ -4305,7 +4305,7 @@ TX_REF mnu_get_icon_ref( const CAP_REF by_reference icap, const TX_REF by_refere
     pitem_cap = CapStack.lst + icap;
 
     // what do we need to draw?
-    is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;
+    is_spell_fx = (NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type);
     is_book     = ( SPELLBOOK == icap );
     draw_book   = ( is_book || is_spell_fx ) && ( bookicon_count > 0 );
 
@@ -4321,9 +4321,9 @@ TX_REF mnu_get_icon_ref( const CAP_REF by_reference icap, const TX_REF by_refere
         {
             iskin = pitem_cap->spelleffect_type;
         }
-        else if ( pitem_cap->skinoverride != 0 )
+        else if ( pitem_cap->skin_override != 0 )
         {
-            iskin = pitem_cap->skinoverride;
+            iskin = pitem_cap->skin_override;
         }
 
         iskin = CLIP( iskin, 0, bookicon_count );

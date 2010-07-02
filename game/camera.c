@@ -69,23 +69,23 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->move_mode = pcam->move_mode_old = CAM_PLAYER;
     pcam->turn_mode = cfg.autoturncamera;
 
-    pcam->swing     =  0;
-    pcam->swingrate =  0;
-    pcam->swingamp  =  0;
-    pcam->pos.x     =  0;
-    pcam->pos.y     =  1500;
-    pcam->pos.z     =  1500;
-    pcam->zoom      =  1000;
-    pcam->zadd      =  800;
-    pcam->zaddgoto  =  800;
-    pcam->zgoto     =  800;
-    pcam->turn_z_rad = -PI / 4.0f;
-    pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->ori.facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
-    pcam->turnadd    =  0;
-    pcam->sustain    =  0.60f;
-    pcam->turnupdown = ( float )( PI / 4 );
-    pcam->roll       =  0;
+    pcam->swing        =  0;
+    pcam->swingrate    =  0;
+    pcam->swingamp     =  0;
+    pcam->pos.x        =  0;
+    pcam->pos.y        =  1500;
+    pcam->pos.z        =  1500;
+    pcam->zoom         =  1000;
+    pcam->zadd         =  800;
+    pcam->zaddgoto     =  800;
+    pcam->zgoto        =  800;
+    pcam->turn_z_rad   = -PI / 4.0f;
+    pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
+    pcam->ori.facing_z = CLIP_TO_16BITS( ( int )( pcam->turn_z_one * (float)0x00010000 ) ) ;
+    pcam->turnadd      =  0;
+    pcam->sustain      =  0.60f;
+    pcam->turnupdown   = ( float )( PI / 4 );
+    pcam->roll         =  0;
 
     pcam->mView       = pcam->mViewSave = ViewMatrix( t1.v, t2.v, t3.v, 0 );
     pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
@@ -551,26 +551,26 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
 {
     /// @details ZZ@> This function makes sure the camera starts in a suitable position
 
-    pcam->swing = 0;
-    pcam->pos.x = pmesh->gmem.edge_x / 2;
-    pcam->pos.y = pmesh->gmem.edge_y / 2;
-    pcam->pos.z = 1500;
-    pcam->zoom = 1000;
-    pcam->center.x = pcam->pos.x;
-    pcam->center.y = pcam->pos.y;
-    pcam->track_pos.x = pcam->pos.x;
-    pcam->track_pos.y = pcam->pos.y;
-    pcam->track_pos.z = 1500;
-    pcam->turnadd = 0;
-    pcam->track_level = 0;
-    pcam->zadd = 1500;
-    pcam->zaddgoto = MAXZADD;
-    pcam->zgoto = 1500;
-    pcam->turn_z_rad = -PI / 4.0f;
-    pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
-    pcam->ori.facing_z     = (( signed )( pcam->turn_z_one * 0x00010000L ) ) & 0xFFFF;
-    pcam->turnupdown = PI / 4.0f;
-    pcam->roll = 0;
+    pcam->swing        = 0;
+    pcam->pos.x        = pmesh->gmem.edge_x / 2;
+    pcam->pos.y        = pmesh->gmem.edge_y / 2;
+    pcam->pos.z        = 1500;
+    pcam->zoom         = 1000;
+    pcam->center.x     = pcam->pos.x;
+    pcam->center.y     = pcam->pos.y;
+    pcam->track_pos.x  = pcam->pos.x;
+    pcam->track_pos.y  = pcam->pos.y;
+    pcam->track_pos.z  = 1500;
+    pcam->turnadd      = 0;
+    pcam->track_level  = 0;
+    pcam->zadd         = 1500;
+    pcam->zaddgoto     = MAXZADD;
+    pcam->zgoto        = 1500;
+    pcam->turn_z_rad   = -PI / 4.0f;
+    pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
+    pcam->ori.facing_z = CLIP_TO_16BITS( ( int )( pcam->turn_z_one * (float)0x00010000 ) ) ;
+    pcam->turnupdown   = PI / 4.0f;
+    pcam->roll         = 0;
 
     // make sure you are looking at the players
     camera_reset_target( pcam, pmesh );

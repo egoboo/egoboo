@@ -551,11 +551,11 @@ INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
     if ( !ALLOCATED_PCHR( pchr ) ) return;
     if ( NULL == pcap || !pcap->loaded ) return;
 
-    pchr->fat               = pcap->size;
-    pchr->shadow_size_save  = pcap->shadow_size;
-    pchr->bump_save.size    = pcap->bump_size;
+    pchr->fat                = pcap->size;
+    pchr->shadow_size_save   = pcap->shadow_size;
+    pchr->bump_save.size     = pcap->bump_size;
     pchr->bump_save.size_big = pcap->bump_sizebig;
-    pchr->bump_save.height  = pcap->bump_height;
+    pchr->bump_save.height   = pcap->bump_height;
 
     chr_update_size( pchr );
 }

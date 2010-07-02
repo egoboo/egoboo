@@ -137,7 +137,7 @@ egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
     diff = ovel2[index] - ovel1[index];
-    //if ( diff == 0.0f ) return rv_fail;
+    if ( diff == 0.0f ) return rv_fail;
 
     tolerance1 = (( OCT_Z == index ) && ( test_platform & PHYS_PLATFORM_OBJ1 ) ) ? PLATTOLERANCE : 0.0f;
     tolerance2 = (( OCT_Z == index ) && ( test_platform & PHYS_PLATFORM_OBJ2 ) ) ? PLATTOLERANCE : 0.0f;
@@ -299,6 +299,9 @@ bool_t phys_intersect_oct_bb( oct_bb_t src1_orig, fvec3_t pos1, fvec3_t vel1, oc
     float  local_tmin, local_tmax;
     float  tmp_min, tmp_max;
 
+	int    failure_count = 0;
+	bool_t failure[OCT_COUNT];
+
     // handle optional parameters
     if ( NULL == tmin ) tmin = &local_tmin;
     if ( NULL == tmax ) tmax = &local_tmax;
@@ -328,38 +331,70 @@ bool_t phys_intersect_oct_bb( oct_bb_t src1_orig, fvec3_t pos1, fvec3_t vel1, oc
     // cycle through the coordinates to see when the two volumes might coincide
     found = bfalse;
     *tmin = *tmax = -1.0f;
-    for ( index = 0; index < OCT_COUNT; index ++ )
-    {
-        egoboo_rv retval;
+	if( 0 == fvec3_dist_abs(vel1.v, vel2.v) )
+	{
+		// no relative motion, so avoid the loop to save time
+		failure_count = OCT_COUNT;
+	}
+	else
+	{
+		for ( index = 0; index < OCT_COUNT; index++ )
+		{
+			egoboo_rv retval;
 
-        retval = oct_bb_intersect_index( index, src1_orig, opos1, ovel1, src2_orig, opos2, ovel2, test_platform, &tmp_min, &tmp_max );
-        if ( rv_fail == retval ) return bfalse;
+			retval = oct_bb_intersect_index( index, src1_orig, opos1, ovel1, src2_orig, opos2, ovel2, test_platform, &tmp_min, &tmp_max );
+			if ( rv_fail == retval )
+			{
+				// This case will only occur if the objects are not moving relative to each other.
 
-        if ( rv_success == retval )
-        {
-            if ( !found )
-            {
-                *tmin = tmp_min;
-                *tmax = tmp_max;
-                found = btrue;
-            }
-            else
-            {
-                *tmin = MAX( *tmin, tmp_min );
-                *tmax = MIN( *tmax, tmp_max );
-            }
-        }
+				failure[index] = btrue;
+				failure_count++;
+			}
+			else if ( rv_success == retval )
+			{
+				failure[index] = bfalse;
 
-        if ( *tmax < *tmin ) return bfalse;
-    }
+				if ( !found )
+				{
+					*tmin = tmp_min;
+					*tmax = tmp_max;
+					found = btrue;
+				}
+				else
+				{
+					*tmin = MAX( *tmin, tmp_min );
+					*tmax = MIN( *tmax, tmp_max );
+				}
 
-    // if the objects do not interact this frame let the caller know
-    if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
+				if ( *tmax < *tmin ) return bfalse;
+			}
+		}
+	}
 
+	if( OCT_COUNT == failure_count )
+	{
+		// No relative motion on any axis.
+		// Just say that they are interacting for the whole frame
+
+		*tmin = 0.0f;
+		*tmax = 1.0f; 
+	}
+	else
+	{
+		// some relative motion found
+
+		// if the objects do not interact this frame let the caller know
+		if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
+
+		// limit the negative values of time to the start of the module
+		if( (*tmin) + update_wld < 0 ) *tmin = -((Sint32)update_wld);
+	}
+
+	// clip the interaction time to just one frame
     tmp_min = CLIP( *tmin, 0.0f, 1.0f );
     tmp_max = CLIP( *tmax, 0.0f, 1.0f );
 
-    // shift the cource bounding boxes to be centered on the given positions
+    // shift the source bounding boxes to be centered on the given positions
     oct_bb_add_vector( src1_orig, pos1, &src1 );
     oct_bb_add_vector( src2_orig, pos2, &src2 );
 
@@ -494,7 +529,7 @@ bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oc
     }
 
     // determine the bounding volume at t == tmin
-    if ( tmin == 0.0f )
+    if ( 0.0f == tmin )
     {
         tmp_min = src;
     }

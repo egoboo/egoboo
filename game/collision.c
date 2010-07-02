@@ -91,8 +91,8 @@ static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF by_ref
 static bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
 static bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
 
-static bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
-static bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
+//static bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
+//static bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
 
 static bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
 static bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
@@ -194,6 +194,206 @@ void collision_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+CoNode_t * CoNode_ctor( CoNode_t * n )
+{
+    if ( NULL == n ) return n;
+
+    // clear all data
+    memset( n, 0, sizeof( *n ) );
+
+    // the "colliding" objects
+    n->chra = ( CHR_REF )MAX_CHR;
+    n->prta = TOTAL_MAX_PRT;
+
+    // the "collided with" objects
+    n->chrb  = ( CHR_REF )MAX_CHR;
+    n->prtb  = TOTAL_MAX_PRT;
+    n->tileb = FANOFF;
+
+    // intialize the time
+    n->tmin = n->tmax = -1.0f;
+
+    return n;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 CoNode_generate_hash( CoNode_t * coll )
+{
+    REF_T AA, BB;
+
+    AA = ( Uint32 )( ~((Uint32)0) );
+    if ( INGAME_CHR( coll->chra ) )
+    {
+        AA = REF_TO_INT( coll->chra );
+    }
+    else if ( INGAME_PRT( coll->prta ) )
+    {
+        AA = REF_TO_INT( coll->prta );
+    }
+
+    BB = ( Uint32 )( ~((Uint32)0) );
+    if ( INGAME_CHR( coll->chrb ) )
+    {
+        BB = REF_TO_INT( coll->chra );
+    }
+    else if ( INGAME_PRT( coll->prtb ) )
+    {
+        BB = REF_TO_INT( coll->prta );
+    }
+    else if ( FANOFF != coll->tileb )
+    {
+        BB = coll->tileb;
+    }
+
+    return MAKE_HASH( AA, BB );
+}
+
+//--------------------------------------------------------------------------------------------
+int CoNode_cmp( const void * vleft, const void * vright )
+{
+    int   itmp;
+    float ftmp;
+
+    CoNode_t * pleft  = ( CoNode_t * )vleft;
+    CoNode_t * pright = ( CoNode_t * )vright;
+
+    // sort by initial time first
+    ftmp = pleft->tmin - pright->tmin;
+    if ( ftmp <= 0.0f ) return -1;
+    else if ( ftmp >= 0.0f ) return 1;
+
+    // fort by final time second
+    ftmp = pleft->tmax - pright->tmax;
+    if ( ftmp <= 0.0f ) return -1;
+    else if ( ftmp >= 0.0f ) return 1;
+
+    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
+    if ( 0 != itmp ) return itmp;
+
+    itmp = ( signed )REF_TO_INT( pleft->prta ) - ( signed )REF_TO_INT( pright->prta );
+    if ( 0 != itmp ) return itmp;
+
+    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
+    if ( 0 != itmp ) return itmp;
+
+    itmp = ( signed )REF_TO_INT( pleft->prtb ) - ( signed )REF_TO_INT( pright->prtb );
+    if ( 0 != itmp ) return itmp;
+
+    itmp = ( signed )REF_TO_INT( pleft->chrb ) - ( signed )REF_TO_INT( pright->chrb );
+    if ( 0 != itmp ) return itmp;
+
+    itmp = ( signed )pleft->tileb - ( signed )pright->tileb;
+    if ( 0 != itmp ) return itmp;
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+CHashList_t * CHashList_ctor( CHashList_t * pchlst, int size )
+{
+    return hash_list_ctor( pchlst, size );
+}
+
+//--------------------------------------------------------------------------------------------
+CHashList_t * CHashList_dtor( CHashList_t * pchlst )
+{
+    return hash_list_dtor( pchlst );
+}
+
+//--------------------------------------------------------------------------------------------
+CHashList_t * CHashList_get_Instance( int size )
+{
+    /// @details BB@> allows access to a "private" CHashList singleton object. This will automatically
+    ///               initialze the _Colist_singleton and (almost) prevent anything from messing up
+    ///               the initialization.
+
+    // make sure that the collsion system was started
+    collision_system_begin();
+
+    // if the _CHashList_ptr doesn't exist, create it (and initialize it)
+    if ( NULL == _CHashList_ptr )
+    {
+        _CHashList_ptr              = hash_list_create( size );
+        _collision_hash_initialized = ( NULL != _CHashList_ptr );
+    }
+
+    // it the pointer exists, but it (somehow) not initialized, do the initialization
+    if ( NULL != _CHashList_ptr && !_collision_hash_initialized )
+    {
+        _CHashList_ptr              = CHashList_ctor( _CHashList_ptr, size );
+        _collision_hash_initialized = ( NULL != _CHashList_ptr );
+    }
+
+    return _collision_hash_initialized ? _CHashList_ptr : NULL;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_ary_t * free_cdata, HashNode_ary_t * free_hnodes )
+{
+    Uint32 hashval = 0;
+    CoNode_t * d;
+
+    hash_node_t * hn;
+    bool_t found;
+    size_t count;
+
+    if ( NULL == pchlst || NULL == pdata ) return bfalse;
+
+    // find the hash value for this interaction
+    hashval = CoNode_generate_hash( pdata );
+
+    found = bfalse;
+    count = hash_list_get_count( pchlst, hashval );
+    if ( count > 0 )
+    {
+        int k;
+
+        // this hash already exists. check to see if the binary collision exists, too
+        hn = hash_list_get_node( pchlst, hashval );
+        for ( k = 0; k < count; k++ )
+        {
+            if ( 0 == CoNode_cmp( hn->data, pdata ) )
+            {
+                found = btrue;
+                break;
+            }
+        }
+    }
+
+    // insert this collision
+    if ( !found )
+    {
+        size_t old_count;
+        hash_node_t * old_head, * new_head, * hn;
+
+        // pick a free collision data
+        d = CoNode_ary_pop_back( free_cdata );
+
+        // fill it in
+        *d = *pdata;
+
+        // generate a new hash node
+        hn = HashNode_ary_pop_back( free_hnodes );
+
+        // link the hash node to the free CoNode
+        hn->data = d;
+
+        // insert the node at the front of the collision list for this hash
+        old_head = hash_list_get_node( pchlst, hashval );
+        new_head = hash_node_insert_before( old_head, hn );
+        hash_list_set_node( pchlst, hashval, new_head );
+
+        // add 1 to the count at this hash
+        old_count = hash_list_get_count( pchlst, hashval );
+        hash_list_set_count( pchlst, hashval, old_count + 1 );
+    }
+
+    return !found;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
 {
     chr_t *pchr_a, *pchr_b;
@@ -225,71 +425,6 @@ bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, cons
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
-{
-    bool_t interact_x  = bfalse;
-    bool_t interact_y  = bfalse;
-    bool_t interact_xy = bfalse;
-    bool_t interact_z  = bfalse;
-
-    float xa, ya, za;
-    float xb, yb, zb;
-    float dxy, dx, dy, depth_z;
-
-    chr_t *pchr_a, *pchr_b;
-    cap_t *pcap_a, *pcap_b;
-
-    if ( !detect_chr_chr_interaction_valid( ichr_a, ichr_b ) ) return bfalse;
-
-    // Ignore invalid characters
-    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
-    pchr_a = ChrList.lst + ichr_a;
-
-    pcap_a = chr_get_pcap( ichr_a );
-    if ( NULL == pcap_a ) return bfalse;
-
-    // Ignore invalid characters
-    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
-    pchr_b = ChrList.lst + ichr_b;
-
-    pcap_b = chr_get_pcap( ichr_b );
-    if ( NULL == pcap_b ) return bfalse;
-
-    xa = pchr_a->pos.x;
-    ya = pchr_a->pos.y;
-    za = pchr_a->pos.z;
-
-    xb = pchr_b->pos.x;
-    yb = pchr_b->pos.y;
-    zb = pchr_b->pos.z;
-
-    // First check absolute value diamond
-    dx = ABS( xa - xb );
-    dy = ABS( ya - yb );
-    dxy = dx + dy;
-
-    // detect z interactions based on the actual vertical extent of the bounding box
-    depth_z = MIN( zb + pchr_b->chr_chr_cv.maxs[OCT_Z], za + pchr_a->chr_chr_cv.maxs[OCT_Z] ) -
-              MAX( zb + pchr_b->chr_chr_cv.mins[OCT_Z], za + pchr_a->chr_chr_cv.mins[OCT_Z] );
-
-    // detect x-y interactions based on a potentially gigantor bounding box
-    interact_x  = ( dx  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
-    interact_y  = ( dy  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
-    interact_xy = ( dxy <= pchr_a->bump_1.size_big + pchr_b->bump_1.size_big );
-
-    if (( pchr_a->platform && pchr_b->canuseplatforms ) ||
-        ( pchr_b->platform && pchr_a->canuseplatforms ) )
-    {
-        interact_z  = ( depth_z > -PLATTOLERANCE );
-    }
-    else
-    {
-        interact_z  = ( depth_z > 0 );
-    }
-
-    return interact_x && interact_y && interact_xy && interact_z;
-}
 
 //--------------------------------------------------------------------------------------------
 bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
@@ -316,56 +451,6 @@ bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, cons
     //if ( 0 == pchr_a->bump_1.size || 0 == pprt_b->bump_size ) return bfalse;
 
     return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
-{
-    bool_t interact_x  = bfalse;
-    bool_t interact_y  = bfalse;
-    bool_t interact_xy = bfalse;
-    bool_t interact_z  = bfalse;
-    bool_t interact_platform = bfalse;
-
-    float dxy, dx, dy, depth_z;
-
-    chr_t * pchr_a;
-    prt_t * pprt_b;
-
-    if ( !detect_chr_prt_interaction_valid( ichr_a, iprt_b ) ) return bfalse;
-
-    // Ignore invalid characters
-    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
-    pchr_a = ChrList.lst + ichr_a;
-
-    // Ignore invalid characters
-    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
-    pprt_b = PrtList.lst + iprt_b;
-
-    // First check absolute value diamond
-    dx = ABS( pchr_a->pos.x - pprt_b->pos.x );
-    dy = ABS( pchr_a->pos.y - pprt_b->pos.y );
-    dxy = dx + dy;
-
-    // estimate the horizontal interactions this frame
-    interact_x  = ( dx  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
-    interact_y  = ( dy  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
-    interact_xy = ( dxy <= ( pchr_a->bump_1.size_big + pprt_b->bump_padded.size_big ) );
-
-    if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
-
-    interact_platform = bfalse;
-    if ( pchr_a->platform && !INGAME_CHR( pprt_b->attachedto_ref ) )
-    {
-        // estimate the vertical interactions this frame
-        depth_z = pprt_b->pos.z - ( pchr_a->pos.z + pchr_a->bump_1.height );
-        interact_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
-    }
-
-    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.maxs[OCT_Z], pprt_b->pos.z + pprt_b->bump_padded.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.mins[OCT_Z], pprt_b->pos.z - pprt_b->bump_padded.height );
-    interact_z  = ( depth_z > 0 ) || interact_platform;
-
-    return interact_z;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1850,15 +1935,55 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     }
 
     // measure the collision depth
-    if ( !get_depth_2( pchr_a->chr_chr_cv, pchr_a->pos, pchr_b->chr_chr_cv, pchr_b->pos, btrue, odepth ) )
-    {
-        // return if there was no collision
-        return bfalse;
-    }
+    //if ( !get_depth_2( pchr_a->chr_chr_cv, pchr_a->pos, pchr_b->chr_chr_cv, pchr_b->pos, btrue, odepth ) )
+    //{
+    //    // return if there was no collision
+    //    return bfalse;
+    //}
+
+	// estimate the collision volume and depth from a 10% overlap
+	{
+		int cnt;
+
+		oct_bb_t src1, src2;
+
+		oct_bb_t exp1, exp2, intersect;
+
+		oct_vec_t opos1, opos2;
+		oct_vec_t ovel1, ovel2;
+
+		float tmp_min, tmp_max;
+
+		tmp_min = d->tmin;
+		tmp_max = d->tmin + (d->tmax - d->tmin) * 0.1f;
+
+		// shift the source bounding boxes to be centered on the given positions
+		oct_bb_add_vector( pchr_a->chr_chr_cv, pchr_a->pos, &src1 );
+		oct_bb_add_vector( pchr_b->chr_chr_cv, pchr_b->pos, &src2 );
+
+		// determine the expanded collision volumes for both objects
+		phys_expand_oct_bb( src1, pchr_a->vel, tmp_min, tmp_max, &exp1 );
+		phys_expand_oct_bb( src2, pchr_b->vel, tmp_min, tmp_max, &exp2 );
+
+		// determine the intersection of these two volumes
+		oct_bb_intersection( exp1, exp2, &intersect );
+
+		for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+		{
+			odepth[cnt]  = intersect.maxs[cnt] - intersect.mins[cnt];
+		}
+
+		// scale the diagonal components so that they are actually distances
+		odepth[OCT_XY] *= INV_SQRT_TWO;
+		odepth[OCT_YX] *= INV_SQRT_TWO;
+	}
 
     // measure the collision depth in the last update
     // the objects were not touching last frame, so they must have collided this frame
-    collision = !get_depth_2( pchr_a->chr_chr_cv, pchr_a->pos_old, pchr_b->chr_chr_cv, pchr_b->pos_old, btrue, odepth_old );
+    //collision = !get_depth_2( pchr_a->chr_chr_cv, pchr_a->pos_old, pchr_b->chr_chr_cv, pchr_b->pos_old, btrue, odepth_old );
+
+	// use the info from the collision volume to determine whether the objects are colliding
+	collision = (d->tmin >= 0.0f);
 
     //------------------
     // do character-character interactions
@@ -2875,206 +3000,9 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 }
 
 //--------------------------------------------------------------------------------------------
+// OBSOLETE CODE
 //--------------------------------------------------------------------------------------------
-CoNode_t * CoNode_ctor( CoNode_t * n )
-{
-    if ( NULL == n ) return n;
 
-    // clear all data
-    memset( n, 0, sizeof( *n ) );
-
-    // the "colliding" objects
-    n->chra = ( CHR_REF )MAX_CHR;
-    n->prta = TOTAL_MAX_PRT;
-
-    // the "collided with" objects
-    n->chrb  = ( CHR_REF )MAX_CHR;
-    n->prtb  = TOTAL_MAX_PRT;
-    n->tileb = FANOFF;
-
-    // intialize the time
-    n->tmin = n->tmax = -1.0f;
-
-    return n;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint8 CoNode_generate_hash( CoNode_t * coll )
-{
-    REF_T AA, BB;
-
-    AA = ( Uint32 )( ~((Uint32)0) );
-    if ( INGAME_CHR( coll->chra ) )
-    {
-        AA = REF_TO_INT( coll->chra );
-    }
-    else if ( INGAME_PRT( coll->prta ) )
-    {
-        AA = REF_TO_INT( coll->prta );
-    }
-
-    BB = ( Uint32 )( ~((Uint32)0) );
-    if ( INGAME_CHR( coll->chrb ) )
-    {
-        BB = REF_TO_INT( coll->chra );
-    }
-    else if ( INGAME_PRT( coll->prtb ) )
-    {
-        BB = REF_TO_INT( coll->prta );
-    }
-    else if ( FANOFF != coll->tileb )
-    {
-        BB = coll->tileb;
-    }
-
-    return MAKE_HASH( AA, BB );
-}
-
-//--------------------------------------------------------------------------------------------
-int CoNode_cmp( const void * vleft, const void * vright )
-{
-    int   itmp;
-    float ftmp;
-
-    CoNode_t * pleft  = ( CoNode_t * )vleft;
-    CoNode_t * pright = ( CoNode_t * )vright;
-
-    // sort by initial time first
-    ftmp = pleft->tmin - pright->tmin;
-    if ( ftmp <= 0.0f ) return -1;
-    else if ( ftmp >= 0.0f ) return 1;
-
-    // fort by final time second
-    ftmp = pleft->tmax - pright->tmax;
-    if ( ftmp <= 0.0f ) return -1;
-    else if ( ftmp >= 0.0f ) return 1;
-
-    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )REF_TO_INT( pleft->prta ) - ( signed )REF_TO_INT( pright->prta );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )REF_TO_INT( pleft->prtb ) - ( signed )REF_TO_INT( pright->prtb );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )REF_TO_INT( pleft->chrb ) - ( signed )REF_TO_INT( pright->chrb );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )pleft->tileb - ( signed )pright->tileb;
-    if ( 0 != itmp ) return itmp;
-
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-CHashList_t * CHashList_ctor( CHashList_t * pchlst, int size )
-{
-    return hash_list_ctor( pchlst, size );
-}
-
-//--------------------------------------------------------------------------------------------
-CHashList_t * CHashList_dtor( CHashList_t * pchlst )
-{
-    return hash_list_dtor( pchlst );
-}
-
-//--------------------------------------------------------------------------------------------
-CHashList_t * CHashList_get_Instance( int size )
-{
-    /// @details BB@> allows access to a "private" CHashList singleton object. This will automatically
-    ///               initialze the _Colist_singleton and (almost) prevent anything from messing up
-    ///               the initialization.
-
-    // make sure that the collsion system was started
-    collision_system_begin();
-
-    // if the _CHashList_ptr doesn't exist, create it (and initialize it)
-    if ( NULL == _CHashList_ptr )
-    {
-        _CHashList_ptr              = hash_list_create( size );
-        _collision_hash_initialized = ( NULL != _CHashList_ptr );
-    }
-
-    // it the pointer exists, but it (somehow) not initialized, do the initialization
-    if ( NULL != _CHashList_ptr && !_collision_hash_initialized )
-    {
-        _CHashList_ptr              = CHashList_ctor( _CHashList_ptr, size );
-        _collision_hash_initialized = ( NULL != _CHashList_ptr );
-    }
-
-    return _collision_hash_initialized ? _CHashList_ptr : NULL;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_ary_t * free_cdata, HashNode_ary_t * free_hnodes )
-{
-    Uint32 hashval = 0;
-    CoNode_t * d;
-
-    hash_node_t * hn;
-    bool_t found;
-    size_t count;
-
-    if ( NULL == pchlst || NULL == pdata ) return bfalse;
-
-    // find the hash value for this interaction
-    hashval = CoNode_generate_hash( pdata );
-
-    found = bfalse;
-    count = hash_list_get_count( pchlst, hashval );
-    if ( count > 0 )
-    {
-        int k;
-
-        // this hash already exists. check to see if the binary collision exists, too
-        hn = hash_list_get_node( pchlst, hashval );
-        for ( k = 0; k < count; k++ )
-        {
-            if ( 0 == CoNode_cmp( hn->data, pdata ) )
-            {
-                found = btrue;
-                break;
-            }
-        }
-    }
-
-    // insert this collision
-    if ( !found )
-    {
-        size_t old_count;
-        hash_node_t * old_head, * new_head, * hn;
-
-        // pick a free collision data
-        d = CoNode_ary_pop_back( free_cdata );
-
-        // fill it in
-        *d = *pdata;
-
-        // generate a new hash node
-        hn = HashNode_ary_pop_back( free_hnodes );
-
-        // link the hash node to the free CoNode
-        hn->data = d;
-
-        // insert the node at the front of the collision list for this hash
-        old_head = hash_list_get_node( pchlst, hashval );
-        new_head = hash_node_insert_before( old_head, hn );
-        hash_list_set_node( pchlst, hashval, new_head );
-
-        // add 1 to the count at this hash
-        old_count = hash_list_get_count( pchlst, hashval );
-        hash_list_set_count( pchlst, hashval, old_count + 1 );
-    }
-
-    return !found;
-}
-
-//--------------------------------------------------------------------------------------------
 //void fill_bumplists()
 //{
 //    CHR_REF character; PRT_REF particle;
@@ -3151,8 +3079,6 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //}
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 //bool_t do_collisions( CHashList_t * pchlst, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
 //{
 //    int cnt, tnc;
@@ -3198,4 +3124,120 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //            }
 //        }
 //    }
+//}
+
+//--------------------------------------------------------------------------------------------
+//bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
+//{
+//    bool_t interact_x  = bfalse;
+//    bool_t interact_y  = bfalse;
+//    bool_t interact_xy = bfalse;
+//    bool_t interact_z  = bfalse;
+//
+//    float xa, ya, za;
+//    float xb, yb, zb;
+//    float dxy, dx, dy, depth_z;
+//
+//    chr_t *pchr_a, *pchr_b;
+//    cap_t *pcap_a, *pcap_b;
+//
+//    if ( !detect_chr_chr_interaction_valid( ichr_a, ichr_b ) ) return bfalse;
+//
+//    // Ignore invalid characters
+//    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
+//    pchr_a = ChrList.lst + ichr_a;
+//
+//    pcap_a = chr_get_pcap( ichr_a );
+//    if ( NULL == pcap_a ) return bfalse;
+//
+//    // Ignore invalid characters
+//    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
+//    pchr_b = ChrList.lst + ichr_b;
+//
+//    pcap_b = chr_get_pcap( ichr_b );
+//    if ( NULL == pcap_b ) return bfalse;
+//
+//    xa = pchr_a->pos.x;
+//    ya = pchr_a->pos.y;
+//    za = pchr_a->pos.z;
+//
+//    xb = pchr_b->pos.x;
+//    yb = pchr_b->pos.y;
+//    zb = pchr_b->pos.z;
+//
+//    // First check absolute value diamond
+//    dx = ABS( xa - xb );
+//    dy = ABS( ya - yb );
+//    dxy = dx + dy;
+//
+//    // detect z interactions based on the actual vertical extent of the bounding box
+//    depth_z = MIN( zb + pchr_b->chr_chr_cv.maxs[OCT_Z], za + pchr_a->chr_chr_cv.maxs[OCT_Z] ) -
+//              MAX( zb + pchr_b->chr_chr_cv.mins[OCT_Z], za + pchr_a->chr_chr_cv.mins[OCT_Z] );
+//
+//    // detect x-y interactions based on a potentially gigantor bounding box
+//    interact_x  = ( dx  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
+//    interact_y  = ( dy  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
+//    interact_xy = ( dxy <= pchr_a->bump_1.size_big + pchr_b->bump_1.size_big );
+//
+//    if (( pchr_a->platform && pchr_b->canuseplatforms ) ||
+//        ( pchr_b->platform && pchr_a->canuseplatforms ) )
+//    {
+//        interact_z  = ( depth_z > -PLATTOLERANCE );
+//    }
+//    else
+//    {
+//        interact_z  = ( depth_z > 0 );
+//    }
+//
+//    return interact_x && interact_y && interact_xy && interact_z;
+//}
+
+//--------------------------------------------------------------------------------------------
+//bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
+//{
+//    bool_t interact_x  = bfalse;
+//    bool_t interact_y  = bfalse;
+//    bool_t interact_xy = bfalse;
+//    bool_t interact_z  = bfalse;
+//    bool_t interact_platform = bfalse;
+//
+//    float dxy, dx, dy, depth_z;
+//
+//    chr_t * pchr_a;
+//    prt_t * pprt_b;
+//
+//    if ( !detect_chr_prt_interaction_valid( ichr_a, iprt_b ) ) return bfalse;
+//
+//    // Ignore invalid characters
+//    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
+//    pchr_a = ChrList.lst + ichr_a;
+//
+//    // Ignore invalid characters
+//    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
+//    pprt_b = PrtList.lst + iprt_b;
+//
+//    // First check absolute value diamond
+//    dx = ABS( pchr_a->pos.x - pprt_b->pos.x );
+//    dy = ABS( pchr_a->pos.y - pprt_b->pos.y );
+//    dxy = dx + dy;
+//
+//    // estimate the horizontal interactions this frame
+//    interact_x  = ( dx  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
+//    interact_y  = ( dy  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
+//    interact_xy = ( dxy <= ( pchr_a->bump_1.size_big + pprt_b->bump_padded.size_big ) );
+//
+//    if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
+//
+//    interact_platform = bfalse;
+//    if ( pchr_a->platform && !INGAME_CHR( pprt_b->attachedto_ref ) )
+//    {
+//        // estimate the vertical interactions this frame
+//        depth_z = pprt_b->pos.z - ( pchr_a->pos.z + pchr_a->bump_1.height );
+//        interact_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
+//    }
+//
+//    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.maxs[OCT_Z], pprt_b->pos.z + pprt_b->bump_padded.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.mins[OCT_Z], pprt_b->pos.z - pprt_b->bump_padded.height );
+//    interact_z  = ( depth_z > 0 ) || interact_platform;
+//
+//    return interact_z;
 //}

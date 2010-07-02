@@ -1047,8 +1047,7 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
     stoppedby = MPDFX_IMPASS;
     if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
 
-    if ( 0 == pprt->bump_real.size || INFINITE_WEIGHT == pprt->phys.weight ) return bfalse;
-
+	// handle optional parameters
  	if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
 	if ( NULL == test_pos ) return 0;
 
@@ -1329,7 +1328,7 @@ void prt_set_level( prt_t * pprt, float level )
 
     pprt->enviro.level = level;
 
-    loc_height = pprt->inst.scale * MAX( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5 );
+    loc_height = prt_get_scale(pprt) * MAX( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5 );
 
     pprt->enviro.adj_level = pprt->enviro.level;
     pprt->enviro.adj_floor = pprt->enviro.floor_level;

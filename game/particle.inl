@@ -31,6 +31,7 @@ INLINE PIP_REF  prt_get_ipip( const PRT_REF by_reference particle );
 INLINE pip_t  * prt_get_ppip( const PRT_REF by_reference particle );
 INLINE CHR_REF  prt_get_iowner( const PRT_REF by_reference iprt, int depth );
 INLINE bool_t   prt_set_size( prt_t *, int size );
+INLINE float    prt_get_scale( prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
@@ -82,7 +83,7 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
     }
     else 
 	{
-		float real_size  = FP8_TO_FLOAT(size);
+		float real_size  = 	FP8_TO_FLOAT( size ) * prt_get_scale( pprt );
 
 		if ( 0.0f == pprt->bump_real.size || 0.0f == size )
 		{
@@ -102,9 +103,9 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
 		}
 
 		// make sure that the virtual bumper size is at least as big as what is in the pip file
-		pprt->bump_padded.size     = MAX(pprt->bump_real.size,     ppip->bump_size);
-		pprt->bump_padded.size_big = MAX(pprt->bump_real.size_big, ppip->bump_size * SQRT_TWO);
-		pprt->bump_padded.height   = MAX(pprt->bump_real.height,   ppip->bump_height );
+		pprt->bump_padded.size     = MAX( pprt->bump_real.size,     ppip->bump_size            );
+		pprt->bump_padded.size_big = MAX( pprt->bump_real.size_big, ppip->bump_size * SQRT_TWO );
+		pprt->bump_padded.height   = MAX( pprt->bump_real.height,   ppip->bump_height          );
 	}
 
 	// use the padded bumper to figure out the chr_prt_cv
@@ -180,4 +181,25 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
     }
 
     return iowner;
+}
+
+//--------------------------------------------------------------------------------------------
+INLINE float prt_get_scale( prt_t * pprt )
+{ 
+	/// @details BB@> get the scale factor between the "graphical size" of the particle and the actual
+	///               display size
+
+	float scale = 0.25f;
+
+	if ( !DEFINED_PPRT( pprt ) ) return scale;
+
+    // set some particle dependent properties
+    switch ( pprt->type )
+    {
+        case SPRITE_SOLID: scale *= 0.9384f; break;
+        case SPRITE_ALPHA: scale *= 0.9353f; break;
+        case SPRITE_LIGHT: scale *= 1.5912f; break;
+    }
+
+	return scale;
 }

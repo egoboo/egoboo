@@ -2727,28 +2727,23 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
 	///     cap. Just so that there is no confusion when you export multiple items of the same type,
 	///     DO NOT pass the pointer returned by chr_get_pcap(). Instead, use a custom cap_t declared on the stack,
 	///     or something similar
+	///
+	/// @note This has been modified to basically reverse the actions of chr_download_cap().
+	///       If all enchants have been removed, this should export all permanent changes to the
+	///       base character profile.
+
+	int tnc;
 
 	if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
 	if ( NULL == pcap || !pcap->loaded ) return bfalse;
 
-	// export the character customization stuff
-	pcap->gender             = pchr->gender;
-	pcap->nameknown          = pchr->nameknown;
-
-	// export some character state values
-	pcap->ammo               = pchr->ammo;
-	pcap->lifecolor          = pchr->lifecolor;
-	pcap->manacolor          = pchr->manacolor;
-	pcap->size               = pchr->fat_goto;
-	pcap->kursechance        = pchr->iskursed ? 100 : 0;
-
 	// export values that override spawn.txt values
-	pcap->contentoverride    = pchr->ai.content;
-	pcap->stateoverride      = pchr->ai.state;
+	pcap->content_override   = pchr->ai.content;
+	pcap->state_override     = pchr->ai.state;
 	pcap->money              = pchr->money;
-	pcap->skinoverride       = pchr->skin;
-	pcap->leveloverride = pchr->experiencelevel;
+	pcap->skin_override      = pchr->skin;
+	pcap->level_override     = pchr->experiencelevel;
 
 	// export the current experience
 	ints_to_range( pchr->experience, 0, &( pcap->experience ) );
@@ -2757,31 +2752,105 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
 	pcap->life_spawn         = CLIP( pchr->life, 0, pchr->lifemax );
 	pcap->mana_spawn         = CLIP( pchr->mana, 0, pchr->manamax );
 
-	// export the current stats
-	ints_to_range( pchr->lifemax     , 0, &( pcap->life_stat.val ) );
-	ints_to_range( pchr->manamax     , 0, &( pcap->mana_stat.val ) );
-	ints_to_range( pchr->manareturn  , 0, &( pcap->manareturn_stat.val ) );
-	ints_to_range( pchr->manaflow    , 0, &( pcap->manaflow_stat.val ) );
+	// Movement
+	pcap->sneakspd = pchr->sneakspd;
+	pcap->walkspd = pchr->walkspd;
+	pcap->runspd = pchr->runspd;
+
+	// weight and size
+	pcap->size       = pchr->fat_goto;
+	pcap->bumpdampen = pchr->phys.bumpdampen;
+	if ( pchr->phys.weight == INFINITE_WEIGHT )
+	{
+		pcap->weight = 0xFF;
+	}
+	else
+	{
+		Uint32 itmp = pchr->phys.weight / pchr->fat / pchr->fat / pchr->fat;
+		pcap->weight = MIN( itmp, 0xFE );
+	}
+
+	// Other junk
+	pcap->flyheight   = pchr->flyheight;
+	pcap->alpha       = pchr->alpha_base;
+	pcap->light       = pchr->light_base;
+	pcap->flashand    = pchr->flashand;
+	pcap->dampen      = pchr->phys.dampen;
+
+	// Jumping
+	pcap->jump       = pchr->jump_power;
+	pcap->jumpnumber = pchr->jumpnumberreset;
+
+	// Flags
+	pcap->stickybutt      = pchr->stickybutt;
+	pcap->canopenstuff    = pchr->openstuff;
+	pcap->transferblend   = pchr->transferblend;
+	pcap->waterwalk       = pchr->waterwalk;
+	pcap->platform        = pchr->platform;
+	pcap->canuseplatforms = pchr->canuseplatforms;
+	pcap->isitem          = pchr->isitem;
+	pcap->invictus        = pchr->invictus;
+	pcap->ismount         = pchr->ismount;
+	pcap->cangrabmoney    = pchr->cangrabmoney;
+
+	// Damage
+	pcap->attachedprt_reaffirmdamagetype = pchr->reaffirmdamagetype;
+	pcap->damagetargettype               = pchr->damagetargettype;
+
+	// SWID
 	ints_to_range( pchr->strength    , 0, &( pcap->strength_stat.val ) );
 	ints_to_range( pchr->wisdom      , 0, &( pcap->wisdom_stat.val ) );
 	ints_to_range( pchr->intelligence, 0, &( pcap->intelligence_stat.val ) );
 	ints_to_range( pchr->dexterity   , 0, &( pcap->dexterity_stat.val ) );
 
+	// Life and Mana
+	pcap->lifecolor = pchr->lifecolor;
+	pcap->manacolor = pchr->manacolor;
+	ints_to_range( pchr->lifemax     , 0, &( pcap->life_stat.val ) );
+	ints_to_range( pchr->manamax     , 0, &( pcap->mana_stat.val ) );
+	ints_to_range( pchr->manareturn  , 0, &( pcap->manareturn_stat.val ) );
+	ints_to_range( pchr->manaflow    , 0, &( pcap->manaflow_stat.val ) );
+
+	// Gender
+	pcap->gender  = pchr->gender;
+
+	// Ammo
+	pcap->ammomax = pchr->ammomax;
+	pcap->ammo    = pchr->ammo;
+
 	// update any skills that have been learned
-	pcap->shieldproficiency     = pchr->shieldproficiency;
-	pcap->canuseadvancedweapons = pchr->canuseadvancedweapons;
 	pcap->canjoust              = pchr->canjoust;
-	pcap->candisarm             = pchr->candisarm;
-	pcap->canusepoison          = pchr->canusepoison;
-	pcap->canread               = pchr->canread;
-	pcap->canbackstab           = pchr->canbackstab;
+	pcap->canuseadvancedweapons = pchr->canuseadvancedweapons;
+	pcap->shieldproficiency     = pchr->shieldproficiency;
 	pcap->canusedivine          = pchr->canusedivine;
 	pcap->canusearcane          = pchr->canusearcane;
 	pcap->canusetech            = pchr->canusetech;
+	pcap->candisarm             = pchr->candisarm;
+	pcap->canbackstab           = pchr->canbackstab;
+	pcap->canusepoison          = pchr->canusepoison;
+	pcap->canread               = pchr->canread;
+	pcap->canseekurse           = pchr->canseekurse;
 	pcap->hascodeofconduct      = pchr->hascodeofconduct;
+	pcap->darkvision_level      = pchr->darkvision_level;
 
-	// make sure that identified items are saveed as identified
-	pcap->nameknown = pchr->nameknown;
+	// Enchant stuff
+	pcap->see_invisible_level = pchr->see_invisible_level;
+
+	// base kurse state
+	pcap->kursechance = pchr->iskursed ? 100 : 0;
+
+	// Model stuff
+	pcap->stoppedby = pchr->stoppedby;
+	pcap->life_heal = pchr->life_heal;
+	pcap->manacost  = pchr->manacost;
+	pcap->nameknown = pchr->nameknown || pchr->ammoknown;          // make sure that identified items are saved as identified
+	pcap->draw_icon = pchr->draw_icon;
+
+	// sound stuff...
+	for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
+	{
+		pcap->sound_index[tnc] = pchr->sound_index[tnc];
+	}
 
 	return btrue;
 }
@@ -2805,11 +2874,11 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
 	// Set up model stuff
 	pchr->stoppedby = pcap->stoppedby;
-	pchr->life_heal  = pcap->life_heal;
+	pchr->life_heal = pcap->life_heal;
 	pchr->manacost  = pcap->manacost;
 	pchr->nameknown = pcap->nameknown;
 	pchr->ammoknown = pcap->nameknown;
-	pchr->icon      = pcap->icon;
+	pchr->draw_icon = pcap->draw_icon;
 
 	// calculate a base kurse state. this may be overridden later
 	if ( pcap->isitem )
@@ -2862,9 +2931,9 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
 	// Skin
 	pchr->skin = 0;
-	if ( pcap->skinoverride != NOSKINOVERRIDE )
+	if ( pcap->skin_override != NO_SKIN_OVERRIDE )
 	{
-		pchr->skin = pcap->skinoverride % MAX_SKIN;
+		pchr->skin = pcap->skin_override % MAX_SKIN;
 	}
 
 	// Damage
@@ -2930,7 +2999,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 	// Experience
 	iTmp = generate_irand_range( pcap->experience );
 	pchr->experience      = MIN( iTmp, MAXXP );
-	pchr->experiencelevel = pcap->leveloverride;
+	pchr->experiencelevel = pcap->level_override;
 
 	// Particle attachments
 	pchr->reaffirmdamagetype = pcap->attachedprt_reaffirmdamagetype;
@@ -3622,8 +3691,8 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF by_reference index, const
 	pself->index      = index;
 	pself->type       = ppro->iai;
 	pself->alert      = ALERTIF_SPAWNED;
-	pself->state      = pcap->stateoverride;
-	pself->content    = pcap->contentoverride;
+	pself->state      = pcap->state_override;
+	pself->content    = pcap->content_override;
 	pself->passage    = 0;
 	pself->target     = index;
 	pself->owner      = index;
@@ -3701,9 +3770,9 @@ chr_t * chr_config_do_init( chr_t * pchr )
 	}
 
 	// Skin
-	if ( pcap->skinoverride != NOSKINOVERRIDE )
+	if ( pcap->skin_override != NO_SKIN_OVERRIDE )
 	{
-		// pchr->spawn_data.override the value passed into the function from spawn.txt
+		// override the value passed into the function from spawn.txt
 		// with the calue from the expansion in data.txt
 		pchr->spawn_data.skin = pchr->skin;
 	}
@@ -3737,7 +3806,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
 		pchr->maxaccel  = pcap->maxaccel[pchr->skin];
 	}
 
-	// pchr->spawn_data.override the default behavior for an "easy" game
+	// override the default behavior for an "easy" game
 	if ( cfg.difficulty < GAME_NORMAL )
 	{
 		pchr->life = pchr->lifemax;
@@ -3823,7 +3892,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
 		}
 	}
 
-	// pchr->spawn_data.override the shopitem flag if the item is known to be valuable
+	// override the shopitem flag if the item is known to be valuable
 	if ( pcap->isvaluable )
 	{
 		pchr->isshopitem = btrue;
@@ -7807,9 +7876,9 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
 	if ( NULL == pitem_cap ) return icon_ref;
 
 	// what do we need to draw?
-	is_spell_fx = pitem_cap->spelleffect_type != NOSKINOVERRIDE;       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
-	is_book     = ( SPELLBOOK == pitem->iprofile );
-	draw_book = ( is_book || ( is_spell_fx && !pitem->icon ) || ( is_spell_fx && MAX_CHR != pitem->attachedto ) ) && ( bookicon_count > 0 );
+	is_spell_fx = (NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type);       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
+	is_book     = (SPELLBOOK == pitem->iprofile);
+	draw_book = ( is_book || ( is_spell_fx && !pitem->draw_icon ) || ( is_spell_fx && MAX_CHR != pitem->attachedto ) ) && ( bookicon_count > 0 );
 
 	if ( !draw_book )
 	{
@@ -7825,9 +7894,9 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
 		{
 			iskin = pitem_cap->spelleffect_type;
 		}
-		else if ( pitem_cap->skinoverride > 0 )
+		else if ( pitem_cap->skin_override > 0 )
 		{
-			iskin = pitem_cap->skinoverride;
+			iskin = pitem_cap->skin_override;
 		}
 
 		iskin = CLIP( iskin, 0, bookicon_count );
