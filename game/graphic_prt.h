@@ -94,7 +94,7 @@ bool_t render_one_prt_solid( const PRT_REF by_reference iprt );
 bool_t render_one_prt_trans( const PRT_REF by_reference iprt );
 bool_t render_one_prt_ref( const PRT_REF by_reference iprt );
 
-void   render_prt( struct s_camera * pcam );
+void   render_all_particles( struct s_camera * pcam );
 void   render_prt_ref( struct s_camera * pcam );
 
 void   render_all_prt_attachment();

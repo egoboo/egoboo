@@ -24,6 +24,7 @@
 /// @details Almost all of the math functions are intended to be inlined for maximum speed
 
 #include "egoboo_math.h"
+#include "log.h"
 
 #include <math.h>
 #include <float.h>

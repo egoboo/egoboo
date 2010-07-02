@@ -3550,7 +3550,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 				// write the string into the buffer
 				snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
 
-				chr_make_text_billboard( character, text_buffer, text_color, tint, 3, bb_opt_all );
+				chr_make_text_billboard( character, text_buffer, text_color, tint, lifetime, bb_opt_all );
 			}
 		}
 	}

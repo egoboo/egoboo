@@ -46,6 +46,9 @@ float ptex_wscale[2] = {1.0f, 1.0f};
 float ptex_hscale[2] = {1.0f, 1.0f};
 
 //--------------------------------------------------------------------------------------------
+static void render_prt_bbox( prt_t * pprt );
+
+//--------------------------------------------------------------------------------------------
 int prt_get_texture_style( const TX_REF by_reference itex )
 {
     int index;
@@ -224,6 +227,10 @@ bool_t render_one_prt_solid( const PRT_REF by_reference iprt )
     }
     ATTRIB_POP( "render_one_prt_solid" );
 
+#if defined(USE_DEBUG) && defined(DEBUG_PRT_BBOX)
+	render_prt_bbox( pprt );
+#endif
+
     return btrue;
 }
 
@@ -341,6 +348,10 @@ bool_t render_one_prt_trans( const PRT_REF by_reference iprt )
     }
     ATTRIB_POP( "render_one_prt_trans" );
 
+#if defined(USE_DEBUG) && defined(DEBUG_PRT_BBOX)
+	render_prt_bbox( pprt );
+#endif
+
     return btrue;
 }
 
@@ -364,7 +375,7 @@ void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 }
 
 //--------------------------------------------------------------------------------------------
-void render_prt( camera_t * pcam )
+void render_all_particles( camera_t * pcam )
 {
     /// @details ZZ@> This function draws the sprites for particle systems
 
@@ -1139,4 +1150,27 @@ void prt_instance_update( camera_t * pcam, const PRT_REF by_reference particle, 
 
     // do the lighting
     prt_instance_update_lighting( pinst, pprt, trans, do_lighting );
+}
+
+//--------------------------------------------------------------------------------------------
+void render_prt_bbox( prt_t * pprt )
+{
+    if ( !DISPLAY_PPRT( pprt ) ) return;
+
+	if( 0.0f == pprt->bump_padded.size ) return;
+
+    // draw the object bounding box as a part of the graphics debug mode F7
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    {
+        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+        {
+            oct_bb_t bb;
+
+			oct_bb_add_vector( pprt->chr_prt_cv, pprt->pos, &bb );
+
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            render_oct_bb( &bb, btrue, btrue );
+        }
+        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+    }
 }

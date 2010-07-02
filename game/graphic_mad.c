@@ -437,7 +437,7 @@ bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, U
         retval = render_one_mad_tex( character, tint, bits );
     }
 
-#if defined(USE_DEBUG)
+#if defined(USE_DEBUG) && defined(DEBUG_CHR_BBOX)
     // don't draw the debug stuff for reflections
     if ( 0 == ( bits & CHR_REFLECT ) )
     {
@@ -537,17 +537,7 @@ void render_chr_bbox( chr_t * pchr )
         {
             oct_bb_t bb;
 
-            bb.mins[OCT_X ] = pchr->chr_prt_cv.mins[OCT_X]  + pchr->pos.x;
-            bb.mins[OCT_Y ] = pchr->chr_prt_cv.mins[OCT_Y]  + pchr->pos.y;
-            bb.mins[OCT_Z ] = pchr->chr_prt_cv.mins[OCT_Z]  + pchr->pos.z;
-            bb.mins[OCT_XY] = pchr->chr_prt_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-            bb.mins[OCT_YX] = pchr->chr_prt_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
-
-            bb.maxs[OCT_X ] = pchr->chr_prt_cv.maxs[OCT_X]  + pchr->pos.x;
-            bb.maxs[OCT_Y ] = pchr->chr_prt_cv.maxs[OCT_Y]  + pchr->pos.y;
-            bb.maxs[OCT_Z ] = pchr->chr_prt_cv.maxs[OCT_Z]  + pchr->pos.z;
-            bb.maxs[OCT_XY] = pchr->chr_prt_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-            bb.maxs[OCT_YX] = pchr->chr_prt_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
+			oct_bb_add_vector( pchr->chr_prt_cv, pchr->pos, &bb );
 
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );
