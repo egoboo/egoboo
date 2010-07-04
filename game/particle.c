@@ -335,7 +335,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
             pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
             if ( DEFINED_CHR( pprt->target_ref ) && !ppip->homing )
             {
-                loc_facing -= glouseangle;		//?What does this do?!
+                loc_facing -= glouseangle;		// ZF> ?What does this do?!
+				                                // BB> glouseangle is the angle found in prt_find_target()
             }
 
             // Correct loc_facing for dexterity...

@@ -659,12 +659,11 @@ chr_t * chr_config_activate( chr_t * pprt, int max_iterations );
 chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations );
 chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations );
 
-bool_t chr_update_safe( chr_t * pchr, bool_t force );
-
 bool_t chr_update_breadcrumb_raw( chr_t * pchr );
 bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force );
 bool_t chr_update_safe_raw( chr_t * pchr );
 bool_t chr_update_safe( chr_t * pchr, bool_t force );
+bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos );
 
 fvec3_t chr_get_pos( chr_t * pchr );
 bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );

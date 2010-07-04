@@ -6318,6 +6318,44 @@ bool_t chr_update_safe( chr_t * pchr, bool_t force )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
+{
+	bool_t found = bfalse;
+	fvec3_t loc_pos;
+
+	if( !ALLOCATED_PCHR(pchr) ) return bfalse;
+
+	// handle optional parameters
+	if( NULL == pos_v ) pos_v = loc_pos.v;
+
+	if( !found && pchr->safe_valid )
+	{
+		if( !chr_hit_wall( pchr, NULL, NULL, NULL ) )
+		{
+			found = btrue;
+			memmove( pos_v, pchr->safe_pos.v, sizeof(fvec3_base_t) );
+		}
+	}
+
+	if( !found )
+	{
+		breadcrumb_t * bc;
+
+		bc = breadcrumb_list_last_valid( &(pchr->crumbs) );
+
+		if ( NULL != bc )
+		{
+			found = btrue;
+			memmove( pos_v, bc->pos.v, sizeof(fvec3_base_t) );
+		}
+	}
+
+	// maybe there is one last fallback after this? we could check the character's current position?
+
+	return found;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t chr_update_breadcrumb_raw( chr_t * pchr )
 {
 	breadcrumb_t bc;
@@ -6384,7 +6422,7 @@ bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force )
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * chr_get_last_safe( chr_t * pchr )
+breadcrumb_t * chr_get_last_breadcrumb( chr_t * pchr )
 {
 	if( !ALLOCATED_PCHR(pchr) ) return NULL;
 
@@ -6537,7 +6575,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 				// try to get a diff from a breadcrumb
 				if( !found_diff )
 				{
-					bc = chr_get_last_safe( pchr );
+					bc = chr_get_last_breadcrumb( pchr );
 
 					if( NULL != bc && bc->valid )
 					{
@@ -6602,7 +6640,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
 					if( !found_safe && NULL == bc )
 					{
-						bc = chr_get_last_safe( pchr );
+						bc = chr_get_last_breadcrumb( pchr );
 
 						if( NULL != bc && bc->valid )
 						{

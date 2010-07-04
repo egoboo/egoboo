@@ -781,10 +781,6 @@ breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst )
 {
 	breadcrumb_t * retval = NULL;
 
-	//!!DEBUG!!
-	return lst->lst;						//ZF> temp fix to get character spawning to work properly
-	//!!DEBUG END!!
-	
 	if( NULL == lst || !lst->on ) return NULL;
 
 	breadcrumb_list_validate( lst );

@@ -1837,7 +1837,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
-		if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
+		if ( !chr_get_safe( pchild, NULL ) )
         {
             chr_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
@@ -5285,7 +5285,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
-        if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
+        if ( !chr_get_safe( pchild, NULL ) )
         {
             chr_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
@@ -5341,7 +5341,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
-        if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
+        if ( !chr_get_safe( pchild, NULL ) )
         {
             chr_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
@@ -7242,7 +7242,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // still allow the character to spawn if it is not in an invalid area
 
             // technically this should never occur since we are limiting the attachment points above
-            if ( NULL == breadcrumb_list_last_valid( &(pchild->crumbs) ) )
+            if ( !chr_get_safe( pchild, NULL ) )
             {
                 chr_request_terminate( ichr );
                 ichr = ( CHR_REF )MAX_CHR;
