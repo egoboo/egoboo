@@ -3572,7 +3572,7 @@ void game_finish_module()
     game_update_imports();
 
     // quit the old module
-    game_quit_module();
+    //game_quit_module();
 }
 
 //--------------------------------------------------------------------------------------------

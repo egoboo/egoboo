@@ -84,8 +84,8 @@ IfBumped
       
       //Did we suck it all out?
       tmpx = targetint
-      tmpy = 0
-      IfXIsEqualToY
+      tmpy = 256
+      IfXIsLessThanY
         tmpargument = 2
         SendMessageNear
         KillTarget                      //insta kill.. ouch!

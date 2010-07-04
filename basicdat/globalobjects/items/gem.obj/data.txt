@@ -28,9 +28,9 @@ Size           : 1.00
 Size up        : 0.05
 Shadow size    : 11
 Bump size      : 1
-Bump height    : 0
+Bump height    : 1
 Bump dampen    : 0.80
-Weight         : 10
+Weight         : 12
 Jump power     : 0.00
 Jump number    : 0
 Sneak speed    : 1
@@ -134,14 +134,14 @@ Life healing   : 0.000
 Mana cost      : 0.000
 Life return    : 0
 Stopped by     : 48
-Skin 0 name    : Emerald
-Skin 1 name    : BAD
-Skin 2 name    : BAD
-Skin 3 name    : BAD
-Skin 0 cost    : 450
-Skin 1 cost    : 0
-Skin 2 cost    : 0
-Skin 3 cost    : 0
+Skin 0 name    : Amethyst
+Skin 1 name    : Emerald
+Skin 2 name    : Ruby
+Skin 3 name    : Diamond
+Skin 0 cost    : 200
+Skin 1 cost    : 350
+Skin 2 cost    : 600
+Skin 3 cost    : 900
 STR dampen     : 0.000
 
 No rider attak : FALSE
@@ -154,4 +154,5 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[VALU] 0
+:[VALU] 1   //Always valuable
+:[PLAT] 1   //Can use platforms

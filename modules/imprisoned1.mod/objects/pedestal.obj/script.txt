@@ -1,36 +1,7 @@
 //Dont go off before the trap has been set!
 IfSpawned
-  tmpargument = 2
-  SetState
-  tmpargument = 50
+  tmpargument = 100
   SetTime
-IfTimeOut
-  tmpargument = 50
-  SetTime
-  IfStateIs2
-    tmpargument = 0
-    SetState
-
-  //Check for trapfinders to find it
-  tmpdistance = 128*3
-  SetTargetToDistantEnemy
-    tmpargument = [DISA]			//Does the target have disarm skill?
-    IfTargetHasSkillID
-      IfTargetIsAPlayer			//Only for players
-        tmpargument = 0			//Not detected yet
-        IfContentIs
-          tmpturn = 256*5
-          tmpx = rand % tmpturn + targetint	//0-5 + the characters intelligence
-          tmpy = 256*18			                //need to be more than 18 points added together
-          IfXIsMoreThanY
-            tmpargument = 1
-            SendMessageNear
-            PlaySound				//Play sound effect
-            tmpargument = 1
-            SetContent			//Mark as detected
-            tmpargument = 5
-            tmpdistance = EXPDARE
-            GiveExperienceToTarget		//Award some xp
 
 //-----------------------------------------------------------------------------------------------
 //Detected trap particles
@@ -44,74 +15,48 @@ IfContentIs
 
 //Do the trap!
 IfStateIs0
-  tmpx = weight
-  tmpy = 10
-  IfXIsLessThanY
-    tmpargument = [NONE]                                    //Any is good
-    tmpdistance = BLAHENEMIES + BLAHFRIENDS + BLAHPLAYERS   //Players!
-    SetTargetToNearestBlahID                                   //Basically a SetTargetToNearestPlayer now
+  IfTimeOut
+    tmpargument = 25
+    SetTime
+
+    //Check for trapfinders to find it
+    tmpdistance = 128*3
+    SetTargetToDistantEnemy
+      tmpargument = [DISA]			//Does the target have disarm skill?
+      IfTargetHasSkillID
+        IfTargetIsAPlayer			//Only for players
+          tmpargument = 0			//Not detected yet
+          IfContentIs
+            tmpturn = 256*5
+            tmpx = rand % tmpturn + targetint	//0-5 + the characters intelligence
+            tmpy = 256*18			                //need to be more than 18 points added together
+            IfXIsMoreThanY
+              tmpargument = 1
+              SendMessageNear
+              PlaySound				//Play sound effect
+              tmpargument = 1
+              SetContent			//Mark as detected
+              tmpargument = 5
+              tmpdistance = EXPDARE
+              GiveExperienceToTarget		//Award some xp
     
-    tmpargument = 1
-    SetState
-    tmpargument = 0
-    SendMessage
-    PlaySound
-
-    //Spawn the trap!
-    tmpdistance = 0               //Z pos
-    
-    //First Ghuul
-    tmpargument = 97              //Ghuul
-    tmpx = rand % 1023 + selfx - 512
-    tmpy = rand % 1023 + selfy - 512
-    SpawnExactCharacterXYZ
+    tmpx = weight
+    tmpy = 10
+    IfXIsLessThanY
+      tmpargument = [NONE]                                    //Any is good
+      tmpdistance = BLAHENEMIES + BLAHFRIENDS + BLAHPLAYERS   //Players!
+      SetTargetToNearestBlahID                                   //Basically a SetTargetToNearestPlayer now
+      
+      tmpargument = 1
+      SetState
       tmpargument = 0
-      SpawnExactParticle
-      tmpargument = ACTIONJB
-      ChildDoActionOverride
-      tmpargument = 15
-      SetTileXY
+      SendMessage
+      PlaySound
 
-    //Second
-    tmpargument = 97              //Ghuul
-    tmpx = rand % 1023 + selfx - 512
-    tmpy = rand % 1023 + selfy - 512
-    SpawnExactCharacterXYZ
-      tmpargument = 0
-      SpawnExactParticle
-      tmpargument = ACTIONJB
-      ChildDoActionOverride
-      tmpargument = 15
-      SetTileXY
-
-    //Third
-    tmpargument = 97              //Ghuul
-    tmpx = rand % 1023 + selfx - 512
-    tmpy = rand % 1023 + selfy - 512
-    SpawnExactCharacterXYZ
-      tmpargument = 0
-      SpawnExactParticle
-      tmpargument = ACTIONJB
-      ChildDoActionOverride
-      tmpargument = 15
-      SetTileXY
-
-    //Fourth
-    tmpargument = 97              //Ghuul
-    tmpx = rand % 1023 + selfx - 512
-    tmpy = rand % 1023 + selfy - 512
-    SpawnExactCharacterXYZ
-      tmpargument = 0
-      SpawnExactParticle
-      tmpargument = ACTIONJB
-      ChildDoActionOverride
-      tmpargument = 15
-      SetTileXY
-
-    //Fifth (Only in Normal)
-    tmpx = difficulty
-    tmpy = EASY
-    IfXIsMoreThanY
+      //Spawn the trap!
+      tmpdistance = 0               //Z pos
+      
+      //First Ghuul
       tmpargument = 97              //Ghuul
       tmpx = rand % 1023 + selfx - 512
       tmpy = rand % 1023 + selfy - 512
@@ -123,10 +68,7 @@ IfStateIs0
         tmpargument = 15
         SetTileXY
 
-    //Sixth (Only on Hard)
-    tmpx = difficulty
-    tmpy = NORMAL
-    IfXIsMoreThanY
+      //Second
       tmpargument = 97              //Ghuul
       tmpx = rand % 1023 + selfx - 512
       tmpy = rand % 1023 + selfy - 512
@@ -137,5 +79,59 @@ IfStateIs0
         ChildDoActionOverride
         tmpargument = 15
         SetTileXY
+
+      //Third
+      tmpargument = 97              //Ghuul
+      tmpx = rand % 1023 + selfx - 512
+      tmpy = rand % 1023 + selfy - 512
+      SpawnExactCharacterXYZ
+        tmpargument = 0
+        SpawnExactParticle
+        tmpargument = ACTIONJB
+        ChildDoActionOverride
+        tmpargument = 15
+        SetTileXY
+
+      //Fourth
+      tmpargument = 97              //Ghuul
+      tmpx = rand % 1023 + selfx - 512
+      tmpy = rand % 1023 + selfy - 512
+      SpawnExactCharacterXYZ
+        tmpargument = 0
+        SpawnExactParticle
+        tmpargument = ACTIONJB
+        ChildDoActionOverride
+        tmpargument = 15
+        SetTileXY
+
+      //Fifth (Only in Normal)
+      tmpx = difficulty
+      tmpy = EASY
+      IfXIsMoreThanY
+        tmpargument = 97              //Ghuul
+        tmpx = rand % 1023 + selfx - 512
+        tmpy = rand % 1023 + selfy - 512
+        SpawnExactCharacterXYZ
+          tmpargument = 0
+          SpawnExactParticle
+          tmpargument = ACTIONJB
+          ChildDoActionOverride
+          tmpargument = 15
+          SetTileXY
+
+      //Sixth (Only on Hard)
+      tmpx = difficulty
+      tmpy = NORMAL
+      IfXIsMoreThanY
+        tmpargument = 97              //Ghuul
+        tmpx = rand % 1023 + selfx - 512
+        tmpy = rand % 1023 + selfy - 512
+        SpawnExactCharacterXYZ
+          tmpargument = 0
+          SpawnExactParticle
+          tmpargument = ACTIONJB
+          ChildDoActionOverride
+          tmpargument = 15
+          SetTileXY
         
 End

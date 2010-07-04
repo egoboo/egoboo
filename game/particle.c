@@ -335,7 +335,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
             pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
             if ( DEFINED_CHR( pprt->target_ref ) && !ppip->homing )
             {
-                loc_facing -= glouseangle;
+                loc_facing -= glouseangle;		//?What does this do?!
             }
 
             // Correct loc_facing for dexterity...
@@ -499,7 +499,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 		pprt->safe_grid  = pprt->onwhichgrid;
 	}
 
-    // gat an initial value for the is_homing variable
+    // get an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !DEFINED_CHR( pprt->attachedto_ref );
 
     prt_set_size( pprt, ppip->size_base );
@@ -1472,7 +1472,7 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     pip_t * ppip;
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
-
+	return;
     // if the particle is homing in on something, ignore friction
     if ( pprt->is_homing ) return;
 

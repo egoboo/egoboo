@@ -1048,7 +1048,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // add the weight to the platform based on the new zlerp
     pplat->holdingweight += pchr->phys.weight * ( 1.0f - pchr->enviro.zlerp );
-
+	
     // update the character jupming
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
