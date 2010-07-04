@@ -125,6 +125,7 @@ int     sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, con
 #define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0, (CHR_REF)MAX_CHR )
 void    sound_play_song( int songnumber, Uint16 fadetime, int loops );
 void    sound_finish_song( Uint16 fadetime );
+int     sound_play_chunk_full( Mix_Chunk * pchunk );
 
 void    sound_fade_all();
 void    fade_in_music( Mix_Music * music );

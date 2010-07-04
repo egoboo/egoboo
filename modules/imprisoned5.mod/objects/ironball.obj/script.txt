@@ -1,0 +1,170 @@
+//Go poof Demogorgon is permanently imprisoned or released
+IfOrdered
+  tmpx = selforder
+  tmpy = [DEMO]
+  IfXIsEqualToY
+    tmpargument = 2
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    GoPoof
+
+// Draw the chains
+IfTargetIsSelf
+  tmpargument = [DEMO]
+  tmpdistance = BLAHENEMIES + BLAHITEMS
+  SetTargetToWideBlahID
+Else
+  // Chain link nearest to target, only move if out of range
+  tmpargument = 3
+  GetXY
+  tmpx = targetx - tmpx
+  tmpy = targety - tmpy
+  tmpdistance = xydistance
+  tmpturn = 128
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 128
+  tmpx = tmpx * tmpdistance > 7
+  tmpy = tmpy * tmpdistance > 7
+  AddXY
+  tmpargument = 2
+  GetXY
+  tmpdistance = tmpx
+  tmpturn = tmpy
+  tmpargument = 3
+  GetXY
+  tmpx = tmpdistance - tmpx
+  tmpy = tmpturn - tmpy
+  tmpdistance = xydistance
+  tmpturn = 256
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 256
+  tmpx = tmpx * tmpdistance > 8
+  tmpy = tmpy * tmpdistance > 8
+  AddXY
+
+  // Next one
+  tmpargument = 3
+  GetXY
+  tmpdistance = tmpx
+  tmpturn = tmpy
+  tmpargument = 2
+  GetXY
+  tmpx = tmpdistance - tmpx
+  tmpy = tmpturn - tmpy
+  tmpdistance = xydistance
+  tmpturn = 128
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 128
+  tmpx = tmpx * tmpdistance > 7
+  tmpy = tmpy * tmpdistance > 7
+  AddXY
+  tmpargument = 1
+  GetXY
+  tmpdistance = tmpx
+  tmpturn = tmpy
+  tmpargument = 2
+  GetXY
+  tmpx = tmpdistance - tmpx
+  tmpy = tmpturn - tmpy
+  tmpdistance = xydistance
+  tmpturn = 256
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 256
+  tmpx = tmpx * tmpdistance > 8
+  tmpy = tmpy * tmpdistance > 8
+  AddXY
+
+  // Next one
+  tmpargument = 2
+  GetXY
+  tmpdistance = tmpx
+  tmpturn = tmpy
+  tmpargument = 1
+  GetXY
+  tmpx = tmpdistance - tmpx
+  tmpy = tmpturn - tmpy
+  tmpdistance = xydistance
+  tmpturn = 128
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 128
+  tmpx = tmpx * tmpdistance > 7
+  tmpy = tmpy * tmpdistance > 7
+  AddXY
+  tmpargument = 0
+  GetXY
+  tmpdistance = tmpx
+  tmpturn = tmpy
+  tmpargument = 1
+  GetXY
+  tmpx = tmpdistance - tmpx
+  tmpy = tmpturn - tmpy
+  tmpdistance = xydistance
+  tmpturn = 256
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 256
+  tmpx = tmpx * tmpdistance > 8
+  tmpy = tmpy * tmpdistance > 8
+  AddXY
+
+  // Link nearest to ball
+  tmpargument = 1
+  GetXY
+  tmpdistance = tmpx
+  tmpturn = tmpy
+  tmpargument = 0
+  GetXY
+  tmpx = tmpdistance - tmpx
+  tmpy = tmpturn - tmpy
+  tmpdistance = xydistance
+  tmpturn = 128
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 128
+  tmpx = tmpx * tmpdistance > 7
+  tmpy = tmpy * tmpdistance > 7
+  AddXY
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = tmpx
+  tmpturn = tmpy
+  tmpargument = 0
+  GetXY
+  tmpx = tmpdistance - tmpx
+  tmpy = tmpturn - tmpy
+  tmpdistance = xydistance
+  tmpturn = 256
+  IfDistanceIsMoreThanTurn
+    tmpdistance = 256
+  tmpx = tmpx * tmpdistance > 8
+  tmpy = tmpy * tmpdistance > 8
+  AddXY
+  
+  // Now draw them all
+  tmpargument = 3
+  GetXY
+  tmpargument = 0
+  tmpdistance = selfz
+  SpawnExactParticle
+
+  tmpargument = 2
+  GetXY
+  tmpargument = 0
+  tmpdistance = selfz
+  SpawnExactParticle
+
+  tmpargument = 1
+  GetXY
+  tmpargument = 0
+  tmpdistance = selfz
+  SpawnExactParticle
+
+  tmpargument = 0
+  GetXY
+  tmpargument = 0
+  tmpdistance = selfz
+  SpawnExactParticle
+
+End					// All done

@@ -1,0 +1,2 @@
+Message 0: %t_disabled_the_lock.
+Message 1: %t_enabled_the_lock.

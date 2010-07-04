@@ -1,0 +1,91 @@
+//Memorize where to spawn the energy beams
+IfSpawned
+  tmpargument = selfcontent
+  SetState
+  tmpargument = 0
+  
+  IfStateIs0
+    tmpx = 37*128
+    tmpy = 33*128
+
+  IfStateIs1
+    tmpx = 37*128
+    tmpy = 19*128
+
+  IfStateIs2
+    tmpx = 23*128
+    tmpy = 19*128
+
+  IfStateIs3
+    tmpx = 23*128
+    tmpy = 33*128
+    
+  SetXY
+  tmpargument = selfstate & 1
+  SetState
+
+  //Correct our starting animation
+  IfStateIs0
+    tmpargument = ACTIONMJ
+    DoAction
+  Else
+    tmpargument = ACTIONMG
+    DoAction
+  KeepAction
+
+//Disable the switch if Demogorgon is permanently imprisoned or released
+IfOrdered
+  tmpx = selforder
+  tmpy = [DEMO]
+  IfXIsEqualToY
+    tmpargument = 2
+    SetState
+    
+IfBumped
+  tmpargument = 2
+  IfStateIsNot
+    SetTargetToWhoeverBumped
+    IfTargetIsAPlayer
+      IfTimeOut
+        tmpargument = 50
+        SetTime
+        
+        //Do some visual effects
+        tmpargument = ACTIONMG
+        TargetDoAction
+        tmpargument = 2
+        PlaySound
+        
+        //Change state
+        IfStateIs0
+          tmpargument = ACTIONMG
+          DoAction
+          tmpargument = [LOCK]        //One more is locked
+          tmpdistance = [EVIL]
+          OrderSpecialID
+          tmpargument = 1
+        Else
+          tmpargument = ACTIONMJ
+          DoAction
+          tmpargument = [OPEN]        //One more is open
+          tmpdistance = [EVIL]
+          OrderSpecialID
+          tmpargument = 0
+        SetState
+        SendMessageNear
+        PlaySound
+        KeepAction
+
+IfStateIs1
+  tmpargument = 0
+  GetXY
+  tmpdistance = 200
+  SpawnExactParticle
+IfStateIs2
+  tmpargument = 0
+  GetXY
+  tmpdistance = 200
+  tmpargument = 1
+  SpawnExactParticle
+  
+End				// Finished with this character

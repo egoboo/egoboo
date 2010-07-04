@@ -1,0 +1,380 @@
+//The states define zombi intelligence, strenght and speed
+//State 0 is nothing, 1 is stupid, 2 normal and 3 badass nasty
+//State 4 means a badass zombie is using breath attack
+
+//This makes badass zombi mount mountable creatures
+IfStateIs3				//Zombi is a badass
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsAMount			//Bumper is a mount?
+      tmpargument = LATCHJUMP
+      PressLatchButton			//Try to mount
+    Else
+      SetTargetToOldTarget		//Nope, continue
+
+// Create the character
+IfSpawned
+  // Zombi speed based on state
+  SetTargetToSelf
+  SetOwnerToTarget
+  EnchantTarget
+
+  //Randomize level
+  tmpx = rand & 100
+  tmpy = 30
+  IfXIsLessThanY
+    tmpargument = 1
+    SetState		//Become stupid zombi (30% chance)
+  Else
+    tmpy = 85
+    IfXIsLessThanY
+      tmpargument = 2
+      SetState		//Become normal zombi (55% chance)
+      ChangeArmor
+    Else
+      tmpargument = 3
+      SetState		//Become badass zombi (15% chance)
+      ChangeArmor
+      
+  //Speed and HP is also determined by zombi type
+  tmpx = selfstate
+  IfStateIs1
+    tmpargument = 0 - 1500
+    GiveLifeToTarget
+    tmpargument = 25
+  IfStateIs2
+    tmpargument = 0 - 700
+    GiveLifeToTarget
+    tmpargument = 50
+  IfStateIs3
+    tmpargument = -1		//Special red skin
+    SetGreenShift
+    SetBlueShift
+    tmpargument = 1
+    SetRedShift
+    tmpargument = 750
+    GiveManaToTarget		//For breath attacks
+    tmpargument = 100
+  SetSpeedPercent
+  tmpargument = 50
+  SetTime
+
+// Monster AI
+tmpargument = 0
+IfStateIsNot			//If not acting as a dead body
+  // Character screams
+  IfAttacked
+    tmpargument = 3
+    PlaySound
+
+  // Character death
+  IfKilled
+    // Make the character body
+    tmpargument = 45
+    SetBumpHeight
+    // Tell everyone it died
+    tmpargument = 4
+    PlaySound
+    tmpargument = 0
+    IfTargetIsOnSameTeam
+      tmpargument = 1
+      IfTargetIsSelf
+        tmpargument = 2
+    SendMessageNear
+    DropMoney		//Drop the loot
+    IfStateIs3
+      tmpargument = 45		//Award some extra xp for super zombi's
+      tmpdistance = EXPKILL
+      GiveExperienceToGoodTeam
+
+//--------------------------------------------------------------------------------------------
+// Do different Zombi AI's
+//--------------------------------------------------------------------------------------------
+  //STUPID AI
+  IfStateIs1
+    IfTimeOut
+      // Movement
+      tmpx = 32*128
+      tmpy = 30*128
+      ClearWaypoints
+      AddWaypoint
+      // Reset the timer
+      tmpargument = 200
+      SetTime
+      tmpargument = rand & 1 + 1
+      PlaySound
+    IfBumped
+      // Attack anyone
+      tmpargument = rand & 2 + ACTIONBA
+      DoAction  // Couldn't use latches...
+
+  //MIDDLE LEVEL AI
+  IfStateIs2
+    IfTimeOut
+      // Movement
+      SetTargetToWideEnemy
+        // Actively look for enemies
+        tmpx = targetdistance
+        tmpy = 600
+        IfXIsLessThanY
+          // Attack the enemy?
+          tmpy = 100
+          IfXIsLessThanY
+            // Swing left or right
+            tmpargument = rand & 2 + ACTIONBA
+            DoAction  // Couldn't use latches...
+            tmpargument = rand & 1 + 1
+            PlaySound
+          // Chase the enemy
+          tmpx = targetx
+          tmpy = targety
+        Else
+          tmpx = 32*128
+          tmpy = 30*128
+      Else
+        tmpx = 32*128
+        tmpy = 30*128
+      ClearWaypoints
+      AddWaypoint
+      // Reset the timer
+      tmpargument = 100
+      SetTime
+
+  //BAD BOY AI
+  IfStateIs3
+    Run
+    IfTimeOut
+      // Mana drips
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 3
+      SpawnExactParticle
+      
+      // Movement
+      tmpx = 32*128
+      tmpy = 30*128
+      SetTargetToNearestFriend
+        tmpturn = targetturnto + 32768
+        tmpdistance = 100
+        Compass
+        
+      // Save the values for X and Y...
+      tmpargument = 0
+      SetXY
+      tmpx = ownerdistance
+      tmpy = 500
+      IfXIsLessThanY
+        SetTargetToNearestEnemy
+          // Attack the enemy?
+          SetTurnModeToWatchTarget
+          tmpx = targetdistance
+          tmpy = 140
+          IfXIsLessThanY
+            IfFacingTarget
+              tmpx = rand & 100
+              tmpy = 4
+              IfXIsLessThanY		//Ready for breath attack
+                tmpx = selfmana
+                tmpy = 300
+                IfXIsMoreThanY
+                  tmpargument = 4
+                  SetState
+                  //Make the zombi green
+                  tmpargument = 2
+                  SetGreenShift
+                  tmpargument = -2
+                  SetRedShift
+                  SetBlueShift
+
+              // Check for good weapons
+              IfHoldingMeleeWeapon
+                tmpargument = [MACE]
+                IfHoldingItemID
+                  // Bash already
+                  tmpargument = tmpargument - 1 < 1 + ACTIONBB
+                Else
+                  tmpargument = [HAMM]
+                  IfHoldingItemID
+                    // Bash already
+                    tmpargument = tmpargument - 1 < 1 + ACTIONBB
+                  Else
+                    tmpargument = [AXEE]
+                    IfHoldingItemID
+                      // Bash already
+                      tmpargument = tmpargument - 1 < 1 + ACTIONBB
+                    Else
+                      tmpargument = [CLAW]
+                      IfHoldingItemID
+                        // Bash already
+                        tmpargument = tmpargument - 1 < 1 + ACTIONBB
+                      Else
+                        // Hmmm...  Not holding a good weapon, so better drop it
+                        DropWeapons
+                        tmpargument = rand & 2 + ACTIONBB
+              Else
+                // Swing left or right
+                tmpargument = rand & 2 + ACTIONBB
+              DoAction  // Couldn't use latches...
+              tmpargument = rand & 1 + 1
+              PlaySound
+          // Chase the enemy
+          tmpargument = 0
+          GetXY  // Restore the saved values...
+          tmpturn = targetturnto
+          tmpdistance = 600
+          Compass
+        Else
+          SetTurnModeToVelocity
+          // Try finding an item...
+          IfHoldingMeleeWeapon
+            // Already have one, so run after owner
+            SetTargetToOwner
+            tmpx = targetdistance
+            tmpy = 300
+            IfXIsMoreThanY
+              tmpx = targetx
+              tmpy = targety
+              tmpturn = targetturnto
+              tmpdistance = 600
+              Compass
+            Else
+              tmpargument = 0
+              GetXY
+          Else
+            // Find a good weapon...  Hammers, Maces, Axes, and Claws
+            tmpargument = [HAMM]
+            tmpdistance = BLAHITEMS
+            tmpx = 0
+            SetTargetToNearestBlahID
+              tmpx = 1
+            Else
+              tmpargument = [MACE]
+              SetTargetToNearestBlahID
+                tmpx = 1
+              Else
+                tmpargument = [AXEE]
+                SetTargetToNearestBlahID
+                  tmpx = 1
+                Else
+                  tmpargument = [CLAW]
+                  SetTargetToNearestBlahID
+                    tmpx = 1
+            tmpy = 1
+            IfXIsEqualToY			//If tmpx is 1, then a weapon was found
+              tmpx = targetdistance
+              tmpy = 50
+              IfXIsLessThanY			//Close enough to grab it?
+                tmpargument = rand & 1 + ACTIONME
+                DoAction
+              tmpx = targetx
+              tmpy = targety
+              tmpturn = targetturnto
+              tmpdistance = 100
+              Compass
+            Else
+              // Couldn't find any items, so run after owner
+              tmpargument = 0
+              GetXY
+      Else
+        // Catch up to owner
+        tmpargument = 0
+        GetXY
+      ClearWaypoints
+      AddWaypoint
+      // Reset the timer
+      tmpargument = 10
+      SetTime
+
+//Badass zombi is ready for breath attack
+IfStateIs4
+  tmpx = selfcontent
+  tmpy = 150
+  IfXIsMoreThanY		//Long enough charge?
+    Sneak			//33% speed
+    SetTargetToSelf
+    tmpargument = 5
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle		//Unleash the breath attack!
+      tmpargument = 7
+      CostTargetMana		//Use soma mana
+    tmpx = targetmana
+    tmpy = 20
+    IfXIsLessThanY		//Revert to normal combat form
+      tmpargument = 3
+      SetState
+      tmpargument = 0
+      SetContent		//reset charge
+  Else
+    Run			//100% speed
+    tmpargument = selfcontent +1
+    SetContent		//need more charge
+    tmpargument = 4
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle		//Charging effect
+    
+    tmpx = selfcontent
+    tmpy = 150
+    IfXIsMoreThanY		//Begin playing breath sound?
+      tmpargument = 6
+      PlaySound
+      tmpargument = -1		//Normalise skin again
+      SetGreenShift
+      SetBlueShift
+      tmpargument = 1
+      SetRedShift
+
+  //Move towards target
+  SetTargetToNearestEnemy
+  tmpx = targetx
+  tmpy = targety
+  ClearWaypoints
+  AddWaypoint
+
+//Explode on death
+IfStateIs3
+  tmpx = selflife
+  tmpy = 270
+  IfXIsLessThanY
+    tmpargument = 3
+    SendMessageNear
+    tmpargument = 7
+    PlaySound
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 6		//Fire
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    GoPoof
+
+//Use gas explosion for death while charging
+IfStateIs4
+  tmpx = selflife
+  tmpy = 270
+  IfXIsLessThanY
+    tmpargument = 3
+    SendMessageNear
+    tmpargument = 7
+    PlaySound
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 7		//Gas
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    GoPoof
+
+End

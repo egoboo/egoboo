@@ -104,8 +104,8 @@ static bool_t sdl_mixer_initialize();
 static void   sdl_mixer_quit( void );
 
 int    _calculate_volume( fvec3_t   diff );
-bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff );
 bool_t _update_stereo_channel( int channel, fvec3_t   diff );
+bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -598,6 +598,26 @@ int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const C
             _update_channel_volume( channel, volume, diff );
         }
     }
+
+    return channel;
+}
+
+//--------------------------------------------------------------------------------------------
+int sound_play_chunk_full( Mix_Chunk * pchunk )
+{
+    /// ZF@> This function plays a specified sound at full possible volume and returns which channel it's using
+    int channel = INVALID_SOUND_CHANNEL;
+
+    if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND_CHANNEL;
+
+    // only play sound effects if the game is running
+    if ( !process_running( PROC_PBASE( GProc ) ) )  return INVALID_SOUND_CHANNEL;
+
+    // play the sound
+    channel = Mix_PlayChannel( -1, pchunk, 0 );
+
+	// we are still limited by the global sound volume
+	Mix_Volume( channel, (128*snd.soundvolume) / 100 );
 
     return channel;
 }

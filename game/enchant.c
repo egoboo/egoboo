@@ -281,7 +281,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
                 }
                 else
                 {
-                    sound_play_chunk( PCamera->track_pos, pro_get_chunk( imodel, iwave ) );
+                    sound_play_chunk_full( pro_get_chunk( imodel, iwave ) );
                 }
             }
         }

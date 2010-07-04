@@ -4456,24 +4456,20 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 {
     // PlaySoundVolume( argument = "sound", distance = "volume" )
     /// @details ZZ@> This function sets the volume of a sound and plays it
-
-    int iTmp;
-    int volume;
-
+    
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->distance >= 0 )
+    if ( pstate->distance > 0 )
     {
-        volume = pstate->distance;
-        iTmp = INVALID_SOUND_CHANNEL;
         if ( VALID_SND( pstate->argument ) )
         {
-            iTmp = sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr( pchr, pstate->argument ) );
-        }
+			int channel;
+            channel = sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr( pchr, pstate->argument ) );
 
-        if ( INVALID_SOUND_CHANNEL != iTmp )
-        {
-            Mix_Volume( iTmp, pstate->distance );
+			if( channel != INVALID_SOUND_CHANNEL )
+			{
+				Mix_Volume( channel, (128*pstate->distance) / 100 );
+			}
         }
     }
 
@@ -5392,7 +5388,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 
     if ( VALID_SND( pstate->argument ) )
     {
-        sound_play_chunk( PCamera->track_pos, chr_get_chunk_ptr( pchr, pstate->argument ) );
+		sound_play_chunk_full( chr_get_chunk_ptr( pchr, pstate->argument ) );
     }
 
     SCRIPT_FUNCTION_END();

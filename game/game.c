@@ -1726,7 +1726,7 @@ void update_pits()
                         // Play sound effect
                         if ( pchr->isplayer )
                         {
-                            sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_PITFALL] );
+                            sound_play_chunk_full( g_wavelist[GSND_PITFALL] );
                         }
                         else
                         {

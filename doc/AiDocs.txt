@@ -2056,6 +2056,12 @@ SetTargetToNearestQuestID
     GiveExperienceToGoodTeam
     GoPoof
 -------------------------------------------------------------------------------- 
+AddQuestAllPlayers
+  // This function adds a specified Quest IDSZ into every players quest log
+  IfKilled
+    tmpargument = [QUES]
+    AddQuestAllPlayers
+--------------------------------------------------------------------------------
 
 
 

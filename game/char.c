@@ -2510,7 +2510,7 @@ void do_level_up( const CHR_REF by_reference character )
 			if ( pchr->isplayer )
 			{
 				debug_printf( "%s gained a level!!!", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
-				sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_LEVELUP] );
+				sound_play_chunk_full( g_wavelist[GSND_LEVELUP] );
 			}
 
 			// Size
