@@ -1799,8 +1799,8 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return;
     ppip = PipStack.lst + pprt->pip_ref;
-
-    if ( pprt->is_homing || INGAME_CHR( pprt->attachedto_ref ) ) return;
+	
+	if ( pprt->is_homing || INGAME_CHR( pprt->attachedto_ref ) ) return;
 
     loc_zlerp = CLIP( pprt->enviro.zlerp, 0.0f, 1.0f );
 

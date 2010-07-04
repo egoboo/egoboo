@@ -1846,8 +1846,9 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     fvec3_t   nrm;
     int exponent = 1;
 
-    oct_vec_t opos_a, opos_b, odepth, odepth_old;
-    bool_t    collision = bfalse, bump = bfalse;
+    oct_vec_t opos_a, opos_b, odepth;
+    //oct_vec_t odepth_old;
+	bool_t    collision = bfalse, bump = bfalse;
 
     if ( NULL == d || TOTAL_MAX_PRT != d->prtb ) return bfalse;
     ichr_a = d->chra;
@@ -1949,8 +1950,8 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
 		oct_bb_t exp1, exp2, intersect;
 
-		oct_vec_t opos1, opos2;
-		oct_vec_t ovel1, ovel2;
+		//oct_vec_t opos1, opos2;
+		//oct_vec_t ovel1, ovel2;
 
 		float tmp_min, tmp_max;
 

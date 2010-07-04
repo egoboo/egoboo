@@ -79,7 +79,7 @@ Spawn type ( 0 to 3 )					: 0
 
 // Random stuff
 Daze time on hit ( 0 to 250 )				: 3
-Grog time on hit ( 0 to 250 )				: 0
+Grog time on hit ( 0 to 250 )				: 3
 Spawn enchant on hit ( TRUE or FALSE )			: FALSE
 Cause roll on hit ( TRUE or FALSE )			: FALSE
 Cause pancake on hit ( TRUE or FALSE )			: FALSE
@@ -98,6 +98,5 @@ Homing friction ( 0.0 to 1.0 )				: 0.0
 Homing acceleration ( 0.0 to 1.0 )			: 0.0
 Rotate to face direction ( TRUE or FALSE )		: FALSE
 Respawn character on hit ( TRUE or FALSE )		: FALSE
-Mana drain on hit ( 0 to 50 )				: 4
-Life drain on hit ( 0 to 50 )				: 0
-
+Mana drain on hit ( 0 to 50 )				: 0
+Life drain on hit ( 0 to 50 )				: 1

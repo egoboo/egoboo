@@ -5193,6 +5193,9 @@ int check_skills( const CHR_REF by_reference who, IDSZ whichskill )
 
 	int result = 0;
 
+	//Any [NONE] IDSZ returns always "true"
+	if ( MAKE_IDSZ( 'N', 'O', 'N', 'E' ) == whichskill ) return 1;
+
 	// First check the character Skill ID matches
 	// Then check for expansion skills too.
 	if ( chr_get_idsz( who, IDSZ_SKILL )  == whichskill ) result = 1;

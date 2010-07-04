@@ -5,17 +5,20 @@
 //STATECOMBAT - Attack in melee or ranged
 //STATECHARGE - Summon monsters
 //STATEGUARD - Imprisoned (can't do anything)
-//STATERETREAT - Summoning a firerain!
+//STATERETREAT - Summoning a fire rain!
 
 //------------------------------------------------------------------------------
 //Special powers and tactics:
 //Ranged Attack - Permanent Life Drain + poison! (also STR drain) <- cannot be dispelled without arch-magic
-//Melee Attack - Drain mana
+//Melee Attack - Drains life
 //Summon spikes in the ground - Dazes and Grogs
 //Moves in specific pattern once in a while
 //Summon monsters
 //Channels a meteor swarm or two
+//Shoots missiles that drain mana
 
+//------------------------------------------------------------------------------
+//Handle opening and locking of the 4 locks
 IfOrdered
   tmpx = selforder
   tmpy = [LOCK]
@@ -25,13 +28,22 @@ IfOrdered
     tmpx = tmpx + 1
     SetXY
     
+  tmpx = selforder
   tmpy = [OPEN]
   IfXIsEqualToY
     tmpargument = 0
     GetXY
     tmpx = tmpx - 1
     SetXY
-
+    
+    //They have released it!
+    tmpy = 0
+    IfXIsEqualToY
+      tmpargument = 2
+      PlayFullSound
+      tmpargument = 250
+      SetTime
+      
 //------------------------------------------------------------------------------
 IfSpawned
   tmpargument = 16          //Boss music
@@ -104,7 +116,7 @@ IfKilled
 IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnHatedTeam
-    tmpargument = 2       //Ouch sound, new enemy
+    tmpargument = rand % 3 + 12       //Ouch sound, new enemy
     PlaySound
     IfStateIsWander
       tmpargument = STATECOMBAT
@@ -118,7 +130,7 @@ IfTimeOut
   UnkeepAction
   tmpargument = rand & 15 + 30
   SetTime
-    
+  
   //Imprisoned
   IfStateIsGuard
     tmpx = rand & 255
@@ -309,7 +321,17 @@ IfTimeOut
             Compass
             tmpdistance = selfz
             SpawnExactParticle
-          
+        Else
+          //Shoot a mana draining homing missile
+          tmpargument = ACTIONUA
+          DoAction
+          tmpargument = 5
+          tmpdistance = selfz
+          tmpturn = selfturn
+          tmpx = selfx
+          tmpy = selfy
+          SpawnExactParticle
+            
       tmpx = rand & 1
       tmpy = 0
       IfXIsEqualToY
@@ -391,7 +413,7 @@ IfTimeOut
       tmpargument = 10
       SendMessage
       
-      tmpargument = 500
+      tmpargument = 100
       SetTime
     
     tmpargument = STATEWANDER
@@ -402,6 +424,13 @@ IfTimeOut
     tmpy = rand & 511 + selfy - 256
     ClearWaypoints
     AddWaypoint
+    
+    //Randomly growl
+    tmpx = rand & 255
+    tmpy = 35
+    IfXIsLessThanY
+      tmpargument = 15
+      PlaySound
     
     //Declare our intentions
     tmpargument = 1
@@ -431,7 +460,21 @@ IfTimeOut
         DisableInvictus
     
     //Here we decide what tactic we use if we encounter a enemy
-    SetTargetToNearestEnemy
+    tmpargument = [NONE]
+    tmpdistance = BLAHENEMIES + BLAHSKILL
+    tmpturn = [WMAG]
+    SetTargetToWideBlahID             //Get those juciy arcane casters first
+      DoNothing
+    Else
+      tmpturn = [HMAG]
+      SetTargetToWideBlahID          //Then go for the healers
+        DoNothing
+      Else
+        SetTargetToNearestEnemy       //Last we finish what is left
+    
+    
+    //Did we find an enemy to attack?
+    IfTargetIsOnHatedTeam
     
       //Pick either a spike or melee/ranged attack
       tmpx = rand & 255
@@ -452,11 +495,13 @@ IfTimeOut
       tmpy = 50
       IfXIsLessThanY
         tmpargument = STATERETREAT
+        
+    //No enemy found, continue
     Else
-      tmpargument = STATEWANDER         //No enemy found, continue
+      tmpargument = STATEWANDER         
       
   SetState
-
+  
 //------------------------------------------------------------------------------
 //Do the countdown timer
 IfStateIsGuard

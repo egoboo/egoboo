@@ -688,7 +688,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
+    ichr = _get_chr_target( pchr, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE );
 
     if ( ichr != pself->index && INGAME_CHR( ichr ) )
     {
@@ -2472,7 +2472,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
+    ichr = _get_chr_target( pchr, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE );
 
     if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
     {
@@ -4233,6 +4233,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 
     CHR_REF ichr;
     TARGET_TYPE blahteam;
+	IDSZ need_skill = IDSZ_NONE;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4243,11 +4244,14 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
     if (( pstate->distance >> 1 ) & 1 ) blahteam = ( TARGET_FRIEND  == blahteam ) ? TARGET_ALL : TARGET_ENEMY;
 
+	// Do we require a skill?
+	if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
+
     // Try to find one
     ichr = _get_chr_target( pchr, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
-                            pstate->argument, ( pstate->distance >> 4 ) & 1, ( pstate->distance >> 5 ) & 1 );
+                            pstate->argument, ( pstate->distance >> 4 ) & 1, ( pstate->distance >> 5 ) & 1, need_skill );
 
-    if ( /*( ichr != pself->index ) &&*/ INGAME_CHR( ichr ) )
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
         returncode = btrue;
@@ -4526,7 +4530,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
+    ichr = _get_chr_target( pchr, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE );
 
     if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
     {
@@ -5605,6 +5609,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 
     CHR_REF ichr;
     TARGET_TYPE blahteam;
+	IDSZ need_skill = IDSZ_NONE;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5615,9 +5620,12 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
     if (( pstate->distance >> 1 ) & 1 ) blahteam = ( TARGET_FRIEND  == blahteam ) ? TARGET_ALL : TARGET_ENEMY;
 
+	// Do we require a skill as well?
+	if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
+
     // Try to find one
-    ichr = _get_chr_target( pchr, NEAREST, blahteam, (( pstate->distance >> 3 ) & 1 ),
-                            (( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1 ), ( pstate->distance >> 5 ) & 1 );
+    ichr = _get_chr_target( pchr, NEAREST, blahteam, (( pstate->distance >> 3 ) & 1 ), (( pstate->distance ) & 1 ),
+                            pstate->argument, (( pstate->distance >> 4 ) & 1 ), ( pstate->distance >> 5 ) & 1, need_skill );
 
     if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
     {
@@ -5641,7 +5649,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
+    ichr = _get_chr_target( pchr, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE );
 
     if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
     {
@@ -5665,7 +5673,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
+    ichr = _get_chr_target( pchr, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE );
 
     if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
     {
@@ -5691,7 +5699,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse );
+    ichr = _get_chr_target( pchr, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE );
 
     if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
     {
@@ -7636,7 +7644,7 @@ Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 {
-    // SetTargetAmmo( tmpargument = "none" )
+    // SetTargetAmmo( tmpargument = "ammo" )
     /// @details ZF@> This function sets the ammo of the character's current AI target
 
     chr_t * pself_target;
@@ -7645,7 +7653,7 @@ Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->ammo = pstate->argument;
+    pself_target->ammo = MIN( pstate->argument, pself_target->ammomax );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7761,6 +7769,7 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_END();
 }
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -7945,7 +7954,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+CHR_REF _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ need_skill )
 {
     /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
     ///     If max_dist is 0 then it searches without a max limit.
@@ -7958,7 +7967,7 @@ CHR_REF _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type,
 
     max_dist2 = max_dist * max_dist;
 
-    return chr_find_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players );
+    return chr_find_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players, need_skill );
 }
 
 //--------------------------------------------------------------------------------------------

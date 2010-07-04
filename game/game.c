@@ -1487,7 +1487,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players )
+CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ need_skill )
 {
     /// @details BB@> this is the raw character targeting code, this is not throttled at all. You should call
     ///     scr_get_chr_target() if you are calling this function from the scripting system.
@@ -1543,6 +1543,8 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
 
         if ( !INGAME_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
+
+		if( !check_skills( ichr_test, need_skill ) ) continue;
 
         if ( !check_target( psrc, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players ) )
         {

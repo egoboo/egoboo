@@ -2064,8 +2064,6 @@ AddQuestAllPlayers
 --------------------------------------------------------------------------------
 
 
-
-
 CONSTANTS
 -------------------------------------------------------------------------------- 
 1  BLAHDEAD                           - Target only dead stuff
@@ -2074,6 +2072,7 @@ CONSTANTS
 8  BLAHITEMS                          - Target items
 16 BLAHINVERTID                       - Do not target specified IDSZ
 32 BLAHPLAYERS                        - Target only players
+64 BLAHSKILL                          - Target only if target has the specified skill
   // These are for the Blah style functions, to specify exactly what type
   // of target to find.  These are simply added together, you can either figure out the
   // number and write that exactly, or add these constants together with a plus operator (+).
@@ -2082,6 +2081,8 @@ CONSTANTS
 
   // BLAHINVERTID uses a IDSZ stated in tmpdistance. The script will not target anyone 
   // with that IDSZ
+  // BLAHSKILL uses a IDSZ stated in tmpturn. The script will only target characters who
+  // have that IDSZ. Note that a requirement IDSZ of [NONE] will always be ignored.
 
 //!!Alternatively replace the tmpdistance constant with a number as shown below:
 TMPDISTANCE      EFFECT

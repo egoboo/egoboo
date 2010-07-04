@@ -481,14 +481,14 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
     "FKURSETARGET",                // == 373
     "FSETCHILDCONTENT",            // == 374
     "FSETTARGETTOCHILD",           // == 375
-    "FSETDAMAGETHRESHOLD",          // == 376
+    "FSETDAMAGETHRESHOLD",         // == 376
     "FACCELERATETARGETUP",         // == 377
     "FSETTARGETAMMO",              // == 378
     "FENABLEINVICTUS",             // == 379
     "FDISABLEINVICTUS",            // == 380
     "FTARGETDAMAGESELF",           // == 381
     "FSETTARGETSIZE",              // == 382
-    "FSETTARGETTONEARESTQUESTID"  // == 383
+    "FSETTARGETTONEARESTQUESTID"   // == 383
 };
 
 //--------------------------------------------------------------------------------------------
