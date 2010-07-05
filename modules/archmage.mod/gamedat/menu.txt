@@ -7,7 +7,7 @@ Allow exporting of characters ( TRUE or FALSE ) : FALSE
 Minimum number of players ( 1 to 4 )		: 1
 Maximum number of players ( 1 to 4 )		: 1
 Allow respawning ( TRUE or FALSE )		: FALSE
-NOT USED		                          : FALSE
+Module Type (MAINQUEST, SIDEQUEST, FUN or TOWN)	: SIDEQUEST
 Level rating ( *, **, ***, ****, or ***** )     : ******
 
 

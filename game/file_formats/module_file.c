@@ -71,12 +71,15 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     pmod->maxplayers   = fget_next_int( fileread );
 
     cTmp = fget_next_char( fileread );
-    pmod->respawnvalid = bfalse;
     if ( 'T' == toupper( cTmp ) )  pmod->respawnvalid = btrue;
     if ( 'A' == toupper( cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
-    pmod->rtscontrol = fget_next_char( fileread );
-
+	cTmp = fget_next_char( fileread );
+    pmod->moduletype = FILTER_SIDE;
+    if		( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
+    else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
+    else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
+	
     fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     pmod->rank[RANKSIZE-1] = CSTR_END;
     str_trim( pmod->rank );
@@ -91,6 +94,8 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
         // remove the '_' characters
         str_decode( pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ), pmod->summary[cnt] );
     }
+
+	pmod->rtscontrol = bfalse;		//< depecrated, not in use
 
     vfs_close( fileread );
 

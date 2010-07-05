@@ -79,7 +79,7 @@ EVIL inversion ( eg. F F F T )			  :  F  F  F  F
 FIRE inversion ( eg. F F F T )			  :  F  F  F  F
 ICE inversion ( eg. F F F T )			    :  F  F  F  F
 ZAP inversion ( eg. F F F T )			    :  F  F  F  F
-Acceleration rate ( eg. 40 38 30 20 )	: 65 80 60 55
+Acceleration rate ( eg. 40 38 30 20 )	: 65 80 55 60
 
 
 // Experience and level data
@@ -174,9 +174,9 @@ Skin Name 1 ( use underscores for spaces )	: some_Mithril_Armor
 Skin Name 2 ( use underscores for spaces )	: a_Dragon_Hide
 Skin Name 3 ( use underscores for spaces )	: an_Spock_Costume
 Skin Cost 0 ( 0 to 65535 )			: 100
-Skin Cost 1 ( 0 to 65535 )			: 300
-Skin Cost 2 ( 0 to 65535 )			: 500
-Skin Cost 3 ( 0 to 65535 )			: 800
+Skin Cost 1 ( 0 to 65535 )			: 375
+Skin Cost 2 ( 0 to 65535 )			: 700
+Skin Cost 3 ( 0 to 65535 )			: 1000
 Strength dampen for weapons ( 0.0 to 1.0 )	: 0.0
 
 

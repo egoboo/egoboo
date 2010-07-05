@@ -148,6 +148,8 @@ static which_menu_t mnu_stack[MENU_STACK_COUNT];
 
 static which_menu_t mnu_whichMenu = emnu_Main;
 
+static module_filter_t mnu_moduleFilter = FILTER_OFF;
+
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
 
 static int selectedModule = -1;
@@ -838,6 +840,7 @@ int doChooseModule( float deltaTime )
     static int menuState = MM_Begin;
     static int startIndex;
     static Uint8 keycooldown;
+	static char* filterText = "All Modules";
 
     static int numValidModules;
     static MOD_REF validModules[MAX_MODULE];
@@ -855,8 +858,18 @@ int doChooseModule( float deltaTime )
             // Reload all modules, something might be unlocked
             load_all_menu_images();
 
-            // Load font & background
-            ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR );
+			//Load background depending on current filter
+			if( startNewPlayer) ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
+			else switch( mnu_moduleFilter )
+			{
+						case FILTER_MAIN: ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR ); break;
+						case FILTER_SIDE: ego_texture_load_vfs( &background, "mp_data/menu/menu_sidequest", TRANSCOLOR ); break;
+						case FILTER_TOWN: ego_texture_load_vfs( &background, "mp_data/menu/menu_town", TRANSCOLOR ); break;
+						case FILTER_FUN:  ego_texture_load_vfs( &background, "mp_data/menu/menu_funquest", TRANSCOLOR ); break;
+				default: case FILTER_OFF: ego_texture_load_vfs( &background, "mp_data/menu/menu_allquest", TRANSCOLOR ); break;
+			}
+
+            // Reset which module we are selecting
             startIndex = 0;
             selectedModule = -1;
 
@@ -867,6 +880,7 @@ int doChooseModule( float deltaTime )
             {
                 memset( validModules + i, 0, sizeof( MOD_REF ) );
             }
+
             numValidModules = 0;
             for ( imod = 0; imod < mnu_ModList.count; imod++ )
             {
@@ -882,6 +896,7 @@ int doChooseModule( float deltaTime )
                 }
                 else
                 {
+					if ( FILTER_OFF != mnu_moduleFilter && mnu_ModList.lst[imod].base.moduletype != mnu_moduleFilter ) continue;
                     if ( mnu_selectedPlayerCount > mnu_ModList.lst[imod].base.importamount ) continue;
                     if ( mnu_selectedPlayerCount < mnu_ModList.lst[imod].base.minplayers ) continue;
                     if ( mnu_selectedPlayerCount > mnu_ModList.lst[imod].base.maxplayers ) continue;
@@ -966,14 +981,17 @@ int doChooseModule( float deltaTime )
             if ( keycooldown > 0 ) keycooldown--;
 
             // Draw the arrows to pick modules
-            if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
-            {
-                startIndex--;
-            }
-            if ( BUTTON_UP == ui_doButton( 1052, "->", NULL, moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
-            {
-                startIndex++;
-            }
+            if ( numValidModules > 3 )
+			{
+				if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
+				{
+					startIndex--;
+				}
+				if ( BUTTON_UP == ui_doButton( 1052, "->", NULL, moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
+				{
+					startIndex++;
+				}
+			}
 
             // restrict the range to valid values
             startIndex = CLIP( startIndex, 0, numValidModules - 3 );
@@ -1059,9 +1077,29 @@ int doChooseModule( float deltaTime )
             if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
             {
                 // Signal doMenu to go back to the previous menu
-                selectedModule = -1;
                 menuState = MM_Leaving;
             }
+
+			//Do the module filter button
+			if ( !startNewPlayer && BUTTON_UP == ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 ) )
+			{
+				//Reload the modules with the new filter
+				menuState = MM_Begin;
+
+				//Swap to the next filter
+				mnu_moduleFilter++;
+				if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = FILTER_OFF;
+
+				switch( mnu_moduleFilter )
+				{
+							case FILTER_MAIN: filterText = "Main Quest";		break;
+							case FILTER_SIDE: filterText = "Sidequests";		break;
+							case FILTER_TOWN: filterText  = "Towns and Cities";	break;
+							case FILTER_FUN: filterText  = "Fun Modules";		break;
+				   default: case FILTER_OFF: filterText  = "All Modules";		break;
+				}
+			}
+            
 
             // the tool-tip text
             glColor4f( 1, 1, 1, 1 );

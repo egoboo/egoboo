@@ -6,7 +6,7 @@ Exporting ( TRUE or FALSE ) 			: FALSE
 Minimum players ( 1 to 4 ) 			: 1
 Maximum players ( 1 to 4 ) 			: 4
 Respawning (ANYTIME, TRUE or FALSE ) 		: TRUE
-NOT USED		 		: FALSE
+Module Type (MAINQUEST, SIDEQUEST or TOWN)			: MAINQUEST
 Level rating ( * to  ***** ) 			: ****
 
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )

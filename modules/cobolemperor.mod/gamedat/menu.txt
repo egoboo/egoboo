@@ -6,7 +6,7 @@ Exporting ( TRUE or FALSE ) :FALSE
 Minimum players ( 1 to 4 ) :1
 Maximum players ( 1 to 4 ) :4
 Respawning ( TRUE or FALSE ) :TRUE
-RTS control (TRUE, FALSE, ALL) :FALSE
+Module Type (MAINQUEST, SIDEQUEST or TOWN)			: SIDEQUEST
 Level rating ( * to  ***** ) : ****
 
 // Module summary
