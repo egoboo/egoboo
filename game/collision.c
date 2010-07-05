@@ -2552,8 +2552,9 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
+	//Don't damage if there is no damage or damage immune characters
     if ( pchr->damagetime > 0 || ( pprt->damage.base + pprt->damage.base ) == 0 ) return bfalse;
-	
+
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pchr );
 

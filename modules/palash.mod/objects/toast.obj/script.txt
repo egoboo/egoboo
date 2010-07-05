@@ -1,0 +1,83 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's the hidden toast trap
+    KeepAction
+  Else
+    // Set the size of the explosion...
+    tmpargument = ACTIONKA
+    DoActionOverride
+    tmpargument = 254
+    SetContent
+    SetLight
+    tmpx = selfz
+    tmpy = 255
+    IfXIsMoreThanY
+      tmpx = tmpy
+    tmpargument = tmpx
+    SetFlyHeight
+    tmpargument = 18
+    SetTime
+
+    // Spawn some shrapnel
+    tmpx = 30                      // Speed
+    tmpy = 0                       // Spacing
+    tmpargument = 1024             // Damage...  0-5
+    SpawnPoofSpeedSpacingDamage
+
+// Trap AI...
+IfStateIs0
+  IfTimeOut
+    tmpargument = rand & 31 + 30
+    SetTime
+    tmpx = selfcontent
+    tmpy = 255
+    IfXIsEqualToY
+      // Wait for the passage to open, then drop 20 bombs...
+      tmpargument = 1
+      IfPassageOpen
+        tmpargument = 20
+        SetContent
+    Else
+      // Drop those bombs...
+      tmpy = 0
+      IfXIsMoreThanY
+        tmpargument = selfcontent - 1
+        SetContent
+        tmpargument = 0
+        tmpx = rand % 18
+        tmpy = 5
+        IfXIsMoreThanY
+          tmpy = 12
+          IfXIsLessThanY
+            tmpargument = 256
+        tmpy = tmpargument + 640
+        tmpx = tmpx < 7 + 3264
+        tmpturn = 1
+        tmpargument = 2
+        tmpdistance = selfz
+        SpawnExactParticleEndSpawn
+      Else
+        // Out of ammo...  Reset when passage closes
+        tmpargument = 1
+        IfPassageOpen
+          DoNothing
+        Else
+          tmpargument = 255
+          SetContent
+Else
+  // Make the explosion ring fade out...
+  IfTimeOut
+    tmpargument = selfcontent - 14
+    SetContent
+    SetLight
+    tmpx = selfcontent
+    tmpy = 240
+    IfXIsEqualToY
+      // Wake those sleepy heads...
+      tmpargument = [WAKE]
+      tmpdistance = [WAKE]
+      OrderSpecialID
+  tmpargument = 255
+  FlashVariable
+End

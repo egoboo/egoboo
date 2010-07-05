@@ -2676,15 +2676,7 @@ int doAudioOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Music Volume:", buttonLeft, GFX_HEIGHT - 130, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 4, sz_buttons[3], menuFont, buttonLeft + 150, GFX_HEIGHT - 130, 100, 30 ) )
             {
-                if ( cfg.music_volume <= 0 )
-                {
-                    cfg.music_volume = 0;
-                }
-                else
-                {
-                    cfg.music_volume += 5;
-                }
-
+                cfg.music_volume += 5;
                 if ( cfg.music_volume > 100 ) cfg.music_volume = 0;
 
                 snprintf( Cmusicvolume, SDL_arraysize( Cmusicvolume ), "%i", cfg.music_volume );
