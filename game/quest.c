@@ -32,7 +32,7 @@
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
-bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
+bool_t quest_add_idsz_vfs( const char *player_directory, const IDSZ idsz )
 {
     /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt
     //      file, returns btrue if it succeeded.
@@ -41,7 +41,7 @@ bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
     STRING newloadname;
 
     // Only add quest IDSZ if it doesnt have it already
-    if ( idsz == IDSZ_NONE || quest_check( player_directory, idsz ) >= QUEST_BEATEN ) return bfalse;
+    if ( idsz == IDSZ_NONE || quest_check_vfs( player_directory, idsz ) >= QUEST_BEATEN ) return bfalse;
 
     // Try to open the file in read and append mode
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
@@ -68,7 +68,7 @@ bool_t quest_add_idsz( const char *player_directory, const IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_modify_idsz( const char *player_directory, const IDSZ idsz, const int adjustment )
+int quest_modify_idsz_vfs( const char *player_directory, const IDSZ idsz, const int adjustment )
 {
     /// @details ZF@> This function increases or decreases a IDSZ quest level by the amount determined in
     ///     adjustment. It then returns the current quest level it now has.
@@ -81,7 +81,7 @@ int quest_modify_idsz( const char *player_directory, const IDSZ idsz, const int 
     int newquestlevel = QUEST_NONE, questlevel;
 
     // Now check each expansion until we find correct IDSZ
-    if ( quest_check( player_directory, idsz ) <= QUEST_BEATEN )  return QUEST_NONE;
+    if ( quest_check_vfs( player_directory, idsz ) <= QUEST_BEATEN )  return QUEST_NONE;
 
     // modify the CData.quest_file
     // create a "tmp_*" copy of the file
@@ -137,7 +137,7 @@ int quest_modify_idsz( const char *player_directory, const IDSZ idsz, const int 
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_check( const char *player_directory, const IDSZ idsz )
+int quest_check_vfs( const char *player_directory, const IDSZ idsz )
 {
     /// @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
     /// and returns the quest level of that specific quest (Or QUEST_NONE if it is not found, QUEST_BEATEN if it is finished)
@@ -149,7 +149,7 @@ int quest_check( const char *player_directory, const IDSZ idsz )
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
     fileread = vfs_openRead( newloadname );
 
-    printf( "----quest_check(\"%s\",[%s]) - update == %d\n", player_directory, undo_idsz( idsz ), update_wld );
+    printf( "----quest_check_vfs(\"%s\",[%s]) - update == %d\n", player_directory, undo_idsz( idsz ), update_wld );
 
     if ( NULL == fileread ) return result;
 

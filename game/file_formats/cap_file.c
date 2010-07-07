@@ -430,13 +430,13 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     // try the given template file
     if ( VALID_CSTR( szTemplateName ) )
     {
-        filetemp = template_open( szTemplateName );
+        filetemp = template_open_vfs( szTemplateName );
     }
 
     // try a default template file
     if ( NULL == filetemp )
     {
-        filetemp = template_open( "mp_data/templates/data.txt" );
+        filetemp = template_open_vfs( "mp_data/templates/data.txt" );
     }
 
     //did we find a template file?
@@ -758,7 +758,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
     // The end
     vfs_close( filewrite );
-    template_close( filetemp );
+    template_close_vfs( filetemp );
 
     return btrue;
 }

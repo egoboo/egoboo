@@ -758,7 +758,7 @@ void load_global_waves()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_music_sounds()
+void load_all_music_sounds_vfs()
 {
     /// ZF@> This function loads all of the music sounds
     STRING loadpath;

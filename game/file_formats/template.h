@@ -28,8 +28,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-vfs_FILE* template_open( const char * filename );
-int       template_close( vfs_FILE* filetemp );
+vfs_FILE* template_open_vfs( const char * filename );
+int       template_close_vfs( vfs_FILE* filetemp );
 
 bool_t    template_seek_free( vfs_FILE* filetemp, vfs_FILE* filewrite );
 void      template_flush( vfs_FILE* filetemp, vfs_FILE* filewrite );

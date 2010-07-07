@@ -134,7 +134,7 @@ void    sound_stop_channel( int whichchannel );
 void    sound_stop_song();
 
 void    load_global_waves( void );
-void    load_all_music_sounds();
+void    load_all_music_sounds_vfs();
 
 bool_t snd_config_synch( snd_config_t * psnd, struct s_egoboo_config * pcfg );
 

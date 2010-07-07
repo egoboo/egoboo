@@ -1473,7 +1473,7 @@ void move_one_particle_do_floor_friction( prt_t * pprt )
     pip_t * ppip;
 
     if ( !DISPLAY_PPRT( pprt ) ) return;
-	return;
+
     // if the particle is homing in on something, ignore friction
     if ( pprt->is_homing ) return;
 
@@ -2362,7 +2362,7 @@ bool_t move_one_particle( prt_t * pprt )
     move_one_particle_get_environment( pprt );
 
     // do friction with the floor before voluntary motion
-    move_one_particle_do_floor_friction( pprt );
+    //move_one_particle_do_floor_friction( pprt );
 
     pprt = move_one_particle_do_homing( pprt );
 	if( NULL == pprt ) return bfalse;

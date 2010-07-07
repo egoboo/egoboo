@@ -42,7 +42,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
+mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 {
     /// @details BB@> this function actually reads in the module data
 
@@ -103,13 +103,16 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
 		// Read module type
         if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
 		{
+			// grab the expansion value
 			cTmp = fget_first_letter( fileread );
+
+			// parse the expansion value
 			if		( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
+			else if ( 'S' == toupper( cTmp ) )  pmod->moduletype = FILTER_SIDE;
 			else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
 			else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
 		}
 	}
-
 
     vfs_close( fileread );
 
@@ -117,7 +120,7 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
 }
 
 //--------------------------------------------------------------------------------------------
-int module_has_idsz( const char *szLoadName, IDSZ idsz )
+int module_has_idsz_vfs( const char *szLoadName, IDSZ idsz, size_t buffer_len, char * buffer )
 {
     /// @details ZZ@> This function returns btrue if the named module has the required IDSZ
 
@@ -131,7 +134,7 @@ int module_has_idsz( const char *szLoadName, IDSZ idsz )
 
     if ( 0 == strcmp( szLoadName, "NONE" ) ) return bfalse;
 
-    snprintf( newloadname, SDL_arraysize( newloadname ), "/modules/%s/gamedat/menu.txt", szLoadName );
+    snprintf( newloadname, SDL_arraysize( newloadname ), "mp_modules/%s/gamedat/menu.txt", szLoadName );
 
     fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return bfalse;
@@ -166,20 +169,36 @@ int module_has_idsz( const char *szLoadName, IDSZ idsz )
         }
     }
 
+	if( NULL != buffer )
+	{
+		if( buffer_len < 1 )
+		{
+			/* nothing */
+		}
+		else if( 1 == buffer_len )
+		{
+			buffer[0] = '\0';
+		}
+		else
+		{
+			vfs_gets( buffer, buffer_len, fileread );
+		}
+	}
+
     vfs_close( fileread );
 
     return foundidsz;
 }
 
 //--------------------------------------------------------------------------------------------
-void module_add_idsz_vfs( const char *szLoadName, IDSZ idsz )
+void module_add_idsz_vfs( const char *szLoadName, IDSZ idsz, size_t buffer_len, const char * buffer )
 {
     /// @details ZZ@> This function appends an IDSZ to the module's menu.txt file
     vfs_FILE *filewrite;
     STRING newloadname;
 
     // Only add if there isn't one already
-    if ( !module_has_idsz( szLoadName, idsz ) )
+    if ( !module_has_idsz_vfs( szLoadName, idsz, buffer_len, buffer ) )
     {
         // Try to open the file in append mode
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/gamedat/menu.txt", szLoadName );
@@ -187,7 +206,19 @@ void module_add_idsz_vfs( const char *szLoadName, IDSZ idsz )
         filewrite = vfs_openAppend( newloadname );
         if ( filewrite )
         {
-            vfs_printf( filewrite, "\n:[%s]\n", undo_idsz( idsz ) );
+			// output the expansion IDSZ
+            vfs_printf( filewrite, "\n:[%s]", undo_idsz( idsz ) );
+
+			// output an optional parameter
+			if( NULL != buffer && buffer_len > 1 )
+			{
+				vfs_printf( filewrite, " %s", undo_idsz( idsz ) );
+			}
+
+			// end the line
+			vfs_printf( filewrite, "\n" );
+
+			// close the file
             vfs_close( filewrite );
         }
     }

@@ -136,7 +136,7 @@ const char *        mnu_ModList_get_name( int imod );
 // "public" module utilities
 int    mnu_get_mod_number( const char *szModName );
 bool_t mnu_test_by_name( const char *szModName );
-bool_t mnu_test_by_index( const MOD_REF by_reference modnumber );
+bool_t mnu_test_by_index( const MOD_REF by_reference modnumber, size_t buffer_len, const char * buffer );
 
 // "public" menu process hooks
 int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );

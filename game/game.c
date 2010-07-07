@@ -181,8 +181,8 @@ static bool_t game_load_module_data( const char *smallname );
 static void   game_release_module_data();
 static void   game_load_all_profiles( const char *modname );
 
-static void   activate_spawn_file();
-static void   activate_alliance_file();
+static void   activate_spawn_file_vfs();
+static void   activate_alliance_file_vfs();
 static void   load_all_global_objects();
 
 static bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinfo );
@@ -567,7 +567,7 @@ void chr_set_frame( const CHR_REF by_reference character, int action, int frame,
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_alliance_file( /*const char *modname*/ )
+void activate_alliance_file_vfs( /*const char *modname*/ )
 {
     /// @details ZZ@> This function reads the alliance file
     STRING szTemp;
@@ -1036,7 +1036,7 @@ int do_game_proc_begin( game_process_t * gproc )
 
     // Linking system
     log_info( "Initializing module linking... " );
-    if ( link_build( "mp_data/link.txt", LinkList ) ) log_message( "Success!\n" );
+    if ( link_build_vfs( "mp_data/link.txt", LinkList ) ) log_message( "Success!\n" );
     else log_message( "Failure!\n" );
 
     // initialize the collision system
@@ -2831,7 +2831,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_spawn_file()
+void activate_spawn_file_vfs()
 {
     /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
 
@@ -2997,9 +2997,9 @@ void game_setup_module( const char *smallname )
     str_append_slash_net( modname, SDL_arraysize( modname ) );
 
     // ust the information in these files to load the module
-    activate_passages_file();        // read and implement the "passage script" passages.txt
-    activate_spawn_file();           // read and implement the "spawn script" spawn.txt
-    activate_alliance_file();        // set up the non-default team interactions
+    activate_passages_file_vfs();        // read and implement the "passage script" passages.txt
+    activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
+    activate_alliance_file_vfs();        // set up the non-default team interactions
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4755,8 +4755,6 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
         pdata->water.layer[cnt].light_dir = CLIP( pdata->water.layer[cnt].light_dir, 0, 63 );
         pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, 0, 63 );
     }
-
-    //snprintf( filename, SDL_arraysize(filename), "/modules/%s/gamedat/menu.txt", modname );
 
     return write_wawalite_file_vfs( pdata );
 }

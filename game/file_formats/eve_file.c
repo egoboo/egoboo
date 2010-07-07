@@ -221,13 +221,13 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
     // try the given template file
     if ( NULL != szTemplateName && '\0' != szTemplateName )
     {
-        filetemp = template_open( szTemplateName );
+        filetemp = template_open_vfs( szTemplateName );
     }
 
     // try a default template file
     if ( NULL == filetemp )
     {
-        filetemp = template_open( "mp_data/templates/enchant.txt" );
+        filetemp = template_open_vfs( "mp_data/templates/enchant.txt" );
     }
 
     // btrue/bfalse values
@@ -397,7 +397,7 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
 
     // All done ( finally )
     vfs_close( filewrite );
-    template_close( filetemp );
+    template_close_vfs( filetemp );
 
     return btrue;
 }

@@ -231,7 +231,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, bool_t tar
         if ( !targetdead && !pchr->alive ) continue;
 
         //Require target to have specific quest?
-        if ( targetquest && ( !pchr->isplayer || QUEST_NONE  >= quest_check( chr_get_dir_name( character ), findidsz ) ) ) continue;
+        if ( targetquest && ( !pchr->isplayer || QUEST_NONE  >= quest_check_vfs( chr_get_dir_name( character ), findidsz ) ) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
@@ -485,7 +485,7 @@ void add_passage( passage_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_passages_file()
+void activate_passages_file_vfs()
 {
     /// @details ZZ@> This function reads the passage file
     passage_t  tmp_passage;

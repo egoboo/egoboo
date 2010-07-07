@@ -79,7 +79,7 @@ DECLARE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
 
 void   check_passage_music();
 void   clear_all_passages();
-void   activate_passages_file();
+void   activate_passages_file_vfs();
 
 void   add_passage( passage_t * pdata );
 

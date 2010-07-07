@@ -122,7 +122,7 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t link_build( const char * fname, Link_t list[] )
+bool_t link_build_vfs( const char * fname, Link_t list[] )
 {
     vfs_FILE * pfile;
     int i;

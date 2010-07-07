@@ -114,7 +114,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // read the "setup.txt" file
     tmpname = "setup.txt";
-    if ( setup_read( tmpname ) )
+    if ( setup_read_vfs( tmpname ) )
     {
         log_info( "Loaded setup file \"%s\".\n", tmpname );
     }
@@ -168,7 +168,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // initialize the sound system
     sound_initialize();
-    load_all_music_sounds();
+    load_all_music_sounds_vfs();
 
     // make sure that a bunch of stuff gets initialized properly
     object_systems_begin();

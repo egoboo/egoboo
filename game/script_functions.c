@@ -1348,12 +1348,12 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     // AddIDSZ( tmpargument = "idsz" )
-    /// @details ZZ@> This function slaps an expansion IDSZ onto the  menu.txt file.
+    /// @details ZZ@> This function slaps an expansion IDSZ onto the menu.txt file.
     /// Used to show completion of special quests for a given module
 
     SCRIPT_FUNCTION_BEGIN();
 
-    module_add_idsz_vfs( pickedmodule_path, pstate->argument );
+    module_add_idsz_vfs( pickedmodule_path, pstate->argument, 0, NULL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6969,7 +6969,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    if ( pself_target->isplayer && quest_add_idsz( chr_get_dir_name( pself->target ), pstate->argument ) )
+    if ( pself_target->isplayer && quest_add_idsz_vfs( chr_get_dir_name( pself->target ), pstate->argument ) )
     {
         returncode = btrue;
     }
@@ -6996,7 +6996,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( ichr ) ) continue;
 
-        if ( QUEST_BEATEN == quest_modify_idsz( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )
+        if ( QUEST_BEATEN == quest_modify_idsz_vfs( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )
         {
             returncode = btrue;
         }
@@ -7022,7 +7022,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pself_target->isplayer )
     {
-        iTmp = quest_check( chr_get_dir_name( pself->target ), pstate->argument );
+        iTmp = quest_check_vfs( chr_get_dir_name( pself->target ), pstate->argument );
         if ( iTmp > QUEST_BEATEN )
         {
             pstate->distance = iTmp;
@@ -7049,7 +7049,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pself_target->isplayer && pstate->distance != 0 )
     {
-        if ( quest_modify_idsz( chr_get_dir_name( pself->target ), pstate->argument, pstate->distance ) > QUEST_NONE ) returncode = btrue;
+        if ( quest_modify_idsz_vfs( chr_get_dir_name( pself->target ), pstate->argument, pstate->distance ) > QUEST_NONE ) returncode = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7077,10 +7077,10 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         if ( !INGAME_CHR( ichr ) ) continue;
 
         // Try to add it if not already there or beaten
-        quest_add_idsz( chr_get_dir_name( ichr ) , pstate->argument );
+        quest_add_idsz_vfs( chr_get_dir_name( ichr ) , pstate->argument );
 
         // Not beaten yet, set level to tmpdistance
-        returncode = QUEST_NONE != quest_modify_idsz( chr_get_dir_name( ichr ), pstate->argument, pstate->distance );
+        returncode = QUEST_NONE != quest_modify_idsz_vfs( chr_get_dir_name( ichr ), pstate->argument, pstate->distance );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7439,7 +7439,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     /// @todo use message.txt to send the module name
-    returncode = module_has_idsz( PMod->loadname, pstate->distance );
+    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, NULL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7757,7 +7757,7 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
         dist2 = fvec3_dot_product( diff.v, diff.v );
 
         //Do they have the specified quest?
-        iTmp = quest_check( chr_get_dir_name( ichr_test ), pstate->argument );
+        iTmp = quest_check_vfs( chr_get_dir_name( ichr_test ), pstate->argument );
 
         if ( iTmp > QUEST_BEATEN && dist2 < longdist )
         {

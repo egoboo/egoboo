@@ -169,13 +169,13 @@ void template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-vfs_FILE* template_open( const char * filename )
+vfs_FILE* template_open_vfs( const char * filename )
 {
     return vfs_openRead( filename );
 }
 
 //--------------------------------------------------------------------------------------------
-int template_close( vfs_FILE* filetemp )
+int template_close_vfs( vfs_FILE* filetemp )
 {
     return vfs_close( filetemp );
 }

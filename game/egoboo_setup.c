@@ -157,7 +157,7 @@ bool_t setup_quit()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_read( const char* filename )
+bool_t setup_read_vfs( const char* filename )
 {
     /// @details BB@> read the setup file
 

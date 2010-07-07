@@ -247,8 +247,8 @@ static int do_menu_proc_running( menu_process_t * mproc );
 static int do_menu_proc_leaving( menu_process_t * mproc );
 
 // the hint system
-static void   mnu_GameTip_load_global();
-static bool_t mnu_GameTip_load_local();
+static void   mnu_GameTip_load_global_vfs();
+static bool_t mnu_GameTip_load_local_vfs();
 
 // "private" module utility
 static void   mnu_load_all_module_info();
@@ -263,7 +263,7 @@ static void autoformat_init_copyright_text();
 
 // misc other stuff
 static void mnu_release_one_module( const MOD_REF by_reference imod );
-static void load_all_menu_images();
+static void load_all_menu_images_vfs();
 
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
@@ -500,7 +500,7 @@ int menu_system_begin()
     TxTitleImage_ctor();
 
     // Load game hints
-    mnu_GameTip_load_global();
+    mnu_GameTip_load_global_vfs();
 
     return 1;
 }
@@ -856,7 +856,7 @@ int doChooseModule( float deltaTime )
     {
         case MM_Begin:
             // Reload all modules, something might be unlocked
-            load_all_menu_images();
+            load_all_menu_images_vfs();
 
 			//Load background depending on current filter
 			if( startNewPlayer) ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
@@ -886,7 +886,7 @@ int doChooseModule( float deltaTime )
             {
                 // if this module is not valid given the game options and the
                 // selected players, skip it
-                if ( !mnu_test_by_index( imod ) ) continue;
+                if ( !mnu_test_by_index( imod, 0, NULL ) ) continue;
 
                 if ( startNewPlayer && 0 == mnu_ModList.lst[imod].base.importamount )
                 {
@@ -2786,7 +2786,7 @@ int doAudioOptions( float deltaTime )
                 // Do we restart the music?
                 if ( cfg.music_allowed )
                 {
-                    load_all_music_sounds();
+                    load_all_music_sounds_vfs();
                     fade_in_music( musictracksloaded[songplaying] );
                 }
 
@@ -3647,7 +3647,7 @@ int doShowResults( float deltaTime )
                     // Should be okay to randomize the seed here, the random seed isnt standarized or
                     // used elsewhere before the module is loaded.
                     srand( time( NULL ) );
-                    if ( mnu_GameTip_load_local() )       game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
+                    if ( mnu_GameTip_load_local_vfs() )       game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
                     else if ( mnu_GameTip.count > 0 )     game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
                 }
             }
@@ -4267,7 +4267,7 @@ void copyrightText_set_position( Font * font, const char * text, int spacing )
 //--------------------------------------------------------------------------------------------
 // Asset management
 //--------------------------------------------------------------------------------------------
-void load_all_menu_images()
+void load_all_menu_images_vfs()
 {
     /// @details ZZ@> This function loads the title image for each module.  Modules without a
     ///     title are marked as invalid
@@ -4295,7 +4295,7 @@ void load_all_menu_images()
         {
             vfs_printf( filesave, "**.  %s\n", mnu_ModList.lst[imod].name );
         }
-        else if ( mnu_test_by_index( imod ) )
+        else if ( mnu_test_by_index( imod, 0, NULL ) )
         {
             // @note just because we can't load the title image DOES NOT mean that we ignore the module
             snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", mnu_ModList.lst[imod].name );
@@ -4388,18 +4388,18 @@ int mnu_get_mod_number( const char *szModName )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_test_by_index( const MOD_REF by_reference modnumber )
+bool_t mnu_test_by_index( const MOD_REF by_reference modnumber, size_t buffer_len, const char * buffer )
 {
-    int     cnt;
+    int            cnt;
     mnu_module_t * pmod;
-    bool_t  allowed;
+    bool_t         allowed;
 
     if ( INVALID_MOD( modnumber ) ) return bfalse;
     pmod = mnu_ModList.lst + modnumber;
 
     // First check if we are in developers mode or that the right module has been beaten before
     allowed = bfalse;
-    if ( cfg.dev_mode || module_has_idsz( pmod->base.reference, pmod->base.quest_idsz ) )
+    if ( cfg.dev_mode || module_has_idsz_vfs( pmod->base.reference, pmod->base.quest_idsz, buffer_len, buffer ) )
     {
         allowed = btrue;
     }
@@ -4408,7 +4408,7 @@ bool_t mnu_test_by_index( const MOD_REF by_reference modnumber )
         // If that did not work, then check all selected players directories
         for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
         {
-            if ( pmod->base.quest_level <= quest_check( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ) )
+            if ( pmod->base.quest_level <= quest_check_vfs( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ) )
             {
                 allowed = btrue;
                 break;
@@ -4434,7 +4434,7 @@ bool_t mnu_test_by_name( const char *szModName )
     retval = bfalse;
     if ( modnumber >= 0 )
     {
-        retval = mnu_test_by_index(( MOD_REF )modnumber );
+        retval = mnu_test_by_index( ( MOD_REF )modnumber, 0, NULL );
     }
 
     return retval;
@@ -4476,7 +4476,7 @@ void mnu_load_all_module_info()
         // save the filename
         snprintf( loadname, SDL_arraysize( loadname ), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
 
-        if ( NULL != module_load_info( loadname, &( pmod->base ) ) )
+        if ( NULL != module_load_info_vfs( loadname, &( pmod->base ) ) )
         {
             pmod->loaded = btrue;
             strncpy( pmod->name, FileName, SDL_arraysize( pmod->name ) );
@@ -4675,7 +4675,7 @@ void TxTitleImage_reload_all()
 //--------------------------------------------------------------------------------------------
 // Implementation of the mnu_GameTip system
 //--------------------------------------------------------------------------------------------
-void mnu_GameTip_load_global()
+void mnu_GameTip_load_global_vfs()
 {
     /// ZF@> This function loads all of the game hints and tips
     STRING buffer;
@@ -4715,7 +4715,7 @@ void mnu_GameTip_load_global()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_GameTip_load_local()
+bool_t mnu_GameTip_load_local_vfs()
 {
     /// ZF@> This function loads all module specific hints and tips. If this fails, the game will
     //       default to the global hints and tips instead

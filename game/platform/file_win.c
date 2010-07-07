@@ -75,8 +75,7 @@ void fs_init()
 
     // try to find the basicdat directory in the current directory
     snprintf( basicdatPath, MAX_PATH, "%s" SLASH_STR "basicdat", currentPath, MAX_PATH );
-    hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                        OPEN_EXISTING, 0, NULL );
+    hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL );
 
     if ( NULL != hFile )
     {
