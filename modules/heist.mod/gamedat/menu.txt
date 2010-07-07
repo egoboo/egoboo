@@ -6,7 +6,7 @@ Exporting ( TRUE or FALSE ) 		:FALSE
 Minimum players ( 1 to 4 ) 		:1
 Maximum players ( 1 to 4 ) 		:1
 Respawning (ANYTIME, TRUE or FALSE ) 	:FALSE
-Module Type (MAINQUEST, SIDEQUEST or TOWN)			: SIDEQUEST
+Is a RTS module (TRUE or FALSE)			      : FALSE
 Level rating ( * to  ***** ) 		:*****
 
 // Module summary
@@ -21,3 +21,4 @@ Level rating ( * to  ***** ) 		:*****
 
 
 // Module expansion IDSZs ( with a colon in front )
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

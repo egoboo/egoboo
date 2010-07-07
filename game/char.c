@@ -1917,7 +1917,7 @@ bool_t drop_all_items( const CHR_REF by_reference character )
 				pitem->enviro.level       = pchr->enviro.level;
 				pitem->enviro.fly_level   = pchr->enviro.fly_level;
 				pitem->onwhichplatform    = pchr->onwhichplatform;
-				pitem->ori.facing_z           = direction + ATK_BEHIND;
+				pitem->ori.facing_z       = direction + ATK_BEHIND;
 				pitem->vel.x              = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
 				pitem->vel.y              = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
 				pitem->vel.z              = DROPZVEL;

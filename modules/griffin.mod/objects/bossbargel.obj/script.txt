@@ -13,6 +13,9 @@ IfSpawned
   tmpdistance = 0
   tmpargument = 7
   PlayMusic
+  
+  tmpargument = STATEGUARD
+  SetState
 
 //Show where we are!
 tmpx = selfx
@@ -86,6 +89,8 @@ IfAttacked
   //Teleport away
   IfTargetIsOnHatedTeam
     tmpargument = 0
+    tmpx = 0
+    tmpy = 0
     tmpdistance = SPAWNORIGIN
     SpawnParticle
     tmpx = rand & 511 - 256 + selfx		//Randomize position
@@ -106,7 +111,7 @@ IfAttacked
 IfTimeOut
 
   //Wait for good guys
-  IfStateIs0
+  IfStateIsGuard
     tmpargument = 0
     SetContent
     tmpargument = 30
@@ -116,7 +121,7 @@ IfTimeOut
     ClearWaypoints
     AddWaypoint
     SetTargetToWideEnemy		//Found one!
-      tmpargument = 1
+      tmpargument = STATECOMBAT
       SetState
       tmpargument = 6
       PlayFullSound			//"I will kill you!"
@@ -131,7 +136,7 @@ IfTimeOut
       PlayMusic
 
   //Combat mode
-  IfStateIs1
+  IfStateIsCombat
     tmpargument = rand & 15 + 25
     SetTime
     SetTargetToNearestEnemy
@@ -145,8 +150,11 @@ IfTimeOut
       IfXIsMoreThanY
         tmpargument = 0
         IfContentIs
-          tmpargument = 2
+          tmpargument = STATECHARGE
           SetState
+        Else
+          tmpargument = LATCHRIGHT	//Burning hands
+          PressLatchButton
       Else
         tmpx = rand & 1
         tmpy = 0			//50% chance to cast
@@ -154,11 +162,11 @@ IfTimeOut
           tmpargument = LATCHRIGHT	//Burning hands
           PressLatchButton
     Else
-      tmpargument = 0			//Enemies are gone
+      tmpargument = STATEGUARD			//Enemies are gone
       SetState
 
   //Casting bind spell
-  IfStateIs2
+  IfStateIsCharge
     SetTurnModeToWatchTarget
     tmpx = targetx
     tmpy = targety			//Move towards them
@@ -172,21 +180,19 @@ IfTimeOut
     SetTime
     tmpargument = LATCHLEFT		//Keep chargin
     PressLatchButton
-    GetContent
-    tmpargument = tmpargument + 1
+    tmpargument = selfcontent + 1
     SetContent				//Keep track on how much time has elasped
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 195
     IfXIsMoreThanY			//Enough charge now already!
-      tmpargument = 1
+      tmpargument = STATECOMBAT
       SetState
   Else
     SetTurnModeToVelocity
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 0
     IfXIsMoreThanY			//reduce charge
-      tmpargument = tmpx - 2
+      tmpargument = selfcontent - 2
       SetContent
 
   //Drink mana potion when needed

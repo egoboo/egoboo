@@ -1,0 +1,162 @@
+Slot number    : -1
+Class name     : Centaur
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color     : 1
+Mana color     : 5
+Life           : 8.43
+Life up        : 1.00-1.50
+Mana           : 9.07
+Mana up        : 1.00-3.00
+Mana return    : 4.31
+Mana return up : 0.10-0.30
+Mana flow      : 4.00
+Mana flow up   : 0.00-2.00
+STR            : 7.41
+STR up         : 0.00-1.00
+WIS            : 12.08
+WIS up         : 0.50-1.00
+INT            : 16.17
+INT up         : 2.00-3.00
+DEX            : 13.74
+DEX up         : 0.00-1.00
+
+Size           : 1.00
+Size up        : 0.00
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 90
+Bump dampen    : 0.35
+Weight         : 110
+Jump power     : 10.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 1
+Run speed      : 6
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 16000
+
+Base defense   :  25  45  35  60
+S damage shift :   1   2   1   1
+C damage shift :   1   1   1   1
+P damage shift :   1   1   1   1
+H damage shift :   2   2   2   2
+E damage shift :   1   1   1   2
+F damage shift :   1   1   2   3
+I damage shift :   1   1   1   1
+Z damage shift :   1   1   2   3
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  60  50  55  65
+
+EXP for 2nd    : 400
+EXP for 3rd    : 1000
+EXP for 4th    : 2500
+EXP for 5th    : 5000
+EXP for 6th    : 8500
+Starting EXP   : 0
+EXP worth      : 10
+EXP exchange   : 0.010
+EXPSECRET      : 0.40
+EXPQUEST       : 0.50
+EXPDARE        : 0.00
+EXPKILL        : 0.60
+EXPMURDER      : 0.10
+EXPREVENGE     : 0.80
+EXPTEAMWORK    : 0.10
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [FAER]
+IDSZ Type      : [CENT]
+IDSZ Skill     : [HMAG]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [SILV]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : BASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+Blood valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : some_Goblin_Garb
+Skin 1 name    : some_Tinted_Mail
+Skin 2 name    : an_Ancient_Robe
+Skin 3 name    : an_Acrovian_Flightsuit
+Skin 0 cost    : 50
+Skin 1 cost    : 200
+Skin 2 cost    : 600
+Skin 3 cost    : 900
+STR dampen     : 0.050
+
+No rider attak : FALSE
+Can be dazed   : TRUE
+Can be grogged : TRUE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : TRUE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 1
+
+:[GOLD] 0
+:[PLAT] 1
+:[SKIN] 0
+:[CONT] 0
+:[STAT] 0
+:[LEVL] 1

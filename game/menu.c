@@ -849,7 +849,7 @@ int doChooseModule( float deltaTime )
     static int moduleMenuOffsetY;
 
     int result = 0;
-    int i, j, x, y;
+    int i, x, y;
     MOD_REF imod;
 
     switch ( menuState )
@@ -999,7 +999,7 @@ int doChooseModule( float deltaTime )
             // Draw buttons for the modules that can be selected
             x = 93;
             y = 20;
-            for ( i = startIndex, j = 0; i < ( startIndex + 3 ) && j < numValidModules; i++ )
+            for ( i = startIndex; i < MIN(startIndex + 3, numValidModules); i++ )
             {
                 // fix the menu images in case one or more of them are undefined
                 MOD_REF          imod       = validModules[i];

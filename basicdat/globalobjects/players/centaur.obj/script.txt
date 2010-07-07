@@ -1,0 +1,104 @@
+//-----------------------------------------------------------------------------
+// Gong sound
+IfCleanedUp
+  tmpargument = 2
+  PlayFullSound
+
+
+//------------------------------------------------------------------------------
+//Tell players that the inventory is too small
+IfTooMuchBaggage
+  tmpargument = 8
+  SendMessageNear
+  tmpargument = 7
+  PlaySound
+  tmpargument = 50
+  SetReloadTime
+
+
+//------------------------------------------------------------------------------
+//Scream and shout when attacking
+IfUsed
+  tmpargument = rand & 1 + 8
+  PlaySound
+
+
+//------------------------------------------------------------------------------
+// Booring....
+IfBumped
+  tmpargument = ACTIONDB
+  DoAction
+    tmpargument = 6
+    SendMessageNear
+    tmpargument = 7
+    SendMessageNear
+    tmpargument = 10
+    PlaySound
+
+
+//------------------------------------------------------------------------------
+//Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 5
+  PlaySound
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+//Invoke special power if enough xp gained
+SetTargetToSelf
+tmpx = targetexp
+tmpy = 9998
+IfXIsMoreThanY
+  UndoEnchant		//Hinder looping of same enchant
+  SetOwnerToTarget
+  EnchantTarget		//Give the special bonus
+  tmpargument = 2	//Spawn some fancy sparklies
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+Else
+  UndoEnchant		//Remove if needed xp is lost
+
+//------------------------------------------------------------------------------
+//For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+
+//------------------------------------------------------------------------------
+//Say ouch
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 6
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 3
+    PlaySound
+
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

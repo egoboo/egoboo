@@ -2630,10 +2630,24 @@ bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinf
         }
     }
 
-    // automatically identify all player starting equipment? I think yes.
+    // automatically identify and unkurse all player starting equipment? I think yes.
     if ( startNewPlayer && NULL != pparent && pparent->isplayer )
     {
+		chr_t *pitem;
         pchr->nameknown = btrue;
+
+		//Unkurse both inhand items
+		if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+		{
+			pitem = ChrList.lst + ichr;
+			pitem->iskursed = bfalse;
+		}
+		if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
+		{
+			pitem = ChrList.lst + ichr;
+			pitem->iskursed = bfalse;
+		}
+
     }
 
     // adjust the price of items that are spawned in a shop

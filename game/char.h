@@ -150,8 +150,8 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define PLATKEEP            0.90f                     ///< Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
 #define STOPBOUNCING        0.1f // 1.0f                ///< To make objects stop bouncing
-#define DROPZVEL            7
-#define DROPXYVEL           8
+#define DROPZVEL            12				//7
+#define DROPXYVEL           100				//12
 
 //Timer resets
 #define DAMAGETILETIME      32                            ///< Invincibility time

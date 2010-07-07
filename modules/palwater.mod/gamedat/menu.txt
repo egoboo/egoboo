@@ -7,7 +7,7 @@ Allow exporting of characters ( TRUE or FALSE ) 	: FALSE
 Minimum number of players ( 1 to 4 )		: 1
 Maximum number of players ( 1 to 4 )		: 4
 Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
-Module Type (MAINQUEST, SIDEQUEST or TOWN)			: MAINQUEST
+Is a RTS module (TRUE or FALSE)			      : FALSE
 Level rating ( *, **, ***, ****, or ***** )     		: *****
 
 
@@ -24,3 +24,4 @@ Level rating ( *, **, ***, ****, or ***** )     		: *****
 
 // Module expansion IDSZs ( with a colon in front )
 :[PRNT] worldmap.mod 41.5 82.5 0.0
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

@@ -7,7 +7,7 @@ Allow exporting of characters ( TRUE or FALSE ) : TRUE
 Minimum number of players ( 1 to 4 )		: 1
 Maximum number of players ( 1 to 4 )		: 4
 Allow respawning ( TRUE or FALSE )		: FALSE
-Module Type (MAINQUEST, SIDEQUEST, FUN or TOWN)	: FUN
+Is a RTS module (TRUE or FALSE)			      : FALSE
 Level rating ( *, **, ***, ****, or ***** )     : Unrated
 
 
@@ -23,3 +23,4 @@ Level rating ( *, **, ***, ****, or ***** )     : Unrated
 
 
 // Module expansion IDSZs ( with a colon in front )
+:[TYPE] FUN                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

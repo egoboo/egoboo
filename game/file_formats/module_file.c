@@ -74,11 +74,8 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     if ( 'T' == toupper( cTmp ) )  pmod->respawnvalid = btrue;
     if ( 'A' == toupper( cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
-	cTmp = fget_next_char( fileread );
-    pmod->moduletype = FILTER_SIDE;
-    if		( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
-    else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
-    else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
+	fget_next_char( fileread );
+    pmod->rtscontrol = bfalse;		//< depecrated, not in use
 	
     fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     pmod->rank[RANKSIZE-1] = CSTR_END;
@@ -87,7 +84,7 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
     // Read the summary
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        // load hte string
+        // load the string
         fget_next_string( fileread,  pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ) );
         pmod->summary[cnt][SUMMARYSIZE-1] = CSTR_END;
 
@@ -95,7 +92,24 @@ mod_file_t * module_load_info( const char * szLoadName, mod_file_t * pmod )
         str_decode( pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ), pmod->summary[cnt] );
     }
 
-	pmod->rtscontrol = bfalse;		//< depecrated, not in use
+	// Assume default module type as a sidequest
+	pmod->moduletype = FILTER_SIDE;
+    
+	// Read expansions
+	while ( goto_colon( NULL, fileread, btrue ) )
+    {
+		IDSZ idsz = fget_idsz( fileread );
+
+		// Read module type
+        if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
+		{
+			cTmp = fget_first_letter( fileread );
+			if		( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
+			else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
+			else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
+		}
+	}
+
 
     vfs_close( fileread );
 

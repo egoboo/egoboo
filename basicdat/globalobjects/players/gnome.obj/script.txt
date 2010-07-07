@@ -87,7 +87,7 @@ IfXIsMoreThanY
 tmpx = selflevel
 tmpy = 11            //At least level 13
 IfXIsMoreThanY
-  tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
+  tmpargument = selflevel * 20       //Reduce all damage by 1/12 per level
   SetDamageThreshold
 
 //-----------------------------------------------------------------------------
@@ -109,14 +109,15 @@ IfCleanedUp
 //------------------------------------------------------------------------------
 // ZZ> Handle healing factor
 IfTimeOut
+  tmpargument = 200     //every 4 seconds
+  SetTime
+  
   tmpargument = 3
   IfArmorIs
     tmpargument = [CLAW]
     IfHoldingItemID
       tmpargument = 256
       HealSelf
-  tmpargument = 200     //every 4 seconds
-  SetTime
 
   //Ancient blud skill
   tmpx = selflevel
