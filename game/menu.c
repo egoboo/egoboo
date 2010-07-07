@@ -5003,7 +5003,7 @@ bool_t loadplayer_import_one( const char * foundfile )
 
     pinfo = loadplayer + loadplayer_count;
 
-    snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_sys(( char* )foundfile, strlen( foundfile ) ) );
+    snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
 
     snprintf( filename, SDL_arraysize( filename ), "%s/skin.txt", foundfile );
     skin = read_skin_vfs( filename );
