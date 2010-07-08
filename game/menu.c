@@ -1099,7 +1099,7 @@ int doChooseModule( float deltaTime )
 				   default: case FILTER_OFF: filterText  = "All Modules";		break;
 				}
 			}
-            
+
 
             // the tool-tip text
             glColor4f( 1, 1, 1, 1 );
@@ -2999,13 +2999,13 @@ int doVideoOptions( float deltaTime )
 		but_multiwater       ,	// Multi water layer
 		but_widescreen       ,	// Widescreen
 		but_screensize       ,	// Screen resolution
-		but_save             ,	
+		but_save             ,
 		but_maxparticles 	 ,  // Max particles
 		but_end,
 
 		but_last
 	};
-	
+
 	static int menuState = MM_Begin;
     static oglx_texture_t background;
     static int    menuChoice = 0;
@@ -4388,7 +4388,7 @@ int mnu_get_mod_number( const char *szModName )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_test_by_index( const MOD_REF by_reference modnumber, size_t buffer_len, const char * buffer )
+bool_t mnu_test_by_index( const MOD_REF by_reference modnumber, size_t buffer_len, char * buffer )
 {
     int            cnt;
     mnu_module_t * pmod;

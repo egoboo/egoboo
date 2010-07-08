@@ -76,7 +76,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 
 	fget_next_char( fileread );
     pmod->rtscontrol = bfalse;		//< depecrated, not in use
-	
+
     fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     pmod->rank[RANKSIZE-1] = CSTR_END;
     str_trim( pmod->rank );
@@ -94,7 +94,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 
 	// Assume default module type as a sidequest
 	pmod->moduletype = FILTER_SIDE;
-    
+
 	// Read expansions
 	while ( goto_colon( NULL, fileread, btrue ) )
     {
@@ -198,7 +198,7 @@ void module_add_idsz_vfs( const char *szLoadName, IDSZ idsz, size_t buffer_len, 
     STRING newloadname;
 
     // Only add if there isn't one already
-    if ( !module_has_idsz_vfs( szLoadName, idsz, buffer_len, buffer ) )
+    if ( !module_has_idsz_vfs( szLoadName, idsz, 0, NULL ) )
     {
         // Try to open the file in append mode
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/gamedat/menu.txt", szLoadName );
