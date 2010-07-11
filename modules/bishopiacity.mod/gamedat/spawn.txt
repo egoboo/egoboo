@@ -5,6 +5,7 @@
 
 // Objects that override a global object
 #dependency Pot 90
+#dependency Plunger 132
 
 // Dunlar Blacksmith Shop
 #dependency Sword             57
