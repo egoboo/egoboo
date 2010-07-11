@@ -1353,7 +1353,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    module_add_idsz_vfs( pickedmodule_path, pstate->argument, 0, NULL );
+    module_add_idsz_vfs( pickedmodule_name, pstate->argument, 0, NULL );
 
     SCRIPT_FUNCTION_END();
 }

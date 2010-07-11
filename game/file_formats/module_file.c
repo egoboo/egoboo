@@ -120,7 +120,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 }
 
 //--------------------------------------------------------------------------------------------
-int module_has_idsz_vfs( const char *szLoadName, IDSZ idsz, size_t buffer_len, char * buffer )
+int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer )
 {
     /// @details ZZ@> This function returns btrue if the named module has the required IDSZ
 
@@ -132,9 +132,9 @@ int module_has_idsz_vfs( const char *szLoadName, IDSZ idsz, size_t buffer_len, c
 
     if ( idsz == IDSZ_NONE ) return btrue;
 
-    if ( 0 == strcmp( szLoadName, "NONE" ) ) return bfalse;
+    if ( 0 == strcmp( szModName, "NONE" ) ) return bfalse;
 
-    snprintf( newloadname, SDL_arraysize( newloadname ), "mp_modules/%s/gamedat/menu.txt", szLoadName );
+    snprintf( newloadname, SDL_arraysize( newloadname ), "mp_modules/%s/gamedat/menu.txt", szModName );
 
     fileread = vfs_openRead( newloadname );
     if ( NULL == fileread ) return bfalse;
@@ -191,19 +191,24 @@ int module_has_idsz_vfs( const char *szLoadName, IDSZ idsz, size_t buffer_len, c
 }
 
 //--------------------------------------------------------------------------------------------
-void module_add_idsz_vfs( const char *szLoadName, IDSZ idsz, size_t buffer_len, const char * buffer )
+void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer )
 {
     /// @details ZZ@> This function appends an IDSZ to the module's menu.txt file
     vfs_FILE *filewrite;
     STRING newloadname;
 
     // Only add if there isn't one already
-    if ( !module_has_idsz_vfs( szLoadName, idsz, 0, NULL ) )
+    if ( !module_has_idsz_vfs( szModName, idsz, 0, NULL ) )
     {
-        // Try to open the file in append mode
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/gamedat/menu.txt", szLoadName );
+		STRING src_file, dst_file;
 
-        filewrite = vfs_openAppend( newloadname );
+		// make sure that the file exists in the user data directory since we are WRITING to it
+		snprintf( src_file, SDL_arraysize(src_file), "mp_modules/%s/gamedat/menu.txt", szModName );
+		snprintf( dst_file, SDL_arraysize(dst_file), "/modules/%s/gamedat/menu.txt", szModName );
+		vfs_copyFile( src_file, dst_file );
+
+        // Try to open the file in append mode
+        filewrite = vfs_openAppend( dst_file );
         if ( filewrite )
         {
 			// output the expansion IDSZ

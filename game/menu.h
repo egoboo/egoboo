@@ -131,6 +131,8 @@ extern bool_t startNewPlayer;
 
 // "public" implementation of mnu_ModList
 struct s_mod_file * mnu_ModList_get_base( int imod );
+const char *        mnu_ModList_get_vfs_path( int imod );
+const char *        mnu_ModList_get_dest_path( int imod );
 const char *        mnu_ModList_get_name( int imod );
 
 // "public" module utilities

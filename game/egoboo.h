@@ -132,12 +132,14 @@ EXTERN Uint32          true_frame  EQ( 0 );
 EXTERN int             update_lag  EQ( 0 );
 EXTERN bool_t          soundon  EQ( btrue );              ///< Is the sound alive?
 
-EXTERN bool_t          pickedmodule_ready;              ///< Is there a new picked module?
-EXTERN char            pickedmodule_path[64];           ///< The module load name
-EXTERN int             pickedmodule_index;                ///< The module index number
+EXTERN bool_t          pickedmodule_ready EQ(bfalse);   ///< Is there a new picked module?
+EXTERN int             pickedmodule_index EQ(-1);       ///< The module index number
+EXTERN STRING          pickedmodule_path;               ///< The picked module's full path name
+EXTERN STRING          pickedmodule_name;               ///< The picked module's short name
+EXTERN STRING          pickedmodule_write_path;         ///< The picked module's path name relative to the userdata directory
 
 /// Respawning
-EXTERN bool_t                   local_allpladead;            ///< Has everyone died?
+EXTERN bool_t                   local_allpladead EQ(bfalse);    ///< Has everyone died?
 EXTERN int                      revivetimer EQ( 0 );
 
 /// Imports

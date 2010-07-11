@@ -1307,13 +1307,22 @@ void net_handlePacket( ENetEvent *event )
             {
                 PMod->seed = packet_readUnsignedInt();
                 packet_readString( filename, 255 );
-                strncpy( pickedmodule_path, filename, SDL_arraysize( pickedmodule_path ) );
+
+				pickedmodule_index         = -1;
+				pickedmodule_path[0]       = CSTR_END;
+				pickedmodule_name[0]       = CSTR_END;
+				pickedmodule_write_path[0] = CSTR_END;
+
+				pickedmodule_index = mnu_get_mod_number( filename );
 
                 // Check to see if the module exists
-                pickedmodule_index = mnu_get_mod_number( pickedmodule_path );
                 if ( -1 != pickedmodule_index )
                 {
-                    pickedmodule_ready = btrue;
+					strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
+					strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
+					strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
+
+					pickedmodule_ready = btrue;
 
                     // Make ourselves ready
                     gnet.readytostart = btrue;

@@ -109,12 +109,15 @@ typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
 /// the module data that the menu system needs
 struct s_mnu_module
 {
-    EGO_PROFILE_STUFF;
+    EGO_PROFILE_STUFF;                           ///< the "base class" of a profile obbject
 
-    mod_file_t base;
+    mod_file_t base;                               ///< the data for the "base class" of the module 
 
     // extended data
-    TX_REF tex_index;                              // the index of the tile image
+    TX_REF tex_index;                              ///< the index of the module's tile image
+
+	STRING vfs_path;                               ///< the virtual pathname of the module
+	STRING dest_path;                              ///< the path that module data can be written into
 };
 typedef struct s_mnu_module mnu_module_t;
 
@@ -1114,6 +1117,11 @@ int doChooseModule( float deltaTime )
         case MM_Finish:
             oglx_texture_Release( &background );
 
+			pickedmodule_index         = -1;
+			pickedmodule_path[0]       = CSTR_END;
+			pickedmodule_name[0]       = CSTR_END;
+			pickedmodule_write_path[0] = CSTR_END;
+
             menuState = MM_Begin;
             if ( selectedModule == -1 )
             {
@@ -1123,7 +1131,10 @@ int doChooseModule( float deltaTime )
             {
                 // Save the name of the module that we've picked
                 pickedmodule_index = selectedModule;
-                strncpy( pickedmodule_path, mnu_ModList.lst[( MOD_REF )selectedModule].name, SDL_arraysize( pickedmodule_path ) );
+
+                strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
+				strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
+				strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
                 if ( !game_choose_module( selectedModule, -1 ) )
                 {
@@ -4293,20 +4304,20 @@ void load_all_menu_images_vfs()
     {
         if ( !mnu_ModList.lst[imod].loaded )
         {
-            vfs_printf( filesave, "**.  %s\n", mnu_ModList.lst[imod].name );
+            vfs_printf( filesave, "**.  %s\n", mnu_ModList.lst[imod].vfs_path );
         }
         else if ( mnu_test_by_index( imod, 0, NULL ) )
         {
             // @note just because we can't load the title image DOES NOT mean that we ignore the module
-            snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", mnu_ModList.lst[imod].name );
+            snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", mnu_ModList.lst[imod].vfs_path );
 
             mnu_ModList.lst[imod].tex_index = TxTitleImage_load_one_vfs( loadname );
 
-            vfs_printf( filesave, "%02d.  %s\n", REF_TO_INT( imod ), mnu_ModList.lst[imod].name );
+            vfs_printf( filesave, "%02d.  %s\n", REF_TO_INT( imod ), mnu_ModList.lst[imod].vfs_path );
         }
         else
         {
-            vfs_printf( filesave, "##.  %s\n", mnu_ModList.lst[imod].name );
+            vfs_printf( filesave, "##.  %s\n", mnu_ModList.lst[imod].vfs_path );
         }
     }
 
@@ -4377,7 +4388,7 @@ int mnu_get_mod_number( const char *szModName )
 
     for ( modnum = 0; modnum < mnu_ModList.count; modnum++ )
     {
-        if ( 0 == strcmp( mnu_ModList.lst[modnum].name, szModName ) )
+        if ( 0 == strcmp( mnu_ModList.lst[modnum].vfs_path, szModName ) )
         {
             retval = REF_TO_INT( modnum );
             break;
@@ -4456,7 +4467,7 @@ void mnu_load_all_module_info()
 {
     vfs_search_context_t * ctxt;
 
-    const char *FileName;
+    const char *vfs_ModPath;
     STRING      loadname;
 
     // reset the module list
@@ -4464,9 +4475,9 @@ void mnu_load_all_module_info()
 
     // Search for all .mod directories and load the module info
     ctxt = vfs_findFirst( "mp_modules", "mod", VFS_SEARCH_DIR );
-    FileName = vfs_search_context_get_current( ctxt );
+    vfs_ModPath = vfs_search_context_get_current( ctxt );
 
-    while ( NULL != ctxt && VALID_CSTR( FileName ) && mnu_ModList.count < MAX_MODULE )
+    while ( NULL != ctxt && VALID_CSTR( vfs_ModPath ) && mnu_ModList.count < MAX_MODULE )
     {
         mnu_module_t * pmod = mnu_ModList.lst + ( MOD_REF )mnu_ModList.count;
 
@@ -4474,17 +4485,28 @@ void mnu_load_all_module_info()
         mnu_module_init( pmod );
 
         // save the filename
-        snprintf( loadname, SDL_arraysize( loadname ), "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
-
+        snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/menu.txt", vfs_ModPath );
         if ( NULL != module_load_info_vfs( loadname, &( pmod->base ) ) )
         {
-            pmod->loaded = btrue;
-            strncpy( pmod->name, FileName, SDL_arraysize( pmod->name ) );
             mnu_ModList.count++;
+
+			// mark the module data as loaded
+			pmod->loaded = btrue;
+
+			// save the module path
+            strncpy( pmod->vfs_path, vfs_ModPath, SDL_arraysize( pmod->vfs_path ) );
+
+			// Save the user data directory version of the module path.
+			// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
+			// If that changes, this line must be changed as well.
+			snprintf( pmod->dest_path, SDL_arraysize( pmod->dest_path ), "/%s", vfs_ModPath + 3 );
+
+			// same problem as above
+			strncpy( pmod->name, vfs_ModPath + 11, SDL_arraysize(pmod->name) );
         };
 
         ctxt = vfs_findNext( &ctxt );
-        FileName = vfs_search_context_get_current( ctxt );
+        vfs_ModPath = vfs_search_context_get_current( ctxt );
     }
     vfs_findClose( &ctxt );
 }
@@ -4509,6 +4531,22 @@ mod_file_t * mnu_ModList_get_base( int imod )
     if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
 
     return &( mnu_ModList.lst[( MOD_REF )imod].base );
+}
+
+//--------------------------------------------------------------------------------------------
+const char * mnu_ModList_get_vfs_path( int imod )
+{
+    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
+
+    return mnu_ModList.lst[( MOD_REF )imod].vfs_path;
+}
+
+//--------------------------------------------------------------------------------------------
+const char * mnu_ModList_get_dest_path( int imod )
+{
+    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
+
+    return mnu_ModList.lst[( MOD_REF )imod].dest_path;
 }
 
 //--------------------------------------------------------------------------------------------

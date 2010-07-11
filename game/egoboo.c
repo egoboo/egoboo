@@ -672,34 +672,27 @@ void egoboo_setup_vfs()
 
     //---- mount all of the default global directories
 
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "basicdat", fs_getDataDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_data", 0 );
+	// mount the global basicdat directory t the beginning of the list
+    vfs_add_mount_point( fs_getDataDirectory(), "basicdat", "mp_data", 0 );
 
-    // put the globalparticles data in front of the other game data
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "basicdat" SLASH_STR "globalparticles", fs_getDataDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_data", 1 );
-
-    // Create a mount point for the /data/modules directory
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "modules", fs_getDataDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_modules", 0 );
+    // put the global globalparticles data after the basicdat data
+    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
 
     // Create a mount point for the /user/modules directory
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "modules", fs_getUserDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_modules", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "modules", "mp_modules", 0 );
 
-    // Create a mount point for the /data/players directory
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "players", fs_getDataDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_players", 0 );
+	// Create a mount point for the /data/modules directory
+    vfs_add_mount_point( fs_getDataDirectory(), "modules", "mp_modules", 1 );
 
     // Create a mount point for the /user/players directory
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "players", fs_getUserDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_players", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "players", "mp_players", 0 );
+
+	// Create a mount point for the /data/players directory
+    vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );
 
     // Create a mount point for the /user/remote directory
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "import", fs_getUserDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_import", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 0 );
 
     // Create a mount point for the /user/remote directory
-    snprintf( tmp_dir, SDL_arraysize( tmp_dir ), "%s" SLASH_STR "remote", fs_getUserDirectory() );
-    vfs_add_mount_point( tmp_dir, "mp_remote", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "remote", "mp_remote", 0 );
 }

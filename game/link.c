@@ -110,11 +110,17 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     }
     else
     {
-        pickedmodule_path[0] = CSTR_END;
+		pickedmodule_index         = -1;
+        pickedmodule_path[0]       = CSTR_END;
+		pickedmodule_name[0]       = CSTR_END;
+		pickedmodule_write_path[0] = CSTR_END;
+
         pickedmodule_index = mnu_get_mod_number( modname );
         if ( -1 != pickedmodule_index )
         {
-            strncpy( pickedmodule_path, mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pickedmodule_path ) );
+            strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
+			strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
+			strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
         }
     }
 
@@ -210,7 +216,7 @@ bool_t link_push_module()
     memset( pentry, 0, sizeof( *pentry ) );
 
     // store the load name of the module
-    strncpy( pentry->modname, mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pentry->modname ) );
+    strncpy( pentry->modname, mnu_ModList_get_vfs_path( pickedmodule_index ), SDL_arraysize( pentry->modname ) );
 
     // find all of the exportable characters
     pentry->hero_count = 0;

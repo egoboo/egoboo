@@ -99,7 +99,10 @@ struct s_vfs_search_context
 struct s_vfs_path_data
 {
     VFS_PATH mount;
-    VFS_PATH path;
+
+    VFS_PATH full_path;
+    VFS_PATH root_path;
+    VFS_PATH relative_path;
 };
 typedef struct s_vfs_path_data vfs_path_data_t;
 
@@ -120,7 +123,7 @@ static bool_t       _vfs_ensure_destination_file( const char * filename );
 
 static void _vfs_translate_error( vfs_FILE * pfile );
 
-static bool_t       _vfs_mount_info_add( const char * mount_point, const char * local_path );
+static bool_t       _vfs_mount_info_add( const char * mount_point, const char * root_path, const char * relative_path );
 static int          _vfs_mount_info_matches( const char * mount_point, const char * local_path );
 static bool_t       _vfs_mount_info_remove( int cnt );
 static int          _vfs_mount_info_search( const char * some_path );
@@ -563,7 +566,7 @@ const char * vfs_resolveWriteFilename( const char * src_filename )
     }
 
     // append the write_dir to the szTemp to get the total path
-    snprintf( szFname, SDL_arraysize( szFname ), "%s%s", write_dir, szTemp );
+    snprintf( szFname, SDL_arraysize( szFname ), "%s" SLASH_STR "%s", write_dir, szTemp );
 
     // make sure that the slashes are correct for this system, and that they are not doubled
 
@@ -2105,23 +2108,40 @@ const char * vfs_getError()
 }
 
 //--------------------------------------------------------------------------------------------
-int vfs_add_mount_point( const char * dirname, const char * mount_point, int append )
+int vfs_add_mount_point( const char * root_path, const char * relative_path, const char * mount_point, int append )
 {
     /// @details BB@> a wrapper for PHYSFS_mount
 
     int retval = -1;
     const char * loc_dirname;
-
-    if ( !VALID_CSTR( dirname ) ) return 0;
+	VFS_PATH     dirname;
 
 	// a bare slash is taken to mean the PHYSFS root directory, not the root of the currently mounted volume
-    if ( 0 == strcmp( mount_point, "/" ) ) return 0;
+    if ( !VALID_CSTR(mount_point) || 0 == strcmp( mount_point, "/" ) ) return 0;
+
+	// make a complete version of the pathname
+	if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
+	{
+		snprintf( dirname, SDL_arraysize(dirname), "%s" SLASH_STR "%s", root_path, relative_path );
+	}
+	else if ( VALID_CSTR(root_path) )
+	{
+		strncpy( dirname, root_path, SDL_arraysize(dirname) );
+	}
+	else if ( VALID_CSTR(relative_path) )
+	{
+		strncpy( dirname, relative_path, SDL_arraysize(dirname) );
+	}
+	else
+	{
+		return 0;
+	}
 
 	/// @note ZF@> 2010-06-30 vfs_convert_fname_sys() broke the Linux version
 	/// @note BB@> 2010-06-30 the error in vfs_convert_fname_sys() might be fixed now
 	loc_dirname = vfs_convert_fname_sys( dirname );
 
-    if ( _vfs_mount_info_add( mount_point, loc_dirname ) )
+    if ( _vfs_mount_info_add( mount_point, root_path, relative_path ) )
     {
         retval = PHYSFS_mount( loc_dirname, mount_point, append );
         if ( 1 != retval )
@@ -2160,7 +2180,7 @@ int vfs_remove_mount_point( const char * mount_point )
     {
         int tmp_retval;
         // we have to use the path name to remove the search path, not the mount point name
-        tmp_retval = PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].path );
+        tmp_retval = PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].full_path );
 
         // if we succedded once, we succeeded
         if ( 0 != tmp_retval )
@@ -2289,8 +2309,8 @@ int _vfs_mount_info_matches( const char * mount_point, const char * local_path )
         // find the first path info with the given mount_point and local_path
         for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
         {
-            if ( 0 == strncmp( _vfs_mount_info[cnt].mount, mount_point, VFS_MAX_PATH ) &&
-                 0 == strncmp( _vfs_mount_info[cnt].path,  local_path, VFS_MAX_PATH ) )
+            if ( 0 == strncmp( _vfs_mount_info[cnt].mount,     mount_point, VFS_MAX_PATH ) &&
+                 0 == strncmp( _vfs_mount_info[cnt].full_path, local_path,  VFS_MAX_PATH ) )
             {
                 retval = cnt;
                 break;
@@ -2314,7 +2334,7 @@ int _vfs_mount_info_matches( const char * mount_point, const char * local_path )
         // find the first path info with the given local_path
         for ( cnt = 0; cnt < _vfs_mount_info_count; cnt++ )
         {
-            if ( 0 == strncmp( _vfs_mount_info[cnt].path,  local_path, VFS_MAX_PATH ) )
+            if ( 0 == strncmp( _vfs_mount_info[cnt].full_path, local_path, VFS_MAX_PATH ) )
             {
                 retval = cnt;
                 break;
@@ -2326,12 +2346,35 @@ int _vfs_mount_info_matches( const char * mount_point, const char * local_path )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _vfs_mount_info_add( const char * mount_point, const char * local_path )
+bool_t _vfs_mount_info_add( const char * mount_point, const char * root_path, const char * relative_path )
 {
     const char * ptmp;
 
+	VFS_PATH     local_path;
+
     // can we add it?
     if ( _vfs_mount_info_count >= MAX_MOUNTINFO ) return bfalse;
+
+	// if the mount point is not a string, do nothing
+    if ( !VALID_CSTR(mount_point) ) return bfalse;
+
+	// make a complete version of the pathname
+	if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
+	{
+		snprintf( local_path, SDL_arraysize(local_path), "%s" SLASH_STR "%s", root_path, relative_path );
+	}
+	else if ( VALID_CSTR(root_path) )
+	{
+		strncpy( local_path, root_path, SDL_arraysize(local_path) );
+	}
+	else if ( VALID_CSTR(relative_path) )
+	{
+		strncpy( local_path, relative_path, SDL_arraysize(local_path) );
+	}
+	else
+	{
+		return bfalse;
+	}
 
     // do we want to add it?
     if ( !VALID_CSTR( local_path ) ) return bfalse;
@@ -2350,8 +2393,20 @@ bool_t _vfs_mount_info_add( const char * mount_point, const char * local_path )
     if ( CSTR_END == *ptmp ) return bfalse;
 
     // save the mount point in a list for later detection
-    strncpy( _vfs_mount_info[_vfs_mount_info_count].mount, ptmp,       VFS_MAX_PATH );
-    strncpy( _vfs_mount_info[_vfs_mount_info_count].path,  local_path, VFS_MAX_PATH );
+    strncpy( _vfs_mount_info[_vfs_mount_info_count].mount,     ptmp,       VFS_MAX_PATH );
+    strncpy( _vfs_mount_info[_vfs_mount_info_count].full_path, local_path, VFS_MAX_PATH );
+
+	_vfs_mount_info[_vfs_mount_info_count].root_path[0] = '\0';
+	if( VALID_CSTR(root_path) )
+	{
+		strncpy( _vfs_mount_info[_vfs_mount_info_count].root_path, root_path, VFS_MAX_PATH );
+	}
+
+	_vfs_mount_info[_vfs_mount_info_count].relative_path[0] = '\0';
+	if( VALID_CSTR(relative_path) )
+	{
+		strncpy( _vfs_mount_info[_vfs_mount_info_count].relative_path, relative_path, VFS_MAX_PATH );
+	}
 
     _vfs_mount_info_count++;
 
