@@ -30,7 +30,7 @@
 
 #undef USE_GL_DEBUG
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C"
 {
 #endif
@@ -569,6 +569,6 @@ extern "C"
     /// If not set, it will default to stderr.
     FILE * set_ogl_debug_stderr( FILE * pfile );
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 };
 #endif

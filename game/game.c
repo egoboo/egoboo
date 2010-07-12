@@ -603,6 +603,9 @@ void update_used_lists()
 //--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
+	chr_stoppedby_tests = prt_stoppedby_tests = 0;
+	chr_pressure_tests  = prt_pressure_tests  = 0;
+
     update_all_characters();
     update_all_particles();
     update_all_enchants();

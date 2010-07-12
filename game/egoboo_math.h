@@ -28,27 +28,27 @@
 //--------------------------------------------------------------------------------------------
 // basic constants
 
-#ifndef PI
+#if !defined(PI)
 #   define PI                  3.1415926535897932384626433832795f
 #endif
 
-#ifndef TWO_PI
+#if !defined(TWO_PI)
 #   define TWO_PI              6.283185307179586476925286766559f
 #endif
 
-#ifndef SQRT_TWO
+#if !defined(SQRT_TWO)
 #   define SQRT_TWO            1.4142135623730950488016887242097f
 #endif
 
-#ifndef INV_SQRT_TWO
+#if !defined(INV_SQRT_TWO)
 #   define INV_SQRT_TWO        0.70710678118654752440084436210485f
 #endif
 
-#ifndef RAD_TO_TURN
+#if !defined(RAD_TO_TURN)
 #   define RAD_TO_TURN         10430.378350470452724949566316381f
 #endif
 
-#ifndef TURN_TO_RAD
+#if !defined(TURN_TO_RAD)
 #   define TURN_TO_RAD         0.000095873799242852576857380474343257
 #endif
 
@@ -77,47 +77,47 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 //--------------------------------------------------------------------------------------------
 /// Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
 /// fastest and most cross-platform solution
-#ifndef ABS
+#if !defined(ABS)
 #    define ABS(X)  (((X) > 0) ? (X) : -(X))
 #endif
 
-#ifndef SGN
+#if !defined(SGN)
 #    define SGN(X)  (((X) == 0) ? 0 : (((X) > 0) ? 1 : -1) )
 #endif
 
-#ifndef MIN
+#if !defined(MIN)
 #    define MIN(x, y)  (((x) > (y)) ? (y) : (x))
 #endif
 
-#ifndef MAX
+#if !defined(MAX)
 #    define MAX(x, y)  (((x) > (y)) ? (x) : (y))
 #endif
 
-#ifndef SQRT
+#if !defined(SQRT)
 #    define SQRT(A) ((float)sqrt((float)(A)))
 #endif
 
-#ifndef SIN
+#if !defined(SIN)
 #    define SIN(A) ((float)sin((float)(A)))
 #endif
 
-#ifndef COS
+#if !defined(COS)
 #    define COS(A) ((float)cos((float)(A)))
 #endif
 
-#ifndef POW
+#if !defined(POW)
 #    define POW(A, B) ((float)pow((float)(A), (float)(B)))
 #endif
 
-#ifndef ATAN2
+#if !defined(ATAN2)
 #    define ATAN2(A, B) ((float)atan2((float)(A), (float)(B)))
 #endif
 
-#ifndef CLIP
+#if !defined(CLIP)
 #    define CLIP(VAL,VMIN,VMAX) MIN(MAX(VAL,VMIN),VMAX)
 #endif
 
-#ifndef SWAP
+#if !defined(SWAP)
 #    define SWAP(TYPE, A, B) { TYPE temp; temp = A; A = B; B = temp; }
 #endif
 
@@ -133,15 +133,15 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 //--------------------------------------------------------------------------------------------
 /// FAST CONVERSIONS
 
-#ifndef INV_FF
+#if !defined(INV_FF)
 #   define INV_FF              0.003921568627450980392156862745098f
 #endif
 
-#ifndef INV_0100
+#if !defined(INV_0100)
 #   define INV_0100            0.00390625f
 #endif
 
-#ifndef INV_FFFF
+#if !defined(INV_FFFF)
 #   define INV_FFFF            0.000015259021896696421759365224689097f
 #endif
 
@@ -200,7 +200,7 @@ typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struc
 // My lil' random number table
 
 // swig chokes on the definition below
-#ifdef SWIG
+#if defined(SWIG)
 #    define RANDIE_BITS    12
 #    define RANDIE_COUNT 4096
 #else

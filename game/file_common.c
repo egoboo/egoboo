@@ -28,7 +28,7 @@
 #include "egoboo_vfs.h"
 #include "egoboo_config.h"
 
-#ifndef MAX_PATH
+#if !defined(MAX_PATH)
 #define MAX_PATH 260  // Same value that Windows uses...
 #endif
 

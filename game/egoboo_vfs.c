@@ -300,7 +300,7 @@ const char * vfs_convert_fname_sys( const char * fname )
 	if( VFS_TRUE == _vfs_mount_info_search( fname ) )
 	{
 		// this path contains a virtual mount point
-		assert( bfalse );
+		EGOBOO_ASSERT( bfalse );
 		return local_fname;
 	}
 

@@ -78,8 +78,18 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     pmod->rtscontrol = bfalse;		//< depecrated, not in use
 
     fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
-    pmod->rank[RANKSIZE-1] = CSTR_END;
     str_trim( pmod->rank );
+
+	// convert the special ranks of "unranked" or "-" ("rank 0") to an empty string
+	if( 0 == strncmp(pmod->rank, "-", RANKSIZE) )
+	{
+		pmod->rank[0] = CSTR_END;
+	}
+	else if( 'U' == toupper(pmod->rank[0]) )
+	{
+		pmod->rank[0] = CSTR_END;
+	}
+    pmod->rank[RANKSIZE-1] = CSTR_END;
 
     // Read the summary
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
@@ -195,7 +205,6 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
 {
     /// @details ZZ@> This function appends an IDSZ to the module's menu.txt file
     vfs_FILE *filewrite;
-    STRING newloadname;
 
     // Only add if there isn't one already
     if ( !module_has_idsz_vfs( szModName, idsz, 0, NULL ) )
@@ -228,4 +237,3 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
         }
     }
 }
-

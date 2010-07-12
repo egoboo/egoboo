@@ -91,7 +91,7 @@ enum
 #define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
 
 // swig chokes on the definition below
-#ifdef SWIG
+#if defined(SWIG)
 #   define STOR_BITS            4
 #   define STOR_COUNT          16                      ///< Storage data (Used in SetXY)
 #   define STOR_AND            15                      ///< Storage data bitmask

@@ -28,7 +28,7 @@
 
 #include <SDL_opengl.h>
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 #    include <cassert>
 #    include <cstdio>
 extern "C"
@@ -110,7 +110,7 @@ extern "C"
     /// If not set, it will default to stderr.
     FILE * set_ogl_include_stderr( FILE * pfile );
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 };
 #endif
 

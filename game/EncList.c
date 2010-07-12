@@ -300,7 +300,7 @@ int EncList_get_free_list_index( const ENC_REF by_reference ienc )
     {
         if ( ienc == EncList.free_ref[cnt] )
         {
-			assert( EncList.lst[ienc].obj_base.in_free_list );
+			EGOBOO_ASSERT( EncList.lst[ienc].obj_base.in_free_list );
             retval = cnt;
 			break;
         }
@@ -323,7 +323,7 @@ bool_t EncList_add_free( const ENC_REF by_reference ienc )
 	}
 #endif
 
-	assert( !EncList.lst[ienc].obj_base.in_free_list );
+	EGOBOO_ASSERT( !EncList.lst[ienc].obj_base.in_free_list );
 
 	retval = bfalse;
 	if( EncList.free_count < MAX_ENC )
@@ -390,7 +390,7 @@ int EncList_get_used_list_index( const ENC_REF by_reference ienc )
     {
         if ( ienc == EncList.used_ref[cnt] )
         {
-			assert( EncList.lst[ienc].obj_base.in_used_list );
+			EGOBOO_ASSERT( EncList.lst[ienc].obj_base.in_used_list );
             retval = cnt;
 			break;
         }
@@ -413,7 +413,7 @@ bool_t EncList_add_used( const ENC_REF by_reference ienc )
 	}
 #endif
 
-	assert( !EncList.lst[ienc].obj_base.in_used_list );
+	EGOBOO_ASSERT( !EncList.lst[ienc].obj_base.in_used_list );
 
 	retval = bfalse;
 	if( EncList.used_count < MAX_ENC )

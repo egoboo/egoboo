@@ -62,12 +62,12 @@ struct s_mod_file
     bool_t  monstersonly;                           ///< Only allow monsters
     Uint8   respawnvalid;                           ///< Allow respawn
     Uint8   rtscontrol;                             ///< !! keep this in the file, even though it is not used in the game !!
-    module_filter_t moduletype;						///< Main quest, town, sidequest or whatever
 	int     numlines;                               ///< Lines in summary
     char    summary[SUMMARYLINES][SUMMARYSIZE];     ///< Quest description
 
-    IDSZ    quest_idsz;                             ///< the quest required to unlock this module
-    int     quest_level;                            ///< the quest level required to unlock this module
+    IDSZ            quest_idsz;                     ///< the quest required to unlock this module
+    int             quest_level;                    ///< the quest level required to unlock this module
+    module_filter_t moduletype;						///< Main quest, town, sidequest or whatever
 };
 typedef struct s_mod_file mod_file_t;
 

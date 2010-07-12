@@ -33,7 +33,7 @@
 /// do dome mac stuff here
 
 /// trap non-osx mac builds
-#    ifndef __MACH__
+#    if !defined(__MACH__)
 #        error Only OS X builds are supported
 #    endif
 
@@ -58,7 +58,7 @@
 /// special win32 macro that lets windows know that you are going to be
 /// starting from a console.  This is useful because you can get real-time
 /// output to the screen just by using printf()!
-#    ifdef _CONSOLE
+#    if defined(_CONSOLE)
 #        define CONSOLE_MODE
 #    else
 #        undef  CONSOLE_MODE
@@ -112,7 +112,7 @@
 
 //------------
 /// deal with gcc's the warnings about const on return types in C
-#ifdef __cplusplus
+#if defined(__cplusplus)
 #    define EGO_CONST const
 #else
 #    define EGO_CONST
@@ -145,7 +145,7 @@
 #    pragma warning(disable : 4244) ///< conversion from 'double' to 'float'
 #    pragma warning(disable : 4305) ///< truncation from 'double' to 'float'
 
-#    ifndef _DEBUG
+#    if !defined(_DEBUG)
 #        pragma warning(disable : 4554) ///< possibly operator precendence error
 #    endif
 

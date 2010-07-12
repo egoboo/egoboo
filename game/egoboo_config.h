@@ -62,6 +62,8 @@
 
 #define DEBUG_BSP             ///< Print debugging info about the BSP/octree state
 
+#define DEBUG_RENDERLIST      ///< Print debugging info for the currently rendered mesh
+
 #undef  DEBUG_PROFILE         ///< Switch the profiling functions on and off
 #undef  DEBUG_PROFILE_DISPLAY ///< Display the results for the performance profiling
 #undef  DEBUG_PROFILE_RENDER  ///< Display the results for the performance profiling of the generric rendering

@@ -167,7 +167,7 @@ void floats_to_pair( float vmin, float vmax, IPair * ppair );
 /// IDSZ
 typedef Uint32 IDSZ;
 
-#ifndef MAKE_IDSZ
+#if !defined(MAKE_IDSZ)
 #define MAKE_IDSZ(C0,C1,C2,C3)     \
     ((IDSZ)(                       \
                                    ((((C0)-'A')&0x1F) << 15) |       \

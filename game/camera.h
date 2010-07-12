@@ -62,7 +62,7 @@ enum e_camera_turn_mode
 #define TURNTIME                        16           ///< Smooth turn
 
 /// Multi cam (uses macro to switch between old and new camera
-#ifndef OLD_CAMERA_MODE
+#if !defined(OLD_CAMERA_MODE)
 #    define MINZOOM                         800         ///< Camera distance
 #    define MAXZOOM                         700
 #    define MINZADD                         800         ///< Camera height

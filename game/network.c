@@ -173,7 +173,7 @@ void close_session()
 
             for ( i = 0; i < numPeers; i++ )
             {
-#ifdef ENET11
+#if defined(ENET11)
                 enet_peer_disconnect( &net_myHost->peers[i], 0 );
 #else
                 enet_peer_disconnect( &net_myHost->peers[i] );
@@ -1519,7 +1519,7 @@ void listen_for_packets()
                     // don't allow anyone to connect during the game session
                     log_warning( "listen_for_packets: Client tried to connect during the game: %x:%u\n",
                                  event.peer->address.host, event.peer->address.port );
-#ifdef ENET11
+#if defined(ENET11)
                     enet_peer_disconnect( event.peer, 0 );
 #else
                     enet_peer_disconnect( event.peer );

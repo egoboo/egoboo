@@ -299,7 +299,7 @@ int ChrList_get_free_list_index( const CHR_REF by_reference ichr )
     {
         if ( ichr == ChrList.free_ref[cnt] )
         {
-			assert( ChrList.lst[ichr].obj_base.in_free_list );
+			EGOBOO_ASSERT( ChrList.lst[ichr].obj_base.in_free_list );
             retval = cnt;
 			break;
         }
@@ -322,7 +322,7 @@ bool_t ChrList_add_free( const CHR_REF by_reference ichr )
 	}
 #endif
 
-	assert( !ChrList.lst[ichr].obj_base.in_free_list );
+	EGOBOO_ASSERT( !ChrList.lst[ichr].obj_base.in_free_list );
 
 	retval = bfalse;
 	if( ChrList.free_count < MAX_CHR )
@@ -389,7 +389,7 @@ int ChrList_get_used_list_index( const CHR_REF by_reference ichr )
     {
         if ( ichr == ChrList.used_ref[cnt] )
         {
-			assert( ChrList.lst[ichr].obj_base.in_used_list );
+			EGOBOO_ASSERT( ChrList.lst[ichr].obj_base.in_used_list );
             retval = cnt;
 			break;
         }
@@ -412,7 +412,7 @@ bool_t ChrList_add_used( const CHR_REF by_reference ichr )
 	}
 #endif
 
-	assert( !ChrList.lst[ichr].obj_base.in_used_list );
+	EGOBOO_ASSERT( !ChrList.lst[ichr].obj_base.in_used_list );
 
 	retval = bfalse;
 	if( ChrList.used_count < MAX_CHR )

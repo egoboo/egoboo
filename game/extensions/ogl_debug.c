@@ -474,7 +474,7 @@ void gl_grab_render_options_state( gl_render_options_t * po )
     po->line.stipple_enabled = GL_DEBUG( glIsEnabled )( GL_LINE_STIPPLE );
 
     GL_DEBUG( glGetFloatv )( GL_POLYGON_OFFSET_FACTOR, po->polygon.offset_factor );
-#ifdef GL_POLYGON_OFFSET_BIAS
+#if defined(GL_POLYGON_OFFSET_BIAS)
     GL_DEBUG( glGetFloatv )( GL_POLYGON_OFFSET_BIAS, po->polygon.offset_bias );
 #endif
     po->polygon.offset_point_enabled = GL_DEBUG( glIsEnabled )( GL_POLYGON_OFFSET_POINT );

@@ -627,7 +627,7 @@ prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
         iterations++;
     }
 
-	assert( pbase->state == ego_object_active );
+	EGOBOO_ASSERT( pbase->state == ego_object_active );
 	if( pbase->state == ego_object_active )
 	{
 		PrtList_add_used( GET_INDEX_PPRT( pprt ) );

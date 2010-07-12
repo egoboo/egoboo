@@ -26,7 +26,7 @@
 #include "ogl_extensions.h"
 #include "SDL_extensions.h"
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C"
 {
 #endif
@@ -62,6 +62,6 @@ extern "C"
     /// If not set, it will default to stderr.
     FILE * SDL_GL_set_stderr( FILE * pfile );
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 };
 #endif

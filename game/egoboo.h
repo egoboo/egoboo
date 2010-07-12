@@ -44,7 +44,7 @@
 #include <SDL_opengl.h>
 
 /// The following magic allows this include to work in multiple files
-#ifdef DECLARE_GLOBALS
+#if defined(DECLARE_GLOBALS)
 #    define EXTERN
 #    define EQ(x) = x
 #else

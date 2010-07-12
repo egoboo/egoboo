@@ -447,7 +447,7 @@ int PrtList_get_free_list_index( const PRT_REF by_reference iprt )
     {
         if ( iprt == PrtList.free_ref[cnt] )
         {
-			assert( PrtList.lst[iprt].obj_base.in_free_list );
+			EGOBOO_ASSERT( PrtList.lst[iprt].obj_base.in_free_list );
             retval = cnt;
 			break;
         }
@@ -470,7 +470,7 @@ bool_t PrtList_add_free( const PRT_REF by_reference iprt )
 	}
 #endif
 
-	assert( !PrtList.lst[iprt].obj_base.in_free_list );
+	EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_free_list );
 
 	retval = bfalse;
 	if( PrtList.free_count < maxparticles )
@@ -537,7 +537,7 @@ int PrtList_get_used_list_index( const PRT_REF by_reference iprt )
     {
         if ( iprt == PrtList.used_ref[cnt] )
         {
-			assert( PrtList.lst[iprt].obj_base.in_used_list );
+			EGOBOO_ASSERT( PrtList.lst[iprt].obj_base.in_used_list );
             retval = cnt;
 			break;
         }
@@ -560,7 +560,7 @@ bool_t PrtList_add_used( const PRT_REF by_reference iprt )
 	}
 #endif
 
-	assert( !PrtList.lst[iprt].obj_base.in_used_list );
+	EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_used_list );
 
 	retval = bfalse;
 	if( PrtList.used_count < maxparticles )

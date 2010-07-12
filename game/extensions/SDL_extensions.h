@@ -27,7 +27,7 @@
 
 #include <SDL.h>
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 #    include <cassert>
 #    include <cstdio>
 extern "C"
@@ -188,6 +188,6 @@ extern "C"
     /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
     void   SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v );
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 };
 #endif

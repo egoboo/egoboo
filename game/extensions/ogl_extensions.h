@@ -29,7 +29,7 @@
 #include <SDL_opengl.h>
 #include "file_common.h"
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 extern "C"
 {
 #endif
@@ -131,6 +131,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
     FILE * oglx_set_stdout( FILE * pfile );
 
-#ifdef __cplusplus
+#if defined(__cplusplus)
 };
 #endif

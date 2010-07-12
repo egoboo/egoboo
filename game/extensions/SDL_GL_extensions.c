@@ -433,7 +433,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     }
     else
     {
-        assert( 0 );
+        EGOBOO_ASSERT( 0 );
     }
 
     if ( local_surface != surface )  SDL_FreeSurface( local_surface );

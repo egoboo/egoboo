@@ -668,8 +668,6 @@ void egoboo_setup_vfs()
 {
     /// @details BB@> set the basic mount points used by the main program
 
-    STRING tmp_dir;
-
     //---- mount all of the default global directories
 
 	// mount the global basicdat directory t the beginning of the list

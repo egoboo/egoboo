@@ -3721,9 +3721,20 @@ chr_t * chr_config_do_init( chr_t * pchr )
 	if ( NULL == pchr ) return NULL;
 	ichr = GET_INDEX_PCHR( pchr );
 
-	// can't use chr_get_pcap() because pchr is not a valid character yet
-	icap = pro_get_icap( pchr->spawn_data.profile );
+	// get the character profile pointer
 	pcap = pro_get_pcap( pchr->spawn_data.profile );
+	if( NULL == pcap )
+	{
+        log_debug( "chr_config_do_init() - cannot initialize character.\n" );
+
+        return NULL;
+	}
+
+	// get the character profile index
+	icap = pro_get_icap( pchr->spawn_data.profile );
+
+    // turn the character on here. you can't fail to spawn after this point.
+    POBJ_ACTIVATE( pchr, pcap->name );
 
 	// make a copy of the data in pchr->spawn_data.pos
 	pos_tmp = pchr->spawn_data.pos;
@@ -4147,7 +4158,7 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
 		iterations++;
 	}
 
-	assert( pbase->state == ego_object_active );
+	EGOBOO_ASSERT( pbase->state == ego_object_active );
 	if( pbase->state == ego_object_active )
 	{
 		ChrList_add_used( GET_INDEX_PCHR( pchr ) );
@@ -4434,7 +4445,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
 	// actually force the character to spawn
 	chr_config_activate( pchr, 100 );
 
-#ifdef DEBUG_OBJECT_SPAWN
+#if defined(DEBUG_OBJECT_SPAWN) && defined(USE_DEBUG)
 	{
 		CAP_REF icap = pro_get_icap( profile );
 		log_debug("spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( ichr ), name, CapStack.lst[icap].classname);
@@ -6687,7 +6698,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
 					// normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
 					ftmp = MAX(ABS(diff_perp.x),ABS(diff_perp.y));
-					assert(ftmp > 0.0f);
+					EGOBOO_ASSERT(ftmp > 0.0f);
 					diff_perp.x *= tile_fraction * GRID_SIZE / ftmp;
 					diff_perp.y *= tile_fraction * GRID_SIZE / ftmp;
 
@@ -7696,6 +7707,8 @@ const char * chr_get_dir_name( const CHR_REF by_reference ichr )
 	if ( !LOADED_PRO( pchr->iprofile ) )
 	{
 		char * sztmp;
+
+		EGOBOO_ASSERT( bfalse );
 
 		// copy the character's data.txt path
 		strncpy( buffer, pchr->obj_base._name, SDL_arraysize( buffer ) );

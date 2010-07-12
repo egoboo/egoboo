@@ -491,7 +491,7 @@ void gfx_init_SDL_graphics()
 		log_message( "Succeess!\n" );
 	}
 
-#ifndef __APPLE__
+#if !defined(__APPLE__)
 	{
 		//Setup the cute windows manager icon, don't do this on Mac
 		SDL_Surface *theSurface;
@@ -515,7 +515,7 @@ void gfx_init_SDL_graphics()
 	// Set the window name
 	SDL_WM_SetCaption( "Egoboo " VERSION, "Egoboo" );
 
-#ifdef __unix__
+#if defined(__unix__)
 
 	// GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
 	// will cause SDL_SetVideoMode to fail with:
@@ -1481,29 +1481,33 @@ int draw_fps( int y )
 
 #if defined(USE_DEBUG)
 
-#    if defined(DEBUG_BSP)
+#    if defined(DEBUG_BSP) && defined(USE_DEBUG)
 		y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", BSP_chr_count, MAX_CHR - chr_count_free(), BSP_prt_count, maxparticles - prt_count_free() );
 		y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
 		y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
 
-#    if defined(DEBUG_PROFILE_DISPLAY)
+#if defined(DEBUG_RENDERLIST) && defined(USE_DEBUG)
+		y = _draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count  );
+#endif
 
-#        if defined(DEBUG_PROFILE_RENDER)
+#    if defined(DEBUG_PROFILE_DISPLAY) && defined(USE_DEBUG)
+
+#        if defined(DEBUG_PROFILE_RENDER) && defined(USE_DEBUG)
 		y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
 		y = _draw_string_raw( 0, y, "rendertime %2.4f, drawtime %2.4f", est_render_time, time_draw_scene );
 		y = _draw_string_raw( 0, y, "init %2.4f,  mesh %2.4f, solid %2.4f", time_render_scene_init, time_render_scene_mesh, time_render_scene_solid );
 		y = _draw_string_raw( 0, y, "water %2.4f, trans %2.4f", time_render_scene_water, time_render_scene_trans );
 #        endif
 
-#        if defined(DEBUG_PROFILE_MESH)
+#        if defined(DEBUG_PROFILE_MESH) && defined(USE_DEBUG)
 		y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
 		y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
 		y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
 		y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
 #        endif
 
-#        if defined(DEBUG_PROFILE_INIT)
+#        if defined(DEBUG_PROFILE_INIT) && defined(USE_DEBUG)
 		y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
 		y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
 		y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
@@ -2405,7 +2409,7 @@ void render_scene_mesh( renderlist_t * prlist )
 		PROFILE_END( render_scene_mesh_drf_solid );
 	}
 
-#if defined(RENDER_HMAP)
+#if defined(RENDER_HMAP) && defined(USE_DEBUG)
 	//------------------------------
 	// render the heighmap
 	for ( cnt = 0; cnt < prlist->all_count; cnt++ )

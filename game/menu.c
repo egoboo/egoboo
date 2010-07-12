@@ -835,6 +835,53 @@ int doSinglePlayerMenu( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+int cmp_mod_ref(const void * vref1, const void * vref2)
+{
+	/// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
+	///               Trap all stupid values.
+
+	MOD_REF * pref1 = (MOD_REF * )vref1;
+	MOD_REF * pref2 = (MOD_REF * )vref2;
+
+	int retval = 0;
+
+	if( NULL == pref1 && NULL == pref2 )
+	{
+		return 0;
+	}
+	else if( NULL == pref1 )
+	{
+		return 1;
+	}
+	else if ( NULL == pref2 )
+	{
+		return -1;
+	}
+
+	if( *pref1 > mnu_ModList.count && *pref2 > mnu_ModList.count )
+	{
+		return 0;
+	}
+	else if( *pref1 > mnu_ModList.count )
+	{
+		return 1;
+	}
+	else if ( *pref2 > mnu_ModList.count )
+	{
+		return -1;
+	}
+
+	retval = strncmp(mnu_ModList.lst[*pref1].base.rank, mnu_ModList.lst[*pref2].base.rank, RANKSIZE );
+
+	if( 0 == retval )
+	{
+		retval = strncmp(mnu_ModList.lst[*pref1].base.longname, mnu_ModList.lst[*pref2].base.longname, sizeof(STRING) );
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
 int doChooseModule( float deltaTime )
 {
     /// @details Choose the module
@@ -861,29 +908,31 @@ int doChooseModule( float deltaTime )
             // Reload all modules, something might be unlocked
             load_all_menu_images_vfs();
 
-			//Load background depending on current filter
-			if( startNewPlayer) ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
-			else switch( mnu_moduleFilter )
-			{
-						case FILTER_MAIN: ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR ); break;
-						case FILTER_SIDE: ego_texture_load_vfs( &background, "mp_data/menu/menu_sidequest", TRANSCOLOR ); break;
-						case FILTER_TOWN: ego_texture_load_vfs( &background, "mp_data/menu/menu_town", TRANSCOLOR ); break;
-						case FILTER_FUN:  ego_texture_load_vfs( &background, "mp_data/menu/menu_funquest", TRANSCOLOR ); break;
-				default: case FILTER_OFF: ego_texture_load_vfs( &background, "mp_data/menu/menu_allquest", TRANSCOLOR ); break;
-			}
-
             // Reset which module we are selecting
             startIndex = 0;
             selectedModule = -1;
 
-            // Find the module's that we want to allow loading for.  If startNewPlayer
-            // is true, we want ones that don't allow imports (e.g. starter modules).
-            // Otherwise, we want modules that allow imports
+			// blank out the valid modules
+            numValidModules = 0;
             for ( i = 0; i < MAX_MODULE; i++ )
             {
                 memset( validModules + i, 0, sizeof( MOD_REF ) );
             }
 
+            // Figure out at what offset we want to draw the module menu.
+            moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
+            moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
+
+            menuState = MM_Entering;
+
+            // fall through...
+
+        case MM_Entering:
+            menuState = MM_Running;
+
+            // Find the modules that we want to allow loading for.  If startNewPlayer
+            // is true, we want ones that don't allow imports (e.g. starter modules).
+            // Otherwise, we want modules that allow imports
             numValidModules = 0;
             for ( imod = 0; imod < mnu_ModList.count; imod++ )
             {
@@ -910,10 +959,26 @@ int doChooseModule( float deltaTime )
                 }
             }
 
-            // Figure out at what offset we want to draw the module menu.
-            moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
-            moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
+			// sort the modules by difficulty
+			qsort( validModules, numValidModules, sizeof(MOD_REF), cmp_mod_ref );
 
+			// load background depending on current filter
+			if( startNewPlayer)
+			{
+				ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
+			}
+			else switch( mnu_moduleFilter )
+			{
+				case FILTER_MAIN: ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR ); break;
+				case FILTER_SIDE: ego_texture_load_vfs( &background, "mp_data/menu/menu_sidequest", TRANSCOLOR ); break;
+				case FILTER_TOWN: ego_texture_load_vfs( &background, "mp_data/menu/menu_town", TRANSCOLOR ); break;
+				case FILTER_FUN:  ego_texture_load_vfs( &background, "mp_data/menu/menu_funquest", TRANSCOLOR ); break;
+
+				default: 
+				case FILTER_OFF: ego_texture_load_vfs( &background, "mp_data/menu/menu_allquest", TRANSCOLOR ); break;
+			}
+
+			// set the tip text
             if ( 0 == numValidModules )
             {
                 tipText_set_position( menuFont, "Sorry, there are no valid games!\n Please press the \"Back\" button.", 20 );
@@ -926,13 +991,6 @@ int doChooseModule( float deltaTime )
             {
                 tipText_set_position( menuFont, "Press an icon to select a game.\nUse the mouse wheel or the \"<-\" and \"->\" buttons to scroll.", 20 );
             }
-
-            menuState = MM_Entering;
-
-            // fall through...
-
-        case MM_Entering:
-            menuState = MM_Running;
 
             // fall through for now...
 
@@ -960,7 +1018,6 @@ int doChooseModule( float deltaTime )
                 }
 
                 cursor_finish_wheel_event();
-
             }
 
             //Allow arrow keys to scroll as well
@@ -1024,29 +1081,42 @@ int doChooseModule( float deltaTime )
             if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0 )
             {
                 char    buffer[1024]  = EMPTY_CSTR;
+				const char * rank_string, * name_string;
                 char  * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
                 MOD_REF imodule = validModules[selectedModule];
 
+				mod_file_t * pmod = &(mnu_ModList.lst[imodule].base);
+
                 GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
-                carat += snprintf( carat, carat_end - carat - 1, "%s\n", mnu_ModList.lst[imodule].base.longname );
+				name_string = "Unnamed";
+				if( CSTR_END != pmod->longname[0] )
+				{
+					name_string = pmod->longname;
+				}
+                carat += snprintf( carat, carat_end - carat - 1, "%s\n", name_string );
 
-                carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", mnu_ModList.lst[imodule].base.rank );
+				rank_string = "Unranked";
+				if( CSTR_END != pmod->rank[0] )
+				{
+					rank_string = pmod->rank;
+				}
+				carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", rank_string );
 
-                if ( mnu_ModList.lst[imodule].base.maxplayers > 1 )
+                if ( pmod->maxplayers > 1 )
                 {
-                    if ( mnu_ModList.lst[imodule].base.minplayers == mnu_ModList.lst[imodule].base.maxplayers )
+                    if ( pmod->minplayers == pmod->maxplayers )
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "%d Players\n", mnu_ModList.lst[imodule].base.minplayers );
+                        carat += snprintf( carat, carat_end - carat - 1, "%d Players\n", pmod->minplayers );
                     }
                     else
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "%d - %d Players\n", mnu_ModList.lst[imodule].base.minplayers, mnu_ModList.lst[imodule].base.maxplayers );
+                        carat += snprintf( carat, carat_end - carat - 1, "%d - %d Players\n", pmod->minplayers, pmod->maxplayers );
                     }
                 }
                 else
                 {
-                    if ( 0 != mnu_ModList.lst[imodule].base.importamount )
+                    if ( 0 != pmod->importamount )
                     {
                         carat += snprintf( carat, carat_end - carat - 1, "Single Player\n" );
                     }
@@ -1059,7 +1129,7 @@ int doChooseModule( float deltaTime )
 
                 for ( i = 0; i < SUMMARYLINES; i++ )
                 {
-                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", mnu_ModList.lst[imodule].base.summary[i] );
+                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", pmod->summary[i] );
                 }
 
                 // Draw a text box
@@ -1084,22 +1154,25 @@ int doChooseModule( float deltaTime )
             }
 
 			//Do the module filter button
-			if ( !startNewPlayer && BUTTON_UP == ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 ) )
+			ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 );
+			if ( !startNewPlayer && (BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 )) )
 			{
 				//Reload the modules with the new filter
-				menuState = MM_Begin;
+				menuState = MM_Entering;
 
 				//Swap to the next filter
+				mnu_moduleFilter = CLIP(mnu_moduleFilter, 0, FILTER_COUNT-1);
 				mnu_moduleFilter++;
-				if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = FILTER_OFF;
+
+				if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = 0;
 
 				switch( mnu_moduleFilter )
 				{
 							case FILTER_MAIN: filterText = "Main Quest";		break;
 							case FILTER_SIDE: filterText = "Sidequests";		break;
-							case FILTER_TOWN: filterText  = "Towns and Cities";	break;
-							case FILTER_FUN: filterText  = "Fun Modules";		break;
-				   default: case FILTER_OFF: filterText  = "All Modules";		break;
+							case FILTER_TOWN: filterText = "Towns and Cities";	break;
+							case FILTER_FUN:  filterText = "Fun Modules";		break;
+				   default: case FILTER_OFF:  filterText = "All Modules";		break;
 				}
 			}
 

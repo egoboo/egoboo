@@ -1068,7 +1068,7 @@ enc_t * enc_config_activate( enc_t * penc, int max_iterations )
         iterations++;
     }
 
-	assert( pbase->state == ego_object_active );
+	EGOBOO_ASSERT( pbase->state == ego_object_active );
 	if( pbase->state == ego_object_active )
 	{
 		EncList_add_used( GET_INDEX_PENC( penc ) );

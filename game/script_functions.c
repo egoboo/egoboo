@@ -6844,7 +6844,7 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-#ifdef __unix__
+#if defined(__unix__)
     returncode = btrue;
 #else
     returncode = bfalse;
@@ -7419,7 +7419,7 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
     returncode = btrue;
 #else
     returncode = bfalse;
