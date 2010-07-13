@@ -117,10 +117,15 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
             cTmp = fget_first_letter( fileread );
 
             // parse the expansion value
-            if        ( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
+            if      ( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
             else if ( 'S' == toupper( cTmp ) )  pmod->moduletype = FILTER_SIDE;
             else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
             else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
+            else if ( 'S' == toupper( cTmp ) )  pmod->moduletype = FILTER_STARTER;
+        }
+        else if ( idsz == MAKE_IDSZ( 'B', 'E', 'A', 'T' ) )
+        {
+            pmod->beaten = btrue;
         }
     }
 
@@ -231,6 +236,9 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
 
             // end the line
             vfs_printf( filewrite, "\n" );
+
+            // invalidate any module list so that we will reload them
+            module_list_valid = bfalse;
 
             // close the file
             vfs_close( filewrite );

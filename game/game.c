@@ -2634,7 +2634,7 @@ bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinf
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( startNewPlayer && NULL != pparent && pparent->isplayer )
+    if ( start_new_player && NULL != pparent && pparent->isplayer )
     {
         chr_t *pitem;
         pchr->nameknown = btrue;
@@ -2774,7 +2774,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 player_added = add_player( new_object, ( PLA_REF )PlaStack.count, bits );
             }
 
-            if ( startNewPlayer && player_added )
+            if ( start_new_player && player_added )
             {
                 // !!!! make sure the player is identified !!!!
                 pobject->nameknown = btrue;

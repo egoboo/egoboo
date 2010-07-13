@@ -192,8 +192,9 @@ static mnu_SlidyButtonState_t mnu_SlidyButtonState = { NULL };
 
 INSTANTIATE_STACK_STATIC( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT ); // OpenGL title image surfaces
 
-menu_process_t * MProc          = &_mproc;
-bool_t           startNewPlayer = bfalse;
+menu_process_t * MProc             = &_mproc;
+bool_t           start_new_player  = bfalse;
+bool_t           module_list_valid = bfalse;
 
 /* The font used for drawing text.  It's smaller than the button font */
 Font *menuFont = NULL;
@@ -266,7 +267,7 @@ static void autoformat_init_copyright_text();
 
 // misc other stuff
 static void mnu_release_one_module( const MOD_REF by_reference imod );
-static void load_all_menu_images_vfs();
+static void mnu_load_all_module_images_vfs();
 
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
@@ -905,8 +906,14 @@ int doChooseModule( float deltaTime )
     switch ( menuState )
     {
         case MM_Begin:
+
+            if( !module_list_valid )
+            {
+                mnu_load_all_module_info();
+            }
+
             // Reload all modules, something might be unlocked
-            load_all_menu_images_vfs();
+            mnu_load_all_module_images_vfs();
 
             // Reset which module we are selecting
             startIndex = 0;
@@ -933,7 +940,13 @@ int doChooseModule( float deltaTime )
         case MM_Entering:
             menuState = MM_Running;
 
-            // Find the modules that we want to allow loading for.  If startNewPlayer
+            if( !module_list_valid )
+            {
+                mnu_load_all_module_info();
+                mnu_load_all_module_images_vfs();
+            }
+
+            // Find the modules that we want to allow loading for.  If start_new_player
             // is true, we want ones that don't allow imports (e.g. starter modules).
             // Otherwise, we want modules that allow imports
             numValidModules = 0;
@@ -943,7 +956,7 @@ int doChooseModule( float deltaTime )
                 // selected players, skip it
                 if ( !mnu_test_by_index( imod, 0, NULL ) ) continue;
 
-                if ( startNewPlayer && 0 == mnu_ModList.lst[imod].base.importamount )
+                if ( start_new_player && 0 == mnu_ModList.lst[imod].base.importamount )
                 {
                     // starter module
                     validModules[numValidModules] = REF_TO_INT( imod );
@@ -966,7 +979,7 @@ int doChooseModule( float deltaTime )
             qsort( validModules, numValidModules, sizeof(MOD_REF), cmp_mod_ref );
 
             // load background depending on current filter
-            if( startNewPlayer)
+            if( start_new_player)
             {
                 ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
             }
@@ -998,6 +1011,13 @@ int doChooseModule( float deltaTime )
             // fall through for now...
 
         case MM_Running:
+
+            if( !module_list_valid )
+            {
+                mnu_load_all_module_info();
+                mnu_load_all_module_images_vfs();
+            }
+
             // Draw the background
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
@@ -1158,7 +1178,7 @@ int doChooseModule( float deltaTime )
             }
 
             //Do the module filter button
-            if ( !startNewPlayer )
+            if ( !start_new_player )
             {
                 bool_t click_button;
 
@@ -1174,18 +1194,20 @@ int doChooseModule( float deltaTime )
                     menuState = MM_Entering;
 
                     //Swap to the next filter
-                    mnu_moduleFilter = CLIP(mnu_moduleFilter, 0, FILTER_COUNT-1);
+                    mnu_moduleFilter = CLIP(mnu_moduleFilter, FILTER_NORMAL_BEGIN, FILTER_NORMAL_END);
+
                     mnu_moduleFilter++;
 
-                    if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = 0;
+                    if( mnu_moduleFilter > FILTER_NORMAL_END ) mnu_moduleFilter = FILTER_NORMAL_BEGIN;
 
                     switch( mnu_moduleFilter )
                     {
-                                case FILTER_MAIN: filterText = "Main Quest";        break;
-                                case FILTER_SIDE: filterText = "Sidequests";        break;
-                                case FILTER_TOWN: filterText = "Towns and Cities";    break;
-                                case FILTER_FUN:  filterText = "Fun Modules";        break;
-                       default: case FILTER_OFF:  filterText = "All Modules";        break;
+                                case FILTER_MAIN:    filterText = "Main Quest";       break;
+                                case FILTER_SIDE:    filterText = "Sidequests";       break;
+                                case FILTER_TOWN:    filterText = "Towns and Cities"; break;
+                                case FILTER_FUN:     filterText = "Fun Modules";      break;
+                                case FILTER_STARTER: filterText = "Starter Modules";  break;
+                       default: case FILTER_OFF:     filterText = "All Modules";      break;
                     }
                 }
             }
@@ -4026,13 +4048,13 @@ int doShowEndgame( float deltaTime )
                 // }
 
                 // fix the menu that is returned when you break out of the game
-                if ( PMod->beat && startNewPlayer )
+                if ( PMod->beat && start_new_player )
                 {
                     // we started with a new player and beat the module... yay!
                     // now we want to graduate to the ChoosePlayer menu to
                     // build our party
 
-                    startNewPlayer = bfalse;
+                    start_new_player = bfalse;
 
                     // if we beat a beginner module, we want to
                     // go to ChoosePlayer instead of ChooseModule.
@@ -4082,8 +4104,8 @@ int doMenu( float deltaTime )
             result = doMainMenu( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 )      { mnu_begin_menu( emnu_ChooseModule ); startNewPlayer = btrue; }
-                else if ( result == 2 ) { mnu_begin_menu( emnu_ChoosePlayer ); startNewPlayer = bfalse; }
+                if ( result == 1 )      { mnu_begin_menu( emnu_ChooseModule ); start_new_player = btrue; }
+                else if ( result == 2 ) { mnu_begin_menu( emnu_ChoosePlayer ); start_new_player = bfalse; }
                 else if ( result == 3 ) { mnu_begin_menu( emnu_Options ); }
                 else if ( result == 4 ) retval = MENU_QUIT;  // need to request a quit somehow
             }
@@ -4097,12 +4119,12 @@ int doMenu( float deltaTime )
                 if ( result == 1 )
                 {
                     mnu_begin_menu( emnu_ChooseModule );
-                    startNewPlayer = btrue;
+                    start_new_player = btrue;
                 }
                 else if ( result == 2 )
                 {
                     mnu_begin_menu( emnu_ChoosePlayer );
-                    startNewPlayer = bfalse;
+                    start_new_player = bfalse;
                 }
                 else if ( result == 3 )
                 {
@@ -4364,7 +4386,7 @@ void copyrightText_set_position( Font * font, const char * text, int spacing )
 //--------------------------------------------------------------------------------------------
 // Asset management
 //--------------------------------------------------------------------------------------------
-void load_all_menu_images_vfs()
+void mnu_load_all_module_images_vfs()
 {
     /// @details ZZ@> This function loads the title image for each module.  Modules without a
     ///     title are marked as invalid
@@ -4595,6 +4617,8 @@ void mnu_load_all_module_info()
         vfs_ModPath = vfs_search_context_get_current( ctxt );
     }
     vfs_findClose( &ctxt );
+
+    module_list_valid = btrue;
 }
 
 //--------------------------------------------------------------------------------------------

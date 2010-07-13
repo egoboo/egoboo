@@ -106,6 +106,8 @@ extern bool_t mnu_draw_background;
 
 extern menu_process_t * MProc;
 
+extern bool_t module_list_valid;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -127,7 +129,7 @@ void  mnu_player_check_import( const char *dirname, bool_t initialize );
 void   TxTitleImage_reload_all();
 TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
 
-extern bool_t startNewPlayer;
+extern bool_t start_new_player;
 
 // "public" implementation of mnu_ModList
 struct s_mod_file * mnu_ModList_get_base( int imod );
@@ -148,4 +150,3 @@ menu_process_t     * menu_process_init( menu_process_t * mproc );
 void autoformat_init( struct s_gfx_config * pgfx );
 
 #define egoboo_Menu_h
-

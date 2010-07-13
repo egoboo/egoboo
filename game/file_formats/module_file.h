@@ -36,12 +36,17 @@
 /// All the possible filters for modules
 enum e_module_filter
 {
-    FILTER_OFF,                        ///< Display all modules
+    FILTER_OFF,                     ///< Display all modules
     FILTER_MAIN,                    ///< Only main quest modules
     FILTER_SIDE,                    ///< Only alternate sidequest modules
     FILTER_TOWN,                    ///< Only display Town modules
-    FILTER_FUN,                        ///< Only fun modules (bumpercars!)
-    FILTER_COUNT
+    FILTER_FUN,                     ///< Only fun modules (bumpercars!)
+
+    FILTER_STARTER,                 ///< An extra filter for the starter modules
+
+    // aliases
+    FILTER_NORMAL_BEGIN = FILTER_OFF,
+    FILTER_NORMAL_END   = FILTER_FUN
 };
 typedef enum e_module_filter module_filter_t;
 
@@ -67,7 +72,8 @@ struct s_mod_file
 
     IDSZ            quest_idsz;                     ///< the quest required to unlock this module
     int             quest_level;                    ///< the quest level required to unlock this module
-    module_filter_t moduletype;                        ///< Main quest, town, sidequest or whatever
+    module_filter_t moduletype;                     ///< Main quest, town, sidequest or whatever
+    bool_t          beaten;                         ///< The module has been marked with teh [BEAT] eapansion
 };
 typedef struct s_mod_file mod_file_t;
 
