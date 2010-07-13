@@ -3006,8 +3006,7 @@ prt_t * prt_update_do_water( prt_t * pprt, pip_t * ppip )
         if ( spawn_valid )
         {
             // Splash for particles is just a ripple
-            spawn_one_particle( vtmp, 0, ( PRO_REF )MAX_PROFILE, spawn_pip_index, ( CHR_REF )MAX_CHR, GRIP_LAST,
-                                ( TEAM_REF )TEAM_NULL, ( CHR_REF )MAX_CHR, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+			spawn_one_particle_global( vtmp, 0, spawn_pip_index, 0);
         }
 
         pprt->inwater  = btrue;
@@ -3050,12 +3049,20 @@ int prt_do_contspawn( prt_t * pprt, pip_t * ppip )
             PRT_REF prt_child = spawn_one_particle( prt_get_pos(pprt), facing, pprt->profile_ref, ppip->contspawn_pip,
                                                     ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, iprt, tnc, pprt->target_ref );
 
-            if ( ALLOCATED_PRT( prt_child ) )
+			if ( ALLOCATED_PRT( prt_child ) )
             {
-                // Hack to fix velocity
-                PrtList.lst[prt_child].vel.x += pprt->vel.x;
-                PrtList.lst[prt_child].vel.y += pprt->vel.y;
+				// Inherit velocities from the particle we were spawned from, but only if it wasn't attached to something
 
+/*              ZF> I have disabled this at the moment. This is what caused the erratic particle movement for the Adventurer Torch  
+				if( !ACTIVE_CHR( PrtList.lst[prt_child].attachedto_ref ) )
+				{
+					PrtList.lst[prt_child].vel.x += pprt->vel.x;
+					PrtList.lst[prt_child].vel.y += pprt->vel.y;
+					PrtList.lst[prt_child].vel.z += pprt->vel.z;			//ZF> Any reason we shouldn't do Z velocity as well?
+				}
+*/
+
+				//Keep count of how many were actually spawned
                 spawn_count++;
             }
 

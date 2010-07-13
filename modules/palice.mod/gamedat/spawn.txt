@@ -98,13 +98,13 @@ chest:   NONE    36  22.5   33.0   1.0   E    0   0  0   0   0   F   F   N
   bridge:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Map room
-icemephit:   NONE    77  13.0   9.0   1.0   S    0   1  0   0   0   F   F   E
-  icewing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-icemephit:   NONE    77  10.0   11.0   1.0   N    0   1  0   0   0   F   F   E
-  icewing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-icemephit:   NONE    77  14.0   12.0   1.0   E    0   1  0   0   0   F   F   E
-  icewing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-chest:   NONE    36  12.5   11.5   1.0   N    0   0  2   0   0   F   F   N          //Contains map
+mephit:   NONE    77  13.0   9.0   1.0   S    0   1  0   0   0   F   F   E
+  mephitwing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    77  10.0   11.0   1.0   N    0   1  0   0   0   F   F   E
+  mephitwing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    77  14.0   12.0   1.0   E    0   1  0   0   0   F   F   E
+  mephitwing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+chest:   NONE    36  12.5   11.5   1.0   N    0   0  0   2   0   F   F   N          //Contains map
 halldoor:   NONE    38  36.0   16.0   1.0   S    0   0  8   0   0   F   F   N
 halldoor:   NONE    38  44.0   12.0   1.0   N    0   0  12   0   0   F   F   N
 halldoor:   NONE    38  31.0   12.0   1.0   W    0   2  6   0   0   F   F   N

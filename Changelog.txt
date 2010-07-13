@@ -1,10 +1,10 @@
-Version 2.8.0 (??.??.2010)
+Version 2.8.0 (14.07.2010)
 - New Feature: New Caltrop weapon... Watch your feet! Also added new Grog drink for G'nomes.
 - New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
   without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
 - New Feature: New side quest called "The Imprisoned One". A great ancient evil is breaking free from
-  it's imprisoment and you have to delve down into his tower of prison and seal him for good! This quest
-  line currently features four new modules and one more is planned.
+  it's imprisoment and you have to delve down into his tower of prison and seal him for good! This epic
+  quest line features five new modules!
 - New Feature: New spells, magical items, monsters and other fun stuff!
 - New Feature: Another new Starter Module based on a classic nethack character - The Valkyrie class!
 - New Feature: A new XP bar is shown below your character portrait to display level up progress.

@@ -1,11 +1,9 @@
 KNOWN BUGS:
+- You cannot dismount from the gatling gun in the G'nome Starter
 - Coins from the chest mimic seem to disappear when dropped.
 - Invictus from shields and animation frames seem not to work anymore.
-- Seems smoke particles from the torch have some erratic movements.
 - Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
   (Probably Max Speed that causes a lot of particle problems)
-- Exporting no longer works.
-- Enchants do not work properly.
 - Enchants on jewlery when module spawns aren't activated.
 - Runes need to be repriced much like Arcane Spellbooks were
 - Troll in Griffin tower doesnt die properly
