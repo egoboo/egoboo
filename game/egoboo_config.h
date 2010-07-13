@@ -52,7 +52,7 @@
 
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
 #undef  ENABLE_BODY_GRAB      ///< Enable the grabbing of bodies?
-#define  TEST_NAN_RESULT       ///< Test the result of certain math operations
+#undef  TEST_NAN_RESULT       ///< Test the result of certain math operations
 
 #undef  USE_LUA_CONSOLE       ///< LUA support for the console
 
@@ -60,7 +60,7 @@
 #undef  DEBUG_MESH_NORMALS    ///< render the mesh normals
 #define LOG_TO_CONSOLE        ///< dump all logginfo to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt
 
-#define DEBUG_BSP             ///< Print debugging info about the BSP/octree state
+#undef DEBUG_BSP             ///< Print debugging info about the BSP/octree state
 
 #define DEBUG_RENDERLIST      ///< Print debugging info for the currently rendered mesh
 
@@ -88,10 +88,10 @@
 /// >= 3 -- decompile every script (requires USE_DEBUG)
 #define DEBUG_SCRIPT_LEVEL 0
 
-#define DEBUG_CPP_LISTS
+#undef DEBUG_CPP_LISTS
 
 #undef  DEBUG_CHR_BBOX		///< display the all character bounding boxes
-#define DEBUG_PRT_BBOX		///< display the all particle bounding boxes
+#undef DEBUG_PRT_BBOX		///< display the all particle bounding boxes
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

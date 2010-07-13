@@ -149,7 +149,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
         str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
         if ( !fs_fileExists( path_str ) )
         {
-            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
+            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "controls.txt", fs_getBinaryDirectory() );
             str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
 
             if ( !fs_fileExists( path_str ) )

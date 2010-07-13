@@ -6916,8 +6916,8 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfBackstabbed()
-    /// @details ZF@> Proceeds if HitFromBehind, target has [DISA] skill and damage dealt is physical
-    /// automatically fails if character has code of conduct
+    /// @details ZF@> Proceeds if HitFromBehind, target has [STAB] skill and damage dealt is physical
+    /// automatically fails if attacker has a code of conduct
 
     Uint16 sTmp = 0;
 

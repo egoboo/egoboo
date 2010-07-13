@@ -175,7 +175,8 @@ bool_t setup_read_vfs( const char* filename )
         str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
         if ( !fs_fileExists( path_str ) )
         {
-            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
+			//Try the local setup.txt if the default folder failed
+            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getBinaryDirectory(), filename );
             str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
 
             if ( !fs_fileExists( path_str ) )

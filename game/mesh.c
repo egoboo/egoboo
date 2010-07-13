@@ -1880,9 +1880,8 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y )
 //--------------------------------------------------------------------------------------------
 float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax )
 {
-    Uint32 itile;
+    Uint32 itile, cnt;
     int type;
-    int cnt;
     float zmax;
     size_t vcount, vstart, ivrt;
 
@@ -2025,7 +2024,7 @@ mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
 {
-    int i;
+    Uint32 i;
 
     if ( NULL == pbsp || NULL == pmesh ) return bfalse;
 

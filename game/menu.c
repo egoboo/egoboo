@@ -1150,32 +1150,38 @@ int doChooseModule( float deltaTime )
             if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
             {
                 // Signal doMenu to go back to the previous menu
+                selectedModule = -1;
                 menuState = MM_Leaving;
             }
 
 			//Do the module filter button
-			ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 );
-			if ( !startNewPlayer && (BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 )) )
+			if ( !startNewPlayer )
 			{
-				//Reload the modules with the new filter
-				menuState = MM_Entering;
-
-				//Swap to the next filter
-				mnu_moduleFilter = CLIP(mnu_moduleFilter, 0, FILTER_COUNT-1);
-				mnu_moduleFilter++;
-
-				if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = 0;
-
-				switch( mnu_moduleFilter )
+				bool_t click_button;
+				click_button = ( BUTTON_UP == ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 ) );
+				//|| (BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 ) );
+				
+				if( click_button )
 				{
-							case FILTER_MAIN: filterText = "Main Quest";		break;
-							case FILTER_SIDE: filterText = "Sidequests";		break;
-							case FILTER_TOWN: filterText = "Towns and Cities";	break;
-							case FILTER_FUN:  filterText = "Fun Modules";		break;
-				   default: case FILTER_OFF:  filterText = "All Modules";		break;
+					//Reload the modules with the new filter
+					menuState = MM_Entering;
+
+					//Swap to the next filter
+					mnu_moduleFilter = CLIP(mnu_moduleFilter, 0, FILTER_COUNT-1);
+					mnu_moduleFilter++;
+
+					if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = 0;
+
+					switch( mnu_moduleFilter )
+					{
+								case FILTER_MAIN: filterText = "Main Quest";		break;
+								case FILTER_SIDE: filterText = "Sidequests";		break;
+								case FILTER_TOWN: filterText = "Towns and Cities";	break;
+								case FILTER_FUN:  filterText = "Fun Modules";		break;
+					   default: case FILTER_OFF:  filterText = "All Modules";		break;
+					}
 				}
 			}
-
 
             // the tool-tip text
             glColor4f( 1, 1, 1, 1 );

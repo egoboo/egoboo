@@ -275,8 +275,8 @@ void scr_run_chr_script( const CHR_REF by_reference character )
         else if ( pself->wp_valid )
         {
             // Normal AI
-            pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( TILE_ISIZE << 2 );
-            pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( TILE_ISIZE << 2 );
+	        pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( TILE_ISIZE << 2 );
+			pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( TILE_ISIZE << 2 );
         }
         else
         {
@@ -295,7 +295,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     }
 
     // Clear alerts for next time around
-    pself->alert = 0;
+    pself->alert = ALERT_NONE;
 
     PROFILE_END2_STRUCT( pself );
 }

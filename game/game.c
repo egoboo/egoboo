@@ -3186,7 +3186,7 @@ bool_t game_setup_vfs( const char * mod_path )
     const char * mod_dir_ptr;
     STRING mod_dir_string;
 
-    STRING tmpPath, tmpDir;
+    STRING tmpDir;
 
     if ( INVALID_CSTR( mod_path ) ) return bfalse;
 

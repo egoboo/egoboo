@@ -114,7 +114,7 @@ Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
 Object is an item ( TRUE or FALSE )		: FALSE
 Object is a mount ( TRUE or FALSE )		: FALSE
 Object is stackable ( TRUE or FALSE )		: FALSE
-Object's name is known ( TRUE or FALSE )	: FALSE
+Object's name is known ( TRUE or FALSE )	: TRUE
 Item of known usage ( TRUE or FALSE )		: TRUE
 Item carries to next module ( TRUE or FALSE )	: FALSE
 Item requires skill ID to use ( TRUE or FALSE )	: FALSE

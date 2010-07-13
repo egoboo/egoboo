@@ -1,4 +1,7 @@
-MASTER TODO LIST:
+KNOWN BUGS:
+- Coins from the chest mimic seem to disappear when dropped.
+- Invictus from shields and animation frames seem not to work anymore.
+- Seems smoke particles from the torch have some erratic movements.
 - Brainscrambler daze ray doesnt work and Gonne shots do not hit, these two are probably related
   (Probably Max Speed that causes a lot of particle problems)
 - Exporting no longer works.
