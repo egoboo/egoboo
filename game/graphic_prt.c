@@ -228,7 +228,7 @@ bool_t render_one_prt_solid( const PRT_REF by_reference iprt )
     ATTRIB_POP( "render_one_prt_solid" );
 
 #if defined(USE_DEBUG) && defined(DEBUG_PRT_BBOX)
-	render_prt_bbox( pprt );
+    render_prt_bbox( pprt );
 #endif
 
     return btrue;
@@ -349,7 +349,7 @@ bool_t render_one_prt_trans( const PRT_REF by_reference iprt )
     ATTRIB_POP( "render_one_prt_trans" );
 
 #if defined(USE_DEBUG) && defined(DEBUG_PRT_BBOX)
-	render_prt_bbox( pprt );
+    render_prt_bbox( pprt );
 #endif
 
     return btrue;
@@ -1151,7 +1151,7 @@ void render_prt_bbox( prt_t * pprt )
 {
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
-	if( 0.0f == pprt->bump_padded.size ) return;
+    if( 0.0f == pprt->bump_padded.size ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
@@ -1160,7 +1160,7 @@ void render_prt_bbox( prt_t * pprt )
         {
             oct_bb_t bb;
 
-			oct_bb_add_vector( pprt->chr_prt_cv, pprt->pos, &bb );
+            oct_bb_add_vector( pprt->chr_prt_cv, pprt->pos, &bb );
 
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );

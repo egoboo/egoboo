@@ -74,21 +74,21 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     if ( 'T' == toupper( cTmp ) )  pmod->respawnvalid = btrue;
     if ( 'A' == toupper( cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
-	fget_next_char( fileread );
-    pmod->rtscontrol = bfalse;		//< depecrated, not in use
+    fget_next_char( fileread );
+    pmod->rtscontrol = bfalse;        //< depecrated, not in use
 
     fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     str_trim( pmod->rank );
 
-	// convert the special ranks of "unranked" or "-" ("rank 0") to an empty string
-	if( 0 == strncmp(pmod->rank, "-", RANKSIZE) )
-	{
-		pmod->rank[0] = CSTR_END;
-	}
-	else if( 'U' == toupper(pmod->rank[0]) )
-	{
-		pmod->rank[0] = CSTR_END;
-	}
+    // convert the special ranks of "unranked" or "-" ("rank 0") to an empty string
+    if( 0 == strncmp(pmod->rank, "-", RANKSIZE) )
+    {
+        pmod->rank[0] = CSTR_END;
+    }
+    else if( 'U' == toupper(pmod->rank[0]) )
+    {
+        pmod->rank[0] = CSTR_END;
+    }
     pmod->rank[RANKSIZE-1] = CSTR_END;
 
     // Read the summary
@@ -102,27 +102,27 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
         str_decode( pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ), pmod->summary[cnt] );
     }
 
-	// Assume default module type as a sidequest
-	pmod->moduletype = FILTER_SIDE;
+    // Assume default module type as a sidequest
+    pmod->moduletype = FILTER_SIDE;
 
-	// Read expansions
-	while ( goto_colon( NULL, fileread, btrue ) )
+    // Read expansions
+    while ( goto_colon( NULL, fileread, btrue ) )
     {
-		IDSZ idsz = fget_idsz( fileread );
+        IDSZ idsz = fget_idsz( fileread );
 
-		// Read module type
+        // Read module type
         if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
-		{
-			// grab the expansion value
-			cTmp = fget_first_letter( fileread );
+        {
+            // grab the expansion value
+            cTmp = fget_first_letter( fileread );
 
-			// parse the expansion value
-			if		( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
-			else if ( 'S' == toupper( cTmp ) )  pmod->moduletype = FILTER_SIDE;
-			else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
-			else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
-		}
-	}
+            // parse the expansion value
+            if        ( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
+            else if ( 'S' == toupper( cTmp ) )  pmod->moduletype = FILTER_SIDE;
+            else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
+            else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
+        }
+    }
 
     vfs_close( fileread );
 
@@ -179,21 +179,21 @@ int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, ch
         }
     }
 
-	if( NULL != buffer )
-	{
-		if( buffer_len < 1 )
-		{
-			/* nothing */
-		}
-		else if( 1 == buffer_len )
-		{
-			buffer[0] = '\0';
-		}
-		else
-		{
-			vfs_gets( buffer, buffer_len, fileread );
-		}
-	}
+    if( NULL != buffer )
+    {
+        if( buffer_len < 1 )
+        {
+            /* nothing */
+        }
+        else if( 1 == buffer_len )
+        {
+            buffer[0] = '\0';
+        }
+        else
+        {
+            vfs_gets( buffer, buffer_len, fileread );
+        }
+    }
 
     vfs_close( fileread );
 
@@ -209,30 +209,30 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
     // Only add if there isn't one already
     if ( !module_has_idsz_vfs( szModName, idsz, 0, NULL ) )
     {
-		STRING src_file, dst_file;
+        STRING src_file, dst_file;
 
-		// make sure that the file exists in the user data directory since we are WRITING to it
-		snprintf( src_file, SDL_arraysize(src_file), "mp_modules/%s/gamedat/menu.txt", szModName );
-		snprintf( dst_file, SDL_arraysize(dst_file), "/modules/%s/gamedat/menu.txt", szModName );
-		vfs_copyFile( src_file, dst_file );
+        // make sure that the file exists in the user data directory since we are WRITING to it
+        snprintf( src_file, SDL_arraysize(src_file), "mp_modules/%s/gamedat/menu.txt", szModName );
+        snprintf( dst_file, SDL_arraysize(dst_file), "/modules/%s/gamedat/menu.txt", szModName );
+        vfs_copyFile( src_file, dst_file );
 
         // Try to open the file in append mode
         filewrite = vfs_openAppend( dst_file );
         if ( filewrite )
         {
-			// output the expansion IDSZ
+            // output the expansion IDSZ
             vfs_printf( filewrite, "\n:[%s]", undo_idsz( idsz ) );
 
-			// output an optional parameter
-			if( NULL != buffer && buffer_len > 1 )
-			{
-				vfs_printf( filewrite, " %s", undo_idsz( idsz ) );
-			}
+            // output an optional parameter
+            if( NULL != buffer && buffer_len > 1 )
+            {
+                vfs_printf( filewrite, " %s", undo_idsz( idsz ) );
+            }
 
-			// end the line
-			vfs_printf( filewrite, "\n" );
+            // end the line
+            vfs_printf( filewrite, "\n" );
 
-			// close the file
+            // close the file
             vfs_close( filewrite );
         }
     }

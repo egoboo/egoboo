@@ -993,7 +993,7 @@ void sv_talkToRemotes()
         for ( player = 0; player < MAX_PLAYER; player++ )
         {
             int index;
-			Uint32 cnt;
+            Uint32 cnt;
             player_t * ppla;
 
             if ( !PlaStack.lst[player].valid ) continue;
@@ -1308,21 +1308,21 @@ void net_handlePacket( ENetEvent *event )
                 PMod->seed = packet_readUnsignedInt();
                 packet_readString( filename, 255 );
 
-				pickedmodule_index         = -1;
-				pickedmodule_path[0]       = CSTR_END;
-				pickedmodule_name[0]       = CSTR_END;
-				pickedmodule_write_path[0] = CSTR_END;
+                pickedmodule_index         = -1;
+                pickedmodule_path[0]       = CSTR_END;
+                pickedmodule_name[0]       = CSTR_END;
+                pickedmodule_write_path[0] = CSTR_END;
 
-				pickedmodule_index = mnu_get_mod_number( filename );
+                pickedmodule_index = mnu_get_mod_number( filename );
 
                 // Check to see if the module exists
                 if ( -1 != pickedmodule_index )
                 {
-					strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
-					strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
-					strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
+                    strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
+                    strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
+                    strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
-					pickedmodule_ready = btrue;
+                    pickedmodule_ready = btrue;
 
                     // Make ourselves ready
                     gnet.readytostart = btrue;

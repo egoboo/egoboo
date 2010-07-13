@@ -62,7 +62,7 @@ cap_t * cap_init( cap_t * pcap )
     pcap->reflect = btrue;
     pcap->hidestate = NOHIDE;
     pcap->skin_override = NO_SKIN_OVERRIDE;
-	pcap->isvaluable = -1;
+    pcap->isvaluable = -1;
 
     // either these will be overridden by data in the data.txt, or
     // they will be limited by the spawning character's max stats

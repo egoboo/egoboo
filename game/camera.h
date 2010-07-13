@@ -98,7 +98,7 @@ struct s_camera
     fvec3_t       pos;                       ///< Camera position (z = 500-1000)
     orientation_t ori;
 
-	float         zoom;                    ///< Distance from the trackee
+    float         zoom;                    ///< Distance from the trackee
     fvec3_t       track_pos;                  ///< Trackee position
     float         track_level;
     fvec3_t       center;                 ///< Move character to side before tracking

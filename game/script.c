@@ -275,8 +275,8 @@ void scr_run_chr_script( const CHR_REF by_reference character )
         else if ( pself->wp_valid )
         {
             // Normal AI
-	        pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( TILE_ISIZE << 2 );
-			pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( TILE_ISIZE << 2 );
+            pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( TILE_ISIZE << 2 );
+            pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( TILE_ISIZE << 2 );
         }
         else
         {
@@ -828,7 +828,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
                 case FTARGETDAMAGESELF:      returncode = scr_TargetDamageSelf( pstate, pself ); break;
                 case FSETTARGETSIZE:         returncode = scr_SetTargetSize( pstate, pself ); break;
                 case FSETTARGETTONEARESTQUESTID: returncode = scr_set_TargetToNearestQuestID( pstate, pself ); break;
-				
+                
                 // if none of the above, skip the line and log an error
                 default:
                     log_message( "SCRIPT ERROR: scr_run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
@@ -891,20 +891,20 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
     Uint32 iTmp;
 
-	chr_t * pchr = NULL, * ptarget = NULL, * powner = NULL;
+    chr_t * pchr = NULL, * ptarget = NULL, * powner = NULL;
 
-	if( !DEFINED_CHR( pself->index) ) return;
-	pchr = ChrList.lst + pself->index;
+    if( !DEFINED_CHR( pself->index) ) return;
+    pchr = ChrList.lst + pself->index;
 
-	if( DEFINED_CHR( pself->target ) )
-	{
-		ptarget = ChrList.lst + pself->target;
-	}
+    if( DEFINED_CHR( pself->target ) )
+    {
+        ptarget = ChrList.lst + pself->target;
+    }
 
-	if( DEFINED_CHR( pself->owner ) )
-	{
-		powner = ChrList.lst + pself->owner;
-	}
+    if( DEFINED_CHR( pself->owner ) )
+    {
+        powner = ChrList.lst + pself->owner;
+    }
 
     // get the operator
     iTmp      = 0;
@@ -990,7 +990,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETX:
                 varname = "TARGETX";
-				iTmp = (NULL == ptarget) ? 0 : ptarget->pos.x;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->pos.x;
                 break;
 
             case VARTARGETY:
@@ -1000,14 +1000,14 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETDISTANCE:
                 varname = "TARGETDISTANCE";
-				if( NULL == ptarget )
-				{
-					iTmp = 0x7FFFFFFF;
-				}
-				else
-				{
-					iTmp = ABS(ptarget->pos.x - pchr->pos.x ) + ABS( ptarget->pos.y - pchr->pos.y );
-				}
+                if( NULL == ptarget )
+                {
+                    iTmp = 0x7FFFFFFF;
+                }
+                else
+                {
+                    iTmp = ABS(ptarget->pos.x - pchr->pos.x ) + ABS( ptarget->pos.y - pchr->pos.y );
+                }
                 break;
 
             case VARTARGETTURN:
@@ -1032,21 +1032,21 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
                 break;
 
             case VARLEADERDISTANCE:
-				{
-					chr_t * pleader;
-					varname = "LEADERDISTANCE";
+                {
+                    chr_t * pleader;
+                    varname = "LEADERDISTANCE";
 
-					pleader = team_get_pleader( pchr->team );
+                    pleader = team_get_pleader( pchr->team );
 
-					if ( NULL == pleader )
-					{
-						iTmp = 0x7FFFFFFF;
-					}
-					else
-					{
-						iTmp = ABS( pleader->pos.x - pchr->pos.x ) + ABS( pleader->pos.y - pchr->pos.y );
-					}
-				}
+                    if ( NULL == pleader )
+                    {
+                        iTmp = 0x7FFFFFFF;
+                    }
+                    else
+                    {
+                        iTmp = ABS( pleader->pos.x - pchr->pos.x ) + ABS( pleader->pos.y - pchr->pos.y );
+                    }
+                }
                 break;
 
             case VARLEADERTURN:
@@ -1105,15 +1105,15 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURNTO:
                 varname = "TARGETTURNTO";
-				if( NULL == ptarget )
-				{
-					iTmp = 0;
-				}
-				else
-				{
-					iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
-					iTmp = CLIP_TO_16BITS( iTmp );
-				}
+                if( NULL == ptarget )
+                {
+                    iTmp = 0;
+                }
+                else
+                {
+                    iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
+                    iTmp = CLIP_TO_16BITS( iTmp );
+                }
                 break;
 
             case VARPASSAGE:
@@ -1175,15 +1175,15 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETMANA:
                 varname = "TARGETMANA";
-				if( NULL == ptarget )
-				{
-					iTmp = 0;
-				}
-				else
-				{
-					iTmp = ptarget->mana;
-					if ( ptarget->canchannel ) iTmp += ptarget->life;
-				}
+                if( NULL == ptarget )
+                {
+                    iTmp = 0;
+                }
+                else
+                {
+                    iTmp = ptarget->mana;
+                    if ( ptarget->canchannel ) iTmp += ptarget->life;
+                }
 
                 break;
 
@@ -1294,7 +1294,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERX:
                 varname = "OWNERX";
-				iTmp = (NULL == powner) ? 0 : powner->pos.x;
+                iTmp = (NULL == powner) ? 0 : powner->pos.x;
                 break;
 
             case VAROWNERY:
@@ -1309,27 +1309,27 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERDISTANCE:
                 varname = "OWNERDISTANCE";
-				if( NULL == powner )
-				{
-					iTmp = 0x7FFFFFFF;
-				}
-				else
-				{
-					iTmp = ABS( powner->pos.x - pchr->pos.x ) + ABS( powner->pos.y - pchr->pos.y );
-				}
+                if( NULL == powner )
+                {
+                    iTmp = 0x7FFFFFFF;
+                }
+                else
+                {
+                    iTmp = ABS( powner->pos.x - pchr->pos.x ) + ABS( powner->pos.y - pchr->pos.y );
+                }
                 break;
 
             case VAROWNERTURNTO:
                 varname = "OWNERTURNTO";
-				if( NULL == powner )
-				{
-					iTmp = 0;
-				}
-				else
-				{
-					iTmp = vec_to_facing( powner->pos.x - pchr->pos.x , powner->pos.y - pchr->pos.y );
-					iTmp = CLIP_TO_16BITS( iTmp );
-				}
+                if( NULL == powner )
+                {
+                    iTmp = 0;
+                }
+                else
+                {
+                    iTmp = vec_to_facing( powner->pos.x - pchr->pos.x , powner->pos.y - pchr->pos.y );
+                    iTmp = CLIP_TO_16BITS( iTmp );
+                }
                 break;
 
             case VARXYTURNTO:
@@ -1370,15 +1370,15 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURNAWAY:
                 varname = "TARGETTURNAWAY";
-				if( NULL == ptarget )
-				{
-					iTmp = 0;
-				}
-				else
-				{
-					iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
-					iTmp = CLIP_TO_16BITS( iTmp );
-				}
+                if( NULL == ptarget )
+                {
+                    iTmp = 0;
+                }
+                else
+                {
+                    iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
+                    iTmp = CLIP_TO_16BITS( iTmp );
+                }
                 break;
 
             case VARSELFLEVEL:

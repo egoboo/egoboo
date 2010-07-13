@@ -62,10 +62,10 @@ struct s_ego_object_base
     bool_t             on;          ///< Can it be accessed?
     bool_t             turn_me_on;  ///< Has someone requested that the object be turned on?
     bool_t             kill_me;     ///< Has someone requested that the object be destroyed?
-	bool_t             spawning;    ///< is the object in the midst of being created?
+    bool_t             spawning;    ///< is the object in the midst of being created?
 
-	bool_t             in_free_list; ///< the object is currently in the free list
-	bool_t             in_used_list; ///< the object is currently in the used list
+    bool_t             in_free_list; ///< the object is currently in the free list
+    bool_t             in_used_list; ///< the object is currently in the used list
 
     // things related to the updating of objects
     size_t         update_count;  ///< How many updates have been made to this object?
@@ -85,10 +85,10 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
     if( NULL != PDATA ) \
     { \
         (PDATA)->obj_base.allocated  = btrue;  \
-		(PDATA)->obj_base.on         = bfalse; \
-		(PDATA)->obj_base.turn_me_on = bfalse; \
+        (PDATA)->obj_base.on         = bfalse; \
+        (PDATA)->obj_base.turn_me_on = bfalse; \
         (PDATA)->obj_base.kill_me    = bfalse; \
-		(PDATA)->obj_base.spawning   = bfalse; \
+        (PDATA)->obj_base.spawning   = bfalse; \
         (PDATA)->obj_base.index      = INDEX;  \
         (PDATA)->obj_base.state      = ego_object_constructing; \
         (PDATA)->obj_base.guid       = ego_object_guid++; \
@@ -123,24 +123,24 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
     }
 
 #define POBJ_BEGIN_SPAWN( PDATA ) \
-	if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
-	{\
-		if( !(PDATA)->obj_base.spawning )\
-		{\
-			(PDATA)->obj_base.spawning = btrue;\
-			ego_object_spawn_depth++;\
-		}\
-	}\
+    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    {\
+        if( !(PDATA)->obj_base.spawning )\
+        {\
+            (PDATA)->obj_base.spawning = btrue;\
+            ego_object_spawn_depth++;\
+        }\
+    }\
 
 #define POBJ_END_SPAWN( PDATA ) \
-	if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
-	{\
-		if( (PDATA)->obj_base.spawning )\
-		{\
-			(PDATA)->obj_base.spawning = bfalse;\
-			ego_object_spawn_depth--;\
-		}\
-	}\
+    if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
+    {\
+        if( (PDATA)->obj_base.spawning )\
+        {\
+            (PDATA)->obj_base.spawning = bfalse;\
+            ego_object_spawn_depth--;\
+        }\
+    }\
 
 /// Is the object flagged as requesting termination?
 #define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )

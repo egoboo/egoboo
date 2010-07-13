@@ -24,6 +24,8 @@
 
 #include "file_common.h"
 
+#include "log.h"
+
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 #include "egoboo_config.h"
@@ -32,7 +34,27 @@
 #define MAX_PATH 260  // Same value that Windows uses...
 #endif
 
-// FIXME: Doesn't handle deleting directories recursively yet.
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static bool_t _fs_initialized = bfalse;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void sys_fs_init();
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void fs_init()
+{
+	if( _fs_initialized ) return;
+
+	sys_fs_init();
+
+	_fs_initialized = btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 {
     /// @details ZZ@> This function deletes all files in a directory,
@@ -305,4 +327,44 @@ FILE * fs_openConfigDirectoryFile( const char * relative_pathname, const char * 
     }
 
     return file_ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
+{
+	/// @details BB@> if the file does not exist in the user data directory, it is copied from the
+	/// data directory. Pass this function a system-dependent pathneme, relative the the root of the
+	/// data directory.
+	///
+    /// @note we can't use the vfs to do this in win32 because of the dir structure and
+    /// the fact that PHYSFS will not add the same directory to 2 different mount points...
+    /// seems pretty stupid to me, but there you have it.
+
+	STRING path_str;
+	bool_t found;
+
+    snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), relative_filename );
+    str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
+
+	found = fs_fileExists( path_str );
+    if ( !found )
+    {
+        STRING src_path_str;
+
+        // copy the file from the Data Directory to the User Directory
+
+        snprintf( src_path_str, SDL_arraysize( src_path_str ), "%s" SLASH_STR "%s", fs_getDataDirectory(), relative_filename );
+
+        fs_copyFile( src_path_str, path_str );
+
+		found = fs_fileExists( path_str );
+    }
+
+    // if it still doesn't exist, we have problems
+    if ( !found && required )
+    {
+        log_error( "Cannot find the file \"%s\".\n", relative_filename );
+    }
+
+	return found;
 }

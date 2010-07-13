@@ -302,7 +302,7 @@ INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B )
 //--------------------------------------------------------------------------------------------
 INLINE float fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B )
 {
-	return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]);
+    return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]);
 }
 //--------------------------------------------------------------------------------------------
 INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec )
@@ -411,7 +411,7 @@ INLINE fvec3_t fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B )
 //--------------------------------------------------------------------------------------------
 INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B )
 {
-	return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]) + ABS(A[kZ] - B[kZ]);
+    return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]) + ABS(A[kZ] - B[kZ]);
 }
 
 //--------------------------------------------------------------------------------------------

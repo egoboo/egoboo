@@ -116,8 +116,8 @@ struct s_mnu_module
     // extended data
     TX_REF tex_index;                              ///< the index of the module's tile image
 
-	STRING vfs_path;                               ///< the virtual pathname of the module
-	STRING dest_path;                              ///< the path that module data can be written into
+    STRING vfs_path;                               ///< the virtual pathname of the module
+    STRING dest_path;                              ///< the path that module data can be written into
 };
 typedef struct s_mnu_module mnu_module_t;
 
@@ -837,48 +837,48 @@ int doSinglePlayerMenu( float deltaTime )
 //--------------------------------------------------------------------------------------------
 int cmp_mod_ref(const void * vref1, const void * vref2)
 {
-	/// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
-	///               Trap all stupid values.
+    /// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
+    ///               Trap all stupid values.
 
-	MOD_REF * pref1 = (MOD_REF * )vref1;
-	MOD_REF * pref2 = (MOD_REF * )vref2;
+    MOD_REF * pref1 = (MOD_REF * )vref1;
+    MOD_REF * pref2 = (MOD_REF * )vref2;
 
-	int retval = 0;
+    int retval = 0;
 
-	if( NULL == pref1 && NULL == pref2 )
-	{
-		return 0;
-	}
-	else if( NULL == pref1 )
-	{
-		return 1;
-	}
-	else if ( NULL == pref2 )
-	{
-		return -1;
-	}
+    if( NULL == pref1 && NULL == pref2 )
+    {
+        return 0;
+    }
+    else if( NULL == pref1 )
+    {
+        return 1;
+    }
+    else if ( NULL == pref2 )
+    {
+        return -1;
+    }
 
-	if( *pref1 > mnu_ModList.count && *pref2 > mnu_ModList.count )
-	{
-		return 0;
-	}
-	else if( *pref1 > mnu_ModList.count )
-	{
-		return 1;
-	}
-	else if ( *pref2 > mnu_ModList.count )
-	{
-		return -1;
-	}
+    if( *pref1 > mnu_ModList.count && *pref2 > mnu_ModList.count )
+    {
+        return 0;
+    }
+    else if( *pref1 > mnu_ModList.count )
+    {
+        return 1;
+    }
+    else if ( *pref2 > mnu_ModList.count )
+    {
+        return -1;
+    }
 
-	retval = strncmp(mnu_ModList.lst[*pref1].base.rank, mnu_ModList.lst[*pref2].base.rank, RANKSIZE );
+    retval = strncmp(mnu_ModList.lst[*pref1].base.rank, mnu_ModList.lst[*pref2].base.rank, RANKSIZE );
 
-	if( 0 == retval )
-	{
-		retval = strncmp(mnu_ModList.lst[*pref1].base.longname, mnu_ModList.lst[*pref2].base.longname, sizeof(STRING) );
-	}
+    if( 0 == retval )
+    {
+        retval = strncmp(mnu_ModList.lst[*pref1].base.longname, mnu_ModList.lst[*pref2].base.longname, sizeof(STRING) );
+    }
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -890,7 +890,7 @@ int doChooseModule( float deltaTime )
     static int menuState = MM_Begin;
     static int startIndex;
     static Uint8 keycooldown;
-	static char* filterText = "All Modules";
+    static char* filterText = "All Modules";
 
     static int numValidModules;
     static MOD_REF validModules[MAX_MODULE];
@@ -912,7 +912,7 @@ int doChooseModule( float deltaTime )
             startIndex = 0;
             selectedModule = -1;
 
-			// blank out the valid modules
+            // blank out the valid modules
             numValidModules = 0;
             for ( i = 0; i < MAX_MODULE; i++ )
             {
@@ -921,7 +921,10 @@ int doChooseModule( float deltaTime )
 
             // Figure out at what offset we want to draw the module menu.
             moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
+            moduleMenuOffsetX = MAX(0,moduleMenuOffsetX);
+
             moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
+            moduleMenuOffsetY = MAX(0,moduleMenuOffsetY);
 
             menuState = MM_Entering;
 
@@ -948,7 +951,7 @@ int doChooseModule( float deltaTime )
                 }
                 else
                 {
-					if ( FILTER_OFF != mnu_moduleFilter && mnu_ModList.lst[imod].base.moduletype != mnu_moduleFilter ) continue;
+                    if ( FILTER_OFF != mnu_moduleFilter && mnu_ModList.lst[imod].base.moduletype != mnu_moduleFilter ) continue;
                     if ( mnu_selectedPlayerCount > mnu_ModList.lst[imod].base.importamount ) continue;
                     if ( mnu_selectedPlayerCount < mnu_ModList.lst[imod].base.minplayers ) continue;
                     if ( mnu_selectedPlayerCount > mnu_ModList.lst[imod].base.maxplayers ) continue;
@@ -959,26 +962,26 @@ int doChooseModule( float deltaTime )
                 }
             }
 
-			// sort the modules by difficulty
-			qsort( validModules, numValidModules, sizeof(MOD_REF), cmp_mod_ref );
+            // sort the modules by difficulty
+            qsort( validModules, numValidModules, sizeof(MOD_REF), cmp_mod_ref );
 
-			// load background depending on current filter
-			if( startNewPlayer)
-			{
-				ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
-			}
-			else switch( mnu_moduleFilter )
-			{
-				case FILTER_MAIN: ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR ); break;
-				case FILTER_SIDE: ego_texture_load_vfs( &background, "mp_data/menu/menu_sidequest", TRANSCOLOR ); break;
-				case FILTER_TOWN: ego_texture_load_vfs( &background, "mp_data/menu/menu_town", TRANSCOLOR ); break;
-				case FILTER_FUN:  ego_texture_load_vfs( &background, "mp_data/menu/menu_funquest", TRANSCOLOR ); break;
+            // load background depending on current filter
+            if( startNewPlayer)
+            {
+                ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
+            }
+            else switch( mnu_moduleFilter )
+            {
+                case FILTER_MAIN: ego_texture_load_vfs( &background, "mp_data/menu/menu_draco", TRANSCOLOR ); break;
+                case FILTER_SIDE: ego_texture_load_vfs( &background, "mp_data/menu/menu_sidequest", TRANSCOLOR ); break;
+                case FILTER_TOWN: ego_texture_load_vfs( &background, "mp_data/menu/menu_town", TRANSCOLOR ); break;
+                case FILTER_FUN:  ego_texture_load_vfs( &background, "mp_data/menu/menu_funquest", TRANSCOLOR ); break;
 
-				default: 
-				case FILTER_OFF: ego_texture_load_vfs( &background, "mp_data/menu/menu_allquest", TRANSCOLOR ); break;
-			}
+                default: 
+                case FILTER_OFF: ego_texture_load_vfs( &background, "mp_data/menu/menu_allquest", TRANSCOLOR ); break;
+            }
 
-			// set the tip text
+            // set the tip text
             if ( 0 == numValidModules )
             {
                 tipText_set_position( menuFont, "Sorry, there are no valid games!\n Please press the \"Back\" button.", 20 );
@@ -1042,16 +1045,16 @@ int doChooseModule( float deltaTime )
 
             // Draw the arrows to pick modules
             if ( numValidModules > 3 )
-			{
-				if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
-				{
-					startIndex--;
-				}
-				if ( BUTTON_UP == ui_doButton( 1052, "->", NULL, moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
-				{
-					startIndex++;
-				}
-			}
+            {
+                if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
+                {
+                    startIndex--;
+                }
+                if ( BUTTON_UP == ui_doButton( 1052, "->", NULL, moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
+                {
+                    startIndex++;
+                }
+            }
 
             // restrict the range to valid values
             startIndex = CLIP( startIndex, 0, numValidModules - 3 );
@@ -1081,27 +1084,27 @@ int doChooseModule( float deltaTime )
             if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0 )
             {
                 char    buffer[1024]  = EMPTY_CSTR;
-				const char * rank_string, * name_string;
+                const char * rank_string, * name_string;
                 char  * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
                 MOD_REF imodule = validModules[selectedModule];
 
-				mod_file_t * pmod = &(mnu_ModList.lst[imodule].base);
+                mod_file_t * pmod = &(mnu_ModList.lst[imodule].base);
 
                 GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
-				name_string = "Unnamed";
-				if( CSTR_END != pmod->longname[0] )
-				{
-					name_string = pmod->longname;
-				}
+                name_string = "Unnamed";
+                if( CSTR_END != pmod->longname[0] )
+                {
+                    name_string = pmod->longname;
+                }
                 carat += snprintf( carat, carat_end - carat - 1, "%s\n", name_string );
 
-				rank_string = "Unranked";
-				if( CSTR_END != pmod->rank[0] )
-				{
-					rank_string = pmod->rank;
-				}
-				carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", rank_string );
+                rank_string = "Unranked";
+                if( CSTR_END != pmod->rank[0] )
+                {
+                    rank_string = pmod->rank;
+                }
+                carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", rank_string );
 
                 if ( pmod->maxplayers > 1 )
                 {
@@ -1154,34 +1157,38 @@ int doChooseModule( float deltaTime )
                 menuState = MM_Leaving;
             }
 
-			//Do the module filter button
-			if ( !startNewPlayer )
-			{
-				bool_t click_button;
-				click_button = ( BUTTON_UP == ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 ) );
-				//|| (BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 ) );
-				
-				if( click_button )
-				{
-					//Reload the modules with the new filter
-					menuState = MM_Entering;
+            //Do the module filter button
+            if ( !startNewPlayer )
+            {
+                bool_t click_button;
 
-					//Swap to the next filter
-					mnu_moduleFilter = CLIP(mnu_moduleFilter, 0, FILTER_COUNT-1);
-					mnu_moduleFilter++;
+                // unly display the filter name
+                ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 );
 
-					if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = 0;
+                // use the ">" button to change since we are already using arrows to indicate "spin control"-like widgets
+                click_button = (BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 ) );
+                
+                if( click_button )
+                {
+                    //Reload the modules with the new filter
+                    menuState = MM_Entering;
 
-					switch( mnu_moduleFilter )
-					{
-								case FILTER_MAIN: filterText = "Main Quest";		break;
-								case FILTER_SIDE: filterText = "Sidequests";		break;
-								case FILTER_TOWN: filterText = "Towns and Cities";	break;
-								case FILTER_FUN:  filterText = "Fun Modules";		break;
-					   default: case FILTER_OFF:  filterText = "All Modules";		break;
-					}
-				}
-			}
+                    //Swap to the next filter
+                    mnu_moduleFilter = CLIP(mnu_moduleFilter, 0, FILTER_COUNT-1);
+                    mnu_moduleFilter++;
+
+                    if( mnu_moduleFilter >= FILTER_COUNT ) mnu_moduleFilter = 0;
+
+                    switch( mnu_moduleFilter )
+                    {
+                                case FILTER_MAIN: filterText = "Main Quest";        break;
+                                case FILTER_SIDE: filterText = "Sidequests";        break;
+                                case FILTER_TOWN: filterText = "Towns and Cities";    break;
+                                case FILTER_FUN:  filterText = "Fun Modules";        break;
+                       default: case FILTER_OFF:  filterText = "All Modules";        break;
+                    }
+                }
+            }
 
             // the tool-tip text
             glColor4f( 1, 1, 1, 1 );
@@ -1196,10 +1203,10 @@ int doChooseModule( float deltaTime )
         case MM_Finish:
             oglx_texture_Release( &background );
 
-			pickedmodule_index         = -1;
-			pickedmodule_path[0]       = CSTR_END;
-			pickedmodule_name[0]       = CSTR_END;
-			pickedmodule_write_path[0] = CSTR_END;
+            pickedmodule_index         = -1;
+            pickedmodule_path[0]       = CSTR_END;
+            pickedmodule_name[0]       = CSTR_END;
+            pickedmodule_write_path[0] = CSTR_END;
 
             menuState = MM_Begin;
             if ( selectedModule == -1 )
@@ -1212,8 +1219,8 @@ int doChooseModule( float deltaTime )
                 pickedmodule_index = selectedModule;
 
                 strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
-				strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
-				strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
+                strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
+                strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
                 if ( !game_choose_module( selectedModule, -1 ) )
                 {
@@ -3074,29 +3081,29 @@ int doVideoOptions( float deltaTime )
 {
     /// @details Video options menu
 
-	enum
-	{
-		but_antialiasing =  0,  // Antialaising
-		but_unused           ,	// Unused button
-		but_dither           ,	// Fast & ugly
-		but_fullscreen       ,	// Fullscreen
-		but_reflections      ,	// Reflections
-		but_filtering        ,	// Texture filtering
-		but_shadow           ,	// Shadows
-		but_zbuffer          ,	// Z bit
-		but_maxlights        ,	// Fog
-		but_3dfx             ,	// 3D effects
-		but_multiwater       ,	// Multi water layer
-		but_widescreen       ,	// Widescreen
-		but_screensize       ,	// Screen resolution
-		but_save             ,
-		but_maxparticles 	 ,  // Max particles
-		but_end,
+    enum
+    {
+        but_antialiasing =  0,  // Antialaising
+        but_unused           ,    // Unused button
+        but_dither           ,    // Fast & ugly
+        but_fullscreen       ,    // Fullscreen
+        but_reflections      ,    // Reflections
+        but_filtering        ,    // Texture filtering
+        but_shadow           ,    // Shadows
+        but_zbuffer          ,    // Z bit
+        but_maxlights        ,    // Fog
+        but_3dfx             ,    // 3D effects
+        but_multiwater       ,    // Multi water layer
+        but_widescreen       ,    // Widescreen
+        but_screensize       ,    // Screen resolution
+        but_save             ,
+        but_maxparticles      ,  // Max particles
+        but_end,
 
-		but_last
-	};
+        but_last
+    };
 
-	static int menuState = MM_Begin;
+    static int menuState = MM_Begin;
     static oglx_texture_t background;
     static int    menuChoice = 0;
     static STRING Cantialiasing;
@@ -3111,15 +3118,15 @@ int doVideoOptions( float deltaTime )
 
     static const char *sz_buttons[but_last];
 
-	int cnt, result = 0;
+    int cnt, result = 0;
 
     switch ( menuState )
     {
         case MM_Begin:
 
-			// set up the button text
-			for ( cnt = 0; cnt <but_last; cnt++ ) sz_buttons[cnt] = "N/A";
-			sz_buttons[but_end] = "";
+            // set up the button text
+            for ( cnt = 0; cnt <but_last; cnt++ ) sz_buttons[cnt] = "N/A";
+            sz_buttons[but_end] = "";
 
             // set up menu variables
             ego_texture_load_vfs( &background, "mp_data/menu/menu_video", TRANSCOLOR );
@@ -3568,14 +3575,14 @@ int doVideoOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Widescreen:", buttonLeft + 300, GFX_HEIGHT - 70, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 12, sz_buttons[but_widescreen], menuFont, buttonLeft + 450, GFX_HEIGHT - 70, 25, 25 ) )
             {
-				bool_t old_widescreen = widescreen;
+                bool_t old_widescreen = widescreen;
 
-				// toggle widescreen
+                // toggle widescreen
                 widescreen = !widescreen;
 
                 if ( old_widescreen )
                 {
-					// switch the display from widescreen to non-widescreen
+                    // switch the display from widescreen to non-widescreen
                     sz_buttons[but_widescreen] = " ";
 
                     // Set to default non-widescreen resolution
@@ -3585,7 +3592,7 @@ int doVideoOptions( float deltaTime )
                 }
                 else
                 {
-					// switch the display from non-widescreen to widescreen
+                    // switch the display from non-widescreen to widescreen
                     sz_buttons[but_widescreen] = "X";
 
                     // Set to "default" widescreen resolution
@@ -3606,10 +3613,10 @@ int doVideoOptions( float deltaTime )
 
                 req_area = cfg.scrx_req * cfg.scry_req;
 
-				// use 1920x1200 as a kind of max resolution
+                // use 1920x1200 as a kind of max resolution
                 if ( req_area > 1920 * 1200 )
                 {
-					// reset the screen size to the minimum
+                    // reset the screen size to the minimum
                     if ( widescreen )
                     {
                         // "default" widescreen
@@ -3624,14 +3631,14 @@ int doVideoOptions( float deltaTime )
                     }
                 }
 
-				if ( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
+                if ( cfg.fullscreen_req && NULL != sdl_scr.video_mode_list )
                 {
-					// coerce the screen size to a valid fullscreen mode
+                    // coerce the screen size to a valid fullscreen mode
                     doVideoOptions_fix_fullscreen_resolution( &cfg, &sdl_scr, &sz_screen_size );
                 }
                 else
                 {
-					// just accept whatever we are given
+                    // just accept whatever we are given
                     snprintf( sz_screen_size, sizeof( sz_screen_size ), "%dx%d", cfg.scrx_req, cfg.scry_req );
                 }
 
@@ -3639,7 +3646,7 @@ int doVideoOptions( float deltaTime )
 
                 aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
 
-				// 1.539 is "half way" between normal aspect ratio (4/3) and anamorphic (16/9)
+                // 1.539 is "half way" between normal aspect ratio (4/3) and anamorphic (16/9)
                 widescreen = ( aspect_ratio > ( 1.539f ) );
 
                 if ( widescreen ) sz_buttons[but_widescreen] = "X";
@@ -4569,19 +4576,19 @@ void mnu_load_all_module_info()
         {
             mnu_ModList.count++;
 
-			// mark the module data as loaded
-			pmod->loaded = btrue;
+            // mark the module data as loaded
+            pmod->loaded = btrue;
 
-			// save the module path
+            // save the module path
             strncpy( pmod->vfs_path, vfs_ModPath, SDL_arraysize( pmod->vfs_path ) );
 
-			// Save the user data directory version of the module path.
-			// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
-			// If that changes, this line must be changed as well.
-			snprintf( pmod->dest_path, SDL_arraysize( pmod->dest_path ), "/%s", vfs_ModPath + 3 );
+            // Save the user data directory version of the module path.
+            // @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
+            // If that changes, this line must be changed as well.
+            snprintf( pmod->dest_path, SDL_arraysize( pmod->dest_path ), "/%s", vfs_ModPath + 3 );
 
-			// same problem as above
-			strncpy( pmod->name, vfs_ModPath + 11, SDL_arraysize(pmod->name) );
+            // same problem as above
+            strncpy( pmod->name, vfs_ModPath + 11, SDL_arraysize(pmod->name) );
         };
 
         ctxt = vfs_findNext( &ctxt );

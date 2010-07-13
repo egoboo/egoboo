@@ -46,20 +46,20 @@ INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id );
 //--------------------------------------------------------------------------------------------
 INLINE Uint32 mesh_has_some_mpdfx(Uint32 MPDFX, Uint32 TEST)
 {
-	mesh_mpdfx_tests++;
-	return HAS_SOME_BITS(MPDFX,TEST);
+    mesh_mpdfx_tests++;
+    return HAS_SOME_BITS(MPDFX,TEST);
 }
 
 //--------------------------------------------------------------------------------------------
 INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id )
 {
-	if( NULL == pmpd ) return bfalse;
+    if( NULL == pmpd ) return bfalse;
 
-	mesh_bound_tests++;
+    mesh_bound_tests++;
 
-	if( INVALID_TILE == id ) return bfalse;
+    if( INVALID_TILE == id ) return bfalse;
 
-	return id < pmpd->info.tiles_count;
+    return id < pmpd->info.tiles_count;
 };
 //--------------------------------------------------------------------------------------------
 INLINE float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
@@ -166,7 +166,7 @@ INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( NULL == pmesh ) return bfalse;
 
     // test for invalid tile
-	mesh_bound_tests++;
+    mesh_bound_tests++;
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     // save a copy of the fx
@@ -188,7 +188,7 @@ INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( NULL == pmesh ) return bfalse;
 
     // test for invalid tile
-	mesh_bound_tests++;
+    mesh_bound_tests++;
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     // save a copy of the fx
@@ -208,7 +208,7 @@ INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     if ( NULL == pmesh ) return 0;
 
     // test for invalid tile
-	mesh_bound_tests++;
+    mesh_bound_tests++;
     if ( itile > pmesh->info.tiles_count )
     {
         return flags & ( MPDFX_WALL | MPDFX_IMPASS );

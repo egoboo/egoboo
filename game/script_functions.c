@@ -1088,14 +1088,14 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( ichr, btrue, btrue );
         if ( pchr->ismount )
         {
-			fvec3_t tmp_pos;
+            fvec3_t tmp_pos;
 
             ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
             ChrList.lst[ichr].jumptime = JUMPDELAY;
 
-			tmp_pos = chr_get_pos( ChrList.lst + ichr );
+            tmp_pos = chr_get_pos( ChrList.lst + ichr );
             tmp_pos.z += DISMOUNTZVEL;
-			chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
+            chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
         }
     }
 
@@ -1105,14 +1105,14 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( ichr, btrue, btrue );
         if ( pchr->ismount )
         {
-			fvec3_t tmp_pos;
+            fvec3_t tmp_pos;
 
             ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
             ChrList.lst[ichr].jumptime = JUMPDELAY;
 
-			tmp_pos = chr_get_pos( ChrList.lst + ichr );
+            tmp_pos = chr_get_pos( ChrList.lst + ichr );
             tmp_pos.z += DISMOUNTZVEL;
-			chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
+            chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
         }
     }
 
@@ -1413,26 +1413,26 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
-	returncode = bfalse;
+    returncode = bfalse;
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( pself_target->ismount )
     {
-		CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
+        CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
 
-		if( DEFINED_CHR(iheld) )
-		{
-			// can the rider open the
-			returncode = ChrList.lst[iheld].openstuff;
-		}
+        if( DEFINED_CHR(iheld) )
+        {
+            // can the rider open the
+            returncode = ChrList.lst[iheld].openstuff;
+        }
     }
 
-	if( !returncode )
-	{
-		// if a rider can't openstuff, can the target openstuff?
-		returncode = pself_target->openstuff;
-	}
+    if( !returncode )
+    {
+        // if a rider can't openstuff, can the target openstuff?
+        returncode = pself_target->openstuff;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -1788,7 +1788,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	returncode = bfalse;
+    returncode = bfalse;
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
         CHR_REF ileader = TeamStack.lst[pchr->team].leader;
@@ -1796,7 +1796,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
         if ( NOLEADER != ileader && INGAME_CHR( ileader ) )
         {
             SET_TARGET_0( ileader );
-			returncode = btrue;
+            returncode = btrue;
         }
     }
 
@@ -1837,7 +1837,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         chr_t * pchild = ChrList.lst + ichr;
 
         // was the child spawned in a "safe" spot?
-		if ( !chr_get_safe( pchild, NULL ) )
+        if ( !chr_get_safe( pchild, NULL ) )
         {
             chr_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
@@ -2093,14 +2093,14 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     returncode = ALLOCATED_PRT( iprt );
     if ( returncode )
     {
-		fvec3_t tmp_pos;
+        fvec3_t tmp_pos;
         prt_t * pprt = PrtList.lst + iprt;
 
         // attach the particle
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
-		tmp_pos = prt_get_pos(pprt);
+        tmp_pos = prt_get_pos(pprt);
 
         // Correct X, Y, Z spacing
         tmp_pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
@@ -2111,14 +2111,14 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         {
             tmp_pos.x = pprt->pos.x;
 
-	        tmp_pos.y += pstate->y;
-			if ( prt_test_wall( pprt, tmp_pos.v ) )
+            tmp_pos.y += pstate->y;
+            if ( prt_test_wall( pprt, tmp_pos.v ) )
             {
                 tmp_pos.y = pprt->pos.y;
             }
         }
 
-		prt_set_pos( pprt, tmp_pos.v );
+        prt_set_pos( pprt, tmp_pos.v );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3106,15 +3106,15 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	if( INGAME_ENC(pchr->undoenchant) )
-	{
-		returncode = remove_enchant( pchr->undoenchant, NULL );
-	}
-	else
-	{
-		pchr->undoenchant = MAX_ENC;
-		returncode = bfalse;
-	}
+    if( INGAME_ENC(pchr->undoenchant) )
+    {
+        returncode = remove_enchant( pchr->undoenchant, NULL );
+    }
+    else
+    {
+        pchr->undoenchant = MAX_ENC;
+        returncode = bfalse;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -3870,7 +3870,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ichr    = pself->index;
-	iholder = chr_get_lowest_attachment( ichr, btrue );
+    iholder = chr_get_lowest_attachment( ichr, btrue );
     if ( INGAME_CHR( iholder ) )
     {
         ichr = iholder;
@@ -4233,7 +4233,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 
     CHR_REF ichr;
     TARGET_TYPE blahteam;
-	IDSZ need_skill = IDSZ_NONE;
+    IDSZ need_skill = IDSZ_NONE;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4244,8 +4244,8 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
     if (( pstate->distance >> 1 ) & 1 ) blahteam = ( TARGET_FRIEND  == blahteam ) ? TARGET_ALL : TARGET_ENEMY;
 
-	// Do we require a skill?
-	if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
+    // Do we require a skill?
+    if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
 
     // Try to find one
     ichr = _get_chr_target( pchr, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
@@ -4467,13 +4467,13 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
     {
         if ( VALID_SND( pstate->argument ) )
         {
-			int channel;
+            int channel;
             channel = sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr( pchr, pstate->argument ) );
 
-			if( channel != INVALID_SOUND_CHANNEL )
-			{
-				Mix_Volume( channel, (128*pstate->distance) / 100 );
-			}
+            if( channel != INVALID_SOUND_CHANNEL )
+            {
+                Mix_Volume( channel, (128*pstate->distance) / 100 );
+            }
         }
     }
 
@@ -5392,7 +5392,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 
     if ( VALID_SND( pstate->argument ) )
     {
-		sound_play_chunk_full( chr_get_chunk_ptr( pchr, pstate->argument ) );
+        sound_play_chunk_full( chr_get_chunk_ptr( pchr, pstate->argument ) );
     }
 
     SCRIPT_FUNCTION_END();
@@ -5540,11 +5540,11 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     // RespawnTarget()
     /// @details ZZ@> This function respawns the target at its current location
 
-	chr_t * pself_target;
+    chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
-	SCRIPT_REQUIRE_TARGET( pself_target );
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     respawn_character( pself->target );
 
@@ -5609,7 +5609,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 
     CHR_REF ichr;
     TARGET_TYPE blahteam;
-	IDSZ need_skill = IDSZ_NONE;
+    IDSZ need_skill = IDSZ_NONE;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5620,8 +5620,8 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
     if (( pstate->distance >> 1 ) & 1 ) blahteam = ( TARGET_FRIEND  == blahteam ) ? TARGET_ALL : TARGET_ENEMY;
 
-	// Do we require a skill as well?
-	if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
+    // Do we require a skill as well?
+    if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
 
     // Try to find one
     ichr = _get_chr_target( pchr, NEAREST, blahteam, (( pstate->distance >> 3 ) & 1 ), (( pstate->distance ) & 1 ),

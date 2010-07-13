@@ -165,25 +165,11 @@ bool_t setup_read_vfs( const char* filename )
 
     if ( INVALID_CSTR( filename ) ) return bfalse;
 
-    if ( filename[0] != '/' )
+    if ( NET_SLASH_CHR != filename[0] )
     {
-        // we can't use the vfs to do this in win32 because of the dir structure and
-        // the fact that PHYSFS will not add the same directory to 2 different mount points...
-        // seems pretty stupid to me, but there you have it.
+		fs_ensureUserFile( filename, btrue );
 
-        snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
-        str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
-        if ( !fs_fileExists( path_str ) )
-        {
-			//Try the local setup.txt if the default folder failed
-            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getBinaryDirectory(), filename );
-            str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
-
-            if ( !fs_fileExists( path_str ) )
-            {
-                log_error( "Cannot find the file \"%s\".\n", filename );
-            }
-        }
+		strncpy( path_str, filename, SDL_arraysize( path_str ) );
     }
     else
     {
@@ -207,7 +193,6 @@ bool_t setup_read_vfs( const char* filename )
         // now try to read it from the write directory (which should be ahead of all the
         // read directories on the search path
         lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ), bfalse );
-
     }
 
     return NULL != lConfigSetup;

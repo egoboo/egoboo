@@ -1376,7 +1376,7 @@ struct s_mesh_wall_data
     int   ix_min, ix_max, iy_min, iy_max;
     float fx_min, fx_max, fy_min, fy_max;
 
-	ego_mpd_info_t  * pinfo;
+    ego_mpd_info_t  * pinfo;
     ego_tile_info_t * tlist;
     ego_grid_info_t * glist;
 };
@@ -1387,18 +1387,18 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
-	mesh_wall_data_t loc_data;
+    mesh_wall_data_t loc_data;
 
     Uint32 pass;
     int   ix, iy;
 
-	// deal with the optional parameters
-	if( NULL == pdata ) pdata = &loc_data;
+    // deal with the optional parameters
+    if( NULL == pdata ) pdata = &loc_data;
 
-	// if there is no interaction with the mesh, return 0
-	if( 0 == bits ) return 0;
+    // if there is no interaction with the mesh, return 0
+    if( 0 == bits ) return 0;
 
-	// if the mesh is empty, return 0
+    // if the mesh is empty, return 0
     if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
     pdata->pinfo = &( pmesh->info );
     pdata->tlist = pmesh->tmem.tile_list;
@@ -1464,11 +1464,11 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits
         {
             int itile = ix + irow;
 
-			// since we KNOW that this is in range, allow raw access to the data strucutre
-			pass |= pdata->glist[itile].fx;
-			mesh_mpdfx_tests++;
+            // since we KNOW that this is in range, allow raw access to the data strucutre
+            pass |= pdata->glist[itile].fx;
+            mesh_mpdfx_tests++;
 
-			if( 0 != (pass & bits) ) return btrue;
+            if( 0 != (pass & bits) ) return btrue;
         }
     }
 
@@ -1544,12 +1544,12 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bi
 
         for ( ix = ix_min; ix <= ix_max; ix++ )
         {
-			bool_t is_blocked = bfalse;
+            bool_t is_blocked = bfalse;
             float tx_min, tx_max;
 
-			float area_ratio;
-			float ovl_x_min, ovl_x_max;
-			float ovl_y_min, ovl_y_max;
+            float area_ratio;
+            float ovl_x_min, ovl_x_max;
+            float ovl_y_min, ovl_y_max;
 
             tx_min = ( ix + 0 ) * GRID_SIZE;
             tx_max = ( ix + 1 ) * GRID_SIZE;
@@ -1559,70 +1559,70 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bi
                 tile_valid = bfalse;
             }
 
-			if( tile_valid )
-			{
-				itile = mesh_get_tile_int( pmesh, ix, iy );
-				tile_valid = mesh_grid_is_valid( pmesh, itile );
-				if( !tile_valid )
-				{
-					is_blocked = btrue;
-				}
-				else
-				{
-					is_blocked = mesh_has_some_mpdfx( glist[itile].fx, bits );
-				}
-			}
+            if( tile_valid )
+            {
+                itile = mesh_get_tile_int( pmesh, ix, iy );
+                tile_valid = mesh_grid_is_valid( pmesh, itile );
+                if( !tile_valid )
+                {
+                    is_blocked = btrue;
+                }
+                else
+                {
+                    is_blocked = mesh_has_some_mpdfx( glist[itile].fx, bits );
+                }
+            }
 
-			if( !tile_valid )
-			{
-				is_blocked = btrue;
-			}
+            if( !tile_valid )
+            {
+                is_blocked = btrue;
+            }
 
-			if( is_blocked )
-			{
-				// hiting the mesh
+            if( is_blocked )
+            {
+                // hiting the mesh
 
-				if ( 0.0f == radius )
-				{
-					area_ratio = 1.0f;
-					ovl_x_min = tx_min;
-					ovl_x_max = tx_max;
+                if ( 0.0f == radius )
+                {
+                    area_ratio = 1.0f;
+                    ovl_x_min = tx_min;
+                    ovl_x_max = tx_max;
 
-					ovl_y_min = ty_min;
-					ovl_y_max = ty_max;
-				}
-				else
-				{
-					float min_area;
+                    ovl_y_min = ty_min;
+                    ovl_y_max = ty_max;
+                }
+                else
+                {
+                    float min_area;
 
-					// determine the area overlap of the tile with the
-					// object's bounding box
-					ovl_x_min = MAX( fx_min, tx_min );
-					ovl_x_max = MIN( fx_max, tx_max );
+                    // determine the area overlap of the tile with the
+                    // object's bounding box
+                    ovl_x_min = MAX( fx_min, tx_min );
+                    ovl_x_max = MIN( fx_max, tx_max );
 
-					ovl_y_min = MAX( fy_min, ty_min );
-					ovl_y_max = MIN( fy_max, ty_max );
+                    ovl_y_min = MAX( fy_min, ty_min );
+                    ovl_y_max = MIN( fy_max, ty_max );
 
-					min_area = MIN( tile_area, obj_area );
+                    min_area = MIN( tile_area, obj_area );
 
-					area_ratio = 0.0f;
-					if ( ovl_x_min <= ovl_x_max && ovl_y_min <= ovl_y_max )
-					{
-						if ( 0.0f == min_area )
-						{
-							area_ratio = 1.0f;
-						}
-						else
-						{
-							area_ratio  = ( ovl_x_max - ovl_x_min ) * ( ovl_y_max - ovl_y_min ) / min_area;
-						}
-					}
-				}
+                    area_ratio = 0.0f;
+                    if ( ovl_x_min <= ovl_x_max && ovl_y_min <= ovl_y_max )
+                    {
+                        if ( 0.0f == min_area )
+                        {
+                            area_ratio = 1.0f;
+                        }
+                        else
+                        {
+                            area_ratio  = ( ovl_x_max - ovl_x_min ) * ( ovl_y_max - ovl_y_min ) / min_area;
+                        }
+                    }
+                }
 
-				loc_pressure += area_ratio;
+                loc_pressure += area_ratio;
 
-				mesh_pressure_tests++;
-			}
+                mesh_pressure_tests++;
+            }
         }
     }
 
@@ -1632,77 +1632,77 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bi
 //--------------------------------------------------------------------------------------------
 fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float center_pressure, Uint32 bits )
 {
-	/// @details BB@> determine the shortest "way out", but creating an array of "pressures"
-	/// with each element representing the pressure when the object is moved in different directions
-	/// by 1/2 a tile.
+    /// @details BB@> determine the shortest "way out", but creating an array of "pressures"
+    /// with each element representing the pressure when the object is moved in different directions
+    /// by 1/2 a tile.
 
-	const float jitter_size = GRID_SIZE * 0.5f;
-	float pressure_ary[9];
-	float fx, fy;
-	fvec2_t diff = ZERO_VECT2;
-	float   sum_diff = 0.0f;
-	float   dpressure;
+    const float jitter_size = GRID_SIZE * 0.5f;
+    float pressure_ary[9];
+    float fx, fy;
+    fvec2_t diff = ZERO_VECT2;
+    float   sum_diff = 0.0f;
+    float   dpressure;
 
-	int cnt;
+    int cnt;
 
-	// find the pressure for the 9 points of jittering around the current position
-	pressure_ary[4] = center_pressure;
-	for( cnt = 0, fy = pos[kY] - jitter_size; fy <= pos[kY] + jitter_size; fy += jitter_size )
-	{
-		for( fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++ )
-		{
-			fvec2_t jitter_pos = VECT2( fx, fy );
+    // find the pressure for the 9 points of jittering around the current position
+    pressure_ary[4] = center_pressure;
+    for( cnt = 0, fy = pos[kY] - jitter_size; fy <= pos[kY] + jitter_size; fy += jitter_size )
+    {
+        for( fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++ )
+        {
+            fvec2_t jitter_pos = VECT2( fx, fy );
 
-			if( 4 == cnt ) continue;
+            if( 4 == cnt ) continue;
 
-			pressure_ary[cnt] = mesh_get_pressure( pmesh, jitter_pos.v, radius, bits );
-		}
-	}
+            pressure_ary[cnt] = mesh_get_pressure( pmesh, jitter_pos.v, radius, bits );
+        }
+    }
 
-	// determine the "minimum number of tiles to move" to get into a clear area
-	diff.x = diff.y = 0.0f;
-	sum_diff = 0.0f;
-	for( cnt = 0, fy = -0.5f; fy <= 0.5f; fy += 0.5f )
-	{
-		for( fx = -0.5f; fx <= 0.5f; fx += 0.5f, cnt++ )
-		{
-			if( 4 == cnt ) continue;
+    // determine the "minimum number of tiles to move" to get into a clear area
+    diff.x = diff.y = 0.0f;
+    sum_diff = 0.0f;
+    for( cnt = 0, fy = -0.5f; fy <= 0.5f; fy += 0.5f )
+    {
+        for( fx = -0.5f; fx <= 0.5f; fx += 0.5f, cnt++ )
+        {
+            if( 4 == cnt ) continue;
 
-			dpressure = (pressure_ary[cnt] - center_pressure);
+            dpressure = (pressure_ary[cnt] - center_pressure);
 
-			// find the maximal pressure gradient == the minimal distance to move
-			if( 0.0f != dpressure )
-			{
-				float weight;
-				float   dist = pressure_ary[4] / dpressure;
-				fvec2_t tmp = VECT2( dist * fx, dist * fy );
+            // find the maximal pressure gradient == the minimal distance to move
+            if( 0.0f != dpressure )
+            {
+                float weight;
+                float   dist = pressure_ary[4] / dpressure;
+                fvec2_t tmp = VECT2( dist * fx, dist * fy );
 
-				weight = 1.0f / dist;
+                weight = 1.0f / dist;
 
-				diff.x += tmp.y * weight;
-				diff.y += tmp.x * weight;
-				sum_diff += ABS(weight);
-			}
-		}
-	}
-	// normalize the displacement by dividing by the weight...
-	// unnecessary if the following normalization is kept in
-	//if( sum_diff > 0.0f )
-	//{
-	//	diff.x /= sum_diff;
-	//	diff.y /= sum_diff;
-	//}
+                diff.x += tmp.y * weight;
+                diff.y += tmp.x * weight;
+                sum_diff += ABS(weight);
+            }
+        }
+    }
+    // normalize the displacement by dividing by the weight...
+    // unnecessary if the following normalization is kept in
+    //if( sum_diff > 0.0f )
+    //{
+    //    diff.x /= sum_diff;
+    //    diff.y /= sum_diff;
+    //}
 
-	// limit the maximum displacement to less than one tile
-	if( ABS(diff.x) + ABS(diff.y) > 0.0f )
-	{
-		float fmax = MAX( ABS(diff.x), ABS(diff.y) );
+    // limit the maximum displacement to less than one tile
+    if( ABS(diff.x) + ABS(diff.y) > 0.0f )
+    {
+        float fmax = MAX( ABS(diff.x), ABS(diff.y) );
 
-		diff.x /= fmax;
-		diff.y /= fmax;
-	}
+        diff.x /= fmax;
+        diff.y /= fmax;
+    }
 
-	return diff;
+    return diff;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1718,10 +1718,10 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     float  loc_pressure;
     fvec3_base_t loc_nrm;
 
-	bool_t needs_pressure = (NULL != pressure);
-	bool_t needs_nrm      = (NULL != nrm);
+    bool_t needs_pressure = (NULL != pressure);
+    bool_t needs_nrm      = (NULL != nrm);
 
-	mesh_wall_data_t data;
+    mesh_wall_data_t data;
 
     // deal with the optional parameters
     if ( NULL == pressure ) pressure = &loc_pressure;
@@ -1730,10 +1730,10 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
     if ( NULL == nrm ) nrm = loc_nrm;
     nrm[kX] = nrm[kY] = 0.0f;
 
-	// Do te simplest test.
-	// Initializes the shared mesh_wall_data_t struct, so no need to do it again
-	// Eliminates all cases of bad source data, so no need to test them again.
-	if( !mesh_test_wall( pmesh, pos, radius, bits, &data ) ) return 0;
+    // Do te simplest test.
+    // Initializes the shared mesh_wall_data_t struct, so no need to do it again
+    // Eliminates all cases of bad source data, so no need to test them again.
+    if( !mesh_test_wall( pmesh, pos, radius, bits, &data ) ) return 0;
 
     pass = loc_pass = 0;
     nrm[kX] = nrm[kY] = 0.0f;
@@ -1750,10 +1750,10 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
         {
             loc_pass |= ( MPDFX_IMPASS | MPDFX_WALL );
 
-			if( needs_nrm )
-			{
-				nrm[kY] += pos[kY] - (ty_max + ty_min) * 0.5f;
-			}
+            if( needs_nrm )
+            {
+                nrm[kY] += pos[kY] - (ty_max + ty_min) * 0.5f;
+            }
 
             invalid = btrue;
             mesh_bound_tests++;
@@ -1770,10 +1770,10 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
             {
                 loc_pass |=  MPDFX_IMPASS | MPDFX_WALL;
 
-				if( needs_nrm )
-				{
-					nrm[kX] += pos[kX] - (tx_max + tx_min) * 0.5f;
-				}
+                if( needs_nrm )
+                {
+                    nrm[kX] += pos[kX] - (tx_max + tx_min) * 0.5f;
+                }
 
                 invalid = btrue;
                 mesh_bound_tests++;
@@ -1784,65 +1784,65 @@ Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits,
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
-					Uint32 mpdfx      = data.glist[itile].fx;
-					bool_t is_blocked = mesh_has_some_mpdfx( mpdfx, bits );
+                    Uint32 mpdfx      = data.glist[itile].fx;
+                    bool_t is_blocked = mesh_has_some_mpdfx( mpdfx, bits );
 
                     if ( is_blocked )
                     {
                         loc_pass |=  mpdfx;
 
-						if( needs_nrm )
-						{
-							nrm[kX] += pos[kX] - (tx_max + tx_min) * 0.5f;
-							nrm[kY] += pos[kY] - (ty_max + ty_min) * 0.5f;
-						}
+                        if( needs_nrm )
+                        {
+                            nrm[kX] += pos[kX] - (tx_max + tx_min) * 0.5f;
+                            nrm[kY] += pos[kY] - (ty_max + ty_min) * 0.5f;
+                        }
                     }
                 }
             }
         }
     }
 
-	pass = loc_pass & bits;
+    pass = loc_pass & bits;
 
-	if( 0 == pass )
-	{
-		// if there is no impact at all, there is no normal and no pressure
-		nrm[kX] = nrm[kY] = 0.0f;
-		*pressure = 0.0f;
-	}
-	else
-	{
-		if( needs_nrm )
-		{
-			// special cases happen a lot. try to avoid computing the square root
-			if ( 0.0f == nrm[kX] && 0.0f == nrm[kY] )
-			{
-				// no normal does not mean no net pressure,
-				// just that all the simplistic normal calculations balance
-			}
-			else if ( 0.0f == nrm[kX] )
-			{
-				nrm[kY] = SGN( nrm[kY] );
-			}
-			else if ( 0.0f == nrm[kY] )
-			{
-				nrm[kX] = SGN( nrm[kX] );
-			}
-			else
-			{
-				float dist = SQRT( nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] );
+    if( 0 == pass )
+    {
+        // if there is no impact at all, there is no normal and no pressure
+        nrm[kX] = nrm[kY] = 0.0f;
+        *pressure = 0.0f;
+    }
+    else
+    {
+        if( needs_nrm )
+        {
+            // special cases happen a lot. try to avoid computing the square root
+            if ( 0.0f == nrm[kX] && 0.0f == nrm[kY] )
+            {
+                // no normal does not mean no net pressure,
+                // just that all the simplistic normal calculations balance
+            }
+            else if ( 0.0f == nrm[kX] )
+            {
+                nrm[kY] = SGN( nrm[kY] );
+            }
+            else if ( 0.0f == nrm[kY] )
+            {
+                nrm[kX] = SGN( nrm[kX] );
+            }
+            else
+            {
+                float dist = SQRT( nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] );
 
-				//*pressure = dist;
-				nrm[kX] /= dist;
-				nrm[kY] /= dist;
-			}
-		}
+                //*pressure = dist;
+                nrm[kX] /= dist;
+                nrm[kY] /= dist;
+            }
+        }
 
-		if( needs_pressure )
-		{
-			*pressure = mesh_get_pressure( pmesh, pos, radius, bits );
-		}
-	}
+        if( needs_pressure )
+        {
+            *pressure = mesh_get_pressure( pmesh, pos, radius, bits );
+        }
+    }
 
     return pass;
 }

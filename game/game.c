@@ -204,7 +204,7 @@ static void   game_end_menu( menu_process_t * mproc );
 static void   do_game_hud();
 
 // manage the game's vfs mount points
-static void   game_clear_vfs();
+static void   game_clear_vfs_paths();
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -434,16 +434,16 @@ void log_madused_vfs( const char *savename )
 
         for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
         {
-			if ( LOADED_PRO( cnt ) )
-			{
-				CAP_REF icap = pro_get_icap( cnt );
-				MAD_REF imad = pro_get_imad( cnt );
+            if ( LOADED_PRO( cnt ) )
+            {
+                CAP_REF icap = pro_get_icap( cnt );
+                MAD_REF imad = pro_get_imad( cnt );
 
-				vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
-			}
-			else if ( cnt <= 36 )	vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot reserved for import players" );
-			else					vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot Unused" );
-		}
+                vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
+            }
+            else if ( cnt <= 36 )    vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot reserved for import players" );
+            else                    vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot Unused" );
+        }
 
         vfs_close( hFileWrite );
     }
@@ -603,8 +603,8 @@ void update_used_lists()
 //--------------------------------------------------------------------------------------------
 void update_all_objects()
 {
-	chr_stoppedby_tests = prt_stoppedby_tests = 0;
-	chr_pressure_tests  = prt_pressure_tests  = 0;
+    chr_stoppedby_tests = prt_stoppedby_tests = 0;
+    chr_pressure_tests  = prt_pressure_tests  = 0;
 
     update_all_characters();
     update_all_particles();
@@ -749,11 +749,11 @@ int update_game()
             if ( cfg.difficulty < GAME_HARD && local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && PMod->respawnvalid && 0 == revivetimer )
             {
                 respawn_character( ichr );
-                pchr->experience *= EXPKEEP;		// Apply xp Penality
+                pchr->experience *= EXPKEEP;        // Apply xp Penality
 
                 if ( cfg.difficulty > GAME_EASY )
                 {
-                    pchr->money *= EXPKEEP;		//Apply money loss
+                    pchr->money *= EXPKEEP;        //Apply money loss
                 }
             }
         }
@@ -1547,7 +1547,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
         if ( !INGAME_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
 
-		if( !check_skills( ichr_test, need_skill ) ) continue;
+        if( !check_skills( ichr_test, need_skill ) ) continue;
 
         if ( !check_target( psrc, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players ) )
         {
@@ -1560,17 +1560,17 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( MAX_CHR == best_target || dist2 < best_dist2 ) )
         {
             //Invictus chars do not need a line of sight
-			if ( !psrc->invictus )
-			{
-				// set the line-of-sight source
-				los_info.x1 = ptst->pos.x;
-				los_info.y1 = ptst->pos.y;
-				los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
+            if ( !psrc->invictus )
+            {
+                // set the line-of-sight source
+                los_info.x1 = ptst->pos.x;
+                los_info.y1 = ptst->pos.y;
+                los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
 
-				if ( do_line_of_sight( &los_info ) ) continue;
-			}
+                if ( do_line_of_sight( &los_info ) ) continue;
+            }
 
-			//Set the new best target found
+            //Set the new best target found
             best_target = ichr_test;
             best_dist2  = dist2;
         }
@@ -2636,20 +2636,20 @@ bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinf
     // automatically identify and unkurse all player starting equipment? I think yes.
     if ( startNewPlayer && NULL != pparent && pparent->isplayer )
     {
-		chr_t *pitem;
+        chr_t *pitem;
         pchr->nameknown = btrue;
 
-		//Unkurse both inhand items
-		if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
-		{
-			pitem = ChrList.lst + ichr;
-			pitem->iskursed = bfalse;
-		}
-		if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
-		{
-			pitem = ChrList.lst + ichr;
-			pitem->iskursed = bfalse;
-		}
+        //Unkurse both inhand items
+        if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+        {
+            pitem = ChrList.lst + ichr;
+            pitem->iskursed = bfalse;
+        }
+        if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
+        {
+            pitem = ChrList.lst + ichr;
+            pitem->iskursed = bfalse;
+        }
 
     }
 
@@ -3121,7 +3121,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
             prt_t * pprt = PrtList.lst + particle;
 
             pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
-			if( NULL == pprt ) continue;
+            if( NULL == pprt ) continue;
 
             number_added++;
             number_attached++;
@@ -3158,26 +3158,26 @@ void game_quit_module()
     sound_finish_sound();
 
     // remove the module-dependent mount points from the vfs
-    game_clear_vfs();
+    game_clear_vfs_paths();
 }
 
 //--------------------------------------------------------------------------------------------
-void game_clear_vfs()
+void game_clear_vfs_paths()
 {
     /// @details BB@> clear out the all mount points
 
     // clear out the basic mount points
-    egoboo_clear_vfs();
+    egoboo_clear_vfs_paths();
 
     // clear out the module's mount points
     vfs_remove_mount_point( "mp_objects" );
 
     // set up the basic mount points again
-    egoboo_setup_vfs();
+    egoboo_setup_vfs_paths();
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_setup_vfs( const char * mod_path )
+bool_t game_setup_vfs_paths( const char * mod_path )
 {
     /// @details BB@> set up the virtual mount points for the module's data
     ///               and objects
@@ -3191,7 +3191,7 @@ bool_t game_setup_vfs( const char * mod_path )
     if ( INVALID_CSTR( mod_path ) ) return bfalse;
 
     // revert to the program's basic mount points
-    game_clear_vfs();
+    game_clear_vfs_paths();
 
     path_seperator_1 = strrchr( mod_path, SLASH_CHR );
     path_seperator_2 = strrchr( mod_path, NET_SLASH_CHR );
@@ -3210,17 +3210,17 @@ bool_t game_setup_vfs( const char * mod_path )
 
     //==== set the module-dependent mount points
 
-	//---- add the "/modules/*.mod/objects" directories to mp_objects
-	snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
+    //---- add the "/modules/*.mod/objects" directories to mp_objects
+    snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
 
     // mount the user's module objects directory at the beginning of the mount point list    
-    vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_objects", 0 );
+    vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_objects", 1 );
 
-	// mount the global module objects directory next in the mount point list
+    // mount the global module objects directory next in the mount point list
     vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_objects", 1 );
 
-	//---- add the "/basicdat/globalobjects/*" directories to mp_objects
-	vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "items",            "mp_objects", 1 );
+    //---- add the "/basicdat/globalobjects/*" directories to mp_objects
+    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "items",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic_item",       "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "misc",             "mp_objects", 1 );
@@ -3231,7 +3231,7 @@ bool_t game_setup_vfs( const char * mod_path )
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "weapons",          "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "work_in_progress", "mp_objects", 1 );
 
-	//---- add the "/modules/*.mod/gamedat" directory to mp_data
+    //---- add the "/modules/*.mod/gamedat" directory to mp_data
     snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
 
     // mount the user's module gamedat directory at the beginning of the mount point list
@@ -3256,7 +3256,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     reset_timers();
 
     // set up the birtual file system for the module
-    if ( !game_setup_vfs( modname ) ) return bfalse;
+    if ( !game_setup_vfs_paths( modname ) ) return bfalse;
 
     // load all the in-game module data
     srand( seed );
@@ -3424,7 +3424,7 @@ bool_t attach_one_particle( prt_t * pprt )
     pchr = ChrList.lst + pprt->attachedto_ref;
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
-	if( NULL == pprt ) return bfalse;
+    if( NULL == pprt ) return bfalse;
 
     // the previous function can inactivate a particle
     if ( ACTIVE_PPRT( pprt ) )
@@ -4023,7 +4023,7 @@ bool_t game_choose_module( int imod, int seed )
     if ( retval )
     {
         // give everyone virtual access to the game directories
-        game_setup_vfs( pickedmodule_path );
+        game_setup_vfs_paths( pickedmodule_path );
     }
 
     return retval;
@@ -4642,7 +4642,7 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     int cnt, waterspeed_count, windspeed_count;
 
     wawalite_data_t * pdata;
-	wawalite_water_layer_t * ilayer;
+    wawalite_water_layer_t * ilayer;
 
     // if( INVALID_CSTR(modname) ) return NULL;
 
@@ -4660,67 +4660,67 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
         wawalite_data.water.layer[cnt].light_add = CLIP( wawalite_data.water.layer[cnt].light_add, 0, 63 );
     }
 
-	windspeed_count = 0;
+    windspeed_count = 0;
     fvec3_clear( &windspeed );
 
-	waterspeed_count = 0;
-	fvec3_clear( &waterspeed );
+    waterspeed_count = 0;
+    fvec3_clear( &waterspeed );
 
     ilayer = wawalite_data.water.layer + 0;
     if( wawalite_data.water.background_req )
     {
-		// this is a bit complicated. it is the best I can do at reverse engineering what I did in
-		// render_world_background()
+        // this is a bit complicated. it is the best I can do at reverse engineering what I did in
+        // render_world_background()
 
-		const float cam_height = 1500.0f;
-		const float default_bg_repeat = 4.0f;
+        const float cam_height = 1500.0f;
+        const float default_bg_repeat = 4.0f;
 
-		windspeed_count++;
+        windspeed_count++;
 
         windspeed.x += -ilayer->tx_add.x * GRID_SIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.x) / cam_height;
         windspeed.y += -ilayer->tx_add.y * GRID_SIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.y) / cam_height;
         windspeed.z += -0;
     }
-	else
-	{
-		waterspeed_count++;
+    else
+    {
+        waterspeed_count++;
 
         waterspeed.x += -ilayer->tx_add.x * GRID_SIZE;
         waterspeed.y += -ilayer->tx_add.y * GRID_SIZE;
         waterspeed.z += -0;
-	}
+    }
 
-	ilayer = wawalite_data.water.layer + 1;
+    ilayer = wawalite_data.water.layer + 1;
     if( wawalite_data.water.overlay_req )
     {
-		windspeed_count++;
+        windspeed_count++;
 
         windspeed.x += -600 * ilayer->tx_add.x * GRID_SIZE / wawalite_data.water.foregroundrepeat * 0.04f;
         windspeed.y += -600 * ilayer->tx_add.y * GRID_SIZE / wawalite_data.water.foregroundrepeat * 0.04f;
         windspeed.z += -0;
     }
-	else
-	{
-		waterspeed_count++;
+    else
+    {
+        waterspeed_count++;
 
         waterspeed.x += -ilayer->tx_add.x * GRID_SIZE;
         waterspeed.y += -ilayer->tx_add.y * GRID_SIZE;
         waterspeed.z += -0;
-	}
+    }
 
-	if( waterspeed_count > 1 )
-	{
+    if( waterspeed_count > 1 )
+    {
         waterspeed.x /= (float)waterspeed_count;
         waterspeed.y /= (float)waterspeed_count;
         waterspeed.z /= (float)waterspeed_count;
-	}
+    }
 
-	if( windspeed_count > 1 )
-	{
+    if( windspeed_count > 1 )
+    {
         windspeed.x /= (float)windspeed_count;
         windspeed.y /= (float)windspeed_count;
         windspeed.z /= (float)windspeed_count;
-	}
+    }
 
     return &wawalite_data;
 }
@@ -5226,8 +5226,8 @@ void disenchant_character( const CHR_REF by_reference cnt )
 //--------------------------------------------------------------------------------------------
 void cleanup_character_enchants( chr_t * pchr )
 {
-	if( NULL == pchr ) return;
+    if( NULL == pchr ) return;
 
     // clean up the enchant list
-	pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &(pchr->firstenchant) );
+    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &(pchr->firstenchant) );
 }

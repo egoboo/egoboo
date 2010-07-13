@@ -64,51 +64,51 @@ INLINE pip_t * prt_get_ppip( const PRT_REF by_reference iprt )
 //--------------------------------------------------------------------------------------------
 INLINE bool_t prt_set_size( prt_t * pprt, int size )
 {
-	pip_t *ppip;
+    pip_t *ppip;
     
-	if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
 
-	// set the graphical size
+    // set the graphical size
     pprt->size = size;
 
-	// set the bumper size, if available
+    // set the bumper size, if available
     if ( 0 == pprt->bump_size_stt )
     {
         // make the particle non-interacting if the initial bumper size was 0
         pprt->bump_real.size   = 0;
-		pprt->bump_padded.size = 0;
+        pprt->bump_padded.size = 0;
     }
     else 
-	{
-		float real_size  = 	FP8_TO_FLOAT( size ) * prt_get_scale( pprt );
+    {
+        float real_size  =     FP8_TO_FLOAT( size ) * prt_get_scale( pprt );
 
-		if ( 0.0f == pprt->bump_real.size || 0.0f == size )
-		{
-			// just set the size, assuming a spherical particle
-			pprt->bump_real.size     = real_size;
-			pprt->bump_real.size_big = real_size * SQRT_TWO;
-			pprt->bump_real.height   = real_size;
-		}
-		else
-		{
-			float mag = real_size / pprt->bump_real.size;
+        if ( 0.0f == pprt->bump_real.size || 0.0f == size )
+        {
+            // just set the size, assuming a spherical particle
+            pprt->bump_real.size     = real_size;
+            pprt->bump_real.size_big = real_size * SQRT_TWO;
+            pprt->bump_real.height   = real_size;
+        }
+        else
+        {
+            float mag = real_size / pprt->bump_real.size;
 
-			// resize all dimensions equally
-			pprt->bump_real.size     *= mag;
-			pprt->bump_real.size_big *= mag;
-			pprt->bump_real.height   *= mag;
-		}
+            // resize all dimensions equally
+            pprt->bump_real.size     *= mag;
+            pprt->bump_real.size_big *= mag;
+            pprt->bump_real.height   *= mag;
+        }
 
-		// make sure that the virtual bumper size is at least as big as what is in the pip file
-		pprt->bump_padded.size     = MAX( pprt->bump_real.size,     ppip->bump_size            );
-		pprt->bump_padded.size_big = MAX( pprt->bump_real.size_big, ppip->bump_size * SQRT_TWO );
-		pprt->bump_padded.height   = MAX( pprt->bump_real.height,   ppip->bump_height          );
-	}
+        // make sure that the virtual bumper size is at least as big as what is in the pip file
+        pprt->bump_padded.size     = MAX( pprt->bump_real.size,     ppip->bump_size            );
+        pprt->bump_padded.size_big = MAX( pprt->bump_real.size_big, ppip->bump_size * SQRT_TWO );
+        pprt->bump_padded.height   = MAX( pprt->bump_real.height,   ppip->bump_height          );
+    }
 
-	// use the padded bumper to figure out the chr_prt_cv
+    // use the padded bumper to figure out the chr_prt_cv
     bumper_to_oct_bb_0( pprt->bump_padded, &( pprt->chr_prt_cv ) );
 
     return btrue;
@@ -186,12 +186,12 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
 //--------------------------------------------------------------------------------------------
 INLINE float prt_get_scale( prt_t * pprt )
 { 
-	/// @details BB@> get the scale factor between the "graphical size" of the particle and the actual
-	///               display size
+    /// @details BB@> get the scale factor between the "graphical size" of the particle and the actual
+    ///               display size
 
-	float scale = 0.25f;
+    float scale = 0.25f;
 
-	if ( !DEFINED_PPRT( pprt ) ) return scale;
+    if ( !DEFINED_PPRT( pprt ) ) return scale;
 
     // set some particle dependent properties
     switch ( pprt->type )
@@ -201,5 +201,5 @@ INLINE float prt_get_scale( prt_t * pprt )
         case SPRITE_LIGHT: scale *= 1.5912f; break;
     }
 
-	return scale;
+    return scale;
 }

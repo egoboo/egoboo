@@ -70,10 +70,10 @@ struct s_breadcrumb
     bool_t         valid;                    /// is this position valid
     fvec3_t        pos;                      ///< A stored safe position
     Uint32         grid;                     ///< the grid index of this position
-	float          radius;                   ///< the size of the object at this position
-	float          bits;                     ///< the collision buts of the object at this position
-	Uint32         time;                     ///< the time when the breadcrumb was created
-	Uint32         id;                       ///< an id for differentiating the timing of several events at the same "time"
+    float          radius;                   ///< the size of the object at this position
+    float          bits;                     ///< the collision buts of the object at this position
+    Uint32         time;                     ///< the time when the breadcrumb was created
+    Uint32         id;                       ///< an id for differentiating the timing of several events at the same "time"
 };
 typedef struct s_breadcrumb breadcrumb_t;
 
@@ -85,9 +85,9 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
 
 struct s_breadcrumb_list
 {
-	bool_t       on;
-	int          count;
-	breadcrumb_t lst[MAX_BREADCRUMB];
+    bool_t       on;
+    int          count;
+    breadcrumb_t lst[MAX_BREADCRUMB];
 };
 typedef struct s_breadcrumb_list breadcrumb_list_t;
 

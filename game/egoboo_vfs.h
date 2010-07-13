@@ -135,3 +135,5 @@ int vfs_remove_mount_point( const char * mount_point );
 
 const char * vfs_convert_fname( const char * fname );
 const char * vfs_convert_fname_sys( const char * fname );
+
+void vfs_set_base_search_paths();

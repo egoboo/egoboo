@@ -1048,7 +1048,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // add the weight to the platform based on the new zlerp
     pplat->holdingweight += pchr->phys.weight * ( 1.0f - pchr->enviro.zlerp );
-	
+    
     // update the character jupming
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
@@ -1469,11 +1469,11 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
     // accumulate the accumulators
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-		float tmpx, tmpy, tmpz;
+        float tmpx, tmpy, tmpz;
         float bump_str;
-		bool_t position_updated = bfalse;
+        bool_t position_updated = bfalse;
 
-		fvec3_t tmp_pos = chr_get_pos( pchr );
+        fvec3_t tmp_pos = chr_get_pos( pchr );
 
         bump_str = 1.0f;
         if ( INGAME_CHR( pchr->attachedto ) )
@@ -1502,7 +1502,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         pchr->vel.y += pchr->phys.avel.y;
         pchr->vel.z += pchr->phys.avel.z;
 
-		position_updated = bfalse;
+        position_updated = bfalse;
 
         // do the "integration" on the position
         if ( ABS( pchr->phys.apos_0.x + pchr->phys.apos_1.x ) > 0 )
@@ -1517,7 +1517,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             else
             {
                 pchr->vel.x += pchr->phys.apos_1.x * bump_str;
-				position_updated = btrue;
+                position_updated = btrue;
             }
         }
 
@@ -1533,7 +1533,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             else
             {
                 pchr->vel.y += pchr->phys.apos_1.y * bump_str;
-				position_updated = btrue;
+                position_updated = btrue;
             }
         }
 
@@ -1545,27 +1545,27 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             {
                 // restore the old values
                 tmp_pos.z = pchr->enviro.floor_level;
-				if( pchr->vel.z < 0 )
-				{
-					cap_t * pcap = chr_get_pcap( ichr );
-					if( NULL != pcap )
-					{
-						pchr->vel.z += -(1.0f + pcap->dampen) * pchr->vel.z;
-					}
-				}
-				position_updated = btrue;
+                if( pchr->vel.z < 0 )
+                {
+                    cap_t * pcap = chr_get_pcap( ichr );
+                    if( NULL != pcap )
+                    {
+                        pchr->vel.z += -(1.0f + pcap->dampen) * pchr->vel.z;
+                    }
+                }
+                position_updated = btrue;
             }
             else
             {
                 pchr->vel.z += pchr->phys.apos_1.z * bump_str;
-				position_updated = btrue;
+                position_updated = btrue;
             }
         }
 
-		if( position_updated )
-		{
-			chr_set_pos( pchr, tmp_pos.v );
-		}
+        if( position_updated )
+        {
+            chr_set_pos( pchr, tmp_pos.v );
+        }
     }
     CHR_END_LOOP();
 
@@ -1848,7 +1848,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
     oct_vec_t opos_a, opos_b, odepth;
     //oct_vec_t odepth_old;
-	bool_t    collision = bfalse, bump = bfalse;
+    bool_t    collision = bfalse, bump = bfalse;
 
     if ( NULL == d || TOTAL_MAX_PRT != d->prtb ) return bfalse;
     ichr_a = d->chra;
@@ -1942,49 +1942,49 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     //    return bfalse;
     //}
 
-	// estimate the collision volume and depth from a 10% overlap
-	{
-		int cnt;
+    // estimate the collision volume and depth from a 10% overlap
+    {
+        int cnt;
 
-		oct_bb_t src1, src2;
+        oct_bb_t src1, src2;
 
-		oct_bb_t exp1, exp2, intersect;
+        oct_bb_t exp1, exp2, intersect;
 
-		//oct_vec_t opos1, opos2;
-		//oct_vec_t ovel1, ovel2;
+        //oct_vec_t opos1, opos2;
+        //oct_vec_t ovel1, ovel2;
 
-		float tmp_min, tmp_max;
+        float tmp_min, tmp_max;
 
-		tmp_min = d->tmin;
-		tmp_max = d->tmin + (d->tmax - d->tmin) * 0.1f;
+        tmp_min = d->tmin;
+        tmp_max = d->tmin + (d->tmax - d->tmin) * 0.1f;
 
-		// shift the source bounding boxes to be centered on the given positions
-		oct_bb_add_vector( pchr_a->chr_chr_cv, pchr_a->pos, &src1 );
-		oct_bb_add_vector( pchr_b->chr_chr_cv, pchr_b->pos, &src2 );
+        // shift the source bounding boxes to be centered on the given positions
+        oct_bb_add_vector( pchr_a->chr_chr_cv, pchr_a->pos, &src1 );
+        oct_bb_add_vector( pchr_b->chr_chr_cv, pchr_b->pos, &src2 );
 
-		// determine the expanded collision volumes for both objects
-		phys_expand_oct_bb( src1, pchr_a->vel, tmp_min, tmp_max, &exp1 );
-		phys_expand_oct_bb( src2, pchr_b->vel, tmp_min, tmp_max, &exp2 );
+        // determine the expanded collision volumes for both objects
+        phys_expand_oct_bb( src1, pchr_a->vel, tmp_min, tmp_max, &exp1 );
+        phys_expand_oct_bb( src2, pchr_b->vel, tmp_min, tmp_max, &exp2 );
 
-		// determine the intersection of these two volumes
-		oct_bb_intersection( exp1, exp2, &intersect );
+        // determine the intersection of these two volumes
+        oct_bb_intersection( exp1, exp2, &intersect );
 
-		for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
-		{
-			odepth[cnt]  = intersect.maxs[cnt] - intersect.mins[cnt];
-		}
+        for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+        {
+            odepth[cnt]  = intersect.maxs[cnt] - intersect.mins[cnt];
+        }
 
-		// scale the diagonal components so that they are actually distances
-		odepth[OCT_XY] *= INV_SQRT_TWO;
-		odepth[OCT_YX] *= INV_SQRT_TWO;
-	}
+        // scale the diagonal components so that they are actually distances
+        odepth[OCT_XY] *= INV_SQRT_TWO;
+        odepth[OCT_YX] *= INV_SQRT_TWO;
+    }
 
     // measure the collision depth in the last update
     // the objects were not touching last frame, so they must have collided this frame
     //collision = !get_depth_2( pchr_a->chr_chr_cv, pchr_a->pos_old, pchr_b->chr_chr_cv, pchr_b->pos_old, btrue, odepth_old );
 
-	// use the info from the collision volume to determine whether the objects are colliding
-	collision = (d->tmin >= 0.0f);
+    // use the info from the collision volume to determine whether the objects are colliding
+    collision = (d->tmin >= 0.0f);
 
     //------------------
     // do character-character interactions
@@ -2547,12 +2547,12 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 {
     ENC_REF enchant, enc_next;
     bool_t prt_needs_impact;
-	
+    
     if ( NULL == pdata ) return bfalse;
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-	//Don't damage if there is no damage or damage immune characters
+    //Don't damage if there is no damage or damage immune characters
     if ( pchr->damagetime > 0 || ( pprt->damage.base + pprt->damage.base ) == 0 ) return bfalse;
 
     // clean up the enchant list before doing anything

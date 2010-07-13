@@ -43,6 +43,16 @@
 #define VFS_TRUE  (1==1)
 #define VFS_FALSE (!VFS_TRUE)
 
+#define BAIL_MACRO(TEST,STR)    if( !(TEST) ) log_error( "egoboo vfs system encountered a fatal error - %s", STR );
+
+#if defined(__FUNCSIG__)
+#    define BAIL_IF_NOT_INIT()    if( !_vfs_initialized ) log_error( "egoboo vfs function called while the system was not initialized -- %s\n", __FUNCSIG__ );
+#elif defined(__FUNCTION__)
+#    define BAIL_IF_NOT_INIT()    if( !_vfs_initialized ) log_error( "egoboo vfs function called while the system was not initialized -- %s\n", __FUNCTION__ );
+#else
+#    define BAIL_IF_NOT_INIT()    if( !_vfs_initialized ) log_error( "egoboo vfs function called while the system was not initialized -- \"%s\"(line %d)\n", __FILE__, __LINE__ );
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -112,6 +122,10 @@ typedef struct s_vfs_path_data vfs_path_data_t;
 static int             _vfs_mount_info_count = 0;
 static vfs_path_data_t _vfs_mount_info[MAX_MOUNTINFO];
 
+static bool_t _vfs_atexit_registered = bfalse;
+
+static bool_t _vfs_initialized = bfalse;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void                   _vfs_exit( void );
@@ -121,7 +135,7 @@ static int                    _vfs_vfscanf( FILE * file, const char * format, va
 static int          _vfs_ensure_write_directory( const char * filename, bool_t is_directory );
 static bool_t       _vfs_ensure_destination_file( const char * filename );
 
-static void _vfs_translate_error( vfs_FILE * pfile );
+static void         _vfs_translate_error( vfs_FILE * pfile );
 
 static bool_t       _vfs_mount_info_add( const char * mount_point, const char * root_path, const char * relative_path );
 static int          _vfs_mount_info_matches( const char * mount_point, const char * local_path );
@@ -133,11 +147,17 @@ static const char * _vfs_mount_info_strip_path( const char * some_path );
 //--------------------------------------------------------------------------------------------
 void vfs_init( const char * argv0 )
 {
+    VFS_PATH tmp_path;
+
     fs_init();
 
-    PHYSFS_init( argv0 );
+    if( _vfs_initialized ) return;
 
-    // !!!!make sure the basic directories exist.
+    // set the root path to be the Data Directory, regardless of the executable's path
+    snprintf( tmp_path, SDL_arraysize(tmp_path), "%s" SLASH_STR, fs_getDataDirectory() );
+    PHYSFS_init( tmp_path );
+
+    //---- !!!! make sure the basic directories exist !!!!
 
     // ensure that the /user dierectory exists
     if ( !fs_fileIsDirectory( fs_getUserDirectory() ) )
@@ -163,7 +183,13 @@ void vfs_init( const char * argv0 )
     // set the write directory to the root user directory
     PHYSFS_setWriteDir( fs_getUserDirectory() );
 
-    atexit( _vfs_exit );
+    if( !_vfs_atexit_registered )
+    {
+        atexit( _vfs_exit );
+        _vfs_atexit_registered = btrue;
+    }
+
+    _vfs_initialized = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -195,6 +221,8 @@ vfs_FILE * vfs_openReadB( const char * filename )
     vfs_FILE    * vfs_file;
     PHYSFS_File * ftmp;
 
+    BAIL_IF_NOT_INIT();
+
     if ( INVALID_CSTR( filename ) ) return NULL;
 
     // make sure that PHYSFS gets the filename with the slashes it wants
@@ -220,6 +248,8 @@ vfs_FILE * vfs_openWriteB( const char * filename )
     VFS_PATH      local_filename = EMPTY_CSTR;
     vfs_FILE    * vfs_file;
     PHYSFS_File * ftmp;
+
+    BAIL_IF_NOT_INIT();
 
     if ( INVALID_CSTR( filename ) ) return NULL;
 
@@ -250,6 +280,8 @@ vfs_FILE * vfs_openAppendB( const char * filename )
     vfs_FILE    * vfs_file;
     PHYSFS_File * ftmp;
 
+    BAIL_IF_NOT_INIT();
+
     if ( INVALID_CSTR( filename ) ) return NULL;
 
     // make sure that the destination directory exists, and that a data is copied
@@ -274,21 +306,23 @@ const char * vfs_convert_fname_sys( const char * fname )
     // PHYSFS and this vfs use a "/" at the front of relative filenames. if this is not removed
     // when converting to system dependent filenames, it will reference the filename relative to the
     // root point, rather than relative to the current directory.
-	//
-	// Added complication: if you are trying to specify a root filename,
-	// then you might expect a SLASH_CHR at the beginning of the pathname.
-	// To fix this, call str_convert_slash_sys(), and then check to see if the
-	// directory exists in the filesystem.
-	//
-	// This is not an ideal solution since we may be trying to specify a path for
-	// a tile that needs to be created. The optimal solution might be to check to see if
-	// the path belongs to a registered virtual mount point?
+    //
+    // Added complication: if you are trying to specify a root filename,
+    // then you might expect a SLASH_CHR at the beginning of the pathname.
+    // To fix this, call str_convert_slash_sys(), and then check to see if the
+    // directory exists in the filesystem.
+    //
+    // This is not an ideal solution since we may be trying to specify a path for
+    // a tile that needs to be created. The optimal solution might be to check to see if
+    // the path belongs to a registered virtual mount point?
 
     static VFS_PATH local_fname = EMPTY_CSTR;
 
-	size_t   offset;
+    size_t   offset;
     VFS_PATH copy_fname  = EMPTY_CSTR;
-	char *   string_ptr;
+    char *   string_ptr;
+
+    BAIL_IF_NOT_INIT();
 
     // test for a bad input filename
     if ( INVALID_CSTR( fname ) )
@@ -297,45 +331,45 @@ const char * vfs_convert_fname_sys( const char * fname )
         return local_fname;
     }
 
-	if( VFS_TRUE == _vfs_mount_info_search( fname ) )
-	{
-		// this path contains a virtual mount point
-		EGOBOO_ASSERT( bfalse );
-		return local_fname;
-	}
+    if( VFS_TRUE == _vfs_mount_info_search( fname ) )
+    {
+        // this path contains a virtual mount point
+        EGOBOO_ASSERT( bfalse );
+        return local_fname;
+    }
 
     // make a local copy of the original filename, in case fname is
     // a string literal or a pointer to local_fname
     strncpy( copy_fname, fname, SDL_arraysize( copy_fname ) );
 
-	// convert the path string to local notation
-	string_ptr = str_convert_slash_sys( copy_fname, strlen( fname ) );
-	if( !VALID_CSTR(string_ptr) )
-	{
-		strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
-		return local_fname;
-	}
-
-	// resolve the conflict between
-	//    -1- directories relative to the PHYSFS root path starting with NET_SLASH
-	// and
-	//    -2- directories relative to the root of the filesystem beginning with a slash
-	// by trying to find the original path
-	//
-	// The following method is not exactly secure, since it would allow access to generic
-	// root directories using this code...
-
-	// if the path already exists, just return the path
-	if( fs_fileExists( copy_fname ) )
-	{
-	    strncpy( local_fname, copy_fname, SDL_arraysize( local_fname ) );
+    // convert the path string to local notation
+    string_ptr = str_convert_slash_sys( copy_fname, strlen( fname ) );
+    if( !VALID_CSTR(string_ptr) )
+    {
+        strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
         return local_fname;
-	}
+    }
 
-	// if the path didn't exist it might be because it contains a file that has not yet been created...
-	// no solution to that problem, yet.
+    // resolve the conflict between
+    //    -1- directories relative to the PHYSFS root path starting with NET_SLASH
+    // and
+    //    -2- directories relative to the root of the filesystem beginning with a slash
+    // by trying to find the original path
+    //
+    // The following method is not exactly secure, since it would allow access to generic
+    // root directories using this code...
 
-	// ---- if we got to this point, we need to strip off any beginning slashes
+    // if the path already exists, just return the path
+    if( fs_fileExists( copy_fname ) )
+    {
+        strncpy( local_fname, copy_fname, SDL_arraysize( local_fname ) );
+        return local_fname;
+    }
+
+    // if the path didn't exist it might be because it contains a file that has not yet been created...
+    // no solution to that problem, yet.
+
+    // ---- if we got to this point, we need to strip off any beginning slashes
 
     offset = 0;
     if ( '.' == copy_fname[0] && '.' == copy_fname[1] )
@@ -343,7 +377,7 @@ const char * vfs_convert_fname_sys( const char * fname )
         offset++;
     }
 
-	// the string has already been converted to a system filename, so just check SLASH_CHR
+    // the string has already been converted to a system filename, so just check SLASH_CHR
     while ( SLASH_CHR == copy_fname[offset] && offset < SDL_arraysize( copy_fname ) )
     {
         offset++;
@@ -360,6 +394,8 @@ const char * vfs_convert_fname( const char * fname )
 {
     VFS_PATH        copy_fname  = EMPTY_CSTR;
     static VFS_PATH local_fname = EMPTY_CSTR;
+
+    BAIL_IF_NOT_INIT();
 
     // test for a bad iput filename
     if ( INVALID_CSTR( fname ) )
@@ -409,6 +445,8 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
 
     found_path[0] = CSTR_END;
 
+    BAIL_IF_NOT_INIT();
+
     if ( !VALID_CSTR( some_path ) ) return found_path;
 
     ptmp = some_path;
@@ -452,7 +490,11 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
 void vfs_listSearchPaths()
 {
     //JJ> Lists all search paths that PhysFS uses (for debug use)
+
     char **i;
+
+    BAIL_IF_NOT_INIT();
+
     printf( "LISTING ALL PHYSFS SEARCH PATHS:\n" );
     printf( "----------------------------------\n" );
     for ( i = PHYSFS_getSearchPath(); *i != NULL; i++ )   printf( "[%s] is in the search path.\n", *i );
@@ -466,6 +508,8 @@ const char * vfs_resolveReadFilename( const char * src_filename )
     VFS_PATH      loc_fname = EMPTY_CSTR, szTemp = EMPTY_CSTR;
     int           retval_len = 0;
     const char   *retval = NULL;
+
+    BAIL_IF_NOT_INIT();
 
     if ( INVALID_CSTR( src_filename ) ) return NULL;
 
@@ -552,6 +596,8 @@ const char * vfs_resolveWriteFilename( const char * src_filename )
     VFS_PATH szTemp;
     const  char    * write_dir;
 
+    BAIL_IF_NOT_INIT();
+
     if ( INVALID_CSTR( src_filename ) ) return szFname;
 
     // make a copy of the src_filename, in case we are passed a string literal
@@ -582,6 +628,8 @@ vfs_FILE * vfs_openRead( const char * filename )
     vfs_FILE    * vfs_file;
     FILE        * ftmp;
 
+    BAIL_IF_NOT_INIT();
+
     // parse_filename = "";
 
     real_filename = vfs_resolveReadFilename( filename );
@@ -610,6 +658,8 @@ int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
     VFS_PATH      temp_dirname = EMPTY_CSTR;
     char        * tmpstr;
 
+    BAIL_IF_NOT_INIT();
+
     if ( INVALID_CSTR( filename ) ) return 0;
 
     // make a working copy of the filename
@@ -627,6 +677,12 @@ int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
         else
         {
             *tmpstr = CSTR_END;
+        }
+
+        if( CSTR_END == temp_dirname[0] )
+        {
+            temp_dirname[0] = '/';
+            temp_dirname[1] = CSTR_END;
         }
     }
 
@@ -650,6 +706,8 @@ vfs_FILE * vfs_openWrite( const char * filename )
     const char  * real_filename;
     vfs_FILE    * vfs_file;
     FILE        * ftmp;
+
+    BAIL_IF_NOT_INIT();
 
     if ( INVALID_CSTR( filename ) ) return NULL;
 
@@ -685,6 +743,8 @@ bool_t _vfs_ensure_destination_file( const char * filename )
     VFS_PATH      local_filename = EMPTY_CSTR;
     const char  * sys_src_name, * sys_dst_name;
     bool_t        read_exists, write_exists;
+
+    BAIL_IF_NOT_INIT();
 
     if ( INVALID_CSTR( filename ) ) return bfalse;
 
@@ -725,6 +785,8 @@ vfs_FILE * vfs_openAppend( const char * filename )
     FILE        * ftmp;
     const char  * sys_dst_name;
 
+    BAIL_IF_NOT_INIT();
+
     if ( INVALID_CSTR( filename ) ) return NULL;
 
     // make sure that the destination directory exists, and that a data is copied
@@ -753,6 +815,8 @@ int vfs_close( vfs_FILE * pfile )
     // close a file, and git rid of the allocated file descriptor
 
     int retval;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -787,6 +851,8 @@ int vfs_flush( vfs_FILE * pfile )
 {
     int retval;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -807,6 +873,8 @@ int vfs_flush( vfs_FILE * pfile )
 int vfs_eof( vfs_FILE * pfile )
 {
     int retval;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -839,6 +907,8 @@ int vfs_error( vfs_FILE * pfile )
 {
     int retval;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 1;
@@ -859,6 +929,8 @@ long vfs_tell( vfs_FILE * pfile )
 {
     long retval;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -878,6 +950,8 @@ long vfs_tell( vfs_FILE * pfile )
 int vfs_seek( vfs_FILE * pfile, long offset )
 {
     int retval;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -912,6 +986,8 @@ long vfs_fileLength( vfs_FILE * pfile )
 {
     long retval;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -938,7 +1014,11 @@ long vfs_fileLength( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 int vfs_mkdir( const char *dirName )
 {
-    int retval = PHYSFS_mkdir( vfs_convert_fname( dirName ) );
+    int retval;
+
+    BAIL_IF_NOT_INIT();
+    
+    retval = PHYSFS_mkdir( vfs_convert_fname( dirName ) );
 
     if ( !retval )
     {
@@ -951,18 +1031,24 @@ int vfs_mkdir( const char *dirName )
 //--------------------------------------------------------------------------------------------
 int vfs_delete_file( const char *filename )
 {
+    BAIL_IF_NOT_INIT();
+
     return PHYSFS_delete( vfs_convert_fname( filename ) );
 }
 
 //--------------------------------------------------------------------------------------------
 int vfs_exists( const char *fname )
 {
+    BAIL_IF_NOT_INIT();
+
     return PHYSFS_exists( vfs_convert_fname( fname ) );
 }
 
 //--------------------------------------------------------------------------------------------
 int vfs_isDirectory( const char *fname )
 {
+    BAIL_IF_NOT_INIT();
+
     return PHYSFS_isDirectory( vfs_convert_fname( fname ) );
 }
 
@@ -972,6 +1058,8 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
 {
     bool_t error = bfalse;
     size_t read_length;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -1000,6 +1088,8 @@ size_t vfs_write( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
 {
     size_t retval;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -1020,6 +1110,8 @@ int vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val )
 {
     int retval;
     bool_t error = bfalse;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -1051,6 +1143,8 @@ int vfs_read_Uint16( vfs_FILE * pfile, Uint16 * val )
     bool_t error = bfalse;
     int retval;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -1080,6 +1174,8 @@ int vfs_read_Sint32( vfs_FILE * pfile, Sint32 * val )
 {
     int retval;
     bool_t error = bfalse;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -1111,6 +1207,8 @@ int vfs_read_Uint32( vfs_FILE * pfile, Uint32 * val )
     int retval;
     bool_t error = bfalse;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -1140,6 +1238,8 @@ int vfs_read_Sint64( vfs_FILE * pfile, Sint64 * val )
 {
     int retval;
     bool_t error = bfalse;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -1171,6 +1271,8 @@ int vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val )
     int retval;
     bool_t error = bfalse;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -1200,6 +1302,8 @@ int vfs_read_float( vfs_FILE * pfile, float * val )
 {
     int retval;
     bool_t error = bfalse;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -1312,6 +1416,8 @@ int fake_physfs_vprintf( PHYSFS_File * pfile, const char *format, va_list args )
     int written;
     char buffer[4098] = EMPTY_CSTR;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile || INVALID_CSTR( format ) ) return 0;
 
     written = vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
@@ -1329,6 +1435,8 @@ int vfs_printf( vfs_FILE * pfile, const char *format, ... )
 {
     va_list args;
     int retval;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -1353,6 +1461,8 @@ int vfs_scanf( vfs_FILE * pfile, const char *format, ... )
     va_list args;
     int retval;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     retval = 0;
@@ -1374,18 +1484,24 @@ int vfs_scanf( vfs_FILE * pfile, const char *format, ... )
 //--------------------------------------------------------------------------------------------
 char ** vfs_enumerateFiles( const char * dir_name )
 {
+    BAIL_IF_NOT_INIT();
+
     return PHYSFS_enumerateFiles( vfs_convert_fname( dir_name ) );
 }
 
 //--------------------------------------------------------------------------------------------
 void    vfs_freeList( void * listVar )
 {
+    BAIL_IF_NOT_INIT();
+
     PHYSFS_freeList( listVar );
 }
 
 //--------------------------------------------------------------------------------------------
 void _vfs_findClose( vfs_search_context_t * ctxt )
 {
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == ctxt ) return;
 
     if ( NULL != ctxt->file_list )
@@ -1401,6 +1517,8 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
 {
     const char * retval = NULL;
     static VFS_PATH  path_buffer = EMPTY_CSTR;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pctxt ) return NULL;
 
@@ -1585,10 +1703,10 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
 
     if ( NULL == retval )
     {
-		if( NULL != *pctxt )
-		{
-			( *pctxt )->found[0] = CSTR_END;
-		}
+        if( NULL != *pctxt )
+        {
+            ( *pctxt )->found[0] = CSTR_END;
+        }
     }
     else
     {
@@ -1607,6 +1725,8 @@ _vfs_search_file_error:
 vfs_search_context_t * vfs_findFirst( const char * search_path, const char * search_extension, Uint32 search_bits )
 {
     vfs_search_context_t * ctxt;
+
+    BAIL_IF_NOT_INIT();
 
     // create the new context
     ctxt = EGOBOO_NEW( vfs_search_context_t );
@@ -1661,6 +1781,8 @@ vfs_search_context_t * vfs_findNext( vfs_search_context_t ** pctxt )
 {
     // if there are no files, return an error value
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pctxt || NULL == *pctxt ) return NULL;
 
     if ( NULL == ( *pctxt )->file_list )
@@ -1676,6 +1798,8 @@ vfs_search_context_t * vfs_findNext( vfs_search_context_t ** pctxt )
 //--------------------------------------------------------------------------------------------
 void vfs_findClose( vfs_search_context_t ** ctxt )
 {
+    BAIL_IF_NOT_INIT();
+
     if ( NULL != ctxt )
     {
         _vfs_findClose( *ctxt );
@@ -1690,6 +1814,8 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
     // we have no right to! :)
 
     const char *  write_dir;
+
+    BAIL_IF_NOT_INIT();
 
     // make sure that this is a valid directory
     write_dir = vfs_resolveWriteFilename( dirname );
@@ -1708,6 +1834,8 @@ static bool_t _vfs_copyFile( const char *source, const char *dest )
     char         buf[4096] = EMPTY_CSTR;
     int          bytes_read;
     bool_t       retval = VFS_FALSE;
+
+    BAIL_IF_NOT_INIT();
 
     sourcef = PHYSFS_openRead( source );
     if ( !sourcef )
@@ -1747,6 +1875,8 @@ int vfs_copyFile( const char *source, const char *dest )
     VFS_PATH     sz_src = EMPTY_CSTR, sz_dst = EMPTY_CSTR;
     const char * real_dst, * real_src;
 
+    BAIL_IF_NOT_INIT();
+
     if ( INVALID_CSTR( source ) || INVALID_CSTR( dest ) )
     {
         return VFS_FALSE;
@@ -1763,13 +1893,13 @@ int vfs_copyFile( const char *source, const char *dest )
     strncpy( sz_dst, vfs_resolveWriteFilename( dest ), SDL_arraysize( sz_dst ) );
     real_dst = sz_dst;
 
-    if ( INVALID_CSTR( real_src ) || INVALID_CSTR( real_dst ) )
+    if ( INVALID_CSTR( sz_src ) || INVALID_CSTR( sz_dst ) )
     {
         return VFS_FALSE;
     }
 
     // if they are the same files, do nothing
-    if ( 0 == strcmp( real_src, real_dst ) )
+    if ( 0 == strcmp( sz_src, sz_dst ) )
     {
         return VFS_FALSE;
     }
@@ -1792,6 +1922,8 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     const char * real_dst;
 
     vfs_search_context_t * ctxt;
+
+    BAIL_IF_NOT_INIT();
 
     if ( INVALID_CSTR( sourceDir ) || INVALID_CSTR( destDir ) )
     {
@@ -1839,6 +1971,8 @@ int vfs_ungetc( int c, vfs_FILE * pfile )
 {
     int retval = 0;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     if ( vfs_cfile == pfile->type )
@@ -1858,6 +1992,8 @@ int vfs_ungetc( int c, vfs_FILE * pfile )
 int vfs_getc( vfs_FILE * pfile )
 {
     int retval = 0;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return 0;
 
@@ -1884,6 +2020,8 @@ int vfs_putc( int c, vfs_FILE * pfile )
 {
     int retval = 0;
 
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     if ( vfs_cfile == pfile->type )
@@ -1902,6 +2040,8 @@ int vfs_putc( int c, vfs_FILE * pfile )
 int vfs_puts( const char * str , vfs_FILE * pfile )
 {
     int retval = 0;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile || INVALID_CSTR( str ) ) return 0;
 
@@ -1923,6 +2063,8 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
 char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
 {
     char * retval = NULL;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == pfile ) return NULL;
 
@@ -1969,6 +2111,8 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 void vfs_empty_import_directory()
 {
+    BAIL_IF_NOT_INIT();
+
     vfs_removeDirectoryAndContents( "import", VFS_TRUE );
     vfs_removeDirectoryAndContents( "remote", VFS_TRUE );
 }
@@ -1982,6 +2126,8 @@ int _vfs_vfscanf( FILE * file, const char * format, va_list args )
     char * format_end, * format_next;
     int    argcount = 0;
     void * ptr;
+
+    BAIL_IF_NOT_INIT();
 
     if ( NULL == file || INVALID_CSTR( format ) ) return 0;
 
@@ -2049,6 +2195,8 @@ int _vfs_vfscanf( FILE * file, const char * format, va_list args )
 //--------------------------------------------------------------------------------------------
 int vfs_rewind( vfs_FILE * pfile )
 {
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return 0;
 
     return vfs_seek( pfile, 0 );
@@ -2057,6 +2205,8 @@ int vfs_rewind( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 void _vfs_translate_error( vfs_FILE * pfile )
 {
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == pfile ) return;
 
     if ( vfs_cfile == pfile->type )
@@ -2089,6 +2239,8 @@ const char * vfs_getError()
     const char * physfs_error, * file_error;
     bool_t is_error;
 
+    BAIL_IF_NOT_INIT();
+
     // load up a default
     strncpy( errors, "unknown error", SDL_arraysize( errors ) );
 
@@ -2114,32 +2266,34 @@ int vfs_add_mount_point( const char * root_path, const char * relative_path, con
 
     int retval = -1;
     const char * loc_dirname;
-	VFS_PATH     dirname;
+    VFS_PATH     dirname;
 
-	// a bare slash is taken to mean the PHYSFS root directory, not the root of the currently mounted volume
+    BAIL_IF_NOT_INIT();
+
+    // a bare slash is taken to mean the PHYSFS root directory, not the root of the currently mounted volume
     if ( !VALID_CSTR(mount_point) || 0 == strcmp( mount_point, "/" ) ) return 0;
 
-	// make a complete version of the pathname
-	if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
-	{
-		snprintf( dirname, SDL_arraysize(dirname), "%s" SLASH_STR "%s", root_path, relative_path );
-	}
-	else if ( VALID_CSTR(root_path) )
-	{
-		strncpy( dirname, root_path, SDL_arraysize(dirname) );
-	}
-	else if ( VALID_CSTR(relative_path) )
-	{
-		strncpy( dirname, relative_path, SDL_arraysize(dirname) );
-	}
-	else
-	{
-		return 0;
-	}
+    // make a complete version of the pathname
+    if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
+    {
+        snprintf( dirname, SDL_arraysize(dirname), "%s" SLASH_STR "%s", root_path, relative_path );
+    }
+    else if ( VALID_CSTR(root_path) )
+    {
+        strncpy( dirname, root_path, SDL_arraysize(dirname) );
+    }
+    else if ( VALID_CSTR(relative_path) )
+    {
+        strncpy( dirname, relative_path, SDL_arraysize(dirname) );
+    }
+    else
+    {
+        return 0;
+    }
 
-	/// @note ZF@> 2010-06-30 vfs_convert_fname_sys() broke the Linux version
-	/// @note BB@> 2010-06-30 the error in vfs_convert_fname_sys() might be fixed now
-	loc_dirname = vfs_convert_fname_sys( dirname );
+    /// @note ZF@> 2010-06-30 vfs_convert_fname_sys() broke the Linux version
+    /// @note BB@> 2010-06-30 the error in vfs_convert_fname_sys() might be fixed now
+    loc_dirname = vfs_convert_fname_sys( dirname );
 
     if ( _vfs_mount_info_add( mount_point, root_path, relative_path ) )
     {
@@ -2162,6 +2316,8 @@ int vfs_remove_mount_point( const char * mount_point )
     /// @details BB@> Remove every single search path related to the given mount point.
 
     int retval, cnt;
+
+    BAIL_IF_NOT_INIT();
 
     // don't allow it to remove the default directory
     if ( !VALID_CSTR( mount_point ) ) return 0;
@@ -2201,6 +2357,8 @@ int vfs_remove_mount_point( const char * mount_point )
 //--------------------------------------------------------------------------------------------
 const char * vfs_search_context_get_current( vfs_search_context_t * ctxt )
 {
+    BAIL_IF_NOT_INIT();
+
     if ( NULL == ctxt ) return NULL;
 
     return ctxt->found;
@@ -2215,6 +2373,8 @@ int _vfs_mount_info_search( const char * some_path )
 
     int cnt, retval = VFS_FALSE;
     VFS_PATH temp_path;
+
+    BAIL_IF_NOT_INIT();
 
     if ( !VALID_CSTR( some_path ) ) return retval;
 
@@ -2247,6 +2407,8 @@ const char * _vfs_mount_info_strip_path( const char * some_path )
     int cnt;
     size_t offset;
     const char * ptmp, * stripped_pos;
+
+    BAIL_IF_NOT_INIT();
 
     stripped_pos = some_path;
 
@@ -2282,6 +2444,8 @@ int _vfs_mount_info_matches( const char * mount_point, const char * local_path )
 {
     int cnt, retval;
     const char * ptmp;
+
+    BAIL_IF_NOT_INIT();
 
     // set to an invalid value;
     retval = -1;
@@ -2350,31 +2514,33 @@ bool_t _vfs_mount_info_add( const char * mount_point, const char * root_path, co
 {
     const char * ptmp;
 
-	VFS_PATH     local_path;
+    VFS_PATH     local_path;
+
+    BAIL_IF_NOT_INIT();
 
     // can we add it?
     if ( _vfs_mount_info_count >= MAX_MOUNTINFO ) return bfalse;
 
-	// if the mount point is not a string, do nothing
+    // if the mount point is not a string, do nothing
     if ( !VALID_CSTR(mount_point) ) return bfalse;
 
-	// make a complete version of the pathname
-	if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
-	{
-		snprintf( local_path, SDL_arraysize(local_path), "%s" SLASH_STR "%s", root_path, relative_path );
-	}
-	else if ( VALID_CSTR(root_path) )
-	{
-		strncpy( local_path, root_path, SDL_arraysize(local_path) );
-	}
-	else if ( VALID_CSTR(relative_path) )
-	{
-		strncpy( local_path, relative_path, SDL_arraysize(local_path) );
-	}
-	else
-	{
-		return bfalse;
-	}
+    // make a complete version of the pathname
+    if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
+    {
+        snprintf( local_path, SDL_arraysize(local_path), "%s" SLASH_STR "%s", root_path, relative_path );
+    }
+    else if ( VALID_CSTR(root_path) )
+    {
+        strncpy( local_path, root_path, SDL_arraysize(local_path) );
+    }
+    else if ( VALID_CSTR(relative_path) )
+    {
+        strncpy( local_path, relative_path, SDL_arraysize(local_path) );
+    }
+    else
+    {
+        return bfalse;
+    }
 
     // do we want to add it?
     if ( !VALID_CSTR( local_path ) ) return bfalse;
@@ -2396,17 +2562,17 @@ bool_t _vfs_mount_info_add( const char * mount_point, const char * root_path, co
     strncpy( _vfs_mount_info[_vfs_mount_info_count].mount,     ptmp,       VFS_MAX_PATH );
     strncpy( _vfs_mount_info[_vfs_mount_info_count].full_path, local_path, VFS_MAX_PATH );
 
-	_vfs_mount_info[_vfs_mount_info_count].root_path[0] = '\0';
-	if( VALID_CSTR(root_path) )
-	{
-		strncpy( _vfs_mount_info[_vfs_mount_info_count].root_path, root_path, VFS_MAX_PATH );
-	}
+    _vfs_mount_info[_vfs_mount_info_count].root_path[0] = '\0';
+    if( VALID_CSTR(root_path) )
+    {
+        strncpy( _vfs_mount_info[_vfs_mount_info_count].root_path, root_path, VFS_MAX_PATH );
+    }
 
-	_vfs_mount_info[_vfs_mount_info_count].relative_path[0] = '\0';
-	if( VALID_CSTR(relative_path) )
-	{
-		strncpy( _vfs_mount_info[_vfs_mount_info_count].relative_path, relative_path, VFS_MAX_PATH );
-	}
+    _vfs_mount_info[_vfs_mount_info_count].relative_path[0] = '\0';
+    if( VALID_CSTR(relative_path) )
+    {
+        strncpy( _vfs_mount_info[_vfs_mount_info_count].relative_path, relative_path, VFS_MAX_PATH );
+    }
 
     _vfs_mount_info_count++;
 
@@ -2416,6 +2582,7 @@ bool_t _vfs_mount_info_add( const char * mount_point, const char * root_path, co
 //--------------------------------------------------------------------------------------------
 bool_t _vfs_mount_info_remove( int cnt )
 {
+    BAIL_IF_NOT_INIT();
 
     // does it exist in the list?
     if ( cnt < 0 || cnt > _vfs_mount_info_count ) return bfalse;
@@ -2432,3 +2599,15 @@ bool_t _vfs_mount_info_remove( int cnt )
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void vfs_set_base_search_paths()
+{
+    BAIL_IF_NOT_INIT();
+
+    // Put write dir first in search path...
+    PHYSFS_addToSearchPath( fs_getUserDirectory(), 0);
+
+    // Put base path on search path...
+    PHYSFS_addToSearchPath( fs_getDataDirectory(), 1);
+}

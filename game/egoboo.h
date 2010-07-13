@@ -52,7 +52,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.8.0"								///< Version of the game
+#define VERSION "2.8.0"                                ///< Version of the game
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model
@@ -196,7 +196,7 @@ void ego_init_SDL_base();
 
 EXTERN bool_t screenshot_requested EQ( bfalse );
 
-void egoboo_clear_vfs();
-void egoboo_setup_vfs();
+void egoboo_clear_vfs_paths();
+void egoboo_setup_vfs_paths();
 
 #define  _EGOBOO_H_

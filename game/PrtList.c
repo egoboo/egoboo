@@ -69,16 +69,16 @@ void PrtList_init()
 
     // free all the particles
     PrtList.free_count = 0;
-	PrtList.used_count = 0;
+    PrtList.used_count = 0;
     for ( cnt = 0; cnt < TOTAL_MAX_PRT; cnt++ )
-	{
-		PrtList.free_ref[cnt] = TOTAL_MAX_PRT;
-		PrtList.used_ref[cnt] = TOTAL_MAX_PRT;
-	}
+    {
+        PrtList.free_ref[cnt] = TOTAL_MAX_PRT;
+        PrtList.used_ref[cnt] = TOTAL_MAX_PRT;
+    }
 
     for ( cnt = 0; cnt < TOTAL_MAX_PRT; cnt++ )
     {
-		PRT_REF iprt = (TOTAL_MAX_PRT-1) - cnt;
+        PRT_REF iprt = (TOTAL_MAX_PRT-1) - cnt;
         prt_t * pprt = PrtList.lst + iprt;
 
         // blank out all the data, including the obj_base data
@@ -87,7 +87,7 @@ void PrtList_init()
         // particle "initializer"
         ego_object_ctor( POBJ_GET_PBASE( pprt ) );
 
-		PrtList_add_free( iprt );
+        PrtList_add_free( iprt );
     }
 }
 
@@ -104,100 +104,100 @@ void PrtList_dtor()
     PrtList.free_count = 0;
     PrtList.used_count = 0;
     for ( cnt = 0; cnt < TOTAL_MAX_PRT; cnt++ )
-	{
-		PrtList.free_ref[cnt] = TOTAL_MAX_PRT;
-		PrtList.used_ref[cnt] = TOTAL_MAX_PRT;
-	}
+    {
+        PrtList.free_ref[cnt] = TOTAL_MAX_PRT;
+        PrtList.used_ref[cnt] = TOTAL_MAX_PRT;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
 void PrtList_prune_used()
 {
-	// prune the used list
+    // prune the used list
 
-	int cnt;
-	PRT_REF iprt;
+    int cnt;
+    PRT_REF iprt;
 
     for ( cnt = 0; cnt < PrtList.used_count; cnt++ )
     {
-		bool_t removed = bfalse;
+        bool_t removed = bfalse;
 
-		iprt = PrtList.used_ref[cnt];
+        iprt = PrtList.used_ref[cnt];
 
-		if( !VALID_PRT_RANGE(iprt) || !DEFINED_PRT(iprt) )
-		{
-			removed = PrtList_remove_used_index( cnt );
-		}
+        if( !VALID_PRT_RANGE(iprt) || !DEFINED_PRT(iprt) )
+        {
+            removed = PrtList_remove_used_index( cnt );
+        }
 
-		if( removed && !PrtList.lst[iprt].obj_base.in_free_list )
-		{
-			PrtList_add_free( iprt );
-		}
-	}
+        if( removed && !PrtList.lst[iprt].obj_base.in_free_list )
+        {
+            PrtList_add_free( iprt );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
 void PrtList_prune_free()
 {
-	// prune the free list
+    // prune the free list
 
-	int cnt;
-	PRT_REF iprt;
+    int cnt;
+    PRT_REF iprt;
 
     for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
     {
-		bool_t removed = bfalse;
+        bool_t removed = bfalse;
 
-		iprt = PrtList.free_ref[cnt];
+        iprt = PrtList.free_ref[cnt];
 
-		if( VALID_PRT_RANGE(iprt) && INGAME_PRT_BASE(iprt) )
-		{
-			removed = PrtList_remove_free_index( cnt );
-		}
+        if( VALID_PRT_RANGE(iprt) && INGAME_PRT_BASE(iprt) )
+        {
+            removed = PrtList_remove_free_index( cnt );
+        }
 
-		if( removed && !PrtList.lst[iprt].obj_base.in_free_list )
-		{
-			PrtList_add_used( iprt );
-		}
-	}
+        if( removed && !PrtList.lst[iprt].obj_base.in_free_list )
+        {
+            PrtList_add_used( iprt );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
 void PrtList_update_used()
 {
-	PRT_REF iprt;
+    PRT_REF iprt;
 
-	PrtList_prune_used();
-	PrtList_prune_free();
+    PrtList_prune_used();
+    PrtList_prune_free();
 
-	// go through the particle list to see if there are any dangling particles
-	for( iprt = 0; iprt < TOTAL_MAX_PRT; iprt++ )
-	{
-		if( !ALLOCATED_PRT(iprt) ) continue;
+    // go through the particle list to see if there are any dangling particles
+    for( iprt = 0; iprt < TOTAL_MAX_PRT; iprt++ )
+    {
+        if( !ALLOCATED_PRT(iprt) ) continue;
 
         if ( DISPLAY_PRT( iprt ) )
-		{
-			if( !PrtList.lst[iprt].obj_base.in_used_list )
-			{
-				PrtList_add_used( iprt );
-			}
-		}
-		else if ( !DEFINED_PRT(iprt) )
-		{
-			if( !PrtList.lst[iprt].obj_base.in_free_list )
-			{
-				PrtList_add_free( iprt );
-			}
-		}
-	}
+        {
+            if( !PrtList.lst[iprt].obj_base.in_used_list )
+            {
+                PrtList_add_used( iprt );
+            }
+        }
+        else if ( !DEFINED_PRT(iprt) )
+        {
+            if( !PrtList.lst[iprt].obj_base.in_free_list )
+            {
+                PrtList_add_free( iprt );
+            }
+        }
+    }
 
-	// blank out the unused elements of the used list
+    // blank out the unused elements of the used list
     for ( iprt = PrtList.used_count; iprt < TOTAL_MAX_PRT; iprt++ )
     {
         PrtList.used_ref[iprt] = TOTAL_MAX_PRT;
     }
 
-	// blank out the unused elements of the free list
+    // blank out the unused elements of the free list
     for ( iprt = PrtList.free_count; iprt < TOTAL_MAX_PRT; iprt++ )
     {
         PrtList.free_ref[iprt] = TOTAL_MAX_PRT;
@@ -214,19 +214,19 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
 
     bool_t retval;
     prt_t * pprt;
-	ego_object_base_t * pbase;
+    ego_object_base_t * pbase;
 
     if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
     pprt = PrtList.lst + iprt;
 
-	pbase = POBJ_GET_PBASE( pprt );
-	if( NULL == pbase ) return bfalse;
+    pbase = POBJ_GET_PBASE( pprt );
+    if( NULL == pbase ) return bfalse;
 
     // if we are inside a PrtList loop, do not actually change the length of the
     // list. This will cause some problems later.
     if ( prt_loop_depth > 0 )
     {
-		retval = PrtList_add_termination( iprt );
+        retval = PrtList_add_termination( iprt );
     }
     else
     {
@@ -234,19 +234,19 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
         pprt = prt_config_deinitialize( pprt, 100 );
         if ( NULL == pprt ) return bfalse;
 
-		if( pbase->in_used_list )
-		{
-			PrtList_remove_used( iprt );
-		}
+        if( pbase->in_used_list )
+        {
+            PrtList_remove_used( iprt );
+        }
 
-		if( pbase->in_free_list )
-		{
-			retval = btrue;
-		}
-		else
-		{
-			retval = PrtList_add_free( iprt );
-		}
+        if( pbase->in_free_list )
+        {
+            retval = btrue;
+        }
+        else
+        {
+            retval = PrtList_add_free( iprt );
+        }
 
         // particle "destructor"
         pprt = prt_config_deconstruct( pprt, 100 );
@@ -268,14 +268,14 @@ size_t PrtList_get_free()
         PrtList.free_count--;
         retval = PrtList.free_ref[PrtList.free_count];
 
-		// completely remove it from the free list
-		PrtList.free_ref[PrtList.free_count] = TOTAL_MAX_PRT;
+        // completely remove it from the free list
+        PrtList.free_ref[PrtList.free_count] = TOTAL_MAX_PRT;
 
-		if( VALID_PRT_RANGE(retval) )
-		{
-			// let the object know it is not in the free list any more
-			PrtList.lst[retval].obj_base.in_free_list = bfalse;
-		}
+        if( VALID_PRT_RANGE(retval) )
+        {
+            // let the object know it is not in the free list any more
+            PrtList.lst[retval].obj_base.in_free_list = bfalse;
+        }
     }
 
     return retval;
@@ -439,181 +439,181 @@ void PrtList_free_all()
 //--------------------------------------------------------------------------------------------
 int PrtList_get_free_list_index( const PRT_REF by_reference iprt )
 {
-	int retval = -1, cnt;
+    int retval = -1, cnt;
 
-	if( !VALID_PRT_RANGE(iprt) ) return retval;
+    if( !VALID_PRT_RANGE(iprt) ) return retval;
 
     for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
     {
         if ( iprt == PrtList.free_ref[cnt] )
         {
-			EGOBOO_ASSERT( PrtList.lst[iprt].obj_base.in_free_list );
+            EGOBOO_ASSERT( PrtList.lst[iprt].obj_base.in_free_list );
             retval = cnt;
-			break;
+            break;
         }
     }
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_add_free( const PRT_REF by_reference iprt )
 {
-	bool_t retval;
+    bool_t retval;
 
-	if( !VALID_PRT_RANGE(iprt) ) return bfalse;
+    if( !VALID_PRT_RANGE(iprt) ) return bfalse;
 
 #if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
-	if( PrtList_get_free_list_index(iprt) > 0 )
-	{
-		return bfalse;
-	}
+    if( PrtList_get_free_list_index(iprt) > 0 )
+    {
+        return bfalse;
+    }
 #endif
 
-	EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_free_list );
+    EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_free_list );
 
-	retval = bfalse;
-	if( PrtList.free_count < maxparticles )
-	{
-		PrtList.free_ref[PrtList.free_count] = iprt;
-		PrtList.free_count++;
+    retval = bfalse;
+    if( PrtList.free_count < maxparticles )
+    {
+        PrtList.free_ref[PrtList.free_count] = iprt;
+        PrtList.free_count++;
 
-		PrtList.lst[iprt].obj_base.in_free_list = btrue;
+        PrtList.lst[iprt].obj_base.in_free_list = btrue;
 
-		retval = btrue;
-	}
+        retval = btrue;
+    }
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_remove_free_index( int index )
 {
-	PRT_REF iprt;
+    PRT_REF iprt;
 
-	// was it found?
-	if( index < 0 || index >= PrtList.free_count ) return bfalse;
+    // was it found?
+    if( index < 0 || index >= PrtList.free_count ) return bfalse;
 
-	iprt = PrtList.free_ref[index];
+    iprt = PrtList.free_ref[index];
 
-	// blank out the index in the list
-	PrtList.free_ref[index] = TOTAL_MAX_PRT;
+    // blank out the index in the list
+    PrtList.free_ref[index] = TOTAL_MAX_PRT;
 
-	if( VALID_PRT_RANGE(iprt) )
-	{
-		// let the object know it is not in the list anymore
-		PrtList.lst[iprt].obj_base.in_free_list = bfalse;
-	}
+    if( VALID_PRT_RANGE(iprt) )
+    {
+        // let the object know it is not in the list anymore
+        PrtList.lst[iprt].obj_base.in_free_list = bfalse;
+    }
 
-	// shorten the list
-	PrtList.free_count--;
+    // shorten the list
+    PrtList.free_count--;
 
-	if( PrtList.free_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, PrtList.free_ref[index], PrtList.free_ref[PrtList.free_count] );
-	}
+    if( PrtList.free_count > 0 )
+    {
+        // swap the last element for the deleted element
+        SWAP( size_t, PrtList.free_ref[index], PrtList.free_ref[PrtList.free_count] );
+    }
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_remove_free( const PRT_REF by_reference iprt )
 {
-	// find the object in the free list
-	int index = PrtList_get_free_list_index(iprt);
+    // find the object in the free list
+    int index = PrtList_get_free_list_index(iprt);
 
-	return PrtList_remove_free_index( index );
+    return PrtList_remove_free_index( index );
 }
 
 //--------------------------------------------------------------------------------------------
 int PrtList_get_used_list_index( const PRT_REF by_reference iprt )
 {
-	int retval = -1, cnt;
+    int retval = -1, cnt;
 
-	if( !VALID_PRT_RANGE(iprt) ) return retval;
+    if( !VALID_PRT_RANGE(iprt) ) return retval;
 
     for ( cnt = 0; cnt < TOTAL_MAX_PRT; cnt++ )
     {
         if ( iprt == PrtList.used_ref[cnt] )
         {
-			EGOBOO_ASSERT( PrtList.lst[iprt].obj_base.in_used_list );
+            EGOBOO_ASSERT( PrtList.lst[iprt].obj_base.in_used_list );
             retval = cnt;
-			break;
+            break;
         }
     }
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_add_used( const PRT_REF by_reference iprt )
 {
-	bool_t retval;
+    bool_t retval;
 
-	if( !VALID_PRT_RANGE(iprt) ) return bfalse;
+    if( !VALID_PRT_RANGE(iprt) ) return bfalse;
 
 #if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
-	if( PrtList_get_used_list_index(iprt) > 0 )
-	{
-		return bfalse;
-	}
+    if( PrtList_get_used_list_index(iprt) > 0 )
+    {
+        return bfalse;
+    }
 #endif
 
-	EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_used_list );
+    EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_used_list );
 
-	retval = bfalse;
-	if( PrtList.used_count < maxparticles )
-	{
-		PrtList.used_ref[PrtList.used_count] = iprt;
-		PrtList.used_count++;
+    retval = bfalse;
+    if( PrtList.used_count < maxparticles )
+    {
+        PrtList.used_ref[PrtList.used_count] = iprt;
+        PrtList.used_count++;
 
-		PrtList.lst[iprt].obj_base.in_used_list = btrue;
+        PrtList.lst[iprt].obj_base.in_used_list = btrue;
 
-		retval = btrue;
-	}
+        retval = btrue;
+    }
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_remove_used_index( int index )
 {
-	PRT_REF iprt;
+    PRT_REF iprt;
 
-	// was it found?
-	if( index < 0 || index >= PrtList.used_count ) return bfalse;
+    // was it found?
+    if( index < 0 || index >= PrtList.used_count ) return bfalse;
 
-	iprt = PrtList.used_ref[index];
+    iprt = PrtList.used_ref[index];
 
-	// blank out the index in the list
-	PrtList.used_ref[index] = TOTAL_MAX_PRT;
+    // blank out the index in the list
+    PrtList.used_ref[index] = TOTAL_MAX_PRT;
 
-	if( VALID_PRT_RANGE(iprt) )
-	{
-		// let the object know it is not in the list anymore
-		PrtList.lst[iprt].obj_base.in_used_list = bfalse;
-	}
+    if( VALID_PRT_RANGE(iprt) )
+    {
+        // let the object know it is not in the list anymore
+        PrtList.lst[iprt].obj_base.in_used_list = bfalse;
+    }
 
-	// shorten the list
-	PrtList.used_count--;
+    // shorten the list
+    PrtList.used_count--;
 
-	if( PrtList.used_count > 0 )
-	{
-		// swap the last element for the deleted element
-		SWAP( size_t, PrtList.used_ref[index], PrtList.used_ref[PrtList.used_count] );
-	}
+    if( PrtList.used_count > 0 )
+    {
+        // swap the last element for the deleted element
+        SWAP( size_t, PrtList.used_ref[index], PrtList.used_ref[PrtList.used_count] );
+    }
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_remove_used( const PRT_REF by_reference iprt )
 {
-	// find the object in the used list
-	int index = PrtList_get_used_list_index(iprt);
+    // find the object in the used list
+    int index = PrtList_get_used_list_index(iprt);
 
-	return PrtList_remove_used_index( index );
+    return PrtList_remove_used_index( index );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -653,40 +653,40 @@ bool_t PrtList_add_activation( PRT_REF iprt )
     // put this particle into the activation list so that it can be activated right after
     // the PrtList loop is completed
 
-	bool_t retval = bfalse;
+    bool_t retval = bfalse;
 
-	if( !VALID_PRT_RANGE(iprt) ) return bfalse;
+    if( !VALID_PRT_RANGE(iprt) ) return bfalse;
 
-	if( prt_activation_count < TOTAL_MAX_PRT )
-	{
-		prt_activation_list[prt_activation_count] = iprt;
-		prt_activation_count++;
+    if( prt_activation_count < TOTAL_MAX_PRT )
+    {
+        prt_activation_list[prt_activation_count] = iprt;
+        prt_activation_count++;
 
-		retval = btrue;
-	}
+        retval = btrue;
+    }
 
-	PrtList.lst[iprt].obj_base.turn_me_on = btrue;
+    PrtList.lst[iprt].obj_base.turn_me_on = btrue;
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_add_termination( PRT_REF iprt )
 {
-	bool_t retval = bfalse;
+    bool_t retval = bfalse;
 
-	if( !VALID_PRT_RANGE(iprt) ) return bfalse;
+    if( !VALID_PRT_RANGE(iprt) ) return bfalse;
 
-	if( prt_termination_count < TOTAL_MAX_PRT )
-	{
-		prt_termination_list[prt_termination_count] = iprt;
-		prt_termination_count++;
+    if( prt_termination_count < TOTAL_MAX_PRT )
+    {
+        prt_termination_list[prt_termination_count] = iprt;
+        prt_termination_count++;
 
-		retval = btrue;
-	}
+        retval = btrue;
+    }
 
     // at least mark the object as "waiting to be terminated"
     POBJ_REQUEST_TERMINATE( PrtList.lst + iprt );
 
-	return retval;
+    return retval;
 }

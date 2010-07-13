@@ -68,7 +68,7 @@ struct s_billboard_data_t;
 #define GRABSIZE            135.0f //90.0f             ///< Grab tolerance
 #define NOHIDE              127                        ///< Don't hide
 #define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
-#define RESPAWN_ANYTIME     0xFF					   ///< Code for respawnvalid...
+#define RESPAWN_ANYTIME     0xFF                       ///< Code for respawnvalid...
 
 #define RAISE               12                  ///< Helps correct z level
 
@@ -142,7 +142,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 /// Z velocity
 #define FLYDAMPEN           0.001f                    ///< Levelling rate for flyers
 #define JUMPDELAY           20                      ///< Time between jumps
-#define WATERJUMP           25						///< How good we jump in water
+#define WATERJUMP           25                        ///< How good we jump in water
 #define JUMPINFINITE        255                     ///< Flying character
 #define SLIDETOLERANCE      10                      ///< Stick to ground better
 #define PLATADD             -10                     ///< Height add...
@@ -150,8 +150,8 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define PLATKEEP            0.90f                     ///< Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
 #define STOPBOUNCING        0.1f // 1.0f                ///< To make objects stop bouncing
-#define DROPZVEL            12				//7
-#define DROPXYVEL           100				//12
+#define DROPZVEL            12                //7
+#define DROPXYVEL           100                //12
 
 //Timer resets
 #define DAMAGETILETIME      32                            ///< Invincibility time
@@ -461,12 +461,12 @@ struct s_chr
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     CHR_REF           dismount_object;               ///< the object that you were dismounting from
 
-	bool_t         safe_valid;                    ///< is the last "safe" position valid?
-	fvec3_t        safe_pos;                      ///< the last "safe" position
-	Uint32         safe_time;                     ///< the last "safe" time
-	Uint32         safe_grid;                     ///< the last "safe" grid
+    bool_t         safe_valid;                    ///< is the last "safe" position valid?
+    fvec3_t        safe_pos;                      ///< the last "safe" position
+    Uint32         safe_time;                     ///< the last "safe" time
+    Uint32         safe_grid;                     ///< the last "safe" grid
 
-	breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
+    breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 
 #if defined(__cplusplus)
     s_chr();

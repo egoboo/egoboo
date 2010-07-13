@@ -93,4 +93,4 @@ const char *fs_findFirstFile( const char *path, const char *extension, fs_find_c
 const char *fs_findNextFile( fs_find_context_t * fs_search );
 void        fs_findClose( fs_find_context_t * fs_search );
 
-int DirGetAttrib( const char *fromdir );
+bool_t fs_ensureUserFile( const char * relative_filename, bool_t required );

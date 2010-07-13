@@ -80,7 +80,7 @@ extern game_process_t * GProc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//#define TILESOUNDTIME 16				///< Not used anywhere
+//#define TILESOUNDTIME 16                ///< Not used anywhere
 #define TILEREAFFIRMAND  3
 
 #define MAXWATERLAYER 2                             ///< Maximum water layers
@@ -379,6 +379,6 @@ egoboo_rv move_water( water_instance_t * pwater );
 void disenchant_character( const CHR_REF by_reference ichr );
 
 // manage the game's vfs mount points
-bool_t game_setup_vfs( const char * mod_path );
+bool_t game_setup_vfs_paths( const char * mod_path );
 
 void cleanup_character_enchants( struct s_chr * pchr );

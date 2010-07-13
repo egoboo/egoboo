@@ -165,12 +165,12 @@ void TxReqList_ctor()
     TREQ_REF cnt;
 
     TxReqList.free_count = 0;
-	TxReqList.used_count = 0;
-	for ( cnt = 0; cnt < MAX_ENC; cnt++ )
-	{
-		TxReqList.free_ref[cnt] = MAX_TX_TEXTURE_REQ;
-		TxReqList.used_ref[cnt] = MAX_TX_TEXTURE_REQ;
-	}
+    TxReqList.used_count = 0;
+    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
+    {
+        TxReqList.free_ref[cnt] = MAX_TX_TEXTURE_REQ;
+        TxReqList.used_ref[cnt] = MAX_TX_TEXTURE_REQ;
+    }
 
     for ( cnt = 0; cnt < MAX_TX_TEXTURE_REQ; cnt++ )
     {
@@ -203,12 +203,12 @@ void TxReqList_dtor()
     }
 
     TxReqList.free_count = 0;
-	TxReqList.used_count = 0;
-	for ( cnt = 0; cnt < MAX_ENC; cnt++ )
-	{
-		TxReqList.free_ref[cnt] = MAX_TX_TEXTURE_REQ;
-		TxReqList.used_ref[cnt] = MAX_TX_TEXTURE_REQ;
-	}
+    TxReqList.used_count = 0;
+    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
+    {
+        TxReqList.free_ref[cnt] = MAX_TX_TEXTURE_REQ;
+        TxReqList.used_ref[cnt] = MAX_TX_TEXTURE_REQ;
+    }
 }
 
 //--------------------------------------------------------------------------------------------

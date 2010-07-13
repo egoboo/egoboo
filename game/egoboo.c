@@ -98,7 +98,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // initialize the virtual filesystem first
     vfs_init( eproc->argv0 );
-    egoboo_setup_vfs();
+	egoboo_setup_vfs_paths();
 
     // Initialize logging next, so that we can use it everywhere.
     log_init( vfs_resolveWriteFilename( "/debug/log.txt" ) );
@@ -118,10 +118,6 @@ int do_ego_proc_begin( ego_process_t * eproc )
     {
         log_info( "Loaded setup file \"%s\".\n", tmpname );
     }
-    else
-    {
-        log_error( "Could not find setup file\"%s\".\n", tmpname );
-    }
 
     // download the "setup.txt" values into the cfg struct
     setup_download( &cfg );
@@ -138,27 +134,9 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // read all the scantags
     scantag_read_all_vfs( "mp_data/scancode.txt" );
 
-    {
-        // we can't use the vfs to do this in win32 because of the dir structure and
-        // the fact that PHYSFS will not add the same directory to 2 different mount points...
-        // seems pretty stupid to me, but there you have it.
-
-        STRING path_str;
-
-        snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "controls.txt", fs_getUserDirectory() );
-        str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
-        if ( !fs_fileExists( path_str ) )
-        {
-            snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "controls.txt", fs_getBinaryDirectory() );
-            str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
-
-            if ( !fs_fileExists( path_str ) )
-            {
-                log_error( "Cannot find the file \"controls.txt\".\n" );
-            }
-        }
-
-        input_settings_load_vfs( path_str );
+	if( fs_ensureUserFile( "controls.txt", btrue ) )
+	{
+        input_settings_load_vfs( "/controls.txt" );
     }
 
     // synchronoze the config values with the various game subsystems
@@ -339,7 +317,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
         console_end();
         ui_end();
         gfx_system_end();
-        egoboo_clear_vfs();
+        egoboo_clear_vfs_paths();
     }
 
     return eproc->base.terminated ? 0 : 1;
@@ -653,7 +631,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
 }
 
 //--------------------------------------------------------------------------------------------
-void egoboo_clear_vfs()
+void egoboo_clear_vfs_paths()
 {
     /// @details BB@> clear out the basic mount points
 
@@ -664,33 +642,36 @@ void egoboo_clear_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void egoboo_setup_vfs()
+void egoboo_setup_vfs_paths()
 {
     /// @details BB@> set the basic mount points used by the main program
 
+    //---- tell the vfs to add the basic search paths
+    vfs_set_base_search_paths();
+
     //---- mount all of the default global directories
 
-	// mount the global basicdat directory t the beginning of the list
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat", "mp_data", 0 );
+    // mount the global basicdat directory t the beginning of the list
+    vfs_add_mount_point( fs_getDataDirectory(), "basicdat", "mp_data", 1 );
 
     // put the global globalparticles data after the basicdat data
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
 
     // Create a mount point for the /user/modules directory
-    vfs_add_mount_point( fs_getUserDirectory(), "modules", "mp_modules", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "modules", "mp_modules", 1 );
 
-	// Create a mount point for the /data/modules directory
+    // Create a mount point for the /data/modules directory
     vfs_add_mount_point( fs_getDataDirectory(), "modules", "mp_modules", 1 );
 
     // Create a mount point for the /user/players directory
-    vfs_add_mount_point( fs_getUserDirectory(), "players", "mp_players", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "players", "mp_players", 1 );
 
-	// Create a mount point for the /data/players directory
+    // Create a mount point for the /data/players directory
     vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );
 
     // Create a mount point for the /user/remote directory
-    vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
 
     // Create a mount point for the /user/remote directory
-    vfs_add_mount_point( fs_getUserDirectory(), "remote", "mp_remote", 0 );
+    vfs_add_mount_point( fs_getUserDirectory(), "remote", "mp_remote", 1 );
 }

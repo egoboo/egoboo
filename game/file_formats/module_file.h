@@ -36,12 +36,12 @@
 /// All the possible filters for modules
 enum e_module_filter
 {
-    FILTER_OFF,						///< Display all modules
-	FILTER_MAIN,					///< Only main quest modules
-	FILTER_SIDE,					///< Only alternate sidequest modules
-	FILTER_TOWN,					///< Only display Town modules
-	FILTER_FUN,						///< Only fun modules (bumpercars!)
-	FILTER_COUNT
+    FILTER_OFF,                        ///< Display all modules
+    FILTER_MAIN,                    ///< Only main quest modules
+    FILTER_SIDE,                    ///< Only alternate sidequest modules
+    FILTER_TOWN,                    ///< Only display Town modules
+    FILTER_FUN,                        ///< Only fun modules (bumpercars!)
+    FILTER_COUNT
 };
 typedef enum e_module_filter module_filter_t;
 
@@ -62,12 +62,12 @@ struct s_mod_file
     bool_t  monstersonly;                           ///< Only allow monsters
     Uint8   respawnvalid;                           ///< Allow respawn
     Uint8   rtscontrol;                             ///< !! keep this in the file, even though it is not used in the game !!
-	int     numlines;                               ///< Lines in summary
+    int     numlines;                               ///< Lines in summary
     char    summary[SUMMARYLINES][SUMMARYSIZE];     ///< Quest description
 
     IDSZ            quest_idsz;                     ///< the quest required to unlock this module
     int             quest_level;                    ///< the quest level required to unlock this module
-    module_filter_t moduletype;						///< Main quest, town, sidequest or whatever
+    module_filter_t moduletype;                        ///< Main quest, town, sidequest or whatever
 };
 typedef struct s_mod_file mod_file_t;
 
