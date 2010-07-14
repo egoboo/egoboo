@@ -1992,6 +1992,7 @@ void move_one_particle_do_z_motion( prt_t * pprt )
 //    }
 //}
 
+//--------------------------------------------------------------------------------------------
 prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
 {
     /// @details BB@> A helper function that figures out the next valid position of the particle.
@@ -2032,7 +2033,7 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
     }
 
     // handle the collision
-    if ( hit_a_floor && ( ppip->endground || ppip->endbump ) )
+    if ( hit_a_floor && ppip->endground )
     {
         prt_request_terminate( iprt );
         return NULL;
@@ -2085,6 +2086,7 @@ prt_t * move_one_particle_integrate_motion_attached( prt_t * pprt )
     return pprt;
 }
 
+//--------------------------------------------------------------------------------------------
 prt_t * move_one_particle_integrate_motion( prt_t * pprt )
 {
     /// @details BB@> A helper function that figures out the next valid position of the particle.
@@ -2095,6 +2097,7 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     float ftmp, loc_level;
     PRT_REF iprt;
     bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
+    bool_t touch_a_floor, touch_a_wall;
     fvec3_t nrm_total;
     fvec3_t tmp_pos;
 
@@ -2115,9 +2118,11 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     if ( !LOADED_PIP( pprt->pip_ref ) ) return pprt;
     ppip =  PipStack.lst +  pprt->pip_ref;
 
-    hit_a_floor = bfalse;
-    hit_a_wall  = bfalse;
-    nrm_total.x = nrm_total.y = nrm_total.z = 0;
+    hit_a_floor   = bfalse;
+    hit_a_wall    = bfalse;
+    touch_a_floor = bfalse;
+    touch_a_wall  = bfalse;
+    nrm_total.x = nrm_total.y = nrm_total.z = 0.0f;
 
     loc_level = pprt->enviro.adj_level;
 
@@ -2127,13 +2132,14 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     LOG_NAN( tmp_pos.z );
     if ( tmp_pos.z < loc_level )
     {
-        hit_a_floor = btrue;
+        touch_a_floor = btrue;
 
         if ( pprt->vel.z < - STOPBOUNCINGPART )
         {
             // the particle will bounce
             nrm_total.z -= SGN( gravity );
             tmp_pos.z = ftmp;
+            hit_a_floor = btrue;
         }
         else if ( pprt->vel.z > 0.0f )
         {
@@ -2148,15 +2154,8 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
         }
     }
 
-    // handle the sounds
-    if ( hit_a_floor )
-    {
-        // Play the sound for hitting the floor [FSND]
-        play_particle_sound( iprt, ppip->soundend_floor );
-    }
-
     // handle the collision
-    if ( hit_a_floor && ( ppip->endground || ppip->endbump ) )
+    if ( touch_a_floor && ppip->endground )
     {
         prt_request_terminate( iprt );
         return NULL;
@@ -2194,15 +2193,32 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
 
             if ( 0 != hit_bits )
             {
-                hit_a_wall = btrue;
+                touch_a_wall = btrue;
 
                 tmp_pos.x = old_x;
                 tmp_pos.y = old_y;
 
                 nrm_total.x += nrm.x;
                 nrm_total.y += nrm.y;
+
+                hit_a_wall = (fvec2_dot_product(pprt->vel.v, nrm.v) < 0.0f);
             }
         }
+    }
+
+   
+    // handle the collision
+    if ( touch_a_wall && ( ppip->endwall || ppip->endbump ) )
+    {
+        prt_request_terminate( iprt );
+        return NULL;
+    }
+
+    // handle the sounds
+    if ( hit_a_floor )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( iprt, ppip->soundend_floor );
     }
 
     // handle the sounds
@@ -2210,13 +2226,6 @@ prt_t * move_one_particle_integrate_motion( prt_t * pprt )
     {
         // Play the sound for hitting the wall [WSND]
         play_particle_sound( iprt, ppip->soundend_wall );
-    }
-    
-    // handle the collision
-    if ( hit_a_wall && ( ppip->endwall || ppip->endbump ) )
-    {
-        prt_request_terminate( iprt );
-        return NULL;
     }
 
     // do the reflections off the walls and floors
@@ -2362,7 +2371,7 @@ bool_t move_one_particle( prt_t * pprt )
     move_one_particle_get_environment( pprt );
 
     // do friction with the floor before voluntary motion
-    //move_one_particle_do_floor_friction( pprt );
+    move_one_particle_do_floor_friction( pprt );
 
     pprt = move_one_particle_do_homing( pprt );
     if( NULL == pprt ) return bfalse;
@@ -3053,14 +3062,15 @@ int prt_do_contspawn( prt_t * pprt, pip_t * ppip )
             {
 				// Inherit velocities from the particle we were spawned from, but only if it wasn't attached to something
 
-/*              ZF> I have disabled this at the moment. This is what caused the erratic particle movement for the Adventurer Torch  
-				if( !ACTIVE_CHR( PrtList.lst[prt_child].attachedto_ref ) )
+                // ZF> I have disabled this at the moment. This is what caused the erratic particle movement for the Adventurer Torch  
+                // BB> taking out the test works, though  I should have checked vs. pprt->attached_ref, anyway, 
+                //     since we already specified that the particle is not attached in the function call :P
+				//if( !ACTIVE_CHR( pprt->attachedto_ref ) )
 				{
 					PrtList.lst[prt_child].vel.x += pprt->vel.x;
 					PrtList.lst[prt_child].vel.y += pprt->vel.y;
-					PrtList.lst[prt_child].vel.z += pprt->vel.z;			//ZF> Any reason we shouldn't do Z velocity as well?
+					PrtList.lst[prt_child].vel.z += pprt->vel.z;
 				}
-*/
 
 				//Keep count of how many were actually spawned
                 spawn_count++;

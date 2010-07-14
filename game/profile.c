@@ -1290,7 +1290,9 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
     pro_t      * ppro;
     pip_t      * ppip;
 
-    bool_t       has_enchant, does_damage, does_grog_daze, needs_bump, does_special_effect;
+    bool_t       has_enchant, has_bump_size;
+    bool_t       does_damage, does_status_effect, does_special_effect;
+    bool_t       needs_bump;
 
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
@@ -1306,12 +1308,13 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
 
-    does_grog_daze = ( 0 != ppip->grogtime ) || ( 0 != ppip->dazetime );
-    needs_bump     = ppip->endbump || ppip->endground || ( ppip->bumpspawn_amount > 0 ) || ( ppip->bumpmoney > 0 );
+    does_status_effect = ( 0 != ppip->grogtime ) || ( 0 != ppip->dazetime );
+    needs_bump     = ppip->endbump || ppip->endground || ( ppip->bumpspawn_amount > 0 ) || ( 0 != ppip->bumpmoney );
+    has_bump_size  = (0 != ppip->bump_size) && (0 != ppip->bump_height);
 
     does_special_effect = ppip->causepancake;
 
-    if ( 0 == pprt->bump_padded.size && !has_enchant && !does_damage && !does_grog_daze && !needs_bump && !does_special_effect )
+    if ( !has_bump_size && !needs_bump && !has_enchant && !does_damage && !does_status_effect && !does_special_effect )
         return bfalse;
 
     pleaf = &( pprt->bsp_leaf );
