@@ -497,11 +497,11 @@ IfXIsMoreThanY          //Yes, something is charging
         tmpargument = 2           //Done charging!
         SetState
 
-        //Throw the target at a speed of 75
+        //Throw the target at a speed of 200
         tmpx = 0
         tmpy = 0
         tmpturn = selfturn      //Direction
-        tmpdistance = 75        //Speed
+        tmpdistance = 200        //Speed
         Compass
         AccelerateTarget
 

@@ -15,7 +15,6 @@ IfCrushed
 IfDropped
   // Popped out of a chest
   tmpargument = 3
-  tmpdistance = 22050
   PlaySound
 
 IfKilled
@@ -27,13 +26,11 @@ IfKilled
   tmpargument = 40
   SetBumpHeight
   tmpargument = 1
-  tmpdistance = rand & 4095 + 11000
   PlaySound
 
 IfAttacked
   SetTargetToWhoeverAttacked
     tmpargument = 0
-    tmpdistance = rand & 4095 + 11000
     PlaySound
 
 IfBumped
@@ -61,16 +58,25 @@ IfTimeOut
         IfXIsMoreThanY
           tmpargument = LATCHJUMP
           PressLatchButton
-          tmpx = targetx - selfx > 4
-          tmpy = targety - selfy > 4
+
+          //This makes the tranch jump forward
+          tmpx = 0
+          tmpy = 0
+          tmpturn = targetturnto
+          tmpdistance = 100
+          Compass
           SetOldTarget
           SetTargetToSelf
           AccelerateTarget
           SetTargetToOldTarget
+          
+          //Damage particle
+          tmpargument = 5
+          tmpdistance = GRIPLEFT
+          SpawnAttachedParticle
 
           // Play the sound
           tmpargument = 2
-          tmpdistance = rand & 1023 + 10500
           PlaySound
       tmpx = targetx
       tmpy = targety

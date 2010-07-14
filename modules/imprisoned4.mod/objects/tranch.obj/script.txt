@@ -39,12 +39,22 @@ IfTimeOut
         IfXIsMoreThanY
           tmpargument = LATCHJUMP
           PressLatchButton
-          tmpx = targetx - selfx > 4
-          tmpy = targety - selfy > 4
+          
+          //This makes the tranch jump forward
+          tmpx = 0
+          tmpy = 0
+          tmpturn = targetturnto
+          tmpdistance = 100
+          Compass
           SetOldTarget
           SetTargetToSelf
           AccelerateTarget
           SetTargetToOldTarget
+          
+          //Damage particle
+          tmpargument = 5
+          tmpdistance = GRIPLEFT
+          SpawnAttachedParticle
 
           // Play the sound
           tmpargument = 2
