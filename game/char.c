@@ -2051,6 +2051,9 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
         // do nothing to yourself
         if ( ichr_a == ichr_b ) continue;
 
+		// Dont do hidden objects
+		if ( pchr_b->is_hidden ) continue;
+
         if ( pchr_b->pack.is_packed ) continue;        // pickpocket not allowed yet
         if ( INGAME_CHR( pchr_b->attachedto ) ) continue; // disarm not allowed yet
 
@@ -5631,7 +5634,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     ichr = GET_REF_PCHR( pchr );
 
     if ( !pchr->alive ) return;
-
+	
     // do voluntary motion
 
     pchr->enviro.new_vx = pchr->vel.x;
@@ -5647,96 +5650,85 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
     dvx = dvy = 0.0f;
     new_ax = new_ay = 0.0f;
-    if ( ACTION_IS_TYPE( pchr->inst.action_which, P ) )
-    {
-        // handle the parry case of a parry/block animation
-        new_ax = -pchr->vel.x;
-        new_ay = -pchr->vel.y;
 
-        pchr->enviro.new_vx = 0.0f;
-        pchr->enviro.new_vy = 0.0f;
+    // Character latches for generalized movement
+    dvx = pchr->latch.x;
+    dvy = pchr->latch.y;
+
+    // Reverse movements for daze
+    if ( pchr->dazetime > 0 )
+    {
+        dvx = -dvx;
+        dvy = -dvy;
     }
-    else
+
+    // Switch x and y for grog
+    if ( pchr->grogtime > 0 )
     {
-        // Character latches for generalized movement
-        dvx = pchr->latch.x;
-        dvy = pchr->latch.y;
+        SWAP( float, dvx, dvy );
+    }
 
-        // Reverse movements for daze
-        if ( pchr->dazetime > 0 )
+    // this is the maximum speed that a character could go under the v2.22 system
+    maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
+
+    pchr->enviro.new_vx = pchr->enviro.new_vy = 0.0f;
+    if ( ABS( dvx ) + ABS( dvy ) > 0 )
+    {
+        dv2 = dvx * dvx + dvy * dvy;
+
+        if ( pchr->isplayer )
         {
-            dvx = -dvx;
-            dvy = -dvy;
-        }
+            float speed;
+            float dv = POW( dv2, 0.25f );
 
-        // Switch x and y for grog
-        if ( pchr->grogtime > 0 )
-        {
-            SWAP( float, dvx, dvy );
-        }
-
-        // this is the maximum speed that a character could go under the v2.22 system
-        maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
-
-        pchr->enviro.new_vx = pchr->enviro.new_vy = 0.0f;
-        if ( ABS( dvx ) + ABS( dvy ) > 0 )
-        {
-            dv2 = dvx * dvx + dvy * dvy;
-
-            if ( pchr->isplayer )
+            if ( maxspeed < pchr->runspd )
             {
-                float speed;
-                float dv = POW( dv2, 0.25f );
+                maxspeed = pchr->runspd;
+                dv *= 0.75f;
+            }
 
-                if ( maxspeed < pchr->runspd )
-                {
-                    maxspeed = pchr->runspd;
-                    dv *= 0.75f;
-                }
-
-                if ( dv >= 1.0f )
-                {
-                    speed = maxspeed;
-                }
-                else if ( dv >= 0.75f )
-                {
-                    speed = ( dv - 0.75f ) / 0.25f * maxspeed + ( 1.0f - dv ) / 0.25f * pchr->runspd;
-                }
-                else if ( dv >= 0.50f )
-                {
-                    speed = ( dv - 0.50f ) / 0.25f * pchr->runspd + ( 0.75f - dv ) / 0.25f * pchr->walkspd;
-                }
-                else if ( dv >= 0.25f )
-                {
-                    speed = ( dv - 0.25f ) / 0.25f * pchr->walkspd + ( 0.25f - dv ) / 0.25f * pchr->sneakspd;
-                }
-                else
-                {
-                    speed = dv / 0.25f * pchr->sneakspd;
-                }
-
-                pchr->enviro.new_vx = speed * dvx / dv;
-                pchr->enviro.new_vy = speed * dvy / dv;
+            if ( dv >= 1.0f )
+            {
+                speed = maxspeed;
+            }
+            else if ( dv >= 0.75f )
+            {
+                speed = ( dv - 0.75f ) / 0.25f * maxspeed + ( 1.0f - dv ) / 0.25f * pchr->runspd;
+            }
+            else if ( dv >= 0.50f )
+            {
+                speed = ( dv - 0.50f ) / 0.25f * pchr->runspd + ( 0.75f - dv ) / 0.25f * pchr->walkspd;
+            }
+            else if ( dv >= 0.25f )
+            {
+                speed = ( dv - 0.25f ) / 0.25f * pchr->walkspd + ( 0.25f - dv ) / 0.25f * pchr->sneakspd;
             }
             else
             {
-                float scale = 1.0f;
-
-                if ( dv2 > 1.0f )
-                {
-                    scale = 1.0f / POW( dv2, 0.5f );
-                }
-                else
-                {
-                    scale = POW( dv2, 0.25f ) / POW( dv2, 0.5f );
-                }
-
-                pchr->enviro.new_vx = dvx * maxspeed * scale;
-                pchr->enviro.new_vy = dvy * maxspeed * scale;
+                speed = dv / 0.25f * pchr->sneakspd;
             }
-        }
 
+            pchr->enviro.new_vx = speed * dvx / dv;
+            pchr->enviro.new_vy = speed * dvy / dv;
+        }
+        else
+        {
+            float scale = 1.0f;
+
+            if ( dv2 > 1.0f )
+            {
+                scale = 1.0f / POW( dv2, 0.5f );
+            }
+            else
+            {
+                scale = POW( dv2, 0.25f ) / POW( dv2, 0.5f );
+            }
+
+            pchr->enviro.new_vx = dvx * maxspeed * scale;
+            pchr->enviro.new_vy = dvy * maxspeed * scale;
+        }
     }
+
 
     dvmax = pchr->maxaccel;
     if ( new_ax < -dvmax ) new_ax = -dvmax;
@@ -5826,7 +5818,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
+bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 {
     chr_t * pweapon;
     cap_t * pweapon_cap;
@@ -5902,7 +5894,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
         {
             // This character can't use this iweapon
             pweapon->reloadtime = 50;
-            if ( pchr->StatusList_on )
+			if ( pchr->StatusList_on || cfg.dev_mode )
             {
                 // Tell the player that they can't use this iweapon
                 debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
@@ -5933,10 +5925,10 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
             if ( !pmount_cap->ridercanattack ) allowedtoattack = bfalse;
 
             // can the mount do anything?
-            if ( pmount->alive )
+            if ( pmount->ismount && pmount->alive )
             {
                 // can the mount be told what to do?
-                if ( pmount->ismount && !pmount->isplayer && pmount->inst.action_ready )
+                if ( !pmount->isplayer && pmount->inst.action_ready )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !pmount_cap->ridercanattack )
                     {
@@ -5979,12 +5971,12 @@ bool_t chr_do_latch_attack( chr_t * pchr, int which_slot )
                 else
                 {
                     chr_play_action( pchr, action, bfalse );
-                }
-
-                if ( iweapon != ichr )
-                {
-                    // Make the iweapon attack too
-                    chr_play_action( pweapon, ACTION_MJ, bfalse );
+					
+					if ( iweapon != ichr )
+					{
+						// Make the iweapon attack too
+						chr_play_action( pweapon, ACTION_MJ, bfalse );
+					}
                 }
 
                 // let everyone know what we did
@@ -6885,9 +6877,10 @@ void move_one_character_do_animation( chr_t * pchr )
     // go back to a base animation rate, in case the next frame is not a
     // "variable speed frame"
     pinst->rate = 1.0f;
+	speed = 0;
 
     // Get running, walking, sneaking, or dancing, from speed
-    if ( !pinst->action_keep && !pinst->action_loop && !( pchr->inst.action_which >= ACTION_PA && pchr->inst.action_which <= ACTION_PD ) )
+    if ( !pinst->action_keep && !pinst->action_loop )
     {
         int           frame_count = md2_get_numFrames( pmad->md2_ptr );
         MD2_Frame_t * frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmad->md2_ptr );
@@ -6895,8 +6888,10 @@ void move_one_character_do_animation( chr_t * pchr )
         EGOBOO_ASSERT( pinst->frame_nxt < frame_count );
 
         framelip = pframe_nxt->framelip;  // 0 - 15...  Way through animation
-        if ( pinst->action_ready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
+        
+		if ( pinst->action_ready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 && !ACTION_IS_TYPE( pinst->action_which, P ))
         {
+
             // Do the motion stuff
 
             // new_vx, new_vy is the speed before any latches are applied

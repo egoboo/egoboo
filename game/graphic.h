@@ -256,7 +256,7 @@ enum e_bb_opt
     bb_opt_randomize_vel = (1 << 1),      // Randomize the velocity of the bb. Enough to move it by 2 tiles within its lifetime.
     bb_opt_fade          = (1 << 2),      // Make the billboard fade out
     bb_opt_burn          = (1 << 3),      // Make the tint fully saturate over time.
-    bb_opt_all           = (Uint32)(~((Uint32)0))
+    bb_opt_all           = INT_MAX		  // Enum doesn't support unsigned integers.
 };
 
 /// Description of a generic bilboarded object.

@@ -48,7 +48,6 @@
 #define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
 
 // Some macro switches
-
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
 #undef  ENABLE_BODY_GRAB      ///< Enable the grabbing of bodies?
 #undef  TEST_NAN_RESULT       ///< Test the result of certain math operations
@@ -89,8 +88,8 @@
 
 #undef DEBUG_CPP_LISTS
 
-#undef  DEBUG_CHR_BBOX        ///< display the all character bounding boxes
-#define DEBUG_PRT_BBOX        ///< display the all particle bounding boxes
+#undef DEBUG_CHR_BBOX        ///< display the all character bounding boxes
+#undef DEBUG_PRT_BBOX        ///< display the all particle bounding boxes
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
