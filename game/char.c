@@ -3462,7 +3462,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         pchr->ai.directionlast  = direction;
 
         // Check for blocking and invictus, no need to continue if they have
-        if ( is_invictus_direction( direction, character, effects ) )
+		if ( is_invictus_direction( direction, character, effects ) )
         {
             actual_damage = 0;
             spawn_defense_ping( pchr, attacker );
@@ -3634,6 +3634,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 void spawn_defense_ping( chr_t *pchr, const CHR_REF by_reference attacker )
 {
     /// @details ZF@> Spawn a defend particle
+	if( pchr->damagetime != 0 ) return;
 
     spawn_one_particle_global( pchr->pos, pchr->ori.facing_z, PIP_DEFEND, 0 );
 
@@ -7147,7 +7148,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
     if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return bfalse;
 
     // if the character's frame is invictus, then check the angles
-    if ( 0 != ( chr_get_framefx( pchr ) & MADFX_INVICTUS ) ) //HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
+    if ( HAS_SOME_BITS( chr_get_framefx( pchr ), MADFX_INVICTUS ) )
     {
         //I Frame
         direction -= pcap->iframefacing;
@@ -7192,10 +7193,11 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
 
     // Check that direction
     is_invictus = bfalse;
-    if ( direction >= left && direction <= right )
+    if ( direction <= left && direction <= right )
     {
         is_invictus = btrue;
     }
+
 
     return is_invictus;
 }

@@ -134,7 +134,7 @@ bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
     /// @details BB@> Is psrc2 contained within psrc1? If psrc2 has less dimensions
     ///               than psrc1, just check the lowest common dimensions.
 
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == psrc1 || NULL == psrc2 ) return bfalse;
 

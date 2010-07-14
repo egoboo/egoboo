@@ -2354,7 +2354,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
 
                     bestvertex   = 0;
                     bestdistance = 0xFFFFFFFF;         //Really high number
-
+					
                     for ( cnt = 0; cnt < vertices; cnt++ )
                     {
                         if ( vertex_occupied[cnt] != TOTAL_MAX_PRT )
