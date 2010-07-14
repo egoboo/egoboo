@@ -4460,7 +4460,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 {
     // PlaySoundVolume( argument = "sound", distance = "volume" )
     /// @details ZZ@> This function sets the volume of a sound and plays it
-    
+
     SCRIPT_FUNCTION_BEGIN();
 
     if ( pstate->distance > 0 )
@@ -7769,7 +7769,6 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_END();
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

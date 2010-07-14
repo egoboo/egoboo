@@ -377,7 +377,7 @@ bool_t phys_intersect_oct_bb( oct_bb_t src1_orig, fvec3_t pos1, fvec3_t vel1, oc
         // Just say that they are interacting for the whole frame
 
         *tmin = 0.0f;
-        *tmax = 1.0f; 
+        *tmax = 1.0f;
     }
     else
     {

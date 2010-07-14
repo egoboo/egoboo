@@ -425,7 +425,6 @@ bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, cons
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
 {
@@ -447,8 +446,9 @@ bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, cons
     // that only happes through doing bump particle damamge
     if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
-    // don't interact if there is no interaction
-    //if ( 0 == pchr_a->bump_1.size || 0 == pprt_b->bump_size ) return bfalse;
+    // don't interact if there is no interaction...
+    // the particles and characters should not have been added to the list unless they
+    // are valid for collision
 
     return btrue;
 }
@@ -944,7 +944,7 @@ bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_R
             {
                 // set, but do not attach the platforms yet
                 pchr_a->enviro.level    = pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z];
-                pchr_a->onwhichplatform = ichr_b;
+                pchr_a->onwhichplatform_ref = ichr_b;
             }
         }
         else
@@ -953,7 +953,7 @@ bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_R
             {
                 // set, but do not attach the platforms yet
                 pchr_b->enviro.level    = pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z];
-                pchr_b->onwhichplatform = ichr_a;
+                pchr_b->onwhichplatform_ref = ichr_a;
             }
         }
     }
@@ -1032,7 +1032,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     if ( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pchr->onwhichplatform = GET_REF_PCHR( pplat );
+    pchr->onwhichplatform_ref = GET_REF_PCHR( pplat );
 
     // update the character's relationship to the ground
     pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] );
@@ -1048,7 +1048,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // add the weight to the platform based on the new zlerp
     pplat->holdingweight += pchr->phys.weight * ( 1.0f - pchr->enviro.zlerp );
-    
+
     // update the character jupming
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
@@ -1087,7 +1087,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     if ( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pprt->onwhichplatform = GET_REF_PCHR( pplat );
+    pprt->onwhichplatform_ref = GET_REF_PCHR( pplat );
 
     // update the character's relationship to the ground
     prt_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] ) );
@@ -1364,11 +1364,11 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_CHR( d->chrb ) )
             {
-                if ( ChrList.lst[d->chra].onwhichplatform == d->chrb )
+                if ( ChrList.lst[d->chra].onwhichplatform_ref == d->chrb )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chra, ChrList.lst + d->chrb );
                 }
-                else if ( ChrList.lst[d->chrb].onwhichplatform == d->chra )
+                else if ( ChrList.lst[d->chrb].onwhichplatform_ref == d->chra )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chrb, ChrList.lst + d->chra );
                 }
@@ -1378,7 +1378,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_PRT( d->prtb ) )
             {
-                if ( PrtList.lst[d->prtb].onwhichplatform == d->chra )
+                if ( PrtList.lst[d->prtb].onwhichplatform_ref == d->chra )
                 {
                     attach_prt_to_platform( PrtList.lst + d->prtb, ChrList.lst + d->chra );
                 }
@@ -1388,7 +1388,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         {
             if ( INGAME_CHR( d->chrb ) && INGAME_PRT( d->prta ) )
             {
-                if ( PrtList.lst[d->prta].onwhichplatform == d->chrb )
+                if ( PrtList.lst[d->prta].onwhichplatform_ref == d->chrb )
                 {
                     attach_prt_to_platform( PrtList.lst + d->prta, ChrList.lst + d->chrb );
                 }
@@ -1724,7 +1724,7 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     if ( !ACTIVE_PCHR( pitem ) ) return bfalse;
     if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
 
-    if ( pitem->onwhichplatform != GET_REF_PCHR( pplat ) ) return bfalse;
+    if ( pitem->onwhichplatform_ref != GET_REF_PCHR( pplat ) ) return bfalse;
 
     // grab the pre-computed zlerp value, and map it to our needs
     lerp_z = 1.0f - pitem->enviro.zlerp;
@@ -1868,9 +1868,9 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
-    // platform interaction. if the onwhichplatform is set, then
+    // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
-    if ( ichr_a == pchr_b->onwhichplatform )
+    if ( ichr_a == pchr_b->onwhichplatform_ref )
     {
         if ( do_chr_platform_physics( pchr_b, pchr_a ) )
         {
@@ -1879,9 +1879,9 @@ bool_t do_chr_chr_collision( CoNode_t * d )
         }
     }
 
-    // platform interaction. if the onwhichplatform is set, then
+    // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
-    if ( ichr_b == pchr_a->onwhichplatform )
+    if ( ichr_b == pchr_a->onwhichplatform_ref )
     {
         if ( do_chr_platform_physics( pchr_a, pchr_b ) )
         {
@@ -2229,7 +2229,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     if ( !ACTIVE_PPRT( pprt ) || INGAME_CHR( pprt->attachedto_ref ) ) return bfalse;
 
     // this is handled elsewhere
-    if ( GET_REF_PCHR( pplat ) == pprt->onwhichplatform ) return bfalse;
+    if ( GET_REF_PCHR( pplat ) == pprt->onwhichplatform_ref ) return bfalse;
 
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
@@ -2547,7 +2547,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 {
     ENC_REF enchant, enc_next;
     bool_t prt_needs_impact;
-    
+
     if ( NULL == pdata ) return bfalse;
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
@@ -2994,7 +2994,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // terminate the particle if needed
     if ( cn_lst.terminate_particle )
     {
-        prt_request_terminate( iprt_b );
+        prt_request_terminate_ref( iprt_b );
         retval = btrue;
     }
 
@@ -3030,7 +3030,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 //
 //        // reset the platform stuff each update
 //        pchr->holdingweight   = 0;
-//        pchr->onwhichplatform = (CHR_REF)MAX_CHR;
+//        pchr->onwhichplatform_ref = (CHR_REF)MAX_CHR;
 //        pchr->enviro.level    = pchr->enviro.floor_level;
 //
 //        // reset the fan and block position
@@ -3060,7 +3060,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 //        if ( !INGAME_PRT( particle ) ) continue;
 //        pprt = PrtList.lst + particle;
 //
-//        pprt->onwhichplatform = (CHR_REF)MAX_CHR;
+//        pprt->onwhichplatform_ref = (CHR_REF)MAX_CHR;
 //        prt_set_level( pprt, pprt->enviro.floor_level );
 //
 //        // reject characters that are hidden

@@ -111,7 +111,7 @@ struct s_mnu_module
 {
     EGO_PROFILE_STUFF;                           ///< the "base class" of a profile obbject
 
-    mod_file_t base;                               ///< the data for the "base class" of the module 
+    mod_file_t base;                               ///< the data for the "base class" of the module
 
     // extended data
     TX_REF tex_index;                              ///< the index of the module's tile image
@@ -1002,7 +1002,7 @@ int doChooseModule( float deltaTime )
                 case FILTER_TOWN: ego_texture_load_vfs( &background, "mp_data/menu/menu_town", TRANSCOLOR ); break;
                 case FILTER_FUN:  ego_texture_load_vfs( &background, "mp_data/menu/menu_funquest", TRANSCOLOR ); break;
 
-                default: 
+                default:
                 case FILTER_OFF: ego_texture_load_vfs( &background, "mp_data/menu/menu_allquest", TRANSCOLOR ); break;
             }
 

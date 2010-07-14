@@ -261,7 +261,7 @@ chr_t * chr_ctor( chr_t * pchr )
         pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
     }
 
-    pchr->onwhichplatform = ( CHR_REF )MAX_CHR;
+    pchr->onwhichplatform_ref = ( CHR_REF )MAX_CHR;
     pchr->attachedto      = ( CHR_REF )MAX_CHR;
 
     // initialize the bsp node for this character
@@ -1862,7 +1862,7 @@ void drop_keys( const CHR_REF by_reference character )
                     pitem->enviro.floor_level = pchr->enviro.floor_level;
                     pitem->enviro.level       = pchr->enviro.level;
                     pitem->enviro.fly_level   = pchr->enviro.fly_level;
-                    pitem->onwhichplatform    = pchr->onwhichplatform;
+                    pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
                     pitem->vel.x              = turntocos[ turn ] * DROPXYVEL;
                     pitem->vel.y              = turntosin[ turn ] * DROPXYVEL;
                     pitem->vel.z              = DROPZVEL;
@@ -1916,7 +1916,7 @@ bool_t drop_all_items( const CHR_REF by_reference character )
                 pitem->enviro.floor_level = pchr->enviro.floor_level;
                 pitem->enviro.level       = pchr->enviro.level;
                 pitem->enviro.fly_level   = pchr->enviro.fly_level;
-                pitem->onwhichplatform    = pchr->onwhichplatform;
+                pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
                 pitem->ori.facing_z       = direction + ATK_BEHIND;
                 pitem->vel.x              = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
                 pitem->vel.y              = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
@@ -3154,7 +3154,7 @@ bool_t heal_character( const CHR_REF by_reference character, const CHR_REF by_re
     //Setup the healer
     if ( !INGAME_CHR( healer ) ) return bfalse;
     pchr_h = ChrList.lst + healer;
-    
+
     //Don't heal dead and invincible stuff
     if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return bfalse;
 
@@ -3553,7 +3553,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                 {
                     const char * tmpstr;
                     int rank;
-                    
+
                     tmpstr = describe_wounds( pchr->lifemax, pchr->life );
 
                     tmpstr = describe_value( actual_damage, INT_TO_FP8(10), &rank );
@@ -3587,7 +3587,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 
                         // enemy damage = "red"
                         GLXvector4f tint_enemy  = { 1.00f, 0.75f, 0.75f, 1.00f };
-    
+
                         // write the string into the buffer
                         snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
 
@@ -3836,7 +3836,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     pchr->enviro.level       = pchr->enviro.floor_level;
     pchr->enviro.fly_level   = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, btrue ) + RAISE;
 
-    if ( 0 != pchr->flyheight && pchr->enviro.fly_level < 0 ) 
+    if ( 0 != pchr->flyheight && pchr->enviro.fly_level < 0 )
     {
         // fly above pits...
         pchr->enviro.fly_level = 0;
@@ -4994,7 +4994,7 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     //Physics
     pchr->phys.bumpdampen   = pcap_new->bumpdampen;
     pchr->holdingweight     = 0;
-    pchr->onwhichplatform   = ( CHR_REF )MAX_CHR;
+    pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
 
     if ( pcap_new->weight == 0xFF )
     {
@@ -5324,12 +5324,12 @@ void move_one_character_get_environment( chr_t * pchr )
     chr_set_floor_level( pchr, floor_level );
 
     //---- The actual level of the characer.
-    //     Estimate platform attachment from whatever is in the onwhichplatform variable from the
+    //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
     //     last loop
     pchr->enviro.level = pchr->enviro.floor_level;
-    if ( INGAME_CHR( pchr->onwhichplatform ) )
+    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        pchr->enviro.level     = ChrList.lst[pchr->onwhichplatform].pos.z + ChrList.lst[pchr->onwhichplatform].chr_chr_cv.maxs[OCT_Z];
+        pchr->enviro.level     = ChrList.lst[pchr->onwhichplatform_ref].pos.z + ChrList.lst[pchr->onwhichplatform_ref].chr_chr_cv.maxs[OCT_Z];
         pchr->enviro.fly_level = MAX( pchr->enviro.fly_level, pchr->enviro.level );
 
     }
@@ -5348,10 +5348,10 @@ void move_one_character_get_environment( chr_t * pchr )
     //---- the "twist" of the floor
     pchr->enviro.twist = TWIST_FLAT;
     itile          = INVALID_TILE;
-    if ( INGAME_CHR( pchr->onwhichplatform ) )
+    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
         // this only works for 1 level of attachment
-        itile = ChrList.lst[pchr->onwhichplatform].onwhichgrid;
+        itile = ChrList.lst[pchr->onwhichplatform_ref].onwhichgrid;
     }
     else
     {
@@ -5374,7 +5374,7 @@ void move_one_character_get_environment( chr_t * pchr )
         // any traction factor here
         /* traction = ??; */
     }
-    else if ( INGAME_CHR( pchr->onwhichplatform ) )
+    else if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
         // in case the platform is tilted
         // unfortunately platforms are attached in the collision section
@@ -5382,7 +5382,7 @@ void move_one_character_get_environment( chr_t * pchr )
 
         fvec3_t   platform_up;
 
-        chr_getMatUp( ChrList.lst + pchr->onwhichplatform, &platform_up );
+        chr_getMatUp( ChrList.lst + pchr->onwhichplatform_ref, &platform_up );
         platform_up = fvec3_normalize( platform_up.v );
 
         pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25 * pchr->enviro.zlerp;
@@ -5494,9 +5494,9 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     // figure out the acceleration due to the current "floor"
     floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
     temp_friction_xy = 1.0f;
-    if ( INGAME_CHR( pchr->onwhichplatform ) )
+    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
+        chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
 
         temp_friction_xy = platstick;
 
@@ -5737,9 +5737,9 @@ void move_one_character_do_voluntary( chr_t * pchr )
     if ( new_ay >  dvmax ) new_ay =  dvmax;
 
     // do platform friction
-    if ( INGAME_CHR( pchr->onwhichplatform ) )
+    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        chr_t * pplat = ChrList.lst + pchr->onwhichplatform;
+        chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
 
         new_ax += ( pplat->vel.x + pchr->enviro.new_vx - pchr->vel.x );
         new_ay += ( pplat->vel.y + pchr->enviro.new_vy - pchr->vel.y );
@@ -7329,7 +7329,7 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF by_reference 
     if ( !LOADED_MAD( imad ) ) return bfalse;
     pmad = MadStack.lst + imad;
 
-    if ( NULL == pmad || pmad->md2_ptr == NULL ) 
+    if ( NULL == pmad || pmad->md2_ptr == NULL )
     {
         log_error("Invalid pmad instance spawn. (Slot number %i)\n", imad );
         return bfalse;

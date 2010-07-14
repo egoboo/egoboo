@@ -1284,7 +1284,7 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
+bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pprt_bdl )
 {
     /// @details BB@> insert a particle's BSP_leaf_t into the BSP_tree_t
 
@@ -1292,7 +1292,9 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
     pro_t      * ppro;
-    pip_t      * ppip;
+
+    prt_t *loc_pprt;
+    pip_t *loc_ppip;
 
     bool_t       has_enchant, has_bump_size;
     bool_t       does_damage, does_status_effect, does_special_effect;
@@ -1301,43 +1303,44 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_t * pprt )
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
 
-    if ( !ACTIVE_PPRT( pprt ) || pprt->is_hidden ) return bfalse;
+    if( NULL == pprt_bdl ) return bfalse;
+    loc_pprt = pprt_bdl->prt_ptr;
+    loc_ppip = pprt_bdl->pip_ptr;
 
-    if ( !LOADED_PRO( pprt->profile_ref ) ) return bfalse;
-    ppro = ProList.lst + pprt->profile_ref;
+    if ( !ACTIVE_PPRT( loc_pprt ) || loc_pprt->is_hidden ) return bfalse;
+
+    if ( !LOADED_PRO( loc_pprt->profile_ref ) ) return bfalse;
+    ppro = ProList.lst + loc_pprt->profile_ref;
 
     has_enchant = LOADED_EVE( ppro->ieve );
-    does_damage = ( ABS( pprt->damage.base ) + ABS( pprt->damage.rand ) ) > 0;
+    does_damage = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
-    ppip = PipStack.lst + pprt->pip_ref;
+    does_status_effect = ( 0 != loc_ppip->grogtime ) || ( 0 != loc_ppip->dazetime );
+    needs_bump     = loc_ppip->endbump || loc_ppip->endground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bumpmoney );
+    has_bump_size  = (0 != loc_ppip->bump_size) && (0 != loc_ppip->bump_height);
 
-    does_status_effect = ( 0 != ppip->grogtime ) || ( 0 != ppip->dazetime );
-    needs_bump     = ppip->endbump || ppip->endground || ( ppip->bumpspawn_amount > 0 ) || ( 0 != ppip->bumpmoney );
-    has_bump_size  = (0 != ppip->bump_size) && (0 != ppip->bump_height);
-
-    does_special_effect = ppip->causepancake;
+    does_special_effect = loc_ppip->causepancake;
 
     if ( !has_bump_size && !needs_bump && !has_enchant && !does_damage && !does_status_effect && !does_special_effect )
         return bfalse;
 
-    pleaf = &( pprt->bsp_leaf );
-    if ( pprt != ( prt_t * )( pleaf->data ) )
+    pleaf = &( loc_pprt->bsp_leaf );
+    if ( loc_pprt != ( prt_t * )( pleaf->data ) )
     {
         // some kind of error. re-initialize the data.
-        pleaf->data      = pprt;
-        pleaf->index     = GET_INDEX_PPRT( pprt );
+        pleaf->data      = loc_pprt;
+        pleaf->index     = GET_INDEX_PPRT( loc_pprt );
         pleaf->data_type = 1;
     };
 
     retval = bfalse;
-    if ( ACTIVE_PPRT( pprt ) )
+    if ( ACTIVE_PPRT( loc_pprt ) )
     {
         oct_bb_t tmp_oct;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
-        phys_expand_prt_bb( pprt, 0.0f, 1.0f, &tmp_oct );
+        phys_expand_prt_bb( loc_pprt, 0.0f, 1.0f, &tmp_oct );
 
         // convert the bounding box
         BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
@@ -1386,7 +1389,7 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     {
         // reset a couple of things here
         pchr->holdingweight     = 0;
-        pchr->onwhichplatform   = ( CHR_REF )MAX_CHR;
+        pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
 
         // try to insert the character
         if ( obj_BSP_insert_chr( pbsp, pchr ) )
@@ -1398,13 +1401,13 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
 
     // insert the particles
     BSP_prt_count = 0;
-    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
         // reset a couple of things here
-        pprt->onwhichplatform   = ( CHR_REF )MAX_CHR;
+        prt_bdl.prt_ptr->onwhichplatform_ref = ( CHR_REF )MAX_CHR;
 
         // try to insert the particle
-        if ( obj_BSP_insert_prt( pbsp, pprt ) )
+        if ( obj_BSP_insert_prt( pbsp, &prt_bdl ) )
         {
             BSP_prt_count++;
         }

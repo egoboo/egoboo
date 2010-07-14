@@ -120,7 +120,7 @@ struct s_prt
 
     Uint32  onwhichgrid;                      ///< Where the part is
     Uint32  onwhichblock;                    ///< The particle's collision block
-    CHR_REF onwhichplatform;                 ///< Is the particle on a platform?
+    CHR_REF onwhichplatform_ref;                 ///< Is the particle on a platform?
     bool_t  is_hidden;                       ///< Is the particle related to a hidden character?
 
     FACING_T rotate;                          ///< Rotation direction
@@ -188,7 +188,21 @@ extern int prt_stoppedby_tests;
 extern int prt_pressure_tests;
 
 //--------------------------------------------------------------------------------------------
-/// function prototypes
+struct s_prt_bundle
+{
+    PRT_REF   prt_ref;
+    prt_t   * prt_ptr;
+    
+    PIP_REF   pip_ref;
+    pip_t   * pip_ptr;
+};
+typedef struct s_prt_bundle prt_bundle_t;
+
+prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
+prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
+
+//--------------------------------------------------------------------------------------------
+// function prototypes
 
 void particle_system_begin();
 void particle_system_end();
@@ -227,7 +241,8 @@ bool_t prt_is_over_water( const PRT_REF by_reference particle );
 
 bool_t release_one_pip( const PIP_REF by_reference ipip );
 
-bool_t prt_request_terminate( const PRT_REF by_reference iprt );
+bool_t prt_request_terminate( prt_bundle_t * pprt_bdl );
+bool_t prt_request_terminate_ref( const PRT_REF by_reference iprt );
 
 void prt_set_level( prt_t * pprt, float level );
 

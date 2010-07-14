@@ -4068,12 +4068,12 @@ void dolist_make( ego_mpd_t * pmesh )
         }
     }
 
-    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
-        if ( mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) )
+        if ( mesh_grid_is_valid( pmesh, prt_bdl.prt_ptr->onwhichgrid ) )
         {
             // Add the character
-            dolist_add_prt( pmesh, iprt );
+            dolist_add_prt( pmesh, prt_bdl.prt_ref );
         }
     }
     PRT_END_LOOP();
@@ -5275,18 +5275,18 @@ void gfx_make_dynalist( camera_t * pcam )
     // Don't really make a list, just set to visible or not
     dyna_list_count = 0;
     dyna_distancetobeat = 1e12;
-    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
-        pprt->inview = bfalse;
+        prt_bdl.prt_ptr->inview = bfalse;
 
-        if ( !mesh_grid_is_valid( PMesh, pprt->onwhichgrid ) ) continue;
+        if ( !mesh_grid_is_valid( PMesh, prt_bdl.prt_ptr->onwhichgrid ) ) continue;
 
-        pprt->inview = PMesh->tmem.tile_list[pprt->onwhichgrid].inrenderlist;
+        prt_bdl.prt_ptr->inview = PMesh->tmem.tile_list[prt_bdl.prt_ptr->onwhichgrid].inrenderlist;
 
         // Set up the lights we need
-        if ( !pprt->dynalight.on ) continue;
+        if ( !prt_bdl.prt_ptr->dynalight.on ) continue;
 
-        vdist = fvec3_sub( prt_get_pos_v(pprt), pcam->track_pos.v );
+        vdist = fvec3_sub( prt_get_pos_v(prt_bdl.prt_ptr), pcam->track_pos.v );
 
         distance = vdist.x * vdist.x + vdist.y * vdist.y + vdist.z * vdist.z;
         if ( distance < dyna_distancetobeat )
@@ -5332,9 +5332,9 @@ void gfx_make_dynalist( camera_t * pcam )
 
             if ( found )
             {
-                dyna_list[slot].pos     = prt_get_pos( pprt );
-                dyna_list[slot].level   = pprt->dynalight.level;
-                dyna_list[slot].falloff = pprt->dynalight.falloff;
+                dyna_list[slot].pos     = prt_get_pos( prt_bdl.prt_ptr );
+                dyna_list[slot].level   = prt_bdl.prt_ptr->dynalight.level;
+                dyna_list[slot].falloff = prt_bdl.prt_ptr->dynalight.falloff;
             }
         }
     }

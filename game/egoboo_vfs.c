@@ -1017,7 +1017,7 @@ int vfs_mkdir( const char *dirName )
     int retval;
 
     BAIL_IF_NOT_INIT();
-    
+
     retval = PHYSFS_mkdir( vfs_convert_fname( dirName ) );
 
     if ( !retval )

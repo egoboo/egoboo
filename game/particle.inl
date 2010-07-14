@@ -65,7 +65,7 @@ INLINE pip_t * prt_get_ppip( const PRT_REF by_reference iprt )
 INLINE bool_t prt_set_size( prt_t * pprt, int size )
 {
     pip_t *ppip;
-    
+
     if ( !DEFINED_PPRT( pprt ) ) return bfalse;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
@@ -81,7 +81,7 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
         pprt->bump_real.size   = 0;
         pprt->bump_padded.size = 0;
     }
-    else 
+    else
     {
         float real_size  =     FP8_TO_FLOAT( size ) * prt_get_scale( pprt );
 
@@ -185,7 +185,7 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
 
 //--------------------------------------------------------------------------------------------
 INLINE float prt_get_scale( prt_t * pprt )
-{ 
+{
     /// @details BB@> get the scale factor between the "graphical size" of the particle and the actual
     ///               display size
 

@@ -1674,16 +1674,11 @@ void update_pits()
             clock_pit = 20;
 
             // Kill any particles that fell in a pit, if they die in water...
-            PRT_BEGIN_LOOP_ACTIVE( iprt, pprt )
+            PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
             {
-                pip_t * ppip;
-
-                if ( !LOADED_PIP( pprt->pip_ref ) ) continue;
-                ppip = PipStack.lst + pprt->pip_ref;
-
-                if ( pprt->pos.z < PITDEPTH && ppip->endwater )
+                if ( prt_bdl.prt_ptr->pos.z < PITDEPTH && prt_bdl.pip_ptr->endwater )
                 {
-                    prt_request_terminate( iprt );
+                    prt_request_terminate( &prt_bdl );
                 }
             }
             PRT_END_LOOP();
@@ -3054,11 +3049,11 @@ void disaffirm_attached_particles( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function makes sure a character has no attached particles
 
-    PRT_BEGIN_LOOP_ACTIVE( iprt, pprt )
+    PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
-        if ( pprt->attachedto_ref == character )
+        if ( prt_bdl.prt_ptr->attachedto_ref == character )
         {
-            prt_request_terminate( iprt );
+            prt_request_terminate( &prt_bdl );
         }
     }
     PRT_END_LOOP();
@@ -3077,9 +3072,9 @@ int number_of_attached_particles( const CHR_REF by_reference character )
 
     int     cnt = 0;
 
-    PRT_BEGIN_LOOP_ACTIVE( iprt, pprt )
+    PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
-        if ( pprt->attachedto_ref == character )
+        if ( prt_bdl.prt_ptr->attachedto_ref == character )
         {
             cnt++;
         }
@@ -3213,7 +3208,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     //---- add the "/modules/*.mod/objects" directories to mp_objects
     snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
 
-    // mount the user's module objects directory at the beginning of the mount point list    
+    // mount the user's module objects directory at the beginning of the mount point list
     vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_objects", 1 );
 
     // mount the global module objects directory next in the mount point list
@@ -3412,16 +3407,16 @@ void game_release_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t attach_one_particle( prt_t * pprt )
+bool_t attach_one_particle( prt_bundle_t * pprt_bdl )
 {
-    PRT_REF iprt;
+    prt_t * pprt;
     chr_t * pchr;
 
-    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
-    iprt = GET_INDEX_PPRT( pprt );
+    if( NULL == pprt_bdl ) return bfalse;
+    pprt = pprt_bdl->prt_ptr;
 
-    if ( !INGAME_CHR( pprt->attachedto_ref ) ) return bfalse;
-    pchr = ChrList.lst + pprt->attachedto_ref;
+    if ( !INGAME_CHR( pprt_bdl->prt_ptr->attachedto_ref ) ) return bfalse;
+    pchr = ChrList.lst + pprt_bdl->prt_ptr->attachedto_ref;
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
     if( NULL == pprt ) return bfalse;
@@ -3429,10 +3424,8 @@ bool_t attach_one_particle( prt_t * pprt )
     // the previous function can inactivate a particle
     if ( ACTIVE_PPRT( pprt ) )
     {
-        pip_t * ppip = prt_get_ppip( GET_INDEX_PPRT( pprt ) );
-
         // Correct facing so swords knock characters in the right direction...
-        if ( NULL != ppip && 0 != ( ppip->damfx & DAMFX_TURN ) )
+        if ( NULL != pprt_bdl->pip_ptr && HAS_SOME_BITS( pprt_bdl->pip_ptr->damfx, DAMFX_TURN ) )
         {
             pprt->facing = pchr->ori.facing_z;
         }
@@ -3447,9 +3440,9 @@ void attach_all_particles()
     /// @details ZZ@> This function attaches particles to their characters so everything gets
     ///    drawn right
 
-    PRT_BEGIN_LOOP_DISPLAY( cnt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( cnt, prt_bdl )
     {
-        attach_one_particle( pprt );
+        attach_one_particle( &prt_bdl );
     }
     PRT_END_LOOP()
 }

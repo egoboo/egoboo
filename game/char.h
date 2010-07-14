@@ -324,7 +324,7 @@ struct s_chr
     bool_t         platform;                      ///< Can it be stood on
     bool_t         canuseplatforms;               ///< Can use platforms?
     int            holdingweight;                 ///< For weighted buttons
-    CHR_REF        onwhichplatform;               ///< Am I on a platform?
+    CHR_REF        onwhichplatform_ref;               ///< Am I on a platform?
 
     // combat stuff
     Uint8          damagetargettype;              ///< Type of damage for AI DamageTarget

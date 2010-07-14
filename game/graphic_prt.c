@@ -135,15 +135,15 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
     // Original points
     numparticle = 0;
-    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
         prt_instance_t * pinst;
 
         if ( numparticle >= reg_count ) break;
 
-        pinst = &( pprt->inst );
+        pinst = &( prt_bdl.prt_ptr->inst );
 
-        if ( !pprt->inview || pprt->is_hidden ) continue;
+        if ( !prt_bdl.prt_ptr->inview || prt_bdl.prt_ptr->is_hidden ) continue;
 
         if ( 0 != pinst->size )
         {
@@ -158,7 +158,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
             if ( dist > 0 )
             {
-                reg[numparticle].index = REF_TO_INT( iprt );
+                reg[numparticle].index = REF_TO_INT( prt_bdl.prt_ref );
                 reg[numparticle].dist  = dist;
                 numparticle++;
             }
@@ -402,15 +402,15 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 
     // Original points
     numparticle = 0;
-    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
         prt_instance_t * pinst;
 
         if ( numparticle >= reg_count ) break;
 
-        pinst = &( pprt->inst );
+        pinst = &( prt_bdl.prt_ptr->inst );
 
-        if ( !pprt->inview || pprt->is_hidden ) continue;
+        if ( !prt_bdl.prt_ptr->inview || prt_bdl.prt_ptr->is_hidden ) continue;
 
         if ( pinst->size != 0 )
         {
@@ -649,9 +649,9 @@ void render_all_prt_attachment()
 {
     GL_DEBUG( glDisable )( GL_BLEND );
 
-    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
-        prt_draw_attached_point( pprt );
+        prt_draw_attached_point( prt_bdl.prt_ptr );
     }
     PRT_END_LOOP();
 }
@@ -731,17 +731,17 @@ void prt_instance_update_all( camera_t * pcam )
     if ( instance_update == update_wld ) return;
     instance_update = update_wld;
 
-    PRT_BEGIN_LOOP_DISPLAY( iprt, pprt )
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
         prt_instance_t * pinst;
 
-        pinst = &( pprt->inst );
+        pinst = &( prt_bdl.prt_ptr->inst );
 
         // only do frame counting for particles that are fully activated!
-        pprt->obj_base.frame_count++;
-        if ( pprt->frames_remaining > 0 ) pprt->frames_remaining--;
+        prt_bdl.prt_ptr->obj_base.frame_count++;
+        if ( prt_bdl.prt_ptr->frames_remaining > 0 ) prt_bdl.prt_ptr->frames_remaining--;
 
-        if ( !pprt->inview || pprt->is_hidden || 0 == pprt->size )
+        if ( !prt_bdl.prt_ptr->inview || prt_bdl.prt_ptr->is_hidden || 0 == prt_bdl.prt_ptr->size )
         {
             pinst->valid = bfalse;
         }
