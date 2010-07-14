@@ -214,7 +214,7 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
     pbase = POBJ_GET_PBASE( pchr );
     if( NULL == pbase ) return bfalse;
 
-#if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
     chr_log_script_time( ichr );
 #endif
 
@@ -262,6 +262,8 @@ size_t ChrList_get_free()
     if ( ChrList.free_count > 0 )
     {
         ChrList.free_count--;
+        ChrList.update_guid++;
+
         retval = ChrList.free_ref[ChrList.free_count];
 
         // completely remove it from the free list
@@ -315,7 +317,7 @@ bool_t ChrList_add_free( const CHR_REF by_reference ichr )
 
     if( !VALID_CHR_RANGE(ichr) ) return bfalse;
 
-#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
+#if defined(_DEBUG) && defined(DEBUG_CHR_LIST)
     if( ChrList_get_free_list_index(ichr) > 0 )
     {
         return bfalse;
@@ -328,7 +330,9 @@ bool_t ChrList_add_free( const CHR_REF by_reference ichr )
     if( ChrList.free_count < MAX_CHR )
     {
         ChrList.free_ref[ChrList.free_count] = ichr;
+
         ChrList.free_count++;
+        ChrList.update_guid++;
 
         ChrList.lst[ichr].obj_base.in_free_list = btrue;
 
@@ -359,6 +363,7 @@ bool_t ChrList_remove_free_index( int index )
 
     // shorten the list
     ChrList.free_count--;
+    ChrList.update_guid++;
 
     if( ChrList.free_count > 0 )
     {
@@ -405,7 +410,7 @@ bool_t ChrList_add_used( const CHR_REF by_reference ichr )
 
     if( !VALID_CHR_RANGE(ichr) ) return bfalse;
 
-#if defined(USE_DEBUG) && defined(DEBUG_CHR_LIST)
+#if defined(_DEBUG) && defined(DEBUG_CHR_LIST)
     if( ChrList_get_used_list_index(ichr) > 0 )
     {
         return bfalse;
@@ -418,7 +423,9 @@ bool_t ChrList_add_used( const CHR_REF by_reference ichr )
     if( ChrList.used_count < MAX_CHR )
     {
         ChrList.used_ref[ChrList.used_count] = ichr;
+
         ChrList.used_count++;
+        ChrList.update_guid++;
 
         ChrList.lst[ichr].obj_base.in_used_list = btrue;
 
@@ -449,6 +456,7 @@ bool_t ChrList_remove_used_index( int index )
 
     // shorten the list
     ChrList.used_count--;
+    ChrList.update_guid++;
 
     if( ChrList.used_count > 0 )
     {

@@ -390,8 +390,8 @@ struct s_chr
     // model info
     bool_t         is_overlay;                    ///< Is this an overlay? Track aitarget...
     Uint16         skin;                          ///< Character's skin
-    PRO_REF        iprofile;                      ///< Character's profile
-    PRO_REF        basemodel;                     ///< The true form
+    PRO_REF        profile_ref;                      ///< Character's profile
+    PRO_REF        basemodel_ref;                     ///< The true form
     Uint8          alpha_base;
     Uint8          light_base;
     chr_instance_t inst;                          ///< the render data

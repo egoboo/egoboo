@@ -90,7 +90,7 @@ void ui_endFrame();
 /// UI controls
 ui_buttonValues ui_doWidget( ui_Widget_t * pWidget );
 ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float x, float y, float width, float height );
-ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height );
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height, GLXvector3f image_tint );
 ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const char *text, Font * font, float x, float y, float width, float height );
 /// int  ui_doTextBox(ui_id_t id, const char *text, float x, float y, float width, float height);
 
@@ -111,8 +111,8 @@ ui_buttonValues  ui_buttonBehavior( ui_id_t id, float x, float y, float width, f
 ui_buttonValues  ui_WidgetBehavior( ui_Widget_t * pw );
 
 /// Drawing
-void ui_drawButton( ui_id_t id, float x, float y, float width, float height, GLfloat * pcolor );
-void ui_drawImage( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height );
+void ui_drawButton( ui_id_t id, float x, float y, float width, float height, GLXvector4f pcolor );
+void ui_drawImage( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height, GLXvector4f image_tint );
 void ui_drawTextBox( Font * font, const char *text, float x, float y, float width, float height, float spacing );
 
 /// virtual screen

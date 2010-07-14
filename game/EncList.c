@@ -215,7 +215,7 @@ bool_t EncList_free_one( const ENC_REF by_reference ienc )
     pbase = POBJ_GET_PBASE( penc );
     if( NULL == pbase ) return bfalse;
 
-#if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
     enc_log_script_time( ienc );
 #endif
 
@@ -263,6 +263,8 @@ size_t EncList_get_free()
     if ( EncList.free_count > 0 )
     {
         EncList.free_count--;
+        EncList.update_guid++;
+
         retval = EncList.free_ref[EncList.free_count];
 
         // completely remove it from the free list
@@ -316,7 +318,7 @@ bool_t EncList_add_free( const ENC_REF by_reference ienc )
 
     if( !VALID_ENC_RANGE(ienc) ) return bfalse;
 
-#if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
+#if defined(_DEBUG) && defined(DEBUG_ENC_LIST)
     if( EncList_get_free_list_index(ienc) > 0 )
     {
         return bfalse;
@@ -329,7 +331,9 @@ bool_t EncList_add_free( const ENC_REF by_reference ienc )
     if( EncList.free_count < MAX_ENC )
     {
         EncList.free_ref[EncList.free_count] = ienc;
+
         EncList.free_count++;
+        EncList.update_guid++;
 
         EncList.lst[ienc].obj_base.in_free_list = btrue;
 
@@ -360,6 +364,7 @@ bool_t EncList_remove_free_index( int index )
 
     // shorten the list
     EncList.free_count--;
+    EncList.update_guid++;
 
     if( EncList.free_count > 0 )
     {
@@ -406,7 +411,7 @@ bool_t EncList_add_used( const ENC_REF by_reference ienc )
 
     if( !VALID_ENC_RANGE(ienc) ) return bfalse;
 
-#if defined(USE_DEBUG) && defined(DEBUG_ENC_LIST)
+#if defined(_DEBUG) && defined(DEBUG_ENC_LIST)
     if( EncList_get_used_list_index(ienc) > 0 )
     {
         return bfalse;
@@ -419,7 +424,9 @@ bool_t EncList_add_used( const ENC_REF by_reference ienc )
     if( EncList.used_count < MAX_ENC )
     {
         EncList.used_ref[EncList.used_count] = ienc;
+
         EncList.used_count++;
+        EncList.update_guid++;
 
         EncList.lst[ienc].obj_base.in_used_list = btrue;
 
@@ -450,6 +457,7 @@ bool_t EncList_remove_used_index( int index )
 
     // shorten the list
     EncList.used_count--;
+    EncList.update_guid++;
 
     if( EncList.used_count > 0 )
     {

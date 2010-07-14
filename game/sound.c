@@ -928,11 +928,15 @@ bool_t LoopedList_free_one( size_t index )
 
     // swap the value with the one on the top of the stack
     SWAP( size_t, LoopedList.used_ref[cnt], LoopedList.used_ref[LoopedList.used_count-1] );
+
     LoopedList.used_count--;
+    LoopedList.update_guid++;
 
     // push the value onto the free stack
     LoopedList.free_ref[LoopedList.free_count] = index;
+
     LoopedList.free_count++;
+    LoopedList.update_guid++;
 
     // clear out the data
     ref = ( LOOP_REF )index;
@@ -951,11 +955,15 @@ size_t LoopedList_get_free()
     if ( !LoopedList_validate() ) return bfalse;
 
     LoopedList.free_count--;
+    LoopedList.update_guid++;
+
     index = LoopedList.free_ref[LoopedList.free_count];
 
     // push the value onto the used stack
     LoopedList.used_ref[LoopedList.used_count] = index;
+
     LoopedList.used_count++;
+    LoopedList.update_guid++;
 
     return index;
 }

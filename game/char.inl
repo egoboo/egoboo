@@ -181,9 +181,9 @@ INLINE PRO_REF chr_get_ipro( const CHR_REF by_reference ichr )
     if ( !DEFINED_CHR( ichr ) ) return ( PRO_REF )MAX_PROFILE;
     pchr = ChrList.lst + ichr;
 
-    if ( !LOADED_PRO( pchr->iprofile ) ) return ( PRO_REF )MAX_PROFILE;
+    if ( !LOADED_PRO( pchr->profile_ref ) ) return ( PRO_REF )MAX_PROFILE;
 
-    return pchr->iprofile;
+    return pchr->profile_ref;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ INLINE CAP_REF chr_get_icap( const CHR_REF by_reference ichr )
     if ( !DEFINED_CHR( ichr ) ) return ( CAP_REF )MAX_CAP;
     pchr = ChrList.lst + ichr;
 
-    return pro_get_icap( pchr->iprofile );
+    return pro_get_icap( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ INLINE EVE_REF chr_get_ieve( const CHR_REF by_reference ichr )
     if ( !DEFINED_CHR( ichr ) ) return ( EVE_REF )MAX_EVE;
     pchr = ChrList.lst + ichr;
 
-    return pro_get_ieve( pchr->iprofile );
+    return pro_get_ieve( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ INLINE PIP_REF chr_get_ipip( const CHR_REF by_reference ichr, int ipip )
     if ( !DEFINED_CHR( ichr ) ) return ( PIP_REF )MAX_PIP;
     pchr = ChrList.lst + ichr;
 
-    return pro_get_ipip( pchr->iprofile, ipip );
+    return pro_get_ipip( pchr->profile_ref, ipip );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -257,9 +257,9 @@ INLINE pro_t * chr_get_ppro( const CHR_REF by_reference ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
-    if ( !LOADED_PRO( pchr->iprofile ) ) return NULL;
+    if ( !LOADED_PRO( pchr->profile_ref ) ) return NULL;
 
-    return ProList.lst + pchr->iprofile;
+    return ProList.lst + pchr->profile_ref;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ INLINE cap_t * chr_get_pcap( const CHR_REF by_reference ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
-    return pro_get_pcap( pchr->iprofile );
+    return pro_get_pcap( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -281,7 +281,7 @@ INLINE eve_t * chr_get_peve( const CHR_REF by_reference ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
-    return pro_get_peve( pchr->iprofile );
+    return pro_get_peve( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -292,7 +292,7 @@ INLINE pip_t * chr_get_ppip( const CHR_REF by_reference ichr, int ipip )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
-    return pro_get_ppip( pchr->iprofile, ipip );
+    return pro_get_ppip( pchr->profile_ref, ipip );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ INLINE Mix_Chunk * chr_get_chunk( const CHR_REF by_reference ichr, int index )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
-    return pro_get_chunk( pchr->iprofile, index );
+    return pro_get_chunk( pchr->profile_ref, index );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ INLINE Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index )
 {
     if ( !DEFINED_PCHR( pchr ) ) return NULL;
 
-    return pro_get_chunk( pchr->iprofile, index );
+    return pro_get_chunk( pchr->profile_ref, index );
 }
 
 //--------------------------------------------------------------------------------------------

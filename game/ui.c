@@ -374,13 +374,13 @@ ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
 
 //--------------------------------------------------------------------------------------------
 // Drawing
-void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight, GLfloat * pcolor )
+void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight, GLXvector4f pcolor )
 {
     float x1, x2, y1, y2;
 
-    GLfloat color_1[4] = { 0.0f, 0.0f, 0.9f, 0.6f };
-    GLfloat color_2[4] = { 0.54f, 0.0f, 0.0f, 1.0f };
-    GLfloat color_3[4] = { 0.66f, 0.0f, 0.0f, 0.6f };
+    GLXvector4f color_1 = { 0.0f, 0.0f, 0.9f, 0.6f };
+    GLXvector4f color_2 = { 0.54f, 0.0f, 0.0f, 1.0f };
+    GLXvector4f color_3 = { 0.66f, 0.0f, 0.0f, 0.6f };
 
     // Draw the button
     GL_DEBUG( glDisable )( GL_TEXTURE_2D );
@@ -419,11 +419,16 @@ void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight,
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight )
+void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector4f image_tint )
 {
+    GLXvector4f tmp_tint = {1,1,1,1};
+
     float vw, vh;
     float tx, ty;
     float x1, x2, y1, y2;
+
+    // handle optional parameters
+    if( NULL == image_tint ) image_tint = tmp_tint;
 
     if ( img )
     {
@@ -447,6 +452,8 @@ void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vw
 
         // Draw the image
         oglx_texture_Bind( img );
+
+        GL_DEBUG( glColor4fv ) ( image_tint );
 
         GL_DEBUG( glBegin )( GL_QUADS );
         {
@@ -509,7 +516,7 @@ void ui_drawWidgetImage( ui_Widget_t * pw )
 {
     if ( NULL != pw && NULL != pw->img )
     {
-        ui_drawImage( pw->id, pw->img, pw->vx, pw->vy, pw->vwidth, pw->vheight );
+        ui_drawImage( pw->id, pw->img, pw->vx, pw->vy, pw->vwidth, pw->vheight, NULL );
     }
 }
 
@@ -580,7 +587,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight )
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector3f image_tint )
 {
     ui_buttonValues result;
 
@@ -591,8 +598,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture_t *img, float vx, flo
     ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
 
     // And then draw the image on top of it
-    GL_DEBUG( glColor3f )( 1, 1, 1 );
-    ui_drawImage( id, img, vx + 5, vy + 5, vwidth - 10, vheight - 10 );
+    ui_drawImage( id, img, vx + 5, vy + 5, vwidth - 10, vheight - 10, image_tint );
 
     return result;
 }
@@ -612,8 +618,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const
     ui_drawButton( id, vx, vy, vwidth, vheight, NULL );
 
     // Draw the image part
-    GL_DEBUG( glColor3f )( 1, 1, 1 );
-    ui_drawImage( id, img, vx + 5, vy + 5, 0, 0 );
+    ui_drawImage( id, img, vx + 5, vy + 5, 0, 0, NULL );
 
     // And draw the text next to the image
     // And then draw the text that goes on top of the button

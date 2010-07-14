@@ -25,6 +25,7 @@
 #include "egoboo_typedef.h"
 #include "egoboo_state_machine.h"
 
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // some basic data that all Egoboo objects should have
@@ -70,6 +71,8 @@ struct s_ego_object_base
     // things related to the updating of objects
     size_t         update_count;  ///< How many updates have been made to this object?
     size_t         frame_count;   ///< How many frames have been rendered?
+
+    unsigned       update_guid;   ///< a value that lets you know if an object bookmark is in synch with the object list
 };
 
 typedef struct s_ego_object_base ego_object_base_t;

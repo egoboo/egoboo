@@ -126,6 +126,8 @@ TX_REF TxTexture_get_free( const TX_REF by_reference itex )
         if ( TxTexture.free_count > 0 )
         {
             TxTexture.free_count--;
+            TxTexture.update_guid++;
+
             retval = TxTexture.free_ref[TxTexture.free_count];
         }
         else
@@ -148,6 +150,8 @@ TX_REF TxTexture_get_free( const TX_REF by_reference itex )
                 if ( TxTexture.free_count > 0 )
                 {
                     TxTexture.free_count--;
+                    TxTexture.update_guid++;
+
                     SWAP( size_t, TxTexture.free_ref[i], TxTexture.free_ref[TxTexture.free_count] );
                 }
                 break;
@@ -166,7 +170,7 @@ bool_t TxTexture_free_one( const TX_REF by_reference itex )
     // release the texture
     oglx_texture_Release( TxTexture.lst + itex );
 
-#if defined(USE_DEBUG)
+#if defined(_DEBUG)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures
@@ -185,7 +189,9 @@ bool_t TxTexture_free_one( const TX_REF by_reference itex )
     if ( itex >= TX_LAST )
     {
         TxTexture.free_ref[TxTexture.free_count] = REF_TO_INT( itex );
+
         TxTexture.free_count++;
+        TxTexture.update_guid++;
     }
 
     return btrue;

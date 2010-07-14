@@ -509,7 +509,7 @@ static void   get_code( int read );
 static void load_ai_codes_vfs( const char* loadname );
 
 // functions for debugging the scripts
-#if (DEBUG_SCRIPT_LEVEL > 2) && defined(USE_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 static void print_token();
 static void print_line();
 #else
@@ -887,7 +887,7 @@ void parse_line_by_line()
         read = load_one_line( read );
         if ( 0 == iLineSize ) continue;
 
-#if (DEBUG_SCRIPT_LEVEL > 2) && defined(USE_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
         print_line();
 #endif
 
@@ -1240,7 +1240,7 @@ void init_all_ai_scripts()
 }
 
 //--------------------------------------------------------------------------------------------
-#if (DEBUG_SCRIPT_LEVEL > 2) && defined(USE_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 void print_token()
 {
     printf( "------------\n", globalparsename, Token.iLine );
@@ -1252,7 +1252,7 @@ void print_token()
 #endif
 
 //--------------------------------------------------------------------------------------------
-#if (DEBUG_SCRIPT_LEVEL > 2) && defined(USE_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 void print_line()
 {
     int i;

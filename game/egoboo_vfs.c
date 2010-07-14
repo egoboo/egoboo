@@ -145,7 +145,7 @@ static const char * _vfs_mount_info_strip_path( const char * some_path );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void vfs_init( const char * argv0 )
+void vfs_init()
 {
     VFS_PATH tmp_path;
 

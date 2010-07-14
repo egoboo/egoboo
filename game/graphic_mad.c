@@ -437,7 +437,7 @@ bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, U
         retval = render_one_mad_tex( character, tint, bits );
     }
 
-#if defined(USE_DEBUG) && defined(DEBUG_CHR_BBOX)
+#if defined(_DEBUG) && defined(DEBUG_CHR_BBOX)
     // don't draw the debug stuff for reflections
     if ( 0 == ( bits & CHR_REFLECT ) )
     {
@@ -583,8 +583,8 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_2D );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
@@ -594,7 +594,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
         {
-            glVertex3fv( pchr->inst.vrt_lst[cnt].pos );
+            GL_DEBUG( glVertex3fv ) ( pchr->inst.vrt_lst[cnt].pos );
         }
     }
     GL_DEBUG_END();
@@ -602,8 +602,8 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -616,8 +616,8 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_2D );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
@@ -628,8 +628,8 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -671,16 +671,16 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
                 dst.y = src.y + 3 * diff.y;
                 dst.z = src.z + 3 * diff.z;
 
-                glColor4fv( col_ary[cnt-1] );
+                GL_DEBUG( glColor4fv ) ( col_ary[cnt-1] );
 
-                glVertex3fv( src.v );
-                glVertex3fv( dst.v );
+                GL_DEBUG( glVertex3fv ) ( src.v );
+                GL_DEBUG( glVertex3fv ) ( dst.v );
             }
         }
         GL_DEBUG_END();
     }
 
-    glColor4f( 1, 1, 1, 1 );
+    GL_DEBUG( glColor4f ) ( 1, 1, 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -695,7 +695,7 @@ void chr_draw_attached_grip( chr_t * pchr )
     if ( !INGAME_CHR( pchr->attachedto ) ) return;
     pholder = ChrList.lst + pchr->attachedto;
 
-    pholder_cap = pro_get_pcap( pholder->iprofile );
+    pholder_cap = pro_get_pcap( pholder->profile_ref );
     if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
@@ -715,7 +715,7 @@ void chr_draw_grips( chr_t * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
@@ -726,8 +726,8 @@ void chr_draw_grips( chr_t * pchr )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) glDisable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glDisable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_2D );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
@@ -748,8 +748,8 @@ void chr_draw_grips( chr_t * pchr )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    if ( texture_1d_enabled ) glEnable( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) glEnable( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------

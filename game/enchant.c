@@ -1191,6 +1191,15 @@ enc_t * enc_run_config( enc_t * penc )
             break;
     }
 
+    if( NULL == penc )
+    {
+        pbase->update_guid = INVALID_UPDATE_GUID;
+    }
+    else if( ego_object_active == pbase->state )
+    {
+        pbase->update_guid = EncList.update_guid;
+    }
+
     return penc;
 }
 
@@ -1566,7 +1575,7 @@ void enchant_remove_set( const ENC_REF by_reference ienc, int value_idx )
 
         case SETMORPH:
             // Need special handler for when this is removed
-            change_character( character, ptarget->basemodel, penc->setsave[value_idx], ENC_LEAVE_ALL );
+            change_character( character, ptarget->basemodel_ref, penc->setsave[value_idx], ENC_LEAVE_ALL );
             break;
 
         case SETCHANNEL:

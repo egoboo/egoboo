@@ -187,7 +187,9 @@ void TxReqList_ctor()
 
         // push the characters onto the free stack
         TxReqList.free_ref[TxReqList.free_count] = TxReqList.free_count;
+
         TxReqList.free_count++;
+        TxReqList.update_guid++;
     }
 }
 
@@ -221,6 +223,8 @@ size_t TxReqList_get_free( int type )
     if ( TxReqList.free_count > 0 )
     {
         TxReqList.free_count--;
+        TxReqList.update_guid++;
+
         retval = TxReqList.free_ref[TxReqList.free_count];
     }
 
@@ -246,7 +250,7 @@ bool_t TxReqList_free_one( int ireq )
     // destruct the request
     tx_request_dtor( preq );
 
-#if defined(USE_DEBUG)
+#if defined(_DEBUG)
     {
         int cnt;
         // determine whether this character is already in the list of free textures
@@ -263,7 +267,9 @@ bool_t TxReqList_free_one( int ireq )
     if ( TxReqList.free_count < MAX_TX_TEXTURE_REQ )
     {
         TxReqList.free_ref[TxReqList.free_count] = ireq;
+
         TxReqList.free_count++;
+        TxReqList.update_guid++;
 
         retval = btrue;
     }

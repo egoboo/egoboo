@@ -617,8 +617,8 @@ int doMainMenu( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h );
-                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h, NULL );
+                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h, NULL );
             }
 
             // "Copyright" text
@@ -642,8 +642,8 @@ int doMainMenu( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h );
-                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h, NULL );
+                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h, NULL );
             }
 
             // "Copyright" text
@@ -684,8 +684,8 @@ int doMainMenu( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h );
-                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h, NULL );
+                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h, NULL );
             }
 
             // "Copyright" text
@@ -752,7 +752,7 @@ int doSinglePlayerMenu( float deltaTime )
             // Draw the background image
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, GFX_WIDTH  - background.imgW, 0, 0, 0 );
+                ui_drawImage( 0, &background, GFX_WIDTH  - background.imgW, 0, 0, 0, NULL );
             }
 
             // "Copyright" text
@@ -770,7 +770,7 @@ int doSinglePlayerMenu( float deltaTime )
             // Draw the background image
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, GFX_WIDTH  - background.imgW, 0, 0, 0 );
+                ui_drawImage( 0, &background, GFX_WIDTH  - background.imgW, 0, 0, 0, NULL );
             }
 
             // "Copyright" text
@@ -803,7 +803,7 @@ int doSinglePlayerMenu( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, GFX_WIDTH  - background.imgW, 0, 0, 0 );
+                ui_drawImage( 0, &background, GFX_WIDTH  - background.imgW, 0, 0, 0, NULL);
             }
 
             // "Copyright" text
@@ -836,6 +836,8 @@ int doSinglePlayerMenu( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+static int cmp_mod_ref_mult = 1;
+
 int cmp_mod_ref(const void * vref1, const void * vref2)
 {
     /// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
@@ -872,7 +874,15 @@ int cmp_mod_ref(const void * vref1, const void * vref2)
         return -1;
     }
 
-    retval = strncmp(mnu_ModList.lst[*pref1].base.rank, mnu_ModList.lst[*pref2].base.rank, RANKSIZE );
+    // if they are beaten, float them to the end of the list
+    retval = (int)mnu_ModList.lst[*pref1].base.beaten - (int)mnu_ModList.lst[*pref2].base.beaten;
+
+    if( 0 == retval )
+    {
+        // I want to uot the "newest" == "hardest" modules at the front, but this should be opposite for
+        // beginner modules
+        retval = cmp_mod_ref_mult * strncmp(mnu_ModList.lst[*pref1].base.rank, mnu_ModList.lst[*pref2].base.rank, RANKSIZE );
+    }
 
     if( 0 == retval )
     {
@@ -975,11 +985,13 @@ int doChooseModule( float deltaTime )
                 }
             }
 
-            // sort the modules by difficulty
+            // sort the modules by difficulty. easiest to hardeest for starting a new character
+            // hardest to easiest for loading a module
+            cmp_mod_ref_mult = start_new_player ? 1 : -1;
             qsort( validModules, numValidModules, sizeof(MOD_REF), cmp_mod_ref );
 
             // load background depending on current filter
-            if( start_new_player)
+            if( start_new_player )
             {
                 ego_texture_load_vfs( &background, "mp_data/menu/menu_advent", TRANSCOLOR );
             }
@@ -1011,211 +1023,221 @@ int doChooseModule( float deltaTime )
             // fall through for now...
 
         case MM_Running:
-
-            if( !module_list_valid )
             {
-                mnu_load_all_module_info();
-                mnu_load_all_module_images_vfs();
-            }
+                GLXvector4f beat_tint = { 0.5f, 0.25f, 0.25f, 1.0f };
+                GLXvector4f normal_tint = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-            // Draw the background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-            x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
-            y = GFX_HEIGHT - background.imgH;
-
-            if ( mnu_draw_background )
-            {
-                ui_drawImage( 0, &background, x, y, 0, 0 );
-            }
-
-            // use the mouse wheel to scan the modules
-            if ( cursor_wheel_event_pending() )
-            {
-                if ( cursor.z > 0 )
+                if( !module_list_valid )
                 {
-                    startIndex++;
-                }
-                else if ( cursor.z < 0 )
-                {
-                    startIndex--;
+                    mnu_load_all_module_info();
+                    mnu_load_all_module_images_vfs();
                 }
 
-                cursor_finish_wheel_event();
-            }
-
-            //Allow arrow keys to scroll as well
-            if ( SDLKEYDOWN( SDLK_RIGHT ) )
-            {
-                if ( keycooldown == 0 )
-                {
-                    startIndex++;
-                    keycooldown = 5;
-                }
-            }
-            else if ( SDLKEYDOWN( SDLK_LEFT ) )
-            {
-                if ( keycooldown == 0 )
-                {
-                    startIndex--;
-                    keycooldown = 5;
-                }
-            }
-            else keycooldown = 0;
-            if ( keycooldown > 0 ) keycooldown--;
-
-            // Draw the arrows to pick modules
-            if ( numValidModules > 3 )
-            {
-                if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
-                {
-                    startIndex--;
-                }
-                if ( BUTTON_UP == ui_doButton( 1052, "->", NULL, moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
-                {
-                    startIndex++;
-                }
-            }
-
-            // restrict the range to valid values
-            startIndex = CLIP( startIndex, 0, numValidModules - 3 );
-
-            // Draw buttons for the modules that can be selected
-            x = 93;
-            y = 20;
-            for ( i = startIndex; i < MIN(startIndex + 3, numValidModules); i++ )
-            {
-                // fix the menu images in case one or more of them are undefined
-                MOD_REF          imod       = validModules[i];
-                TX_REF           tex_offset = mnu_ModList.lst[imod].tex_index;
-                oglx_texture_t * ptex       = TxTitleImage_get_ptr( tex_offset );
-
-                if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
-                {
-                    selectedModule = i;
-                }
-
-                x += 138 + 20;  // Width of the button, and the spacing between buttons
-            }
-
-            // Draw an empty button as the backdrop for the module text
-            ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
-
-            // Draw the text description of the selected module
-            if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0 )
-            {
-                char    buffer[1024]  = EMPTY_CSTR;
-                const char * rank_string, * name_string;
-                char  * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
-                MOD_REF imodule = validModules[selectedModule];
-
-                mod_file_t * pmod = &(mnu_ModList.lst[imodule].base);
-
+                // Draw the background
                 GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
+                y = GFX_HEIGHT - background.imgH;
 
-                name_string = "Unnamed";
-                if( CSTR_END != pmod->longname[0] )
+                if ( mnu_draw_background )
                 {
-                    name_string = pmod->longname;
+                    ui_drawImage( 0, &background, x, y, 0, 0, NULL );
                 }
-                carat += snprintf( carat, carat_end - carat - 1, "%s\n", name_string );
 
-                rank_string = "Unranked";
-                if( CSTR_END != pmod->rank[0] )
+                // use the mouse wheel to scan the modules
+                if ( cursor_wheel_event_pending() )
                 {
-                    rank_string = pmod->rank;
-                }
-                carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", rank_string );
-
-                if ( pmod->maxplayers > 1 )
-                {
-                    if ( pmod->minplayers == pmod->maxplayers )
+                    if ( cursor.z > 0 )
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "%d Players\n", pmod->minplayers );
+                        startIndex++;
+                    }
+                    else if ( cursor.z < 0 )
+                    {
+                        startIndex--;
+                    }
+
+                    cursor_finish_wheel_event();
+                }
+
+                //Allow arrow keys to scroll as well
+                if ( SDLKEYDOWN( SDLK_RIGHT ) )
+                {
+                    if ( keycooldown == 0 )
+                    {
+                        startIndex++;
+                        keycooldown = 5;
+                    }
+                }
+                else if ( SDLKEYDOWN( SDLK_LEFT ) )
+                {
+                    if ( keycooldown == 0 )
+                    {
+                        startIndex--;
+                        keycooldown = 5;
+                    }
+                }
+                else keycooldown = 0;
+                if ( keycooldown > 0 ) keycooldown--;
+
+                // Draw the arrows to pick modules
+                if ( numValidModules > 3 )
+                {
+                    if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
+                    {
+                        startIndex--;
+                    }
+                    if ( BUTTON_UP == ui_doButton( 1052, "->", NULL, moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
+                    {
+                        startIndex++;
+                    }
+                }
+
+                // restrict the range to valid values
+                startIndex = CLIP( startIndex, 0, numValidModules - 3 );
+
+                // Draw buttons for the modules that can be selected
+                x = 93;
+                y = 20;
+                for ( i = startIndex; i < MIN(startIndex + 3, numValidModules); i++ )
+                {
+                    // fix the menu images in case one or more of them are undefined
+                    MOD_REF          imod       = validModules[i];
+                    TX_REF           tex_offset = mnu_ModList.lst[imod].tex_index;
+                    oglx_texture_t * ptex       = TxTitleImage_get_ptr( tex_offset );
+
+                    GLfloat * img_tint = normal_tint;
+
+                    if( mnu_ModList.lst[imod].base.beaten )
+                    {
+                        img_tint = beat_tint;
+                    }
+
+                    if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138, img_tint ) )
+                    {
+                        selectedModule = i;
+                    }
+
+                    x += 138 + 20;  // Width of the button, and the spacing between buttons
+                }
+
+                // Draw an empty button as the backdrop for the module text
+                ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
+
+                // Draw the text description of the selected module
+                if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0 )
+                {
+                    char    buffer[1024]  = EMPTY_CSTR;
+                    const char * rank_string, * name_string;
+                    char  * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
+                    MOD_REF imodule = validModules[selectedModule];
+
+                    mod_file_t * pmod = &(mnu_ModList.lst[imodule].base);
+
+                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+
+                    name_string = "Unnamed";
+                    if( CSTR_END != pmod->longname[0] )
+                    {
+                        name_string = pmod->longname;
+                    }
+                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", name_string );
+
+                    rank_string = "Unranked";
+                    if( CSTR_END != pmod->rank[0] )
+                    {
+                        rank_string = pmod->rank;
+                    }
+                    carat += snprintf( carat, carat_end - carat - 1, "Difficulty: %s\n", rank_string );
+
+                    if ( pmod->maxplayers > 1 )
+                    {
+                        if ( pmod->minplayers == pmod->maxplayers )
+                        {
+                            carat += snprintf( carat, carat_end - carat - 1, "%d Players\n", pmod->minplayers );
+                        }
+                        else
+                        {
+                            carat += snprintf( carat, carat_end - carat - 1, "%d - %d Players\n", pmod->minplayers, pmod->maxplayers );
+                        }
                     }
                     else
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "%d - %d Players\n", pmod->minplayers, pmod->maxplayers );
+                        if ( 0 != pmod->importamount )
+                        {
+                            carat += snprintf( carat, carat_end - carat - 1, "Single Player\n" );
+                        }
+                        else
+                        {
+                            carat += snprintf( carat, carat_end - carat - 1, "Starter Module\n" );
+                        }
                     }
-                }
-                else
-                {
-                    if ( 0 != pmod->importamount )
+                    carat += snprintf( carat, carat_end - carat - 1, " \n" );
+
+                    for ( i = 0; i < SUMMARYLINES; i++ )
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "Single Player\n" );
+                        carat += snprintf( carat, carat_end - carat - 1, "%s\n", pmod->summary[i] );
                     }
-                    else
+
+                    // Draw a text box
+                    ui_drawTextBox( menuFont, buffer, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, 20 );
+                }
+
+                // And draw the next & back buttons
+                if ( selectedModule > -1 )
+                {
+                    if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
                     {
-                        carat += snprintf( carat, carat_end - carat - 1, "Starter Module\n" );
+                        // go to the next menu with this module selected
+                        selectedModule = REF_TO_INT( validModules[selectedModule] );
+                        menuState = MM_Leaving;
                     }
                 }
-                carat += snprintf( carat, carat_end - carat - 1, " \n" );
 
-                for ( i = 0; i < SUMMARYLINES; i++ )
+                if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
                 {
-                    carat += snprintf( carat, carat_end - carat - 1, "%s\n", pmod->summary[i] );
-                }
-
-                // Draw a text box
-                ui_drawTextBox( menuFont, buffer, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, 20 );
-            }
-
-            // And draw the next & back buttons
-            if ( selectedModule > -1 )
-            {
-                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
-                {
-                    // go to the next menu with this module selected
-                    selectedModule = REF_TO_INT( validModules[selectedModule] );
+                    // Signal doMenu to go back to the previous menu
+                    selectedModule = -1;
                     menuState = MM_Leaving;
                 }
-            }
 
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
-            {
-                // Signal doMenu to go back to the previous menu
-                selectedModule = -1;
-                menuState = MM_Leaving;
-            }
-
-            //Do the module filter button
-            if ( !start_new_player )
-            {
-                bool_t click_button;
-
-                // unly display the filter name
-                ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 );
-
-                // use the ">" button to change since we are already using arrows to indicate "spin control"-like widgets
-                click_button = (BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 ) );
-                
-                if( click_button )
+                //Do the module filter button
+                if ( !start_new_player )
                 {
-                    //Reload the modules with the new filter
-                    menuState = MM_Entering;
+                    bool_t click_button;
 
-                    //Swap to the next filter
-                    mnu_moduleFilter = CLIP(mnu_moduleFilter, FILTER_NORMAL_BEGIN, FILTER_NORMAL_END);
+                    // unly display the filter name
+                    ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 );
 
-                    mnu_moduleFilter++;
+                    // use the ">" button to change since we are already using arrows to indicate "spin control"-like widgets
+                    click_button = (BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 ) );
 
-                    if( mnu_moduleFilter > FILTER_NORMAL_END ) mnu_moduleFilter = FILTER_NORMAL_BEGIN;
-
-                    switch( mnu_moduleFilter )
+                    if( click_button )
                     {
-                                case FILTER_MAIN:    filterText = "Main Quest";       break;
-                                case FILTER_SIDE:    filterText = "Sidequests";       break;
-                                case FILTER_TOWN:    filterText = "Towns and Cities"; break;
-                                case FILTER_FUN:     filterText = "Fun Modules";      break;
-                                case FILTER_STARTER: filterText = "Starter Modules";  break;
-                       default: case FILTER_OFF:     filterText = "All Modules";      break;
+                        //Reload the modules with the new filter
+                        menuState = MM_Entering;
+
+                        //Swap to the next filter
+                        mnu_moduleFilter = CLIP(mnu_moduleFilter, FILTER_NORMAL_BEGIN, FILTER_NORMAL_END);
+
+                        mnu_moduleFilter++;
+
+                        if( mnu_moduleFilter > FILTER_NORMAL_END ) mnu_moduleFilter = FILTER_NORMAL_BEGIN;
+
+                        switch( mnu_moduleFilter )
+                        {
+                        case FILTER_MAIN:    filterText = "Main Quest";       break;
+                        case FILTER_SIDE:    filterText = "Sidequests";       break;
+                        case FILTER_TOWN:    filterText = "Towns and Cities"; break;
+                        case FILTER_FUN:     filterText = "Fun Modules";      break;
+                        case FILTER_STARTER: filterText = "Starter Modules";  break;
+                        default: case FILTER_OFF:     filterText = "All Modules";      break;
+                        }
                     }
                 }
+
+                // the tool-tip text
+                GL_DEBUG( glColor4f ) ( 1, 1, 1, 1 );
+                ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
             }
-
-            // the tool-tip text
-            glColor4f( 1, 1, 1, 1 );
-            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
-
             break;
 
         case MM_Leaving:
@@ -1609,7 +1631,7 @@ int doChoosePlayer( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, x, y, 0, 0 );
+                ui_drawImage( 0, &background, x, y, 0, 0, NULL );
             }
 
             // use the mouse wheel to scan the characters
@@ -1908,7 +1930,7 @@ int doOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             mnu_SlidyButton_draw_all();
@@ -1928,7 +1950,7 @@ int doOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             // "Options" text
@@ -1974,7 +1996,7 @@ int doOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             // Buttons
@@ -2447,7 +2469,7 @@ int doGameOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0, NULL );
             }
 
             // Load the current settings
@@ -2521,7 +2543,7 @@ int doGameOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0, NULL );
             }
 
             ui_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
@@ -2696,7 +2718,7 @@ int doGameOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  / 2 ) + ( background.imgW / 2 ), GFX_HEIGHT - background.imgH, 0, 0, NULL );
             }
 
             // Fall trough
@@ -2768,7 +2790,7 @@ int doAudioOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             // Load the current settings
@@ -2801,7 +2823,7 @@ int doAudioOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             ui_drawTextBox( menuFont, "Sound:", buttonLeft, GFX_HEIGHT - 270, 0, 0, 20 );
@@ -2924,7 +2946,7 @@ int doAudioOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             // Fall trough
@@ -3169,7 +3191,7 @@ int doVideoOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             // Load all the current video settings
@@ -3311,7 +3333,7 @@ int doVideoOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             // Antialiasing Button
@@ -3708,7 +3730,7 @@ int doVideoOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( GFX_WIDTH  - background.imgW ), 0, 0, 0, NULL );
             }
 
             // Fall trough

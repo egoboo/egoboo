@@ -266,6 +266,8 @@ size_t PrtList_get_free()
     if ( PrtList.free_count > 0 )
     {
         PrtList.free_count--;
+        PrtList.update_guid++;
+
         retval = PrtList.free_ref[PrtList.free_count];
 
         // completely remove it from the free list
@@ -463,7 +465,7 @@ bool_t PrtList_add_free( const PRT_REF by_reference iprt )
 
     if( !VALID_PRT_RANGE(iprt) ) return bfalse;
 
-#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
+#if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
     if( PrtList_get_free_list_index(iprt) > 0 )
     {
         return bfalse;
@@ -476,7 +478,9 @@ bool_t PrtList_add_free( const PRT_REF by_reference iprt )
     if( PrtList.free_count < maxparticles )
     {
         PrtList.free_ref[PrtList.free_count] = iprt;
+
         PrtList.free_count++;
+        PrtList.update_guid++;
 
         PrtList.lst[iprt].obj_base.in_free_list = btrue;
 
@@ -507,6 +511,7 @@ bool_t PrtList_remove_free_index( int index )
 
     // shorten the list
     PrtList.free_count--;
+    PrtList.update_guid++;
 
     if( PrtList.free_count > 0 )
     {
@@ -553,7 +558,7 @@ bool_t PrtList_add_used( const PRT_REF by_reference iprt )
 
     if( !VALID_PRT_RANGE(iprt) ) return bfalse;
 
-#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
+#if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
     if( PrtList_get_used_list_index(iprt) > 0 )
     {
         return bfalse;
@@ -566,7 +571,9 @@ bool_t PrtList_add_used( const PRT_REF by_reference iprt )
     if( PrtList.used_count < maxparticles )
     {
         PrtList.used_ref[PrtList.used_count] = iprt;
+
         PrtList.used_count++;
+        PrtList.update_guid++;
 
         PrtList.lst[iprt].obj_base.in_used_list = btrue;
 
@@ -597,6 +604,7 @@ bool_t PrtList_remove_used_index( int index )
 
     // shorten the list
     PrtList.used_count--;
+    PrtList.update_guid++;
 
     if( PrtList.used_count > 0 )
     {

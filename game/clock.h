@@ -65,7 +65,7 @@ EGO_TIME getCurrentTime();                          ///< Returns a structure con
 #define PROFILE_RESET(XX)          clkcount_##XX = 0.0; clktime_##XX = 0.0;
 #define PROFILE_FREE(XX)           clk_destroy(&(clkstate_##XX));
 
-#if defined(DEBUG_PROFILE) && defined(USE_DEBUG)
+#if defined(DEBUG_PROFILE) && defined(_DEBUG)
 
 #    define PROFILE_QUERY_STRUCT(PTR)   ( (double)(PTR)->_clktime / (double)(PTR)->_clkcount )
 #    define PROFILE_BEGIN_STRUCT(PTR)  clk_frameStep((PTR)->_clkstate);

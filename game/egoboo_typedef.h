@@ -236,14 +236,17 @@ typedef Uint16 REF_T;
 
 #define ACCESS_TYPE_NONE
 
+#define INVALID_UPDATE_GUID ((unsigned)(~((unsigned)0)))
+
 #define C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
     struct s_c_list__##TYPE__##NAME           \
-    {                                       \
-        int    used_count;                  \
-        int    free_count;                  \
-        size_t used_ref[COUNT];             \
-        size_t free_ref[COUNT];             \
-        C_DECLARE_T_ARY(TYPE, lst, COUNT);  \
+    {                                         \
+        unsigned update_guid;                 \
+        int      used_count;                  \
+        int      free_count;                  \
+        size_t   used_ref[COUNT];             \
+        size_t   free_ref[COUNT];             \
+        C_DECLARE_T_ARY(TYPE, lst, COUNT);    \
     }
 
 #define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
@@ -252,9 +255,9 @@ typedef Uint16 REF_T;
 
 #define C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT) \
     C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
-    static struct s_c_list__##TYPE__##NAME NAME = {0, 0}
+    static struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
-#define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) ACCESS struct s_c_list__##TYPE__##NAME NAME = {0, 0}
+#define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -262,8 +265,9 @@ typedef Uint16 REF_T;
 
 #define C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
     struct s_c_stack__##TYPE__##NAME           \
-    {                                        \
-        int  count;                          \
+    {                                          \
+        unsigned update_guid;                  \
+        int  count;                            \
         C_DECLARE_T_ARY(TYPE, lst, COUNT);     \
     }
 
@@ -275,7 +279,7 @@ typedef Uint16 REF_T;
     C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
     static struct s_c_stack__##TYPE__##NAME NAME = {0}
 
-#define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) ACCESS struct s_c_stack__##TYPE__##NAME NAME = {0}
+#define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) ACCESS struct s_c_stack__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

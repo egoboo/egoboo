@@ -100,7 +100,8 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
-				CompileAs="0"/>
+				CompileAs="0"
+				UndefinePreprocessorDefinitions="_DEBUG"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

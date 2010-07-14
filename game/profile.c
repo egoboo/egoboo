@@ -261,6 +261,8 @@ size_t ProList_pop_free( int idx )
     if ( ProList.free_count > 0 )
     {
         ProList.free_count--;
+        ProList.update_guid++;
+
         retval = ProList.free_ref[ProList.free_count];
     }
 
@@ -274,7 +276,7 @@ bool_t ProList_push_free( const PRO_REF by_reference iobj )
 
     bool_t retval;
 
-#if defined(USE_DEBUG)
+#if defined(_DEBUG)
     // determine whether this character is already in the list of free objects
     // that is an error
     if ( -1 != ProList_search_free( iobj ) ) return bfalse;
@@ -285,7 +287,9 @@ bool_t ProList_push_free( const PRO_REF by_reference iobj )
     if ( ProList.free_count < MAX_PROFILE )
     {
         ProList.free_ref[ProList.free_count] = REF_TO_INT( iobj );
+
         ProList.free_count++;
+        ProList.update_guid++;
 
         retval = btrue;
     }

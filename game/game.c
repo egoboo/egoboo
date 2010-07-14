@@ -771,7 +771,7 @@ int update_game()
     if ( update_wld < true_update )
     {
         /// @todo claforte@> Put that back in place once networking is functional (Jan 6th 2001)
-        for ( tnc = 0; update_wld < true_update && tnc < TARGET_UPS ; tnc++ )
+        for ( tnc = 0; update_wld < true_update && tnc < 2 * TARGET_UPS ; tnc++ )
         {
             PROFILE_BEGIN( game_single_update );
             {
@@ -1472,8 +1472,8 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_
         }
         else
         {
-            bool_t match_idsz = ( target_idsz == pro_get_idsz( ptst->iprofile, IDSZ_PARENT ) ) ||
-                                ( target_idsz == pro_get_idsz( ptst->iprofile, IDSZ_TYPE ) );
+            bool_t match_idsz = ( target_idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
+                                ( target_idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
 
             if ( match_idsz )
             {
@@ -1595,7 +1595,7 @@ void do_damage_tiles()
         if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
-        pcap = pro_get_pcap( pchr->iprofile );
+        pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL == pcap ) continue;
 
         // if the object is not really in the game, do nothing
@@ -2117,7 +2117,7 @@ void check_stats()
         {
             Uint32 xpgain;
             chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
-            cap_t * pcap = pro_get_pcap( pchr->iprofile );
+            cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
             //Give 10% of XP needed for next level
             xpgain = 0.1f * ( pcap->experience_forlevel[MIN( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
@@ -2141,7 +2141,7 @@ void check_stats()
         {
             cap_t * pcap;
             chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
-            pcap = pro_get_pcap( pchr->iprofile );
+            pcap = pro_get_pcap( pchr->profile_ref );
 
             //Heal 1 life
             heal_character( pchr->ai.index, pchr->ai.index, 256, btrue );
@@ -2220,7 +2220,7 @@ void show_stat( int statindex )
             cap_t * pcap;
             chr_t * pchr = ChrList.lst + character;
 
-            pcap = pro_get_pcap( pchr->iprofile );
+            pcap = pro_get_pcap( pchr->profile_ref );
 
             // Name
             debug_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
@@ -2789,9 +2789,9 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             local_index = -1;
             for ( tnc = 0; tnc < local_import_count; tnc++ )
             {
-                if ( pobject->iprofile <= import_data.max_slot && pobject->iprofile < MAX_PROFILE )
+                if ( pobject->profile_ref <= import_data.max_slot && pobject->profile_ref < MAX_PROFILE )
                 {
-                    int islot = REF_TO_INT( pobject->iprofile );
+                    int islot = REF_TO_INT( pobject->profile_ref );
 
                     if ( import_data.slot_lst[islot] == local_import_slot[tnc] )
                     {
@@ -3103,7 +3103,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList.lst + character;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
     amount = pcap->attachedprt_amount;
 
@@ -3115,7 +3115,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
+        particle = spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
         if ( ALLOCATED_PRT( particle ) )
         {
             prt_t * pprt = PrtList.lst + particle;

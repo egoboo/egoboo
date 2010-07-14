@@ -94,7 +94,7 @@ void scripting_system_end()
     {
         PROFILE_FREE( script_function );
 
-#if (DEBUG_SCRIPT_LEVEL > 1 ) && defined(DEBUG_PROFILE) && defined(USE_DEBUG)
+#if (DEBUG_SCRIPT_LEVEL > 1 ) && defined(DEBUG_PROFILE) && defined(_DEBUG)
         {
             FILE * ftmp = fopen( vfs_resolveWriteFilename( "/debug/script_function_timing.txt" ), "a+" );
 
@@ -151,14 +151,14 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     PROFILE_BEGIN_STRUCT( pself );
 
     // debug a certain script
-    // debug_scripts = ( pself->index == 385 && pchr->iprofile == 76 );
+    // debug_scripts = ( pself->index == 385 && pchr->profile_ref == 76 );
 
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;
 
     // Make life easier
     script_error_classname = "UNKNOWN";
-    script_error_model     = pchr->iprofile;
+    script_error_model     = pchr->profile_ref;
     script_error_index     = ( Uint16 )( ~0 );
     script_error_name      = "UNKNOWN";
     if ( script_error_model < MAX_PROFILE )

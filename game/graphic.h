@@ -184,10 +184,10 @@ DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 //--------------------------------------------------------------------------------------------
 /// camera optimization
 
-#define ROTMESHTOPSIDE                  55          ///< For figuring out what to draw
-#define ROTMESHBOTTOMSIDE               65
-#define ROTMESHUP                       40
-#define ROTMESHDOWN                     60
+#define ROTMESHTOPSIDE                  50          ///< For figuring out what to draw
+#define ROTMESHBOTTOMSIDE               50
+#define ROTMESHUP                       30
+#define ROTMESHDOWN                     30
 
 extern int rotmeshtopside;                                 ///< The ones that get used
 extern int rotmeshbottomside;

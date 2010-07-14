@@ -540,7 +540,7 @@ void free_one_character_in_game( const CHR_REF by_reference character )
     if ( !DEFINED_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
     // Remove from stat list
@@ -1375,7 +1375,7 @@ bool_t inventory_add_item( const CHR_REF by_reference item, const CHR_REF by_ref
     // don't allow sub-inventories
     if ( pitem->pack.is_packed || pitem->isequipped ) return bfalse;
 
-    pitem_cap = pro_get_pcap( pitem->iprofile );
+    pitem_cap = pro_get_pcap( pitem->profile_ref );
     if ( NULL == pitem_cap ) return bfalse;
 
     if ( !INGAME_CHR( character ) ) return bfalse;
@@ -1554,7 +1554,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF by_reference item, const CHR_REF by_
 
                 // you can still stack something even if the profiles don't match exactly,
                 // but they have to have all the same IDSZ properties
-                if ( found && ( pstack->iprofile != pitem->iprofile ) )
+                if ( found && ( pstack->profile_ref != pitem->profile_ref ) )
                 {
                     for ( id = 0; id < IDSZ_COUNT && found; id++ )
                     {
@@ -2016,7 +2016,7 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
     // Do we have a matrix???
     if ( chr_matrix_valid( pchr_a ) )
     {
-        // Transform the weapon grip_off from pchr_a->iprofile to world space
+        // Transform the weapon grip_off from pchr_a->profile_ref to world space
         frame_nxt = pchr_a->inst.frame_nxt;
         vertex    = pchr_a->inst.vrt_count - grip_off;
 
@@ -2278,7 +2278,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        ithrown = spawn_one_character( pchr->pos, pweapon->iprofile, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
+        ithrown = spawn_one_character( pchr->pos, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
         if ( INGAME_CHR( ithrown ) )
         {
             chr_t * pthrown = ChrList.lst + ithrown;
@@ -2321,7 +2321,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->iprofile, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
                 if ( ALLOCATED_PRT( iparticle ) )
                 {
@@ -3025,7 +3025,7 @@ bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF b
     if ( INVALID_CSTR( szSaveName ) && !DEFINED_CHR( character ) ) return bfalse;
     pchr = ChrList.lst + character;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return bfalse;
 
     // load up the temporary cap
@@ -3271,7 +3271,7 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
     //No need to continue is there?
     if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
     killer_team = chr_get_iteam( killer );
@@ -3380,7 +3380,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
     if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList.lst + character;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
 
     // determine some optional behavior
@@ -3495,7 +3495,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                     {
                         if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && damagetype < DAMAGE_HOLY ) )
                         {
-                            spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->iprofile, pcap->blud_pip,
+                            spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_pip,
                                 ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
                         }
                     }
@@ -3752,8 +3752,8 @@ chr_t * chr_config_do_init( chr_t * pchr )
     pchr->missilehandler = ichr;
 
     // Set up model stuff
-    pchr->iprofile  = pchr->spawn_data.profile;
-    pchr->basemodel = pchr->spawn_data.profile;
+    pchr->profile_ref   = pchr->spawn_data.profile;
+    pchr->basemodel_ref = pchr->spawn_data.profile;
 
     // Kurse state
     if ( pcap->isitem )
@@ -3767,7 +3767,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // AI stuff
-    ai_state_spawn( &( pchr->ai ), ichr, pchr->iprofile, TeamStack.lst[loc_team].morale );
+    ai_state_spawn( &( pchr->ai ), ichr, pchr->profile_ref, TeamStack.lst[loc_team].morale );
 
     // Team stuff
     pchr->team     = loc_team;
@@ -3872,7 +3872,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // Particle attachments
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
-        spawn_one_particle( pchr->pos, 0, pchr->iprofile, pcap->attachedprt_pip,
+        spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip,
             ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
     }
 
@@ -3918,7 +3918,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
 
-#if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
+#if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     if ( DEFINED_CHR( pchr->attachedto ) && INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
     {
         log_warning( "spawn_one_character() - \n\tinitial spawn position <%f,%f> is \"inside\" a wall. Wall normal is <%f,%f>\n",
@@ -3945,7 +3945,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
     if ( pchr->pack.is_packed || pchr->is_hidden ) return pchr;
 
     // do the character interaction with water
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return pchr;
 
     if ( pchr->pos.z < water.surface_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
@@ -4281,6 +4281,15 @@ chr_t * chr_run_config( chr_t * pchr )
         break;
     }
 
+    if( NULL == pchr )
+    {
+        pbase->update_guid = INVALID_UPDATE_GUID;
+    }
+    else if( ego_object_active == pbase->state )
+    {
+        pbase->update_guid = ChrList.update_guid;
+    }
+
     return pchr;
 }
 
@@ -4445,7 +4454,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
     // actually force the character to spawn
     chr_config_activate( pchr, 100 );
 
-#if defined(DEBUG_OBJECT_SPAWN) && defined(USE_DEBUG)
+#if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
     {
         CAP_REF icap = pro_get_icap( profile );
         log_debug("spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( ichr ), name, CapStack.lst[icap].classname);
@@ -4474,7 +4483,7 @@ void respawn_character( const CHR_REF by_reference character )
 
     old_attached_prt_count = number_of_attached_particles( character );
 
-    spawn_poof( character, pchr->iprofile );
+    spawn_poof( character, pchr->profile_ref );
     disaffirm_attached_particles( character );
 
     pchr->alive = btrue;
@@ -4527,7 +4536,7 @@ void respawn_character( const CHR_REF by_reference character )
     PACK_END_LOOP( item );
 
     // re-initialize the instance
-    chr_spawn_instance( &( pchr->inst ), pchr->iprofile, pchr->skin );
+    chr_spawn_instance( &( pchr->inst ), pchr->profile_ref, pchr->skin );
     chr_update_matrix( pchr, btrue );
 
     // determine whether the object is hidden
@@ -4556,7 +4565,7 @@ int chr_change_skin( const CHR_REF by_reference character, int skin )
 
     ppro = chr_get_ppro( character );
 
-    pmad = pro_get_pmad( pchr->iprofile );
+    pmad = pro_get_pmad( pchr->profile_ref );
     if ( NULL == pmad )
     {
         // make sure that the instance has a valid imad
@@ -4714,7 +4723,7 @@ void change_character_full( const CHR_REF by_reference ichr, const PRO_REF by_re
     change_character( ichr, profile, skin, leavewhich );
 
     // set the base model to the new model, too
-    ChrList.lst[ichr].basemodel = profile;
+    ChrList.lst[ichr].basemodel_ref = profile;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4878,7 +4887,7 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     }
 
     // Stuff that must be set
-    pchr->iprofile  = profile_new;
+    pchr->profile_ref  = profile_new;
     pchr->stoppedby = pcap_new->stoppedby;
     pchr->life_heal  = pcap_new->life_heal;
     pchr->manacost  = pcap_new->manacost;
@@ -4959,7 +4968,7 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
         }
 
         // Spellbooks should stay the same size, even if their spell effect cause changes in size
-        if ( pchr->iprofile == SPELLBOOK ) new_fat = old_fat = 1.00f;
+        if ( pchr->profile_ref == SPELLBOOK ) new_fat = old_fat = 1.00f;
 
         // copy all the cap size info over, as normal
         chr_init_size( pchr, pcap_new );
@@ -6042,7 +6051,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->jumpnumber--;
 
             // Play the jump sound
-            ijump = pro_get_pcap( pchr->iprofile )->sound_index[SOUND_JUMP];
+            ijump = pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
             if ( VALID_SND( ijump ) )
             {
                 sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ijump ) );
@@ -6081,7 +6090,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 }
 
                 // Play the jump sound (Boing!)
-                pcap = pro_get_pcap( pchr->iprofile );
+                pcap = pro_get_pcap( pchr->profile_ref );
                 if ( NULL != pcap )
                 {
                     ijump = pcap->sound_index[SOUND_JUMP];
@@ -6137,13 +6146,13 @@ bool_t chr_do_latch_button( chr_t * pchr )
         {
             chr_t * pitem = ChrList.lst + item;
 
-            if (( pitem->iskursed || pro_get_pcap( pitem->iprofile )->istoobig ) && !pro_get_pcap( pitem->iprofile )->isequipment )
+            if (( pitem->iskursed || pro_get_pcap( pitem->profile_ref )->istoobig ) && !pro_get_pcap( pitem->profile_ref )->isequipment )
             {
                 // The item couldn't be put away
                 pitem->ai.alert |= ALERTIF_NOTPUTAWAY;
                 if ( pchr->isplayer )
                 {
-                    if ( pro_get_pcap( pitem->iprofile )->istoobig )
+                    if ( pro_get_pcap( pitem->profile_ref )->istoobig )
                     {
                         debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
                     }
@@ -6822,7 +6831,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
 
     if ( framefx&MADFX_FOOTFALL )
     {
-        cap_t * pcap = pro_get_pcap( pchr->iprofile );
+        cap_t * pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL != pcap )
         {
             int ifoot = pcap->sound_index[SOUND_FOOTFALL];
@@ -7639,7 +7648,7 @@ const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits )
     else
     {
         chr_t * pchr = ChrList.lst + ichr;
-        cap_t * pcap = pro_get_pcap( pchr->iprofile );
+        cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
         if ( pchr->nameknown )
         {
@@ -7704,7 +7713,7 @@ const char * chr_get_dir_name( const CHR_REF by_reference ichr )
     if ( !DEFINED_CHR( ichr ) ) return buffer;
     pchr = ChrList.lst + ichr;
 
-    if ( !LOADED_PRO( pchr->iprofile ) )
+    if ( !LOADED_PRO( pchr->profile_ref ) )
     {
         char * sztmp;
 
@@ -7721,7 +7730,7 @@ const char * chr_get_dir_name( const CHR_REF by_reference ichr )
     }
     else
     {
-        pro_t * ppro = ProList.lst + pchr->iprofile;
+        pro_t * ppro = ProList.lst + pchr->profile_ref;
 
         // copy the character's data.txt path
         strncpy( buffer, ppro->name, SDL_arraysize( buffer ) );
@@ -7923,15 +7932,15 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
     if ( !DEFINED_CHR( item ) ) return icon_ref;
     pitem = ChrList.lst + item;
 
-    if ( !LOADED_PRO( pitem->iprofile ) ) return icon_ref;
-    pitem_pro = ProList.lst + pitem->iprofile;
+    if ( !LOADED_PRO( pitem->profile_ref ) ) return icon_ref;
+    pitem_pro = ProList.lst + pitem->profile_ref;
 
-    pitem_cap = pro_get_pcap( pitem->iprofile );
+    pitem_cap = pro_get_pcap( pitem->profile_ref );
     if ( NULL == pitem_cap ) return icon_ref;
 
     // what do we need to draw?
     is_spell_fx = (NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type);       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
-    is_book     = (SPELLBOOK == pitem->iprofile);
+    is_book     = (SPELLBOOK == pitem->profile_ref);
     draw_book = ( is_book || ( is_spell_fx && !pitem->draw_icon ) || ( is_spell_fx && MAX_CHR != pitem->attachedto ) ) && ( bookicon_count > 0 );
 
     if ( !draw_book )
@@ -8974,14 +8983,14 @@ int chr_get_price( const CHR_REF by_reference ichr )
     pchr = ChrList.lst + ichr;
 
     // Make sure spell books are priced according to their spell and not the book itself
-    if ( pchr->iprofile == SPELLBOOK )
+    if ( pchr->profile_ref == SPELLBOOK )
     {
-        icap = pro_get_icap( pchr->basemodel );
+        icap = pro_get_icap( pchr->basemodel_ref );
         iskin = 0;
     }
     else
     {
-        icap  = pro_get_icap( pchr->iprofile );
+        icap  = pro_get_icap( pchr->profile_ref );
         iskin = pchr->skin;
     }
 
@@ -9472,7 +9481,7 @@ MAD_REF chr_get_imad( const CHR_REF by_reference ichr )
     // try to repair a bad model if it exists
     if ( !LOADED_MAD( pchr->inst.imad ) )
     {
-        MAD_REF imad_tmp = pro_get_imad( pchr->iprofile );
+        MAD_REF imad_tmp = pro_get_imad( pchr->profile_ref );
         if ( LOADED_MAD( imad_tmp ) )
         {
             if ( chr_instance_set_mad( &( pchr->inst ), imad_tmp ) )
@@ -9497,7 +9506,7 @@ mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
     // try to repair a bad model if it exists
     if ( !LOADED_MAD( pchr->inst.imad ) )
     {
-        MAD_REF imad_tmp = pro_get_imad( pchr->iprofile );
+        MAD_REF imad_tmp = pro_get_imad( pchr->profile_ref );
         if ( LOADED_MAD( imad_tmp ) )
         {
             chr_instance_set_mad( &( pchr->inst ), imad_tmp );

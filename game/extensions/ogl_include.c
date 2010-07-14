@@ -74,7 +74,7 @@ void oglx_ViewMatrix( GLXmatrix view,
             // GL_DEBUG(glMultMatrixf)(stupid_intermediate_matrix );
         }
 
-        gluLookAt( from[0], from[1], from[2], at[0], at[1], at[2], world_up[0], world_up[1], world_up[2] );
+        GL_DEBUG(gluLookAt)( from[0], from[1], from[2], at[0], at[1], at[2], world_up[0], world_up[1], world_up[2] );
 
         GL_DEBUG( glGetFloatv )( GL_MODELVIEW_MATRIX, view );
 
@@ -99,7 +99,7 @@ void oglx_ProjectionMatrix( GLXmatrix proj,
         GL_DEBUG( glMatrixMode )( GL_PROJECTION );
         GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glLoadIdentity )();
-        gluPerspective( fov, ( GLfloat )( viewport[ 2 ] - viewport[ 0 ] ) / ( GLfloat )( viewport[ 3 ] - viewport[ 1 ] ), near_plane, far_plane );
+        GL_DEBUG( gluPerspective )( fov, ( GLfloat )( viewport[ 2 ] - viewport[ 0 ] ) / ( GLfloat )( viewport[ 3 ] - viewport[ 1 ] ), near_plane, far_plane );
         GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, proj );
         GL_DEBUG( glPopMatrix )();
     }

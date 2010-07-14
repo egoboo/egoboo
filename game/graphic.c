@@ -1246,7 +1246,7 @@ int draw_character_xp_bar( const CHR_REF by_reference character, int x, int y )
     if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList.lst + character;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return y;
 
     //Draw the small XP progress bar
@@ -1479,35 +1479,38 @@ int draw_fps( int y )
     {
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
 
-#if defined(USE_DEBUG)
+#if defined(_DEBUG)
 
-#    if defined(DEBUG_BSP) && defined(USE_DEBUG)
+#    if defined(DEBUG_BSP) && defined(_DEBUG)
         y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", BSP_chr_count, MAX_CHR - chr_count_free(), BSP_prt_count, maxparticles - prt_count_free() );
         y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
         y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
 
-#if defined(DEBUG_RENDERLIST) && defined(USE_DEBUG)
+#if defined(DEBUG_RENDERLIST) && defined(_DEBUG)
         y = _draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count  );
 #endif
 
-#    if defined(DEBUG_PROFILE_DISPLAY) && defined(USE_DEBUG)
+#    if defined(DEBUG_PROFILE_DISPLAY) && defined(_DEBUG)
 
-#        if defined(DEBUG_PROFILE_RENDER) && defined(USE_DEBUG)
+#        if defined(DEBUG_PROFILE_RENDER) && defined(_DEBUG)
         y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
-        y = _draw_string_raw( 0, y, "rendertime %2.4f, drawtime %2.4f", est_render_time, time_draw_scene );
-        y = _draw_string_raw( 0, y, "init %2.4f,  mesh %2.4f, solid %2.4f", time_render_scene_init, time_render_scene_mesh, time_render_scene_solid );
-        y = _draw_string_raw( 0, y, "water %2.4f, trans %2.4f", time_render_scene_water, time_render_scene_trans );
+        y = _draw_string_raw( 0, y, "gfx:total %2.4f, render:total %2.4f", est_render_time, time_draw_scene );
+        y = _draw_string_raw( 0, y, "render:init %2.4f,  render:mesh %2.4f", time_render_scene_init, time_render_scene_mesh );
+        y = _draw_string_raw( 0, y, "render:solid %2.4f, render:water %2.4f", time_render_scene_solid, time_render_scene_water );
+        y = _draw_string_raw( 0, y, "render:trans %2.4f", time_render_scene_trans );
 #        endif
 
-#        if defined(DEBUG_PROFILE_MESH) && defined(USE_DEBUG)
+#        if defined(DEBUG_PROFILE_MESH) && defined(_DEBUG)
+        y = _draw_string_raw( 0, y, "mesh:total %2.4f", time_render_scene_mesh );
         y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
         y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
         y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
         y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
 #        endif
 
-#        if defined(DEBUG_PROFILE_INIT) && defined(USE_DEBUG)
+#        if defined(DEBUG_PROFILE_INIT) && defined(_DEBUG)
+        y = _draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
         y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
         y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
         y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
@@ -2409,7 +2412,7 @@ void render_scene_mesh( renderlist_t * prlist )
         PROFILE_END( render_scene_mesh_drf_solid );
     }
 
-#if defined(RENDER_HMAP) && defined(USE_DEBUG)
+#if defined(RENDER_HMAP) && defined(_DEBUG)
     //------------------------------
     // render the heighmap
     for ( cnt = 0; cnt < prlist->all_count; cnt++ )
@@ -2629,7 +2632,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     }
     PROFILE_END( render_scene_trans );
 
-#if defined(USE_DEBUG)
+#if defined(_DEBUG)
     //render_all_prt_attachment();
 #endif
 
@@ -2639,8 +2642,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     time_render_scene_water = PROFILE_QUERY( render_scene_water ) * TARGET_FPS;
     time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
 
-    time_draw_scene       = time_render_scene_init + time_render_scene_mesh +
-        time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
+    time_draw_scene = time_render_scene_init + time_render_scene_mesh + time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3476,6 +3478,8 @@ size_t BillboardList_get_free( Uint32 lifetime_secs )
 
     // grab the top index
     BillboardList.free_count--;
+    BillboardList.update_guid++;
+
     ibb = BillboardList.free_ref[BillboardList.free_count];
 
     if ( VALID_BILLBOARD_RANGE( ibb ) )
@@ -3510,7 +3514,7 @@ bool_t BillboardList_free_one( size_t ibb )
 
     billboard_data_free( pbb );
 
-#if defined(USE_DEBUG)
+#if defined(_DEBUG)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures
@@ -3527,7 +3531,9 @@ bool_t BillboardList_free_one( size_t ibb )
 
     // do not put anything below TX_LAST back onto the SDL_free stack
     BillboardList.free_ref[BillboardList.free_count] = ibb;
+
     BillboardList.free_count++;
+    BillboardList.update_guid++;
 
     return btrue;
 }
@@ -3616,7 +3622,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
         if ( pbb->tint[AA] < 1.0f )
         {
             GL_DEBUG( glEnable )( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-            GL_DEBUG( glBlendFunc )( GL_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
 
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );  // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
@@ -3625,7 +3631,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
         // Go on and draw it
         GL_DEBUG( glBegin )( GL_QUADS );
         {
-            glColor4fv( pbb->tint );
+            GL_DEBUG( glColor4fv) ( pbb->tint );
 
             for ( i = 0; i < 4; i++ )
             {
@@ -3732,8 +3738,8 @@ void draw_all_lines( camera_t * pcam )
                 GL_DEBUG( glColor4fv )( line_list[cnt].color.v );       // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_LINES );
                 {
-                    glVertex3fv( line_list[cnt].src.v );
-                    glVertex3fv( line_list[cnt].dst.v );
+                    GL_DEBUG(glVertex3fv) ( line_list[cnt].src.v );
+                    GL_DEBUG(glVertex3fv) ( line_list[cnt].dst.v );
                 }
                 GL_DEBUG_END();
             }
@@ -3762,40 +3768,40 @@ bool_t render_aabb( aabb_t * pbbox )
         GL_DEBUG( glBegin )( GL_QUADS );
         {
             // Front Face
-            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
 
             // Back Face
-            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
 
             // Top Face
-            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
 
             // Bottom Face
-            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
 
             // Right face
-            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
 
             // Left Face
-            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            glVertex3f(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            glVertex3f(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
+            GL_DEBUG(glVertex3f) (( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
         }
         GL_DEBUG_END();
     }
@@ -3814,15 +3820,15 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
     ATTRIB_PUSH( "render_oct_bb", GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
         // don't write into the depth buffer
-        glDepthMask( GL_FALSE );
-        glEnable( GL_DEPTH_TEST );
+        GL_DEBUG( glDepthMask )( GL_FALSE );
+        GL_DEBUG( glEnable ) ( GL_DEPTH_TEST );
 
         // fix the poorly chosen normals...
-        glDisable( GL_CULL_FACE );
+        GL_DEBUG( glDisable ) ( GL_CULL_FACE );
 
         // make them transparent
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        GL_DEBUG( glEnable ) ( GL_BLEND );
+        GL_DEBUG( glBlendFunc ) ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
         // choose a "white" texture
         oglx_texture_Bind( NULL );
@@ -3834,55 +3840,55 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
             float p1_x, p1_y;
             float p2_x, p2_y;
 
-            glColor4f( 0.5, 1, 1, 0.1 );
+            GL_DEBUG( glColor4f ) ( 0.5, 1, 1, 0.1 );
 
             p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
             p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
             p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
             p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
 
-            glBegin( GL_QUADS );
-            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
-            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG_END();
 
             p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
             p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
             p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
             p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
 
-            glBegin( GL_QUADS );
-            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
-            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG_END();
 
             p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
             p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
             p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
             p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
 
-            glBegin( GL_QUADS );
-            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
-            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG_END();
 
             p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
             p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
             p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
             p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
 
-            glBegin( GL_QUADS );
-            glVertex3f( p1_x, p1_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->mins[OCT_Z] );
-            glVertex3f( p2_x, p2_y, bb->maxs[OCT_Z] );
-            glVertex3f( p1_x, p1_y, bb->maxs[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p2_x, p2_y, bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( p1_x, p1_y, bb->maxs[OCT_Z] );
+            GL_DEBUG_END();
 
             retval = btrue;
         }
@@ -3891,55 +3897,55 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
         // SQUARE BBOX
         if ( draw_square )
         {
-            glColor4f( 1, 0.5, 1, 0.1 );
+            GL_DEBUG( glColor4f ) ( 1, 0.5, 1, 0.1 );
 
             // XZ FACE, min Y
-            glBegin( GL_QUADS );
-            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG_END();
 
             // YZ FACE, min X
-            glBegin( GL_QUADS );
-            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG_END();
 
             // XZ FACE, max Y
-            glBegin( GL_QUADS );
-            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG_END();
 
             // YZ FACE, max X
-            glBegin( GL_QUADS );
-            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG_END();
 
             // XY FACE, min Z
-            glBegin( GL_QUADS );
-            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
+            GL_DEBUG_END();
 
             // XY FACE, max Z
-            glBegin( GL_QUADS );
-            glVertex3f( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            glVertex3f( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            glEnd();
+            GL_DEBUG(glBegin) ( GL_QUADS );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG(glVertex3f) ( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
+            GL_DEBUG_END();
 
             retval = btrue;
         }

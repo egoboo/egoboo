@@ -180,7 +180,7 @@ bool_t link_pop_module()
             {
                 if ( !INGAME_CHR( j ) ) continue;
 
-                if ( phero->object_index == ChrList.lst[j].iprofile )
+                if ( phero->object_index == ChrList.lst[j].profile_ref )
                 {
                     pchr = ChrList.lst + j;
                     break;
@@ -240,7 +240,7 @@ bool_t link_push_module()
             pentry->hero_count++;
 
             // copy some important info
-            phero->object_index = REF_TO_INT( pchr->iprofile );
+            phero->object_index = REF_TO_INT( pchr->profile_ref );
 
             phero->pos_stt.x    = pchr->pos_stt.x;
             phero->pos_stt.y    = pchr->pos_stt.y;

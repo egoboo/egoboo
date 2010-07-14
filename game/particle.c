@@ -505,7 +505,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     prt_set_size( pprt, ppip->size_base );
 
-#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
+#if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
 
     // some code to track all allocated particles, where they came from, how long they are going to last,
     // what they are being used for...
@@ -520,7 +520,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                update_wld, pprt->time_update, frame_all, pprt->time_frame,
                loc_chr_origin, DEFINED_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
                pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
-               pdata->iprofile, LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
+               pdata->profile_ref, LOADED_PRO( pdata->profile_ref ) ? ProList.lst[pdata->profile_ref].name : "INVALID" );
 #endif
 
     // count out all the requests for this particle type
@@ -753,6 +753,15 @@ prt_t * prt_run_config( prt_t * pprt )
             break;
     }
 
+    if( NULL == pprt )
+    {
+        pbase->update_guid = INVALID_UPDATE_GUID;
+    }
+    else if( ego_object_active == pbase->state )
+    {
+        pbase->update_guid = PrtList.update_guid;
+    }
+
     return pprt;
 }
 
@@ -887,7 +896,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
     iprt = PrtList_allocate( ppip->force );
     if ( !DEFINED_PRT( iprt ) )
     {
-#if defined(USE_DEBUG) && defined(DEBUG_PRT_LIST)
+#if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
                    chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
                    ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
@@ -2460,7 +2469,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
     pmad = chr_get_pmad( character );
     if ( NULL == pmad ) return 0;
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
 
     bs_count = 0;

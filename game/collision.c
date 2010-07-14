@@ -1024,7 +1024,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
 
-    pchr_cap = pro_get_pcap( pchr->iprofile );
+    pchr_cap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pchr_cap ) return bfalse;
 
     // check if they can be connected
@@ -2599,7 +2599,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     if ( INGAME_CHR( pprt->owner_ref ) )
     {
         chr_t * powner = ChrList.lst + pprt->owner_ref;
-        cap_t * powner_cap = pro_get_pcap( powner->iprofile );
+        cap_t * powner_cap = pro_get_pcap( powner->profile_ref );
 
         if ( powner_cap->isranged ) prt_needs_impact = btrue;
     }
@@ -2852,7 +2852,7 @@ bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // initialize the collision date
-    pdata->pcap = pro_get_pcap( pchr->iprofile );
+    pdata->pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pdata->pcap ) return bfalse;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;

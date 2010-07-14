@@ -65,8 +65,8 @@
     Uint8 returncode = btrue; \
     if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return bfalse; \
     pchr = ChrList.lst + pself->index; \
-    if( !LOADED_PRO(pchr->iprofile) ) return bfalse; \
-    ppro = ProList.lst + pchr->iprofile;
+    if( !LOADED_PRO(pchr->profile_ref) ) return bfalse; \
+    ppro = ProList.lst + pchr->profile_ref;
 
 #define SCRIPT_FUNCTION_END() \
     return returncode;
@@ -481,7 +481,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
     }
-#if defined (USE_DEBUG) && defined(DEBUG_WAYPOINTS)
+#if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     else
     {
         cap_t * pcap;
@@ -1325,7 +1325,7 @@ Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _display_message( pself->index, pchr->iprofile, pstate->argument, pstate );
+    returncode = _display_message( pself->index, pchr->profile_ref, pstate->argument, pstate );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1824,7 +1824,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = 0;
 
-    ichr = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
+    ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
     if ( !INGAME_CHR( ichr ) )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
@@ -2088,7 +2088,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = ALLOCATED_PRT( iprt );
     if ( returncode )
@@ -2345,7 +2345,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // convert the spell effect to a spellbook
-    old_profile = pchr->iprofile;
+    old_profile = pchr->profile_ref;
     change_character( pself->index, ( PRO_REF )SPELLBOOK, pchr->money % MAX_SKIN, ENC_LEAVE_NONE );
 
     // Reset the spellbook state so it doesn't burn up
@@ -2353,7 +2353,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     pself->content = REF_TO_INT( old_profile );
 
     // set the spellbook animations
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     pmad = chr_get_pmad( pself->index );
 
     if ( NULL != pcap && NULL != pmad )
@@ -3436,7 +3436,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
     iTmp = ABS( pchr->pos_old.x - PCamera->track_pos.x ) + ABS( pchr->pos_old.y - PCamera->track_pos.y );
     if ( iTmp < MSGDISTANCE )
     {
-        returncode = _display_message( pself->index, pchr->iprofile, pstate->argument, pstate );
+        returncode = _display_message( pself->index, pchr->profile_ref, pstate->argument, pstate );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3479,7 +3479,7 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
 
     returncode = bfalse;
     if ( NULL != pcap )
@@ -3699,7 +3699,7 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
 
     returncode = bfalse;
     if ( NULL != pcap )
@@ -3766,7 +3766,7 @@ Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
 
     returncode = bfalse;
     if ( NULL != pcap )
@@ -3876,7 +3876,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = iholder;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = ALLOCATED_PRT( iprt );
 
@@ -3902,7 +3902,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
     returncode = ALLOCATED_PRT( iprt );
@@ -4337,7 +4337,7 @@ Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    spawn_poof( pself->index, pchr->iprofile );
+    spawn_poof( pself->index, pchr->profile_ref );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4389,7 +4389,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     returncode = bfalse;
 
     if ( ALLOCATED_PRT( iprt ) )
@@ -4499,7 +4499,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->iprofile, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = ALLOCATED_PRT( iprt );
 
@@ -4857,7 +4857,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap_chr = pro_get_pcap( pchr->iprofile );
+    pcap_chr = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap_chr ) return bfalse;
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr_test )
@@ -4904,7 +4904,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->iprofile, pstate->argument, ichr, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = ALLOCATED_PRT( iprt );
 
@@ -5222,8 +5222,8 @@ Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->basemodel == SPELLBOOK ||
-                   pchr->basemodel == pchr->iprofile );
+    returncode = ( pchr->basemodel_ref == SPELLBOOK ||
+                   pchr->basemodel_ref == pchr->profile_ref );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5271,7 +5271,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character( pos, pchr->iprofile, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
+    ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
 
     if ( !INGAME_CHR( ichr ) )
     {
@@ -5331,7 +5331,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            cap_t * pcap = pro_get_pcap( pchr->iprofile );
+            cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
         }
@@ -5418,7 +5418,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
     returncode = ALLOCATED_PRT( iprt );
@@ -6366,7 +6366,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     volume = -distance;
     volume = volume<<VOLSHIFT;
     if(volume < VOLMIN) volume = VOLMIN;
-    iTmp = CapStack.lst[pro_get_icap(pchr->iprofile)].wavelist[pstate->argument];
+    iTmp = CapStack.lst[pro_get_icap(pchr->profile_ref)].wavelist[pstate->argument];
     if(iTmp < numsound && iTmp >= 0 && soundon)
     {
     lpDSBuffer[iTmp]->SetVolume(volume);
@@ -6554,7 +6554,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
 
     {
         fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
-        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->iprofile, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
     returncode = ALLOCATED_PRT( iprt );
@@ -6584,10 +6584,10 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->iprofile );
+    pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return bfalse;
 
-    ppip = pro_get_ppip( pchr->iprofile, pcap->gopoofprt_pip );
+    ppip = pro_get_ppip( pchr->profile_ref, pcap->gopoofprt_pip );
     if ( NULL == ppip ) return bfalse;
 
     returncode = bfalse;
@@ -6603,7 +6603,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         ppip->spacing_hrz_pair.base = pstate->y;
         ppip->damage.from           = FP8_TO_FLOAT( pstate->argument );
 
-        spawn_poof( pself->index, pchr->iprofile );
+        spawn_poof( pself->index, pchr->profile_ref );
 
         // Restore the saved values
         ppip->vel_hrz_pair.base     = iTmp;
@@ -6899,7 +6899,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     for ( iTmp = 0; iTmp < MAX_PIP_PER_PROFILE; iTmp++ )
     {
-        pip_t * ppip = pro_get_ppip( pchr->iprofile, iTmp );
+        pip_t * ppip = pro_get_ppip( pchr->profile_ref, iTmp );
         if ( NULL == ppip ) continue;
 
         if ( ppip->intdamagebonus || ppip->wisdamagebonus )
@@ -7177,7 +7177,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            cap_t * pcap = pro_get_pcap( pchr->iprofile );
+            cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "IVALID" : pcap->classname, pstate->argument );
         }
@@ -7459,14 +7459,14 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     if ( !INGAME_CHR( pself->target ) ) return bfalse;
 
-    change_character( pself->index, pself_target->basemodel, pself_target->skin, ENC_LEAVE_ALL );
+    change_character( pself->index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
 
     // let the resizing take some time
     pchr->fat_goto      = pself_target->fat;
     pchr->fat_goto_time = SIZETIME;
 
     // change back to our original AI
-    pself->type      = ProList.lst[pchr->basemodel].iai;
+    pself->type      = ProList.lst[pchr->basemodel_ref].iai;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7860,9 +7860,9 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 
     FUNCTION_BEGIN();
 
-    if ( !LOADED_PRO( pchr->iprofile ) ) return bfalse;
+    if ( !LOADED_PRO( pchr->profile_ref ) ) return bfalse;
 
-    message_offset = ProList.lst[pchr->iprofile].message_start + message;
+    message_offset = ProList.lst[pchr->profile_ref].message_start + message;
     ichr           = GET_REF_PCHR( pchr );
 
     if ( message_offset < MessageOffset.count )
