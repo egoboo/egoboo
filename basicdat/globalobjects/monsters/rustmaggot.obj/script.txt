@@ -43,13 +43,17 @@ IfTimeOut				// This is done every so often
   Else					  // Wander around home position
     tmpx = rand & 1023 - 512 + selfspawnx   //
     tmpy = rand & 1023 - 512 + selfspawny   //
-    SetTargetToNearestLifeform
-    tmpargument = [RUST]
+    
+    //Try to find some metal to eat
+    tmpargument = [NONE]
+    tmpdistance = BLAHITEMS
+    SetTargetToWideBlahID
     IfTargetHasVulnerabilityID
       tmpx = targetx
       tmpy = targety
-  ClearWaypoints			  //
-  AddWaypoint				  //
+      
+  ClearWaypoints
+  AddWaypoint
   tmpargument = rand & 63 + 20		  // Wait a while and try again
   SetTime				  //
 
@@ -57,16 +61,19 @@ IfTimeOut				// This is done every so often
   tmpargument = [RUST]
   IfTargetHasVulnerabilityID
     tmpx = targetdistance
-    tmpy = 75
+    tmpy = 80
     IfXIsLessThanY
-      tmpargument = 2
+      tmpargument = 2         //Do message first so that AI 'target' isnt poofed
       SendMessage
       PoofTarget
+        
         tmpx = selfx
         tmpy = selfy
         tmpdistance = selfz
         tmpargument = 5
         SpawnExactParticle
+        
+        //Heal 2 life when eating metal
         tmpargument = 512
         HealSelf
         tmpargument = 2

@@ -22,6 +22,10 @@
 //         A-Z ( caps only ).
 //         Null is predefined to be the neutral team.
 
+#dependency RustEater     53
+#dependency KeyR          43
+
+
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 Player 1:    NONE    0  11.5  29.5  5.0   S    0   0  0   0   0   T   F   G
   unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
@@ -63,7 +67,7 @@ Player 4:   NONE    27  13.5   26.5   14.0   S    0   0  0   0   0   T   F   G
   unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-Music:   NONE    126  29.5   26.5   3.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    126  29.5   26.5   3.0   N    0   0  0   0   0   F   F   E
 snowcobol:   NONE    42  29.5   26.5   1.0   S    4   1  0   100   6   F   F   E
   Hatchet:   NONE    37  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   KShield:   NONE    39  0.0   0.0   0.0   R    1   0  0   0   0   F   F   N
@@ -106,7 +110,7 @@ mephit:   NONE    77  14.0   12.0   1.0   E    0   1  0   0   0   F   F   E
   mephitwing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 chest:   NONE    36  12.5   11.5   1.0   N    0   0  0   2   0   F   F   N          //Contains map
 halldoor:   NONE    38  36.0   16.0   1.0   S    0   0  8   0   0   F   F   N
-halldoor:   NONE    38  44.0   12.0   1.0   N    0   0  12   0   0   F   F   N
+halldoor:   NONE    38  44.0   12.33   1.0   N    0   0  12   0   0   F   F   N
 halldoor:   NONE    38  31.0   12.0   1.0   W    0   2  6   0   0   F   F   N
 halldoor:   NONE    38  43.0   50.0   1.0   W    0   0  20   0   0   F   F   N
 
@@ -117,7 +121,7 @@ chest:   NONE    36  9.0   56.0   1.0   N    0   0  0   1   0   F   F   N       
   confusion:   NONE    88  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   frog:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   KShield:   NONE    39  0.0   0.0   0.0   I    1   0  0   0   0   F   F   N
-chest:   NONE    36  14.8   56.0   1.0   N    0   0  0   1   0   F   F   N        //Locked
+chest:   NONE    36  14.8   56.0   1.0   N    0   0  0   1   0   F   F   N          //Locked
   medkit:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   sloth:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -134,10 +138,6 @@ squidgie:   NONE    46  25.0   9.0    0.0   ?    0   0  0   0   0   F   F   E
 yeti:   NONE    51  46.5   40.5   0.0   N    99   0  23   0   0   F   F   E
 lockdoor:   NONE    56  38.0   46.0   0.0   S    0   0  17   0   0   F   F   N
 
-halldoor:   NONE    38  46.0   34.0   1.0   S    0   0  23   2   0   F   F   N
-rusteater:   NONE    53  47.5   7.5   1.0   N    0   0  0   0   0   F   F   E
-rustmaggot:   NONE    54  48.5   7.5   1.0   N    0   0  0   0   0   F   F   E
-
 //Treasure chamber
 chest:   NONE    36  46.5   27.5   1.0   S    0   0  0   0   0   F   F   N
   ibrace:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -147,11 +147,14 @@ chest:   NONE    36  46.5   30.5   1.0   N    0   0  0   0   0   F   F   N
   LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Haste:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   TrueSightScroll:   NONE    140  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+spork:   NONE    60  36.5   28.5   2.0   W    0   0  0   0   0   F   F   N
 
 //Mimic room
 Mimic:   NONE    41  57.0   50.5   1.0   N    9   0  0   0   0   F   F   E
   KeyA:   NONE    93  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
+//Ice Cobol Chamber
+Strider:   NONE    40  54.5   25.5   1.0   N    0   0  0   0   0   F   F   N
 Strider:   NONE    40  56.5   30.5   2.0   N    0   0  0   0   0   F   F   E
 snowcobol:   NONE    42  55.5   21.5   1.0   N    2   2  0   100   0   F   F   E
   XBow:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -170,6 +173,10 @@ snowcobol:   NONE    42  52.5   17.5   1.0   N    1   0  0   100   0   F   F   E
 bossplat:   NONE    57  12.5   28.5   2.0   N    0   0  0   0   0   F   F   N
 halldoor:   NONE    38  38.3   5.0   1.0   W    0   0  10   0   0   F   F   N
 
+//Rust Eater room
+halldoor:   NONE    38  46.0   34.0   1.0   S    0   0  23   2   0   F   F   N
+
+rustmaggot:   NONE    54  48.5   7.5   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot:   NONE    54  44.0   6.0   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot:   NONE    54  44.0   8.0   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot:   NONE    54  48.0   5.0   1.0   N    0   0  0   0   0   F   F   E
@@ -177,7 +184,12 @@ rustmaggot:   NONE    54  50.0   6.0   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot:   NONE    54  46.0   8.0   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot:   NONE    54  50.0   10.0   1.0   N    0   0  0   0   0   F   F   E
 
-Strider:   NONE    40  54.5   25.5   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    36  56.5   8.5   1.0   N    99   0  0   128   0   F   F   N      //Rune Warded chest
+  Regeneration:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lance:   NONE    132  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  LifeRing:   NONE    136  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  fortunecookie:   NONE    137  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
 
 //Ice chamber
 frostorb:   NONE    55  21.5   53.5   1.0   N    0   0  0   0   0   F   F   E
@@ -189,11 +201,6 @@ frostorb:   NONE    55  26.0   49.0   1.0   N    0   0  0   0   0   F   F   E
 frostlizard:   NONE    48  44.0   16.0   1.0   N    0   0  0   0   0   F   F   E
 frostlizard:   NONE    48  42.0   19.0   1.0   N    0   0  0   0   0   F   F   E
 monsterdrop:   NONE    58  35.0   11.0   1.0   N    0   0  19   46   0   F   F   E
-spork:   NONE    60  36.5   28.5   2.0   W    0   0  0   0   0   F   F   N
-chest:   NONE    36  56.5   8.5   1.0   N    99   0  0   4   0   F   F   N      //Fire trapped
-  Regeneration:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  Mallet:   NONE    132  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  LifeRing:   NONE    136  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 monsterdrop:   NONE    58  57.5   40.5   1.0   N    0   0  22   54   0   F   F   E
 chest:   NONE    36  44.5   30.5   0.0   N    4   0  0   32   0   F   F   N       //Random armor

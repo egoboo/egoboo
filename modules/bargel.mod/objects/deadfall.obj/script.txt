@@ -1,0 +1,58 @@
+IfSpawned
+  tmpargument = 2
+  tmpdistance = 0
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+IfTimeOut
+  tmpx = selfcontent
+  tmpy = 1
+  IfXIsEqualToY
+    // Go away
+    GoPoof
+  IfXIsLessThanY
+    // Check the passage
+    tmpdistance = 200
+    SetTargetToDistantEnemy
+      // The trap has been tripped
+      tmpargument = 15
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+
+      tmpargument = 0
+      SendMessageNear
+      tmpdistance = 11025
+      PlaySound
+      tmpargument = 7
+      SetContent
+  IfXIsMoreThanY
+    // Down the counter
+    tmpargument = tmpx - 1
+    SetContent
+
+    // Drop a boulder
+    tmpargument = 0
+    tmpdistance = 600
+    tmpx = selfx
+    tmpy = selfy
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+
+  // Wait a while
+  tmpargument = 3
+  SetTime
+
+// All done
+End

@@ -1,0 +1,210 @@
+//Healed
+IfHealed
+  tmpargument = 3
+  SendMessageNear
+
+//-------------------------------------------------------------------------------------------
+//Setup character
+IfSpawned
+  tmpargument = STATEGUARD
+  SetState
+
+//Show where we are!
+tmpx = selfx
+tmpy = selfy
+tmpargument = RED
+ShowBlipXY
+
+//-------------------------------------------------------------------------------------------
+//Die and all that dramatic stuff
+IfKilled
+  tmpargument = passage
+  OpenPassage				//Open the treasure gate
+
+  //Tell what happened
+  tmpargument = 0
+  SendMessage
+  tmpargument = 5
+  PlaySound
+
+  //Yummy!
+  tmpargument = selfmoney
+  DropItems
+  DropMoney
+  DropKeys
+
+  //victory tune
+  tmpargument = 14
+  tmpdistance = 0
+  PlayMusic
+
+  //Beat Quest and award xp
+  tmpargument = 150
+  tmpdistance = EXPQUEST
+  GiveExperienceToGoodTeam
+  BeatModule
+  tmpargument = [BEAT]
+  AddIDSZ
+  EnableExport
+  
+  //Add the end text
+  ClearEndMessage
+  tmpargument = 5
+  AddEndMessage
+  tmpargument = 6
+  AddEndMessage
+  tmpargument = 7
+  AddEndMessage
+
+
+//-------------------------------------------------------------------------------------------
+//Ouch and teleport away
+IfAttacked
+  tmpargument = rand & 3 + 2
+  PlaySound
+
+  
+  //See if mask falls off
+  tmpargument = 0
+  IfArmorIs
+    SetTargetToSelf
+    tmpx = targetlife
+    tmpy = 3072				//Half life
+    IfXIsLessThanY
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = 4
+      SendMessageNear      
+  SetTargetToWhoeverAttacked
+  
+
+  //Teleport away
+  IfTargetIsOnHatedTeam
+    tmpargument = 0
+    tmpx = 0
+    tmpy = 0
+    tmpdistance = SPAWNORIGIN
+    SpawnParticle
+    tmpx = rand & 511 - 256 + selfx		//Randomize position
+    tmpy = rand & 511 - 256 + selfy
+    Teleport
+    tmpx = rand & 511 - 256 + selfx		//Randomize position 2nd time
+    tmpy = rand & 511 - 256 + selfy
+    Teleport
+    tmpx = targetx
+    tmpy = targety
+    ClearWaypoints				//Face target
+    AddWaypoint
+  Else
+    SetTargetToNearestEnemy
+
+//-------------------------------------------------------------------------------------------
+//Main AI loop
+IfTimeOut
+
+  //Wait for good guys
+  IfStateIsGuard
+    tmpargument = 0
+    SetContent
+    tmpargument = 50
+    SetTime
+    tmpx = selfspawnx
+    tmpy = selfspawny			//Return to start point
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToWideEnemy		//Found one!
+      tmpargument = STATECOMBAT
+      SetState
+      tmpargument = 6
+      PlayFullSound			//"I will kill you!"
+      tmpargument = 1
+      SendMessage
+      tmpargument = 16			//Play boss tune
+      tmpdistance = 0
+      PlayMusic
+    Else
+      tmpargument = 7			//No enemies, play normal music
+      tmpdistance = 0
+      PlayMusic
+
+  //Combat mode
+  IfStateIsCombat
+    tmpargument = rand & 31 + 30
+    SetTime
+    SetTargetToNearestEnemy
+      tmpx = targetx
+      tmpy = targety			//Move towards them
+      ClearWaypoints
+      AddWaypoint
+
+      tmpx = targetdistance
+      tmpy = 128*15
+      IfXIsMoreThanY
+        tmpargument = STATEGUARD
+        SetState
+        
+      IfFacingTarget      
+        tmpx = rand & 255
+        tmpy = 75
+        IfXIsMoreThanY
+          tmpargument = LATCHRIGHT	  //Instant cast
+          PressLatchButton
+        Else
+          tmpargument = STATECHARGE   //Charge spell
+          SetState
+    Else
+      tmpargument = STATEGUARD			//Enemies are gone
+      SetState
+
+  //Casting bind spell
+  IfStateIsCharge
+    SetTurnModeToWatchTarget
+    tmpx = targetx
+    tmpy = targety			//Move towards them
+    tmpdistance = 0 - 500
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+
+    //Keep chargin
+    tmpargument = 0
+    SetTime
+    tmpargument = LATCHLEFT		
+    PressLatchButton
+    
+    //Keep track on how much time has elasped
+    tmpargument = selfcontent + 1
+    SetContent				
+    tmpx = selfcontent
+    tmpy = 100
+    IfXIsMoreThanY			//Enough charge now already!
+      tmpargument = STATECOMBAT
+      SetState
+      tmpargument = 0
+      SetContent
+
+  //Drink mana potion when needed
+  tmpx = rand & 255
+  tmpy = 50
+  IfXIsLessThanY
+    tmpx = selfmana
+    tmpy = 256
+    IfXIsLessThanY
+      SetTargetToSelf
+      tmpargument = rand & 2047 + 2048
+      PumpTarget				//regain mana
+      tmpargument = 0 - 32
+      GiveManaToTarget			//lose max mana
+      SetTargetToOldTarget
+      tmpargument = 8
+      PlaySound				//trinkle
+      tmpargument = 2
+      SendMessageNear
+      tmpargument = ACTIONMC
+      TargetDoAction
+      tmpdistance = SPAWNORIGIN		//sparkle
+      tmpargument = 1
+      SpawnAttachedHolderParticle
+
+End
