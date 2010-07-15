@@ -59,8 +59,8 @@ pip_t * pip_init( pip_t * ppip )
     // clear the pip
     memset( ppip, 0, sizeof( *ppip ) );
 
-    ppip->soundend_floor = INVALID_SOUND;
-    ppip->soundend_wall  = INVALID_SOUND;
+    ppip->end_sound_floor = INVALID_SOUND;
+    ppip->end_sound_wall  = INVALID_SOUND;
     ppip->damfx            = DAMFX_TURN;
 
     ppip->allowpush = btrue;
@@ -126,15 +126,15 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     };
 
     // Ending conditions
-    ppip->endwater     = fget_next_bool( fileread );
-    ppip->endbump      = fget_next_bool( fileread );
-    ppip->endground    = fget_next_bool( fileread );
-    ppip->endlastframe = fget_next_bool( fileread );
+    ppip->end_water     = fget_next_bool( fileread );
+    ppip->end_bump      = fget_next_bool( fileread );
+    ppip->end_ground    = fget_next_bool( fileread );
+    ppip->end_lastframe = fget_next_bool( fileread );
     ppip->time         = fget_next_int( fileread );
 
     // Collision data
     ppip->dampen     = fget_next_float( fileread );
-    ppip->bumpmoney  = fget_next_int( fileread );
+    ppip->bump_money  = fget_next_int( fileread );
     ppip->bump_size   = fget_next_int( fileread );
     ppip->bump_height = fget_next_int( fileread );
 
@@ -169,9 +169,9 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->contspawn_pip       = fget_next_int( fileread );
 
     // End spawning of other particles
-    ppip->endspawn_amount    = fget_next_int( fileread );
-    ppip->endspawn_facingadd = fget_next_int( fileread );
-    ppip->endspawn_pip       = fget_next_int( fileread );
+    ppip->end_spawn_amount    = fget_next_int( fileread );
+    ppip->end_spawn_facingadd = fget_next_int( fileread );
+    ppip->end_spawn_pip       = fget_next_int( fileread );
 
     // Bump spawning of attached particles
     ppip->bumpspawn_amount = fget_next_int( fileread );
@@ -193,7 +193,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
 
     ppip->soundspawn = fget_next_int( fileread );
 
-    ppip->soundend = fget_next_int( fileread );
+    ppip->end_sound = fget_next_int( fileread );
 
     ppip->friendlyfire = fget_next_bool( fileread );
 
@@ -213,8 +213,8 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->manadrain         = fget_next_int( fileread ) * 256;
     ppip->lifedrain         = fget_next_int( fileread ) * 256;
 
-    // assume default endwall
-    ppip->endwall = ppip->endground;
+    // assume default end_wall
+    ppip->end_wall = ppip->end_ground;
 
     // assume default damfx
     if ( ppip->homing )  ppip->damfx = DAMFX_NONE;
@@ -230,9 +230,9 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  ppip->damfx |= DAMFX_ARRO;
         else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  ppip->damfx |= DAMFX_TIME;
         else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->soundend_floor = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->soundend_wall = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->endwall = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->end_sound_floor = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->end_sound_wall = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->end_wall = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'P', 'U', 'S', 'H' ) )  ppip->allowpush = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'D', 'L', 'E', 'V' ) )  ppip->dynalight.level_add = fget_int( fileread ) / 1000.0f;
         else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'D' ) )  ppip->dynalight.falloff_add = fget_int( fileread ) / 1000.0f;

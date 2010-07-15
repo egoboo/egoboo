@@ -107,6 +107,9 @@ extern float   platstick;                   ///< Friction between characters and
 extern fvec3_t windspeed;                   ///< The game's windspeed
 extern fvec3_t waterspeed;                  ///< The game's waterspeed
 
+extern const float air_friction;            ///< gives the same terminal velocity in terms of the size of the game characters
+extern const float ice_friction;            ///< estimte if the friction on ice
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_t * pdst );

@@ -68,7 +68,7 @@ static prt_t * prt_config_do_init( prt_t * pprt );
 static prt_t * prt_config_do_active( prt_t * pprt );
 static prt_t * prt_config_do_deinit( prt_t * pprt );
 
-int prt_do_endspawn( const PRT_REF by_reference iprt );
+int prt_do_end_spawn( const PRT_REF by_reference iprt );
 int prt_do_contspawn( prt_bundle_t * pprt_bdl  );
 prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pprt_bdl  );
 
@@ -226,7 +226,7 @@ void free_one_particle_in_game( const PRT_REF by_reference particle )
 
         if ( LOADED_PIP( pprt->pip_ref ) )
         {
-            play_particle_sound( particle, PipStack.lst[pprt->pip_ref].soundend );
+            play_particle_sound( particle, PipStack.lst[pprt->pip_ref].end_sound );
         }
     }
 
@@ -429,7 +429,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     // figure out the actual particle lifetime
     prt_lifetime        = ppip->time;
-    if ( ppip->endlastframe && pprt->image_add != 0 )
+    if ( ppip->end_lastframe && pprt->image_add != 0 )
     {
         if ( 0 == ppip->time )
         {
@@ -502,6 +502,22 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     // get an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !DEFINED_CHR( pprt->attachedto_ref );
+
+    // estimate some parameters for buoyancy and air resistance
+    if( 0.0f == ppip->spdlimit )
+    {
+        pprt->buoyancy       = 0.0f;
+        pprt->air_resistance = 1.0f;
+    }
+    else
+    {
+        pprt->buoyancy = -ppip->spdlimit * (1.0f - air_friction) - gravity;
+        if( pprt->buoyancy < 0.0f ) pprt->buoyancy = 0.0f;
+        if( pprt->buoyancy > 2.0f * ABS(gravity) ) pprt->buoyancy = 2.0f * ABS(gravity);
+
+        pprt->air_resistance  = 1.0f - (pprt->buoyancy + gravity) / -ppip->spdlimit / air_friction;
+        if( pprt->air_resistance < 1.0f ) pprt->air_resistance = 1.0f;
+    }
 
     prt_set_size( pprt, ppip->size_base );
 
@@ -945,7 +961,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
 
     // deal with the optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -977,7 +993,7 @@ fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
 
     // deal with the optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -1021,7 +1037,7 @@ Uint32 prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressu
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
 
     // deal with the optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -1055,7 +1071,7 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( ppip->bumpmoney ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
 
     // handle optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -1074,245 +1090,6 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
     return retval;
 }
 
-////--------------------------------------------------------------------------------------------
-//// This is BB's most recent version of the update_one_particle() function that should treat
-//// all zombie/limbo particles properly and completely eliminates the improper modification of the
-//// particle loop-control-variable inside the loop (thanks zefz!)
-//bool_t update_one_particle( prt_t * pprt )
-//{
-//    /// @details BB@> update everything about a particle that does not depend on collisions
-//    ///               or interactions with characters
-//
-//    int size_new;
-//    bool_t prt_display, prt_active;
-//
-//    PRT_REF iprt;
-//    pip_t * ppip;
-//
-//    // ASSUME that this function is only going to be called from update_all_particles(), where we already did this test
-//    //if( !DEFINED_PPRT(pprt) ) return bfalse;
-//    iprt = GET_REF_PPRT( pprt );
-//
-//    prt_active  = ACTIVE_PBASE( POBJ_GET_PBASE( pprt ) );
-//    prt_display = prt_active || WAITING_PBASE( POBJ_GET_PBASE( pprt ) );
-//
-//    // update various iprt states
-//    ppip = prt_get_ppip( iprt );
-//    if ( NULL == ppip ) return bfalse;
-//
-//    // clear out the attachment if the character doesn't exist at all
-//    if ( !DEFINED_CHR( pprt->attachedto_ref ) )
-//    {
-//        pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
-//    }
-//
-//    // figure out where the particle is on the mesh and update iprt states
-//    if ( prt_display )
-//    {
-//        pprt->onwhichgrid  = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-//        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-//
-//        // determine whether the iprt is hidden
-//        pprt->is_hidden = bfalse;
-//        if ( INGAME_CHR( pprt->attachedto_ref ) )
-//        {
-//            pprt->is_hidden = ChrList.lst[pprt->attachedto_ref].is_hidden;
-//        }
-//
-//        pprt->is_homing = ppip->homing && !INGAME_CHR( pprt->attachedto_ref );
-//    }
-//
-//    // figure out where the particle is on the mesh and update iprt states
-//    if ( prt_active && !pprt->is_hidden )
-//    {
-//        bool_t inwater;
-//
-//        // do the iprt interaction with water
-//        inwater = ( pprt->pos.z < water.surface_level ) && ( 0 != mesh_test_fx( PMesh, pprt->onwhichgrid, MPDFX_WATER ) );
-//
-//        if ( inwater && water.is_water && ppip->endwater )
-//        {
-//            // Check for disaffirming character
-//            if ( INGAME_CHR( pprt->attachedto_ref ) && pprt->owner_ref == pprt->attachedto_ref )
-//            {
-//                // Disaffirm the whole character
-//                disaffirm_attached_particles( pprt->attachedto_ref );
-//            }
-//            else
-//            {
-//                // destroy the particle
-//                prt_request_terminate_ref( iprt );
-//            }
-//        }
-//        else if ( inwater )
-//        {
-//            bool_t  spawn_valid     = bfalse;
-//            int     spawn_pip_index = -1;
-//            fvec3_t vtmp            = VECT3( pprt->pos.x, pprt->pos.y, water.surface_level );
-//
-//            if ( MAX_CHR == pprt->owner_ref &&
-//                 ( PIP_SPLASH == pprt->pip_ref || PIP_RIPPLE == pprt->pip_ref ) )
-//            {
-//                /* do not spawn anything for a splash or a ripple */
-//                spawn_valid = bfalse;
-//            }
-//            else
-//            {
-//                if ( !pprt->inwater )
-//                {
-//                    if ( SPRITE_SOLID == pprt->type )
-//                    {
-//                        spawn_pip_index = PIP_SPLASH;
-//                    }
-//                    else
-//                    {
-//                        spawn_pip_index = PIP_RIPPLE;
-//                    }
-//                    spawn_valid = btrue;
-//                }
-//                else
-//                {
-//                    if ( SPRITE_SOLID == pprt->type && !INGAME_CHR( pprt->attachedto_ref ) )
-//                    {
-//                        // only spawn ripples if you are touching the water surface!
-//                        if ( pprt->pos.z + pprt->bump.height > water.surface_level && pprt->pos.z - pprt->bump.height < water.surface_level )
-//                        {
-//                            int ripand = ~(( ~RIPPLEAND ) << 1 );
-//                            if ( 0 == (( update_wld + pprt->obj_base.guid ) & ripand ) )
-//                            {
-//
-//                                spawn_valid = btrue;
-//                                spawn_pip_index = PIP_RIPPLE;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if ( spawn_valid )
-//            {
-//                // Splash for particles is just a ripple
-//                spawn_one_particle( vtmp, 0, ( PRO_REF )MAX_PROFILE, spawn_pip_index, ( CHR_REF )MAX_CHR, GRIP_LAST,
-//                                    ( TEAM_REF )TEAM_NULL, ( CHR_REF )MAX_CHR, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
-//            }
-//
-//            pprt->inwater  = btrue;
-//        }
-//        else
-//        {
-//            pprt->inwater = bfalse;
-//        }
-//    }
-//
-//    // the following functions should not be done the first time through the update loop
-//    if ( 0 == update_wld ) return btrue;
-//
-//    if ( prt_display )
-//    {
-//        // animate the particle
-//        pprt->image = pprt->image + pprt->image_add;
-//        if ( pprt->image >= pprt->image_max ) pprt->image = 0;
-//
-//        // rotate the particle
-//        pprt->rotate += pprt->rotate_add;
-//
-//        // update the particle size
-//        if ( 0 != pprt->size_add )
-//        {
-//            // resize the paricle
-//            size_new = pprt->size + pprt->size_add;
-//            size_new = CLIP( size_new, 0, 0xFFFF );
-//
-//            prt_set_size( pprt, size_new );
-//        }
-//
-//        // Change dyna light values
-//        if ( pprt->dynalight.level > 0 )
-//        {
-//            pprt->dynalight.level += ppip->dynalight.level_add;
-//            if ( pprt->dynalight.level < 0 ) pprt->dynalight.level = 0;
-//        }
-//        else if ( pprt->dynalight.level < 0 )
-//        {
-//            // try to guess what should happen for negative lighting
-//            pprt->dynalight.level += ppip->dynalight.level_add;
-//            if ( pprt->dynalight.level > 0 ) pprt->dynalight.level = 0;
-//        }
-//        else
-//        {
-//            pprt->dynalight.level += ppip->dynalight.level_add;
-//        }
-//
-//        pprt->dynalight.falloff += ppip->dynalight.falloff_add;
-//
-//        // spin the iprt
-//        pprt->facing += ppip->facingadd;
-//    }
-//
-//    if ( prt_active )
-//    {
-//        // down the remaining lifetime of the particle
-//        if ( pprt->lifetime_remaining > 0 ) pprt->lifetime_remaining--;
-//
-//        // down the continuous spawn timer
-//        if ( pprt->contspawn_delay > 0 ) pprt->contspawn_delay--;
-//
-//        // Spawn new particles if continually spawning
-//        if ( 0 == pprt->contspawn_delay && ppip->contspawn_amount > 0 && -1 != ppip->contspawn_pip )
-//        {
-//            FACING_T facing;
-//            Uint8    tnc;
-//
-//            // reset the spawn timer
-//            pprt->contspawn_delay = ppip->contspawn_delay;
-//
-//            facing = pprt->facing;
-//            for ( tnc = 0; tnc < ppip->contspawn_amount; tnc++ )
-//            {
-//                PRT_REF prt_child = spawn_one_particle( pprt->pos, facing, pprt->profile_ref, ppip->contspawn_pip,
-//                                                        ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, pprt->owner_ref, iprt, tnc, pprt->target_ref );
-//
-//                if ( ALLOCATED_PRT( prt_child ) )
-//                {
-//                    // Hack to fix velocity
-//                    PrtList.lst[prt_child].vel.x += pprt->vel.x;
-//                    PrtList.lst[prt_child].vel.y += pprt->vel.y;
-//                }
-//                facing += ppip->contspawn_facingadd;
-//            }
-//        }
-//    }
-//
-//    // apply damage from  attatched bump particles (about once a second)
-//    if ( 0 == ( update_wld & 31 ) )
-//    {
-//        CHR_REF ichr;
-//
-//        // do nothing if the particle is hidden
-//        if ( prt_active && !pprt->is_hidden && pprt->attachedto_ref != pprt->owner_ref )
-//        {
-//            ichr = pprt->attachedto_ref;
-//
-//            // is this is not a damage particle for me?
-//            if ( INGAME_CHR( ichr ) )
-//            {
-//                // Attached particle damage ( Burning )
-//                if ( ppip->allowpush && 0 == ppip->vel_hrz_pair.base )
-//                {
-//                    // Make character limp
-//                    ChrList.lst[ichr].vel.x *= 0.5f;
-//                    ChrList.lst[ichr].vel.y *= 0.5f;
-//                }
-//
-//                /// @note  Why is this commented out? Attached arrows need to do damage.
-//                //damage_character( ichr, ATK_BEHIND, pprt->damage, pprt->damagetype, pprt->team, pprt->owner_ref, ppip->damfx, bfalse );
-//            }
-//        }
-//    }
-//
-//    return btrue;
-//}
-
 //--------------------------------------------------------------------------------------------
 void update_all_particles()
 {
@@ -1328,10 +1105,7 @@ void update_all_particles()
     {
         if( !ALLOCATED_PRT(iprt) ) continue;
 
-        prt_bundle_ctor(&prt_bdl);
-        prt_bdl.prt_ref = iprt;
-
-        prt_bundle_validate(&prt_bdl);
+        prt_bundle_set( &prt_bdl, PrtList.lst + iprt );
 
         prt_update( &prt_bdl );
     }
@@ -1482,6 +1256,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pprt_bdl )
 prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pprt_bdl )
 {
     /// @details BB@> A helper function that computes particle friction with the floor
+    ///
     /// @note this is pretty much ripped from the character version of this function and may
     ///       contain some features that are not necessary for any particles that are actually in game.
     ///       For instance, the only particles that is under their own control are the homing particles
@@ -1592,8 +1367,10 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pprt_bdl )
     }
 
     // Apply fluid friction for all particles
-    if( loc_ppip->spdlimit < 0 )
+    if( loc_pprt->buoyancy > 0.0f )
     {
+        float buoyancy_friction = air_friction * loc_pprt->air_resistance;
+
         // this is a buoyant particle, like smoke
         if( loc_pprt->inwater )
         {
@@ -1615,15 +1392,15 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pprt_bdl )
         // this is a normal particle
         if( loc_pprt->inwater )
         {
-            loc_pprt->vel.x += (waterspeed.x-loc_pprt->vel.x) * ( 1.0f - penviro->fluid_friction_hrz  );
-            loc_pprt->vel.y += (waterspeed.y-loc_pprt->vel.y) * ( 1.0f - penviro->fluid_friction_hrz  );
-            loc_pprt->vel.z += (waterspeed.z-loc_pprt->vel.z) * ( 1.0f - penviro->fluid_friction_vrt  );
+            loc_pprt->vel.x += (waterspeed.x-loc_pprt->vel.x) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            loc_pprt->vel.y += (waterspeed.y-loc_pprt->vel.y) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            loc_pprt->vel.z += (waterspeed.z-loc_pprt->vel.z) * ( 1.0f - penviro->fluid_friction_vrt * loc_pprt->air_resistance );
         }
         else
         {
-            loc_pprt->vel.x += (windspeed.x-loc_pprt->vel.x) * ( 1.0f - penviro->fluid_friction_hrz );
-            loc_pprt->vel.y += (windspeed.y-loc_pprt->vel.y) * ( 1.0f - penviro->fluid_friction_hrz );
-            loc_pprt->vel.z += (windspeed.z-loc_pprt->vel.z) * ( 1.0f - penviro->fluid_friction_vrt );
+            loc_pprt->vel.x += (windspeed.x-loc_pprt->vel.x) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            loc_pprt->vel.y += (windspeed.y-loc_pprt->vel.y) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            loc_pprt->vel.z += (windspeed.z-loc_pprt->vel.z) * ( 1.0f - penviro->fluid_friction_vrt * loc_pprt->air_resistance );
         }
     }
 
@@ -1742,34 +1519,32 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pprt_bdl )
     loc_ppip = pprt_bdl->pip_ptr;
     penviro  = &(loc_pprt->enviro);
 
-	if ( loc_pprt->type != SPRITE_SOLID || loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pprt_bdl;
+	if ( loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pprt_bdl;
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
     // Do particle buoyancy. This is kinda BS the way it is calculated
-    if( 0 != loc_ppip->spdlimit )
-    {
-        loc_pprt->vel.z += (-loc_ppip->spdlimit - loc_pprt->vel.z) * buoyancy_friction - gravity * loc_zlerp;
-    }
+    loc_pprt->vel.z += loc_pprt->buoyancy - (1.0f - loc_zlerp) * gravity;
 
     // do gravity
-    if ( penviro->is_slippy && penviro->twist != TWIST_FLAT && loc_zlerp < 1.0f )
+    if ( penviro->is_slippy && (TWIST_FLAT != penviro->twist) && loc_zlerp < 1.0f )
     {
         // hills make particles slide
 
-        fvec3_t   gpara, gperp;
+        fvec3_t   gperp;    // gravity perpendicular to the mesh
+        fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
 
-        gperp.x = map_twistvel_x[penviro->twist];
-        gperp.y = map_twistvel_y[penviro->twist];
-        gperp.z = map_twistvel_z[penviro->twist];
+        gpara.x = map_twistvel_x[penviro->twist];
+        gpara.y = map_twistvel_y[penviro->twist];
+        gpara.z = map_twistvel_z[penviro->twist];
 
-        gpara.x = 0       - gperp.x;
-        gpara.y = 0       - gperp.y;
-        gpara.z = gravity - gperp.z;
+        gperp.x = 0       - gpara.x;
+        gperp.y = 0       - gpara.y;
+        gperp.z = gravity - gpara.z;
 
-        loc_pprt->vel.x += gpara.x + gperp.x * loc_zlerp;
-        loc_pprt->vel.y += gpara.y + gperp.y * loc_zlerp;
-        loc_pprt->vel.z += gpara.z + gperp.z * loc_zlerp;
+        loc_pprt->vel.x += gpara.x * (1.0f - loc_zlerp) + gperp.x * loc_zlerp;
+        loc_pprt->vel.y += gpara.y * (1.0f - loc_zlerp) + gperp.y * loc_zlerp;
+        loc_pprt->vel.z += gpara.z * (1.0f - loc_zlerp) + gperp.z * loc_zlerp;
     }
     else
     {
@@ -1823,7 +1598,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pprt_
     }
 
     // handle the collision
-    if ( hit_a_floor && loc_ppip->endground )
+    if ( hit_a_floor && loc_ppip->end_ground )
     {
         prt_request_terminate( pprt_bdl );
         return NULL;
@@ -1852,7 +1627,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pprt_
     }
 
     // handle the collision
-    if ( hit_a_wall && ( loc_ppip->endwall || loc_ppip->endbump ) )
+    if ( hit_a_wall && ( loc_ppip->end_wall || loc_ppip->end_bump ) )
     {
         prt_request_terminate( pprt_bdl );
         return NULL;
@@ -1862,13 +1637,13 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pprt_
     if ( hit_a_wall )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->soundend_wall );
+        play_particle_sound( loc_iprt, loc_ppip->end_sound_wall );
     }
 
     if ( hit_a_floor )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->soundend_floor );
+        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
     }
 
     prt_set_pos( loc_pprt, tmp_pos.v );
@@ -1948,7 +1723,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pprt_bdl )
     }
 
     // handle the collision
-    if ( touch_a_floor && loc_ppip->endground )
+    if ( touch_a_floor && loc_ppip->end_ground )
     {
         prt_request_terminate( pprt_bdl );
         return NULL;
@@ -2000,7 +1775,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pprt_bdl )
     }
 
     // handle the collision
-    if ( touch_a_wall && ( loc_ppip->endwall || loc_ppip->endbump ) )
+    if ( touch_a_wall && ( loc_ppip->end_wall || loc_ppip->end_bump ) )
     {
         prt_request_terminate( pprt_bdl );
         return NULL;
@@ -2010,14 +1785,14 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pprt_bdl )
     if ( hit_a_floor )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->soundend_floor );
+        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
     }
 
     // handle the sounds
     if ( hit_a_wall )
     {
         // Play the sound for hitting the wall [WSND]
-        play_particle_sound( loc_iprt, loc_ppip->soundend_wall );
+        play_particle_sound( loc_iprt, loc_ppip->end_sound_wall );
     }
 
     // do the reflections off the walls and floors
@@ -2181,9 +1956,6 @@ bool_t move_one_particle( prt_bundle_t * pprt_bdl )
 void move_all_particles( void )
 {
     /// @details ZZ@> This is the particle physics function
-
-    const float air_friction = 0.9868f;  // gives the same terminal velocity in terms of the size of the game characters
-    const float ice_friction = 0.9738f;  // the square of air_friction
 
     prt_stoppedby_tests = 0;
 
@@ -2467,7 +2239,7 @@ PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF by_
         return ( PIP_REF )MAX_PIP;
     }
 
-    ppip->soundend = CLIP( ppip->soundend, INVALID_SOUND, MAX_WAVE );
+    ppip->end_sound = CLIP( ppip->end_sound, INVALID_SOUND, MAX_WAVE );
     ppip->soundspawn = CLIP( ppip->soundspawn, INVALID_SOUND, MAX_WAVE );
 
     return ipip;
@@ -2657,45 +2429,45 @@ bool_t prt_request_terminate_ref( const PRT_REF by_reference iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-int prt_do_endspawn( const PRT_REF by_reference iprt )
+int prt_do_end_spawn( const PRT_REF by_reference iprt )
 {
-    int endspawn_count = 0;
+    int end_spawn_count = 0;
     prt_t * pprt;
 
-    if( !ALLOCATED_PRT(iprt) ) return endspawn_count;
+    if( !ALLOCATED_PRT(iprt) ) return end_spawn_count;
 
     pprt = PrtList.lst + iprt;
 
     // Spawn new particles if time for old one is up
-    if ( pprt->endspawn_amount > 0 && LOADED_PIP( pprt->endspawn_pip ) )
+    if ( pprt->end_spawn_amount > 0 && LOADED_PIP( pprt->end_spawn_pip ) )
     {
         FACING_T facing;
         int      tnc;
 
         facing = pprt->facing;
-        for ( tnc = 0; tnc < pprt->endspawn_amount; tnc++ )
+        for ( tnc = 0; tnc < pprt->end_spawn_amount; tnc++ )
         {
             // we have been given the absolute pip reference when the particle was spawned
             // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
-            // value of pprt->endspawn_pip will be used directly
-            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, REF_TO_INT( pprt->endspawn_pip ),
+            // value of pprt->end_spawn_pip will be used directly
+            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, REF_TO_INT( pprt->end_spawn_pip ),
                                 ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
             if( ALLOCATED_PRT(spawned_prt) )
             {
-                endspawn_count++;
+                end_spawn_count++;
             }
 
-            facing += pprt->endspawn_facingadd;
+            facing += pprt->end_spawn_facingadd;
         }
 
         // we have already spawned these particles, so set this amount to
         // zero in case we are not actually calling free_one_particle_in_game()
         // this time around.
-        pprt->endspawn_amount = 0;
+        pprt->end_spawn_amount = 0;
     }
 
-    return endspawn_count;
+    return end_spawn_count;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2722,7 +2494,7 @@ void cleanup_all_particles()
         prt_waiting    = STATE_WAITING_PBASE( POBJ_GET_PBASE( pprt ) );
         if( !prt_waiting ) continue;
 
-        prt_do_endspawn( iprt );
+        prt_do_end_spawn( iprt );
 
         free_one_particle_in_game( iprt );
     }
@@ -2881,7 +2653,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pprt_bdl  )
 
     inwater = ( pprt_bdl->prt_ptr->pos.z < water.surface_level ) && ( 0 != mesh_test_fx( PMesh, pprt_bdl->prt_ptr->onwhichgrid, MPDFX_WATER ) );
 
-    if ( inwater && water.is_water && pprt_bdl->pip_ptr->endwater )
+    if ( inwater && water.is_water && pprt_bdl->pip_ptr->end_water )
     {
         // Check for disaffirming character
         if ( INGAME_CHR( pprt_bdl->prt_ptr->attachedto_ref ) && pprt_bdl->prt_ptr->owner_ref == pprt_bdl->prt_ptr->attachedto_ref )
@@ -3200,11 +2972,7 @@ prt_bundle_t * prt_update( prt_bundle_t * pprt_bdl )
     if( tmp_pprt != pprt_bdl->prt_ptr )
     {
         // "new" particle, so re-validate the bundle
-        prt_bundle_ctor(pprt_bdl);
-
-        pprt_bdl->prt_ptr = tmp_pprt;
-
-        prt_bundle_validate(pprt_bdl);
+        prt_bundle_set(pprt_bdl, pprt_bdl->prt_ptr);
     }
 
     // if the bundle is no longer valid, return
@@ -3397,6 +3165,25 @@ prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
         pbundle->pip_ref = MAX_PIP;
         pbundle->pip_ptr = NULL;
     }
+
+    return pbundle;
+}
+
+//--------------------------------------------------------------------------------------------
+prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
+{
+    if( NULL == pbundle ) return NULL;
+
+    // blank out old data
+    pbundle = prt_bundle_ctor( pbundle );
+
+    if( NULL == pbundle || NULL == pprt ) return pbundle;
+
+    // set the particle pointer
+    pbundle->prt_ptr = pprt;
+
+    // validate the particle data
+    pbundle = prt_bundle_validate( pbundle );
 
     return pbundle;
 }

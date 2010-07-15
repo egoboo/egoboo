@@ -140,28 +140,30 @@ struct s_pip
     bool_t  needtarget;                   ///< Need a target?
     bool_t  startontarget;                ///< Start on target?
 
-    // ensing conditions
-    bool_t  endwater;                     ///< End if underwater
-    bool_t  endbump;                      ///< End if bumped
-    bool_t  endground;                    ///< End if on ground
-    bool_t  endwall;                      ///< End if hit a wall
-    bool_t  endlastframe;                 ///< End on last frame
-    Uint8   endspawn_amount;              ///< Spawn amount
-    Uint16  endspawn_facingadd;           ///< Spawn in circle
-    int     endspawn_pip;                 ///< Spawn type ( local )
-    Sint8   soundend;                     ///< Ending sound
-    Sint8   soundend_floor;               ///< Floor sound
-    Sint8   soundend_wall;                ///< Ricochet sound
+    // ending conditions
+    bool_t  end_water;                     ///< End if underwater
+    bool_t  end_bump;                      ///< End if bumped
+    bool_t  end_ground;                    ///< End if on ground
+    bool_t  end_wall;                      ///< End if hit a wall
+    bool_t  end_lastframe;                 ///< End on last frame
+    Uint8   end_spawn_amount;              ///< Spawn amount
+    Uint16  end_spawn_facingadd;           ///< Spawn in circle
+    int     end_spawn_pip;                 ///< Spawn type ( local )
+    Sint8   end_sound;                     ///< Ending sound
+    Sint8   end_sound_floor;               ///< Floor sound
+    Sint8   end_sound_wall;                ///< Ricochet sound
 
     // bumping
-    Uint8   bumpspawn_amount;             ///< Spawn amount
-    int     bumpspawn_pip;                ///< Spawn type ( global )
-    Sint8   bumpmoney;                    ///< Value of particle
-    Uint32  bump_size;                     ///< Bounding box size
-    Uint32  bump_height;                   ///< Bounding box height
+    Sint8   bump_money;                   ///< Value of particle
+    Uint32  bump_size;                    ///< Bounding box size
+    Uint32  bump_height;                  ///< Bounding box height
+
+    // "bump particle" spawning
+    Uint8   bumpspawn_amount;            ///< Spawn amount
+    int     bumpspawn_pip;               ///< Spawn type ( global )
 
     // continuous spawning
-    Uint16  contspawn_delay;               ///< Spawn timer
+    Uint16  contspawn_delay;              ///< Spawn timer
     Uint8   contspawn_amount;             ///< Spawn amount
     Uint16  contspawn_facingadd;          ///< Spawn in circle
     int     contspawn_pip;                ///< Spawn type ( local )

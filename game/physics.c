@@ -41,6 +41,9 @@ fvec3_t waterspeed      = ZERO_VECT3;
 
 static int breadcrumb_guid = 0;
 
+const float air_friction = 0.9868f;
+const float ice_friction = 0.9738f;  // the square of air_friction
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm )
@@ -654,7 +657,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     if( NULL == ppip ) return bc;
 
     bits = MPDFX_IMPASS;
-    if ( ppip->bumpmoney ) bits |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) bits |= MPDFX_WALL;
 
     bc->bits   = bits;
     bc->radius = pprt->bump_real.size;

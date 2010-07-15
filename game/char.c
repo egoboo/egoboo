@@ -6245,19 +6245,22 @@ void move_one_character_do_z_motion( chr_t * pchr )
         {
             // Slippy hills make characters slide
 
-            fvec3_t   gpara, gperp;
+            fvec3_t   gperp;    // gravity perpendicular to the mesh
+            fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
 
-            gperp.x = map_twistvel_x[pchr->enviro.twist];
-            gperp.y = map_twistvel_y[pchr->enviro.twist];
-            gperp.z = map_twistvel_z[pchr->enviro.twist];
+            float     loc_zlerp = pchr->enviro.zlerp;
 
-            gpara.x = 0       - gperp.x;
-            gpara.y = 0       - gperp.y;
-            gpara.z = gravity - gperp.z;
+            gpara.x = map_twistvel_x[pchr->enviro.twist];
+            gpara.y = map_twistvel_y[pchr->enviro.twist];
+            gpara.z = map_twistvel_z[pchr->enviro.twist];
 
-            pchr->vel.x += gpara.x + gperp.x * pchr->enviro.zlerp;
-            pchr->vel.y += gpara.y + gperp.y * pchr->enviro.zlerp;
-            pchr->vel.z += gpara.z + gperp.z * pchr->enviro.zlerp;
+            gperp.x = 0       - gpara.x;
+            gperp.y = 0       - gpara.y;
+            gperp.z = gravity - gpara.z;
+
+            pchr->vel.x += gpara.x * (1.0f - loc_zlerp) + gperp.x * loc_zlerp;
+            pchr->vel.y += gpara.y * (1.0f - loc_zlerp) + gperp.y * loc_zlerp;
+            pchr->vel.z += gpara.z * (1.0f - loc_zlerp) + gperp.z * loc_zlerp;
         }
         else
         {
@@ -7052,9 +7055,6 @@ void move_one_character( chr_t * pchr )
 void move_all_characters( void )
 {
     /// @details ZZ@> This function handles character physics
-
-    const float air_friction = 0.9868f;  // gives the same terminal velocity in terms of the size of the game characters
-    const float ice_friction = 0.9738f;  // the square of air_friction
 
     chr_stoppedby_tests = 0;
 

@@ -535,7 +535,7 @@ void ego_init_SDL_base()
     }
     else
     {
-        log_message( "Succeess!\n" );
+        log_message( "Success!\n" );
     }
 
     log_info( "Intializing SDL Event Threading... " );
@@ -546,7 +546,7 @@ void ego_init_SDL_base()
     }
     else
     {
-        log_message( "Succeess!\n" );
+        log_message( "Success!\n" );
     }
 
     _sdl_initialized_base = btrue;

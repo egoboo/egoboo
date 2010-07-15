@@ -183,7 +183,7 @@ bool_t         BSP_tree_prune_branch( BSP_tree_t * t, int cnt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t BSP_generate_aabb( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst );
+bool_t BSP_generate_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst );
 int    BSP_tree_collide( BSP_tree_t * tree, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------

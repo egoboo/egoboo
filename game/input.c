@@ -125,7 +125,7 @@ void input_init()
     }
     else
     {
-        log_message( "Succeess!\n" );
+        log_message( "Success!\n" );
     }
 
     input_init_keyboard();

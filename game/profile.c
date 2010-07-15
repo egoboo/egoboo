@@ -1291,7 +1291,6 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pprt_bdl )
     bool_t       retval;
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
-    pro_t      * ppro;
 
     prt_t *loc_pprt;
     pip_t *loc_ppip;
@@ -1309,14 +1308,18 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pprt_bdl )
 
     if ( !ACTIVE_PPRT( loc_pprt ) || loc_pprt->is_hidden ) return bfalse;
 
-    if ( !LOADED_PRO( loc_pprt->profile_ref ) ) return bfalse;
-    ppro = ProList.lst + loc_pprt->profile_ref;
+    // Make this optional? Is there any reason to fail if the particle has no profile reference?
+    has_enchant = bfalse;
+    if ( !LOADED_PRO( loc_pprt->profile_ref ) )
+    {
+        pro_t * ppro = ProList.lst + loc_pprt->profile_ref;
+        has_enchant = LOADED_EVE( ppro->ieve );
+    }
 
-    has_enchant = LOADED_EVE( ppro->ieve );
     does_damage = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
 
     does_status_effect = ( 0 != loc_ppip->grogtime ) || ( 0 != loc_ppip->dazetime );
-    needs_bump     = loc_ppip->endbump || loc_ppip->endground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bumpmoney );
+    needs_bump     = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bump_money );
     has_bump_size  = (0 != loc_ppip->bump_size) && (0 != loc_ppip->bump_height);
 
     does_special_effect = loc_ppip->causepancake;

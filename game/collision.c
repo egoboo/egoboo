@@ -2254,7 +2254,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
 
         // This should prevent raindrops from stacking up on the top of trees and other
         // objects
-        if ( pdata->ppip->endground && pplat->platform )
+        if ( pdata->ppip->end_ground && pplat->platform )
         {
             pdata->terminate_particle = btrue;
         }
@@ -2330,7 +2330,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
-                            ( pprt->owner_ref != GET_REF_PCHR( pchr ) ) && !pdata->ppip->bumpmoney;
+                            ( pprt->owner_ref != GET_REF_PCHR( pchr ) ) && !pdata->ppip->bump_money;
 
     chr_can_deflect = ( 0 != pchr->damagetime ) && ( pdata->max_damage > 0 );
 
@@ -2801,9 +2801,9 @@ bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_col
     spawn_bump_particles( GET_REF_PCHR( pchr ), GET_REF_PPRT( pprt ) );
 
     //handle some special particle interactions
-    if ( pdata->ppip->endbump )
+    if ( pdata->ppip->end_bump )
     {
-        if ( pdata->ppip->bumpmoney )
+        if ( pdata->ppip->bump_money )
         {
             chr_t * pcollector = pchr;
 
@@ -2821,7 +2821,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_col
 
             if ( pcollector->cangrabmoney && pcollector->alive && 0 == pcollector->damagetime && pcollector->money < MAXMONEY )
             {
-                pcollector->money += pdata->ppip->bumpmoney;
+                pcollector->money += pdata->ppip->bump_money;
                 pcollector->money = CLIP( pcollector->money, 0, MAXMONEY );
 
                 // the coin disappears when you pick it up
@@ -2898,7 +2898,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     chr_prt_collsion_data_t cn_lst;
 
-    if ( NULL == d || MAX_CHR != d->chrb ) return bfalse;
+    if ( NULL == d || TOTAL_MAX_PRT != d->prta || MAX_CHR != d->chrb ) return bfalse;
     ichr_a = d->chra;
     iprt_b = d->prtb;
 

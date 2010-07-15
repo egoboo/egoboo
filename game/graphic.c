@@ -488,7 +488,7 @@ void gfx_init_SDL_graphics()
     }
     else
     {
-        log_message( "Succeess!\n" );
+        log_message( "Success!\n" );
     }
 
 #if !defined(__APPLE__)

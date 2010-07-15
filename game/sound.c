@@ -230,7 +230,7 @@ bool_t sdl_audio_initialize()
         else
         {
             retval = btrue;
-            log_message( "Succeess!\n" );
+            log_message( "Success!\n" );
         }
     }
 

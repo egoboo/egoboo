@@ -1676,7 +1676,7 @@ void update_pits()
             // Kill any particles that fell in a pit, if they die in water...
             PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
             {
-                if ( prt_bdl.prt_ptr->pos.z < PITDEPTH && prt_bdl.pip_ptr->endwater )
+                if ( prt_bdl.prt_ptr->pos.z < PITDEPTH && prt_bdl.pip_ptr->end_water )
                 {
                     prt_request_terminate( &prt_bdl );
                 }

@@ -160,19 +160,22 @@ struct s_prt
     bool_t            is_homing;                 ///< Is the particle in control of its motion?
 
     // some data that needs to be copied from the particle profile
-    Uint8             endspawn_amount;        ///< The number of particles to be spawned at the end
-    Uint16            endspawn_facingadd;     ///< The angular spacing for the end spawn
-    int               endspawn_pip;           ///< The actual pip that will be spawned at the end
+    Uint8             end_spawn_amount;        ///< The number of particles to be spawned at the end
+    Uint16            end_spawn_facingadd;     ///< The angular spacing for the end spawn
+    int               end_spawn_pip;           ///< The actual pip that will be spawned at the end
 
     dynalight_info_t  dynalight;              ///< Dynamic lighting...
     prt_instance_t    inst;                   ///< Everything needed for rendering
     prt_environment_t enviro;                 ///< the particle's environment
     phys_data_t       phys;                   ///< the particle's physics data
 
-    bool_t         safe_valid;                    ///< is the last "safe" position valid?
-    fvec3_t        safe_pos;                      ///< the last "safe" position
-    Uint32         safe_time;                     ///< the last "safe" time
-    Uint32         safe_grid;                     ///< the last "safe" grid
+    bool_t         safe_valid;                ///< is the last "safe" position valid?
+    fvec3_t        safe_pos;                  ///< the last "safe" position
+    Uint32         safe_time;                 ///< the last "safe" time
+    Uint32         safe_grid;                 ///< the last "safe" grid
+
+    float          buoyancy;                  ///< an estimate of the particle bouyancy in air
+    float          air_resistance;            ///< an estimate of the particle's extra resistance to air motion
 
     BSP_leaf_t        bsp_leaf;
 
@@ -200,6 +203,7 @@ typedef struct s_prt_bundle prt_bundle_t;
 
 prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
 prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
+prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
 // function prototypes

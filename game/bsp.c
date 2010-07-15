@@ -56,6 +56,7 @@ s_BSP_aabb::s_BSP_aabb( size_t dim ) { BSP_aabb_ctor( this, dim ); };
 s_BSP_aabb::~s_BSP_aabb()  { BSP_aabb_dtor( this ); };
 #endif
 
+//--------------------------------------------------------------------------------------------
 BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim )
 {
     if ( NULL == pbb ) return NULL;
@@ -104,7 +105,8 @@ bool_t BSP_aabb_empty( BSP_aabb_t * psrc )
 
     for ( cnt = 0; cnt < psrc->dim; cnt++ )
     {
-        if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] ) return btrue;
+        if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] ) 
+            return btrue;
     }
 
     return bfalse;
@@ -135,15 +137,28 @@ bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
     ///               than psrc1, just check the lowest common dimensions.
 
     Uint32 cnt;
+    int min_dim;
 
     if ( NULL == psrc1 || NULL == psrc2 ) return bfalse;
 
-    if ( psrc2->dim > psrc1->dim ) return bfalse;
+    min_dim = MIN(psrc2->dim, psrc1->dim);
+    if( min_dim <= 0 ) return bfalse;
 
-    for ( cnt = 0; cnt < psrc2->dim; cnt++ )
+    for ( cnt = 0; cnt < min_dim; cnt++ )
     {
-        if ( psrc2->mins.ary[cnt] < psrc1->mins.ary[cnt] ) return bfalse;
-        if ( psrc2->maxs.ary[cnt] > psrc1->maxs.ary[cnt] ) return bfalse;
+        // inverted aabb?
+        if( psrc1->maxs.ary[cnt] < psrc1->mins.ary[cnt] )
+            return bfalse;
+
+        // inverted aabb?
+        if( psrc2->maxs.ary[cnt] < psrc2->mins.ary[cnt] )
+            return bfalse;
+
+        if ( psrc2->maxs.ary[cnt] > psrc1->maxs.ary[cnt] ) 
+            return bfalse;
+
+        if ( psrc2->mins.ary[cnt] < psrc1->mins.ary[cnt] ) 
+            return bfalse;
     }
 
     return btrue;
@@ -156,15 +171,29 @@ bool_t BSP_aabb_overlap( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
     ///               than psrc1, just check the lowest common dimensions.
 
     int cnt;
+    int min_dim;
 
     if ( NULL == psrc1 || NULL == psrc2 ) return bfalse;
 
-    if ( psrc2->dim > psrc1->dim ) return bfalse;
+    min_dim = MIN(psrc2->dim, psrc1->dim);
+    if( min_dim <= 0 ) return bfalse;
 
-    for ( cnt = 0; cnt < psrc2->dim; cnt++ )
+    for ( cnt = 0; cnt < min_dim; cnt++ )
     {
-        if ( psrc2->maxs.ary[cnt] < psrc1->mins.ary[cnt] ) return bfalse;
-        if ( psrc2->mins.ary[cnt] > psrc1->maxs.ary[cnt] ) return bfalse;
+        float minval, maxval;
+
+        // inverted aabb?
+        if( psrc1->maxs.ary[cnt] < psrc1->mins.ary[cnt] )
+            return bfalse;
+
+        // inverted aabb?
+        if( psrc2->maxs.ary[cnt] < psrc2->mins.ary[cnt] )
+            return bfalse;
+
+        minval = MAX(psrc1->mins.ary[cnt],psrc2->mins.ary[cnt]);
+        maxval = MIN(psrc1->maxs.ary[cnt],psrc2->maxs.ary[cnt]);
+
+        if( maxval < minval ) return bfalse;
     }
 
     return btrue;
@@ -179,7 +208,7 @@ bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc )
 
     if ( NULL == pdst || NULL == psrc ) return bfalse;
 
-    if ( 0 == pdst->dim ) return bfalse;
+    if ( pdst->dim <= 0 ) return bfalse;
 
     // this process is a little bit complicated because the
     // order to the OCT_* indices is optimized for a different test.
@@ -1052,7 +1081,7 @@ BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int ind
 
             // generate its bounding box
             pbranch->depth = B->depth + 1;
-            BSP_generate_aabb( &( B->bbox ), index, &( pbranch->bbox ) );
+            BSP_generate_aabb_child( &( B->bbox ), index, &( pbranch->bbox ) );
 
             // insert it in the correct position
             BSP_branch_insert_branch( B, index, pbranch );
@@ -1151,8 +1180,8 @@ bool_t BSP_tree_insert_leaf_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP
 
     //---- determine which child the leaf needs to go under
     /// @note This function is not optimal, since we encode the comparisons
-    /// in the 32-bit integer, indes, and then may have to decimate index to construct
-    /// the child  branch's bounding by calling BSP_generate_aabb().
+    /// in the 32-bit integer indices, and then may have to decimate index to construct
+    /// the child  branch's bounding by calling BSP_generate_aabb_child().
     /// The reason that it is done this way is that we would have to be dynamically
     /// allocating and deallocating memory every time this function is called, otherwise. Big waste of time.
     fail  = bfalse;
@@ -1315,7 +1344,7 @@ int BSP_tree_collide( BSP_tree_t * tree, BSP_aabb_t * paabb, BSP_leaf_pary_t * c
     // collide with any "infinite" nodes
     BSP_leaf_list_collide( tree->infinite, tree->infinite_count, paabb, colst );
 
-    // collise with the rest of the tree
+    // collide with the rest of the tree
     BSP_branch_collide( tree->root, paabb, colst );
 
     return colst->top;
@@ -1435,7 +1464,7 @@ bool_t BSP_leaf_list_collide( BSP_leaf_t * leaf_lst, size_t leaf_count, BSP_aabb
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t BSP_generate_aabb( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst )
+bool_t BSP_generate_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst )
 {
     int cnt, tnc, child_lst;
 

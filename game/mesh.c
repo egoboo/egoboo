@@ -761,30 +761,43 @@ void mesh_make_twist()
 
     Uint16 cnt;
 
+    float     gdot;
+    fvec3_t   grav = VECT3(0,0,gravity);
+
     for ( cnt = 0; cnt < 256; cnt++ )
     {
-        GLfloat nrm[3];
+        fvec3_t   gperp;    // gravity perpendicular to the mesh
+        fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
+        fvec3_t   nrm;
 
-        twist_to_normal( cnt, nrm, 1.0f );
+        twist_to_normal( cnt, nrm.v, 1.0f );
 
-        map_twist_nrm[cnt].x = nrm[XX];
-        map_twist_nrm[cnt].y = nrm[YY];
-        map_twist_nrm[cnt].z = nrm[ZZ];
+        map_twist_nrm[cnt] = nrm;
 
-        map_twist_x[cnt] = ( Uint16 )( - vec_to_facing( nrm[2], nrm[1] ) );
-        map_twist_y[cnt] = vec_to_facing( nrm[2], nrm[0] );
+        map_twist_x[cnt] = ( Uint16 )( - vec_to_facing( nrm.z, nrm.y ) );
+        map_twist_y[cnt] = vec_to_facing( nrm.z, nrm.x );
 
         // this is about 5 degrees off of vertical
         map_twist_flat[cnt] = bfalse;
-        if ( nrm[2] > 0.9945f )
+        if ( nrm.z > 0.9945f )
         {
             map_twist_flat[cnt] = btrue;
         }
 
-        // projection of the gravity perpendicular to the surface
-        map_twistvel_x[cnt] = nrm[0] * ABS( nrm[2] ) * gravity;
-        map_twistvel_y[cnt] = nrm[1] * ABS( nrm[2] ) * gravity;
-        map_twistvel_z[cnt] = nrm[2] * nrm[2] * gravity;
+        // projection of the gravity parallel to the surface
+        gdot = grav.z * nrm.z;
+
+        gperp.x = gdot * nrm.x;
+        gperp.y = gdot * nrm.y;
+        gperp.z = gdot * nrm.z;
+
+        gpara.x = grav.x - gperp.x;
+        gpara.y = grav.y - gperp.y;
+        gpara.z = grav.z - gperp.z;
+
+        map_twistvel_x[cnt] = gpara.x;
+        map_twistvel_y[cnt] = gpara.y;
+        map_twistvel_z[cnt] = gpara.z;
     }
 }
 
