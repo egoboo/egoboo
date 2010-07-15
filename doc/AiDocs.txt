@@ -2492,16 +2492,13 @@ spawndistance
   // This is the character's current distance from its spawn point
 --------------------------------------------------------------------------------
 targetmaxlife
-  // This is the character's current target maximum life (eg. unhurt hp)
+  // This is the target's current target maximum life (eg. unhurt hp)
 --------------------------------------------------------------------------------
 selfcontent
   // This is the character's current AI content
 --------------------------------------------------------------------------------
 spawndistance
   // This is the character's distance to it's spawn point
---------------------------------------------------------------------------------
-targetmaxlife
-  // This is the target's maximum life
 --------------------------------------------------------------------------------
 targetteam
   // This is the target's team reperesented in a number (0 = A, 1 = B, etc.)

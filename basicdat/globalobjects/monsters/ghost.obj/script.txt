@@ -29,7 +29,6 @@ IfTimeOut
     tmpargument = 3
     IfContentIs			//Dont if timer is short becuase
       tmpargument = rand % 5 + 3		//of attacking
-      tmpdistance = rand % 4000 + 6000
       PlaySound
     Else
       GetContent
@@ -83,7 +82,7 @@ IfTimeOut
       tmpy = rand % 500 + targety - 250
       SetTargetToOldTarget		//Enemy
       tmpturn = targetturnto
-      tmpdistance = rand & 1000
+      tmpdistance = rand % 1000
       Compass
       ClearWaypoints
       AddWaypoint			//Move randomly away from him
@@ -148,20 +147,17 @@ IfAttacked
     tmpargument = rand % 80 + 50
     SetTime
     tmpargument = 9
-    tmpdistance = rand % 8000 + 11000
     PlaySound			//Special feared sound
     tmpargument = 3
     SendMessageNear
   Else						//Normal ouch
     tmpargument = rand & 1
-    tmpdistance = rand % 8000 + 11000
     PlaySound			//Ouch sound
 
 //------------------------------------------------------------------------------
 //Death stuff
 IfKilled
   tmpargument = 2
-  tmpdistance = rand % 8000 + 11000
   PlaySound			//death sound
   tmpargument = 0
   IfTargetIsOnSameTeam

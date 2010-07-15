@@ -29,6 +29,7 @@ IfTimeOut
         // Replace the tile
         tmpargument = 246
         SetTileXY
+        
         // Spawn a ghuul
         tmpargument = 98
         tmpdistance = 0
