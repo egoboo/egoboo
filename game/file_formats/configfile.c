@@ -1194,5 +1194,5 @@ ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szF
     // restore the old filename info
     strncpy( pConfigFile->filename, old_filename, SDL_arraysize( old_filename ) );
 
-    return retval;
+	return retval;
 }

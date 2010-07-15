@@ -2096,7 +2096,7 @@ int doInputOptions( float deltaTime )
             ui_drawTextBox( menuFont, "ATK_LEFT HAND", buttonLeft, GFX_HEIGHT - 470, 0, 0, 20 );
 
             // Are we waiting for input?
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  // Someone cursor_pressed abort
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  // Someone pressed abort
 
             // Grab the key/button input from the selected device
             if ( waitingforinput != -1 )
@@ -2477,7 +2477,8 @@ int doGameOptions( float deltaTime )
             {
                 case GAME_HARD: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Punishing" ); break;
                 case GAME_EASY: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Forgiving" ); break;
-            default: case GAME_NORMAL:
+			default: 
+				case GAME_NORMAL:
                     {
                         snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Challenging" );
                         cfg.difficulty = GAME_NORMAL;

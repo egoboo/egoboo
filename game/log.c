@@ -51,7 +51,7 @@ static void writeLogMessage( const char *prefix, const char *format, va_list arg
         fputs( prefix, logFile );
         fputs( logBuffer, logFile );
 
-#if defined(_DEBUG) && defined(_CONSOLE) && defined(LOG_TO_CONSOLE)
+#if defined(_CONSOLE) && defined(LOG_TO_CONSOLE)
         fputs( prefix, stdout );
         fputs( logBuffer, stdout );
 #endif

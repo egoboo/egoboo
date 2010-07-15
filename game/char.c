@@ -713,7 +713,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference chara
 
 place_particle_at_vertex_fail:
 
-    prt_request_terminate( GET_REF_PPRT( pprt ) );
+	prt_request_terminate_ref( GET_REF_PPRT( pprt ) );
 
     return NULL;
 }
@@ -3946,13 +3946,14 @@ chr_t * chr_config_do_active( chr_t * pchr )
     //then do status updates
     chr_update_hide( pchr );
 
-    if ( pchr->pack.is_packed || pchr->is_hidden ) return pchr;
+	//Don't do items that are in inventory
+    if ( pchr->pack.is_packed ) return pchr;
 
-    // do the character interaction with water
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return pchr;
 
-    if ( pchr->pos.z < water.surface_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
+    // do the character interaction with water
+    if ( !pchr->is_hidden && pchr->pos.z < water.surface_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
     {
         // do splash and ripple
         if ( !pchr->enviro.inwater )
@@ -4028,19 +4029,16 @@ chr_t * chr_config_do_active( chr_t * pchr )
     pchr->inst.uoffset += pchr->uoffvel;
     pchr->inst.voffset += pchr->voffvel;
 
-    if ( !pchr->pack.is_packed )
+    // Down that ol' damage timer
+    if ( pchr->damagetime > 0 )
     {
-        // Down that ol' damage timer
-        if ( pchr->damagetime > 0 )
-        {
-            pchr->damagetime--;
-        }
+        pchr->damagetime--;
+    }
 
-        // Do "Be careful!" delay
-        if ( pchr->carefultime > 0 )
-        {
-            pchr->carefultime--;
-        }
+    // Do "Be careful!" delay
+    if ( pchr->carefultime > 0 )
+    {
+        pchr->carefultime--;
     }
 
     // Do stats once every second
