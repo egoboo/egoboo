@@ -1794,6 +1794,9 @@ ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_par
             break;
         }
 
+		
+		//( !INGAME_CHR( EncList.lst[enc_now].target_ref ) && !EveStack.lst[EncList.lst[enc_now].eve_ref].stayiftargetdead )
+		
         // remove any expired enchants
         if ( !INGAME_ENC( enc_now ) )
         {
@@ -1829,14 +1832,26 @@ void cleanup_all_enchants()
         ENC_REF * enc_lst;
         eve_t   * peve;
         bool_t    do_remove;
+		bool_t valid_owner, valid_target;
 
         // try to determine something about the parent
         enc_lst = NULL;
+		valid_target = bfalse;
         if ( INGAME_CHR( penc->target_ref ) )
         {
+			valid_owner = ChrList.lst[penc->target_ref].alive;
+
             // this is linked to a known character
             enc_lst = &( ChrList.lst[penc->target_ref].firstenchant );
         }
+
+		//try to determine if the owner exists and is alive
+		valid_owner = bfalse;
+		if ( INGAME_CHR( penc->owner_ref ) )
+        {
+			valid_owner = ChrList.lst[penc->owner_ref].alive;
+        }
+
 
         if ( !LOADED_EVE( penc->eve_ref ) )
         {
@@ -1852,17 +1867,17 @@ void cleanup_all_enchants()
             // the enchant has been marked for removal
             do_remove = btrue;
         }
-        else if ( !INGAME_CHR( penc->owner_ref ) && !peve->stayifnoowner )
+		else if ( valid_owner && !peve->stayifnoowner )
         {
             // the enchant's owner has died
             do_remove = btrue;
         }
-        else if ( !INGAME_CHR( penc->target_ref ) && !peve->stayiftargetdead )
+		else if ( valid_target && !peve->stayiftargetdead )
         {
             // the enchant's target has died
             do_remove = btrue;
         }
-        else if ( INGAME_CHR( penc->owner_ref ) && peve->endifcantpay )
+        else if ( valid_owner && peve->endifcantpay )
         {
             // Undo enchants that cannot be sustained anymore
             if ( ChrList.lst[penc->owner_ref].mana == 0 ) do_remove = btrue;

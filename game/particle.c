@@ -1742,7 +1742,7 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pprt_bdl )
     loc_ppip = pprt_bdl->pip_ptr;
     penviro  = &(loc_pprt->enviro);
 
-    if ( loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pprt_bdl;
+	if ( loc_pprt->type != SPRITE_SOLID || loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pprt_bdl;
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
@@ -2843,11 +2843,13 @@ int prt_do_contspawn( prt_bundle_t * pprt_bdl  )
                 // BB> taking out the test works, though  I should have checked vs. loc_pprt->attached_ref, anyway,
                 //     since we already specified that the particle is not attached in the function call :P
 				//if( !ACTIVE_CHR( loc_pprt->attachedto_ref ) )
-				{
+				/*{
 					PrtList.lst[prt_child].vel.x += loc_pprt->vel.x;
 					PrtList.lst[prt_child].vel.y += loc_pprt->vel.y;
 					PrtList.lst[prt_child].vel.z += loc_pprt->vel.z;
-				}
+				}*/
+				// ZF> I have again disabled this. Is this really needed? It wasn't implemented before and causes
+				//     many, many, many issues with all particles around the game.
 
 				//Keep count of how many were actually spawned
                 spawn_count++;

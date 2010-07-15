@@ -2553,7 +2553,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     //Don't damage if there is no damage or damage immune characters
-    if ( pchr->damagetime > 0 || ( pprt->damage.base + pprt->damage.base ) == 0 ) return bfalse;
+    if ( pchr->damagetime > 0 ) return bfalse;
 
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pchr );
@@ -2573,103 +2573,124 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     // Do confuse effects
     // the particle would have already been deflected if this frame was a
     // invictus frame
-    if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_NBLOC ) )
+    if ( pdata->ppip->grogtime > 0 && pdata->pcap->canbegrogged )
     {
-        if ( pdata->ppip->grogtime > 0 && pdata->pcap->canbegrogged )
+        pchr->ai.alert |= ALERTIF_GROGGED;
+        if ( pdata->ppip->grogtime > pchr->grogtime )
         {
-            pchr->ai.alert |= ALERTIF_GROGGED;
-            if ( pdata->ppip->grogtime > pchr->grogtime )
-            {
-                pchr->grogtime = MAX( 0, pchr->grogtime + pdata->ppip->grogtime );
-            }
+            pchr->grogtime = MAX( 0, pchr->grogtime + pdata->ppip->grogtime );
         }
-
-        if ( pdata->ppip->dazetime > 0 && pdata->pcap->canbedazed )
+    }
+    if ( pdata->ppip->dazetime > 0 && pdata->pcap->canbedazed )
+    {
+        pchr->ai.alert |= ALERTIF_DAZED;
+        if ( pdata->ppip->dazetime > pchr->dazetime )
         {
-            pchr->ai.alert |= ALERTIF_DAZED;
-            if ( pdata->ppip->dazetime > pchr->dazetime )
-            {
-                pchr->dazetime = MAX( 0, pchr->dazetime + pdata->ppip->dazetime );
-            }
+            pchr->dazetime = MAX( 0, pchr->dazetime + pdata->ppip->dazetime );
         }
     }
 
     //---- Damage the character, if necessary
-    prt_needs_impact = pdata->ppip->rotatetoface || INGAME_CHR( pprt->attachedto_ref );
-    if ( INGAME_CHR( pprt->owner_ref ) )
-    {
-        chr_t * powner = ChrList.lst + pprt->owner_ref;
-        cap_t * powner_cap = pro_get_pcap( powner->profile_ref );
+	if( ( pprt->damage.base + pprt->damage.base ) != 0 )
+	{
+		prt_needs_impact = pdata->ppip->rotatetoface || INGAME_CHR( pprt->attachedto_ref );
+		if ( INGAME_CHR( pprt->owner_ref ) )
+		{
+			chr_t * powner = ChrList.lst + pprt->owner_ref;
+			cap_t * powner_cap = pro_get_pcap( powner->profile_ref );
 
-        if ( powner_cap->isranged ) prt_needs_impact = btrue;
-    }
+			if ( powner_cap->isranged ) prt_needs_impact = btrue;
+		}
 
-    // DAMFX_ARRO means that it only does damage to the one it's attached to
-    if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
-    {
-        FACING_T direction;
-        IPair loc_damage = pprt->damage;
+		// DAMFX_ARRO means that it only does damage to the one it's attached to
+		if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
+		{
+			FACING_T direction;
+			IPair loc_damage = pprt->damage;
 
-        direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
-        direction = pchr->ori.facing_z - direction + ATK_BEHIND;
+			direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
+			direction = pchr->ori.facing_z - direction + ATK_BEHIND;
 
-        // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-        // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-        if ( pdata->ppip->intdamagebonus )
-        {
-            float percent;
-            percent = (( FP8_TO_INT( ChrList.lst[pprt->owner_ref].intelligence ) ) - 14 ) * 2;
-            percent /= 100;
-            loc_damage.base *= 1.00f + percent;
-            loc_damage.rand *= 1.00f + percent;
-        }
+			// Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+			// +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+			if ( pdata->ppip->intdamagebonus )
+			{
+				float percent;
+				percent = (( FP8_TO_INT( ChrList.lst[pprt->owner_ref].intelligence ) ) - 14 ) * 2;
+				percent /= 100;
+				loc_damage.base *= 1.00f + percent;
+				loc_damage.rand *= 1.00f + percent;
+			}
 
-        if ( pdata->ppip->wisdamagebonus )
-        {
-            float percent;
-            percent = ( FP8_TO_INT( ChrList.lst[pprt->owner_ref].wisdom ) - 14 ) * 2;
-            percent /= 100;
-            loc_damage.base *= 1.00f + percent;
-            loc_damage.rand *= 1.00f + percent;
-        }
+			if ( pdata->ppip->wisdamagebonus )
+			{
+				float percent;
+				percent = ( FP8_TO_INT( ChrList.lst[pprt->owner_ref].wisdom ) - 14 ) * 2;
+				percent /= 100;
+				loc_damage.base *= 1.00f + percent;
+				loc_damage.rand *= 1.00f + percent;
+			}
 
-        // handle vulnerabilities, double the damage
-        if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
-        {
-            loc_damage.base = ( loc_damage.base << 1 );
-            loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
+			// handle vulnerabilities, double the damage
+			if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
+			{
+				loc_damage.base = ( loc_damage.base << 1 );
+				loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
 
-            pchr->ai.alert |= ALERTIF_HITVULNERABLE;
-        }
+				pchr->ai.alert |= ALERTIF_HITVULNERABLE;
+			}
 
-        //Do life and mana drain
-        if ( ACTIVE_CHR( pprt->owner_ref ) )
-        {
-            int drain;
-            chr_t * powner = ChrList.lst + pprt->owner_ref;
+			//Do life and mana drain
+			if ( ACTIVE_CHR( pprt->owner_ref ) )
+			{
+				int drain;
+				chr_t * powner = ChrList.lst + pprt->owner_ref;
 
-            //Steal some life
-            if ( pprt->lifedrain > 0 )
-            {
-                drain = pchr->life;
-                pchr->life = CLIP( pchr->life, 1, pchr->life - pprt->lifedrain );
-                drain -= pchr->life;
-                powner->life = MIN( powner->life + drain, powner->lifemax );
-            }
+				//Steal some life
+				if ( pprt->lifedrain > 0 )
+				{
+					drain = pchr->life;
+					pchr->life = CLIP( pchr->life, 1, pchr->life - pprt->lifedrain );
+					drain -= pchr->life;
+					powner->life = MIN( powner->life + drain, powner->lifemax );
+				}
 
-            //Steal some mana
-            if ( pprt->manadrain > 0 )
-            {
-                drain = pchr->mana;
-                pchr->mana = CLIP( pchr->mana, 0, pchr->mana - pprt->manadrain );
-                drain -= pchr->mana;
-                powner->mana = MIN( powner->mana + drain, powner->manamax );
-            }
-        }
+				//Steal some mana
+				if ( pprt->manadrain > 0 )
+				{
+					drain = pchr->mana;
+					pchr->mana = CLIP( pchr->mana, 0, pchr->mana - pprt->manadrain );
+					drain -= pchr->mana;
+					powner->mana = MIN( powner->mana + drain, powner->manamax );
+				}
+			}
 
-        // Damage the character
-        pdata->actual_damage = damage_character( GET_REF_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
-    }
+			// Damage the character
+			pdata->actual_damage = damage_character( GET_REF_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
+		}
+
+		// Notify the attacker of a scored hit
+		if ( INGAME_CHR( pprt->owner_ref ) )
+		{
+			CHR_REF item;
+
+			chr_get_pai( pprt->owner_ref )->alert |= ALERTIF_SCOREDAHIT;
+			chr_get_pai( pprt->owner_ref )->hitlast = GET_REF_PCHR( pchr );
+
+			//Tell the weapons who the attacker hit last
+			item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_LEFT];
+			if ( INGAME_CHR( item ) )
+			{
+				ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
+			}
+
+			item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_RIGHT];
+			if ( INGAME_CHR( item ) )
+			{
+				ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
+			}
+		}
+	}
 
     //---- estimate the impulse on the particle
     if ( pdata->dot < 0.0f )
@@ -2705,28 +2726,6 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
             pdata->impulse.z += impulse_tmp.z;
         }
 
-    }
-
-    //---- Notify the attacker of a scored hit
-    if ( INGAME_CHR( pprt->owner_ref ) )
-    {
-        CHR_REF item;
-
-        chr_get_pai( pprt->owner_ref )->alert |= ALERTIF_SCOREDAHIT;
-        chr_get_pai( pprt->owner_ref )->hitlast = GET_REF_PCHR( pchr );
-
-        //Tell the weapons who the attacker hit last
-        item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_LEFT];
-        if ( INGAME_CHR( item ) )
-        {
-            ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
-        }
-
-        item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_RIGHT];
-        if ( INGAME_CHR( item ) )
-        {
-            ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
-        }
     }
 
     return btrue;

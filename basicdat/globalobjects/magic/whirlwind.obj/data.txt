@@ -89,7 +89,7 @@ EXPREVENGE     : 0.00
 EXPTEAMWORK    : 0.00
 EXPROLEPLAY    : 0.00
 
-IDSZ Parent    : [STRM]
+IDSZ Parent    : [BOOK]
 IDSZ Type      : [WIND]
 IDSZ Skill     : [WMAG]
 IDSZ Special   : [NONE]

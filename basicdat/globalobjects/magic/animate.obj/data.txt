@@ -89,8 +89,8 @@ EXPREVENGE     : 0.00
 EXPTEAMWORK    : 0.00
 EXPROLEPLAY    : 0.00
 
-IDSZ Parent    : [UNDE]
-IDSZ Type      : [HUMA]
+IDSZ Parent    : [BOOK]
+IDSZ Type      : [UNDE]
 IDSZ Skill     : [WMAG]
 IDSZ Special   : [EVIL]
 IDSZ Hate      : [XNOS]

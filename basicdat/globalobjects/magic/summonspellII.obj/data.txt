@@ -90,8 +90,8 @@ EXPTEAMWORK    : 0.01
 EXPROLEPLAY    : 0.00
 
 //Set IDSZ stuff
-IDSZ Parent    : [MAGI]
-IDSZ Type      : [BLOB]
+IDSZ Parent    : [BOOK]
+IDSZ Type      : [MAGI]
 IDSZ Skill     : [WMAG]
 IDSZ Special   : [XNOS]
 IDSZ Hate      : [NONE]

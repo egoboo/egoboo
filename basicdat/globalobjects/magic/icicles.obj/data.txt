@@ -89,7 +89,7 @@ EXPREVENGE     : 2.00
 EXPTEAMWORK    : 0.10
 EXPROLEPLAY    : 1.00
 
-IDSZ Parent    : [MAGI]
+IDSZ Parent    : [BOOK]
 IDSZ Type      : [ICIC]
 IDSZ Skill     : [WMAG]
 IDSZ Special   : [ICIC]

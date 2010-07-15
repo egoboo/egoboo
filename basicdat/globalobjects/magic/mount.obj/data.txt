@@ -90,7 +90,7 @@ EXPTEAMWORK    : 0.00
 EXPROLEPLAY    : 0.00
 
 //Set IDSZ stuff
-IDSZ Parent    : [MAGI]
+IDSZ Parent    : [BOOK]
 IDSZ Type      : [SALA]
 IDSZ Skill     : [HMAG]
 IDSZ Special   : [NONE]

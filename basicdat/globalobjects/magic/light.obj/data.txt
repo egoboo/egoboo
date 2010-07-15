@@ -89,7 +89,7 @@ EXPREVENGE     : 0.00
 EXPTEAMWORK    : 0.00
 EXPROLEPLAY    : 0.00
 
-IDSZ Parent    : [MAGI]
+IDSZ Parent    : [BOOK]
 IDSZ Type      : [BALL]
 IDSZ Skill     : [WMAG]
 IDSZ Special   : [NONE]
