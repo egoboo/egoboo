@@ -73,8 +73,7 @@ Player4:       NONE    27  34.5   52.5   12.0   N    0   0  0   0   0   T   F   
   INVENTORY:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
 KeyC:   NONE    39  37.5   51.5   0.0   N    0   0  0   0   0   F   F   N
-modulecontrol:   NONE    96  31.5   55.5   1.0   N    0   0  0   0   0   F   F   E
-popper:   NONE    97  36.5   53.5   1.0   N    0   0  0   0   0   F   F   E
+moduletool:   NONE    96  31.5   55.5   1.0   N    0   0  0   0   0   F   F   E
 shaft:   NONE    44  37.5   51.5   1.0   W    0   0  0   0   0   F   F   N
 
 //Locked chest with map and secret bottom
@@ -129,12 +128,10 @@ chest:   NONE    37  8.0   41.0   1.0   E    0   0  0   4   0   F   F   N
   LPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-vampire:   NONE    55  9.5   54.5   1.0   N    0   0  0   0   0   F   F   U
-  vampwing:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-vampire:   NONE    55  6.5   51.5   1.0   N    0   0  0   0   0   F   F   U
-  vampwing:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-vampire:   NONE    55  7.5   50.5   1.0   N    0   0  0   0   0   F   F   U
-  vampwing:   NONE    56  0.0   0.0   0.0   L    18   0  0   0   0   F   F   N
+ghost:   NONE    55  9.5   54.5   1.0   N    0   0  0   0   0   F   F   U
+ghost:   NONE    55  6.5   51.5   1.0   N    0   0  0   0   0   F   F   U
+ghost:   NONE    55  7.5   50.5   1.0   N    0   0  0   0   0   F   F   U
+
 chest:   NONE    37  20.0   17.0   1.0   S    0   0  0   1   0   F   F   N
   FShield:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Spear:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

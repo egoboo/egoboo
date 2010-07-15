@@ -106,7 +106,7 @@ Shutter:   NONE     55    33   53   0    W   0   0   27  52  0   F   F   Null
 LockDoor:  NONE     56    23   31   0    N   0   0   32  0   0   F   F   Null
 
 
-BossTroll: NONE     71    59   18   0    E   0   0   1   0   0   F   F   Troll
+SandTroll: NONE     71    59   18   0    E   0   0   1   0   0   F   F   Troll
 
 
 Trog:      NONE     36    19   19   0    S   4   1   0   0   0   F   F   Frogs

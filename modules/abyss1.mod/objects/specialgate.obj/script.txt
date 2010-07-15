@@ -8,10 +8,10 @@ IfOrdered
   tmpx = selforder
   tmpy = 491  // The unique code for an unlock order
   IfXIsEqualToY
-      tmpargument = passage
-      OpenPassage
-      tmpargument = 0
-      SendMessageNear
+    tmpargument = passage
+    OpenPassage
+    tmpargument = 0
+    SendMessageNear
 
 // ZZ> This function makes the door open if its passage is open
 KeepAction			//

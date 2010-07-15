@@ -10,11 +10,11 @@ IfBackstabbed
   SendMessageNear
 
 //------------------------------------------------------------------------------
-// ZZ> Handle normal state
+//Handle normal state
 IfStateIs0
   IfAtLastWaypoint
-    tmpx = rand % 640 + 6976
-    tmpy = rand % 640 + 2112
+    tmpx = rand % 512 + selfspawnx - 256
+    tmpy = rand % 512 + selfspawny - 256
     ClearWaypoints
     AddWaypoint
   IfBumped
@@ -37,7 +37,7 @@ IfStateIs0
       tmpx = rand & 511 - 256 + selfx
       tmpy = rand & 511 - 256 + selfy
       tmpdistance = 100
-      tmpturn = targetturnto + 32768
+      tmpturn = targetturnto + 32768        //targeturnfrom
       Compass
       ClearWaypoints
       AddWaypoint
@@ -59,7 +59,7 @@ IfStateIs0
         tmpx = targetx
         tmpy = targety
         tmpturn = targetturnto
-        tmpdistance = 500
+        tmpdistance = 200
         Compass
         ClearWaypoints
         AddWaypoint
@@ -86,21 +86,18 @@ IfKilled
   // Drop goodies
   tmpargument = selfmoney
   DropMoney
+  DropKeys
 
   // Make smoke
   SpawnPoof
 
-  // Open the boss passage
-  tmpargument = passage
-  OpenPassage
-
 //------------------------------------------------------------------------------
-// ZZ> For helper AIs
+//For helper AIs
 IfLeaderKilled
   BecomeLeader
 
 //------------------------------------------------------------------------------
-// ZZ> Handle being attacked by blocking or countering or running away
+//Handle being attacked by blocking or countering or running away
 IfAttacked
   // Turn to stone
   IfStateIs0
@@ -113,7 +110,7 @@ IfAttacked
       HealTarget
       BlackTarget
       SetTargetToOldTarget
-      
+
       //Tell the players what to do
       tmpargument = 7
       SendMessageNear
@@ -137,7 +134,7 @@ IfAttacked
         // Permanent life loss from fire
         SetOldTarget
         SetTargetToSelf
-        tmpargument = 0 - 1024
+        tmpargument = -1024
         GiveLifeToTarget
         SetTargetToOldTarget
         tmpargument = 5
@@ -170,7 +167,7 @@ IfAttacked
       SpawnExactParticle
 
 //------------------------------------------------------------------------------
-// ZZ> Handle stone state
+//Handle stone state
 IfStateIs1
   tmpx = selflife
   tmpy = 5120
