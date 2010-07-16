@@ -1,37 +1,37 @@
-// Healing cloud
+// Broken Arrow Head
 Force spawn ( TRUE or FALSE )				: FALSE
-Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
-Starting frame ( 0 to 255 )				: 100
-Number of frames ( 1 to 16 )				: 4
-Frame rate ( 0 to 1000 )				: 40
-Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 31
-Rotation base ( 0 to 65535 )				: 0
-Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )	: 65535
-Rotation rate ( 0 to 1000 )				: 1000
-Starting size ( 0 to 65535 )				: 25000
-Size increase rate ( 0 to 1000 )			: -200
-Speed limit ( 0.0 to 10.0 )				: 0.0
+Image type ( SOLID, LIGHT, or TRANS )			: SOLID
+Starting frame ( 0 to 255 )				: 233
+Number of frames ( 1 to 16 )				: 1
+Frame rate ( 0 to 1000 )				: 0
+Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
+Rotation base ( 0 to 65535 )				: 41000
+Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )	: 0
+Rotation rate ( 0 to 1000 )				: 2000
+Starting size ( 0 to 65535 )				: 20000
+Size increase rate ( 0 to 1000 )			: -500
+Speed limit ( 0.0 to 10.0 )				: 8.0
 Facing rate ( 0 to 1000 )				: 0
 
 
 
 // Ending conditions
 Water ends particle ( TRUE or FALSE )			: FALSE
-Bump ends particle ( TRUE or FALSE )			: TRUE
+Bump ends particle ( TRUE or FALSE )			: FALSE
 End if hits ground ( TRUE or FALSE )			: FALSE
-End after last frame ( TRUE or FALSE )			: TRUE
-Time before end ( 1 to 1000, 0 )			: 1
+End after last frame ( TRUE or FALSE )			: FALSE
+Time before end ( 1 to 1000, 0 )			: 20
 
 
 
 // Collision data
-Bounce dampen ( 0.0 to 0.9 )				: 1.0
+Bounce dampen ( 0.0 to 0.9 )				: 0.0
 Bump money ( 0 to 100 )					: 0
 Bump size ( 0 to 60 )					: 0
 Bump height ( 0 to 60 )					: 0
 Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 0
 Bump damage type ( SLASH, CRUSH, POKE, HOLY,
-              EVIL, FIRE, ICE, ZAP )			: HOLY
+              EVIL, FIRE, ICE, ZAP )			: POKE
 
 
 
@@ -48,20 +48,20 @@ Facing base ( 0 to 65535 )				: 0
 Facing randomness ( 0, 1, 3, 7, 15, 31, 63... )		: 0
 XY Spacing ( 0 to 100 )					: 0
 XY Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
-Z Spacing ( -100 to 100 )				: 20
+Z Spacing ( -100 to 100 )				: 0
 Z Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 XY Velocity ( 0 to 100 )				: 0
 XY Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
-Z Velocity ( -100 to 100 )				: 0
+Z Velocity ( -100 to 100 )				: 4
 Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 
 
 
 // Continuous spawning of other particles
-Spawn time ( 0 to 100 )					: 1000
-Amount to spawn each time ( 0 to 10 )			: 8
-Facing add for each one ( 0 to 65535 )			: 8192
-Spawn type ( 0 to 3 )					: 1
+Spawn time ( 0 to 100 )					: 0
+Amount to spawn each time ( 0 to 10 )			: 0
+Facing add for each one ( 0 to 65535 )			: 0
+Spawn type ( 0 to 3 )					: 0
 
 
 
@@ -89,7 +89,7 @@ Start on target ( TRUE or FALSE )			: FALSE
 Only damage friendly ( TRUE or FALSE )			: FALSE
 Spawn sound ( -1 for none )				: -1
 End sound ( -1 for none )				: -1
-Friendly fire ( TRUE or FALSE )				: FALSE
+Friendly fire ( TRUE or FALSE )				: TRUE
 Only hit hate group ( TRUE or FALSE )			: FALSE
 New target on spawn ( TRUE or FALSE )			: FALSE
 Target angle ( 0 to 32768 )				: 0

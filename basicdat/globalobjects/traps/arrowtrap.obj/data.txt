@@ -1,6 +1,6 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 85
-Object class name ( use underscore for spaces ) : Well
+Object slot number ( 0 to 63, don't use twice )	: 71
+Object class name ( use underscore for spaces ) : Arrow_Trap
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
 Starting ammo ( 0 for doesn't matter )		: 0
@@ -31,10 +31,10 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 // More physical attributes
 Size ( eg. 1.0 )				: 1.0
 Size increase per level ( eg. 0.05 )		: 0.05
-Shadow size ( eg. 30, 0 is none )		: 30
-Bump size ( eg. 30 )				: 50
-Bump height ( eg. 70 )				: 255
-Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.0
+Shadow size ( eg. 30, 0 is none )		: 0
+Bump size ( eg. 30 )				: 0
+Bump height ( eg. 70 )				: 0
+Bump dampen ( 0.0 to 1.0, lower is massive )	: 0
 Weight ( 0 to 255 )				: 255
 Jump power ( eg. 14.0 )				: 0.0
 Number of jumps ( eg. 1 )			: 0
@@ -48,7 +48,7 @@ Light blending ( 255 is normal )		: 255
 Transfer blending to weapons ( TRUE or FALSE )	: FALSE
 Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: 0
 Phong mapping ( TRUE or FALSE )			: FALSE
-Texture X movement rate ( eg. 0.0 )		: 0.0
+Texture X movement rate ( eg. 0.0 )		: 0.002
 Texture Y movement rate ( eg. 0.0 )		: 0.0
 Conform to hills like a chair ( TRUE or FALSE )	: FALSE
 
@@ -102,7 +102,7 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 
 // IDSZ Identification tags ( [NONE] is valid )
-Parent ID ( eg. [FROG] for Trogs )		: [WELL]
+Parent ID ( eg. [FROG] for Trogs )		: [TRAP]
 Type ID ( eg. [TROG] for Trogs )		: [NONE]
 Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
 Special ID ( eg. [SUM0] for animated bones )	: [NONE]
@@ -114,11 +114,11 @@ Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
 Object is an item ( TRUE or FALSE )		: FALSE
 Object is a mount ( TRUE or FALSE )		: FALSE
 Object is stackable ( TRUE or FALSE )		: FALSE
-Object's name is known ( TRUE or FALSE )	: TRUE
-Item of known usage ( TRUE or FALSE )		: TRUE
+Object's name is known ( TRUE or FALSE )	: FALSE
+Item of known usage ( TRUE or FALSE )		: FALSE
 Item carries to next module ( TRUE or FALSE )	: FALSE
-Item requires skill ID to use ( TRUE or FALSE )	: TRUE
-Object is a platform ( TRUE or FALSE)		: TRUE
+Item requires skill ID to use ( TRUE or FALSE )	: FALSE
+Object is a platform ( TRUE or FALSE)		: FALSE
 Object collects money ( TRUE or FALSE )		: FALSE
 Object can open chests/doors ( TRUE or FALSE )	: FALSE
 
@@ -128,7 +128,7 @@ DamageTarget type ( SLASH, CRUSH, POKE, HOLY,
                     EVIL, FIRE, ICE, or ZAP )	: CRUSH
 Attack type if it's a weapon ( UNARMED, THRUST,
                      SLICE, CHOP, BASH, LONGBOW,
-                     XBOW, FLINGED, PARRY, ZAP)	: UNARMED
+                     XBOW, FLINGED, PARRY, ZAP)	: WALK
 
 
 // Particle attachments
@@ -144,8 +144,8 @@ Right grip valid ( TRUE or FALSE )		: FALSE
 
 
 // Particle spawning on attack order ( for weapon characters )
-Particle attached to weapon ( TRUE or FALSE )	: FALSE
-Particle type ( 0 to 3 )			: 0
+Particle attached to weapon ( TRUE or FALSE )	: TRUE
+Particle type ( 0 to 3 )			: -1
 
 
 // Particle spawning for GoPoof
@@ -161,7 +161,7 @@ Particle type ( 0 to 3 )			: 0
 
 // Extra stuff I forgot 
 Character can walk on water ( TRUE or FALSE )	: FALSE
-Character bounciness ( 0.00 to 0.95 )		: 0.0
+Character bounciness ( 0.00 to 0.95 )		: .30
 
 
 // More stuff I forgot
@@ -191,6 +191,9 @@ Chance of being cursed ( 0 to 100 )		: 0
 Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
 
+
+// Expansions
+:[HIDE] 0
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

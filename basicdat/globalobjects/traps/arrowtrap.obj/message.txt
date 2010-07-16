@@ -1,0 +1,2 @@
+Message 0: %t_activated_an_%c!
+Message 1: %t_found_an_%c!

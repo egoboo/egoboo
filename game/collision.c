@@ -2552,9 +2552,6 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    //Don't damage if there is no damage or damage immune characters
-    if ( pchr->damagetime > 0 ) return bfalse;
-
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pchr );
 
@@ -2571,8 +2568,6 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     // Do confuse effects
-    // the particle would have already been deflected if this frame was a
-    // invictus frame
     if ( pdata->ppip->grogtime > 0 && pdata->pcap->canbegrogged )
     {
         pchr->ai.alert |= ALERTIF_GROGGED;
@@ -2611,40 +2606,32 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 			direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
 			direction = pchr->ori.facing_z - direction + ATK_BEHIND;
 
-			// Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-			// +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-			if ( pdata->ppip->intdamagebonus )
+			//These things only apply if the particle has an owner
+			if ( INGAME_CHR( pprt->owner_ref ) )
 			{
-				float percent;
-				percent = (( FP8_TO_INT( ChrList.lst[pprt->owner_ref].intelligence ) ) - 14 ) * 2;
-				percent /= 100;
-				loc_damage.base *= 1.00f + percent;
-				loc_damage.rand *= 1.00f + percent;
-			}
-
-			if ( pdata->ppip->wisdamagebonus )
-			{
-				float percent;
-				percent = ( FP8_TO_INT( ChrList.lst[pprt->owner_ref].wisdom ) - 14 ) * 2;
-				percent /= 100;
-				loc_damage.base *= 1.00f + percent;
-				loc_damage.rand *= 1.00f + percent;
-			}
-
-			// handle vulnerabilities, double the damage
-			if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
-			{
-				loc_damage.base = ( loc_damage.base << 1 );
-				loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
-
-				pchr->ai.alert |= ALERTIF_HITVULNERABLE;
-			}
-
-			//Do life and mana drain
-			if ( ACTIVE_CHR( pprt->owner_ref ) )
-			{
+				CHR_REF item;
 				int drain;
 				chr_t * powner = ChrList.lst + pprt->owner_ref;
+
+				// Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+				// +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+				if ( pdata->ppip->intdamagebonus )
+				{
+					float percent;
+					percent = (( FP8_TO_INT( powner->intelligence ) ) - 14 ) * 2;
+					percent /= 100;
+					loc_damage.base *= 1.00f + percent;
+					loc_damage.rand *= 1.00f + percent;
+				}
+
+				if ( pdata->ppip->wisdamagebonus )
+				{
+					float percent;
+					percent = ( FP8_TO_INT( powner->wisdom ) - 14 ) * 2;
+					percent /= 100;
+					loc_damage.base *= 1.00f + percent;
+					loc_damage.rand *= 1.00f + percent;
+				}
 
 				//Steal some life
 				if ( pprt->lifedrain > 0 )
@@ -2663,32 +2650,36 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 					drain -= pchr->mana;
 					powner->mana = MIN( powner->mana + drain, powner->manamax );
 				}
+				
+				// Notify the attacker of a scored hit
+				powner->ai.alert |= ALERTIF_SCOREDAHIT;
+				powner->ai.hitlast = GET_REF_PCHR( pchr );
+
+				//Tell the weapons who the attacker hit last
+				item = powner->holdingwhich[SLOT_LEFT];
+				if ( INGAME_CHR( item ) )
+				{
+					ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
+				}
+
+				item = powner->holdingwhich[SLOT_RIGHT];
+				if ( INGAME_CHR( item ) )
+				{
+					ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
+				}
+			}
+			
+			// handle vulnerabilities, double the damage
+			if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
+			{
+				loc_damage.base = ( loc_damage.base << 1 );
+				loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
+
+				pchr->ai.alert |= ALERTIF_HITVULNERABLE;
 			}
 
 			// Damage the character
 			pdata->actual_damage = damage_character( GET_REF_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
-		}
-
-		// Notify the attacker of a scored hit
-		if ( INGAME_CHR( pprt->owner_ref ) )
-		{
-			CHR_REF item;
-
-			chr_get_pai( pprt->owner_ref )->alert |= ALERTIF_SCOREDAHIT;
-			chr_get_pai( pprt->owner_ref )->hitlast = GET_REF_PCHR( pchr );
-
-			//Tell the weapons who the attacker hit last
-			item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_LEFT];
-			if ( INGAME_CHR( item ) )
-			{
-				ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
-			}
-
-			item = ChrList.lst[pprt->owner_ref].holdingwhich[SLOT_RIGHT];
-			if ( INGAME_CHR( item ) )
-			{
-				ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
-			}
 		}
 	}
 
@@ -2948,7 +2939,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     }
 
     // do "damage" to the character
-    if ( !prt_deflected && 0 == pchr_a->damagetime && ( full_collision || plat_collision ) )
+    if ( !prt_deflected && 0 == pchr_a->damagetime )
     {
         // Check reaffirmation of particles
         if ( (pprt_b->damage.base > 0 || pprt_b->damage.rand > 0) && pchr_a->reaffirmdamagetype == pprt_b->damagetype )

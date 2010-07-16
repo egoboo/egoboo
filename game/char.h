@@ -82,7 +82,7 @@ typedef enum e_turn_modes
     TURNMODE_COUNT
 } TURN_MODE;
 
-#define MANARETURNSHIFT     22                      ///< ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
+#define MANARETURNSHIFT     44                    ///< ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
 
 #define TURNSPD             0.01f                 ///< Cutoff for turning or same direction
 #define SPINRATE            200                   ///< How fast spinners spin

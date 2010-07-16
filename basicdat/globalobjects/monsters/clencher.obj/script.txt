@@ -45,7 +45,8 @@ IfBumped
 
 // Look for enemies
 IfTimeOut
-  SetTargetToNearestEnemy
+  tmpdistance = 128*10
+  SetTargetToDistantEnemy
     IfFacingTarget
       tmpx = targetdistance
       tmpy = 1000

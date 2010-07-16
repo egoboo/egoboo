@@ -77,3 +77,4 @@ Dexterity boost ( -3.0 to 3.0 )			: 8.0
 :[TYPE] 3       // 0 to 7, Type of particles to spawn
 :[FACE] 8192    // 0 to 65535, Facing add for each one...
 :[SEND] 1       // 0 to 15, The end sound
+:[STAY] 1       //The enchantment stays even if the potion is gone

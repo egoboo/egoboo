@@ -72,5 +72,5 @@ Dexterity boost ( -3.0 to 3.0 )			: 0.0
 
 
 // Expansions...
-:[SEND] 2	// The end sound
-:[SFRQ] 9000	// The end sound frequency
+:[SEND] 2	      // The end sound
+:[STAY] 1       //The enchantment stays even if the scroll is gone

@@ -48,7 +48,8 @@ IfBumped
 
 // Look for enemies
 IfTimeOut
-  SetTargetToNearestEnemy
+  tmpdistance = 128*10
+  SetTargetToDistantEnemy
     IfFacingTarget
       tmpx = targetdistance
       tmpy = 800
@@ -63,7 +64,7 @@ IfTimeOut
           tmpx = 0
           tmpy = 0
           tmpturn = targetturnto
-          tmpdistance = 100
+          tmpdistance = 75
           Compass
           SetOldTarget
           SetTargetToSelf

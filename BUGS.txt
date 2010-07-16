@@ -5,10 +5,9 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
+- Healing Potions (HealTarget script) do not remove poison. 
 - There seems to be an AI targeting bug. Sometimes Trogs and the Trolls in Sand Palace just stand there without doing anything. When you move they become activated for a while again. 
 - You cannot dismount from the gatling gun in the G'nome Starter 
-- One cannot pick up money. 
 - The executable binary is around 15 mb(!) since last revision? It used to be around 1 mb before.... - Enchants on jewlery when module spawns aren't activated.
 - Runes need to be repriced much like Arcane Spellbooks were
-- Troll in Griffin tower doesnt die properly
 - SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)

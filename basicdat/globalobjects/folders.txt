@@ -6,13 +6,12 @@ weapons     = anything hat does direct damage, throws a missile, or blocks damag
 magic_items = any remaining objects that can be picked up and are essentially magical in nature (rings, bracelets, shoes ...)
 items       = anything that can be picked up that does not go in the above categories
 
+traps       = devious and deadly traps for the treasure hungry adventurer
 misc        = objects that are neither items or monsters, usually props such as chairs, pillars and tables
 monsters    = enough said
 players     = all models that could be potentially played by a player
 
-
 unique      = things that there are only 1 of in the whole world (or just a few)
-
 works_in_progess = not ready for use yet, but may need to be tried in-game
 
 ----------------------------

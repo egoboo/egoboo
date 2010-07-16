@@ -67,7 +67,7 @@ deadfall.obj:   NONE    38  48.5   12.5   1.0   N    0   0  0   0   0   F   F   
 deadfall.obj:   NONE    38  46.0   10.0   1.0   N    0   0  0   0   0   F   F   E
 deadfall.obj:   NONE    38  48.0   8.0   1.0   N    0   0  0   0   0   F   F   E
 chest.obj:   NONE    40  48.0   8.0   1.0   S    0   0  0   0   0   F   F   N
-  handxbow.obj:   NONE    55  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  phanxbow.obj:   NONE    55  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   linuxshield.obj:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   cknife.obj:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   mstaff.obj:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -100,3 +100,7 @@ varguile.obj:   NONE    53  33.0   40.0   1.0   N    0   0  0   0   0   F   F   
   varwing.obj:   NONE    54  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 sarcophagus.obj:   NONE    64  29.5   44.5   1.0   N    0   0  0   0   0   F   F   E
 sarcophagus.obj:   NONE    64  34.5   44.5   1.0   S    0   0  0   0   0   F   F   E
+
+//Well room
+well.obj:   NONE    72  53.5   27.5   0.0   ?    0   0  0   0   0   F   F   N
+arrowtrap:   NONE    71  46.0   31.0   0.0   ?    0   0  0   0   0   F   F   Trap

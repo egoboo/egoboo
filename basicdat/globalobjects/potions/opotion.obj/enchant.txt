@@ -74,3 +74,4 @@ Dexterity boost ( -3.0 to 3.0 )			: 0.0
 // Expansions...
 :[SEND] 1	// The end sound
 :[CKUR] 1
+:[STAY] 1       //The enchantment stays even if the potion is gone

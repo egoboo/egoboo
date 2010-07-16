@@ -12,6 +12,7 @@ Version 2.8.0 (14.07.2010)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Completely reworked the Vampire monster.
 - Update: Major improvements on the AI for Brom and Mim.
 - Update: Intelligence now increases the effectivity of homing spells.
 - Update: Added some new extra scenery objects (eye candy) to spice up some areas of the game. 

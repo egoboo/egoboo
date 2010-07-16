@@ -38,17 +38,15 @@ IfTimeOut
   tmpargument = 100
   SetTime
 
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 5
   IfXIsMoreThanY              //Does it have enough water?
-    tmpargument = 0	      //Drinkable again
+    tmpargument = 0	          //Drinkable again
     SetState
-  Else
-    GetContent				//Else start refilling water
-    tmpargument = tmpargument + 1	
+  Else                        //Else start refilling water
+    tmpargument = selfcontent + 1	
     SetContent
-    tmpargument = 1      //Spit out message its empty
+    tmpargument = 1           //Spit out message its empty
     SetState
 
 End				// Finished with this character
