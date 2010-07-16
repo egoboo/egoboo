@@ -40,6 +40,7 @@ struct s_menu_process;
 
 struct s_chr;
 struct s_prt;
+struct s_prt_bundle;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -382,3 +383,5 @@ void disenchant_character( const CHR_REF by_reference ichr );
 bool_t game_setup_vfs_paths( const char * mod_path );
 
 void cleanup_character_enchants( struct s_chr * pchr );
+
+bool_t attach_one_particle( struct s_prt_bundle * pprt_bdl );

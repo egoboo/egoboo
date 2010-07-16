@@ -245,6 +245,27 @@ int do_ego_proc_running( ego_process_t * eproc )
         process_kill( PROC_PBASE( eproc ) );
     }
 
+    if( cfg.dev_mode )
+    {
+        if ( !SDLKEYDOWN( SDLK_F10 ) )
+        {
+            single_frame_keyready = btrue;
+        }
+        else if ( single_frame_keyready && SDLKEYDOWN( SDLK_F10 ) )
+        {
+            if( !single_frame_mode )
+            {
+                single_frame_mode = btrue;
+            }
+
+            // request one update and one frame
+            single_frame_requested  = btrue;
+            single_update_requested = btrue;
+            single_frame_keyready   = bfalse;
+        }
+
+    }
+
     // Check for screenshots
     if ( !SDLKEYDOWN( SDLK_F11 ) )
     {
@@ -276,6 +297,9 @@ int do_ego_proc_running( ego_process_t * eproc )
     if ( eproc->escape_requested )
     {
         eproc->escape_requested = bfalse;
+
+        // use the escape key to get out of single frame mode
+        single_frame_mode = bfalse;
 
         if ( process_running( PROC_PBASE( GProc ) ) )
         {

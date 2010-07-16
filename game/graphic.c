@@ -2636,6 +2636,13 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     //render_all_prt_attachment();
 #endif
 
+#if defined(_DEBUG) && defined(DEBUG_PRT_BBOX)
+    if( TOTAL_MAX_PRT != bullet_ref )
+    {
+        render_prt_bbox( PrtList.lst + bullet_ref );
+    }
+#endif
+
     time_render_scene_init  = PROFILE_QUERY( render_scene_init ) * TARGET_FPS;
     time_render_scene_mesh  = PROFILE_QUERY( render_scene_mesh ) * TARGET_FPS;
     time_render_scene_solid = PROFILE_QUERY( render_scene_solid ) * TARGET_FPS;

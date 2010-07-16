@@ -1318,7 +1318,7 @@ void bump_all_objects( obj_BSP_t * pbsp )
 //--------------------------------------------------------------------------------------------
 bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 {
-    /// @details BB@> Detect all character and particle interactions platforms. Then attach them.
+    /// @details BB@> Detect all character and particle interactions with platforms, then attach them.
     ///             @note it is important to only attach the character to a platform once, so its
     ///              weight does not get applied to multiple platforms
 
@@ -1402,7 +1402,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool_t bump_all_mounts( CoNode_ary_t * pcn_ary )
 {
-    /// @details BB@> Detect all character interactions mounts. Then attach them.
+    /// @details BB@> Detect all character interactions with mounts, then attach them.
 
     int        cnt;
     CoNode_t * d;

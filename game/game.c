@@ -770,8 +770,10 @@ int update_game()
     update_loop_cnt = 0;
     if ( update_wld < true_update )
     {
+        int max_iterations = single_frame_mode ? 1 : (2 * TARGET_UPS);
+
         /// @todo claforte@> Put that back in place once networking is functional (Jan 6th 2001)
-        for ( tnc = 0; update_wld < true_update && tnc < 2 * TARGET_UPS ; tnc++ )
+        for ( tnc = 0; update_wld < true_update && tnc < max_iterations; tnc++ )
         {
             PROFILE_BEGIN( game_single_update );
             {
@@ -895,7 +897,7 @@ void game_update_timers()
     // calculate the time since the from the last update
     // if the game was paused, assume that only one update time elapsed since the last time through this function
     clock_diff = UPDATE_SKIP;
-    if ( !update_was_paused )
+    if ( !update_was_paused && !single_frame_mode )
     {
         clock_diff = ticks_diff;
         clock_diff = MIN( clock_diff, 10 * UPDATE_SKIP );
@@ -1115,7 +1117,7 @@ int do_game_proc_running( game_process_t * gproc )
     if ( gproc->base.paused ) return 0;
 
     gproc->ups_ticks_now = SDL_GetTicks();
-    if ( gproc->ups_ticks_now > gproc->ups_ticks_next )
+    if ( (!single_frame_mode && gproc->ups_ticks_now > gproc->ups_ticks_next) || (single_frame_mode && single_update_requested) )
     {
         // UPS limit
         gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP / 4;
@@ -1205,11 +1207,13 @@ int do_game_proc_running( game_process_t * gproc )
             est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY( game_update_loop );
             est_max_ups     = 0.9 * est_max_ups     + 0.1 * ( 1.0f / PROFILE_QUERY( game_update_loop ) );
         }
+
+        single_update_requested = bfalse;
     }
 
     // Do the display stuff
     gproc->fps_ticks_now = SDL_GetTicks();
-    if ( gproc->fps_ticks_now > gproc->fps_ticks_next )
+    if ( (!single_frame_mode && gproc->fps_ticks_now > gproc->fps_ticks_next) || (single_frame_mode && single_frame_requested) )
     {
         // FPS limit
         float  frameskip = ( float )TICKS_PER_SEC / ( float )cfg.framelimit;
@@ -1230,6 +1234,8 @@ int do_game_proc_running( game_process_t * gproc )
         // estimate how much time the main loop is taking per second
         est_render_time = est_gfx_time * TARGET_FPS;
         est_max_fps  = 0.9 * est_max_fps + 0.1 * ( 1.0f - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
+
+        single_frame_requested = bfalse;
     }
 
     if ( gproc->escape_requested )
@@ -4663,8 +4669,8 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     ilayer = wawalite_data.water.layer + 0;
     if( wawalite_data.water.background_req )
     {
-        // this is a bit complicated. it is the best I can do at reverse engineering what I did in
-        // render_world_background()
+        // this is a bit complicated. 
+        // it is the best I can do at reverse engineering what I did in render_world_background()
 
         const float cam_height = 1500.0f;
         const float default_bg_repeat = 4.0f;

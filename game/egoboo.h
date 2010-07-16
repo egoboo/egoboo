@@ -196,6 +196,11 @@ void ego_init_SDL_base();
 
 EXTERN bool_t screenshot_requested EQ( bfalse );
 
+EXTERN bool_t single_frame_mode EQ( bfalse );
+EXTERN bool_t single_frame_keyready EQ( btrue );
+EXTERN bool_t single_frame_requested EQ( bfalse );
+EXTERN bool_t single_update_requested EQ( bfalse );
+
 void egoboo_clear_vfs_paths();
 void egoboo_setup_vfs_paths();
 

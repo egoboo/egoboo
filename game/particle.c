@@ -52,6 +52,8 @@ const float buoyancy_friction = 0.2f;          // how fast does a "cloud-like" o
 int prt_stoppedby_tests = 0;
 int prt_pressure_tests = 0;
 
+PRT_REF bullet_ref = TOTAL_MAX_PRT;
+
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack, MAX_PIP );
 
 //--------------------------------------------------------------------------------------------
@@ -266,6 +268,11 @@ prt_t * prt_config_do_init( prt_t * pprt )
         return NULL;
     }
     ppip = PipStack.lst + pdata->ipip;
+
+    if( 50 == ppip->vel_hrz_pair.base )
+    {
+        bullet_ref = iprt;
+    }
 
     // let the object be activated
     POBJ_ACTIVATE( pprt, ppip->name );
@@ -541,6 +548,15 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     // count out all the requests for this particle type
     ppip->prt_create_count++;
+
+    if( MAX_CHR != pprt->attachedto_ref )
+    {
+        prt_bundle_t prt_bdl;
+
+        prt_bundle_set( &prt_bdl, pprt );
+
+        attach_one_particle( &prt_bdl );
+    }
 
     return pprt;
 }

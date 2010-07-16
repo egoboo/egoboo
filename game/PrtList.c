@@ -251,6 +251,11 @@ bool_t PrtList_free_one( const PRT_REF by_reference iprt )
         // particle "destructor"
         pprt = prt_config_deconstruct( pprt, 100 );
         if ( NULL == pprt ) return bfalse;
+
+        if( bullet_ref == pprt->obj_base.index )
+        {
+            bullet_ref = TOTAL_MAX_PRT;
+        }
     }
 
     return retval;

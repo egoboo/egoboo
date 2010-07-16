@@ -190,6 +190,8 @@ typedef struct s_prt prt_t;
 extern int prt_stoppedby_tests;
 extern int prt_pressure_tests;
 
+extern PRT_REF bullet_ref;
+
 //--------------------------------------------------------------------------------------------
 struct s_prt_bundle
 {

@@ -46,9 +46,6 @@ float ptex_wscale[2] = {1.0f, 1.0f};
 float ptex_hscale[2] = {1.0f, 1.0f};
 
 //--------------------------------------------------------------------------------------------
-static void render_prt_bbox( prt_t * pprt );
-
-//--------------------------------------------------------------------------------------------
 int prt_get_texture_style( const TX_REF by_reference itex )
 {
     int index;
@@ -102,7 +99,7 @@ static void prt_instance_update( camera_t * pcam, const PRT_REF by_reference par
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
-static void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset );
+static void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset );
 static void prt_draw_attached_point( prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
@@ -227,10 +224,6 @@ bool_t render_one_prt_solid( const PRT_REF by_reference iprt )
     }
     ATTRIB_POP( "render_one_prt_solid" );
 
-#if defined(_DEBUG) && defined(DEBUG_PRT_BBOX)
-    render_prt_bbox( pprt );
-#endif
-
     return btrue;
 }
 
@@ -269,6 +262,13 @@ bool_t render_one_prt_trans( const PRT_REF by_reference iprt )
     if ( !DISPLAY_PRT( iprt ) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &( pprt->inst );
+
+#if defined(_DEBUG) && defined(DEBUG_PRT_BBOX)
+    if( bullet_ref == pprt->obj_base.index )
+    {
+        render_prt_bbox( pprt );
+    }
+#endif
 
     // if the particle instance data is not valid, do not continue
     if ( !pinst->valid ) return bfalse;
@@ -347,10 +347,6 @@ bool_t render_one_prt_trans( const PRT_REF by_reference iprt )
         GL_DEBUG_END();
     }
     ATTRIB_POP( "render_one_prt_trans" );
-
-#if defined(_DEBUG) && defined(DEBUG_PRT_BBOX)
-    render_prt_bbox( pprt );
-#endif
 
     return btrue;
 }
@@ -657,7 +653,7 @@ void render_all_prt_attachment()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_attacment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset )
+void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset )
 {
     /// @details BB@> a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
@@ -716,7 +712,7 @@ void prt_draw_attached_point( prt_t * pprt )
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
 
-    draw_one_attacment_point( &( pholder->inst ), pholder_mad, pprt->attachedto_vrt_off );
+    draw_one_attachment_point( &( pholder->inst ), pholder_mad, pprt->attachedto_vrt_off );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1149,18 +1145,29 @@ void prt_instance_update( camera_t * pcam, const PRT_REF by_reference particle, 
 //--------------------------------------------------------------------------------------------
 void render_prt_bbox( prt_t * pprt )
 {
+    int cnt;
+    oct_bb_t loc_bb;
+
     if ( !DISPLAY_PPRT( pprt ) ) return;
 
-    if( 0.0f == pprt->bump_padded.size ) return;
+    loc_bb = pprt->chr_prt_cv;
+
+    for(cnt = 0; cnt < OCT_COUNT; cnt++ )
+    {
+        loc_bb.mins[cnt] = MIN( loc_bb.mins[cnt], -50 );
+        loc_bb.maxs[cnt] = MAX( loc_bb.mins[cnt],  50 );
+    }
+
+    //if( 0.0f == pprt->bump_padded.size ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    if ( (cfg.dev_mode && SDLKEYDOWN( SDLK_F7 )) || single_frame_mode )
     {
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
             oct_bb_t bb;
 
-            oct_bb_add_vector( pprt->chr_prt_cv, pprt->pos, &bb );
+            oct_bb_add_vector( loc_bb, pprt->pos, &bb );
 
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );
