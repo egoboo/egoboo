@@ -3414,16 +3414,16 @@ void game_release_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t attach_one_particle( prt_bundle_t * pprt_bdl )
+bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
 {
     prt_t * pprt;
     chr_t * pchr;
 
-    if( NULL == pprt_bdl ) return bfalse;
-    pprt = pprt_bdl->prt_ptr;
+    if( NULL == pbdl_prt ) return bfalse;
+    pprt = pbdl_prt->prt_ptr;
 
-    if ( !INGAME_CHR( pprt_bdl->prt_ptr->attachedto_ref ) ) return bfalse;
-    pchr = ChrList.lst + pprt_bdl->prt_ptr->attachedto_ref;
+    if ( !INGAME_CHR( pbdl_prt->prt_ptr->attachedto_ref ) ) return bfalse;
+    pchr = ChrList.lst + pbdl_prt->prt_ptr->attachedto_ref;
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
     if( NULL == pprt ) return bfalse;
@@ -3432,7 +3432,7 @@ bool_t attach_one_particle( prt_bundle_t * pprt_bdl )
     if ( ACTIVE_PPRT( pprt ) )
     {
         // Correct facing so swords knock characters in the right direction...
-        if ( NULL != pprt_bdl->pip_ptr && HAS_SOME_BITS( pprt_bdl->pip_ptr->damfx, DAMFX_TURN ) )
+        if ( NULL != pbdl_prt->pip_ptr && HAS_SOME_BITS( pbdl_prt->pip_ptr->damfx, DAMFX_TURN ) )
         {
             pprt->facing = pchr->ori.facing_z;
         }

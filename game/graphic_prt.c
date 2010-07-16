@@ -100,7 +100,9 @@ static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
 static void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset );
-static void prt_draw_attached_point( prt_t * pprt );
+static void prt_draw_attached_point( prt_bundle_t * pbdl_prt );
+
+static void render_prt_bbox( prt_bundle_t * pbdl_prt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -262,13 +264,6 @@ bool_t render_one_prt_trans( const PRT_REF by_reference iprt )
     if ( !DISPLAY_PRT( iprt ) ) return bfalse;
     pprt = PrtList.lst + iprt;
     pinst = &( pprt->inst );
-
-#if defined(_DEBUG) && defined(DEBUG_PRT_BBOX)
-    if( bullet_ref == pprt->obj_base.index )
-    {
-        render_prt_bbox( pprt );
-    }
-#endif
 
     // if the particle instance data is not valid, do not continue
     if ( !pinst->valid ) return bfalse;
@@ -647,7 +642,18 @@ void render_all_prt_attachment()
 
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
-        prt_draw_attached_point( prt_bdl.prt_ptr );
+        prt_draw_attached_point( &prt_bdl );
+    }
+    PRT_END_LOOP();
+}
+
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_bbox()
+{
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
+    {
+        render_prt_bbox( &prt_bdl );
     }
     PRT_END_LOOP();
 }
@@ -695,16 +701,21 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_draw_attached_point( prt_t * pprt )
+void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 {
     mad_t * pholder_mad;
     cap_t * pholder_cap;
     chr_t * pholder;
 
-    if ( !DISPLAY_PPRT( pprt ) ) return;
+    prt_t * loc_pprt;
 
-    if ( !INGAME_CHR( pprt->attachedto_ref ) ) return;
-    pholder = ChrList.lst + pprt->attachedto_ref;
+    if( NULL == pbdl_prt ) return;
+    loc_pprt = pbdl_prt->prt_ptr;
+
+    if ( !DISPLAY_PPRT( loc_pprt ) ) return;
+
+    if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return;
+    pholder = ChrList.lst + loc_pprt->attachedto_ref;
 
     pholder_cap = pro_get_pcap( pholder->profile_ref );
     if ( NULL == pholder_cap ) return;
@@ -712,14 +723,13 @@ void prt_draw_attached_point( prt_t * pprt )
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
 
-    draw_one_attachment_point( &( pholder->inst ), pholder_mad, pprt->attachedto_vrt_off );
+    draw_one_attachment_point( &( pholder->inst ), pholder_mad, loc_pprt->attachedto_vrt_off );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void prt_instance_update_all( camera_t * pcam )
 {
-
     if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam ) return;
 
@@ -1143,34 +1153,46 @@ void prt_instance_update( camera_t * pcam, const PRT_REF by_reference particle, 
 }
 
 //--------------------------------------------------------------------------------------------
-void render_prt_bbox( prt_t * pprt )
+void render_prt_bbox( prt_bundle_t * pbdl_prt )
 {
-    int cnt;
-    oct_bb_t loc_bb;
+    prt_t * loc_pprt;
+    pip_t * loc_ppip;
 
-    if ( !DISPLAY_PPRT( pprt ) ) return;
+    if( NULL == pbdl_prt ) return;
+    loc_pprt = pbdl_prt->prt_ptr;
+    loc_ppip = pbdl_prt->pip_ptr;
 
-    loc_bb = pprt->chr_prt_cv;
+    // only draw bullets
+    if( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
-    for(cnt = 0; cnt < OCT_COUNT; cnt++ )
-    {
-        loc_bb.mins[cnt] = MIN( loc_bb.mins[cnt], -50 );
-        loc_bb.maxs[cnt] = MAX( loc_bb.mins[cnt],  50 );
-    }
+    if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 
-    //if( 0.0f == pprt->bump_padded.size ) return;
-
-    // draw the object bounding box as a part of the graphics debug mode F7
+     // draw the object bounding box as a part of the graphics debug mode F7
     if ( (cfg.dev_mode && SDLKEYDOWN( SDLK_F7 )) || single_frame_mode )
     {
+        int cnt;
+        oct_bb_t loc_bb, tmp_bb, exp_bb;
+
+        // copy the bounding volume
+        tmp_bb = loc_pprt->chr_prt_cv;
+
+        // make sure that it has some minimum extent
+        //for(cnt = 0; cnt < OCT_COUNT; cnt++ )
+        //{
+        //    tmp_bb.mins[cnt] = MIN( tmp_bb.mins[cnt], -1 );
+        //    tmp_bb.maxs[cnt] = MAX( tmp_bb.mins[cnt],  1 );
+        //}
+
+        // determine the expanded collision volumes for both objects
+        phys_expand_oct_bb( tmp_bb, loc_pprt->vel, 0, 1, &exp_bb );
+
+        // shift the source bounding boxes to be centered on the given positions
+        oct_bb_add_vector( exp_bb, loc_pprt->pos, &loc_bb );
+
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
-            oct_bb_t bb;
-
-            oct_bb_add_vector( loc_bb, pprt->pos, &bb );
-
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-            render_oct_bb( &bb, btrue, btrue );
+            render_oct_bb( &loc_bb, btrue, btrue );
         }
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );
     }

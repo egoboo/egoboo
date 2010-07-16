@@ -167,7 +167,7 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp );
 
 //bool_t obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pnode, int depth, int address_x[], int address_y[], int address_z[] );
 bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, struct s_chr * pchr );
-bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, struct s_prt_bundle * pprt_bdl );
+bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, struct s_prt_bundle * pbdl_prt );
 
 int    obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
 

@@ -190,8 +190,6 @@ typedef struct s_prt prt_t;
 extern int prt_stoppedby_tests;
 extern int prt_pressure_tests;
 
-extern PRT_REF bullet_ref;
-
 //--------------------------------------------------------------------------------------------
 struct s_prt_bundle
 {
@@ -247,7 +245,7 @@ bool_t prt_is_over_water( const PRT_REF by_reference particle );
 
 bool_t release_one_pip( const PIP_REF by_reference ipip );
 
-bool_t prt_request_terminate( prt_bundle_t * pprt_bdl );
+bool_t prt_request_terminate( prt_bundle_t * pbdl_prt );
 bool_t prt_request_terminate_ref( const PRT_REF by_reference iprt );
 
 void prt_set_level( prt_t * pprt, float level );

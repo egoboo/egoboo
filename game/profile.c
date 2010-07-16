@@ -1284,7 +1284,7 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pprt_bdl )
+bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
 {
     /// @details BB@> insert a particle's BSP_leaf_t into the BSP_tree_t
 
@@ -1302,9 +1302,9 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pprt_bdl )
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
 
-    if( NULL == pprt_bdl ) return bfalse;
-    loc_pprt = pprt_bdl->prt_ptr;
-    loc_ppip = pprt_bdl->pip_ptr;
+    if( NULL == pbdl_prt ) return bfalse;
+    loc_pprt = pbdl_prt->prt_ptr;
+    loc_ppip = pbdl_prt->pip_ptr;
 
     if ( !ACTIVE_PPRT( loc_pprt ) || loc_pprt->is_hidden ) return bfalse;
 

@@ -266,3 +266,5 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile );
 
 fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float center_pressure, Uint32 bits );
 float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits );
+
+Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile );

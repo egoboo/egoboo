@@ -58,7 +58,6 @@ static void             mesh_info_init( ego_mpd_info_t * pinfo, int numvert, siz
 
 // some twist/normal functions
 static bool_t mesh_make_normals( ego_mpd_t * pmesh );
-static Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile );
 
 static bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src );
 static bool_t mesh_make_bbox( ego_mpd_t * pmesh );

@@ -2637,10 +2637,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 #endif
 
 #if defined(_DEBUG) && defined(DEBUG_PRT_BBOX)
-    if( TOTAL_MAX_PRT != bullet_ref )
-    {
-        render_prt_bbox( PrtList.lst + bullet_ref );
-    }
+    render_all_prt_bbox();
 #endif
 
     time_render_scene_init  = PROFILE_QUERY( render_scene_init ) * TARGET_FPS;

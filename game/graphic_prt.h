@@ -29,6 +29,7 @@
 
 struct s_camera;
 struct s_prt;
+struct s_prt_bundle;
 
 //--------------------------------------------------------------------------------------------
 // support for computing the particle texture coordinates on the fly.
@@ -96,10 +97,10 @@ bool_t render_one_prt_trans( const PRT_REF by_reference iprt );
 bool_t render_one_prt_ref( const PRT_REF by_reference iprt );
 
 void   render_all_particles( struct s_camera * pcam );
+void   render_all_prt_bbox();
 void   render_prt_ref( struct s_camera * pcam );
 
 void   render_all_prt_attachment();
 
 void prt_instance_update_all( struct s_camera * pcam );
 
-void render_prt_bbox( struct s_prt * pprt );
