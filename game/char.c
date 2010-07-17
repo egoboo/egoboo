@@ -2277,6 +2277,23 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
     // find the 1st non-item that is holding the weapon
     iholder = chr_get_lowest_attachment( iweapon, btrue );
 
+    if( iweapon != iholder && iweapon != ichr )
+    {
+        // This seems to be the "proper" place to activate the held object.
+        // If the attack action  of the character holding the weapon does not have 
+        // MADFX_ACTLEFT or MADFX_ACTRIGHT bits (and so character_swipe function is never called)
+        // then the action is played and the ALERTIF_USED bit is set in the chr_do_latch_attack()
+        // function.
+        //
+        // It would be better to move all of this to the character_swipe() function, but we cannot be assured
+        // that all models have the proper bits set.
+
+	    // Make the iweapon attack too
+	    chr_play_action( pweapon, ACTION_MJ, bfalse );
+
+        pweapon->ai.alert |= ALERTIF_USED;
+    }
+
     // What kind of attack are we going to do?
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
@@ -5899,9 +5916,11 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                 debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
             }
         }
+
+        return bfalse;
     }
 
-    if ( action == ACTION_DA )
+    if ( ACTION_DA == action )
     {
         allowedtoattack = bfalse;
         if ( 0 == pweapon->reloadtime )
@@ -5915,6 +5934,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     {
         // Rearing mount
         CHR_REF mount = pchr->attachedto;
+
         if ( INGAME_CHR( mount ) )
         {
             chr_t * pmount = ChrList.lst + mount;
@@ -5952,6 +5972,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 
             if ( mana_paid )
             {
+                Uint32 action_madfx = 0;
+
                 // Check life healing
                 pchr->life += pweapon->life_heal;
                 if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
@@ -5962,25 +5984,39 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                 // make sure it is valid
                 action = mad_get_action( imad, action );
 
+                // grab the MADFX_* flags for this action
+                action_madfx = mad_get_action( imad, action );
+
                 if ( ACTION_IS_TYPE( action, P ) )
                 {
                     // we must set parry actions to be interrupted by anything
                     chr_play_action( pchr, action, btrue );
                 }
                 else
-                {
+                {                   
                     chr_play_action( pchr, action, bfalse );
 					
-					if ( iweapon != ichr )
+					if ( HAS_NO_BITS(action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
 					{
-						// Make the iweapon attack too
-						chr_play_action( pweapon, ACTION_MJ, bfalse );
+                        if( iweapon != ichr )
+                        {
+                            // the attacking character has no bits in the animation telling it
+                            // to use the weapon, so we play the animation here
+
+						    // Make the iweapon attack too
+						    chr_play_action( pweapon, ACTION_MJ, bfalse );
+                        }
 					}
                 }
 
                 // let everyone know what we did
-                pweapon->ai.alert |= ALERTIF_USED;
                 pchr->ai.lastitemused = iweapon;
+                if ( iweapon == ichr || HAS_NO_BITS(action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
+                {
+                        // the attacking character has no bits in the animation telling it
+                        // to use the weapon, so we play the animation here
+                    pweapon->ai.alert |= ALERTIF_USED;
+                }
 
                 retval = btrue;
             }
@@ -6778,52 +6814,52 @@ bool_t chr_handle_madfx( chr_t * pchr )
     framefx = chr_get_framefx( pchr );
 
     // Check frame effects
-    if ( framefx&MADFX_ACTLEFT )
+    if ( HAS_SOME_BITS(framefx, MADFX_ACTLEFT) )
     {
         character_swipe( ichr, SLOT_LEFT );
     }
 
-    if ( framefx&MADFX_ACTRIGHT )
+    if ( HAS_SOME_BITS(framefx, MADFX_ACTRIGHT) )
     {
         character_swipe( ichr, SLOT_RIGHT );
     }
 
-    if ( framefx&MADFX_GRABLEFT )
+    if ( HAS_SOME_BITS(framefx, MADFX_GRABLEFT) )
     {
         character_grab_stuff( ichr, GRIP_LEFT, bfalse );
     }
 
-    if ( framefx&MADFX_GRABRIGHT )
+    if ( HAS_SOME_BITS(framefx, MADFX_GRABRIGHT) )
     {
         character_grab_stuff( ichr, GRIP_RIGHT, bfalse );
     }
 
-    if ( framefx&MADFX_CHARLEFT )
+    if ( HAS_SOME_BITS(framefx, MADFX_CHARLEFT) )
     {
         character_grab_stuff( ichr, GRIP_LEFT, btrue );
     }
 
-    if ( framefx&MADFX_CHARRIGHT )
+    if ( HAS_SOME_BITS(framefx, MADFX_CHARRIGHT) )
     {
         character_grab_stuff( ichr, GRIP_RIGHT, btrue );
     }
 
-    if ( framefx&MADFX_DROPLEFT )
+    if ( HAS_SOME_BITS(framefx, MADFX_DROPLEFT) )
     {
         detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
     }
 
-    if ( framefx&MADFX_DROPRIGHT )
+    if ( HAS_SOME_BITS(framefx, MADFX_DROPRIGHT) )
     {
         detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
     }
 
-    if ( framefx&MADFX_POOF && !pchr->isplayer )
+    if ( HAS_SOME_BITS(framefx, MADFX_POOF) && !pchr->isplayer )
     {
         pchr->ai.poof_time = update_wld;
     }
 
-    if ( framefx&MADFX_FOOTFALL )
+    if ( HAS_SOME_BITS(framefx, MADFX_FOOTFALL) )
     {
         cap_t * pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL != pcap )

@@ -245,6 +245,36 @@ int mad_get_action( const MAD_REF by_reference imad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint32 mad_get_madfx( const MAD_REF by_reference imad, int action )
+{
+    Uint32  retval = 0;
+    int cnt;
+    mad_t * pmad;
+    MD2_Model_t * md2;
+    MD2_Frame_t * frame_lst, * pframe;
+
+    if ( !LOADED_MAD( imad ) ) return 0;
+    pmad = MadStack.lst + imad;
+
+    md2 = MadStack.lst[imad].md2_ptr;
+    if ( NULL == md2 ) return 0;
+
+    if( action < 0 || action >= ACTION_COUNT ) return 0;
+
+    if( !pmad->action_valid[action] ) return 0;
+
+    frame_lst = ( MD2_Frame_t * )md2_get_Frames( md2 );
+    for( cnt = pmad->action_stt[action]; cnt <= pmad->action_end[action]; cnt++ )
+    {
+        pframe = frame_lst + cnt;
+
+        retval |= pframe->framefx;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
 void action_check_copy_vfs( const char* loadname, const MAD_REF by_reference imad )
 {
     /// @details ZZ@> This function copies a model's actions
