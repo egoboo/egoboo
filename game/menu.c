@@ -1108,13 +1108,19 @@ int doChooseModule( float deltaTime )
 
                     if( mnu_ModList.lst[imod].base.beaten )
                     {
-                        img_tint = beat_tint;
+						img_tint = beat_tint;
                     }
 
                     if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138, img_tint ) )
                     {
                         selectedModule = i;
                     }
+
+					//Draw a text over the image explaining what it means
+					if( mnu_ModList.lst[imod].base.beaten )
+					{
+						ui_drawTextBox( NULL, "BEATEN", moduleMenuOffsetX + x + 32, moduleMenuOffsetY + y + 64, 64, 30, 20 );
+					}
 
                     x += 138 + 20;  // Width of the button, and the spacing between buttons
                 }

@@ -11,7 +11,7 @@ IfTimeOut
   IfPassageOpen
     DoNothing
   Else
-    tmpdistance = selfcontent + [KEYB]  // KEYA - KEYZ
+    tmpdistance = selfcontent + [KEYA]  // KEYA - KEYZ
     tmpargument = passage +1
     SetTargetToPassageID
       tmpargument = tmpdistance

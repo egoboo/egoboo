@@ -4655,7 +4655,7 @@ void load_bars()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_map( /* const char* szModule */ )
+void load_map()
 {
     /// @details ZZ@> This function loads the map bitmap
 
@@ -4671,7 +4671,7 @@ void load_map( /* const char* szModule */ )
     szMap = "mp_data/plan";
     if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY ) )
     {
-        log_warning( "load_map() - Cannot load file! (\"%s\")\n", szMap );
+        log_debug( "load_map() - Cannot load file! (\"%s\")\n", szMap );
     }
     else
     {

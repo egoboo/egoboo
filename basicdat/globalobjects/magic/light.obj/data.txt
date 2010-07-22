@@ -159,4 +159,4 @@ Jump sound     : -1
 :[PLAT] 0
 :[ICON] 0
 :[BOOK] 1
-
+:[RIPP] 0       //Do not make ripples

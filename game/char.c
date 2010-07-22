@@ -6097,14 +6097,13 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->hitready = btrue;
                 if ( pchr->enviro.inwater )
                 {
-                    //pchr->vel.z += WATERJUMP;
                     pchr->jumptime = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
                     pchr->vel.z += WATERJUMP;
                 }
                 else
                 {
                     pchr->jumptime = JUMPDELAY;
-                    pchr->vel.z += pchr->jump_power * 2;
+                    pchr->vel.z += pchr->jump_power * 1.5f;
                 }
 
                 pchr->jumpready = bfalse;

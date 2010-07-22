@@ -193,6 +193,43 @@ bool_t unlink_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
+{
+    /// @details ZF@> This function removes all enchants with the character that has the specified
+	///               IDSZ. If idsz [NONE] is specified, all enchants will be removed. Return btrue
+	///               if at least one enchant was removed.
+
+	ENC_REF enc_now, enc_next;
+    eve_t * peve;
+	bool_t retval = bfalse;
+	chr_t *pchr;
+
+	// Stop invalid pointers
+	if( ACTIVE_CHR(ichr) ) return bfalse;
+	pchr = ChrList.lst + ichr;
+
+    // clean up the enchant list before doing anything
+    cleanup_character_enchants( pchr );
+
+    // Check all enchants to see if they are removed
+    enc_now = pchr->firstenchant;
+    while ( enc_now != MAX_ENC )
+    {
+        enc_next  = EncList.lst[enc_now].nextenchant_ref;
+
+        peve = enc_get_peve( enc_now );
+        if ( NULL != peve && ( IDSZ_NONE == remove_idsz || remove_idsz == peve->removedbyidsz ) )
+        {
+            remove_enchant( enc_now, NULL );
+			retval = btrue;
+        }
+
+        enc_now = enc_next;
+	}
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 {
     /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
@@ -320,8 +357,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
     {
         chr_t * ptarget = ChrList.lst + itarget;
         if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
-
-        //ptarget->invictus = bfalse;   /// @note ZF@> no longer needed because ignoreinvictus is added in kill_character()?
+		
         kill_character( itarget, ( CHR_REF )MAX_CHR, btrue );
     }
 

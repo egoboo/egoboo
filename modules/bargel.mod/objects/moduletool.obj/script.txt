@@ -1,7 +1,17 @@
 // This initializes music and goes away
-tmpargument = 7
-tmpdistance = 0
-PlayMusic
+IfSpawned
+  tmpargument = 7
+  tmpdistance = 0
+  PlayMusic
 
-GoPoof
+  tmpargument = 0
+  tmpdistance = selfz
+  tmpx = 31*128
+  tmpy = 6*128
+  SpawnExactParticle
+  
+  //No longer needed
+  GoPoof
+  
+  
 End					// All done

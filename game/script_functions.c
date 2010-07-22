@@ -473,10 +473,10 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // init the vector with the desired position
     pos.x = pstate->x;
     pos.y = pstate->y;
-
+	
     // is this a safe position?
     returncode = bfalse;
-    if ( !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
+	if ( chr_get_pcap( pself->index )->weight == 255 || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
     {
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
@@ -4775,31 +4775,8 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( heal_character( pself->target, pself->index, pstate->argument, bfalse ) )
     {
-        ENC_REF enc_now, enc_next;
-        eve_t * peve;
-
-        chr_t * pself_target = ChrList.lst + pself->target;
-
         returncode = btrue;
-
-        // clean up the enchant list before doing anything
-        cleanup_character_enchants( pself_target );
-
-        // Check all enchants to see if they are removed
-        enc_now = pself_target->firstenchant;
-        while ( enc_now != MAX_ENC )
-        {
-            IDSZ test = MAKE_IDSZ( 'H', 'E', 'A', 'L' );
-            enc_next  = EncList.lst[enc_now].nextenchant_ref;
-
-            peve = enc_get_peve( enc_now );
-            if ( NULL != peve && test == peve->removedbyidsz )
-            {
-                remove_enchant( enc_now, NULL );
-            }
-
-            enc_now = enc_next;
-        }
+		remove_all_enchants_with_idsz( pself->target, MAKE_IDSZ( 'H', 'E', 'A', 'L' ) );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7559,30 +7536,11 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
+	returncode = bfalse;
     if ( pself_target->alive )
     {
         // Check all enchants to see if they are removed
-        eve_t * peve;
-        ENC_REF enc_now, enc_next;
-
-        IDSZ idsz = pstate->argument;
-
-        // clean up the enchant list before doing anything
-        cleanup_character_enchants( pself_target );
-
-        enc_now = pself_target->firstenchant;
-        while ( enc_now != MAX_ENC )
-        {
-            enc_next = EncList.lst[enc_now].nextenchant_ref;
-
-            peve = enc_get_peve( enc_now );
-            if ( NULL != peve && idsz == peve->removedbyidsz )
-            {
-                remove_enchant( enc_now, NULL );
-            }
-
-            enc_now = enc_next;
-        }
+		returncode = remove_all_enchants_with_idsz(pself->target, pstate->argument );
     }
 
     SCRIPT_FUNCTION_END();

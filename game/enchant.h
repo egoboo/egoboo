@@ -119,6 +119,8 @@ void    bump_all_enchants_update_counters( void );
 
 ENC_REF enchant_value_filled( const ENC_REF by_reference enchant_idx, int value_idx );
 bool_t  remove_enchant( const ENC_REF by_reference  enchant_idx, ENC_REF *  enchant_parent );
+bool_t  remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz );
+//#define  remove_all_character_enchants( PCHR ) remove_all_enchants_with_idsz( PCHR, IDSZ_NONE )
 void    enchant_apply_set( const ENC_REF by_reference  enchant_idx, int value_idx, const PRO_REF by_reference profile );
 void    enchant_apply_add( const ENC_REF by_reference  enchant_idx, int value_idx, const EVE_REF by_reference enchanttype );
 ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_reference target, const CHR_REF by_reference spawner, const ENC_REF by_reference enc_override, const PRO_REF by_reference modeloptional );

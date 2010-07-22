@@ -3,6 +3,10 @@ IfSpawned
   tmpargument = 24
   tmpdistance = 0
   PlayMusic
+  
+  //Show the map
+  ShowMap
+  ShowYouAreHere
 
 //Keep track of how many souls are saved
 IfOrdered

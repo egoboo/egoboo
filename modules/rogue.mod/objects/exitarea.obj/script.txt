@@ -47,6 +47,11 @@ IfTimeOut
         tmpargument = 6
         AddEndMessage
               
+      //Play victory tune
+      tmpargument = 14
+      tmpdistance = 0
+      PlayMusic
+      
       tmpargument = [BEAT]
       AddIDSZ
   tmpargument = 10
