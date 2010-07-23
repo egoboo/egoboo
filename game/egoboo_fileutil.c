@@ -997,10 +997,11 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 
     switch ( toupper( cTmp ) )
     {
-        case 'T': iTmp = DAMAGEINVERT; break;
-        case 'C': iTmp = DAMAGECHARGE; break;
-        case 'M': iTmp = DAMAGEMANA;   break;
-        default:  iTmp = 0;            break;
+        case 'T': iTmp = DAMAGEINVERT;		break;
+        case 'C': iTmp = DAMAGECHARGE;		break;
+        case 'M': iTmp = DAMAGEMANA;		break;
+        case 'I': iTmp = DAMAGEINVICTUS;	break;
+        default:  iTmp = 0;					break;
     };
 
     tTmp = fget_int( fileread );

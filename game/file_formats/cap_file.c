@@ -231,10 +231,17 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
         for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            cTmp = fget_first_letter( fileread );
-            if ( 'T' == toupper( cTmp ) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVERT;
-            else if ( 'C' == toupper( cTmp ) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGECHARGE;
-            else if ( 'M' == toupper( cTmp ) )  pcap->damagemodifier[damagetype][cnt] |= DAMAGEMANA;
+            cTmp = toupper( fget_first_letter( fileread ) );
+            switch(cTmp)
+			{
+				case 'T':	pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVERT;		break;
+				case 'C':	pcap->damagemodifier[damagetype][cnt] |= DAMAGECHARGE;		break;
+				case 'M':	pcap->damagemodifier[damagetype][cnt] |= DAMAGEMANA;			break;
+				case 'I':	pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVICTUS;		break;
+				
+				//F is nothing
+				default: break;
+			}
         }
     }
 
@@ -536,6 +543,10 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
             else if ( pcap->damagemodifier[damagetype][skin]&DAMAGEINVERT )
             {
                 code = 'T';
+            }
+            else if ( pcap->damagemodifier[damagetype][skin]&DAMAGEINVICTUS )
+            {
+                code = 'I';
             }
             else
             {

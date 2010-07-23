@@ -1875,7 +1875,7 @@ void cleanup_all_enchants()
 		valid_target = bfalse;
         if ( INGAME_CHR( penc->target_ref ) )
         {
-			valid_owner = ChrList.lst[penc->target_ref].alive;
+			valid_target = ChrList.lst[penc->target_ref].alive;
 
             // this is linked to a known character
             enc_lst = &( ChrList.lst[penc->target_ref].firstenchant );
@@ -1903,12 +1903,12 @@ void cleanup_all_enchants()
             // the enchant has been marked for removal
             do_remove = btrue;
         }
-		else if ( valid_owner && !peve->stayifnoowner )
+		else if ( !valid_owner && !peve->stayifnoowner )
         {
             // the enchant's owner has died
             do_remove = btrue;
         }
-		else if ( valid_target && !peve->stayiftargetdead )
+		else if ( !valid_target && !peve->stayiftargetdead )
         {
             // the enchant's target has died
             do_remove = btrue;

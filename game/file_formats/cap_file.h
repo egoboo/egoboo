@@ -147,6 +147,7 @@ enum e_chr_gender
 #define ULTRABLUDY           2          ///< This makes any damage draw blud
 
 //Damage shifts
+#define DAMAGEINVICTUS      32                      ///< 00x00000 Invictus to this type of damage
 #define DAMAGEMANA          16                      ///< 000x0000 Deals damage to mana
 #define DAMAGECHARGE        8                       ///< 0000x000 Converts damage to mana
 #define DAMAGEINVERT        4                       ///< 00000x00 Makes damage heal

@@ -3477,13 +3477,13 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         // Remember the actual_damage type
         pchr->ai.damagetypelast = damagetype;
         pchr->ai.directionlast  = direction;
-
+        
         // Check for blocking and invictus, no need to continue if they have
-		if ( is_invictus_direction( direction, character, effects ) )
+		if ( pchr->damagemodifier[damagetype]&DAMAGEINVICTUS || is_invictus_direction( direction, character, effects ) )
         {
             actual_damage = 0;
-            //spawn_defense_ping( pchr, attacker );
-        }
+        	spawn_defense_ping( pchr, attacker );
+		}
 
         // Do it already
         if ( actual_damage > pchr->damagethreshold )
@@ -3613,9 +3613,10 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                 }
             }
         }
+
+        // Heal 'em instead
         else if ( actual_damage < 0 )
         {
-            // Heal 'em
             heal_character( character, attacker, actual_damage, ignore_invictus );
 
             // Isssue an alert
@@ -3643,11 +3644,9 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
             }
         }
 
-		//No damage dealt
-		else
-		{
-			spawn_defense_ping( pchr, attacker );
-		}
+		//Spawn defence ping if damage did not penentrate the damagethreshold
+		else if(actual_damage > 0 && pchr->damagethreshold > 0) spawn_defense_ping( pchr, attacker );
+
     }
 
     return actual_damage;
@@ -5411,7 +5410,7 @@ void move_one_character_get_environment( chr_t * pchr )
 
         if ( pchr->enviro.is_slippy )
         {
-            pchr->enviro.traction /= hillslide * ( 1.0f - pchr->enviro.zlerp ) + 1.0f * pchr->enviro.zlerp;
+            pchr->enviro.traction /= 4.00f * hillslide * ( 1.0f - pchr->enviro.zlerp ) + 1.0f * pchr->enviro.zlerp;
         }
     }
     else if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
@@ -5420,7 +5419,7 @@ void move_one_character_get_environment( chr_t * pchr )
 
         if ( pchr->enviro.is_slippy )
         {
-            pchr->enviro.traction /= hillslide * ( 1.0f - pchr->enviro.zlerp ) + 1.0f * pchr->enviro.zlerp;
+            pchr->enviro.traction /= 4.00f * hillslide * ( 1.0f - pchr->enviro.zlerp ) + 1.0f * pchr->enviro.zlerp;
         }
     }
 
@@ -6058,8 +6057,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && 0 == pchr->jumptime )
     {
-        //pchr->latch.b &= ~LATCHBUTTON_JUMP;
-
+		//Jump from our mount
         if ( INGAME_CHR( pchr->attachedto ) )
         {
             int ijump;
@@ -6092,6 +6090,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
         }
 
+		//Normal jump
         else if ( 0 != pchr->jumpnumber && 0 == pchr->flyheight )
         {
             if ( pchr->jumpnumberreset != 1 || pchr->jumpready )
@@ -6101,7 +6100,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
                 // Make the character jump
                 pchr->hitready = btrue;
-                if ( pchr->enviro.inwater )
+                if ( pchr->enviro.inwater || pchr->enviro.is_slippy )
                 {
                     pchr->jumptime = JUMPDELAY * 4;         //To prevent 'bunny jumping' in water
                     pchr->vel.z += WATERJUMP;
