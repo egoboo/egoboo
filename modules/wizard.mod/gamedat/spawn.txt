@@ -1,6 +1,7 @@
-#dependency Wizard 0
-#dependency Protect 64
-#dependency Burning 69
+#dependency Wizard     0
+#dependency Protect   64
+#dependency Burning   69
+#dependency HellRover 78
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 

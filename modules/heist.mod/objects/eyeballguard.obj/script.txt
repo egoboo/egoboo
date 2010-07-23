@@ -3,7 +3,8 @@
 //1: Combat mode
 //3: Backstabbed
 
-//SPECIAL Knife's Heist Module stuff
+//SPECIAL Knife's Heist Module stuff 
+//BAD: this should be moved elsewhere
 IfKilled
   tmpx = 7100
   tmpy = 5350

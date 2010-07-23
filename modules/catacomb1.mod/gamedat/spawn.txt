@@ -1,3 +1,5 @@
+#dependency Ghost 42
+
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 playerAtBoss   NONE    0  76.5   76.5   1.0   N    0   0  0   0   0   T   F   G
 playerOutside   NONE    0  20.5   28.5   0.0   N    0   0  0   0   0   T   F   G

@@ -3,7 +3,8 @@
 //1: Combat mode
 //3: Backstabbed
 
-//SPECIAL Abyss Module stuff
+//---------------------------------------------------------------------------------
+//Unsummon ourselves if ordered to do so
 IfOrdered
   tmpx = selforder
   tmpy = [UNDO]
@@ -84,7 +85,7 @@ IfStateIs1		//Or in combat
   tmpargument = 1
 SetTargetToSelf
 IfTargetIsAlive		//and when killed
-  GetState		//DoNothing
+  DoNothing
 Else
   tmpargument = 2
 SetTargetToOldTarget
@@ -176,13 +177,12 @@ IfKilled
   SetShadowSize
 
   //Drop stash
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropKeys
 
   //Death sound
   tmpargument = 1
-  tmpdistance = rand % 2047 + 10000
   PlaySound
 
   //Death stuff

@@ -10,6 +10,7 @@ traps       = devious and deadly traps for the treasure hungry adventurer
 misc        = objects that are neither items or monsters, usually props such as chairs, pillars and tables
 monsters    = enough said
 players     = all models that could be potentially played by a player
+pets        = mounts and pets the players or monsters can carry or ride
 
 unique      = things that there are only 1 of in the whole world (or just a few)
 works_in_progess = not ready for use yet, but may need to be tried in-game

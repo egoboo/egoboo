@@ -43,14 +43,15 @@ Else
 IfUsed
   
   //Dismiss existing magic
-  UnsparkleIcon
   UndoEnchant
+    UnsparkleIcon
+    tmpargument = 25
+    SetReloadTime
   
   SetTargetToWhoeverIsHolding
   tmpargument = [HMAG]
   IfTargetHasSkillID				//Need divine spell skill
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 768					//Don't overcharge
     IfXIsLessThanY
       tmpy = targetmanaflow			//Enough spell power?
