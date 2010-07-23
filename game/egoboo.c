@@ -285,7 +285,7 @@ int do_ego_proc_running( ego_process_t * eproc )
 
         CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
         {
-            if ( !pchr->isplayer )
+            if ( !VALID_PLA( pchr->is_which_player ) )
             {
                 kill_character( cnt, ( CHR_REF )511, bfalse );
             }
@@ -708,4 +708,21 @@ void egoboo_setup_vfs_paths()
 
     // Create a mount point for the /user/remote directory
     vfs_add_mount_point( fs_getUserDirectory(), "remote", "mp_remote", 1 );
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 egoboo_get_ticks( void )
+{
+    Uint32 ticks = 0;
+
+    if( single_frame_mode )
+    {
+        ticks = UPDATE_SKIP * update_wld;
+    }
+    else
+    {
+        ticks = SDL_GetTicks();
+    }
+
+    return ticks;
 }

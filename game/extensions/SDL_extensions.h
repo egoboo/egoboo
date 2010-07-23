@@ -39,13 +39,30 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define BOOL_TO_BIT(X)       ((X) ? 1 : 0 )
-#define BIT_TO_BOOL(X)       ((1 == X) ? SDL_TRUE : SDL_FALSE )
+// bitwise operations
+#if !defined(BOOL_TO_BIT)
+#    define BOOL_TO_BIT(X)       ((X) ? 1 : 0 )
+#endif
 
-#define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
-#define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
-#define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
-#define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
+#if !defined(BIT_TO_BOOL)
+#    define BIT_TO_BOOL(X)       ((1 == X) ? SDL_TRUE : SDL_FALSE )
+#endif
+
+#if !defined(HAS_SOME_BITS)
+#    define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
+#endif
+
+#if !defined(HAS_ALL_BITS)
+#    define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
+#endif
+
+#if !defined(HAS_NO_BITS)
+#    define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
+#endif
+
+#if !defined(MISSING_BITS)
+#    define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

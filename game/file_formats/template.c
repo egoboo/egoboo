@@ -343,15 +343,15 @@ void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint
     // put the mod bits
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        if ( 0 != ( mod & DAMAGEINVERT ) )
+        if ( HAS_SOME_BITS( mod, DAMAGEINVERT ) )
         {
             vfs_putc( 'T', filewrite );
         }
-        else if ( 0 != ( mod & DAMAGECHARGE ) )
+        else if ( HAS_SOME_BITS( mod, DAMAGECHARGE ) )
         {
             vfs_putc( 'C', filewrite );
         }
-        else if ( 0 != ( mod & DAMAGEMANA ) )
+        else if ( HAS_SOME_BITS( mod, DAMAGEMANA ) )
         {
             vfs_putc( 'M', filewrite );
         }
@@ -362,5 +362,5 @@ void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint
     }
 
     // now put the damage shift
-    template_put_int( filetemp, filewrite, mod & DAMAGESHIFT );
+    template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST(mod) );
 }

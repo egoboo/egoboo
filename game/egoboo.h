@@ -192,7 +192,7 @@ typedef struct s_ego_process ego_process_t;
 
 extern ego_process_t * EProc;
 
-void ego_init_SDL_base();
+void ego_init_SDL_base(void);
 
 EXTERN bool_t screenshot_requested EQ( bfalse );
 
@@ -201,7 +201,9 @@ EXTERN bool_t single_frame_keyready EQ( btrue );
 EXTERN bool_t single_frame_requested EQ( bfalse );
 EXTERN bool_t single_update_requested EQ( bfalse );
 
-void egoboo_clear_vfs_paths();
-void egoboo_setup_vfs_paths();
+void egoboo_clear_vfs_paths(void);
+void egoboo_setup_vfs_paths(void);
+
+Uint32 egoboo_get_ticks( void );
 
 #define  _EGOBOO_H_

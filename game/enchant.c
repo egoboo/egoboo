@@ -653,10 +653,10 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
             break;
 
         case ADDACCEL:
-            fnewvalue = ptarget->maxaccel;
+            fnewvalue = ptarget->maxaccel_reset;
             fvaluetoadd = peve->addvalue[value_idx];
             fgetadd( 0.0f, fnewvalue, 1.50f, &fvaluetoadd );
-            ptarget->maxaccel += fvaluetoadd;
+            chr_set_maxaccel( ptarget, ptarget->maxaccel_reset + fvaluetoadd );
             break;
 
         case ADDRED:
@@ -1434,8 +1434,8 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
     // Check peve->dontdamagetype
     if ( peve->dontdamagetype != DAMAGE_NONE )
     {
-        if (( ptarget->damagemodifier[peve->dontdamagetype]&DAMAGESHIFT ) >= 3 ||
-              ptarget->damagemodifier[peve->dontdamagetype]&DAMAGECHARGE )
+        if ( GET_DAMAGE_RESIST(ptarget->damagemodifier[peve->dontdamagetype]) >= 3 ||
+              HAS_SOME_BITS(ptarget->damagemodifier[peve->dontdamagetype],DAMAGECHARGE) )
         {
             log_warning( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
             return ( ENC_REF )MAX_ENC;
@@ -1674,7 +1674,7 @@ void enchant_remove_add( const ENC_REF by_reference ienc, int value_idx )
 
             case ADDACCEL:
                 fvaluetoadd = penc->addsave[value_idx] / 1000.0f;
-                ptarget->maxaccel -= fvaluetoadd;
+                chr_set_maxaccel( ptarget, ptarget->maxaccel_reset - fvaluetoadd );
                 break;
 
             case ADDRED:

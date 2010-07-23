@@ -47,8 +47,6 @@
 #include "egoboo_math.inl"
 #include "egoboo.h"
 
-#include "SDL_extensions.h"
-
 #include <float.h>
 #include "egoboo_mem.h"
 
@@ -264,6 +262,12 @@ chr_t * chr_ctor( chr_t * pchr )
     pchr->onwhichplatform_ref = ( CHR_REF )MAX_CHR;
     pchr->attachedto      = ( CHR_REF )MAX_CHR;
 
+    // all movements valid
+    pchr->movement_bits   = (unsigned)(~0);
+
+    // not a player
+    pchr->is_which_player = MAX_PLAYER;
+
     // initialize the bsp node for this character
     pchr->bsp_leaf.data      = pchr;
     pchr->bsp_leaf.data_type = 1;
@@ -384,7 +388,7 @@ void keep_weapons_with_holders()
             {
 
                 // Items become partially invisible in hands of players
-                if ( pattached->isplayer && 255 != pattached->inst.alpha )
+                if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
                 {
                     chr_set_alpha( pchr, SEEINVISIBLE );
                 }
@@ -402,7 +406,7 @@ void keep_weapons_with_holders()
                 }
 
                 // Do light too
-                if ( pattached->isplayer && 255 != pattached->inst.light )
+                if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
                 {
                     chr_set_light( pchr, SEEINVISIBLE );
                 }
@@ -1028,11 +1032,11 @@ void reset_character_accel( const CHR_REF by_reference character )
     }
 
     // Set the starting value
-    pchr->maxaccel = 0;
+    pchr->maxaccel_reset = 0;
     pcap = chr_get_pcap( character );
     if ( NULL != pcap )
     {
-        pchr->maxaccel = pcap->maxaccel[pchr->skin];
+        pchr->maxaccel = pchr->maxaccel_reset = pcap->maxaccel[pchr->skin];
     }
 
     // cleanup the enchant list
@@ -2004,7 +2008,7 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
-    ticks = SDL_GetTicks();
+    ticks = egoboo_get_ticks();
 
     // Make life easier
     slot = grip_offset_to_slot( grip_off );  // 0 is left, 1 is right
@@ -2172,7 +2176,7 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
         fvec3_t   vforward;
 
         //---- generate billboards for things that players can interact with
-        if ( cfg.feedback != FEEDBACK_OFF && pchr_a->isplayer )
+        if ( cfg.feedback != FEEDBACK_OFF && VALID_PLA( pchr_a->is_which_player ) )
         {
             GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
@@ -2192,7 +2196,7 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
         }
 
         //---- if you can't grab anything, activate something using ALERTIF_BUMPED
-        if ( pchr_a->isplayer && ungrab_count > 0 )
+        if ( VALID_PLA( pchr_a->is_which_player ) && ungrab_count > 0 )
         {
             chr_getMatForward( pchr_a, &vforward );
 
@@ -2527,7 +2531,7 @@ void do_level_up( const CHR_REF by_reference character )
             xpneeded = pcap->experience_forlevel[curlevel];
 
             // The character is ready to advance...
-            if ( pchr->isplayer )
+            if ( VALID_PLA( pchr->is_which_player ) )
             {
                 debug_printf( "%s gained a level!!!", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
                 sound_play_chunk_full( g_wavelist[GSND_LEVELUP] );
@@ -2773,9 +2777,9 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     pcap->mana_spawn         = CLIP( pchr->mana, 0, pchr->manamax );
 
     // Movement
-    pcap->sneakspd = pchr->sneakspd;
-    pcap->walkspd = pchr->walkspd;
-    pcap->runspd = pchr->runspd;
+    pcap->anim_speed_sneak = pchr->anim_speed_sneak;
+    pcap->anim_speed_walk = pchr->anim_speed_walk;
+    pcap->anim_speed_run = pchr->anim_speed_run;
 
     // weight and size
     pcap->size       = pchr->fat_goto;
@@ -2983,7 +2987,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Other junk
     pchr->flyheight   = pcap->flyheight;
-    pchr->maxaccel    = pcap->maxaccel[pchr->skin];
+    pchr->maxaccel = pchr->maxaccel_reset = pcap->maxaccel[pchr->skin];
     pchr->alpha_base   = pcap->alpha;
     pchr->light_base   = pcap->light;
     pchr->flashand    = pcap->flashand;
@@ -3009,9 +3013,9 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->voffvel = pcap->voffvel;
 
     // Movement
-    pchr->sneakspd = pcap->sneakspd;
-    pchr->walkspd = pcap->walkspd;
-    pchr->runspd = pcap->runspd;
+    pchr->anim_speed_sneak = pcap->anim_speed_sneak;
+    pchr->anim_speed_walk = pcap->anim_speed_walk;
+    pchr->anim_speed_run = pcap->anim_speed_run;
 
     // Money is added later
     pchr->money = pcap->money;
@@ -3367,7 +3371,7 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
     cleanup_one_character( pchr );
 
     // If it's a player, let it die properly before enabling respawn
-    if ( pchr->isplayer ) revivetimer = ONESECOND; // 1 second
+    if ( VALID_PLA( pchr->is_which_player ) ) revivetimer = ONESECOND; // 1 second
 
     // Let it's AI script run one last time
     pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
@@ -3429,7 +3433,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         }
 
         // don't show damage to players since they get feedback from the status bars
-        if( pchr->StatusList_on || pchr->isplayer )
+        if( pchr->StatusList_on || VALID_PLA( pchr->is_which_player ) )
         {
             do_feedback = bfalse;
         }
@@ -3443,10 +3447,10 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         // This can also be used to lessen effectiveness of healing
         actual_damage = generate_irand_pair( damage );
         base_damage   = actual_damage;
-        actual_damage = actual_damage >> ( pchr->damagemodifier[damagetype] & DAMAGESHIFT );
+        actual_damage = actual_damage >> GET_DAMAGE_RESIST( pchr->damagemodifier[damagetype] );
 
         // Allow actual_damage to be dealt to mana (mana shield spell)
-        if ( pchr->damagemodifier[damagetype]&DAMAGEMANA )
+        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEMANA) )
         {
             int manadamage;
             manadamage = MAX( pchr->mana - actual_damage, 0 );
@@ -3460,7 +3464,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         }
 
         // Allow charging (Invert actual_damage to mana)
-        if ( pchr->damagemodifier[damagetype]&DAMAGECHARGE )
+        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGECHARGE) )
         {
             pchr->mana += actual_damage;
             if ( pchr->mana > pchr->manamax )
@@ -3471,7 +3475,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         }
 
         // Invert actual_damage to heal
-        if ( pchr->damagemodifier[damagetype]&DAMAGEINVERT )
+        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEINVERT) )
             actual_damage = -actual_damage;
 
         // Remember the actual_damage type
@@ -3479,7 +3483,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         pchr->ai.directionlast  = direction;
         
         // Check for blocking and invictus, no need to continue if they have
-		if ( pchr->damagemodifier[damagetype]&DAMAGEINVICTUS || is_invictus_direction( direction, character, effects ) )
+		if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEINVICTUS) || is_invictus_direction( direction, character, effects ) )
         {
             actual_damage = 0;
         	spawn_defense_ping( pchr, attacker );
@@ -3492,13 +3496,13 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
             if ( 0 == pchr->damagetime || ignore_invictus )
             {
                 // Hard mode deals 25% extra actual damage to players!
-                if ( cfg.difficulty >= GAME_HARD && pchr->isplayer && !ChrList.lst[attacker].isplayer ) actual_damage *= 1.25f;
+                if ( cfg.difficulty >= GAME_HARD && VALID_PLA( pchr->is_which_player ) && !VALID_PLA(ChrList.lst[attacker].is_which_player) ) actual_damage *= 1.25f;
 
                 // Easy mode deals 25% extra actual damage by players and 25% less to players
                 if ( cfg.difficulty <= GAME_EASY )
                 {
-                    if ( ChrList.lst[attacker].isplayer && !pchr->isplayer ) actual_damage *= 1.25f;
-                    if ( !ChrList.lst[attacker].isplayer && pchr->isplayer ) actual_damage *= 0.75f;
+                    if (  VALID_PLA(ChrList.lst[attacker].is_which_player) && !VALID_PLA( pchr->is_which_player ) ) actual_damage *= 1.25f;
+                    if ( !VALID_PLA(ChrList.lst[attacker].is_which_player) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.75f;
                 }
 
                 if ( actual_damage != 0 )
@@ -3840,7 +3844,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
             pchr->damagemodifier[tnc] = pcap->damagemodifier[tnc][pchr->skin];
         }
 
-        pchr->maxaccel  = pcap->maxaccel[pchr->skin];
+        chr_set_maxaccel( pchr, pcap->maxaccel[pchr->skin] );
     }
 
     // override the default behavior for an "easy" game
@@ -4636,7 +4640,7 @@ int chr_change_skin( const CHR_REF by_reference character, int skin )
     }
 
     // If the we are respawning a player, then the camera needs to be reset
-    if ( pchr->isplayer )
+    if ( VALID_PLA( pchr->is_which_player ) )
     {
         camera_reset_target( PCamera, PMesh );
     }
@@ -4688,7 +4692,8 @@ int change_armor( const CHR_REF by_reference character, int skin )
         pchr->damagemodifier[iTmp] = pcap->damagemodifier[iTmp][skin];
     }
 
-    pchr->maxaccel = pcap->maxaccel[skin];
+    // set teh character's maximum acceleration
+    chr_set_maxaccel( pchr, pcap->maxaccel[skin] );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -5032,9 +5037,9 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     pchr->voffvel = pcap_new->voffvel;
 
     // Movement
-    pchr->sneakspd = pcap_new->sneakspd;
-    pchr->walkspd  = pcap_new->walkspd;
-    pchr->runspd   = pcap_new->runspd;
+    pchr->anim_speed_sneak = pcap_new->anim_speed_sneak;
+    pchr->anim_speed_walk  = pcap_new->anim_speed_walk;
+    pchr->anim_speed_run   = pcap_new->anim_speed_run;
 
     // initialize the instance
     chr_spawn_instance( &( pchr->inst ), profile_new, skin );
@@ -5639,11 +5644,14 @@ void move_one_character_do_floor_friction( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void move_one_character_do_voluntary( chr_t * pchr )
 {
-    float dvx, dvy, dvmax;
+    // do voluntary motion
+
+    float dvx, dvy;
     float maxspeed;
     float dv2;
     float new_ax, new_ay;
     CHR_REF ichr;
+    bool_t sneak_mode_active = bfalse;
 
     mad_t       * pmad;
     int           frame_count;
@@ -5656,8 +5664,6 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
     if ( !pchr->alive ) return;
 	
-    // do voluntary motion
-
     pchr->enviro.new_vx = pchr->vel.x;
     pchr->enviro.new_vy = pchr->vel.y;
 
@@ -5692,70 +5698,72 @@ void move_one_character_do_voluntary( chr_t * pchr )
     // this is the maximum speed that a character could go under the v2.22 system
     maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
 
+    sneak_mode_active = bfalse;
+    if ( VALID_PLA( pchr->is_which_player ) )
+    {
+        // determine whether the user is hitting the "sneak button"
+        player_t * ppla = PlaStack.lst + pchr->is_which_player;
+
+        if( HAS_SOME_BITS(ppla->device.bits, INPUT_BITS_KEYBOARD ) )
+        {
+            // use the shift keys to enter sneak mode
+            sneak_mode_active = SDLKEYDOWN( SDLK_LSHIFT ) || SDLKEYDOWN( SDLK_RSHIFT );
+        }
+    }
+
     pchr->enviro.new_vx = pchr->enviro.new_vy = 0.0f;
     if ( ABS( dvx ) + ABS( dvy ) > 0 )
     {
+        PLA_REF ipla = pchr->is_which_player;
+
         dv2 = dvx * dvx + dvy * dvy;
 
-        if ( pchr->isplayer )
+        if ( VALID_PLA( ipla ) )
         {
-            float speed;
+            player_t * ppla;
+            bool_t sneak_mode_active; 
+
             float dv = POW( dv2, 0.25f );
 
-            if ( maxspeed < pchr->runspd )
-            {
-                maxspeed = pchr->runspd;
-                dv *= 0.75f;
-            }
+            ppla = PlaStack.lst + ipla;
 
-            if ( dv >= 1.0f )
+            // determine whether the character is sneaking
+            if( !HAS_SOME_BITS(ppla->device.bits, INPUT_BITS_KEYBOARD ) )
             {
-                speed = maxspeed;
+                sneak_mode_active = ( dv2 < 1.0f / 9.0f );
             }
-            else if ( dv >= 0.75f )
-            {
-                speed = ( dv - 0.75f ) / 0.25f * maxspeed + ( 1.0f - dv ) / 0.25f * pchr->runspd;
-            }
-            else if ( dv >= 0.50f )
-            {
-                speed = ( dv - 0.50f ) / 0.25f * pchr->runspd + ( 0.75f - dv ) / 0.25f * pchr->walkspd;
-            }
-            else if ( dv >= 0.25f )
-            {
-                speed = ( dv - 0.25f ) / 0.25f * pchr->walkspd + ( 0.25f - dv ) / 0.25f * pchr->sneakspd;
-            }
-            else
-            {
-                speed = dv / 0.25f * pchr->sneakspd;
-            }
-
-            pchr->enviro.new_vx = speed * dvx / dv;
-            pchr->enviro.new_vy = speed * dvy / dv;
+            
+            pchr->enviro.new_vx = maxspeed * dvx / dv;
+            pchr->enviro.new_vy = maxspeed * dvy / dv;
         }
         else
         {
             float scale = 1.0f;
 
-            if ( dv2 > 1.0f )
+            if ( dv2 < 1.0f )
             {
-                scale = 1.0f / POW( dv2, 0.5f );
+                scale = POW( dv2, 0.25f );
             }
-            else
-            {
-                scale = POW( dv2, 0.25f ) / POW( dv2, 0.5f );
-            }
+
+            scale /= POW( dv2, 0.5f );
 
             pchr->enviro.new_vx = dvx * maxspeed * scale;
             pchr->enviro.new_vy = dvy * maxspeed * scale;
         }
     }
 
-
-    dvmax = pchr->maxaccel;
-    if ( new_ax < -dvmax ) new_ax = -dvmax;
-    if ( new_ax >  dvmax ) new_ax =  dvmax;
-    if ( new_ay < -dvmax ) new_ay = -dvmax;
-    if ( new_ay >  dvmax ) new_ay =  dvmax;
+    if( sneak_mode_active )
+    {
+        // sneak mode
+        pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
+        pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+    }
+    else
+    {
+        // non-sneak mode
+        pchr->movement_bits = (unsigned)(~CHR_MOVEMENT_BITS_SNEAK);
+        pchr->maxaccel      = pchr->maxaccel_reset;
+    }
 
     // do platform friction
     if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
@@ -5774,6 +5782,9 @@ void move_one_character_do_voluntary( chr_t * pchr )
     new_ax *= pchr->enviro.traction;
     new_ay *= pchr->enviro.traction;
 
+    new_ax = CLIP(new_ax, -pchr->maxaccel, pchr->maxaccel );
+    new_ay = CLIP(new_ay, -pchr->maxaccel, pchr->maxaccel );
+
     //Figure out how to turn around
     switch ( pchr->turnmode )
     {
@@ -5783,7 +5794,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
         {
             if ( ABS( dvx ) > TURNSPD || ABS( dvy ) > TURNSPD )
             {
-                if ( pchr->isplayer )
+                if ( VALID_PLA( pchr->is_which_player ) )
                 {
                     // Players turn quickly
                     pchr->ori.facing_z = terp_dir_fast( pchr->ori.facing_z, vec_to_facing( dvx , dvy ) );
@@ -5952,7 +5963,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
             if ( pmount->ismount && pmount->alive )
             {
                 // can the mount be told what to do?
-                if ( !pmount->isplayer && pmount->inst.action_ready )
+                if ( !VALID_PLA( pmount->is_which_player ) && pmount->inst.action_ready )
                 {
                     if ( !ACTION_IS_TYPE( action, P ) || !pmount_cap->ridercanattack )
                     {
@@ -6181,7 +6192,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             {
                 // The item couldn't be put away
                 pitem->ai.alert |= ALERTIF_NOTPUTAWAY;
-                if ( pchr->isplayer )
+                if ( VALID_PLA( pchr->is_which_player ) )
                 {
                     if ( pro_get_pcap( pitem->profile_ref )->istoobig )
                     {
@@ -6223,7 +6234,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             {
                 // The item couldn't be put away
                 pitem->ai.alert |= ALERTIF_NOTPUTAWAY;
-                if ( pchr->isplayer )
+                if ( VALID_PLA( pchr->is_which_player ) )
                 {
                     if ( pitem_cap->istoobig )
                     {
@@ -6858,7 +6869,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
         detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
     }
 
-    if ( HAS_SOME_BITS(framefx, MADFX_POOF) && !pchr->isplayer )
+    if ( HAS_SOME_BITS(framefx, MADFX_POOF) && !VALID_PLA( pchr->is_which_player ) )
     {
         pchr->ai.poof_time = update_wld;
     }
@@ -6879,30 +6890,336 @@ bool_t chr_handle_madfx( chr_t * pchr )
     return btrue;
 }
 
-//--------------------------------------------------------------------------------------------
-void move_one_character_do_animation( chr_t * pchr )
+struct s_chr_anim_data
 {
-    Uint8 speed, framelip;
-    CHR_REF ichr;
+    bool_t allowed;
+    int    action;
+    int    lip;
+    float  speed;
+};
+typedef struct s_chr_anim_data chr_anim_data_t;
+
+int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs )
+{
+    /// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
+    ///               Trap all stupid values.
+
+    chr_anim_data_t * plhs = (chr_anim_data_t * )vp_lhs;
+    chr_anim_data_t * prhs = (chr_anim_data_t * )vp_rhs;
+
+    int retval = 0;
+
+    if( NULL == plhs && NULL == prhs )
+    {
+        return 0;
+    }
+    else if( NULL == plhs )
+    {
+        return 1;
+    }
+    else if ( NULL == prhs )
+    {
+        return -1;
+    }
+
+    retval = (int)prhs->allowed - (int)plhs->allowed;
+    if( 0 != retval ) return retval;
+
+    retval = SGN( plhs->speed - prhs->speed );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+float set_character_animation_rate( chr_t * pchr )
+{
+    /// @details ZZ@> Get running, walking, sneaking, or dancing, from speed
+    ///
+    /// BB@> added automatic calculation of variable animation rates for movement animations
+
+    float  speed;
+    bool_t can_be_interrupted;
+    bool_t is_walk_type;
+    int    cnt, anim_count;
+    int    action, lip;
+    bool_t found;
+
+    chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
+
+    int           frame_count;
+    MD2_Frame_t * frame_list, * pframe_nxt;
 
     chr_instance_t * pinst;
     mad_t          * pmad;
+    CHR_REF          ichr;
 
-    if ( NULL == pchr || !pchr->onwhichblock ) return;
+    // set the character speed to zero
+	speed = 0;
+
+    if( NULL == pchr ) return 1.0f;
+    pinst = &(pchr->inst);
+    ichr  = GET_REF_PCHR( pchr );
+
+    // if the action is set to keep then do nothing
+    can_be_interrupted = !pinst->action_keep;
+    if( !can_be_interrupted ) return pinst->rate = 1.0f;
+
+    // if the animation is not a walking-type animation, ignore the variable animaiton rates
+    // and the automatic determination of the walk animation
+    // "dance" is walking with zero speed
+    is_walk_type = ACTION_IS_TYPE( pinst->action_which, D ) || ACTION_IS_TYPE( pinst->action_which, W );
+    if( !is_walk_type ) return pinst->rate = 1.0f;
+
+    // if the action cannot be changed on the at this time, there's nothing to do.
+    // keep the same animation rate
+    if ( !pinst->action_ready ) 
+    {
+        if( 0.0f == pinst->rate ) pinst->rate = 1.0f;
+        return pinst->rate;
+    }
+
+    // go back to a base animation rate, in case the next frame is not a
+    // "variable speed frame"
+    pinst->rate = 1.0f;
+
+    // for non-flying objects, you have to be touching the ground
+    if ( !pchr->enviro.grounded && 0 == pchr->flyheight ) return pinst->rate;
+
+    // get the model
+    pmad = chr_get_pmad( ichr );
+    if ( NULL == pmad ) return pinst->rate;
+
+    //---- set up the anim_info structure
+    anim_info[CHR_MOVEMENT_STOP ].speed = 0;
+    anim_info[CHR_MOVEMENT_SNEAK].speed = pchr->anim_speed_sneak;
+    anim_info[CHR_MOVEMENT_WALK ].speed = pchr->anim_speed_walk;
+    anim_info[CHR_MOVEMENT_RUN  ].speed = pchr->anim_speed_run;
+
+    if ( 0 != pchr->flyheight )
+    {
+        // for flying characters, you have to flap like crazy to stand still and
+        // do nothing to move quickly
+        anim_info[CHR_MOVEMENT_STOP ].action = ACTION_WC;
+        anim_info[CHR_MOVEMENT_SNEAK].action = ACTION_WB;
+        anim_info[CHR_MOVEMENT_WALK ].action = ACTION_WA;
+        anim_info[CHR_MOVEMENT_RUN  ].action = ACTION_DA;
+    }
+    else
+    {
+        anim_info[CHR_MOVEMENT_STOP ].action = ACTION_DA;
+        anim_info[CHR_MOVEMENT_SNEAK].action = ACTION_WA;
+        anim_info[CHR_MOVEMENT_WALK ].action = ACTION_WB;
+        anim_info[CHR_MOVEMENT_RUN  ].action = ACTION_WC;
+    }
+
+    anim_info[CHR_MOVEMENT_STOP ].lip = 0;
+    anim_info[CHR_MOVEMENT_SNEAK].lip = LIPWA;
+    anim_info[CHR_MOVEMENT_WALK ].lip = LIPWB;
+    anim_info[CHR_MOVEMENT_RUN  ].lip = LIPWC;
+
+    // set up the arrays that are going tp
+    // determine whether the various movements are allowed
+    for( cnt = 0; cnt < CHR_MOVEMENT_COUNT; cnt++ )
+    {
+        anim_info[cnt].allowed = HAS_SOME_BITS(pchr->movement_bits, 1 << cnt );
+    }
+
+    if( ACTION_WA != pmad->action_map[ACTION_WA] )
+    {
+        // no specific walk animation exists
+        anim_info[CHR_MOVEMENT_SNEAK].allowed = bfalse;
+    }
+
+    if( ACTION_WB != pmad->action_map[ACTION_WB] )
+    {
+        // no specific walk animation exists
+        anim_info[CHR_MOVEMENT_WALK].allowed = bfalse;
+    }
+
+    if( ACTION_WC != pmad->action_map[ACTION_WC] )
+    {
+        // no specific walk animation exists
+        anim_info[CHR_MOVEMENT_RUN].allowed = bfalse;
+    }
+
+    // sort the allowed movement(s) data
+    qsort( anim_info, CHR_MOVEMENT_COUNT, sizeof(chr_anim_data_t), cmp_chr_anim_data );
+
+    // count the allowed movements
+    for( cnt = 0, anim_count = 0; cnt<CHR_MOVEMENT_COUNT; cnt++)
+    {
+        if( anim_info[cnt].allowed ) anim_count++;
+    }
+
+    // nothing to be done
+    if( 0 == anim_count )
+    {
+        return pinst->rate;
+    }
+
+    // estimate our speed
+    if ( 0 != pchr->flyheight )
+    {
+        // for flying objects, the speed is the actual speed
+        speed = ABS(pchr->vel.x) + ABS(pchr->vel.y) + ABS(pchr->vel.z);
+    }
+    else
+    {
+        // for non-flying objects, we use the intended speed
+
+        if( pchr->enviro.is_slipping )
+        {
+            // the character is slipping as on ice. mke their little legs move based on 
+            // their intended speed, for comic effect! :)
+            speed = ABS( pchr->enviro.new_vx ) + ABS( pchr->enviro.new_vy );
+        }
+        else
+        {
+            // new_vx, new_vy is the speed before any latches are applied
+            speed = ABS( pchr->enviro.new_vx ) + ABS( pchr->enviro.new_vy );
+        }
+    }
+
+    if( pchr->fat != 0.0f ) speed /= pchr->fat;
+
+    // handle a special case
+    if ( 1 == anim_count )
+    {
+        if( 0.0f != anim_info[0].speed )
+        {
+            pinst->rate = speed / anim_info[0].speed ;
+        }
+
+        return pinst->rate;
+    }
+
+    // search for the correct animation
+    action = ACTION_DA;
+    lip    = 0;
+    found  = bfalse;
+    for( cnt = 0; cnt < anim_count-1; cnt++ )
+    {
+        float speed_mid = 0.5f * (anim_info[cnt].speed + anim_info[cnt+1].speed);
+
+        // make a special case for dance animation(s)
+        if( 0.0f == anim_info[cnt].speed && speed <= 1e-3 )
+        {
+            found = btrue;
+        }
+        else
+        {
+            found = (speed < speed_mid);
+        }
+
+        if( found )
+        {
+            action = anim_info[cnt].action;
+            lip    = anim_info[cnt].lip;
+            if( 0.0f != anim_info[cnt].speed )
+            {
+                pinst->rate = speed / anim_info[cnt].speed;
+            }
+            break;
+        }
+    }
+
+    if( !found )
+    {
+        action = anim_info[cnt].action;
+        lip    = anim_info[cnt].lip;
+        if( 0.0f != anim_info[cnt].speed )
+        {
+            pinst->rate = speed / anim_info[cnt].speed;
+        }
+        found = btrue;
+    }
+
+    if( !found )
+    {
+        return pinst->rate;
+    }
+
+    frame_count = md2_get_numFrames( pmad->md2_ptr );
+    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmad->md2_ptr );
+    pframe_nxt  = frame_list + pinst->frame_nxt;
+
+    EGOBOO_ASSERT( pinst->frame_nxt < frame_count );
+
+    if( ACTION_DA == action )
+    {
+        // Do standstill
+
+        // handle boredom
+        pchr->boretime--;
+        if ( pchr->boretime < 0 )
+        {
+            int tmp_action, rand_val;
+
+            pchr->ai.alert |= ALERTIF_BORED;
+            pchr->boretime = BORETIME;
+
+            // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
+            rand_val   = RANDIE;
+            tmp_action = mad_get_action( pinst->imad, ACTION_DB + (rand_val % 3) );
+            chr_start_anim( pchr, tmp_action, btrue, btrue );
+        }
+        else
+        {
+            // if the current action is not ACTION_D* switch to ACTION_DA
+            if ( !ACTION_IS_TYPE( pinst->action_which, D ) )
+            {
+                // get an appropriate version of the boredom action
+                int tmp_action = mad_get_action( pinst->imad, ACTION_DA );
+
+                // start the animation
+                chr_start_anim( pchr, tmp_action, btrue, btrue );
+            }
+        }
+    }
+    else
+    {
+        int tmp_action = mad_get_action( pinst->imad, action );
+        if ( ACTION_COUNT != tmp_action )
+        {
+            if ( pinst->action_which != tmp_action )
+            {
+                chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[lip][pframe_nxt->framelip], btrue, btrue );
+            }
+
+            // "loop" the action
+            pinst->action_next = tmp_action;
+        }
+    }
+
+    pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
+
+    return pinst->rate;
+}
+
+//--------------------------------------------------------------------------------------------
+void move_one_character_do_animation( chr_t * pchr )
+{
+    float dflip, flip_diff;
+
+    chr_instance_t * pinst;
+    CHR_REF          ichr;
+
+    if ( NULL == pchr ) return;
     ichr  = GET_REF_PCHR( pchr );
     pinst = &( pchr->inst );
 
-    pmad = chr_get_pmad( ichr );
-    if ( NULL == pmad ) return;
-
     // Animate the character.
     // Right now there are 50/4 = 12.5 animation frames per second
-    pinst->flip += 0.25f * pinst->rate;
+    dflip       = 0.25f * pinst->rate;
+    flip_diff = fmod(pinst->flip, 0.25f) + dflip;
 
-    while ( pinst->flip > 0.25f )
+    while ( flip_diff >= 0.25f )
     {
-        pinst->flip -= 0.25f;
-        pinst->ilip  = ( pinst->ilip + 1 ) % 4;
+        flip_diff -= 0.25f;
+
+        // update the lips
+        pinst->ilip   = ( pinst->ilip + 1 ) % 4;
+        pinst->flip  += 0.25f;
 
         // handle frame FX for the new frame
         if ( 3 == pinst->ilip )
@@ -6912,136 +7229,50 @@ void move_one_character_do_animation( chr_t * pchr )
 
         if ( 0 == pinst->ilip )
         {
-            chr_increment_frame( pchr );
-        }
-    }
-
-    // go back to a base animation rate, in case the next frame is not a
-    // "variable speed frame"
-    pinst->rate = 1.0f;
-	speed = 0;
-
-    // Get running, walking, sneaking, or dancing, from speed
-    if ( !pinst->action_keep && !pinst->action_loop )
-    {
-        int           frame_count = md2_get_numFrames( pmad->md2_ptr );
-        MD2_Frame_t * frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmad->md2_ptr );
-        MD2_Frame_t * pframe_nxt  = frame_list + pinst->frame_nxt;
-        EGOBOO_ASSERT( pinst->frame_nxt < frame_count );
-
-        framelip = pframe_nxt->framelip;  // 0 - 15...  Way through animation
-        
-		if ( pinst->action_ready && pinst->ilip == 0 && pchr->enviro.grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 && !ACTION_IS_TYPE( pinst->action_which, P ))
-        {
-
-            // Do the motion stuff
-
-            // new_vx, new_vy is the speed before any latches are applied
-            speed = ABS( pchr->enviro.new_vx ) + ABS( pchr->enviro.new_vy );
-
-            if ( speed < 0.5f * pchr->sneakspd )
+            if( rv_success == chr_increment_frame( pchr ) )
             {
-                // Do boredom
-                pchr->boretime--;
-                if ( pchr->boretime < 0 )
-                {
-                    pchr->ai.alert |= ALERTIF_BORED;
-                    pchr->boretime = BORETIME;
-                }
-                else if ( pchr->boretime == 0 || speed == 0 )
-                {
-                    // Do standstill
-                    if ( !ACTION_IS_TYPE( pinst->action_which, D ) )
-                    {
-                        int tmp_action = mad_get_action( pinst->imad, ACTION_DA );
-                        chr_start_anim( pchr, tmp_action, btrue, btrue );
-                    }
-                }
-                else
-                {
-                    int tmp_action = mad_get_action( pinst->imad, ACTION_WA );
-                    if ( ACTION_COUNT != tmp_action )
-                    {
-                        if ( pinst->action_which != tmp_action )
-                        {
-                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWA][framelip], btrue, btrue );
-                        }
-
-                        pinst->action_next = tmp_action;
-
-                        if ( pchr->fat != 0.0f )
-                        {
-                            pinst->rate = ( float )speed / ( float )pchr->sneakspd / pchr->fat;
-                        }
-                    }
-                }
+                pinst->flip = fmod(pinst->flip, 1.0f);
             }
             else
             {
-                pchr->boretime = BORETIME;
+                log_warning( "chr_increment_frame() did not succeed" );
+            }
+        }
+    }
 
-                if ( speed < 0.5f *( pchr->sneakspd + pchr->walkspd ) )
+    if( flip_diff > 0.0f )
+    {
+        int ilip_new;
+
+        // update the lips
+        pinst->flip  += flip_diff;
+        ilip_new      = ((int)floor( pinst->flip * 4 )) % 4;
+
+        if( ilip_new != pinst->ilip )
+        {
+            pinst->ilip = ilip_new;
+
+            // handle frame FX for the new frame
+            if ( 3 == pinst->ilip )
+            {
+                chr_handle_madfx( pchr );
+            }
+
+            if ( 0 == pinst->ilip )
+            {
+                if( rv_success == chr_increment_frame( pchr ) )
                 {
-                    //Sneak
-                    int tmp_action = mad_get_action( pinst->imad, ACTION_WA );
-                    if ( ACTION_COUNT != tmp_action )
-                    {
-                        if ( pinst->action_which != tmp_action )
-                        {
-                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWA][framelip], btrue, btrue );
-                        }
-
-                        pinst->action_next = tmp_action;
-
-                        if ( pchr->fat != 0.0f )
-                        {
-                            pinst->rate = ( float )speed / ( float )pchr->sneakspd / pchr->fat;
-                        }
-                    }
+                    pinst->flip = fmod(pinst->flip, 1.0f);
                 }
-                else if ( speed < 0.5f *( pchr->walkspd + pchr->runspd ) )
+                else
                 {
-                    //Walk
-                    int tmp_action = mad_get_action( pinst->imad, ACTION_WB );
-                    if ( ACTION_COUNT != tmp_action )
-                    {
-                        if ( pinst->action_which != tmp_action )
-                        {
-                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWB][framelip], btrue, btrue );
-                        }
-
-                        pinst->action_next = tmp_action;
-
-                        if ( pchr->fat != 0.0f )
-                        {
-                            pinst->rate = ( float )speed / ( float )pchr->walkspd / pchr->fat;
-                        }
-                    }
-                }
-                else if ( pchr->runspd != 0 )
-                {
-                    //Run
-                    int tmp_action = mad_get_action( pinst->imad, ACTION_WC );
-                    if ( ACTION_COUNT != tmp_action )
-                    {
-                        if ( pinst->action_which != tmp_action )
-                        {
-                            chr_set_anim( pchr, tmp_action, pmad->frameliptowalkframe[LIPWC][framelip], btrue, btrue );
-                        }
-
-                        pinst->action_next = tmp_action;
-
-                        if ( pchr->fat != 0.0f )
-                        {
-                            pinst->rate = speed / pchr->runspd;
-                        }
-                    }
+                    log_warning( "chr_increment_frame() did not succeed" );
                 }
             }
         }
     }
 
-    pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
+    set_character_animation_rate( pchr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9608,4 +9839,19 @@ bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
     }
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_set_maxaccel( chr_t * pchr, float new_val )
+{
+    bool_t retval = bfalse;
+    float ftmp;
+
+    if( !ALLOCATED_PCHR(pchr) ) return retval;
+
+    ftmp = pchr->maxaccel / pchr->maxaccel_reset;
+    pchr->maxaccel_reset = new_val;
+    pchr->maxaccel = ftmp * pchr->maxaccel_reset;
+
+    return btrue;
 }

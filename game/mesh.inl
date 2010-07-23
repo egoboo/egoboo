@@ -22,7 +22,7 @@
 /// @file mesh.inl
 
 #include "mesh.h"
-#include "SDL_extensions.h"
+#include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

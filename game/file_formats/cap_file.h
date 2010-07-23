@@ -153,6 +153,8 @@ enum e_chr_gender
 #define DAMAGEINVERT        4                       ///< 00000x00 Makes damage heal
 #define DAMAGESHIFT         3                       ///< 000000xx Resistance ( 1 is common )
 
+#define GET_DAMAGE_RESIST(BITS) ( (BITS) & DAMAGESHIFT )
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// The character statistic data in the form used in data.txt
@@ -228,9 +230,9 @@ struct s_cap
     // movement
     float        jump;                          ///< Jump power
     Uint8        jumpnumber;                    ///< Number of jumps ( Ninja )
-    float        sneakspd;                      ///< Sneak threshold
-    float        walkspd;                       ///< Walk threshold
-    float        runspd;                        ///< Run threshold
+    float        anim_speed_sneak;                      ///< Sneak threshold
+    float        anim_speed_walk;                       ///< Walk threshold
+    float        anim_speed_run;                        ///< Run threshold
     Uint8        flyheight;                     ///< Fly height
     bool_t       waterwalk;                     ///< Walk on water?
 

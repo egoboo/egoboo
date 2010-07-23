@@ -30,6 +30,7 @@
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
+#include "egoboo_math.h"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -174,9 +175,9 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     pcap->weight = fget_next_int( fileread );
     pcap->jump = fget_next_float( fileread );
     pcap->jumpnumber = fget_next_int( fileread );
-    pcap->sneakspd = fget_next_float( fileread );
-    pcap->walkspd = fget_next_float( fileread );
-    pcap->runspd = fget_next_float( fileread );
+    pcap->anim_speed_sneak = fget_next_float( fileread );
+    pcap->anim_speed_walk = fget_next_float( fileread );
+    pcap->anim_speed_run = fget_next_float( fileread );
     pcap->flyheight = fget_next_int( fileread );
     pcap->flashand = fget_next_int( fileread );
     pcap->alpha = fget_next_int( fileread );
@@ -491,9 +492,9 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     template_put_int( filetemp, filewrite, pcap->weight );
     template_put_float( filetemp, filewrite, pcap->jump );
     template_put_int( filetemp, filewrite, pcap->jumpnumber );
-    template_put_float( filetemp, filewrite, pcap->sneakspd );
-    template_put_float( filetemp, filewrite, pcap->walkspd );
-    template_put_float( filetemp, filewrite, pcap->runspd );
+    template_put_float( filetemp, filewrite, pcap->anim_speed_sneak );
+    template_put_float( filetemp, filewrite, pcap->anim_speed_walk );
+    template_put_float( filetemp, filewrite, pcap->anim_speed_run );
     template_put_int( filetemp, filewrite, pcap->flyheight );
     template_put_int( filetemp, filewrite, pcap->flashand );
     template_put_int( filetemp, filewrite, pcap->alpha );
@@ -520,10 +521,10 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][0] & DAMAGESHIFT );
-        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][1] & DAMAGESHIFT );
-        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][2] & DAMAGESHIFT );
-        template_put_int( filetemp, filewrite, pcap->damagemodifier[damagetype][3] & DAMAGESHIFT );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST(pcap->damagemodifier[damagetype][0]) );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST(pcap->damagemodifier[damagetype][1]) );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST(pcap->damagemodifier[damagetype][2]) );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST(pcap->damagemodifier[damagetype][3]) );
     }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -532,19 +533,19 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
         for ( skin = 0; skin < MAX_SKIN; skin++ )
         {
-            if ( pcap->damagemodifier[damagetype][skin]&DAMAGEMANA )
+            if ( HAS_SOME_BITS(pcap->damagemodifier[damagetype][skin],DAMAGEMANA) )
             {
                 code = 'M';
             }
-            else if ( pcap->damagemodifier[damagetype][skin]&DAMAGECHARGE )
+            else if ( HAS_SOME_BITS(pcap->damagemodifier[damagetype][skin],DAMAGECHARGE) )
             {
                 code = 'C';
             }
-            else if ( pcap->damagemodifier[damagetype][skin]&DAMAGEINVERT )
+            else if ( HAS_SOME_BITS(pcap->damagemodifier[damagetype][skin],DAMAGEINVERT) )
             {
                 code = 'T';
             }
-            else if ( pcap->damagemodifier[damagetype][skin]&DAMAGEINVICTUS )
+            else if ( HAS_SOME_BITS(pcap->damagemodifier[damagetype][skin],DAMAGEINVICTUS) )
             {
                 code = 'I';
             }

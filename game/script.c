@@ -32,12 +32,12 @@
 #include "log.h"
 #include "camera.h"
 #include "game.h"
+#include "network.h"
 
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
-
-#include "SDL_extensions.h"
+#include "egoboo_math.h"
 
 #include <assert.h>
 
@@ -213,7 +213,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     }
 
     // Clear the button latches
-    if ( !pchr->isplayer )
+    if ( !VALID_PLA( pchr->is_which_player ) )
     {
         pchr->latch.b = 0;
     }
@@ -260,7 +260,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     }
 
     // Set latches
-    if ( !pchr->isplayer )
+    if ( !VALID_PLA( pchr->is_which_player ) )
     {
         float latch2;
 
@@ -1345,7 +1345,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFACCEL:
                 varname = "SELFACCEL";
-                iTmp = ( pchr->maxaccel * 100.0f );
+                iTmp = ( pchr->maxaccel_reset * 100.0f );
                 break;
 
             case VARTARGETEXP:

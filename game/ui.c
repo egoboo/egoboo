@@ -253,7 +253,7 @@ void ui_setWidgetactive( ui_Widget_t * pw )
     {
         ui_context.active = pw->id;
 
-        pw->timeout = SDL_GetTicks() + 100;
+        pw->timeout = egoboo_get_ticks() + 100;
         if ( HAS_SOME_BITS( pw->mask, UI_BITS_CLICKED ) )
         {
             // use exclusive or to flip the bit
@@ -271,9 +271,9 @@ void ui_setWidgethot( ui_Widget_t * pw )
     }
     else if (( ui_context.active == pw->id || ui_context.active == UI_Nothing ) )
     {
-        if ( pw->timeout < SDL_GetTicks() )
+        if ( pw->timeout < egoboo_get_ticks() )
         {
-            pw->timeout = SDL_GetTicks() + 100;
+            pw->timeout = egoboo_get_ticks() + 100;
 
             if ( HAS_SOME_BITS( pw->mask, UI_BITS_MOUSEOVER ) && ui_context.hot != pw->id )
             {

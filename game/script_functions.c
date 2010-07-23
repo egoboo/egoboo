@@ -46,8 +46,7 @@
 #include "spawn_file.h"
 #include "quest.h"
 
-#include "SDL_extensions.h"
-
+#include "egoboo_math.h"
 #include "egoboo_strutil.h"
 #include "egoboo_setup.h"
 #include "egoboo_math.inl"
@@ -998,7 +997,9 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     reset_character_accel( pself->index );
-    pchr->maxaccel *= 0.66f;
+
+    pchr->maxaccel      = pchr->maxaccel_reset * 0.66f;
+    pchr->movement_bits = CHR_MOVEMENT_BITS_WALK;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1013,7 +1014,9 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     reset_character_accel( pself->index );
-    pchr->maxaccel *= 0.33f;
+
+    pchr->maxaccel      = pchr->maxaccel_reset * 0.33f;
+    pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
 
     SCRIPT_FUNCTION_END();
 }
@@ -1209,7 +1212,7 @@ Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( !pchr->isplayer )
+    if ( !VALID_PLA( pchr->is_which_player ) )
     {
         returncode = btrue;
         pself->poof_time = update_wld;
@@ -2049,7 +2052,7 @@ Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->isplayer;
+    returncode = VALID_PLA( pself_target->is_which_player );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2150,7 +2153,8 @@ Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->maxaccel = 0;
+    pchr->maxaccel      = 0;
+    pchr->movement_bits = CHR_MOVEMENT_BITS_STOP;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4278,7 +4282,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    if ( !pself_target->isplayer )
+    if ( VALID_PLA( pself_target->is_which_player ) )
     {
         returncode = btrue;
         if ( pself->target == pself->index )
@@ -4349,10 +4353,27 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function acts like Run or Walk, except it allows the explicit
     /// setting of the speed
 
+    float fvalue;
+
     SCRIPT_FUNCTION_BEGIN();
 
     reset_character_accel( pself->index );
-    pchr->maxaccel = pchr->maxaccel * pstate->argument / 100.0f;
+
+    fvalue = pstate->argument / 100.0f;
+    fvalue = MAX(0.0f, fvalue);
+
+    pchr->maxaccel = pchr->maxaccel_reset * fvalue;
+
+    if( pchr->maxaccel < 0.33f )
+    {
+        // only sneak
+        pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
+    }
+    else 
+    {
+        // everything but sneak
+        pchr->movement_bits = (unsigned)(~CHR_MOVEMENT_BITS_SNEAK);
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6946,7 +6967,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    if ( pself_target->isplayer && quest_add_idsz_vfs( chr_get_dir_name( pself->target ), pstate->argument ) )
+    if ( VALID_PLA( pself_target->is_which_player ) && quest_add_idsz_vfs( chr_get_dir_name( pself->target ), pstate->argument ) )
     {
         returncode = btrue;
     }
@@ -6997,7 +7018,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    if ( pself_target->isplayer )
+    if ( VALID_PLA( pchr->is_which_player ) )
     {
         iTmp = quest_check_vfs( chr_get_dir_name( pself->target ), pstate->argument );
         if ( iTmp > QUEST_BEATEN )
@@ -7024,7 +7045,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    if ( pself_target->isplayer && pstate->distance != 0 )
+    if ( VALID_PLA( pself_target->is_which_player ) && pstate->distance != 0 )
     {
         if ( quest_modify_idsz_vfs( chr_get_dir_name( pself->target ), pstate->argument, pstate->distance ) > QUEST_NONE ) returncode = btrue;
     }

@@ -3229,13 +3229,13 @@ void gfx_update_timers()
 
     if ( gfx_clock_stt < 0 )
     {
-        gfx_clock_stt  = SDL_GetTicks();
+        gfx_clock_stt  = egoboo_get_ticks();
         gfx_clock_last = gfx_clock_stt;
         gfx_clock      = gfx_clock_stt;
     }
 
     gfx_clock_last = gfx_clock;
-    gfx_clock      = SDL_GetTicks() - gfx_clock_stt;
+    gfx_clock      = egoboo_get_ticks() - gfx_clock_stt;
     dclock         = gfx_clock - gfx_clock_last;
 
     // if there has been a gap in time (the module was loading, for instance)
@@ -3412,7 +3412,7 @@ void BillboardList_update_all()
     BBOARD_REF cnt;
     Uint32     ticks;
 
-    ticks = SDL_GetTicks();
+    ticks = egoboo_get_ticks();
 
     for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
@@ -3493,7 +3493,7 @@ size_t BillboardList_get_free( Uint32 lifetime_secs )
         billboard_data_init( pbb );
 
         pbb->tex_ref = itex;
-        pbb->time    = SDL_GetTicks() + lifetime_secs * TICKS_PER_SEC;
+        pbb->time    = egoboo_get_ticks() + lifetime_secs * TICKS_PER_SEC;
         pbb->valid   = btrue;
     }
     else
@@ -3727,7 +3727,7 @@ void draw_all_lines( camera_t * pcam )
 
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT - we do not want texture mapped lines
 
-            ticks = SDL_GetTicks();
+            ticks = egoboo_get_ticks();
 
             for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
             {

@@ -46,8 +46,7 @@
 #include "camera.h"
 #include "graphic.h"
 
-#include "SDL_extensions.h"
-
+#include "egoboo_math.h"
 #include "egoboo_vfs.h"
 #include "egoboo_typedef.h"
 #include "egoboo_fileutil.h"
@@ -55,6 +54,8 @@
 #include "egoboo_strutil.h"
 
 #include "egoboo.h"
+
+#include "SDL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

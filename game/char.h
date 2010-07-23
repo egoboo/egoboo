@@ -170,6 +170,24 @@ enum e_chr_name_bits
     CHRNAME_CAPITAL  = ( 1 << 2 )       ///< capitalize the name
 };
 
+enum e_chr_movement_idx
+{
+    CHR_MOVEMENT_STOP  = 0,
+    CHR_MOVEMENT_SNEAK,
+    CHR_MOVEMENT_WALK,
+    CHR_MOVEMENT_RUN,
+    CHR_MOVEMENT_COUNT
+};
+
+enum e_chr_movement_bits
+{
+    CHR_MOVEMENT_NONE  = 0,
+    CHR_MOVEMENT_BITS_STOP  = 1 << CHR_MOVEMENT_STOP,
+    CHR_MOVEMENT_BITS_SNEAK = 1 << CHR_MOVEMENT_SNEAK,
+    CHR_MOVEMENT_BITS_WALK  = 1 << CHR_MOVEMENT_WALK,
+    CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN  
+};
+
 //------------------------------------
 /// Team variables
 //------------------------------------
@@ -347,7 +365,7 @@ struct s_chr
     bool_t         is_hidden;
     bool_t         alive;                         ///< Is it alive?
     bool_t         waskilled;                     ///< Fix for network
-    bool_t         isplayer;                      ///< btrue = player
+    PLA_REF        is_which_player;               ///< btrue = player
     bool_t         islocalplayer;                 ///< btrue = local player
     bool_t         invictus;                      ///< Totally invincible?
     bool_t         iskursed;                      ///< Can't be dropped?
@@ -447,10 +465,13 @@ struct s_chr
     // movement properties
     bool_t         waterwalk;                     ///< Always above watersurfacelevel?
     TURN_MODE      turnmode;                      ///< Turning mode
-    Uint8          sneakspd;                      ///< Sneaking if above this speed
-    Uint8          walkspd;                       ///< Walking if above this speed
-    Uint8          runspd;                        ///< Running if above this speed
-    float          maxaccel;                      ///< Maximum acceleration
+
+    unsigned       movement_bits;                 ///< What movement modes are allowed?
+    float          anim_speed_sneak;              ///< Movement rate of the sneak animation
+    float          anim_speed_walk;               ///< Walking if above this speed
+    float          anim_speed_run;                ///< Running if above this speed
+    float          maxaccel;                      ///< The current maxaccel_reset
+    float          maxaccel_reset;                ///< The actual maximum acelleration
     Uint8          flyheight;                     ///< Height to stabilize at
 
     // data for doing the physics in bump_all_objects()
@@ -669,3 +690,5 @@ fvec3_t chr_get_pos( chr_t * pchr );
 bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
 
 float * chr_get_pos_v( chr_t * pchr );
+
+bool_t chr_set_maxaccel( chr_t * pchr, float new_val );

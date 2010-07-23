@@ -31,9 +31,8 @@
 #include "network.h"
 
 #include "egoboo_fileutil.h"
+#include "egoboo_math.h"
 #include "egoboo.h"
-
-#include "SDL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -231,7 +230,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, bool_t tar
         if ( !targetdead && !pchr->alive ) continue;
 
         //Require target to have specific quest?
-        if ( targetquest && ( !pchr->isplayer || QUEST_NONE  >= quest_check_vfs( chr_get_dir_name( character ), findidsz ) ) ) continue;
+        if ( targetquest && ( !VALID_PLA( pchr->is_which_player ) || QUEST_NONE  >= quest_check_vfs( chr_get_dir_name( character ), findidsz ) ) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
@@ -311,7 +310,7 @@ void check_passage_music()
             if ( !INGAME_CHR( character ) ) continue;
             pchr = ChrList.lst + character;
 
-            if ( pchr->pack.is_packed || !pchr->alive || !pchr->isplayer ) continue;
+            if ( pchr->pack.is_packed || !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
 
             // Is it in the passage?
             if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )

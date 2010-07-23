@@ -194,7 +194,7 @@ int mad_get_action( const MAD_REF by_reference imad, int action )
 {
     /// @detaills BB@> translate the action that was given into a valid action for the model
     ///
-    /// returns ACTION_COUNT on a complete failure, or the default ACTION_DA if
+    /// returns ACTION_COUNT on a complete failure, or the default ACTION_DA if it exists
 
     int     retval;
     mad_t * pmad;

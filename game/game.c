@@ -770,7 +770,7 @@ int update_game()
     update_loop_cnt = 0;
     if ( update_wld < true_update )
     {
-        int max_iterations = single_frame_mode ? 1 : (2 * TARGET_UPS);
+        int max_iterations = single_frame_mode ? 1 : 2 /*(2 * TARGET_UPS)*/;
 
         /// @todo claforte@> Put that back in place once networking is functional (Jan 6th 2001)
         for ( tnc = 0; update_wld < true_update && tnc < max_iterations; tnc++ )
@@ -872,7 +872,7 @@ void game_update_timers()
     const float fnew = 1.0f - fold;
 
     ticks_last = ticks_now;
-    ticks_now  = SDL_GetTicks();
+    ticks_now  = egoboo_get_ticks();
 
     // check to make sure that the game is running
     if ( !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused )
@@ -957,7 +957,7 @@ void reset_timers()
 {
     /// @details ZZ@> This function resets the timers...
 
-    clock_stt = ticks_now = ticks_last = SDL_GetTicks();
+    clock_stt = ticks_now = ticks_last = egoboo_get_ticks();
 
     clock_all = 0;
     clock_lst = 0;
@@ -1444,7 +1444,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_
     ptst = ChrList.lst + ichr_test;
 
     // Players only?
-    if ( target_players && !ptst->isplayer ) return bfalse;
+    if ( target_players && !VALID_PLA(ptst->is_which_player) ) return bfalse;
 
     // Skip held objects and self
     if ( psrc == ptst || INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
@@ -1730,7 +1730,7 @@ void update_pits()
                         pchr->vel.y = 0;
 
                         // Play sound effect
-                        if ( pchr->isplayer )
+                        if ( VALID_PLA( pchr->is_which_player ) )
                         {
                             sound_play_chunk_full( g_wavelist[GSND_PITFALL] );
                         }
@@ -2086,7 +2086,7 @@ void check_stats()
     int ticks;
     if ( console_mode ) return;
 
-    ticks = SDL_GetTicks();
+    ticks = egoboo_get_ticks();
     if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;
@@ -2300,16 +2300,16 @@ void show_armor( int statindex )
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - pcap->defense[skinlevel],
-                  pcap->damagemodifier[DAMAGE_SLASH][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[DAMAGE_CRUSH][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[DAMAGE_POKE ][skinlevel]&DAMAGESHIFT );
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_SLASH][skinlevel]),
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_CRUSH][skinlevel]),
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_POKE ][skinlevel]) );
 
     debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
-                  pcap->damagemodifier[DAMAGE_HOLY][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[DAMAGE_EVIL][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[DAMAGE_FIRE][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[DAMAGE_ICE ][skinlevel]&DAMAGESHIFT,
-                  pcap->damagemodifier[DAMAGE_ZAP ][skinlevel]&DAMAGESHIFT );
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_HOLY][skinlevel]),
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_EVIL][skinlevel]),
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_FIRE][skinlevel]),
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_ICE ][skinlevel]),
+                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_ZAP ][skinlevel]) );
 
     debug_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
@@ -2324,7 +2324,7 @@ void show_armor( int statindex )
         default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%i)", pchr->jumpnumberreset ); break;
     };
 
-    debug_printf( "~Speed:~%3.0f~Jump Skill:~%s", pchr->maxaccel*80, tmps );
+    debug_printf( "~Speed:~%3.0f~Jump Skill:~%s", pchr->maxaccel_reset*80, tmps );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2389,16 +2389,16 @@ void show_full_status( int statindex )
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
                   255 - pchr->defense,
-                  pchr->damagemodifier[DAMAGE_SLASH]&DAMAGESHIFT,
-                  pchr->damagemodifier[DAMAGE_CRUSH]&DAMAGESHIFT,
-                  pchr->damagemodifier[DAMAGE_POKE ]&DAMAGESHIFT );
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_SLASH]),
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_CRUSH]),
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_POKE ]) );
 
     debug_printf( "~HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                  pchr->damagemodifier[DAMAGE_HOLY]&DAMAGESHIFT,
-                  pchr->damagemodifier[DAMAGE_EVIL]&DAMAGESHIFT,
-                  pchr->damagemodifier[DAMAGE_FIRE]&DAMAGESHIFT,
-                  pchr->damagemodifier[DAMAGE_ICE ]&DAMAGESHIFT,
-                  pchr->damagemodifier[DAMAGE_ZAP ]&DAMAGESHIFT );
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_HOLY]),
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_EVIL]),
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_FIRE]),
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_ICE ]),
+                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_ZAP ]) );
 
     get_chr_regeneration( pchr, &liferegen, &manaregen );
 
@@ -2635,7 +2635,7 @@ bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinf
     }
 
     // automatically identify and unkurse all player starting equipment? I think yes.
-    if ( start_new_player && NULL != pparent && pparent->isplayer )
+    if ( start_new_player && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
     {
         chr_t *pitem;
         pchr->nameknown = btrue;
@@ -3468,7 +3468,7 @@ bool_t add_player( const CHR_REF by_reference character, const PLA_REF by_refere
 
         player_init( ppla );
 
-        ChrList.lst[character].isplayer = btrue;
+        ChrList.lst[character].is_which_player = player;
         ppla->index           = character;
         ppla->valid           = btrue;
         ppla->device.bits     = device_bits;

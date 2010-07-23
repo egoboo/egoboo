@@ -130,8 +130,36 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 #    define LOG_NAN(XX)
 #endif
 
+
 //--------------------------------------------------------------------------------------------
-/// FAST CONVERSIONS
+//--------------------------------------------------------------------------------------------
+// bitwise operations
+#if !defined(BOOL_TO_BIT)
+#    define BOOL_TO_BIT(X)       ((X) ? 1 : 0 )
+#endif
+
+#if !defined(BIT_TO_BOOL)
+#    define BIT_TO_BOOL(X)       ((1 == X) ? btrue : bfalse )
+#endif
+
+#if !defined(HAS_SOME_BITS)
+#    define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
+#endif
+
+#if !defined(HAS_ALL_BITS)
+#    define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
+#endif
+
+#if !defined(HAS_NO_BITS)
+#    define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
+#endif
+
+#if !defined(MISSING_BITS)
+#    define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
+#endif
+
+//--------------------------------------------------------------------------------------------
+// FAST CONVERSIONS
 
 #if !defined(INV_FF)
 #   define INV_FF              0.003921568627450980392156862745098f

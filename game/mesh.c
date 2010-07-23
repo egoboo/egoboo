@@ -26,12 +26,11 @@
 #include "log.h"
 #include "graphic.h"
 
-#include "SDL_extensions.h"
-
 #include "egoboo_math.inl"
 #include "egoboo_endian.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
+#include "egoboo_math.h"
 #include "egoboo.h"
 #include "egoboo_mem.h"
 
