@@ -1,6 +1,0 @@
-Message 0: %t_killed_a_%c!
-Message 1: The_Lumpkin_attacked_a_friend!
-Message 2: %n_is_running_away!
-Message 3: %t_slaughtered_the_Lumpkin!
-Message 4: The_%c_looks_better...
-Message 5: The_%c_regains_%p_courage...

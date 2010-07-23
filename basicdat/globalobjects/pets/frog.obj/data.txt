@@ -1,0 +1,155 @@
+Object slot number ( 0 to 63, don't use twice )	: -1
+Class name     : Frog
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : RANDOM
+
+Life color     : 1
+Mana color     : 5
+Life           : 10-14
+Life up        : 2.00-3.50
+Mana           : 0.00
+Mana up        : 0.00-0.00
+Mana return    : 0.00
+Mana return up : 0.00-0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00-0.00
+STR            : 3-5
+STR up         : 1.00-2.00
+WIS            : 3-4
+WIS up         : 0.00-1.00
+INT            : 4-6
+INT up         : 0.00-1.00
+DEX            : 14-16
+DEX up         : 2.00-4.00
+
+Size           : 1.00
+Size up        : 0.10
+Shadow size    : 19
+Bump size      : 24
+Bump height    : 80
+Bump dampen    : 0.70
+Weight         : 20
+Jump power     : 30.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 3
+Run speed      : 5
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : FALSE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : TRUE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 32768
+
+Base defense   :  40  40  40  40
+S damage shift :   1   1   1   1
+C damage shift :   1   1   1   1
+P damage shift :   2   1   1   1
+H damage shift :   1   1   1   1
+E damage shift :   2   2   2   2
+F damage shift :   1   1   1   1
+I damage shift :   2   1   1   1
+Z damage shift :   0   0   0   0
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  60  40  40  40
+
+EXP for 2nd    : 400
+EXP for 3rd    : 800
+EXP for 4th    : 1500
+EXP for 5th    : 2500
+EXP for 6th    : 4000
+Starting EXP   : 0
+EXP worth      : 0
+EXP exchange   : 0.010
+EXPSECRET      : 0.00
+EXPQUEST       : 0.20
+EXPDARE        : 0.00
+EXPKILL        : 1.00
+EXPMURDER      : 0.00
+EXPREVENGE     : 2.00
+EXPTEAMWORK    : 0.50
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [FROG]
+IDSZ Type      : [NONE]
+IDSZ Skill     : [NONE]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : TRUE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : FALSE
+Usage known    : TRUE
+Is exportable  : TRUE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : FALSE
+Can open stuff : FALSE
+
+Damage type    : POKE
+Attack type    : WALK
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : FALSE
+
+Part on weapon : TRUE
+Part type      : 3
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 0
+
+Blud valid    : TRUE
+Part type      : 1
+
+Waterwalking   : TRUE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 42
+Stopped by     : 48
+Skin 0 name    : Skin_0
+Skin 1 name    : Skin_1
+Skin 2 name    : Skin_2
+Skin 3 name    : Skin_3
+Skin 0 cost    : 0
+Skin 1 cost    : 0
+Skin 2 cost    : 0
+Skin 3 cost    : 0
+STR dampen     : 0.05
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : TRUE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 2
+Jump sound     : 2

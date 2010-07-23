@@ -24,6 +24,7 @@
 
 #dependency RustEater     53
 #dependency KeyR          43
+#dependency Squidgie      46
 
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team

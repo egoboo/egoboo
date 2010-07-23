@@ -83,7 +83,7 @@ irondoor:   NONE    61  51.0   39.0   1.0   E    0   0  14   0   0   F   F   N
 fright:   NONE    60  42.5   38.5   1.0   N    0   0  0   0   0   F   F   E
 fright:   NONE    60  38.5   48.5   1.0   N    0   0  0   0   0   F   F   E
 evilaltar:   NONE    66  61.5   39.0   1.0   W    0   0  18   0   0   F   F   E
-  keyb:   NONE    64  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  keye:   NONE    64  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Mount:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 irondoor:   NONE    61  24.0   47.0   1.0   N    0   0  16   0   0   F   F   N
 Mimic:   NONE    68  39.5   51.5   1.0   N    12   0  0   0   0   F   F   E

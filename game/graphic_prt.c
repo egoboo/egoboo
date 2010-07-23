@@ -1170,7 +1170,6 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
      // draw the object bounding box as a part of the graphics debug mode F7
     if ( (cfg.dev_mode && SDLKEYDOWN( SDLK_F7 )) || single_frame_mode )
     {
-        int cnt;
         oct_bb_t loc_bb, tmp_bb, exp_bb;
 
         // copy the bounding volume

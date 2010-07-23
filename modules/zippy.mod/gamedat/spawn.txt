@@ -56,7 +56,11 @@
 #dependency Rebirth            77
 
 //Pet trader
+#dependency BlackSheep         78
+#dependency FaeriePet          80
+#dependency MysticMold         81
 #dependency AlbinoBat          83
+#dependency GrubPet            84
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO 0:    NONE      0    31.5 31.5 0.0  N   0   0   0   0   0   T   F   Good

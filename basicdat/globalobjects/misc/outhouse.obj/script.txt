@@ -12,23 +12,6 @@ IfBumped			// Turn
         tmpargument = 1
         SetState		//Disable loop
 
-        //This handles a little secret
-        tmpargument = selfcontent +1
-        SetContent
-        tmpx = tmpargument
-        tmpy = 16				//After 16 bumps
-        IfXIsEqualToY
-          tmpx = rand & 255 + selfx - 128
-          tmpy = rand & 255 + selfy - 128
-          tmpdistance = 300 + selfz
-          tmpargument = 132
-          tmpturn = rand
-          SpawnExactCharacterXYZ		//Spawn a secret!
-          tmpargument = 1
-          PlaySound
-          tmpargument = 0
-          SendMessage
-
 //Enable messaging again
 IfTimeOut
   tmpargument = 100

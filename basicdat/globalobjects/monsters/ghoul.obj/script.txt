@@ -4,8 +4,8 @@ IfOrdered
   tmpy = [UNDO]
   IfXIsEqualToY
     UndoEnchant
-    tmpargument = -500
-    SetContent // Won't come back...
+    tmpargument = -1
+    SetContent            //Won't come back...
 
 //------------------------------------------------------------------------------
 // ZZ> Most undead have an enchantment sustaining them
@@ -44,7 +44,7 @@ IfCleanedUp
         ChangeArmor
       Else
         // No coming back from the pit...
-        tmpargument = tmpy
+        tmpargument = -1
         SetContent
 
 //------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 IfSpawned
   tmpargument = 2
-  PlaySound			//I love brains!
+  PlaySound			        //I love brains!
   tmpargument = 2
   SendMessage
   JoinEvilTeam
@@ -8,17 +8,14 @@ IfSpawned
 IfTimeOut
   //Always target the player
   tmpargument = [ELFF]
-  tmpdistance = 2
+  tmpdistance = BLAHENEMIES + BLAHPLAYERS
   SetTargetToNearestBlahID
-    IfTargetIsAPlayer
-      DoNothing
-    Else
-      SetTargetToNearestEnemy
+    DoNothing
   Else
     SetTargetToNearestEnemy
   
   tmpx = targetdistance
-  tmpy = 400
+  tmpy = 128*4
   IfXIsMoreThanY
     tmpargument = 100			//Charge!
     SetTime

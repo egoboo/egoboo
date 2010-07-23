@@ -3482,7 +3482,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 		if ( is_invictus_direction( direction, character, effects ) )
         {
             actual_damage = 0;
-            spawn_defense_ping( pchr, attacker );
+            //spawn_defense_ping( pchr, attacker );
         }
 
         // Do it already
@@ -3642,6 +3642,12 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                 chr_make_text_billboard( character, text_buffer, text_color, tint, lifetime, bb_opt_all );
             }
         }
+
+		//No damage dealt
+		else
+		{
+			spawn_defense_ping( pchr, attacker );
+		}
     }
 
     return actual_damage;
@@ -9547,48 +9553,6 @@ mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
 
     return MadStack.lst + pchr->inst.imad;
 }
-
-//--------------------------------------------------------------------------------------------
-/*void kill_character( const CHR_REF by_reference character, const CHR_REF by_reference killer )
-{
-/// @details ZZ@> This function kills a character...  MAX_CHR killer for accidental death
-
-Uint8 modifier;
-Uint16 threshold;
-chr_t * pchr;
-
-if ( !INGAME_CHR( character ) ) return;
-pchr = ChrList.lst + character;
-
-if ( pchr->alive )
-{
-IPair tmp_damage = {512,1};
-
-pchr->damagetime = 0;
-pchr->life = 1;
-
-//Remember some values
-modifier = pchr->damagemodifier[DAMAGE_CRUSH];
-threshold = pchr->damagethreshold;
-
-//Set those values so we are sure it will die
-pchr->damagemodifier[DAMAGE_CRUSH] = 1;
-pchr->damagethreshold = 0;
-
-if ( INGAME_CHR( killer ) )
-{
-damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, chr_get_iteam(killer), killer, DAMFX_ARMO | DAMFX_NBLOC, btrue );
-}
-else
-{
-damage_character( character, ATK_FRONT, tmp_damage, DAMAGE_CRUSH, TEAM_DAMAGE, pchr->ai.bumplast, DAMFX_ARMO | DAMFX_NBLOC, btrue );
-}
-
-//Revert back to original again
-pchr->damagemodifier[DAMAGE_CRUSH] = modifier;
-pchr->damagethreshold = threshold;
-}
-}*/
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
