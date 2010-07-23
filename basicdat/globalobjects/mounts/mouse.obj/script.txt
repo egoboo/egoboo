@@ -1,0 +1,41 @@
+// ZZ> This function makes the character move around
+IfKilled				// Size
+  JoinGoodTeam // For rebirth...
+  tmpargument = 45			  //
+  SetBumpHeight				  //
+  tmpargument = 0			  //
+  SendMessageNear			  //
+  tmpargument = rand & 1
+  PlaySound
+IfSpawned
+  JoinNullTeam // For rebirth...
+  tmpargument = 30
+  SetTime
+IfAttacked
+  tmpargument = rand & 1
+  PlaySound
+IfMounted
+  tmpargument = rand & 1
+  PlaySound
+IfTimeOut				// This is done every so often
+  ClearWaypoints			  //
+  SetTargetToNearbyEnemy		  // Run away
+    tmpturn = targetturnto + 24000	    //
+    tmpdistance = 600			    //
+    Compass				    //
+  Else
+    tmpx = selfx
+    tmpy = selfy
+  AddWaypoint				  //
+  tmpargument = rand & 15 + 20		  // Wait a while and try again
+  SetTime				  //
+IfBumped				// Wander
+  SetTargetToWhoeverBumped
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = targetturnto + 32768
+  tmpdistance = 500
+  Compass
+  ClearWaypoints			  //
+  AddWaypoint				  //
+End					// Finished with this character

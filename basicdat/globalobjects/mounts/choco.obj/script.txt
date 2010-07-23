@@ -1,0 +1,61 @@
+//-----------------------------------------------------------------------------
+//FOOTSTEP SOUND
+IfHitGround
+  tmpargument = 1
+  tmpdistance = 17000
+  PlaySound
+
+//----------------------------------------------------------------------------
+// Undead are sustained by magic
+IfSpawned
+  EnchantTarget // target is self...
+
+//------------------------------------------------------------------------------
+IfTimeOut
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = selfturn + 8192
+  tmpdistance = 200
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 50
+  SetTime
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfSpawned
+  JoinNullTeam  // For rebirth...
+
+IfKilled
+  JoinGoodTeam  // For rebirth...
+
+  tmpargument = 5
+  tmpdistance = rand & 2047 + 10000
+  PlaySound
+  tmpargument = 0
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+
+  //Sound
+  tmpargument = 0
+  PlaySound
+
+  // Make the character body
+  tmpargument = 50
+  SetBumpHeight
+  tmpargument = 43
+  SetBumpSize
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  tmpargument = 0
+  PlaySound
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

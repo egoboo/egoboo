@@ -1,0 +1,3 @@
+Message 0: The_%c_was_slain!
+Message 1: The_%c_refuses_%t_as_it's_rider!
+Message 2: %t_took_control_of_the_%c!

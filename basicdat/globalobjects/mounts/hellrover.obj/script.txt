@@ -1,0 +1,201 @@
+//The definition of the different states:
+//0: Walking around
+//1: Being a mount
+
+//Manage some flashy start things and set some values
+IfSpawned
+  tmpargument = 0       //part0.txt
+  tmpx = selfx            // x
+  tmpy = selfy            // y
+  tmpdistance = selfz     // z
+  SpawnExactParticle      //Unleash the power!!
+  tmpargument = 150
+  SetTime
+  
+  //Make the summoner it's master!
+  tmpdistance = 6
+  tmpargument = [WIZA]
+  SetTargetToNearestBlahID
+    SetOwnerToTarget
+    JoinGoodTeam
+    
+//Bites drains mana!
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  tmpx = targetmana
+  tmpy = 511
+  IfXIsMoreThanY
+    tmpargument = 1024
+    CostTargetMana
+    SetTargetToSelf
+    tmpargument = 512
+    PumpTarget
+    
+//Get a new master
+SetTargetToRider
+  IfStateIs0
+    tmpargument = [GOOD]
+    IfTargetHasSpecialID    //No good guys may ride the mount
+      DropWeapons           //Drop the rider!
+      JoinEvilTeam
+      SetTargetToSelf
+      SetOwnerToTarget
+    Else
+      tmpargument = 1
+      SetState              //New master
+      SetOwnerToTarget
+      JoinTargetTeam
+      SetTurnModeToVelocity
+Else
+  tmpargument = 0
+  SetState
+      
+//Bite bumpers
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = LATCHRIGHT
+      PressLatchButton
+
+//How often can it attack?
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+  
+  //Rider wants to use lightningbolt abillity
+  IfStateIs1
+    tmpx = selfmana
+    tmpy = 1024			//Need at least 4 mana
+    IfXIsMoreThanY
+      tmpargument = 7         //part0.txt
+      tmpx = selfx            // x
+      tmpy = selfy            // y
+      tmpdistance = selfz     // z
+      SpawnExactParticle      //Unleash the power!!
+            
+      //Cost 7 mana
+      SetTargetToSelf
+      tmpargument = 1024		//4 mana
+      CostTargetMana
+      
+//Death stuff
+IfKilled
+  tmpargument = 3
+  PlayFullSound
+  tmpargument = 0			  // Last words...
+  SendMessageNear
+  
+  //Explode
+  tmpargument = 0
+  tmpx = 0
+  tmpy = 0
+  tmpdistance = SPAWNORIGIN
+  SpawnParticle
+  GoPoof
+  
+//Say ouch
+IfAttacked				// Attacked
+  SetOldTarget
+  tmpargument = rand & 1 + 1
+  PlaySound			        //
+  SetTargetToWhoeverAttacked		  //
+    IfTargetIsAlive			    //
+      IfTargetIsOnSameTeam		      // Go after 'em
+        SetTargetToOldTarget  
+    Else				    //Attacker died already
+      SetTargetToOldTarget		      //
+      
+  //Chance to throw off the rider
+  SetTargetToRider
+    tmpargument = targetdex > 8
+    tmpx = rand % 100 + tmpargument    //+1 per point of dex
+    tmpy = 50                           //Treshold to be thrown off
+    IfXIsLessThanY
+      DropWeapons                       //Buckle em' off!
+  SetTargetToOldTarget  
+
+  //Back attacks always buckle the rider
+  IfHitFromBehind
+    DropWeapons
+  
+// This is done every so often    
+IfTimeOut
+  //Unmounted AI
+  IfStateIs0
+    SetTurnModeToVelocity
+    tmpargument = rand & 15 + 35		 // Try again later
+    SetTime
+   
+    tmpx = 0
+    SetTargetToWideEnemy		  //Priority 3: Look out for enemies
+      tmpx = 1
+    tmpargument = [GOOD]
+    tmpdistance = 6            //Priority 2: [GOOD] enemies and "friends"
+    SetTargetToWideBlahID
+      tmpx = 1
+    tmpargument = [LICH]
+    tmpdistance = BLAHENEMIES
+    SetTargetToWideBlahID		//Priority 1: Find the boss lich
+      tmpx = 1
+    
+    //If tmpx = 1, we go combat mode
+    tmpy = 1
+    IfXIsEqualToY
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsMoreThanY
+        tmpdistance = 1500      //Charge
+
+      Else
+        SetTurnModeToWatchTarget    //Close combat mode
+        tmpdistance = 200
+        
+      tmpx = targetx
+      tmpy = targety          
+      tmpturn = targetturnto
+      Compass
+      
+      ClearWaypoints
+      AddWaypoint
+              
+      //LIGHTNING POWER
+      IfFacingTarget			//Do we fire a lightning bolt?
+        tmpx = rand % 50
+        tmpy = 0				//2% chance each check
+        IfXIsEqualToY
+          tmpx = selfmana
+          tmpy = 1024			//Need at least 4 mana
+          IfXIsMoreThanY
+            tmpargument = 7         //part0.txt
+            tmpx = selfx            // x
+            tmpy = selfy            // y
+            tmpdistance = selfz     // z
+            SpawnExactParticle      //Unleash the power!!
+            
+            //Cost 7 mana
+            SetOldTarget
+            SetTargetToSelf
+            tmpargument = 1024		//7 mana
+            CostTargetMana
+            SetTargetToOldTarget
+            
+        //Bite
+        tmpx = targetdistance
+        tmpy = 150
+        IfXIsLessThanY
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+
+    //No enemies, follow leader
+    Else
+      SetTargetToOwner
+      tmpx = ownerdistance
+      tmpy = 128*3
+      IfXIsMoreThanY
+        tmpx = rand & 511 + ownerx - 256			    //
+        tmpy = rand & 511 + ownery - 256			    //
+        ClearWaypoints			  
+        AddWaypoint		  
+
+End					// Finished with this character
