@@ -3997,7 +3997,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
         else
         {
             // Ripples
-            if ( pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.mins[OCT_Z] < water.surface_level )
+			if ( !INGAME_CHR(pchr->attachedto) && pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.mins[OCT_Z] < water.surface_level )
             {
                 int ripple_suppression;
 
@@ -5476,7 +5476,7 @@ void move_one_character_get_environment( chr_t * pchr )
         pchr->jumpready = pchr->enviro.grounded;
 
         // Down jump timer
-        if ( (pchr->jumpready || pchr->jumpnumber > 0) && pchr->jumptime > 0 ) pchr->jumptime--;
+		if ( ( INGAME_CHR(pchr->attachedto) || pchr->jumpready || pchr->jumpnumber > 0) && pchr->jumptime > 0 ) pchr->jumptime--;
 
         // Do ground hits
         if ( pchr->enviro.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
@@ -5530,6 +5530,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         floor_acc.y = pplat->vel.y - pplat->vel_old.y;
         floor_acc.z = pplat->vel.z - pplat->vel_old.z;
 
+		
         chr_getMatUp( pplat, &vup );
     }
     else if ( !pchr->alive || pchr->isitem )
@@ -5618,7 +5619,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     }
 
     // test to see if the player has any more friction left?
-    pchr->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pchr->enviro.friction_hrz );
+	pchr->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pchr->enviro.friction_hrz );
 
     if ( pchr->enviro.is_slipping )
     {
@@ -5631,9 +5632,9 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     }
 
     //apply the floor friction
-    pchr->vel.x += fric_floor.x;
-    pchr->vel.y += fric_floor.y;
-    pchr->vel.z += fric_floor.z;
+	pchr->vel.x += fric_floor.x;
+	pchr->vel.y += fric_floor.y;
+	pchr->vel.z += fric_floor.z;
 
     // Apply fluid friction from last time
     pchr->vel.x += -pchr->vel.x * ( 1.0f - pchr->enviro.fluid_friction_hrz );
@@ -6068,10 +6069,12 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && 0 == pchr->jumptime )
     {
+		int ijump;
+		cap_t * pcap;
+
 		//Jump from our mount
         if ( INGAME_CHR( pchr->attachedto ) )
         {
-            int ijump;
             fvec3_t tmp_pos;
 
             detach_character_from_mount( ichr, btrue, btrue );
@@ -6093,11 +6096,15 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->jumpnumber--;
 
             // Play the jump sound
-            ijump = pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
-            if ( VALID_SND( ijump ) )
+			pcap = pro_get_pcap( pchr->profile_ref );
+            if ( NULL != pcap )
             {
-                sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ijump ) );
-            }
+				ijump = pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
+				if ( VALID_SND( ijump ) )
+				{
+					sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ijump ) );
+				}
+			}
 
         }
 
@@ -6106,8 +6113,6 @@ bool_t chr_do_latch_button( chr_t * pchr )
         {
             if ( pchr->jumpnumberreset != 1 || pchr->jumpready )
             {
-                int ijump;
-                cap_t * pcap;
 
                 // Make the character jump
                 pchr->hitready = btrue;

@@ -144,4 +144,5 @@ void   looped_update_all_sound();
 void   sound_finish_sound();
 void   sound_free_chunk( Mix_Chunk * pchunk );
 
+int get_current_song_playing();
 bool_t LoopedList_remove( int channel );

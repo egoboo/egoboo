@@ -218,7 +218,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, bool_t tar
         pchr = ChrList.lst + character;
 
         // no carried items
-        if ( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
+        if ( pchr->pack.is_packed ) continue;
 
         // do not do invulnerable or scenery items
         if (( pchr->invictus && !pchr->isitem ) || pchr->phys.weight == INFINITE_WEIGHT ) continue;
@@ -298,7 +298,7 @@ void check_passage_music()
         PLA_REF ipla;
         passage_t * ppass = PassageStack.lst + passage;
 
-        if ( ppass->music == NO_MUSIC ) continue;
+		if ( ppass->music == NO_MUSIC || ppass->music == get_current_song_playing() ) continue;
 
         // Look at each player
         for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )

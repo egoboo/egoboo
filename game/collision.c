@@ -1484,7 +1484,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         {
             bump_str = 1.0f - ( float )pchr->dismount_timer / PHYS_DISMOUNT_TIME;
             bump_str = bump_str * bump_str * 0.5f;
-        };
+        }
 
         // decrement the dismount timer
         if ( pchr->dismount_timer > 0 )
@@ -1605,7 +1605,14 @@ bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference 
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
-    xa = pchr_a->pos.x;
+    // can either of these objects mount the other?
+    mount_a = chr_can_mount( ichr_b, ichr_a );
+    mount_b = chr_can_mount( ichr_a, ichr_b );
+
+    if ( !mount_a && !mount_b ) return bfalse;
+
+	//Ready for position calulations
+	xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
     za = pchr_a->pos.z;
 
@@ -1613,13 +1620,7 @@ bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference 
     yb = pchr_b->pos.y;
     zb = pchr_b->pos.z;
 
-    // can either of these objects mount the other?
-    mount_a = chr_can_mount( ichr_b, ichr_a );
-    mount_b = chr_can_mount( ichr_a, ichr_b );
-
-    if ( !mount_a && !mount_b ) return bfalse;
-
-    mounted = bfalse;
+	mounted = bfalse;
     if ( !mounted && mount_b && ( pchr_a->vel.z - pchr_b->vel.z ) < 0 )
     {
         // A falling on B?

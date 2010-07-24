@@ -1160,3 +1160,10 @@ void sound_free_chunk( Mix_Chunk * pchunk )
         Mix_FreeChunk( pchunk );
     }
 }
+
+//--------------------------------------------------------------------------------------------
+int get_current_song_playing()
+{
+	//ZF> This gives read access to the private variable 'songplaying'
+	return songplaying;
+}
