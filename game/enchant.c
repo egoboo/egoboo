@@ -424,7 +424,7 @@ void enchant_apply_set( const ENC_REF by_reference  ienc, int value_idx, const P
     if ( peve->setyesno[value_idx] )
     {
         conflict = enchant_value_filled( ienc, value_idx );
-        if ( MAX_ENC != conflict || peve->override )
+		if ( peve->override || MAX_ENC == conflict )
         {
             // Check for multiple enchantments
             if ( DEFINED_ENC( conflict ) )
@@ -696,9 +696,8 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
             valuetoadd = peve->addvalue[value_idx];
             getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->manamax += valuetoadd;
-            //ptarget->mana    += valuetoadd;
-            //if ( ptarget->mana < 0 )  ptarget->mana = 0;
-            if ( ptarget->mana < ptarget->manamax )  ptarget->mana = ptarget->manamax;
+            //ptarget->mana    += valuetoadd;						//ZF> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
+			ptarget->mana = CLIP(ptarget->mana, 0, ptarget->manamax);
             fvaluetoadd = valuetoadd;
             break;
 
@@ -707,9 +706,8 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
             valuetoadd = peve->addvalue[value_idx];
             getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->lifemax += valuetoadd;
-            //ptarget->life += valuetoadd;                        //ZF> bit of a problem here, we dont want players to
-            //if ( ptarget->life < 1 )  ptarget->life = 1;        //    heal or lose life by requipping magic ornaments
-            if ( ptarget->life < ptarget->lifemax )  ptarget->life = ptarget->lifemax;
+            //ptarget->life += valuetoadd;                        //ZF> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
+			ptarget->life = CLIP(ptarget->life, 1, ptarget->lifemax);
             fvaluetoadd = valuetoadd;
             break;
 
@@ -750,7 +748,7 @@ void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EV
     penc->addyesno[value_idx] = ( 0.0f != fvaluetoadd );
 
     // Save the value for undo
-    penc->addsave[value_idx]  = valuetoadd;
+    penc->addsave[value_idx]  = fvaluetoadd;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1647,17 +1645,17 @@ void enchant_remove_add( const ENC_REF by_reference ienc, int value_idx )
         switch ( value_idx )
         {
             case ADDJUMPPOWER:
-                fvaluetoadd = penc->addsave[value_idx] / 16.0f;
+                fvaluetoadd = penc->addsave[value_idx];
                 ptarget->jump_power -= fvaluetoadd;
                 break;
 
             case ADDBUMPDAMPEN:
-                fvaluetoadd = penc->addsave[value_idx] / 128.0f;
+                fvaluetoadd = penc->addsave[value_idx];
                 ptarget->phys.bumpdampen -= fvaluetoadd;
                 break;
 
             case ADDBOUNCINESS:
-                fvaluetoadd = penc->addsave[value_idx] / 128.0f;
+                fvaluetoadd = penc->addsave[value_idx];
                 ptarget->phys.dampen -= fvaluetoadd;
                 break;
 
@@ -1667,13 +1665,13 @@ void enchant_remove_add( const ENC_REF by_reference ienc, int value_idx )
                 break;
 
             case ADDSIZE:
-                fvaluetoadd = penc->addsave[value_idx] / 128.0f;
+                fvaluetoadd = penc->addsave[value_idx];
                 ptarget->fat_goto -= fvaluetoadd;
                 ptarget->fat_goto_time = SIZETIME;
                 break;
 
             case ADDACCEL:
-                fvaluetoadd = penc->addsave[value_idx] / 1000.0f;
+                fvaluetoadd = penc->addsave[value_idx];
                 chr_set_maxaccel( ptarget, ptarget->maxaccel_reset - fvaluetoadd );
                 break;
 

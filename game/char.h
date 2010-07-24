@@ -150,8 +150,8 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define PLATKEEP            0.90f                     ///< Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
 #define STOPBOUNCING        0.1f // 1.0f                ///< To make objects stop bouncing
-#define DROPZVEL            12                //7
-#define DROPXYVEL           100                //12
+#define DROPZVEL            7
+#define DROPXYVEL           12
 
 //Timer resets
 #define DAMAGETILETIME      32                            ///< Invincibility time
@@ -159,7 +159,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define DEFENDTIME          24                            ///< Invincibility time
 #define BORETIME            generate_randmask( 120, 255 ) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
-#define SIZETIME            50                            ///< Time it takes to resize a character
+#define SIZETIME            100                           ///< Time it takes to resize a character
 
 /// Bits used to control options for the chr_get_name() function
 enum e_chr_name_bits

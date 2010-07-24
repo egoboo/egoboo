@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// ZZ> Spawn the chain particles every frame
+// Spawn the chain particles every frame
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -13,7 +13,6 @@ IfCrushed
   tmpargument = 4
   SendMessageNear
   
-
 IfTargetIsSelf
   DoNothing
 Else
@@ -167,8 +166,8 @@ Else
       AccelerateTarget
       SetTargetToSelf
       SetTargetToLowestTarget
-      tmpx = 0 - tmpx > 1
-      tmpy = 0 - tmpy > 1
+      tmpx = -tmpx
+      tmpy = -tmpy
       IfTargetIsSelf
         IfTimeOut
           tmpargument = 1
@@ -210,7 +209,7 @@ Else
   SpawnExactParticle
 
 //------------------------------------------------------------------------------
-// ZZ> This function...  Does stuff
+//This function...  Does stuff
 IfSpawned				// Make it able to be crushed in doors
   MakeCrushValid			  //
   tmpargument = 15

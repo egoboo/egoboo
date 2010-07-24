@@ -28,7 +28,7 @@ Removed by ... ( [NONE] or an IDSZ )		: [NONE]
 // if the value is to be set, F otherwise
 Damage type ( CRUSH, POKE, SLASH, etc. )	: F CRUSH
 Number of jumps ( 0 to 2 )			: T 1
-Life bar color ( 0 to 5, 1 is red )		: F 4
+Life bar color ( 0 to 5, 1 is red )		: F 3
 Mana bar color ( 0 to 5, 5 is purple )		: F 4
 SLASH damage modifier ( InversionTFC, Shift )	: F F 2
 CRUSH damage modifier ( InversionTFC, Shift )	: F F 2
@@ -58,7 +58,7 @@ Bump dampen change ( -1.0 to 1.0 )		: -0.3
 Bounciness change ( -.95 to .95 )		: -0.2
 Damage bonus ( -4.0 to 4.0 )			: 0.0
 Size increase ( -.5 to .5 )			: 0.0
-Acceleration booost ( -40 to 40 )		: -40
+Acceleration booost ( -40 to 40 )		: -25
 Darkening red shift change ( -3 to 3 )		: 0
 Darkening green shift ( -3 to 3 )		: 0
 Darkening blue shift ( -3 to 3 )		: 0
