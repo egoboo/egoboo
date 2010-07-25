@@ -154,10 +154,5 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 0
-:[PLAT] 1
-:[SKIN] 0
-:[CONT] 0
-:[STAT] 0
-:[LEVL] 0
+:[STRD] 0.23      //23% of strenght is added as bonus damage
 :[DARK] 1

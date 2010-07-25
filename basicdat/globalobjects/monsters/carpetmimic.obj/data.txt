@@ -155,3 +155,4 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[PLAT] 1
+:[DARK] 2    //Level 2 darkvision

@@ -340,6 +340,7 @@ struct s_cap
     int       canread;                         ///< Can it read?
     int       hascodeofconduct;                ///< Is it bound by a lawful code of conduct?
     int       darkvision_level;                ///< Does it have the ability to see in the dark?
+    int       block_rating;					   ///< How good is the character with a shield?
 
     // random stuff
     bool_t       stickybutt;                    ///< Stick to the ground?

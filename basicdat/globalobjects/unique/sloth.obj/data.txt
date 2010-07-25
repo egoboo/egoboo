@@ -154,5 +154,6 @@ Kursed chance  : 100
 Footfall sound : -1
 Jump sound     : -1
 
+:[STRD] 0.19      //19% of strenght is added as bonus damage
 :[PLAT] 1
 :[DARK] 1

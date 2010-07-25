@@ -193,6 +193,7 @@ Sound of Jump ( -1 for none )			: -1
 
 //Expansions
 :[DARK] 1
+:[STRD] 0.24      //24% of strenght is added as bonus damage
 
 
 //-Notes------------------------------------------------------------------------

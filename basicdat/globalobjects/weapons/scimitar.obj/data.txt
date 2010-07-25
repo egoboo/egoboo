@@ -155,3 +155,4 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[PLAT] 1
+:[STRD] 0.13      //13% of strenght is added as bonus damage

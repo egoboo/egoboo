@@ -177,7 +177,7 @@ Skin Cost 0 ( 0 to 65535 )			: 240
 Skin Cost 1 ( 0 to 65535 )			: 0
 Skin Cost 2 ( 0 to 65535 )			: 0
 Skin Cost 3 ( 0 to 65535 )			: 0
-Strength dampen for weapons ( 0.0 to 1.0 )	: 0.10
+Strength dampen for weapons ( 0.0 to 1.0 )	: 0.05
 
 
 // Another memory lapse
@@ -191,6 +191,8 @@ Chance of being cursed ( 0 to 100 )		: 15
 Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
 
+:[DEXD] 0.05      //5% of dexterity is added as bonus damage
+:[STRD] 0.05      //5% of strenght is added as bonus damage
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

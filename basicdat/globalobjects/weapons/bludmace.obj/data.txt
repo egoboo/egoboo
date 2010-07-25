@@ -62,7 +62,7 @@ IFrame Invulnerability angle ( 0 to 32768 )	: 32768
 
 
 // Skin defenses
-  Base defense rating of skin ( eg. 2 5 10 17 )	: 10 10 10 10
+Base defense rating of skin ( eg. 2 5 10 17 )	: 10 10 10 10
 SLASH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 POKE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
@@ -191,7 +191,8 @@ Chance of being cursed ( 0 to 100 )		: 10
 Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
 
-:[PACK] 0     //Cannot be put in inventory
+:[PACK] 0         //Cannot be put in inventory
+:[STRD] 0.25      //25% of strenght is added as bonus damage
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

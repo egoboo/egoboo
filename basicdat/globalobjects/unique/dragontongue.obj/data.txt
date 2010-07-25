@@ -142,7 +142,7 @@ Skin 0 cost    : 850
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0
-STR dampen     : 0.02
+STR dampen     : 0.01
 
 No rider attak : FALSE
 Can be dazed   : FALSE
@@ -155,3 +155,5 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[PLAT] 1
+:[DEXD] 0.03      //3% of dexterity is added as bonus damage
+:[STRD] 0.01      //1% of strenght is added as bonus damage

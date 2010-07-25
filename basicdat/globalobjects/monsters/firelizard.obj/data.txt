@@ -194,6 +194,7 @@ Sound of Jump ( -1 for none )			: -1
 
 // Expansions
 :[VAMP] 1 //dont do reflections
+:[DARK] 1    //Level 1 darkvision
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

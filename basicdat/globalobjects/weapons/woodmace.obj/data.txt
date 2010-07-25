@@ -142,7 +142,7 @@ Skin 0 cost    : 20
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0
-STR dampen     : 0.200
+STR dampen     : 0.05
 
 No rider attak : FALSE
 Can be dazed   : FALSE
@@ -154,9 +154,4 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 0
-:[PLAT] 1
-:[SKIN] 0
-:[CONT] 0
-:[STAT] 0
-:[LEVL] 0
+:[STRD] 0.05      //5% of strenght is added as bonus damage

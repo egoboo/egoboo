@@ -194,8 +194,9 @@ Sound of Jump ( -1 for none )			: -1
 
 
 // Expansions
-:[RANG]	1	// Ranged weapon
-:[HIDE] 1	// Hide in hand
+:[RANG]	1	        // Ranged weapon
+:[HIDE] 1	        // Hide in hand
+:[STRD] 0.05      //5% of strenght is added as bonus damage
 
 
 //-Notes------------------------------------------------------------------------

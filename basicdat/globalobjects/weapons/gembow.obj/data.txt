@@ -157,3 +157,5 @@ Jump sound     : -1
 :[RANG] 1
 :[SQUA] 1
 :[PLAT] 1
+
+:[STRD] -0.10      //10% of strenght is added as penality to damage!

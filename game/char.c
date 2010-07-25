@@ -3489,30 +3489,57 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         	spawn_defense_ping( pchr, attacker );
 
 			//If the attack was blocked by a shield, then check if the block caused a knockback
-			//TODO: ZF> implement special Block skill that allows for always 100% success (soldier skill)
 			if ( !HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEINVICTUS) && INGAME_CHR(attacker) && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
 			{
-				chr_t *pattacker = ChrList.lst + attacker;
-				int block_rating;
-				int attacker_str, defender_str;
-				
-				attacker_str = FP8_TO_INT( pattacker->strength ) * 4;	//-4% per attacker strength
-				defender_str = FP8_TO_INT( pchr->strength )      * 2;	//+2% per defender strength
-				block_rating = 70;										//default block rating 70%
+				bool_t using_shield;
+				CHR_REF item;
 
-				//Now determine the result of the block
-				if( generate_randmask( 1, 100 ) - defender_str <= block_rating - attacker_str )
+				// Figure out if we are really using a shield or if it is just a invictus frame
+				using_shield = bfalse;
+
+				// Check right hand for a shield
+				item = pchr->holdingwhich[SLOT_RIGHT];
+				if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
 				{
-					//Defender won, the block holds
-					//Add a small stun to the attacker for about 0.8 seconds
-					pattacker->reloadtime += 40;				
+					using_shield = btrue;
 				}
-				else
+
+				// Check left hand for a shield
+				if ( !using_shield )
 				{
-					//Attacker broke the block and batters away the shield
-					//Time to raise shield again (about 0.8 seconds)
-					pchr->reloadtime += 40;	
-					sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
+					item = pchr->holdingwhich[SLOT_LEFT];
+					if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
+					{
+						using_shield = btrue;
+					}
+				}
+
+				// Now we have the block rating and know the player uses a shield
+				if( using_shield )
+				{
+					cap_t *pshield = chr_get_pcap( item );
+					chr_t *pattacker = ChrList.lst + attacker;
+					int block_rating;
+					int attacker_str, defender_str;
+				
+					attacker_str = FP8_TO_INT( pattacker->strength ) * 4;			//-4% per attacker strength
+					defender_str = FP8_TO_INT( pchr->strength )      * 2;			//+2% per defender strength
+					block_rating = pshield->block_rating + pcap->block_rating;		//use the character block skill plus the base block rating of the shield
+
+					//Now determine the result of the block
+					if( generate_randmask( 1, 100 ) - defender_str <= block_rating - attacker_str )
+					{
+						//Defender won, the block holds
+						//Add a small stun to the attacker for about 0.8 seconds
+						pattacker->reloadtime += 40;				
+					}
+					else
+					{
+						//Attacker broke the block and batters away the shield
+						//Time to raise shield again (about 0.8 seconds)
+						pchr->reloadtime += 40;	
+						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
+					}
 				}
 			}
 		}
@@ -6057,8 +6084,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 					}
 					
 					//Determine the attack speed (how fast we play the animation)
-					pchr->inst.rate = 0.125f;								//base attack speed
-					pchr->inst.rate += chr_dex / 40;		//+0.25f for every 10 dexterity
+					pchr->inst.rate = 0.125f;						//base attack speed
+					pchr->inst.rate += chr_dex / 40;					//+0.25f for every 10 dexterity
 					
 					//Add some reload time as a true limit to attacks per second
 					//Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
@@ -6084,8 +6111,6 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                 pchr->ai.lastitemused = iweapon;
                 if ( iweapon == ichr || HAS_NO_BITS(action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
                 {
-                        // the attacking character has no bits in the animation telling it
-                        // to use the weapon, so we play the animation here
                     pweapon->ai.alert |= ALERTIF_USED;
                 }
 
@@ -9279,15 +9304,15 @@ bool_t chr_can_see_object( const CHR_REF by_reference ichr, const CHR_REF by_ref
     if ( !INGAME_CHR( iobj ) ) return bfalse;
     pobj = ChrList.lst + iobj;
 
-    /// @note ZF@> Invictus characters can always see (spells, items, quest handlers, etc.)
-    if ( pchr->invictus ) return btrue;
-
     alpha = pobj->inst.alpha;
     if ( pchr->see_invisible_level > 0 )
     {
         alpha *= pchr->see_invisible_level + 1;
     }
     alpha = CLIP( alpha, 0, 255 );
+
+	/// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
+    if ( pchr->invictus && alpha >= INVISIBLE ) return btrue;
 
     enviro_light = ( alpha * pobj->inst.max_light ) * INV_FF;
     self_light   = ( pobj->inst.light == 255 ) ? 0 : pobj->inst.light;

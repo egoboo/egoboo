@@ -154,9 +154,4 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 0
-:[PLAT] 1
-:[SKIN] 0
-:[CONT] 0
-:[STAT] 1
-:[LEVL] 0
+:[BLOC] 50      //50% base block rating

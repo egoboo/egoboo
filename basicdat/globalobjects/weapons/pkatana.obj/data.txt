@@ -155,4 +155,6 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[PLAT] 1
+:[DEXD] 0.10      //10% of dexterity is added as bonus damage
+:[STRD] 0.10      //10% of strenght is added as bonus damage
 :[SKIN] 0

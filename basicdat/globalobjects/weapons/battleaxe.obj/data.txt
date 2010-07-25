@@ -154,4 +154,5 @@ Kursed chance  : 15
 Footfall sound : -1
 Jump sound     : -1
 
-:[PLAT] 1
+:[PLAT] 1         //Is a platform
+:[STRD] 0.18      //18% of strenght is added as bonus damage

@@ -192,7 +192,6 @@ Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
 
 //Expansions
-[HIDE] 1
 :[PLAT] 1
 
 //-Notes------------------------------------------------------------------------

@@ -157,7 +157,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define DAMAGETILETIME      32                            ///< Invincibility time
 #define DAMAGETIME          32                            ///< Invincibility time
 #define DEFENDTIME          24                            ///< Invincibility time
-#define BORETIME            generate_randmask( 120, 255 ) ///< IfBored timer
+#define BORETIME            generate_randmask( 255, 511 ) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
 

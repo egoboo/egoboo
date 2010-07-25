@@ -193,6 +193,7 @@ Sound of Jump ( -1 for none )			: -1
 
 //Expansions
 :[AWEP] 1             //Advanced weapons profiency
+:[DARK] 3             //Level 3 darkvision
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

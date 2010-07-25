@@ -193,8 +193,8 @@ Sound of Jump ( -1 for none )			: -1
 
 
 // Expansions
-:[STUK] 0       This character doesn't allow particles to get stuck to it
-
+:[STUK] 0       //This character doesn't allow particles to get stuck to it
+:[DARK] 2       //Level 2 darkvision
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

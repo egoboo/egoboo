@@ -156,3 +156,4 @@ Jump sound     : -1
 
 
 :[PLAT] 1
+:[STRD] 0.12      //12% of strenght is added as bonus damage

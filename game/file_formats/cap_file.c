@@ -339,7 +339,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         pcap->skincost[cnt] = fget_next_int( fileread );
     }
 
-    pcap->str_bonus = fget_next_float( fileread );
+    pcap->str_bonus = fget_next_float( fileread );			//ZF> Deprecated, but keep here for backwards compatability
 
     // Another memory lapse
     pcap->ridercanattack = !fget_next_bool( fileread );
@@ -415,6 +415,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'R', 'E', 'A', 'D' ) ) pcap->canread = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'C', 'O', 'D', 'E' ) ) pcap->hascodeofconduct = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) pcap->darkvision_level = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'B', 'L', 'O', 'C' ) ) pcap->block_rating = fget_int( fileread );
     }
     vfs_close( fileread );
 
@@ -786,6 +787,9 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
     if ( pcap->darkvision_level > 0 )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'A', 'R', 'K' ), pcap->darkvision_level );
+
+	if ( pcap->block_rating > 0 )
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'B', 'L', 'O', 'C' ), pcap->block_rating );
 
     // dump the rest of the template file
     template_flush( filetemp, filewrite );
