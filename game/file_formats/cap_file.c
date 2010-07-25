@@ -350,7 +350,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Mana add
     pcap->see_invisible_level = fget_next_bool( fileread );
 
-    pcap->kursechance                = fget_next_int( fileread );
+    pcap->kursechance                 = fget_next_int( fileread );
     pcap->sound_index[SOUND_FOOTFALL] = fget_next_int( fileread );  // Footfall sound
     pcap->sound_index[SOUND_JUMP]     = fget_next_int( fileread );  // Jump sound
 
@@ -371,7 +371,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     {
         idsz = fget_idsz( fileread );
 
-        if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
+        if      ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) pcap->skindressy |= 1 << fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'G', 'O', 'L', 'D' ) ) pcap->money = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = (0 != (1 - fget_int( fileread )));
         else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = !( 0 != fget_int( fileread ) );
@@ -395,6 +395,12 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 256.0f * fget_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->spelleffect_type = fget_int( fileread );
 		else if ( idsz == MAKE_IDSZ( 'F', 'A', 'S', 'T' ) ) pcap->attack_fast = ( 0 != fget_int( fileread ) );
+
+		//Damage bonuses from stats
+		else if ( idsz == MAKE_IDSZ( 'S', 'T', 'R', 'D' ) ) pcap->str_bonus = fget_next_float( fileread );
+		else if ( idsz == MAKE_IDSZ( 'I', 'N', 'T', 'D' ) ) pcap->int_bonus = fget_next_float( fileread );
+		else if ( idsz == MAKE_IDSZ( 'W', 'I', 'S', 'D' ) ) pcap->wis_bonus = fget_next_float( fileread );
+		else if ( idsz == MAKE_IDSZ( 'D', 'E', 'X', 'D' ) ) pcap->dex_bonus = fget_next_float( fileread );
 
         // Read Skills
         else if ( idsz == MAKE_IDSZ( 'A', 'W', 'E', 'P' ) ) pcap->canuseadvancedweapons = fget_int( fileread );
@@ -718,6 +724,19 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 	if ( pcap->attack_fast )
 		fput_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'S', 'T' ), pcap->attack_fast );
 
+	if( pcap->str_bonus > 0 )
+		fput_expansion_float( filewrite, "", MAKE_IDSZ( 'S', 'T', 'R', 'D' ), pcap->str_bonus );
+
+	if( pcap->int_bonus > 0 )
+		fput_expansion_float( filewrite, "", MAKE_IDSZ( 'I', 'N', 'T', 'D' ), pcap->int_bonus );
+
+	if( pcap->dex_bonus > 0 )
+		fput_expansion_float( filewrite, "", MAKE_IDSZ( 'D', 'E', 'X', 'D' ), pcap->dex_bonus );
+
+	if( pcap->wis_bonus > 0 )
+		fput_expansion_float( filewrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), pcap->wis_bonus );
+
+
     // Basic stuff that is always written
     fput_expansion( filewrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), pcap->money );
     fput_expansion( filewrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), pcap->canuseplatforms );
@@ -725,10 +744,9 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), pcap->content_override );
     fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), pcap->state_override );
     fput_expansion( filewrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), pcap->level_override );
-
-    vfs_printf( filewrite, ": [LIFE] %4.2f\n", FP8_TO_FLOAT( pcap->life_spawn ) );
-    vfs_printf( filewrite, ": [MANA] %4.2f\n", FP8_TO_FLOAT( pcap->mana_spawn ) );
-
+    fput_expansion_float( filewrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( pcap->life_spawn ) );
+    fput_expansion_float( filewrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( pcap->mana_spawn ) );
+	
     // Copy all skill expansions
     if ( pcap->shieldproficiency > 0 )
         fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'H', 'P', 'R' ), pcap->shieldproficiency );
