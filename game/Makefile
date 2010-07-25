@@ -14,7 +14,7 @@ EGO_SRC  := \
 	lighting.c link.c log.c mad.c md2.c menu.c mesh.c network.c \
 	particle.c passage.c profile.c quest.c script.c script_compile.c \
 	script_functions.c server.c sound.c texture.c ui.c egoboo.c physics.c\
-	egoboo_process.c
+	egoboo_process.c ChrList.c EncList.c PrtList.c egoboo_object.c
 
 EGO_PLATFORM    := platform/file_linux.c platform/sys_linux.c
 EGO_FILE_FORMAT := $(wildcard ./file_formats/*.c)
@@ -40,7 +40,7 @@ LDFLAGS := ${SDLCONF_L} -L../enet/lib -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_ima
 ifdef ($(PREFIX),"")
 	OPT := -Os -Wall
 else
-	OPT := -Os -Wall -D PREFIX=\"${PREFIX}\" -D _NIX_PREFIX
+	OPT := -Os -Wall -DPREFIX=\"${PREFIX}\" -D_NIX_PREFIX
 endif
 
 CFLAGS  := ${OPT} ${INC}
