@@ -1,3 +1,5 @@
+//This shield has always 100% block rate!
+
 //Only for Linux
 IfGrabbed
   SetTargetToWhoeverIsHolding
@@ -11,13 +13,6 @@ IfGrabbed
         tmpargument = 1
         DetachFromHolder
     SendMessageNear
-
-//This shield has always 100% block rate!
-IfHeld
-  IfOperatorIsLinux
-    IfHolderBlocked
-      tmpargument = targetreloadtime + 40
-      SetTargetReloadTime
 
 //Magical effect
 IfHeld

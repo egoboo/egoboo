@@ -3487,6 +3487,34 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         {
             actual_damage = 0;
         	spawn_defense_ping( pchr, attacker );
+
+			//If the attack was blocked by a shield, then check if the block caused a knockback
+			//TODO: ZF> implement special Block skill that allows for always 100% success (soldier skill)
+			if ( !HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEINVICTUS) && INGAME_CHR(attacker) && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
+			{
+				chr_t *pattacker = ChrList.lst + attacker;
+				int block_rating;
+				int attacker_str, defender_str;
+				
+				attacker_str = FP8_TO_INT( pattacker->strength ) * 4;	//-4% per attacker strength
+				defender_str = FP8_TO_INT( pchr->strength )      * 2;	//+2% per defender strength
+				block_rating = 70;										//default block rating 70%
+
+				//Now determine the result of the block
+				if( generate_randmask( 1, 100 ) - defender_str <= block_rating - attacker_str )
+				{
+					//Defender won, the block holds
+					//Add a small stun to the attacker for about 0.8 seconds
+					pattacker->reloadtime += 40;				
+				}
+				else
+				{
+					//Attacker broke the block and batters away the shield
+					//Time to raise shield again (about 0.8 seconds)
+					pchr->reloadtime += 40;	
+					sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
+				}
+			}
 		}
 
         // Do it already
@@ -6035,8 +6063,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 					//Add some reload time as a true limit to attacks per second
 					//Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
 					//reduce reload time for spells or gonnes here.
-					if( btrue )							//TODO: ZF> replace condition with a bool variable from pweapon
-					{									//          to allow magic weapons to ignore attack delay :[FAST]
+					if( !pweapon_cap->attack_fast )
+					{
 						int base_reload_time = -chr_dex;
 						if     ( ACTION_IS_TYPE(action, U) ) base_reload_time += 50;		//Unarmed  (Fists)
 						else if( ACTION_IS_TYPE(action, T) ) base_reload_time += 45;		//Thrust   (Spear)

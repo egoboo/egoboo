@@ -92,7 +92,8 @@ static const char * wavenames[GSND_COUNT] =
     "weather2",
     "coinfall",
     "lvlup",
-    "pitfall"
+    "pitfall",
+	"shieldblock"
 };
 
 static bool_t sound_atexit_registered = bfalse;
@@ -735,6 +736,9 @@ void load_global_waves()
 
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_PITFALL] );
     g_wavelist[GSND_PITFALL] = sound_load_chunk_vfs( wavename );
+
+	snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_SHIELDBLOCK] );
+    g_wavelist[GSND_SHIELDBLOCK] = sound_load_chunk_vfs( wavename );
 
     /*
     // These new values todo should determine global sound and particle effects

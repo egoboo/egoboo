@@ -308,6 +308,7 @@ struct s_cap
     Sint16       manacost;                       ///< How much mana to use this object?
     Uint8        attack_attached;                ///< Do we have attack particles?
     Sint8        attack_pip;                     ///< What kind of attack partickes?
+	bool_t       attack_fast;					 ///< Ignores the default reload time?
 
     float        str_bonus;                      ///< Strength     damage factor
     float        wis_bonus;                      ///< Wisdom       damage factor

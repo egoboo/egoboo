@@ -56,6 +56,7 @@ typedef enum e_global_sounds
     GSND_COINFALL,
     GSND_LEVELUP,
     GSND_PITFALL,
+    GSND_SHIELDBLOCK,
     GSND_COUNT
 } GSND_GLOBAL;
 
