@@ -1391,7 +1391,7 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
         // reset a couple of things here
-        pchr->holdingweight     = 0;
+        pchr->holdingweight			= 0;
         pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
 
         // try to insert the character

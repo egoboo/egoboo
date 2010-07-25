@@ -197,7 +197,7 @@ Sound of Jump ( -1 for none )			: 23
 :[READ] 1             //Yep, also the dracolich likes a good book
 :[WMAG] 1
 :[HMAG] 1
-
+:[DARK] 20            //Perfect Darkvision
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

@@ -1049,7 +1049,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     // add the weight to the platform based on the new zlerp
     pplat->holdingweight += pchr->phys.weight * ( 1.0f - pchr->enviro.zlerp );
 
-    // update the character jupming
+    // update the character jumping
     pchr->jumpready = pchr->enviro.grounded;
     if ( pchr->jumpready )
     {
@@ -1364,14 +1364,15 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_CHR( d->chrb ) )
             {
-                if ( ChrList.lst[d->chra].onwhichplatform_ref == d->chrb )
+                if ( ChrList.lst[d->chra].onwhichplatform_ref != d->chrb )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chra, ChrList.lst + d->chrb );
                 }
-                else if ( ChrList.lst[d->chrb].onwhichplatform_ref == d->chra )
+                else if ( ChrList.lst[d->chrb].onwhichplatform_ref != d->chra )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chrb, ChrList.lst + d->chra );
-                }
+				}
+				
             }
         }
         else if ( MAX_CHR != d->chra && TOTAL_MAX_PRT != d->prtb )
@@ -1848,7 +1849,6 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     int exponent = 1;
 
     oct_vec_t opos_a, opos_b, odepth;
-    //oct_vec_t odepth_old;
     bool_t    collision = bfalse, bump = bfalse;
 
     if ( NULL == d || TOTAL_MAX_PRT != d->prtb ) return bfalse;

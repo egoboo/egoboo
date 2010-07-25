@@ -1079,7 +1079,7 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
     }
 
     // set the dismount timer
-    pchr->dismount_timer  = PHYS_DISMOUNT_TIME;
+	if( !pchr->isitem ) pchr->dismount_timer  = PHYS_DISMOUNT_TIME;
     pchr->dismount_object = mount;
 
     // Figure out which hand it's in
@@ -5690,7 +5690,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
 	pchr->vel.x += fric_floor.x;
 	pchr->vel.y += fric_floor.y;
 	pchr->vel.z += fric_floor.z;
-
+	
     // Apply fluid friction from last time
     pchr->vel.x += -pchr->vel.x * ( 1.0f - pchr->enviro.fluid_friction_hrz );
     pchr->vel.y += -pchr->vel.y * ( 1.0f - pchr->enviro.fluid_friction_hrz );
@@ -5788,8 +5788,10 @@ void move_one_character_do_voluntary( chr_t * pchr )
             {
                 sneak_mode_active = ( dv2 < 1.0f / 9.0f );
             }
-            
-            pchr->enviro.new_vx = maxspeed * dvx / dv;
+
+            pchr->enviro.new_vx = dvx;
+            pchr->enviro.new_vy = dvy;
+			pchr->enviro.new_vx = maxspeed * dvx / dv;
             pchr->enviro.new_vy = maxspeed * dvy / dv;
         }
         else
