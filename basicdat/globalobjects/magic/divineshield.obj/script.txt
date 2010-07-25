@@ -46,28 +46,28 @@ IfUsed
   UndoEnchant
     UnsparkleIcon
     tmpargument = 25
-    SetReloadTime
-  
-  SetTargetToWhoeverIsHolding
-  tmpargument = [HMAG]
-  IfTargetHasSkillID				//Need divine spell skill
-    tmpx = selfcontent
-    tmpy = 768					//Don't overcharge
-    IfXIsLessThanY
-      tmpy = targetmanaflow			//Enough spell power?
-      IfYIsMoreThanX
-        tmpargument = 8				//Mana cost
-        CostTargetMana		
-          tmpargument = selfcontent + 8		//Casting Time
-          SetContent                //Increase the charge
+    SetReloadTime  
+  Else
+    SetTargetToWhoeverIsHolding
+    tmpargument = [HMAG]
+    IfTargetHasSkillID				//Need divine spell skill
+      tmpx = selfcontent
+      tmpy = 768					//Don't overcharge
+      IfXIsLessThanY
+        tmpy = targetmanaflow			//Enough spell power?
+        IfYIsMoreThanX
+          tmpargument = 8				//Mana cost
+          CostTargetMana		
+            tmpargument = selfcontent + 8		//Casting Time
+            SetContent                //Increase the charge
 
-          // Spawn particles around holder
-          SetTargetToWhoeverIsHolding
-          tmpx = targetx
-          tmpy = targety
-          tmpdistance = targetz
-          tmpargument = 1
-          SpawnExactParticle
+            // Spawn particles around holder
+            SetTargetToWhoeverIsHolding
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 1
+            SpawnExactParticle
 
 Else
   tmpx = selfcontent

@@ -1,12 +1,3 @@
-//This manages attack speed (Adjusted by strenght and\or dexterity)
-IfUsed
-  tmpargument = 0         //only if non-magical
-  IfArmorIs
-    SetTargetToWhoeverIsHolding
-    tmpargument = targetdex > 8		//Every point of dex increases speed by 1
-    tmpargument = 50 - tmpargument
-    SetReloadTime
-  
 //Set magic properties
 IfSpawned
   SetTargetToSelf

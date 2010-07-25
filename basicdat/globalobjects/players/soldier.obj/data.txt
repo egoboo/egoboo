@@ -63,14 +63,14 @@ IFrame Invulnerability angle ( 0 to 32768 )	: 16000
 
 // Skin defenses
 Base defense rating of skin ( eg. 2 5 10 17 )	: 40 75 130 120
-SLASH defense shift ( eg. 1 1 1 1 )		:  1  2  2  1
+SLASH defense shift ( eg. 1 1 1 1 )		:  1  2  2  2
 CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-POKE defense shift ( eg. 1 1 1 1 )		:  1  1  2  1
+POKE defense shift ( eg. 1 1 1 1 )		:  1  1  2  2
 HOLY defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
-FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
-ICE defense shift ( eg. 1 1 1 1 )		  :  1  1  1  2
-ZAP defense shift ( eg. 1 1 1 1 )		  :  1  1  1  2
+EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
+FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
+ICE defense shift ( eg. 1 1 1 1 )		  :  1  1  1  1
+ZAP defense shift ( eg. 1 1 1 1 )		  :  1  1  1  1
 SLASH inversion ( eg. F F F T )			  :  F  F  F  F
 CRUSH inversion ( eg. F F F T )			  :  F  F  F  F
 POKE inversion ( eg. F F F T )			  :  F  F  F  F

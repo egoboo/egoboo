@@ -11,9 +11,9 @@ IfCrushed
   SpawnExactParticle
   SpawnExactParticle
   SpawnExactParticle
-  GoPoof
   tmpargument = 1
   SendMessageNear
+  GoPoof
 
 IfKilled				// This reduces the height of the char
   IfTargetIsOnHatedTeam			  // Final words

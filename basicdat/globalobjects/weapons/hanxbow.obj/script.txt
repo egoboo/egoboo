@@ -21,7 +21,6 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Play the drop sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 9000	  //
   PlaySound				  //
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //
@@ -30,10 +29,7 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfUsed
   MakeNameKnown
-  tmpargument = 25
-  SetReloadTime
   IfAmmoOut
     tmpargument = 3
-    tmpdistance = 11025
     PlaySound
 End					// All done

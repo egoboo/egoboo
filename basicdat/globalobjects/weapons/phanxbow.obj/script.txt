@@ -29,8 +29,6 @@ IfGrabbed				// Tell them what they've won...
     tmpargument = 0			  //
     SendMessageNear			  //
 IfUsed
-  tmpargument = 25		//Attack speed
-  SetReloadTime
   IfAmmoOut
     tmpargument = 3
     PlaySound

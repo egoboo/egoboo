@@ -5698,13 +5698,13 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
     // this is the maximum speed that a character could go under the v2.22 system
     maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
-
+	
     sneak_mode_active = bfalse;
     if ( VALID_PLA( pchr->is_which_player ) )
     {
         // determine whether the user is hitting the "sneak button"
         player_t * ppla = PlaStack.lst + pchr->is_which_player;
-
+		
         if( HAS_SOME_BITS(ppla->device.bits, INPUT_BITS_KEYBOARD ) )
         {
             // use the shift keys to enter sneak mode
@@ -5909,7 +5909,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     }
 
     // Don't allow users with kursed weapon in the other hand to use longbows
-    if ( allowedtoattack && action <= ACTION_LA && action >= ACTION_LD )
+    if ( allowedtoattack && ACTION_IS_TYPE( action, L ) )
     {
         CHR_REF test_weapon;
         test_weapon = pchr->holdingwhich[which_slot == SLOT_LEFT ? SLOT_RIGHT : SLOT_LEFT];
@@ -6010,9 +6010,12 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                     chr_play_action( pchr, action, btrue );
                 }
                 else
-                {                   
+                {
+					float chr_dex = FP8_TO_INT( pchr->dexterity );
+
                     chr_play_action( pchr, action, bfalse );
 					
+					// Make the weapon animate the attack as well as the character holding it
 					if ( HAS_NO_BITS(action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
 					{
                         if( iweapon != ichr )
@@ -6023,6 +6026,29 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 						    // Make the iweapon attack too
 						    chr_play_action( pweapon, ACTION_MJ, bfalse );
                         }
+					}
+					
+					//Determine the attack speed (how fast we play the animation)
+					pchr->inst.rate = 0.125f;								//base attack speed
+					pchr->inst.rate += chr_dex / 40;		//+0.25f for every 10 dexterity
+					
+					//Add some reload time as a true limit to attacks per second
+					//Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
+					//reduce reload time for spells or gonnes here.
+					if( btrue )							//TODO: ZF> replace condition with a bool variable from pweapon
+					{									//          to allow magic weapons to ignore attack delay :[FAST]
+						int base_reload_time = -chr_dex;
+						if     ( ACTION_IS_TYPE(action, U) ) base_reload_time += 50;		//Unarmed  (Fists)
+						else if( ACTION_IS_TYPE(action, T) ) base_reload_time += 45;		//Thrust   (Spear)
+						else if( ACTION_IS_TYPE(action, C) ) base_reload_time += 80;		//Chop     (Axe)
+						else if( ACTION_IS_TYPE(action, S) ) base_reload_time += 55;		//Slice    (Sword)
+						else if( ACTION_IS_TYPE(action, B) ) base_reload_time += 75;		//Bash	   (Mace)
+						else if( ACTION_IS_TYPE(action, L) ) base_reload_time += 40;		//Longbow  (Longbow)
+						else if( ACTION_IS_TYPE(action, X) ) base_reload_time += 100;		//Xbow	   (Crossbow)
+						else if( ACTION_IS_TYPE(action, F) ) base_reload_time += 50;		//Flinged  (Unused)
+						
+						//it is possible to have so high dex to eliminate all reload time
+						if( base_reload_time > 0 ) pweapon->reloadtime += base_reload_time;
 					}
                 }
 
@@ -6969,7 +6995,10 @@ float set_character_animation_rate( chr_t * pchr )
     can_be_interrupted = !pinst->action_keep;
     if( !can_be_interrupted ) return pinst->rate = 1.0f;
 
-    // if the animation is not a walking-type animation, ignore the variable animaiton rates
+	// dont change the rate if it is an attack animation
+    if( character_is_attacking(pchr) )	return pinst->rate;
+
+    // if the animation is not a walking-type animation, ignore the variable animation rates
     // and the automatic determination of the walk animation
     // "dance" is walking with zero speed
     is_walk_type = ACTION_IS_TYPE( pinst->action_which, D ) || ACTION_IS_TYPE( pinst->action_which, W );
@@ -7199,6 +7228,12 @@ float set_character_animation_rate( chr_t * pchr )
     pinst->rate = CLIP( pinst->rate, 0.1f, 10.0f );
 
     return pinst->rate;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t character_is_attacking( chr_t *pchr )
+{
+	return pchr->inst.action_which >= ACTION_UA && pchr->inst.action_which <= ACTION_FD;
 }
 
 //--------------------------------------------------------------------------------------------

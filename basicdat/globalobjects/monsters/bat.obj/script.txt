@@ -60,10 +60,20 @@ IfKilled
   tmpargument = 0
   SetBumpHeight
   SetBumpSize
+  
+  //Crushable in passages now
+  MakeCrushValid
 
   //Death sound
   tmpargument = 0
   PlaySound
+  
+//------------------------------------------------------------------------------
+//Crush!
+IfCrushed
+  tmpargument = 6
+  SendMessageNear
+  GoPoof
 
 //------------------------------------------------------------------------------
 //What to do if bumped

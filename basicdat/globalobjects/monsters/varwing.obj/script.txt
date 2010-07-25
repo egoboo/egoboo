@@ -9,11 +9,6 @@ IfHeld				//There is no holder!
       DoActionOverride
       KeepAction
 Else
-  tmpargument = ACTIONDA		//No flapping
-  DoActionOverride
-  KeepAction
-
-IfDropped
   GoPoof
 
 

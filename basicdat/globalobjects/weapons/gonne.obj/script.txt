@@ -31,7 +31,9 @@ IfUsed					// Drop shells or make a click sound
       tmpargument = targetint + targetdex
       tmpargument = tmpargument > 8
       tmpargument = 100 - tmpargument
-      SetReloadTime
+    Else
+      tmpargument = 0
+    SetReloadTime
     tmpx = selfx
     tmpy = selfy
     tmpdistance = selfz

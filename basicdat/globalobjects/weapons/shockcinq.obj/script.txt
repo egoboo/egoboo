@@ -11,8 +11,7 @@ IfTimeOut
   SpawnParticle
 
   //Sound effect?
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 175
   IfXIsMoreThanY
     tmpargument = 3
@@ -20,16 +19,13 @@ IfTimeOut
     tmpargument = 0
     SetContent
   Else
-    GetContent
-    tmpargument = rand & 3 + tmpargument
+    tmpargument = rand & 3 + selfcontent
     SetContent
 
 //Lightning sound
 IfUsed
   tmpargument = 4
   PlaySound
-  tmpargument = 15
-  SetReloadTime
 
 //Standard weapon AI
 IfSpawned				//

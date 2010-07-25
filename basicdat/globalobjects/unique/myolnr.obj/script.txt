@@ -41,17 +41,14 @@ IfNotPutAway
 IfSpawned
   tmpargument = 1000
   SetTime
-IfUsed
-  tmpargument = 40 // Make it attack a bit slowly
-  SetReloadTime
+  
 // This is the script to make it strike you (and instantly kill you) when you don't use it
 // for twenty seconds.
 IfHeld
   IfTimeOut
     tmpargument = 50                       //1 second
-    SetTime
-    GetContent                                 //Content=total seconds
-    tmpargument = tmpargument + 1
+    SetTime    
+    tmpargument = selfcontent + 1         //Content=total seconds
     SetContent
 
     tmpx = tmpargument

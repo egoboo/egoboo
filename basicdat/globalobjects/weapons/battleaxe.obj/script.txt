@@ -4,9 +4,6 @@ IfSpawned				//
   DoAction				  //
   KeepAction				  //
   MakeCrushValid
-IfUsed
-  tmpargument = 50
-  SetReloadTime
 IfCrushed
   tmpx = selfx
   tmpy = selfy

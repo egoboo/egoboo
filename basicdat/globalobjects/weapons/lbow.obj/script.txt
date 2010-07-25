@@ -1,19 +1,16 @@
-// ZZ> This function makes an item fall to the floor when spawned
-
 IfUsed
-  tmpargument = 35	//Set attack speed
-  SetReloadTime
   IfAmmoOut
-    tmpargument = 3	//No ammo, play string sound
-    tmpdistance = 11025
+    tmpargument = 3	        //No ammo, play string sound
     PlaySound
 
-IfSpawned				//
-  MakeAmmoKnown				  //
-  tmpargument = ACTIONJB		  //
-  DoAction				  //
-  KeepAction				  //
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  MakeAmmoKnown
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
   MakeCrushValid
+  
 IfCrushed
   tmpx = selfx
   tmpy = selfy

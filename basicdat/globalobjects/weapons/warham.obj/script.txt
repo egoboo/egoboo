@@ -5,10 +5,6 @@ IfSpawned				//
   KeepAction				  //
   MakeCrushValid
 
-//Slow attack speed
-IfUsed
-  tmpargument = 50
-  SetReloadTime
 IfCrushed
   tmpx = selfx
   tmpy = selfy

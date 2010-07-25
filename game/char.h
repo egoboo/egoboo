@@ -692,3 +692,4 @@ bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
 float * chr_get_pos_v( chr_t * pchr );
 
 bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
+bool_t character_is_attacking( chr_t *pchr );

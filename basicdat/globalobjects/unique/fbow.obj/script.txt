@@ -1,7 +1,4 @@
-//Set attack speed
 IfUsed
-  tmpargument = 35
-  SetReloadTime
   IfAmmoOut
     tmpargument = 3
     PlaySound

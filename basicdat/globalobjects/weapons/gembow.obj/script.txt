@@ -3,8 +3,6 @@ IfUsed
   SetTargetToWhoeverIsHolding
   tmpargument = 256   //1 mana
   CostTargetMana
-    tmpargument = 35	//Set attack speed
-    SetReloadTime
     tmpargument = 0          //Spawn an arrow
     tmpx = selfx
     tmpy = selfy

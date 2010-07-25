@@ -1,10 +1,3 @@
-//This manages attack speed (Adjusted by strenght and dexterity)
-IfUsed
-  SetTargetToWhoeverIsHolding
-  tmpargument = targetdex > 9		//Every 2 points of dex increases speed by 1
-  tmpargument = 60 - tmpargument
-  SetReloadTime
-
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
   tmpargument = ACTIONJB		  //

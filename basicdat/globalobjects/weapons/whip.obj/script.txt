@@ -38,8 +38,6 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 
 IfUsed
-  tmpargument = 40
-  SetReloadTime
   tmpargument = 0
   PlaySound
 End					// All done

@@ -3261,7 +3261,7 @@ Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->inst.action_which >= ACTION_UA && pself_target->inst.action_which <= ACTION_FD );
+    returncode = character_is_attacking( pself_target );
 
     SCRIPT_FUNCTION_END();
 }
