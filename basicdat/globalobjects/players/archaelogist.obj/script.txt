@@ -76,12 +76,18 @@ IfStateIs0
     tmpargument = 1500		//1,5 minutes
     SetTime
 
+    //Draw the text
+    tmpdistance = 3         //Duration
+    tmpargument = 8         //Message 8
+    tmpturn = WHITE         //Message color
+    DrawBillboard
+    
 IfTimeOut
   tmpargument = 0
   SetState
 
 //-----------------------------------------------------------------------------
-// ZZ> Auto jump over corpses
+//Auto jump over corpses
 IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsAlive
@@ -91,7 +97,7 @@ IfBumped
     PressLatchButton
 
 //-----------------------------------------------------------------------------
-// ZZ> Gong sound
+//Gong sound
 IfCleanedUp
   tmpargument = 2
   PlayFullSound
@@ -110,7 +116,7 @@ IfXIsMoreThanY
     SetContent
 
 //------------------------------------------------------------------------------
-// ZZ> Yell at player
+//Yell at player
 IfTooMuchBaggage
   tmpargument = 7
   SendMessageNear
@@ -120,13 +126,13 @@ IfTooMuchBaggage
   SetReloadTime
 
 //------------------------------------------------------------------------------
-// ZZ> Scream and shout
+//Scream and shout
 IfUsed
   tmpargument = rand % 6 + 13
   PlaySound
 
 //------------------------------------------------------------------------------
-// ZZ> Handle being bored by cheering or sneezing
+//Handle being bored by cheering or sneezing
 IfBored
   tmpargument = ACTIONMC
   DoAction
@@ -136,7 +142,7 @@ IfBored
     PlaySound
 
 //------------------------------------------------------------------------------
-// ZZ> Handle death by sending a message and other stuff
+//Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 8
   PlaySound
@@ -166,12 +172,12 @@ IfKilled
   SetContent
 
 //------------------------------------------------------------------------------
-// ZZ> For helper AIs
+//For helper AIs
 IfLeaderKilled
   BecomeLeader
 
 //------------------------------------------------------------------------------
-// ZZ> Handle being attacked by blocking or countering or running away
+//Handle being attacked by blocking or countering or running away
 IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnSameTeam

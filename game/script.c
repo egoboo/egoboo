@@ -828,6 +828,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
                 case FTARGETDAMAGESELF:      returncode = scr_TargetDamageSelf( pstate, pself ); break;
                 case FSETTARGETSIZE:         returncode = scr_SetTargetSize( pstate, pself ); break;
                 case FSETTARGETTONEARESTQUESTID: returncode = scr_set_TargetToNearestQuestID( pstate, pself ); break;
+                case FDRAWBILLBOARD:         returncode = scr_DrawBillboard( pstate, pself ); break;
 
                 // if none of the above, skip the line and log an error
                 default:

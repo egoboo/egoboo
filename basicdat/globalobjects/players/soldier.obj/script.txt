@@ -64,10 +64,13 @@ IfXIsMoreThanY
       DamageTarget
       tmpargument = 10
       PlaySound
-      tmpargument = 7
-      SendMessage
       
-
+      //Draw the text
+      tmpdistance = 3         //Duration
+      tmpargument = 7         //Message 7
+      tmpturn = RED           //Message color
+      DrawBillboard
+  
 //-----------------------------------------------------------------------------
 //Sunder attack abillity
 tmpx = selflevel
@@ -81,8 +84,12 @@ IfXIsMoreThanY
       EnchantTarget
       tmpargument = 12
       PlaySound
-      tmpargument = 9
-      SendMessage
+      
+      //Draw the text
+      tmpdistance = 3         //Duration
+      tmpargument = 9         //Message 9
+      tmpturn = BLUE          //Message color
+      DrawBillboard
 
 //-----------------------------------------------------------------------------
 //Grog strike abillity
@@ -100,10 +107,14 @@ IfXIsMoreThanY
       IfXIsMoreThanY
         tmpargument = selflevel>4  //Increases 1 with every 4 levels
         GrogTarget
-        tmpargument = 8
-        SendMessage
         tmpargument = 11
         PlaySound
+        
+        //Draw the text
+        tmpdistance = 3         //Duration
+        tmpargument = 9         //Message 8
+        tmpturn = GREEN         //Message color
+        DrawBillboard
       
 //-----------------------------------------------------------------------------
 // ZZ> Gong sound

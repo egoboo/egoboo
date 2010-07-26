@@ -81,6 +81,12 @@ IfXIsMoreThanY
           SetTargetToWhoeverWasHit
           tmpargument = selflevel > 2   //+1 every 4 levels
           DazeTarget
+          
+          //Draw the text
+          tmpdistance = 3         //Duration
+          tmpargument = 1         //Message 9
+          tmpturn = WHITE         //Message color
+          DrawBillboard
 
 //-----------------------------------------------------------------------------
 //Damage resist skill

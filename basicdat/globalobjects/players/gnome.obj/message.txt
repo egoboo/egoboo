@@ -1,5 +1,5 @@
 Message 0: %n_was_wrecked_by_%t!
-Message 1: HATE
+Message 1: Crackshot!
 Message 2: Get_away_from_me!
 Message 3: %t_killed_%n!
 Message 4: %n_miscalculated...

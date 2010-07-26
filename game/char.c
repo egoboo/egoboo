@@ -3399,7 +3399,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
     chr_t * pchr;
     cap_t * pcap;
     bool_t do_feedback = (FEEDBACK_OFF != cfg.feedback);
-    bool_t friendly_fire = bfalse;
+    bool_t friendly_fire = bfalse, immune_to_damage = bfalse;
 
     if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList.lst + character;
@@ -3483,16 +3483,32 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         pchr->ai.directionlast  = direction;
         
         // Check for blocking and invictus, no need to continue if they have
-		if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEINVICTUS) || is_invictus_direction( direction, character, effects ) )
+		immune_to_damage = actual_damage <= pchr->damagethreshold || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
+		if ( immune_to_damage || is_invictus_direction( direction, character, effects ) )
         {
+			const float lifetime = 3;
+
+            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+            
             actual_damage = 0;
         	spawn_defense_ping( pchr, attacker );
 
+			//Character is simply immune to the damage
+			if( immune_to_damage )
+			{
+				//Dark green text
+				GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
+				chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
+			}
+
 			//If the attack was blocked by a shield, then check if the block caused a knockback
-			if ( !HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEINVICTUS) && INGAME_CHR(attacker) && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
+			else if ( INGAME_CHR(attacker) && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
 			{
 				bool_t using_shield;
 				CHR_REF item;
+
+				// "Blue" text
+	            GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
 
 				// Figure out if we are really using a shield or if it is just a invictus frame
 				using_shield = bfalse;
@@ -3540,6 +3556,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 						pchr->reloadtime += 40;	
 						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
 					}
+                    chr_make_text_billboard( character, "Blocked!", text_color, tint, lifetime, bb_opt_all );
 				}
 			}
 		}

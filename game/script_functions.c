@@ -7434,10 +7434,17 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     /// @details ZF@> Proceeds if the specified module has the required IDSZ specified in tmpdistance
     /// The module folder name to be checked is a string from message.txt
 
-    SCRIPT_FUNCTION_BEGIN();
+	int message_number, message_index;
+	char *ptext;
 
-    /// @todo use message.txt to send the module name
-    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, NULL );
+	SCRIPT_FUNCTION_BEGIN();
+
+    ///use message.txt to send the module name
+	message_number = ppro->message_start + pstate->argument;
+	message_index  = MessageOffset.ary[message_number];
+	ptext = message_buffer + message_index;
+
+    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ptext );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7748,6 +7755,53 @@ Uint8 scr_set_TargetToNearestQuestID( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_END();
 }
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
+{
+    // DrawBillboard( tmpargument = "message", tmpdistance = "duration", tmpturn = "color" )
+    /// @details ZF@> This function draws one of those billboards above the character
+
+    SCRIPT_FUNCTION_BEGIN();
+
+	returncode = bfalse;
+	if( LOADED_PRO(pchr->profile_ref) )
+	{		
+		SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+		int message_number, message_index;
+		char *ptext;
+		
+		//List of avalible colours
+		GLXvector4f tint_red  = { 1.00f, 0.25f, 0.25f, 1.00f };
+        GLXvector4f tint_purple = { 0.88f, 0.75f, 1.00f, 1.00f };
+		GLXvector4f tint_white = { 1.00f, 1.00f, 1.00f, 1.00f };
+		GLXvector4f tint_yellow = { 1.00f, 1.00f, 0.75f, 1.00f };
+		GLXvector4f tint_green = { 0.25f, 1.00f, 0.25f, 1.00f };
+		GLXvector4f tint_blue = { 0.25f, 0.25f, 1.00f, 1.00f };
+		
+		//Figure out which color to use
+		GLfloat *do_tint;
+		switch( pstate->turn )
+		{
+		default:
+			case COLOR_WHITE:	do_tint = tint_white;	break;
+			case COLOR_RED:		do_tint = tint_red;		break;
+			case COLOR_PURPLE:	do_tint = tint_purple;	break;
+			case COLOR_YELLOW:	do_tint = tint_yellow;	break;
+			case COLOR_GREEN:	do_tint = tint_green;	break;
+			case COLOR_BLUE:	do_tint = tint_blue;	break;
+		}
+		
+	    message_number = ppro->message_start + pstate->argument;
+		message_index  = MessageOffset.ary[message_number];
+	    ptext = message_buffer + message_index;
+		
+		returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_all );	
+	}
+
+    SCRIPT_FUNCTION_END();
+}
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

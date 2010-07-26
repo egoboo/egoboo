@@ -34,7 +34,13 @@ IfTimeOut
             PlaySound				//Play sound effect
             tmpargument = 1
             ChangeArmor				//Mark as detected
-              
+
+            //Draw the text
+            tmpdistance = 3         //Duration
+            tmpargument = 2         //Message 8
+            tmpturn = RED           //Message color
+            DrawBillboard
+            
   tmpx = selfcontent
   tmpy = 1
   IfXIsEqualToY

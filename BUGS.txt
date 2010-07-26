@@ -5,8 +5,13 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
+- There seems to be a texture allocation bug when Restarting a module. Some objects get the skins of other objects. 
+- the normal people you fight seem to want to sit in the pot as if it was a normal moving mount. 
+- torches no longer produce fire, just smoke. 
+- the evil paladin in Soldier Start walks much faster than you. 
+- Movement animation speed is incorrect at times. (Jungle Warriors are a good example!) 
 - There seems to be a random crash bug somewhere. 
-- Moving platforms move out from under your feet. 
 - Once I slaughter half of rouge starter enemies random stuff just starts becoming invisible or just dissappears completely. 
 - There seems to be an AI targeting bug. Sometimes Trogs and the Trolls in Sand Palace just stand there without doing anything. When you move they become activated for a while again. This bug could be caused by the AI timer not properly resetting? 
-- The executable binary around 15 mb(!) since last revision? It used to be around 1 mb before....- SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)
+- The executable binary around 15 mb(!) since last revision? It used to be around 1 mb before....
+- SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)

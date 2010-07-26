@@ -55,6 +55,12 @@ IfTimeOut
             GiveExperienceToTarget		//Award some xp
             tmpargument = 1
             PlaySound				//Play sound effect
+                        
+            //Draw the floating text
+            tmpdistance = 3         //Duration
+            tmpargument = 1         //Message 8
+            tmpturn = RED          //Message color
+            DrawBillboard
 
 //-----------------------------------------------------------------------------------------------
 //Detected trap particles

@@ -492,6 +492,7 @@ enum e_script_functions
     FTARGETDAMAGESELF,           // == 381
     FSETTARGETSIZE,              // == 382
     FSETTARGETTONEARESTQUESTID,  // == 383
+    FDRAWBILLBOARD,				 // == 384
 
     SCRIPT_FUNCTIONS_COUNT
 };

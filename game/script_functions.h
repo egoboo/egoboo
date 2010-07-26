@@ -440,3 +440,4 @@ Uint8 scr_DisableInvictus( struct s_script_state * pstate, struct s_ai_state * p
 Uint8 scr_TargetDamageSelf( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_SetTargetSize( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_TargetToNearestQuestID( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_DrawBillboard( struct s_script_state * pstate, struct s_ai_state * pself );

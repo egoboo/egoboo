@@ -2062,7 +2062,13 @@ AddQuestAllPlayers
     tmpargument = [QUES]
     AddQuestAllPlayers
 --------------------------------------------------------------------------------
-
+DrawBillboard
+  // Draws one of those floating text with some color on it
+  IfBumped
+    tmpdistance = 3         //Duration
+    tmpargument = 8         //Message 8
+    tmpturn = WHITE         //Message color
+    DrawBillboard
 
 CONSTANTS
 -------------------------------------------------------------------------------- 

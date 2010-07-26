@@ -397,6 +397,7 @@ The symbol itself follows
 :F 381 TargetDamageSelf
 :F 382 SetTargetSize
 :F 383 SetTargetToNearestQuestID
+:F 384 DrawBillboard
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

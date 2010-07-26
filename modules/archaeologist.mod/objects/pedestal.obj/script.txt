@@ -1,7 +1,7 @@
 IfSpawned
   tmpargument = 2
   SetState
-  tmpargument = 50
+  tmpargument = 150
   SetTime
 
 IfTimeOut
