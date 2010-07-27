@@ -221,7 +221,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_
 
         if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
-
+		
         // not do invulnerable or scenery items
 		if ( HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && pchr->phys.weight == INFINITE_WEIGHT ) continue;
 

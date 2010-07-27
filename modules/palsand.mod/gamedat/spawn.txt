@@ -152,6 +152,6 @@ Scorpion:  NONE     73    23   53   0    S   0   0   52  0   0   F   F   Evil
   Claw:    NONE     74    0    0    0    L   0   0   0   0   0   F   F   Null
   Claw:    NONE     74    0    0    0    R   0   0   0   0   0   F   F   Null
 
-MusicInit: NONE    66    9    9    0    S   0   0   0   0   0   F   F   Null
+ModuleTool: NONE    66    9    9    0    S   0   0   1   0   0   F   F   Troll
 
 Spork:     NONE    119    41   53   0    S   0   0   0   0   0   F   F   Null

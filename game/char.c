@@ -3484,10 +3484,9 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         
         // Check for blocking and invictus, no need to continue if they have
 		immune_to_damage = actual_damage <= pchr->damagethreshold || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
-		if ( 0 == pchr->damagetime && (immune_to_damage || is_invictus_direction( direction, character, effects )) )
+		if ( immune_to_damage || is_invictus_direction( direction, character, effects ) )
         {
 			const float lifetime = 3;
-
             SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
             
             actual_damage = 0;
@@ -3562,7 +3561,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 		}
 
         // Do it already
-        if ( actual_damage > pchr->damagethreshold )
+        if ( actual_damage > 0 )
         {
             // Only actual_damage if not invincible
             if ( 0 == pchr->damagetime || ignore_invictus )
@@ -3719,10 +3718,6 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                 chr_make_text_billboard( character, text_buffer, text_color, tint, lifetime, bb_opt_all );
             }
         }
-
-		//Spawn defence ping if damage did not penentrate the damagethreshold
-		else if(actual_damage > 0 && pchr->damagethreshold > 0) spawn_defense_ping( pchr, attacker );
-
     }
 
     return actual_damage;

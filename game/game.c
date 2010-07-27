@@ -1444,6 +1444,9 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     if ( !INGAME_CHR( ichr_test ) ) return bfalse;
     ptst = ChrList.lst + ichr_test;
 
+	// Skip hidden characters
+	if( ptst->is_hidden ) return bfalse;
+
 	// Players only?
     if ( ( HAS_SOME_BITS(targeting_bits, TARGET_PLAYERS) || HAS_SOME_BITS(targeting_bits, TARGET_QUEST) ) && !VALID_PLA(ptst->is_which_player) ) return bfalse;
 
@@ -1466,7 +1469,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     hates_me = team_hates_team( ptst->team, psrc->team );
 
     // Target neutral items? (still target evil items, could be pets)
-	if ( ptst->isitem && !HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) ) return bfalse;
+	if ( (ptst->isitem || ptst->invictus) && !HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) ) return bfalse;
 
 	// Only target those of proper team. Skip this part if it's a item or if we allow both, they got no team
 	// TODO: ZF> I created a bug here, you cant target only dead friends now (rebirth spell)

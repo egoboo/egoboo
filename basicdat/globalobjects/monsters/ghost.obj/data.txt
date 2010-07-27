@@ -71,9 +71,9 @@ EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 ICE defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
 ZAP defense shift ( eg. 1 1 1 1 )		:  0  0  0  0
-SLASH inversion ( eg. F F F T )			:  C  C  C  C
-CRUSH inversion ( eg. F F F T )			:  C  C  C  C
-POKE inversion ( eg. F F F T )			:  C  C  C  C
+SLASH inversion ( eg. F F F T )			:  I  I  I  I
+CRUSH inversion ( eg. F F F T )			:  I  I  I  I
+POKE inversion ( eg. F F F T )			:  I  I  I  I
 HOLY inversion ( eg. T T T T )			:  F  F  F  F
 EVIL inversion ( eg. F F F T )			:  F  F  F  F
 FIRE inversion ( eg. F F F T )			:  F  F  F  F

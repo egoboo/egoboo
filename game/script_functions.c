@@ -5188,6 +5188,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
     if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
+		debug_printf("Blocking passage: %s", chr_get_pcap(ichr)->name);
     }
     else
     {

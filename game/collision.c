@@ -2672,7 +2672,8 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 			
 			// handle vulnerabilities, double the damage
 			if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
-			{
+			{				
+				//Double the damage
 				loc_damage.base = ( loc_damage.base << 1 );
 				loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
 

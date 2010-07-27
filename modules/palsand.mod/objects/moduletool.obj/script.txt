@@ -37,4 +37,11 @@ IfXIsMoreThanY
   SetContent
   ShowTimer
 
+// Open the boss passage
+tmpx = selfmorale
+tmpy = 0
+IfXIsEqualToY
+  tmpargument = passage
+  OpenPassage
+
 End					// All done

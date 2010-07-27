@@ -64,7 +64,7 @@ IfTimeOut
           tmpx = 0
           tmpy = 0
           tmpturn = targetturnto
-          tmpdistance = 75
+          tmpdistance = 25
           Compass
           SetOldTarget
           SetTargetToSelf
