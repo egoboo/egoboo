@@ -59,6 +59,21 @@ enum e_order
 };
 
 //--------------------------------------------------------------------------------------------
+/// The bitmasks used by the check_target() function which is used in various character search
+/// functions like chr_find_target() or find_object_in_passage()
+enum e_targeting_bits
+{
+    TARGET_DEAD			= ( 1 << 0 ),		///< Target dead stuff
+    TARGET_ENEMIES		= ( 1 << 1 ),		///< Target enemies
+    TARGET_FRIENDS		= ( 1 << 2 ),		///< Target friends
+    TARGET_ITEMS		= ( 1 << 3 ),		///< Target items
+    TARGET_INVERTID		= ( 1 << 4 ),		///< Target everything but the specified IDSZ
+    TARGET_PLAYERS		= ( 1 << 5 ),		///< Target only players
+    TARGET_SKILL		= ( 1 << 6 ),		///< Target needs the specified skill IDSZ
+    TARGET_QUEST		= ( 1 << 7 )		///< Target needs the specified quest IDSZ
+};
+
+//--------------------------------------------------------------------------------------------
 /// a process that controls a single game
 struct s_game_process
 {
@@ -316,8 +331,7 @@ void   set_one_player_latch( const PLA_REF by_reference player );
 bool_t add_player( const CHR_REF by_reference character, const PLA_REF by_reference player, Uint32 device );
 
 /// AI targeting
-CHR_REF chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items,
-                         bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ need_skill, IDSZ need_quest );
+CHR_REF chr_find_target( struct s_chr * psrc, float max_dist, IDSZ idsz, Uint32 targeting_bits );
 CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
                          const PIP_REF by_reference particletype, const TEAM_REF by_reference team, const CHR_REF by_reference donttarget, const CHR_REF by_reference oldtarget );
 
@@ -353,7 +367,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
 bool_t game_module_start( game_module_t * pinst );
 bool_t game_module_stop( game_module_t * pinst );
 
-bool_t check_target( struct s_chr *psrc, const CHR_REF by_reference ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ require_quest, IDSZ require_skill );
+bool_t check_target( struct s_chr * psrc, const CHR_REF by_reference ichr_test, IDSZ idsz, Uint32 targeting_bits );
 
 void attach_all_particles();
 

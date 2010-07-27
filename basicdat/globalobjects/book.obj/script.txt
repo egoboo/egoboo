@@ -13,7 +13,7 @@ IfStateIs1				// Spellbook burning?
     Else				    // Spell?
       // Find the nearest book-burner
       tmpargument = [HEAL]
-      tmpdistance = 6  // Friends and Enemies...
+      tmpdistance = BLAHFRIENDS + BLAHENEMIES  // Friends and Enemies...
       SetTargetToNearestBlahID
         // Give Experience
         tmpargument = 25

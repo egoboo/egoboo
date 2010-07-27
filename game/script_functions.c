@@ -687,9 +687,9 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, NEARBY, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE, IDSZ_NONE );
-
-    if ( ichr != pself->index && INGAME_CHR( ichr ) )
+    ichr = chr_find_target( pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES );
+	
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -2476,9 +2476,9 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, WIDE, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE, IDSZ_NONE );
+    ichr = ichr = chr_find_target( pchr, WIDE, IDSZ_NONE, TARGET_ENEMIES );
 
-    if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -4236,28 +4236,11 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     /// and who is located in the general vicinity of the character
 
     CHR_REF ichr;
-    TARGET_TYPE blahteam = TARGET_NONE;
-    IDSZ need_skill = IDSZ_NONE, need_quest = IDSZ_NONE;
-	bool_t target_dead, target_items, require_players, exclude_idsz;
 
     SCRIPT_FUNCTION_BEGIN();
 
-	//Check the parameters
-	target_dead = ( pstate->distance ) & 1;
-	target_items = ( pstate->distance >> 3 ) & 1;
-	exclude_idsz = ( pstate->distance >> 4 ) & 1;
-	require_players = ( pstate->distance >> 5 ) & 1;
-	if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
-    if (( pstate->distance >> 7 ) & 1 ) need_quest = pstate->turn;
-
-    // Determine which team to target
-    if ( target_items || target_dead )	blahteam = TARGET_ALL;
-    if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
-    if (( pstate->distance >> 1 ) & 1 ) blahteam = ( TARGET_FRIEND == blahteam ) ? TARGET_ALL : TARGET_ENEMY;
-
     // Try to find one
-    ichr = _get_chr_target( pchr, WIDE, blahteam, target_items, target_dead, pstate->argument, exclude_idsz, 
-		require_players, need_skill, need_quest );
+	ichr = chr_find_target( pchr, WIDE, pstate->argument, pstate->distance );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -4555,9 +4538,9 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, pstate->distance, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE, IDSZ_NONE );
+	ichr = chr_find_target( pchr, pstate->distance, IDSZ_NONE, TARGET_ENEMIES );
 
-    if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5200,8 +5183,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, TARGET_ALL, 
-		bfalse, btrue, IDSZ_NONE, IDSZ_NONE, IDSZ_NONE, IDSZ_NONE, bfalse, bfalse);
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, 0, bfalse );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -5611,30 +5593,13 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     /// parameters, failing if it finds none
 
     CHR_REF ichr;
-    TARGET_TYPE blahteam = TARGET_NONE;
-    IDSZ need_skill = IDSZ_NONE, need_quest = IDSZ_NONE;
-	bool_t target_dead, target_items, require_players, exclude_idsz;
 
     SCRIPT_FUNCTION_BEGIN();
 
-	//Check the parameters
-	target_dead = ( pstate->distance ) & 1;
-	target_items = ( pstate->distance >> 3 ) & 1;
-	exclude_idsz = ( pstate->distance >> 4 ) & 1;
-	require_players = ( pstate->distance >> 5 ) & 1;
-	if (( pstate->distance >> 6 ) & 1 ) need_skill = pstate->turn;
-    if (( pstate->distance >> 7 ) & 1 ) need_quest = pstate->turn;
-
-    // Determine which team to target
-    if ( target_items || target_dead )	blahteam = TARGET_ALL;
-    if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
-    if (( pstate->distance >> 1 ) & 1 ) blahteam = ( TARGET_FRIEND == blahteam ) ? TARGET_ALL : TARGET_ENEMY;
-
     // Try to find one
-    ichr = _get_chr_target( pchr, NEAREST, blahteam, target_items, target_dead, pstate->argument, exclude_idsz, 
-		require_players, need_skill, need_quest );
+	ichr = chr_find_target( pchr, NEAREST, pstate->argument, pstate->distance );
 
-    if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5656,9 +5621,9 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE, IDSZ_NONE );
+	ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ENEMIES );
 
-    if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5680,9 +5645,9 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE, IDSZ_NONE );
+	ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_FRIENDS );
 
-    if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -5706,9 +5671,9 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = _get_chr_target( pchr, 0, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, bfalse, bfalse, IDSZ_NONE, IDSZ_NONE );
+	ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
 
-    if (( ichr != pself->index ) && INGAME_CHR( ichr ) )
+    if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
     }
@@ -6511,7 +6476,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, TARGET_ALL, bfalse, bfalse, IDSZ_NONE, IDSZ_NONE, pstate->distance, IDSZ_NONE, bfalse, bfalse );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->distance, 0, btrue );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -6640,7 +6605,7 @@ Uint8 scr_GiveExperienceToGoodTeam( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
 {
     // DoNothing()
-    /// @details ZZ@> This function does nothing
+    /// @details ZF@> This function does nothing
     /// Use this for debugging or in combination with a Else function
 
     return btrue;
@@ -6662,7 +6627,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     pcap = chr_get_pcap( pself->target );
 
     returncode = bfalse;
-    if ( NULL != pcap && pcap->canbegrogged && INGAME_CHR( pself->target ) )
+    if ( NULL != pcap && pcap->canbegrogged )
     {
         pself_target->grogtime += pstate->argument;
         returncode = btrue;
@@ -6727,7 +6692,7 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHolderBlocked()
-    /// @details ZZ@> This function passes if the holder blocked an attack
+    /// @details ZF@> This function passes if the holder blocked an attack
 
     CHR_REF iattached;
 
@@ -6769,7 +6734,7 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasNotFullMana()
-    /// @details ZZ@> This function passes only if the Target is not at max mana and alive
+    /// @details ZF@> This function passes only if the Target is not at max mana and alive
 
     chr_t * pself_target;
 
@@ -7770,26 +7735,10 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 	/// in tmpdistance is blocking the given passage. This function lets passage rectangles be used as event triggers
 
     CHR_REF ichr;
-	bool_t target_items, target_dead, require_players, exclude_idsz;
-	TARGET_TYPE blahteam = TARGET_NONE;
-	IDSZ require_item = IDSZ_NONE, require_quest = IDSZ_NONE, require_skill = IDSZ_NONE;
 
     SCRIPT_FUNCTION_BEGIN();
 
-	//Check the other parameters
-	target_dead = ( pstate->distance ) & 1;
-	target_items = ( pstate->distance >> 3 ) & 1;
-	exclude_idsz = ( pstate->distance >> 4 ) & 1;
-	require_players = ( pstate->distance >> 5 ) & 1;
-	if (( pstate->distance >> 6 ) & 1 ) require_skill = pstate->turn;
-    if (( pstate->distance >> 7 ) & 1 ) require_quest = pstate->turn;
-
-	// Determine which team to target
-    if ( target_items || target_dead )	blahteam = TARGET_ALL;
-    if (( pstate->distance >> 2 ) & 1 ) blahteam = TARGET_FRIEND;
-    if (( pstate->distance >> 1 ) & 1 ) blahteam = ( TARGET_FRIEND == blahteam ) ? TARGET_ALL : TARGET_ENEMY;
-
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, blahteam, IDSZ_NONE, target_items, target_dead, require_quest, IDSZ_NONE, require_skill, exclude_idsz, require_players );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, pstate->distance, bfalse );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -8003,23 +7952,6 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
     }
 
     return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF _get_chr_target( chr_t * pchr, Uint32 max_dist, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ need_skill, IDSZ need_quest )
-{
-    /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
-    ///     If max_dist is 0 then it searches without a max limit.
-
-    float max_dist2;
-
-    if ( !ACTIVE_PCHR( pchr ) ) return ( CHR_REF )MAX_CHR;
-
-    if ( TARGET_NONE == target_type ) return ( CHR_REF )MAX_CHR;
-
-    max_dist2 = max_dist * max_dist;
-
-    return chr_find_target( pchr, max_dist2, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players, need_skill, need_quest );
 }
 
 //--------------------------------------------------------------------------------------------

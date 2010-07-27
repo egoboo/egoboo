@@ -86,8 +86,7 @@ void   add_passage( passage_t * pdata );
 bool_t   open_passage( const PASS_REF by_reference ipassage );
 bool_t   close_passage( const PASS_REF by_reference ipassage );
 void     flash_passage( const PASS_REF by_reference ipassage, Uint8 color );
-CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, 
-	IDSZ require_quest, IDSZ require_item, IDSZ require_skill, bool_t exclude_idsz, bool_t players_only );
+CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, Uint32 targeting_bits, bool_t require_item );
 void   add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_reference ipassage );
 
 bool_t point_is_in_passage( const PASS_REF by_reference ipassage, float xpos, float ypos );

@@ -66,8 +66,8 @@ IfUsed
 
     // Make sparklies around target
     tmpargument = [NONE]
-    tmpdistance = 5  // Dead friends
-    SetTargetToNearestBlahID
+    tmpdistance = BLAHFRIENDS + BLAHDEAD  // Dead friends
+    SetTargetToWideBlahID
       tmpx = targetx
       tmpy = targety
       tmpdistance = targetz
@@ -90,8 +90,8 @@ Else
 
     // Respawn the target
     tmpargument = [NONE]
-    tmpdistance = 5  // Dead friends
-    SetTargetToNearestBlahID
+    tmpdistance = BLAHFRIENDS + BLAHDEAD          // Dead friends
+    SetTargetToWideBlahID
       RespawnTarget
 
       // Play the gong sound

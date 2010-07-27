@@ -1430,12 +1430,12 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ require_quest, IDSZ require_skill )
+bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ idsz, Uint32 targeting_bits )
 {
     bool_t retval;
 
     bool_t is_hated, hates_me;
-    bool_t is_friend, is_prey, is_predator, is_mutual;
+    bool_t is_friend, is_prey, is_predator, is_mutual, target_all;
     chr_t * ptst;
 
     // Skip non-existing objects
@@ -1445,56 +1445,57 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_
     ptst = ChrList.lst + ichr_test;
 
 	// Players only?
-    if ( ( target_players || require_quest != IDSZ_NONE ) && !VALID_PLA(ptst->is_which_player) ) return bfalse;
+    if ( ( HAS_SOME_BITS(targeting_bits, TARGET_PLAYERS) || HAS_SOME_BITS(targeting_bits, TARGET_QUEST) ) && !VALID_PLA(ptst->is_which_player) ) return bfalse;
 
     // Skip held objects and self
     if ( psrc == ptst || INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
 
-    // Either only target dead stuff or alive stuff
-    if ( !target_dead && !ptst->alive ) return bfalse;
+    // Allow to target dead stuff stuff?
+    if ( !ptst->alive && !HAS_SOME_BITS(targeting_bits, TARGET_DEAD) ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
     if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
 
 	//Need specific skill? ([NONE] always passes)
-	if( !check_skills( ichr_test, require_skill ) ) return bfalse;
+	if( HAS_SOME_BITS(targeting_bits, TARGET_SKILL) && !check_skills( ichr_test, idsz ) ) return bfalse;
 
 	//Require player to have specific quest?
-    if ( require_quest != IDSZ_NONE && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), require_quest ) ) return bfalse;
+    if ( HAS_SOME_BITS(targeting_bits, TARGET_QUEST ) && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), idsz ) ) return bfalse;
 
     is_hated = team_hates_team( psrc->team, ptst->team );
     hates_me = team_hates_team( ptst->team, psrc->team );
 
     // Target neutral items? (still target evil items, could be pets)
-    if ( !target_items && (( ptst->isitem && is_hated ) || ptst->invictus ) ) return bfalse;
+    if ( HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) && (( ptst->isitem && is_hated ) || ptst->invictus ) ) return bfalse;
 
     // these options are here for ideas of ways to mod this function
     is_friend    = !is_hated && !hates_me;
     is_prey      =  is_hated && !hates_me;
     is_predator  = !is_hated &&  hates_me;
     is_mutual    =  is_hated &&  hates_me;
+    target_all	 = !HAS_SOME_BITS(targeting_bits, TARGET_ENEMIES) && !HAS_SOME_BITS(targeting_bits, TARGET_FRIENDS);
 
     // Which target_type to target
     retval = bfalse;
-    if ( target_type == TARGET_ALL || ( target_type == TARGET_ENEMY && is_hated ) || ( target_type == TARGET_FRIEND && !is_hated ) )
+    if ( target_all || ( HAS_SOME_BITS(targeting_bits, TARGET_ENEMIES) && is_hated ) || ( HAS_SOME_BITS(targeting_bits, TARGET_FRIENDS) && !is_hated ) )
     {
         // Check for specific IDSZ too?
-        if ( IDSZ_NONE == target_idsz )
+        if ( IDSZ_NONE == idsz )
         {
             retval = btrue;
         }
         else
         {
-            bool_t match_idsz = ( target_idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
-                                ( target_idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
+            bool_t match_idsz = ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
+                                ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
 
             if ( match_idsz )
             {
-                if ( !exclude_idsz ) retval = btrue;
+                if ( !HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
             }
             else
             {
-                if ( exclude_idsz ) retval = btrue;
+                if ( HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
             }
         }
     }
@@ -1503,24 +1504,25 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, TARGET_
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ need_skill, IDSZ need_quest )
+CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, Uint32 targeting_bits )
 {
-    /// @details BB@> this is the raw character targeting code, this is not throttled at all. You should call
-    ///     scr_get_chr_target() if you are calling this function from the scripting system.
+    /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
+    ///     If max_dist is 0 then it searches without a max limit.
 
     line_of_sight_info_t los_info;
 
     Uint16 cnt;
     CHR_REF best_target = ( CHR_REF )MAX_CHR;
-    float  best_dist2;
+    float  best_dist2, max_dist2;
 
     size_t search_list_size = 0;
     CHR_REF search_list[MAX_CHR];
 
-    if ( TARGET_NONE == target_type ) return ( CHR_REF )MAX_CHR;
     if ( !ACTIVE_PCHR( psrc ) ) return ( CHR_REF )MAX_CHR;
+	
+	max_dist2 = max_dist * max_dist;
 
-    if ( target_players )
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) )
     {
         PLA_REF ipla;
 
@@ -1560,10 +1562,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist2, TARGET_TYPE target_type,
         if ( !INGAME_CHR( ichr_test ) ) continue;
         ptst = ChrList.lst + ichr_test;
 
-        if ( !check_target( psrc, ichr_test, target_type, target_items, target_dead, target_idsz, exclude_idsz, target_players, need_skill, need_quest ) )
-        {
-            continue;
-        }
+        if ( !check_target( psrc, ichr_test, idsz, targeting_bits ) ) continue;
 
         diff  = fvec3_sub( psrc->pos.v, ptst->pos.v );
         dist2 = fvec3_dot_product( diff.v, diff.v );

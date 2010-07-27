@@ -14,7 +14,7 @@ IfTimeOut
   SetTime
   tmpargument = [NONE]
   tmpdistance = BLAHENEMIES + BLAHFRIENDS
-  SetTargetToNearestBlahID
+  SetTargetToWideBlahID
     tmpx = targetdistance
     tmpy = rand & 63 + 80			//Trigger range
     IfXIsLessThanY

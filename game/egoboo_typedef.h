@@ -62,16 +62,6 @@ enum e_egoboo_rv
 typedef enum e_egoboo_rv egoboo_rv;
 
 //--------------------------------------------------------------------------------------------
-/// List of the methods an AI can use to obtain a target
-typedef enum target_type
-{
-    TARGET_ENEMY = 0,
-    TARGET_FRIEND,
-    TARGET_ALL,
-    TARGET_NONE
-} TARGET_TYPE;
-
-//--------------------------------------------------------------------------------------------
 // 24.8 fixed point types
 
 typedef Uint32 UFP8_T;

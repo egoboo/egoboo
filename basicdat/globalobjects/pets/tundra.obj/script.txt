@@ -185,11 +185,11 @@ IfTimeOut				// This is done every so often
         Else
           // No item, so find one
           tmpargument = [NONE]
-          tmpdistance = BLAHITEMS
-          SetTargetToNearestBlahID
+          tmpdistance = BLAHITEMS         //Any item will do
+          SetTargetToWideBlahID
             // Don't grab kursed items
             IfTargetIsKursed
-              GetState
+              DoNothing
             Else
               // Get closer?
               tmpx = targetdistance

@@ -59,7 +59,7 @@ IfKilled
     tmpargument = 4
     AddEndMessage
     tmpargument = 5
-    AddEndMessage		//TODO end message
+    AddEndMessage		            //TODO end message
     tmpargument = 100
     tmpdistance = EXPQUEST
     GiveExperienceToGoodTeam

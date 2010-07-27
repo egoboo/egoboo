@@ -3484,7 +3484,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         
         // Check for blocking and invictus, no need to continue if they have
 		immune_to_damage = actual_damage <= pchr->damagethreshold || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
-		if ( immune_to_damage || is_invictus_direction( direction, character, effects ) )
+		if ( 0 == pchr->damagetime && (immune_to_damage || is_invictus_direction( direction, character, effects )) )
         {
 			const float lifetime = 3;
 
@@ -3506,9 +3506,6 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 			{
 				bool_t using_shield;
 				CHR_REF item;
-
-				// "Blue" text
-	            GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
 
 				// Figure out if we are really using a shield or if it is just a invictus frame
 				using_shield = bfalse;
@@ -3538,6 +3535,10 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 					int block_rating;
 					int attacker_str, defender_str;
 				
+					//Whatever the result, tell the players it got blocked
+					GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
+					chr_make_text_billboard( character, "Blocked!", text_color, tint, lifetime, bb_opt_all );
+
 					attacker_str = FP8_TO_INT( pattacker->strength ) * 4;			//-4% per attacker strength
 					defender_str = FP8_TO_INT( pchr->strength )      * 2;			//+2% per defender strength
 					block_rating = pshield->block_rating + pcap->block_rating;		//use the character block skill plus the base block rating of the shield
@@ -3556,7 +3557,6 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 						pchr->reloadtime += 40;	
 						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
 					}
-                    chr_make_text_billboard( character, "Blocked!", text_color, tint, lifetime, bb_opt_all );
 				}
 			}
 		}

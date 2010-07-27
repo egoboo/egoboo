@@ -244,19 +244,19 @@ IfStateIsNot			//If not acting as a dead body
             tmpargument = [HAMM]
             tmpdistance = BLAHITEMS
             tmpx = 0
-            SetTargetToNearestBlahID
+            SetTargetToWideBlahID
               tmpx = 1
             Else
               tmpargument = [MACE]
-              SetTargetToNearestBlahID
+              SetTargetToWideBlahID
                 tmpx = 1
               Else
                 tmpargument = [AXEE]
-                SetTargetToNearestBlahID
+                SetTargetToWideBlahID
                   tmpx = 1
                 Else
                   tmpargument = [CLAW]
-                  SetTargetToNearestBlahID
+                  SetTargetToWideBlahID
                     tmpx = 1
             tmpy = 1
             IfXIsEqualToY			//If tmpx is 1, then a weapon was found

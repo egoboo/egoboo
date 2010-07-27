@@ -11,11 +11,11 @@ IfSpawned
     tmpx = selfstate
     SpawnPoof
     IfStateIs1
-      tmpargument = 0 - 1500
+      tmpargument = -1500
       GiveLifeToTarget
       tmpargument = 25
     IfStateIs2
-      tmpargument = 0 - 700
+      tmpargument = -700
       GiveLifeToTarget
       tmpargument = 50
     IfStateIs3
@@ -31,12 +31,11 @@ IfChanged
 
 // Monster AI
 IfStateIs0
-  GetState // NOP
+  DoNothing
 Else
   // Character screams
   IfAttacked
     tmpargument = 3
-    tmpdistance = rand & 2047 + 10000
     PlaySound
 
   // Character death
@@ -46,7 +45,6 @@ Else
     SetBumpHeight
     // Tell everyone it died
     tmpargument = 4
-    tmpdistance = rand & 2047 + 10000
     PlaySound
     tmpargument = 0
     IfTargetIsOnSameTeam
@@ -68,7 +66,6 @@ Else
       tmpargument = 200
       SetTime
       tmpargument = rand & 1 + 1
-      tmpdistance = rand & 2047 + 10000
       PlaySound
     IfBumped
       // Attack anyone
@@ -90,7 +87,6 @@ Else
             tmpargument = rand & 2 + ACTIONBA
             DoAction  // Couldn't use latches...
             tmpargument = rand & 1 + 1
-            tmpdistance = rand & 2047 + 10000
             PlaySound
           // Chase the enemy
           tmpx = targetx
@@ -165,7 +161,6 @@ Else
                 tmpargument = rand & 2 + ACTIONBB
               DoAction  // Couldn't use latches...
               tmpargument = rand & 1 + 1
-              tmpdistance = rand & 2047 + 10000
               PlaySound
           // Chase the enemy
           tmpargument = 0
@@ -195,19 +190,19 @@ Else
             tmpargument = [HAMM]
             tmpdistance = BLAHITEMS
             tmpx = 0
-            SetTargetToNearestBlahID
+            SetTargetToWideBlahID
               tmpx = 1
             Else
               tmpargument = [MACE]
-              SetTargetToNearestBlahID
+              SetTargetToWideBlahID
                 tmpx = 1
               Else
                 tmpargument = [AXEE]
-                SetTargetToNearestBlahID
+                SetTargetToWideBlahID
                   tmpx = 1
                 Else
                   tmpargument = [CLAW]
-                  SetTargetToNearestBlahID
+                  SetTargetToWideBlahID
                     tmpx = 1
             tmpy = 1
             IfXIsEqualToY
@@ -271,16 +266,15 @@ IfStateIs0
             SpawnExactParticle
       // Put particles around the target
       tmpargument = [HUMA]
-      tmpdistance = 7  // Dead Friends and Enemies...
-      SetTargetToNearestBlahID
+      tmpdistance = BLAHDEAD            // Dead Friends and Enemies...
+      SetTargetToWideBlahID
         tmpx = targetx
         tmpy = targety
         tmpdistance = targetz
         tmpargument = 4
         SpawnExactParticle
   Else
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 255
     IfXIsMoreThanY
       // Make the holder cast it
@@ -289,8 +283,8 @@ IfStateIs0
         TargetDoAction
       // Find a dead humanoid
       tmpargument = [HUMA]
-      tmpdistance = 7  // Dead friends or enemies...
-      SetTargetToNearestBlahID
+      tmpdistance = BLAHDEAD  // Dead friends or enemies...
+      SetTargetToWideBlahID
         // Poof that target ( players can't be )
         MakeNameKnown
         MakeUsageKnown

@@ -11,11 +11,11 @@ IfSpawned
     tmpx = selfstate
     SpawnPoof
     IfStateIs1
-      tmpargument = 0 - 1500
+      tmpargument = -1500
       GiveLifeToTarget
       tmpargument = 50
     IfStateIs2
-      tmpargument = 0 - 700
+      tmpargument = -700
       GiveLifeToTarget
       tmpargument = 75
     IfStateIs3
@@ -200,8 +200,8 @@ IfStateIs0
             SpawnExactParticle
       // Put particles around the target
       tmpargument = [CHES]
-      tmpdistance = 14  // Friends, items and Enemies...
-      SetTargetToNearestBlahID
+      tmpdistance = BLAHITEMS         //Items and scenery
+      SetTargetToWideBlahID
         tmpx = targetx
         tmpy = targety
         tmpdistance = targetz
@@ -218,8 +218,8 @@ IfStateIs0
         TargetDoAction
       // Find a dead humanoid
       tmpargument = [CHES]
-      tmpdistance = 14
-      SetTargetToNearestBlahID
+      tmpdistance = BLAHITEMS
+      SetTargetToWideBlahID
         // Poof that target ( players can't be )
         MakeNameKnown
         MakeUsageKnown
@@ -227,7 +227,7 @@ IfStateIs0
         tmpy = targety
         tmpturn = targetturn
         tmpdistance = targetz
-        //TODO: DropTargetKeys          //Some modules get broke if not
+        DropTargetKeys          //Some modules might get broke if not
         PoofTarget
           // Replace the target with a mimic
           SetTargetToWhoeverIsHolding
@@ -244,7 +244,7 @@ IfStateIs0
 
             // Set the AI type
             GetContent
-            tmpargument = tmpargument > 8 // State of new Zombi, 0 to 3
+            tmpargument = tmpargument > 8 // State of new Mimic, 0 to 3
             SetChildState
             tmpargument = ACTIONMD
             ChildDoActionOverride

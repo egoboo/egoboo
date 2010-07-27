@@ -55,8 +55,8 @@ IfUsed
           SetContent
     // Spawn particles around target
     tmpargument = [NONE]
-    tmpdistance = 5  // Dead friends
-    SetTargetToNearestBlahID
+    tmpdistance = BLAHFRIENDS + BLAHDEAD  // Dead friends
+    SetTargetToWideBlahID
     tmpx = targetdistance
     tmpy = 200
     IfXIsMoreThanY			//No target in range, select caster

@@ -12,7 +12,6 @@ IfTimeOut
   tmpy=0
   IfXIsEqualToY
     tmpargument = 0
-    tmpdistance = rand & 1027 + 40000
     PlaySound
   IfStateIs0
     // Find shepherd

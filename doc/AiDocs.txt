@@ -2046,15 +2046,14 @@ SetTargetSize
   tmpargument = 50      //50%
   SetTargetSize
 -------------------------------------------------------------------------------- 
-SetTargetToNearestQuestID
-  //Changes the target to the nearest player who has the quest ID specified in
-  //tmpargument
-  tmpargument = [QUES]
-  SetTargetToNearestQuestID
-    tmpargument = 50
-    tmpdistance = EXPQUEST
-    GiveExperienceToGoodTeam
-    GoPoof
+IfTargetIsFacingSelf
+  //Proceeds if the target is looking towards the character (sorta opposite of IfFacingTarget)
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsFacingSelf
+      tmpargument = 5
+      SendMessage
+      PlayFullSound
 -------------------------------------------------------------------------------- 
 AddQuestAllPlayers
   // This function adds a specified Quest IDSZ into every players quest log

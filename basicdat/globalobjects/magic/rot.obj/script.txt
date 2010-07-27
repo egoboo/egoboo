@@ -103,7 +103,7 @@ IfStateIs0
             
       // Put particles around the target
       tmpargument = [HUMA]
-      tmpdistance = BLAHDEAD + BLAHFRIENDS + BLAHENEMIES
+      tmpdistance = BLAHDEAD
       SetTargetToWideBlahID
         tmpx = targetx
         tmpy = targety
@@ -123,7 +123,7 @@ IfStateIs0
         
       // Find a dead humanoid
       tmpargument = [HUMA]
-      tmpdistance = BLAHDEAD + BLAHFRIENDS + BLAHENEMIES
+      tmpdistance = BLAHDEAD
       SetTargetToWideBlahID
         // Poof that target ( players can't be )
         MakeNameKnown
