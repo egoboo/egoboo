@@ -5315,7 +5315,7 @@ int check_skills( const CHR_REF by_reference who, IDSZ whichskill )
     int result = 0;
 
     //Any [NONE] IDSZ returns always "true"
-    if ( MAKE_IDSZ( 'N', 'O', 'N', 'E' ) == whichskill ) return 1;
+    if ( IDSZ_NONE == whichskill ) return 1;
 
     // First check the character Skill ID matches
     // Then check for expansion skills too.
@@ -9341,6 +9341,9 @@ bool_t chr_can_see_object( const CHR_REF by_reference ichr, const CHR_REF by_ref
     {
         light *= pchr->darkvision_level + 1;
     }
+
+	//Scenery, spells and quest objects can always see through darkness
+	if( pchr->invictus ) light *= 20;
 
     return light >= INVISIBLE;
 }

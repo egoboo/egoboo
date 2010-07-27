@@ -396,8 +396,9 @@ The symbol itself follows
 :F 380 DisableInvictus
 :F 381 TargetDamageSelf
 :F 382 SetTargetSize
-:F 383 SetTargetToNearestQuestID
+:F 383 IfTargetIsFacingSelf
 :F 384 DrawBillboard
+:F 385 SetTargetToBlahInPassage
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS
@@ -405,6 +406,7 @@ The symbol itself follows
 :C 016 BLAHINVERTID
 :C 032 BLAHPLAYERS
 :C 064 BLAHSKILL
+:C 128 BLAHQUEST
 :C 000 STATEPARRY
 :C 001 STATEWANDER
 :C 002 STATEGUARD

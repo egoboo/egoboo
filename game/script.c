@@ -827,9 +827,10 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
                 case FDISABLEINVICTUS:       returncode = scr_DisableInvictus( pstate, pself ); break;
                 case FTARGETDAMAGESELF:      returncode = scr_TargetDamageSelf( pstate, pself ); break;
                 case FSETTARGETSIZE:         returncode = scr_SetTargetSize( pstate, pself ); break;
-                case FSETTARGETTONEARESTQUESTID: returncode = scr_set_TargetToNearestQuestID( pstate, pself ); break;
+                case FIFTARGETISFACINGSELF:  returncode = scr_TargetIsFacingSelf( pstate, pself ); break;
                 case FDRAWBILLBOARD:         returncode = scr_DrawBillboard( pstate, pself ); break;
-
+				case FSETTARGETTOFIRSTBLAHINPASSAGE: returncode = scr_set_TargetToBlahInPassage( pstate, pself ); break;
+                
                 // if none of the above, skip the line and log an error
                 default:
                     log_message( "SCRIPT ERROR: scr_run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );

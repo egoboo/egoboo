@@ -271,22 +271,16 @@ IfTimeOut
       // Odd states are for melee weapons
       IfTargetIsAttacking
         IfHoldingShield
-          // Is the enemy facing the character?
-          tmpturn = selfturn - targetturn
-          tmpx = tmpturn
-          tmpy = 24768
-          IfXIsMoreThanY
-            tmpy = 40768
-            IfXIsLessThanY
-              // Defend
-              PressLatchButton
-              tmpargument = 7
-              SetState
+          IfTargetIsFacingSelf      // Is the enemy facing the character?
+            // Defend
+            PressLatchButton
+            tmpargument = 7
+            SetState
 
-              // Tell everyone to attack while Cobol hides...  Coward
-              tmpargument = 5
-              IssueOrder
-              tmpargument = rand & 15 + 15 // Time
+            // Tell everyone to attack while Cobol hides...  Coward
+            tmpargument = 5
+            IssueOrder
+            tmpargument = rand & 15 + 15 // Time
 
       // Circle around the enemy              
       IfStateIs3

@@ -92,17 +92,12 @@ IfBumped
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
     IfFacingTarget
-      IfHoldingShield
-        tmpturn = selfturn - targetturn		//Target facing self?
-        tmpx = tmpturn
-        tmpy = 24768
-        IfXIsMoreThanY
-          tmpy = 40768
-          IfXIsLessThanY
-            tmpx = selfdex			//Check dexterity to block, 10 is average
-            tmpy = rand & 511 * 10
-            IfXIsMoreThanY
-              PressLatchButton
+      IfTargetIsFacingSelf
+        IfHoldingShield
+          tmpx = selfdex			//Check dexterity to block, 10 is average
+          tmpy = rand & 511 * 10
+          IfXIsMoreThanY
+            PressLatchButton
 
 //------------------------------------------------------------------------------
 IfKilled

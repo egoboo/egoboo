@@ -2072,13 +2072,14 @@ DrawBillboard
 
 CONSTANTS
 -------------------------------------------------------------------------------- 
-1  BLAHDEAD                           - Target only dead stuff
-2  BLAHENEMIES                        - Target enemies
-4  BLAHFRIENDS                        - Target players
-8  BLAHITEMS                          - Target items
-16 BLAHINVERTID                       - Do not target specified IDSZ
-32 BLAHPLAYERS                        - Target only players
-64 BLAHSKILL                          - Target only if target has the specified skill
+1   BLAHDEAD                           - Target only dead stuff
+2   BLAHENEMIES                        - Target enemies
+4   BLAHFRIENDS                        - Target players
+8   BLAHITEMS                          - Target items
+16  BLAHINVERTID                       - Do not target specified IDSZ
+32  BLAHPLAYERS                        - Target only players
+64  BLAHSKILL                          - Target only if target has the specified skill
+128 BLAHQUEST                          - Target only if its a player and has the specified quest
   // These are for the Blah style functions, to specify exactly what type
   // of target to find.  These are simply added together, you can either figure out the
   // number and write that exactly, or add these constants together with a plus operator (+).

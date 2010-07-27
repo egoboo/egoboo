@@ -272,14 +272,9 @@ IfTimeOut
     IfStateIsOdd
       // Odd states are for melee weapons
       IfTargetIsAttacking
-        IfHoldingShield
-          // Is the enemy facing the character?
-          tmpturn = selfturn - targetturn
-          tmpx = tmpturn
-          tmpy = 24768
-          IfXIsMoreThanY
-            tmpy = 40768
-            IfXIsLessThanY
+        IfTargetIsFacingSelf
+          IfFacingTarget
+            IfHoldingShield
               // Defend
               PressLatchButton
               tmpargument = 7

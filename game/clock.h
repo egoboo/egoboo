@@ -89,9 +89,4 @@ EGO_TIME getCurrentTime();                          ///< Returns a structure con
 #    define PROFILE_END(XX)    clkcount_##XX  = 1.0;
 #    define PROFILE_END2(XX)   clkcount_##XX += 1.0;
 
-#    define PROFILE_QUERY(XX)   1.0
-#    define PROFILE_BEGIN(XX)
-#    define PROFILE_END(XX)    clkcount_##XX  = 1.0;
-#    define PROFILE_END2(XX)   clkcount_##XX += 1.0;
-
 #endif

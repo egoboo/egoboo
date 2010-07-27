@@ -20,8 +20,10 @@ IfTimeOut
   IfXIsEqualToY
     tmpargument = 25
     SetTime
-    tmpargument = [AMAG]
-    SetTargetToNearestQuestID
+    tmpargument = [NONE]
+    tmpdistance = BLAHFRIENDS + BLAHENEMIES + BLAHQUEST
+    tmpturn = [AMAG]
+    SetTargetToNearestBlahID
       tmpargument = [AMAG]
       IfTargetHasSkillID
         tmpargument = 0

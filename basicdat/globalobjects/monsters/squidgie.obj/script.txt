@@ -84,56 +84,51 @@ IfTimeOut
             SetState
         Else
           // Is the enemy facing the character?
-          tmpturn = selfturn - targetturn
-          tmpx = tmpturn
-          tmpy = 16768
-          IfXIsMoreThanY
-            tmpy = 48768
-            IfXIsLessThanY
-              tmpargument = ACTIONHA
-              DoAction
-                SetOldTarget
-                SetTargetToSelf
-                tmpy = 32768
-                IfXIsLessThanY
-                  tmpturn = 16384 + selfturn
-                Else
-                  tmpturn = 49162 + selfturn
-                tmpx = 0
-                tmpy = 0
-                tmpdistance = 25
-                Compass
-                AccelerateTarget
-                SetTargetToOldTarget
-                tmpargument = 3
-                PlaySound
-                tmpx = targetx
-                tmpy = targety
-                tmpdistance = 800
+          IfTargetIsFacingSelf
+            tmpargument = ACTIONHA
+            DoAction
+              SetOldTarget
+              SetTargetToSelf
+              tmpy = 32768
+              IfXIsLessThanY
+                tmpturn = 16384 + selfturn
               Else
-                tmpx = selfx
-                tmpy = selfy
-                tmpturn = selfturn + 32768
-                tmpdistance = 800
-            Else
+                tmpturn = 49162 + selfturn
+              tmpx = 0
+              tmpy = 0
+              tmpdistance = 25
+              Compass
+              AccelerateTarget
+              SetTargetToOldTarget
+              tmpargument = 3
+              PlaySound
               tmpx = targetx
               tmpy = targety
-              tmpturn = selfturn
+              tmpdistance = 800
+            Else
+              tmpx = selfx
+              tmpy = selfy
+              tmpturn = selfturn + 32768
               tmpdistance = 800
           Else
             tmpx = targetx
             tmpy = targety
             tmpturn = selfturn
             tmpdistance = 800
-          Else
-            tmpx = targetx
-            tmpy = targety
-            tmpturn = selfturn
-            tmpdistance = 800
-          Compass
+        Else
+          tmpx = targetx
+          tmpy = targety
+          tmpturn = selfturn
+          tmpdistance = 800
       Else
         tmpx = targetx
         tmpy = targety
+        tmpturn = selfturn
+        tmpdistance = 800
+      Compass
+    Else
+      tmpx = targetx
+      tmpy = targety
   Else
     tmpx = rand & 511 - 256 + selfspawnx
     tmpy = rand & 511 - 256 + selfspawny

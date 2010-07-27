@@ -488,7 +488,9 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
     "FDISABLEINVICTUS",            // == 380
     "FTARGETDAMAGESELF",           // == 381
     "FSETTARGETSIZE",              // == 382
-    "FSETTARGETTONEARESTQUESTID"   // == 383
+    "FIFTARGETISFACINGSELF",       // == 383
+    "FDRAWBILLBOARD",		       // == 384
+	"FSETTARGETTOBLAHINPASSAGE"    // == 385
 };
 
 //--------------------------------------------------------------------------------------------

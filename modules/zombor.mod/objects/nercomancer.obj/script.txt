@@ -247,8 +247,7 @@ IfTimeOut
             PressLatchButton
     
     Else
-      GetContent
-      tmpargument = tmpargument -1
+      tmpargument = selfcontent -1
       GetXY
       ClearWaypoints
       AddWaypoint			//Return to previous waypoint
@@ -279,7 +278,7 @@ IfTimeOut
   IfStateIs2
 
     //We are in wrong mode!
-    IfTargetIsOnHatedTeam
+    IfTargetIsAlive
       tmpargument = 1
       SetState
 
@@ -302,7 +301,7 @@ IfTimeOut
     ClearWaypoints
     tmpx = targetx
     tmpy = targety
-    tmpdistance = 0 - 200
+    tmpdistance = -200
     tmpturn = targetturnto
     Compass
     AddWaypoint
@@ -326,9 +325,9 @@ IfTimeOut
     SetXY
 
     //Charge is finished
-    tmpy = 600
+    tmpy = 800
     IfXIsMoreThanY
-      tmpargument = 44					//Zombi
+      tmpargument = 44					              //Zombi
       tmpx = targetx
       tmpy = targety
       tmpturn = targetturn
@@ -363,6 +362,7 @@ IfTimeOut
     tmpy = targety
     tmpturn = targetturnfrom
     tmpdistance = 3000
+    Compass
     ClearWaypoints
     AddWaypoint
     tmpargument = 150
@@ -374,7 +374,7 @@ IfTimeOut
   IfStateIs5
     tmpargument = rand & 15 + 10
     SetTime
-    tmpx = 4400
+    tmpx = 4400                 //Coordinates in the middle of the boss room
     tmpy = 3300
     SetTargetToNearbyEnemy
       tmpx = targetx
@@ -493,8 +493,7 @@ IfAttacked
     SetXY
 
   //Retreat (Disrupts spellcasting!)
-  GetState
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 4
   IfXIsLessThanY                 //Not in boss battle (or after)
     tmpargument = 3		

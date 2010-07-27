@@ -317,7 +317,7 @@ bool_t add_player( const CHR_REF by_reference character, const PLA_REF by_refere
 
 /// AI targeting
 CHR_REF chr_find_target( struct s_chr * psrc, float max_dist2, TARGET_TYPE target_type, bool_t target_items,
-                         bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ need_skill );
+                         bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ need_skill, IDSZ need_quest );
 CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
                          const PIP_REF by_reference particletype, const TEAM_REF by_reference team, const CHR_REF by_reference donttarget, const CHR_REF by_reference oldtarget );
 
@@ -353,7 +353,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
 bool_t game_module_start( game_module_t * pinst );
 bool_t game_module_stop( game_module_t * pinst );
 
-bool_t check_target( struct s_chr * psrc, const CHR_REF by_reference ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players );
+bool_t check_target( struct s_chr *psrc, const CHR_REF by_reference ichr_test, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, bool_t exclude_idsz, bool_t target_players, IDSZ require_quest, IDSZ require_skill );
 
 void attach_all_particles();
 

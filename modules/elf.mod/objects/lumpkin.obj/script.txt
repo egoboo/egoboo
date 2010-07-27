@@ -186,15 +186,7 @@ IfTargetIsAttacking
             tmpx = selfdex
             tmpy = rand & 16383
             IfXIsMoreThanY
-              // Is the enemy facing the character?
-              tmpx = targetturnto - targetturn
-              tmpy = 30000
-              IfXIsMoreThanY
-                tmpargument = rand & 15 + 15
-                SetTime
-                tmpargument = STATEPARRY
-              tmpy = 0 - 30000
-              IfXIsLessThanY
+              IfTargetIsFacingSelf
                 tmpargument = rand & 15 + 15
                 SetTime
                 tmpargument = STATEPARRY

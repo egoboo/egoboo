@@ -185,17 +185,17 @@ bool_t object_is_in_passage( const PASS_REF by_reference passage, float xpos, fl
 
     // Passage area
     radius += CLOSETOLERANCE;
-    tmp_rect.left   = ( ppass->area.left         * GRID_SIZE ) - radius;
-    tmp_rect.top    = ( ppass->area.top          * GRID_SIZE ) - radius;
-    tmp_rect.right  = (( ppass->area.right + 1 ) * GRID_SIZE ) + radius;
+    tmp_rect.left   = ( ppass->area.left          * GRID_SIZE ) - radius;
+    tmp_rect.top    = ( ppass->area.top           * GRID_SIZE ) - radius;
+    tmp_rect.right  = (( ppass->area.right + 1 )  * GRID_SIZE ) + radius;
     tmp_rect.bottom = (( ppass->area.bottom + 1 ) * GRID_SIZE ) + radius;
 
     return frect_point_inside( &tmp_rect, xpos, ypos );
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, bool_t targetitems, bool_t targetdead, bool_t targetquest,
-                                 bool_t requireitem, IDSZ findidsz )
+CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, TARGET_TYPE target_type, bool_t target_items, bool_t target_dead, IDSZ target_idsz, 
+	IDSZ require_quest, IDSZ require_item, IDSZ require_skill, bool_t exclude_idsz, bool_t players_only )
 {
     /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
     ///    otherwise the index of the first character found is returned...
@@ -204,7 +204,13 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, bool_t tar
 
     CHR_REF character, foundother;
     passage_t * ppass;
+	chr_t *psrc;
 
+	// Skip if the one who is looking doesn't exist
+    if ( !INGAME_CHR( isrc ) ) return ( CHR_REF )MAX_CHR;
+    psrc = ChrList.lst + isrc;
+
+	// Skip invalid passages
     if ( INVALID_PASSAGE( passage ) ) return ( CHR_REF )MAX_CHR;
     ppass = PassageStack.lst + passage;
 
@@ -220,61 +226,50 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, bool_t tar
         // no carried items
         if ( pchr->pack.is_packed ) continue;
 
-        // do not do invulnerable or scenery items
-        if (( pchr->invictus && !pchr->isitem ) || pchr->phys.weight == INFINITE_WEIGHT ) continue;
+        // not do invulnerable or scenery items
+		if ( !target_items && pchr->phys.weight == INFINITE_WEIGHT ) continue;
 
-        //Do items?
-        if ( !targetitems && pchr->isitem ) continue;
-
-        //Do dead stuff?
-        if ( !targetdead && !pchr->alive ) continue;
-
-        //Require target to have specific quest?
-        if ( targetquest && ( !VALID_PLA( pchr->is_which_player ) || QUEST_NONE  >= quest_check_vfs( chr_get_dir_name( character ), findidsz ) ) ) continue;
+		//Check if the object has the requirements
+		if ( !check_target( psrc, character, target_type, target_items, target_dead, target_idsz, exclude_idsz, players_only || require_quest != IDSZ_NONE, require_quest, require_skill ) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
         {
-            if ( pchr->alive && !pchr->isitem )
-            {
-                CHR_REF item;
+            // Found a live one, do we need to check for required items as well?
+            if ( require_item == IDSZ_NONE )
+			{
+				return character;
+			}
 
-                // Found a live one, do we need to check for required items as well?
-                if ( !requireitem ) return character;
-
-                // It needs to have a specific item as well
-                else
-                {
-                    // I: Check left hand
-                    if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], findidsz ) )
-                    {
-                        // It has the item...
-                        return character;
-                    }
-
-                    // II: Check right hand
-                    if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_RIGHT], findidsz ) )
-                    {
-                        // It has the item...
-                        return character;
-                    }
-
-                    // III: Check the pack
-                    PACK_BEGIN_LOOP( item, pchr->pack.next )
-                    {
-                        if ( chr_is_type_idsz( item, findidsz ) )
-                        {
-                            // It has the item in inventory...
-                            return character;
-                        }
-                    }
-                    PACK_END_LOOP( item );
-                }
-            }
+            // It needs to have a specific item as well
             else
             {
-                // Found something else
-                foundother = character;
+  	            CHR_REF item;
+
+                // I: Check left hand
+                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], require_item ) )
+                {
+                    // It has the item...
+                    return character;
+                }
+
+                // II: Check right hand
+                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_RIGHT], require_item ) )
+                {
+                    // It has the item...
+                    return character;
+                }
+
+                // III: Check the pack
+                PACK_BEGIN_LOOP( item, pchr->pack.next )
+                {
+                    if ( chr_is_type_idsz( item, require_item ) )
+                    {
+                        // It has the item in inventory...
+                        return character;
+                    }
+                }
+                PACK_END_LOOP( item );
             }
         }
     }
@@ -329,9 +324,8 @@ bool_t close_passage( const PASS_REF by_reference passage )
     /// @details ZZ@> This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y;
     Uint32 fan, cnt;
-    CHR_REF character;
-    float bump_size;
     passage_t * ppass;
+    CHR_REF character;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
     ppass = PassageStack.lst + passage;
@@ -346,15 +340,17 @@ bool_t close_passage( const PASS_REF by_reference passage )
         CHR_REF crushedcharacters[MAX_CHR];
 
         // Make sure it isn't blocked
-        for ( character = 0; character < MAX_CHR; character++ )
+		for( character = 0; character < MAX_CHR; character++ ) 
         {
-            chr_t * pchr;
+			chr_t *pchr;
 
-            if ( !INGAME_CHR( character ) ) continue;
-            pchr = ChrList.lst + character;
+			if( !INGAME_CHR(character) ) continue;
+			pchr = ChrList.lst + character;
 
-            bump_size = pchr->bump.size;
-            if ( !pchr->pack.is_packed && !INGAME_CHR( pchr->attachedto ) && pchr->bump.size != 0 )
+			//Don't do held items
+			if( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
+            
+			if ( pchr->bump.size != 0 )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
                 {
@@ -376,7 +372,6 @@ bool_t close_passage( const PASS_REF by_reference passage )
         for ( cnt = 0; cnt < numcrushed; cnt++ )
         {
             character = crushedcharacters[cnt];
-
             chr_get_pai( character )->alert |= ALERTIF_CRUSHED;
         }
     }

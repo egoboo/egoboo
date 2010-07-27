@@ -11,8 +11,9 @@ IfSpawned
     SpawnExactCharacterXYZ
   
   //Display all enemies on this level
-  tmpargument = [IMPC]
-  SetTargetToNearestQuestID
+  tmpdistance = BLAHFRIENDS + BLAHENEMIES + BLAHQUEST
+  tmpturn = [IMPC]
+  SetTargetToNearestBlahID
   IfTargetHasQuest                  //Get the current quest level
     tmpargument = [NONE]
     AddBlipAllEnemies

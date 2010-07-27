@@ -45,43 +45,22 @@ IfTimeOut
           CostTargetMana
           SetTargetToOldTarget
 
-      // Are the character and enemy facing opposite directions?
-      tmpturn = targetturn - selfturn
-      tmpx = tmpturn
-      tmpy = 16000
-     // IfXIsMoreThanY
-        tmpy = 48000
-       // IfXIsLessThanY
-
-            // Is the enemy facing the character?
-            tmpturn = 0
-            tmpx = targetturnto - targetturn
-            tmpy = 30000
-            IfXIsMoreThanY
-              tmpturn = 1			//yes
-            tmpy = 0 - 30000
-            IfXIsLessThanY
-              tmpturn = 1			//yes
-
-            tmpdistance = 0
-            IfDistanceIsMoreThanTurn		//If so, teleport!
-              tmpx = targetx
-              tmpy = targety
-              Teleport
-                tmpargument = 3
-                tmpdistance = SPAWNORIGIN
-                SpawnParticle
-                SpawnParticle
-                SpawnParticle
-                tmpargument = 10		//Spelly effects
-                PlaySound
-                tmpy = 0 - 30000
-                tmpargument = 700		//Cost some mana
-                SetTargetToSelf
-                CostTargetMana
-                SetTargetToOldTarget
-
-
+        // Is the enemy facing the character?
+        IfTargetFacingSelf
+          tmpx = targetx
+          tmpy = targety
+          Teleport
+            tmpargument = 3
+            tmpdistance = SPAWNORIGIN
+            SpawnParticle
+            SpawnParticle
+            SpawnParticle
+            tmpargument = 10		//Spelly effects
+            PlaySound
+            tmpargument = 700		//Cost some mana
+            SetTargetToSelf
+            CostTargetMana
+            SetTargetToOldTarget
 
   //Lure the player into releasing him
   tmpargument = 3

@@ -92,14 +92,9 @@ IfBumped
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
     IfFacingTarget
-      IfHoldingShield
-        tmpturn = selfturn - targetturn		//Target facing self?
-        tmpx = tmpturn
-        tmpy = 24768
-        IfXIsMoreThanY
-          tmpy = 40768
-          IfXIsLessThanY
-            PressLatchButton
+      IfTargetIsFacingSelf
+        IfHoldingShield
+          PressLatchButton
 
 IfOrdered
   tmpx = selforder

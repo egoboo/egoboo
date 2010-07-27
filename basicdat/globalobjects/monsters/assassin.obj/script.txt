@@ -203,16 +203,12 @@ IfTimeOut
           tmpx = targetdistance
           tmpy = 350
           IfXIsLessThanY
-            tmpx = selfturn - targetturn
-            tmpy = 10768
-            IfXIsMoreThanY
-              tmpy = 55768
-              IfXIsLessThanY
-                tmpargument = 5
-                SetTime
-                Run
-                tmpturn = targetturnto + 16000
-                tmpdistance = 0 - 350
+            IfTargetIsFacingSelf
+              tmpargument = 5
+              SetTime
+              Run
+              tmpturn = targetturnto + 16000
+              tmpdistance = -350
                 
           tmpx = targetx
           tmpy = targety

@@ -48,7 +48,7 @@ knightsuit:   NONE    70  16.5   29.5   1.0   W    0   0  0   0   0   F   F   E
   Spear:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    36  13.5   22.5   0.0   ?    5   4  0   0   0   F   F   E
   Cinquedea:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-ulnathrower:   NONE    45  47.5   37.5   1.0   N    0   0  0   1   0   F   F   E
+ulna:   NONE    45  47.5   37.5   1.0   N    0   0  0   1   0   F   F   E           //Ulna Thrower
 ulna:   NONE    45  45.5   40.5   0.0   ?    2   0  0   0   0   F   F   E
   KShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   Broadsword:   NONE    22  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -87,8 +87,8 @@ Rack:   NONE    100  35.0   38.25   0.0   S    0   0  0   0   0   F   F   N
 brazier:   NONE    47  55.5   40.5   1.0   N    0   0  0   0   0   F   F   N
 brazier:   NONE    47  58.5   40.5   1.0   N    0   0  0   0   0   F   F   N
 
-Black Mephit:   NONE    59  57.0   42.5   1.0   S    5   3  0   0   2   F   F   E
-  and his trusty wing:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+Mephit:   NONE    59  57.0   42.5   1.0   S    5   3  0   0   2   F   F   E
+  MephitWing:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 lockdoor:   NONE    58  35.0   45.0   1.0   N    0   0  6   1   0   F   F   N
 ulna:   NONE    45  54.5   58.5   1.0   N    0   0  0   1   0   F   F   E

@@ -6,8 +6,9 @@ IfSpawned
   ShowMap
   ShowYouAreHere
   
-  tmpargument = [IMPA]
-  SetTargetToNearestQuestID
+  tmpdistance = BLAHFRIENDS + BLAHENEMIES + BLAHQUEST
+  tmpturn = [IMPA]
+  SetTargetToNearestBlahID
   IfTargetHasQuest                  //Get the current quest level
     tmpargument = tmpdistance       //quest level = time left
   Else

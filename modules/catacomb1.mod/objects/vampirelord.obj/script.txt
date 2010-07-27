@@ -111,9 +111,7 @@ IfTimeOut
       IfXIsLessThanY			//Close enough?
         IfFacingTarget			//Are we looking at the enemy?
           //If the target defends, either wait or find new target
-          tmpx = targetturn
-          tmpy = selfturn
-          IfXIsLessThanY		//Target is facing self
+          IfTargetIsFacingSelf
             IfTargetIsDefending
               SetTargetToNearestEnemy
               IfAttacked
