@@ -4269,7 +4269,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    if ( VALID_PLA( pself_target->is_which_player ) )
+    if ( INVALID_PLA( pself_target->is_which_player ) )				//Do not poof players
     {
         returncode = btrue;
         if ( pself->target == pself->index )
@@ -5183,7 +5183,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, 0, bfalse );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_FRIENDS | TARGET_ENEMIES, bfalse );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -6476,7 +6476,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->distance, 0, btrue );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->distance, TARGET_FRIENDS | TARGET_ENEMIES, btrue );
 
     if ( INGAME_CHR( ichr ) )
     {

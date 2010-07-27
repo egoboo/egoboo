@@ -20,7 +20,7 @@ ShowBlipXY
 
 //Important setup stuff
 IfSpawned
-  tmpargument = 325			//Give the player some time for waking up
+  tmpargument = 200			//Give the player some time for waking up
   SetTime				//before moving around
 
   //Map stuff
@@ -190,22 +190,19 @@ IfTimeOut
         SetTime
 
       //And do the usual stuff
-      GetContent
-      tmpargument = tmpargument + 1
+      tmpargument = selfcontent + 1
       SetContent
 
     //Search for nearby bodies to animate
-    tmpargument = [HUMA]
-    tmpdistance = 3  			// Dead enemies
-    SetTargetToWideBlahID
-      tmpx = selfmana
-      tmpy = 650
-      IfXIsMoreThanY
+    tmpx = selfmana
+    tmpy = 650
+    IfXIsMoreThanY
+      tmpargument = [HUMA]
+      tmpdistance = BLAHDEAD  			// Dead stuff
+      SetTargetToWideBlahID
         tmpargument = 2
-        SetState			//Begin casting!
-      Else
-        SetTargetToOldTarget
-
+        SetState			              //Begin casting!
+      
   //STATE 1 - COMBAT
   IfStateIs1
 
@@ -276,12 +273,19 @@ IfTimeOut
 
   //STATE 2 - CASTING ANIMATE SPELL
   IfStateIs2
-
+    tmpargument = [HUMA]
+    tmpdistance = BLAHDEAD
+    SetTargetToWideBlahID
+      DoNothing
+    
     //We are in wrong mode!
-    IfTargetIsAlive
+    Else
       tmpargument = 1
       SetState
-
+      tmpargument = 15
+      tmpx = 0                //Reset charge
+      SetXY
+    
     //If holding wand, change to book
     tmpargument = [WAND]
     IfHoldingItemID
@@ -325,7 +329,7 @@ IfTimeOut
     SetXY
 
     //Charge is finished
-    tmpy = 800
+    tmpy = 768
     IfXIsMoreThanY
       tmpargument = 44					              //Zombi
       tmpx = targetx

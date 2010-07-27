@@ -12,7 +12,7 @@ Life point bar color ( 0 to 5, 1 is red )	: 1
 Mana point bar color ( 0 to 5, 5 is purple )	: 5
 Life points ( eg. 3-5 )				: 10-15
 Life points increase per level ( eg. 1-3 )	: 1-1
-Mana points ( eg. 0-0 )				: 4-8
+Mana points ( eg. 0-0 )				: 6-8
 Mana points increase per level ( eg. 1-1 )	: 4
 Mana return rate ( eg. 0-1 )			: 14-15
 Mana return increase per level ( eg. 0-1 )	: 1-1

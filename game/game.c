@@ -1432,10 +1432,10 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 //--------------------------------------------------------------------------------------------
 bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ idsz, Uint32 targeting_bits )
 {
-    bool_t retval;
+    bool_t retval = bfalse;
 
     bool_t is_hated, hates_me;
-    bool_t is_friend, is_prey, is_predator, is_mutual, target_all;
+    bool_t is_friend, is_prey, is_predator, is_mutual;
     chr_t * ptst;
 
     // Skip non-existing objects
@@ -1466,39 +1466,42 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     hates_me = team_hates_team( ptst->team, psrc->team );
 
     // Target neutral items? (still target evil items, could be pets)
-    if ( HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) && (( ptst->isitem && is_hated ) || ptst->invictus ) ) return bfalse;
+	if ( ptst->isitem && !HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) ) return bfalse;
+
+	// Only target those of proper team. Skip this part if it's a item or if we allow both, they got no team
+	// TODO: ZF> I created a bug here, you cant target only dead friends now (rebirth spell)
+	if( !ptst->isitem && ptst->alive )
+	{
+		if ( ( !HAS_SOME_BITS(targeting_bits, TARGET_ENEMIES) && is_hated ) ) return bfalse;
+		if ( ( !HAS_SOME_BITS(targeting_bits, TARGET_FRIENDS) && !is_hated ) ) return bfalse;
+	}
 
     // these options are here for ideas of ways to mod this function
     is_friend    = !is_hated && !hates_me;
     is_prey      =  is_hated && !hates_me;
     is_predator  = !is_hated &&  hates_me;
     is_mutual    =  is_hated &&  hates_me;
-    target_all	 = !HAS_SOME_BITS(targeting_bits, TARGET_ENEMIES) && !HAS_SOME_BITS(targeting_bits, TARGET_FRIENDS);
 
-    // Which target_type to target
-    retval = bfalse;
-    if ( target_all || ( HAS_SOME_BITS(targeting_bits, TARGET_ENEMIES) && is_hated ) || ( HAS_SOME_BITS(targeting_bits, TARGET_FRIENDS) && !is_hated ) )
+	//This is the last and final step! Check for specific IDSZ too?
+    if ( IDSZ_NONE == idsz )
     {
-        // Check for specific IDSZ too?
-        if ( IDSZ_NONE == idsz )
+        retval = btrue;
+    }
+    else
+    {
+        bool_t match_idsz = ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
+                            ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
+
+        if ( match_idsz )
         {
-            retval = btrue;
+            if ( !HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
         }
         else
         {
-            bool_t match_idsz = ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
-                                ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
-
-            if ( match_idsz )
-            {
-                if ( !HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
-            }
-            else
-            {
-                if ( HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
-            }
+            if ( HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
         }
     }
+
 
     return retval;
 }
