@@ -346,7 +346,10 @@ struct s_chr
     bool_t         platform;                      ///< Can it be stood on
     bool_t         canuseplatforms;               ///< Can use platforms?
     int            holdingweight;                 ///< For weighted buttons
-    CHR_REF        onwhichplatform_ref;               ///< Am I on a platform?
+    float          targetplatform_level;          ///< What is the height of the target platform?
+    CHR_REF        targetplatform_ref;            ///< Am I trying to attach to a platform?
+    CHR_REF        onwhichplatform_ref;           ///< Am I on a platform?
+    Uint32         onwhichplatform_update;        ///< When was the last platform attachment made?
 
     // combat stuff
     Uint8          damagetargettype;              ///< Type of damage for AI DamageTarget
@@ -697,3 +700,5 @@ float * chr_get_pos_v( chr_t * pchr );
 
 bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
 bool_t character_is_attacking( chr_t *pchr );
+
+void move_one_character_get_environment( chr_t * pchr );

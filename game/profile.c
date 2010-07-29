@@ -184,13 +184,13 @@ bool_t pro_init( pro_t * pobj )
     //---- reset everything to safe values
     memset( pobj, 0, sizeof( *pobj ) );
 
-    pobj->icap = MAX_CAP;
-    pobj->imad = MAX_MAD;
-    pobj->ieve = MAX_EVE;
+    pobj->icap = (CAP_REF) MAX_CAP;
+    pobj->imad = (MAD_REF) MAX_MAD;
+    pobj->ieve = (EVE_REF) MAX_EVE;
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
-        pobj->prtpip[cnt] = MAX_PIP;
+        pobj->prtpip[cnt] = (PIP_REF) MAX_PIP;
     }
 
     chop_definition_init( &( pobj->chop ) );
@@ -655,7 +655,7 @@ bool_t release_one_local_pips( const PRO_REF by_reference iobj )
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
         release_one_pip( pobj->prtpip[cnt] );
-        pobj->prtpip[cnt] = MAX_PIP;
+        pobj->prtpip[cnt] = (PIP_REF) MAX_PIP;
     }
 
     return btrue;
@@ -679,7 +679,7 @@ void release_all_local_pips()
         for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
         {
             release_one_pip( pobj->prtpip[cnt] );
-            pobj->prtpip[cnt] = MAX_PIP;
+            pobj->prtpip[cnt] = (PIP_REF) MAX_PIP;
         }
     }
 }
@@ -1391,8 +1391,9 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
         // reset a couple of things here
-        pchr->holdingweight			= 0;
-        pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
+        pchr->holdingweight		   = 0;
+        pchr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
+        pchr->targetplatform_level = -1e32;
 
         // try to insert the character
         if ( obj_BSP_insert_chr( pbsp, pchr ) )
@@ -1407,7 +1408,8 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
         // reset a couple of things here
-        prt_bdl.prt_ptr->onwhichplatform_ref = ( CHR_REF )MAX_CHR;
+        prt_bdl.prt_ptr->targetplatform_ref  = ( CHR_REF )MAX_CHR;
+        prt_bdl.prt_ptr->targetplatform_level = -1e32;
 
         // try to insert the particle
         if ( obj_BSP_insert_prt( pbsp, &prt_bdl ) )

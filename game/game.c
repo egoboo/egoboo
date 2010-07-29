@@ -2034,10 +2034,10 @@ void set_one_player_latch( const PLA_REF by_reference player )
 
             if ( CAM_TURN_GOOD == PCamera->turn_mode &&
                  1 == local_numlpla )  joy_pos.x = 0;
-        }
 
-        joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-        joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+        }
 
         sum.x += joy_new.x;
         sum.y += joy_new.y;

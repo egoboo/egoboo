@@ -6299,7 +6299,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = MAX_ENC != pself_target->firstenchant;
+    returncode = (pself_target->firstenchant != MAX_ENC);
 
     disenchant_character( pself->target );
 

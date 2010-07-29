@@ -132,7 +132,9 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->parent_ref     = TOTAL_MAX_PRT;
     pprt->parent_guid    = 0xFFFFFFFF;
 
-    pprt->onwhichplatform_ref = ( CHR_REF )MAX_CHR;
+    pprt->onwhichplatform_ref    = ( CHR_REF )MAX_CHR;
+    pprt->onwhichplatform_update = 0;
+    pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
 
     // initialize the bsp node for this particle
     BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, 2 );
@@ -2252,7 +2254,7 @@ PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF by_
     PIP_REF ipip;
     pip_t * ppip;
 
-    ipip = MAX_PIP;
+    ipip = (PIP_REF) MAX_PIP;
     if ( VALID_PIP_RANGE( pip_override ) )
     {
         release_one_pip( pip_override );
@@ -3158,10 +3160,10 @@ prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
 {
     if( NULL == pbundle ) return NULL;
 
-    pbundle->prt_ref = TOTAL_MAX_PRT;
+    pbundle->prt_ref = (PRT_REF) TOTAL_MAX_PRT;
     pbundle->prt_ptr = NULL;
     
-    pbundle->pip_ref = MAX_PIP;
+    pbundle->pip_ref = (PIP_REF) MAX_PIP;
     pbundle->pip_ptr = NULL;
 
     return pbundle;
@@ -3197,7 +3199,7 @@ prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
     }
     else
     {
-        pbundle->pip_ref = MAX_PIP;
+        pbundle->pip_ref = (PIP_REF) MAX_PIP;
         pbundle->pip_ptr = NULL;
     }
 

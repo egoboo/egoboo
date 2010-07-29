@@ -942,20 +942,20 @@ bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_R
         // check for the best possible attachment
         if ( chara_on_top )
         {
-            if ( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z] > pchr_a->enviro.level )
+            if ( pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z] > pchr_a->targetplatform_level )
             {
                 // set, but do not attach the platforms yet
-                pchr_a->enviro.level    = pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z];
-                pchr_a->onwhichplatform_ref = ichr_b;
+                pchr_a->targetplatform_level = pchr_b->pos.z + pchr_b->chr_chr_cv.maxs[OCT_Z];
+                pchr_a->targetplatform_ref   = ichr_b;
             }
         }
         else
         {
-            if ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] > pchr_b->enviro.level )
+            if ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] > pchr_b->targetplatform_level )
             {
                 // set, but do not attach the platforms yet
-                pchr_b->enviro.level    = pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z];
-                pchr_b->onwhichplatform_ref = ichr_a;
+                pchr_b->targetplatform_level = pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z];
+                pchr_b->targetplatform_ref   = ichr_a;
             }
         }
     }
@@ -963,53 +963,80 @@ bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_R
     return btrue;
 }
 
+
 //--------------------------------------------------------------------------------------------
 bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
 {
     chr_t * pchr_a;
     prt_t * pprt_b;
 
+    bool_t platform_a;
+
     oct_vec_t odepth;
-
-    // make sure that B is valid
-    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
-    pprt_b = PrtList.lst + iprt_b;
-
-    // if the particle is attached to something, it can't be affected by a platform
-    if ( INGAME_CHR( pprt_b->attachedto_ref ) ) return bfalse;
+    bool_t collide_x  = bfalse;
+    bool_t collide_y  = bfalse;
+    bool_t collide_xy = bfalse;
+    bool_t collide_yx = bfalse;
+    bool_t collide_z  = bfalse;
 
     // make sure that A is valid
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
-    // only check possible particle-platform interactions
-    if ( !pchr_a->platform ) return bfalse;
+    // make sure that B is valid
+    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
+    pprt_b = PrtList.lst + iprt_b;
 
-    // is this calculation going to matter, even if it succeeds?
-    if ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] > pprt_b->enviro.level ) return bfalse;
+    // if you are mounted, only your mount is affected by platforms
+    if ( INGAME_CHR( pchr_a->attachedto ) || INGAME_CHR( pprt_b->attachedto_ref ) ) return bfalse;
 
-    //---- determine the interaction depth for each dimension
-    odepth[OCT_Z] = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z - pprt_b->bump_padded.height );
-    if ( odepth[OCT_Z] < -PLATTOLERANCE || odepth[OCT_Z] > PLATTOLERANCE ) return bfalse;
+    // only check possible object-platform interactions
+    platform_a = /* pprt_b->canuseplatforms && */ pchr_a->platform;
+    if ( !platform_a ) return bfalse;
+
+    odepth[OCT_Z]  = MIN( pprt_b->chr_prt_cv.maxs[OCT_Z] + pprt_b->pos.z, pchr_a->chr_chr_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
+                     MAX( pprt_b->chr_prt_cv.mins[OCT_Z] + pprt_b->pos.z, pchr_a->chr_chr_cv.mins[OCT_Z] + pchr_a->pos.z );
+
+    collide_z  = ( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
+
+    if ( !collide_z ) return bfalse;
+
+    // initialize the overlap depths
+    odepth[OCT_X] = odepth[OCT_Y] = odepth[OCT_XY] = odepth[OCT_YX] = 0.0f;
+
+    // determine how the characters can be attached
+    odepth[OCT_Z] = ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z + pprt_b->chr_prt_cv.mins[OCT_Z] );
+
+    // size of b doesn't matter
 
     odepth[OCT_X]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_X] + pchr_a->pos.x ) - pprt_b->pos.x,
-                         pprt_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
-    if ( odepth[OCT_X] <= 0 ) return bfalse;
+                            pprt_b->pos.x - ( pchr_a->chr_chr_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
     odepth[OCT_Y]  = MIN(( pchr_a->chr_chr_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pprt_b->pos.y,
-                         pprt_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
-    if ( odepth[OCT_Y] <= 0 ) return bfalse;
+                            pprt_b->pos.y - ( pchr_a->chr_chr_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
     odepth[OCT_XY] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
-                         ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
-    if ( odepth[OCT_XY] <= 0 ) return bfalse;
+                            ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
     odepth[OCT_YX] = MIN(( pchr_a->chr_chr_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
-                         ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
-    if ( odepth[OCT_YX] <= 0 ) return bfalse;
+                            ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_chr_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
 
-    //---- this is the best possible attachment
-    attach_prt_to_platform( pprt_b, pchr_a );
+    collide_x  = odepth[OCT_X]  > 0.0f;
+    collide_y  = odepth[OCT_Y]  > 0.0f;
+    collide_xy = odepth[OCT_XY] > 0.0f;
+    collide_yx = odepth[OCT_YX] > 0.0f;
+    collide_z  = ( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
+
+    if ( collide_x && collide_y && collide_xy && collide_yx && collide_z )
+    {
+        // check for the best possible attachment
+        if ( pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z] > pprt_b->targetplatform_level )
+        {
+            // set, but do not attach the platforms yet
+            pprt_b->targetplatform_level = pchr_a->pos.z + pchr_a->chr_chr_cv.maxs[OCT_Z];
+            pprt_b->targetplatform_ref   = ichr_a;
+        }
+    }
 
     return btrue;
 }
@@ -1018,6 +1045,10 @@ bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_R
 bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 {
     /// @details BB@> attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
 
     cap_t * pchr_cap;
     fvec3_t   platform_up;
@@ -1034,7 +1065,9 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     if ( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pchr->onwhichplatform_ref = GET_REF_PCHR( pplat );
+    pchr->onwhichplatform_ref    = GET_REF_PCHR( pplat );
+    pchr->onwhichplatform_update = update_wld;
+    pchr->targetplatform_ref     = ( CHR_REF )MAX_CHR;
 
     // update the character's relationship to the ground
     pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] );
@@ -1071,6 +1104,61 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     return btrue;
 }
 
+
+//--------------------------------------------------------------------------------------------
+bool_t detach_character_from_platform( chr_t * pchr )
+{
+    /// @details BB@> attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    cap_t * pchr_cap;
+    CHR_REF old_platform_ref;
+    chr_t * old_platform_ptr;
+    float   old_level, old_zlerp;
+
+    // verify that we do not have two dud pointers
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+    pchr_cap = pro_get_pcap( pchr->profile_ref );
+    if ( NULL == pchr_cap ) return bfalse;
+
+    // save some values
+    old_platform_ref = pchr->onwhichplatform_ref;
+    old_level        = pchr->enviro.level;
+    old_platform_ptr = NULL;
+    old_zlerp        = pchr->enviro.zlerp;
+    if( INGAME_CHR(old_platform_ref) )
+    {
+        old_platform_ptr = ChrList.lst + old_platform_ref;
+    }
+
+    // undo the attachment
+    pchr->onwhichplatform_ref    = (CHR_REF) MAX_CHR;
+    pchr->onwhichplatform_update = 0;
+    pchr->targetplatform_ref     = (CHR_REF) MAX_CHR;
+    pchr->targetplatform_level   = -1e32;
+
+    // adjust the platform weight, if necessary
+    if( NULL != old_platform_ptr )
+    {
+        old_platform_ptr->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
+    }
+
+    // update the character-platform properties
+    move_one_character_get_environment( pchr );
+
+    // update the character jumping
+    pchr->jumpready = pchr->enviro.grounded;
+    if ( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->jumpnumberreset;
+    }
+
+    return btrue;
+}
+
 //--------------------------------------------------------------------------------------------
 bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 {
@@ -1089,7 +1177,9 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     if ( !pplat->platform ) return bfalse;
 
     // do the attachment
-    pprt->onwhichplatform_ref = GET_REF_PCHR( pplat );
+    pprt->onwhichplatform_ref    = GET_REF_PCHR( pplat );
+    pprt->onwhichplatform_update = update_wld;
+    pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
 
     // update the character's relationship to the ground
     prt_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_chr_cv.maxs[OCT_Z] ) );
@@ -1098,155 +1188,32 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-//bool_t do_pre_bumping( CHashList_t * pclst, CoNode_ary_t * cn_lst, HashNode_ary_t * hn_lst )
-//{
-//    int i;
-//    int cnt;
-//
-//    ego_mpd_info_t * mi;
-//    int_ary_t        coll_lst;
-//
-//    if( NULL == pchlst ) return bfalse;
-//
-//    int_ary_ctor( &coll_lst, COLLISION_LIST_SIZE );
-//
-//    mi    = &( PMesh->info );
-//
-//    // fill in the entries in the bumplist
-//    fill_bumplists();
-//
-//    // renew the CoNode_t hash table. Since we are filling this list with pre-allocated CoNode_t's,
-//    // there is no need to delete any of the existing pclst->sublist elements
-//    for ( cnt = 0; cnt < 256; cnt++ )
-//    {
-//        hash_list_set_count( pclst, cnt, 0 );
-//        hash_list_set_node( pclst, cnt, NULL );
-//    }
-//
-//    //---- find the character/particle interactions
-//
-//    // search through all characters. Use the ChrList.used_ref, for a change
-//    coll_lst.top = 0;
-//    for ( i = 0; i < ChrList.used_count; i++ )
-//    {
-//        CHR_REF ichra = ChrList.used_ref[i];
-//        if ( !INGAME_CHR( ichra ) ) continue;
-//
-//        // find all collisions with other characters and particles
-//        obj_BSP_collide( &( obj_BSP_root ), &( ChrList.lst[ichra].chr_prt_cv ), &coll_lst );
-//
-//        if ( coll_lst.top > 0 )
-//        {
-//            int j;
-//
-//            for ( j = 0; j < coll_lst.top; j++ )
-//            {
-//                int coll_ref;
-//                CoNode_t tmp_codata;
-//                bool_t do_insert;
-//
-//                do_insert = bfalse;
-//
-//                CoNode_ctor( &tmp_codata );
-//                tmp_codata.chra  = ichra;
-//
-//                coll_ref = coll_lst.ary[j];
-//                if ( coll_ref > 0 )
-//                {
-//                    // collided with a character
-//                    tmp_codata.chrb = coll_lst.ary[j];
-//
-//                    if ( detect_chr_chr_interaction( ichra, tmp_codata.chrb ) )
-//                    {
-//                        do_insert = btrue;
-//                    }
-//                }
-//                else
-//                {
-//                    // collided with a particle
-//                    tmp_codata.prtb = -coll_lst.ary[j];
-//
-//                    if ( detect_chr_prt_interaction( ichra, tmp_codata.prtb ) )
-//                    {
-//                        do_insert = btrue;
-//                    }
-//                }
-//
-//                if( do_insert )
-//                {
-//                    CHashList_insert_unique( pclst, &tmp_codata, cn_lst, hn_lst );
-//                }
-//            }
-//        }
-//    }
-//
-//
-//    //---- find the character and particle interactions with the mesh (not implemented)
-//
-//    //// search through all characters. Use the ChrList.used_ref, for a change
-//    //coll_lst.top = 0;
-//    //for ( i = 0; i < ChrList.used_count; i++ )
-//    //{
-//    //    CHR_REF ichra = ChrList.used_ref[i];
-//    //    if ( !INGAME_CHR( ichra ) ) continue;
-//
-//    //    // find all character collisions with mesh tiles
-//    //    mesh_BSP_collide( &mesh_BSP_root, &( ChrList.lst[ichra].chr_prt_cv ), &coll_lst );
-//    //    if ( coll_lst.top > 0 )
-//    //    {
-//    //        int j;
-//
-//    //        for ( j = 0; j < coll_lst.top; j++ )
-//    //        {
-//    //            int coll_ref;
-//    //            CoNode_t tmp_codata;
-//
-//    //            coll_ref = coll_lst.ary[j];
-//
-//    //            CoNode_ctor( &tmp_codata );
-//    //            tmp_codata.chra  = ichra;
-//    //            tmp_codata.tileb = coll_ref;
-//
-//    //            CHashList_insert_unique( pclst, &tmp_codata, cn_lst, hn_lst );
-//    //        }
-//    //    }
-//    //}
-//
-//
-//    //// search through all particles. Use the PrtList.used_ref, for a change
-//    //coll_lst.top = 0;
-//    //for ( i = 0; i < PrtList.used_count; i++ )
-//    //{
-//    //    PRT_REF iprta = PrtList.used_ref[i];
-//    //    if ( !INGAME_PRT( iprta ) ) continue;
-//
-//    //    // find all particle collisions with mesh tiles
-//    //    mesh_BSP_collide( &mesh_BSP_root, &( PrtList.lst[iprta].chr_prt_cv ), &coll_lst );
-//    //    if ( coll_lst.top > 0 )
-//    //    {
-//    //        int j;
-//
-//    //        for ( j = 0; j < coll_lst.top; j++ )
-//    //        {
-//    //            int coll_ref;
-//    //            CoNode_t tmp_codata;
-//
-//    //            coll_ref = coll_lst.ary[j];
-//
-//    //            CoNode_ctor( &tmp_codata );
-//    //            tmp_codata.prta  = iprta;
-//    //            tmp_codata.tileb = coll_ref;
-//
-//    //            CHashList_insert_unique( pclst, &tmp_codata, cn_lst, hn_lst );
-//    //        }
-//    //    }
-//    //}
-//
-//
-//
-//    // do this manually in C
-//    int_ary_dtor( &coll_lst );
-//}
+bool_t detach_particle_from_platform( prt_t * pprt )
+{
+    /// @details BB@> attach a particle to a platform
+
+    prt_bundle_t bdl_prt;
+
+    // verify that we do not have two dud pointers
+    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+
+    // grab all of the particle info
+    prt_bundle_set( &bdl_prt, pprt );
+
+    // check if they can be connected
+    if ( INGAME_CHR(pprt->onwhichplatform_ref) ) return bfalse;
+
+    // undo the attachment
+    pprt->onwhichplatform_ref    = (CHR_REF) MAX_CHR;
+    pprt->onwhichplatform_update = 0;
+    pprt->targetplatform_ref     = (CHR_REF) MAX_CHR;
+    pprt->targetplatform_level   = -1e32;
+
+    // get the correct particle environment
+    move_one_particle_get_environment( &bdl_prt );
+
+    return btrue;
+}
 
 //--------------------------------------------------------------------------------------------
 void bump_all_objects( obj_BSP_t * pbsp )
@@ -1321,15 +1288,19 @@ void bump_all_objects( obj_BSP_t * pbsp )
 bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 {
     /// @details BB@> Detect all character and particle interactions with platforms, then attach them.
-    ///             @note it is important to only attach the character to a platform once, so its
-    ///              weight does not get applied to multiple platforms
+    ///
+    /// @note it is important to only attach the character to a platform once, so its
+    ///  weight does not get applied to multiple platforms
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
 
     int        cnt;
     CoNode_t * d;
 
     if ( NULL == pcn_ary ) return bfalse;
 
-    // Find the best platforms
+    //---- Detect all platform attachments
     for ( cnt = 0; cnt < pcn_ary->top; cnt++ )
     {
         d = pcn_ary->ary + cnt;
@@ -1351,7 +1322,8 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         }
     }
 
-    // Do the actual platform attachments.
+    //---- Do the actual platform attachments.
+
     // Doing the attachments after detecting the best platform
     // prevents an object from attaching it to multiple platforms as it
     // is still trying to find the best one
@@ -1360,17 +1332,17 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
-        if ( TOTAL_MAX_PRT != d->prta && TOTAL_MAX_PRT != d->prtb ) continue;
+        //if ( TOTAL_MAX_PRT != d->prta && TOTAL_MAX_PRT != d->prtb ) continue;
 
         if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_CHR( d->chrb ) )
             {
-                if ( ChrList.lst[d->chra].onwhichplatform_ref != d->chrb )
+                if ( ChrList.lst[d->chra].targetplatform_ref == d->chrb )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chra, ChrList.lst + d->chrb );
                 }
-                else if ( ChrList.lst[d->chrb].onwhichplatform_ref != d->chra )
+                else if ( ChrList.lst[d->chrb].targetplatform_ref == d->chra )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chrb, ChrList.lst + d->chra );
 				}
@@ -1381,7 +1353,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_PRT( d->prtb ) )
             {
-                if ( PrtList.lst[d->prtb].onwhichplatform_ref == d->chra )
+                if ( PrtList.lst[d->prtb].targetplatform_ref == d->chra )
                 {
                     attach_prt_to_platform( PrtList.lst + d->prtb, ChrList.lst + d->chra );
                 }
@@ -1391,13 +1363,37 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         {
             if ( INGAME_CHR( d->chrb ) && INGAME_PRT( d->prta ) )
             {
-                if ( PrtList.lst[d->prta].onwhichplatform_ref == d->chrb )
+                if ( PrtList.lst[d->prta].targetplatform_ref == d->chrb )
                 {
                     attach_prt_to_platform( PrtList.lst + d->prta, ChrList.lst + d->chrb );
                 }
             }
         }
     }
+
+    //---- remove any bad platforms
+
+    // attach_prt_to_platform() erases targetplatform_ref, so any character with 
+    // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
+    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
+    {
+        if( MAX_CHR != pchr->onwhichplatform_ref && pchr->onwhichplatform_update < update_wld )
+        {
+            detach_character_from_platform( pchr );
+        }
+    }
+    CHR_END_LOOP();
+
+    // attach_prt_to_platform() erases targetplatform_ref, so any particle with 
+    // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
+    PRT_BEGIN_LOOP_DISPLAY( iprt, bdl_prt )
+    {
+        if( MAX_CHR != bdl_prt.prt_ptr->onwhichplatform_ref && bdl_prt.prt_ptr->onwhichplatform_update < update_wld )
+        {
+            detach_particle_from_platform( bdl_prt.prt_ptr );
+        }
+    }
+    PRT_END_LOOP();
 
     return btrue;
 }
@@ -2994,246 +2990,3 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     return retval;
 }
-
-//--------------------------------------------------------------------------------------------
-// OBSOLETE CODE
-//--------------------------------------------------------------------------------------------
-
-//void fill_bumplists()
-//{
-//    CHR_REF character; PRT_REF particle;
-//    Uint32 fanblock;
-//
-//    // Clear the lists
-//    for ( fanblock = 0; fanblock < PMesh->gmem.blocks_count; fanblock++ )
-//    {
-//        bumplist[fanblock].chr    = (CHR_REF)MAX_CHR;
-//        bumplist[fanblock].chrnum = 0;
-//
-//        bumplist[fanblock].prt    = TOTAL_MAX_PRT;
-//        bumplist[fanblock].prtnum = 0;
-//    }
-//
-//    // Fill 'em back up
-//    for ( character = 0; character < MAX_CHR; character++ )
-//    {
-//        chr_t * pchr;
-//
-//        if ( !INGAME_CHR( character ) ) continue;
-//        pchr = ChrList.lst + character;
-//
-//        // reset the platform stuff each update
-//        pchr->holdingweight   = 0;
-//        pchr->onwhichplatform_ref = (CHR_REF)MAX_CHR;
-//        pchr->enviro.level    = pchr->enviro.floor_level;
-//
-//        // reset the fan and block position
-//        pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
-//        pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
-//
-//        // reject characters that are in packs, or are marked as non-colliding
-//        if ( pchr->pack.is_packed ) continue;
-//
-//        // reject characters that are hidden
-//        if ( pchr->is_hidden ) continue;
-//
-//        if ( INVALID_BLOCK != pchr->onwhichblock )
-//        {
-//            // Insert before any other characters on the block
-//            pchr->bumplist_next = bumplist[pchr->onwhichblock].chr;
-//            bumplist[pchr->onwhichblock].chr = character;
-//            bumplist[pchr->onwhichblock].chrnum++;
-//        }
-//    }
-//
-//    for ( particle = 0; particle < maxparticles; particle++ )
-//    {
-//        prt_t * pprt;
-//
-//        // reject invalid particles
-//        if ( !INGAME_PRT( particle ) ) continue;
-//        pprt = PrtList.lst + particle;
-//
-//        pprt->onwhichplatform_ref = (CHR_REF)MAX_CHR;
-//        prt_set_level( pprt, pprt->enviro.floor_level );
-//
-//        // reject characters that are hidden
-//        if ( pprt->is_hidden ) continue;
-//
-//        // reset the fan and block position
-//        pprt->onwhichgrid   = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-//        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-//
-//        if ( INVALID_BLOCK != pprt->onwhichblock )
-//        {
-//            // Insert before any other particles on the block
-//            pprt->bumplist_next = bumplist[pprt->onwhichblock].prt;
-//            bumplist[pprt->onwhichblock].prt = particle;
-//            bumplist[pprt->onwhichblock].prtnum++;
-//        }
-//    }
-//}
-
-//--------------------------------------------------------------------------------------------
-//bool_t do_collisions( CHashList_t * pchlst, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
-//{
-//    int cnt, tnc;
-//
-//    if( NULL == pclst ) return bfalse;
-//
-//    // Do collisions
-//    chr_collisions = 0;
-//    if ( CoNode_ary_get_size(pcn_lst) > 0)
-//    {
-//        //process the saved interactions
-//        for ( cnt = 0; cnt < CHashList_get_allocd(pchlst); cnt++ )
-//        {
-//            s_CoNode * pn;
-//            int count = CHashList_get_count( pchlst, cnt);
-//
-//            chr_collisions += count;
-//            pn = CHashList_get_node( pchlst, cnt);
-//            for ( tnc = 0; tnc < count && NULL != pn; tnc++, pn = CoNode_get_next(pn) )
-//            {
-//                if (TOTAL_MAX_PRT == pn->prta)
-//                {
-//                    // object A must be a character
-//                    if (MAX_PRT == pn->prtb && MAX_TILE == pn->tileb)
-//                    {
-//                        do_chr_chr_collision(pzone, pn, dUpdate );
-//                    }
-//                    else if (MAX_CHR == pn->chrb && MAX_TILE == pn->tileb)
-//                    {
-//                        do_chr_prt_collision(pzone, pn, dUpdate);
-//                    }
-//                    else
-//                    {
-//                        // this is an "impossible" situation. must be corrupted data?
-//                        EGOBOO_ASSERTbfalse);
-//                    }
-//                }
-//                else
-//                {
-//                    // object A must be a particle. the only valid action at this point would be to
-//                    // do a particle-mesh interaction
-//                }
-//            }
-//        }
-//    }
-//}
-
-//--------------------------------------------------------------------------------------------
-//bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
-//{
-//    bool_t interact_x  = bfalse;
-//    bool_t interact_y  = bfalse;
-//    bool_t interact_xy = bfalse;
-//    bool_t interact_z  = bfalse;
-//
-//    float xa, ya, za;
-//    float xb, yb, zb;
-//    float dxy, dx, dy, depth_z;
-//
-//    chr_t *pchr_a, *pchr_b;
-//    cap_t *pcap_a, *pcap_b;
-//
-//    if ( !detect_chr_chr_interaction_valid( ichr_a, ichr_b ) ) return bfalse;
-//
-//    // Ignore invalid characters
-//    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
-//    pchr_a = ChrList.lst + ichr_a;
-//
-//    pcap_a = chr_get_pcap( ichr_a );
-//    if ( NULL == pcap_a ) return bfalse;
-//
-//    // Ignore invalid characters
-//    if ( !INGAME_CHR( ichr_b ) ) return bfalse;
-//    pchr_b = ChrList.lst + ichr_b;
-//
-//    pcap_b = chr_get_pcap( ichr_b );
-//    if ( NULL == pcap_b ) return bfalse;
-//
-//    xa = pchr_a->pos.x;
-//    ya = pchr_a->pos.y;
-//    za = pchr_a->pos.z;
-//
-//    xb = pchr_b->pos.x;
-//    yb = pchr_b->pos.y;
-//    zb = pchr_b->pos.z;
-//
-//    // First check absolute value diamond
-//    dx = ABS( xa - xb );
-//    dy = ABS( ya - yb );
-//    dxy = dx + dy;
-//
-//    // detect z interactions based on the actual vertical extent of the bounding box
-//    depth_z = MIN( zb + pchr_b->chr_chr_cv.maxs[OCT_Z], za + pchr_a->chr_chr_cv.maxs[OCT_Z] ) -
-//              MAX( zb + pchr_b->chr_chr_cv.mins[OCT_Z], za + pchr_a->chr_chr_cv.mins[OCT_Z] );
-//
-//    // detect x-y interactions based on a potentially gigantor bounding box
-//    interact_x  = ( dx  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
-//    interact_y  = ( dy  <= pchr_a->bump_1.size    + pchr_b->bump_1.size );
-//    interact_xy = ( dxy <= pchr_a->bump_1.size_big + pchr_b->bump_1.size_big );
-//
-//    if (( pchr_a->platform && pchr_b->canuseplatforms ) ||
-//        ( pchr_b->platform && pchr_a->canuseplatforms ) )
-//    {
-//        interact_z  = ( depth_z > -PLATTOLERANCE );
-//    }
-//    else
-//    {
-//        interact_z  = ( depth_z > 0 );
-//    }
-//
-//    return interact_x && interact_y && interact_xy && interact_z;
-//}
-
-//--------------------------------------------------------------------------------------------
-//bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
-//{
-//    bool_t interact_x  = bfalse;
-//    bool_t interact_y  = bfalse;
-//    bool_t interact_xy = bfalse;
-//    bool_t interact_z  = bfalse;
-//    bool_t interact_platform = bfalse;
-//
-//    float dxy, dx, dy, depth_z;
-//
-//    chr_t * pchr_a;
-//    prt_t * pprt_b;
-//
-//    if ( !detect_chr_prt_interaction_valid( ichr_a, iprt_b ) ) return bfalse;
-//
-//    // Ignore invalid characters
-//    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
-//    pchr_a = ChrList.lst + ichr_a;
-//
-//    // Ignore invalid characters
-//    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
-//    pprt_b = PrtList.lst + iprt_b;
-//
-//    // First check absolute value diamond
-//    dx = ABS( pchr_a->pos.x - pprt_b->pos.x );
-//    dy = ABS( pchr_a->pos.y - pprt_b->pos.y );
-//    dxy = dx + dy;
-//
-//    // estimate the horizontal interactions this frame
-//    interact_x  = ( dx  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
-//    interact_y  = ( dy  <= ( pchr_a->bump_1.size     + pprt_b->bump_padded.size ) );
-//    interact_xy = ( dxy <= ( pchr_a->bump_1.size_big + pprt_b->bump_padded.size_big ) );
-//
-//    if ( !interact_x || !interact_y || !interact_xy ) return bfalse;
-//
-//    interact_platform = bfalse;
-//    if ( pchr_a->platform && !INGAME_CHR( pprt_b->attachedto_ref ) )
-//    {
-//        // estimate the vertical interactions this frame
-//        depth_z = pprt_b->pos.z - ( pchr_a->pos.z + pchr_a->bump_1.height );
-//        interact_platform = ( depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE );
-//    }
-//
-//    depth_z     = MIN( pchr_a->pos.z + pchr_a->chr_prt_cv.maxs[OCT_Z], pprt_b->pos.z + pprt_b->bump_padded.height ) - MAX( pchr_a->pos.z + pchr_a->chr_prt_cv.mins[OCT_Z], pprt_b->pos.z - pprt_b->bump_padded.height );
-//    interact_z  = ( depth_z > 0 ) || interact_platform;
-//
-//    return interact_z;
-//}

@@ -49,7 +49,7 @@ void PassageStack_free_all()
 //--------------------------------------------------------------------------------------------
 int PasageStack_get_free()
 {
-    int ipass = MAX_PASS;
+    int ipass = (PASS_REF) MAX_PASS;
 
     if ( PassageStack.count < MAX_PASS )
     {
@@ -77,7 +77,7 @@ void ShopStack_free_all()
 //--------------------------------------------------------------------------------------------
 int ShopStack_get_free()
 {
-    int ishop = MAX_PASS;
+    int ishop = (PASS_REF) MAX_PASS;
 
     if ( ShopStack.count < MAX_PASS )
     {

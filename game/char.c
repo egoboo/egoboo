@@ -206,8 +206,8 @@ chr_t * chr_ctor( chr_t * pchr )
     pchr->carefultime = CAREFULTIME;
 
     // Enchant stuff
-    pchr->firstenchant = MAX_ENC;
-    pchr->undoenchant = MAX_ENC;
+    pchr->firstenchant = (ENC_REF) MAX_ENC;
+    pchr->undoenchant = (ENC_REF) MAX_ENC;
     pchr->missiletreatment = MISSILE_NORMAL;
 
     // Character stuff
@@ -246,8 +246,8 @@ chr_t * chr_ctor( chr_t * pchr )
     pchr->dismount_object = ( CHR_REF )MAX_CHR;
 
     // set all of the integer references to invalid values
-    pchr->firstenchant = MAX_ENC;
-    pchr->undoenchant  = MAX_ENC;
+    pchr->firstenchant = (ENC_REF) MAX_ENC;
+    pchr->undoenchant  = (ENC_REF) MAX_ENC;
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
         pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
@@ -259,8 +259,10 @@ chr_t * chr_ctor( chr_t * pchr )
         pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
     }
 
-    pchr->onwhichplatform_ref = ( CHR_REF )MAX_CHR;
-    pchr->attachedto      = ( CHR_REF )MAX_CHR;
+    pchr->onwhichplatform_ref    = ( CHR_REF )MAX_CHR;
+    pchr->onwhichplatform_update = 0;
+    pchr->targetplatform_ref     = ( CHR_REF )MAX_CHR;
+    pchr->attachedto             = ( CHR_REF )MAX_CHR;
 
     // all movements valid
     pchr->movement_bits   = (unsigned)(~0);
@@ -1863,14 +1865,15 @@ void drop_keys( const CHR_REF by_reference character )
                     chr_set_pos( pitem, chr_get_pos_v( pchr ) );
 
                     pitem->ori.facing_z           = direction + ATK_BEHIND;
-                    pitem->enviro.floor_level = pchr->enviro.floor_level;
-                    pitem->enviro.level       = pchr->enviro.level;
-                    pitem->enviro.fly_level   = pchr->enviro.fly_level;
+                    pitem->enviro.floor_level     = pchr->enviro.floor_level;
+                    pitem->enviro.level           = pchr->enviro.level;
+                    pitem->enviro.fly_level       = pchr->enviro.fly_level;
                     pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
-                    pitem->vel.x              = turntocos[ turn ] * DROPXYVEL;
-                    pitem->vel.y              = turntosin[ turn ] * DROPXYVEL;
-                    pitem->vel.z              = DROPZVEL;
-                    pitem->team               = pitem->baseteam;
+                    pitem->onwhichplatform_update = pchr->onwhichplatform_update;
+                    pitem->vel.x                  = turntocos[ turn ] * DROPXYVEL;
+                    pitem->vel.y                  = turntosin[ turn ] * DROPXYVEL;
+                    pitem->vel.z                  = DROPZVEL;
+                    pitem->team                   = pitem->baseteam;
 
                     chr_set_floor_level( pitem, pchr->enviro.floor_level );
                 }
@@ -1915,20 +1918,22 @@ bool_t drop_all_items( const CHR_REF by_reference character )
                 detach_character_from_mount( item, btrue, btrue );
 
                 chr_set_pos( pitem, chr_get_pos_v(pchr) );
-                pitem->hitready           = btrue;
-                pitem->ai.alert          |= ALERTIF_DROPPED;
-                pitem->enviro.floor_level = pchr->enviro.floor_level;
-                pitem->enviro.level       = pchr->enviro.level;
-                pitem->enviro.fly_level   = pchr->enviro.fly_level;
+                pitem->hitready               = btrue;
+                pitem->ai.alert              |= ALERTIF_DROPPED;
+                pitem->enviro.floor_level     = pchr->enviro.floor_level;
+                pitem->enviro.level           = pchr->enviro.level;
+                pitem->enviro.fly_level       = pchr->enviro.fly_level;
                 pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
-                pitem->ori.facing_z       = direction + ATK_BEHIND;
-                pitem->vel.x              = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.y              = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.z              = DROPZVEL;
-                pitem->team               = pitem->baseteam;
+                pitem->onwhichplatform_update = pchr->onwhichplatform_update;
 
-                pitem->dismount_timer     = PHYS_DISMOUNT_TIME;
-                pitem->dismount_object    = character;
+                pitem->ori.facing_z           = direction + ATK_BEHIND;
+                pitem->vel.x                  = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                pitem->vel.y                  = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                pitem->vel.z                  = DROPZVEL;
+                pitem->team                   = pitem->baseteam;
+
+                pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
+                pitem->dismount_object        = character;
 
                 chr_set_floor_level( pitem, pchr->enviro.floor_level );
             }
@@ -4920,6 +4925,8 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     if ( INGAME_CHR( item_ref ) && ( !pcap_new->slotvalid[SLOT_LEFT] || pcap_new->ismount ) )
     {
         detach_character_from_mount( item_ref, btrue, btrue );
+        detach_character_from_platform( ChrList.lst + item_ref );
+
         if ( pchr->ismount )
         {
             fvec3_t tmp_pos;
@@ -4938,6 +4945,8 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     if ( INGAME_CHR( item_ref ) && !pcap_new->slotvalid[SLOT_RIGHT] )
     {
         detach_character_from_mount( item_ref, btrue, btrue );
+        detach_character_from_platform( ChrList.lst + item_ref, btrue, btrue );
+
         if ( pchr->ismount )
         {
             fvec3_t tmp_pos;
@@ -5085,9 +5094,7 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     }
 
     //Physics
-    pchr->phys.bumpdampen   = pcap_new->bumpdampen;
-    pchr->holdingweight     = 0;
-    pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
+    pchr->phys.bumpdampen     = pcap_new->bumpdampen;
 
     if ( pcap_new->weight == 0xFF )
     {
@@ -5403,10 +5410,22 @@ void update_all_characters()
 //--------------------------------------------------------------------------------------------
 void move_one_character_get_environment( chr_t * pchr )
 {
-    Uint32 itile;
+    Uint32 itile = INVALID_TILE;
     float floor_level;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
+
+    // get the current tile
+    itile          = INVALID_TILE;
+    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
+    {
+        // this only works for 1 level of attachment
+        itile = ChrList.lst[pchr->onwhichplatform_ref].onwhichgrid;
+    }
+    else
+    {
+        itile = pchr->onwhichgrid;
+    }
 
     //---- character "floor" level
     //floor_level = get_chr_level( PMesh, pchr );
@@ -5422,12 +5441,16 @@ void move_one_character_get_environment( chr_t * pchr )
     pchr->enviro.level = pchr->enviro.floor_level;
     if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        pchr->enviro.level     = ChrList.lst[pchr->onwhichplatform_ref].pos.z + ChrList.lst[pchr->onwhichplatform_ref].chr_chr_cv.maxs[OCT_Z];
-        pchr->enviro.fly_level = MAX( pchr->enviro.fly_level, pchr->enviro.level );
-
+        pchr->enviro.level = ChrList.lst[pchr->onwhichplatform_ref].pos.z + ChrList.lst[pchr->onwhichplatform_ref].chr_chr_cv.maxs[OCT_Z];
     }
 
-    if ( 0 != pchr->flyheight && pchr->enviro.fly_level < 0 )
+    //---- The flying height of the character, the maximum of tile level, platform level and water level
+    if ( 0 != mesh_test_fx( PMesh, itile, MPDFX_WATER ) )
+    {
+        pchr->enviro.fly_level = MAX(pchr->enviro.level, water.surface_level);
+    }
+
+    if ( pchr->enviro.fly_level < 0 )
     {
         pchr->enviro.fly_level = 0;  // fly above pits...
     }
@@ -5440,17 +5463,6 @@ void move_one_character_get_environment( chr_t * pchr )
 
     //---- the "twist" of the floor
     pchr->enviro.twist = TWIST_FLAT;
-    itile          = INVALID_TILE;
-    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
-    {
-        // this only works for 1 level of attachment
-        itile = ChrList.lst[pchr->onwhichplatform_ref].onwhichgrid;
-    }
-    else
-    {
-        itile = pchr->onwhichgrid;
-    }
-
     if ( mesh_grid_is_valid( PMesh, itile ) )
     {
         pchr->enviro.twist = PMesh->gmem.grid_list[itile].twist;
@@ -6171,6 +6183,8 @@ bool_t chr_do_latch_button( chr_t * pchr )
             fvec3_t tmp_pos;
 
             detach_character_from_mount( ichr, btrue, btrue );
+            detach_character_from_platform( ChrList.lst + ichr );
+
             pchr->jumptime = JUMPDELAY;
             if ( pchr->flyheight != 0 )
             {
@@ -7393,9 +7407,9 @@ void move_one_character( chr_t * pchr )
     pchr->enviro.acc = fvec3_sub( pchr->vel.v, pchr->vel_old.v );
 
     // Character's old location
-    pchr->pos_old        = chr_get_pos( pchr );
-    pchr->vel_old        = pchr->vel;
-    pchr->ori_old.facing_z     = pchr->ori.facing_z;
+    pchr->pos_old          = chr_get_pos( pchr );
+    pchr->vel_old          = pchr->vel;
+    pchr->ori_old.facing_z = pchr->ori.facing_z;
 
     pchr->enviro.new_vx = pchr->vel.x;
     pchr->enviro.new_vy = pchr->vel.y;

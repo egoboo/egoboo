@@ -148,7 +148,7 @@ bool_t unlink_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 
         if ( ienc == pspawner->undoenchant )
         {
-            pspawner->undoenchant = MAX_ENC;
+            pspawner->undoenchant = (ENC_REF) MAX_ENC;
         }
     }
 
@@ -259,7 +259,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
         // Make the spawner unable to undo the enchantment
         if ( pspawner->undoenchant == ienc )
         {
-            pspawner->undoenchant = MAX_ENC;
+            pspawner->undoenchant = (ENC_REF) MAX_ENC;
         }
     }
 
@@ -1808,8 +1808,8 @@ ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_par
     memset( enc_used, 0, sizeof(enc_used) );
 
     // scan the list of enchants
-    first_valid_enchant = MAX_ENC;
-    enc_next            = MAX_ENC;
+    first_valid_enchant = (ENC_REF) MAX_ENC;
+    enc_next            = (ENC_REF) MAX_ENC;
     enc_now             = ienc;
     while ( enc_now < MAX_ENC )
     {

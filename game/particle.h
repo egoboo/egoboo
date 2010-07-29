@@ -122,8 +122,13 @@ struct s_prt
 
     Uint32  onwhichgrid;                      ///< Where the part is
     Uint32  onwhichblock;                    ///< The particle's collision block
-    CHR_REF onwhichplatform_ref;                 ///< Is the particle on a platform?
     bool_t  is_hidden;                       ///< Is the particle related to a hidden character?
+
+    // platforms
+    float   targetplatform_level;             ///< What is the height of the target platform?
+    CHR_REF targetplatform_ref;               ///< Am I trying to attach to a platform?
+    CHR_REF onwhichplatform_ref;              ///< Is the particle on a platform?
+    Uint32  onwhichplatform_update;           ///< When was the last platform attachment made?
 
     FACING_T rotate;                          ///< Rotation direction
     Sint16   rotate_add;                      ///< Rotation rate
@@ -262,3 +267,5 @@ prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
 bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos );
 float * prt_get_pos_v( prt_t * pprt );
 fvec3_t prt_get_pos( prt_t * pprt );
+
+prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );
