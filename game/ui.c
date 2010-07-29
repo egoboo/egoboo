@@ -758,34 +758,34 @@ bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *te
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits )
+bool_t ui_widgetAddMask( ui_Widget_t * pw, BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 
-    pw->mask  |= mbits;
-    pw->state &= ~mbits;
+	SET_BIT( pw->mask, mbits );
+	UNSET_BIT( pw->state, mbits );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits )
+bool_t ui_widgetRemoveMask( ui_Widget_t * pw, BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 
-    pw->mask  &= ~mbits;
-    pw->state &= ~mbits;
+	UNSET_BIT( pw->mask, mbits );
+	UNSET_BIT( pw->state, mbits );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits )
+bool_t ui_widgetSetMask( ui_Widget_t * pw, BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 
-    pw->mask   = mbits;
-    pw->state &= ~mbits;
+    pw->mask  = mbits;
+    UNSET_BIT( pw->state, mbits );
 
     return btrue;
 }

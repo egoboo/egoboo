@@ -35,9 +35,9 @@ INLINE Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y );
 INLINE Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y );
 INLINE Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int grid_x,  int grid_y );
 
-INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
-INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
-INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags );
+INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags );
+INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags );
+INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags );
 
 INLINE Uint32 mesh_has_some_mpdfx( Uint32 mpdfx, Uint32 test );
 INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id );
@@ -158,7 +158,7 @@ INLINE Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int grid_x,  int grid_y )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
+INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags )
 {
     Uint32 old_flags;
 
@@ -173,14 +173,14 @@ INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
     old_flags = pmesh->gmem.grid_list[itile].fx;
 
     // clear the wall and impass flags
-    pmesh->gmem.grid_list[itile].fx &= ~flags;
+    UNSET_BIT( pmesh->gmem.grid_list[itile].fx, flags );
 
     // succeed only of something actually changed
     return 0 != ( old_flags & flags );
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
+INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags )
 {
     Uint32 old_flags;
 
@@ -202,7 +202,7 @@ INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, Uint32 flags )
+INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags )
 {
     // test for mesh
     if ( NULL == pmesh ) return 0;

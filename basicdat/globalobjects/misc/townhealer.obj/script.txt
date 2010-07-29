@@ -1,34 +1,40 @@
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = YELLOW
+ShowBlipXY
+
 // Get mean if characters wanna be bad
 IfAttacked
   SetTargetToWhoeverAttacked
     IfTargetIsAPlayer
       CallForHelp
-      tmpargument = TEAME
+      tmpargument = TEAME   //Team EVIL
       TargetJoinTeam
   SetTargetToOldTarget
 IfCalledForHelp
-  SetTargetToWhoeverCalledForHelp
+  SetTargetToWhoeverCalledForHelp	  //
     IfTargetIsAlive			    // Go heal 'em
       tmpargument = 2			      //
       SetState				      // State 2 ( Helper )
     Else				    // Too late
-      SetTargetToOldTarget
+      SetTargetToOldTarget		      //
 
 IfKilled				// This reduces the height of the char
   tmpargument = 1
   PlaySound
-  
-  tmpargument = TEAME
-  TargetJoinTeam
 
   tmpargument = 0			  // Last words...
   SetState				  //
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //
+  
+  tmpargument = TEAME   //Team EVIL
+  TargetJoinTeam
 
 IfTimeOut				// This is done every so often
-
+  
   //Manage talking about restoration
   tmpargument = 1
   IfContentIs
@@ -47,7 +53,7 @@ IfTimeOut				// This is done every so often
       Else
         tmpargument = 2
         SetState
-
+  
   IfStateIs2				  // State 2 ( Helper )
     IfTargetIsHurt			    // Heal wounded
       tmpx = targetx
@@ -129,63 +135,70 @@ IfBumped				// Bumped
   IfTargetIsOnOtherTeam
     SetTargetToOldTarget
   Else
-    IfTargetIsHurt			  //
-      tmpargument = 2			      // State 2 ( Helper )
-      SetState				      //
-    Else
-      //Check for people who want Restoration
-      IfTargetIsAPlayer
-        tmpargument = 0
-        IfContentIs         //First bump = "want restoration?"
-          tmpargument = 5
+    //Check for people who want Restoration
+    IfTargetIsAPlayer
+      tmpargument = 0
+      IfContentIs         //First bump = "want restoration?"
+        tmpargument = 5
+        SendMessageNear
+        tmpargument = 1
+        SetContent
+        tmpargument = 50
+        SetTime
+        tmpargument = 4
+        PlaySound             //hey now!
+      tmpargument = 2
+      IfContentIs         //Second bump = Restore!
+        tmpx = targetmoney
+        tmpy = 9
+        IfXIsMoreThanY
+          tmpargument = 6
           SendMessageNear
-          tmpargument = 1
+          tmpargument = 3
           SetContent
           tmpargument = 50
           SetTime
+          tmpargument = 3
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          SpawnExactParticle
+          UnkurseTargetInventory
+          tmpargument = [REST]
+          DispelTargetEnchantID
+          tmpargument = 1024
+          HealTarget
+          tmpargument = -10
+          GiveMoneyToTarget
+        
+        //Not enough money!
+        Else
+          tmpargument = 3
+          SetContent
+          tmpargument = 50
+          SetTime
+          tmpx = 10 - targetmoney  //Money needed
+          tmpargument = 7
+          SendMessageNear
           tmpargument = 4
           PlaySound             //hey now!
-        tmpargument = 2
-        IfContentIs         //Second bump = Restore!
-          tmpx = targetmoney
-          tmpy = 9
-          IfXIsMoreThanY
-            tmpargument = 6
-            SendMessageNear
-            tmpargument = 3
-            SetContent
-            tmpargument = 50
-            SetTime
-            tmpargument = 3
-            tmpx = targetx
-            tmpy = targety
-            tmpdistance = targetz
-            SpawnExactParticle
-            UnkurseTargetInventory
-            tmpargument = [REST]
-            DispelTargetEnchantID
-            tmpargument = 0 - 10
-            GiveMoneyToTarget
+    
+    //Non players get healing for free!
+    Else
+      IfTargetIsHurt			  //
+        tmpargument = 2			      // State 2 ( Helper )
+        SetState				      //
+      Else
+        SetTargetToOldTarget
 
-          //Not enough money!
-          Else
-            tmpargument = 3
-            SetContent
-            tmpargument = 50
-            SetTime
-            tmpx = 10 - targetmoney  //Money needed
-            tmpargument = 7
-            SendMessageNear
-            tmpargument = 4
-            PlaySound             //hey now!
-      Else					  // Revert
-        SetTargetToOldTarget		    //
-  tmpx = rand&511+selfx-256		  //
-  tmpy = rand&511+selfy-256		  //
-  ClearWaypoints			  //
-  AddWaypoint				  //
-  tmpargument = 40			  // Try again soon
-  SetTime				  //
+      tmpx = rand & 511 + selfx - 256		  //
+      tmpy = rand & 511 + selfy - 256		  //
+      ClearWaypoints			  //
+      AddWaypoint				  //
+      
+    tmpargument = 40			  // Try again soon
+    SetTime
+ 
 IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode
   SetState				  //

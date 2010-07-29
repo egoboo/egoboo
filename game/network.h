@@ -81,7 +81,7 @@ typedef struct s_time_latch time_latch_t;
 struct s_input_device
 {
     bool_t                  on;              ///< Is it alive?
-    Uint32                  bits;
+    BIT_FIELD               bits;
 
     float                   sustain;         ///< Falloff rate for old movement
     float                   cover;           ///< For falloff

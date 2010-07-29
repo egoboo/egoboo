@@ -219,7 +219,7 @@ shopkeep:   Gerard    49  49.0   42.0   0.0   N    399   3  10   0   0   F   F  
   chest:    NONE    59  47.5   40.5   0.0   S    4   0  0   96   12   F   F   Null
   chest:    NONE    59  45.5   40.5   0.0   S    4   0  0   96   12   F   F   Null
 
-Healer:   NONE    141  28.5   32.5   0.0   S    19   1  0   0   0   F   F   G			//Healer's hut
+TownHealer:   NONE    141  28.5   32.5   0.0   S    19   1  0   0   0   F   F   G			//Healer's hut
   SpkMace:   NONE    66  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 //-----------------------------------------------------------------------------------

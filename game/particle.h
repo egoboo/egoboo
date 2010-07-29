@@ -245,7 +245,7 @@ int     prt_count_free();
 PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF by_reference pip_override );
 void    reset_particles();
 
-Uint32 prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure );
+BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure );
 bool_t prt_test_wall( prt_t * pprt, float test_pos[] );
 
 bool_t prt_is_over_water( const PRT_REF by_reference particle );

@@ -1,0 +1,132 @@
+//-------------------------------------------------------------------------
+//Begin in proper mode
+IfSpawned
+  tmpargument = STATEFOLLOW
+  SetState
+  
+//-------------------------------------------------------------------------
+//Respawn
+IfCleanedUp
+  RespawnCharacter
+
+//-------------------------------------------------------------------------
+//Handle the death of this character
+IfKilled
+  tmpargument = 0
+  SendMessageNear
+  tmpargument = 40
+  SetBumpSize
+  tmpargument = 45
+  SetBumpHeight
+  tmpargument = selfmoney			  // Drop money
+  DropMoney
+  DropKeys
+  tmpargument = 2
+  PlaySound
+
+//-------------------------------------------------------------------------
+IfAttacked				// Counter attack
+  SetTargetToWhoeverAttacked
+    IfTargetIsOnHatedTeam
+      BecomeLeader
+      tmpargument = STATECOMBAT			      // Enter combat mode
+      SetState
+    Else
+      SetTargetToOldTarget
+  tmpargument = rand & 1
+  PlaySound
+  
+//-------------------------------------------------------------------------
+//Return to follow mode
+IfTargetKilled
+  tmpargument = STATEFOLLOW
+  SetState
+  
+//-------------------------------------------------------------------------
+IfBumped				              // Attack whoever it bumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam			  // Make sure it's an enemy
+    IfFacingTarget
+      IfHoldingMeleeWeapon                    // Got Weapon?
+        PressLatchButton
+  Else					  // Scooch around friendly
+    tmpx = rand & 255 + targetx - 128
+    tmpy = rand & 255 + targety - 128
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+    
+//-------------------------------------------------------------------------
+//Main AI loop
+IfTimeOut				// This is done every so often
+  SetTargetToNearbyEnemy		  // Look for enemies
+    tmpargument = STATECOMBAT			    // Enter combat mode
+    SetState
+    BecomeLeader
+    
+  // Play a random grunt?
+  tmpx = rand & 255
+  tmpy = 25
+  IfXIsLessThanY
+    tmpargument = 3
+    PlaySound
+    
+  IfStateIsFollow
+    tmpx = rand & 1023 - 512 + leaderx
+    tmpy = rand & 1023 - 512 + leadery
+  
+  IfStateIsCombat
+    tmpx = targetdistance		    // Too far?
+    tmpy = 2000
+    IfXIsMoreThanY
+      tmpargument = STATEFOLLOW
+      SetState				      // Revert to follow mode
+      tmpx = selfx
+      tmpy = selfy
+    Else
+      tmpy = 150
+      IfXIsLessThanY
+        // Run away
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto + 32768
+        tmpdistance = 800
+        Compass         
+      Else
+        tmpy = 0                      // Unarmed...
+        IfHoldingMeleeWeapon		      // Got Weapon?
+          tmpy = 350
+        Else
+          IfHoldingRangedWeapon
+            tmpy = 800
+        IfXIsLessThanY
+          tmpx = 800
+          IfXIsEqualToY
+            // Ranged weapon, so lead the target
+            tmpx = targetspeedx * tmpx > 4 + targetx
+            tmpy = targetspeedy * tmpx > 4 + targety
+            IfFacingTarget
+              PressLatchButton
+          Else
+            // Melee weapon, so run around the target...
+            tmpx = rand & 511 - 256 + targetx
+            tmpy = rand & 511 - 256 + targety
+            IfFacingTarget
+              PressLatchButton
+              tmpx = targetx
+              tmpy = targety
+        Else
+          // Not close enough, so run at the target
+          tmpx = targetx
+          tmpy = targety
+          tmpturn = targetturnto
+          tmpdistance = 400
+          Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 15 + 10		  // Wait a while and try again
+  SetTime
+  
+//-------------------------------------------------------------------------
+End					// Finished with this character
+//-------------------------------------------------------------------------

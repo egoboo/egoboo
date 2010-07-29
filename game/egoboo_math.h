@@ -131,34 +131,6 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 #    define LOG_NAN(XX)
 #endif
 
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// bitwise operations
-#if !defined(BOOL_TO_BIT)
-#    define BOOL_TO_BIT(X)       ((X) ? 1 : 0 )
-#endif
-
-#if !defined(BIT_TO_BOOL)
-#    define BIT_TO_BOOL(X)       ((1 == X) ? btrue : bfalse )
-#endif
-
-#if !defined(HAS_SOME_BITS)
-#    define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
-#endif
-
-#if !defined(HAS_ALL_BITS)
-#    define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
-#endif
-
-#if !defined(HAS_NO_BITS)
-#    define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
-#endif
-
-#if !defined(MISSING_BITS)
-#    define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
-#endif
-
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 
@@ -178,11 +150,6 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 
 #define FFFF_TO_FLOAT( V1 )  ( (float)(V1) * INV_FFFF )
 #define FLOAT_TO_FFFF( V1 )  ( ((V1) * 0xFFFF) )
-
-#define CLIP_TO_08BITS( V1 )  ( (V1) & 0xFF       )
-#define CLIP_TO_16BITS( V1 )  ( (V1) & 0xFFFF     )
-#define CLIP_TO_24BITS( V1 )  ( (V1) & 0xFFFFFF   )
-#define CLIP_TO_32BITS( V1 )  ( (V1) & 0xFFFFFFFF )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

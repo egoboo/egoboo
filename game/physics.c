@@ -643,7 +643,7 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
 {
-    Uint32 bits = 0;
+    BIT_FIELD bits = 0;
     pip_t * ppip;
 
     if( NULL == bc ) return bc;
@@ -657,7 +657,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     if( NULL == ppip ) return bc;
 
     bits = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) bits |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) SET_BIT( bits, MPDFX_WALL );
 
     bc->bits   = bits;
     bc->radius = pprt->bump_real.size;

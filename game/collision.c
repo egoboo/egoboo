@@ -627,7 +627,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                 size_t      coll_ref;
                 CoNode_t    tmp_codata;
                 bool_t      do_insert;
-                int         test_platform;
+                BIT_FIELD   test_platform;
 
                 pleaf = _coll_leaf_lst.ary[j];
                 if ( NULL == pleaf ) continue;
@@ -648,9 +648,9 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         CoNode_ctor( &tmp_codata );
 
                         // do a simple test, since I do not want to resolve the cap_t for these objects here
-                        test_platform = 0;
-                        if ( pchr_a->platform && pchr_b->canuseplatforms ) test_platform |= PHYS_PLATFORM_OBJ1;
-                        if ( pchr_b->platform && pchr_a->canuseplatforms ) test_platform |= PHYS_PLATFORM_OBJ2;
+                        test_platform = EMPTY_BIT_FIELD;
+                        if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+                        if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
                         // detect a when the possible collision occurred
                         if ( phys_intersect_oct_bb( pchr_a->chr_chr_cv, pchr_a->pos, pchr_a->vel, pchr_b->chr_chr_cv, pchr_b->pos, pchr_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
@@ -2569,7 +2569,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     // Do confuse effects
     if ( pdata->ppip->grogtime > 0 && pdata->pcap->canbegrogged )
     {
-        pchr->ai.alert |= ALERTIF_GROGGED;
+        SET_BIT( pchr->ai.alert, ALERTIF_GROGGED );
         if ( pdata->ppip->grogtime > pchr->grogtime )
         {
             pchr->grogtime = MAX( 0, pchr->grogtime + pdata->ppip->grogtime );
@@ -2577,7 +2577,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
     if ( pdata->ppip->dazetime > 0 && pdata->pcap->canbedazed )
     {
-        pchr->ai.alert |= ALERTIF_DAZED;
+        SET_BIT( pchr->ai.alert, ALERTIF_DAZED );
         if ( pdata->ppip->dazetime > pchr->dazetime )
         {
             pchr->dazetime = MAX( 0, pchr->dazetime + pdata->ppip->dazetime );
@@ -2651,7 +2651,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 				}
 				
 				// Notify the attacker of a scored hit
-				powner->ai.alert |= ALERTIF_SCOREDAHIT;
+				SET_BIT( powner->ai.alert, ALERTIF_SCOREDAHIT );
 				powner->ai.hitlast = GET_REF_PCHR( pchr );
 
 				//Tell the weapons who the attacker hit last
@@ -2675,7 +2675,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 				loc_damage.base = ( loc_damage.base << 1 );
 				loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
 
-				pchr->ai.alert |= ALERTIF_HITVULNERABLE;
+				SET_BIT( pchr->ai.alert, ALERTIF_HITVULNERABLE );
 			}
 
 			// Damage the character

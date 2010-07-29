@@ -1,10 +1,19 @@
-// ZZ> This function makes an item fall to the floor when spawned
-IfSpawned				//
-  MakeAmmoKnown				  //
-  tmpargument = ACTIONJB		  //
-  DoAction				  //
-  KeepAction				  //
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
   MakeCrushValid
+  
+  //Correct our ammo amount
+  MakeAmmoKnown
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+    GetContent
+    SetTargetToSelf
+    SetTargetAmmo
+  
 IfCrushed
   tmpx = selfx
   tmpy = selfy

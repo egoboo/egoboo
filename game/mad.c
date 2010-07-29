@@ -247,7 +247,7 @@ int mad_get_action( const MAD_REF by_reference imad, int action )
 //--------------------------------------------------------------------------------------------
 Uint32 mad_get_madfx( const MAD_REF by_reference imad, int action )
 {
-    Uint32  retval = 0;
+    BIT_FIELD retval = EMPTY_BIT_FIELD;
     int cnt;
     mad_t * pmad;
     MD2_Model_t * md2;
@@ -268,7 +268,7 @@ Uint32 mad_get_madfx( const MAD_REF by_reference imad, int action )
     {
         pframe = frame_lst + cnt;
 
-        retval |= pframe->framefx;
+        SET_BIT( retval, pframe->framefx );
     }
 
     return retval;
@@ -475,19 +475,19 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF by_reference imad, 
             switch ( token_index )
             {
                 case  0: // "I" == invulnerable
-                    fx |= MADFX_INVICTUS;
+                    SET_BIT( fx, MADFX_INVICTUS );
                     break;
 
                 case  1: // "S" == stop
-                    fx |= MADFX_STOP;
+                    SET_BIT( fx, MADFX_STOP );
                     break;
 
                 case  2: // "F" == footfall
-                    fx |= MADFX_FOOTFALL;
+                    SET_BIT( fx, MADFX_FOOTFALL );
                     break;
 
                 case  3: // "P" == poof
-                    fx |= MADFX_POOF;
+                    SET_BIT( fx, MADFX_POOF );
                     break;
 
                 case  4: // "A" == action

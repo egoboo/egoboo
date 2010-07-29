@@ -260,7 +260,7 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float
 
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
-Uint32 mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure );
+BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure );
 bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, struct s_mesh_wall_data * private_data );
 
 float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y );

@@ -205,7 +205,7 @@ void input_read_joystick( int which )
     pjoy->b = 0;
     for ( i = 0; i < button_count; i++ )
     {
-        pjoy->b |= ( pjoy->button[i] << i );
+        SET_BIT( pjoy->b, pjoy->button[i] << i  );
     }
 
     return;

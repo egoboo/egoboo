@@ -1686,11 +1686,11 @@ int doChoosePlayer( float deltaTime )
                 mnu_widgetList[m].text = loadplayer[player].name;
                 if ( INVALID_PLAYER != splayer )
                 {
-                    mnu_widgetList[m].state |= UI_BITS_CLICKED;
+                    SET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED);
                 }
                 else
                 {
-                    mnu_widgetList[m].state &= ~UI_BITS_CLICKED;
+                    UNSET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED);
                 }
 
                 if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
@@ -1741,11 +1741,11 @@ int doChoosePlayer( float deltaTime )
                     // make the button states reflect the chosen input devices
                     if ( INVALID_PLAYER == splayer || HAS_NO_BITS( mnu_selectedInput[ splayer ], BitsInput[j] ) )
                     {
-                        mnu_widgetList[m].state &= ~UI_BITS_CLICKED;
+                        UNSET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
                     }
                     else if ( HAS_SOME_BITS( mnu_selectedInput[splayer], BitsInput[j] ) )
                     {
-                        mnu_widgetList[m].state |= UI_BITS_CLICKED;
+                        SET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
                     }
 
                     if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
@@ -5068,7 +5068,7 @@ bool_t mnu_Selected_remove( int loadplayer_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_Selected_add_input( int loadplayer_idx, Uint32 input_bits )
+bool_t mnu_Selected_add_input( int loadplayer_idx, BIT_FIELD input_bits )
 {
     int i;
     bool_t done, retval = bfalse;
@@ -5096,13 +5096,13 @@ bool_t mnu_Selected_add_input( int loadplayer_idx, Uint32 input_bits )
             if ( i == selected_index )
             {
                 // add in the selected bits for the selected loadplayer_idx
-                mnu_selectedInput[i] |= input_bits;
+                SET_BIT( mnu_selectedInput[i], input_bits);
                 retval = btrue;
             }
             else
             {
                 // remove the selectd bits from all other players
-                mnu_selectedInput[i] &= ~input_bits;
+                UNSET_BIT( mnu_selectedInput[i], input_bits);
             }
         }
     }
@@ -5140,7 +5140,7 @@ bool_t mnu_Selected_remove_input( int loadplayer_idx, Uint32 input_bits )
     {
         if ( mnu_selectedPlayer[i] == loadplayer_idx )
         {
-            mnu_selectedInput[i] &= ~input_bits;
+			UNSET_BIT( mnu_selectedInput[i], input_bits );
 
             // This part is not so tricky as in mnu_Selected_add_input.
             // Even though we are modding the loop control variable, it is never

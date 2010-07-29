@@ -86,7 +86,7 @@ void   add_passage( passage_t * pdata );
 bool_t   open_passage( const PASS_REF by_reference ipassage );
 bool_t   close_passage( const PASS_REF by_reference ipassage );
 void     flash_passage( const PASS_REF by_reference ipassage, Uint8 color );
-CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, Uint32 targeting_bits, bool_t require_item );
+CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, BIT_FIELD targeting_bits, bool_t require_item );
 void   add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_reference ipassage );
 
 bool_t point_is_in_passage( const PASS_REF by_reference ipassage, float xpos, float ypos );

@@ -93,6 +93,51 @@ typedef Sint32 SFP16_T;
 #define FP16_TO_FLOAT( V1 )  ( (float )((V1) * 0.0000152587890625f ) )
 
 //--------------------------------------------------------------------------------------------
+// BIT FIELDS
+typedef Uint32 BIT_FIELD;								///< A big string supporting 32 bits
+#define FILL_BIT_FIELD(XX)	XX = FULL_BIT_FIELD			///< Fills up all bits in a bit pattern
+#define RESET_BIT_FIELD(XX) XX = 0						///< Resets all bits in a BIT_FIELD to 0		
+#define FULL_BIT_FIELD		0x7FFFFFFF					///< A bit string where all bits are flagged as 1
+#define EMPTY_BIT_FIELD		0							///< A bit string where all bits are flagged as 0
+
+#if !defined(SET_BIT)
+	#define SET_BIT(XX, YY) XX |= YY
+#endif
+
+#if !defined(UNSET_BIT)
+	#define UNSET_BIT(XX, YY) XX &= ~YY
+#endif
+
+#if !defined(BOOL_TO_BIT)
+#    define BOOL_TO_BIT(X)       ((X) ? 1 : 0 )
+#endif
+
+#if !defined(BIT_TO_BOOL)
+#    define BIT_TO_BOOL(X)       ((1 == X) ? btrue : bfalse )
+#endif
+
+#if !defined(HAS_SOME_BITS)
+#    define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
+#endif
+
+#if !defined(HAS_ALL_BITS)
+#    define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
+#endif
+
+#if !defined(HAS_NO_BITS)
+#    define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
+#endif
+
+#if !defined(MISSING_BITS)
+#    define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
+#endif
+
+#define CLIP_TO_08BITS( V1 )  ( (V1) & 0xFF       )
+#define CLIP_TO_16BITS( V1 )  ( (V1) & 0xFFFF     )
+#define CLIP_TO_24BITS( V1 )  ( (V1) & 0xFFFFFF   )
+#define CLIP_TO_32BITS( V1 )  ( (V1) & 0xFFFFFFFF )
+
+//--------------------------------------------------------------------------------------------
 // RECTANGLE
 typedef struct s_irect
 {
@@ -192,7 +237,7 @@ struct s_latch
 {
     float          x;         ///< the x input
     float          y;         ///< the y input
-    Uint32         b;         ///< the button bits
+    BIT_FIELD      b;         ///< the button bits
 };
 
 typedef struct s_latch latch_t;

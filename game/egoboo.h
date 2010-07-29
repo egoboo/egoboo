@@ -144,7 +144,7 @@ EXTERN int                      revivetimer EQ( 0 );
 
 /// Imports
 EXTERN int                     local_import_count;                     ///< Number of imports from this machine
-EXTERN Uint32                  local_import_control[16];             ///< Input bits for each imported player
+EXTERN BIT_FIELD               local_import_control[16];             ///< Input bits for each imported player
 EXTERN int                     local_import_slot[16];                ///< For local imports
 
 /// Setup values

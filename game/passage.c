@@ -194,7 +194,7 @@ bool_t object_is_in_passage( const PASS_REF by_reference passage, float xpos, fl
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, Uint32 targeting_bits, bool_t require_item )
+CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, BIT_FIELD targeting_bits, bool_t require_item )
 {
     /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
     ///    otherwise the index of the first character found is returned...
@@ -368,7 +368,7 @@ bool_t close_passage( const PASS_REF by_reference passage )
         for ( cnt = 0; cnt < numcrushed; cnt++ )
         {
             character = crushedcharacters[cnt];
-            chr_get_pai( character )->alert |= ALERTIF_CRUSHED;
+            SET_BIT( chr_get_pai( character )->alert, ALERTIF_CRUSHED );
         }
     }
 

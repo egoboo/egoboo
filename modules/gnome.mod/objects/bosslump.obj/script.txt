@@ -5,7 +5,7 @@ IfOrdered
   tmpy = 0
   IfXIsEqualToY
     // Someone said that there's an enemy around, so look for 'im
-    SetTargetToWideEnemy
+    SetTargetToNearbyEnemy
   Else
     // Someone died, so make Scrub Lumpkins run away
     tmpargument = 0
@@ -101,19 +101,15 @@ IfCleanedUp
   RespawnCharacter
 
 //------------------------------------------------------------------------------
-// ZZ> Handle being bumped by countering or wandering
+//Handle being bumped by countering or wandering
 IfBumped
   IfStateIsRetreat
     DoNothing
   Else
     SetTargetToWhoeverBumped
     IfTargetIsOnHatedTeam
-      tmpargument = [LUMP]
-      IfTargetHasID
-        SetTargetToOldTarget
-      Else
-        tmpargument = STATEPARRY
-        SetState
+      tmpargument = STATEPARRY
+      SetState
     Else
       SetTargetToOldTarget
 
@@ -121,9 +117,9 @@ IfBumped
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
   // Scream
-  tmpdistance = rand & 2047 + 11000
   tmpargument = 2
   PlaySound
+  
   // Pick either 0 or 7, Parry or Combat
   SetTargetToWhoeverAttacked
   IfStateIsRetreat
@@ -142,6 +138,11 @@ IfAttacked
         SetContent
         tmpargument = STATERETREAT
       SetState
+      
+  //Dismount if attacked
+  IfSitting
+    tmpargument = LATCHJUMP
+    PressLatchButton
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being healed by spitting out a message and stopping retreat
@@ -168,10 +169,10 @@ IfBlocked
 IfTargetIsAttacking
   // If it's not a threat, circle around the enemy
   IfStateIsParry
-    GetState  // NOP
+    DoNothing
   Else
     IfStateIsRetreat
-      GetState // NOP
+      DoNothing
     Else
       tmpargument = STATECOMBAT
       tmpx = targetdistance
@@ -201,193 +202,199 @@ IfTimeOut
   // Look for enemies
   SetTurnModeToVelocity
 
-  // Find an enemy
-  tmpx = 0
-  IfTargetIsOnHatedTeam
-    // Already have an enemy
-    tmpx = targetdistance
-    tmpy = 900
-    IfXIsMoreThanY
-      tmpx = 0
-      // Find a new enemy
-      tmpargument = [LUMP]
-      tmpdistance = 18  // BLAHENEMIES | BLAHINVERTID
-      SetTargetToWideBlahID
-        tmpx = 1
-    Else
-      // Keep the current enemy
-      tmpx = 1
-  Else
-    tmpargument = [LUMP]
-    tmpdistance = 18  // BLAHENEMIES | BLAHINVERTID
-    SetTargetToWideBlahID
-      tmpx = 1
-
-  tmpy = 0
-  IfXIsMoreThanY
-    // Default to previous state
-    GetState
-
-    // Switch to combat if close enough
-    IfStateIsCharge
+  //Handle the lumpkin in the Gatling Gonne
+  IfSitting
+    SetTargetToWideEnemy
+      SetTurnModeToWatchTarget
       tmpx = targetdistance
       tmpy = 600
       IfXIsLessThanY
+        tmpargument = LATCHLEFT
+        PressLatchButton
+      tmpx = 0
+    Else
+      SetTurnModeToSpin
+    tmpx = targetx
+    tmpy = targety
+    tmpargument = rand & 5 + 10
+  Else
+    // Find an enemy
+    tmpx = 0
+    IfTargetIsOnHatedTeam
+      // Already have an enemy
+      tmpx = targetdistance
+      tmpy = 900
+      IfXIsMoreThanY
+        tmpx = 0
+        // Find a new enemy
+        SetTargetToNearbyEnemy
+          tmpx = 1
+      Else
+        // Keep the current enemy
+        tmpx = 1
+    Else
+      SetTargetToNearbyEnemy
+        tmpx = 1
+        
+    tmpy = 0
+    IfXIsMoreThanY
+      // Default to previous state
+      GetState
+
+      // Switch to combat if close enough
+      IfStateIsCharge
+        tmpx = targetdistance
+        tmpy = 600
+        IfXIsLessThanY
+          tmpargument = STATECOMBAT
+
+      // Fight 'em if there's nothing better to do
+      IfStateIsGuard
         tmpargument = STATECOMBAT
 
-    // Fight 'em if there's nothing better to do
-    IfStateIsGuard
-      tmpargument = STATECOMBAT
+      // Let courage come back ( content is used as a timer )
+      IfStateIsRetreat
+        tmpargument = selfcontent - 1
+        SetContent
+        tmpargument = 0
+        IfContentIs
+          tmpargument = STATECHARGE
+        Else
+          GetState
 
-    // Let courage come back ( content is used as a timer )
-    IfStateIsRetreat
-      GetContent
-      tmpargument = tmpargument - 1
-      SetContent
-      tmpargument = 0
-      IfContentIs
-        tmpargument = STATECHARGE
-      Else
-        GetState
+      // Lower shield and attack
+      IfStateIsParry
+        tmpargument = STATECOMBAT
 
-    // Lower shield and attack
-    IfStateIsParry
-      tmpargument = STATECOMBAT
-
-  // No enemy in general area, so return to the guard post
-  Else
-    IfStateIsRetreat
-      GetState
+    // No enemy in general area, so return to the guard post
     Else
-      tmpargument = STATEGUARD
+      IfStateIsRetreat
+        GetState
+      Else
+        tmpargument = STATEGUARD
 
-  // Now set the state to whatever tmpargument is
-  SetState
+    // Now set the state to whatever tmpargument is
+    SetState
 
-  // Interpret the states and set the latches
-  // Defend
-  IfStateIsParry
-    IfHoldingShield
-      PressLatchButton
+    // Interpret the states and set the latches
+    // Defend
+    IfStateIsParry
+      IfHoldingShield
+        PressLatchButton
+        tmpx = selfx
+        tmpy = selfy
+        tmpargument = rand & 31 + 15
+
+    // Return to guard post
+    IfStateIsGuard
+      tmpx = rand & 511 - 256 + selfspawnx
+      tmpy = rand & 511 - 256 + selfspawny
+      tmpargument = rand & 63 + 30
+
+    // Run away
+    IfStateIsRetreat
       tmpx = selfx
       tmpy = selfy
-      tmpargument = rand & 31 + 15
+      tmpdistance = 400
+      tmpturn = rand & 32767 + targetturnto + 16384
+      Compass
+      tmpargument = rand & 15 + 10
 
-  // Return to guard post
-  IfStateIsGuard
-    tmpx = rand & 511 - 256 + selfspawnx
-    tmpy = rand & 511 - 256 + selfspawny
-    tmpargument = rand & 63 + 30
+    // Approach
+    IfStateIsCharge
+      tmpx = targetx + selfx > 1
+      tmpy = targety + selfy > 1
+      tmpargument = rand & 15 + 10
 
-  // Run away
-  IfStateIsRetreat
-    tmpx = selfx
-    tmpy = selfy
-    tmpdistance = 400
-    tmpturn = rand & 32767 + targetturnto + 16384
-    Compass
-    tmpargument = rand & 15 + 10
-
-  // Approach
-  IfStateIsCharge
-    tmpx = targetx + selfx > 1
-    tmpy = targety + selfy > 1
-    tmpargument = rand & 15 + 10
-
-  // Attack with melee weapon, Keep back with ranged
-  IfStateIsCombat
-    tmpturn = targetturnto
-    IfHoldingRangedWeapon
-      tmpx = selfz
-      tmpy = targetz + 60
-      IfSitting
-        tmpy = targetz + 110
-      IfXIsLessThanY
+    // Attack with melee weapon, Keep back with ranged
+    IfStateIsCombat
+      tmpturn = targetturnto
+      IfHoldingRangedWeapon
+        tmpx = selfz
+        tmpy = targetz + 60
         IfSitting
-          tmpx = tmpturn - selfturn
-          tmpy = 6000
+          tmpy = targetz + 110
+        IfXIsLessThanY
+          IfSitting
+            tmpx = tmpturn - selfturn
+            tmpy = 6000
+            IfXIsLessThanY
+              tmpy = 0 - 6000
+              IfXIsMoreThanY
+                PressLatchButton
+            tmpx = targetx
+            tmpy = targety
+          Else
+            SetTurnModeToWatchTarget
+            tmpx = tmpturn - selfturn
+            tmpy = 6000
+            IfXIsLessThanY
+              tmpy = 0 - 6000
+              IfXIsMoreThanY
+                PressLatchButton
+            tmpx = selfx
+            tmpy = selfy
+        Else
+          tmpx = rand & 255 - 128 + selfx
+          tmpy = rand & 255 - 128 + selfy
+      Else
+        IfHoldingMeleeWeapon
+          tmpx = targetdistance
+          tmpy = 200
+          IfSitting
+            tmpy = 400
           IfXIsLessThanY
-            tmpy = 0 - 6000
-            IfXIsMoreThanY
+            IfFacingTarget
               PressLatchButton
+          Else
+            // Wave weapon around if not mounted
+            IfSitting
+              DoNothing
+            Else
+              tmpx = rand & 1023
+              tmpy = 800
+              IfXIsMoreThanY
+                // Is it caught in a trap?
+                tmpx = selfaccel
+                tmpy = 1
+                IfXIsMoreThanY
+                  // Nope, so cheer...
+                  tmpargument = ACTIONMC
+                  DoAction
+                  tmpargument = tmpdistance & 1
+                  PlaySound
           tmpx = targetx
           tmpy = targety
+          tmpdistance = 200
+          Compass
         Else
-          SetTurnModeToWatchTarget
-          tmpx = tmpturn - selfturn
-          tmpy = 6000
-          IfXIsLessThanY
-            tmpy = 0 - 6000
-            IfXIsMoreThanY
-              PressLatchButton
-          tmpx = selfx
-          tmpy = selfy
-      Else
-        tmpx = rand & 255 - 128 + selfx
-        tmpy = rand & 255 - 128 + selfy
-    Else
-      IfHoldingMeleeWeapon
-        tmpx = targetdistance
-        tmpy = 200
-        IfSitting
-          tmpy = 400
-        IfXIsLessThanY
-          tmpx = tmpturn - selfturn
-          tmpy = 6000
-          IfXIsLessThanY
-            tmpy = 0 - 6000
-            IfXIsMoreThanY
-              PressLatchButton
-        Else
-          // Wave weapon around if not mounted
-          IfSitting
-            GetState
-          Else
-            tmpx = rand & 1023
-            tmpy = 800
-            IfXIsMoreThanY
-              // Is it caught in a trap?
-              tmpx = selfaccel
-              tmpy = 1
-              IfXIsMoreThanY
-                // Nope, so cheer...
-                tmpargument = ACTIONMC
-                DoAction
-                tmpdistance = rand & 2047 + 11000
-                tmpargument = tmpdistance & 1
-                PlaySound
-        tmpx = targetx
-        tmpy = targety
-        tmpdistance = 200
-        Compass
-      Else
-        // Find a weapon!!!
-        tmpx = 0
-        tmpargument = [GONN]      //Gonne
-        tmpdistance = BLAHITEMS
-        SetTargetToWideBlahID
-          tmpx = 1
-        Else
-          tmpargument = [CLAW]    //Claw
+          // Find a weapon!!!
+          tmpx = 0
+          tmpargument = [GONN]      //Gonne
+          tmpdistance = BLAHITEMS
           SetTargetToWideBlahID
             tmpx = 1
           Else
-            tmpargument = [TORC]  //Torch
+            tmpargument = [CLAW]    //Claw
             SetTargetToWideBlahID
               tmpx = 1
-        tmpy = 1
-        IfXIsEqualToY
-          tmpx = targetdistance
-          tmpy = 70
-          IfXIsLessThanY
-            tmpargument = rand & 1 + LATCHALTLEFT
-            PressLatchButton
-          tmpx = targetx
-          tmpy = targety
-        Else
-          tmpx = rand & 1023 + selfx - 512
-          tmpy = rand & 1023 + selfy - 512
-    tmpargument = rand & 7 + 8
+            Else
+              tmpargument = [TORC]  //Torch
+              SetTargetToWideBlahID
+                tmpx = 1
+          tmpy = 1
+          IfXIsEqualToY
+            tmpx = targetdistance
+            tmpy = 70
+            IfXIsLessThanY
+              tmpargument = rand & 1 + LATCHALTLEFT
+              PressLatchButton
+            tmpx = targetx
+            tmpy = targety
+          Else
+            tmpx = rand & 1023 + selfx - 512
+            tmpy = rand & 1023 + selfy - 512
+      tmpargument = rand & 7 + 8
   ClearWaypoints
   AddWaypoint
   SetTime

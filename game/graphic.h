@@ -257,12 +257,12 @@ extern Uint8           blip_c[MAXBLIP];
 
 enum e_bb_opt
 {
-    bb_opt_none          = 0,
-    bb_opt_randomize_pos = (1 << 0),      // Randomize the position of the bb to witin 1 grid
-    bb_opt_randomize_vel = (1 << 1),      // Randomize the velocity of the bb. Enough to move it by 2 tiles within its lifetime.
-    bb_opt_fade          = (1 << 2),      // Make the billboard fade out
-    bb_opt_burn          = (1 << 3),      // Make the tint fully saturate over time.
-    bb_opt_all           = 0x7FFFFFFF	  //(size_t)(~0)   Enum doesn't support unsigned integers, size_t is also unsigned.
+    bb_opt_none          = EMPTY_BIT_FIELD,
+    bb_opt_randomize_pos = (1 << 0),		// Randomize the position of the bb to witin 1 grid
+    bb_opt_randomize_vel = (1 << 1),		// Randomize the velocity of the bb. Enough to move it by 2 tiles within its lifetime.
+    bb_opt_fade          = (1 << 2),		// Make the billboard fade out
+    bb_opt_burn          = (1 << 3),		// Make the tint fully saturate over time.
+    bb_opt_all           = FULL_BIT_FIELD	//(size_t)(~0)   Enum doesn't support unsigned integers, size_t is also unsigned.
 };
 
 /// Description of a generic bilboarded object.

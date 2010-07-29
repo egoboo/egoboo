@@ -112,7 +112,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 //Dismounting
 #define DISMOUNTZVEL        16
 #define DISMOUNTZVELFLY     4
-#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.5f)          ///< time delay for full object-object interaction (approximately 0.5 second)
+#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.25f)          ///< time delay for full object-object interaction (approximately 0.5 second)
 
 //Knockbacks
 #define REEL                7600.0f     ///< Dampen for melee knock back
@@ -473,7 +473,7 @@ struct s_chr
     bool_t         waterwalk;                     ///< Always above watersurfacelevel?
     TURN_MODE      turnmode;                      ///< Turning mode
 
-    unsigned       movement_bits;                 ///< What movement modes are allowed?
+    BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
     float          anim_speed_sneak;              ///< Movement rate of the sneak animation
     float          anim_speed_walk;               ///< Walking if above this speed
     float          anim_speed_run;                ///< Running if above this speed
@@ -537,7 +537,7 @@ void give_experience( const CHR_REF by_reference character, int amount, xp_type 
 void give_team_experience( const TEAM_REF by_reference team, int amount, Uint8 xptype );
 int  damage_character( const CHR_REF by_reference character, FACING_T direction,
                        IPair damage, Uint8 damagetype, TEAM_REF team,
-                       CHR_REF attacker, Uint16 effects, bool_t ignore_invictus );
+                       CHR_REF attacker, BIT_FIELD effects, bool_t ignore_invictus );
 void kill_character( const CHR_REF by_reference character, const CHR_REF by_reference killer, bool_t ignore_invictus );
 bool_t heal_character( const CHR_REF by_reference character, const CHR_REF by_reference healer, int amount, bool_t ignore_invictus );
 void spawn_poof( const CHR_REF by_reference character, const PRO_REF by_reference profile );
@@ -605,7 +605,7 @@ void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
-struct s_billboard_data * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, Uint32 opt_bits );
+struct s_billboard_data * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits );
 const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits );
 const char * chr_get_dir_name( const CHR_REF by_reference ichr );
 

@@ -914,7 +914,7 @@ void cl_talkToHost()
         {
             if ( PlaStack.lst[player].valid && PlaStack.lst[player].device.bits != INPUT_BITS_NONE )
             {
-                PlaStack.lst[player].local_latch.b |= LATCHBUTTON_RESPAWN;  // Press the respawn button...
+                SET_BIT( PlaStack.lst[player].local_latch.b, LATCHBUTTON_RESPAWN );  // Press the respawn button...
             }
 
             player++;
@@ -1691,13 +1691,13 @@ void unbuffer_player_latches()
         if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 
-        if ( cfg.difficulty < GAME_HARD && ( pchr->latch.b & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
+        if ( cfg.difficulty < GAME_HARD && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
         {
             if ( !pchr->alive && 0 == revivetimer )
             {
                 respawn_character( character );
                 TeamStack.lst[pchr->team].leader = character;
-                pchr->ai.alert |= ALERTIF_CLEANEDUP;
+                SET_BIT( pchr->ai.alert, ALERTIF_CLEANEDUP );
 
                 // cost some experience for doing this...  never lose a level
                 pchr->experience *= EXPKEEP;
@@ -1705,7 +1705,7 @@ void unbuffer_player_latches()
             }
 
             // remove all latches other than latchbutton_respawn
-            pchr->latch.b &= ~LATCHBUTTON_RESPAWN;
+            UNSET_BIT( pchr->latch.b, LATCHBUTTON_RESPAWN );
         }
     }
 }

@@ -1034,7 +1034,7 @@ fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure )
+BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure )
 {
     /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
@@ -1789,7 +1789,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
         else
         {
-            Uint32  hit_bits;
+            BIT_FIELD  hit_bits;
             fvec2_t nrm;
             float   pressure;
 

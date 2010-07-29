@@ -87,7 +87,7 @@ BEARTRAP:  NONE      13   22.5 26.4 0    N   0   0   0   0   0   F   F   Null
 // Extras
 Stair:     NONE      53   12.0 34.0 0    N   0   0   0   0   0   F   F   Null
 Stair:     NONE      53   22.0 17.95 0   S   0   0   0   0   0   F   F   Null
-Crate:     NONE      39   15.3 25.3 0    N   0   0   0   0   0   F   F   Null
+Crate:     NONE      39   15.3 27.3 0    N   0   0   0   0   0   F   F   Null
 Crate:     NONE      39   18.3 27.7 0    N   0   1   0   0   0   F   F   Null
 Crate:     NONE      39   18.5 33.7 0    N   0   2   0   0   0   F   F   Null
 LStack:    NONE      54   13.5 13.5 0    N   0   0   0   0   0   F   F   Null

@@ -73,7 +73,7 @@ typedef struct s_ego_md2_frame
 
     oct_bb_t      bb;             ///< axis-aligned octagonal bounding box limits
     int           framelip;       ///< the position in the current animation
-    Uint32        framefx;        ///< the special effects associated with this frame
+    BIT_FIELD     framefx;        ///< the special effects associated with this frame
 
 #if defined(__cplusplus)
     s_ego_md2_frame();

@@ -586,13 +586,13 @@ void free_one_character_in_game( const CHR_REF by_reference character )
 
         if ( pai->target == character )
         {
-            pai->alert |= ALERTIF_TARGETKILLED;
+            SET_BIT( pai->alert, ALERTIF_TARGETKILLED );
             pai->target = cnt;
         }
 
         if ( chr_get_pteam( cnt )->leader == character )
         {
-            pai->alert |= ALERTIF_LEADERKILLED;
+            SET_BIT( pai->alert, ALERTIF_LEADERKILLED );
         }
     }
     CHR_END_LOOP();
@@ -1076,7 +1076,7 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
     // Don't allow living characters to drop kursed weapons
     if ( !ignorekurse && pchr->iskursed && pmount->alive && pchr->isitem )
     {
-        pchr->ai.alert |= ALERTIF_NOTDROPPED;
+        SET_BIT( pchr->ai.alert, ALERTIF_NOTDROPPED );
         return bfalse;
     }
 
@@ -1161,11 +1161,11 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
     if ( pmount->ismount )
     {
         pmount->team = pmount->baseteam;
-        pmount->ai.alert |= ALERTIF_DROPPED;
+        SET_BIT( pmount->ai.alert, ALERTIF_DROPPED );
     }
 
     pchr->team = pchr->baseteam;
-    pchr->ai.alert |= ALERTIF_DROPPED;
+    SET_BIT( pchr->ai.alert, ALERTIF_DROPPED );
 
     // Reset transparency
     if ( pchr->isitem && pmount->transferblend )
@@ -1347,7 +1347,7 @@ void attach_character_to_mount( const CHR_REF by_reference iitem, const CHR_REF 
         // Set the alert
         if ( pitem->alive )
         {
-            pitem->ai.alert |= ALERTIF_GRABBED;
+            SET_BIT( pitem->ai.alert, ALERTIF_GRABBED );
         }
     }
 
@@ -1358,7 +1358,7 @@ void attach_character_to_mount( const CHR_REF by_reference iitem, const CHR_REF 
         // Set the alert
         if ( !pholder->isitem && pholder->alive )
         {
-            pholder->ai.alert |= ALERTIF_GRABBED;
+            SET_BIT( pholder->ai.alert, ALERTIF_GRABBED );
         }
     }
 
@@ -1651,7 +1651,7 @@ bool_t chr_add_pack_item( const CHR_REF by_reference item, const CHR_REF by_refe
             // Only some were transfered,
             pitem->ammo     = pitem->ammo + pstack->ammo - pstack->ammomax;
             pstack->ammo    = pstack->ammomax;
-            pchr->ai.alert |= ALERTIF_TOOMUCHBAGGAGE;
+            SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
         }
     }
     else
@@ -1659,7 +1659,7 @@ bool_t chr_add_pack_item( const CHR_REF by_reference item, const CHR_REF by_refe
         // Make sure we have room for another item
         if ( pchr_pack->count >= MAXNUMINPACK )
         {
-            pchr->ai.alert |= ALERTIF_TOOMUCHBAGGAGE;
+            SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
             return bfalse;
         }
 
@@ -1669,7 +1669,7 @@ bool_t chr_add_pack_item( const CHR_REF by_reference item, const CHR_REF by_refe
             detach_character_from_mount( item, btrue, bfalse );
 
             // clear the dropped flag
-            pitem->ai.alert &= ~ALERTIF_DROPPED;
+			UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
         }
 
         // Remove the item from play
@@ -1683,7 +1683,7 @@ bool_t chr_add_pack_item( const CHR_REF by_reference item, const CHR_REF by_refe
         // fix the flags
         if ( pitem_cap->isequipment )
         {
-            pitem->ai.alert |= ALERTIF_PUTAWAY;  // same as ALERTIF_ATLASTWAYPOINT;
+            SET_BIT( pitem->ai.alert, ALERTIF_PUTAWAY );  // same as ALERTIF_ATLASTWAYPOINT;
         }
     }
 
@@ -1780,7 +1780,7 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
     if ( pfound_item->iskursed && pfound_item->isequipped && !ignorekurse )
     {
         // Flag the last found_item as not removed
-        pfound_item->ai.alert |= ALERTIF_NOTTAKENOUT;  // Same as ALERTIF_NOTPUTAWAY
+        SET_BIT( pfound_item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
 
         // Cycle it to the front
         pfound_item_pack->next        = pchr_pack->next;
@@ -1803,8 +1803,8 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
         attach_character_to_mount( found_item, character, grip_off );
 
         // fix the flags
-        pfound_item->ai.alert &= ~ALERTIF_GRABBED;
-        pfound_item->ai.alert |= ALERTIF_TAKENOUT;
+		UNSET_BIT( pfound_item->ai.alert, ALERTIF_GRABBED );
+        SET_BIT( pfound_item->ai.alert, ALERTIF_TAKENOUT );
     }
 
     if ( MAX_CHR == pchr_pack->next )
@@ -1856,7 +1856,7 @@ void drop_keys( const CHR_REF by_reference character )
                     pitem->pack.next = ( CHR_REF )MAX_CHR;
                     pchr->pack.count--;
                     pitem->attachedto = ( CHR_REF )MAX_CHR;
-                    pitem->ai.alert |= ALERTIF_DROPPED;
+                    SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
                     pitem->hitready = btrue;
                     pitem->pack.was_packed = pitem->pack.is_packed;
                     pitem->pack.is_packed  = bfalse;
@@ -1918,8 +1918,8 @@ bool_t drop_all_items( const CHR_REF by_reference character )
                 detach_character_from_mount( item, btrue, btrue );
 
                 chr_set_pos( pitem, chr_get_pos_v(pchr) );
-                pitem->hitready               = btrue;
-                pitem->ai.alert              |= ALERTIF_DROPPED;
+                pitem->hitready           = btrue;
+                SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
                 pitem->enviro.floor_level     = pchr->enviro.floor_level;
                 pitem->enviro.level           = pchr->enviro.level;
                 pitem->enviro.fly_level       = pchr->enviro.fly_level;
@@ -2170,7 +2170,7 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
             // Lift the item a little and quit...
             pchr_b->vel.z = DROPZVEL;
             pchr_b->hitready = btrue;
-            pchr_b->ai.alert |= ALERTIF_DROPPED;
+            SET_BIT( pchr_b->ai.alert, ALERTIF_DROPPED );
             break;
         }
 
@@ -2300,7 +2300,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
 	    // Make the iweapon attack too
 	    chr_play_action( pweapon, ACTION_MJ, bfalse );
 
-        pweapon->ai.alert |= ALERTIF_USED;
+        SET_BIT( pweapon->ai.alert, ALERTIF_USED );
     }
 
     // What kind of attack are we going to do?
@@ -2314,7 +2314,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
 
             pthrown->iskursed = bfalse;
             pthrown->ammo = 1;
-            pthrown->ai.alert |= ALERTIF_THROWN;
+            SET_BIT( pthrown->ai.alert, ALERTIF_THROWN );
             velocity = pchr->strength / ( pthrown->phys.weight * THROWFIX );
             velocity += MINTHROWVELOCITY;
             velocity = MIN( velocity, MAXTHROWVELOCITY );
@@ -2477,7 +2477,7 @@ void call_for_help( const CHR_REF by_reference character )
     {
         if ( cnt != character && !team_hates_team( pchr->team, team ) )
         {
-            pchr->ai.alert |= ALERTIF_CALLEDFORHELP;
+            SET_BIT( pchr->ai.alert, ALERTIF_CALLEDFORHELP );
         }
     }
     CHR_END_LOOP();
@@ -3190,7 +3190,7 @@ bool_t heal_character( const CHR_REF by_reference character, const CHR_REF by_re
     // Set alerts, but don't alert that we healed ourselves
     if ( healer != character && pchr_h->attachedto != character && ABS( amount ) > HURTDAMAGE )
     {
-        pchr->ai.alert |= ALERTIF_HEALED;
+        SET_BIT( pchr->ai.alert, ALERTIF_HEALED );
         pchr->ai.attacklast = healer;
     }
 
@@ -3345,7 +3345,7 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
 
     //Set various alerts to let others know it has died
     //and distribute experience to whoever needs it
-    pchr->ai.alert |= ALERTIF_KILLED;
+    SET_BIT( pchr->ai.alert, ALERTIF_KILLED );
 
     CHR_BEGIN_LOOP_ACTIVE( tnc, plistener )
     {
@@ -3361,13 +3361,13 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
         if ( TeamStack.lst[pchr->team].leader == ichr && chr_get_iteam( tnc ) == pchr->team )
         {
             // All folks on the leaders team get the alert
-            plistener->ai.alert |= ALERTIF_LEADERKILLED;
+            SET_BIT( plistener->ai.alert, ALERTIF_LEADERKILLED );
         }
 
         // Let the other characters know it died
         if ( plistener->ai.target == ichr )
         {
-            plistener->ai.alert |= ALERTIF_TARGETKILLED;
+            SET_BIT( plistener->ai.alert, ALERTIF_TARGETKILLED );
         }
     }
     CHR_END_LOOP();
@@ -3391,7 +3391,7 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
 //--------------------------------------------------------------------------------------------
 int damage_character( const CHR_REF by_reference character, FACING_T direction,
                      IPair  damage, Uint8 damagetype, TEAM_REF team,
-                     CHR_REF attacker, Uint16 effects, bool_t ignore_invictus )
+                     CHR_REF attacker, BIT_FIELD effects, bool_t ignore_invictus )
 {
     /// @details ZZ@> This function calculates and applies damage to a character.  It also
     ///    sets alerts and begins actions.  Blocking and frame invincibility
@@ -3455,7 +3455,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         actual_damage = actual_damage >> GET_DAMAGE_RESIST( pchr->damagemodifier[damagetype] );
 
         // Allow actual_damage to be dealt to mana (mana shield spell)
-        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEMANA) )
+        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEMANA) )
         {
             int manadamage;
             manadamage = MAX( pchr->mana - actual_damage, 0 );
@@ -3463,13 +3463,13 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
             actual_damage -= manadamage;
             if ( pchr->ai.index != attacker )
             {
-                pchr->ai.alert |= ALERTIF_ATTACKED;
+                SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
                 pchr->ai.attacklast = attacker;
             }
         }
 
         // Allow charging (Invert actual_damage to mana)
-        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGECHARGE) )
+        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGECHARGE) )
         {
             pchr->mana += actual_damage;
             if ( pchr->mana > pchr->manamax )
@@ -3480,7 +3480,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         }
 
         // Invert actual_damage to heal
-        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype],DAMAGEINVERT) )
+        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVERT) )
             actual_damage = -actual_damage;
 
         // Remember the actual_damage type
@@ -3615,7 +3615,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                                 // Don't let characters chase themselves...  That would be silly
                                 if ( attacker != character )
                                 {
-                                    pchr->ai.alert |= ALERTIF_ATTACKED;
+                                    SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
                                     pchr->ai.attacklast = attacker;
                                     pchr->carefultime = CAREFULTIME;
                                 }
@@ -3737,7 +3737,7 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF by_reference attacker )
     spawn_one_particle_global( pchr->pos, pchr->ori.facing_z, PIP_DEFEND, 0 );
 
     pchr->damagetime    = DEFENDTIME;
-    pchr->ai.alert     |= ALERTIF_BLOCKED;
+    SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
     pchr->ai.attacklast = attacker;                 // For the ones attacking a shield
 }
 
@@ -4063,7 +4063,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
 
             if ( water.is_water )
             {
-                pchr->ai.alert |= ALERTIF_INWATER;
+                SET_BIT( pchr->ai.alert, ALERTIF_INWATER );
             }
         }
         else
@@ -4630,7 +4630,7 @@ void respawn_character( const CHR_REF by_reference character )
         if ( INGAME_CHR( item ) && ChrList.lst[item].isequipped )
         {
             ChrList.lst[item].isequipped = bfalse;
-            chr_get_pai( item )->alert |= ALERTIF_PUTAWAY; // same as ALERTIF_ATLASTWAYPOINT
+            SET_BIT( chr_get_pai( item )->alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
         }
     }
     PACK_END_LOOP( item );
@@ -5276,7 +5276,7 @@ void issue_clean( const CHR_REF by_reference character )
             pchr->ai.timer  = update_wld + 2;  // Don't let it think too much...
         }
 
-        pchr->ai.alert |= ALERTIF_CLEANEDUP;
+        SET_BIT( pchr->ai.alert, ALERTIF_CLEANEDUP );
     }
     CHR_END_LOOP();
 }
@@ -5560,7 +5560,7 @@ void move_one_character_get_environment( chr_t * pchr )
         // Do ground hits
         if ( pchr->enviro.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
         {
-            pchr->ai.alert |= ALERTIF_HITGROUND;
+            SET_BIT( pchr->ai.alert, ALERTIF_HITGROUND );
             pchr->hitready = bfalse;
         }
 
@@ -6023,7 +6023,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
         allowedtoattack = bfalse;
         if ( 0 == pweapon->reloadtime )
         {
-            pweapon->ai.alert |= ALERTIF_USED;
+            SET_BIT( pweapon->ai.alert, ALERTIF_USED );
         }
     }
 
@@ -6050,7 +6050,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                     if ( !ACTION_IS_TYPE( action, P ) || !pmount_cap->ridercanattack )
                     {
                         chr_play_action( pmount, generate_randmask( ACTION_UA, 1 ), bfalse );
-                        pmount->ai.alert     |= ALERTIF_USED;
+                        SET_BIT( pmount->ai.alert, ALERTIF_USED );
                         pchr->ai.lastitemused = mount;
 
                         retval = btrue;
@@ -6137,7 +6137,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                 pchr->ai.lastitemused = iweapon;
                 if ( iweapon == ichr || HAS_NO_BITS(action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
                 {
-                    pweapon->ai.alert |= ALERTIF_USED;
+                    SET_BIT( pweapon->ai.alert, ALERTIF_USED );
                 }
 
                 retval = btrue;
@@ -6303,7 +6303,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             if (( pitem->iskursed || pro_get_pcap( pitem->profile_ref )->istoobig ) && !pro_get_pcap( pitem->profile_ref )->isequipment )
             {
                 // The item couldn't be put away
-                pitem->ai.alert |= ALERTIF_NOTPUTAWAY;
+                SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
                 if ( VALID_PLA( pchr->is_which_player ) )
                 {
                     if ( pro_get_pcap( pitem->profile_ref )->istoobig )
@@ -6345,7 +6345,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             if (( pitem->iskursed || pitem_cap->istoobig ) && !pitem_cap->isequipment )
             {
                 // The item couldn't be put away
-                pitem->ai.alert |= ALERTIF_NOTPUTAWAY;
+                SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
                 if ( VALID_PLA( pchr->is_which_player ) )
                 {
                     if ( pitem_cap->istoobig )
@@ -7270,7 +7270,7 @@ float set_character_animation_rate( chr_t * pchr )
         {
             int tmp_action, rand_val;
 
-            pchr->ai.alert |= ALERTIF_BORED;
+            SET_BIT( pchr->ai.alert, ALERTIF_BORED );
             pchr->boretime = BORETIME;
 
             // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
@@ -7900,7 +7900,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
     // this function is only truely valid if there is no other order
     retval = HAS_NO_BITS( pai->alert, ALERTIF_ORDERED );
 
-    pai->alert        |= ALERTIF_ORDERED;
+    SET_BIT( pai->alert, ALERTIF_ORDERED );
     pai->order_value   = value;
     pai->order_counter = counter;
 
@@ -7942,7 +7942,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lifetime_s
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, Uint32 opt_bits )
+billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits )
 {
     chr_t            * pchr;
     billboard_data_t * pbb;
@@ -8543,7 +8543,7 @@ bool_t ai_state_set_changed( ai_state_t * pai )
 
     if ( HAS_NO_BITS( pai->alert, ALERTIF_CHANGED ) )
     {
-        pai->alert |= ALERTIF_CHANGED;
+        SET_BIT( pai->alert, ALERTIF_CHANGED );
         retval = btrue;
     }
 
@@ -8706,7 +8706,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             if ( pmount->inst.matrix_cache.matrix_valid )
             {
                 mc_tmp->valid     = btrue;
-                mc_tmp->type_bits     |= MAT_WEAPON;        // add in the weapon data
+                SET_BIT( mc_tmp->type_bits, MAT_WEAPON );        // add in the weapon data
 
                 mc_tmp->grip_chr  = pchr->attachedto;
                 mc_tmp->grip_slot = pchr->inwhich_slot;
@@ -8722,7 +8722,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             chr_t * ptarget = ChrList.lst + itarget;
 
             mc_tmp->valid   = btrue;
-            mc_tmp->type_bits   |= MAT_CHARACTER;  // add in the MAT_CHARACTER-type data for the object we are "connected to"
+            SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
             mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->ori.map_facing_x - MAP_TURN_OFFSET );
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_facing_y - MAP_TURN_OFFSET );
@@ -8866,7 +8866,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 
         // add in the appropriate mods
         // this is a hybrid character and weapon matrix
-        mc_tmp->type_bits  |= MAT_CHARACTER;
+        SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );
 
         // treat it like a normal character matrix
         apply_one_character_matrix( pweap, mc_tmp );
@@ -8951,7 +8951,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             make_one_character_matrix( GET_REF_PCHR( pchr ) );
 
             // recover the matrix_cache values from the character
-            mcache->type_bits |= MAT_CHARACTER;
+            SET_BIT( mcache->type_bits, MAT_CHARACTER );
             if ( mcache->matrix_valid )
             {
                 mcache->valid     = btrue;
@@ -9037,7 +9037,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
     if ( 0 != itmp ) goto cmp_matrix_cache_end;
 
     //---- check for differences in the MAT_WEAPON data
-    if ( 0 != ( plhs->type_bits & MAT_WEAPON ) )
+    if ( HAS_SOME_BITS(plhs->type_bits, MAT_WEAPON ) )
     {
         itmp = ( signed )REF_TO_INT( plhs->grip_chr ) - ( signed )REF_TO_INT( prhs->grip_chr );
         if ( 0 != itmp ) goto cmp_matrix_cache_end;
@@ -9060,7 +9060,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
     }
 
     //---- check for differences in the MAT_CHARACTER data
-    if ( 0 != ( plhs->type_bits & MAT_CHARACTER ) )
+    if ( HAS_SOME_BITS( plhs->type_bits, MAT_CHARACTER ) )
     {
         // handle differences in the "Euler" rotation angles in 16-bit form
         for ( cnt = 0; cnt < 3; cnt++ )
@@ -9078,7 +9078,7 @@ int cmp_matrix_cache( const void * vlhs, const void * vrhs )
     }
 
     //---- check for differences in the shared data
-    if ( 0 != ( plhs->type_bits & MAT_WEAPON ) || 0 != ( plhs->type_bits & MAT_CHARACTER ) )
+    if ( HAS_SOME_BITS( plhs->type_bits, MAT_WEAPON ) || HAS_SOME_BITS( plhs->type_bits, MAT_CHARACTER ) )
     {
         // handle differences in our own scale
         for ( cnt = 0; cnt < 3; cnt ++ )
@@ -9149,7 +9149,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     needs_update = ( rv_success == retval );
 
     // Update the grip vertices no matter what (if they are used)
-    if ( 0 != ( MAT_WEAPON & mc_tmp.type_bits ) && INGAME_CHR( mc_tmp.grip_chr ) )
+    if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && INGAME_CHR( mc_tmp.grip_chr ) )
     {
         egoboo_rv retval;
         chr_t   * ptarget = ChrList.lst + mc_tmp.grip_chr;
@@ -9194,7 +9194,7 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF by_reference ich
     if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
     {
         pself->bumplast_time = update_wld;
-        pself->alert |= ALERTIF_BUMPED;
+        SET_BIT( pself->alert, ALERTIF_BUMPED );
     }
     pself->bumplast = ichr;
 
@@ -9496,7 +9496,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
 
     if ( NULL == tint ) tint = local_tint;
 
-    if ( 0 != ( bits & CHR_REFLECT ) )
+    if ( HAS_SOME_BITS( bits, CHR_REFLECT ) )
     {
         // this is a reflection, use the reflected parameters
         local_alpha    = pinst->ref.alpha;
@@ -9525,7 +9525,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
     weight_sum = 0;
     for ( i = 0; i < 4; i++ ) tint[i] = 0;
 
-    if ( 0 != ( bits & CHR_SOLID ) )
+    if ( HAS_SOME_BITS( bits, CHR_SOLID ) )
     {
         // solid characters are not blended onto the canvas
         // the alpha channel is not important
@@ -9537,7 +9537,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
         tint[3] += 1.0f;
     }
 
-    if ( 0 != ( bits & CHR_ALPHA ) )
+    if ( HAS_SOME_BITS( bits, CHR_ALPHA ) )
     {
         // alpha characters are blended onto the canvas using the alpha channel
         // the alpha channel is not important
@@ -9549,7 +9549,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
         tint[3] += local_alpha * INV_FF;
     }
 
-    if ( 0 != ( bits & CHR_LIGHT ) )
+    if ( HAS_SOME_BITS( bits, CHR_LIGHT ) )
     {
         // alpha characters are blended onto the canvas by adding their color
         // the more black the colors, the less visible the character
@@ -9567,7 +9567,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits 
         tint[3] += 1.0f;
     }
 
-    if ( 0 != ( bits & CHR_PHONG ) )
+    if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
         // phong is essentially the same as light, but it is the
         // sheen that sets the effect

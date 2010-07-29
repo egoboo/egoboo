@@ -502,7 +502,7 @@ static void   surround_space( int position );
 static int    get_indentation();
 static void   fix_operators();
 static int    parse_token( int read );
-static void   emit_opcode( Uint32 highbits );
+static void   emit_opcode( BIT_FIELD highbits );
 static void   parse_line_by_line();
 static Uint32 jump_goto( int index, int index_end );
 static void   parse_jumps( int ainumber );
@@ -856,12 +856,12 @@ int parse_token( int read )
 }
 
 //--------------------------------------------------------------------------------------------
-void emit_opcode( Uint32 highbits )
+void emit_opcode( BIT_FIELD highbits )
 {
     // detect a constant value
     if ( 'C' == Token.cType || 'F' == Token.cType )
     {
-        highbits |= FUNCTION_BIT;
+		SET_BIT( highbits, FUNCTION_BIT );
     }
     if ( AisCompiled_offset < AISMAXCOMPILESIZE )
     {
@@ -1044,7 +1044,7 @@ Uint32 jump_goto( int index, int index_end )
         if ( indent > targetindent )
         {
             // Was it a function
-            if (( value & FUNCTION_BIT ) != 0 )
+            if ( HAS_SOME_BITS( value, FUNCTION_BIT ) )
             {
                 // Each function needs a jump
                 index++;

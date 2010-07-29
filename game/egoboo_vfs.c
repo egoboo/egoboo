@@ -88,7 +88,7 @@ typedef union u_vfs_fileptr vfs_fileptr_t;
 /// A container holding either a FILE * or a PHYSFS_File *, and translated error states
 struct vfs_FILE
 {
-    Uint32        flags;    // flags for stuff like ferror() that doesn't clear every time a filesystem call is made
+    BIT_FIELD     flags;    // flags for stuff like ferror() that doesn't clear every time a filesystem call is made
     vfs_mode_t    type;
     vfs_fileptr_t ptr;
 };
@@ -96,12 +96,12 @@ struct vfs_FILE
 /// A container for holding all the data for a search
 struct s_vfs_search_context
 {
-    char ** file_list;
-    char ** ptr;
+    char **    file_list;
+    char **	   ptr;
 
-    char    path[VFS_MAX_PATH];
-    char    ext[255];
-    Uint32  bits;
+    char       path[VFS_MAX_PATH];
+    char	   ext[255];
+    BIT_FIELD  bits;
 
     VFS_PATH found;
 };
@@ -2213,19 +2213,19 @@ void _vfs_translate_error( vfs_FILE * pfile )
     {
         if ( ferror( pfile->ptr.c ) )
         {
-            pfile->flags |= VFS_ERROR;
+            SET_BIT( pfile->flags, VFS_ERROR );
         }
 
         if ( feof( pfile->ptr.c ) )
         {
-            pfile->flags |= VFS_EOF;
+            SET_BIT( pfile->flags, VFS_EOF );
         }
     }
     else if ( vfs_physfs == pfile->type )
     {
         if ( PHYSFS_eof( pfile->ptr.p ) )
         {
-            pfile->flags |= VFS_EOF;
+            SET_BIT( pfile->flags, VFS_EOF );
         }
     }
 }

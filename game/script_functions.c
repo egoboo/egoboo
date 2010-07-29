@@ -104,7 +104,7 @@ Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument >= 0 && pstate->argument < 32 )
     {
-        pself->alert |= ( 1 << pstate->argument );
+        SET_BIT( pself->alert, 1 << pstate->argument );
         returncode = btrue;
     }
 
@@ -123,7 +123,7 @@ Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument >= 0 && pstate->argument < 32 )
     {
-        pself->alert &= ~( 1 << pstate->argument );
+        UNSET_BIT( pself->alert, 1 << pstate->argument );
         returncode = btrue;
     }
 
@@ -157,7 +157,7 @@ Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->alert |= pstate->argument;
+    SET_BIT( pself->alert, pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -171,7 +171,7 @@ Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->alert &= ~pstate->argument;
+    UNSET_BIT( pself->alert, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -202,7 +202,7 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->y >= 0 && pstate->y < 32 )
     {
-        pstate->x |= ( 1 << pstate->y );
+		SET_BIT( pstate->x, 1 << pstate->y );
         returncode = btrue;
     }
 
@@ -221,7 +221,7 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->y >= 0 && pstate->y < 32 )
     {
-        pstate->x &= ~( 1 << pstate->y );
+		UNSET_BIT(pstate->x, 1 << pstate->y);
         returncode = btrue;
     }
 
@@ -255,7 +255,7 @@ Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->x |= pstate->y;
+	SET_BIT(pstate->x, pstate->y);
 
     SCRIPT_FUNCTION_END();
 }
@@ -269,7 +269,7 @@ Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->x &= ~pstate->y;
+	UNSET_BIT(pstate->x, pstate->y);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6716,7 +6716,7 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 
     if ( INGAME_CHR( iattached ) )
     {
-        Uint32 bits = ChrList.lst[iattached].ai.alert;
+        BIT_FIELD bits = ChrList.lst[iattached].ai.alert;
 
         if ( HAS_SOME_BITS( bits, ALERTIF_BLOCKED ) )
         {
@@ -7179,7 +7179,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // Inventory character
             if ( inventory_add_item( ichr, pself->target ) )
             {
-                pchild->ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
+                SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
                 scr_run_chr_script( ichr );  // Empty the grabbed messages
 

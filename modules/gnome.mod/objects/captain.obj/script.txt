@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// ZZ> Make owner same as leader...
+//Make owner same as leader...
 IfSpawned
   SetTargetToLeader
   SetOwnerToTarget
@@ -10,8 +10,9 @@ IfSpawned
   PlayMusic
 
 //------------------------------------------------------------------------------
-// ZZ> Move around...  Start at state 0
+//Move around...  Start at state 0
 IfTimeOut
+  
   // Load more bullets
   IfHoldingRangedWeapon
     DoNothing
@@ -24,8 +25,8 @@ IfTimeOut
       tmpargument = 6
       SendMessageNear
     SetTargetToOldTarget
-
   SetTurnModeToVelocity
+  
   IfStateIs6
     // Kill 'em all!
     IfTargetIsAlive
@@ -51,9 +52,11 @@ IfTimeOut
     Else
       tmpargument = 3
       SetState
+      
+  // Fire at enemy
   IfStateIs5
-    // Fire at enemy
-    IfTargetIsAlive
+    IfTargetIsOnHatedTeam
+      SetOldTarget
       SetTargetToNearestFriend
         IfFacingTarget
           SetTargetToOldTarget
@@ -63,7 +66,7 @@ IfTimeOut
             // The baddy is in front of the frenny...
             // Check enemy level
             SetTargetToOldTarget
-            tmpx = selfz + 50
+            tmpx = selfz + 75
             tmpy = targetz
             IfXIsLessThanY
               tmpargument = 4
@@ -92,7 +95,7 @@ IfTimeOut
         Else
           // Check enemy level
           SetTargetToOldTarget
-          tmpx = selfz + 50
+          tmpx = selfz + 75
           tmpy = targetz
           IfXIsLessThanY
             tmpargument = 4
@@ -113,7 +116,7 @@ IfTimeOut
               tmpargument = 10
       Else
         // Check enemy level
-        tmpx = selfz + 50
+        tmpx = selfz + 75
         tmpy = targetz
         IfXIsLessThanY
           tmpargument = 4
@@ -133,9 +136,10 @@ IfTimeOut
             AddWaypoint
             tmpargument = 10
     Else
-      // The target is dead...  Follow leader
+      //Not an enemy target
       tmpargument = 4
       SetState
+      
   IfStateIs4
     // Check pit
     tmpx = selfz
@@ -148,7 +152,7 @@ IfTimeOut
       // Check leader height
       SetTargetToLeader
       tmpx = targetz
-      tmpy = selfz + 50
+      tmpy = selfz + 75
       IfXIsMoreThanY
         // Leader is too high, so wait...
         tmpx = selfx
@@ -185,6 +189,7 @@ IfTimeOut
           ClearWaypoints
           AddWaypoint
           tmpargument = 20
+
   IfStateIs3
     // Am I out?
     tmpx = selfz
@@ -195,8 +200,7 @@ IfTimeOut
       SetState
     Else
       // Wait for the player to catch up
-      SetTargetToOwner
-      tmpx = targetdistance
+      tmpx = ownerdistance
       tmpy = 200
       IfXIsLessThanY
         // "I'll watch your back"
@@ -223,12 +227,14 @@ IfTimeOut
           ClearWaypoints
           AddWaypoint
     tmpargument = 10
+    
   IfStateIs2
     // Jump out of the pit
     tmpx = selfx
     tmpy = 3968
     ClearWaypoints
     AddWaypoint
+    
     // Help a little...
     tmpy = 12
     tmpx = 0
@@ -239,10 +245,11 @@ IfTimeOut
     tmpargument = 3
     SetState
     tmpargument = 40
+
   IfStateIs1
     // Jump onto the crate
     tmpargument = [CRAT]
-    tmpdistance = 6
+    tmpdistance = BLAHITEMS + BLAHFRIENDS + BLAHENEMIES
     SetTargetToNearestBlahID
       tmpx = targetdistance
       tmpy = 100
@@ -275,9 +282,10 @@ IfTimeOut
       tmpargument = 1
       SetState
       tmpargument = 40
+      
   IfStateIs0
     // Check for enemies in the pit
-    SetTargetToNearestEnemy
+    SetTargetToWideEnemy
       tmpx = targetz
       tmpy = 50
       IfXIsLessThanY
@@ -291,26 +299,18 @@ IfTimeOut
         tmpargument = 10
       Else
         // Get near the crate
-        tmpx = 2304
-        tmpy = 3550
-        ClearWaypoints
-        AddWaypoint
         tmpargument = 1
         SetState
-        tmpargument = 150
+        tmpargument = 15
     Else
       // Get near the crate
-      tmpx = 2304
-      tmpy = 3550
-      ClearWaypoints
-      AddWaypoint
       tmpargument = 1
       SetState
-      tmpargument = 200
+      tmpargument = 15
   SetTime
 
 //------------------------------------------------------------------------------
-// ZZ> Handle death by sending a message and other stuff
+//Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 3
   PlaySound
@@ -322,7 +322,7 @@ IfKilled
   SendMessage
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Make the character body
@@ -330,7 +330,7 @@ IfKilled
   SetBumpHeight
 
 //------------------------------------------------------------------------------
-// ZZ> Handle being attacked by blocking or countering or running away
+//Handle being attacked by blocking or countering or running away
 IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnSameTeam

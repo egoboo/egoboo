@@ -1431,7 +1431,7 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ idsz, Uint32 targeting_bits )
+bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ idsz, BIT_FIELD targeting_bits )
 {
     bool_t retval = bfalse;
 
@@ -1511,7 +1511,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, Uint32 targeting_bits )
+CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targeting_bits )
 {
     /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
     ///     If max_dist is 0 then it searches without a max limit.
@@ -1863,7 +1863,7 @@ void set_one_player_latch( const PLA_REF by_reference player )
     pchr = ChrList.lst + ppla->index;
 
     // is the device a local device or an internet device?
-    if ( pdevice->bits == INPUT_BITS_NONE ) return;
+    if ( pdevice->bits == EMPTY_BIT_FIELD ) return;
 
     // Clear the player's latch buffers
     latch_init( &( sum ) );
@@ -1909,19 +1909,19 @@ void set_one_player_latch( const PLA_REF by_reference player )
 
         // Read buttons
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
-            sum.b |= LATCHBUTTON_JUMP;
+            SET_BIT( sum.b, LATCHBUTTON_JUMP );
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_USE ) )
-            sum.b |= LATCHBUTTON_LEFT;
+            SET_BIT( sum.b, LATCHBUTTON_LEFT );
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_GET ) )
-            sum.b |= LATCHBUTTON_ALTLEFT;
+            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKLEFT;
+            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_USE ) )
-            sum.b |= LATCHBUTTON_RIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_GET ) )
-            sum.b |= LATCHBUTTON_ALTRIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKRIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
     }
 
     // Joystick A routines
@@ -1957,19 +1957,19 @@ void set_one_player_latch( const PLA_REF by_reference player )
 
         // Read buttons
         if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_JUMP ) )
-            sum.b |= LATCHBUTTON_JUMP;
+            SET_BIT( sum.b, LATCHBUTTON_JUMP );
         if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_USE ) )
-            sum.b |= LATCHBUTTON_LEFT;
+            SET_BIT( sum.b, LATCHBUTTON_LEFT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_GET ) )
-            sum.b |= LATCHBUTTON_ALTLEFT;
+            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKLEFT;
+            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_USE ) )
-            sum.b |= LATCHBUTTON_RIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_GET ) )
-            sum.b |= LATCHBUTTON_ALTRIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKRIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
     }
 
     // Joystick B routines
@@ -2024,8 +2024,9 @@ void set_one_player_latch( const PLA_REF by_reference player )
     if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_KEYBOARD ) && keyb.on )
     {
         fvec2_t joy_pos, joy_new;
-
+		
         fvec2_clear( &joy_new );
+        fvec2_clear( &joy_pos );
         if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
             !control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_CAMERA ) )
         {
@@ -2611,7 +2612,7 @@ bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinf
         // Inventory character
         inventory_add_item( ichr, pinfo->parent );
 
-        pchr->ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
+        SET_BIT( pchr->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
         pchr->attachedto = pinfo->parent;  // Make grab work
         scr_run_chr_script( ichr );  // Empty the grabbed messages
 
@@ -2767,13 +2768,13 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             else
             {
                 PLA_REF ipla;
-                Uint32 bits;
+                BIT_FIELD bits;
 
                 // each new player steals an input device from the 1st player
                 bits = 1 << local_numlpla;
                 for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
                 {
-                    PlaStack.lst[ipla].device.bits &= ~bits;
+                    UNSET_BIT( PlaStack.lst[ipla].device.bits, bits );
                 }
 
                 player_added = add_player( new_object, ( PLA_REF )PlaStack.count, bits );
@@ -3071,7 +3072,7 @@ void disaffirm_attached_particles( const CHR_REF by_reference character )
     if ( INGAME_CHR( character ) )
     {
         // Set the alert for disaffirmation ( wet torch )
-        ChrList.lst[character].ai.alert |= ALERTIF_DISAFFIRMED;
+        SET_BIT( ChrList.lst[character].ai.alert, ALERTIF_DISAFFIRMED );
     }
 }
 
@@ -3134,7 +3135,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     }
 
     // Set the alert for reaffirmation ( for exploding barrels with fire )
-    pchr->ai.alert |= ALERTIF_REAFFIRMED;
+    SET_BIT( pchr->ai.alert, ALERTIF_REAFFIRMED );
 
     return number_added;
 }
@@ -3477,7 +3478,7 @@ bool_t add_player( const CHR_REF by_reference character, const PLA_REF by_refere
         ppla->valid           = btrue;
         ppla->device.bits     = device_bits;
 
-        if ( device_bits != INPUT_BITS_NONE )
+        if ( device_bits != EMPTY_BIT_FIELD )
         {
             local_noplayers = bfalse;
             ChrList.lst[character].islocalplayer = btrue;

@@ -295,7 +295,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     }
 
     // Clear alerts for next time around
-    pself->alert = ALERT_NONE;
+    RESET_BIT_FIELD( pself->alert );
 
     PROFILE_END2_STRUCT( pself );
 }
@@ -1729,7 +1729,7 @@ void set_alerts( const CHR_REF by_reference character )
 
     if ( at_waypoint )
     {
-        pai->alert |= ALERTIF_ATWAYPOINT;
+        SET_BIT( pai->alert, ALERTIF_ATWAYPOINT );
 
         if ( waypoint_list_finished( &( pai->wp_lst ) ) )
         {
@@ -1739,7 +1739,7 @@ void set_alerts( const CHR_REF by_reference character )
             // doubles for "at last waypoint" and "not put away"
             if ( !chr_get_pcap( character )->isequipment )
             {
-                pai->alert |= ALERTIF_ATLASTWAYPOINT;
+                SET_BIT( pai->alert, ALERTIF_ATLASTWAYPOINT );
             }
 
             // !!!!restart the waypoint list, do not clear them!!!!

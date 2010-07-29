@@ -43,7 +43,7 @@
 #define NEAREST     0              ///< unlimited range
 
 /// Character AI alerts
-enum
+enum chr_alert_bits
 {
     ALERT_NONE                           = 0,
     ALERTIF_SPAWNED                      = 1 <<  0,
@@ -146,7 +146,7 @@ struct s_ai_state
     CHR_REF        child;         ///< The character's child
 
     // some local storage
-    Uint32         alert;         ///< Alerts for AI script
+    BIT_FIELD      alert;         ///< Alerts for AI script
     int            state;         ///< Short term memory for AI
     int            content;       ///< More short term memory
     int            passage;       ///< The passage associated with this character
