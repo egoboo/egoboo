@@ -354,9 +354,9 @@ bool_t setup_download( egoboo_config_t * pcfg )
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
     pcfg->autoturncamera = cfg_default.autoturncamera;
-    if ( 'G' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAMTURN_GOOD;
-    else if ( 'T' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAMTURN_AUTO;
-    else if ( 'F' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAMTURN_NONE;
+    if ( 'G' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_GOOD;
+    else if ( 'T' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_AUTO;
+    else if ( 'F' == toupper( lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_NONE;
 
     // Max number of messages displayed
     GetKey_int( "MAX_TEXT_MESSAGE", pcfg->message_count_req, cfg_default.message_count_req );
@@ -571,11 +571,11 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Camera control mode
     switch ( pcfg->autoturncamera )
     {
-        case CAMTURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
-        case CAMTURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
+        case CAM_TURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
+        case CAM_TURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
 
         default:
-        case CAMTURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
+        case CAM_TURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
     }
 
     // Max number of messages displayed

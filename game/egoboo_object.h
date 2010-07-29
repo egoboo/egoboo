@@ -48,6 +48,7 @@ enum e_ego_object_state
 typedef enum e_ego_object_state ego_object_state_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The data that is "inherited" by every Egoboo object.
 struct s_ego_object_base
 {
@@ -206,6 +207,7 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// A variable to hold the object guid counter
 extern Uint32 ego_object_guid;
 

@@ -27,6 +27,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// axis aligned bounding box
 struct s_aabb
 {
@@ -36,6 +37,7 @@ struct s_aabb
 typedef struct s_aabb aabb_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// Level 0 character "bumper"
 /// The simplest collision volume, equivalent to the old-style collision data
 /// stored in data.txt
@@ -48,6 +50,7 @@ struct s_bumper
 typedef struct s_bumper bumper_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The various axes for the octagonal bounding box
 enum e_octagonal_axes
 {
@@ -62,6 +65,7 @@ bool_t oct_vec_ctor( oct_vec_t ovec , fvec3_t pos );
 #define OCT_VEC_INIT_VALS { 0,0,0,0,0 }
 
 //--------------------------------------------------------------------------------------------
+
 /// generic octagonal bounding box
 /// to be used for the Level 1 character "bumper"
 /// The best possible octagonal bounding volume. A generalization of the old octagonal bounding box
@@ -134,7 +138,8 @@ EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary );
 EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count );
 
 //--------------------------------------------------------------------------------------------
-/// @detaild A convex poly representation of an object volume
+
+/// @details A convex poly representation of an object volume
 struct s_OVolume
 {
     int      lod;             ///< the level of detail (LOD) of this volume
@@ -158,6 +163,7 @@ struct s_OVolume_Tree { OVolume_t leaf[8]; };
 typedef struct s_OVolume_Tree OVolume_Tree_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// @details A covex polygon representation of the collision of two objects
 struct s_CVolume
 {

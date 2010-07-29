@@ -22,6 +22,7 @@
 /// @file egoboo_state_machine.h
 
 //--------------------------------------------------------------------------------------------
+
 /// The various states that an egoboo state machine can occupy
 enum e_ego_states
 {

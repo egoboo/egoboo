@@ -111,6 +111,7 @@ typedef struct s_dynalight_info dynalight_info_t;
 //--------------------------------------------------------------------------------------------
 // Particle template
 //--------------------------------------------------------------------------------------------
+
 /// The definition of a particle profile
 struct s_pip
 {

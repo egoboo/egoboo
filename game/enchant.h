@@ -45,6 +45,7 @@ struct s_chr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// Enchantment template
 DECLARE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
 
@@ -63,6 +64,7 @@ struct s_enc_spawn_data
 typedef struct s_enc_spawn_data enc_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The difinition of a single Egoboo enchantment
 /// This "inherits" from ego_object_base_t
 struct s_enc
@@ -100,7 +102,7 @@ typedef struct s_enc enc_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Prototypes
+// Prototypes
 
 void enchant_system_begin();
 void enchant_system_end();

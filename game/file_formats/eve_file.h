@@ -25,6 +25,7 @@
 #include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
+
 /// Special modes for particle reflections from characters
 enum e_missle_treatment
 {
@@ -34,6 +35,7 @@ enum e_missle_treatment
 };
 
 //--------------------------------------------------------------------------------------------
+
 /// All the values that an enchant can override
 enum e_enchant_set
 {
@@ -72,6 +74,7 @@ enum e_enchant_set
 typedef enum e_enchant_set enum_enchant_set;
 
 //--------------------------------------------------------------------------------------------
+
 /// A list of all the variables that can be affested by rnchant add
 enum e_enchant_add
 {
@@ -101,6 +104,7 @@ typedef enum e_enchant_add enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// An enchantment profile, or "eve"
 /// @details An internal representation of the "enchant.txt" file
 struct s_eve

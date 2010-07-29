@@ -49,10 +49,10 @@ camera_t gCamera;
 void camera_rotmesh_init()
 {
     // Matrix init stuff (from remove.c)
-    rotmeshtopside    = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHTOPSIDE / ( 1.33333f );
-    rotmeshbottomside = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
-    rotmeshup         = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
-    rotmeshdown       = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
+    rotmeshtopside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
+    rotmeshbottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
+    rotmeshup         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
+    rotmeshdown       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->roll         =  0;
 
     pcam->mView       = pcam->mViewSave = ViewMatrix( t1.v, t2.v, t3.v, 0 );
-    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
+    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( CAM_FOV * PI / 180 ) ); // 60 degree CAM_FOV
     pcam->mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), pcam->mProjection ); // Fix Z value...
     pcam->mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), pcam->mProjection );  // HUK // ...'cause it needs it
 
@@ -166,13 +166,13 @@ void camera_adjust_angle( camera_t * pcam, float height )
     /// @details ZZ@> This function makes the camera look downwards as it is raised up
 
     float percentmin, percentmax;
-    if ( height < MINZADD )  height = MINZADD;
+    if ( height < CAM_ZADD_MIN )  height = CAM_ZADD_MIN;
 
-    percentmax = ( height - MINZADD ) / ( float )( MAXZADD - MINZADD );
+    percentmax = ( height - CAM_ZADD_MIN ) / ( float )( CAM_ZADD_MAX - CAM_ZADD_MIN );
     percentmin = 1.0f - percentmax;
 
-    pcam->turnupdown = (( MINUPDOWN * percentmin ) + ( MAXUPDOWN * percentmax ) );
-    pcam->zoom = ( MINZOOM * percentmin ) + ( MAXZOOM * percentmax );
+    pcam->turnupdown = (( CAM_UPDOWN_MIN * percentmin ) + ( CAM_UPDOWN_MAX * percentmax ) );
+    pcam->zoom = ( CAM_ZOOM_MIN * percentmin ) + ( CAM_ZOOM_MAX * percentmax );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     float x, y, z, level, newx, newy, movex, movey;
     Uint16 turnsin;
 
-    if ( CAMTURN_NONE != pcam->turn_mode )
+    if ( CAM_TURN_NONE != pcam->turn_mode )
         pcam->turn_time = 255;
     else if ( pcam->turn_time != 0 )
         pcam->turn_time--;
@@ -224,12 +224,12 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
         if ( SDLKEYDOWN( SDLK_KP7 ) )
         {
-            pcam->turnadd += CAMKEYTURN;
+            pcam->turnadd += CAM_TURN_KEY;
         }
 
         if ( SDLKEYDOWN( SDLK_KP9 ) )
         {
-            pcam->turnadd -= CAMKEYTURN;
+            pcam->turnadd -= CAM_TURN_KEY;
         }
 
         pcam->track_pos.z = 128 + mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
@@ -380,7 +380,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->pos.z   = 0.9f * pcam->pos.z + 0.1f * pcam->zgoto;
 
     // Camera controls
-    if ( pcam->turn_mode == CAMTURN_GOOD && local_numlpla == 1 )
+    if ( CAM_TURN_GOOD == pcam->turn_mode && 1 == local_numlpla )
     {
         if ( mous.on )
         {
@@ -392,22 +392,22 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
         if ( keyb.on )
         {
-            pcam->turnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) ) * ( CAMKEYTURN );
+            pcam->turnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) ) * CAM_TURN_KEY;
         }
 
         if ( joy[0].on )
         {
-            if ( !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
+            if ( !control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_CAMERA ) )
             {
-                pcam->turnadd -= joy[0].x * CAMJOYTURN;
+                pcam->turnadd -= joy[0].x * CAM_TURN_JOY;
             }
         }
 
         if ( joy[1].on )
         {
-            if ( !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
+            if ( !control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_CAMERA ) )
             {
-                pcam->turnadd -= joy[1].x * CAMJOYTURN;
+                pcam->turnadd -= joy[1].x * CAM_TURN_JOY;
             }
         }
     }
@@ -419,38 +419,38 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
             {
                 pcam->turnadd += ( mous.x / 3.0f );
                 pcam->zaddgoto += ( float ) mous.y / 3.0f;
-                if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
-                if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
+                if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
+                if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
 
-                pcam->turn_time = TURNTIME;  // Sticky turn...
+                pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
             }
         }
 
         // JoyA camera controls
         if ( joy[0].on )
         {
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_CAMERA ) )
             {
-                pcam->turnadd += joy[0].x * CAMJOYTURN;
-                pcam->zaddgoto += joy[0].y * CAMJOYTURN;
-                if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
-                if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
+                pcam->turnadd += joy[0].x * CAM_TURN_JOY;
+                pcam->zaddgoto += joy[0].y * CAM_TURN_JOY;
+                if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
+                if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
 
-                pcam->turn_time = TURNTIME;  // Sticky turn...
+                pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
             }
         }
 
         // JoyB camera controls
         if ( joy[1].on )
         {
-            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_CAMERA ) )
             {
-                pcam->turnadd += joy[1].x * CAMJOYTURN;
-                pcam->zaddgoto += joy[1].y * CAMJOYTURN;
-                if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
-                if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
+                pcam->turnadd += joy[1].x * CAM_TURN_JOY;
+                pcam->zaddgoto += joy[1].y * CAM_TURN_JOY;
+                if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
+                if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
 
-                pcam->turn_time = TURNTIME;  // Sticky turn...
+                pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
             }
         }
     }
@@ -460,15 +460,15 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     {
         if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) )
         {
-            pcam->turnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAMKEYTURN;
-            pcam->turn_time = TURNTIME;  // Sticky turn...
+            pcam->turnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAM_TURN_KEY;
+            pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
         }
 
         if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) )
         {
-            pcam->zaddgoto += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAMKEYTURN;
-            if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
-            if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
+            pcam->zaddgoto += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAM_TURN_KEY;
+            if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
+            if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
         }
     }
 
@@ -493,9 +493,9 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     movey = 0;
 
     // Adjust for camera height...
-    z = ( TRACKXAREALOW  * ( MAXZADD - pcam->zadd ) ) +
-        ( TRACKXAREAHIGH * ( pcam->zadd - MINZADD ) );
-    z = z / ( MAXZADD - MINZADD );
+    z = ( CAM_TRACK_X_AREA_LOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
+        ( CAM_TRACK_X_AREA_HIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
+    z = z / ( CAM_ZADD_MAX - CAM_ZADD_MIN );
     if ( newx < -z )
     {
         // Scroll left
@@ -508,9 +508,9 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     }
 
     // Adjust for camera height...
-    z = ( TRACKYAREAMINLOW  * ( MAXZADD - pcam->zadd ) ) +
-        ( TRACKYAREAMINHIGH * ( pcam->zadd - MINZADD ) );
-    z = z / ( MAXZADD - MINZADD );
+    z = ( CAM_TRACK_Y_AREA_MINLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
+        ( CAM_TRACK_Y_AREA_MINHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
+    z = z / ( CAM_ZADD_MAX - CAM_ZADD_MIN );
     if ( newy < z )
     {
         // Scroll down
@@ -519,9 +519,9 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     else
     {
         // Adjust for camera height...
-        z = ( TRACKYAREAMAXLOW  * ( MAXZADD - pcam->zadd ) ) +
-            ( TRACKYAREAMAXHIGH * ( pcam->zadd - MINZADD ) );
-        z = z / ( MAXZADD - MINZADD );
+        z = ( CAM_TRACK_Y_AREA_MAXLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
+            ( CAM_TRACK_Y_AREA_MAXHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
+        z = z / ( CAM_ZADD_MAX - CAM_ZADD_MIN );
         if ( newy > z )
         {
             // Scroll up
@@ -564,7 +564,7 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->turnadd      = 0;
     pcam->track_level  = 0;
     pcam->zadd         = 1500;
-    pcam->zaddgoto     = MAXZADD;
+    pcam->zaddgoto     = CAM_ZADD_MAX;
     pcam->zgoto        = 1500;
     pcam->turn_z_rad   = -PI / 4.0f;
     pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
@@ -593,7 +593,7 @@ bool_t camera_reset_target( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->mView = IdentityMatrix();
 
     // specify the modes that will make the camera point at the players
-    pcam->turn_mode = CAMTURN_AUTO;
+    pcam->turn_mode = CAM_TURN_AUTO;
     pcam->move_mode = CAM_RESET;
 
     // If you use CAM_RESET, camera_move() automatically restores pcam->move_mode

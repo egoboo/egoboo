@@ -7,7 +7,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// gcc does not properly recognize #pragma pack statements
+// gcc does not properly recognize #pragma pack statements
+
 #if !defined(SET_PACKED)
 #    if defined(__GNUC__)
 #        define SET_PACKED() __attribute__ ((__packed__))
@@ -18,6 +19,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// Constants describing the standard md2 file
 enum e_id_md2_constant
 {
@@ -34,8 +36,8 @@ enum e_id_md2_constant
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// try to make sure that the raw data structs are packed,
-/// so that structures can be read/written directly using fread()/fwrite()
+// try to make sure that the raw data structs are packed,
+// so that structures can be read/written directly using fread()/fwrite()
 
 #pragma pack(push, 1)
 

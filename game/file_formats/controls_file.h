@@ -28,6 +28,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// All the possible game actions that can be triggered from an input device
 enum e_input_controls
 {
@@ -115,6 +116,7 @@ enum e_joystick_controls
 };
 
 //--------------------------------------------------------------------------------------------
+
 /// the basic definition of a single control
 struct s_control
 {
@@ -124,6 +126,7 @@ struct s_control
 typedef struct s_control control_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The mapping between the inputs detected by SDL and the device's in-game function
 struct s_device_controls
 {
@@ -136,7 +139,7 @@ typedef struct s_device_controls device_controls_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
+extern device_controls_t controls[INPUT_DEVICE_END + MAXJOYSTICK];
 
 extern Uint32 input_device_count;
 

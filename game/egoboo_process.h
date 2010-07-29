@@ -31,7 +31,7 @@
 #define PROC_PBASE(PTR) (&( (PTR)->base ))
 
 //--------------------------------------------------------------------------------------------
-/// The various states that a process can occupy
+// The various states that a process can occupy
 enum e_process_states
 {
     proc_invalid  = ego_state_invalid,
@@ -45,6 +45,7 @@ typedef enum e_process_states process_state_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// A rudimantary implementation of "non-preemptive multitasking" in Egoboo.
 /// @details All other process types "inherit" from this one
 

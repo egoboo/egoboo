@@ -40,7 +40,8 @@ enum e_fs_find_type
 typedef enum e_fs_find_type fs_find_type_t;
 
 //--------------------------------------------------------------------------------------------
-/// struct to alias the 3 typed of find data
+
+/// struct to alias the 3 types of find data
 union u_fs_find_ptr
 {
     void                        * v;

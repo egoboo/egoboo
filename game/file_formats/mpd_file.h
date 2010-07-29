@@ -84,6 +84,7 @@ enum e_mpd_fx
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The basic parameters needed to create an mpd
 struct s_mpd_info
 {
@@ -94,6 +95,7 @@ struct s_mpd_info
 typedef struct s_mpd_info mpd_info_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The data describing a mpd tile
 struct s_tile_info
 {
@@ -105,6 +107,7 @@ struct s_tile_info
 typedef struct s_tile_info tile_info_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The information for a single mpd vertex
 struct s_mpd_vertex
 {
@@ -114,6 +117,7 @@ struct s_mpd_vertex
 typedef struct s_mpd_vertex mpd_vertex_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the dynamically allocated memory in an mpd
 struct s_mpd_mem
 {
@@ -126,6 +130,7 @@ struct s_mpd_mem
 typedef struct s_mpd_mem mpd_mem_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The data describing a single mpd
 struct s_mpd
 {
@@ -135,6 +140,7 @@ struct s_mpd
 typedef struct s_mpd mpd_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A description of a tile type that allows some compression in the way vertices are stored in the mpd file
 struct s_tile_definition
 {
@@ -154,6 +160,7 @@ extern tile_definition_t tile_dict[MAXMESHTYPE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// the raw mpd loader
 mpd_t *      mpd_load( const char *modname, mpd_t * pmesh );
 

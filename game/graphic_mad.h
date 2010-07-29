@@ -27,6 +27,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// Bits used to request a character tint
 enum e_chr_render_bits
 {
@@ -88,6 +89,7 @@ typedef struct s_matrix_cache matrix_cache_t;
 matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 
 //--------------------------------------------------------------------------------------------
+
 /// some pre-computed parameters for reflection
 struct s_chr_reflection_cache
 {
@@ -105,6 +107,7 @@ struct s_chr_reflection_cache
 typedef struct s_chr_reflection_cache chr_reflection_cache_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// the data to determine whether re-calculation of vlst is necessary
 struct s_vlst_cache
 {
@@ -124,6 +127,7 @@ typedef struct s_vlst_cache vlst_cache_t;
 vlst_cache_t * vlst_cache_init( vlst_cache_t * );
 
 //--------------------------------------------------------------------------------------------
+
 /// All the data that the renderer needs to draw the character
 struct s_chr_instance
 {

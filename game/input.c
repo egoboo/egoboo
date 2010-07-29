@@ -184,6 +184,7 @@ void input_read_joystick( int which )
     if ( x > dead_zone ) x -= dead_zone;
     else if ( x < -dead_zone ) x += dead_zone;
     else x = 0;
+
     if ( y > dead_zone ) y -= dead_zone;
     else if ( y < -dead_zone ) y += dead_zone;
     else y = 0;
@@ -384,7 +385,7 @@ Uint32 input_get_buttonmask( Uint32 idevice )
     Uint32 which_device;
 
     // make sure the idevice is valid
-    if ( idevice > input_device_count || idevice > INPUT_DEVICE_COUNT + MAXJOYSTICK ) return 0;
+    if ( idevice > input_device_count || idevice > INPUT_DEVICE_END + MAXJOYSTICK ) return 0;
     which_device = controls[idevice].device;
     if ( which_device >= INPUT_DEVICE_JOY )
     {
@@ -414,7 +415,7 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
     control_t         * pcontrol;
 
     // make sure the idevice is valid
-    if ( idevice > input_device_count || idevice > INPUT_DEVICE_COUNT + MAXJOYSTICK ) return bfalse;
+    if ( idevice > input_device_count || idevice > INPUT_DEVICE_END + MAXJOYSTICK ) return bfalse;
     pdevice = controls + idevice;
 
     // make sure the icontrol is within range

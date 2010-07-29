@@ -26,6 +26,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// a hash type for "efficiently" storing data
 struct s_hash_node
 {
@@ -72,6 +73,7 @@ bool_t        hash_list_set_node( hash_list_t *plst, int i, hash_node_t * );
 bool_t        hash_list_insert_unique( hash_list_t * phash, hash_node_t * pnode );
 
 //--------------------------------------------------------------------------------------------
+
 /// An iterator element for traversing the hash_list_t
 struct s_hash_list_iterator
 {

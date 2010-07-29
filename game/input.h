@@ -38,14 +38,19 @@ enum e_input_device
     INPUT_DEVICE_KEYBOARD = 0,
     INPUT_DEVICE_MOUSE,
     INPUT_DEVICE_JOY,
-    INPUT_DEVICE_COUNT
+
+    // aliases
+    INPUT_DEVICE_BEGIN = INPUT_DEVICE_KEYBOARD,
+    INPUT_DEVICE_END   = INPUT_DEVICE_JOY,
+    INPUT_DEVICE_JOY_A = INPUT_DEVICE_JOY + 0,
+    INPUT_DEVICE_JOY_B = INPUT_DEVICE_JOY + 1
 };
 typedef enum  e_input_device INPUT_DEVICE;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// old user interface variables
 
+/// old user interface variables
 struct s_cursor
 {
     int     x;
@@ -120,18 +125,19 @@ typedef struct s_device_joystick device_joystick_t;
 extern device_joystick_t joy[MAXJOYSTICK];
 
 //--------------------------------------------------------------------------------------------
+
 /// The bits representing the possible input devices
 enum e_input_bits
 {
     INPUT_BITS_NONE      = 0,
     INPUT_BITS_MOUSE     = ( 1 << INPUT_DEVICE_MOUSE ),         ///< Input devices
     INPUT_BITS_KEYBOARD  = ( 1 << INPUT_DEVICE_KEYBOARD ),
-    INPUT_BITS_JOYA      = ( 1 << ( INPUT_DEVICE_JOY + 0 ) ),
-    INPUT_BITS_JOYB      = ( 1 << ( INPUT_DEVICE_JOY + 1 ) )
+    INPUT_BITS_JOYA      = ( 1 << ( INPUT_DEVICE_JOY_A ) ),
+    INPUT_BITS_JOYB      = ( 1 << ( INPUT_DEVICE_JOY_B ) )
 };
 
 //--------------------------------------------------------------------------------------------
-/// Function prototypes
+// Function prototypes
 
 void   input_init();
 void   input_read();

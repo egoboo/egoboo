@@ -40,6 +40,7 @@ struct s_prt_bundle;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// Placeholders used while importing profiles
 struct s_pro_import
 {
@@ -52,7 +53,7 @@ typedef struct s_pro_import pro_import_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// This is for random naming
+// This is for random naming
 
 #define CHOPPERMODEL                    32
 #define MAXCHOP                         (MAX_PROFILE*CHOPPERMODEL)
@@ -76,7 +77,8 @@ chop_data_t * chop_data_init( chop_data_t * pdata );
 bool_t        chop_export_vfs( const char *szSaveName, const char * szChop );
 
 //--------------------------------------------------------------------------------------------
-/// Defintion of a single chop secttion
+
+/// Defintion of a single chop section
 struct s_chop_section
 {
     int size;     ///< Number of choices, 0
@@ -85,6 +87,7 @@ struct s_chop_section
 typedef struct s_chop_section chop_section_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// Defintion of the chop info needed to create a name
 struct s_chop_definition
 {
@@ -96,6 +99,7 @@ chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// a wrapper for all the datafiles in the *.obj dir
 struct s_object_profile
 {

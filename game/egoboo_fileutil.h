@@ -40,7 +40,7 @@ extern  Uint8      maxformattypes;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// function prototypes
+// function prototypes
 
 void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 

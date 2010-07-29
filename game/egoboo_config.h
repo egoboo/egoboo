@@ -25,9 +25,9 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// compliation flags
+// compliation flags
 
-/// object pre-allocations
+// object pre-allocations
 #define MAX_CHR            512             ///< Maximum number of characters
 #define MAX_ENC            200             ///< Maximum number of enchantments
 #define TOTAL_MAX_PRT     2048             ///< Maximum number of particles

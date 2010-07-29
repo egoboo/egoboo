@@ -1397,7 +1397,7 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF by_reference imount )
 {
-    /// @detaild BB@> all the code necessary to move on to the next frame of the animation
+    /// @details BB@> all the code necessary to move on to the next frame of the animation
 
     int tmp_action;
 

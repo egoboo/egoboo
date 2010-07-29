@@ -85,6 +85,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// Data needed to specify a line-of-sight test
 struct s_line_of_sight_info
 {
@@ -771,7 +772,7 @@ int update_game()
     update_loop_cnt = 0;
     if ( update_wld < true_update )
     {
-        int max_iterations = single_frame_mode ? 1 : 2 /*(2 * TARGET_UPS)*/;
+        int max_iterations = single_frame_mode ? 1 : 2 * TARGET_UPS;
 
         /// @todo claforte@> Put that back in place once networking is functional (Jan 6th 2001)
         for ( tnc = 0; update_wld < true_update && tnc < max_iterations; tnc++ )
@@ -1843,10 +1844,9 @@ void set_one_player_latch( const PLA_REF by_reference player )
     /// @details ZZ@> This function converts input readings to latch settings, so players can
     ///    move around
 
-    float newx, newy;
+
     Uint16 turnsin;
     float dist, scale;
-    float inputx, inputy;
     float fsin, fcos;
     latch_t sum;
 
@@ -1874,12 +1874,12 @@ void set_one_player_latch( const PLA_REF by_reference player )
     fcos    = turntocos[ turnsin ];
 
     // Mouse routines
-    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_MOUSE ) && mous.on )
+    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_MOUSE ) && mous.on )
     {
-        // Movement
-        newx = 0;
-        newy = 0;
-        if (( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
+        fvec2_t joy_pos, joy_new;
+
+        fvec2_clear( &joy_new );
+        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
             !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
         {
             dist = SQRT( mous.x * mous.x + mous.y * mous.y );
@@ -1892,20 +1892,20 @@ void set_one_player_latch( const PLA_REF by_reference player )
                 }
 
                 scale = scale / mous.sense;
-                inputx = mous.x * scale;
-                inputy = mous.y * scale;
+                joy_pos.x = mous.x * scale;
+                joy_pos.y = mous.y * scale;
 
-                if ( PCamera->turn_mode == CAMTURN_GOOD &&
-                     local_numlpla == 1 &&
-                     control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
+                if ( CAM_TURN_GOOD == PCamera->turn_mode &&
+                     1 == local_numlpla &&
+                     control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  joy_pos.x = 0;
 
-                newx = ( inputx * fcos + inputy * fsin );
-                newy = ( -inputx * fsin + inputy * fcos );
+                joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+                joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
             }
         }
 
-        sum.x += newx;
-        sum.y += newy;
+        sum.x += joy_new.x;
+        sum.y += joy_new.y;
 
         // Read buttons
         if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
@@ -1925,128 +1925,122 @@ void set_one_player_latch( const PLA_REF by_reference player )
     }
 
     // Joystick A routines
-    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_JOYA ) && joy[0].on )
+    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_JOYA ) && joy[0].on )
     {
-        newx = 0;
-        newy = 0;
-        // Movement
-        if (( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
-            !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
-        {
-            inputx = joy[0].x;
-            inputy = joy[0].y;
+        fvec2_t joy_pos, joy_new;
 
-            dist = inputx * inputx + inputy * inputy;
+        fvec2_clear( &joy_new );
+        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
+            !control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_CAMERA ) )
+        {
+            joy_pos.x = joy[0].x;
+            joy_pos.y = joy[0].y;
+
+            dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
             if ( dist > 1.0f )
             {
                 scale = 1.0f / SQRT( dist );
-                inputx *= scale;
-                inputy *= scale;
+                joy_pos.x *= scale;
+                joy_pos.y *= scale;
             }
 
-            if ( PCamera->turn_mode == CAMTURN_GOOD &&
-                 local_numlpla == 1 &&
-                 !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
+            if ( CAM_TURN_GOOD == PCamera->turn_mode &&
+                 1 == local_numlpla &&
+                 !control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_CAMERA ) )  joy_pos.x = 0;
 
-            newx = ( inputx * fcos + inputy * fsin );
-            newy = ( -inputx * fsin + inputy * fcos );
+            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
         }
 
-        sum.x += newx;
-        sum.y += newy;
+        sum.x += joy_new.x;
+        sum.y += joy_new.y;
 
         // Read buttons
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_JUMP ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_JUMP ) )
             sum.b |= LATCHBUTTON_JUMP;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_USE ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_USE ) )
             sum.b |= LATCHBUTTON_LEFT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_GET ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_GET ) )
             sum.b |= LATCHBUTTON_ALTLEFT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_PACK ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_PACK ) )
             sum.b |= LATCHBUTTON_PACKLEFT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_USE ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_USE ) )
             sum.b |= LATCHBUTTON_RIGHT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_GET ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_GET ) )
             sum.b |= LATCHBUTTON_ALTRIGHT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_PACK ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_PACK ) )
             sum.b |= LATCHBUTTON_PACKRIGHT;
     }
 
     // Joystick B routines
-    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_JOYB ) && joy[1].on )
+    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_JOYB ) && joy[1].on )
     {
-        newx = 0;
-        newy = 0;
+        fvec2_t joy_pos, joy_new;
 
-        // Movement
-        if (( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
-            !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
+        fvec2_clear( &joy_new );
+        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
+            !control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_CAMERA ) )
         {
-            inputx = joy[1].x;
-            inputy = joy[1].y;
+            joy_pos.x = joy[1].x;
+            joy_pos.y = joy[1].y;
 
-            dist = inputx * inputx + inputy * inputy;
+            dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
             if ( dist > 1.0f )
             {
                 scale = 1.0f / SQRT( dist );
-                inputx *= scale;
-                inputy *= scale;
+                joy_pos.x *= scale;
+                joy_pos.y *= scale;
             }
 
-            if ( PCamera->turn_mode == CAMTURN_GOOD &&
-                 local_numlpla == 1 &&
-                 !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
+            if ( CAM_TURN_GOOD == PCamera->turn_mode &&
+                 1 == local_numlpla &&
+                 !control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_CAMERA ) )  joy_pos.x = 0;
 
-            newx = ( inputx * fcos + inputy * fsin );
-            newy = ( -inputx * fsin + inputy * fcos );
+            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
         }
 
-        sum.x += newx;
-        sum.y += newy;
+        sum.x += joy_new.x;
+        sum.y += joy_new.y;
 
         // Read buttons
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_JUMP ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_JUMP ) )
             sum.b |= LATCHBUTTON_JUMP;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_USE ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_USE ) )
             sum.b |= LATCHBUTTON_LEFT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_GET ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_GET ) )
             sum.b |= LATCHBUTTON_ALTLEFT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_PACK ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_PACK ) )
             sum.b |= LATCHBUTTON_PACKLEFT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_USE ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_USE ) )
             sum.b |= LATCHBUTTON_RIGHT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_GET ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_GET ) )
             sum.b |= LATCHBUTTON_ALTRIGHT;
-        if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_PACK ) )
+        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_PACK ) )
             sum.b |= LATCHBUTTON_PACKRIGHT;
     }
 
     // Keyboard routines
-    if ( HAS_SOME_BITS( pdevice->bits , INPUT_BITS_KEYBOARD ) && keyb.on )
+    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_KEYBOARD ) && keyb.on )
     {
-        // Movement
+        fvec2_t joy_pos, joy_new;
 
-        // ???? is this if statement doing anything ????
-        if ( INGAME_CHR( pchr->attachedto ) )
+        fvec2_clear( &joy_new );
+        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
+            !control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_CAMERA ) )
         {
-            // Mounted
-            inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
-            inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
-        }
-        else
-        {
-            // Unmounted
-            inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
-            inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
+            joy_pos.x = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
+            joy_pos.y = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
+
+            if ( CAM_TURN_GOOD == PCamera->turn_mode &&
+                 1 == local_numlpla )  joy_pos.x = 0;
         }
 
-        if ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 )  inputx = 0;
+        joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+        joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
 
-        newx = ( inputx * fcos + inputy * fsin );
-        newy = ( -inputx * fsin + inputy * fcos );
-
-        sum.x += newx;
-        sum.y += newy;
+        sum.x += joy_new.x;
+        sum.y += joy_new.y;
 
         // Read buttons
         if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_JUMP ) )
@@ -3617,10 +3611,10 @@ camera_t * set_PCamera( camera_t * pcam )
     PCamera = pcam;
 
     // Matrix init stuff (from remove.c)
-    rotmeshtopside    = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHTOPSIDE / ( 1.33333f );
-    rotmeshbottomside = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
-    rotmeshup         = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
-    rotmeshdown       = (( float )sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
+    rotmeshtopside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
+    rotmeshbottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
+    rotmeshup         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
+    rotmeshdown       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
 
     return pcam_old;
 }

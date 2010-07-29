@@ -35,7 +35,7 @@ typedef struct s_link Link_t;
 
 extern Link_t LinkList[LINK_COUNT];
 
-/// Function prototypes
+// Function prototypes
 bool_t link_follow_modname( const char * modname, bool_t push_current_module );
 bool_t link_build_vfs( const char * fname, Link_t list[] );
 

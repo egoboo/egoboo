@@ -87,6 +87,7 @@ enum e_color
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// An element of the do-list, an all encompassing list of all objects to be drawn by the renderer
 struct s_do_list_data
 {
@@ -96,6 +97,7 @@ struct s_do_list_data
 typedef struct s_do_list_data do_list_data_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// Structure for sorting both particles and characters based on their position from the camera
 struct s_obj_registry_entity
 {
@@ -109,9 +111,9 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// OPENGL VERTEX
 
-typedef struct s_GLvertex
+/// OPENGL VERTEX
+struct s_GLvertex
 {
     GLfloat pos[4];
     GLfloat nrm[3];
@@ -127,11 +129,13 @@ typedef struct s_GLvertex
     s_GLvertex() { memset( this, 0, sizeof( *this ) ); }
 #endif
 
-} GLvertex;
+};
+typedef struct s_GLvertex GLvertex;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Which tiles are to be drawn, arranged by MPDFX_* bits
+
+// Which tiles are to be drawn, arranged by MPDFX_* bits
 struct s_renderlist
 {
     ego_mpd_t * pmesh;
@@ -182,20 +186,22 @@ DECLARE_STATIC_ARY_TYPE( DisplayMsgAry, msg_t, MAX_MESSAGE );
 DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 //--------------------------------------------------------------------------------------------
-/// camera optimization
+// camera optimization
 
-#define ROTMESHTOPSIDE                  50          ///< For figuring out what to draw
-#define ROTMESHBOTTOMSIDE               50
-#define ROTMESHUP                       30
-#define ROTMESHDOWN                     30
+// For figuring out what to draw
+#define CAM_ROTMESH_TOPSIDE                  50
+#define CAM_ROTMESH_BOTTOMSIDE               50
+#define CAM_ROTMESH_UP                       30
+#define CAM_ROTMESH_DOWN                     30
 
-extern int rotmeshtopside;                                 ///< The ones that get used
+// The ones that get used
+extern int rotmeshtopside;                                 
 extern int rotmeshbottomside;
 extern int rotmeshup;
 extern int rotmeshdown;
 
 //--------------------------------------------------------------------------------------------
-/// encapsulation of all graphics options
+// encapsulation of all graphics options
 struct s_gfx_config
 {
     GLuint shading;
@@ -301,7 +307,8 @@ billboard_data_t * BillboardList_get_ptr( const BBOARD_REF by_reference  ibb );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// some lines to be drawn in the display
+// some lines to be drawn in the display
+
 #define LINE_COUNT 100
 struct s_line_data
 {

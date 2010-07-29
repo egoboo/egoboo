@@ -32,6 +32,7 @@ struct s_obj_BSP;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// element for storing pair-wise "collision" data
 /// @note this does not use the "standard" method of inheritance from hash_node_t, where an
 /// instance of hash_node_t is embedded inside CoNode_t as CoNode_t::base or something.
@@ -68,6 +69,7 @@ DECLARE_DYNAMIC_ARY( CoNode_ary, CoNode_t );
 DECLARE_DYNAMIC_ARY( HashNode_ary, hash_node_t );
 
 //--------------------------------------------------------------------------------------------
+
 /// a useful re-typing of the CHashList_t, in case we need to add more variables or functionality later
 typedef hash_list_t CHashList_t;
 

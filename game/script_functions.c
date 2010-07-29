@@ -87,11 +87,13 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// @defgroup _bitwise_functions_ Bitwise Scripting Functions
 /// @details These functions may be necessary to export the bitwise functions for handling alerts to
 ///  scripting languages where there is no support for bitwise operators (Lua, tcl, ...)
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
 {
@@ -110,6 +112,7 @@ Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
 {
@@ -128,6 +131,7 @@ Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
 {
@@ -145,6 +149,7 @@ Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 {
@@ -158,6 +163,7 @@ Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
 {
@@ -171,6 +177,7 @@ Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
 {
@@ -184,6 +191,7 @@ Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
 {
@@ -202,6 +210,7 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
 {
@@ -220,6 +229,7 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
 {
@@ -237,6 +247,7 @@ Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 {
@@ -250,6 +261,7 @@ Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 {
@@ -263,6 +275,7 @@ Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
 {

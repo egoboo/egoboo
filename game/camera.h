@@ -31,6 +31,7 @@ struct s_ego_mpd;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The camera mode
 enum e_camera_mode
 {
@@ -42,44 +43,45 @@ enum e_camera_mode
 /// The mode that the camera uses to determine where is is looking
 enum e_camera_turn_mode
 {
-    CAMTURN_NONE = ( 1 == 0 ),  ///< false
-    CAMTURN_AUTO = ( 1 == 1 ),  ///< true
-    CAMTURN_GOOD = 255
+    CAM_TURN_NONE = bfalse,
+    CAM_TURN_AUTO = btrue,
+    CAM_TURN_GOOD = 255
 };
 
-#define TRACKXAREALOW     100
-#define TRACKXAREAHIGH    180
-#define TRACKYAREAMINLOW  320
-#define TRACKYAREAMAXLOW  460
-#define TRACKYAREAMINHIGH 460
-#define TRACKYAREAMAXHIGH 600
+#define CAM_TRACK_X_AREA_LOW     100
+#define CAM_TRACK_X_AREA_HIGH    180
+#define CAM_TRACK_Y_AREA_MINLOW  320
+#define CAM_TRACK_Y_AREA_MAXLOW  460
+#define CAM_TRACK_Y_AREA_MINHIGH 460
+#define CAM_TRACK_Y_AREA_MAXHIGH 600
 
-#define FOV                             60           ///< Field of view
-#define CAMJOYTURN                      (0.01f*3)    ///< Joystick camera rotation
-#define CAMKEYTURN                      (10*3)       ///< Keyboard camera rotation
-#define FARTRACK                        1200         ///< For outside modules...
-#define EDGETRACK                       800          ///< Camtrack bounds
-#define TURNTIME                        16           ///< Smooth turn
+#define CAM_FOV                             60          ///< Field of view
+#define CAM_TURN_JOY              (3.0f * 5.0f)         ///< Joystick camera rotation
+#define CAM_TURN_KEY               CAM_TURN_JOY         ///< Keyboard camera rotation
+#define CAM_TURN_TIME                       16          ///< Smooth turn
+#define CAM_TRACK_FAR                     1200          ///< For outside modules...
+#define CAM_TRACK_EDGE                     800          ///< Camtrack bounds
 
 /// Multi cam (uses macro to switch between old and new camera
 #if !defined(OLD_CAMERA_MODE)
-#    define MINZOOM                         800         ///< Camera distance
-#    define MAXZOOM                         700
-#    define MINZADD                         800         ///< Camera height
-#    define MAXZADD                         2500
-#    define MINUPDOWN                       (0.24f*PI)    ///< Camera updown angle
-#    define MAXUPDOWN                       (0.10f*PI)
+#    define CAM_ZOOM_MIN                         800         ///< Camera distance
+#    define CAM_ZOOM_MAX                         700
+#    define CAM_ZADD_MIN                         800         ///< Camera height
+#    define CAM_ZADD_MAX                         2500
+#    define CAM_UPDOWN_MIN                       (0.24f*PI)    ///< Camera updown angle
+#    define CAM_UPDOWN_MAX                       (0.10f*PI)
 #else
-#    define MINZOOM                         500         ///< Camera distance
-#    define MAXZOOM                         600
-#    define MINZADD                         800         ///< Camera height
-#    define MAXZADD                         1500  ///< 1000
-#    define MINUPDOWN                       (0.24f*PI)    ///< Camera updown angle
-#    define MAXUPDOWN                       (0.18f*PI)// (0.15f*PI) ///< (0.18f*PI)
+#    define CAM_ZOOM_MIN                         500         ///< Camera distance
+#    define CAM_ZOOM_MAX                         600
+#    define CAM_ZADD_MIN                         800         ///< Camera height
+#    define CAM_ZADD_MAX                         1500  ///< 1000
+#    define CAM_UPDOWN_MIN                       (0.24f*PI)    ///< Camera updown angle
+#    define CAM_UPDOWN_MAX                       (0.18f*PI)// (0.15f*PI) ///< (0.18f*PI)
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// definition of the Egoboo camera object
 struct s_camera
 {
@@ -125,7 +127,8 @@ extern camera_t gCamera;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Function prototypes
+// Function prototypes
+
 camera_t * camera_ctor( camera_t * pcam );
 
 void camera_reset( camera_t * pcam, struct s_ego_mpd * pmesh );

@@ -32,6 +32,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The definition of an "active area" in the game
 /// @detalis Used for a variety of purposes, including doors and shops.
 struct s_passage

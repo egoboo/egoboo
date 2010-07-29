@@ -85,6 +85,7 @@ void prt_set_texture_params( const TX_REF by_reference itex )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The data values necessary to sort particles by their position to the camera
 struct s_prt_registry_entity
 {

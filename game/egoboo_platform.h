@@ -27,12 +27,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// osx definitions
+// osx definitions
+
 #if defined(__APPLE__) || defined(macintosh)
 
-/// do dome mac stuff here
-
-/// trap non-osx mac builds
+// trap non-osx mac builds
 #    if !defined(__MACH__)
 #        error Only OS X builds are supported
 #    endif
@@ -44,10 +43,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// windows definitions
+// windows definitions
+
 #if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__)
 
-/// map all of these possibilities to WIN32
+// map all of these possibilities to WIN32
 #    if !defined(WIN32)
 #        define WIN32
 #    endif
@@ -85,7 +85,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// os-dependent pathname conventions
+
+// os-dependent pathname conventions
 
 #define WIN32_SLASH_STR "\\"
 #define WIN32_SLASH_CHR '\\'
@@ -108,10 +109,10 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Compiler-specific definitions
+// Compiler-specific definitions
 
 //------------
-/// deal with gcc's the warnings about const on return types in C
+// deal with gcc's the warnings about const on return types in C
 #if defined(__cplusplus)
 #    define EGO_CONST const
 #else
@@ -119,7 +120,7 @@
 #endif
 
 //------------
-/// fix how MSVC handles throw specifications on member functions
+// fix how MSVC handles throw specifications on member functions
 #if defined(_MSC_VER)
 #    define DECL_THROW(XX) throw(...)
 #else
@@ -127,7 +128,7 @@
 #endif
 
 //------------
-/// localize the inline keyword to the compiler
+// localize the inline keyword to the compiler
 #if defined(_MSC_VER)
 /// In MS visual C, the "inline" keyword seems to be depricated. Must to be promoted to "_inline" or "__inline"
 #    define INLINE __inline
@@ -136,7 +137,7 @@
 #endif
 
 //------------
-/// Turn off warnings that we don't care about.
+// Turn off warnings that we don't care about.
 #if defined(_MSC_VER)
 #    pragma warning(disable : 4090) ///< '=' : different 'const' qualifiers (totally unimportant in C)
 #    pragma warning(disable : 4200) ///< zero-sized array in struct/union (used in the md2 loader)
@@ -152,7 +153,7 @@
 #endif
 
 //------------
-/// fix the naming of some linux-flovored functions in MSVC
+// fix the naming of some linux-flovored functions in MSVC
 #if defined(_MSC_VER)
 #    define snprintf _snprintf
 #    define stricmp  _stricmp
@@ -167,9 +168,9 @@
 #endif
 
 //------------
-/// it seems that the gcc community has a bug up its ass about the forward declaration of enums
-/// to get around this (so we can use the strong type checking of c++ to look for errors in the code)
-/// we will define
+// it seems that the gcc community has a bug up its ass about the forward declaration of enums
+// to get around this (so we can use the strong type checking of c++ to look for errors in the code)
+// we will define
 #if !defined(_MSC_VER)
 #    define FWD_ENUM(XX) typedef int i_##XX
 #else

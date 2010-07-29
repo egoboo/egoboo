@@ -64,6 +64,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// A latch with a time attached
 /// @details This is recieved over the network, or inserted into the list by the local system to simulate
 ///  network traffic
@@ -94,6 +95,7 @@ void input_device_init( input_device_t * pdevice );
 void input_device_add_latch( input_device_t * pdevice, float newx, float newy );
 
 //--------------------------------------------------------------------------------------------
+
 /// The state of a player
 struct s_player
 {
@@ -132,6 +134,7 @@ CHR_REF        pla_get_ichr( const PLA_REF by_reference iplayer );
 struct s_chr * pla_get_pchr( const PLA_REF by_reference iplayer );
 
 //--------------------------------------------------------------------------------------------
+
 /// The state of the network code used in old-egoboo
 struct s_net_instance
 {
@@ -174,7 +177,7 @@ extern int                     playersloaded;
 extern Uint32                  numplatimes;
 
 //--------------------------------------------------------------------------------------------
-/// Networking functions
+// Networking functions
 //--------------------------------------------------------------------------------------------
 
 void listen_for_packets();

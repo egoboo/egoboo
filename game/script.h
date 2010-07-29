@@ -86,7 +86,8 @@ enum
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// AI variables
+// AI variables
+
 #define MAXWAY              8                       ///< Waypoints
 #define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
 
@@ -186,6 +187,7 @@ bool_t       ai_state_ensure_wp( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The state of the scripting system
 /// @delails It is not persistent between one evaluation of a script and another
 struct s_script_state
@@ -201,7 +203,8 @@ typedef struct s_script_state script_state_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Prototypes
+// Prototypes
+
 void  scr_run_chr_script( const CHR_REF by_reference character );
 
 void issue_order( const CHR_REF by_reference character, Uint32 order );

@@ -147,16 +147,17 @@ enum e_chr_gender
 #define ULTRABLUDY           2          ///< This makes any damage draw blud
 
 //Damage shifts
-#define DAMAGEINVICTUS      32                      ///< 00x00000 Invictus to this type of damage
-#define DAMAGEMANA          16                      ///< 000x0000 Deals damage to mana
-#define DAMAGECHARGE        8                       ///< 0000x000 Converts damage to mana
-#define DAMAGEINVERT        4                       ///< 00000x00 Makes damage heal
+#define DAMAGEINVICTUS      (1 << 5)                      ///< 00x00000 Invictus to this type of damage
+#define DAMAGEMANA          (1 << 4)                      ///< 000x0000 Deals damage to mana
+#define DAMAGECHARGE        (1 << 3)                       ///< 0000x000 Converts damage to mana
+#define DAMAGEINVERT        (1 << 2)                       ///< 00000x00 Makes damage heal
 #define DAMAGESHIFT         3                       ///< 000000xx Resistance ( 1 is common )
 
 #define GET_DAMAGE_RESIST(BITS) ( (BITS) & DAMAGESHIFT )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The character statistic data in the form used in data.txt
 struct s_cap_stat
 {
@@ -166,6 +167,7 @@ struct s_cap_stat
 typedef struct s_cap_stat cap_stat_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The character profile data, or cap
 /// The internal representation of the information in data.txt
 struct s_cap

@@ -48,7 +48,7 @@ struct s_billboard_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Attack directions
+// Attack directions
 #define ATK_FRONT  0x0000
 #define ATK_RIGHT  0x4000
 #define ATK_BEHIND 0x8000
@@ -189,7 +189,7 @@ enum e_chr_movement_bits
 };
 
 //------------------------------------
-/// Team variables
+// Team variables
 //------------------------------------
 enum e_team_types
 {
@@ -204,6 +204,7 @@ enum e_team_types
 #define NOLEADER            0xFFFF                   ///< If the team has no leader...
 
 //--------------------------------------------------------------------------------------------
+
 /// The description of a single team
 struct s_team
 {
@@ -215,6 +216,7 @@ struct s_team
 typedef struct s_team team_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// Everything that is necessary to compute the character's interaction with the environment
 struct s_chr_environment
 {
@@ -256,6 +258,7 @@ typedef struct s_pack pack_t;
 #define PACK_END_LOOP(IT) IT = IT##_internal; }
 
 //--------------------------------------------------------------------------------------------
+
 /// the data used to define the spawning of a character
 struct s_chr_spawn_data
 {
@@ -271,6 +274,7 @@ struct s_chr_spawn_data
 typedef struct s_chr_spawn_data chr_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The definition of the character object
 /// This "inherits" for ego_object_base_t
 struct s_chr
@@ -516,7 +520,7 @@ extern int chr_pressure_tests;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Function prototypes
+// Function prototypes
 
 void character_system_begin();
 void character_system_end();
@@ -603,7 +607,7 @@ const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits );
 const char * chr_get_dir_name( const CHR_REF by_reference ichr );
 
 //--------------------------------------------------------------------------------------------
-/// helper functions
+// helper functions
 
 void init_all_cap();
 void release_all_cap();

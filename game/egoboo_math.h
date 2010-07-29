@@ -75,8 +75,9 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
-/// fastest and most cross-platform solution
+// Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
+// fastest and most cross-platform solution
+
 #if !defined(ABS)
 #    define ABS(X)  (((X) > 0) ? (X) : -(X))
 #endif

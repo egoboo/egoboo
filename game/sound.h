@@ -112,7 +112,7 @@ extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   ///< This is a specif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// The global functions for the sound module
+// The global functions for the sound module
 
 bool_t sound_initialize();
 void   sound_restart();

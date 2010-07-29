@@ -51,6 +51,7 @@ typedef struct s_orientation orientation_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// Data for doing the physics in bump_all_objects()
 /// @details should prevent you from being bumped into a wall
 struct s_phys_data

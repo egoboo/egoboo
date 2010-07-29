@@ -28,7 +28,8 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Particles
+// Particles
+
 #define MAXPARTICLEIMAGE                256         ///< Number of particle images ( frames )
 
 /// Physics
@@ -40,6 +41,7 @@ DECLARE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
 
 //--------------------------------------------------------------------------------------------
+
 /// Everything that is necessary to compute the character's interaction with the environment
 struct s_prt_environment
 {

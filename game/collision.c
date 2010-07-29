@@ -45,6 +45,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// data block used to communicate between the different "modules" governing the character-particle collision
 struct s_chr_prt_collsion_data
 {
@@ -72,6 +73,7 @@ struct s_chr_prt_collsion_data
 typedef struct s_chr_prt_collsion_data chr_prt_collsion_data_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// one element of the data for partitioning character and particle positions
 struct s_bumplist
 {

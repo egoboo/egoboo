@@ -59,6 +59,7 @@ enum e_order
 };
 
 //--------------------------------------------------------------------------------------------
+
 /// The bitmasks used by the check_target() function which is used in various character search
 /// functions like chr_find_target() or find_object_in_passage()
 enum e_targeting_bits
@@ -74,6 +75,7 @@ enum e_targeting_bits
 };
 
 //--------------------------------------------------------------------------------------------
+
 /// a process that controls a single game
 struct s_game_process
 {
@@ -124,6 +126,7 @@ enum e_latchbutton_bits
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The actual state of the animated tiles in-game
 struct s_animtile_instance
 {
@@ -138,6 +141,7 @@ extern Uint32              animtile_update_and;
 extern animtile_instance_t animtile[2];
 
 //--------------------------------------------------------------------------------------------
+
 /// The actual in-game state of the damage tiles
 struct s_damagetile_instance
 {
@@ -155,6 +159,7 @@ typedef struct s_damagetile_instance damagetile_instance_t;
 extern damagetile_instance_t damagetile;
 
 //--------------------------------------------------------------------------------------------
+
 /// The data descibing the weather state
 struct s_weather_instance
 {
@@ -169,6 +174,7 @@ typedef struct s_weather_instance weather_instance_t;
 extern weather_instance_t weather;
 
 //--------------------------------------------------------------------------------------------
+
 /// The data descibing the state of a water layer
 struct s_water_layer_instance
 {
@@ -216,6 +222,7 @@ typedef struct s_water_instance water_instance_t;
 extern water_instance_t water;
 
 //--------------------------------------------------------------------------------------------
+
 /// The in-game fog state
 /// @warn Fog is currently not used
 struct s_fog_instance
@@ -230,6 +237,7 @@ extern fog_instance_t fog;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// the module data that the game needs
 struct s_game_module
 {
@@ -249,7 +257,7 @@ struct s_game_module
 typedef struct s_game_module game_module_t;
 
 //--------------------------------------------------------------------------------------------
-/// Status displays
+// Status displays
 
 #define MAXSTAT             10                      ///< Maximum status displays
 
@@ -258,7 +266,7 @@ extern int     StatusList_count;
 extern CHR_REF StatusList[MAXSTAT];
 
 //--------------------------------------------------------------------------------------------
-/// End text
+// End text
 #define MAXENDTEXT 1024
 
 extern char   endtext[MAXENDTEXT];     ///< The end-module text

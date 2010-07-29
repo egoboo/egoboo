@@ -34,7 +34,7 @@
 #define C_EGOBOO_ASSERT(X) assert(X)
 
 //--------------------------------------------------------------------------------------------
-/// BOOLEAN
+// BOOLEAN
 
 #if defined __cplusplus
 #   define bool_t bool
@@ -51,6 +51,7 @@ typedef enum e_bool bool_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// special return values
 enum e_egoboo_rv
 {
@@ -92,7 +93,7 @@ typedef Sint32 SFP16_T;
 #define FP16_TO_FLOAT( V1 )  ( (float )((V1) * 0.0000152587890625f ) )
 
 //--------------------------------------------------------------------------------------------
-/// RECTANGLE
+// RECTANGLE
 typedef struct s_irect
 {
     int left;
@@ -154,7 +155,7 @@ void ints_to_range( int base, int rand, FRange * prange );
 void floats_to_pair( float vmin, float vmax, IPair * ppair );
 
 //--------------------------------------------------------------------------------------------
-/// IDSZ
+// IDSZ
 typedef Uint32 IDSZ;
 
 #if !defined(MAKE_IDSZ)
@@ -173,10 +174,11 @@ typedef Uint32 IDSZ;
 const char * undo_idsz( IDSZ idsz );
 
 //--------------------------------------------------------------------------------------------
-/// STRING
+// STRING
 typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
+
 /// the "base class" of Egoboo profiles
 #define  EGO_PROFILE_STUFF \
     bool_t         loaded;      /* Does it exist? */ \
@@ -184,6 +186,7 @@ typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The latch used by the input system
 struct s_latch
 {
@@ -273,8 +276,8 @@ typedef Uint16 REF_T;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// a template-like declaration of a dynamically allocated array
 
+/// a template-like declaration of a dynamically allocated array
 #define DECLARE_DYNAMIC_ARY(ARY_T, ELEM_T) \
     struct s_DYNAMIC_ARY_##ARY_T \
     { \
@@ -314,6 +317,7 @@ typedef Uint16 REF_T;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// a template-like declaration of a statically allocated array
 
 #define DECLARE_STATIC_ARY_TYPE(ARY_T, ELEM_T, SIZE) \

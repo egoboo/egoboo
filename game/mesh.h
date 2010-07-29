@@ -91,6 +91,7 @@ extern mesh_BSP_t mesh_BSP_root;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The data describing an Egoboo tile
 struct s_ego_tile_info
 {
@@ -119,6 +120,7 @@ ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The data describing an Egoboo grid
 struct s_ego_grid_info
 {
@@ -165,6 +167,7 @@ typedef struct s_grid_mem grid_mem_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the dynamically allocated mesh memory
 struct s_tile_mem
 {
@@ -189,6 +192,7 @@ struct s_tile_mem
 typedef struct s_tile_mem tile_mem_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The generic parameters describing an ego_mpd
 struct s_ego_mpd_info
 {
@@ -206,6 +210,7 @@ struct s_ego_mpd_info
 typedef struct s_ego_mpd_info ego_mpd_info_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// Egoboo's representation of the .mpd mesh file
 struct s_ego_mpd
 {

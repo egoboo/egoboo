@@ -30,6 +30,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the water layer data in "wawalite.txt"
 struct s_wawalite_water_layer
 {
@@ -48,6 +49,7 @@ struct s_wawalite_water_layer
 typedef struct s_wawalite_water_layer wawalite_water_layer_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the water data in "wawalite.txt"
 struct s_wawalite_water
 {
@@ -70,6 +72,7 @@ struct s_wawalite_water
 typedef struct s_wawalite_water wawalite_water_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the physics data in "wawalite.txt"
 struct s_wawalite_physics
 {
@@ -83,6 +86,7 @@ struct s_wawalite_physics
 typedef struct s_wawalite_physics wawalite_physics_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the animated tile data in "wawalite.txt"
 struct s_wawalite_animtile
 {
@@ -92,6 +96,7 @@ struct s_wawalite_animtile
 typedef struct s_wawalite_animtile wawalite_animtile_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the damagetile data in "wawalite.txt"
 struct s_wawalite_damagetile
 {
@@ -105,6 +110,7 @@ struct s_wawalite_damagetile
 typedef struct s_wawalite_damagetile wawalite_damagetile_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the weather data in "wawalite.txt"
 struct s_wawalite_weather
 {
@@ -123,6 +129,7 @@ struct s_wawalite_graphics
 typedef struct s_wawalite_graphics wawalite_graphics_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the camera data in "wawalite.txt"
 struct s_wawalite_camera
 {
@@ -133,6 +140,7 @@ struct s_wawalite_camera
 typedef struct s_wawalite_camera wawalite_camera_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// A wrapper for the fog data in "wawalite.txt"
 struct s_wawalite_fog
 {
@@ -147,6 +155,7 @@ struct s_wawalite_fog
 typedef struct s_wawalite_fog wawalite_fog_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// An internal representation of the data in "wawalite.txt"
 struct s_wawalite_data
 {

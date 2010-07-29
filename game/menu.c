@@ -59,6 +59,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The possible states of the menu state machine
 enum e_menu_states
 {
@@ -87,6 +88,7 @@ typedef struct s_SlidyButtonState mnu_SlidyButtonState_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// the data to display a chosen player in the load player menu
 struct s_ChoosePlayer_element
 {
@@ -97,6 +99,7 @@ struct s_ChoosePlayer_element
 typedef struct s_ChoosePlayer_element ChoosePlayer_element_t;
 
 //--------------------------------------------------------------------------------------------
+
 /// The data that menu.c uses to store the users' choice of players
 struct s_ChoosePlayer_profiles
 {
@@ -107,6 +110,7 @@ typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// the module data that the menu system needs
 struct s_mnu_module
 {
@@ -130,6 +134,7 @@ INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// The data that menu.c uses to store the users' choice of players
 struct s_GameTips
 {
@@ -1718,8 +1723,8 @@ int doChoosePlayer( float deltaTime )
                     {
                         case INPUT_DEVICE_KEYBOARD: device_on[j] = keyb.on; break;
                         case INPUT_DEVICE_MOUSE:    device_on[j] = mous.on; break;
-                        case INPUT_DEVICE_JOY + 0:  device_on[j] = joy[0].on; break;
-                        case INPUT_DEVICE_JOY + 1:  device_on[j] = joy[1].on; break;
+                        case INPUT_DEVICE_JOY_A:  device_on[j] = joy[0].on; break;
+                        case INPUT_DEVICE_JOY_B:  device_on[j] = joy[1].on; break;
                         default: device_on[j] = bfalse;
                     }
 
@@ -2520,12 +2525,12 @@ int doGameOptions( float deltaTime )
             }
 
             // Autoturn camera
-            if ( cfg.autoturncamera == CAMTURN_GOOD )        sz_buttons[3] = "Fast";
-            else if ( cfg.autoturncamera == CAMTURN_AUTO )   sz_buttons[3] = "On";
+            if ( CAM_TURN_GOOD == cfg.autoturncamera )        sz_buttons[3] = "Fast";
+            else if ( CAM_TURN_AUTO == cfg.autoturncamera )   sz_buttons[3] = "On";
             else
             {
                 sz_buttons[3] = "Off";
-                cfg.autoturncamera = CAMTURN_NONE;
+                cfg.autoturncamera = CAM_TURN_NONE;
             }
 
             // Show FPS
@@ -2647,20 +2652,20 @@ int doGameOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Autoturn Camera:", buttonLeft + 350, 150, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 4, sz_buttons[3], menuFont, buttonLeft + 515, 150, 100, 30 ) )
             {
-                if ( cfg.autoturncamera == CAMTURN_GOOD )
+                if ( CAM_TURN_GOOD == cfg.autoturncamera )
                 {
                     sz_buttons[3] = "Off";
-                    cfg.autoturncamera = CAMTURN_NONE;
+                    cfg.autoturncamera = CAM_TURN_NONE;
                 }
                 else if ( cfg.autoturncamera )
                 {
                     sz_buttons[3] = "Fast";
-                    cfg.autoturncamera = CAMTURN_GOOD;
+                    cfg.autoturncamera = CAM_TURN_GOOD;
                 }
                 else
                 {
                     sz_buttons[3] = "On";
-                    cfg.autoturncamera = CAMTURN_AUTO;
+                    cfg.autoturncamera = CAM_TURN_AUTO;
                 }
             }
 
