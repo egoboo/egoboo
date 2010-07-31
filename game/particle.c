@@ -964,7 +964,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
 float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
 {
     float retval = 0.0f;
-    Uint32       stoppedby;
+    BIT_FIELD  stoppedby;
     pip_t      * ppip;
 
     if ( !DEFINED_PPRT( pprt ) ) return retval;
@@ -973,7 +973,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -994,9 +994,9 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
 //--------------------------------------------------------------------------------------------
 fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
 {
-    fvec2_t retval = ZERO_VECT2;
-    float   radius;
-    Uint32       stoppedby;
+    fvec2_t		retval = ZERO_VECT2;
+    float		radius;
+    BIT_FIELD   stoppedby;
     pip_t      * ppip;
 
     if ( !DEFINED_PPRT( pprt ) ) return retval;
@@ -1005,7 +1005,7 @@ fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -1039,8 +1039,8 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pre
     /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
 
-    Uint32       retval;
-    Uint32       stoppedby;
+    BIT_FIELD  retval;
+    BIT_FIELD  stoppedby;
     pip_t      * ppip;
 
     if ( !DEFINED_PPRT( pprt ) ) return 0;
@@ -1049,7 +1049,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pre
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -1075,7 +1075,7 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
 
     bool_t retval;
     pip_t * ppip;
-    Uint32  stoppedby;
+    BIT_FIELD  stoppedby;
 
     if ( !ACTIVE_PPRT( pprt ) ) return 0;
 
@@ -1083,7 +1083,7 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) stoppedby |= MPDFX_WALL;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // handle optional parameters
      if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
@@ -1759,6 +1759,13 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
     }
 
+	// handle the sounds
+    if ( hit_a_floor )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
+    }
+
     // handle the collision
     if ( touch_a_floor && loc_ppip->end_ground )
     {
@@ -1811,25 +1818,18 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
     }
 
+	// handle the sounds
+    if ( hit_a_wall )
+    {
+        // Play the sound for hitting the wall [WSND]
+        play_particle_sound( loc_iprt, loc_ppip->end_sound_wall );
+    }
+
     // handle the collision
     if ( touch_a_wall && ( loc_ppip->end_wall || loc_ppip->end_bump ) )
     {
         prt_request_terminate( pbdl_prt );
         return NULL;
-    }
-
-    // handle the sounds
-    if ( hit_a_floor )
-    {
-        // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
-    }
-
-    // handle the sounds
-    if ( hit_a_wall )
-    {
-        // Play the sound for hitting the wall [WSND]
-        play_particle_sound( loc_iprt, loc_ppip->end_sound_wall );
     }
 
     // do the reflections off the walls and floors

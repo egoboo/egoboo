@@ -2621,7 +2621,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->latch.b |= pstate->argument;
+    SET_BIT( pself_target->latch.b, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5196,12 +5196,11 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_FRIENDS | TARGET_ENEMIES, bfalse );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
-		debug_printf("Blocking passage: %s", chr_get_pcap(ichr)->name);
     }
     else
     {
@@ -6490,7 +6489,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->distance, TARGET_FRIENDS | TARGET_ENEMIES, btrue );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -7752,7 +7751,7 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, pstate->distance, bfalse );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, pstate->distance, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
     {

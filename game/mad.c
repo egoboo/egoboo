@@ -382,7 +382,7 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF by_reference imad, 
     ///               to the possibility that an fx string "LARC" could be interpreted as ACTLEFT, CHARRIGHT, *and*
     ///               ACTRIGHT.
 
-    Uint32 fx = 0;
+    BIT_FIELD fx = 0;
     char name_action[16], name_fx[16];
     int name_count;
     int fields;
@@ -495,7 +495,7 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF by_reference imad, 
                     // get any modifiers
                     while (( CSTR_END != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
                     {
-                        fx |= ( 'L' == *ptmp ) ? MADFX_ACTLEFT : MADFX_ACTRIGHT;
+                        SET_BIT( fx, ( 'L' == *ptmp ) ? MADFX_ACTLEFT : MADFX_ACTRIGHT );
                         ptmp++;
                     }
                     break;
@@ -505,7 +505,7 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF by_reference imad, 
                     // get any modifiers
                     while (( CSTR_END != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
                     {
-                        fx |= ( 'L' == *ptmp ) ? MADFX_GRABLEFT : MADFX_GRABRIGHT;
+                        SET_BIT( fx, ( 'L' == *ptmp ) ? MADFX_GRABLEFT : MADFX_GRABRIGHT );
                         ptmp++;
                     }
                     break;
@@ -525,49 +525,49 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF by_reference imad, 
                     // get any modifiers
                     while (( CSTR_END != *ptmp && ptmp < ptmp_end ) && ( 'R' == *ptmp || 'L' == *ptmp ) )
                     {
-                        fx |= ( 'L' == *ptmp ) ? MADFX_CHARLEFT : MADFX_CHARRIGHT;
+                        SET_BIT( fx, ( 'L' == *ptmp ) ? MADFX_CHARLEFT : MADFX_CHARRIGHT );
                         ptmp++;
                     }
                     break;
 
                 case  8: // "LA"
                     bad_form = btrue;
-                    fx |= MADFX_ACTLEFT;
+                    SET_BIT( fx, MADFX_ACTLEFT );
                     break;
 
                 case  9: // "LG"
                     bad_form = btrue;
-                    fx |= MADFX_GRABLEFT;
+                    SET_BIT( fx, MADFX_GRABLEFT );
                     break;
 
                 case 10: // "LD"
                     bad_form = btrue;
-                    fx |= MADFX_DROPLEFT;
+                    SET_BIT( fx, MADFX_DROPLEFT );
                     break;
 
                 case 11: // "LC"
                     bad_form = btrue;
-                    fx |= MADFX_CHARLEFT;
+                    SET_BIT( fx, MADFX_CHARLEFT );
                     break;
 
                 case 12: // "RA"
                     bad_form = btrue;
-                    fx |= MADFX_ACTRIGHT;
+                    SET_BIT( fx, MADFX_ACTRIGHT );
                     break;
 
                 case 13: // "RG"
                     bad_form = btrue;
-                    fx |= MADFX_GRABRIGHT;
+                    SET_BIT( fx, MADFX_GRABRIGHT );
                     break;
 
                 case 14: // "RD"
                     bad_form = btrue;
-                    fx |= MADFX_DROPRIGHT;
+                    SET_BIT( fx, MADFX_DROPRIGHT );
                     break;
 
                 case 15: // "RC"
                     bad_form = btrue;
-                    fx |= MADFX_CHARRIGHT;
+                    SET_BIT( fx, MADFX_CHARRIGHT );
                     break;
             }
 

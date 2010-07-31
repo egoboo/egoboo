@@ -66,7 +66,7 @@ IfTargetKilled
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
     IfFacingTarget
-      IfTargetFacingSelf
+      IfTargetIsFacingSelf
         IfHoldingShield
           tmpx = selfdex			//Check dexterity to block, 10 is average
           tmpy = rand & 7120

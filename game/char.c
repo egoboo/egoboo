@@ -39,6 +39,7 @@
 #include "game.h"
 #include "texture.h"
 #include "ui.h"
+#include "collision.h"					//Only or detach_character_from_platform()
 
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
@@ -4945,7 +4946,7 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     if ( INGAME_CHR( item_ref ) && !pcap_new->slotvalid[SLOT_RIGHT] )
     {
         detach_character_from_mount( item_ref, btrue, btrue );
-        detach_character_from_platform( ChrList.lst + item_ref, btrue, btrue );
+        detach_character_from_platform( ChrList.lst + item_ref );
 
         if ( pchr->ismount )
         {
@@ -6124,7 +6125,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 						else if( ACTION_IS_TYPE(action, C) ) base_reload_time += 80;		//Chop     (Axe)
 						else if( ACTION_IS_TYPE(action, S) ) base_reload_time += 55;		//Slice    (Sword)
 						else if( ACTION_IS_TYPE(action, B) ) base_reload_time += 75;		//Bash	   (Mace)
-						else if( ACTION_IS_TYPE(action, L) ) base_reload_time += 40;		//Longbow  (Longbow)
+						else if( ACTION_IS_TYPE(action, L) ) base_reload_time += 50;		//Longbow  (Longbow)
 						else if( ACTION_IS_TYPE(action, X) ) base_reload_time += 100;		//Xbow	   (Crossbow)
 						else if( ACTION_IS_TYPE(action, F) ) base_reload_time += 50;		//Flinged  (Unused)
 						

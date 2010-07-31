@@ -154,7 +154,7 @@ IfTargetIsAttacking
             tmpy = rand & 16383
             IfXIsMoreThanY
               // Is the enemy facing the character?
-              IfTargetFacingSelf
+              IfTargetIsFacingSelf
                 tmpargument = rand & 15 + 15
                 SetTime
                 tmpargument = STATEPARRY

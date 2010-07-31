@@ -1617,7 +1617,7 @@ void unbuffer_player_latches()
                 weight_sum  += weight;
                 tmp_latch.x += tlatch_list[tnc].x * weight;
                 tmp_latch.y += tlatch_list[tnc].y * weight;
-                tmp_latch.b |= tlatch_list[tnc].button;
+                SET_BIT( tmp_latch.b, tlatch_list[tnc].button );
             }
 
             numplatimes = MAX( numplatimes, latch_count );

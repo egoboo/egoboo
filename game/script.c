@@ -144,7 +144,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     // grab the "changed" value from the last time the script was run
     if ( pself->changed )
     {
-        pself->alert  |= ALERTIF_CHANGED;
+        SET_BIT( pself->alert, ALERTIF_CHANGED );
         pself->changed = bfalse;
     }
 

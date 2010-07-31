@@ -87,7 +87,6 @@ enum chr_alert_bits
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // AI variables
-
 #define MAXWAY              8                       ///< Waypoints
 #define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
 

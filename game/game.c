@@ -1461,10 +1461,10 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
 
 	//Need specific skill? ([NONE] always passes)
-	if( HAS_SOME_BITS(targeting_bits, TARGET_SKILL) && !check_skills( ichr_test, idsz ) ) return bfalse;
+	if( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && !check_skills( ichr_test, idsz ) ) return bfalse;
 
 	//Require player to have specific quest?
-    if ( HAS_SOME_BITS(targeting_bits, TARGET_QUEST ) && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), idsz ) ) return bfalse;
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), idsz ) ) return bfalse;
 
     is_hated = team_hates_team( psrc->team, ptst->team );
     hates_me = team_hates_team( ptst->team, psrc->team );
@@ -2005,19 +2005,19 @@ void set_one_player_latch( const PLA_REF by_reference player )
 
         // Read buttons
         if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_JUMP ) )
-            sum.b |= LATCHBUTTON_JUMP;
+            SET_BIT( sum.b, LATCHBUTTON_JUMP );
         if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_USE ) )
-            sum.b |= LATCHBUTTON_LEFT;
+            SET_BIT( sum.b, LATCHBUTTON_LEFT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_GET ) )
-            sum.b |= LATCHBUTTON_ALTLEFT;
+            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKLEFT;
+            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_USE ) )
-            sum.b |= LATCHBUTTON_RIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_GET ) )
-            sum.b |= LATCHBUTTON_ALTRIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
         if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKRIGHT;
+            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
     }
 
     // Keyboard routines

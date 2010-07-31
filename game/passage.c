@@ -194,7 +194,7 @@ bool_t object_is_in_passage( const PASS_REF by_reference passage, float xpos, fl
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, BIT_FIELD targeting_bits, bool_t require_item )
+CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, BIT_FIELD targeting_bits, IDSZ require_item )
 {
     /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
     ///    otherwise the index of the first character found is returned...
@@ -222,8 +222,8 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_
         if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
 		
-        // not do invulnerable or scenery items
-		if ( HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && pchr->phys.weight == INFINITE_WEIGHT ) continue;
+        // dont do scenery objects unless we allow items
+		if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && pchr->phys.weight == INFINITE_WEIGHT ) continue;
 
 		//Check if the object has the requirements
 		if ( !check_target( psrc, character, idsz, targeting_bits ) ) continue;
@@ -232,7 +232,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
         {
             // Found a live one, do we need to check for required items as well?
-            if ( !require_item )
+            if ( IDSZ_NONE == require_item )
 			{
 				return character;
 			}
@@ -243,14 +243,14 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_
   	            CHR_REF item;
 
                 // I: Check left hand
-                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], idsz ) )
+                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], require_item ) )
                 {
                     // It has the item...
                     return character;
                 }
 
                 // II: Check right hand
-                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_RIGHT], idsz ) )
+                if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_RIGHT], require_item ) )
                 {
                     // It has the item...
                     return character;
@@ -259,7 +259,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_
                 // III: Check the pack
                 PACK_BEGIN_LOOP( item, pchr->pack.next )
                 {
-                    if ( chr_is_type_idsz( item, idsz ) )
+                    if ( chr_is_type_idsz( item, require_item ) )
                     {
                         // It has the item in inventory...
                         return character;

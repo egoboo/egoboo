@@ -39,12 +39,12 @@ INLINE Uint32 mesh_test_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags );
 INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags );
 INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD flags );
 
-INLINE Uint32 mesh_has_some_mpdfx( Uint32 mpdfx, Uint32 test );
+INLINE Uint32 mesh_has_some_mpdfx( BIT_FIELD mpdfx, BIT_FIELD test );
 INLINE bool_t mesh_grid_is_valid( ego_mpd_t * pmpd, Uint32 id );
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-INLINE Uint32 mesh_has_some_mpdfx(Uint32 MPDFX, Uint32 TEST)
+INLINE Uint32 mesh_has_some_mpdfx(BIT_FIELD MPDFX, BIT_FIELD TEST)
 {
     mesh_mpdfx_tests++;
     return HAS_SOME_BITS(MPDFX,TEST);

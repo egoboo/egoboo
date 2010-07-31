@@ -1,6 +1,7 @@
+//No ammo, play string sound
 IfUsed
   IfAmmoOut
-    tmpargument = 3	        //No ammo, play string sound
+    tmpargument = 3	        
     PlaySound
 
 //This function makes an item fall to the floor when spawned
@@ -23,16 +24,18 @@ IfCrushed
   GoPoof
   tmpargument = 1
   SendMessageNear
+  
 IfDropped				// Make it lie on floor
-  KeepAction				  //
+  KeepAction
+  
 IfHitGround				// Play the drop sound
-  tmpargument = 2			  //
-  tmpdistance = rand % 2047 + 7000	  //
-  PlaySound				  //
+  tmpargument = 2
+  PlaySound
+  
 IfGrabbed				// Tell them what they've won...
-  SetTargetToWhoeverIsHolding		  //
-  IfTargetIsAPlayer			  //
-    tmpargument = 0			  //
-    SendMessageNear			  //
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
 
 End					// All done

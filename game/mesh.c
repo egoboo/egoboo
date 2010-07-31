@@ -1400,7 +1400,7 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits
 
     mesh_wall_data_t loc_data;
 
-    Uint32 pass;
+    BIT_FIELD pass;
     int   ix, iy;
 
     // deal with the optional parameters
@@ -1476,7 +1476,7 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits
             int itile = ix + irow;
 
             // since we KNOW that this is in range, allow raw access to the data strucutre
-            pass |= pdata->glist[itile].fx;
+            SET_BIT( pass, pdata->glist[itile].fx );
             mesh_mpdfx_tests++;
 
             if( 0 != (pass & bits) ) return btrue;
@@ -1721,8 +1721,8 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bi
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
-    Uint32 pass, loc_pass;
-    Uint32 itile;
+	BIT_FIELD loc_pass;
+    Uint32 itile, pass;
     int ix, iy;
     bool_t invalid;
 
@@ -1795,12 +1795,12 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bi
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
-                    Uint32 mpdfx      = data.glist[itile].fx;
+                    BIT_FIELD mpdfx   = data.glist[itile].fx;
                     bool_t is_blocked = mesh_has_some_mpdfx( mpdfx, bits );
 
                     if ( is_blocked )
                     {
-                        loc_pass |=  mpdfx;
+                        SET_BIT( loc_pass,  mpdfx );
 
                         if( needs_nrm )
                         {

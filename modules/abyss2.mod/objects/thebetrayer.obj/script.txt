@@ -46,7 +46,7 @@ IfTimeOut
           SetTargetToOldTarget
 
         // Is the enemy facing the character?
-        IfTargetFacingSelf
+        IfTargetIsFacingSelf
           tmpx = targetx
           tmpy = targety
           Teleport
