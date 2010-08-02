@@ -1,0 +1,43 @@
+// This function controls the burning of the fire holder
+//
+// content == 0 - spawn lit, it is ever burning
+// content == 1 - spawn not lit, flame has a lifetime of 200 ticks
+// 
+// state == 0 - fire is out
+// state == 1 - fire is lit
+
+// spawn the object
+IfSpawned
+  tmpargument = 0
+  IfContentIs
+    ReaffirmCharacter
+  Else
+    DisaffirmCharacter
+
+// Is this a special brazier?
+tmpargument = 1
+IfContentIs
+  // the flame goes out after 200 ticks
+  IfStateIs0
+    IfReaffirmed
+      tmpargument = 200
+      SetTime
+  Else
+    IfTimeOut
+      DisaffirmCharacter
+
+// Flame has been re-lit
+IfReaffirmed
+  IfStateIs0
+    tmpargument = 1
+    SetState
+    PlaySound				//Light sound
+
+// Flame has been extinguished
+IfDisaffirmed
+  IfStateIs1
+    tmpargument = 0
+    SetState
+    PlaySound				//Die away sound
+
+End
