@@ -34,8 +34,8 @@ Weight         : 110
 Jump power     : 10.00
 Jump number    : 1
 Sneak speed    : 1
-Walk speed     : 1
-Run speed      : 3
+Walk speed     : 3
+Run speed      : 5
 Fly to height  : 0
 Flashing AND   : 255
 Alpha blending : 255
@@ -53,7 +53,7 @@ NonI angle     : 0
 I facing       : 0
 I angle        : 16000
 
-Base defense   : 70   0   0   0
+Base defense   :  70   0   0   0
 S damage shift :   1   1   1   1
 C damage shift :   1   1   1   1
 P damage shift :   1   1   1   1
@@ -70,7 +70,7 @@ E damage code  :   F   F   F   F
 F damage code  :   F   F   F   F
 I damage code  :   F   F   F   F
 Z damage code  :   F   F   F   F
-Acceleration   :  75  40  40  40
+Acceleration   :  40  40  40  40
 
 EXP for 2nd    : 400
 EXP for 3rd    : 800

@@ -57,9 +57,9 @@ ulna:   NONE    45  43.5   37.5   0.0   ?    0   0  0   0   0   F   F   E
   claw:   NONE    38  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 brazier:   NONE    47  48.5   41.5   1.0   N    0   0  0   0   0   F   F   N
 brazier:   NONE    47  41.5   36.5   1.0   N    0   0  0   0   0   F   F   N
-trog:   NONE    64  19.5   15.5   0.0   N    1   0  0   0   0   F   F   E
+trog:   NONE    64  18.5   15.5   0.0   N    1   0  0   0   0   F   F   T
   Cinquedea:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-lumpkin:   NONE    40  8.5   23.5   0.0   N    0   0  0   0   0   F   F   E
+lumpkin:   NONE    40  8.5   23.5   0.0   N    0   0  0   0   0   F   F   L
   claw:   NONE    38  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 lord:   NONE    39  8.5   16.0   0.0   N    0   0  0   0   0   F   F   N
   broadsword:   NONE    22  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

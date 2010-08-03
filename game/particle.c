@@ -1609,6 +1609,12 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
         hit_a_floor = btrue;
     }
 
+    if ( hit_a_floor )
+    {
+        // Play the sound for hitting the floor [FSND]
+        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
+    }
+
     // handle the collision
     if ( hit_a_floor && loc_ppip->end_ground )
     {
@@ -1638,13 +1644,6 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
         }
     }
 
-    // handle the collision
-    if ( hit_a_wall && ( loc_ppip->end_wall || loc_ppip->end_bump ) )
-    {
-        prt_request_terminate( pbdl_prt );
-        return NULL;
-    }
-
     // handle the sounds
     if ( hit_a_wall )
     {
@@ -1652,10 +1651,11 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
         play_particle_sound( loc_iprt, loc_ppip->end_sound_wall );
     }
 
-    if ( hit_a_floor )
+    // handle the collision
+    if ( hit_a_wall && ( loc_ppip->end_wall || loc_ppip->end_bump ) )
     {
-        // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
+        prt_request_terminate( pbdl_prt );
+        return NULL;
     }
 
     prt_set_pos( loc_pprt, tmp_pos.v );

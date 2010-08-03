@@ -59,9 +59,10 @@ pip_t * pip_init( pip_t * ppip )
     // clear the pip
     memset( ppip, 0, sizeof( *ppip ) );
 
+    ppip->end_sound		  = INVALID_SOUND;
     ppip->end_sound_floor = INVALID_SOUND;
     ppip->end_sound_wall  = INVALID_SOUND;
-    ppip->damfx            = DAMFX_TURN;
+    ppip->damfx           = DAMFX_TURN;
 
     ppip->allowpush = btrue;
 
