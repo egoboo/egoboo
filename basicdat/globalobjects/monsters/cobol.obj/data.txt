@@ -1,5 +1,5 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 62
+Object slot number ( 0 to 63, don't use twice )	: -1
 Object class name ( use underscore for spaces ) : Cobol
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
@@ -104,7 +104,7 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 // IDSZ Identification tags ( [NONE] is valid )
 Parent ID ( eg. [FROG] for Trogs )		: [HUMA]
 Type ID ( eg. [TROG] for Trogs )		: [BEAR]
-Skill ID ( eg. [WMAG] for wizard spells )	: [POIS]
+Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
 Special ID ( eg. [SUM0] for animated bones )	: [WAKE]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
 Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
@@ -125,7 +125,7 @@ Object can open chests/doors ( TRUE or FALSE )	: FALSE
 
 // Other item and damage stuff
 DamageTarget type ( SLASH, CRUSH, POKE, HOLY,
-                    EVIL, FIRE, ICE, or ZAP )	: SLASH
+                    EVIL, FIRE, ICE, or ZAP )	: CRUSH
 Attack type if it's a weapon ( UNARMED, THRUST,
                      SLICE, CHOP, BASH, LONGBOW,
                      XBOW, FLINGED, PARRY, ZAP)	: THRUST
@@ -193,7 +193,7 @@ Sound of Jump ( -1 for none )			: 0
 
 //Expansions
 :[AWEP] 1             //Advanced weapons profiency
-:[STAB] 1             //Backstab!
+:[SHPR] 3             //Shield profiency
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

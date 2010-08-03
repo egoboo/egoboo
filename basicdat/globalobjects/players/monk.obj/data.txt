@@ -9,10 +9,10 @@ Life color     : 1
 Mana color     : 4
 Life           : 7-9
 Life up        : 1-2
-Mana           : 10.00
+Mana           : 0
 Mana up        : 0
-Mana return    : 3.00
-Mana return up : 0.25
+Mana return    : 0
+Mana return up : 0
 Mana flow      : 0
 Mana flow up   : 0
 STR            : 14-18
@@ -31,7 +31,7 @@ Bump size      : 30
 Bump height    : 90
 Bump dampen    : 0.20
 Weight         : 110
-Jump power     : 10.00
+Jump power     : 18.00
 Jump number    : 1
 Sneak speed    : 1
 Walk speed     : 3
@@ -53,12 +53,12 @@ NonI angle     : 0
 I facing       : 0
 I angle        : 16000
 
-Base defense   :  60  70 100   0
-S damage shift :   2   1   1   1
-C damage shift :   2   1   1   1
-P damage shift :   2   1   1   1
+Base defense   :  30  30  30  30
+S damage shift :   1   1   1   1
+C damage shift :   1   1   1   1
+P damage shift :   1   1   1   1
 H damage shift :   1   1   1   1
-E damage shift :   1   1   1   1
+E damage shift :   3   3   3   3
 F damage shift :   1   1   1   1
 I damage shift :   1   1   1   1
 Z damage shift :   1   1   1   1
@@ -70,7 +70,7 @@ E damage code  :   F   F   F   F
 F damage code  :   F   F   F   F
 I damage code  :   F   F   F   F
 Z damage code  :   F   F   F   F
-Acceleration   :  60  50  40  66
+Acceleration   :  50  50  50  50
 
 EXP for 2nd    : 400
 EXP for 3rd    : 800
@@ -80,13 +80,13 @@ EXP for 6th    : 6400
 Starting EXP   : 0
 EXP worth      : 30
 EXP exchange   : 0.010
-EXPSECRET      : 0.25
+EXPSECRET      : 1.00
 EXPQUEST       : 1.00
-EXPDARE        : 0.05
-EXPKILL        : 0.50
+EXPDARE        : 0.02
+EXPKILL        : 0.30
 EXPMURDER      : 0.00
-EXPREVENGE     : 0.00
-EXPTEAMWORK    : 0.50
+EXPREVENGE     : 0.50
+EXPTEAMWORK    : 0.80
 EXPROLEPLAY    : 1.00
 
 IDSZ Parent    : [HUMA]

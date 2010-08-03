@@ -39,8 +39,8 @@ Weight ( 0 to 255 )				: 100
 Jump power ( eg. 14.0 )				: 11.0
 Number of jumps ( eg. 1 )			: 1
 Sneak speed ( 1 to 20, 1 is good )		: 1
-Walk speed ( 1 to 20, 3 is good )		: 1
-Run speed ( 1 to 20, 5 is good )		: 1
+Walk speed ( 1 to 20, 3 is good )		: 3
+Run speed ( 1 to 20, 5 is good )		: 5
 Fly to height ( 0 is none )			: 0
 Flashing AND ( 1, 3, 7, 15...  255 is don't )	: 255
 Transparency blending ( 255 is normal )		: 255

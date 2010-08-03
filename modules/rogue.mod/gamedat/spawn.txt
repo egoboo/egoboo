@@ -60,110 +60,110 @@ Chest:    NONE      53   40.5 22.5 0.0  W   24  0   0   0   0   F   F   Null
 
 
 // Guards by prisoners
-COBOL:     NONE      36   11.5 19.5 0.0  N   4   0   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   11.5 19.5 0.0  N   4   0   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   12.5 18.5 0.0  N   3   0   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   12.5 18.5 0.0  N   3   0   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
 // Sleeping guards by map
-COBOL:     NONE      36   22.5 9.5  0.0  N   3   2   0   200 0   F   F   Evil
+DirtCOBOL:     NONE      36   22.5 9.5  0.0  N   3   2   0   200 0   F   F   Evil
   KShield:  NONE      72   0    0    0    R   0   0   0   0   0   F   F   Null
   Whip:    NONE      16   0    0    0    L   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   22.5 12.5 0.0  S   2   2   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   22.5 12.5 0.0  S   2   2   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   25.5 11.5 0.0  E   3   2   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   25.5 11.5 0.0  E   3   2   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
   KShield:  NONE      73   0    0    0    L   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   27.5 12.5 0.0  W   4   2   0   200 0   F   F   Evil
+DirtCOBOL:     NONE      36   27.5 12.5 0.0  W   4   2   0   200 0   F   F   Evil
   Whip:    NONE      16   0    0    0    R   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   28.5 8.5  0.0  S   1   2   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   28.5 8.5  0.0  S   1   2   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
 // Guards by chest
-COBOL:     NONE      36   9.5  31.5 0.0  S   1   0   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   9.5  31.5 0.0  S   1   0   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   11.5 32.5 0.0  N   2   1   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   11.5 32.5 0.0  N   2   1   0   100 0   F   F   Evil
   KShield:  NONE      74   0    0    0    R   0   0   0   0   0   F   F   Null
   Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   12.5 30.5 0.0  S   0   0   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   12.5 30.5 0.0  S   0   0   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
 // Guards in empty cave
-COBOL:     NONE      36   26.5 25.5 0.0  N   1   0   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   26.5 25.5 0.0  N   1   0   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    R   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   24.5 28.5 0.0  N   0   0   0   400 0   F   F   Evil
+DirtCOBOL:     NONE      36   24.5 28.5 0.0  N   0   0   0   400 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   26.5 28.5 0.0  N   2   0   0   450 0   F   F   Evil
+DirtCOBOL:     NONE      36   26.5 28.5 0.0  N   2   0   0   450 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   29.5 27.5 0.0  N   0   0   0   500 0   F   F   Evil
+DirtCOBOL:     NONE      36   29.5 27.5 0.0  N   0   0   0   500 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 
 // Sleeping guards at intersection
-COBOL:     NONE      36   15.7 42.5 0.0  N   1   2   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   15.7 42.5 0.0  N   1   2   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   26.5 42.5 0.0  S   2   2   0   400 0   F   F   Evil
+DirtCOBOL:     NONE      36   26.5 42.5 0.0  S   2   2   0   400 0   F   F   Evil
   XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   24.5 45.5 0.0  E   1   2   0   100 0   F   F   Evil
+DirtCOBOL:     NONE      36   24.5 45.5 0.0  E   1   2   0   100 0   F   F   Evil
   Cinquedea:    NONE      47   0    0    0    L   0   0   0   0   0   F   F   Null
 
 
 
 // Archer guards by wrong-way shutter
-COBOL:     NONE      36   29.5 53.5 0.0  N   3   1   0   400 0   F   F   Evil
+DirtCOBOL:     NONE      36   29.5 53.5 0.0  N   3   1   0   400 0   F   F   Evil
   XBow:    NONE      48   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   27.5 57.5 0.0  N   2   0   0   450 0   F   F   Evil
+DirtCOBOL:     NONE      36   27.5 57.5 0.0  N   2   0   0   450 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   31.5 57.5 0.0  N   1   0   0   500 0   F   F   Evil
+DirtCOBOL:     NONE      36   31.5 57.5 0.0  N   1   0   0   500 0   F   F   Evil
   LBow:    NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 
 // Welcome party after bear traps
-COBOL:     NONE      36   47.5 41.5 0.0  W   1   0   0   120 0   F   F   Evil
+DirtCOBOL:     NONE      36   47.5 41.5 0.0  W   1   0   0   120 0   F   F   Evil
   Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
   KShield:  NONE      75   0    0    0    L   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   50.5 44.0 0.0  W   6   1   0   140 0   F   F   Evil
+DirtCOBOL:     NONE      36   50.5 44.0 0.0  W   6   1   0   140 0   F   F   Evil
   Hatchet: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
   KShield:  NONE      72   0    0    0    L   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   47.5 46.5 0.0  W   2   0   0   120 0   F   F   Evil
+DirtCOBOL:     NONE      36   47.5 46.5 0.0  W   2   0   0   120 0   F   F   Evil
   Hatchet: NONE      42   0    0    0    L   0   0   0   0   0   F   F   Null
   KShield:  NONE      73   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
 // Treasure room mounted troops
-COBOL:     NONE      36   37.5 32.5 1.0  E   6   1   0   200 0   F   F   Evil
+DirtCOBOL:     NONE      36   37.5 32.5 1.0  E   6   1   0   200 0   F   F   Evil
   Whip:    NONE      16   0    0    0    R   0   0   0   0   0   F   F   Null
 BULLWOLF:  NONE      37   37.5 32.5 0.0  E   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   40.5 31.5 1.0  E   6   1   0   200 0   F   F   Evil
+DirtCOBOL:     NONE      36   40.5 31.5 1.0  E   6   1   0   200 0   F   F   Evil
   Whip:    NONE      16   0    0    0    R   0   0   0   0   0   F   F   Null
 BULLWOLF:  NONE      37   40.5 31.5 0.0  E   0   0   0   0   0   F   F   Null
 
 
 
 // Mine gate guards...  Longbows must be in right hand for Cobol to use
-COBOL:     NONE      36   53.5 10.5 0.0  S   2   1   0   400 0   F   F   Evil
+DirtCOBOL:     NONE      36   53.5 10.5 0.0  S   2   1   0   400 0   F   F   Evil
   XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   53.5 16.5 0.0  S   3   1   0   400 0   F   F   Evil
+DirtCOBOL:     NONE      36   53.5 16.5 0.0  S   3   1   0   400 0   F   F   Evil
   XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
-COBOL:     NONE      36   53.5 22.5 0.0  S   3   1   0   400 0   F   F   Evil
+DirtCOBOL:     NONE      36   53.5 22.5 0.0  S   3   1   0   400 0   F   F   Evil
   XBow:  NONE      49   0    0    0    R   0   0   0   0   0   F   F   Null
   Cinquedea:    NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
 

@@ -1,5 +1,5 @@
 //Rogue special abillties:
-//LEVEL   ABILLITY
+//LEVEL   ABILITY
 //1     - Backstab, Disarm Traps, Poison Use, Acrobatics
 //2     - Stealth (Standing still)
 //3     - Mobility
@@ -62,7 +62,9 @@ IfScoredAHit
           
           //Sound and message
           tmpargument = 8
-          SendMessageNear
+          tmpdistance = 3
+          tmpturn = RED
+          DrawBillboard
           tmpargument = 13
           PlaySound
 
@@ -143,7 +145,7 @@ IfXIsMoreThanY
       SetState
     IfStateIs2
       tmpargument = 0
-      SetAlpha
+      SetLight
       tmpargument = 11
       PlaySound
       tmpargument = 3
@@ -174,7 +176,7 @@ IfXIsMoreThanY
     SetTime
     IfStateIs3
       tmpargument = 255
-      SetAlpha
+      SetLight
       tmpargument = 12
       PlaySound
     tmpargument = 1

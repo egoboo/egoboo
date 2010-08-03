@@ -99,7 +99,7 @@ IfXIsMoreThanY
       SetState
     IfStateIs2
       tmpargument = 0
-      SetAlpha
+      SetLight
       tmpargument = 10
       PlaySound
       tmpargument = 3
@@ -130,7 +130,7 @@ IfXIsMoreThanY
     SetTime
     IfStateIs3
       tmpargument = 255
-      SetAlpha
+      SetLight
       tmpargument = 11
       PlaySound
     tmpargument = 1

@@ -1,4 +1,23 @@
-:Tuk
-:Anthony
+:Tu
+:Ant
+:Abb
+:Bald
+:Dali
+:Geor
+:Good
+:Thom
+:Pet
+:Jo
 :STOP
 
+:k
+:hony
+:ot
+:emar
+:lama
+:ge
+:win
+:as
+:er
+:han
+:STOP
