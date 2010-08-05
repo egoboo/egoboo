@@ -148,7 +148,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define PLATADD             -10                     ///< Height add...
 #define PLATASCEND          0.10f                     ///< Ascension rate
 #define PLATKEEP            0.90f                     ///< Retention rate
-#define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
+#define MOUNTTOLERANCE      (PLATTOLERANCE)
 #define STOPBOUNCING        0.1f // 1.0f                ///< To make objects stop bouncing
 #define DROPZVEL            7
 #define DROPXYVEL           12

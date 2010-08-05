@@ -2745,7 +2745,7 @@ bool_t do_chr_prt_collision_bump( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
         CHR_REF prt_owner = prt_get_iowner( GET_REF_PPRT( pprt ), 0 );
         if ( INGAME_CHR( prt_owner ) )
         {
-            CHR_REF chr_wielder = chr_get_lowest_attachment( GET_REF_PCHR( pchr ),   btrue );
+            CHR_REF chr_wielder = chr_get_lowest_attachment( GET_REF_PCHR( pchr ), btrue );
             CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, btrue );
 
             if ( !INGAME_CHR( chr_wielder ) ) chr_wielder = GET_REF_PCHR( pchr );
@@ -2841,7 +2841,7 @@ bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
-    // initialize the collision date
+    // initialize the collision data
     pdata->pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pdata->pcap ) return bfalse;
 

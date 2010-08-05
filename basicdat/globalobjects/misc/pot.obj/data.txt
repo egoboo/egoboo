@@ -1,5 +1,5 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 44
+Object slot number ( 0 to 63, don't use twice )	: -1
 Object class name ( use underscore for spaces ) : Pot
 Object is lit uniformly ( TRUE or FALSE )	: TRUE
 Maximum ammo ( 0 for doesn't matter )		: 0
@@ -102,8 +102,8 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 
 // IDSZ Identification tags ( [NONE] is valid )
-Parent ID ( eg. [FROG] for Trogs )		: [PLAN]
-Type ID ( eg. [TROG] for Trogs )		: [TREE]
+Parent ID ( eg. [FROG] for Trogs )		: [POTT]
+Type ID ( eg. [TROG] for Trogs )		: [IRON]
 Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
 Special ID ( eg. [SUM0] for animated bones )	: [NONE]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]

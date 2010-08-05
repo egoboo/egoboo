@@ -169,7 +169,7 @@ INLINE bool_t team_hates_team( const TEAM_REF by_reference ipredator_team, const
 
     if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return bfalse;
 
-    return TeamStack.lst[ipredator_team].hatesteam[ REF_TO_INT( iprey_team )];
+    return TeamStack.lst[ipredator_team].hatesteam[ REF_TO_INT( iprey_team ) ];
 }
 
 //--------------------------------------------------------------------------------------------

@@ -7,6 +7,20 @@
 //5 - sleeping		(special)
 //6 - charge guards	(special)
 
+//This script prevents them to sit in that pot
+IfSitting
+  SetOldTarget
+  SetTargetToWhoeverIsHolding
+  tmpargument = [POTT]
+  IfTargetHasID
+    tmpargument = LATCHJUMP
+    PressLatchButton
+    tmpx = rand & 511 + selfx - 256
+    tmpy = rand & 511 + selfx - 256
+    ClearWaypoints
+    AddWaypoint
+  SetTargetToOldTarget
+
 IfSpawned
   //Engage sleeping mode
   GetContent

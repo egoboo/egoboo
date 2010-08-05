@@ -61,6 +61,7 @@ Version 2.8.0 (14.07.2010)
 - Update: Improved the gameplay when using the mouse as input controller.
 - Update: Increased the amount of treasure loot found in the Ice Palace.
 - Update: Improved the Frost Lizard AI.
+- Bugfix: Soldier Starter now properly shows an end text.
 - Bugfix: The Paladin Starter should now be beatable.
 - Bugfix: Guards in Zippy should not attack each other when the player goes criminal.
 - Bugfix: Fixed bug where certain magic items were always identified.
