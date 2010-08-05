@@ -64,10 +64,6 @@ install:
 	cp -rdf setup.txt ${PREFIX}/etc/${PROJ_NAME}/setup.txt
 	cp -rdf controls.txt ${PREFIX}/etc/${PROJ_NAME}/controls.txt
 
-#	copy the execution script to the $HOME directory
-	cp -rdf ./game/egoboo-2.x.sh ${HOME}
-
-
 	#####################################
 	# Egoboo installation is finished
 	#####################################
