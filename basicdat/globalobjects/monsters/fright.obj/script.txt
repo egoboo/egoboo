@@ -8,20 +8,8 @@ IfOrdered
 // Undead are sustained by magic
 IfSpawned
   MakeCrushValid
+  SetTargetToSelf
   EnchantTarget // target is self...
-
-// Make ping as if it were invincible
-IfHealed
-  IfStateIs0
-    tmpx = selfx
-    tmpy = selfy
-    tmpdistance = selfz
-    tmpargument = 4
-    SpawnExactParticle
-    tmpargument = 1
-    SetState
-    tmpargument = 20
-    SetTime
 
 // Die and poof
 IfKilled

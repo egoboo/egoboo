@@ -24,11 +24,11 @@ INT up         : 0.00-0.00
 DEX            : 1.00
 DEX up         : 0.00-0.00
 
-Size           : 3.00
+Size           : 1.00
 Size up        : 0.05
 Shadow size    : 7
-Bump size      : 1
-Bump height    : 1
+Bump size      : 5
+Bump height    : 5
 Bump dampen    : 0.80
 Weight         : 10
 Jump power     : 0.00

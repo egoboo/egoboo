@@ -34,21 +34,21 @@ obutton:   NONE    47  27.5   28.5   1.0   N    0   0  4   0   0   F   F   N
 //Outside the maze there are guards
 treasuryguard:   NONE    50  17.5   37.5   1.0   N    4   0  0   1   0   F   F   Guards
   Mallet:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 treasuryguard:   NONE    50  17.5   37.5   1.0   S    5   0  0   2   0   F   F   Guards
   Mallet:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 treasuryguard:   NONE    50  28.5   56.5   1.0   W    8   0  0   3   0   F   F   Guards	//Sleepy head
   Spear:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  KShield:   NONE    102  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 treasuryguard:   NONE    50  31.5   48.5   1.0   N    9   0  0   0   0   F   F   Guards
   Spear:   NONE    61  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 treasuryguard:   NONE    50  34.5   48.5   1.0   N    15   0  0   0   0   F   F   Guards
   LBow:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 treasuryguard:   NONE    50  41.0   51.0   1.0   N    14   0  0   4   0   F   F   Guards	//Inside Guard
   Mallet:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 treasuryguard:   NONE    50  43.0   58.0   1.0   N    1   0  0   5   0   F   F   Guards	//Inside Guard
   LBow:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 

@@ -27,11 +27,11 @@ Tranch:   NONE    37  11.5   9.5   1.0   N    0   0  0   0   0   F   F   V
 deadbody:   NONE    43  11.0   31.0   1.0   N    0   0  0   0   0   F   F   N
 deadbody:   NONE    43  15.0   34.0   1.0   N    0   0  0   0   0   F   F   N
 rsword:   NONE    38  23.0   35.0   1.0   N    0   0  0   0   0   F   F   N
-KShield:   NONE    42  27.5   31.5   1.0   N    0   0  0   0   0   F   F   N
+KiteShield:   NONE    42  27.5   31.5   1.0   N    0   0  0   0   0   F   F   N
 warham:   NONE    40  22.0   31.0   1.0   N    0   0  0   0   0   F   F   N
 knight:   NONE    36  12.0   46.0   1.0   N    14   0  0   0   0   F   F   G
   Mace:   NONE    33  27.5   31.5   1.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
 unknown:   NONE    32  14.0   48.0   1.0   N    0   0  0   0   0   F   F   N
 knave:     NONE    35  12.0   46.0   1.0   N    6   0  0   0   0   F   F   G
   shock:   NONE    54  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
@@ -46,7 +46,7 @@ gate:   NONE    47  13.8   22.0   1.0   W    0   0  0   0   0   F   F   N
 unknown:   NONE    32  37.5   52.5   1.0   N    0   0  0   0   0   F   F   N
 knight:   NONE    36  37.5   52.5   3.0   N    0   0  0   0   0   F   F   G
   rsword:   NONE    38  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
 grubbug:   NONE    48  31.0   53.0   1.0   N    0   0  0   0   0   F   F   V
 grubbug:   NONE    48  31.0   51.0   1.0   N    0   0  0   0   0   F   F   V
 grubbug:   NONE    48  29.0   54.0   1.0   N    0   0  0   0   0   F   F   V
@@ -70,7 +70,7 @@ deadbody:   NONE    43  44.0   34.0   1.0   N    0   0  0   0   0   F   F   N
 healer:   NONE    29  43.0   32.0   1.0   N    12   0  0   0   0   F   F   G
   Mace:   NONE    33  27.5   31.5   1.0   R    0   0  0   0   0   F   F   N
 knight:   NONE    36  41.0   34.0   1.0   N    14   0  0   0   0   F   F   G
-  KShield:   NONE    42  27.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    42  27.0   32.0   1.0   L    0   0  0   0   0   F   F   N
   warham:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
 knight:   NONE    36  40.0   31.0   2.0   N    15   0  0   0   0   F   F   G
   rsword:   NONE    38  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N

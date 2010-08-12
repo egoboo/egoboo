@@ -71,16 +71,16 @@ Player 4:   NONE    27  13.5   26.5   14.0   S    0   0  0   0   0   T   F   G
 moduletool:   NONE    126  29.5   26.5   3.0   N    0   0  0   0   0   F   F   E
 snowcobol:   NONE    42  29.5   26.5   1.0   S    4   1  0   100   6   F   F   E
   Hatchet:   NONE    37  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-  KShield:   NONE    39  0.0   0.0   0.0   R    1   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   R    1   0  0   0   0   F   F   N
 snowcobol:   NONE    42  26.5   27.5   1.0   S    2   0  0   600   0   F   F   E
   XBow:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   Cinquedea:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 snowcobol:   NONE    42  24.5   23.5   2.0   S    1   0  0   100   0   F   F   E
   Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
 snowcobol:   NONE    42  24.5   32.5   1.0   N    3   0  0   100   0   F   F   E
   Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
 snowcobol:   NONE    42  26.5   29.5   1.0   N    4   0  0   700   0   F   F   E
   XBow:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   Hatchet:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -121,7 +121,7 @@ lockdoor   NONE    56  9.0   53.0   0.0   N    0   0  24   0   0   F   F   N
 chest:   NONE    36  9.0   56.0   1.0   N    0   0  0   1   0   F   F   N           //Locked
   confusion:   NONE    88  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   frog:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  KShield:   NONE    39  0.0   0.0   0.0   I    1   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   I    1   0  0   0   0   F   F   N
 chest:   NONE    36  14.8   56.0   1.0   N    0   0  0   1   0   F   F   N          //Locked
   medkit:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   sloth:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -162,7 +162,7 @@ snowcobol:   NONE    42  55.5   21.5   1.0   N    2   2  0   100   0   F   F   E
   Hatchet:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 snowcobol:   NONE    42  57.5   22.5   1.0   N    5   2  0   100   6   F   F   E
   Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
 snowcobol:   NONE    42  56.5   30.5   2.5   N    5   0  0   100   0   F   F   E
   Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 snowcobol:   NONE    42  56.5   26.5   1.0   N    3   0  0   600   0   F   F   E
@@ -170,7 +170,7 @@ snowcobol:   NONE    42  56.5   26.5   1.0   N    3   0  0   600   0   F   F   E
   Cinquedea:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 snowcobol:   NONE    42  52.5   17.5   1.0   N    1   0  0   100   0   F   F   E
   Hatchet:   NONE    37  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
 bossplat:   NONE    57  12.5   28.5   2.0   N    0   0  0   0   0   F   F   N
 halldoor:   NONE    38  38.3   5.0   1.0   W    0   0  10   0   0   F   F   N
 

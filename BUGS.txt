@@ -4,12 +4,18 @@ at: http://egoboo.sourceforge.net/forum/
 
 Thanks!
 
+REPORTED BUT NOT CONFIRMED:
+- Players not exporting.
+- Healer Starter: The heal action does not always display the effect, usually during movement. 
 
 KNOWN BUGS:
-- Some Script Errors were reported in the Abyss 2. 
-- not saving in Bishopia
-- and i've been in zippy village and there are some potions in the ground... Speed, invisibility and a green one 
-- the green plant in the wizard module cannot be picked up. 
+- There is no rendering at the bottom of the screen. This appears to be a trick to make the game run more smoothly (which is good), but it looks awkward at times. Is there some way to enlarge the field of view? 
+- This is a bit random, but clipping issues occur, making your character unable to receive damage. Perhaps this occurs after loading a module three times. 
+- Probably a physics problem, but blood does not dry out very quickly. This is especially noticeable in the Elf module. 
+- Here is something interesting: when you swing an unlit torch at a burning torch on the ground, the unlit torch does not set aflame. (minor observation) 
+- Soldier Starter: The trog sometimes appear out of the prison it lives in. 
+- Soldier Starter:  The chocobone [sic?] will sometimes run towards torches, resulting in suicide. 
+- Soldier Starter:  The game freezes in one of the rooms. It's in the room with the two skeletons. There is also a very annoying effect (same room) where the "immune" text pops up in frequency. 
 - The physics are very sensitive. Coffins will strongly push you away if you touch them closely (sometimes getting you into the blue blobs). As you should see in "ego00.bmp", they can even push you on top of interesting areas. Coins also bounce highly, taking longer to get, but some bounce into the walls. Flaming skulls are also very sensitive to hit. 
 - The tranch can be killed without breaking the idol it is in. 
 - The green cube is immune to weapons. Was this intended too? 

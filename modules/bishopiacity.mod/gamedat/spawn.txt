@@ -11,7 +11,7 @@
 #dependency Sword             57
 #dependency Cinquedea         67
 #dependency Lance             68
-#dependency KShield           74
+#dependency KiteShield           74
 #dependency Spear             75
 #dependency Hatchet           77
 #dependency Mace              78

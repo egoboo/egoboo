@@ -158,7 +158,7 @@ Lumpkin:   NONE     52    24   15   0    W   3   0   0   0   0   F   F   Evil
   Gonne:   NONE     57    0    0    0    L   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    31   15   0    W   9   0   0   0   3   F   F   Evil
   Hatchet: NONE     82    0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
 Lumpkin:   NONE     52    39   15   0    W   4   0   0   0   0   F   F   Evil
   Claw:    NONE     86    0    0    0    R   0   0   0   0   0   F   F   Null
   Gonne:   NONE     57    0    0    0    L   0   0   0   0   0   F   F   Null
@@ -180,7 +180,7 @@ Bandit:    NONE     50    9.5  30   0    N   6   0   0   0   1   F   F   Evil
   PStiletto: NONE     67    0    0    0    R   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    10   31   0    N   7   0   0   0   2   F   F   Evil
   Sword:   NONE     69    0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    9.5  34   0    N   5   0   0   0   0   F   F   Evil
   XBow:    NONE     55    0    0    0    R   0   0   0   0   0   F   F   Null
 Bandit:    NONE     50    10   33   0    N   5   0   0   0   1   F   F   Evil
@@ -258,7 +258,7 @@ Mercenary: NONE     51    24   24   0    W  14   0   0   0   3   F   F   Evil
   SpkMace: NONE     68    0    0    0    I   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    24   22   0    W   9   0   0   0   1   F   F   Evil
   Hatchet: NONE     82    0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
 
 Tranch:    NONE     78    38   5    0    S   0   0   0   0   1   F   F   Evil
 Tranch:    NONE     78    41   9    0    S   0   0   0   0   2   F   F   Evil
@@ -273,7 +273,7 @@ Mercenary: NONE     51    38   21   0    W  13   0   0   0   2   F   F   Evil
   Sword:   NONE     69    0    0    0    I   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    41   25   0    W  11   0   0   0   4   F   F   Evil
   Hatchet: NONE     82    0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield: NONE     73    0    0    0    L   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    39   23   0    W   8   0   0   0   1   F   F   Evil
   Whip:    NONE     70    0    0    0    R   0   0   0   0   0   F   F   Null
 Mercenary: NONE     51    40   24   0    W   9   0   0   0   0   F   F   Evil

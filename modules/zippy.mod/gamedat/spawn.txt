@@ -62,6 +62,14 @@
 #dependency AlbinoBat          83
 #dependency GrubPet            84
 
+//Potion Trader
+#dependency ESPotion           86       //Extreme Speed
+#dependency IPotion            87       //Invicibililty
+#dependency OPotion            88       //Oracle (reveal map)
+#dependency WPotion            89       //Experience
+#dependency PPotion            90       //Poison potion
+
+
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO 0:    NONE      0    31.5 31.5 0.0  N   0   0   0   0   0   T   F   Good
   HERO 1:  NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
@@ -143,19 +151,19 @@ TownHealer: a_healer     42   41.5   47.5   0    S   0 0   0   0   0   F   F   G
   Mace:    NONE      74   0    0    0    R   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 22   52.5   0    N   0 4   0   0   0   F   F   Good
   Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  TShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 11   6   0    N   0 4   0   0   0   F   F   Good
   Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  TShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 6   10.5   0    N   0 4   0   1   0   F   F   Good
   Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  TShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 11   16.5   0    N   0 4   0   2   0   F   F   Good
   Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  TShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard         39 16   10   0    N   0 4   0   3   0   F   F   Good
   Sword: NONE        69   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  TShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
   
 SHOPKEEP:  Watts     36   11   10   0    N   600 0   0   0   0   F   F   Good
 LAMP:  NONE          44   11   10   0    N   0   0   0   0   0   F   F   Null
@@ -168,10 +176,10 @@ Rebirth:   NONE      77   12   8    0    S   0   0   0   0   0   F   F   Null
 
 GUARD:  a_guard     39 25.5   55.0   0    ?   0 4   0   0   0   F   F   Good
   XBow: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  TShield:  NONE    70   0    0    0    L   0   0   0   0   0   F   F   Null
 GUARD:  a_guard     39 15.0   55.0   0    ?   0 4   0   1   0   F   F   Good
   XBow: NONE        92   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield: NONE      70   0    0    0    L   0   0   0   0   0   F   F   Null
+  TShield: NONE     70   0    0    0    L   0   0   0   0   0   F   F   Null
 
 SHEP:       NONE      38   34   38   0    N   0   0   0   0   0   F   F   Good
 LAMB:       NONE      37   34.5   38.5   0    N   0   0   0   0   0   F   F   Good
@@ -194,8 +202,8 @@ ALRIC:     NONE      79    34.5 20.5 0.0  S   99   0   0   0   0   F   F   Good
 BLERF:     NONE      85   42.2 53.6 0.0  E   19  0   0   0   0   F   F   Good
   Cinquedea  : NONE        56   0    0    0    I   0   0   0   0   0   F   F   Null
 
-FlagPost:    NONE      86    45.5 52.5 0.0  ?   0   2   0   0   0   F   F   Null
+FlagPost:    NONE      91    45.5 52.5 0.0  ?   0   2   0   0   0   F   F   Null
 
-Prophet:    NONE      87    37.5 44.5 0.0  W   0   0   0   0   0   F   F   Good
-  QStaff:   NONE      88    0    0    0    R   0   0   0   0   0   F   F   Null
+Prophet:    NONE      92    37.5 44.5 0.0  W   0   0   0   0   0   F   F   Good
+  QStaff:   NONE      93    0    0    0    R   0   0   0   0   0   F   F   Null
 

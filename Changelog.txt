@@ -1,4 +1,13 @@
+Credits to Seth this release!
 Version 2.8.0b (xx.xx.2010)
+- Update: The Rogue Starter is a bit darker than before.
+- Update: Money is easier to pick up now.
+- Update: Kite Shields now have a small chance to be Kursed.
+- Bugfix: The Greenleaf plant in the Wizard Starter is now grabbable again.
+- Bugfix: Potion Trader in Zippy Town correctly spawns potions again.
+- Bugfix: Fixed morphed Lumpkin spell having incorrect move animation speed.
+- Bugfix: Removed duplicate spellbook in Adventurer Starter
+- Bugfix: The Grub Spit in Adventurer Starter should properly spawn now.
 - Bugfix: Fixed splash and ripple particles being incorrectly loaded.
 - Bugfix: Fixed Lava not damaging.
 - Bugfix: Ghouls in the Paladin Starter should spawn properly again.

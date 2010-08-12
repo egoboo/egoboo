@@ -96,11 +96,11 @@ unknown:   NONE    53  12.5   18.5   0.0   N    0   0  0   0   0   F   F   N
 unknown:   NONE    49  18.5   19.5   0.0   N    0   0  0   0   0   F   F   N
   unknown:   NONE    54  18.5   19.5   0.0   N    0   0  0   0   0   F   F   N
     Sword:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-    KShield:   NONE    78  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+    KiteShield:   NONE    78  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
  unknown:   NONE    49  13.5   19.5   0.0   N    0   0  0   0   0   F   F   N
   unknown:   NONE    54  13.5   19.5   0.0   N    0   0  0   0   0   F   F   N
     Sword:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-    KShield:   NONE    78  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+    KiteShield:   NONE    78  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
  
 tower:   NONE    57  12.5   19.5   0.0   N    0   0  0   0   0   F   F   E
   Missile:   NONE    73  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -141,11 +141,11 @@ unknown:   NONE    52  12.5   13.5   0.0   S    0   0  0   0   0   F   F   N
 unknown:   NONE    48  18.5   12.5   0.0   S    0   0  0   0   0   F   F   N
 unknown:   NONE    45  18.5   12.5   1.0   S    0   0  0   0   0   F   F   N
   Sword:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  KShield:   NONE    78  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    78  0.0   0.0   0.0   I    0   1  0   0   0   F   F   N
 unknown:   NONE    48  13.5   12.5   0.0   S    0   0  0   0   0   F   F   N
 unknown:   NONE    45  13.5   12.5   1.0   S    0   0  0   0   0   F   F   N
   Sword:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  KShield:   NONE    78  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    78  0.0   0.0   0.0   I    0   1  0   0   0   F   F   N
  
 tower:   NONE    58  12.5   12.5   0.0   S    0   0  0   0   0   F   F   G
   Missile:   NONE    73  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

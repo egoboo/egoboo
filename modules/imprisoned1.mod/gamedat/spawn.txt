@@ -90,7 +90,7 @@ protector:   NONE    69  39.5   38.5   0.0   ?    0   0  0   0   0   F   F   E
   battleaxe:   NONE    72  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 protector:   NONE    69  37.5   38.5   0.0   ?    0   0  0   0   0   F   F   E
   scythe:   NONE    71  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  kshield:   NONE    73  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    73  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 protector:   NONE    69  38.5   38.5   0.0   ?    0   0  0   0   0   F   F   E
   sword:   NONE    70  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
@@ -182,7 +182,7 @@ faerie:   NONE    53  25.0   16.5   2.0   ?   0   0  0   0   0   F   F   N
 shufflingheap:   NONE    52  29.5   7.5   0.0   ?    0   0  0   0   0   F   F   E
 KnightSuit:   NONE    102  17.5   8.5   0.0   E    0   1  0   0   0   F   F   N
   SpkMace:   NONE    103  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  kshield:   NONE    73  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    73  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 glasscontainer:   NONE    54  25.5   7.0   0.0   S    0   0  0   0   0   F   F   E
   experimentmonster:   NONE    55  25.5   7.0   0.0   L    0   0  0   0   0   F   F   E

@@ -1,5 +1,5 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 52
+Object slot number ( 0 to 63, don't use twice )	: -1
 Object class name ( use underscore for spaces ) : Fright
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
@@ -34,8 +34,8 @@ Size increase per level ( eg. 0.05 )		: 0.05
 Shadow size ( eg. 30, 0 is none )		: 17
 Bump size ( eg. 30 )				: 40
 Bump height ( eg. 70 )				: 60
-Bump dampen ( 0.0 to 1.0, lower is massive )	: .8
-Weight ( 0 to 255 )				: 2
+Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.8
+Weight ( 0 to 255 )				: 15
 Jump power ( eg. 14.0 )				: 0.0
 Number of jumps ( eg. 1 )			: 0
 Sneak speed ( 1 to 20, 1 is good )		: 1
@@ -71,14 +71,14 @@ EVIL defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
 FIRE defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
 ICE defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
 ZAP defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
-SLASH inversion ( eg. F F F T )			:  T  T  T  T
-CRUSH inversion ( eg. F F F T )			:  T  T  T  T
-POKE inversion ( eg. F F F T )			:  T  T  T  T
+SLASH inversion ( eg. F F F T )			:  I  I  I  I
+CRUSH inversion ( eg. F F F T )			:  I  I  I  I
+POKE inversion ( eg. F F F T )			:  I  I  I  I
 HOLY inversion ( eg. T T T T )			:  F  F  F  F
-EVIL inversion ( eg. F F F T )			:  T  T  T  T
-FIRE inversion ( eg. F F F T )			:  C  C  C  C
-ICE inversion ( eg. F F F T )			:  T  T  T  T
-ZAP inversion ( eg. F F F T )			:  T  T  T  T
+EVIL inversion ( eg. F F F T )			:  I  I  I  I
+FIRE inversion ( eg. F F F T )			:  I  I  I  I
+ICE inversion ( eg. F F F T )			  :  I  I  I  I
+ZAP inversion ( eg. F F F T )			  :  I  I  I  I
 Acceleration rate ( eg. 40 38 30 20 )		: 20 20 20 20
 
 

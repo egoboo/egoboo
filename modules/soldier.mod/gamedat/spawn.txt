@@ -23,10 +23,10 @@ guard:   NONE    36  14.5   40.5   0.0   S    4   4  0   0   0   F   F   E
   Spear:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 guard:   NONE    36  23.5   40.5   0.0   N    5   4  0   0   0   F   F   E
   rsword:   NONE    50  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  kshield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 guard:   NONE    36  26.5   38.5   0.0   N    3   4  0   0   0   F   F   E
   rsword:   NONE    50  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  kshield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 gate:   NONE    54  14.0   55.5   2.0   N    0   0  0   1   0   F   F   N
 irondoor:   NONE    121  19.1   40.0   0.0   E    0   0  0   0   0   F   F   N
@@ -50,7 +50,7 @@ guard:   NONE    36  13.5   22.5   0.0   ?    5   4  0   0   0   F   F   E
   Cinquedea:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna:   NONE    45  47.5   37.5   1.0   N    0   0  0   1   0   F   F   E           //Ulna Thrower
 ulna:   NONE    45  45.5   40.5   0.0   ?    2   0  0   0   0   F   F   E
-  KShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   Broadsword:   NONE    22  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna:   NONE    45  43.5   37.5   0.0   ?    0   0  0   0   0   F   F   E
   claw:   NONE    38  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -115,7 +115,7 @@ ubutton:   NONE    88  35.0   49.5   1.0   N    0   0  0   0   0   F   F   N
 //The boss room
 evilpaladin:   NONE    42  45.0   22.5   1.0   S    20   0  0   0   0   F   F   E
   evilsword:   NONE    21  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 ulna:   NONE    45  47.5   21.5   1.0   S    0   0  0   0   0   F   F   E
   broadsword:   NONE    22  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna:   NONE    45  42.5   21.5   1.0   S    0   0  0   0   0   F   F   E

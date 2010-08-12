@@ -24,7 +24,7 @@
 
 // Divine Shop
 #dependency SpkMace          46
-#dependency KShield          78
+#dependency KiteShield          78
 #dependency Ressurection     79	
 #dependency Clairvoyance     85
 #dependency Confusion        88
@@ -51,7 +51,7 @@
 #dependency ThunderSpear     62
 #dependency XBow	           71 
 #dependency Stiletto	       74 
-#dependency KShield	         78 
+#dependency KiteShield	     78
 #dependency Sojurn		       82
 #dependency Strike		       83
 #dependency Pike		         89

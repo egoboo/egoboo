@@ -50,7 +50,7 @@ DropTrap:   NONE    14  56.0   27.0   1.0   N    0   0  2   12   0   F   F   I
 
 MOGGY:   NONE    21  6.0   7.0   0.0   N    19   0  0   3   0   T   F   G
   Mallet:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  SkShield:   NONE    23  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  SKiteShield:   NONE    23  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 MEENA:     NONE    22  7.0   6.0   0.0   N    7   0  0   0   0   T   F   G

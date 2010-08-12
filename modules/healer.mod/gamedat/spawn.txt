@@ -26,7 +26,7 @@
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 Player 0:  NONE      0    36.0 55.5 0    N   3   0   0   0   0   T   F   Good
-  KShield:  NONE      71   0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield:  NONE      71   0    1    0    L   0   0   0   0   0   F   F   Null
   Mace:    NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
 Faerie:    NONE      74   36.0 54.0 0.0  S   0   0   0   0   0   F   F   Null
 

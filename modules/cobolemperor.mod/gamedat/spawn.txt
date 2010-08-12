@@ -95,7 +95,7 @@ snowcobol:   NONE    53  51.0   43.0   1.0   N    0   0  0   150   0   F   F   E
   Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 snowcobol:   NONE    53  52.0   42.0   0.0   N    5   1  0   200   2   F   F   E
   Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
 cobol:   NONE    37  53.0   43.0   1.0   N    0   0  0   600   0   F   F   E
   LBow:   NONE    61  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 slayercobol:   NONE    62  58.5   46.5   1.0   N    0   0  0   0   0   F   F   E
@@ -113,7 +113,7 @@ Mimic:   NONE    72  49.5   17.5   1.0   N    0   0  0   0   0   F   F   E
   MPotion:   NONE     87  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 chest:   NONE    59  62.5   16.0   0.0   W    14   0  0   4   0   F   F   N
   LPotion:   NONE     86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  KShield:   NONE      78   0    0    0    I   0   0   0   0   0   F   F   Null
+  KiteShield:   NONE      78   0    0    0    I   0   0   0   0   0   F   F   Null
   PKatana:   NONE      98   0    0    0    I   0   0   0   0   0   F   F   Null
 toybox:   NONE    54  53.5   16.5   1.0   ?    0   0  0   0   0   F   F   E
 toybox:   NONE    54  55.5   9.5   1.0   ?    0   0  0   0   0   F   F   E
@@ -259,11 +259,11 @@ magecobol:   NONE    58  68.0   74.0   1.0   N    0   0  0   32919   0   F   F  
 BullWolf:   NONE    76  65.0   74.0   1.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  65.0   74.0   2.0   N    5   1  0   200   2   F   F   E
     Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-    KShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
 BullWolf:   NONE    76  71.0   74.0   1.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  71.0   74.0   2.0   N    4   1  0   200   2   F   F   E
     Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-    KShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
 Chest:   NONE    59  71.0   75.0   0.0   N    0   0  0   0   0   F   F   N
   KeyA:   NONE    48  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
@@ -290,7 +290,7 @@ Chest:   NONE    59  72.5   57.0   0.0   W    19   0  0   16   0   F   F   N
 BullWolf:   NONE    76  42.0   57.0   0.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  42.0   57.0   1.0   N    0   0  0   0   0   F   F   E
     SpkMace:   NONE    46  0.0   0.0   0.0   R    4   0  0   175   0   F   F   N
-    KShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+    KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
 BullWolf:   NONE    76  38.0   55.0   0.0   N    0   0  0   0   0   F   F   N
   cobol:   NONE    37  38.0   55.0   1.0   N    5   1  0   150   2   F   F   E
     Cinquedea:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -317,7 +317,7 @@ slayercobol:   NONE    62  30.5   5.5   0.0   S    0   0  0   0   0   F   F   E
 
 dirtcobol:   NONE    38  29.0   22.0   1.0   S    6   1  0   200   2   F   F   E
   Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
-  KShield:   NONE      78   0    0    0    I   0   0   0   0   0   F   F   Null
+  KiteShield:   NONE      78   0    0    0    I   0   0   0   0   0   F   F   Null
 dirtcobol:   NONE    38  28.0   20.0   1.0   S    3   0  0   600   0   F   F   E
   XBow:   NONE    71  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 dirtcobol:   NONE    38  30.0   20.0   1.0   S    2   0  0   600   0   F   F   E
@@ -348,7 +348,7 @@ snowcobol:   NONE    53  37.5   31.5   1.0   S    4   2  0   500   0   F   F   E
   XBow:   NONE    71  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 snowcobol:   NONE    53  37.5   27.5   1.0   N    3   2  0   200   0   F   F   E
   whip:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  KShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+  KiteShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
 
 //The Jester hallway
 Chest:   NONE    59  40.0   7.0   0.0   S    14   0  0   1   0   F   F   N
