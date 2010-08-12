@@ -96,7 +96,7 @@ void egoboo_config_init( egoboo_config_t * pcfg )
 
     // {GRAPHIC}
     pcfg->fullscreen_req        = bfalse;        // Start in fullscreen?
-    pcfg->scrd_req              = 32;                 // Screen bit depth
+    pcfg->scrd_req              = 24;                 // Screen bit depth
     pcfg->scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
     pcfg->scrx_req              = 640;               // Screen X size
     pcfg->scry_req              = 480;               // Screen Y size

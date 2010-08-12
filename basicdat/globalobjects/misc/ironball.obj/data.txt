@@ -105,7 +105,7 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 Parent ID ( eg. [FROG] for Trogs )		: [BALL]
 Type ID ( eg. [TROG] for Trogs )		: [IRON]
 Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
-Special ID ( eg. [SUM0] for animated bones )	: [NONE]
+Special ID ( eg. [SUM0] for animated bones )	: [XLEG]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
 Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
 

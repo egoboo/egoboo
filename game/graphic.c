@@ -93,8 +93,8 @@ typedef struct s_dynalight_registry dynalight_registry_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t _sdl_initialized_graphics = bfalse;
-static bool_t _ogl_initialized          = bfalse;
+static SDL_bool _sdl_initialized_graphics = SDL_FALSE;
+static bool_t   _ogl_initialized          = bfalse;
 
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
@@ -539,10 +539,10 @@ void gfx_init_SDL_graphics()
     sdl_vparam.gl_att.multi_buffers      = ( cfg.multisamples > 1 ) ? 1 : 0;
     sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
-
-    ogl_vparam.dither         = GL_FALSE;
+	
+	ogl_vparam.dither         = cfg.use_dither ? GL_TRUE : GL_FALSE;
     ogl_vparam.antialiasing   = GL_TRUE;
-    ogl_vparam.perspective    = GL_FASTEST;
+    ogl_vparam.perspective    = cfg.use_perspective ? GL_NICEST : GL_FASTEST;
     ogl_vparam.shading        = GL_SMOOTH;
     ogl_vparam.userAnisotropy = 16.0f * MAX( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
 
@@ -563,7 +563,7 @@ void gfx_init_SDL_graphics()
         log_message( "Success!\n" );
     }
 
-    _sdl_initialized_graphics = btrue;
+    _sdl_initialized_graphics = SDL_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
