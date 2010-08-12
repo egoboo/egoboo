@@ -1,4 +1,12 @@
-Version 2.8.0 (14.07.2010)
+Version 2.8.0b (xx.xx.2010)
+- Bugfix: Fixed splash and ripple particles being incorrectly loaded.
+- Bugfix: Fixed Lava not damaging.
+- Bugfix: Ghouls in the Paladin Starter should spawn properly again.
+- Bugfix: Fixed the game crashing whenever you saved the Sound Settings.
+- Bugfix: Setup settings are properly saved now.
+- Bugfix: Fixed input settings not being properly saved on Linux.
+
+Version 2.8.0 (06.08.2010)
 - New Feature: New Caltrop weapon... Watch your feet! Also added new Grog drink for G'nomes.
 - New Feature: Impemented a new Darkvision skill that allows creatures or players to see in darkness
   without a normal lightsource. Current classes that have this skill are Elf, G'nome and Zombor.
@@ -12,6 +20,10 @@ Version 2.8.0 (14.07.2010)
 - New Feature: Improved AI by adding Line of Sight detection for targeting.
 - New Feature: Improved UI by implementing in-game pop up text.
 - New Feature: Implemented a new file system based on PhysFS to improve file handling.
+- Update: Added a new Sneak mode while holding the Shift button (work in progress).
+- Update: Reworked how movement speed affects animations.
+- Update: Reworked how shield blocking worked. Strength now increases chance of blocking attacks.
+- Update: Reworked how weapon attack speed worked. It is now more dependant on character dexterity.
 - Update: Improved some skins and models for various objects.
 - Update: Completely reworked the Vampire monster.
 - Update: Major improvements on the AI for Brom and Mim.

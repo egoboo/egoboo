@@ -3248,6 +3248,9 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     // append the global module gamedat directory
     vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_data", 1 );
 
+	// put the global globalparticles data after the module gamedat data
+    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
+
     return btrue;
 }
 

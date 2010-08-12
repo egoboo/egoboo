@@ -688,9 +688,6 @@ void egoboo_setup_vfs_paths()
     // mount the global basicdat directory t the beginning of the list
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat", "mp_data", 1 );
 
-    // put the global globalparticles data after the basicdat data
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
-
     // Create a mount point for the /user/modules directory
     vfs_add_mount_point( fs_getUserDirectory(), "modules", "mp_modules", 1 );
 

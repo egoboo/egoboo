@@ -200,10 +200,14 @@ bool_t setup_read_vfs( const char* filename )
 bool_t setup_write()
 {
     /// @details BB@> save the current setup file
+	bool_t success = bfalse;
 
     if ( INVALID_CSTR( _config_filename ) ) return bfalse;
 
-    return ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, vfs_resolveWriteFilename( _config_filename ) );
+	success = ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, _config_filename );
+	if( !success ) log_warning("Failed to save setup.txt!\n");
+    
+	return success;
 }
 
 //--------------------------------------------------------------------------------------------

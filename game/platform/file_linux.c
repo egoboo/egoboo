@@ -140,7 +140,7 @@ bool_t fs_copyFile( const char *source, const char *dest )
     if ( !sourcef )
         return bfalse;
 
-    destf = fopen( source, "wb" );
+    destf = fopen( destf, "wb" );
     if ( !destf )
     {
         fclose( sourcef );
