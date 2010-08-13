@@ -698,7 +698,7 @@ void egoboo_setup_vfs_paths()
     vfs_add_mount_point( fs_getUserDirectory(), "players", "mp_players", 1 );
 
     // Create a mount point for the /data/players directory
-    vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );
+    //vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );		//ZF> Let's remove the local players folder since it caused so many problems for people
 
     // Create a mount point for the /user/remote directory
     vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );

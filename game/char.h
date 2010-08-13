@@ -112,7 +112,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 //Dismounting
 #define DISMOUNTZVEL        16
 #define DISMOUNTZVELFLY     4
-#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.25f)          ///< time delay for full object-object interaction (approximately 0.5 second)
+#define PHYS_DISMOUNT_TIME  (TICKS_PER_SEC*0.05f)          ///< time delay for full object-object interaction (approximately 0.05 second)
 
 //Knockbacks
 #define REEL                7600.0f     ///< Dampen for melee knock back

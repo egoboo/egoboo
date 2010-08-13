@@ -6,11 +6,16 @@ IfTakenOut
     IfTargetIsAPlayer
       tmpargument = 0
       SendMessageNear
+IfPutAway
+  tmpargument = 0
+  SetContent
+IfDropped
+  tmpargument = 0
+  SetContent
 
 // Spell AI
 IfUsed
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 1024
   IfXIsLessThanY
     SetTargetToWhoeverIsHolding
@@ -27,8 +32,7 @@ IfUsed
           tmpargument = tmpargument > 8
           SetState
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 256
   IfXIsMoreThanY
     // Make the target shoot
@@ -40,6 +44,7 @@ Else
     // Figured out what it was
     MakeNameKnown
     MakeUsageKnown
+    
     // unleash the ring of fire
     SetTargetToWhoeverIsHolding
     tmpx = targetx
@@ -70,16 +75,15 @@ Else
       tmpdistance = DAMAGEFIRE
       DamageTarget
     tmpargument = 0
-    tmpdistance = rand % 2047 + 10000
     PlaySound
+    
   // Reset the charge counter
   tmpargument = 0
   SetContent
 
 // Put the little mana ball on the
 // character's hand
-GetContent
-tmpx = tmpargument
+tmpx = selfcontent
 tmpy = 0
 IfXIsMoreThanY
   tmpturn = tmpargument < 4 + 500

@@ -5869,6 +5869,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     new_ay = CLIP(new_ay, -pchr->maxaccel, pchr->maxaccel );
 
     //Figure out how to turn around
+	if( pchr->maxaccel != 0 )
     switch ( pchr->turnmode )
     {
         // Get direction from ACTUAL change in velocity
@@ -8329,8 +8330,8 @@ TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
     // what do we need to draw?
     is_spell_fx = (NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type);       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = (SPELLBOOK == pitem->profile_ref);
-    draw_book = ( is_book || ( is_spell_fx && !pitem->draw_icon ) || ( is_spell_fx && MAX_CHR != pitem->attachedto ) ) && ( bookicon_count > 0 );
-
+    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && MAX_CHR != pitem->attachedto )*/ ) && ( bookicon_count > 0 );	//>ZF> uncommented a part because this caused a icon bug when you were morphed and mounted
+	
     if ( !draw_book )
     {
         iskin = pitem->skin;
