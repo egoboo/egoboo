@@ -1,4 +1,0 @@
-Message 0: %t_enjoys_smashing_idols!
-Message 1: %t_destroyed_a_statue...
-Message 2: A_passage_has_opened!
-Message 3: A_magic_ward_was_broken!

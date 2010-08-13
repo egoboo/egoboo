@@ -2338,6 +2338,11 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     pdata->mana_paid = bfalse;
     if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
     {
+		//Initialize for the billboard
+		const float lifetime = 3;
+	    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+		GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
+
         // magically deflect the particle or make a ricochet if the character is invictus
         int treatment;
 
@@ -2381,7 +2386,65 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
             }
 
             //Blocked!
-            spawn_defense_ping( pchr, pprt->owner_ref );
+            spawn_defense_ping( pchr, pprt->owner_ref );	
+			chr_make_text_billboard( GET_REF_PCHR(pchr), "Blocked!", text_color, tint, lifetime, bb_opt_all );
+				
+			//If the attack was blocked by a shield, then check if the block caused a knockback
+			if( chr_is_invictus && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
+			{
+				bool_t using_shield;
+				CHR_REF item;
+
+				// Figure out if we are really using a shield or if it is just a invictus frame
+				using_shield = bfalse;
+
+				// Check right hand for a shield
+				item = pchr->holdingwhich[SLOT_RIGHT];
+				if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
+				{
+					using_shield = btrue;
+				}
+
+				// Check left hand for a shield
+				if ( !using_shield )
+				{
+					item = pchr->holdingwhich[SLOT_LEFT];
+					if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
+					{
+						using_shield = btrue;
+					}
+				}
+
+				// Now we have the block rating and know the enemy
+				if( INGAME_CHR( pprt->owner_ref )&& using_shield )
+				{
+					cap_t *pcap = chr_get_pcap( GET_REF_PCHR(pchr) );
+					cap_t *pshield = chr_get_pcap( item );
+					chr_t *pattacker = ChrList.lst + pprt->owner_ref;
+					int block_rating;
+					int attacker_str, defender_str;
+
+					attacker_str = FP8_TO_INT( pattacker->strength ) * 4;			//-4% per attacker strength
+					defender_str = FP8_TO_INT( pchr->strength )      * 2;			//+2% per defender strength
+					block_rating = pshield->block_rating + pcap->block_rating;		//use the character block skill plus the base block rating of the shield
+
+					//Now determine the result of the block
+					if( generate_randmask( 1, 100 ) - defender_str <= block_rating - attacker_str )
+					{
+						//Defender won, the block holds
+						//Add a small stun to the attacker for about 0.8 seconds
+						pattacker->reloadtime += 40;				
+					}
+					else
+					{
+						//Attacker broke the block and batters away the shield
+						//Time to raise shield again (about 0.8 seconds)
+						pchr->reloadtime += 40;	
+						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
+					}
+				}
+			}
+
         }
     }
 
@@ -2925,7 +2988,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // handle particle deflection.
     // if the platform collision was already handled, there is nothing left to do
     prt_deflected = bfalse;
-    if ( full_collision && !plat_collision )
+    //if ( full_collision && !plat_collision )
     {
         // determine whether the particle is deflected by the character
         if ( cn_lst.dot < 0.0f )

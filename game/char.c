@@ -3488,82 +3488,24 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
         pchr->ai.damagetypelast = damagetype;
         pchr->ai.directionlast  = direction;
         
-        // Check for blocking and invictus, no need to continue if they have
-		immune_to_damage = actual_damage <= pchr->damagethreshold || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
-		if ( immune_to_damage || is_invictus_direction( direction, character, effects ) )
+        // Check for characters who are immune to this damage, no need to continue if they have
+		immune_to_damage = (actual_damage > 0 && actual_damage <= pchr->damagethreshold) || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
+		if ( immune_to_damage )
         {
+			//Dark green text
 			const float lifetime = 3;
-            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+	        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+			GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
             
             actual_damage = 0;
         	spawn_defense_ping( pchr, attacker );
 
+			//Even if we take no damage, we were still attacked
+			SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
+            pchr->ai.attacklast = attacker;
+
 			//Character is simply immune to the damage
-			if( immune_to_damage )
-			{
-				//Dark green text
-				GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
-				chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
-			}
-
-			//If the attack was blocked by a shield, then check if the block caused a knockback
-			else if ( INGAME_CHR(attacker) && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
-			{
-				bool_t using_shield;
-				CHR_REF item;
-
-				// Figure out if we are really using a shield or if it is just a invictus frame
-				using_shield = bfalse;
-
-				// Check right hand for a shield
-				item = pchr->holdingwhich[SLOT_RIGHT];
-				if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
-				{
-					using_shield = btrue;
-				}
-
-				// Check left hand for a shield
-				if ( !using_shield )
-				{
-					item = pchr->holdingwhich[SLOT_LEFT];
-					if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
-					{
-						using_shield = btrue;
-					}
-				}
-
-				// Now we have the block rating and know the player uses a shield
-				if( using_shield )
-				{
-					cap_t *pshield = chr_get_pcap( item );
-					chr_t *pattacker = ChrList.lst + attacker;
-					int block_rating;
-					int attacker_str, defender_str;
-				
-					//Whatever the result, tell the players it got blocked
-					GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
-					chr_make_text_billboard( character, "Blocked!", text_color, tint, lifetime, bb_opt_all );
-
-					attacker_str = FP8_TO_INT( pattacker->strength ) * 4;			//-4% per attacker strength
-					defender_str = FP8_TO_INT( pchr->strength )      * 2;			//+2% per defender strength
-					block_rating = pshield->block_rating + pcap->block_rating;		//use the character block skill plus the base block rating of the shield
-
-					//Now determine the result of the block
-					if( generate_randmask( 1, 100 ) - defender_str <= block_rating - attacker_str )
-					{
-						//Defender won, the block holds
-						//Add a small stun to the attacker for about 0.8 seconds
-						pattacker->reloadtime += 40;				
-					}
-					else
-					{
-						//Attacker broke the block and batters away the shield
-						//Time to raise shield again (about 0.8 seconds)
-						pchr->reloadtime += 40;	
-						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
-					}
-				}
-			}
+			chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
 		}
 
         // Do it already
@@ -6123,9 +6065,9 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 						int base_reload_time = -chr_dex;
 						if     ( ACTION_IS_TYPE(action, U) ) base_reload_time += 50;		//Unarmed  (Fists)
 						else if( ACTION_IS_TYPE(action, T) ) base_reload_time += 45;		//Thrust   (Spear)
-						else if( ACTION_IS_TYPE(action, C) ) base_reload_time += 80;		//Chop     (Axe)
+						else if( ACTION_IS_TYPE(action, C) ) base_reload_time += 75;		//Chop     (Axe)
 						else if( ACTION_IS_TYPE(action, S) ) base_reload_time += 55;		//Slice    (Sword)
-						else if( ACTION_IS_TYPE(action, B) ) base_reload_time += 75;		//Bash	   (Mace)
+						else if( ACTION_IS_TYPE(action, B) ) base_reload_time += 60;		//Bash	   (Mace)
 						else if( ACTION_IS_TYPE(action, L) ) base_reload_time += 50;		//Longbow  (Longbow)
 						else if( ACTION_IS_TYPE(action, X) ) base_reload_time += 100;		//Xbow	   (Crossbow)
 						else if( ACTION_IS_TYPE(action, F) ) base_reload_time += 50;		//Flinged  (Unused)
@@ -7536,7 +7478,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
     // if the invictus flag is set, we are invictus
     if ( pchr->invictus ) return btrue;
 
-    // if the effect is armor piercing, ignore shielding
+    // if the effect is shield piercing, ignore shielding
     if ( HAS_SOME_BITS( effects, DAMFX_NBLOC ) ) return bfalse;
 
     // if the character's frame is invictus, then check the angles

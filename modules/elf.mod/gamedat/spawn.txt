@@ -1,13 +1,13 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 
-#dependency Elf      0
-#dependency JiiveElf 33
+#dependency Elf       0
+#dependency JiiveElf  33
+#dependency RockOpen  48    //For destroyed stone idols
 
 
 PLAYER:   NONE    0  33.0   32.5   0.0   N    0   0  0   0   0   T   F   G
   Morph:   NONE    31  32.5   32.5   1.0   L    0   0  0   0   0   F   F   N
-  Light:   NONE    32  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  claw:   NONE    51  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 Pot:       NONE    20  32.5   32.5   1.0   E    0   0  0   0   0   F   F   N
   
@@ -53,7 +53,7 @@ Tent:   NONE    10  34.5   26.5   0.0   N    0   1  0   0   0   F   F   E
 Tent:   NONE    10  30.5   25.5   0.0   S    0   1  0   0   0   F   F   E
 Tent:   NONE    10  29.5   33.5   0.0   W    0   0  0   0   0   F   F   E
 Tent:   NONE    10  27.5   25.5   0.0   E    4   1  0   0   0   F   F   E
-rockhead:   NONE    47  17.5   31.5   0.0   E    0   0  0   0   0   F   F   E
+rockhead:   NONE    47  17.5   31.5   0.0   E    0   0  0   48   0   F   F   E
   faerie1:   NONE    74  0.0   0.0   0.0   I    0   0  0   0   0   F   F   G
   faerie2:   NONE    75  0.0   0.0   0.0   I    0   0  0   0   1   F   F   G
 brazier:   NONE    77  17.5   30.5   0.0   E    0   0  0   2   0   F   F   N
@@ -66,6 +66,7 @@ lumpkin:   NONE    30  19.5   31.5   3.0   N    0   0  0   0   0   F   F   E
 
 chest:   NONE    40  35.5   43.5   1.0   N    0   0  0   0   0   F   F   N
   LBow:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Light:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 brazier:   NONE    77  33.5   43.5   1.0   N    0   0  0   1   0   F   F   N
 
 lumpkin:   NONE    30  34.5   42.5   1.0   N    0   0  0   0   0   F   F   E

@@ -1,5 +1,5 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 48
+Object slot number ( 0 to 63, don't use twice )	: -1
 Object class name ( use underscore for spaces ) : Stone_Idol
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
@@ -32,8 +32,8 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 Size ( eg. 1.0 )				: 1.0
 Size increase per level ( eg. 0.05 )		: 0.0
 Shadow size ( eg. 30, 0 is none )		: 35
-Bump size ( eg. 30 )				: 0
-Bump height ( eg. 70 )				: 0
+Bump size ( eg. 30 )				: 40
+Bump height ( eg. 70 )				: 70
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.0
 Weight ( 0 to 255 )				: 255
 Jump power ( eg. 14.0 )				: 0.0
@@ -54,7 +54,7 @@ Conform to hills like a chair ( TRUE or FALSE )	: TRUE
 
 
 // Invulnerability data
-Object is totally invincible ( TRUE or FALSE )	: TRUE
+Object is totally invincible ( TRUE or FALSE )	: FALSE
 NonIFrame Invulnerability facing ( 0 to 65535 )	: 0
 NonIFrame Invulnerability angle ( 0 to 32768 )	: 0
 IFrame Invulnerability facing ( 0 to 65535 )	: 0
@@ -69,17 +69,17 @@ POKE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 HOLY defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-ICE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-ZAP defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-SLASH inversion ( eg. F F F T )			:  T  T  T  T
-CRUSH inversion ( eg. F F F T )			:  T  T  T  T
-POKE inversion ( eg. F F F T )			:  T  T  T  T
-HOLY inversion ( eg. T T T T )			:  T  T  T  T
-EVIL inversion ( eg. F F F T )			:  T  T  T  T
-FIRE inversion ( eg. F F F T )			:  T  T  T  T
-ICE inversion ( eg. F F F T )			:  T  T  T  T
-ZAP inversion ( eg. F F F T )			:  T  T  T  T
-Acceleration rate ( eg. 40 38 30 20 )		:  0  0  0  0
+ICE defense shift ( eg. 1 1 1 1 )		  :  1  1  1  1
+ZAP defense shift ( eg. 1 1 1 1 )		  :  1  1  1  1
+SLASH inversion ( eg. F F F T )			  :  I  I  I  I
+CRUSH inversion ( eg. F F F T )			  :  F  F  F  F
+POKE inversion ( eg. F F F T )			  :  I  I  I  I
+HOLY inversion ( eg. T T T T )			  :  C  C  C  C
+EVIL inversion ( eg. F F F T )			  :  I  I  I  I
+FIRE inversion ( eg. F F F T )			  :  I  I  I  I
+ICE inversion ( eg. F F F T )			    :  I  I  I  I
+ZAP inversion ( eg. F F F T )			    :  I  I  I  I
+Acceleration rate ( eg. 40 38 30 20 )	:  0  0  0  0
 
 
 // Experience and level data

@@ -22,30 +22,31 @@
 //         A-Z ( caps only ).
 //         Null is predefined to be the neutral team.
 
-#dependency Healer  0
+#dependency Healer    0
+#dependency RockOpen  48    //For destroyed stone idols
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 Player 0:  NONE      0    36.0 55.5 0    N   3   0   0   0   0   T   F   Good
-  KiteShield:  NONE      71   0    1    0    L   0   0   0   0   0   F   F   Null
+  KiteShield:  NONE  71   0    1    0    L   0   0   0   0   0   F   F   Null
   Mace:    NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
 Faerie:    NONE      74   36.0 54.0 0.0  S   0   0   0   0   0   F   F   Null
 
 Music:     NONE      90   36.0 55.5 3    N   0   0   0   0   0   F   F   Null
 
-RockHead:  NONE      38   47.5  8.5 0.0  S   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      38   47.5  8.5 0.0  S   0   0   0   48  0   F   F   Evil
   DivineShield:NONE  57   0    0    0    I   0   0   0   0   0   F   F   Null
-RockHead:  NONE      38   37.5 29.5 0.0  S   0   0   0   0   0   F   F   Evil
-RockHead:  NONE      38   37.5 26.5 0.0  S   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      38   37.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
+RockHead:  NONE      38   37.5 26.5 0.0  S   0   0   0   48  0   F   F   Evil
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
-RockHead:  NONE      38   34.5 29.5 0.0  S   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      38   34.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
-RockHead:  NONE      38   34.5 26.5 0.0  S  49   0   0   0   0   F   F   Evil
-RockHead:  NONE      38   12.5 18.5 0.0  E   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      38   34.5 26.5 0.0  S  49   0   0   48  0   F   F   Evil
+RockHead:  NONE      38   12.5 18.5 0.0  E   0   0   0   48  0   F   F   Evil
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
-RockHead:  NONE      38   12.5 21.5 0.0  E   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      38   12.5 21.5 0.0  E   0   0   0   48  0   F   F   Evil
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
-RockHead:  NONE      38   12.5 11.5 0.0  E   0   0   6   0   0   F   F   Evil
+RockHead:  NONE      38   12.5 11.5 0.0  E   0   0   6   48  0   F   F   Evil
 
 
 
@@ -108,8 +109,6 @@ Chest:    NONE      53   47.5 52.5 0.0  N   0   0   0   0   0   F   F   Null
   Rebirth: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
 
-
-
 Gatelite:  NONE      45   36.0 56.5 0.0  N   0   0   0   0   0   F   F   Null
 
 
@@ -122,6 +121,7 @@ BossNecro: NONE      80   47.5 10.5 0.0  S   39  0   0 32919 0   F   F   Evil
   Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
   Missile: NONE      51   0    0    0    L   0   0   0   0   0   F   F   Null
 
+  
 Ulna:      NONE      18   46   12   0    S   0   0   0   0   0   F   F   Evil
   KurCinq: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
 Ulna:      NONE      18   49   12   0    S   0   0   0   0   0   F   F   Evil

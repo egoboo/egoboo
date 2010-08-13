@@ -22,6 +22,8 @@
 //         A-Z ( caps only ).
 //         Null is predefined to be the neutral team.
 
+#dependency RockOpen  48    //For destroyed stone idols
+
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HeroatBoss NONE      0    47.5 10.5 0.0  N   0   0   0   0   0   T   F   Good
 Hero 00:   NONE      0    35.0 55.5 0.0  N   0   0   0   0   0   T   F   Good
@@ -55,19 +57,19 @@ Gatelite:  NONE      45   36.0 56.5 0.0  N   0   0   0   0   0   F   F   Null
 
 Blob:      NONE      91   36.5 52.5 0.0  S   0   0   0   0   0   F   F   Evil
 
-RockHead:  NONE      47   37.5 29.5 0.0  S   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      47   37.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
   Rebirth: NONE      43   0    0    0    I   0   0   0   0   0   F   F   Null
-RockHead:  NONE      47   37.5 26.5 0.0  S   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      47   37.5 26.5 0.0  S   0   0   0   48  0   F   F   Evil
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
-RockHead:  NONE      47   34.5 29.5 0.0  S   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      47   34.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
-RockHead:  NONE      47   34.5 26.5 0.0  S  49   0   0   0   0   F   F   Evil
-RockHead:  NONE      47   12.5 18.5 0.0  E   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      47   34.5 26.5 0.0  S  49   0   0   48  0   F   F   Evil
+RockHead:  NONE      47   12.5 18.5 0.0  E   0   0   0   48  0   F   F   Evil
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
   Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
-RockHead:  NONE      47   12.5 21.5 0.0  E   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      47   12.5 21.5 0.0  E   0   0   0   48  0   F   F   Evil
   LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
-RockHead:  NONE      47   12.5 11.5 0.0  E   0   0   7   0   0   F   F   Evil
+RockHead:  NONE      47   12.5 11.5 0.0  E   0   0   7   48  0   F   F   Evil
 
 Blob:      NONE      91   15.5 19.5 0.0  N   0   0   0   0   0   F   F   Evil
 Blob:      NONE      91   13.5 20.5 0.0  W   0   0   0   0   0   F   F   Evil
