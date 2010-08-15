@@ -266,7 +266,7 @@ IfStateIs0
             SpawnExactParticle
       // Put particles around the target
       tmpargument = [HUMA]
-      tmpdistance = BLAHDEAD            // Dead Friends and Enemies...
+      tmpdistance = BLAHDEAD + BLAHFRIENDS + BLAHENEMIES       // Dead Friends and Enemies...
       SetTargetToWideBlahID
         tmpx = targetx
         tmpy = targety
@@ -283,7 +283,7 @@ IfStateIs0
         TargetDoAction
       // Find a dead humanoid
       tmpargument = [HUMA]
-      tmpdistance = BLAHDEAD  // Dead friends or enemies...
+      tmpdistance = BLAHDEAD + BLAHFRIENDS + BLAHENEMIES  // Dead friends or enemies...
       SetTargetToWideBlahID
         // Poof that target ( players can't be )
         MakeNameKnown

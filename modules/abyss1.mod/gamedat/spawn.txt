@@ -91,7 +91,7 @@ chest:   NONE    37  41.0   34.0   0.0   N    119   0  0   8   0   F   F   N
   KeyC:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   KurScroll:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-deadfall:   NONE    36  27.5   41.0   1.0   N    0   0  2   0   0   F   F   N
+deadfall:   NONE    36  27.5   41.0   1.0   N    0   0  2   0   0   F   F   T
 eyeball:   NONE    45  34.0   41.0   1.0   N    0   0  0   0   0   F   F   E
 eyeball:   NONE    45  21.0   29.0   1.0   N    0   0  0   0   0   F   F   E
 eyeball:   NONE    45  18.0   27.0   1.0   S    0   0  0   0   0   F   F   E
@@ -135,7 +135,7 @@ ghost:   NONE    55  7.5   50.5   1.0   N    0   0  0   0   0   F   F   U
 chest:   NONE    37  20.0   17.0   1.0   S    0   0  0   1   0   F   F   N
   FShield:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   Spear:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-deadfall:   NONE    36  43.5   12.5   1.0   N    0   0  3   0   0   F   F   N
+deadfall:   NONE    36  43.5   12.5   1.0   N    0   0  3   0   0   F   F   T
 chest:   NONE    37  34.5   13.5   0.0   S    99   0  0   8   0   F   F   N
   rebirth:   NONE    51  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   LPotion:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

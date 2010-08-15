@@ -31,6 +31,7 @@ IfAttacked
 IfKilled
   CallForHelp			//Warn friends
   IfTargetIsAPlayer
+    DisableExport
     tmpargument = TEAME
     TargetJoinTeam
   IfTargetIsOnSameTeam
@@ -50,7 +51,6 @@ IfCalledForHelp
   
   tmpargument = STATECOMBAT
   SetState
-  DisableExport
   
 //------------------------------------------------------------------------------
 //Handle the AI

@@ -44,6 +44,7 @@ IfAttacked
   PlaySound
   SetTargetToWhoeverAttacked
   IfTargetIsAPlayer		//Player got into trouble
+    DisableExport
     CallForHelp
     tmpargument = TEAME
     TargetJoinTeam
@@ -55,7 +56,6 @@ IfAttacked
     SetState
 
 IfCalledForHelp
-  DisableExport
   SetTargetToWideEnemy
     DoNothing
   Else

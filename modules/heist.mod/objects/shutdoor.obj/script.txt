@@ -1,5 +1,6 @@
 //Start with all doors closed
 IfSpawned
+  tmpargument = passage
   ClosePassage
 
 // See if there is a character in the detect passage

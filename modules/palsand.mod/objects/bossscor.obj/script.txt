@@ -163,6 +163,7 @@ IfAttacked
   tmpargument = 0
   PlaySound
 
+  //Only if damaged by SLASH damage
   GetDamageType
   tmpx = tmpargument
   tmpy = DAMAGESLASH

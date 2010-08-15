@@ -1,7 +1,8 @@
 #dependency Soldier 0
 
 //         	Name    Slot 	 Xpos 	 Ypos    Zpos   Dir    Mon     Skn     Pas     Con     Lvl     Stt Gho Team
-PLAYER 1:   NONE    0  14.0   53.5   2.0   N    2   0  0   0   0   T   F   G
+PLAYER 1:   NONE    0  56.0   57.5   2.0   N    2   0  0   0   0   T   F   G
+PLAYER 1   NONE    0  14.0   53.5   2.0   N    2   0  0   0   0   T   F   G
   Trident:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   lance:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 

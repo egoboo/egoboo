@@ -86,10 +86,10 @@ extern "C"
         GLint     index_bits;            ///< Number of bits per index in color buffers
         GLint     depth_bits;            ///< Number of depth-buffer bitplanes
         GLint     stencil_bits;          ///< Number of stencil bitplanes
-        GLint     accum_red_bits;        ///< umber of bits per red component in the accumulation buffer
-        GLint     accum_green_bits;      ///< umber of bits per green component in the accumulation buffer
-        GLint     accum_blue_bits;       ///< umber of bits per blue component in the accumulation buffer
-        GLint     accum_alpha_bits;      ///< umber of bits per blue component in the accumulation buffer
+        GLint     accum_red_bits;        ///< Number of bits per red component in the accumulation buffer
+        GLint     accum_green_bits;      ///< Number of bits per green component in the accumulation buffer
+        GLint     accum_blue_bits;       ///< Number of bits per blue component in the accumulation buffer
+        GLint     accum_alpha_bits;      ///< Number of bits per blue component in the accumulation buffer
 
         // Misc
         GLint max_lights;                    ///< Maximum number of lights

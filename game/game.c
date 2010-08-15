@@ -1454,8 +1454,8 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     // Skip held objects and self
     if ( psrc == ptst || INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
 
-    // Allow to target dead stuff stuff?
-    if ( !ptst->alive && !HAS_SOME_BITS(targeting_bits, TARGET_DEAD) ) return bfalse;
+	// Allow to target dead stuff stuff?
+    if ( ptst->alive == HAS_SOME_BITS(targeting_bits, TARGET_DEAD) ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
     if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
@@ -1472,9 +1472,8 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     // Target neutral items? (still target evil items, could be pets)
 	if ( (ptst->isitem || ptst->invictus) && !HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) ) return bfalse;
 
-	// Only target those of proper team. Skip this part if it's a item or if we allow both, they got no team
-	// TODO: ZF> I created a bug here, you cant target only dead friends now (rebirth spell)
-	if( !ptst->isitem && ptst->alive )
+	// Only target those of proper team. Skip this part if it's a item
+	if( !ptst->isitem )
 	{
 		if ( ( !HAS_SOME_BITS(targeting_bits, TARGET_ENEMIES) && is_hated ) ) return bfalse;
 		if ( ( !HAS_SOME_BITS(targeting_bits, TARGET_FRIENDS) && !is_hated ) ) return bfalse;

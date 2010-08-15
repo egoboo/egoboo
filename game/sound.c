@@ -316,8 +316,8 @@ Mix_Chunk * sound_load_chunk_vfs( const char * szFileName )
     // blank out the data
     tmp_chunk = NULL;
 
-    // try a wav file
-    snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "wav" );
+    // try an ogg file
+    snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "ogg" );
     if ( vfs_exists( full_file_name ) )
     {
         file_exists = btrue;
@@ -326,8 +326,8 @@ Mix_Chunk * sound_load_chunk_vfs( const char * szFileName )
 
     if ( NULL == tmp_chunk )
     {
-        // try an ogg file
-        snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "ogg" );
+        // try a wav file
+        snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "wav" );
         if ( vfs_exists( full_file_name ) )
         {
             file_exists = btrue;

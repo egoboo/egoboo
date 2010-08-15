@@ -198,7 +198,7 @@ IfTimeOut
     tmpy = 650
     IfXIsMoreThanY
       tmpargument = [HUMA]
-      tmpdistance = BLAHDEAD  			// Dead stuff
+      tmpdistance = BLAHDEAD + BLAHENEMIES + BLAHFRIENDS			// Dead stuff
       SetTargetToWideBlahID
         tmpargument = 2
         SetState			              //Begin casting!
@@ -274,7 +274,7 @@ IfTimeOut
   //STATE 2 - CASTING ANIMATE SPELL
   IfStateIs2
     tmpargument = [HUMA]
-    tmpdistance = BLAHDEAD
+    tmpdistance = BLAHDEAD + BLAHENEMIES + BLAHFRIENDS
     SetTargetToWideBlahID
       DoNothing
     

@@ -83,8 +83,7 @@ IfReaffirmed				// If we lit this item...
     IfXIsMoreThanY
       DisaffirmCharacter
 IfDisaffirmed				// Go out if hits water when it's lit
-  GetState
-  tmpx = tmpargument
+  tmpx = selfstate
   tmpy = 2
   IfXIsLessThanY
     tmpargument = 2
@@ -166,8 +165,7 @@ IfUsed
   SetTargetToWhoeverIsHolding
   tmpargument = [TECH]
   IfTargetHasSkillID
-    GetContent
-    tmpargument = tmpargument + 9
+    tmpargument = selfstate + 9
     tmpx = 200				// max charge
     tmpy = tmpargument
     IfXIsLessThanY

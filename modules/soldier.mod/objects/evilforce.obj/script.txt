@@ -1,19 +1,26 @@
 //----------------------------------------------------------------------
 //Sound the player that he is stepping on something evil
 IfTimeOut
-  tmpargument = 20
+  tmpargument = 50
   SetTime
-  tmpx = weight
-  tmpy = 20
-  IfXIsMoreThanY
-    SetTargetToWhoeverBumped
-    IfTargetIsOnHatedTeam
-      tmpargument = 0
-      SendMessageNear
-      PlaySound
-      tmpdistance = DAMAGEEVIL
-      tmpargument = 256
-      DamageTarget
+  tmpdistance = 64
+  SetTargetToDistantEnemy
+    tmpargument = 0
+    SendMessageNear
+    PlaySound
+    tmpdistance = DAMAGEEVIL
+    tmpargument = 512
+    DamageTarget
+    tmpargument = 0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
 
 //----------------------------------------------------------------------
 End

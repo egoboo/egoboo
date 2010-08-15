@@ -14,9 +14,9 @@ IfAttacked
       CallForHelp
       tmpargument = TEAME
       TargetJoinTeam
+      DisableExport
   SetTargetToOldTarget
 IfCalledForHelp
-  DisableExport
   SetTargetToWhoeverCalledForHelp
     tmpargument = 0
     

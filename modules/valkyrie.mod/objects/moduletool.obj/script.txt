@@ -24,6 +24,10 @@ IfOrdered
       BeatModule
       EnableExport
       
+      //Mark as beaten
+      tmpargument = [BEAT]
+      AddIDSZ
+      
       //Do the end text
       ClearEndMessage
       tmpargument = 0

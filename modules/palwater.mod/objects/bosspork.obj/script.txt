@@ -36,6 +36,10 @@ IfGrabbed
   AddEndMessage
   tmpargument = 4
   AddEndMessage
+  
+  //Mark as beaten
+  tmpargument = [BEAT]
+  AddIDSZ
 
   // Mark this module as beaten, hidden modules may open up
   tmpargument = [MAIN]

@@ -195,7 +195,7 @@ Sound of Jump ( -1 for none )			: -1
 // Expansions
 :[PLAT] 0	// Can't use platforms
 :[AWEP] 1             //Advanced weapons profiency
-
+:[DARK] 10            //Pure darkvision
 
 
 //-Notes------------------------------------------------------------------------

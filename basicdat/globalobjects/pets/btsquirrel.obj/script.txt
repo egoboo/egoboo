@@ -186,7 +186,7 @@ IfTimeOut				// This is done every so often
       
         //No enemies around, find a humanoid corpse to munch
         tmpargument = [HUMA]
-        tmpdistance = BLAHDEAD  // Dead Friends and Enemies...
+        tmpdistance = BLAHDEAD + BLAHFRIENDS + BLAHENEMIES       // Dead Friends and Enemies...
         SetTargetToWideBlahID
           tmpy = 50
           tmpx = targetdistance

@@ -58,7 +58,7 @@ Tree:   NONE    37  33.5   36.5   1.0   N    0   0  0   0   0   F   F   N
 Tree:   NONE    37  43.5   37.5   1.0   N    0   0  0   0   0   F   F   N
 
 //Keyroom Traps
-deadfall:   NONE    53  10.5   26.0   1.0   N    0   0  0   0   0   F   F   N
+deadfall:   NONE    53  10.5   26.0   1.0   N    0   0  0   0   0   F   F   T
 BearTrap:   NONE    36  15.5   27.5   1.0   N    0   0  0   0   0   F   F   N
 BearTrap:   NONE    36  11.5   26.5   1.0   N    0   0  0   0   0   F   F   N
 BearTrap:   NONE    36  13.5   25.5   1.0   N    0   0  0   0   0   F   F   N
@@ -80,7 +80,7 @@ Tranch:   NONE    52  32.0   20.0   0.0   N    0   0  0   0   0   F   F   Evil
 Tranch:   NONE    52  33.0   23.0   0.0   N    0   0  0   0   0   F   F   Evil
 
 //The deadly corner
-deadfall:   NONE    53  30.0   15.5   1.0   N    0   0  1   0   0   F   F   N
+deadfall:   NONE    53  30.0   15.5   1.0   N    0   0  1   0   0   F   F   T
 BearTrap:   NONE    36  30.0   15.5   1.0   N    0   0  0   0   0   F   F   N
 
 //Map room

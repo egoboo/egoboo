@@ -4,10 +4,26 @@ at: http://egoboo.sourceforge.net/forum/
 
 Thanks!
 
-REPORTED BUT NOT CONFIRMED:
-- Healer Starter: The heal action does not always display the effect, usually during movement. 
-
 KNOWN BUGS:
+- The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
+- Imprisoned One II: After defeating the sand troll there appears no staff.
+- The Abyss II: The chest at the beginning pushes my character through the hole level. 
+- After walking around in Bishopia for some time I noticed the guards and the guards of the nonsuspicious mansion are following my character. They don't attack ... just run behind me. Also the game can't be saved (same as above in Zippy Village) 
+- The Wand of Iceball isn't working properly. There are no projectiles created. 
+- The ice ray spell isn't working. There is no projectile created. 
+- The green potions found in some chests can't be picked up. 
+- The ice spheres/balls on the ice aren't moving. 
+- My Wizard lvl 14 has a higher dexterity skill than my rogue lvl 14. Is this normal? 
+- With the magic carpet I'm able to fly through doors or even walls. I think the velocity of the carpet is too high. It kinda "drills" through the walls. 
+- I also notices npcs walking though walls eg. Mim and Brom in the Adventurer Starter. Sometimes they get stuck in corners of walls and after some time they just walk over the map to follow me. 
+- After being poisoned the green life bar won't turn red again.
+- After killing guards or monsters with bombs a false message is displayed. (eg. "A guard killed a guard." "A sheep butchered a sheep"). Also the guards don't attack the player who set up the bomb. They attack the shepherd or the healer/alchemist. 
+- There appears to be some random crash bugs occuring making it difficult to play through the modules.
+- Bear Trapped monsters can be moved around when they get bumped by allies.
+- It seems there is a relative rare physcis bug that allows AI to move through solid walls.
+- Zombi Starter: There was one time where the Necromancer tried to "resurrect" an adventurer and the dead adventurer disappeared. 
+- Zombi Starter: I don't like the running animations the zombi have. Is it okay if they're slowed down? 
+- Zombi Starter: A crash often occurs in the third room (probably already known). 
 - I know of a crash bug that I have never done anything to fix. If you play the game with sound turned off, the game will crash because the in-game music is not loaded and all the pointers are null. For some reason this is not an easy fix, but I can't remember why.
 - The "fireball/flame ring seems to throw you through the ceiling, while your inventory stays where it was (but is still properly attached)" (I figured out that this seems to be what it does)
 - Elf Starter:The A.I. is a little strange. I saw a Lumpkin, with two claws, running into a wall and swiping madly. Not sure what was going on. This also occurred with a Lumpkin on the left side of the fortress. Possible explanation: they were hostile to the crabs? 
@@ -17,25 +33,20 @@ KNOWN BUGS:
 - When you drop the green spell books, they appear as red. I seem to recall a similar problem in the wizard module. 
 - Here is a strange one: when you drop lit torches while moving, they are thrown far in some random direction. If, for example, you run forward and drop a torch, it will get thrown backwards. But all unlit torches drop like normal. 
 - The Lumpkins' animation does not look quite right. Often they walk without looking like it. The running animation might be too fast, also. 
-- Seems to occur in general: you can sometimes hear the defend sound effect when attacking, maybe right when you kill foes. Was this intended? 
 - There is no rendering at the bottom of the screen. This appears to be a trick to make the game run more smoothly (which is good), but it looks awkward at times. Is there some way to enlarge the field of view? 
 - This is a bit random, but clipping issues occur, making your character unable to receive damage. Perhaps this occurs after loading a module three times. 
 - Probably a physics problem, but blood does not dry out very quickly. This is especially noticeable in the Elf module. 
 - Here is something interesting: when you swing an unlit torch at a burning torch on the ground, the unlit torch does not set aflame. (minor observation) 
 - Soldier Starter:  The chocobone [sic?] will sometimes run towards torches, resulting in suicide. 
-- Soldier Starter:  The game freezes in one of the rooms. It's in the room with the two skeletons. There is also a very annoying effect (same room) where the "immune" text pops up in frequency. 
 - The physics are very sensitive. Coffins will strongly push you away if you touch them closely (sometimes getting you into the blue blobs). As you should see in "ego00.bmp", they can even push you on top of interesting areas. Coins also bounce highly, taking longer to get, but some bounce into the walls. Flaming skulls are also very sensitive to hit. 
 - The tranch can be killed without breaking the idol it is in. 
 - The green cube is immune to weapons. Was this intended too? 
 - Are healing potions suppose to remove posion? They do not cure you. 
-- Rebith scrolls can resurrect enemies 
 - Exploit: You can assassinate characters with bear traps. 
 - Identify scrolls don't work 
 - As all characters and on any map you sometimes just slowly slide to the left. 
 - Particle IfHitGround does not work. 
 - The fire breath from the dogs can and will hurt the rider. 
-- Ash Palace: Seems much darker than it was originally. 
 - There seems to be a texture allocation bug when Restarting a module. Some objects get the skins of other objects. 
-- the normal people you fight seem to want to sit in the pot as if it was a normal moving mount. 
 - There seems to be a random crash bug somewhere. 
 - SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)
