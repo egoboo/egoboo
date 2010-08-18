@@ -5,15 +5,15 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
+- See invisible does not reveal invisible!
+- K'nife isn't standing on the button and follows the player resulting in the guards getting alarmed. 
 - The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
 - Imprisoned One II: After defeating the sand troll there appears no staff.
 - The Abyss II: The chest at the beginning pushes my character through the hole level. 
-- After walking around in Bishopia for some time I noticed the guards and the guards of the nonsuspicious mansion are following my character. They don't attack ... just run behind me. Also the game can't be saved (same as above in Zippy Village) 
 - The Wand of Iceball isn't working properly. There are no projectiles created. 
 - The ice ray spell isn't working. There is no projectile created. 
 - The green potions found in some chests can't be picked up. 
 - The ice spheres/balls on the ice aren't moving. 
-- My Wizard lvl 14 has a higher dexterity skill than my rogue lvl 14. Is this normal? 
 - With the magic carpet I'm able to fly through doors or even walls. I think the velocity of the carpet is too high. It kinda "drills" through the walls. 
 - I also notices npcs walking though walls eg. Mim and Brom in the Adventurer Starter. Sometimes they get stuck in corners of walls and after some time they just walk over the map to follow me. 
 - After being poisoned the green life bar won't turn red again.
@@ -41,7 +41,6 @@ KNOWN BUGS:
 - The physics are very sensitive. Coffins will strongly push you away if you touch them closely (sometimes getting you into the blue blobs). As you should see in "ego00.bmp", they can even push you on top of interesting areas. Coins also bounce highly, taking longer to get, but some bounce into the walls. Flaming skulls are also very sensitive to hit. 
 - The tranch can be killed without breaking the idol it is in. 
 - The green cube is immune to weapons. Was this intended too? 
-- Are healing potions suppose to remove posion? They do not cure you. 
 - Exploit: You can assassinate characters with bear traps. 
 - Identify scrolls don't work 
 - As all characters and on any map you sometimes just slowly slide to the left. 

@@ -1,32 +1,4 @@
 //!!NOTE: MODULE MODIFIED SCRIPT!!
-//The States and Contents
-//State 0: Closed chest
-//State 1: Opened Chest
-//State 2: Looted Chest
-//selfmoney = armor level (0-3, 4 is random)
-//selflevel = class (0 = random... TODO)
-//+1 content = locked
-//+2 content = map
-//+4 content = fire trapped
-//+8 content = secret bottom
-//+16 content = invisible
-//+32 content = contains armor (!invalidates map and secret bottom!)
-//+64 content = armor costs money (only works with +32 content!)
-//------------------------------------------------------------------------------------
-//ARMOR TYPES DEPEND ON SELFLEVEL
-//0 = randomize armor type
-//1 = Archaeologist.
-//2 = G'nome.
-//3 = Soldier.
-//4 = Elf.
-//5 = Adventurer.
-//6 = Wizard.
-//7 = Healer.
-//8 = Rogue.
-//9 = Paladin.
-//10= Tourist.
-//11= Valkyrie.
-
 //------------------------------------------------------------------------------------
 //Invisible chest
 IfSpawned
@@ -37,64 +9,6 @@ IfSpawned
     SetLight
 
 //------------------------------------------------------------------------------------
-//Armor chest (remember armor type)
-IfSpawned
-  tmpx = selfcontent & 32
-  tmpy = 32
-  IfXIsEqualToY
-    tmpx = selflevel
-    tmpy = 0
-    IfXIsEqualToY
-      tmpx = rand % 8       //Randomize
-    tmpy = 1
-    IfXIsEqualToY
-      tmpargument = [ARCH]  //Archaelogist
-    tmpy = 2
-    IfXIsEqualToY
-      tmpargument = [GNOM]  //G'nome
-    tmpy = 3
-    IfXIsEqualToY
-      tmpargument = [SOLD]  //Soldier
-    tmpy = 4
-    IfXIsEqualToY
-      tmpargument = [ELFF]  //Elf
-    tmpy = 5
-    IfXIsEqualToY
-      tmpargument = [ADVE]  //Adventurer
-    tmpy = 6
-    IfXIsEqualToY
-      tmpargument = [WIZA]  //Wizard
-    tmpy = 7
-    IfXIsEqualToY
-      tmpargument = [HEAL]  //Healer
-    tmpy = 8
-    IfXIsEqualToY
-      tmpargument = [ROGU]  //Rogue
-    tmpy = 9
-    IfXIsEqualToY
-      tmpargument = [PALA]  //Paladin
-    tmpy = 10
-    IfXIsEqualToY
-      tmpargument = [TOUR]  //Tourist
-    tmpy = 11
-    IfXIsEqualToY
-      tmpargument = [VALK]  //Valkyrie
-    
-    //do it
-    tmpx = tmpargument
-    tmpy = 0
-    tmpargument = 0
-    SetXY
-    
-    //randomize armor level?
-    tmpx = selfmoney
-    tmpy = 3
-    IfXIsMoreThanY
-      tmpargument = rand & 3                  //!!!!!!!!!!!BAD TODO!!!!!!!!!!!!
-      tmpargument = selfmoney - tmpargument
-      DropMoney
-
-//------------------------------------------------------------------------------------
 // Someone cast an unlock spell
 IfOrdered
   tmpx = selforder
@@ -103,63 +17,30 @@ IfOrdered
     // Is it closed?
     tmpargument = 0
     IfStateIs
+      tmpargument = ACTIONMG
+      DoAction
+        tmpargument = 1
+        SetState
+        tmpargument = 60
+        SetBumpHeight
+        KeepAction
+        tmpargument = 0
+        PlaySound
+        
+        // Wait a while
+        tmpargument = 40
+        SetTime
+        
+        // Tell the players...
+        tmpargument = 3
+        SendMessageNear
 
-      //Fire trapped?
-      tmpx = selfcontent & 4
-      tmpy = 4
-      IfXIsEqualToY
-        tmpargument = ACTIONKD
-        DoAction
-          // Tell the players...
-          tmpargument = 11
-          SendMessageNear
-
-          // Spawn the trap particle
-          tmpx = selfx
-          tmpy = selfy
-          tmpdistance = selfz
-          tmpargument = 0
-          SpawnExactParticle
-
-          // Wake up sleepers
-          tmpargument = [WAKE]
-          tmpdistance = [WAKE]
-          OrderSpecialID
-      
-      // Open it up
-      Else 
-        tmpargument = ACTIONMG
-        DoAction
-          tmpargument = 1
-          SetState
-          tmpargument = 60
-          SetBumpHeight
-          KeepAction
-          tmpargument = 0
-          PlaySound
-          
-          // Wait a while
-          tmpargument = 40
-          SetTime
-          
-          // Tell the players...
-          tmpargument = 3
-          SendMessageNear
-
-          //Unlock?
-          tmpx = selfcontent & 1
-          tmpy = 1
-          IfXIsEqualToY
-            tmpargument = selfcontent - 1
-            SetContent
-  Else
-    tmpy = 983  // The unique code for a looted shop
-    IfXIsEqualToY
-      tmpx = selfcontent & 64
-      tmpy = 64
-      IfXIsEqualToY
-        tmpargument = selfcontent - 64
-        SetContent
+        //Unlock?
+        tmpx = selfcontent & 1
+        tmpy = 1
+        IfXIsEqualToY
+          tmpargument = selfcontent - 1
+          SetContent
 
 //------------------------------------------------------------------------------------
 // Someone is trying to open it
@@ -242,92 +123,24 @@ IfBumped
             tmpargument = selfcontent - 16
             SetContent            
           
-          //Check for firetrap
-          tmpx = selfcontent & 4
-          tmpy = 4
-          IfXIsEqualToY
-            // Check for disarm skill
-            tmpx = 0
-            tmpy = 75  // 75% chance to fail
-            tmpargument = [DISA]
-            IfTargetHasSkillID
-              tmpargument = targetdex > 7            //+2% chance of success per dexterity point
-              tmpargument = tmpargument + targetlevel //+1% chance of success per level
-              tmpx = rand % 100 + targetdex
-
-            // Check if it was disarmed
-            IfXIsMoreThanY
-            
-              // Give some experience
-              tmpargument = 45
-              tmpdistance = EXPROLEPLAY
-              GiveExperienceToTarget
-
-              // Open it up
-              tmpargument = ACTIONMG
-              DoAction
-                // The trap has been disarmed
-                tmpargument = 10
-                SendMessageNear
-                
-                // Open up for real
-                tmpargument = 1
-                SetState
-                tmpargument = 60
-                SetBumpHeight
-                KeepAction
-                tmpargument = 0
-                PlaySound
-                
-                // Wait a while
-                tmpargument = 40
-                SetTime
-            Else
-              // Play the trap action
-              tmpargument = ACTIONKD
-              DoAction
-                // The trap has been sprung
-                tmpargument = 0
-                SetBumpHeight
-                
-                // Wait a while
-                tmpargument = 500
-                SetTime
-                
-                // Tell the players...
-                tmpargument = 9
-                SendMessageNear
-                
-                // Spawn the trap particle
-                tmpx = selfx
-                tmpy = selfy
-                tmpdistance = selfz
-                tmpargument = 0
-                SpawnExactParticle
-                
-                // Wake up sleepers
-                tmpargument = [WAKE]
-                tmpdistance = [WAKE]
-                OrderSpecialID
-          Else          
-            // Open it up
-            tmpargument = ACTIONMG
-            DoAction
-              tmpargument = 1
-              SetState
-              tmpargument = 60
-              SetBumpHeight
-              KeepAction
-              tmpargument = 0
-              PlaySound
-          
-              // Wait a while
-              tmpargument = 40
-              SetTime
-      
-              // Tell the players...
-              tmpargument = 4
-              SendMessageNear
+          // Open it up
+          tmpargument = ACTIONMG
+          DoAction
+            tmpargument = 1
+            SetState
+            tmpargument = 60
+            SetBumpHeight
+            KeepAction
+            tmpargument = 0
+            PlaySound
+        
+            // Wait a while
+            tmpargument = 40
+            SetTime
+    
+            // Tell the players...
+            tmpargument = 4
+            SendMessageNear
       Else                
         // Wait before allowing loot
         IfTimeOut
@@ -340,49 +153,6 @@ IfBumped
             tmpargument = ACTIONMG
             TargetDoAction
 
-          //Is it an armor chest?
-          tmpx = selfcontent & 32
-          tmpy = 32
-          IfXIsEqualToY
-            tmpargument = 0
-            GetXY
-            tmpargument = tmpx
-            IfTargetHasID
-            
-              //Do they need to pay for it?
-              tmpx = selfcontent & 64
-              tmpy = 64
-              IfXIsEqualToY
-                // Check money
-                tmpargument = selfmoney     //armor level
-                TargetPayForArmor
-                  tmpdistance = tmpy  // The base cost of the new armor
-
-                  // Swap armor
-                  ChangeTargetArmor
-                  SetContent
-                  tmpargument = 14 + tmpx
-                  tmpx = tmpdistance
-                  SendMessageNear
-                Else
-                  // Not enough money...
-                  tmpargument = 18
-                  SendMessageNear
-              Else
-                //Swap armor
-                tmpy = selflevel            //which class
-                tmpargument = selfmoney&3   //which level
-                ChangeTargetArmor
-                SetContent
-                tmpargument = selfmoney&3 + 19
-                SendMessageNear
-            Else
-              //Wrong armor type for class
-              tmpargument = selflevel + 23
-              SendMessageNear
-
-          //No armor, no traps, and no lock; just loot it already!
-          Else
             //Secret bottom
             tmpx = selfstate
             tmpy = 2

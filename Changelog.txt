@@ -3,6 +3,12 @@ Version 2.8.0b (xx.xx.2010)
 - Update: Various modules are now slightly darker than before.
 - Update: Money is easier to pick up now.
 - Update: Kite Shields now have a small chance to be Kursed.
+- Bugfix: Some challenges in the Archmage Trials were broken.
+- Bugfix: Fixed enchants never dispelling when they should.
+- Bugfix: Fixed Memory Challenge in the Archmage Trials not working.
+- Bugfix: Fixed a looped sound leak in the Archmage Trials.
+- Bugfix: After killing the Sand Troll the doors now open properly.
+- Bugfix: Fixed Scroll of Enchant weapon becoming worthless when identified.
 - Bugfix: Fixed possible bug in cities and towns that prevented exporting.
 - Bugfix: Darkshine Knights can now properly see in darkness!
 - Bugfix: Fixed impassable area in K'nife's Heist

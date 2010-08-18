@@ -2,7 +2,7 @@
 IfTimeOut
   tmpargument = 20
   SetTime
-
+  
   tmpargument = 1 // Check the Troll passage
   IfPassageOpen
 
@@ -50,5 +50,16 @@ IfTimeOut
 
       // Don't hang around
       GoPoof
+      
+  //Check if the troll has died
+  Else
+    tmpargument = [TROL]
+    tmpdistance = BLAHFRIENDS + BLAHENEMIES
+    SetTargetToNearestBlahID
+      DoNothing                 //Nope he's still there
+    Else
+      tmpargument = 1
+      OpenPassage
+      PlayFullSound
 
 End					// All done

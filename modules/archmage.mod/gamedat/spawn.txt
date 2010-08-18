@@ -40,15 +40,16 @@
 #dependency ArchElf        123
 	
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-HERO:       NONE    0  16.0   54.5   0.0   N    0   0  0   0   0   T   F   G
+HeroAtMemoryTest:       NONE    0  29.0   42.0   0.0   N    0   0  0   0   0   T   F   G
+HERO       NONE    0  16.0   54.5   0.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    1    0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    2    0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    3    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    4    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    5    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    6    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    7    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  unknown:   NONE    8    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  protect:   NONE    5    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  truesight:   NONE    6    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unlock:   NONE    7    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  disenchant:   NONE    8    0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 unknown:   NONE    39  16.0   56.0   0.0   N    0   0  32   0   0   F   F   N
 unknown:   NONE    42  16.0   54.5   0.0   N    0   0  0   0   0   F   F   N

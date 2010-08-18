@@ -205,7 +205,7 @@ bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
 	chr_t *pchr;
 
 	// Stop invalid pointers
-	if( ACTIVE_CHR(ichr) ) return bfalse;
+	if( !ACTIVE_CHR(ichr) ) return bfalse;
 	pchr = ChrList.lst + ichr;
 
     // clean up the enchant list before doing anything
@@ -1808,9 +1808,8 @@ ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_par
     memset( enc_used, 0, sizeof(enc_used) );
 
     // scan the list of enchants
-    first_valid_enchant = (ENC_REF) MAX_ENC;
     enc_next            = (ENC_REF) MAX_ENC;
-    enc_now             = ienc;
+    first_valid_enchant = enc_now = ienc;
     while ( enc_now < MAX_ENC )
     {
         enc_next = EncList.lst[enc_now].nextenchant_ref;

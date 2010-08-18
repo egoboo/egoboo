@@ -10,6 +10,7 @@ IfTakenOut
     IfTargetIsAPlayer
       tmpargument = 3
       SendMessageNear
+      
 // Allow it to be charged up
 IfUsed
   // Does it have one going?
@@ -21,23 +22,21 @@ IfUsed
     SetTargetToWhoeverIsHolding
     tmpargument = [WMAG]
     IfTargetHasSkillID
-      GetContent
-      tmpx = tmpargument
+      tmpx = selfcontent
       tmpy = 256
       IfXIsLessThanY
         tmpy = targetmanaflow
         IfXIsLessThanY
-          tmpx = 16
-          tmpargument = tmpx
+          tmpargument = 8
           CostTargetMana
-            GetContent
-            tmpargument = tmpargument + 4     //Cast speed
+            tmpargument = selfcontent + 8             //Cast speed
             SetContent
             tmpx = targetx
             tmpy = targety
             tmpdistance = targetz
             tmpargument = 2
             SpawnExactParticle
+            
       // Spawn particles around target
       SetTargetToNearestFriend
       tmpx = targetdistance
@@ -52,8 +51,7 @@ IfUsed
 
 // Let it be cast
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 0
   IfXIsMoreThanY
     tmpy = 255
@@ -84,7 +82,6 @@ Else
 
       // Do flashy things
       tmpargument = 0
-      tmpdistance = 11025
       PlaySound
       tmpargument = 60
       SetReloadTime

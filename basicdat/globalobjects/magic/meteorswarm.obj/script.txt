@@ -76,8 +76,7 @@ Else
 
       //Charge it up!
       SetTargetToWhoeverIsHolding
-      GetContent
-      tmpx = tmpargument
+      tmpx = selfcontent
       tmpy = 3840					//Max charge
       IfXIsLessThanY
         tmpy = targetmanaflow
@@ -87,13 +86,11 @@ Else
           IfXIsMoreThanY
             tmpargument = 9			//Mana cost
             CostTargetMana   
-            GetContent
-            tmpargument = tmpargument + 7		//Casting speed
+            tmpargument = selfcontent + 7		//Casting speed
             SetContent
 
   Else			//Player released the charge
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 1024		//minimum needed charge
     IfXIsMoreThanY
 
@@ -124,8 +121,7 @@ Else
 
 
     Else			//Not enough charged
-      GetContent
-      tmpx = tmpargument
+      tmpx = selfcontent
       tmpy = 12
       IfXIsMoreThanY	//Only display message if charged
         tmpargument = 3
@@ -136,11 +132,10 @@ Else
 // Put the little mana ball on the
 // character's hand
 IfStateIs0
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 0
   IfXIsMoreThanY
-    tmpturn = tmpargument * 5 + 5000
+    tmpturn = selfcontent * 5 + 5000
     tmpdistance = SPAWNLAST
     tmpargument = 7
     SpawnAttachedSizedParticle

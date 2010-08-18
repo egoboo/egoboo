@@ -1454,6 +1454,9 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     // Skip held objects and self
     if ( psrc == ptst || INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
 
+	// Dont target our holder if we are an item and being held
+	if( psrc->isitem && psrc->attachedto == GET_REF_PCHR(ptst) ) return bfalse;
+
 	// Allow to target dead stuff stuff?
     if ( ptst->alive == HAS_SOME_BITS(targeting_bits, TARGET_DEAD) ) return bfalse;
 
@@ -5235,7 +5238,7 @@ void disenchant_character( const CHR_REF by_reference cnt )
 void cleanup_character_enchants( chr_t * pchr )
 {
     if( NULL == pchr ) return;
-
+	
     // clean up the enchant list
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &(pchr->firstenchant) );
 }

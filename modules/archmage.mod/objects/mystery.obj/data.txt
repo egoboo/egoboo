@@ -71,14 +71,14 @@ EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 ICE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 ZAP defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-SLASH inversion ( eg. F F F T )			:  T  T  T  T
-CRUSH inversion ( eg. F F F T )			:  F  F  F  F
-POKE inversion ( eg. F F F T )			:  T  T  T  T
+SLASH inversion ( eg. F F F T )			:  I  T  T  T
+CRUSH inversion ( eg. F F F T )			:  I  F  F  F
+POKE inversion ( eg. F F F T )			:  I  T  T  T
 HOLY inversion ( eg. T T T T )			:  F  C  C  C
-EVIL inversion ( eg. F F F T )			:  T  T  T  T
-FIRE inversion ( eg. F F F T )			:  T  T  T  T
-ICE inversion ( eg. F F F T )			:  T  T  T  T
-ZAP inversion ( eg. F F F T )			:  T  T  T  T
+EVIL inversion ( eg. F F F T )			:  I  T  T  T
+FIRE inversion ( eg. F F F T )			:  I  T  T  T
+ICE inversion ( eg. F F F T )			  :  I  T  T  T
+ZAP inversion ( eg. F F F T )			  :  I  T  T  T
 Acceleration rate ( eg. 40 38 30 20 )		:  0  0  0  0
 
 

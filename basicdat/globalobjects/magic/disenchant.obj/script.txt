@@ -36,25 +36,21 @@ IfUsed
             SpawnExactParticle
       
       // Put particles around the target (If we find one)
-      tmpx = 0
       SetTargetToNearbyEnemy        //Prefer enemies before others...
-        tmpx = 1
+        DoNothing
       Else
-        SetTargetToNearestLifeform
+        tmpdistance = BLAHENEMIES + BLAHFRIENDS + BLAHITEMS   //Target anything but the dead
+        tmpargument = [NONE]
+        SetTargetToWideBlahID
           tmpx = targetdistance
           tmpy = 128*3
-          IfXIsLessThanY
-            tmpx = 1
-          Else
-            tmpx = 0
-          
-      tmpy = 1
-      IfXIsEqualToY
-        tmpx = targetx
-        tmpy = targety
-        tmpdistance = targetz
-        tmpargument = 0
-        SpawnExactParticle
+          IfXIsMoreThanY
+            SetTargetToWhoeverIsHolding     //It's too far away, target caster          
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = targetz
+      tmpargument = 0
+      SpawnExactParticle
 
 // Allow it to be cast or fizzle
 Else
@@ -67,10 +63,17 @@ Else
       tmpargument = ACTIONZA
       CorrectActionForHand
       TargetDoAction
-      
+
     // Find a target
-    SetTargetToNearestLifeform
-    tmpx = targetdistance
+    SetTargetToNearbyEnemy        //Prefer enemies before others...
+      tmpx = targetdistance
+    Else
+      tmpdistance = BLAHENEMIES + BLAHFRIENDS + BLAHITEMS   //Target anything but the dead
+      tmpargument = [NONE]
+      SetTargetToWideBlahID
+        tmpx = targetdistance
+      Else
+        tmpx = 9999         //None found
     tmpy = 128*3
     IfXIsLessThanY
       // Can it be enchanted?
@@ -81,15 +84,23 @@ Else
         SendMessageNear
       Else
         SetOldTarget
-        SetTargetToWhoeverIsHolding
-        tmpx = targetint > 8
-        SetTargetToOldTarget
-        tmpy = targetint > 8
-        
-        //Check if the target resists
-        tmpx = rand % 10 + tmpx
-        tmpy = rand % 10 + tmpy
-        IfXIsMoreThanY
+        tmpargument = 0
+        SetContent
+        IfTargetIsOnHatedTeam
+          SetTargetToWhoeverIsHolding
+          tmpx = targetint > 8
+          SetTargetToOldTarget
+          tmpy = targetint > 8
+          
+          //Check if the target resists
+          tmpx = rand % 10 + tmpx
+          tmpy = rand % 10 + tmpy
+          IfXIsLessThanY
+            tmpargument = 1
+            SetContent
+            
+        tmpargument = 0
+        IfContentIs                 //Content == 1 means it was resisted
           //Do the magic
           UnkurseTarget
           tmpargument = [DISP]
@@ -100,6 +111,8 @@ Else
           //Tell them what was disenchanted
           tmpargument = 2
           SendMessageNear   
+          tmpargument = 0     //Remove that charge!
+          SetContent
         Else
           tmpargument = 4
           SendMessageNear

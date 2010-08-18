@@ -3500,10 +3500,6 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
             actual_damage = 0;
         	spawn_defense_ping( pchr, attacker );
 
-			//Even if we take no damage, we were still attacked
-			SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
-            pchr->ai.attacklast = attacker;
-
 			//Character is simply immune to the damage
 			chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
 		}

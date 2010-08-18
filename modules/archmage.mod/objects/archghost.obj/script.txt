@@ -8,8 +8,11 @@ IfOrdered
     
 //Do a cooldown on starting to talk
 IfSpawned
-  tmpargument = 100
+  tmpargument = 150
   SetTime
+  tmpargument = 0
+  SetState
+  SetContent
 
 //Do the AI
 IfTimeOut
@@ -48,6 +51,7 @@ IfTimeOut
           IfArmorIs
             tmpargument = 19      //Too low level!
             SendMessage
+            tmpargument = 8
             PlayFullSound   //BAD: NEED SOUND!!
           tmpargument = 8
           SetState
@@ -57,7 +61,7 @@ IfTimeOut
     Else
       tmpargument = 0
       IfArmorIs
-        tmpargument = 8         //They aren't even arcane!!
+        tmpargument = 8         //They don't have the quest!!
         SendMessage
         PlayFullSound
       tmpargument = 8
@@ -199,6 +203,12 @@ IfTimeOut
     tmpargument = 200
     SetTime
     
+    //Teleport sound
+    tmpargument = 0
+    IfArmorIs
+      tmpargument = 13
+      PlaySound
+      
     //Teleport to end room
     SpawnPoof
     tmpx = 4550
@@ -431,6 +441,12 @@ IfTimeOut
       tmpdistance = targetz
       SpawnExactParticle
     
+    //Teleport sound
+    tmpargument = 0
+    IfArmorIs
+      tmpargument = 13
+      PlaySound
+
     SpawnPoof
     GoPoof
     
