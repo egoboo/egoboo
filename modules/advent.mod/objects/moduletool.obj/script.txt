@@ -1,4 +1,5 @@
-// This initializes music and goes away
+//Drop the spellbook we are holding
+DropItems
 
 //Play the default module music track
 tmpargument = 2

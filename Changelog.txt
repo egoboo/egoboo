@@ -3,6 +3,13 @@ Version 2.8.0b (xx.xx.2010)
 - Update: Various modules are now slightly darker than before.
 - Update: Money is easier to pick up now.
 - Update: Kite Shields now have a small chance to be Kursed.
+- Bugfix: Removed duplicate message when trying to put away kursed items.
+- Bugfix: No more strange physics bugs when you drop a lit torch while moving.
+- Bugfix: K'nife now properly stands on the button and no longer follows the player resulting 
+  in the guards getting alarmed.
+- Bugfix: Fixed a random crash bug in detecting collisions.
+- Bugfix: Fixed various AI targeting function bugs.
+- Bugfix: See Invisible now properly reveals invisible objects.
 - Bugfix: Some challenges in the Archmage Trials were broken.
 - Bugfix: Fixed enchants never dispelling when they should.
 - Bugfix: Fixed Memory Challenge in the Archmage Trials not working.

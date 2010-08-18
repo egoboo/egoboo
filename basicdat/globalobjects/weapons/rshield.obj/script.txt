@@ -25,9 +25,9 @@ IfDropped				// Make it lie on floor
 IfNotDropped
   tmpargument = 2
   SendMessageNear  
-IfNotPutAway
-  tmpargument = 2
-  SendMessageNear
+//IfNotPutAway
+//  tmpargument = 2         //No longer needed, this is handled by the sourcecode now...
+//  SendMessageNear
 
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding

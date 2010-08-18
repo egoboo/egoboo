@@ -57,7 +57,6 @@ IfCrushed
 IfDropped				// Make it lie on floor
   KeepAction				  //
   tmpargument = 3			  //
-  tmpdistance = rand & 1023 + 10500	  //
   PlaySound				  //
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //
@@ -66,20 +65,18 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 IfNotDropped
   tmpargument = 2
   SendMessageNear
 IfTakenOut
   tmpargument = 2
-  tmpdistance = rand % 2047 + 10000
   PlaySound
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
     tmpargument = 4
     SendMessageNear
-IfNotPutAway
-  tmpargument = 3
-  SendMessageNear
+//IfNotPutAway
+//  tmpargument = 3         //No longer needed, this is handled by the sourcecode now...
+//  SendMessageNear
 End					// All done

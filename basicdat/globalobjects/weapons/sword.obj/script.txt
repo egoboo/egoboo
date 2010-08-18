@@ -42,7 +42,7 @@ IfGrabbed				// Tell them what they've won...
 IfNotDropped
   tmpargument = 3
   SendMessageNear
-IfNotPutAway
-  tmpargument = 4
-  SendMessageNear
+//IfNotPutAway
+//  tmpargument = 4         //No longer needed, this is handled by the sourcecode now...
+//  SendMessageNear
 End					// All done

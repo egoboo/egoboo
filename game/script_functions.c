@@ -488,7 +488,11 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 	
     // is this a safe position?
     returncode = bfalse;
-	if ( chr_get_pcap( pself->index )->weight == 255 || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
+
+    returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
+//ZF> I have uncommented the "unsafe" waypoint code for now. It caused many AI problems since many AI scripts depend on actually moving
+//    towards an unsafe point. This should not be a problem since we have a mesh collision code anwyays?
+/*	if ( chr_get_pcap( pself->index )->weight == 255 || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
     {
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
@@ -518,7 +522,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
         }
     }
 #endif
-
+*/
     if ( returncode )
     {
         // make sure we update the waypoint, since the list changed
@@ -5196,7 +5200,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -6489,7 +6493,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -7751,7 +7755,7 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, pstate->distance, IDSZ_NONE );
+	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
     {

@@ -5,11 +5,9 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
-- See invisible does not reveal invisible!
-- K'nife isn't standing on the button and follows the player resulting in the guards getting alarmed. 
 - The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
 - Imprisoned One II: After defeating the sand troll there appears no staff.
-- The Abyss II: The chest at the beginning pushes my character through the hole level. 
+- The Abyss II: The chest at the beginning pushes my character through the whole level. 
 - The Wand of Iceball isn't working properly. There are no projectiles created. 
 - The ice ray spell isn't working. There is no projectile created. 
 - The green potions found in some chests can't be picked up. 
@@ -27,12 +25,8 @@ KNOWN BUGS:
 - I know of a crash bug that I have never done anything to fix. If you play the game with sound turned off, the game will crash because the in-game music is not loaded and all the pointers are null. For some reason this is not an easy fix, but I can't remember why.
 - The "fireball/flame ring seems to throw you through the ceiling, while your inventory stays where it was (but is still properly attached)" (I figured out that this seems to be what it does)
 - Elf Starter:The A.I. is a little strange. I saw a Lumpkin, with two claws, running into a wall and swiping madly. Not sure what was going on. This also occurred with a Lumpkin on the left side of the fortress. Possible explanation: they were hostile to the crabs? 
-- Elf Starter:In one playthrough, the Lumpkin with the gonne fell off his (its?) platform, it would seem. He went into the river, but managed to shoot me. 
-- Elf Starter: One time, the idol already got destroyed. Perhaps a Lumpkin misfired. 
 - There is a graphical "hiccup" when you change armor. This also occurs when you transform. 
 - When you drop the green spell books, they appear as red. I seem to recall a similar problem in the wizard module. 
-- Here is a strange one: when you drop lit torches while moving, they are thrown far in some random direction. If, for example, you run forward and drop a torch, it will get thrown backwards. But all unlit torches drop like normal. 
-- The Lumpkins' animation does not look quite right. Often they walk without looking like it. The running animation might be too fast, also. 
 - There is no rendering at the bottom of the screen. This appears to be a trick to make the game run more smoothly (which is good), but it looks awkward at times. Is there some way to enlarge the field of view? 
 - This is a bit random, but clipping issues occur, making your character unable to receive damage. Perhaps this occurs after loading a module three times. 
 - Probably a physics problem, but blood does not dry out very quickly. This is especially noticeable in the Elf module. 

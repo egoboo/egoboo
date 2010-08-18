@@ -148,9 +148,9 @@ IfTakenOut
     tmpargument = 4
     SendMessageNear
 
-IfNotPutAway
-  tmpargument = 3
-  SendMessageNear
+//IfNotPutAway
+//  tmpargument = 3         //No longer needed, this is handled by the sourcecode now...
+//  SendMessageNear
 
 // See if the trap is sprung
 IfTimeOut

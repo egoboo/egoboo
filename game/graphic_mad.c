@@ -416,7 +416,7 @@ bool_t render_one_mad_tex( const CHR_REF by_reference character, GLXvector4f tin
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, BIT_FIELD bits )
 {
     /// @details ZZ@> This function picks the actual function to use
 
@@ -428,7 +428,7 @@ bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, U
 
     if ( pchr->is_hidden ) return bfalse;
 
-    if ( pchr->inst.enviro || 0 != ( bits & CHR_PHONG ) )
+    if ( pchr->inst.enviro || HAS_SOME_BITS(bits, CHR_PHONG) )
     {
         retval = render_one_mad_enviro( character, tint, bits );
     }

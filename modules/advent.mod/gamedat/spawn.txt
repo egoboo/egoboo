@@ -120,10 +120,10 @@ OButton:   NONE      58   31.3 14   0    S   0   0   6   0   0   F   F   Null
 OButton:   NONE      58   31.3  5   0    S   0   0   7   0   0   F   F   Null
 Platform:  NONE      48   28.5 10   0.9  S   0   0   0   0   0   F   F   Null
 
-Missile:   NONE      73   24.5 10.5 0    S   0   0   0   0   0   F   F   Null
 Chest:     NONE      40   58   30   0    W   1   0   0   32   5   F   F   Null           //Contains level 2 adventurer armor
 Shaft:     NONE      49   14.5 60.5 0    N   0   0   0   0   0   F   F   Null
 
 Mouse:     Mickey    53   55   28   0    S   0   0   0   0   0   F   F   Vermin
 
-BossMuse:  NONE      126  55   28   0    S   0   0   0   0   0   F   F   Null
+moduletool:  NONE      126  24.5   10.5   2    S   0   0   0   0   0   F   F   Null
+  missile:   NONE      73   24.5   10.5   0    I   0   0   0   0   0   F   F   Null

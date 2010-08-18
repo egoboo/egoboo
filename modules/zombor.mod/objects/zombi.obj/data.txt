@@ -34,7 +34,7 @@ Bump dampen    : 0.35
 Weight         : 100
 Jump power     : 12.00
 Jump number    : 1
-Sneak speed    : 0
+Sneak speed    : 1
 Walk speed     : 4
 Run speed      : 7
 Fly to height  : 0

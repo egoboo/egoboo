@@ -1834,6 +1834,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_par
         if ( !INGAME_ENC( enc_now ) )
         {
             remove_enchant( enc_now, enc_parent );
+            enc_used[enc_now] = btrue;
         }
         else
         {

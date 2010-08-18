@@ -228,9 +228,11 @@ IfUsed
 IfHitGround				// Make a sound
   tmpargument = 0			  //
   PlaySound				  //
-IfNotPutAway				// Say oops
-  tmpargument = 5			  //
-  SendMessageNear			  //
+  
+//IfNotPutAway              //Say oops
+//  tmpargument = 5         //No longer needed, this is handled by the sourcecode now...
+//  SendMessageNear
+
 IfGrabbed				// Tell them what they've won...
   IfTargetIsSelf			  //
     tmpx = selfx			    // Clear out the storage values

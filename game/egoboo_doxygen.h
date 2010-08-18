@@ -101,10 +101,10 @@
  *  <LI><P>ZZ&gt;
  *  = &quot;Programmer X&quot; = &quot;Aaron Bishop&quot;</P>
  *  <LI><P>JF&gt;
- *  = &quot;Justin Fisher&quot;
+ *  = &quot;Jonathan Fischer&quot;
  *  </P>
  *  <LI><P>ZF&gt;
- *  = &quot;Zefz&quot; = &quot;Johann Jensen&quot;
+ *  = &quot;Zefz&quot; = &quot;Johan Jansen&quot;
  *  </P>
  *  <LI><P>BB&gt;
  *  = &quot;Ben Birdsey&quot;</P>

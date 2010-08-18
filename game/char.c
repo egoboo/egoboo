@@ -1857,6 +1857,7 @@ void drop_keys( const CHR_REF by_reference character )
                     pitem->pack.next = ( CHR_REF )MAX_CHR;
                     pchr->pack.count--;
                     pitem->attachedto = ( CHR_REF )MAX_CHR;
+					pitem->dismount_timer = PHYS_DISMOUNT_TIME;
                     SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
                     pitem->hitready = btrue;
                     pitem->pack.was_packed = pitem->pack.is_packed;
@@ -1921,6 +1922,7 @@ bool_t drop_all_items( const CHR_REF by_reference character )
                 chr_set_pos( pitem, chr_get_pos_v(pchr) );
                 pitem->hitready           = btrue;
                 SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
+				pitem->dismount_timer		  = PHYS_DISMOUNT_TIME;
                 pitem->enviro.floor_level     = pchr->enviro.floor_level;
                 pitem->enviro.level           = pchr->enviro.level;
                 pitem->enviro.fly_level       = pchr->enviro.fly_level;
@@ -6803,8 +6805,9 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                     diff_perp.y = nrm.y * dot / nrm2;
 
                     // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
-                    ftmp = MAX(ABS(diff_perp.x),ABS(diff_perp.y));
-                    EGOBOO_ASSERT(ftmp > 0.0f);
+                    ftmp = MAX(ABS(diff_perp.x), ABS(diff_perp.y));
+					if( ftmp == 0 ) ftmp = 1.00f;						//EGOBOO_ASSERT(ftmp > 0.0f);
+
                     diff_perp.x *= tile_fraction * GRID_SIZE / ftmp;
                     diff_perp.y *= tile_fraction * GRID_SIZE / ftmp;
 
@@ -9421,7 +9424,7 @@ void chr_set_light( chr_t * pchr, int light )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits )
+void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bits )
 {
     int i;
     float weight_sum;

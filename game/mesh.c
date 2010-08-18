@@ -1394,7 +1394,7 @@ struct s_mesh_wall_data
 typedef struct s_mesh_wall_data mesh_wall_data_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, mesh_wall_data_t * pdata )
+bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits, mesh_wall_data_t * pdata )
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
@@ -1479,15 +1479,15 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits
             SET_BIT( pass, pdata->glist[itile].fx );
             mesh_mpdfx_tests++;
 
-            if( 0 != (pass & bits) ) return btrue;
+            if( HAS_SOME_BITS(pass, bits) ) return btrue;
         }
     }
 
-    return 0 != ( pass & bits );
+    return HAS_SOME_BITS( pass, bits );
 }
 
 //--------------------------------------------------------------------------------------------
-float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits )
+float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits )
 {
     const float tile_area = GRID_SIZE * GRID_SIZE;
 
@@ -1717,7 +1717,7 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure )
+BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits, float nrm[], float * pressure )
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 

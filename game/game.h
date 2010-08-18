@@ -71,7 +71,8 @@ enum e_targeting_bits
     TARGET_INVERTID		= ( 1 << 4 ),		///< Target everything but the specified IDSZ
     TARGET_PLAYERS		= ( 1 << 5 ),		///< Target only players
     TARGET_SKILL		= ( 1 << 6 ),		///< Target needs the specified skill IDSZ
-    TARGET_QUEST		= ( 1 << 7 )		///< Target needs the specified quest IDSZ
+    TARGET_QUEST		= ( 1 << 7 ),		///< Target needs the specified quest IDSZ
+	TARGET_SELF			= ( 1 << 8 )		///< Allow self as a target?
 };
 
 //--------------------------------------------------------------------------------------------

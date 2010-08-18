@@ -37,9 +37,9 @@ IfHitGround				// Make a sound
 IfNotDropped
   tmpargument = 2
   SendMessageNear
-IfNotPutAway
-  tmpargument = 3
-  SendMessageNear
+//IfNotPutAway
+//  tmpargument = 3         //No longer needed, this is handled by the sourcecode now...
+//  SendMessageNear
 
 //Tell the players what they got
 IfTakenOut

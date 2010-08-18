@@ -5210,7 +5210,7 @@ float get_ambient_level()
     min_amb = INVISIBLE;
     if ( local_seedark_level > 0 )
     {
-        min_amb = 32.0f * light_a * ( 1 + local_seedark_level );
+        min_amb = 52.0f * light_a * ( 1 + local_seedark_level );
     }
 
     return MAX( glob_amb, min_amb );

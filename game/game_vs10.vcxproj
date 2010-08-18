@@ -29,7 +29,9 @@
     <ClCompile Include="egoboo_setup.c" />
     <ClCompile Include="egoboo_strutil.c" />
     <ClCompile Include="egoboo_typedef.c" />
-    <ClCompile Include="egoboo_vfs.c" />
+    <ClCompile Include="egoboo_vfs.c">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
     <ClCompile Include="ego_wrap.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

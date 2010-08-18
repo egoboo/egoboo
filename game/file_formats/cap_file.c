@@ -348,7 +348,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Life add
     goto_colon( NULL, fileread, bfalse );  // !!!BAD!!! Mana add
-    pcap->see_invisible_level = fget_next_bool( fileread );
+	if( fget_next_bool( fileread ) )   pcap->see_invisible_level = 1;
 
     pcap->kursechance                 = fget_next_int( fileread );
     pcap->sound_index[SOUND_FOOTFALL] = fget_next_int( fileread );  // Footfall sound

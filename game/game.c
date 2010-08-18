@@ -707,7 +707,7 @@ int update_game()
         {
             numalive++;
 
-            if ( pchr->see_invisible_level )
+            if ( pchr->see_invisible_level > 0 )
             {
                 local_seeinvis_level = MAX( local_seeinvis_level, pchr->see_invisible_level );
             }
@@ -1451,8 +1451,11 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
 	// Players only?
     if ( ( HAS_SOME_BITS(targeting_bits, TARGET_PLAYERS) || HAS_SOME_BITS(targeting_bits, TARGET_QUEST) ) && !VALID_PLA(ptst->is_which_player) ) return bfalse;
 
-    // Skip held objects and self
-    if ( psrc == ptst || INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
+    // Skip held objects
+    if ( INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
+
+	// Allow to target ourselves?
+	if ( psrc == ptst && HAS_NO_BITS(targeting_bits, TARGET_SELF ) ) return bfalse;
 
 	// Dont target our holder if we are an item and being held
 	if( psrc->isitem && psrc->attachedto == GET_REF_PCHR(ptst) ) return bfalse;
@@ -1478,8 +1481,8 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
 	// Only target those of proper team. Skip this part if it's a item
 	if( !ptst->isitem )
 	{
-		if ( ( !HAS_SOME_BITS(targeting_bits, TARGET_ENEMIES) && is_hated ) ) return bfalse;
-		if ( ( !HAS_SOME_BITS(targeting_bits, TARGET_FRIENDS) && !is_hated ) ) return bfalse;
+		if ( ( HAS_NO_BITS(targeting_bits, TARGET_ENEMIES) && is_hated ) ) return bfalse;
+		if ( ( HAS_NO_BITS(targeting_bits, TARGET_FRIENDS) && !is_hated ) ) return bfalse;
 	}
 
     // these options are here for ideas of ways to mod this function
@@ -4256,7 +4259,7 @@ void game_reset_players()
     // Reset the local data stuff
     local_seekurse         = bfalse;
     local_senseenemiesTeam = TEAM_MAX;
-    local_seeinvis_level     = bfalse;
+    local_seeinvis_level     = 0;
     local_allpladead       = bfalse;
 
     net_reset_players();
@@ -4764,7 +4767,7 @@ Uint8 get_local_alpha( int light )
     if ( local_seeinvis_level > 0 )
     {
         light = MAX( light, INVISIBLE );
-        light *= local_seeinvis_level + 1;
+//        light *= local_seeinvis_level + 1;
     }
 
     return CLIP( light, 0, 255 );
@@ -4775,10 +4778,12 @@ Uint8 get_local_light( int light )
 {
     if ( 0xFF == light ) return light;
 
-    if ( local_seedark_level > 0 )
+    //if ( local_seedark_level > 0 )				//ZF> Why should Darkvision reveal invisible?
+    if ( local_seeinvis_level > 0 )
     {
         light = MAX( light, INVISIBLE );
-        light *= local_seedark_level + 1;
+        light *= local_seeinvis_level + 1;
+//        light *= local_seedark_level + 1;
     }
 
     return CLIP( light, 0, 254 );

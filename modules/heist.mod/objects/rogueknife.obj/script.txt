@@ -195,12 +195,12 @@ IfTimeOut
     SetTurnModeToVelocity
     tmpargument = 20
     SetTime
-    SetTargetToWideEnemy
+    SetTargetToNearbyEnemy
       tmpargument = 1
       SetState		//Return to follow
     Else
       tmpx = 3522
-      tmpy = 3651	//Coordinates for the button
+      tmpy = 3651	      //Coordinates for the button
       ClearWaypoints
       AddWaypoint
       tmpx = gotodistance
@@ -212,6 +212,8 @@ IfTimeOut
           tmpargument = LATCHJUMP	//Jump on the button
           PressLatchButton
       Else
+        SetTargetToSelf
+        StopTargetMovement
         SetTargetToLeader		//Turn to the player when standing on the button
         SetTurnModeToWatchTarget
 

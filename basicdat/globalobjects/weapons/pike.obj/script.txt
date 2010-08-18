@@ -32,16 +32,14 @@ IfNotDropped				// Say oops, that's kursed
   SetTargetToWhoeverIsHolding		  //
   tmpargument = 1			  //
   SendMessageNear			  //
-IfNotPutAway				// Say oops, that's kursed
-  SetTargetToWhoeverIsHolding		  //
-  tmpargument = 3			  //
-  SendMessageNear			  //
+//IfNotPutAway
+//  tmpargument = 3         //No longer needed, this is handled by the sourcecode now...
+//  SendMessageNear
 IfDropped				// Make it lie on floor
   KeepAction				  //
   UndoEnchant
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 7000	  //
   PlaySound				  //
   DisaffirmCharacter			  // Stop thrown attack
 IfGrabbed				// Tell them what they've won...
