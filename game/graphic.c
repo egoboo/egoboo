@@ -522,9 +522,10 @@ void gfx_init_SDL_graphics()
     // will cause SDL_SetVideoMode to fail with:
     // "Unable to set video mode: Couldn't find matching GLX visual"
     if ( cfg.scrd_req == 32 ) cfg.scrd_req = 24;
+	if ( cfg.scrz_req == 32 ) cfg.scrz_req = 24;
 
 #endif
-
+	
     // the flags to pass to SDL_SetVideoMode
     sdl_vparam.width                     = cfg.scrx_req;
     sdl_vparam.height                    = cfg.scry_req;

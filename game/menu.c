@@ -3273,6 +3273,13 @@ int doVideoOptions( float deltaTime )
             }
             else sz_buttons[but_shadow] = "Off";
 
+
+#if defined(__unix__)
+			//Clip linux defaults to valid values so that the game doesn't crash on startup
+			if ( cfg.scrz_req == 32 ) cfg.scrz_req = 24;
+			if ( cfg.scrd_req == 32 ) cfg.scrd_req = 24;
+#endif
+			
             if ( cfg.scrz_req != 32 && cfg.scrz_req != 16 && cfg.scrz_req != 24 )
             {
                 cfg.scrz_req = 16;              // Set to default
@@ -3523,7 +3530,12 @@ int doVideoOptions( float deltaTime )
                     cfg.scrz_req += 8;
                 }
 
-                if ( cfg.scrz_req > 32 ) cfg.scrz_req = 8;
+
+#if defined(__unix__)
+                if ( cfg.scrz_req > 24 ) cfg.scrz_req = 8;			//Linux max is 24
+#else
+                if ( cfg.scrz_req > 32 ) cfg.scrz_req = 8;			//Others can have up to 32 bit!
+#endif
 
                 snprintf( Cscrz, SDL_arraysize( Cscrz ), "%d", cfg.scrz_req );
                 sz_buttons[but_zbuffer] = Cscrz;
