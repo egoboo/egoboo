@@ -493,10 +493,10 @@ int menu_system_begin()
 
     autoformat_init( &gfx );
 
-    menuFont = ui_loadFont( vfs_resolveReadFilename( "mp_data/Negatori.ttf" ), 18 );
+    menuFont = ui_loadFont( vfs_resolveReadFilename( "mp_data/font.ttf" ), 18 );
     if ( NULL == menuFont )
     {
-        log_error( "Could not load the menu font! (\"mp_data/Negatori.ttf\")\n" );
+        log_error( "Could not load the menu font! (\"mp_data/font.ttf\")\n" );
         return 0;
     }
 

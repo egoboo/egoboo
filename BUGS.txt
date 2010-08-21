@@ -5,6 +5,9 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
+- Whips attack to fast. They also no longer spawn the small white flash.
+- Bug with beating The Crypt (constant gonging?)
+- To unlock Water palace, it is necessary to finish sand palace . But when I finished sand palace , I do not unlock water palace.
 - The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
 - Imprisoned One II: After defeating the sand troll there appears no staff.
 - The Abyss II: The chest at the beginning pushes my character through the whole level. 
