@@ -66,7 +66,7 @@ void sys_fs_init()
 
     // grab the user's home directory
     userhome = getenv( "HOME" );
-    snprintf( linux_userdataPath, SDL_arraysize( linux_userdataPath ), "%s/.egoboo-2.x/", userhome );
+    snprintf( linux_userdataPath, SDL_arraysize( linux_userdataPath ), "%s/.egoboo-2.x", userhome );
 
 #if defined(_NIX_PREFIX) && defined(PREFIX)
     // the access to these directories is completely unknown
@@ -74,9 +74,9 @@ void sys_fs_init()
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
 
-    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
+    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x",         SDL_arraysize( linux_configPath ) );
     strncpy( linux_binaryPath, PREFIX "/games/",                  SDL_arraysize( linux_binaryPath ) );
-    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
+    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x", SDL_arraysize( linux_dataPath ) );
 #else
     // these are read-only directories
     strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
@@ -140,7 +140,7 @@ bool_t fs_copyFile( const char *source, const char *dest )
     if ( !sourcef )
         return bfalse;
 
-    destf = fopen( destf, "wb" );
+    destf = fopen( dest, "wb" );
     if ( !destf )
     {
         fclose( sourcef );
