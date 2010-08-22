@@ -1,6 +1,6 @@
 // Frost trail
 Force spawn ( TRUE or FALSE )				: FALSE
-Image type ( SOLID, LIGHT, or TRANS )			: TRANS
+Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
 Starting frame ( 0 to 255 )				: 49
 Number of frames ( 1 to 16 )				: 3
 Frame rate ( 0 to 1000 )				: 80

@@ -47,7 +47,7 @@ Facing base ( 0 to 65535 )				: 0
 Facing randomness ( 0, 1, 3, 7, 15, 31, 63... )		: 16383
 XY Spacing ( 0 to 100 )					: 3
 XY Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 6
-Z Spacing ( -100 to 100 )				: 8
+Z Spacing ( -100 to 100 )				: 200
 Z Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 XY Velocity ( 0 to 100 )				: 6
 XY Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 6
@@ -92,7 +92,7 @@ Friendly fire ( TRUE or FALSE )				: FALSE
 Only hit hate group ( TRUE or FALSE )			: TRUE
 New target on spawn ( TRUE or FALSE )			: FALSE
 Target angle ( 0 to 32768 )				: 0
-Home in on target ( TRUE or FALSE )			: FALSe
+Home in on target ( TRUE or FALSE )			: FALSE
 Homing friction ( 0.0 to 1.0 )				: 0.99
 Homing acceleration ( 0.0 to 1.0 )			: 0.0003
 Rotate to face direction ( TRUE or FALSE )		: FALSE
@@ -102,7 +102,7 @@ Life drain on hit ( 0 to 50 )				: 0
 
 
 // Expansions
-:[ARMO] 1	Armor piercing
-:[BLOC] 1	Can't be blocked
-:[TIME] 1	Doesn't set invulnerability time on collision
-:[WSND] 1       Sound when wall bounce
+:[ARMO] 1	      //Armor piercing
+:[BLOC] 1	      //Can't be blocked
+:[TIME] 1	      //Doesn't set invulnerability time on collision
+:[WSND] 1       //Sound when wall bounce

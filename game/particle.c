@@ -1399,7 +1399,9 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
             loc_pprt->vel.z += (windspeed.z-loc_pprt->vel.z) * ( 1.0f - buoyancy_friction  );
         }
     }
-    else
+
+	//Light isnt affected by the wind
+    else if( loc_pprt->type != SPRITE_LIGHT )
     {
         // this is a normal particle
         if( loc_pprt->inwater )
@@ -1531,7 +1533,9 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
     penviro  = &(loc_pprt->enviro);
 
-	if ( loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
+	//ZF> We really can't do gravity for Light! A lot of magical effects and attacks in the game depend on being able
+	//    to move forward in a straight line without being dragged down into the dust!
+	if ( loc_pprt->type == SPRITE_LIGHT || loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
@@ -1812,8 +1816,8 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 
                 nrm_total.x += nrm.x;
                 nrm_total.y += nrm.y;
-
-                hit_a_wall = (fvec2_dot_product(loc_pprt->vel.v, nrm.v) < 0.0f);
+				
+				hit_a_wall = (fvec2_dot_product(loc_pprt->vel.v, nrm.v) < 0.0f);
             }
         }
     }
@@ -1826,7 +1830,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     }
 
     // handle the collision
-    if ( touch_a_wall && ( loc_ppip->end_wall || loc_ppip->end_bump ) )
+    if ( touch_a_wall && ( loc_ppip->end_wall /*|| loc_ppip->end_bump*/ ) )
     {
         prt_request_terminate( pbdl_prt );
         return NULL;

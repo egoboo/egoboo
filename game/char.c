@@ -5903,6 +5903,9 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     pweapon     = ChrList.lst + iweapon;
     pweapon_cap = chr_get_pcap( iweapon );
 
+	//No need to continue if we have an attack cooldown
+	if( 0 != pweapon->reloadtime ) return bfalse;
+
     // grab the iweapon's action
     base_action = pweapon_cap->weaponaction;
     hand_action = randomize_action( base_action, which_slot );
@@ -5915,7 +5918,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     allowedtoattack = btrue;
 
     // First check if reload time and action is okay
-    if ( !action_valid || pweapon->reloadtime > 0 )
+    if ( !action_valid )
     {
         allowedtoattack = bfalse;
     }
@@ -5946,17 +5949,13 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 
     if ( !allowedtoattack )
     {
-        if ( 0 == pweapon->reloadtime )
+        // This character can't use this iweapon
+        pweapon->reloadtime = 50;
+		if ( pchr->StatusList_on || cfg.dev_mode )
         {
-            // This character can't use this iweapon
-            pweapon->reloadtime = 50;
-			if ( pchr->StatusList_on || cfg.dev_mode )
-            {
-                // Tell the player that they can't use this iweapon
-                debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
-            }
+            // Tell the player that they can't use this iweapon
+            debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
         }
-
         return bfalse;
     }
 

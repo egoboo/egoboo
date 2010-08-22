@@ -58,7 +58,7 @@ Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 
 
 // Continuous spawning of other particles
-Spawn time ( 0 to 100 )					: 1
+Spawn time ( 0 to 100 )					: 2
 Amount to spawn each time ( 0 to 10 )			: 1
 Facing add for each one ( 0 to 65535 )			: 0
 Spawn type ( 0 to 3 )					: 0
@@ -87,7 +87,7 @@ Need target to spawn ( TRUE or FALSE )			: FALSE
 Target is caster ( TRUE or FALSE )			: FALSE
 Start on target ( TRUE or FALSE )			: FALSE
 Only damage friendly ( TRUE or FALSE )			: FALSE
-Spawn sound ( -1 for none )				: -1
+Spawn sound ( -1 for none )				: 0
 End sound ( -1 for none )				: 1
 Friendly fire ( TRUE or FALSE )				: FALSE
 Only hit hate group ( TRUE or FALSE )			: FALSE

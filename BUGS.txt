@@ -5,19 +5,17 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
-- Whips attack to fast. They also no longer spawn the small white flash.
+- Moving particles tend to get stuck in walls.
 - Bug with beating The Crypt (constant gonging?)
-- To unlock Water palace, it is necessary to finish sand palace . But when I finished sand palace , I do not unlock water palace.
-- The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
 - Imprisoned One II: After defeating the sand troll there appears no staff.
-- The Abyss II: The chest at the beginning pushes my character through the whole level. 
-- The Wand of Iceball isn't working properly. There are no projectiles created. 
-- The ice ray spell isn't working. There is no projectile created. 
-- The green potions found in some chests can't be picked up. 
-- The ice spheres/balls on the ice aren't moving. 
-- With the magic carpet I'm able to fly through doors or even walls. I think the velocity of the carpet is too high. It kinda "drills" through the walls. 
-- I also notices npcs walking though walls eg. Mim and Brom in the Adventurer Starter. Sometimes they get stuck in corners of walls and after some time they just walk over the map to follow me. 
+- The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
+- To unlock Water palace, it is necessary to finish sand palace . But when I finished sand palace , I do not unlock water palace.
 - After being poisoned the green life bar won't turn red again.
+- The "fireball/flame ring seems to throw you through the ceiling, while your inventory stays where it was (but is still properly attached)" (I figured out that this seems to be what it does)
+- Whips attack to fast. They also no longer spawn the small white flash.
+- The Abyss II: The chest at the beginning pushes my character through the whole level. 
+- The green potions found in some chests can't be picked up. 
+- With the magic carpet I'm able to fly through doors or even walls. I think the velocity of the carpet is too high. It kinda "drills" through the walls. 
 - After killing guards or monsters with bombs a false message is displayed. (eg. "A guard killed a guard." "A sheep butchered a sheep"). Also the guards don't attack the player who set up the bomb. They attack the shepherd or the healer/alchemist. 
 - There appears to be some random crash bugs occuring making it difficult to play through the modules.
 - Bear Trapped monsters can be moved around when they get bumped by allies.
@@ -26,16 +24,14 @@ KNOWN BUGS:
 - Zombi Starter: I don't like the running animations the zombi have. Is it okay if they're slowed down? 
 - Zombi Starter: A crash often occurs in the third room (probably already known). 
 - I know of a crash bug that I have never done anything to fix. If you play the game with sound turned off, the game will crash because the in-game music is not loaded and all the pointers are null. For some reason this is not an easy fix, but I can't remember why.
-- The "fireball/flame ring seems to throw you through the ceiling, while your inventory stays where it was (but is still properly attached)" (I figured out that this seems to be what it does)
 - Elf Starter:The A.I. is a little strange. I saw a Lumpkin, with two claws, running into a wall and swiping madly. Not sure what was going on. This also occurred with a Lumpkin on the left side of the fortress. Possible explanation: they were hostile to the crabs? 
 - There is a graphical "hiccup" when you change armor. This also occurs when you transform. 
 - When you drop the green spell books, they appear as red. I seem to recall a similar problem in the wizard module. 
 - There is no rendering at the bottom of the screen. This appears to be a trick to make the game run more smoothly (which is good), but it looks awkward at times. Is there some way to enlarge the field of view? 
 - This is a bit random, but clipping issues occur, making your character unable to receive damage. Perhaps this occurs after loading a module three times. 
 - Probably a physics problem, but blood does not dry out very quickly. This is especially noticeable in the Elf module. 
-- Here is something interesting: when you swing an unlit torch at a burning torch on the ground, the unlit torch does not set aflame. (minor observation) 
 - Soldier Starter:  The chocobone [sic?] will sometimes run towards torches, resulting in suicide. 
-- The physics are very sensitive. Coffins will strongly push you away if you touch them closely (sometimes getting you into the blue blobs). As you should see in "ego00.bmp", they can even push you on top of interesting areas. Coins also bounce highly, taking longer to get, but some bounce into the walls. Flaming skulls are also very sensitive to hit. 
+- The physics are very sensitive. Coffins will strongly push you away if you touch them closely (sometimes getting you into the blue blobs). As you should see in "ego00.bmp", they can even push you on top of interesting areas. Coins also bounce highly, taking longer to get, but some bounce into the walls.
 - The tranch can be killed without breaking the idol it is in. 
 - The green cube is immune to weapons. Was this intended too? 
 - Exploit: You can assassinate characters with bear traps. 
