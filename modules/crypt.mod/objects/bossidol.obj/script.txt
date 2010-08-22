@@ -1,33 +1,28 @@
-//Special Script - This makes boss invincible until the idol is broken
-tmpargument = 1
-IfContentIs
+//Special prurple glow
+IfSpawned
+  tmpargument = -1
+  SetBlueShift
+  SetGreenShift
 
-  //Special glow
-  SetTargetToSelf
-  FlashTarget
-  IfSpawned
-    tmpargument = 0-1
-    SetBlueShift
-    SetGreenShift
-
-  //Heal and sparklies
+//This makes boss invincible until the idol is broken
+//Heal and sparklies
+IfTimeOut
   tmpargument = [LICH]
-  tmpdistance = 4
+  tmpdistance = BLAHFRIENDS + BLAHENEMIES
   SetTargetToNearestBlahID
-    tmpargument = 256
+    tmpargument = 2560         //10 hp!
     HealTarget
     tmpargument = 1
     tmpx = targetx
     tmpy = targety
     tmpdistance = targetz
     SpawnExactParticle
-
-  //Broken!
-  IfKilled
-    tmpargument = 3
-    SendMessage
-    tmpargument = 48
-    SetContent
+  tmpargument = 50
+  SetTime
+  
+  //Flashy!
+  SetTargetToSelf
+  FlashTarget
 
 //Need at least 2 damage in 1 hit to die
 IfSpawned
@@ -35,6 +30,11 @@ IfSpawned
   SetDamageThreshold
   
 IfKilled
+  tmpargument = 3
+  SendMessage
+  tmpargument = 48
+  SetContent
+  
   // Smash open
   tmpargument = [GOOD]
   IfTargetHasSpecialID

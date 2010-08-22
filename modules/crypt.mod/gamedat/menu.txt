@@ -12,12 +12,12 @@ Level rating ( *, **, ***, ****, or ***** )     : ****
 
 
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )
-:Sometime_ago_a_brave_healer_
+:Sometime_ago_a_brave_healer
 :killed_an_evil_necromancer,
 :now_the_sorcerer_has_returned
 :as_an_undead_himself.
-:_Enter_in_his_lair_and_slay_him
-:again..._
+:Enter_his_lair_and_slay_him
+:once_again..._
 :_
 :_
 

@@ -5,6 +5,7 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
+- Particle end effects like sound or spawn other particles doesn't work.
 - Moving particles tend to get stuck in walls.
 - Bug with beating The Crypt (constant gonging?)
 - Imprisoned One II: After defeating the sand troll there appears no staff.

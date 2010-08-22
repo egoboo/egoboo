@@ -151,43 +151,6 @@ IfStateIs10
     ClearWaypoints
     AddWaypoint
 
-// For charging a spell...
-IfStateIs11
-  // Right hand
-  IfTimeOut
-    // Release the spell?
-    tmpx = targetdistance
-    tmpy = 728
-    IfXIsLessThanY
-      // Distance is good...
-      tmpx = selfmana
-      tmpy = 256
-      IfXIsMoreThanY
-        tmpargument = 0
-        SetState
-      Else
-        // Get more mana first
-        tmpargument = LATCHRIGHT
-        PressLatchButton
-    Else
-      // Get closer first
-      tmpargument = LATCHRIGHT
-      PressLatchButton
-    tmpx = targetx - selfx > 1 + selfx
-    tmpy = targety - selfy > 1 + selfy
-    ClearWaypoints
-    AddWaypoint
-    tmpargument = 10
-    SetTime
-  Else
-    // Keep charging
-    tmpargument = LATCHRIGHT
-    PressLatchButton
-    tmpx = targetx - selfx > 1 + selfx
-    tmpy = targety - selfy > 1 + selfy
-    ClearWaypoints
-    AddWaypoint
-
 //------------------------------------------------------------------------------
 // ZZ> Find something to do...
 IfTimeOut
@@ -216,11 +179,11 @@ IfTimeOut
     Else
       tmpargument = 0
       SetState
-
+      
   IfStateIs3
     // Pick a spell to use on the enemy...  Left or right
     IfTargetIsOnHatedTeam
-      tmpx = rand % 2
+      tmpx = rand & 1
       tmpy = 0
       IfXIsEqualToY           //50% to pick either
         tmpargument = 11
@@ -228,11 +191,31 @@ IfTimeOut
         tmpargument = 40
         SetTime
       Else
-        tmpargument = 10
+        tmpargument = 4
         SetState
-        tmpargument = 40
-        SetTime
+    Else
+      tmpargument = 0
+      SetState
 
+  //Instant cast close spell
+  IfStateIs4
+    IfTargetIsOnHatedTeam
+      IfFacingTarget
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+        tmpargument = 0
+        SetState
+      Else
+        tmpx = targetx
+        tmpy = targety
+        ClearWaypoints
+        AddWaypoint
+      tmpargument = 40
+      SetTime
+    Else
+      tmpargument = 0
+      SetState
+      
   IfStateIs2
     // Halfway through a teleport
     tmpargument = rand & 15 + 35

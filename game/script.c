@@ -215,7 +215,7 @@ void scr_run_chr_script( const CHR_REF by_reference character )
     // Clear the button latches
     if ( !VALID_PLA( pchr->is_which_player ) )
     {
-        pchr->latch.b = 0;
+		RESET_BIT_FIELD( pchr->latch.b );
     }
 
     // Reset the target if it can't be seen

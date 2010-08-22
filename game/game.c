@@ -3540,7 +3540,7 @@ void let_all_characters_think()
             set_alerts( character );
 
             // Cleaned up characters shouldn't be alert to anything else
-            if ( is_cleanedup )  { pchr->ai.alert = ALERTIF_CLEANEDUP; pchr->ai.timer = update_wld + 1; }
+            if ( is_cleanedup )  { pchr->ai.alert = ALERTIF_CLEANEDUP; /*pchr->ai.timer = update_wld + 1;*/ }
 
 			// Crushed characters shouldn't be alert to anything else
             if ( is_crushed )  { pchr->ai.alert = ALERTIF_CRUSHED; pchr->ai.timer = update_wld + 1; }

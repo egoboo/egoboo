@@ -25,7 +25,7 @@
 #dependency RockOpen  48    //For destroyed stone idols
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-HeroatBoss NONE      0    47.5 10.5 0.0  N   0   0   0   0   0   T   F   Good
+HeroAtBoss NONE      0    47.5 10.5 0.0  N   0   0   0   0   0   T   F   Good
 Hero 00:   NONE      0    35.0 55.5 0.0  N   0   0   0   0   0   T   F   Good
   Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
   Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
@@ -147,13 +147,13 @@ Chest:    NONE      53   50.5 8.5  0.0  S   99  0   0    8   0   F   F   Null   
   Rot:     NONE      101  0    0    0    I   0   0   0   0   0   F   F   Null
   Moonbeam:NONE      37   0    0    0    I   0   0   0   0   0   F   F   Null
   MStaff:  NONE      57   0    0    0    R   0   0   0   0   0   F   F   Null
-RockHead:  NONE      47   48   10   0.0  S   0   0   0   1   0   F   F   Evil
+BossIdol:  NONE      52   48   10   0.0  S   0   0   0   0   0   F   F   Evil
 
 
 //Evil boss
 Lich:      NONE      80   47.5 10.5 0.0  S   39  0   0 32975 2   F   F   Evil
   OrbStorm:NONE      60  0    0    0    L   0   0   0   0   0   F   F   Null
-  LifeDrain:NONE      108   0    0    0    R   0   0   0   0   0   F   F   Null
+  LifeDrain:NONE     108   0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 //Bodyguards
