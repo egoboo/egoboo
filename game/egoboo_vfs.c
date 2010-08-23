@@ -2133,7 +2133,7 @@ int _vfs_vfscanf( FILE * file, const char * format, va_list args )
 
     format_end = ( char * )( format + strlen( format ) );
 
-    // scan throuh the format string looking for formats
+    // scan through the format string looking for formats
     argcount = 0;
     while ( format < format_end )
     {
@@ -2334,19 +2334,12 @@ int vfs_remove_mount_point( const char * mount_point )
 
     while ( cnt >= 0 )
     {
-        int tmp_retval;
         // we have to use the path name to remove the search path, not the mount point name
-        tmp_retval = PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].full_path );
+        PHYSFS_removeFromSearchPath( _vfs_mount_info[cnt].full_path );
 
-        // if we succedded once, we succeeded
-        if ( 0 != tmp_retval )
-        {
-            retval = 1;
-
-            // remove the mount info from this index
-            // ?should it be removed if PHYSFS_removeFromSearchPath() fails?
-            _vfs_mount_info_remove( cnt );
-        }
+        // remove the mount info from this index
+        // PF> we remove it even if PHYSFS_removeFromSearchPath() fails or else we might get an infinite loop
+        _vfs_mount_info_remove( cnt );
 
         cnt = _vfs_mount_info_matches( mount_point, NULL );
     }

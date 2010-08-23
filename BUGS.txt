@@ -5,9 +5,10 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
+- Necromancer in Zombi Starter doesnt raise many Zombis
+- Menu interface bug in Linux see -> http://a.imageshack.us/img829/5305/ego11.png
 - Particle end effects like sound or spawn other particles doesn't work.
 - Moving particles tend to get stuck in walls.
-- Bug with beating The Crypt (constant gonging?)
 - Imprisoned One II: After defeating the sand troll there appears no staff.
 - The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
 - To unlock Water palace, it is necessary to finish sand palace . But when I finished sand palace , I do not unlock water palace.

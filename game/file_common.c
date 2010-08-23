@@ -353,7 +353,7 @@ bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
 
         // copy the file from the Data Directory to the User Directory
 
-        snprintf( src_path_str, SDL_arraysize( src_path_str ), "%s" SLASH_STR "%s", fs_getDataDirectory(), relative_filename );
+        snprintf( src_path_str, SDL_arraysize( src_path_str ), "%s" SLASH_STR "%s", fs_getConfigDirectory(), relative_filename );
 
         fs_copyFile( src_path_str, path_str );
 

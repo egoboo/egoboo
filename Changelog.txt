@@ -1,10 +1,11 @@
-Credits to Seth, Khaos89 and Octagon this release!
+Credits to Penguinflyer5234, Seth, Khaos89 and Octagon this release!
 Version 2.8.0b (xx.xx.2010)
 - Update: Reworked and optimized how the Ice Ray spell worked.
 - Update: Added new game font that was GPL compitable.
 - Update: Various modules are now slightly darker than before.
 - Update: Money is easier to pick up now.
 - Update: Kite Shields now have a small chance to be Kursed.
+- Bugfix: Fixed control and setup settings being saved incorrectly on Linux.
 - Bugfix: Fixed a graphical glitch with candles.
 - Bugfix: The Iceball Wand now functions properly again.
 - Bugfix: Fixed Linux issue where the game would crash on startup due invalid settings.
