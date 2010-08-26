@@ -880,6 +880,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
 
     // calculate the radius based on whether the character is on camera
+	// ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
@@ -915,6 +916,7 @@ fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
 
     // calculate the radius based on whether the character is on camera
+	// ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
@@ -937,12 +939,12 @@ fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure )
+BIT_FIELD chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
 
-    Uint32       retval;
+    BIT_FIELD    retval;
     float        radius;
 
     if ( !DEFINED_PCHR( pchr ) ) return 0;
@@ -953,6 +955,7 @@ Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressu
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
 
     // calculate the radius based on whether the character is on camera
+	// ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
@@ -987,6 +990,8 @@ bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
 
     if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return bfalse;
 
+    // calculate the radius based on whether the character is on camera
+	// ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
@@ -6469,6 +6474,10 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     }
 
     // maybe there is one last fallback after this? we could check the character's current position?
+	if( !found )
+	{
+		log_debug("Uh oh! We could not find a valid non-wall position for %s!\n", chr_get_pcap(pchr->ai.index)->name);
+	}
 
     return found;
 }

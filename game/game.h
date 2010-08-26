@@ -244,6 +244,7 @@ struct s_game_module
 {
     Uint8   importamount;               ///< Number of imports for this module
     bool_t  exportvalid;                ///< Can it export?
+	bool_t  exportreset;				///< Allow to export when module is reset?
     Uint8   playeramount;               ///< How many players?
     bool_t  importvalid;                ///< Can it import?
     bool_t  respawnvalid;               ///< Can players respawn with Spacebar?

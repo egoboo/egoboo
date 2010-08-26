@@ -569,7 +569,7 @@ bool_t setup_xp_table( const CHR_REF by_reference character );
 
 void free_all_chraracters();
 
-Uint32 chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure );
+BIT_FIELD chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure );
 bool_t chr_test_wall( chr_t * pchr, float test_pos[] );
 
 int chr_count_free();

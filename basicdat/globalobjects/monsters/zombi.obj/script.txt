@@ -187,33 +187,10 @@ IfStateIsNot			//If not acting as a dead body
 
               // Check for good weapons
               IfHoldingMeleeWeapon
-                tmpargument = [MACE]
-                IfHoldingItemID
-                  // Bash already
-                  tmpargument = tmpargument - 1 < 1 + ACTIONBB
-                Else
-                  tmpargument = [HAMM]
-                  IfHoldingItemID
-                    // Bash already
-                    tmpargument = tmpargument - 1 < 1 + ACTIONBB
-                  Else
-                    tmpargument = [AXEE]
-                    IfHoldingItemID
-                      // Bash already
-                      tmpargument = tmpargument - 1 < 1 + ACTIONBB
-                    Else
-                      tmpargument = [CLAW]
-                      IfHoldingItemID
-                        // Bash already
-                        tmpargument = tmpargument - 1 < 1 + ACTIONBB
-                      Else
-                        // Hmmm...  Not holding a good weapon, so better drop it
-                        DropWeapons
-                        tmpargument = rand & 2 + ACTIONBB
+                PressLatchButton
               Else
-                // Swing left or right
-                tmpargument = rand & 2 + ACTIONBB
-              DoAction  // Couldn't use latches...
+                tmpargument = rand & 1 + LATCHLEFT
+                PressLatchButton
               tmpargument = rand & 1 + 1
               PlaySound
           // Chase the enemy
@@ -258,6 +235,14 @@ IfStateIsNot			//If not acting as a dead body
                   tmpargument = [CLAW]
                   SetTargetToWideBlahID
                     tmpx = 1
+                  Else
+                    tmpargument = [SWOR]
+                    SetTargetToWideBlahID
+                      tmpx = 1
+                    Else
+                      tmpargument = [DAGG]
+                      SetTargetToWideBlahID
+                        tmpx = 1
             tmpy = 1
             IfXIsEqualToY			//If tmpx is 1, then a weapon was found
               tmpx = targetdistance

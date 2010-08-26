@@ -8,7 +8,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// fix for the fact that assert is technically not suppoeted in c++
+// fix for the fact that assert is technically not supported in c++
 class egoboo_exception : public std::exception
 {
     protected:

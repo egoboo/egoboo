@@ -32,10 +32,10 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 Size ( eg. 1.0 )				: 1.0
 Size increase per level ( eg. 0.05 )		: 0.05
 Shadow size ( eg. 30, 0 is none )		: 0
-Bump size ( eg. 30 )				: 10
-Bump height ( eg. 70 )				: 5
+Bump size ( eg. 30 )				: 1
+Bump height ( eg. 70 )				: 0
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 1.00
-Weight ( 0 to 255 )				: 2
+Weight ( 0 to 255 )				: 5
 Jump power ( eg. 14.0 )				: 0.0
 Number of jumps ( eg. 1 )			: 0
 Sneak speed ( 1 to 20, 1 is good )		: 1
@@ -105,7 +105,7 @@ Experience rate... Talking in character ( 1.0 )	: 0.0
 Parent ID ( eg. [FROG] for Trogs )		: [TORC]
 Type ID ( eg. [TROG] for Trogs )		: [WOOD]
 Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
-Special ID ( eg. [SUM0] for animated bones )	: [NONE]
+Special ID ( eg. [SUM0] for animated bones )	: [XWEP]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
 Vuilnerability ID ( eg. [SILV] for werewolves )	: [NONE]
 

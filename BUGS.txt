@@ -5,9 +5,9 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
-- Necromancer in Zombi Starter doesnt raise many Zombis
+- Seems some objects are being loaded twice into the same slot see -> http://img830.imageshack.us/img830/3996/egoerror.jpg
 - Menu interface bug in Linux see -> http://a.imageshack.us/img829/5305/ego11.png
-- Particle end effects like sound or spawn other particles doesn't work.
+- Particle end effects like "sound" or "spawn other particles" doesn't work.
 - Moving particles tend to get stuck in walls.
 - Imprisoned One II: After defeating the sand troll there appears no staff.
 - The elemental demon can sometimes escape his prison without the locks being opened. This makes him also invincible. He's still attacking the player. 
@@ -15,7 +15,6 @@ KNOWN BUGS:
 - After being poisoned the green life bar won't turn red again.
 - The "fireball/flame ring seems to throw you through the ceiling, while your inventory stays where it was (but is still properly attached)" (I figured out that this seems to be what it does)
 - Whips attack to fast. They also no longer spawn the small white flash.
-- The Abyss II: The chest at the beginning pushes my character through the whole level. 
 - The green potions found in some chests can't be picked up. 
 - With the magic carpet I'm able to fly through doors or even walls. I think the velocity of the carpet is too high. It kinda "drills" through the walls. 
 - After killing guards or monsters with bombs a false message is displayed. (eg. "A guard killed a guard." "A sheep butchered a sheep"). Also the guards don't attack the player who set up the bomb. They attack the shepherd or the healer/alchemist. 
@@ -34,7 +33,6 @@ KNOWN BUGS:
 - Probably a physics problem, but blood does not dry out very quickly. This is especially noticeable in the Elf module. 
 - Soldier Starter:  The chocobone [sic?] will sometimes run towards torches, resulting in suicide. 
 - The physics are very sensitive. Coffins will strongly push you away if you touch them closely (sometimes getting you into the blue blobs). As you should see in "ego00.bmp", they can even push you on top of interesting areas. Coins also bounce highly, taking longer to get, but some bounce into the walls.
-- The tranch can be killed without breaking the idol it is in. 
 - The green cube is immune to weapons. Was this intended too? 
 - Exploit: You can assassinate characters with bear traps. 
 - Identify scrolls don't work 

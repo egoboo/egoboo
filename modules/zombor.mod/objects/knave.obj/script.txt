@@ -88,6 +88,10 @@ IfTimeOut				// This is done every so often
       tmpy = 200				    //
       IfXIsLessThanY			    //
         tmpargument = LATCHRIGHT		      // Right Attack == 2
+        tmpx = selfmana
+        tmpy = 256
+        IfXIsLessThanY
+          tmpargument = LATCHLEFT		      // Attack with left if no mana left (assume we have spent mana on right hand)
         PressLatchButton
       tmpx = targetx			    // Move towards enemy
       tmpy = targety	    

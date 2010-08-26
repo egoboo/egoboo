@@ -52,7 +52,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.8.0"                                ///< Version of the game
+#define VERSION "2.8.0b"                            ///< Version of the game
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model

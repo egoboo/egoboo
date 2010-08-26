@@ -91,7 +91,7 @@ EXPTEAMWORK    : 0.00
 EXPROLEPLAY    : 0.00
 
 IDSZ Parent    : [UNDE]
-IDSZ Type      : [HUMA]
+IDSZ Type      : [ZOMB]
 IDSZ Skill     : [NONE]
 IDSZ Special   : [EVIL]
 IDSZ Hate      : [XNOS]
@@ -156,3 +156,4 @@ Footfall sound : -1
 Jump sound     : 6
 
 :[DARK] 6               //Level 1 darkvision
+:[AWEP] 1               //Advanced weapon profiency

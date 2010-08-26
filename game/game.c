@@ -1578,7 +1578,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
 
         diff  = fvec3_sub( psrc->pos.v, ptst->pos.v );
         dist2 = fvec3_dot_product( diff.v, diff.v );
-
+		
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( MAX_CHR == best_target || dist2 < best_dist2 ) )
         {
             //Invictus chars do not need a line of sight
@@ -4579,7 +4579,8 @@ bool_t game_module_setup( game_module_t * pinst, mod_file_t * pdata, const char 
 
     pinst->importamount   = pdata->importamount;
     pinst->exportvalid    = pdata->allowexport;
-    pinst->playeramount   = pdata->maxplayers;
+	pinst->exportreset    = pdata->allowexport;
+	pinst->playeramount   = pdata->maxplayers;
     pinst->importvalid    = ( pinst->importamount > 0 );
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
     pinst->respawnanytime = ( RESPAWN_ANYTIME == pdata->respawnvalid );
@@ -4611,7 +4612,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed )
     if ( NULL == pinst ) return bfalse;
 
     pinst->beat        = bfalse;
-    //pinst->exportvalid = bfalse;  /// ZF@> we can't disable export here, some modules are supposed to allow export (towns)
+	pinst->exportvalid = pinst->exportreset;
     pinst->seed        = seed;
 
     return btrue;

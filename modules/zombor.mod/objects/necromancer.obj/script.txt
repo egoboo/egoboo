@@ -31,9 +31,6 @@ IfSpawned
   tmpargument = 17
   tmpdistance = 0
   PlayMusic
-
-  //be the boss!
-  BecomeLeader
   
   //Set up all the waypoints
   tmpargument = 0
@@ -132,6 +129,9 @@ IfStateIs4
         SetContent 
 
 IfTimeOut
+
+  //be the boss!
+  BecomeLeader
 
   //STATE 4 - GO TO BOSS ROOM       (set before STATE 0 because of timeout)
   IfStateIs4

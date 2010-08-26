@@ -15,15 +15,6 @@ ShowBlipXY
 
 //Randomize join team
 IfSpawned
-
-//  tmpx = rand % 100
-//  tmpy = 34		//66% chance to join Necromancer
-//  IfXIsLessThanY
-//    tmpargument = 25	//Team Z
-//  Else
-//    tmpargument = 4	//Team E
-//  JoinTeam
-
   SetTargetToSelf
   SetOwnerToTarget
   EnchantTarget
@@ -32,6 +23,14 @@ IfSpawned
   
   tmpargument = rand % 4
   ChangeArmor
+
+//  tmpx = rand % 100
+//  tmpy = 34		//66% chance to join Necromancer
+//  IfXIsLessThanY
+//    tmpargument = 25	//Team Z
+//  Else
+//    tmpargument = 4	//Team E
+//  JoinTeam
 
 //--------------------------------------------------------------------------------------------
 //This makes zombi mount mountable creatures
@@ -79,7 +78,7 @@ IfTimeOut
   //STATE 0 - FOLLOW LEADER
   IfStateIs0
     SetTargetToLeader
-
+    
     Run
     tmpx = rand & 2047 + targetx - 1024
     tmpy = rand & 2047 + targety - 1024
@@ -143,6 +142,14 @@ IfTimeOut
   //STATE 1 - COMBAT
   IfStateIs1
     Run
+    
+    //Leader is too far away
+    tmpx = leaderdistance
+    tmpy = 800
+    IfXIsMoreThanY
+      tmpargument = 0
+      SetState
+      
     SetTargetToWideEnemy			// Actively look for enemies
       tmpx = targetdistance
       tmpy = 600
@@ -151,39 +158,12 @@ IfTimeOut
         // Attack the enemy?
         tmpy = 200
         IfXIsLessThanY
-          IfHoldingMeleeWeapon			// Check for good weapons
-            tmpargument = [MACE]
-            IfHoldingItemID
-              // Bash already
-              tmpargument = tmpargument - 1 < 1 + ACTIONBB
-            Else
-              tmpargument = [HAMM]
-              IfHoldingItemID
-                // Bash already
-                tmpargument = tmpargument - 1 < 1 + ACTIONBB
-              Else
-                tmpargument = [AXEE]
-                IfHoldingItemID
-                  // Bash already
-                  tmpargument = tmpargument - 1 < 1 + ACTIONBB
-                Else
-                  tmpargument = [CLAW]
-                  IfHoldingItemID
-                    // Bash already
-                    tmpargument = tmpargument - 1 < 1 + ACTIONBB
-                  Else
-                    tmpargument = [SWOR]
-                    IfHoldingItemID
-                      // Bash already
-                      tmpargument = tmpargument - 1 < 1 + ACTIONBB
-                    Else
-                      // Hmmm...  Not holding a good weapon, so better drop it
-                      DropWeapons
-                      tmpargument = rand & 2 + ACTIONBB
+          IfHoldingMeleeWeapon
+            PressLatchButton
           Else
             // Swing left or right
-            tmpargument = rand & 2 + ACTIONBB
-          DoAction
+            tmpargument = rand & 1 + LATCHLEFT
+            PressLatchButton
           tmpargument = rand & 1 + 1
           PlaySound
 
@@ -212,7 +192,7 @@ IfBumped
   SetTargetToWhoeverBumped
   tmpargument = [PILL]
   IfTargetHasID
-    tmpx = 6000
+    tmpx = 6000           //Ugly fix! Dont' get stuck in that pillar
     tmpy = 5600
     ClearWaypoints
     AddWaypoint

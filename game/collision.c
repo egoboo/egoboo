@@ -1867,6 +1867,9 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
+	//skip objects that are inside inventories
+	if( pchr_a->pack.is_packed || pchr_b->pack.is_packed ) return bfalse;
+
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
     if ( ichr_a == pchr_b->onwhichplatform_ref )
@@ -2966,6 +2969,9 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     pprt_b = PrtList.lst + iprt_b;
 
     if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
+
+	//skip objects that are inside inventories
+	if( pchr_a->pack.is_packed ) return bfalse;
 
     // detect a full collision
     full_collision = do_chr_prt_collision_init( pchr_a, pprt_b, &cn_lst );

@@ -32,7 +32,7 @@ warham:   NONE    40  22.0   31.0   1.0   N    0   0  0   0   0   F   F   N
 knight:   NONE    36  12.0   46.0   1.0   N    14   0  0   0   0   F   F   G
   Mace:   NONE    33  27.5   31.5   1.0   R    0   0  0   0   0   F   F   N
   KiteShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    32  14.0   48.0   1.0   N    0   0  0   0   0   F   F   N
+mouse:   NONE    60  14.0   48.0   1.0   N    0   0  0   0   0   F   F   N
 knave:     NONE    35  12.0   46.0   1.0   N    6   0  0   0   0   F   F   G
   shock:   NONE    54  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
   Torch:   NONE    30  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
@@ -43,7 +43,7 @@ shutdoor:   NONE    46  42.0   53.0   1.0   W    0   0  4   0   0   F   F   N
 shutdoor:   NONE    46  44.0   16.0   1.0   S    0   0  8   0   0   F   F   N
 shutdoor:   NONE    46  23.0   27.0   1.0   N    0   0  12   0   0   F   F   N
 gate:   NONE    47  13.8   22.0   1.0   W    0   0  0   0   0   F   F   N
-unknown:   NONE    32  37.5   52.5   1.0   N    0   0  0   0   0   F   F   N
+mouse:   NONE    60  37.5   52.5   1.0   N    0   0  0   0   0   F   F   N
 knight:   NONE    36  37.5   52.5   3.0   N    0   0  0   0   0   F   F   G
   rsword:   NONE    38  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
   KiteShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
@@ -74,7 +74,7 @@ knight:   NONE    36  41.0   34.0   1.0   N    14   0  0   0   0   F   F   G
   warham:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
 knight:   NONE    36  40.0   31.0   2.0   N    15   0  0   0   0   F   F   G
   rsword:   NONE    38  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    32  40.0   31.0   1.0   N    0   0  0   0   0   F   F   N
+mouse:   NONE    60  40.0   31.0   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    39  47.5   21.5   1.0   N    0   0  0   0   0   F   F   N
 barrel:   NONE    59  46.5   22.5   1.0   N    0   0  0   0   0   F   F   N
 crate:   NONE    39  48.5   22.5   1.0   N    0   0  0   0   0   F   F   N

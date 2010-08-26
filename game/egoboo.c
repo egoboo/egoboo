@@ -94,8 +94,6 @@ ego_process_t     * EProc   = &_eproc;
 //--------------------------------------------------------------------------------------------
 int do_ego_proc_begin( ego_process_t * eproc )
 {
-    const char * tmpname;
-
     // initialize the virtual filesystem first
     vfs_init();
 	egoboo_setup_vfs_paths();

@@ -4334,7 +4334,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     {
         from = rightlist[cnt-1];  to = rightlist[cnt];
         x = corner_x[from];
-        // x+=128;
+         x+=128;
         divx = corner_y[to] - corner_y[from];
         stepx = 0;
         if ( divx > 0 )

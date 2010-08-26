@@ -90,7 +90,7 @@ EXPTEAMWORK    : 0.00
 EXPROLEPLAY    : 0.00
 
 IDSZ Parent    : [UNDE]
-IDSZ Type      : [HUMA]
+IDSZ Type      : [ZOMB]
 IDSZ Skill     : [NONE]
 IDSZ Special   : [EVIL]
 IDSZ Hate      : [XNOS]
