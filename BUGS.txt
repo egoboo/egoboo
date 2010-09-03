@@ -5,6 +5,16 @@ at: http://egoboo.sourceforge.net/forum/
 Thanks!
 
 KNOWN BUGS:
+- When the character dies he drops some of his coins. This gold shows abnormal behaviour. Everytime the character jumps the coins jump too. 
+- The rune of combat blessing is broken. After casting/activating it almost all life points are drawn. Then the sound is played. Then it seems it stucks in an infinite loop resulting in the spell being cast again and again. When being hold the casting costs divine mana when dropped it doesn't. 
+- The rune of confusion is broken. The first time the spell is used there is a purple cloud created for aiming. After using it a second time, there's no cloud displayed. 
+- Healer Starter: The necromancer sometimes runs against the brazier resulting in death. 
+- The rune of resist elements can't be deactivated. 
+- Bishopia: The suspicious mushrooms in Olaf's junkyard can't be picked up. 
+- Archmage Trials: After solving the mirror puzzle (with the minotaur) my character gets supersized. 
+- Archmage Trials: After fighting the viking an invisible wall blocks my path. So i can't talk to the door. 
+- Archmage Trials: The warlock on the cess board (actually only the left one) is attacking the player with magic missiles even when the game hasn't started. 
+- In the tourist starter the spike traps are hurting the character even when he doesn't touches them. (They hurt even when standing some steps away...) 
 - Seems some objects are being loaded twice into the same slot see -> http://img830.imageshack.us/img830/3996/egoerror.jpg
 - Menu interface bug in Linux see -> http://a.imageshack.us/img829/5305/ego11.png
 - Particle end effects like "sound" or "spawn other particles" doesn't work.
@@ -25,7 +35,7 @@ KNOWN BUGS:
 - Zombi Starter: I don't like the running animations the zombi have. Is it okay if they're slowed down? 
 - Zombi Starter: A crash often occurs in the third room (probably already known). 
 - I know of a crash bug that I have never done anything to fix. If you play the game with sound turned off, the game will crash because the in-game music is not loaded and all the pointers are null. For some reason this is not an easy fix, but I can't remember why.
-- Elf Starter:The A.I. is a little strange. I saw a Lumpkin, with two claws, running into a wall and swiping madly. Not sure what was going on. This also occurred with a Lumpkin on the left side of the fortress. Possible explanation: they were hostile to the crabs? 
+- Elf Starter: The A.I. is a little strange. I saw a Lumpkin, with two claws, running into a wall and swiping madly. Not sure what was going on. This also occurred with a Lumpkin on the left side of the fortress. Possible explanation: they were hostile to the crabs? 
 - There is a graphical "hiccup" when you change armor. This also occurs when you transform. 
 - When you drop the green spell books, they appear as red. I seem to recall a similar problem in the wizard module. 
 - There is no rendering at the bottom of the screen. This appears to be a trick to make the game run more smoothly (which is good), but it looks awkward at times. Is there some way to enlarge the field of view? 

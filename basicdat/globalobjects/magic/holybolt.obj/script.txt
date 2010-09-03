@@ -58,6 +58,7 @@ Else
   tmpx = selfcontent
   tmpy = 511
   IfXIsMoreThanY		//Enough power to activate?
+    MakeNameKnown
     tmpargument = 2
     tmpx = selfx
     tmpy = selfy

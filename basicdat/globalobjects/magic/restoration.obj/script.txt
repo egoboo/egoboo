@@ -74,6 +74,7 @@ Else
   tmpx = selfcontent
   tmpy = 1023
   IfXIsMoreThanY		//Enough power to activate?
+    MakeNameKnown
     tmpx = targetx
     tmpy = targety
     tmpdistance = targetz

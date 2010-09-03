@@ -54,6 +54,7 @@ IfTimeOut
       
       tmpargument = [BEAT]
       AddIDSZ
+      GoPoof
   tmpargument = 10
   SetTime
 End
