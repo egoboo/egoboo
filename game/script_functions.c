@@ -476,6 +476,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
     /// @details ZZ@> This function tells the character where to move next
 
+#if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     fvec2_t pos;
     fvec3_t nrm;
     float   pressure;
@@ -489,15 +490,11 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // is this a safe position?
     returncode = bfalse;
 
-    returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
-//ZF> I have uncommented the "unsafe" waypoint code for now. It caused many AI problems since many AI scripts depend on actually moving
-//    towards an unsafe point. This should not be a problem since we have a mesh collision code anwyays?
-/*	if ( chr_get_pcap( pself->index )->weight == 255 || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
+	if ( chr_get_pcap( pself->index )->weight == 255 || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
     {
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
     }
-#if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     else
     {
         cap_t * pcap;
@@ -521,8 +518,11 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
                          SQRT( pressure ) / GRID_SIZE );
         }
     }
+#else
+    SCRIPT_FUNCTION_BEGIN();
+    returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
 #endif
-*/
+
     if ( returncode )
     {
         // make sure we update the waypoint, since the list changed
@@ -3739,11 +3739,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
-    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
-    {
-        returncode = (( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) && water.is_water );
-    }
+	returncode = chr_is_over_water( pchr );
 
     SCRIPT_FUNCTION_END();
 }

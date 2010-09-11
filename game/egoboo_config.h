@@ -77,7 +77,7 @@
 #define CLIP_LIGHT_FANS      ///< is the light_fans() function going to be throttled?
 #define CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
 
-#undef  DEBUG_WAYPOINTS      ///< display error messages when adding waypoints
+#undef  DEBUG_WAYPOINTS      ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
 
 /// How much script debugging.
 ///    0 -- debugging off ( requires defined(_DEBUG) )

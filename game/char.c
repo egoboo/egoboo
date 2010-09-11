@@ -1017,6 +1017,16 @@ bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_is_over_water( chr_t *pchr )
+{
+    /// @details ZF@> This function returns true if the character is over a water tile
+
+	if( !water.is_water || !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return bfalse; 
+
+    return 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER );
+}
+
+//--------------------------------------------------------------------------------------------
 void reset_character_accel( const CHR_REF by_reference character )
 {
     /// @details ZZ@> This function fixes a character's max acceleration
@@ -3420,6 +3430,10 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
 
+	//Don't continue if there is no damage or the character isn't alive
+	max_damage = ABS(damage.base) + ABS(damage.rand);
+    if ( !pchr->alive || max_damage == 0 ) return 0;
+
     // determine some optional behavior
     if( !INGAME_CHR(attacker) )
     {
@@ -3451,223 +3465,226 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
             do_feedback = bfalse;
         }
     }
+    
+    // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
+    // This can also be used to lessen effectiveness of healing
+    actual_damage = generate_irand_pair( damage );
+    base_damage   = actual_damage;
+    actual_damage = actual_damage >> GET_DAMAGE_RESIST( pchr->damagemodifier[damagetype] );
 
-    actual_damage = 0;
-    max_damage = ABS(damage.base) + ABS(damage.rand);
-    if ( pchr->alive && damage.base + damage.rand > 0 )
+	// Increase electric damage when in water
+	if( damagetype == DAMAGE_ZAP && chr_is_over_water( pchr ) )
+	{
+		// Only if actually in the water
+		if ( pchr->pos.z <= water.surface_level )
+			actual_damage = actual_damage << 1;		//@note: ZF> Is double damage too much?
+	}
+
+    // Allow actual_damage to be dealt to mana (mana shield spell)
+    if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEMANA) )
     {
-        // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
-        // This can also be used to lessen effectiveness of healing
-        actual_damage = generate_irand_pair( damage );
-        base_damage   = actual_damage;
-        actual_damage = actual_damage >> GET_DAMAGE_RESIST( pchr->damagemodifier[damagetype] );
-
-        // Allow actual_damage to be dealt to mana (mana shield spell)
-        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEMANA) )
+        int manadamage;
+        manadamage = MAX( pchr->mana - actual_damage, 0 );
+        pchr->mana = manadamage;
+        actual_damage -= manadamage;
+        if ( pchr->ai.index != attacker )
         {
-            int manadamage;
-            manadamage = MAX( pchr->mana - actual_damage, 0 );
-            pchr->mana = manadamage;
-            actual_damage -= manadamage;
-            if ( pchr->ai.index != attacker )
-            {
-                SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
-                pchr->ai.attacklast = attacker;
-            }
+            SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
+            pchr->ai.attacklast = attacker;
         }
+    }
 
-        // Allow charging (Invert actual_damage to mana)
-        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGECHARGE) )
+    // Allow charging (Invert actual_damage to mana)
+    if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGECHARGE) )
+    {
+        pchr->mana += actual_damage;
+        if ( pchr->mana > pchr->manamax )
         {
-            pchr->mana += actual_damage;
-            if ( pchr->mana > pchr->manamax )
-            {
-                pchr->mana = pchr->manamax;
-            }
-            return 0;
+            pchr->mana = pchr->manamax;
         }
+        return 0;
+    }
 
-        // Invert actual_damage to heal
-        if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVERT) )
-            actual_damage = -actual_damage;
+    // Invert actual_damage to heal
+    if ( HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVERT) )
+        actual_damage = -actual_damage;
 
-        // Remember the actual_damage type
-        pchr->ai.damagetypelast = damagetype;
-        pchr->ai.directionlast  = direction;
+    // Remember the actual_damage type
+    pchr->ai.damagetypelast = damagetype;
+    pchr->ai.directionlast  = direction;
         
-        // Check for characters who are immune to this damage, no need to continue if they have
-		immune_to_damage = (actual_damage > 0 && actual_damage <= pchr->damagethreshold) || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
-		if ( immune_to_damage )
-        {
-			//Dark green text
-			const float lifetime = 3;
-	        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-			GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
+    // Check for characters who are immune to this damage, no need to continue if they have
+	immune_to_damage = (actual_damage > 0 && actual_damage <= pchr->damagethreshold) || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
+	if ( immune_to_damage )
+    {
+		//Dark green text
+		const float lifetime = 3;
+	    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+		GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
             
-            actual_damage = 0;
-        	spawn_defense_ping( pchr, attacker );
+        actual_damage = 0;
+        spawn_defense_ping( pchr, attacker );
 
-			//Character is simply immune to the damage
-			chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
-		}
+		//Character is simply immune to the damage
+		chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
+	}
 
-        // Do it already
-        if ( actual_damage > 0 )
+    // Do it already
+    if ( actual_damage > 0 )
+    {
+        // Only actual_damage if not invincible
+        if ( 0 == pchr->damagetime || ignore_invictus )
         {
-            // Only actual_damage if not invincible
-            if ( 0 == pchr->damagetime || ignore_invictus )
-            {
-                // Hard mode deals 25% extra actual damage to players!
-                if ( cfg.difficulty >= GAME_HARD && VALID_PLA( pchr->is_which_player ) && !VALID_PLA(ChrList.lst[attacker].is_which_player) ) actual_damage *= 1.25f;
+            // Hard mode deals 25% extra actual damage to players!
+            if ( cfg.difficulty >= GAME_HARD && VALID_PLA( pchr->is_which_player ) && !VALID_PLA(ChrList.lst[attacker].is_which_player) ) actual_damage *= 1.25f;
 
-                // Easy mode deals 25% extra actual damage by players and 25% less to players
-                if ( cfg.difficulty <= GAME_EASY )
+            // Easy mode deals 25% extra actual damage by players and 25% less to players
+            if ( cfg.difficulty <= GAME_EASY )
+            {
+                if (  VALID_PLA(ChrList.lst[attacker].is_which_player) && !VALID_PLA( pchr->is_which_player ) ) actual_damage *= 1.25f;
+                if ( !VALID_PLA(ChrList.lst[attacker].is_which_player) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.75f;
+            }
+
+            if ( actual_damage != 0 )
+            {
+                if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
                 {
-                    if (  VALID_PLA(ChrList.lst[attacker].is_which_player) && !VALID_PLA( pchr->is_which_player ) ) actual_damage *= 1.25f;
-                    if ( !VALID_PLA(ChrList.lst[attacker].is_which_player) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.75f;
+                    actual_damage = ( actual_damage * pchr->defense  * INV_FF );
                 }
 
-                if ( actual_damage != 0 )
+                pchr->life -= actual_damage;
+
+                // Spawn blud particles
+                if ( pcap->blud_valid )
                 {
-                    if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
+                    if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && damagetype < DAMAGE_HOLY ) )
                     {
-                        actual_damage = ( actual_damage * pchr->defense  * INV_FF );
+                        spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_pip,
+                            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
                     }
+                }
 
-                    pchr->life -= actual_damage;
-
-                    // Spawn blud particles
-                    if ( pcap->blud_valid )
+                // Set attack alert if it wasn't an accident
+                if ( base_damage > HURTDAMAGE )
+                {
+                    if ( team == TEAM_DAMAGE )
                     {
-                        if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && damagetype < DAMAGE_HOLY ) )
-                        {
-                            spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_pip,
-                                ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
-                        }
-                    }
-
-                    // Set attack alert if it wasn't an accident
-                    if ( base_damage > HURTDAMAGE )
-                    {
-                        if ( team == TEAM_DAMAGE )
-                        {
-                            pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
-                        }
-                        else
-                        {
-                            // Don't alert the character too much if under constant fire
-                            if ( pchr->carefultime == 0 )
-                            {
-                                // Don't let characters chase themselves...  That would be silly
-                                if ( attacker != character )
-                                {
-                                    SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
-                                    pchr->ai.attacklast = attacker;
-                                    pchr->carefultime = CAREFULTIME;
-                                }
-                            }
-                        }
-                    }
-
-                    // Taking actual_damage action
-                    if ( pchr->life <= 0 )
-                    {
-                        kill_character( character, attacker, ignore_invictus );
+                        pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
                     }
                     else
                     {
-                        action = ACTION_HA;
-                        if ( base_damage > HURTDAMAGE )
+                        // Don't alert the character too much if under constant fire
+                        if ( pchr->carefultime == 0 )
                         {
-                            action += generate_randmask( 0, 3 );
-                            chr_play_action( pchr, action, bfalse );
-
-                            // Make the character invincible for a limited time only
-                            if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
+                            // Don't let characters chase themselves...  That would be silly
+                            if ( attacker != character )
                             {
-                                pchr->damagetime = DAMAGETIME;
+                                SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
+                                pchr->ai.attacklast = attacker;
+                                pchr->carefultime = CAREFULTIME;
                             }
                         }
                     }
                 }
 
-                /// @test spawn a fly-away damage indicator?
-                if ( do_feedback )
+                // Taking actual_damage action
+                if ( pchr->life <= 0 )
                 {
-                    const char * tmpstr;
-                    int rank;
-
-                    tmpstr = describe_wounds( pchr->lifemax, pchr->life );
-
-                    tmpstr = describe_value( actual_damage, INT_TO_FP8(10), &rank );
-                    if ( rank < 4 )
+                    kill_character( character, attacker, ignore_invictus );
+                }
+                else
+                {
+                    action = ACTION_HA;
+                    if ( base_damage > HURTDAMAGE )
                     {
-                        tmpstr = describe_value( actual_damage, max_damage, &rank );
-                        if( rank < 0 )
+                        action += generate_randmask( 0, 3 );
+                        chr_play_action( pchr, action, bfalse );
+
+                        // Make the character invincible for a limited time only
+                        if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
                         {
-                            tmpstr = "Fumble!";
-                        }
-                        else
-                        {
-                            tmpstr = describe_damage( actual_damage, pchr->lifemax, &rank );
-                            if ( rank >= -1 && rank <= 1 )
-                            {
-                                tmpstr = describe_wounds( pchr->lifemax, pchr->life );
-                            }
+                            pchr->damagetime = DAMAGETIME;
                         }
                     }
+                }
+            }
 
-                    if( NULL != tmpstr )
+            /// @test spawn a fly-away damage indicator?
+            if ( do_feedback )
+            {
+                const char * tmpstr;
+                int rank;
+
+                tmpstr = describe_wounds( pchr->lifemax, pchr->life );
+
+                tmpstr = describe_value( actual_damage, INT_TO_FP8(10), &rank );
+                if ( rank < 4 )
+                {
+                    tmpstr = describe_value( actual_damage, max_damage, &rank );
+                    if( rank < 0 )
                     {
-                        const float lifetime = 3;
-                        STRING text_buffer = EMPTY_CSTR;
-
-                        // "white" text
-                        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-
-                        // friendly fire damage = "purple"
-                        GLXvector4f tint_friend = { 0.88f, 0.75f, 1.00f, 1.00f };
-
-                        // enemy damage = "red"
-                        GLXvector4f tint_enemy  = { 1.00f, 0.75f, 0.75f, 1.00f };
-
-                        // write the string into the buffer
-                        snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
-
-                        chr_make_text_billboard( character, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, bb_opt_all );
+                        tmpstr = "Fumble!";
                     }
+                    else
+                    {
+                        tmpstr = describe_damage( actual_damage, pchr->lifemax, &rank );
+                        if ( rank >= -1 && rank <= 1 )
+                        {
+                            tmpstr = describe_wounds( pchr->lifemax, pchr->life );
+                        }
+                    }
+                }
+
+                if( NULL != tmpstr )
+                {
+                    const float lifetime = 3;
+                    STRING text_buffer = EMPTY_CSTR;
+
+                    // "white" text
+                    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+
+                    // friendly fire damage = "purple"
+                    GLXvector4f tint_friend = { 0.88f, 0.75f, 1.00f, 1.00f };
+
+                    // enemy damage = "red"
+                    GLXvector4f tint_enemy  = { 1.00f, 0.75f, 0.75f, 1.00f };
+
+                    // write the string into the buffer
+                    snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", tmpstr );
+
+                    chr_make_text_billboard( character, text_buffer, text_color, friendly_fire ? tint_friend : tint_enemy, lifetime, bb_opt_all );
                 }
             }
         }
+    }
 
-        // Heal 'em instead
-        else if ( actual_damage < 0 )
+    // Heal 'em instead
+    else if ( actual_damage < 0 )
+    {
+        heal_character( character, attacker, actual_damage, ignore_invictus );
+
+        // Isssue an alert
+        if ( team == TEAM_DAMAGE )
         {
-            heal_character( character, attacker, actual_damage, ignore_invictus );
+            pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
+        }
 
-            // Isssue an alert
-            if ( team == TEAM_DAMAGE )
-            {
-                pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
-            }
+        /// @test spawn a fly-away heal indicator?
+        if ( do_feedback )
+        {
+            const float lifetime = 3;
+            STRING text_buffer = EMPTY_CSTR;
 
-            /// @test spawn a fly-away heal indicator?
-            if ( do_feedback )
-            {
-                const float lifetime = 3;
-                STRING text_buffer = EMPTY_CSTR;
+            // "white" text
+            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
 
-                // "white" text
-                SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+            // heal == yellow, right ;)
+            GLXvector4f tint = { 1.00f, 1.00f, 0.75f, 1.00f };
 
-                // heal == yellow, right ;)
-                GLXvector4f tint = { 1.00f, 1.00f, 0.75f, 1.00f };
+            // write the string into the buffer
+            snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
 
-                // write the string into the buffer
-                snprintf( text_buffer, SDL_arraysize( text_buffer ), "%s", describe_value( -actual_damage, damage.base + damage.rand, NULL ) );
-
-                chr_make_text_billboard( character, text_buffer, text_color, tint, lifetime, bb_opt_all );
-            }
+            chr_make_text_billboard( character, text_buffer, text_color, tint, lifetime, bb_opt_all );
         }
     }
 
@@ -6936,8 +6953,8 @@ bool_t chr_handle_madfx( chr_t * pchr )
     {
         pchr->ai.poof_time = update_wld;
     }
-
-    if ( HAS_SOME_BITS(framefx, MADFX_FOOTFALL) )
+	
+	if ( cfg.sound_footfall && HAS_SOME_BITS(framefx, MADFX_FOOTFALL) )
     {
         cap_t * pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL != pcap )

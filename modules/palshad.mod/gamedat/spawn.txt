@@ -93,8 +93,9 @@ Chest:     NONE     43    19   35   0.0  S   0   0   0   0   0   F   F   Null
   Exorcism: NONE     47     0    0     0  I   0   0   0   0   0   F   F   Null
 Chest: NONE     43    45   35   0.0  S   2   0   0   32   8   F   F   Null    //Contains rogue armor (Level 3)
 GasChest:  NONE     42    35   47   0.0  N   0   0   0   1   0   F   F   Null
-  Poison:  NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
-  Scythe:  NONE     94     0    0     0  I   0   0   0   0   0   F   F   Null 
+  PPotion: NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
+  Scythe:  NONE     94     0    0     0  I   0   0   0   0   0   F   F   Null
+  Caltrop: NONE     37     0    0     0  I   0   0   0   0   0   F   F   Null
 GasChest:  NONE     42    37   47   0.0  N   199 0   0   0   0   F   F   Null
 GasChest:  NONE     42    39   47   0.0  N   0   0   0   1   0   F   F   Null
   KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null
@@ -106,7 +107,7 @@ Chest:     NONE     43  14.5 20.5   0.0  E   0   0   0   0   0   F   F   Null
   SPotion: NONE     58     0    0     0  I   0   0   0   0   0   F   F   Null
   MPotion: NONE     87     0    0     0  I   0   0   0   0   0   F   F   Null
   LPotion: NONE     86     0    0     0  I   0   0   0   0   0   F   F   Null
-  Poison:  NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
+  PPotion: NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
 
 Chest: NONE         43    21.5 57.5 0.0  N   0   0   0   16   0   F   F   Null
   KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null
@@ -114,8 +115,8 @@ Chest: NONE         43    21.5 57.5 0.0  N   0   0   0   16   0   F   F   Null
 
 Chest:     NONE     41    41.0 10.5 0.0  S   0   0   0   16   0   F   F   Null
   Unseen:  NONE     60     0    0     0  I   1   0   0   0   0   F   F   Null
-  Speedie: NONE     61     0    0     0  I   0   0   0   0   0   F   F   Null
-  WandM:   NONE     62     0    0     0  I   0   0   0   0   0   F   F   Null
+  SpeedXBow: NONE     61     0    0     0  I   0   0   0   0   0   F   F   Null
+  WandMissile:   NONE     62     0    0     0  I   0   0   0   0   0   F   F   Null
 
 
 

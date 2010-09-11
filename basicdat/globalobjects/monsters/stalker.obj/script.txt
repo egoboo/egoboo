@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 //Magical creature enchant (Dies if not enchanted)
 IfSpawned
+  SetTargetToSelf
   EnchantTarget  // Target is self...
 
 //------------------------------------------------------------------------------

@@ -204,6 +204,6 @@ BLERF:     NONE      85   42.2 53.6 0.0  E   19  0   0   0   0   F   F   Good
 
 FlagPost:    NONE      91    45.5 52.5 0.0  ?   0   2   0   0   0   F   F   Null
 
-Prophet:    NONE      92    37.5 44.5 0.0  W   0   0   0   0   0   F   F   Good
+Prophet:    NONE      94    37.5 44.5 0.0  W   0   0   0   0   0   F   F   Good
   QStaff:   NONE      93    0    0    0    R   0   0   0   0   0   F   F   Null
 

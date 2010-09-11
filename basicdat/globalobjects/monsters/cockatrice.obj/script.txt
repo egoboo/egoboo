@@ -9,19 +9,20 @@ IfSpawned
 //Paralysing effect
 IfScoredAHit
   SetTargetToWhoeverWasHit
-  tmpx = targetlife > 8
-  tmpy = selfstr > 8
-  tmpy = 25 + tmpy - tmpx
-  tmpx = rand % 100
-  IfXIsLessThanY
-    tmpargument = selflevel*15 + 150	//3 seconds +0.3 per level
-    SetTargetReloadTime
-    tmpargument = 2
-    SendMessageNear
-    tmpargument = 3
-    PlaySound
-  tmpargument = 80
-  SetReloadTime
+  IfTargetIsAlive
+    tmpx = targetlife > 8
+    tmpy = selfstr > 8
+    tmpy = 25 + tmpy - tmpx
+    tmpx = rand % 100
+    IfXIsLessThanY
+      tmpargument = selflevel*15 + 150	//3 seconds +0.3 per level
+      SetTargetReloadTime
+      tmpargument = 2
+      SendMessageNear
+      tmpargument = 3
+      PlaySound
+    tmpargument = 80
+    SetReloadTime
   
   //Keep distance
   tmpargument = STATESURROUND 

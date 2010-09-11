@@ -1,10 +1,17 @@
 Credits to Penguinflyer5234, Seth, Khaos89 and Octagon this release!
-Version 2.8.0b (xx.xx.2010)
+Version 2.8.0b (08.09.2010)
+- Update: There is now an option in the Audio Menu to disable the sound of all footsteps.
+- Update: Halved the mana cost for Book of Enchant and Book of Size.
+- Update: ZAP now deals double damage to character who are swimming in water.
 - Update: Reworked and optimized how the Ice Ray spell worked.
 - Update: Added new game font that was GPL compitable.
 - Update: Various modules are now slightly darker than before.
 - Update: Money is easier to pick up now.
 - Update: Kite Shields now have a small chance to be Kursed.
+- Bugfix: Numerous treasure objects were not correctly spawned in the Shadow Palace.
+- Bugfix: Fixed the Cockatrice monster from paralysing killed enemies.
+- Bugfix: Fixed crossbow being spawned instead of a Prophet NPC in Zippy Town.
+- Bugfix: Poisoned Katanas and Stilettos were sometimes flagged as worthless by shopkeepers.
 - Bugfix: When reaching the exit in the rogue starter the character kept getting infinite experience points.
 - Bugfix: Fixed certain tiles in the camera view not being rendered.
 - Bugfix: You can no longer interact with stuff that are inside other characters inventories.

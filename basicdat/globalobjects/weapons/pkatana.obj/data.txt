@@ -140,8 +140,8 @@ Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
 Skin 0 cost    : 250
 Skin 1 cost    : 250
-Skin 2 cost    : 0
-Skin 3 cost    : 0
+Skin 2 cost    : 250
+Skin 3 cost    : 250
 STR dampen     : 0.15
 
 No rider attak : FALSE

@@ -660,6 +660,8 @@ bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * w
 
 bool_t chr_can_mount( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
 
+bool_t chr_is_over_water( chr_t *pchr );
+
 Uint32 chr_get_framefx( chr_t * pchr );
 
 void      chr_set_frame( const CHR_REF by_reference character, int action, int frame, int lip );

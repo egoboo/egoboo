@@ -2489,13 +2489,8 @@ int doGameOptions( float deltaTime )
             {
                 case GAME_HARD: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Punishing" ); break;
                 case GAME_EASY: snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Forgiving" ); break;
-			default: 
-				case GAME_NORMAL:
-                    {
-                        snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Challenging" );
-                        cfg.difficulty = GAME_NORMAL;
-                        break;
-                    }
+				default: cfg.difficulty = GAME_NORMAL; /* fall through */
+				case GAME_NORMAL:  snprintf( Cdifficulty, SDL_arraysize( Cdifficulty ), "Challenging" ); break;
             }
             sz_buttons[0] = Cdifficulty;
 
@@ -2534,8 +2529,7 @@ int doGameOptions( float deltaTime )
             }
 
             // Show FPS
-            if ( cfg.fps_allowed ) sz_buttons[4] = "On";
-            else                   sz_buttons[4] = "Off";
+            sz_buttons[4] = cfg.fps_allowed ? "On" : "Off";
 
             //Billboard feedback
             if ( !cfg.feedback ) sz_buttons[5] = "Disabled";
@@ -2547,7 +2541,7 @@ int doGameOptions( float deltaTime )
 
             // Fall trough
             menuState = MM_Running;
-            break;
+            //break;
 
         case MM_Running:
             // Do normal run
@@ -2775,6 +2769,7 @@ int doAudioOptions( float deltaTime )
         "N/A",        // Sound channels
         "N/A",        // Sound buffer
         "N/A",        // Sound quality
+		"N/A",		  // Play footsteps
         "Save Settings",
         ""
     };
@@ -2824,6 +2819,8 @@ int doAudioOptions( float deltaTime )
             sz_buttons[5] = Cbuffersize;
 
             sz_buttons[6] = cfg.sound_highquality ?  "Normal" : "High";
+
+			sz_buttons[7] = cfg.sound_footfall ? "Enabled" : "Disabled";
 
             // Fall trough
             menuState = MM_Running;
@@ -2924,8 +2921,16 @@ int doAudioOptions( float deltaTime )
                 sz_buttons[6] = cfg.sound_highquality ? "Normal" : "High";
             }
 
+			//Footfall sounds
+            ui_drawTextBox( menuFont, "Footstep Sounds:", buttonLeft + 300, GFX_HEIGHT - 235, 0, 0, 20 );
+			if ( BUTTON_UP == ui_doButton( 8, sz_buttons[7], menuFont, buttonLeft + 450, GFX_HEIGHT - 235, 100, 30 ) )
+			{
+				cfg.sound_footfall = !cfg.sound_footfall;
+				sz_buttons[7] = cfg.sound_footfall ? "Enabled" : "Disabled";
+			}
+
             //Save settings
-            if ( BUTTON_UP == ui_doButton( 8, sz_buttons[7], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 9, sz_buttons[8], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // synchronoze the config values with the various game subsystems
                 setup_synch( &cfg );

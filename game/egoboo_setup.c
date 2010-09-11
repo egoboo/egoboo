@@ -122,10 +122,12 @@ void egoboo_config_init( egoboo_config_t * pcfg )
     // {SOUND}
     pcfg->sound_allowed         = bfalse;
     pcfg->music_allowed         = bfalse;
-    pcfg->music_volume          = 50;                            // The sound volume of music
-    pcfg->sound_volume          = 75;          // Volume of sounds played
-    pcfg->sound_channel_count   = 16;      // Max number of sounds playing at the same time
-    pcfg->sound_buffer_size     = 2048;
+    pcfg->music_volume          = 50;               // The sound volume of music
+    pcfg->sound_volume          = 75;				// Volume of sounds played
+    pcfg->sound_channel_count   = 16;				// Max number of sounds playing at the same time
+    pcfg->sound_buffer_size     = 2048;				// Buffer chunk size
+	pcfg->sound_highquality		= bfalse;			// High quality sounds
+	pcfg->sound_footfall			= btrue;			// Play footstep sounds
 
     // {GAME}
     pcfg->message_count_req     = 6;
@@ -338,7 +340,11 @@ bool_t setup_download( egoboo_config_t * pcfg )
     // Extra high sound quality?
     GetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
     pcfg->sound_highquality_base = pcfg->sound_highquality;
-    //*********************************************
+
+	// Extra high sound quality?
+    GetKey_bool( "ENABLE_FOOTSTEPS", pcfg->sound_footfall, cfg_default.sound_footfall );
+
+	//*********************************************
     //* CONTROL Section
     //*********************************************
 
@@ -552,6 +558,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
 
     // Extra high sound quality
     SetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality );
+
+	// Draw phong mapping?
+	SetKey_bool( "ENABLE_FOOTSTEPS", pcfg->sound_footfall );
 
     //*********************************************
     //* GAME Section

@@ -3587,8 +3587,11 @@ void game_finish_module()
     // export all the local and remote characters
     game_update_imports();
 
+	// restart the menu song
+    sound_play_song( MENU_SONG, 0, -1 );
+
     // quit the old module
-    //game_quit_module();
+    //game_quit_module();		//@note: ZF> uncommented, but might cause a texture allocation bug?
 }
 
 //--------------------------------------------------------------------------------------------

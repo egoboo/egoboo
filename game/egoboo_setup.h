@@ -80,6 +80,7 @@ struct s_egoboo_config
     Uint16                  sound_buffer_size;
     bool_t                  sound_highquality;
     bool_t                  sound_highquality_base;
+	bool_t					sound_footfall;
 
     // {NETWORK}
     bool_t                  network_allowed;            ///< Try to connect?
