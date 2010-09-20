@@ -28,9 +28,11 @@ IfAttacked
   tmpargument = rand & 1 + 8
   PlaySound
 IfKilled
-  tmpargument = TEAME
-  TargetJoinTeam
-  CallForHelp			//Warn friends
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
+    CallForHelp			//Warn friends
 IfCalledForHelp
   DisableExport
   
@@ -55,37 +57,39 @@ IfTimeOut
       ClearWaypoints
       AddWaypoint
 
-      SetTargetToNearestFriend
-      tmpx = targetdistance
-      tmpy = 128*5                    //Does he see a player?
-      IfXIsLessThanY
-        IfTargetIsAPlayer
-        
-          //Call for help if not already agreed on help or finished the quest
-          tmpargument = 1
-          IfContentIs
-            tmpargument = [COBO]
-            IfTargetHasQuest
-              DoNothing                 //We have told them before
-            Else
-              tmpargument = ACTIONMC
-              DoAction
-              tmpargument = selfcontent
-              PlaySound
-              SendMessageNear
-              tmpargument = 225
-              SetTime
+      tmpargument = [NONE]
+      tmpdistance = BLAHFRIENDS + BLAHPLAYERS
+      SetTargetToWideBlahID
+        tmpx = targetdistance
+        tmpy = 128*5                    //Does he see a player?
+        IfXIsLessThanY
+          IfTargetIsAPlayer
+          
+            //Call for help if not already agreed on help or finished the quest
+            tmpargument = 1
+            IfContentIs
+              tmpargument = [COBO]
+              IfTargetHasQuest
+                DoNothing                 //We have told them before
+              Else
+                tmpargument = ACTIONMC
+                DoAction
+                tmpargument = 11
+                PlaySound
+                SendMessageNear
+                tmpargument = 225
+                SetTime
 
-          //Look at him
-          SetTurnModeToWatchTarget
-          tmpx = targetx
-          tmpy = targety
-          ClearWaypoints
-          AddWaypoint
+            //Look at him
+            SetTurnModeToWatchTarget
+            tmpx = targetx
+            tmpy = targety
+            ClearWaypoints
+            AddWaypoint
+          Else
+            SetTurnModeToVelocity
         Else
-          SetTurnModeToVelocity
-      Else
-        SetTurnModeToVelocity     
+          SetTurnModeToVelocity     
 
   //Cooldown to start talking
   IfStateIs1
@@ -192,8 +196,15 @@ IfStateIs0
           //We have met and told them before, no need to repeat everything
           tmpargument = [COBO]
           IfTargetHasQuest
-            tmpargument = 4
+            tmpargument = 6
             SetContent
+            
+          //Small multiplayer oriented fix to allow new players to gain this quest as well
+          Else
+            tmpargument = 6
+            IfContentIs
+              tmpargument = 1
+              SetContent
             
           tmpargument = selfcontent
           PlayFullSound
@@ -205,10 +216,18 @@ IfStateIs0
             tmpargument = [COBO]
             tmpdistance = 0
             AddQuestAllPlayers
-          Else
-            //Prepeare the next thing to say
-            tmpargument = selfcontent + 1
+            tmpargument = 6       //Dont re-add the quest everytime we are bumped
             SetContent
+          Else
+            tmpargument = 6
+            IfContentIs
+              tmpargument = 4     //Simply repeat the reward sentence from now
+              SendMessageNear
+              PlaySound
+            Else
+              //Prepeare the next thing to say
+              tmpargument = selfcontent + 1
+              SetContent
             
 
 //------------------------------------------------------------------------------

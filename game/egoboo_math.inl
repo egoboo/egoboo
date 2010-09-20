@@ -72,7 +72,6 @@ INLINE bool_t fvec4_clear( fvec4_t * A );
 
 // matrix functions
 INLINE fmat_4x4_t IdentityMatrix( void );
-INLINE fmat_4x4_t ZeroMatrix( void );
 INLINE fmat_4x4_t MatrixMult( const fmat_4x4_t a, const fmat_4x4_t b );
 INLINE fmat_4x4_t Translate( const float dx, const float dy, const float dz );
 INLINE fmat_4x4_t RotateX( const float rads );
@@ -550,28 +549,9 @@ INLINE fmat_4x4_t IdentityMatrix()
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE fmat_4x4_t ZeroMatrix( void )
-{
-    // initializes matrix to zero
-
-    fmat_4x4_t ret;
-    int i, j;
-
-    for ( i = 0; i < 4; i++ )
-    {
-        for ( j = 0; j < 4; j++ )
-        {
-            ret.CNV( i, j ) = 0;
-        }
-    }
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
 INLINE fmat_4x4_t MatrixMult( const fmat_4x4_t a, const fmat_4x4_t b )
 {
-    fmat_4x4_t ret = ZeroMatrix();
+    fmat_4x4_t ret = ZERO_VECT4X4;
     int i, j, k;
 
     for ( i = 0; i < 4; i++ )
@@ -801,7 +781,7 @@ INLINE fmat_4x4_t ProjectionMatrix( const float near_plane,    // distance to ne
     float s = SIN( fov * 0.5f );
     float Q = s / ( 1.0f - near_plane / far_plane );
 
-    fmat_4x4_t ret = ZeroMatrix();
+    fmat_4x4_t ret = ZERO_VECT4X4;
 
     ret.CNV( 0, 0 ) = c;         // 0,0
     ret.CNV( 1, 1 ) = c;         // 1,1

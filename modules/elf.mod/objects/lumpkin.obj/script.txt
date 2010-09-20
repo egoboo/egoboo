@@ -6,18 +6,14 @@ IfSpawned
 //------------------------------------------------------------------------------
 //Remove alert
 IfTargetKilled
-  IfTargetIsOnHatedTeam
-    tmpargument = 0
-    tmpx = 0
-    tmpy = 0
-    SetXY
+  tmpargument = 0
+  tmpx = 0
+  tmpy = 0
+  SetXY
     
   //Dont attack dead bodies
-  IfStateIsRetreat
-    DoNothing
-  Else
-    tmpargument = STATEGUARD
-    SetState
+  tmpargument = STATEGUARD
+  SetState
 
 //------------------------------------------------------------------------------
 //Alert countdown

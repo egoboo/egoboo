@@ -1021,6 +1021,8 @@ bool_t chr_is_over_water( chr_t *pchr )
 {
     /// @details ZF@> This function returns true if the character is over a water tile
 
+	if ( !DEFINED_PCHR( pchr ) ) return bfalse;
+
 	if( !water.is_water || !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return bfalse; 
 
     return 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER );
@@ -8086,7 +8088,7 @@ const char * chr_get_dir_name( const CHR_REF by_reference ichr )
     else
     {
         pro_t * ppro = ProList.lst + pchr->profile_ref;
-
+		
         // copy the character's data.txt path
         strncpy( buffer, ppro->name, SDL_arraysize( buffer ) );
     }
@@ -9443,7 +9445,10 @@ void chr_set_light( chr_t * pchr, int light )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.light = CLIP( light, 0, 255 );
+	pchr->inst.light = CLIP( light, 0, 255 );
+	
+	//This prevents players from becoming completely invisible
+    if( VALID_PLA(pchr->is_which_player) )  pchr->inst.light = MAX( 128, pchr->inst.light );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
 }

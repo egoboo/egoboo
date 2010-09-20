@@ -6981,10 +6981,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( ichr ) ) continue;
 
-        if ( QUEST_BEATEN == quest_modify_idsz_vfs( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, 0 ) )
-        {
-            returncode = btrue;
-        }
+         returncode = QUEST_BEATEN == quest_modify_idsz_vfs( chr_get_dir_name( ichr ), ( IDSZ )pstate->argument, QUEST_BEATEN );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7007,8 +7004,8 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( VALID_PLA( pchr->is_which_player ) )
     {
-        iTmp = quest_check_vfs( chr_get_dir_name( pself->target ), pstate->argument );
-        if ( iTmp > QUEST_BEATEN )
+        iTmp = quest_check_vfs( chr_get_dir_name( pself->target ), pstate->argument, btrue );
+        if ( iTmp != QUEST_NONE )
         {
             pstate->distance = iTmp;
             returncode       = btrue;
@@ -7034,7 +7031,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( VALID_PLA( pself_target->is_which_player ) && pstate->distance != 0 )
     {
-        if ( quest_modify_idsz_vfs( chr_get_dir_name( pself->target ), pstate->argument, pstate->distance ) > QUEST_NONE ) returncode = btrue;
+        returncode = QUEST_NONE != quest_modify_idsz_vfs( chr_get_dir_name( pself->target ), pstate->argument, pstate->distance );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7045,7 +7042,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
     // AddQuestAllPlayers( tmpargument = "quest idsz" )
     /// @details ZF@> This function adds a quest idsz set in tmpargument into all local player's quest logs
-    /// The quest level Is set to tmpdistance if the level Is not already higher or QUEST_BEATEN
+    /// The quest level Is set to tmpdistance if the level Is not already higher
 
     PLA_REF ipla;
 
@@ -7061,7 +7058,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( ichr ) ) continue;
 
-        // Try to add it if not already there or beaten
+        // Try to add it if not already there
         quest_add_idsz_vfs( chr_get_dir_name( ichr ) , pstate->argument );
 
         // Not beaten yet, set level to tmpdistance

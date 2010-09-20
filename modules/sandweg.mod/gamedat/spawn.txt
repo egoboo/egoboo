@@ -24,8 +24,9 @@
 
 // Divine Shop
 #dependency SpkMace          46
-#dependency KiteShield          78
+#dependency KiteShield       78
 #dependency Ressurection     79	
+#dependency MSword           81
 #dependency Clairvoyance     85
 #dependency Confusion        88
 #dependency SyphonMana      112

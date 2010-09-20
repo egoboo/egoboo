@@ -4579,7 +4579,7 @@ bool_t mnu_test_by_index( const MOD_REF by_reference modnumber, size_t buffer_le
         // If that did not work, then check all selected players directories
         for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
         {
-            if ( pmod->base.quest_level <= quest_check_vfs( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz ) )
+            if ( pmod->base.quest_level <= quest_check_vfs( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz, bfalse ) )
             {
                 allowed = btrue;
                 break;

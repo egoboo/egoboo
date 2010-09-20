@@ -3013,7 +3013,11 @@ bool_t do_chr_prt_collision( CoNode_t * d )
         // Check reaffirmation of particles
         if ( pchr_a->reaffirmdamagetype == pprt_b->damagetype )
         {
-            retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
+			cap_t *pcap_a = chr_get_pcap( pchr_a->ai.index );
+
+			//This prevents books in shops from being burned
+			if ( pchr_a->isshopitem && pcap_a->spelleffect_type != NO_SKIN_OVERRIDE ) 
+				retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
         }
 
         // refine the logic for a particle to hit a character

@@ -99,7 +99,7 @@ BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_aabb_empty( BSP_aabb_t * psrc )
 {
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == psrc || 0 == psrc->dim ) return btrue;
 
@@ -117,7 +117,7 @@ bool_t BSP_aabb_clear( BSP_aabb_t * psrc )
 {
     /// @details BB@> Return this bounding box to an empty state.
 
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == psrc ) return bfalse;
     if ( NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary ) return bfalse;
@@ -136,7 +136,7 @@ bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
     /// @details BB@> Is psrc2 contained within psrc1? If psrc2 has less dimensions
     ///               than psrc1, just check the lowest common dimensions.
 
-    Uint32 cnt;
+    int cnt;
     int min_dim;
 
     if ( NULL == psrc1 || NULL == psrc2 ) return bfalse;
@@ -204,7 +204,7 @@ bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc )
 {
     /// @details BB@> do an automatic conversion from an oct_bb_t to a BSP_aabb_t
 
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == pdst || NULL == psrc ) return bfalse;
 
@@ -344,7 +344,7 @@ bool_t BSP_branch_destroy( BSP_branch_t ** ppbranch )
 //--------------------------------------------------------------------------------------------
 BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim )
 {
-    int cnt;
+    Uint32 cnt;
     BSP_branch_t * lst;
 
     lst = EGOBOO_NEW_ARY( BSP_branch_t, ary_size );
@@ -361,7 +361,7 @@ BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** lst )
 {
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == lst || NULL == *lst || 0 == ary_size ) return bfalse;
 
@@ -473,7 +473,7 @@ bool_t  BSP_branch_insert_branch( BSP_branch_t * B, int index, BSP_branch_t * B2
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_clear_nodes( BSP_branch_t * B, bool_t recursive )
 {
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == B ) return bfalse;
 
@@ -498,7 +498,7 @@ bool_t BSP_branch_clear_nodes( BSP_branch_t * B, bool_t recursive )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_free_nodes( BSP_branch_t * B, bool_t recursive )
 {
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == B ) return bfalse;
 
@@ -571,7 +571,7 @@ bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursive )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_add_all_nodes( BSP_branch_t * pbranch, BSP_leaf_pary_t * colst )
 {
-    int          cnt;
+    Uint32       cnt;
     size_t       colst_size;
     BSP_leaf_t * ptmp;
 
@@ -606,7 +606,7 @@ bool_t BSP_branch_add_all_nodes( BSP_branch_t * pbranch, BSP_leaf_pary_t * colst
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_empty( BSP_branch_t * pbranch )
 {
-    int    cnt;
+    Uint32 cnt;
     bool_t empty;
 
     if ( NULL == pbranch ) return bfalse;
@@ -637,7 +637,7 @@ bool_t BSP_branch_collide( BSP_branch_t * pbranch, BSP_aabb_t * paabb, BSP_leaf_
     /// @details BB@> Recursively search the BSP tree for collisions with the paabb
     //      Return bfalse if we need to break out of the recursive search for any reson.
 
-    int          cnt;
+    Uint32       cnt;
     BSP_aabb_t * pbranch_bb;
 
     // if the collision list doesn't exist, stop
@@ -720,7 +720,8 @@ bool_t BSP_tree_init_0( BSP_tree_t * t )
 //--------------------------------------------------------------------------------------------
 BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth )
 {
-    int node_count, cnt;
+    int node_count;
+	Uint32 cnt;
 
     if ( NULL == t ) return t;
 
@@ -757,7 +758,7 @@ BSP_tree_t * BSP_tree_dtor( BSP_tree_t * t )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim )
 {
-    int cnt;
+    Uint32 cnt;
 
     if ( NULL == t ) return bfalse;
 
@@ -1026,7 +1027,7 @@ bool_t   BSP_tree_prune( BSP_tree_t * t )
 //--------------------------------------------------------------------------------------------
 BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t )
 {
-    int cnt;
+    Uint32 cnt;
 
     BSP_branch_t * proot;
 
@@ -1161,8 +1162,8 @@ bool_t BSP_tree_insert_leaf_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP
     /// @details BB@> recursively insert a leaf in a tree of BSP_branch_t*. Get new branches using the
     ///              BSP_tree_get_free() function to allocate any new branches that are needed.
 
-    int    cnt, index;
-    bool_t retval, fail;
+    Uint32  cnt, index;
+    bool_t	retval, fail;
 
     BSP_branch_t * pchild;
 
@@ -1358,7 +1359,7 @@ bool_t BSP_leaf_list_insert( BSP_leaf_t ** lst, size_t * pcount, BSP_leaf_t * n 
     ///               Duplicates will cause loops in the list and make it impossible to
     ///               traverse properly.
 
-    int cnt;
+    Uint32 cnt;
     BSP_leaf_t * ptmp;
 
     if ( NULL == lst || NULL == pcount || NULL == n ) return bfalse;
@@ -1397,7 +1398,7 @@ bool_t BSP_leaf_list_clear( BSP_leaf_t ** lst, size_t * pcount )
 {
     /// @details BB@> Clear out the leaf list.
 
-    int cnt;
+    Uint32 cnt;
     BSP_leaf_t * ptmp;
 
     if ( NULL == lst || NULL == pcount ) return bfalse;
@@ -1430,7 +1431,7 @@ bool_t BSP_leaf_list_collide( BSP_leaf_t * leaf_lst, size_t leaf_count, BSP_aabb
 {
     /// @details BB@> check for collisions with the given node list
 
-    int          cnt;
+    Uint32       cnt;
     BSP_leaf_t * pleaf;
     bool_t       retval;
     size_t       colst_size;
@@ -1466,7 +1467,8 @@ bool_t BSP_leaf_list_collide( BSP_leaf_t * leaf_lst, size_t leaf_count, BSP_aabb
 //--------------------------------------------------------------------------------------------
 bool_t BSP_generate_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst )
 {
-    int cnt, tnc, child_lst;
+    int tnc, child_lst;
+	Uint32 cnt;
 
     // valid source?
     if ( NULL == psrc || psrc->dim <= 0 ) return bfalse;

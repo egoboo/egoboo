@@ -141,7 +141,6 @@ static bool_t       _vfs_mount_info_add( const char * mount_point, const char * 
 static int          _vfs_mount_info_matches( const char * mount_point, const char * local_path );
 static bool_t       _vfs_mount_info_remove( int cnt );
 static int          _vfs_mount_info_search( const char * some_path );
-static const char * _vfs_mount_info_strip_path( const char * some_path );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -541,7 +540,7 @@ const char * vfs_resolveReadFilename( const char * src_filename )
 
         if ( VALID_CSTR( retval ) )
         {
-            const char * ptmp = _vfs_mount_info_strip_path( loc_fname );
+            const char * ptmp = vfs_mount_info_strip_path( loc_fname );
 
             if ( VALID_CSTR( ptmp ) )
             {
@@ -573,7 +572,7 @@ const char * vfs_resolveReadFilename( const char * src_filename )
         }
         else
         {
-            ptmp = _vfs_mount_info_strip_path( loc_fname );
+            ptmp = vfs_mount_info_strip_path( loc_fname );
 
             snprintf( read_name_str, SDL_arraysize( read_name_str ), "%s/%s", tmp_dirname, ptmp );
             retval     = read_name_str;
@@ -2395,7 +2394,7 @@ int _vfs_mount_info_search( const char * some_path )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * _vfs_mount_info_strip_path( const char * some_path )
+const char * vfs_mount_info_strip_path( const char * some_path )
 {
     int cnt;
     size_t offset;

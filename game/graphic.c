@@ -5221,7 +5221,7 @@ float get_ambient_level()
 bool_t sum_global_lighting( lighting_vector_t lighting )
 {
     /// @details BB@> do ambient lighting. if the module is inside, the ambient lighting
-    /// is reduced by up to a facror of 8. It is still kept just high enough
+    /// is reduced by up to a factor of 8. It is still kept just high enough
     /// so that ordnary objects will not be made invisible. This was breaking some of the AIs
 
     int cnt;

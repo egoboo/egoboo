@@ -167,17 +167,12 @@ bool_t setup_read_vfs( const char* filename )
 
     if ( INVALID_CSTR( filename ) ) return bfalse;
 
-    if ( NET_SLASH_CHR != filename[0] )
-    {
-    	fs_ensureUserFile( filename, bfalse );
-		strncpy( path_str, filename, SDL_arraysize( path_str ) );
-    }
-    else
-    {
-        strncpy( path_str, filename, SDL_arraysize( path_str ) );
-    }
+    fs_ensureUserFile( filename, bfalse );	
+    snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
 
+	//Copy the new path to the global path string
     strncpy( _config_filename, path_str, SDL_arraysize( _config_filename ) );
+	
 	// do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
     // linux if the directory is read-only
     lConfigSetup = LoadConfigFile( _config_filename, bfalse );

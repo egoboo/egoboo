@@ -17,7 +17,7 @@ Tip 14: The_Enchant_spell_can_turn_Healing_or_Mana_potions_into_Super_Potions.
 Tip 15: The_magical_weapon_'Chiuaua'_allows_you_to_attack_even_when_paralysed!
 Tip 16: Strength_increases_damage_with_Melee_weapons.
 Tip 17: The_book_of_Enchant_gives_your_weapon_+4_damage_and_removes_all_kurses!
-Tip 18: Slashing_weapons_can_cut_off_a_giant_scorpoion's_claws!
+Tip 18: Slashing_weapons_can_cut_off_a_giant_scorpion's_claws!
 Tip 19: There_are_two_types_of_magic_-_Arcane_and_Divine.
 Tip 20: An_elf_in_dragon_hide_armor_can_walk_on_lava_without_damage.
 Tip 21: You_can_increase_your_spell_power_when_eating_mushrooms._But_there_are_some_side_effects_as_well...

@@ -25,9 +25,9 @@
 #include "egoboo_typedef.h"
 
 /// Quest system
-#define QUEST_BEATEN         -1
-#define QUEST_NONE           -2
+#define QUEST_NONE           -1
+#define QUEST_BEATEN         0x7FFFFFFF		//same as MAX_INT
 
 bool_t quest_add_idsz_vfs( const char *player_directory, const IDSZ idsz );
 int quest_modify_idsz_vfs( const char *player_directory, const IDSZ idsz, const int adjustment );
-int quest_check_vfs( const char *player_directory, const IDSZ idsz );
+int quest_check_vfs( const char *player_directory, const IDSZ idsz, bool_t import_chr );

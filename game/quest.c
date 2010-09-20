@@ -41,23 +41,27 @@ bool_t quest_add_idsz_vfs( const char *player_directory, const IDSZ idsz )
     STRING newloadname;
 
     // Only add quest IDSZ if it doesnt have it already
-    if ( idsz == IDSZ_NONE || quest_check_vfs( player_directory, idsz ) >= QUEST_BEATEN ) return bfalse;
+    if ( idsz == IDSZ_NONE || quest_check_vfs( player_directory, idsz, btrue ) != QUEST_NONE ) return bfalse;
+
+	// Figure out the file path
+	snprintf( newloadname, SDL_arraysize( newloadname ), "import%s/quest.txt", vfs_mount_info_strip_path( player_directory ) );
 
     // Try to open the file in read and append mode
-    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
-    filewrite = vfs_openAppend( newloadname );
+	filewrite = vfs_openAppend( newloadname );
 
     // Create the file if it does not exist
     if ( NULL == filewrite )
     {
-        filewrite = vfs_openWrite( newloadname );
+        log_debug( "Creating new quest file (%s)\n", newloadname );
+		        
+		filewrite = vfs_openWrite( newloadname );
         if ( !filewrite )
         {
             log_warning( "Cannot create quest file! (%s)\n", newloadname );
             return bfalse;
         }
 
-        vfs_printf( filewrite, "// This file keeps order of all the quests for the player (%s)\n", player_directory );
+        vfs_printf( filewrite, "// This file keeps order of all the quests for this player\n" );
         vfs_printf( filewrite, "// The number after the IDSZ shows the quest level. -1 means it is completed." );
     }
 
@@ -72,21 +76,24 @@ int quest_modify_idsz_vfs( const char *player_directory, const IDSZ idsz, const 
 {
     /// @details ZF@> This function increases or decreases a IDSZ quest level by the amount determined in
     ///     adjustment. It then returns the current quest level it now has.
-    ///     It returns QUEST_NONE if failed and if the adjustment is 0, the quest is marked as beaten...
+    ///     It returns QUEST_NONE if failed and if the adjustment is QUEST_BEATEN, the quest is permanently flagged as beaten...
 
     vfs_FILE *filewrite, *fileread;
     STRING newloadname, copybuffer;
     IDSZ newidsz;
     char ctmp;
-    int newquestlevel = QUEST_NONE, questlevel;
+	const char* path;
+    int retval = QUEST_NONE, questlevel;
 
-    // Now check each expansion until we find correct IDSZ
-    if ( quest_check_vfs( player_directory, idsz ) <= QUEST_BEATEN )  return QUEST_NONE;
+	// Cannot modify a quest if they don't have it or if it is beaten
+	retval = quest_check_vfs( player_directory, idsz, btrue );
+    if ( retval == QUEST_NONE || retval == QUEST_BEATEN )  return QUEST_NONE;
 
     // modify the CData.quest_file
     // create a "tmp_*" copy of the file
-    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
-    snprintf( copybuffer, SDL_arraysize( copybuffer ), "%s/tmp_quest.txt", player_directory );
+	path = vfs_mount_info_strip_path( player_directory );
+    snprintf( newloadname, SDL_arraysize( newloadname ), "import%s/quest.txt", path );
+    snprintf( copybuffer, SDL_arraysize( copybuffer ), "import%s/tmp_quest.txt", path );
     vfs_copyFile( newloadname, copybuffer );
 
     // open the tmp file for reading and overwrite the original file
@@ -100,6 +107,7 @@ int quest_modify_idsz_vfs( const char *player_directory, const IDSZ idsz, const 
         return QUEST_NONE;
     }
 
+    // Now check each expansion until we find correct IDSZ
     // read the tmp file line-by line
     while ( !vfs_eof( fileread ) )
     {
@@ -119,9 +127,9 @@ int quest_modify_idsz_vfs( const char *player_directory, const IDSZ idsz, const 
             // modify it
             if ( newidsz == idsz )
             {
-                if ( adjustment == 0 ) questlevel = QUEST_BEATEN;       //adjustment == 0 means we mark it as beaten
-                else questlevel = ABS( questlevel + adjustment );      // Don't get negative
-                newquestlevel = questlevel;
+				if( adjustment == QUEST_BEATEN )	questlevel = QUEST_BEATEN;							//beaten
+                else								questlevel = MAX( 0, questlevel + adjustment );		//normal adjustment
+                retval = questlevel;
             }
 
             vfs_printf( filewrite, "\n:[%s] %i", undo_idsz( newidsz ), questlevel );
@@ -133,28 +141,33 @@ int quest_modify_idsz_vfs( const char *player_directory, const IDSZ idsz, const 
     vfs_close( filewrite );
     vfs_delete_file( copybuffer );
 
-    return newquestlevel;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_check_vfs( const char *player_directory, const IDSZ idsz )
+int quest_check_vfs( const char *player_directory, const IDSZ idsz, bool_t import_chr )
 {
     /// @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
-    /// and returns the quest level of that specific quest (Or QUEST_NONE if it is not found, QUEST_BEATEN if it is finished)
+    /// and returns the quest level of that specific quest (Or QUEST_NONE if it is not found)
 
     vfs_FILE *fileread;
     STRING newloadname;
     int result = QUEST_NONE;
+	const char* prefix;
 
-    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
+	// Always return "true" for [NONE] IDSZ checks
+    if ( idsz == IDSZ_NONE ) return 0;
+
+	if( import_chr ) prefix = "import";
+	else			 prefix = "players";
+
+	// Figure out the file path
+	snprintf( newloadname, SDL_arraysize( newloadname ), "%s%s/quest.txt", prefix, vfs_mount_info_strip_path( player_directory ) );
     fileread = vfs_openRead( newloadname );
 
-    printf( "----quest_check_vfs(\"%s\",[%s]) - update == %d\n", player_directory, undo_idsz( idsz ), update_wld );
+	log_debug( "----quest_check_vfs(\"%s\",[%s]) - update == %d\n", newloadname, undo_idsz( idsz ), update_wld );
 
     if ( NULL == fileread ) return result;
-
-    // Always return "true" for [NONE] IDSZ checks
-    if ( idsz == IDSZ_NONE ) result = QUEST_BEATEN;
 
     // Check each expansion
     while ( goto_colon( NULL, fileread, btrue ) )

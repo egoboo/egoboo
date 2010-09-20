@@ -1387,7 +1387,10 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
     {
         bool_t target_friend, target_enemy;
 
-        if ( !pchr->alive || pchr->isitem || INGAME_CHR( pchr->attachedto ) ) continue;
+		if ( !pchr->alive || pchr->isitem || pchr->pack.is_packed ) continue;
+
+		// prefer targeting riders over the mount itself
+		if( pchr->ismount && ( INGAME_CHR(pchr->holdingwhich[SLOT_LEFT]) || INGAME_CHR(pchr->holdingwhich[SLOT_RIGHT]) ) ) continue;
 
         // ignore invictus
         if ( pchr->invictus ) continue;
@@ -1470,7 +1473,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
 	if( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && !check_skills( ichr_test, idsz ) ) return bfalse;
 
 	//Require player to have specific quest?
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), idsz ) ) return bfalse;
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), idsz, btrue ) ) return bfalse;
 
     is_hated = team_hates_team( psrc->team, ptst->team );
     hates_me = team_hates_team( ptst->team, psrc->team );

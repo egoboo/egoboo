@@ -184,6 +184,7 @@ typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struc
 #define ZERO_VECT2 { {0,0} }
 #define ZERO_VECT3 { {0,0,0} }
 #define ZERO_VECT4 { {0,0,0,0} }
+#define ZERO_VECT4X4 { {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} }
 
 // Macros for initializing vectors to specific values. Most C compilers will allow you to initialize
 // to non-constant values, but they do complain.
