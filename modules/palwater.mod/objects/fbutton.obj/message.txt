@@ -1,2 +1,0 @@
-Message 0: %t_pressed_the_Button.
-Message 1: The_water_has_risen!

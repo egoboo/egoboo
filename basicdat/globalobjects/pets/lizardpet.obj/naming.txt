@@ -1,7 +1,0 @@
-:Lizzy
-:Dino
-:Yoshi
-:Rex
-:Teeth
-:Saurus
-:STOP

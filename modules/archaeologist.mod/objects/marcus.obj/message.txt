@@ -1,7 +1,0 @@
-Message 0: Good_luck_%t!_Bring_me_back_the_idol!
-Message 1: This_is_perfect_for_the_Bishopia_Museum!
-Message 2: Thanks_to_you,_the_museum_of_Bishopia_can_pride_itself_of_having_
-Message 3: the_highly_treasured_Cetza_symbol!_Your_interest_now_turns_to_
-Message 4: bigger_artifacts...___-The_Sporks_of_Yore!-__
-Message 5: These_ancient_artifacts_of_power_is_somehow_connected_to_the
-Message 6: disapperance_of_the_King,_and_you_are_the_perfect_man_for_the_job!

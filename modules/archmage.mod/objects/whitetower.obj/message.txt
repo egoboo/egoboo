@@ -1,3 +1,0 @@
-Message 0: The_%c_served_as_fodder...
-Message 1: A_%c_was_put_out_of_play!
-Message 2: A_%c_was_destroyed!

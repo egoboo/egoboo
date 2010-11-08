@@ -1,3 +1,0 @@
-:'Everburn_Torch'
-:STOP
-

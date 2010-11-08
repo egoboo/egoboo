@@ -1,3 +1,0 @@
-Message 0: The_alarm_has_been_sounded!
-Message 1: PLUSS
-Message 2: MINUS

@@ -1,2 +1,0 @@
-Message 0: %t_found_%n
-Message 1: %n_was_crushed!

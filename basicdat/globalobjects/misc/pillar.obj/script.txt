@@ -1,5 +1,0 @@
-// This is the default AI script
-IfSpawned
-  JoinNullTeam
-  
-End

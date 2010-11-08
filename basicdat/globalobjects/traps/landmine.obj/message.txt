@@ -1,3 +1,0 @@
-Message 0: %t_stepped_on_a_mine!
-Message 1: %t_disarmed_a_land_mine!
-Message 2: A_mine_exploded!

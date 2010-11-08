@@ -1,2 +1,0 @@
-Message 0: %t_set_off_a_pressure_trap!
-Message 1: %t_found_a_pressure_trap!

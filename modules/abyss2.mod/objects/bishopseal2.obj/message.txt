@@ -1,1 +1,0 @@
-Message 0: %t_destroyed_a_%c!

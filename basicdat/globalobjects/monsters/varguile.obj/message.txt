@@ -1,3 +1,0 @@
-Message 0: A_%c_exploded!
-Message 1: %t_can't_move_%g_arms...
-

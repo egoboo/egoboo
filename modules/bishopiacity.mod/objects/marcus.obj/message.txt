@@ -1,5 +1,0 @@
-Message 0: Hello,_I_am_the_museum_keeper_%n.
-Message 1: We_could_really_use_more_Archaeologists_around_here...
-Message 2: I_have_an_ancient_mysterious_script_here._Want_to_have_it?
-Message 3: %n_dropped_a_scroll!
-Message 4: So_have_you_solved_the_mystery_yet?

@@ -1,5 +1,0 @@
-// Set up general stuff
-IfSpawned
-  JoinNullTeam
-  
-End

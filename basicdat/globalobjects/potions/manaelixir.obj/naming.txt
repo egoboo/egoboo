@@ -1,2 +1,0 @@
-:Elixir_of_Mana
-:STOP

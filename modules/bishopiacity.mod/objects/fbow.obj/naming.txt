@@ -1,3 +1,0 @@
-:'the_Flame_Bow'
-:STOP
-

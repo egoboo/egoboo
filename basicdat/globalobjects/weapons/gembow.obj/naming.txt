@@ -1,6 +1,0 @@
-:a_gemsto
-:STOP
-
-:ne_bow
-:STOP
-

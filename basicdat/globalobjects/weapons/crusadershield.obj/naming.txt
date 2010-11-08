@@ -1,3 +1,0 @@
-:'Crusader_Shield'
-:STOP
-
