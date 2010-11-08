@@ -71,8 +71,7 @@ struct s_mod_file
     int     numlines;                               ///< Lines in summary
     char    summary[SUMMARYLINES][SUMMARYSIZE];     ///< Quest description
 
-    IDSZ            quest_idsz;                     ///< the quest required to unlock this module
-    int             quest_level;                    ///< the quest level required to unlock this module
+    IDSZ_node_t     unlockquest;                    ///< the quest required to unlock this module
     module_filter_t moduletype;                     ///< Main quest, town, sidequest or whatever
     bool_t          beaten;                         ///< The module has been marked with teh [BEAT] eapansion
 };

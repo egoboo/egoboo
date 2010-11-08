@@ -4561,34 +4561,45 @@ int mnu_get_mod_number( const char *szModName )
 //--------------------------------------------------------------------------------------------
 bool_t mnu_test_by_index( const MOD_REF by_reference modnumber, size_t buffer_len, char * buffer )
 {
-    int            cnt;
-    mnu_module_t * pmod;
-    bool_t         allowed;
+	int            cnt;
+	mnu_module_t * pmod;
+	bool_t         allowed;
 
-    if ( INVALID_MOD( modnumber ) ) return bfalse;
-    pmod = mnu_ModList.lst + modnumber;
+	if ( INVALID_MOD( modnumber ) ) return bfalse;
+	pmod = mnu_ModList.lst + modnumber;
 
-    // First check if we are in developers mode or that the right module has been beaten before
-    allowed = bfalse;
-    if ( cfg.dev_mode || module_has_idsz_vfs( pmod->base.reference, pmod->base.quest_idsz, buffer_len, buffer ) )
-    {
-        allowed = btrue;
-    }
-    else
-    {
-        // If that did not work, then check all selected players directories
-        for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
-        {
-            if ( pmod->base.quest_level <= quest_check_vfs( loadplayer[mnu_selectedPlayer[cnt]].dir, pmod->base.quest_idsz, bfalse ) )
-            {
-                allowed = btrue;
-                break;
-            }
-        }
+	// First check if we are in developers mode or that the right module has been beaten before
+	allowed = bfalse;
+	if ( cfg.dev_mode || module_has_idsz_vfs( pmod->base.reference, pmod->base.unlockquest.id, buffer_len, buffer ) )
+	{
+		allowed = btrue;
+	}
+	else if ( pmod->base.importamount > 0 )
+	{
+		int player_count = 0;
+		int player_allowed = 0;
 
-    }
+		// If that did not work, then check all selected players directories, but only if it isn't a starter module
+		for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
+		{
+			int                quest_level = QUEST_NONE;
+			LOAD_PLAYER_INFO * ploadplayer = loadplayer + mnu_selectedPlayer[cnt];
 
-    return allowed;
+			player_count++;
+
+			quest_level = quest_get_level( ploadplayer->quest_log, SDL_arraysize( ploadplayer->quest_log ), pmod->base.unlockquest.id );
+
+			// find beaten quests or quests with proper level
+			if ( quest_level <= QUEST_BEATEN || pmod->base.unlockquest.level <= quest_level )
+			{
+				player_allowed++;
+			}
+		}
+
+		allowed = ( player_allowed == player_count );
+	}
+
+	return allowed;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5213,6 +5224,10 @@ bool_t loadplayer_import_one( const char * foundfile )
 
     snprintf( filename, SDL_arraysize( filename ), "%s/icon%d", foundfile, skin );
     pinfo->tx_ref = TxTexture_load_one_vfs( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+
+	// quest info
+	snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
+	quest_log_download_vfs( pinfo->quest_log, SDL_arraysize( pinfo->quest_log ), pinfo->dir );
 
     // load the chop data
     snprintf( filename, SDL_arraysize( filename ), "%s/naming.txt", foundfile );

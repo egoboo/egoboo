@@ -40,6 +40,7 @@
 #include "texture.h"
 #include "ui.h"
 #include "collision.h"					//Only or detach_character_from_platform()
+#include "quest.h"
 
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
@@ -2744,6 +2745,20 @@ chr_t * resize_one_character( chr_t * pchr )
     }
 
     return pchr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF by_reference character )
+{
+	/// @details ZZ@> This function makes the naming.txt file for the character
+	player_t *ppla;
+
+	if ( !INGAME_CHR( character ) ) return bfalse;
+
+	ppla = chr_get_ppla( character );
+	if ( ppla == NULL ) return bfalse;
+
+	return quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
 }
 
 //--------------------------------------------------------------------------------------------

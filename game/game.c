@@ -315,9 +315,9 @@ void export_one_character( const CHR_REF by_reference character, const CHR_REF b
         snprintf( tofile, SDL_arraysize( tofile ),   "%s/credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/quest.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s/quest.txt", todir );
-        vfs_copyFile( fromfile, tofile );
+		// Build the QUEST.TXT file
+		snprintf( tofile, SDL_arraysize( tofile ), "%s/quest.txt", todir );
+		export_one_character_quest_vfs( tofile, character );
 
         // Copy all of the particle files
         for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
@@ -1472,8 +1472,18 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
 	//Need specific skill? ([NONE] always passes)
 	if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return bfalse;
 
-	//Require player to have specific quest?
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), idsz, btrue ) ) return bfalse;
+	// Require player to have specific quest?
+	if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && VALID_PLA( ptst->is_which_player ) )
+	{
+		int quest_level = QUEST_NONE;
+		player_t * ppla = PlaStack.lst + ptst->is_which_player;
+
+		quest_level = quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
+
+		// find only active quests?
+		// this makes it backward-compatible with zefz's version
+		if ( quest_level < 0 ) return bfalse;
+	}
 
     is_hated = team_hates_team( psrc->team, ptst->team );
     hates_me = team_hates_team( ptst->team, psrc->team );
@@ -3474,37 +3484,49 @@ void attach_all_particles()
 //--------------------------------------------------------------------------------------------
 bool_t add_player( const CHR_REF by_reference character, const PLA_REF by_reference player, Uint32 device_bits )
 {
-    /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
+	/// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
-    bool_t retval = bfalse;
+	player_t * ppla = NULL;
+	chr_t    * pchr = NULL;
 
-    if ( VALID_PLA_RANGE( player ) && !PlaStack.lst[player].valid )
-    {
-        player_t * ppla = PlaStack.lst + player;
+	if ( !VALID_PLA_RANGE( player ) ) return bfalse;
+	ppla = PlaStack.lst + player;
 
-        player_init( ppla );
+	// does the player already exist?
+	if ( ppla->valid ) return bfalse;
 
-        ChrList.lst[character].is_which_player = player;
-        ppla->index           = character;
-        ppla->valid           = btrue;
-        ppla->device.bits     = device_bits;
+	// re-construct the players
+	pla_reinit( ppla );
 
-        if ( device_bits != EMPTY_BIT_FIELD )
-        {
-            local_noplayers = bfalse;
-            ChrList.lst[character].islocalplayer = btrue;
-            local_numlpla++;
+	if ( !DEFINED_CHR( character ) ) return bfalse;
+	pchr = ChrList.lst + character;
 
-            // reset the camera
-            camera_reset_target( PCamera, PMesh );
-        }
+	// set the reference to the player
+	pchr->is_which_player = player;
 
-        PlaStack.count++;
+	// download the quest info
+	quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), chr_get_dir_name( character ) );
 
-        retval = btrue;
-    }
+	//---- skeleton for using a ConfigFile to save quests
+	// ppla->quest_file = quest_file_open( chr_get_dir_name(character) );
 
-    return retval;
+	ppla->index       = character;
+	ppla->valid       = btrue;
+	ppla->device.bits = device_bits;
+
+	if ( device_bits != EMPTY_BIT_FIELD )
+	{
+		local_noplayers = bfalse;
+		pchr->islocalplayer = btrue;
+		local_numlpla++;
+
+		// reset the camera
+		camera_reset_target( PCamera, PMesh );
+	}
+
+	PlaStack.count++;
+
+	return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

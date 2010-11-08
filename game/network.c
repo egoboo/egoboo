@@ -2168,3 +2168,16 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
         pdevice->latch.y *= scale;
     }
 }
+
+//--------------------------------------------------------------------------------------------
+player_t* chr_get_ppla( const CHR_REF by_reference ichr )
+{
+	PLA_REF iplayer;
+
+	if ( !INGAME_CHR( ichr ) ) return NULL;
+	iplayer = ChrList.lst[ichr].is_which_player;
+
+	if ( !VALID_PLA( iplayer ) ) return NULL;
+
+	return PlaStack.lst + iplayer;
+}

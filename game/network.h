@@ -109,6 +109,9 @@ struct s_player
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t                 local_latch;
 
+	// quest log for this player
+	IDSZ_node_t             quest_log[MAX_IDSZ_MAP_SIZE];          ///< lists all the character's quests
+
     // Timed latches
     Uint32                  tlatch_count;
     time_latch_t            tlatch[MAXLAG];
@@ -229,3 +232,5 @@ void stop_players_from_joining();
 void net_reset_players();
 
 void tlatch_ary_init( time_latch_t ary[], size_t len );
+
+player_t*      chr_get_ppla( const CHR_REF by_reference ichr );
