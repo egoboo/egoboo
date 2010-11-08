@@ -4824,9 +4824,6 @@ bool_t do_shop_drop( const CHR_REF by_reference idropper, const CHR_REF by_refer
     chr_t * pdropper, * pitem;
     bool_t inshop;
 
-    // ?? lol what ??
-    if ( idropper == iitem ) return bfalse;
-
     if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
 
@@ -4840,9 +4837,6 @@ bool_t do_shop_drop( const CHR_REF by_reference idropper, const CHR_REF by_refer
 
         int ix = pitem->pos.x / GRID_SIZE;
         int iy = pitem->pos.y / GRID_SIZE;
-
-        // This is a hack that makes spellbooks in shops cost correctly
-        if ( pdropper->isshopitem ) pitem->isshopitem = btrue;
 
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )

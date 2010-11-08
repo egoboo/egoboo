@@ -2337,7 +2337,6 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     change_character( pself->index, ( PRO_REF )pself->content, 0, ENC_LEAVE_NONE );
 
     // set the spell effect parameters
-    pchr->money    = iskin;
     pself->content = 0;
     pself->state   = 0;
 
@@ -2357,43 +2356,33 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 {
-    // BecomeSpellbook()
-    //
-    /// @details ZZ@> This function turns a spell character into a spellbook and sets the content accordingly.
-    /// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
-    /// them too much
+    // BecomeSpell()
+    /// @details ZZ@> This function turns a spellbook character into a spell based on its
+    /// content.
+    /// TOO COMPLICATED TO EXPLAIN.  SHOULDN'T EVER BE NEEDED BY YOU.
 
-    PRO_REF  old_profile;
-    cap_t * pcap;
-    mad_t * pmad;
+    int iskin;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // convert the spell effect to a spellbook
-    old_profile = pchr->profile_ref;
-    change_character( pself->index, ( PRO_REF )SPELLBOOK, pchr->money % MAX_SKIN, ENC_LEAVE_NONE );
+    // get the spellbook's skin
+    iskin = pchr->skin;
 
-    // Reset the spellbook state so it doesn't burn up
+    // change the spellbook to a spell effect
+    change_character( pself->index, ( PRO_REF )pself->content, 0, ENC_LEAVE_NONE );
+
+    // set the spell effect parameters
+    pself->content = 0;
     pself->state   = 0;
-    pself->content = REF_TO_INT( old_profile );
-
-    // set the spellbook animations
-    pcap = pro_get_pcap( pchr->profile_ref );
-    pmad = chr_get_pmad( pself->index );
-
-    if ( NULL != pcap && NULL != pmad )
-    {
-        //Do dropped animation
-        int tmp_action = mad_get_action( pchr->inst.imad, ACTION_JB );
-
-        if ( rv_success == chr_start_anim( pchr, tmp_action, bfalse, btrue ) )
-        {
-            returncode = btrue;
-        }
-    }
 
     // have to do this every time pself->state is modified
     chr_update_hide( pchr );
+
+    // set the book icon of the spell effect if it is not already set
+    if ( NULL != chr_get_pcap( pself->index ) )
+    {
+        chr_get_pcap( pself->index )->spelleffect_type = iskin;
+    }
 
     SCRIPT_FUNCTION_END();
 }

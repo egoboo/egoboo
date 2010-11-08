@@ -3569,7 +3569,7 @@ int doVideoOptions( float deltaTime )
             }
 
             // Perspective correction, overlay, underlay and phong mapping
-            ui_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, GFX_HEIGHT - 250, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "Special Effects:", buttonLeft + 300, GFX_HEIGHT - 250, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 10, sz_buttons[but_3dfx], menuFont, buttonLeft + 450, GFX_HEIGHT - 250, 100, 30 ) )
             {
                 if ( cfg.use_phong && cfg.use_perspective && cfg.overlay_allowed && cfg.background_allowed )
