@@ -496,6 +496,9 @@ enum e_script_functions
     FDRAWBILLBOARD,						// == 384
     FSETTARGETTOFIRSTBLAHINPASSAGE,		// == 385
 
+	FIFLEVELUP,							// == 386
+	FGIVESKILLTOTARGET,					// == 387
+
     SCRIPT_FUNCTIONS_COUNT
 };
 

@@ -493,10 +493,10 @@ int menu_system_begin()
 
     autoformat_init( &gfx );
 
-    menuFont = ui_loadFont( vfs_resolveReadFilename( "mp_data/font.ttf" ), 18 );
+    menuFont = ui_loadFont( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 18 );
     if ( NULL == menuFont )
     {
-        log_error( "Could not load the menu font! (\"mp_data/font.ttf\")\n" );
+        log_error( "Could not load the menu font! (\"mp_data/Bo_Chen.ttf\")\n" );
         return 0;
     }
 

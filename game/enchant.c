@@ -340,10 +340,10 @@ bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
         {
             chr_t * ptarget = ChrList.lst + penc->target_ref;
 
-            if ( peve->seekurse && !chr_get_pcap( itarget )->canseekurse )
-            {
-                ptarget->canseekurse = bfalse;
-            }
+			if ( peve->seekurse && !chr_get_skill( ptarget, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) )
+			{
+				ptarget->see_kurse_level = bfalse;
+			}
         }
     }
 
@@ -882,8 +882,8 @@ enc_t * enc_config_do_init( enc_t * penc )
 
     // Allow them to see kurses?
     if ( peve->seekurse && NULL != ptarget )
-    {
-        ptarget->canseekurse = btrue;
+	{
+		ptarget->see_kurse_level = btrue;
     }
 
     return penc;

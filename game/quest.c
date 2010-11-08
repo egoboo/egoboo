@@ -21,8 +21,8 @@
 /// @brief Handles functions that modify quest.txt files
 /// @details
 
+#include "IDSZ_map.h"
 #include "quest.h"
-
 #include "log.h"
 
 #include "egoboo_strutil.h"

@@ -164,7 +164,7 @@ EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from 
 
 EXTERN int                       local_seeinvis_level    EQ( 0 );
 EXTERN int                       local_seedark_level     EQ( 0 );
-EXTERN bool_t                    local_seekurse          EQ( bfalse );
+EXTERN int                       local_seekurse          EQ( 0 );
 EXTERN bool_t                    local_listening         EQ( bfalse );  ///< Players with listen skill?
 EXTERN bool_t                    local_noplayers;                    ///< Are there any local players?
 

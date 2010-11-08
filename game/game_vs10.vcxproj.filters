@@ -273,6 +273,9 @@
     <ClCompile Include="EncList.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IDSZ_map.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bbox.h">
@@ -519,6 +522,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PrtList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IDSZ_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

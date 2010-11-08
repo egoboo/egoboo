@@ -150,7 +150,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     profile_system_begin();
 
     // setup the menu system's gui
-    ui_begin( vfs_resolveReadFilename( "mp_data/font.ttf" ), 24 );
+    ui_begin( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 24 );
     font_bmp_load_vfs( "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import directory

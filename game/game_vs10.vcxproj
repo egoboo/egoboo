@@ -67,6 +67,7 @@
     <ClCompile Include="graphic_mad.c" />
     <ClCompile Include="graphic_prt.c" />
     <ClCompile Include="hash.c" />
+    <ClCompile Include="IDSZ_map.c" />
     <ClCompile Include="input.c" />
     <ClCompile Include="lighting.c" />
     <ClCompile Include="link.c" />
@@ -167,6 +168,7 @@
     <ClInclude Include="graphic_mad.h" />
     <ClInclude Include="graphic_prt.h" />
     <ClInclude Include="hash.h" />
+    <ClInclude Include="IDSZ_map.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="lighting.h" />
     <ClInclude Include="link.h" />

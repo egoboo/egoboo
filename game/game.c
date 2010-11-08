@@ -712,10 +712,10 @@ int update_game()
                 local_seeinvis_level = MAX( local_seeinvis_level, pchr->see_invisible_level );
             }
 
-            if ( pchr->canseekurse )
-            {
-                local_seekurse = btrue;
-            }
+			if ( pchr->see_kurse_level > 0 )
+			{
+				local_seekurse = MAX( local_seekurse, pchr->see_kurse_level );
+			}
 
             if ( pchr->darkvision_level )
             {
@@ -1470,7 +1470,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ id
     if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
 
 	//Need specific skill? ([NONE] always passes)
-	if( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && !check_skills( ichr_test, idsz ) ) return bfalse;
+	if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return bfalse;
 
 	//Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && 0 <= quest_check_vfs( chr_get_dir_name( ichr_test ), idsz, btrue ) ) return bfalse;
@@ -2443,7 +2443,7 @@ void show_magic_status( int statindex )
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
                   pchr->see_invisible_level ? "Yes" : "No",
-                  pchr->canseekurse ? "Yes" : "No" );
+                  pchr->see_kurse_level ? "Yes" : "No" );
 
     debug_printf( "~Channel Life: %s~~Waterwalking: %s",
                   pchr->canchannel ? "Yes" : "No",

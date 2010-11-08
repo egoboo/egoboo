@@ -23,6 +23,7 @@
 /// @details routines for reading and writing the character profile file data.txt
 
 #include "egoboo_typedef.h"
+#include "IDSZ_map.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -327,26 +328,12 @@ struct s_cap
     Uint8        blud_valid;                     ///< Has blud? ( yuck )
     int          blud_pip;                       ///< What kind of blud?
 
-    // skill system
-    int       shieldproficiency;               ///< Can it use shields?
-    int       canjoust;                        ///< Can it use advanced weapons?
-    int       canuseadvancedweapons;           ///< Can it use advanced weapons?
-    int       see_invisible_level;             ///< Can it see invisible?
-    int       canseekurse;                     ///< Can it see kurses?
-    int       canusedivine;                    ///< Can it use divine (holy) magic?
-    int       canusearcane;                    ///< Can it use arcane magic? Spellbooks, scrolls, ...
-    int       canusetech;                      ///< Can it use arcane tech items? Gonne, gonnepowder, ...
-    int       candisarm;                       ///< Can it disarm traps?
-    int       canbackstab;                     ///< Can it backstab?
-    int       canusepoison;                    ///< Can it use poision?
-    int       canread;                         ///< Can it read?
-    int       hascodeofconduct;                ///< Is it bound by a lawful code of conduct?
-    int       darkvision_level;                ///< Does it have the ability to see in the dark?
-    int       block_rating;					   ///< How good is the character with a shield?
+	// skill system
+	IDSZ_node_t  skills[MAX_IDSZ_MAP_SIZE];
+	int          see_invisible_level;             ///< Can it see invisible?
 
     // random stuff
     bool_t       stickybutt;                    ///< Stick to the ground?
-
 };
 
 typedef struct s_cap cap_t;

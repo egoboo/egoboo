@@ -23,6 +23,7 @@
 /// @brief Skeleton for Egoboo networking
 
 #include "egoboo_typedef.h"
+#include "IDSZ_map.h"
 
 //--------------------------------------------------------------------------------------------
 // Network stuff

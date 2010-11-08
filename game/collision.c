@@ -2421,28 +2421,28 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 				// Now we have the block rating and know the enemy
 				if( INGAME_CHR( pprt->owner_ref )&& using_shield )
 				{
-					cap_t *pcap = chr_get_pcap( GET_REF_PCHR(pchr) );
-					cap_t *pshield = chr_get_pcap( item );
+					chr_t *pshield = ChrList.lst + item;
 					chr_t *pattacker = ChrList.lst + pprt->owner_ref;
-					int block_rating;
-					int attacker_str, defender_str;
+					int total_block_rating;
 
-					attacker_str = FP8_TO_INT( pattacker->strength ) * 4;			//-4% per attacker strength
-					defender_str = FP8_TO_INT( pchr->strength )      * 2;			//+2% per defender strength
-					block_rating = pshield->block_rating + pcap->block_rating;		//use the character block skill plus the base block rating of the shield
+					//use the character block skill plus the base block rating of the shield and adjust for strength
+					total_block_rating = chr_get_skill( pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
+					total_block_rating += chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
+					total_block_rating -= SFP8_TO_SINT( pattacker->strength ) * 4;            //-4% per attacker strength
+					total_block_rating += SFP8_TO_SINT( pchr->strength )      * 2;            //+2% per defender strength
 
 					//Now determine the result of the block
-					if( generate_randmask( 1, 100 ) - defender_str <= block_rating - attacker_str )
+					if ( generate_randmask( 1, 100 ) <= total_block_rating )
 					{
 						//Defender won, the block holds
 						//Add a small stun to the attacker for about 0.8 seconds
-						pattacker->reloadtime += 40;				
+						pattacker->reloadtime += 40;
 					}
 					else
 					{
 						//Attacker broke the block and batters away the shield
 						//Time to raise shield again (about 0.8 seconds)
-						pchr->reloadtime += 40;	
+						pchr->reloadtime += 40;
 						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
 					}
 				}
@@ -2635,7 +2635,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     // Do confuse effects
     if ( pdata->ppip->grogtime > 0 && pdata->pcap->canbegrogged )
     {
-        SET_BIT( pchr->ai.alert, ALERTIF_GROGGED );
+        SET_BIT( pchr->ai.alert, ALERTIF_CONFUSED );
         if ( pdata->ppip->grogtime > pchr->grogtime )
         {
             pchr->grogtime = MAX( 0, pchr->grogtime + pdata->ppip->grogtime );
@@ -2643,7 +2643,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
     if ( pdata->ppip->dazetime > 0 && pdata->pcap->canbedazed )
     {
-        SET_BIT( pchr->ai.alert, ALERTIF_DAZED );
+        SET_BIT( pchr->ai.alert, ALERTIF_CONFUSED );
         if ( pdata->ppip->dazetime > pchr->dazetime )
         {
             pchr->dazetime = MAX( 0, pchr->dazetime + pdata->ppip->dazetime );

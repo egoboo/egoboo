@@ -970,9 +970,13 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
     // IfTargetHasSkillID( tmpargument = "skill idsz" )
     /// @details ZZ@> This function proceeds if ID matches tmpargument
 
+	chr_t *pself_target;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( 0 != check_skills( pself->target, ( IDSZ )pstate->argument ) );
+	SCRIPT_REQUIRE_TARGET( pself_target );
+
+    returncode = ( 0 != chr_get_skill( pself_target, ( IDSZ )pstate->argument ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2572,7 +2576,7 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_GROGGED );
+    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2586,7 +2590,7 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_DAZED );
+    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6908,18 +6912,26 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
-    if ( !pchr->hascodeofconduct && HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
-    {
-        if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
-        {
-            if ( check_skills( pself->attacklast, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
-            {
-                sTmp = pself->damagetypelast;
-                if ( sTmp == DAMAGE_CRUSH || sTmp == DAMAGE_POKE || sTmp == DAMAGE_SLASH ) returncode = btrue;
-            }
-        }
-    }
+	//Now check if it really was backstabbed
+	returncode = bfalse;
+	if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
+	{
+		//Who is the dirty backstabber?
+		chr_t * pattacker = ChrList.lst + pself->attacklast;
+		if ( !ACTIVE_PCHR( pattacker ) ) return bfalse;
+
+		//Only if hit from behind
+		if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
+		{
+			//And require the backstab skill
+			if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
+			{
+				//Finally we require it to be physical damage!
+				Uint16 sTmp = sTmp = pself->damagetypelast;
+				if ( sTmp == DAMAGE_CRUSH || sTmp == DAMAGE_POKE || sTmp == DAMAGE_SLASH ) returncode = btrue;
+			}
+		}
+	}
 
     SCRIPT_FUNCTION_END();
 }
@@ -7531,7 +7543,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->canseekurse;
+    returncode = pself_target->see_kurse_level;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7779,6 +7791,37 @@ Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 
     SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself  )
+{
+	// IfLevelUp()
+	/// @details ZF@> This function proceeds if the character gained a new level this update
+	SCRIPT_FUNCTION_BEGIN();
+
+	returncode = HAS_SOME_BITS( pself->alert, ALERTIF_LEVELUP );
+
+	SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself  )
+{
+	// GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
+	/// @details ZF@> This function permanently gives the target character a skill
+	chr_t *ptarget;
+	egoboo_rv rv;
+
+	SCRIPT_FUNCTION_BEGIN();
+
+	SCRIPT_REQUIRE_TARGET( ptarget );
+
+	rv = idsz_map_add( ptarget->skills, SDL_arraysize( ptarget->skills ), pstate->argument, pstate->distance );
+
+	returncode = ( rv_success == rv );
+
+	SCRIPT_FUNCTION_END();
 }
 
 

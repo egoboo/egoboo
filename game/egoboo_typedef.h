@@ -68,6 +68,9 @@ typedef enum e_egoboo_rv egoboo_rv;
 typedef Uint32 UFP8_T;
 typedef Sint32 SFP8_T;
 
+#define UFP8_TO_UINT(V1)   ( ((unsigned)(V1)) >> 8 )                           ///< fast version of V1 / 256
+
+#define SFP8_TO_SINT(V1)   ( (V1) < 0 ? -((signed)UFP8_TO_UINT(-V1)) : (signed)UFP8_TO_UINT(V1) )
 #define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
 #define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
 #define FP8_TO_INT(V1)     ( (V1) >> 8 )                      ///< fast version of V1 / 256

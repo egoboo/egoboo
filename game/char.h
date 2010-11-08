@@ -422,21 +422,10 @@ struct s_chr
     chr_instance_t inst;                          ///< the render data
 
     // Skills
-    int           shieldproficiency;            ///< Can it use shields?
-    int           canjoust;
-    int           canuseadvancedweapons;
-    int           see_invisible_level;
-    int           canseekurse;
-    int           canusedivine;
-    int           canusearcane;
-    int           canusetech;
-    int           candisarm;
-    int           canbackstab;
-    int           canusepoison;
-    int           canread;
-    int           hascodeofconduct;
-    int           darkvision_level;
-    int           darkvision_level_base;
+	int           darkvision_level;
+	int           see_kurse_level;
+	int           see_invisible_level;
+	IDSZ_node_t      skills[MAX_IDSZ_MAP_SIZE];
 
     /// collision info
 
@@ -597,8 +586,6 @@ CAP_REF load_one_character_profile_vfs( const char *szLoadName, int slot_overrid
 
 void character_swipe( const CHR_REF by_reference cnt, slot_t slot );
 
-int check_skills( const CHR_REF by_reference who, IDSZ whichskill );
-
 bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference character, Uint16 effects );
 
 void   init_slot_idsz();
@@ -608,6 +595,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 struct s_billboard_data * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits );
 const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits );
 const char * chr_get_dir_name( const CHR_REF by_reference ichr );
+int chr_get_skill( chr_t *pchr, IDSZ whichskill );
 
 //--------------------------------------------------------------------------------------------
 // helper functions

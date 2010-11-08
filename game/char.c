@@ -2868,19 +2868,7 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     pcap->ammo    = pchr->ammo;
 
     // update any skills that have been learned
-    pcap->canjoust              = pchr->canjoust;
-    pcap->canuseadvancedweapons = pchr->canuseadvancedweapons;
-    pcap->shieldproficiency     = pchr->shieldproficiency;
-    pcap->canusedivine          = pchr->canusedivine;
-    pcap->canusearcane          = pchr->canusearcane;
-    pcap->canusetech            = pchr->canusetech;
-    pcap->candisarm             = pchr->candisarm;
-    pcap->canbackstab           = pchr->canbackstab;
-    pcap->canusepoison          = pchr->canusepoison;
-    pcap->canread               = pchr->canread;
-    pcap->canseekurse           = pchr->canseekurse;
-    pcap->hascodeofconduct      = pchr->hascodeofconduct;
-    pcap->darkvision_level      = pchr->darkvision_level;
+    idsz_map_copy( pchr->skills, SDL_arraysize( pchr->skills ), pcap->skills );
 
     // Enchant stuff
     pcap->see_invisible_level = pchr->see_invisible_level;
@@ -2940,20 +2928,9 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->see_invisible_level = pcap->see_invisible_level;
 
     // Skillz
-    pchr->canjoust = pcap->canjoust;
-    pchr->canuseadvancedweapons = pcap->canuseadvancedweapons;
-    pchr->shieldproficiency = pcap->shieldproficiency;
-    pchr->canusedivine = pcap->canusedivine;
-    pchr->canusearcane = pcap->canusearcane;
-    pchr->canusetech = pcap->canusetech;
-    pchr->candisarm = pcap->candisarm;
-    pchr->canbackstab = pcap->canbackstab;
-    pchr->canusepoison = pcap->canusepoison;
-    pchr->canread = pcap->canread;
-    pchr->canseekurse = pcap->canseekurse;
-    pchr->hascodeofconduct = pcap->hascodeofconduct;
-    pchr->darkvision_level = pcap->darkvision_level;
-    pchr->darkvision_level_base = pcap->darkvision_level;
+	idsz_map_copy( pcap->skills, SDL_arraysize( pcap->skills ), pchr->skills );
+	pchr->darkvision_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
+	pchr->see_invisible_level = pcap->see_invisible_level;
 
     // Ammo
     pchr->ammomax = pcap->ammomax;
@@ -5001,19 +4978,9 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
     pchr->light_base       = pcap_new->light;
 
     // change the skillz, too, jack!
-    pchr->canjoust              = pcap_new->canjoust;
-    pchr->canuseadvancedweapons = pcap_new->canuseadvancedweapons;
-    pchr->shieldproficiency     = pcap_new->shieldproficiency;
-    pchr->canusedivine          = pcap_new->canusedivine;
-    pchr->canusearcane          = pcap_new->canusearcane;
-    pchr->canusetech            = pcap_new->canusetech;
-    pchr->candisarm             = pcap_new->candisarm;
-    pchr->canbackstab           = pcap_new->canbackstab;
-    pchr->canusepoison          = pcap_new->canusepoison;
-    pchr->canread               = pcap_new->canread;
-    pchr->canseekurse           = pcap_new->canseekurse;
-    pchr->hascodeofconduct      = pcap_new->hascodeofconduct;
-    pchr->darkvision_level      = pcap_new->darkvision_level;
+	idsz_map_copy( pcap_new->skills, SDL_arraysize( pcap_new->skills ), pchr->skills );
+	pchr->darkvision_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
+	pchr->see_invisible_level = pcap_new->see_invisible_level;
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
     /// pchr->canusearcane          = pcap_new->canusearcane;
@@ -5274,34 +5241,52 @@ int restock_ammo( const CHR_REF by_reference character, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int check_skills( const CHR_REF by_reference who, IDSZ whichskill )
+int chr_get_skill( chr_t *pchr, IDSZ whichskill )
 {
-    // @details ZF@> This checks if the specified character has the required skill.
-    //               Also checks Skill expansions. Returns the level of the skill.
+	/// @details ZF@> This returns the skill level for the specified skill or 0 if the character doesn't
+	///                  have the skill. Also checks the skill IDSZ.
+	IDSZ_node_t *pskill;
 
-    int result = 0;
+	if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
-    //Any [NONE] IDSZ returns always "true"
-    if ( IDSZ_NONE == whichskill ) return 1;
+	//Any [NONE] IDSZ returns always "true"
+	if ( IDSZ_NONE == whichskill ) return 1;
 
-    // First check the character Skill ID matches
-    // Then check for expansion skills too.
-    if ( chr_get_idsz( who, IDSZ_SKILL )  == whichskill ) result = 1;
-    else if ( MAKE_IDSZ( 'A', 'W', 'E', 'P' ) == whichskill ) result = ChrList.lst[who].canuseadvancedweapons;
-    else if ( MAKE_IDSZ( 'C', 'K', 'U', 'R' ) == whichskill ) result = ChrList.lst[who].canseekurse;
-    else if ( MAKE_IDSZ( 'J', 'O', 'U', 'S' ) == whichskill ) result = ChrList.lst[who].canjoust;
-    else if ( MAKE_IDSZ( 'S', 'H', 'P', 'R' ) == whichskill ) result = ChrList.lst[who].shieldproficiency;
-    else if ( MAKE_IDSZ( 'T', 'E', 'C', 'H' ) == whichskill ) result = ChrList.lst[who].canusetech;
-    else if ( MAKE_IDSZ( 'W', 'M', 'A', 'G' ) == whichskill ) result = ChrList.lst[who].canusearcane;
-    else if ( MAKE_IDSZ( 'H', 'M', 'A', 'G' ) == whichskill ) result = ChrList.lst[who].canusedivine;
-    else if ( MAKE_IDSZ( 'D', 'I', 'S', 'A' ) == whichskill ) result = ChrList.lst[who].candisarm;
-    else if ( MAKE_IDSZ( 'S', 'T', 'A', 'B' ) == whichskill ) result = ChrList.lst[who].canbackstab;
-    else if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill ) result = ChrList.lst[who].canread + ( ChrList.lst[who].see_invisible_level && ChrList.lst[who].canseekurse ? 1 : 0 ); // Truesight allows reading
-    else if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill && !ChrList.lst[who].hascodeofconduct ) result = ChrList.lst[who].canusepoison;                                //Only if not restriced by code of conduct
-    else if ( MAKE_IDSZ( 'C', 'O', 'D', 'E' ) == whichskill ) result = ChrList.lst[who].hascodeofconduct;
-    else if ( MAKE_IDSZ( 'D', 'A', 'R', 'K' ) == whichskill ) result = ChrList.lst[who].darkvision_level;
+	//Do not allow poison or backstab skill if we are restricted by code of conduct
+	if ( MAKE_IDSZ( 'P', 'O', 'I', 'S' ) == whichskill || MAKE_IDSZ( 's', 'T', 'A', 'B' ) == whichskill )
+	{
+		if ( NULL != idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), MAKE_IDSZ( 'C', 'O', 'D', 'E' ) ) )
+		{
+			return 0;
+		}
+	}
 
-    return result;
+	// First check the character Skill ID matches
+	// Then check for expansion skills too.
+	if ( chr_get_idsz( pchr->ai.index, IDSZ_SKILL )  == whichskill )
+	{
+		return 1;
+	}
+
+	// Simply return the skill level if we have the skill
+	pskill = idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), whichskill );
+	if ( pskill != NULL )
+	{
+		return pskill->level;
+	}
+
+	// Truesight allows reading
+	if ( MAKE_IDSZ( 'R', 'E', 'A', 'D' ) == whichskill )
+	{
+		pskill = idsz_map_get( pchr->skills, SDL_arraysize( pchr->skills ), MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
+		if ( pskill != NULL && pchr->see_invisible_level > 0 )
+		{
+			return pchr->see_invisible_level + pskill->level;
+		}
+	}
+
+	//Skill not found
+	return 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5343,8 +5328,11 @@ bool_t update_chr_darkvision( const CHR_REF by_reference character )
 
     if ( life_regen < 0 )
     {
-        int tmp_level = ( 10 * -life_regen ) / pchr->lifemax;
-        pchr->darkvision_level = MAX( pchr->darkvision_level_base, tmp_level );
+		int tmp_level = ( 10 * -life_regen ) / pchr->lifemax;                        //Darkvision gained by poison
+		int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );    //Natural darkvision
+
+		//Use the better of the two darkvision abilities
+		pchr->darkvision_level = MAX( base_level, tmp_level );
     }
 
     return btrue;
@@ -5951,10 +5939,10 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
         // Then check if a skill is needed
         if ( pweapon_cap->needskillidtouse )
         {
-            if ( 0 == check_skills( ichr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) )
-            {
-                allowedtoattack = bfalse;
-            }
+			if ( !chr_get_skill( pchr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) )
+			{
+				allowedtoattack = bfalse;
+			}
         }
     }
 
