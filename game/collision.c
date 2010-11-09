@@ -39,7 +39,7 @@
 
 #define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
-#define CHR_MAX_COLLISIONS       512*16
+#define CHR_MAX_COLLISIONS       (MAX_CHR*8 + MAX_PRT)
 #define COLLISION_HASH_NODES     (CHR_MAX_COLLISIONS*2)
 #define COLLISION_LIST_SIZE      256
 
@@ -205,11 +205,11 @@ CoNode_t * CoNode_ctor( CoNode_t * n )
 
     // the "colliding" objects
     n->chra = ( CHR_REF )MAX_CHR;
-    n->prta = TOTAL_MAX_PRT;
+    n->prta = MAX_PRT;
 
     // the "collided with" objects
     n->chrb  = ( CHR_REF )MAX_CHR;
-    n->prtb  = TOTAL_MAX_PRT;
+    n->prtb  = MAX_PRT;
     n->tileb = FANOFF;
 
     // intialize the time
@@ -1306,17 +1306,17 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-platform or particle-platform interactions interactions
-        if ( TOTAL_MAX_PRT != d->prta && TOTAL_MAX_PRT != d->prtb ) continue;
+        if ( MAX_PRT != d->prta && MAX_PRT != d->prtb ) continue;
 
         if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
         {
             do_chr_platform_detection( d->chra, d->chrb );
         }
-        else if ( MAX_CHR != d->chra && TOTAL_MAX_PRT != d->prtb )
+        else if ( MAX_CHR != d->chra && MAX_PRT != d->prtb )
         {
             do_prt_platform_detection( d->chra, d->prtb );
         }
-        if ( TOTAL_MAX_PRT != d->prta && MAX_CHR != d->chrb )
+        if ( MAX_PRT != d->prta && MAX_CHR != d->chrb )
         {
             do_prt_platform_detection( d->chrb, d->prta );
         }
@@ -1332,7 +1332,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
-        //if ( TOTAL_MAX_PRT != d->prta && TOTAL_MAX_PRT != d->prtb ) continue;
+        //if ( MAX_PRT != d->prta && MAX_PRT != d->prtb ) continue;
 
         if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
         {
@@ -1349,7 +1349,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 				
             }
         }
-        else if ( MAX_CHR != d->chra && TOTAL_MAX_PRT != d->prtb )
+        else if ( MAX_CHR != d->chra && MAX_PRT != d->prtb )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_PRT( d->prtb ) )
             {
@@ -1359,7 +1359,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
                 }
             }
         }
-        else if ( MAX_CHR != d->chrb && TOTAL_MAX_PRT != d->prta )
+        else if ( MAX_CHR != d->chrb && MAX_PRT != d->prta )
         {
             if ( INGAME_CHR( d->chrb ) && INGAME_PRT( d->prta ) )
             {
@@ -1414,7 +1414,7 @@ bool_t bump_all_mounts( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
-        if ( TOTAL_MAX_PRT != d->prtb ) continue;
+        if ( MAX_PRT != d->prtb ) continue;
 
         do_mounts( d->chra, d->chrb );
     }
@@ -1849,7 +1849,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     oct_vec_t opos_a, opos_b, odepth;
     bool_t    collision = bfalse, bump = bfalse;
 
-    if ( NULL == d || TOTAL_MAX_PRT != d->prtb ) return bfalse;
+    if ( NULL == d || MAX_PRT != d->prtb ) return bfalse;
     ichr_a = d->chra;
     ichr_b = d->chrb;
 
@@ -2955,7 +2955,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     chr_prt_collsion_data_t cn_lst;
 
-    if ( NULL == d || TOTAL_MAX_PRT != d->prta || MAX_CHR != d->chrb ) return bfalse;
+    if ( NULL == d || MAX_PRT != d->prta || MAX_CHR != d->chrb ) return bfalse;
     ichr_a = d->chra;
     iprt_b = d->prtb;
 

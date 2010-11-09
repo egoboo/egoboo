@@ -3158,7 +3158,7 @@ int reaffirm_attached_particles( const CHR_REF by_reference character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )TOTAL_MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
+        particle = spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
         if ( ALLOCATED_PRT( particle ) )
         {
             prt_t * pprt = PrtList.lst + particle;
@@ -3385,7 +3385,7 @@ bool_t game_update_imports()
         // find the saved copy of the players that are in memory right now
         for ( tnc = 0; tnc < loadplayer_count; tnc++ )
         {
-            if ( 0 == strcmp( loadplayer[tnc].name, ChrList.lst[character].Name ) )
+            if ( 0 == strcmp( loadplayer_ary[tnc].name, ChrList.lst[character].Name ) )
             {
                 break;
             }
@@ -3407,11 +3407,11 @@ bool_t game_update_imports()
         // Copy the character to the import directory
         if ( is_local )
         {
-            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "%s", loadplayer[tnc].dir );
+            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "%s", loadplayer_ary[tnc].dir );
         }
         else
         {
-            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "mp_remote/%s", str_encode_path( loadplayer[tnc].name ) );
+            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "mp_remote/%s", str_encode_path( loadplayer_ary[tnc].name ) );
         }
 
         snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[tnc] );

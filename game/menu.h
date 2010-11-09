@@ -101,7 +101,7 @@ struct s_load_player_info
 typedef struct s_load_player_info LOAD_PLAYER_INFO;
 
 extern int              loadplayer_count;
-extern LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
+extern LOAD_PLAYER_INFO loadplayer_ary[MAXLOADPLAYER];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

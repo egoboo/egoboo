@@ -278,10 +278,10 @@ typedef struct s_chr_spawn_data chr_spawn_data_t;
 //--------------------------------------------------------------------------------------------
 
 /// The definition of the character object
-/// This "inherits" for ego_object_base_t
+/// This "inherits" for obj_data_t
 struct s_chr
 {
-    ego_object_base_t obj_base;
+    obj_data_t obj_base;
 
     chr_spawn_data_t  spawn_data;
 

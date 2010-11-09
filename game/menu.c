@@ -208,7 +208,7 @@ Font *menuFont = NULL;
 bool_t mnu_draw_background = btrue;
 
 int              loadplayer_count = 0;
-LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
+LOAD_PLAYER_INFO loadplayer_ary[MAXLOADPLAYER];
 
 //--------------------------------------------------------------------------------------------
 // "private" function prototypes
@@ -231,7 +231,7 @@ static bool_t  mnu_Selected_add( int loadplayer_idx );
 static bool_t  mnu_Selected_remove( int loadplayer_idx );
 static bool_t  mnu_Selected_add_input( int loadplayer_idx, Uint32 input_bits );
 static bool_t  mnu_Selected_remove_input( int loadplayer_idx, Uint32 input_bits );
-static int     mnu_Selected_get_loadplayer( int loadplayer_idx );
+static int     mnu_Selected_index_from_loadplayer( int loadplayer_idx );
 
 // implementation of "private" TxTitleImage functions
 static void             TxTitleImage_clear_data();
@@ -905,15 +905,18 @@ int doChooseModule( float deltaTime )
 
     static oglx_texture_t background;
     static int menuState = MM_Begin;
-    static int startIndex;
     static Uint8 keycooldown;
     static char* filterText = "All Modules";
 
-    static int numValidModules;
+    static int validModules_count;
     static MOD_REF validModules[MAX_MODULE];
 
     static int moduleMenuOffsetX;
     static int moduleMenuOffsetY;
+
+    static int startIndex = 0;
+    static int int_module = -1;
+    static int ext_module = -1;
 
     int result = 0;
     int i, x, y;
@@ -933,10 +936,13 @@ int doChooseModule( float deltaTime )
 
             // Reset which module we are selecting
             startIndex = 0;
+            ext_module = int_module = -1;
+
+            // reset the global module selection index
             selectedModule = -1;
 
             // blank out the valid modules
-            numValidModules = 0;
+            validModules_count = 0;
             for ( i = 0; i < MAX_MODULE; i++ )
             {
                 memset( validModules + i, 0, sizeof( MOD_REF ) );
@@ -965,7 +971,7 @@ int doChooseModule( float deltaTime )
             // Find the modules that we want to allow loading for.  If start_new_player
             // is true, we want ones that don't allow imports (e.g. starter modules).
             // Otherwise, we want modules that allow imports
-            numValidModules = 0;
+            validModules_count = 0;
             for ( imod = 0; imod < mnu_ModList.count; imod++ )
             {
                 // if this module is not valid given the game options and the
@@ -975,8 +981,8 @@ int doChooseModule( float deltaTime )
                 if ( start_new_player && 0 == mnu_ModList.lst[imod].base.importamount )
                 {
                     // starter module
-                    validModules[numValidModules] = REF_TO_INT( imod );
-                    numValidModules++;
+                    validModules[validModules_count] = REF_TO_INT( imod );
+                    validModules_count++;
                 }
                 else
                 {
@@ -986,15 +992,15 @@ int doChooseModule( float deltaTime )
                     if ( mnu_selectedPlayerCount > mnu_ModList.lst[imod].base.maxplayers ) continue;
 
                     // regular module
-                    validModules[numValidModules] = REF_TO_INT( imod );
-                    numValidModules++;
+                    validModules[validModules_count] = REF_TO_INT( imod );
+                    validModules_count++;
                 }
             }
 
             // sort the modules by difficulty. easiest to hardeest for starting a new character
             // hardest to easiest for loading a module
             cmp_mod_ref_mult = start_new_player ? 1 : -1;
-            qsort( validModules, numValidModules, sizeof(MOD_REF), cmp_mod_ref );
+            qsort( validModules, validModules_count, sizeof(MOD_REF), cmp_mod_ref );
 
             // load background depending on current filter
             if( start_new_player )
@@ -1013,11 +1019,11 @@ int doChooseModule( float deltaTime )
             }
 
             // set the tip text
-            if ( 0 == numValidModules )
+            if ( 0 == validModules_count )
             {
                 tipText_set_position( menuFont, "Sorry, there are no valid games!\n Please press the \"Back\" button.", 20 );
             }
-            else if ( numValidModules <= 3 )
+            else if ( validModules_count <= 3 )
             {
                 tipText_set_position( menuFont, "Press an icon to select a game.", 20 );
             }
@@ -1085,7 +1091,7 @@ int doChooseModule( float deltaTime )
                 if ( keycooldown > 0 ) keycooldown--;
 
                 // Draw the arrows to pick modules
-                if ( numValidModules > 3 )
+                if ( validModules_count > 3 )
                 {
                     if ( BUTTON_UP == ui_doButton( 1051, "<-", NULL, moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
                     {
@@ -1098,12 +1104,12 @@ int doChooseModule( float deltaTime )
                 }
 
                 // restrict the range to valid values
-                startIndex = CLIP( startIndex, 0, numValidModules - 3 );
+                startIndex = CLIP( startIndex, 0, validModules_count - 3 );
 
                 // Draw buttons for the modules that can be selected
                 x = 93;
                 y = 20;
-                for ( i = startIndex; i < MIN(startIndex + 3, numValidModules); i++ )
+                for ( i = startIndex; i < MIN(startIndex + 3, validModules_count); i++ )
                 {
                     // fix the menu images in case one or more of them are undefined
                     MOD_REF          imod       = validModules[i];
@@ -1119,7 +1125,8 @@ int doChooseModule( float deltaTime )
 
                     if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138, img_tint ) )
                     {
-                        selectedModule = i;
+                        int_module = i;
+                        ext_module = ((int_module < 0) || (int_module > validModules_count)) ? -1 : validModules[int_module];
                     }
 
 					//Draw a text over the image explaining what it means
@@ -1135,14 +1142,13 @@ int doChooseModule( float deltaTime )
                 ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
 
                 // Draw the text description of the selected module
-                if ( selectedModule > -1 && selectedModule < MAX_MODULE && validModules[selectedModule] >= 0 )
+                if ( ext_module > -1 && ext_module < mnu_ModList.count )
                 {
                     char    buffer[1024]  = EMPTY_CSTR;
                     const char * rank_string, * name_string;
                     char  * carat = buffer, * carat_end = buffer + SDL_arraysize( buffer );
-                    MOD_REF imodule = validModules[selectedModule];
 
-                    mod_file_t * pmod = &(mnu_ModList.lst[imodule].base);
+                    mod_file_t * pmod = &(mnu_ModList.lst[ext_module].base);
 
                     GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
@@ -1194,12 +1200,11 @@ int doChooseModule( float deltaTime )
                 }
 
                 // And draw the next & back buttons
-                if ( selectedModule > -1 )
+                if ( ext_module > -1 )
                 {
                     if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
                     {
                         // go to the next menu with this module selected
-                        selectedModule = REF_TO_INT( validModules[selectedModule] );
                         menuState = MM_Leaving;
                     }
                 }
@@ -1207,7 +1212,8 @@ int doChooseModule( float deltaTime )
                 if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
                 {
                     // Signal doMenu to go back to the previous menu
-                    selectedModule = -1;
+                    int_module = -1;
+                    ext_module = -1;
                     menuState = MM_Leaving;
                 }
 
@@ -1265,22 +1271,22 @@ int doChooseModule( float deltaTime )
             pickedmodule_write_path[0] = CSTR_END;
 
             menuState = MM_Begin;
-            if ( selectedModule == -1 )
+            if ( ext_module == -1 )
             {
                 result = -1;
             }
             else
             {
                 // Save the name of the module that we've picked
-                pickedmodule_index = selectedModule;
+                pickedmodule_index = ext_module;
 
                 strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
                 strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
                 strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
-                if ( !game_choose_module( selectedModule, -1 ) )
+                if ( !game_choose_module( ext_module, -1 ) )
                 {
-                    log_warning( "Tried to select an invalid module. index == %d\n", selectedModule );
+                    log_warning( "Tried to select an invalid module. index == %d\n", ext_module );
                     result = -1;
                 }
                 else
@@ -1289,6 +1295,9 @@ int doChooseModule( float deltaTime )
                     result = ( PMod->importamount > 0 ) ? 1 : 2;
                 }
             }
+
+            // post the selected module
+            selectedModule = ext_module;
 
             // reset the ui
             ui_Reset();
@@ -1333,7 +1342,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
     if ( player < 0 || player >= MAXLOADPLAYER || player >= loadplayer_count ) return bfalse;
 
     // grab the player data
-    ref_temp = load_one_character_profile_vfs( loadplayer[player].dir, 0, bfalse );
+    ref_temp = load_one_character_profile_vfs( loadplayer_ary[player].dir, 0, bfalse );
     if ( !LOADED_CAP( ref_temp ) )
     {
         return bfalse;
@@ -1351,7 +1360,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
     {
         int slot = i + 1;
 
-        snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer[player].dir, i );
+        snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer_ary[player].dir, i );
 
         // load the profile
         ref_temp = load_one_character_profile_vfs( szFilename, slot, bfalse );
@@ -1366,11 +1375,11 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
             pdata->cap_ref = ref_temp;
 
             // load the icon
-            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer[player].dir, i, MAX( 0, pcap->skin_override ) );
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ary[player].dir, i, MAX( 0, pcap->skin_override ) );
             pdata->tx_ref = TxTexture_load_one_vfs( szFilename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
 
             // load the naming
-            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/naming.txt", loadplayer[player].dir, i );
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/naming.txt", loadplayer_ary[player].dir, i );
             chop_load_vfs( &chop_mem, szFilename, &( pdata->chop ) );
         }
     }
@@ -1517,22 +1526,21 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 //--------------------------------------------------------------------------------------------
 int doChoosePlayer( float deltaTime )
 {
+    const int x0 = 20, y0 = 20, icon_size = 42, text_width = 175, button_repeat = 47;
+
     static int menuState = MM_Begin;
     static oglx_texture_t background;
-    int result = 0;
-    int i, j, x, y;
-    STRING srcDir, destDir;
     static int    startIndex = 0;
     static int    last_player = -1;
     static bool_t new_player = bfalse;
-
-    const int x0 = 20, y0 = 20, icon_size = 42, text_width = 175, button_repeat = 47;
-
     static int numVertical, numHorizontal;
     static Uint32 BitsInput[4];
     static bool_t device_on[4];
-
     static const char * button_text[] = { "N/A", "Back", ""};
+
+    int result = 0;
+    int i, j, x, y;
+    STRING srcDir, destDir;
 
     switch ( menuState )
     {
@@ -1596,11 +1604,11 @@ int doChoosePlayer( float deltaTime )
 
             if ( loadplayer_count < 10 )
             {
-                tipText_set_position( menuFont, "Choose an input device to select your player(s)", 20 );
+                tipText_set_position( menuFont, "Choose an input device to select your lplayer(s)", 20 );
             }
             else
             {
-                tipText_set_position( menuFont, "Choose an input device to select your player(s)\nUse the mouse wheel to scroll.", 20 );
+                tipText_set_position( menuFont, "Choose an input device to select your lplayer(s)\nUse the mouse wheel to scroll.", 20 );
             }
 
             menuState = MM_Entering;
@@ -1667,23 +1675,23 @@ int doChoosePlayer( float deltaTime )
                 cursor_finish_wheel_event();
             }
 
-            // Draw the player selection buttons
+            // Draw the lplayer selection buttons
             x = x0;
             y = y0;
             for ( i = 0; i < numVertical; i++ )
             {
-                int player;
+                int lplayer;
                 int splayer;
                 int m = i * 5;
 
-                player = i + startIndex;
-                if ( player >= loadplayer_count ) continue;
+                lplayer = i + startIndex;
 
-                splayer = mnu_Selected_get_loadplayer( player );
+                if ( lplayer >= loadplayer_count ) continue;
+                splayer = mnu_Selected_index_from_loadplayer( lplayer );
 
                 // do the character button
-                mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer[player].tx_ref );
-                mnu_widgetList[m].text = loadplayer[player].name;
+                mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer_ary[lplayer].tx_ref );
+                mnu_widgetList[m].text = loadplayer_ary[lplayer].name;
                 if ( INVALID_PLAYER != splayer )
                 {
                     SET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED);
@@ -1695,17 +1703,17 @@ int doChoosePlayer( float deltaTime )
 
                 if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
                 {
-                    if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !mnu_Selected_check_loadplayer( player ) )
+                    if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !mnu_Selected_check_loadplayer( lplayer ) )
                     {
                         // button has become cursor_clicked
-                        // mnu_Selected_add(player);
-                        last_player = player;
+                        // mnu_Selected_add(lplayer);
+                        last_player = lplayer;
                         new_player  = btrue;
                     }
-                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_Selected_check_loadplayer( player ) )
+                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_Selected_check_loadplayer( lplayer ) )
                     {
                         // button has become unclicked
-                        if ( mnu_Selected_remove( player ) )
+                        if ( mnu_Selected_remove( lplayer ) )
                         {
                             last_player = -1;
                         }
@@ -1755,22 +1763,22 @@ int doChoosePlayer( float deltaTime )
                             // button has become cursor_clicked
                             if ( INVALID_PLAYER == splayer )
                             {
-                                if ( mnu_Selected_add( player ) )
+                                if ( mnu_Selected_add( lplayer ) )
                                 {
-                                    last_player = player;
+                                    last_player = lplayer;
                                     new_player  = btrue;
                                 }
                             }
-                            if ( mnu_Selected_add_input( player, BitsInput[j] ) )
+                            if ( mnu_Selected_add_input( lplayer, BitsInput[j] ) )
                             {
-                                last_player = player;
+                                last_player = lplayer;
                                 new_player  = btrue;
                             }
                         }
                         else if ( INVALID_PLAYER != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become unclicked
-                            if ( mnu_Selected_remove_input( player, BitsInput[j] ) )
+                            if ( mnu_Selected_remove_input( lplayer, BitsInput[j] ) )
                             {
                                 last_player = -1;
                             }
@@ -1802,13 +1810,13 @@ int doChoosePlayer( float deltaTime )
             {
                 if ( new_player )
                 {
-                    // load and display the new player data
+                    // load and display the new lplayer data
                     new_player = bfalse;
                     doChoosePlayer_show_stats( last_player, 0, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
                 }
                 else
                 {
-                    // just display the new player data
+                    // just display the new lplayer data
                     doChoosePlayer_show_stats( last_player, 2, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
                 }
             }
@@ -1872,7 +1880,7 @@ int doChoosePlayer( float deltaTime )
                     local_import_slot[i]    = i * MAXIMPORTPERPLAYER;
 
                     // Copy the character to the import directory
-                    strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize( srcDir ) );
+                    strncpy( srcDir, loadplayer_ary[selectedPlayer].dir, SDL_arraysize( srcDir ) );
                     snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[i] );
 					if( !vfs_copyDirectory( srcDir, destDir ) )
 					{
@@ -1882,7 +1890,7 @@ int doChoosePlayer( float deltaTime )
                     // Copy all of the character's items to the import directory
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
                     {
-                        snprintf( srcDir, SDL_arraysize( srcDir ), "%s/%d.obj", loadplayer[selectedPlayer].dir, j );
+                        snprintf( srcDir, SDL_arraysize( srcDir ), "%s/%d.obj", loadplayer_ary[selectedPlayer].dir, j );
 
                         // make sure the source directory exists
                         if ( vfs_isDirectory( srcDir ) )
@@ -3642,7 +3650,7 @@ int doVideoOptions( float deltaTime )
                     cfg.particle_count_req += 128;
                 }
 
-                if ( cfg.particle_count_req > TOTAL_MAX_PRT ) cfg.particle_count_req = 256;
+                if ( cfg.particle_count_req > MAX_PRT ) cfg.particle_count_req = 256;
 
                 snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i", cfg.particle_count_req );  // Convert integer to a char we can use
                 sz_buttons[but_maxparticles] =  Cmaxparticles;
@@ -4586,7 +4594,7 @@ bool_t mnu_test_by_index( const MOD_REF by_reference modnumber, size_t buffer_le
 		for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
 		{
 			int                quest_level = QUEST_NONE;
-			LOAD_PLAYER_INFO * ploadplayer = loadplayer + mnu_selectedPlayer[cnt];
+			LOAD_PLAYER_INFO * ploadplayer = loadplayer_ary + mnu_selectedPlayer[cnt];
 
 			player_count++;
 
@@ -5024,7 +5032,7 @@ bool_t mnu_Selected_check_loadplayer( int loadplayer_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-int mnu_Selected_get_loadplayer( int loadplayer_idx )
+int mnu_Selected_index_from_loadplayer( int loadplayer_idx )
 {
     int cnt, selected_index;
 
@@ -5215,7 +5223,7 @@ bool_t loadplayer_import_one( const char * foundfile )
 
     if ( loadplayer_count >= MAXLOADPLAYER ) return bfalse;
 
-    pinfo = loadplayer + loadplayer_count;
+    pinfo = loadplayer_ary + loadplayer_count;
 
     snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
 

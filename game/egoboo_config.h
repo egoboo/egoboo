@@ -30,7 +30,7 @@
 // object pre-allocations
 #define MAX_CHR            512             ///< Maximum number of characters
 #define MAX_ENC            200             ///< Maximum number of enchantments
-#define TOTAL_MAX_PRT     2048             ///< Maximum number of particles
+#define MAX_PRT     2048             ///< Maximum number of particles
 #define TOTAL_MAX_DYNA      64             ///< Maximum number of dynamic lights
 
 #define MAX_TEXTURE        (MAX_CHR * 4)     ///< Maximum number of textures

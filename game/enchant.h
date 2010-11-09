@@ -66,10 +66,10 @@ typedef struct s_enc_spawn_data enc_spawn_data_t;
 //--------------------------------------------------------------------------------------------
 
 /// The difinition of a single Egoboo enchantment
-/// This "inherits" from ego_object_base_t
+/// This "inherits" from obj_data_t
 struct s_enc
 {
-    ego_object_base_t obj_base;
+    obj_data_t obj_base;
 
     enc_spawn_data_t  spawn_data;
 

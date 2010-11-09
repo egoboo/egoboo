@@ -207,13 +207,11 @@ bool_t EncList_free_one( const ENC_REF by_reference ienc )
 
     bool_t retval;
     enc_t * penc;
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
 
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
-    penc = EncList.lst + ienc;
-
+    penc  = EncList.lst + ienc;
     pbase = POBJ_GET_PBASE( penc );
-    if( NULL == pbase ) return bfalse;
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
     enc_log_script_time( ienc );

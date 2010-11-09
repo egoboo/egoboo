@@ -27,29 +27,23 @@
 #include "enchant.h"
 
 //--------------------------------------------------------------------------------------------
-// list definitions
+// testing macros
 //--------------------------------------------------------------------------------------------
 
-#define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
-#define ALLOCATED_ENC( IENC )   ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define ACTIVE_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define WAITING_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define TERMINATED_ENC( IENC )  ( VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define VALID_ENC_RANGE( IENC )    ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
+#define DEFINED_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define ALLOCATED_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define ACTIVE_ENC( IENC )         ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define WAITING_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define TERMINATED_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
 
-#define DEFINED_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE (POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-
-#define GET_INDEX_PENC( PENC )      ((size_t)GET_INDEX_POBJ( PENC, MAX_ENC ))
+#define GET_INDEX_PENC( PENC )      ((NULL == (PENC)) ? MAX_ENC : (size_t)GET_INDEX_POBJ( PENC, MAX_ENC ))
 #define GET_REF_PENC( PENC )        ((ENC_REF)GET_INDEX_PENC( PENC ))
+#define DEFINED_PENC( PENC )        ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PENC) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PENC) ) )
 #define VALID_ENC_PTR( PENC )       ( (NULL != (PENC)) && VALID_ENC_RANGE( GET_REF_POBJ( PENC, MAX_ENC) ) )
 #define ALLOCATED_PENC( PENC )      ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PENC) ) )
 #define ACTIVE_PENC( PENC )         ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) )
-
-#define DEFINED_PENC( IENC )     ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE(POBJ_GET_PBASE(PENC)) && !TERMINATED_PBASE (POBJ_GET_PBASE(PENC)) )
-
-// Macros automate looping through the EncList. This hides code which defers the creation and deletion of
-// objects until the loop terminates, so tha the length of the list will not change during the loop.
-#define ENC_BEGIN_LOOP_ACTIVE(IT, PENC)  {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC (IT)) continue; PENC =  EncList.lst + IT;
-#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); EncList_cleanup(); }
+#define TERMINATED_PENC( PENC )     ( VALID_ENC_PTR( PENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(PENC) ) )
 
 // Macros to determine whether the enchant is in the game or not.
 // If objects are being spawned, then any object that is just "defined" is treated as "in game"
@@ -60,6 +54,16 @@
 #define INGAME_PENC(PENC)           ( (ego_object_spawn_depth) > 0 ? DEFINED_PENC(PENC) : INGAME_PENC_BASE(PENC) )
 
 //--------------------------------------------------------------------------------------------
+// looping macros
+//--------------------------------------------------------------------------------------------
+
+// Macros automate looping through the EncList. This hides code which defers the creation and deletion of
+// objects until the loop terminates, so tha the length of the list will not change during the loop.
+#define ENC_BEGIN_LOOP_ACTIVE(IT, PENC)  {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC (IT)) continue; PENC =  EncList.lst + IT;
+#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); EncList_cleanup(); }
+
+//--------------------------------------------------------------------------------------------
+// external variables
 //--------------------------------------------------------------------------------------------
 
 DECLARE_LIST_EXTERN( enc_t, EncList, MAX_ENC );

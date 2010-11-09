@@ -2322,7 +2322,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                 for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
                 {
-                    if ( TOTAL_MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
+                    if ( MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
                     {
                         CHR_REF ichr;
                         Uint32 itile;
@@ -2487,7 +2487,7 @@ void render_scene_solid()
 
         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt )
+        if ( MAX_PRT == dolist[cnt].iprt )
         {
             GLXvector4f tint;
             chr_instance_t * pinst = chr_get_pinstance( dolist[cnt].ichr );
@@ -2531,7 +2531,7 @@ void render_scene_trans()
     // Now render all transparent and light objects
     for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
     {
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
+        if ( MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
         {
             CHR_REF  ichr = dolist[cnt].ichr;
             chr_t * pchr = ChrList.lst + ichr;
@@ -4002,7 +4002,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr )
     if ( pmesh->tmem.tile_list[itile].inrenderlist )
     {
         dolist[dolist_count].ichr = ichr;
-        dolist[dolist_count].iprt = TOTAL_MAX_PRT;
+        dolist[dolist_count].iprt = MAX_PRT;
         dolist_count++;
 
         pinst->indolist = btrue;
@@ -4012,7 +4012,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr )
         // Double check for large/special objects
 
         dolist[dolist_count].ichr = ichr;
-        dolist[dolist_count].iprt = TOTAL_MAX_PRT;
+        dolist[dolist_count].iprt = MAX_PRT;
         dolist_count++;
 
         pinst->indolist = btrue;
@@ -4065,11 +4065,11 @@ void dolist_make( ego_mpd_t * pmesh )
     // Remove everyone from the dolist
     for ( cnt = 0; cnt < dolist_count; cnt++ )
     {
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
+        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
         {
             ChrList.lst[ dolist[cnt].ichr ].inst.indolist = bfalse;
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && TOTAL_MAX_PRT != dolist[cnt].iprt )
+        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
         {
             PrtList.lst[ dolist[cnt].iprt ].inst.indolist = bfalse;
         }
@@ -4117,7 +4117,7 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
         fvec3_t   vtmp;
         float dist;
 
-        if ( TOTAL_MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
+        if ( MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;

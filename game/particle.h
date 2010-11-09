@@ -93,10 +93,10 @@ typedef struct s_prt_spawn_data prt_spawn_data_t;
 //--------------------------------------------------------------------------------------------
 
 /// The definition of the particle object
-/// This "inherits" for ego_object_base_t
+/// This "inherits" for obj_data_t
 struct s_prt
 {
-    ego_object_base_t obj_base;              ///< the "inheritance" from ego_object_base_t
+    obj_data_t obj_base;              ///< the "inheritance" from obj_data_t
 
     prt_spawn_data_t  spawn_data;
 
@@ -238,7 +238,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
                             const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
                             const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
 
-#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)TOTAL_MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
+#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
 
 int     prt_count_free();
 

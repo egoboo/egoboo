@@ -131,33 +131,40 @@ bool_t BSP_aabb_clear( BSP_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
+bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr )
 {
-    /// @details BB@> Is psrc2 contained within psrc1? If psrc2 has less dimensions
-    ///               than psrc1, just check the lowest common dimensions.
+    /// @details BB@> Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
+    ///               than lhs_ptr, just check the lowest common dimensions.
 
     int cnt;
     int min_dim;
 
-    if ( NULL == psrc1 || NULL == psrc2 ) return bfalse;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
 
-    min_dim = MIN(psrc2->dim, psrc1->dim);
+    min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
     if( min_dim <= 0 ) return bfalse;
 
     for ( cnt = 0; cnt < min_dim; cnt++ )
     {
+        if ( rhs_ptr->maxs.ary[cnt] > lhs_ptr->maxs.ary[cnt] ) 
+            return bfalse;
+
+        if ( rhs_ptr->mins.ary[cnt] < lhs_ptr->mins.ary[cnt] ) 
+            return bfalse;
+    }
+
+
+    for ( cnt = 0; cnt < lhs_ptr->dim; cnt++ )
+    {
         // inverted aabb?
-        if( psrc1->maxs.ary[cnt] < psrc1->mins.ary[cnt] )
+        if( lhs_ptr->maxs.ary[cnt] < lhs_ptr->mins.ary[cnt] )
             return bfalse;
+    }
 
+    for ( cnt = 0; cnt < rhs_ptr->dim; cnt++ )
+    {
         // inverted aabb?
-        if( psrc2->maxs.ary[cnt] < psrc2->mins.ary[cnt] )
-            return bfalse;
-
-        if ( psrc2->maxs.ary[cnt] > psrc1->maxs.ary[cnt] ) 
-            return bfalse;
-
-        if ( psrc2->mins.ary[cnt] < psrc1->mins.ary[cnt] ) 
+        if( rhs_ptr->maxs.ary[cnt] < rhs_ptr->mins.ary[cnt] )
             return bfalse;
     }
 
@@ -165,35 +172,40 @@ bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_overlap( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 )
+bool_t BSP_aabb_overlap( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr )
 {
-    /// @details BB@> Do psrc1 and psrc2 overlap? If psrc2 has less dimensions
-    ///               than psrc1, just check the lowest common dimensions.
+    /// @details BB@> Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
+    ///               than lhs_ptr, just check the lowest common dimensions.
 
     int cnt;
     int min_dim;
+    float minval, maxval;
 
-    if ( NULL == psrc1 || NULL == psrc2 ) return bfalse;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
 
-    min_dim = MIN(psrc2->dim, psrc1->dim);
+    min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
     if( min_dim <= 0 ) return bfalse;
 
     for ( cnt = 0; cnt < min_dim; cnt++ )
     {
-        float minval, maxval;
-
-        // inverted aabb?
-        if( psrc1->maxs.ary[cnt] < psrc1->mins.ary[cnt] )
-            return bfalse;
-
-        // inverted aabb?
-        if( psrc2->maxs.ary[cnt] < psrc2->mins.ary[cnt] )
-            return bfalse;
-
-        minval = MAX(psrc1->mins.ary[cnt],psrc2->mins.ary[cnt]);
-        maxval = MIN(psrc1->maxs.ary[cnt],psrc2->maxs.ary[cnt]);
+        minval = MAX(lhs_ptr->mins.ary[cnt], rhs_ptr->mins.ary[cnt]);
+        maxval = MIN(lhs_ptr->maxs.ary[cnt], rhs_ptr->maxs.ary[cnt]);
 
         if( maxval < minval ) return bfalse;
+    }
+
+    for ( cnt = 0; cnt < lhs_ptr->dim; cnt++ )
+    {
+        // inverted aabb?
+        if( lhs_ptr->maxs.ary[cnt] < lhs_ptr->mins.ary[cnt] )
+            return bfalse;
+    }
+
+    for ( cnt = 0; cnt < rhs_ptr->dim; cnt++ )
+    {
+        // inverted aabb?
+        if( rhs_ptr->maxs.ary[cnt] < rhs_ptr->mins.ary[cnt] )
+            return bfalse;
     }
 
     return btrue;

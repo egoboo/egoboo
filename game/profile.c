@@ -1373,7 +1373,7 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
 
     // unlink all used particle nodes
     BSP_prt_count = 0;
-    for ( iprt = 0; iprt < TOTAL_MAX_PRT; iprt++ )
+    for ( iprt = 0; iprt < MAX_PRT; iprt++ )
     {
         PrtList.lst[iprt].bsp_leaf.next = NULL;
     }

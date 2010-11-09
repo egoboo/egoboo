@@ -153,7 +153,7 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
         if ( !ALLOCATED_PRT( pprt->parent_ref ) )
         {
             // make sure that a non valid parent_ref is marked as non-valid
-            pprt->parent_ref = TOTAL_MAX_PRT;
+            pprt->parent_ref = MAX_PRT;
             pprt->parent_guid = 0xFFFFFFFF;
         }
         else
@@ -174,7 +174,7 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
             {
                 // the parent particle doesn't exist anymore
                 // fix the reference
-                pprt->parent_ref = TOTAL_MAX_PRT;
+                pprt->parent_ref = MAX_PRT;
                 pprt->parent_guid = 0xFFFFFFFF;
             }
         }

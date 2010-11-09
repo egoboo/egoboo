@@ -320,6 +320,9 @@
 				RelativePath=".\graphic_prt.c">
 			</File>
 			<File
+				RelativePath=".\IDSZ_map.c">
+			</File>
+			<File
 				RelativePath=".\lighting.c">
 			</File>
 			<File
@@ -419,6 +422,9 @@
 			</File>
 			<File
 				RelativePath=".\graphic_prt.h">
+			</File>
+			<File
+				RelativePath=".\IDSZ_map.h">
 			</File>
 			<File
 				RelativePath=".\lighting.h">

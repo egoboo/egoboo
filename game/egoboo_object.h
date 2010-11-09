@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------
 // some basic data that all Egoboo objects should have
 
-/// The possible states of an ego_object_base_t object. The object is essentially
+/// The possible states of an obj_data_t object. The object is essentially
 /// a state machine in the same way that the "egoboo process" is, so they use analagous
 /// states
 enum e_ego_object_state
@@ -75,15 +75,15 @@ struct s_ego_object_base
     unsigned       update_guid;   ///< a value that lets you know if an object bookmark is in synch with the object list
 };
 
-typedef struct s_ego_object_base ego_object_base_t;
+typedef struct s_ego_object_base obj_data_t;
 
-ego_object_base_t * ego_object_ctor( ego_object_base_t * pbase );
-ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
+obj_data_t * ego_object_ctor( obj_data_t * pbase );
+obj_data_t * ego_object_dtor( obj_data_t * pbase );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// Mark a ego_object_base_t object as being allocated
+/// Mark a obj_data_t object as being allocated
 #define POBJ_ALLOCATE( PDATA, INDEX ) \
     if( NULL != PDATA ) \
     { \
@@ -97,7 +97,7 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
         (PDATA)->obj_base.guid       = ego_object_guid++; \
     }
 
-/// Turn on an ego_object_base_t object
+/// Turn on an obj_data_t object
 #define POBJ_ACTIVATE( PDATA, NAME ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated && !(PDATA)->obj_base.kill_me && ego_object_invalid != (PDATA)->obj_base.state ) \
     { \
@@ -105,7 +105,7 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
         (PDATA)->obj_base.state  = ego_object_active; \
     }
 
-/// Begin turning off an ego_object_base_t object
+/// Begin turning off an obj_data_t object
 #define POBJ_REQUEST_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated && ego_object_invalid != (PDATA)->obj_base.state ) \
     { \
@@ -116,7 +116,7 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
         (PDATA)->obj_base.on = bfalse; \
     }
 
-/// Completely turn off an ego_object_base_t object and mark it as no longer allocated
+/// Completely turn off an obj_data_t object and mark it as no longer allocated
 #define POBJ_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     { \
@@ -148,17 +148,17 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
 /// Is the object flagged as requesting termination?
 #define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
 /// Is the object allocated?
-#define ALLOCATED_PBASE( PBASE )       ( (NULL != (PBASE)) && FLAG_ALLOCATED_PBASE(PBASE) )
+#define ALLOCATED_PBASE( PBASE )       FLAG_ALLOCATED_PBASE(PBASE)
 
 /// Is the object flagged as requesting termination?
-#define FLAG_ON_PBASE( PBASE )  ( ( (PBASE)->on ) && (ego_object_invalid != (PBASE)->state) )
+#define FLAG_ON_PBASE( PBASE )  ( (PBASE)->on )
 /// Is the object on?
-#define ON_PBASE( PBASE )       ( (NULL != (PBASE)) && FLAG_ON_PBASE(PBASE) )
+#define ON_PBASE( PBASE )       ( FLAG_ON_PBASE(PBASE) && (ego_object_invalid != (PBASE)->state) )
 
 /// Is the object flagged as kill_me?
-#define FLAG_REQ_TERMINATION_PBASE( PBASE ) ( ( (PBASE)->kill_me ) && (ego_object_invalid != (PBASE)->state) )
+#define FLAG_REQ_TERMINATION_PBASE( PBASE ) ( (PBASE)->kill_me )
 /// Is the object kill_me?
-#define REQ_TERMINATION_PBASE( PBASE )      ( (NULL != (PBASE)) && FLAG_REQ_TERMINATION_PBASE(PBASE) )
+#define REQ_TERMINATION_PBASE( PBASE )      ( FLAG_REQ_TERMINATION_PBASE(PBASE) && (ego_object_invalid != (PBASE)->state)  )
 
 /// Has the object been created yet?
 #define STATE_CONSTRUCTING_PBASE( PBASE ) ( ego_object_constructing == (PBASE)->state )
@@ -193,17 +193,17 @@ ego_object_base_t * ego_object_dtor( ego_object_base_t * pbase );
 /// Has the object in the terminated state?
 #define STATE_TERMINATED_PBASE( PBASE ) ( ego_object_terminated == (PBASE)->state )
 /// Has the object been marked as terminated?
-#define TERMINATED_PBASE( PBASE )       ( (NULL != (PBASE)) && STATE_TERMINATED_PBASE(PBASE) )
+#define TERMINATED_PBASE( PBASE )       STATE_TERMINATED_PBASE(PBASE)
 
-/// Grab a pointer to the ego_object_base_t of an object that "inherits" this data
-#define POBJ_GET_PBASE( POBJ )   ( (NULL == (POBJ)) ? NULL : &((POBJ)->obj_base) )
+/// Grab a pointer to the obj_data_t of an object that "inherits" this data
+#define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
 
-/// Grab the index value of object that "inherits" from ego_object_base_t
-#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? FAIL_VALUE : (POBJ)->obj_base.index )
+/// Grab the index value of object that "inherits" from obj_data_t
+#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  ( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ) ? FAIL_VALUE : (POBJ)->obj_base.index )
 #define GET_REF_POBJ( POBJ, FAIL_VALUE )    ((REF_T)GET_INDEX_POBJ( POBJ, FAIL_VALUE ))
 
-/// Grab the state of object that "inherits" from ego_object_base_t
-#define GET_STATE_POBJ( POBJ )  ( (NULL == (POBJ) || !ALLOCATED_PBASE( POBJ_GET_PBASE( (POBJ) ) ) ) ? ego_object_invalid : (POBJ)->obj_base.index )
+/// Grab the state of object that "inherits" from obj_data_t
+#define GET_STATE_POBJ( POBJ )  ( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ) ? ego_object_invalid : (POBJ)->obj_base.index )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

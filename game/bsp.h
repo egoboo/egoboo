@@ -46,8 +46,8 @@ BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb );
 
 bool_t       BSP_aabb_empty( BSP_aabb_t * psrc1 );
 bool_t       BSP_aabb_clear( BSP_aabb_t * psrc1 );
-bool_t       BSP_aabb_lhs_contains_rhs( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 );
-bool_t       BSP_aabb_overlap( BSP_aabb_t * psrc1, BSP_aabb_t * psrc2 );
+bool_t       BSP_aabb_lhs_contains_rhs( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr );
+bool_t       BSP_aabb_overlap( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr );
 
 bool_t       BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc );
 

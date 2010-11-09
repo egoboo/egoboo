@@ -371,10 +371,10 @@ void render_all_particles( camera_t * pcam )
 {
     /// @details ZZ@> This function draws the sprites for particle systems
 
-    prt_registry_entity_t reg[TOTAL_MAX_PRT];
+    prt_registry_entity_t reg[MAX_PRT];
     size_t numparticle;
 
-    numparticle = render_all_prt_begin( pcam, reg, TOTAL_MAX_PRT );
+    numparticle = render_all_prt_begin( pcam, reg, MAX_PRT );
 
     render_all_prt_solid( pcam, reg, numparticle );
     render_all_prt_trans( pcam, reg, numparticle );
@@ -554,10 +554,10 @@ void render_prt_ref( camera_t * pcam )
 {
     /// @details ZZ@> This function draws sprites reflected in the floor
 
-    prt_registry_entity_t reg[TOTAL_MAX_PRT];
+    prt_registry_entity_t reg[MAX_PRT];
     size_t numparticle;
 
-    numparticle = render_all_prt_ref_begin( pcam, reg, TOTAL_MAX_PRT );
+    numparticle = render_all_prt_ref_begin( pcam, reg, MAX_PRT );
     render_all_prt_ref( pcam, reg, numparticle );
 }
 

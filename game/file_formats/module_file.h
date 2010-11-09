@@ -73,7 +73,7 @@ struct s_mod_file
 
     IDSZ_node_t     unlockquest;                    ///< the quest required to unlock this module
     module_filter_t moduletype;                     ///< Main quest, town, sidequest or whatever
-    bool_t          beaten;                         ///< The module has been marked with teh [BEAT] eapansion
+    bool_t          beaten;                         ///< The module has been marked with the [BEAT] eapansion
 };
 typedef struct s_mod_file mod_file_t;
 

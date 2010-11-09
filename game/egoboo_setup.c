@@ -410,7 +410,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     wraptolerance = pcfg->StatusList_on ? 90 : 32;
 
     // Get the particle limit
-    maxparticles = CLIP( pcfg->particle_count_req, 0, TOTAL_MAX_PRT );
+    maxparticles = CLIP( pcfg->particle_count_req, 0, MAX_PRT );
 
     // sound options
     snd_config_synch( &snd, pcfg );

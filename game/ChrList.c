@@ -206,13 +206,11 @@ bool_t ChrList_free_one( const CHR_REF by_reference ichr )
 
     bool_t retval;
     chr_t * pchr;
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
 
     if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
-
     pbase = POBJ_GET_PBASE( pchr );
-    if( NULL == pbase ) return bfalse;
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
     chr_log_script_time( ichr );

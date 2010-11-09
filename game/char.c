@@ -168,8 +168,8 @@ chr_t * chr_ctor( chr_t * pchr )
     ///     statements are redundant
 
     int cnt;
-    ego_object_base_t save_base;
-    ego_object_base_t * pbase;
+    obj_data_t save_base;
+    obj_data_t * pbase;
 
     if( NULL == pchr ) return pchr;
 
@@ -180,7 +180,7 @@ chr_t * chr_ctor( chr_t * pchr )
     //---- construct the character object
 
     // save the base object data
-    memcpy( &save_base, pbase, sizeof( ego_object_base_t ) );
+    memcpy( &save_base, pbase, sizeof( obj_data_t ) );
 
     if ( ALLOCATED_PCHR( pchr ) )
     {
@@ -194,7 +194,7 @@ chr_t * chr_ctor( chr_t * pchr )
     memset( pchr, 0, sizeof( *pchr ) );
 
     // restore the base object data
-    memcpy( pbase, &save_base, sizeof( ego_object_base_t ) );
+    memcpy( pbase, &save_base, sizeof( obj_data_t ) );
 
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD;
@@ -2409,7 +2409,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
                 if ( ALLOCATED_PRT( iparticle ) )
                 {
@@ -3596,7 +3596,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
                     if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && damagetype < DAMAGE_HOLY ) )
                     {
                         spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_pip,
-                            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )TOTAL_MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
                     }
                 }
 
@@ -3763,7 +3763,7 @@ void spawn_poof( const CHR_REF by_reference character, const PRO_REF by_referenc
     for ( cnt = 0; cnt < pcap->gopoofprt_amount; cnt++ )
     {
         spawn_one_particle( pchr->pos_old, facing_z, profile, pcap->gopoofprt_pip,
-            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, origin, ( PRT_REF )TOTAL_MAX_PRT, cnt, ( CHR_REF )MAX_CHR );
+            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, origin, ( PRT_REF )MAX_PRT, cnt, ( CHR_REF )MAX_CHR );
 
         facing_z += pcap->gopoofprt_facingadd;
     }
@@ -3974,7 +3974,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
         spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip,
-            ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )TOTAL_MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
+            ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
     }
 
     // is the object part of a shop's inventory?
@@ -4177,11 +4177,13 @@ chr_t * chr_config_do_active( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * pbase;
+
+    if ( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
     if ( pbase->state > ( int )( ego_object_constructing + 1 ) )
@@ -4204,11 +4206,13 @@ chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * pbase;
+
+    if( NULL == pchr )  return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
     if ( pbase->state > ( int )( ego_object_initializing + 1 ) )
@@ -4231,11 +4235,13 @@ chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * pbase;
+
+    if( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
     if ( pbase->state > ( int )( ego_object_active + 1 ) )
@@ -4264,11 +4270,13 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * pbase;
+
+    if( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deinitialize it
     if ( pbase->state > ( int )( ego_object_deinitializing + 1 ) )
@@ -4294,11 +4302,13 @@ chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * pbase;
+
+    if( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, do nothing
     if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
@@ -4326,10 +4336,12 @@ chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_run_config( chr_t * pchr )
 {
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
+
+    if( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if ( !pbase->allocated ) return NULL;
 
     // set the object to deinitialize if it is not "dangerous" and if was requested
     if ( pbase->kill_me )
@@ -4394,11 +4406,11 @@ chr_t * chr_config_ctor( chr_t * pchr )
     ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
     ///     statements are redundant
 
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
 
     // grab the base object
+    if( NULL == pchr ) return NULL;
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase ) return NULL;
 
     // if we aren't in the correct state, abort.
     if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return pchr;
@@ -4415,10 +4427,10 @@ chr_t * chr_config_ctor( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_init( chr_t * pchr )
 {
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
 
+    if( NULL == pchr ) return NULL;
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase ) return NULL;
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pchr;
 
@@ -4446,11 +4458,13 @@ chr_t * chr_config_active( chr_t * pchr )
 {
     // there's nothing to configure if the object is active...
 
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
+
+    if( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
 
+    if ( !pbase->allocated ) return NULL;
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return pchr;
 
     POBJ_END_SPAWN( pchr );
@@ -4465,11 +4479,11 @@ chr_t * chr_config_deinit( chr_t * pchr )
 {
     /// @details BB@> deinitialize the character data
 
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
+
+    if( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase ) return NULL;
-
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pchr;
 
     POBJ_END_SPAWN( pchr );
@@ -4485,11 +4499,11 @@ chr_t * chr_config_dtor( chr_t * pchr )
 {
     /// @details BB@> deinitialize the character data
 
-    ego_object_base_t * pbase;
+    obj_data_t * pbase;
+
+    if( NULL == pchr ) return NULL;
 
     pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase ) return NULL;
-
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pchr;
 
     POBJ_END_SPAWN( pchr );
@@ -4758,7 +4772,7 @@ int change_armor( const CHR_REF by_reference character, int skin )
         pchr->damagemodifier[iTmp] = pcap->damagemodifier[iTmp][skin];
     }
 
-    // set teh character's maximum acceleration
+    // set the character's maximum acceleration
     chr_set_maxaccel( pchr, pcap->maxaccel[skin] );
 
     // cleanup the enchant list
@@ -7528,7 +7542,7 @@ void bump_all_characters_update_counters()
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        ego_object_base_t * pbase;
+        obj_data_t * pbase;
 
         pbase = POBJ_GET_PBASE( ChrList.lst + cnt );
         if ( !ACTIVE_PBASE( pbase ) ) continue;
@@ -7568,7 +7582,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
     {
         //I Frame
         direction -= pcap->iframefacing;
-        left       = ( FACING_T )(( int )0x00010000 - ( int )pcap->iframeangle );
+        left       = ( FACING_T )(( int )0x00010000L - ( int )pcap->iframeangle );
         right      = pcap->iframeangle;
 
         // If using shield, use the shield invictus instead
@@ -7583,7 +7597,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
                 cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_LEFT] );
                 if ( NULL != pcap )
                 {
-                    left  = ( FACING_T )(( int )0x00010000 - ( int )pcap_tmp->iframeangle );
+                    left  = ( FACING_T )(( int )0x00010000L - ( int )pcap_tmp->iframeangle );
                     right = pcap_tmp->iframeangle;
                 }
             }
@@ -7593,7 +7607,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
                 cap_t * pcap_tmp = chr_get_pcap( pchr->holdingwhich[SLOT_RIGHT] );
                 if ( NULL != pcap )
                 {
-                    left  = ( FACING_T )(( int )0x00010000 - ( int )pcap_tmp->iframeangle );
+                    left  = ( FACING_T )(( int )0x00010000L - ( int )pcap_tmp->iframeangle );
                     right = pcap_tmp->iframeangle;
                 }
             }
@@ -7603,7 +7617,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference cha
     {
         // N Frame
         direction -= pcap->nframefacing;
-        left       = ( FACING_T )(( int )0x00010000 - ( int )pcap->nframeangle );
+        left       = ( FACING_T )(( int )0x00010000L - ( int )pcap->nframeangle );
         right      = pcap->nframeangle;
     }
 
@@ -9799,7 +9813,7 @@ egoboo_rv chr_invalidate_child_instances( chr_t * pchr )
     // invalidate vlst_cache of everything in this character's holdingwhich array
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        CHR_REF iitem = pchr->holdingwhich[SLOT_LEFT];
+        CHR_REF iitem = pchr->holdingwhich[cnt];
         if ( !INGAME_CHR( iitem ) ) continue;
 
         // invalidate the matrix_cache

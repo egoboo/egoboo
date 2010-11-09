@@ -104,13 +104,13 @@ prt_t * prt_ctor( prt_t * pprt )
     /// BB@> Set all particle parameters to safe values.
     ///      @details The c equivalent of the particle prt::new() function.
 
-    ego_object_base_t save_base;
-    ego_object_base_t * base_ptr;
+    obj_data_t save_base;
+    obj_data_t * base_ptr;
 
     // save the base object data, do not construct it with this function.
+    if( NULL == pprt ) return NULL;
     base_ptr = POBJ_GET_PBASE( pprt );
-    if( NULL == base_ptr ) return NULL;
-
+    
     memcpy( &save_base, base_ptr, sizeof( save_base ) );
 
     memset( pprt, 0, sizeof( *pprt ) );
@@ -129,7 +129,7 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
     pprt->owner_ref      = ( CHR_REF )MAX_CHR;
     pprt->target_ref     = ( CHR_REF )MAX_CHR;
-    pprt->parent_ref     = TOTAL_MAX_PRT;
+    pprt->parent_ref     = MAX_PRT;
     pprt->parent_guid    = 0xFFFFFFFF;
 
     pprt->onwhichplatform_ref    = ( CHR_REF )MAX_CHR;
@@ -580,21 +580,23 @@ prt_t * prt_config_do_deinit( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_construct( prt_t * pprt, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if( NULL == pprt ) return NULL;
+
+    base_ptr = POBJ_GET_PBASE( pprt );
+    if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( ego_object_constructing + 1 ) )
+    if ( base_ptr->state > ( int )( ego_object_constructing + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
         if ( tmp_prt == pprt ) return NULL;
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    while ( NULL != pprt && base_ptr->state <= ego_object_constructing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -607,21 +609,23 @@ prt_t * prt_config_construct( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_initialize( prt_t * pprt, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if( NULL == pprt ) return NULL;
+
+    base_ptr = POBJ_GET_PBASE( pprt );
+    if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( ego_object_initializing + 1 ) )
+    if ( base_ptr->state > ( int )( ego_object_initializing + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
         if ( tmp_prt == pprt ) return NULL;
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    while ( NULL != pprt && base_ptr->state <= ego_object_initializing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -634,29 +638,31 @@ prt_t * prt_config_initialize( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if( NULL == pprt ) return NULL;
+
+    base_ptr = POBJ_GET_PBASE( pprt );
+    if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( ego_object_active + 1 ) )
+    if ( base_ptr->state > ( int )( ego_object_active + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
         if ( tmp_prt == pprt ) return NULL;
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state < ego_object_active && iterations < max_iterations )
+    while ( NULL != pprt && base_ptr->state < ego_object_active && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
-    EGOBOO_ASSERT( pbase->state == ego_object_active );
-    if( pbase->state == ego_object_active )
+    EGOBOO_ASSERT( base_ptr->state == ego_object_active );
+    if( base_ptr->state == ego_object_active )
     {
         PrtList_add_used( GET_INDEX_PPRT( pprt ) );
     }
@@ -667,24 +673,26 @@ prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if( NULL == pprt ) return NULL;
+    base_ptr = POBJ_GET_PBASE( pprt );
+
+    if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deinitialize it
-    if ( pbase->state > ( int )( ego_object_deinitializing + 1 ) )
+    if ( base_ptr->state > ( int )( ego_object_deinitializing + 1 ) )
     {
         return pprt;
     }
-    else if ( pbase->state < ego_object_deinitializing )
+    else if ( base_ptr->state < ego_object_deinitializing )
     {
-        pbase->state = ego_object_deinitializing;
+        base_ptr->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    while ( NULL != pprt && base_ptr->state <= ego_object_deinitializing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -697,25 +705,27 @@ prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations )
 {
-    int                 iterations;
-    ego_object_base_t * pbase;
+    int          iterations;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if( NULL == pprt ) return NULL;
+    base_ptr = POBJ_GET_PBASE( pprt );
+
+    if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it
-    if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
+    if ( base_ptr->state > ( int )( ego_object_destructing + 1 ) )
     {
         return pprt;
     }
-    else if ( pbase->state < ego_object_destructing )
+    else if ( base_ptr->state < ego_object_destructing )
     {
         // make sure that you deinitialize before destructing
-        pbase->state = ego_object_deinitializing;
+        base_ptr->state = ego_object_deinitializing;
     }
 
     iterations = 0;
-    while ( NULL != pprt && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    while ( NULL != pprt && base_ptr->state <= ego_object_destructing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -729,26 +739,28 @@ prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_run_config( prt_t * pprt )
 {
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if( NULL == pprt ) return NULL;
+    base_ptr = POBJ_GET_PBASE( pprt );
+
+    if ( !base_ptr->allocated ) return NULL;
 
     // set the object to deinitialize if it is not "dangerous" and if was requested
-    if ( pbase->kill_me )
+    if ( base_ptr->kill_me )
     {
-        if( !TERMINATED_PBASE(pbase) )
+        if( !TERMINATED_PBASE(base_ptr) )
         {
-            if( pbase->state < ego_object_deinitializing )
+            if( base_ptr->state < ego_object_deinitializing )
             {
-                pbase->state = ego_object_deinitializing;
+                base_ptr->state = ego_object_deinitializing;
             }
         }
 
-        pbase->kill_me = bfalse;
+        base_ptr->kill_me = bfalse;
     }
 
-    switch ( pbase->state )
+    switch ( base_ptr->state )
     {
         default:
         case ego_object_invalid:
@@ -783,11 +795,11 @@ prt_t * prt_run_config( prt_t * pprt )
 
     if( NULL == pprt )
     {
-        pbase->update_guid = INVALID_UPDATE_GUID;
+        base_ptr->update_guid = INVALID_UPDATE_GUID;
     }
-    else if( ego_object_active == pbase->state )
+    else if( ego_object_active == base_ptr->state )
     {
-        pbase->update_guid = PrtList.update_guid;
+        base_ptr->update_guid = PrtList.update_guid;
     }
 
     return pprt;
@@ -796,14 +808,14 @@ prt_t * prt_run_config( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_ctor( prt_t * pprt )
 {
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
 
     // grab the base object
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase ) return NULL;
+    if( NULL == pprt ) return NULL;
+    base_ptr = POBJ_GET_PBASE( pprt );
 
     // if we aren't in the correct state, abort.
-    if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return pprt;
+    if ( !STATE_CONSTRUCTING_PBASE( base_ptr ) ) return pprt;
 
     return prt_ctor( pprt );
 }
@@ -811,12 +823,12 @@ prt_t * prt_config_ctor( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_init( prt_t * pprt )
 {
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase ) return NULL;
+    if( NULL == pprt ) return NULL;
 
-    if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pprt;
+    base_ptr = POBJ_GET_PBASE( pprt );
+    if ( !STATE_INITIALIZING_PBASE( base_ptr ) ) return pprt;
 
     POBJ_BEGIN_SPAWN( pprt );
 
@@ -832,7 +844,7 @@ prt_t * prt_config_init( prt_t * pprt )
         PrtList_add_activation( GET_INDEX_PPRT( pprt ) );
     }
 
-    pbase->state = ego_object_active;
+    base_ptr->state = ego_object_active;
 
     return pprt;
 }
@@ -842,12 +854,14 @@ prt_t * prt_config_active( prt_t * pprt )
 {
     // there's nothing to configure if the object is active...
 
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase || !pbase->allocated ) return NULL;
+    if( NULL == pprt ) return NULL;
 
-    if ( !STATE_ACTIVE_PBASE( pbase ) ) return pprt;
+    base_ptr = POBJ_GET_PBASE( pprt );
+    if ( !base_ptr->allocated ) return NULL;
+
+    if ( !STATE_ACTIVE_PBASE( base_ptr ) ) return pprt;
 
     POBJ_END_SPAWN( pprt );
 
@@ -861,12 +875,12 @@ prt_t * prt_config_deinit( prt_t * pprt )
 {
     /// @details BB@> deinitialize the character data
 
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase ) return NULL;
+    if( NULL == pprt ) return NULL;
 
-    if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pprt;
+    base_ptr = POBJ_GET_PBASE( pprt );
+    if ( !STATE_DEINITIALIZING_PBASE( base_ptr ) ) return pprt;
 
     POBJ_END_SPAWN( pprt );
 
@@ -878,12 +892,12 @@ prt_t * prt_config_deinit( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_dtor( prt_t * pprt )
 {
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
 
-    pbase = POBJ_GET_PBASE( pprt );
-    if ( NULL == pbase ) return NULL;
+    if( NULL == pprt ) return NULL;
 
-    if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pprt;
+    base_ptr = POBJ_GET_PBASE( pprt );
+    if ( !STATE_DESTRUCTING_PBASE( base_ptr ) ) return pprt;
 
     POBJ_END_SPAWN( pprt );
 
@@ -897,7 +911,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
                             const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget )
 {
     /// @details ZZ@> This function spawns a new particle.
-    ///               Returns the index of that particle or TOTAL_MAX_PRT on a failure.
+    ///               Returns the index of that particle or MAX_PRT on a failure.
 
     PIP_REF ipip;
     PRT_REF iprt;
@@ -914,7 +928,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
                    REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
                    REF_TO_INT( iprofile ), LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 
-        return ( PRT_REF )TOTAL_MAX_PRT;
+        return ( PRT_REF )MAX_PRT;
     }
     ppip = PipStack.lst + ipip;
 
@@ -931,7 +945,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_refer
                    iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 #endif
 
-        return ( PRT_REF )TOTAL_MAX_PRT;
+        return ( PRT_REF )MAX_PRT;
     }
     pprt = PrtList.lst + iprt;
 
@@ -2143,7 +2157,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
                            ABS( z - pchr->inst.vrt_lst[vertices-cnt-1].pos[ZZ] );
 
                     vertex_distance[cnt] = dist;
-                    vertex_occupied[cnt] = TOTAL_MAX_PRT;
+                    vertex_occupied[cnt] = MAX_PRT;
                 }
 
                 // determine if some of the vertex sites are already occupied
@@ -2170,7 +2184,7 @@ int spawn_bump_particles( const CHR_REF by_reference character, const PRT_REF by
 					
                     for ( cnt = 0; cnt < vertices; cnt++ )
                     {
-                        if ( vertex_occupied[cnt] != TOTAL_MAX_PRT )
+                        if ( vertex_occupied[cnt] != MAX_PRT )
                             continue;
 
                         if ( vertex_distance[cnt] < bestdistance )
@@ -2521,18 +2535,20 @@ void cleanup_all_particles()
     for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
         prt_t * pprt;
+        obj_data_t * base_ptr;
 
         bool_t prt_allocated, prt_waiting, prt_terminated;
 
         pprt = PrtList.lst + iprt;
+        base_ptr = POBJ_GET_PBASE( pprt );
 
-        prt_allocated = FLAG_ALLOCATED_PBASE( POBJ_GET_PBASE( pprt ) );
+        prt_allocated = FLAG_ALLOCATED_PBASE( base_ptr );
         if ( !prt_allocated ) continue;
 
-        prt_terminated = STATE_TERMINATED_PBASE( POBJ_GET_PBASE( pprt ) );
+        prt_terminated = STATE_TERMINATED_PBASE( base_ptr );
         if ( prt_terminated ) continue;
 
-        prt_waiting    = STATE_WAITING_PBASE( POBJ_GET_PBASE( pprt ) );
+        prt_waiting = STATE_WAITING_PBASE( base_ptr );
         if( !prt_waiting ) continue;
 
         prt_do_end_spawn( iprt );
@@ -2548,12 +2564,12 @@ void bump_all_particles_update_counters()
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        ego_object_base_t * pbase;
+        obj_data_t * base_ptr;
 
-        pbase = POBJ_GET_PBASE( PrtList.lst + cnt );
-        if ( !ACTIVE_PBASE( pbase ) ) continue;
+        base_ptr = POBJ_GET_PBASE( PrtList.lst + cnt );
+        if ( !ACTIVE_PBASE( base_ptr ) ) continue;
 
-        pbase->update_count++;
+        base_ptr->update_count++;
     }
 }
 
@@ -2860,7 +2876,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt   )
     /// @details BB@> update everything about a particle that does not depend on collisions
     ///               or interactions with characters
 
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
     prt_t             * loc_pprt;
     pip_t             * loc_ppip;
 
@@ -2868,7 +2884,8 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt   )
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
-    pbase = POBJ_GET_PBASE( loc_pprt );
+    if( NULL == loc_pprt ) return NULL;
+    base_ptr = POBJ_GET_PBASE( loc_pprt );
 
     // if the object is not "on", it is no longer "in game" but still needs to be displayed
     if( !INGAME_PPRT( loc_pprt ) )
@@ -2922,14 +2939,14 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt   )
     }
 
     // If the particle is done updating, remove it from the game, but do not kill it
-    if( !loc_pprt->is_eternal && (pbase->update_count > 0 && 0 == loc_pprt->lifetime_remaining) )
+    if( !loc_pprt->is_eternal && (base_ptr->update_count > 0 && 0 == loc_pprt->lifetime_remaining) )
     {
-        pbase->on = bfalse;
+        base_ptr->on = bfalse;
     }
 
     if ( !loc_pprt->is_hidden )
     {
-        pbase->update_count++;
+        base_ptr->update_count++;
     }
 
     return pbdl_prt;
@@ -2943,7 +2960,7 @@ prt_bundle_t * prt_update_display( prt_bundle_t * pbdl_prt  )
 
     bool_t prt_display;
 
-    ego_object_base_t * pbase;
+    obj_data_t * base_ptr;
     prt_t             * loc_pprt;
     pip_t             * loc_ppip;
 
@@ -2951,11 +2968,11 @@ prt_bundle_t * prt_update_display( prt_bundle_t * pbdl_prt  )
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
-    pbase = POBJ_GET_PBASE( pbdl_prt->prt_ptr );
-    if( NULL == pbase ) return pbdl_prt;
+    if( NULL == loc_pprt ) return pbdl_prt;
+    base_ptr = POBJ_GET_PBASE( loc_pprt );
 
     // if it is not displaying, we are done here
-    prt_display = (0 == pbase->frame_count) && (loc_pprt->size > 0) && (loc_pprt->inst.alpha > 0);
+    prt_display = (0 == base_ptr->frame_count) && (loc_pprt->size > 0) && (loc_pprt->inst.alpha > 0);
     if( !prt_display )
     {
         prt_request_terminate( pbdl_prt );
@@ -2981,14 +2998,14 @@ prt_bundle_t * prt_update_display( prt_bundle_t * pbdl_prt  )
     if ( 0 == update_wld ) return pbdl_prt;
 
     pbdl_prt = prt_update_animation( pbdl_prt );
-    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
+    if( NULL == pbdl_prt || NULL == loc_pprt ) return NULL;
 
     pbdl_prt = prt_update_dynalight( pbdl_prt );
-    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
+    if( NULL == pbdl_prt || NULL == loc_pprt ) return NULL;
 
     if ( !loc_pprt->is_hidden )
     {
-        pbase->update_count++;
+        base_ptr->update_count++;
     }
 
     return pbdl_prt;
@@ -3164,7 +3181,7 @@ prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
 {
     if( NULL == pbundle ) return NULL;
 
-    pbundle->prt_ref = (PRT_REF) TOTAL_MAX_PRT;
+    pbundle->prt_ref = (PRT_REF) MAX_PRT;
     pbundle->prt_ptr = NULL;
     
     pbundle->pip_ref = (PIP_REF) MAX_PIP;
@@ -3188,7 +3205,7 @@ prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
     }
     else
     {
-        pbundle->prt_ref = TOTAL_MAX_PRT;
+        pbundle->prt_ref = MAX_PRT;
         pbundle->prt_ptr = NULL;
     }
 
