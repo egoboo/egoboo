@@ -112,29 +112,29 @@ enc_t * enc_dtor( enc_t * penc );
 
 void   init_all_eve();
 void   release_all_eve();
-bool_t release_one_eve( const EVE_REF by_reference ieve );
+bool_t release_one_eve( const EVE_REF ieve );
 
 void    update_all_enchants();
 void    cleanup_all_enchants();
 
 void    bump_all_enchants_update_counters( void );
 
-ENC_REF enchant_value_filled( const ENC_REF by_reference enchant_idx, int value_idx );
-bool_t  remove_enchant( const ENC_REF by_reference  enchant_idx, ENC_REF *  enchant_parent );
+ENC_REF enchant_value_filled( const ENC_REF enchant_idx, int value_idx );
+bool_t  remove_enchant( const ENC_REF  enchant_idx, ENC_REF *  enchant_parent );
 bool_t  remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz );
 //#define  remove_all_character_enchants( PCHR ) remove_all_enchants_with_idsz( PCHR, IDSZ_NONE )
-void    enchant_apply_set( const ENC_REF by_reference  enchant_idx, int value_idx, const PRO_REF by_reference profile );
-void    enchant_apply_add( const ENC_REF by_reference  enchant_idx, int value_idx, const EVE_REF by_reference enchanttype );
-ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_reference target, const CHR_REF by_reference spawner, const ENC_REF by_reference enc_override, const PRO_REF by_reference modeloptional );
-EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF by_reference profile );
-void    enchant_remove_set( const ENC_REF by_reference  enchant_idx, int value_idx );
-void    enchant_remove_add( const ENC_REF by_reference  enchant_idx, int value_idx );
+void    enchant_apply_set( const ENC_REF  enchant_idx, int value_idx, const PRO_REF profile );
+void    enchant_apply_add( const ENC_REF  enchant_idx, int value_idx, const EVE_REF enchanttype );
+ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional );
+EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF profile );
+void    enchant_remove_set( const ENC_REF  enchant_idx, int value_idx );
+void    enchant_remove_add( const ENC_REF  enchant_idx, int value_idx );
 
-bool_t enc_request_terminate( const ENC_REF by_reference  ienc );
+bool_t enc_request_terminate( const ENC_REF  ienc );
 
 enc_t * enc_run_config( enc_t * penc );
 
-ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_parent );
+ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent );
 
 enc_t * enc_config_construct( enc_t * penc, int max_iterations );
 enc_t * enc_config_initialize( enc_t * penc, int max_iterations );

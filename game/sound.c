@@ -66,7 +66,7 @@ static bool_t LoopedList_free_one( size_t index );
 static size_t LoopedList_get_free();
 
 static bool_t LoopedList_validate();
-static size_t LoopedList_add( Mix_Chunk * sound, int loops, const CHR_REF by_reference  object );
+static size_t LoopedList_add( Mix_Chunk * sound, int loops, const CHR_REF  object );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -560,7 +560,7 @@ bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF by_reference owner )
+int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
@@ -996,7 +996,7 @@ void LoopedList_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t LoopedList_add( Mix_Chunk * sound, int channel, const CHR_REF by_reference  ichr )
+size_t LoopedList_add( Mix_Chunk * sound, int channel, const CHR_REF  ichr )
 {
     /// @details BB@> add a looped sound to the list
 
@@ -1104,7 +1104,7 @@ void looped_update_all_sound()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t looped_stop_object_sounds( const CHR_REF by_reference  ichr )
+bool_t looped_stop_object_sounds( const CHR_REF  ichr )
 {
     /// @details BB@> free any looped sound(s) being made by a certain character
     int freed;

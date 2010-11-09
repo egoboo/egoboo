@@ -134,7 +134,7 @@ s_enc::~s_enc() { enc_dtor( this ); };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t unlink_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
+bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     enc_t * penc;
 
@@ -230,7 +230,7 @@ bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
+bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
 
@@ -365,7 +365,7 @@ bool_t remove_enchant( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF enchant_value_filled( const ENC_REF by_reference  ienc, int value_idx )
+ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
 {
     /// @details ZZ@> This function returns MAX_ENC if the enchantment's target has no conflicting
     ///    set values in its other enchantments.  Otherwise it returns the ienc
@@ -402,7 +402,7 @@ ENC_REF enchant_value_filled( const ENC_REF by_reference  ienc, int value_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_apply_set( const ENC_REF by_reference  ienc, int value_idx, const PRO_REF by_reference profile )
+void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 {
     /// @details ZZ@> This function sets and saves one of the character's stats
 
@@ -581,7 +581,7 @@ void enchant_apply_set( const ENC_REF by_reference  ienc, int value_idx, const P
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_apply_add( const ENC_REF by_reference ienc, int value_idx, const EVE_REF by_reference ieve )
+void enchant_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 {
     /// @details ZZ@> This function does cumulative modification to character stats
 
@@ -1350,7 +1350,7 @@ enc_t * enc_config_dtor( enc_t * penc )
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_reference target, const CHR_REF by_reference spawner, const ENC_REF by_reference enc_override, const PRO_REF by_reference modeloptional )
+ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional )
 {
     /// @details ZZ@> This function enchants a target, returning the enchantment index or MAX_ENC
     ///    if failed
@@ -1493,7 +1493,7 @@ ENC_REF spawn_one_enchant( const CHR_REF by_reference owner, const CHR_REF by_re
 }
 
 //--------------------------------------------------------------------------------------------
-EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF by_reference ieve )
+EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF ieve )
 {
     /// @details ZZ@> This function loads an enchantment profile into the EveStack
 
@@ -1516,7 +1516,7 @@ EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF by_r
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_remove_set( const ENC_REF by_reference ienc, int value_idx )
+void enchant_remove_set( const ENC_REF ienc, int value_idx )
 {
     /// @details ZZ@> This function unsets a set value
     CHR_REF character;
@@ -1635,7 +1635,7 @@ void enchant_remove_set( const ENC_REF by_reference ienc, int value_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_remove_add( const ENC_REF by_reference ienc, int value_idx )
+void enchant_remove_add( const ENC_REF ienc, int value_idx )
 {
     /// @details ZZ@> This function undoes cumulative modification to character stats
 
@@ -1772,7 +1772,7 @@ void release_all_eve()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_eve( const EVE_REF by_reference ieve )
+bool_t release_one_eve( const EVE_REF ieve )
 {
     eve_t * peve;
 
@@ -1806,7 +1806,7 @@ void update_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF cleanup_enchant_list( const ENC_REF by_reference ienc, ENC_REF * enc_parent )
+ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     /// @details BB@> remove all the dead enchants from the enchant list
     ///     and report back the first non-dead enchant in the list.
@@ -1961,7 +1961,7 @@ void bump_all_enchants_update_counters()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enc_request_terminate( const ENC_REF by_reference ienc )
+bool_t enc_request_terminate( const ENC_REF ienc )
 {
     if ( !ALLOCATED_ENC( ienc ) || TERMINATED_ENC( ienc ) ) return bfalse;
 

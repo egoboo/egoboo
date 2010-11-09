@@ -1030,7 +1030,7 @@ void sv_talkToRemotes()
 }
 
 //--------------------------------------------------------------------------------------------
-void pla_add_tlatch( const PLA_REF by_reference iplayer, Uint32 time, latch_t net_latch )
+void pla_add_tlatch( const PLA_REF iplayer, Uint32 time, latch_t net_latch )
 {
     player_t * ppla;
 
@@ -2055,7 +2055,7 @@ bool_t net_instance_init( net_instance_t * pnet )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF pla_get_ichr( const PLA_REF by_reference iplayer )
+CHR_REF pla_get_ichr( const PLA_REF iplayer )
 {
     player_t * pplayer;
 
@@ -2068,7 +2068,7 @@ CHR_REF pla_get_ichr( const PLA_REF by_reference iplayer )
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t  * pla_get_pchr( const PLA_REF by_reference iplayer )
+chr_t  * pla_get_pchr( const PLA_REF iplayer )
 {
     player_t * pplayer;
 
@@ -2170,7 +2170,7 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
 }
 
 //--------------------------------------------------------------------------------------------
-player_t* chr_get_ppla( const CHR_REF by_reference ichr )
+player_t* chr_get_ppla( const CHR_REF ichr )
 {
 	PLA_REF iplayer;
 

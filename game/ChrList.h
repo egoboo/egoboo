@@ -77,12 +77,12 @@ extern int chr_loop_depth;
 void    ChrList_init();
 void    ChrList_dtor();
 
-CHR_REF ChrList_allocate( const CHR_REF by_reference override );
+CHR_REF ChrList_allocate( const CHR_REF override );
 
-bool_t  ChrList_free_one( const CHR_REF by_reference ichr );
+bool_t  ChrList_free_one( const CHR_REF ichr );
 void    ChrList_free_all();
 
-bool_t  ChrList_add_used( const CHR_REF by_reference ichr );
+bool_t  ChrList_add_used( const CHR_REF ichr );
 
 void    ChrList_update_used();
 

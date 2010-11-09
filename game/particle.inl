@@ -27,16 +27,16 @@
 // FORWARD DECLARATION
 //--------------------------------------------------------------------------------------------
 
-INLINE PIP_REF  prt_get_ipip( const PRT_REF by_reference particle );
-INLINE pip_t  * prt_get_ppip( const PRT_REF by_reference particle );
-INLINE CHR_REF  prt_get_iowner( const PRT_REF by_reference iprt, int depth );
+INLINE PIP_REF  prt_get_ipip( const PRT_REF particle );
+INLINE pip_t  * prt_get_ppip( const PRT_REF particle );
+INLINE CHR_REF  prt_get_iowner( const PRT_REF iprt, int depth );
 INLINE bool_t   prt_set_size( prt_t *, int size );
 INLINE float    prt_get_scale( prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-INLINE PIP_REF prt_get_ipip( const PRT_REF by_reference iprt )
+INLINE PIP_REF prt_get_ipip( const PRT_REF iprt )
 {
     prt_t * pprt;
 
@@ -49,7 +49,7 @@ INLINE PIP_REF prt_get_ipip( const PRT_REF by_reference iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE pip_t * prt_get_ppip( const PRT_REF by_reference iprt )
+INLINE pip_t * prt_get_ppip( const PRT_REF iprt )
 {
     prt_t * pprt;
 
@@ -115,7 +115,7 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE CHR_REF prt_get_iowner( const PRT_REF by_reference iprt, int depth )
+INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
 {
     /// BB@> A helper function for determining the owner of a paricle
     ///

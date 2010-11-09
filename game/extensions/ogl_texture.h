@@ -39,7 +39,7 @@
 
 #define INVALID_KEY    ( (Uint32) (~0) )
 
-#define VALID_BINDING( BIND ) ( (0 != (BIND)) && (INVALID_TX_ID != (BIND)) )
+#define VALID_BINDING( BIND ) ( (0 != (BIND)) && (INVALID_GL_ID != (BIND)) )
 #define ERROR_IMAGE_BINDING( BIND ) ( ErrorImage_get_binding() == (BIND) )
 
 /// OpenGL Texture filtering methods

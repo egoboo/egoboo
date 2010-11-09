@@ -112,7 +112,7 @@ void TxTexture_reload_all()
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxTexture_get_free( const TX_REF by_reference itex )
+TX_REF TxTexture_get_free( const TX_REF itex )
 {
     TX_REF retval = ( TX_REF )INVALID_TX_TEXTURE;
 
@@ -163,7 +163,7 @@ TX_REF TxTexture_get_free( const TX_REF by_reference itex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t TxTexture_free_one( const TX_REF by_reference itex )
+bool_t TxTexture_free_one( const TX_REF itex )
 {
     if ( itex < 0 || itex >= TX_TEXTURE_COUNT ) return bfalse;
 
@@ -198,7 +198,7 @@ bool_t TxTexture_free_one( const TX_REF by_reference itex )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxTexture_load_one_vfs( const char *filename, const TX_REF by_reference itex_src, Uint32 key )
+TX_REF TxTexture_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 key )
 {
     /// @details BB@> load a texture into TxTexture.
     ///     If INVALID_TX_TEXTURE == itex, then we just get the next free index
@@ -212,7 +212,7 @@ TX_REF TxTexture_load_one_vfs( const char *filename, const TX_REF by_reference i
     if ( retval >= 0 && retval < TX_TEXTURE_COUNT )
     {
         Uint32 txid = ego_texture_load_vfs( TxTexture.lst + retval, filename, key );
-        if ( INVALID_TX_ID == txid )
+        if ( INVALID_GL_ID == txid )
         {
             TxTexture_free_one( retval );
             retval = INVALID_TX_TEXTURE;
@@ -223,7 +223,7 @@ TX_REF TxTexture_load_one_vfs( const char *filename, const TX_REF by_reference i
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * TxTexture_get_ptr( const TX_REF by_reference itex )
+oglx_texture_t * TxTexture_get_ptr( const TX_REF itex )
 {
     oglx_texture_t * ptex;
 

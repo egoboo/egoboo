@@ -142,23 +142,27 @@ typedef Uint32 BIT_FIELD;								///< A big string supporting 32 bits
 
 //--------------------------------------------------------------------------------------------
 // RECTANGLE
-typedef struct s_irect
+struct s_irect
 {
     int left;
     int right;
     int top;
     int bottom;
-} irect_t;
+};
+
+typedef struct s_irect irect_t;
 
 bool_t irect_point_inside( irect_t * prect, int   ix, int   iy );
 
-typedef struct s_frect
+struct s_frect
 {
     float left;
     float right;
     float top;
     float bottom;
-} frect_t;
+};
+
+typedef struct s_frect frect_t;
 
 bool_t frect_point_inside( frect_t * prect, float fx, float fy );
 
@@ -394,18 +398,12 @@ typedef Uint16 REF_T;
 
 #if defined(__cplusplus)
 
-#   define by_reference &
-
 #   define EGOBOO_ASSERT(X) CPP_EGOBOO_ASSERT(X)
-
 #   define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
 
 #else
 
-#   define by_reference             /* no passing by reference in c */
-
 #   define EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
-
 #   define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
 
 #endif

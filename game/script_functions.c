@@ -7855,7 +7855,7 @@ Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself  )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF by_reference passage, int *ptilex, int *ptiley )
+Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
 {
     /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
@@ -7971,7 +7971,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, const PASS_REF by_reference passage, int *px1, int *py1 )
+Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 )
 {
     /// @details ZZ@> This function finds the next tile in the passage, x0 and y0
     ///    must be set first, and are set on a find.  Returns btrue or bfalse
@@ -8035,7 +8035,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _display_message( const CHR_REF by_reference ichr, const PRO_REF by_reference iprofile, int message, script_state_t * pstate )
+Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, int message, script_state_t * pstate )
 {
     /// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
 

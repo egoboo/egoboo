@@ -57,7 +57,7 @@ static egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vma
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
@@ -239,7 +239,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_tex( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits )
+bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws a model
 
@@ -416,7 +416,7 @@ bool_t render_one_mad_tex( const CHR_REF by_reference character, GLXvector4f tin
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, BIT_FIELD bits )
+bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits )
 {
     /// @details ZZ@> This function picks the actual function to use
 
@@ -456,7 +456,7 @@ bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, B
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_ref( const CHR_REF by_reference ichr )
+bool_t render_one_mad_ref( const CHR_REF ichr )
 {
     /// @details ZZ@> This function draws characters reflected in the floor
 
@@ -1395,7 +1395,7 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF by_reference imount )
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount )
 {
     /// @details BB@> all the code necessary to move on to the next frame of the animation
 

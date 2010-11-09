@@ -123,7 +123,7 @@ void scripting_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void scr_run_chr_script( const CHR_REF by_reference character )
+void scr_run_chr_script( const CHR_REF character )
 {
     /// @details ZZ@> This function lets one character do AI stuff
 
@@ -1698,7 +1698,7 @@ bool_t ai_state_ensure_wp( ai_state_t * pself )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void set_alerts( const CHR_REF by_reference character )
+void set_alerts( const CHR_REF character )
 {
     /// @details ZZ@> This function polls some alert conditions
 
@@ -1760,7 +1760,7 @@ void set_alerts( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_order( const CHR_REF by_reference character, Uint32 value )
+void issue_order( const CHR_REF character, Uint32 value )
 {
     /// @details ZZ@> This function issues an value for help to all teammates
 

@@ -180,7 +180,7 @@ typedef struct s_ai_state ai_state_t;
 
 ai_state_t * ai_state_ctor( ai_state_t * pself );
 ai_state_t * ai_state_dtor( ai_state_t * pself );
-bool_t       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF by_reference  ichr );
+bool_t       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF  ichr );
 bool_t       ai_state_get_wp( ai_state_t * pself );
 bool_t       ai_state_ensure_wp( ai_state_t * pself );
 
@@ -204,11 +204,11 @@ typedef struct s_script_state script_state_t;
 //--------------------------------------------------------------------------------------------
 // Prototypes
 
-void  scr_run_chr_script( const CHR_REF by_reference character );
+void  scr_run_chr_script( const CHR_REF character );
 
-void issue_order( const CHR_REF by_reference character, Uint32 order );
+void issue_order( const CHR_REF character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
-void set_alerts( const CHR_REF by_reference character );
+void set_alerts( const CHR_REF character );
 
 void scripting_system_begin();
 void scripting_system_end();

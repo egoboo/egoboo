@@ -300,7 +300,7 @@ void               BillboardList_update_all();
 void               BillboardList_free_all();
 size_t             BillboardList_get_free( Uint32 lifetime_secs );
 bool_t             BillboardList_free_one( size_t ibb );
-billboard_data_t * BillboardList_get_ptr( const BBOARD_REF by_reference  ibb );
+billboard_data_t * BillboardList_get_ptr( const BBOARD_REF  ibb );
 
 #define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
 #define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
@@ -365,25 +365,25 @@ void   do_flip_pages();
 
 void   dolist_sort( struct s_camera * pcam, bool_t do_reflect );
 void   dolist_make( ego_mpd_t * pmesh );
-bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF by_reference ichr );
-bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF by_reference iprt );
+bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr );
+bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF iprt );
 
-void draw_one_icon( const TX_REF by_reference icontype, int x, int y, Uint8 sparkle );
-void draw_one_font( int fonttype, int x, int y );
-void draw_map_texture( int x, int y );
-int  draw_one_bar( Uint8 bartype, int x, int y, int ticks, int maxticks );
-int  draw_string( int x, int y, const char *format, ... );
-int  draw_wrap_string( const char *szText, int x, int y, int maxx );
-int  draw_status( const CHR_REF by_reference character, int x, int y );
-void draw_text();
-void draw_one_character_icon( const CHR_REF by_reference item, int x, int y, bool_t draw_ammo );
-void draw_cursor();
-void draw_blip( float sizeFactor, Uint8 color, int x, int y, bool_t mini_map );
-void draw_all_lines( struct s_camera * pcam );
+void  draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle );
+void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
+void  draw_map_texture( float x, float y );
+float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
+float draw_string( float x, float y, const char *format, ... );
+float draw_wrap_string( const char *szText, float x, float y, int maxx );
+float draw_status( const CHR_REF character, float x, float y );
+void  draw_text();
+void  draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo );
+void  draw_cursor();
+void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map );
+void  draw_all_lines( struct s_camera * pcam );
 
 void   render_world( struct s_camera * pcam );
-void   render_shadow( const CHR_REF by_reference character );
-void   render_bad_shadow( const CHR_REF by_reference character );
+void   render_shadow( const CHR_REF character );
+void   render_bad_shadow( const CHR_REF character );
 void   render_scene( ego_mpd_t * pmesh, struct s_camera * pcam );
 bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
 bool_t render_aabb( aabb_t * pbbox );

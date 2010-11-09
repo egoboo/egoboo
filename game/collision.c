@@ -87,17 +87,17 @@ typedef struct s_bumplist bumplist_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t add_chr_chr_interaction( CHashList_t * pclst, const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
-static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+static bool_t add_chr_chr_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
 
-static bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
-static bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
+static bool_t detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
+static bool_t detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
-//static bool_t detect_chr_chr_interaction( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
-//static bool_t detect_chr_prt_interaction( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
+//static bool_t detect_chr_chr_interaction( const CHR_REF ichr_a, const CHR_REF ichr_b );
+//static bool_t detect_chr_prt_interaction( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
-static bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
-static bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b );
+static bool_t do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b );
+static bool_t do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
 static bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat );
 static bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat );
@@ -109,7 +109,7 @@ static bool_t bump_all_platforms( CoNode_ary_t * pcn_ary );
 static bool_t bump_all_mounts( CoNode_ary_t * pcn_ary );
 static bool_t bump_all_collisions( CoNode_ary_t * pcn_ary );
 
-static bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b );
+static bool_t do_mounts( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
 static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
 static bool_t do_chr_chr_collision( CoNode_t * d );
@@ -396,7 +396,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
+bool_t detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
     chr_t *pchr_a, *pchr_b;
 
@@ -428,7 +428,7 @@ bool_t detect_chr_chr_interaction_valid( const CHR_REF by_reference ichr_a, cons
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
+bool_t detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
     chr_t * pchr_a;
     prt_t * pprt_b;
@@ -456,7 +456,7 @@ bool_t detect_chr_prt_interaction_valid( const CHR_REF by_reference ichr_a, cons
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_chr_chr_interaction( CHashList_t * pchlst, const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
+bool_t add_chr_chr_interaction( CHashList_t * pchlst, const CHR_REF ichr_a, const CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
 {
     Uint32 hashval = 0;
     int count;
@@ -521,7 +521,7 @@ bool_t add_chr_chr_interaction( CHashList_t * pchlst, const CHR_REF by_reference
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_chr_prt_interaction( CHashList_t * pchlst, const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
+bool_t add_chr_prt_interaction( CHashList_t * pchlst, const CHR_REF ichr_a, const PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst )
 {
     bool_t found;
     int    count;
@@ -793,7 +793,7 @@ bool_t fill_bumplists( obj_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
+bool_t do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
     chr_t * pchr_a, * pchr_b;
 
@@ -965,7 +965,7 @@ bool_t do_chr_platform_detection( const CHR_REF by_reference ichr_a, const CHR_R
 
 
 //--------------------------------------------------------------------------------------------
-bool_t do_prt_platform_detection( const CHR_REF by_reference ichr_a, const PRT_REF by_reference iprt_b )
+bool_t do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
     chr_t * pchr_a;
     prt_t * pprt_b;
@@ -1572,7 +1572,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_mounts( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
+bool_t do_mounts( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
     float xa, ya, za;
     float xb, yb, zb;
@@ -3057,7 +3057,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // terminate the particle if needed
     if ( cn_lst.terminate_particle )
     {
-        prt_request_terminate_ref( iprt_b );
+        end_one_particle_in_game( iprt_b );
         retval = btrue;
     }
 

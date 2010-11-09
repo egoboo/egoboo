@@ -83,13 +83,13 @@ void   activate_passages_file_vfs();
 
 void   add_passage( passage_t * pdata );
 
-bool_t   open_passage( const PASS_REF by_reference ipassage );
-bool_t   close_passage( const PASS_REF by_reference ipassage );
-void     flash_passage( const PASS_REF by_reference ipassage, Uint8 color );
-CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, BIT_FIELD targeting_bits, IDSZ require_item );
-void   add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_reference ipassage );
+bool_t   open_passage( const PASS_REF ipassage );
+bool_t   close_passage( const PASS_REF ipassage );
+void     flash_passage( const PASS_REF ipassage, Uint8 color );
+CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDSZ idsz, BIT_FIELD targeting_bits, IDSZ require_item );
+void   add_shop_passage( const CHR_REF owner, const PASS_REF ipassage );
 
-bool_t point_is_in_passage( const PASS_REF by_reference ipassage, float xpos, float ypos );
-bool_t object_is_in_passage( const PASS_REF by_reference ipassage, float xpos, float ypos, float radius );
+bool_t point_is_in_passage( const PASS_REF ipassage, float xpos, float ypos );
+bool_t object_is_in_passage( const PASS_REF ipassage, float xpos, float ypos, float radius );
 
 CHR_REF  shop_get_owner( int ix, int iy );

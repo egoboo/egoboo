@@ -30,22 +30,22 @@
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS
 //--------------------------------------------------------------------------------------------
-INLINE PRO_REF   enc_get_ipro( const ENC_REF by_reference ienc );
-INLINE pro_t   * enc_get_ppro( const ENC_REF by_reference ienc );
+INLINE PRO_REF   enc_get_ipro( const ENC_REF ienc );
+INLINE pro_t   * enc_get_ppro( const ENC_REF ienc );
 
-INLINE CHR_REF   enc_get_iowner( const ENC_REF by_reference ienc );
-INLINE chr_t   * enc_get_powner( const ENC_REF by_reference ienc );
+INLINE CHR_REF   enc_get_iowner( const ENC_REF ienc );
+INLINE chr_t   * enc_get_powner( const ENC_REF ienc );
 
-INLINE EVE_REF   enc_get_ieve( const ENC_REF by_reference ienc );
-INLINE eve_t   * enc_get_peve( const ENC_REF by_reference ienc );
+INLINE EVE_REF   enc_get_ieve( const ENC_REF ienc );
+INLINE eve_t   * enc_get_peve( const ENC_REF ienc );
 
-INLINE IDSZ      enc_get_idszremove( const ENC_REF by_reference ienc );
-INLINE bool_t    enc_is_removed( const ENC_REF by_reference ienc, const PRO_REF by_reference test_profile );
+INLINE IDSZ      enc_get_idszremove( const ENC_REF ienc );
+INLINE bool_t    enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-CHR_REF enc_get_iowner( const ENC_REF by_reference ienc )
+CHR_REF enc_get_iowner( const ENC_REF ienc )
 {
     enc_t * penc;
 
@@ -58,7 +58,7 @@ CHR_REF enc_get_iowner( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * enc_get_powner( const ENC_REF by_reference ienc )
+chr_t * enc_get_powner( const ENC_REF ienc )
 {
     enc_t * penc;
 
@@ -71,7 +71,7 @@ chr_t * enc_get_powner( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-EVE_REF enc_get_ieve( const ENC_REF by_reference ienc )
+EVE_REF enc_get_ieve( const ENC_REF ienc )
 {
     enc_t * penc;
 
@@ -84,7 +84,7 @@ EVE_REF enc_get_ieve( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-eve_t * enc_get_peve( const ENC_REF by_reference ienc )
+eve_t * enc_get_peve( const ENC_REF ienc )
 {
     enc_t * penc;
 
@@ -97,7 +97,7 @@ eve_t * enc_get_peve( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-PRO_REF  enc_get_ipro( const ENC_REF by_reference ienc )
+PRO_REF  enc_get_ipro( const ENC_REF ienc )
 {
     enc_t * penc;
 
@@ -110,7 +110,7 @@ PRO_REF  enc_get_ipro( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-pro_t * enc_get_ppro( const ENC_REF by_reference ienc )
+pro_t * enc_get_ppro( const ENC_REF ienc )
 {
     enc_t * penc;
 
@@ -123,7 +123,7 @@ pro_t * enc_get_ppro( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-IDSZ enc_get_idszremove( const ENC_REF by_reference ienc )
+IDSZ enc_get_idszremove( const ENC_REF ienc )
 {
     eve_t * peve = enc_get_peve( ienc );
     if ( NULL == peve ) return IDSZ_NONE;
@@ -132,7 +132,7 @@ IDSZ enc_get_idszremove( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enc_is_removed( const ENC_REF by_reference ienc, const PRO_REF by_reference test_profile )
+bool_t enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile )
 {
     IDSZ idsz_remove;
 

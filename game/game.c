@@ -187,7 +187,7 @@ static void   activate_spawn_file_vfs();
 static void   activate_alliance_file_vfs();
 static void   load_all_global_objects();
 
-static bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinfo );
+static bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo );
 
 static void   game_reset_players();
 
@@ -211,7 +211,7 @@ static void   game_clear_vfs_paths();
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void export_one_character( const CHR_REF by_reference character, const CHR_REF by_reference owner, int number, bool_t is_local )
+void export_one_character( const CHR_REF character, const CHR_REF owner, int number, bool_t is_local )
 {
     /// @details ZZ@> This function exports a character
 
@@ -452,7 +452,7 @@ void log_madused_vfs( const char *savename )
 }
 
 //--------------------------------------------------------------------------------------------
-void statlist_add( const CHR_REF by_reference character )
+void statlist_add( const CHR_REF character )
 {
     /// @details ZZ@> This function adds a status display to the do list
 
@@ -471,7 +471,7 @@ void statlist_add( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-void statlist_move_to_top( const CHR_REF by_reference character )
+void statlist_move_to_top( const CHR_REF character )
 {
     /// @details ZZ@> This function puts the character on top of the StatusList
 
@@ -521,7 +521,7 @@ void statlist_sort()
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_frame( const CHR_REF by_reference character, int action, int frame, int lip )
+void chr_set_frame( const CHR_REF character, int action, int frame, int lip )
 {
     /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
@@ -1388,7 +1388,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
-                         const PIP_REF by_reference particletype, const TEAM_REF by_reference team, const CHR_REF by_reference donttarget, const CHR_REF by_reference oldtarget )
+                         const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget )
 {
     /// @details ZF@> This is the new improved targeting system for particles. Also includes distance in the Z direction.
 
@@ -1453,7 +1453,7 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, const CHR_REF by_reference ichr_test, IDSZ idsz, BIT_FIELD targeting_bits )
+bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD targeting_bits )
 {
     bool_t retval = bfalse;
 
@@ -1732,7 +1732,7 @@ void update_pits()
             {
                 if ( prt_bdl.prt_ptr->pos.z < PITDEPTH && prt_bdl.pip_ptr->end_water )
                 {
-                    prt_request_terminate( &prt_bdl );
+                    end_one_particle_now( prt_bdl.prt_ref );
                 }
             }
             PRT_END_LOOP();
@@ -1876,7 +1876,7 @@ void do_weather_spawn_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void set_one_player_latch( const PLA_REF by_reference player )
+void set_one_player_latch( const PLA_REF player )
 {
     /// @details ZZ@> This function converts input readings to latch settings, so players can
     ///    move around
@@ -2624,7 +2624,7 @@ void game_load_all_profiles( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_setup_apply( const CHR_REF by_reference ichr, spawn_file_info_t *pinfo )
+bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 {
     chr_t * pchr, *pparent;
 
@@ -3093,7 +3093,7 @@ game_load_module_data_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-void disaffirm_attached_particles( const CHR_REF by_reference character )
+void disaffirm_attached_particles( const CHR_REF character )
 {
     /// @details ZZ@> This function makes sure a character has no attached particles
 
@@ -3101,7 +3101,7 @@ void disaffirm_attached_particles( const CHR_REF by_reference character )
     {
         if ( prt_bdl.prt_ptr->attachedto_ref == character )
         {
-            prt_request_terminate( &prt_bdl );
+            end_one_particle_in_game( prt_bdl.prt_ref );
         }
     }
     PRT_END_LOOP();
@@ -3114,7 +3114,7 @@ void disaffirm_attached_particles( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-int number_of_attached_particles( const CHR_REF by_reference character )
+int number_of_attached_particles( const CHR_REF character )
 {
     /// @details ZZ@> This function returns the number of particles attached to the given character
 
@@ -3133,7 +3133,7 @@ int number_of_attached_particles( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-int reaffirm_attached_particles( const CHR_REF by_reference character )
+int reaffirm_attached_particles( const CHR_REF character )
 {
     /// @details ZZ@> This function makes sure a character has all of it's particles
 
@@ -3465,7 +3465,7 @@ bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
     prt_t * pprt;
     chr_t * pchr;
 
-    if( NULL == pbdl_prt ) return bfalse;
+    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
     pprt = pbdl_prt->prt_ptr;
 
     if ( !INGAME_CHR( pbdl_prt->prt_ptr->attachedto_ref ) ) return bfalse;
@@ -3501,7 +3501,7 @@ void attach_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_player( const CHR_REF by_reference character, const PLA_REF by_reference player, Uint32 device_bits )
+bool_t add_player( const CHR_REF character, const PLA_REF player, Uint32 device_bits )
 {
 	/// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
@@ -3781,7 +3781,7 @@ void reset_end_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void expand_escape_codes( const CHR_REF by_reference ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
+void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end )
 {
     int    cnt;
     STRING szTmp;
@@ -4838,7 +4838,7 @@ Uint8 get_local_light( int light )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_drop( const CHR_REF by_reference idropper, const CHR_REF by_reference iitem )
+bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 {
     chr_t * pdropper, * pitem;
     bool_t inshop;
@@ -4889,7 +4889,7 @@ bool_t do_shop_drop( const CHR_REF by_reference idropper, const CHR_REF by_refer
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_buy( const CHR_REF by_reference ipicker, const CHR_REF by_reference iitem )
+bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
 {
     bool_t can_grab, can_pay, in_shop;
     int price;
@@ -4970,7 +4970,7 @@ bool_t do_shop_buy( const CHR_REF by_reference ipicker, const CHR_REF by_referen
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_steal( const CHR_REF by_reference ithief, const CHR_REF by_reference iitem )
+bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 {
     // Pets can try to steal in addition to invisible characters
 
@@ -5015,7 +5015,7 @@ bool_t do_shop_steal( const CHR_REF by_reference ithief, const CHR_REF by_refere
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_item_pickup( const CHR_REF by_reference ichr, const CHR_REF by_reference iitem )
+bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
 {
     bool_t can_grab;
     bool_t is_invis, can_steal, in_shop;
@@ -5262,7 +5262,7 @@ egoboo_rv move_water( water_instance_t * pwater )
 }
 
 //--------------------------------------------------------------------------------------------
-void disenchant_character( const CHR_REF by_reference cnt )
+void disenchant_character( const CHR_REF cnt )
 {
     /// @details ZZ@> This function removes all enchantments from a character
 

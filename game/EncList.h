@@ -77,12 +77,12 @@ extern int enc_loop_depth;
 void    EncList_init();
 void    EncList_dtor();
 
-ENC_REF EncList_allocate( const ENC_REF by_reference override );
+ENC_REF EncList_allocate( const ENC_REF override );
 
-bool_t  EncList_free_one( const ENC_REF by_reference ienc );
+bool_t  EncList_free_one( const ENC_REF ienc );
 void    EncList_free_all();
 
-bool_t  EncList_add_used( const ENC_REF by_reference ienc );
+bool_t  EncList_add_used( const ENC_REF ienc );
 
 void    EncList_update_used();
 

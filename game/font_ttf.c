@@ -146,7 +146,7 @@ int fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint
         pptmp = &textSurf;
     }
 
-    if ( INVALID_TX_ID == itex )
+    if ( INVALID_GL_ID == itex )
     {
         rv = -1;
         goto fnt_print_raw_finish;

@@ -47,10 +47,10 @@ int chr_loop_depth = 0;
 
 static size_t  ChrList_get_free();
 
-static bool_t ChrList_remove_used( const CHR_REF by_reference ichr );
+static bool_t ChrList_remove_used( const CHR_REF ichr );
 static bool_t ChrList_remove_used_index( int index );
-static bool_t ChrList_add_free( const CHR_REF by_reference ichr );
-static bool_t ChrList_remove_free( const CHR_REF by_reference ichr );
+static bool_t ChrList_add_free( const CHR_REF ichr );
+static bool_t ChrList_remove_free( const CHR_REF ichr );
 static bool_t ChrList_remove_free_index( int index );
 
 //--------------------------------------------------------------------------------------------
@@ -197,7 +197,7 @@ void ChrList_update_used()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_free_one( const CHR_REF by_reference ichr )
+bool_t ChrList_free_one( const CHR_REF ichr )
 {
     /// @details ZZ@> This function sticks a character back on the free enchant stack
     ///
@@ -289,7 +289,7 @@ void ChrList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_get_free_list_index( const CHR_REF by_reference ichr )
+int ChrList_get_free_list_index( const CHR_REF ichr )
 {
     int retval = -1, cnt;
 
@@ -309,7 +309,7 @@ int ChrList_get_free_list_index( const CHR_REF by_reference ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_add_free( const CHR_REF by_reference ichr )
+bool_t ChrList_add_free( const CHR_REF ichr )
 {
     bool_t retval;
 
@@ -373,7 +373,7 @@ bool_t ChrList_remove_free_index( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_free( const CHR_REF by_reference ichr )
+bool_t ChrList_remove_free( const CHR_REF ichr )
 {
     // find the object in the free list
     int index = ChrList_get_free_list_index(ichr);
@@ -382,7 +382,7 @@ bool_t ChrList_remove_free( const CHR_REF by_reference ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_get_used_list_index( const CHR_REF by_reference ichr )
+int ChrList_get_used_list_index( const CHR_REF ichr )
 {
     int retval = -1, cnt;
 
@@ -402,7 +402,7 @@ int ChrList_get_used_list_index( const CHR_REF by_reference ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_add_used( const CHR_REF by_reference ichr )
+bool_t ChrList_add_used( const CHR_REF ichr )
 {
     bool_t retval;
 
@@ -466,7 +466,7 @@ bool_t ChrList_remove_used_index( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_used( const CHR_REF by_reference ichr )
+bool_t ChrList_remove_used( const CHR_REF ichr )
 {
     // find the object in the used list
     int index = ChrList_get_used_list_index(ichr);
@@ -475,7 +475,7 @@ bool_t ChrList_remove_used( const CHR_REF by_reference ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF ChrList_allocate( const CHR_REF by_reference override )
+CHR_REF ChrList_allocate( const CHR_REF override )
 {
     CHR_REF ichr = ( CHR_REF )MAX_CHR;
 

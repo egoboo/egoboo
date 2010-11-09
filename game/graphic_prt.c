@@ -46,7 +46,7 @@ float ptex_wscale[2] = {1.0f, 1.0f};
 float ptex_hscale[2] = {1.0f, 1.0f};
 
 //--------------------------------------------------------------------------------------------
-int prt_get_texture_style( const TX_REF by_reference itex )
+int prt_get_texture_style( const TX_REF itex )
 {
     int index;
 
@@ -66,7 +66,7 @@ int prt_get_texture_style( const TX_REF by_reference itex )
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_set_texture_params( const TX_REF by_reference itex )
+void prt_set_texture_params( const TX_REF itex )
 {
     int index;
     oglx_texture_t * ptex;
@@ -96,7 +96,7 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void prt_instance_update( camera_t * pcam, const PRT_REF by_reference particle, Uint8 trans, bool_t do_lighting );
+static void prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
@@ -173,7 +173,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( const PRT_REF by_reference iprt )
+bool_t render_one_prt_solid( const PRT_REF iprt )
 {
     /// @details BB@> Render the solid version of the particle
 
@@ -253,7 +253,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_trans( const PRT_REF by_reference iprt )
+bool_t render_one_prt_trans( const PRT_REF iprt )
 {
     /// @details BB@> do all kinds of transparent sprites next
 
@@ -429,7 +429,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_ref( const PRT_REF by_reference iprt )
+bool_t render_one_prt_ref( const PRT_REF iprt )
 {
     /// @details BB@> render one particle
 
@@ -710,7 +710,7 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
     prt_t * loc_pprt;
 
-    if( NULL == pbdl_prt ) return;
+    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
     loc_pprt = pbdl_prt->prt_ptr;
 
     if ( !DISPLAY_PPRT( loc_pprt ) ) return;
@@ -1137,7 +1137,7 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_update( camera_t * pcam, const PRT_REF by_reference particle, Uint8 trans, bool_t do_lighting )
+void prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting )
 {
     prt_t * pprt;
     prt_instance_t * pinst;
@@ -1159,7 +1159,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
     prt_t * loc_pprt;
     pip_t * loc_ppip;
 
-    if( NULL == pbdl_prt ) return;
+    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 

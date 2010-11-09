@@ -45,8 +45,8 @@ extern float ptex_hscale[2];
 #define CALCULATE_PRT_V0(IDX,CNT)  (((.05f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
 #define CALCULATE_PRT_V1(IDX,CNT)  (((.95f+((CNT)>>4))/16.0f) * ((float)ptex_w[IDX]/(float)ptex_h[IDX])*ptex_hscale[IDX])
 
-int prt_get_texture_style( const TX_REF by_reference itex );
-void prt_set_texture_params( const TX_REF by_reference itex );
+int prt_get_texture_style( const TX_REF itex );
+void prt_set_texture_params( const TX_REF itex );
 
 //--------------------------------------------------------------------------------------------
 // Particle graphic data
@@ -93,9 +93,9 @@ struct s_prt_instance
 typedef struct s_prt_instance prt_instance_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( const PRT_REF by_reference iprt );
-bool_t render_one_prt_trans( const PRT_REF by_reference iprt );
-bool_t render_one_prt_ref( const PRT_REF by_reference iprt );
+bool_t render_one_prt_solid( const PRT_REF iprt );
+bool_t render_one_prt_trans( const PRT_REF iprt );
+bool_t render_one_prt_ref( const PRT_REF iprt );
 
 void   render_all_particles( struct s_camera * pcam );
 void   render_all_prt_bbox();

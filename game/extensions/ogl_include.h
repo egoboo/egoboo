@@ -58,7 +58,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// OpenGL compliant definition of an invalid texture binding
-#define INVALID_TX_ID  ( (GLuint) (~0) )
+#define INVALID_GL_ID  ( (GLuint) (~0) )
 
 //--------------------------------------------------------------------------------------------
 

@@ -97,6 +97,7 @@ typedef struct s_prt_spawn_data prt_spawn_data_t;
 struct s_prt
 {
     obj_data_t obj_base;              ///< the "inheritance" from obj_data_t
+    bool_t     is_ghost;              ///< the particla has been killed, but is hanging around a while...
 
     prt_spawn_data_t  spawn_data;
 
@@ -223,37 +224,37 @@ prt_t * prt_dtor( prt_t * pprt );
 
 void   init_all_pip();
 void   release_all_pip();
-bool_t release_one_pip( const PIP_REF by_reference ipip );
+bool_t release_one_pip( const PIP_REF ipip );
 
-void   free_one_particle_in_game( const PRT_REF by_reference particle );
+const PRT_REF end_one_particle_now( const PRT_REF particle );
+const PRT_REF end_one_particle_in_game( const PRT_REF particle );
 
 void update_all_particles( void );
 void move_all_particles( void );
 void cleanup_all_particles( void );
 void bump_all_particles_update_counters( void );
 
-void play_particle_sound( const PRT_REF by_reference particle, Sint8 sound );
+void play_particle_sound( const PRT_REF particle, Sint8 sound );
 
-PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF by_reference iprofile, int pip_index,
-                            const CHR_REF by_reference chr_attach, Uint16 vrt_offset, const TEAM_REF by_reference team,
-                            const CHR_REF by_reference chr_origin, const PRT_REF by_reference prt_origin, int multispawn, const CHR_REF by_reference oldtarget );
+PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+                            const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                            const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget );
 
 #define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
 
 int     prt_count_free();
 
-PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF by_reference pip_override );
+PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip_override );
 void    reset_particles();
 
 BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure );
 bool_t prt_test_wall( prt_t * pprt, float test_pos[] );
 
-bool_t prt_is_over_water( const PRT_REF by_reference particle );
+bool_t prt_is_over_water( const PRT_REF particle );
 
-bool_t release_one_pip( const PIP_REF by_reference ipip );
+bool_t release_one_pip( const PIP_REF ipip );
 
-bool_t prt_request_terminate( prt_bundle_t * pbdl_prt );
-bool_t prt_request_terminate_ref( const PRT_REF by_reference iprt );
+bool_t prt_request_terminate( const PRT_REF iprt );
 
 void prt_set_level( prt_t * pprt, float level );
 

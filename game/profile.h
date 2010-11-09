@@ -138,13 +138,13 @@ typedef struct s_object_profile pro_t;
 DECLARE_LIST_EXTERN( pro_t, ProList, MAX_PROFILE );
 
 int          pro_get_slot_vfs( const char * tmploadname, int slot_override );
-const char * pro_create_chop( const PRO_REF by_reference profile_ref );
-bool_t       pro_load_chop_vfs( const PRO_REF by_reference profile_ref, const char *szLoadname );
+const char * pro_create_chop( const PRO_REF profile_ref );
+bool_t       pro_load_chop_vfs( const PRO_REF profile_ref, const char *szLoadname );
 
 void    ProList_init();
 //void    ProList_free_all();
-size_t  ProList_get_free( const PRO_REF by_reference override_ref );
-bool_t  ProList_free_one( const PRO_REF by_reference object_ref );
+size_t  ProList_get_free( const PRO_REF override_ref );
+bool_t  ProList_free_one( const PRO_REF object_ref );
 
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
 #define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
@@ -200,14 +200,14 @@ void profile_system_begin();
 void profile_system_end();
 
 void   init_all_profiles();
-int    load_profile_skins_vfs( const char * tmploadname, const PRO_REF by_reference object_ref );
-void   load_all_messages_vfs( const char *loadname, const PRO_REF by_reference object_ref );
+int    load_profile_skins_vfs( const char * tmploadname, const PRO_REF object_ref );
+void   load_all_messages_vfs( const char *loadname, const PRO_REF object_ref );
 void   release_all_pro_data();
 void   release_all_profiles();
 void   release_all_pro();
 void   release_all_local_pips();
-bool_t release_one_pro( const PRO_REF by_reference object_ref );
-bool_t release_one_local_pips( const PRO_REF by_reference object_ref );
+bool_t release_one_pro( const PRO_REF object_ref );
+bool_t release_one_local_pips( const PRO_REF object_ref );
 
 int load_one_profile_vfs( const char* tmploadname, int slot_override );
 

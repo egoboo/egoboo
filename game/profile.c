@@ -212,7 +212,7 @@ bool_t pro_init( pro_t * pobj )
 //--------------------------------------------------------------------------------------------
 // The "private" ProList management functions
 //--------------------------------------------------------------------------------------------
-int ProList_search_free( const PRO_REF by_reference iobj )
+int ProList_search_free( const PRO_REF iobj )
 {
     /// @details BB@> if an object of index iobj exists on the free list, return the free list index
     ///     otherwise return -1
@@ -270,7 +270,7 @@ size_t ProList_pop_free( int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ProList_push_free( const PRO_REF by_reference iobj )
+bool_t ProList_push_free( const PRO_REF iobj )
 {
     /// @details BB@> push an object onto the free stack
 
@@ -319,7 +319,7 @@ void ProList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t ProList_get_free( const PRO_REF by_reference override )
+size_t ProList_get_free( const PRO_REF override )
 {
     /// @details ZZ@> This function returns the next free character or MAX_PROFILE if there are none
 
@@ -350,7 +350,7 @@ size_t ProList_get_free( const PRO_REF by_reference override )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ProList_free_one( const PRO_REF by_reference iobj )
+bool_t ProList_free_one( const PRO_REF iobj )
 {
     /// @details ZZ@> This function sticks an object back on the free object stack
 
@@ -367,7 +367,7 @@ bool_t ProList_free_one( const PRO_REF by_reference iobj )
 // object functions
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t release_one_profile_textures( const PRO_REF by_reference iobj )
+bool_t release_one_profile_textures( const PRO_REF iobj )
 {
     int tnc;
     pro_t  * pobj;
@@ -417,7 +417,7 @@ void release_all_profile_textures()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pro_data( const PRO_REF by_reference iobj )
+bool_t release_one_pro_data( const PRO_REF iobj )
 {
     int cnt;
     pro_t * pobj;
@@ -439,7 +439,7 @@ bool_t release_one_pro_data( const PRO_REF by_reference iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pro( const PRO_REF by_reference iobj )
+bool_t release_one_pro( const PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -490,7 +490,7 @@ void release_all_pro_data()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int load_profile_skins_vfs( const char * tmploadname, const PRO_REF by_reference object )
+int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
 {
     TX_REF min_skin_tx, min_icon_tx;
     int    max_skin, max_icon, max_tex;
@@ -621,7 +621,7 @@ void get_message( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages_vfs( const char *loadname, const PRO_REF by_reference object )
+void load_all_messages_vfs( const char *loadname, const PRO_REF object )
 {
     /// @details ZZ@> This function loads all of an objects messages
     vfs_FILE *fileread;
@@ -642,7 +642,7 @@ void load_all_messages_vfs( const char *loadname, const PRO_REF by_reference obj
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_local_pips( const PRO_REF by_reference iobj )
+bool_t release_one_local_pips( const PRO_REF iobj )
 {
     int cnt;
     pro_t * pobj;
@@ -906,7 +906,7 @@ void reset_messages()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-const char * pro_create_chop( const PRO_REF by_reference iprofile )
+const char * pro_create_chop( const PRO_REF iprofile )
 {
     /// BB@> use the profile's chop to generate a name. Return "*NONE*" on a falure.
 
@@ -944,7 +944,7 @@ const char * pro_create_chop( const PRO_REF by_reference iprofile )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t pro_load_chop_vfs( const PRO_REF by_reference iprofile, const char *szLoadname )
+bool_t pro_load_chop_vfs( const PRO_REF iprofile, const char *szLoadname )
 {
     /// BB@> load the chop for the given profile
     pro_t * ppro;
@@ -1302,7 +1302,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
 
-    if( NULL == pbdl_prt ) return bfalse;
+    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 

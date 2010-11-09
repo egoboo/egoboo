@@ -958,7 +958,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
     oglx_texture_Release( texture );
 
     // load the image
-    retval = INVALID_TX_ID;
+    retval = INVALID_GL_ID;
     if ( cfg.sdl_image_allowed )
     {
         // try all different formats
@@ -966,7 +966,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         {
             snprintf( fullname, SDL_arraysize( fullname ), "%s%s", filename, TxFormatSupported[type] );
             retval = oglx_texture_Load( texture, vfs_resolveReadFilename( fullname ), key );
-            if ( INVALID_TX_ID != retval ) break;
+            if ( INVALID_GL_ID != retval ) break;
         }
     }
     else
@@ -978,7 +978,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         image = SDL_LoadBMP( vfs_resolveReadFilename( fullname ) );
 
         // We could not load the image
-        if ( NULL == image ) return INVALID_TX_ID;
+        if ( NULL == image ) return INVALID_GL_ID;
 
         tx_target = GL_TEXTURE_2D;
         if ( image->w != image->h && ( image->w == 1 || image->h ) )

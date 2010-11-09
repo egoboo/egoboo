@@ -47,10 +47,10 @@ int enc_loop_depth = 0;
 
 static size_t  EncList_get_free();
 
-static bool_t EncList_remove_used( const ENC_REF by_reference ienc );
+static bool_t EncList_remove_used( const ENC_REF ienc );
 static bool_t EncList_remove_used_index( int index );
-static bool_t EncList_add_free( const ENC_REF by_reference ienc );
-static bool_t EncList_remove_free( const ENC_REF by_reference ienc );
+static bool_t EncList_add_free( const ENC_REF ienc );
+static bool_t EncList_remove_free( const ENC_REF ienc );
 static bool_t EncList_remove_free_index( int index );
 
 //--------------------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ void EncList_update_used()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_free_one( const ENC_REF by_reference ienc )
+bool_t EncList_free_one( const ENC_REF ienc )
 {
     /// @details ZZ@> This function sticks a enchant back on the free enchant stack
     ///
@@ -290,7 +290,7 @@ void EncList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-int EncList_get_free_list_index( const ENC_REF by_reference ienc )
+int EncList_get_free_list_index( const ENC_REF ienc )
 {
     int retval = -1, cnt;
 
@@ -310,7 +310,7 @@ int EncList_get_free_list_index( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_add_free( const ENC_REF by_reference ienc )
+bool_t EncList_add_free( const ENC_REF ienc )
 {
     bool_t retval;
 
@@ -374,7 +374,7 @@ bool_t EncList_remove_free_index( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_remove_free( const ENC_REF by_reference ienc )
+bool_t EncList_remove_free( const ENC_REF ienc )
 {
     // find the object in the free list
     int index = EncList_get_free_list_index(ienc);
@@ -383,7 +383,7 @@ bool_t EncList_remove_free( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-int EncList_get_used_list_index( const ENC_REF by_reference ienc )
+int EncList_get_used_list_index( const ENC_REF ienc )
 {
     int retval = -1, cnt;
 
@@ -403,7 +403,7 @@ int EncList_get_used_list_index( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_add_used( const ENC_REF by_reference ienc )
+bool_t EncList_add_used( const ENC_REF ienc )
 {
     bool_t retval;
 
@@ -467,7 +467,7 @@ bool_t EncList_remove_used_index( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_remove_used( const ENC_REF by_reference ienc )
+bool_t EncList_remove_used( const ENC_REF ienc )
 {
     // find the object in the used list
     int index = EncList_get_used_list_index(ienc);
@@ -476,7 +476,7 @@ bool_t EncList_remove_used( const ENC_REF by_reference ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF EncList_allocate( const ENC_REF by_reference override )
+ENC_REF EncList_allocate( const ENC_REF override )
 {
     ENC_REF ienc = ( ENC_REF )MAX_ENC;
 

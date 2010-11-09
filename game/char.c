@@ -70,16 +70,16 @@ static chr_instance_t * chr_instance_ctor( chr_instance_t * pinst );
 static chr_instance_t * chr_instance_dtor( chr_instance_t * pinst );
 static bool_t           chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
 static bool_t           chr_instance_free( chr_instance_t * pinst );
-static bool_t           chr_spawn_instance( chr_instance_t * pinst, const PRO_REF by_reference profile, Uint8 skin );
-static bool_t           chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF by_reference imad );
+static bool_t           chr_spawn_instance( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin );
+static bool_t           chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
 
-static CHR_REF chr_pack_has_a_stack( const CHR_REF by_reference item, const CHR_REF by_reference character );
-static bool_t  chr_add_pack_item( const CHR_REF by_reference item, const CHR_REF by_reference character );
-static CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t grip_off, bool_t ignorekurse );
+static CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character );
+static bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
+static CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
 
-static bool_t set_weapongrip( const CHR_REF by_reference iitem, const CHR_REF by_reference iholder, Uint16 vrt_off );
+static bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off );
 
-static BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lifetime_secs );
+static BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs );
 
 static chr_t * resize_one_character( chr_t * pchr );
 //static void    resize_all_characters();
@@ -92,13 +92,13 @@ static chr_t * chr_config_deinit( chr_t * pchr );
 static chr_t * chr_config_active( chr_t * pchr );
 static chr_t * chr_config_dtor( chr_t * pchr );
 
-static int get_grip_verts( Uint16 grip_verts[], const CHR_REF by_reference imount, int vrt_offset );
+static int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset );
 
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mcache );
 
 int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
-int convert_grip_to_global_points( const CHR_REF by_reference iholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
+int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
 
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
@@ -109,9 +109,9 @@ void cleanup_one_character( chr_t * pchr );
 
 static bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix );
 
-static void chr_log_script_time( const CHR_REF by_reference ichr );
+static void chr_log_script_time( const CHR_REF ichr );
 
-static bool_t update_chr_darkvision( const CHR_REF by_reference character );
+static bool_t update_chr_darkvision( const CHR_REF character );
 
 static fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure );
 float          chr_get_mesh_pressure( chr_t * pchr, float test_pos[] );
@@ -321,7 +321,7 @@ int chr_count_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_character_height( const CHR_REF by_reference character, Uint8 valuelow, Sint16 low,
+void flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
                             Uint8 valuehigh, Sint16 high )
 {
     /// @details ZZ@> This function sets a character's lighting depending on vertex height...
@@ -488,7 +488,7 @@ void keep_weapons_with_holders()
 }
 
 //--------------------------------------------------------------------------------------------
-void make_one_character_matrix( const CHR_REF by_reference ichr )
+void make_one_character_matrix( const CHR_REF ichr )
 {
     /// @details ZZ@> This function sets one character's matrix
 
@@ -545,7 +545,7 @@ void make_one_character_matrix( const CHR_REF by_reference ichr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void chr_log_script_time( const CHR_REF by_reference ichr )
+void chr_log_script_time( const CHR_REF ichr )
 {
     // log the amount of script time that this object used up
 
@@ -573,7 +573,7 @@ void chr_log_script_time( const CHR_REF by_reference ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_one_character_in_game( const CHR_REF by_reference character )
+void free_one_character_in_game( const CHR_REF character )
 {
     /// @details ZZ@> This function sticks a character back on the free character stack
     ///
@@ -656,7 +656,7 @@ void free_one_character_in_game( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_inventory_in_game( const CHR_REF by_reference character )
+void free_inventory_in_game( const CHR_REF character )
 {
     /// @details ZZ@> This function frees every item in the character's inventory
     ///
@@ -678,7 +678,7 @@ void free_inventory_in_game( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference character, int vertex_offset )
+prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset )
 {
     /// @details ZZ@> This function sets one particle's position to be attached to a character.
     ///    It will kill the particle if the character is no longer around
@@ -759,7 +759,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF by_reference chara
 
 place_particle_at_vertex_fail:
 
-	prt_request_terminate_ref( GET_REF_PPRT( pprt ) );
+	prt_request_terminate( GET_REF_PPRT( pprt ) );
 
     return NULL;
 }
@@ -1068,7 +1068,7 @@ bool_t chr_is_over_water( chr_t *pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_character_accel( const CHR_REF by_reference character )
+void reset_character_accel( const CHR_REF character )
 {
     /// @details ZZ@> This function fixes a character's max acceleration
 
@@ -1111,7 +1111,7 @@ void reset_character_accel( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 ignorekurse, Uint8 doshop )
+bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop )
 {
     /// @details ZZ@> This function drops an item
 
@@ -1272,7 +1272,7 @@ bool_t detach_character_from_mount( const CHR_REF by_reference character, Uint8 
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_character_alpha( const CHR_REF by_reference character )
+void reset_character_alpha( const CHR_REF character )
 {
     /// @details ZZ@> This function fixes an item's transparency
 
@@ -1327,7 +1327,7 @@ void reset_character_alpha( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-void attach_character_to_mount( const CHR_REF by_reference iitem, const CHR_REF by_reference iholder, grip_offset_t grip_off )
+void attach_character_to_mount( const CHR_REF iitem, const CHR_REF iholder, grip_offset_t grip_off )
 {
     /// @details ZZ@> This function attaches one character/item to another ( the holder/mount )
     ///    at a certain vertex offset ( grip_off )
@@ -1428,7 +1428,7 @@ void attach_character_to_mount( const CHR_REF by_reference iitem, const CHR_REF 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t inventory_add_item( const CHR_REF by_reference item, const CHR_REF by_reference character )
+bool_t inventory_add_item( const CHR_REF item, const CHR_REF character )
 {
     chr_t * pchr, * pitem;
     cap_t * pitem_cap;
@@ -1483,7 +1483,7 @@ bool_t inventory_add_item( const CHR_REF by_reference item, const CHR_REF by_ref
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF inventory_get_item( const CHR_REF by_reference ichr, grip_offset_t grip_off, bool_t ignorekurse )
+CHR_REF inventory_get_item( const CHR_REF ichr, grip_offset_t grip_off, bool_t ignorekurse )
 {
     chr_t * pchr;
     CHR_REF iitem;
@@ -1583,7 +1583,7 @@ bool_t pack_remove_item( pack_t * ppack, CHR_REF iparent, CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_pack_has_a_stack( const CHR_REF by_reference item, const CHR_REF by_reference character )
+CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 {
     /// @details ZZ@> This function looks in the character's pack for an item similar
     ///    to the one given.  If it finds one, it returns the similar item's
@@ -1647,7 +1647,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF by_reference item, const CHR_REF by_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_add_pack_item( const CHR_REF by_reference item, const CHR_REF by_reference character )
+bool_t chr_add_pack_item( const CHR_REF item, const CHR_REF character )
 {
     /// @details ZZ@> This function puts one character inside the other's pack
 
@@ -1777,7 +1777,7 @@ bool_t chr_remove_pack_item( CHR_REF ichr, CHR_REF iparent, CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t grip_off, bool_t ignorekurse )
+CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse )
 {
     /// @details ZZ@> This function takes the last item in the character's pack and puts
     ///    it into the designated hand.  It returns the item number or MAX_CHR.
@@ -1877,7 +1877,7 @@ CHR_REF chr_get_pack_item( const CHR_REF by_reference character, grip_offset_t g
 }
 
 //--------------------------------------------------------------------------------------------
-void drop_keys( const CHR_REF by_reference character )
+void drop_keys( const CHR_REF character )
 {
     /// @details ZZ@> This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
     ///    inventory ( Not hands ).
@@ -1950,7 +1950,7 @@ void drop_keys( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t drop_all_items( const CHR_REF by_reference character )
+bool_t drop_all_items( const CHR_REF character )
 {
     /// @details ZZ@> This function drops all of a character's items
 
@@ -2041,7 +2041,7 @@ int grab_data_cmp( const void * pleft, const void * pright )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t grip_off, bool_t grab_people )
+bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_t grab_people )
 {
     /// @details ZZ@> This function makes the character pick up an item if there's one around
 
@@ -2299,7 +2299,7 @@ bool_t character_grab_stuff( const CHR_REF by_reference ichr_a, grip_offset_t gr
 }
 
 //--------------------------------------------------------------------------------------------
-void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
+void character_swipe( const CHR_REF ichr, slot_t slot )
 {
     /// @details ZZ@> This function spawns an attack particle
 
@@ -2479,7 +2479,7 @@ void character_swipe( const CHR_REF by_reference ichr, slot_t slot )
 }
 
 //--------------------------------------------------------------------------------------------
-void drop_money( const CHR_REF by_reference character, int money )
+void drop_money( const CHR_REF character, int money )
 {
     /// @details ZZ@> This function drops some of a character's money
 
@@ -2521,7 +2521,7 @@ void drop_money( const CHR_REF by_reference character, int money )
 }
 
 //--------------------------------------------------------------------------------------------
-void call_for_help( const CHR_REF by_reference character )
+void call_for_help( const CHR_REF character )
 {
     /// @details ZZ@> This function issues a call for help to all allies
 
@@ -2543,7 +2543,7 @@ void call_for_help( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_xp_table( const CAP_REF by_reference icap )
+bool_t setup_xp_table( const CAP_REF icap )
 {
     /// @details ZF@> This calculates the xp needed to reach next level and stores it in an array for later use
 
@@ -2565,7 +2565,7 @@ bool_t setup_xp_table( const CAP_REF by_reference icap )
 }
 
 //--------------------------------------------------------------------------------------------
-void do_level_up( const CHR_REF by_reference character )
+void do_level_up( const CHR_REF character )
 {
     /// @details BB@> level gains are done here, but only once a second
 
@@ -2659,7 +2659,7 @@ void do_level_up( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-void give_experience( const CHR_REF by_reference character, int amount, xp_type xptype, bool_t override_invictus )
+void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_t override_invictus )
 {
     /// @details ZZ@> This function gives a character experience
 
@@ -2701,7 +2701,7 @@ void give_experience( const CHR_REF by_reference character, int amount, xp_type 
 }
 
 //--------------------------------------------------------------------------------------------
-void give_team_experience( const TEAM_REF by_reference team, int amount, Uint8 xptype )
+void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype )
 {
     /// @details ZZ@> This function gives every character on a team experience
 
@@ -2786,7 +2786,7 @@ chr_t * resize_one_character( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF by_reference character )
+bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
 {
 	/// @details ZZ@> This function makes the naming.txt file for the character
 	player_t *ppla;
@@ -2813,7 +2813,7 @@ bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF by_
 //}
 
 //--------------------------------------------------------------------------------------------
-bool_t export_one_character_name_vfs( const char *szSaveName, const CHR_REF by_reference character )
+bool_t export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
 {
     /// @details ZZ@> This function makes the naming.txt file for the character
 
@@ -3094,7 +3094,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF by_reference character )
+bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character )
 {
     /// @details ZZ@> This function creates a data.txt file for the given character.
     ///    it is assumed that all enchantments have been done away with
@@ -3121,7 +3121,7 @@ bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF b
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t export_one_character_skin_vfs( const char *szSaveName, const CHR_REF by_reference character )
+bool_t export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character )
 {
     /// @details ZZ@> This function creates a skin.txt file for the given character.
 
@@ -3222,7 +3222,7 @@ CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_overr
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t heal_character( const CHR_REF by_reference character, const CHR_REF by_reference healer, int amount, bool_t ignore_invictus )
+bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount, bool_t ignore_invictus )
 {
     /// @details ZF@> This function gives some pure life points to the target, ignoring any resistances and so forth
     chr_t * pchr, *pchr_h;
@@ -3338,7 +3338,7 @@ void cleanup_one_character( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference killer, bool_t ignore_invictus )
+void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_invictus )
 {
     /// @details BB@> Handle a character death. Set various states, disconnect it from the world, etc.
 
@@ -3443,7 +3443,7 @@ void kill_character( const CHR_REF by_reference ichr, const CHR_REF by_reference
 }
 
 //--------------------------------------------------------------------------------------------
-int damage_character( const CHR_REF by_reference character, FACING_T direction,
+int damage_character( const CHR_REF character, FACING_T direction,
                      IPair  damage, Uint8 damagetype, TEAM_REF team,
                      CHR_REF attacker, BIT_FIELD effects, bool_t ignore_invictus )
 {
@@ -3728,7 +3728,7 @@ int damage_character( const CHR_REF by_reference character, FACING_T direction,
 }
 
 //--------------------------------------------------------------------------------------------
-void spawn_defense_ping( chr_t *pchr, const CHR_REF by_reference attacker )
+void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker )
 {
     /// @details ZF@> Spawn a defend particle
 	if( pchr->damagetime != 0 ) return;
@@ -3741,7 +3741,7 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF by_reference attacker )
 }
 
 //--------------------------------------------------------------------------------------------
-void spawn_poof( const CHR_REF by_reference character, const PRO_REF by_reference profile )
+void spawn_poof( const CHR_REF character, const PRO_REF profile )
 {
     /// @details ZZ@> This function spawns a character poof
 
@@ -3770,7 +3770,7 @@ void spawn_poof( const CHR_REF by_reference character, const PRO_REF by_referenc
 }
 
 //--------------------------------------------------------------------------------------------
-void ai_state_spawn( ai_state_t * pself, const CHR_REF by_reference index, const PRO_REF by_reference iobj, Uint16 rank )
+void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
     chr_t * pchr;
     pro_t * ppro;
@@ -4513,8 +4513,8 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, const TEAM_REF by_reference team,
-                            Uint8 skin, FACING_T facing, const char *name, const CHR_REF by_reference override )
+CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF team,
+                            Uint8 skin, FACING_T facing, const char *name, const CHR_REF override )
 {
     /// @details ZZ@> This function spawns a character and returns the character's index number
     ///               if it worked, MAX_CHR otherwise
@@ -4573,7 +4573,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF by_reference profile, co
 }
 
 //--------------------------------------------------------------------------------------------
-void respawn_character( const CHR_REF by_reference character )
+void respawn_character( const CHR_REF character )
 {
     /// @details ZZ@> This function respawns a character
 
@@ -4660,7 +4660,7 @@ void respawn_character( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_change_skin( const CHR_REF by_reference character, int skin )
+int chr_change_skin( const CHR_REF character, int skin )
 {
     chr_t * pchr;
     pro_t * ppro;
@@ -4729,7 +4729,7 @@ int chr_change_skin( const CHR_REF by_reference character, int skin )
 }
 
 //--------------------------------------------------------------------------------------------
-int change_armor( const CHR_REF by_reference character, int skin )
+int change_armor( const CHR_REF character, int skin )
 {
     /// @details ZZ@> This function changes the armor of the character
 
@@ -4810,7 +4810,7 @@ int change_armor( const CHR_REF by_reference character, int skin )
 }
 
 //--------------------------------------------------------------------------------------------
-void change_character_full( const CHR_REF by_reference ichr, const PRO_REF by_reference profile, Uint8 skin, Uint8 leavewhich )
+void change_character_full( const CHR_REF ichr, const PRO_REF profile, Uint8 skin, Uint8 leavewhich )
 {
     /// @details ZF@> This function polymorphs a character permanently so that it can be exported properly
     /// A character turned into a frog with this function will also export as a frog!
@@ -4836,7 +4836,7 @@ void change_character_full( const CHR_REF by_reference ichr, const PRO_REF by_re
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t set_weapongrip( const CHR_REF by_reference iitem, const CHR_REF by_reference iholder, Uint16 vrt_off )
+bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off )
 {
     int i;
 
@@ -4902,7 +4902,7 @@ bool_t set_weapongrip( const CHR_REF by_reference iitem, const CHR_REF by_refere
 }
 
 //--------------------------------------------------------------------------------------------
-void change_character( const CHR_REF by_reference ichr, const PRO_REF by_reference profile_new, Uint8 skin, Uint8 leavewhich )
+void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin, Uint8 leavewhich )
 {
     /// @details ZZ@> This function polymorphs a character, changing stats, dropping weapons
 
@@ -5168,7 +5168,7 @@ void change_character( const CHR_REF by_reference ichr, const PRO_REF by_referen
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t cost_mana( const CHR_REF by_reference character, int amount, const CHR_REF by_reference killer )
+bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 {
     /// @details ZZ@> This function takes mana from a character ( or gives mana ),
     ///    and returns btrue if the character had enough to pay, or bfalse
@@ -5230,7 +5230,7 @@ bool_t cost_mana( const CHR_REF by_reference character, int amount, const CHR_RE
 }
 
 //--------------------------------------------------------------------------------------------
-void switch_team( const CHR_REF by_reference character, const TEAM_REF by_reference team )
+void switch_team( const CHR_REF character, const TEAM_REF team )
 {
     /// @details ZZ@> This function makes a character join another team...
 
@@ -5255,7 +5255,7 @@ void switch_team( const CHR_REF by_reference character, const TEAM_REF by_refere
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_clean( const CHR_REF by_reference character )
+void issue_clean( const CHR_REF character )
 {
     /// @details ZZ@> This function issues a clean up order to all teammates
 
@@ -5280,7 +5280,7 @@ void issue_clean( const CHR_REF by_reference character )
 }
 
 //--------------------------------------------------------------------------------------------
-int restock_ammo( const CHR_REF by_reference character, IDSZ idsz )
+int restock_ammo( const CHR_REF character, IDSZ idsz )
 {
     /// @details ZZ@> This function restocks the characters ammo, if it needs ammo and if
     ///    either its parent or type idsz match the given idsz.  This
@@ -5357,7 +5357,7 @@ int chr_get_skill( chr_t *pchr, IDSZ whichskill )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t update_chr_darkvision( const CHR_REF by_reference character )
+bool_t update_chr_darkvision( const CHR_REF character )
 {
     /// @detalis BB@> as an offset to negative status effects like things like poisoning, a
     ///               character gains darkvision ability the more they are "poisoned".
@@ -7552,7 +7552,7 @@ void bump_all_characters_update_counters()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t is_invictus_direction( FACING_T direction, const CHR_REF by_reference character, Uint16 effects )
+bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, Uint16 effects )
 {
     FACING_T left, right;
 
@@ -7747,7 +7747,7 @@ bool_t chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF by_reference imad )
+bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 {
     /// @details BB@> try to set the model used by the character instance.
     ///     If this fails, it leaves the old data. Just to be safe it
@@ -7843,7 +7843,7 @@ bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_spawn_instance( chr_instance_t * pinst, const PRO_REF by_reference profile, Uint8 skin )
+bool_t chr_spawn_instance( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin )
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
@@ -7948,7 +7948,7 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 }
 
 //--------------------------------------------------------------------------------------------
-BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lifetime_secs )
+BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 {
     /// @details BB@> Attach a basic billboard to a character. You set the billboard texture
     ///     at any time after this. Returns the index of the billboard or INVALID_BILLBOARD
@@ -7982,7 +7982,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF by_reference ichr, Uint32 lifetime_s
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits )
+billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits )
 {
     chr_t            * pchr;
     billboard_data_t * pbb;
@@ -8063,7 +8063,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF by_reference ichr, con
 }
 
 //--------------------------------------------------------------------------------------------
-const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits )
+const char * chr_get_name( const CHR_REF ichr, Uint32 bits )
 {
     static STRING szName;
 
@@ -8130,7 +8130,7 @@ const char * chr_get_name( const CHR_REF by_reference ichr, Uint32 bits )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * chr_get_dir_name( const CHR_REF by_reference ichr )
+const char * chr_get_dir_name( const CHR_REF ichr )
 {
     static STRING buffer = EMPTY_CSTR;
     chr_t * pchr;
@@ -8343,7 +8343,7 @@ const char* describe_wounds( float max, float current )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF chr_get_icon_ref( const CHR_REF by_reference item )
+TX_REF chr_get_icon_ref( const CHR_REF item )
 {
     /// @details BB@> Get the index to the icon texture (in TxTexture) that is supposed to be used with this object.
     ///               If none can be found, return the index to the texture of the null icon.
@@ -8425,7 +8425,7 @@ void release_all_cap()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_cap( const CAP_REF by_reference icap )
+bool_t release_one_cap( const CAP_REF icap )
 {
     /// @details BB@> release any allocated data and return all values to safe values
 
@@ -8477,7 +8477,7 @@ void reset_teams()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_teleport( const CHR_REF by_reference ichr, float x, float y, float z, FACING_T facing_z )
+bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z )
 {
     /// @details BB@> Determine whether the character can be teleported to the specified location
     ///               and do it, if possible. Success returns btrue, failure returns bfalse;
@@ -8534,7 +8534,7 @@ bool_t chr_teleport( const CHR_REF by_reference ichr, float x, float y, float z,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_request_terminate( const CHR_REF by_reference ichr )
+bool_t chr_request_terminate( const CHR_REF ichr )
 {
     /// @details BB@> Mark this character for deletion
 
@@ -8634,7 +8634,7 @@ bool_t chr_matrix_valid( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int get_grip_verts( Uint16 grip_verts[], const CHR_REF by_reference imount, int vrt_offset )
+int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
 {
     /// @details BB@> Fill the grip_verts[] array from the mount's data.
     ///     Return the number of vertices found.
@@ -8832,7 +8832,7 @@ int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t 
 }
 
 //--------------------------------------------------------------------------------------------
-int convert_grip_to_global_points( const CHR_REF by_reference iholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
+int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
 {
     /// @details ZZ@> a helper function for apply_one_weapon_matrix()
 
@@ -9235,7 +9235,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF by_reference ichr )
+bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 {
     /// @details BB@> bumping into a chest can initiate whole loads of update messages.
     ///     Try to throttle the rate that new "bump" messages can be passed to the ai
@@ -9257,7 +9257,7 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF by_reference ich
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_has_inventory_idsz( const CHR_REF by_reference ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last )
+CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last )
 {
     /// @details BB@> check the pack a matching item
 
@@ -9293,7 +9293,7 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF by_reference ichr, IDSZ idsz, bool
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_holding_idsz( const CHR_REF by_reference ichr, IDSZ idsz )
+CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
 {
     /// @details BB@> check the character's hands for a matching item
 
@@ -9335,7 +9335,7 @@ CHR_REF chr_holding_idsz( const CHR_REF by_reference ichr, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_has_item_idsz( const CHR_REF by_reference ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last )
+CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last )
 {
     /// @detalis BB@> is ichr holding an item matching idsz, or is such an item in his pack?
     ///               return the index of the found item, or MAX_CHR if not found. Also return
@@ -9372,7 +9372,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF by_reference ichr, IDSZ idsz, bool_t eq
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_can_see_object( const CHR_REF by_reference ichr, const CHR_REF by_reference iobj )
+bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
 {
     /// @detalis BB@> can ichr see iobj?
 
@@ -9412,7 +9412,7 @@ bool_t chr_can_see_object( const CHR_REF by_reference ichr, const CHR_REF by_ref
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_get_price( const CHR_REF by_reference ichr )
+int chr_get_price( const CHR_REF ichr )
 {
     /// @detalis BB@> determine the correct price for an item
 
@@ -9652,7 +9652,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_get_lowest_attachment( const CHR_REF by_reference ichr, bool_t non_item )
+CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item )
 {
     /// @details BB@> Find the lowest attachment for a given object.
     ///               This was basically taken from the script function scr_set_TargetToLowestTarget()
@@ -9744,7 +9744,7 @@ bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * w
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_can_mount( const CHR_REF by_reference ichr_a, const CHR_REF by_reference ichr_b )
+bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
     bool_t is_valid_rider_a, is_valid_mount_b, has_ride_anim;
     int action_mi;
@@ -9918,7 +9918,7 @@ egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready )
 }
 
 //--------------------------------------------------------------------------------------------
-MAD_REF chr_get_imad( const CHR_REF by_reference ichr )
+MAD_REF chr_get_imad( const CHR_REF ichr )
 {
     chr_t * pchr;
 
@@ -9943,7 +9943,7 @@ MAD_REF chr_get_imad( const CHR_REF by_reference ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-mad_t * chr_get_pmad( const CHR_REF by_reference ichr )
+mad_t * chr_get_pmad( const CHR_REF ichr )
 {
     chr_t * pchr;
 

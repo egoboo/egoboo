@@ -44,7 +44,7 @@
 
 #define VALID_TEXTURE( PTEX ) ( (NULL != (PTEX)) && (VALID_VALUE == (PTEX)->valid) )
 
-static GLuint ErrorImage_binding = INVALID_TX_ID;
+static GLuint ErrorImage_binding = INVALID_GL_ID;
 
 oglx_texture_parameters_t tex_params = {TX_UNFILTERED, 0};
 
@@ -62,7 +62,7 @@ void ErrorImage_create( void )
 
     int i, j;
 
-    if ( INVALID_TX_ID != ErrorImage_binding ) return;
+    if ( INVALID_GL_ID != ErrorImage_binding ) return;
 
     GL_DEBUG( glGenTextures )( 1, &ErrorImage_binding );
 
@@ -172,7 +172,7 @@ void oglx_texture_dtor( oglx_texture_t * ptex )
     if ( VALID_BINDING( ptex->base.binding ) )
     {
         GL_DEBUG( glDeleteTextures )( 1, &ptex->base.binding );
-        ptex->base.binding = INVALID_TX_ID;
+        ptex->base.binding = INVALID_GL_ID;
     }
 
     // set the image to be clamped in s and t
@@ -195,12 +195,12 @@ GLuint oglx_texture_Convert( oglx_texture_t *ptex, SDL_Surface * image, Uint32 k
 {
     /// @detalis BB@> an oglx_texture_t wrapper for the SDL_GL_convert_surface() function
 
-    if ( NULL == ptex ) return INVALID_TX_ID;
+    if ( NULL == ptex ) return INVALID_GL_ID;
 
     // make sure the old texture has been freed
     oglx_texture_Release( ptex );
 
-    if ( NULL == image ) return INVALID_TX_ID;
+    if ( NULL == image ) return INVALID_GL_ID;
 
     /* set the color key, if valid */
     if ( NULL != image->format && NULL != image->format->palette && INVALID_KEY != key )
@@ -246,11 +246,11 @@ GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key
     {
         // clean out any uninitialied data
         ptex = oglx_texture_ctor( ptex );
-        if ( NULL == ptex ) return INVALID_TX_ID;
+        if ( NULL == ptex ) return INVALID_GL_ID;
     }
 
     image = IMG_Load( filename );
-    if ( NULL == image ) return INVALID_TX_ID;
+    if ( NULL == image ) return INVALID_GL_ID;
 
     retval = oglx_texture_Convert( ptex, image, key );
 
@@ -272,7 +272,7 @@ GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key
 //--------------------------------------------------------------------------------------------
 GLuint  oglx_texture_GetTextureID( oglx_texture_t *texture )
 {
-    return ( NULL == texture ) ? INVALID_TX_ID : texture->base.binding;
+    return ( NULL == texture ) ? INVALID_GL_ID : texture->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ void oglx_texture_Bind( oglx_texture_t *texture )
     if ( NULL == texture )
     {
         // NULL texture means white blob
-        id = INVALID_TX_ID;
+        id = INVALID_GL_ID;
     }
     else if ( VALID_TEXTURE( texture ) && VALID_BINDING( texture->base.binding ) )
     {

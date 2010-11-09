@@ -87,10 +87,10 @@ void    PrtList_dtor();
 
 PRT_REF PrtList_allocate( bool_t force );
 
-bool_t  PrtList_free_one( const PRT_REF by_reference iprt );
+bool_t  PrtList_free_one( const PRT_REF iprt );
 void    PrtList_free_all();
 
-bool_t  PrtList_add_used( const PRT_REF by_reference iprt );
+bool_t  PrtList_add_used( const PRT_REF iprt );
 
 void    PrtList_update_used();
 

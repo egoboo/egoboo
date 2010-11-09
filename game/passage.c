@@ -90,7 +90,7 @@ int ShopStack_get_free()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t open_passage( const PASS_REF by_reference passage )
+bool_t open_passage( const PASS_REF passage )
 {
     /// @details ZZ@> This function makes a passage passable
 
@@ -124,7 +124,7 @@ bool_t open_passage( const PASS_REF by_reference passage )
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_passage( const PASS_REF by_reference passage, Uint8 color )
+void flash_passage( const PASS_REF passage, Uint8 color )
 {
     /// @details ZZ@> This function makes a passage flash white
 
@@ -152,7 +152,7 @@ void flash_passage( const PASS_REF by_reference passage, Uint8 color )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t point_is_in_passage( const PASS_REF by_reference passage, float xpos, float ypos )
+bool_t point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
 {
     /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
 
@@ -172,7 +172,7 @@ bool_t point_is_in_passage( const PASS_REF by_reference passage, float xpos, flo
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t object_is_in_passage( const PASS_REF by_reference passage, float xpos, float ypos, float radius )
+bool_t object_is_in_passage( const PASS_REF passage, float xpos, float ypos, float radius )
 {
     /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
     ///     radius is how much offset we allow outside the passage
@@ -194,7 +194,7 @@ bool_t object_is_in_passage( const PASS_REF by_reference passage, float xpos, fl
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF who_is_blocking_passage( const PASS_REF by_reference passage, const CHR_REF by_reference isrc, IDSZ idsz, BIT_FIELD targeting_bits, IDSZ require_item )
+CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDSZ idsz, BIT_FIELD targeting_bits, IDSZ require_item )
 {
     /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
     ///    otherwise the index of the first character found is returned...
@@ -315,7 +315,7 @@ void check_passage_music()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t close_passage( const PASS_REF by_reference passage )
+bool_t close_passage( const PASS_REF passage )
 {
     /// @details ZZ@> This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y;
@@ -396,7 +396,7 @@ void clear_all_passages()
 }
 
 //--------------------------------------------------------------------------------------------
-void add_shop_passage( const CHR_REF by_reference owner, const PASS_REF by_reference passage )
+void add_shop_passage( const CHR_REF owner, const PASS_REF passage )
 {
     /// @details ZZ@> This function creates a shop passage
 

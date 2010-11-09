@@ -197,10 +197,10 @@ struct s_chr_instance
 typedef struct s_chr_instance chr_instance_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_tex( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad( const CHR_REF by_reference character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_ref( const CHR_REF by_reference tnc );
+bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad_ref( const CHR_REF tnc );
 
 void      update_all_chr_instance();
 egoboo_rv chr_update_instance( struct s_chr * pchr );
@@ -215,5 +215,5 @@ egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t ac
 egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action );
 
 egoboo_rv chr_instance_increment_action( chr_instance_t * pinst );
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF by_reference imount );
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount );
 egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t actionready );

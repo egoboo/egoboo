@@ -50,10 +50,10 @@ size_t maxparticles = 512;
 
 static size_t  PrtList_get_free();
 
-static bool_t PrtList_remove_used( const PRT_REF by_reference iprt );
+static bool_t PrtList_remove_used( const PRT_REF iprt );
 static bool_t PrtList_remove_used_index( int index );
-static bool_t PrtList_add_free( const PRT_REF by_reference iprt );
-static bool_t PrtList_remove_free( const PRT_REF by_reference iprt );
+static bool_t PrtList_add_free( const PRT_REF iprt );
+static bool_t PrtList_remove_free( const PRT_REF iprt );
 static bool_t PrtList_remove_free_index( int index );
 
 static size_t  PrtList_get_free();
@@ -205,7 +205,7 @@ void PrtList_update_used()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_free_one( const PRT_REF by_reference iprt )
+bool_t PrtList_free_one( const PRT_REF iprt )
 {
     /// @details ZZ@> This function sticks a particle back on the free particle stack
     ///
@@ -321,7 +321,7 @@ PRT_REF PrtList_allocate( bool_t force )
                 if ( !LOADED_PIP( pprt->pip_ref ) )
                 {
                     found = iprt;
-                    free_one_particle_in_game( iprt );
+                    end_one_particle_in_game( iprt );
                     break;
                 }
 
@@ -406,7 +406,7 @@ PRT_REF PrtList_allocate( bool_t force )
         // if the particle is already being used, make sure to destroy the old one
         if ( DEFINED_PRT( iprt ) )
         {
-            free_one_particle_in_game( iprt );
+            end_one_particle_in_game( iprt );
         }
 
         // allocate the new one
@@ -437,7 +437,7 @@ void PrtList_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-int PrtList_get_free_list_index( const PRT_REF by_reference iprt )
+int PrtList_get_free_list_index( const PRT_REF iprt )
 {
     int retval = -1, cnt;
 
@@ -457,7 +457,7 @@ int PrtList_get_free_list_index( const PRT_REF by_reference iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_add_free( const PRT_REF by_reference iprt )
+bool_t PrtList_add_free( const PRT_REF iprt )
 {
     bool_t retval;
 
@@ -521,7 +521,7 @@ bool_t PrtList_remove_free_index( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_free( const PRT_REF by_reference iprt )
+bool_t PrtList_remove_free( const PRT_REF iprt )
 {
     // find the object in the free list
     int index = PrtList_get_free_list_index(iprt);
@@ -530,7 +530,7 @@ bool_t PrtList_remove_free( const PRT_REF by_reference iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-int PrtList_get_used_list_index( const PRT_REF by_reference iprt )
+int PrtList_get_used_list_index( const PRT_REF iprt )
 {
     int retval = -1, cnt;
 
@@ -550,7 +550,7 @@ int PrtList_get_used_list_index( const PRT_REF by_reference iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_add_used( const PRT_REF by_reference iprt )
+bool_t PrtList_add_used( const PRT_REF iprt )
 {
     bool_t retval;
 
@@ -614,7 +614,7 @@ bool_t PrtList_remove_used_index( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_used( const PRT_REF by_reference iprt )
+bool_t PrtList_remove_used( const PRT_REF iprt )
 {
     // find the object in the used list
     int index = PrtList_get_used_list_index(iprt);

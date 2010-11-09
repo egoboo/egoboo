@@ -299,7 +299,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     // Bind the error texture instead of the old texture
     ErrorImage_bind( GL_TEXTURE_2D, binding );
 
-    if ( NULL == surface ) return INVALID_TX_ID;
+    if ( NULL == surface ) return INVALID_GL_ID;
     local_surface = surface;
 
     // handle default parameters

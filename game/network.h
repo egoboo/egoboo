@@ -134,8 +134,8 @@ DECLARE_STACK_EXTERN( player_t, PlaStack, MAX_PLAYER );                         
 
 void           player_init( player_t * ppla );
 void           pla_reinit( player_t * ppla );
-CHR_REF        pla_get_ichr( const PLA_REF by_reference iplayer );
-struct s_chr * pla_get_pchr( const PLA_REF by_reference iplayer );
+CHR_REF        pla_get_ichr( const PLA_REF iplayer );
+struct s_chr * pla_get_pchr( const PLA_REF iplayer );
 
 //--------------------------------------------------------------------------------------------
 
@@ -233,4 +233,4 @@ void net_reset_players();
 
 void tlatch_ary_init( time_latch_t ary[], size_t len );
 
-player_t*      chr_get_ppla( const CHR_REF by_reference ichr );
+player_t*      chr_get_ppla( const CHR_REF ichr );

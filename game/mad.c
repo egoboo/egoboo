@@ -48,21 +48,21 @@ static char    cActionName[ACTION_COUNT][2];      ///< Two letter name code
 static STRING  cActionComent[ACTION_COUNT];       ///< Strings explaining the action codes
 
 static int    action_number( const char * cFrameName );
-static void   action_check_copy_vfs( const char* loadname, const MAD_REF by_reference imad );
-static void   action_copy_correct( const MAD_REF by_reference imad, int actiona, int actionb );
+static void   action_check_copy_vfs( const char* loadname, const MAD_REF imad );
+static void   action_copy_correct( const MAD_REF imad, int actiona, int actionb );
 
-static void   mad_get_framefx( const char * cFrameName, const MAD_REF by_reference model, int frame );
-static void   mad_get_walk_frame( const MAD_REF by_reference imad, int lip, int action );
-static void   mad_make_framelip( const MAD_REF by_reference imad, int action );
-static void   mad_rip_actions( const MAD_REF by_reference imad );
+static void   mad_get_framefx( const char * cFrameName, const MAD_REF model, int frame );
+static void   mad_get_walk_frame( const MAD_REF imad, int lip, int action );
+static void   mad_make_framelip( const MAD_REF imad, int action );
+static void   mad_rip_actions( const MAD_REF imad );
 
-static void mad_finalize( const MAD_REF by_reference imad );
-static void mad_heal_actions( const MAD_REF by_reference imad, const char * loadname );
+static void mad_finalize( const MAD_REF imad );
+static void mad_heal_actions( const MAD_REF imad, const char * loadname );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//static void md2_fix_normals( const MAD_REF by_reference imad );
-//static void md2_get_transvertices( const MAD_REF by_reference imad );
+//static void md2_fix_normals( const MAD_REF imad );
+//static void md2_get_transvertices( const MAD_REF imad );
 // static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
 
 static mad_t * mad_ctor( mad_t * pmad );
@@ -127,7 +127,7 @@ int action_number( const char * cFrameName )
 }
 
 //--------------------------------------------------------------------------------------------
-void action_copy_correct( const MAD_REF by_reference imad, int actiona, int actionb )
+void action_copy_correct( const MAD_REF imad, int actiona, int actionb )
 {
     /// @details ZZ@> This function makes sure both actions are valid if either of them
     ///    are valid.  It will copy start and ends to mirror the valid action.
@@ -190,7 +190,7 @@ void action_copy_correct( const MAD_REF by_reference imad, int actiona, int acti
 }
 
 //--------------------------------------------------------------------------------------------
-int mad_get_action( const MAD_REF by_reference imad, int action )
+int mad_get_action( const MAD_REF imad, int action )
 {
     /// @detaills BB@> translate the action that was given into a valid action for the model
     ///
@@ -245,7 +245,7 @@ int mad_get_action( const MAD_REF by_reference imad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mad_get_madfx( const MAD_REF by_reference imad, int action )
+Uint32 mad_get_madfx( const MAD_REF imad, int action )
 {
     BIT_FIELD retval = EMPTY_BIT_FIELD;
     int cnt;
@@ -275,7 +275,7 @@ Uint32 mad_get_madfx( const MAD_REF by_reference imad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-void action_check_copy_vfs( const char* loadname, const MAD_REF by_reference imad )
+void action_check_copy_vfs( const char* loadname, const MAD_REF imad )
 {
     /// @details ZZ@> This function copies a model's actions
 
@@ -335,7 +335,7 @@ int action_which( char cTmp )
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_get_walk_frame( const MAD_REF by_reference imad, int lip, int action )
+void mad_get_walk_frame( const MAD_REF imad, int lip, int action )
 {
     /// @details ZZ@> This helps make walking look right
     int frame = 0;
@@ -371,7 +371,7 @@ void mad_get_walk_frame( const MAD_REF by_reference imad, int lip, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_get_framefx( const char * cFrameName, const MAD_REF by_reference imad, int frame )
+void mad_get_framefx( const char * cFrameName, const MAD_REF imad, int frame )
 {
     /// @details ZZ@> This function figures out the IFrame invulnerability, and Attack, Grab, and
     ///               Drop timings
@@ -582,7 +582,7 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF by_reference imad, 
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_make_framelip( const MAD_REF by_reference imad, int action )
+void mad_make_framelip( const MAD_REF imad, int action )
 {
     /// @details ZZ@> This helps make walking look right
 
@@ -619,7 +619,7 @@ void mad_make_framelip( const MAD_REF by_reference imad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_make_equally_lit( const MAD_REF by_reference imad )
+void mad_make_equally_lit( const MAD_REF imad )
 {
     /// @details ZZ@> This function makes ultra low poly models look better
 
@@ -694,7 +694,7 @@ void load_action_names_vfs( const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF by_reference imad )
+MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad )
 {
     mad_t * pmad;
     STRING  newloadname;
@@ -744,7 +744,7 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF by_re
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_heal_actions( const MAD_REF by_reference imad, const char * tmploadname )
+void mad_heal_actions( const MAD_REF imad, const char * tmploadname )
 {
     STRING newloadname;
 
@@ -809,7 +809,7 @@ void mad_heal_actions( const MAD_REF by_reference imad, const char * tmploadname
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_finalize( const MAD_REF by_reference imad )
+void mad_finalize( const MAD_REF imad )
 {
     int frame, frame_count;
 
@@ -846,7 +846,7 @@ void mad_finalize( const MAD_REF by_reference imad )
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_rip_actions( const MAD_REF by_reference imad )
+void mad_rip_actions( const MAD_REF imad )
 {
     /// @details ZZ@> This function creates the iframe lists for each action based on the
     ///    name of each md2 iframe in the model
@@ -1007,7 +1007,7 @@ void release_all_mad()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_mad( const MAD_REF by_reference imad )
+bool_t release_one_mad( const MAD_REF imad )
 {
     mad_t * pmad;
 
@@ -1111,7 +1111,7 @@ int randomize_action( int action, int slot )
 //}
 
 //--------------------------------------------------------------------------------------------
-//void md2_fix_normals( const MAD_REF by_reference imad )
+//void md2_fix_normals( const MAD_REF imad )
 //{
 //    /// @details ZZ@> This function helps light not flicker so much
 //    int cnt, tnc;
@@ -1172,7 +1172,7 @@ int randomize_action( int action, int slot )
 //}
 
 //--------------------------------------------------------------------------------------------
-//void md2_get_transvertices( const MAD_REF by_reference imad )
+//void md2_get_transvertices( const MAD_REF imad )
 //{
 //    /// @details ZZ@> This function gets the number of vertices to transform for a model...
 //    //    That means every one except the grip ( unconnected ) vertices
