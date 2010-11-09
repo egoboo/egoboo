@@ -162,6 +162,8 @@ EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from 
 
 #define INVISIBLE           20                      ///< The character can't be detected
 
+EXTERN int                       local_groglevel		 EQ( 0 );
+EXTERN int                       local_dazelevel		 EQ( 0 );
 EXTERN int                       local_seeinvis_level    EQ( 0 );
 EXTERN int                       local_seedark_level     EQ( 0 );
 EXTERN int                       local_seekurse          EQ( 0 );

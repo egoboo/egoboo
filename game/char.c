@@ -363,6 +363,44 @@ void flash_character_height( const CHR_REF by_reference character, Uint8 valuelo
 }
 
 //--------------------------------------------------------------------------------------------
+void chr_set_enviro_grid_level( chr_t * pchr, float level )
+{
+	if ( !DEFINED_PCHR( pchr ) ) return;
+
+	if ( level != pchr->enviro.grid_level )
+	{
+		pchr->enviro.grid_level = level;
+
+		apply_reflection_matrix( &( pchr->inst ), level );
+	}
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst )
+{
+	/// BB@> do a deep copy on the character's enviro data
+
+	chr_environment_t * psrc, * pdst;
+
+	if ( NULL == chr_psrc || NULL == chr_pdst ) return bfalse;
+
+	if ( chr_psrc == chr_pdst ) return btrue;
+
+	psrc = &( chr_psrc->enviro );
+	pdst = &( chr_pdst->enviro );
+
+	// use the special function to set the grid level
+	// this must done first so that the character's reflection data is set properly
+	chr_set_enviro_grid_level( chr_pdst, psrc->grid_level );
+
+	// now just copy the other data.
+	// use memmove() in the odd case the regions overlap
+	memmove( psrc, pdst, sizeof( *psrc ) );
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 void keep_weapons_with_holders()
 {
     /// @details ZZ@> This function keeps weapons near their holders
@@ -1937,30 +1975,26 @@ bool_t drop_all_items( const CHR_REF by_reference character )
 
             if ( INGAME_CHR( item ) )
             {
-                chr_t * pitem = ChrList.lst + item;
+				chr_t * pitem = ChrList.lst + item;
 
-                detach_character_from_mount( item, btrue, btrue );
+				detach_character_from_mount( item, btrue, btrue );
 
-                chr_set_pos( pitem, chr_get_pos_v(pchr) );
-                pitem->hitready           = btrue;
-                SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-				pitem->dismount_timer		  = PHYS_DISMOUNT_TIME;
-                pitem->enviro.floor_level     = pchr->enviro.floor_level;
-                pitem->enviro.level           = pchr->enviro.level;
-                pitem->enviro.fly_level       = pchr->enviro.fly_level;
-                pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
-                pitem->onwhichplatform_update = pchr->onwhichplatform_update;
+				chr_set_pos( pitem, chr_get_pos_v( pchr ) );
+				pitem->hitready           = btrue;
+				SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
+				pitem->dismount_timer          = PHYS_DISMOUNT_TIME;
+				pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
+				pitem->onwhichplatform_update = pchr->onwhichplatform_update;
+				pitem->ori.facing_z           = direction + ATK_BEHIND;
+				pitem->vel.x                  = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+				pitem->vel.y                  = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+				pitem->vel.z                  = DROPZVEL;
+				pitem->team                   = pitem->baseteam;
 
-                pitem->ori.facing_z           = direction + ATK_BEHIND;
-                pitem->vel.x                  = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.y                  = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.z                  = DROPZVEL;
-                pitem->team                   = pitem->baseteam;
+				pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
+				pitem->dismount_object        = character;
 
-                pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-                pitem->dismount_object        = character;
-
-                chr_set_floor_level( pitem, pchr->enviro.floor_level );
+				chr_copy_enviro( pitem, pchr );
             }
 
             direction += diradd;
@@ -3774,6 +3808,16 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF by_reference index, const
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t chr_get_environment( chr_t * pchr )
+{
+	if ( NULL == pchr ) return bfalse;
+
+	move_one_character_get_environment( pchr );
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_do_init( chr_t * pchr )
 {
@@ -3895,18 +3939,8 @@ chr_t * chr_config_do_init( chr_t * pchr )
     pchr->fat_goto      = pchr->fat;
     pchr->fat_goto_time = 0;
 
-    // Set up position
-    pchr->enviro.floor_level = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, pchr->waterwalk ) + RAISE;
-    pchr->enviro.level       = pchr->enviro.floor_level;
-    pchr->enviro.fly_level   = get_mesh_level( PMesh, pos_tmp.x, pos_tmp.y, btrue ) + RAISE;
-
-    if ( 0 != pchr->flyheight && pchr->enviro.fly_level < 0 )
-    {
-        // fly above pits...
-        pchr->enviro.fly_level = 0;
-    }
-
-    if ( pos_tmp.z < pchr->enviro.floor_level ) pos_tmp.z = pchr->enviro.floor_level;
+	// grab all of the environment information
+	chr_get_environment( pchr );
 
     chr_set_pos( pchr, pos_tmp.v );
 
@@ -5382,7 +5416,9 @@ void update_all_characters()
 void move_one_character_get_environment( chr_t * pchr )
 {
     Uint32 itile = INVALID_TILE;
-    float floor_level;
+
+	float   grid_level, water_level;
+	chr_t * pplatform = NULL;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -5398,13 +5434,27 @@ void move_one_character_get_environment( chr_t * pchr )
         itile = pchr->onwhichgrid;
     }
 
-    //---- character "floor" level
-    //floor_level = get_chr_level( PMesh, pchr );
-    floor_level = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk ) + RAISE;
+	// determine if the character is standing on a platform
+	pplatform = NULL;
+	if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
+	{
+		pplatform = ChrList.lst + pchr->onwhichplatform_ref;
+	}
 
-    // use this function so that the reflections and some other stuff comes out correctly
-    // @note - using get_mesh_level() will actually force a water tile to have a reflection?
-    chr_set_floor_level( pchr, floor_level );
+    //---- character "floor" level
+	grid_level  = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, bfalse );
+	water_level = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, btrue );
+	chr_set_enviro_grid_level( pchr, grid_level );
+
+	// The actual level of the character.
+	if ( NULL != pplatform )
+	{
+		pchr->enviro.floor_level = pplatform->pos.z + pplatform->chr_chr_cv.maxs[OCT_Z];
+	}
+	else
+	{
+		pchr->enviro.floor_level = pchr->waterwalk ? water_level : grid_level;
+	}
 
     //---- The actual level of the characer.
     //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
@@ -5433,10 +5483,10 @@ void move_one_character_get_environment( chr_t * pchr )
     pchr->enviro.grounded = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
 
     //---- the "twist" of the floor
-    pchr->enviro.twist = TWIST_FLAT;
+    pchr->enviro.grid_twist = TWIST_FLAT;
     if ( mesh_grid_is_valid( PMesh, itile ) )
     {
-        pchr->enviro.twist = PMesh->gmem.grid_list[itile].twist;
+        pchr->enviro.grid_twist = PMesh->gmem.grid_list[itile].twist;
     }
 
     // the "watery-ness" of whatever water might be here
@@ -5470,7 +5520,7 @@ void move_one_character_get_environment( chr_t * pchr )
     }
     else if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
-        pchr->enviro.traction = ABS( map_twist_nrm[pchr->enviro.twist].z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25 * pchr->enviro.zlerp;
+        pchr->enviro.traction = ABS( map_twist_nrm[pchr->enviro.grid_twist].z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25 * pchr->enviro.zlerp;
 
         if ( pchr->enviro.is_slippy )
         {
@@ -5538,7 +5588,7 @@ void move_one_character_get_environment( chr_t * pchr )
         // Special considerations for slippy surfaces
         if ( pchr->enviro.is_slippy )
         {
-            if ( map_twist_flat[pchr->enviro.twist] )
+            if ( map_twist_flat[pchr->enviro.grid_twist] )
             {
                 // Reset jumping on flat areas of slippiness
                 if ( pchr->enviro.grounded && pchr->jumptime == 0 )
@@ -5590,14 +5640,14 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         floor_acc.y = -pchr->vel.y;
         floor_acc.z = -pchr->vel.z;
 
-        if ( TWIST_FLAT == pchr->enviro.twist )
+        if ( TWIST_FLAT == pchr->enviro.grid_twist )
         {
             vup.x = vup.y = 0.0f;
             vup.z = 1.0f;
         }
         else
         {
-            vup = map_twist_nrm[pchr->enviro.twist];
+            vup = map_twist_nrm[pchr->enviro.grid_twist];
         }
 
     }
@@ -5605,14 +5655,14 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     {
         temp_friction_xy = pchr->enviro.friction_hrz;
 
-        if ( TWIST_FLAT == pchr->enviro.twist )
+        if ( TWIST_FLAT == pchr->enviro.grid_twist )
         {
             vup.x = vup.y = 0.0f;
             vup.z = 1.0f;
         }
         else
         {
-            vup = map_twist_nrm[pchr->enviro.twist];
+            vup = map_twist_nrm[pchr->enviro.grid_twist];
         }
 
         if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) + ABS( pchr->vel.z ) > 0.0f )
@@ -5645,7 +5695,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     fric.z = fric_floor.z + pchr->enviro.acc.z;
 
     //---- limit the friction to whatever is horizontal to the mesh
-    if ( TWIST_FLAT == pchr->enviro.twist )
+    if ( TWIST_FLAT == pchr->enviro.grid_twist )
     {
         floor_acc.z = 0.0f;
         fric.z      = 0.0f;
@@ -5653,7 +5703,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     else
     {
         float ftmp;
-        fvec3_t   vup = map_twist_nrm[pchr->enviro.twist];
+        fvec3_t   vup = map_twist_nrm[pchr->enviro.grid_twist];
 
         ftmp = fvec3_dot_product( floor_acc.v, vup.v );
 
@@ -6375,7 +6425,7 @@ void move_one_character_do_z_motion( chr_t * pchr )
     else
     {
         if ( pchr->enviro.is_slippy && pchr->phys.weight != INFINITE_WEIGHT &&
-            pchr->enviro.twist != TWIST_FLAT && pchr->enviro.zlerp < 1.0f )
+            pchr->enviro.grid_twist != TWIST_FLAT && pchr->enviro.zlerp < 1.0f )
         {
             // Slippy hills make characters slide
 
@@ -6384,9 +6434,9 @@ void move_one_character_do_z_motion( chr_t * pchr )
 
             float     loc_zlerp = pchr->enviro.zlerp;
 
-            gpara.x = map_twistvel_x[pchr->enviro.twist];
-            gpara.y = map_twistvel_y[pchr->enviro.twist];
-            gpara.z = map_twistvel_z[pchr->enviro.twist];
+            gpara.x = map_twistvel_x[pchr->enviro.grid_twist];
+            gpara.y = map_twistvel_y[pchr->enviro.grid_twist];
+            gpara.z = map_twistvel_z[pchr->enviro.grid_twist];
 
             gperp.x = 0       - gpara.x;
             gperp.y = 0       - gpara.y;
@@ -7413,8 +7463,8 @@ void move_one_character( chr_t * pchr )
 
         if ( fnew > 0 )
         {
-            pchr->ori.map_facing_x = pchr->ori.map_facing_x * fkeep + map_twist_x[pchr->enviro.twist] * fnew;
-            pchr->ori.map_facing_y = pchr->ori.map_facing_y * fkeep + map_twist_y[pchr->enviro.twist] * fnew;
+            pchr->ori.map_facing_x = pchr->ori.map_facing_x * fkeep + map_twist_x[pchr->enviro.grid_twist] * fnew;
+            pchr->ori.map_facing_y = pchr->ori.map_facing_y * fkeep + map_twist_y[pchr->enviro.grid_twist] * fnew;
         }
     }
 }
@@ -8878,26 +8928,27 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level )
+bool_t apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
 {
     /// @detalis BB@> Generate the extra data needed to display a reflection for this character
 
     if ( NULL == pinst ) return bfalse;
 
-    pinst->ref.matrix_valid = bfalse;
+	// invalidate the current matrix
+	pinst->ref.matrix_valid = bfalse;
 
-    // actually flip the matrix
-    pinst->ref.matrix_valid = pinst->matrix_cache.valid;
+	// actually flip the matrix
+	if ( pinst->matrix_cache.valid )
+	{
+		pinst->ref.matrix = pinst->matrix;
 
-    if ( pinst->ref.matrix_valid )
-    {
-        pinst->ref.matrix = pinst->matrix;
+		pinst->ref.matrix.CNV( 0, 2 ) = -pinst->ref.matrix.CNV( 0, 2 );
+		pinst->ref.matrix.CNV( 1, 2 ) = -pinst->ref.matrix.CNV( 1, 2 );
+		pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
+		pinst->ref.matrix.CNV( 3, 2 ) = 2 * grid_level - pinst->ref.matrix.CNV( 3, 2 );
 
-        pinst->ref.matrix.CNV( 0, 2 ) = -pinst->ref.matrix.CNV( 0, 2 );
-        pinst->ref.matrix.CNV( 1, 2 ) = -pinst->ref.matrix.CNV( 1, 2 );
-        pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
-        pinst->ref.matrix.CNV( 3, 2 ) = 2 * floor_level - pinst->ref.matrix.CNV( 3, 2 );
-    }
+		pinst->ref.matrix_valid = btrue;
+	}
 
     return pinst->ref.matrix_valid;
 }
@@ -9096,64 +9147,77 @@ egoboo_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 {
-    /// @details BB@> Do everything necessary to set the current matrix for this character.
-    ///     This might include recursively going down the list of this character's mounts, etc.
-    ///
-    ///     Return btrue if a new matrix is applied to the character, bfalse otherwise.
+	/// @details BB@> Do everything necessary to set the current matrix for this character.
+	///     This might include recursively going down the list of this character's mounts, etc.
+	///
+	///     Return btrue if a new matrix is applied to the character, bfalse otherwise.
 
-    bool_t         needs_update = bfalse;
-    bool_t         applied      = bfalse;
-    matrix_cache_t mc_tmp;
-    egoboo_rv      retval;
+	egoboo_rv      retval;
+	bool_t         needs_update = bfalse;
+	bool_t         applied      = bfalse;
+	matrix_cache_t mc_tmp;
+	matrix_cache_t *pchr_mc = NULL;
 
-    if ( !DEFINED_PCHR( pchr ) ) return rv_error;
+	if ( !DEFINED_PCHR( pchr ) ) return rv_error;
+	pchr_mc = &( pchr->inst.matrix_cache );
 
-    // recursively make sure that any mount matrices are updated
-    if ( DEFINED_CHR( pchr->attachedto ) )
-    {
-        // if this fails, we should probably do something...
-        if ( rv_error == chr_update_matrix( ChrList.lst + pchr->attachedto, btrue ) )
-        {
-            pchr->inst.matrix_cache.matrix_valid = bfalse;
-            return rv_error;
-        }
-    }
+	// recursively make sure that any mount matrices are updated
+	if ( DEFINED_CHR( pchr->attachedto ) )
+	{
+		egoboo_rv attached_update = rv_error;
 
-    // does the matrix cache need an update at all?
-    retval = matrix_cache_needs_update( pchr, &mc_tmp );
-    if ( rv_error == retval ) return rv_error;
-    needs_update = ( rv_success == retval );
+		attached_update = chr_update_matrix( ChrList.lst + pchr->attachedto, btrue );
 
-    // Update the grip vertices no matter what (if they are used)
-    if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && INGAME_CHR( mc_tmp.grip_chr ) )
-    {
-        egoboo_rv retval;
-        chr_t   * ptarget = ChrList.lst + mc_tmp.grip_chr;
+		// if this fails, we should probably do something...
+		if ( rv_error == attached_update )
+		{
+			// there is an error so this matrix is not defined and no readon to go farther
+			pchr_mc->matrix_valid = bfalse;
+			return attached_update;
+		}
+		else if ( rv_success == attached_update )
+		{
+			// the holder/mount matrix has changed.
+			// this matrix is no longer valid.
+			pchr_mc->matrix_valid = bfalse;
+		}
+	}
 
-        // has that character changes its animation?
-        retval = chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
+	// does the matrix cache need an update at all?
+	retval = matrix_cache_needs_update( pchr, &mc_tmp );
+	if ( rv_error == retval ) return rv_error;
+	needs_update = ( rv_success == retval );
 
-        if ( rv_error   == retval ) return rv_error;
-        if ( rv_success == retval ) needs_update = btrue;
-    }
+	// Update the grip vertices no matter what (if they are used)
+	if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && INGAME_CHR( mc_tmp.grip_chr ) )
+	{
+		egoboo_rv grip_retval;
+		chr_t   * ptarget = ChrList.lst + mc_tmp.grip_chr;
 
-    // if it is not the same, make a new matrix with the new data
-    applied = bfalse;
-    if ( needs_update )
-    {
-        // we know the matrix is not valid
-        pchr->inst.matrix_cache.matrix_valid = bfalse;
+		// has that character changes its animation?
+		grip_retval = chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
 
-        applied = apply_matrix_cache( pchr, &mc_tmp );
-    }
+		if ( rv_error   == grip_retval ) return rv_error;
+		if ( rv_success == grip_retval ) needs_update = btrue;
+	}
 
-    if ( applied && update_size )
-    {
-        // call chr_update_collision_size() but pass in a false value to prevent a recursize call
-        chr_update_collision_size( pchr, bfalse );
-    }
+	// if it is not the same, make a new matrix with the new data
+	applied = bfalse;
+	if ( needs_update )
+	{
+		// we know the matrix is not valid
+		pchr_mc->matrix_valid = bfalse;
 
-    return applied ? rv_success : rv_fail;
+		applied = apply_matrix_cache( pchr, &mc_tmp );
+	}
+
+	if ( applied && update_size )
+	{
+		// call chr_update_collision_size() but pass in a false value to prevent a recursize call
+		chr_update_collision_size( pchr, bfalse );
+	}
+
+	return applied ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------

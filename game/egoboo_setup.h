@@ -110,7 +110,7 @@ extern egoboo_config_t cfg;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t setup_read_vfs( const char* filename );
+bool_t setup_read_vfs();
 bool_t setup_write();
 bool_t setup_quit();
 

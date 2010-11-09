@@ -221,13 +221,15 @@ typedef struct s_team team_t;
 struct s_chr_environment
 {
     // floor stuff
-    Uint8  twist;
+	float   grid_level;           ///< Height the current grid
+	float  zlerp;
+	Uint8   grid_twist;
 
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
 
-    float  zlerp;
+
     bool_t grounded;              ///< standing on something?
 
     // friction stuff
@@ -635,6 +637,8 @@ bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
 bool_t chr_can_see_object( const CHR_REF by_reference ichr, const CHR_REF by_reference iobj );
 int    chr_get_price( const CHR_REF by_reference ichr );
+
+bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 
 void chr_set_floor_level( chr_t * pchr, float level );
 void chr_set_redshift( chr_t * pchr, int rs );

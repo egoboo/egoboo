@@ -111,7 +111,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     _gclock = clk_create( "global clock", -1 );
 
     // read the "setup.txt" file
-    setup_read_vfs( "setup.txt" );
+    setup_read_vfs();
 
     // download the "setup.txt" values into the cfg struct
     setup_download( &cfg );

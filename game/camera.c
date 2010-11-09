@@ -85,7 +85,8 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->turnadd      =  0;
     pcam->sustain      =  0.60f;
     pcam->turnupdown   = ( float )( PI / 4 );
-    pcam->roll         =  0;
+	pcam->roll         =  0;
+	pcam->motion_blur  =  0;
 
     pcam->mView       = pcam->mViewSave = ViewMatrix( t1.v, t2.v, t3.v, 0 );
     pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( CAM_FOV * PI / 180 ) ); // 60 degree CAM_FOV
@@ -135,29 +136,99 @@ void camera_look_at( camera_t * pcam, float x, float y )
 }
 
 //--------------------------------------------------------------------------------------------
+INLINE float fvec3_length_abs( const fvec3_base_t A )
+{
+	if ( NULL == A ) return 0.0f;
+
+	return ABS( A[kX] ) + ABS( A[kY] ) + ABS( A[kZ] );
+}
+
+//--------------------------------------------------------------------------------------------
+INLINE bool_t  fvec3_self_normalize( fvec3_base_t A )
+{
+	if ( NULL == A ) return bfalse;
+
+	if ( 0.0f != fvec3_length_abs( A ) )
+	{
+		float len2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
+		float inv_len = 1.0f / SQRT( len2 );
+		LOG_NAN( inv_len );
+
+		A[kX] *= inv_len;
+		A[kY] *= inv_len;
+		A[kZ] *= inv_len;
+	}
+
+	return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 void camera_make_matrix( camera_t * pcam )
 {
-    /// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
+	/// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
 
-    pcam->mView = MatrixMult( Translate( pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave );  // xgg
-    if ( pcam->swingamp > 0.001f )
-    {
-        pcam->roll = turntosin[pcam->swing] * pcam->swingamp;
-        pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
-    }
+	float local_swingamp = pcam->swingamp;
 
-    pcam->mView = MatrixMult( RotateZ( pcam->turn_z_rad ), pcam->mView );
-    pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
+	//Fade out the motion blur
+	if ( pcam->motion_blur > 0 )
+	{
+		pcam->motion_blur *= 0.99f; //Decay factor
+		if ( pcam->motion_blur < 0.001f ) pcam->motion_blur = 0;
+	}
 
-    //--- pre-compute some camera vectors
-    pcam->vfw = mat_getCamForward( pcam->mView );
-    pcam->vfw = fvec3_normalize( pcam->vfw.v );
+	//Swing the camera if players are groggy and apply motion blur
+	if ( local_groglevel > 0 )
+	{
+		float zoom_add;
+		pcam->swing = ( pcam->swing + 120 ) & 0x3FFF;
+		local_swingamp = MAX( local_swingamp, 0.175f );
 
-    pcam->vup = mat_getCamUp( pcam->mView );
-    pcam->vup = fvec3_normalize( pcam->vup.v );
+		zoom_add = ( 0 == ( local_groglevel % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_groglevel * 0.35f;
+		pcam->zaddgoto = CLIP( pcam->zaddgoto + zoom_add, CAM_ZADD_MIN, CAM_ZADD_MAX );
+		pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_groglevel );
+	}
 
-    pcam->vrt = mat_getCamRight( pcam->mView );
-    pcam->vrt = fvec3_normalize( pcam->vrt.v );
+	//Rotate camera if they are dazed and apply motion blur
+	if ( local_dazelevel > 0 )
+	{
+		pcam->turnadd = local_dazelevel * CAM_TURN_KEY;
+		pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_dazelevel );
+	}
+
+	//Apply camera swinging
+	pcam->mView = MatrixMult( Translate( pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave );  // xgg
+	if ( local_swingamp > 0.001f )
+	{
+		pcam->roll = turntosin[pcam->swing] * local_swingamp;
+		pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
+	}
+
+	// If the camera stops swinging for some reason, slowly return to original position
+	else if ( pcam->roll != 0 )
+	{
+		pcam->roll *= 0.9875f;            //Decay factor
+		pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
+
+		// Come to a standstill at some point
+		if ( ABS( pcam->roll ) < 0.001f )
+		{
+			pcam->roll = 0;
+			pcam->swing = 0;
+		}
+	}
+
+	pcam->mView = MatrixMult( RotateZ( pcam->turn_z_rad ), pcam->mView );
+	pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
+
+	//--- pre-compute some camera vectors
+	pcam->vfw = mat_getCamForward( pcam->mView );
+	fvec3_self_normalize( pcam->vfw.v );
+
+	pcam->vup = mat_getCamUp( pcam->mView );
+	fvec3_self_normalize( pcam->vup.v );
+
+	pcam->vrt = mat_getCamRight( pcam->mView );
+	fvec3_self_normalize( pcam->vrt.v );
 }
 
 //--------------------------------------------------------------------------------------------

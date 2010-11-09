@@ -1874,7 +1874,10 @@ int doChoosePlayer( float deltaTime )
                     // Copy the character to the import directory
                     strncpy( srcDir, loadplayer[selectedPlayer].dir, SDL_arraysize( srcDir ) );
                     snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[i] );
-                    vfs_copyDirectory( srcDir, destDir );
+					if( !vfs_copyDirectory( srcDir, destDir ) )
+					{
+						log_warning( "game_initialize_imports() - Failed to copy a import character \"%s\" to \"%s\" (%s)\n", srcDir, destDir, vfs_getError() );
+					}
 
                     // Copy all of the character's items to the import directory
                     for ( j = 0; j < MAXIMPORTOBJECTS; j++ )

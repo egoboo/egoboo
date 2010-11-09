@@ -675,8 +675,10 @@ int update_game()
     // Check for all local players being dead
     local_allpladead     = bfalse;
     local_seeinvis_level = 0;
-    local_seekurse       = bfalse;
-    local_seedark_level  = 0;
+    local_seekurse       = 0;
+	local_seedark_level  = 0;
+	local_groglevel		 = 0;
+	local_dazelevel		 = 0;
 
     numplayer = 0;
     numdead = numalive = 0;
@@ -721,12 +723,29 @@ int update_game()
             {
                 local_seedark_level = MAX( local_seedark_level, pchr->darkvision_level );
             }
+
+			if ( pchr->grogtime > 0 )
+			{
+				local_groglevel += pchr->grogtime;
+			}
+
+			if ( pchr->dazetime > 0 )
+			{
+				local_dazelevel += pchr->dazetime;
+			}
         }
         else
         {
             numdead++;
         }
     }
+
+	// Dampen groggyness if not all players are grogged (this assumes they all share the same camera view)
+	if ( 0 != numalive )
+	{
+		local_groglevel /= numalive;
+		local_dazelevel /= numalive;
+	}
 
     // Did everyone die?
     if ( numdead >= local_numlpla )

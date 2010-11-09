@@ -466,6 +466,10 @@ int ogl_init()
     GL_DEBUG( glTexGeni )( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For S To Sphere Mapping (NEW)
     GL_DEBUG( glTexGeni )( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
+	//Initialize the motion blur buffer
+	GL_DEBUG( glClearAccum )( 0.0, 0.0, 0.0, 1.0 );
+	GL_DEBUG( glClear )( GL_ACCUM_BUFFER_BIT );
+
     // Load the current graphical settings
     // load_graphics();
 
@@ -2926,6 +2930,14 @@ void render_world( camera_t * pcam )
             // Foreground overlay
             render_world_overlay(( TX_REF )TX_WATER_TOP ); // TX_WATER_TOP is watertop.bmp
         }
+
+		if ( pcam->motion_blur > 0 )
+		{
+			//Do motion blur
+			GL_DEBUG( glAccum )( GL_MULT, pcam->motion_blur );
+			GL_DEBUG( glAccum )( GL_ACCUM, 1.00f - pcam->motion_blur );
+			GL_DEBUG( glAccum )( GL_RETURN, 1.0 );
+		}
     }
     gfx_end_3d();
 }

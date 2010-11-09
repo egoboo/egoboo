@@ -159,38 +159,27 @@ bool_t setup_quit()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_read_vfs( const char* filename )
+bool_t setup_read_vfs()
 {
     /// @details BB@> read the setup file
 
-    STRING path_str;
+	// Read the local setup.txt
+	fs_ensureUserFile( "setup.txt", btrue );
+	snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
 
-    if ( INVALID_CSTR( filename ) ) return bfalse;
-
-    fs_ensureUserFile( filename, bfalse );	
-    snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), filename );
-
-	//Copy the new path to the global path string
-    strncpy( _config_filename, path_str, SDL_arraysize( _config_filename ) );
-	
 	// do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
-    // linux if the directory is read-only
-    lConfigSetup = LoadConfigFile( _config_filename, bfalse );
+	// linux if the directory is read-only
+	lConfigSetup = LoadConfigFile( _config_filename, bfalse );
 
-    // if the file can't be opened, try to create something
-    if ( NULL == lConfigSetup )
-    {
-        // this will actually create the file within the write directory
-        // more of a hack than an ideal solution
-        vfs_FILE * ftmp = vfs_openAppend( _config_filename );
-        vfs_close( ftmp );
+	//Did something go wrong?
+	if ( NULL == lConfigSetup )
+	{
+		log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
+		return bfalse;
+	}
 
-        // now try to read it from the write directory (which should be ahead of all the
-        // read directories on the search path
-        lConfigSetup = LoadConfigFile( vfs_resolveReadFilename( _config_filename ), bfalse );
-    }
-
-    return NULL != lConfigSetup;
+	log_info( "Loaded setup file - \"%s\".\n", _config_filename );
+	return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
