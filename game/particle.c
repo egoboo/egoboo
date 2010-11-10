@@ -1505,8 +1505,6 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     loc_pprt->vel.y += fric_floor.y;
     loc_pprt->vel.z += fric_floor.z;
 
-
-
     return pbdl_prt;
 }
 
@@ -1520,88 +1518,79 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     pip_t             * loc_ppip;
     prt_environment_t * penviro;
 
+    int       ival;
+    float     vlen, min_length, uncertainty;
+    fvec3_t   vdiff, vdither;
+
     if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_iprt = pbdl_prt->prt_ref;
     loc_ppip = pbdl_prt->pip_ptr;
     penviro  = &(loc_pprt->enviro);
 
-    if ( !loc_pprt->is_homing || !INGAME_CHR( loc_pprt->target_ref ) ) return pbdl_prt;
+    // is the particle a homing type?
+    if ( !loc_ppip->homing ) return pbdl_prt;
 
-    if ( !INGAME_CHR( loc_pprt->target_ref ) )
-    {
-        goto move_one_particle_do_homing_fail;
-    }
+    // the particle update function is supposed to turn homing off if the particle looses its target
+    if( !loc_pprt->is_homing ) return pbdl_prt;
+
+    // the loc_pprt->is_homing variable is supposed to track the following, but it could have lost synch by this point
+    if ( INGAME_CHR( loc_pprt->attachedto_ref ) || !INGAME_CHR( loc_pprt->target_ref ) ) return pbdl_prt;
+
+    // grab a pointer to the target
     ptarget = ChrList.lst + loc_pprt->target_ref;
 
-    if ( !ptarget->alive )
+    vdiff = fvec3_sub( ptarget->pos.v, prt_get_pos_v(loc_pprt) );
+    vdiff.z += ptarget->bump.height * 0.5f;
+
+    min_length = ( 2 * 5 * 256 * ChrList.lst[loc_pprt->owner_ref].wisdom ) / PERFECTBIG;
+
+    // make a little incertainty about the target
+    uncertainty = 256 - ( 256 * ChrList.lst[loc_pprt->owner_ref].intelligence ) / PERFECTBIG;
+
+    ival = RANDIE;
+    vdither.x = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
+
+    ival = RANDIE;
+    vdither.y = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
+
+    ival = RANDIE;
+    vdither.z = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
+
+    // take away any dithering along the direction of motion of the particle
+    vlen = fvec3_dot_product( loc_pprt->vel.v, loc_pprt->vel.v );
+    if ( vlen > 0.0f )
     {
-        goto move_one_particle_do_homing_fail;
+        float vdot = fvec3_dot_product( vdither.v, loc_pprt->vel.v ) / vlen;
+
+        vdither.x -= vdot * vdiff.x / vlen;
+        vdither.y -= vdot * vdiff.y / vlen;
+        vdither.z -= vdot * vdiff.z / vlen;
     }
-    else if ( !INGAME_CHR( loc_pprt->attachedto_ref ) )
+
+    // add in the dithering
+    vdiff.x += vdither.x;
+    vdiff.y += vdither.y;
+    vdiff.z += vdither.z;
+
+    // Make sure that vdiff doesn't ever get too small.
+    // That just makes the particle slooooowww down when it approaches the target.
+    // Do a real kludge here. this should be a lot faster than a square root, but ...
+    vlen = ABS( vdiff.x ) + ABS( vdiff.y ) + ABS( vdiff.z );
+    if ( vlen != 0.0f )
     {
-        int       ival;
-        float     vlen, min_length, uncertainty;
-        fvec3_t   vdiff, vdither;
+        float factor = min_length / vlen;
 
-        vdiff = fvec3_sub( ptarget->pos.v, prt_get_pos_v(loc_pprt) );
-        vdiff.z += ptarget->bump.height * 0.5f;
-
-        min_length = ( 2 * 5 * 256 * ChrList.lst[loc_pprt->owner_ref].wisdom ) / PERFECTBIG;
-
-        // make a little incertainty about the target
-        uncertainty = 256 - ( 256 * ChrList.lst[loc_pprt->owner_ref].intelligence ) / PERFECTBIG;
-
-        ival = RANDIE;
-        vdither.x = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
-
-        ival = RANDIE;
-        vdither.y = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
-
-        ival = RANDIE;
-        vdither.z = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
-
-        // take away any dithering along the direction of motion of the particle
-        vlen = fvec3_dot_product( loc_pprt->vel.v, loc_pprt->vel.v );
-        if ( vlen > 0.0f )
-        {
-            float vdot = fvec3_dot_product( vdither.v, loc_pprt->vel.v ) / vlen;
-
-            vdither.x -= vdot * vdiff.x / vlen;
-            vdither.y -= vdot * vdiff.y / vlen;
-            vdither.z -= vdot * vdiff.z / vlen;
-        }
-
-        // add in the dithering
-        vdiff.x += vdither.x;
-        vdiff.y += vdither.y;
-        vdiff.z += vdither.z;
-
-        // Make sure that vdiff doesn't ever get too small.
-        // That just makes the particle slooooowww down when it approaches the target.
-        // Do a real kludge here. this should be a lot faster than a square root, but ...
-        vlen = ABS( vdiff.x ) + ABS( vdiff.y ) + ABS( vdiff.z );
-        if ( vlen != 0.0f )
-        {
-            float factor = min_length / vlen;
-
-            vdiff.x *= factor;
-            vdiff.y *= factor;
-            vdiff.z *= factor;
-        }
-
-        loc_pprt->vel.x = ( loc_pprt->vel.x + vdiff.x * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
-        loc_pprt->vel.y = ( loc_pprt->vel.y + vdiff.y * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
-        loc_pprt->vel.z = ( loc_pprt->vel.z + vdiff.z * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
+        vdiff.x *= factor;
+        vdiff.y *= factor;
+        vdiff.z *= factor;
     }
+
+    loc_pprt->vel.x = ( loc_pprt->vel.x + vdiff.x * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
+    loc_pprt->vel.y = ( loc_pprt->vel.y + vdiff.y * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
+    loc_pprt->vel.z = ( loc_pprt->vel.z + vdiff.z * loc_ppip->homingaccel ) * loc_ppip->homingfriction;
 
     return pbdl_prt;
-
-move_one_particle_do_homing_fail:
-
-    end_one_particle_in_game( pbdl_prt->prt_ref );
-
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1616,6 +1605,8 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     pip_t             * loc_ppip;
     prt_environment_t * penviro;
 
+    fvec3_t z_motion_acc;
+
     if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_iprt = pbdl_prt->prt_ref;
@@ -1629,6 +1620,8 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     if ( /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
+
+    fvec3_clear( &z_motion_acc );
 
     // Do particle buoyancy. This is kinda BS the way it is calculated
     if ( loc_pprt->buoyancy > 0.01f )
@@ -1653,7 +1646,7 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
             }
         }
 
-        loc_pprt->vel.z += loc_buoyancy;
+        z_motion_acc.z += loc_buoyancy;
     }
 
 
@@ -1673,14 +1666,18 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
         gperp.y = 0       - gpara.y;
         gperp.z = gravity - gpara.z;
 
-        loc_pprt->vel.x += gpara.x * (1.0f - loc_zlerp) + gperp.x * loc_zlerp;
-        loc_pprt->vel.y += gpara.y * (1.0f - loc_zlerp) + gperp.y * loc_zlerp;
-        loc_pprt->vel.z += gpara.z * (1.0f - loc_zlerp) + gperp.z * loc_zlerp;
+        z_motion_acc.x += gpara.x * (1.0f - loc_zlerp) + gperp.x * loc_zlerp;
+        z_motion_acc.y += gpara.y * (1.0f - loc_zlerp) + gperp.y * loc_zlerp;
+        z_motion_acc.z += gpara.z * (1.0f - loc_zlerp) + gperp.z * loc_zlerp;
     }
     else
     {
-        loc_pprt->vel.z += loc_zlerp * gravity;
+        z_motion_acc.z += loc_zlerp * gravity;
     }
+
+    loc_pprt->vel.x += z_motion_acc.x;
+    loc_pprt->vel.y += z_motion_acc.y;
+    loc_pprt->vel.z += z_motion_acc.z;
 
     return pbdl_prt;
 }
@@ -3028,7 +3025,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
             loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
         }
 
-        loc_pprt->is_homing = loc_ppip->homing && INGAME_CHR( loc_pprt->attachedto_ref );
+        loc_pprt->is_homing = loc_ppip->homing && !INGAME_CHR( loc_pprt->attachedto_ref ) && INGAME_CHR(loc_pprt->target_ref);
     }
 
     // figure out where the particle is on the mesh and update pbdl_prt->prt_ref states
@@ -3108,7 +3105,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt  )
         loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
     }
 
-    loc_pprt->is_homing = loc_ppip->homing && INGAME_CHR( loc_pprt->attachedto_ref );
+    loc_pprt->is_homing = loc_ppip->homing && !INGAME_CHR( loc_pprt->attachedto_ref ) && INGAME_CHR(loc_pprt->target_ref);
 
     // the following functions should not be done the first time through the update loop
     if ( 0 == update_wld ) return pbdl_prt;

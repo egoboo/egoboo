@@ -352,9 +352,9 @@ INLINE bool_t fvec3_scale( fvec3_t * A, const float B )
 {
     if ( NULL == A ) return bfalse;
 
-    ( *A ).x /= B;
-    ( *A ).y /= B;
-    ( *A ).z /= B;
+    ( *A ).x *= B;
+    ( *A ).y *= B;
+    ( *A ).z *= B;
 
     return btrue;
 }
