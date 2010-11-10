@@ -236,7 +236,7 @@ const PRT_REF end_one_particle_in_game( const PRT_REF particle )
         if ( pprt->spawncharacterstate )
         {
             child = spawn_one_character( prt_get_pos(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
-            if ( INGAME_CHR( child ) )
+            if ( DEFINED_CHR( child ) )
             {
                 chr_get_pai( child )->state = pprt->spawncharacterstate;
                 chr_get_pai( child )->owner = pprt->owner_ref;
@@ -267,6 +267,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     Uint32  prt_lifetime;
     fvec3_t tmp_pos;
     Uint16  turn;
+    float   loc_spdlimit;
 
     FACING_T loc_facing;
     CHR_REF loc_chr_origin;
@@ -523,19 +524,29 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->is_homing = ppip->homing && !DEFINED_CHR( pprt->attachedto_ref );
 
     // estimate some parameters for buoyancy and air resistance
-    if( 0.0f == ppip->spdlimit )
-    {
-        pprt->buoyancy       = 0.0f;
-        pprt->air_resistance = 1.0f;
-    }
-    else
-    {
-        pprt->buoyancy = -ppip->spdlimit * (1.0f - air_friction) - gravity;
-        if( pprt->buoyancy < 0.0f ) pprt->buoyancy = 0.0f;
-        if( pprt->buoyancy > 2.0f * ABS(gravity) ) pprt->buoyancy = 2.0f * ABS(gravity);
+    loc_spdlimit = ppip->spdlimit;
+    if ( 0.0f == loc_spdlimit ) loc_spdlimit = -STANDARD_GRAVITY / ( 1.0f - air_friction );
 
-        pprt->air_resistance  = 1.0f - (pprt->buoyancy + gravity) / -ppip->spdlimit / air_friction;
-        if( pprt->air_resistance < 1.0f ) pprt->air_resistance = 1.0f;
+    {
+        const float buoyancy_min       = 0.0f;
+        const float buoyancy_max       = 2.0f * ABS( STANDARD_GRAVITY );
+        const float air_resistance_min = 0.0f;
+        const float air_resistance_max = 1.0f;
+
+        // find the buoyancy, assuming that the air_resistance of the particle
+        // is equal to air_friction at standard gravity
+        pprt->buoyancy = -loc_spdlimit * ( 1.0f - air_friction ) - STANDARD_GRAVITY;
+        pprt->buoyancy = CLIP( pprt->buoyancy, buoyancy_min, buoyancy_max );
+
+        // reduce the buoyancy if the particle falls
+        if ( loc_spdlimit >= 0.0f ) pprt->buoyancy *= 0.5f;
+
+        // determine if there is any left-over air resistance
+        pprt->air_resistance  = 1.0f - ( pprt->buoyancy + STANDARD_GRAVITY ) / -loc_spdlimit;
+        pprt->air_resistance = CLIP( pprt->air_resistance, air_resistance_min, air_resistance_max );
+
+        pprt->air_resistance /= air_friction;
+        pprt->air_resistance = CLIP( pprt->air_resistance, 0.0f, 1.0f );
     }
 
     prt_set_size( pprt, ppip->size_base );
@@ -557,9 +568,6 @@ prt_t * prt_config_do_init( prt_t * pprt )
                pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
                pdata->profile_ref, LOADED_PRO( pdata->profile_ref ) ? ProList.lst[pdata->profile_ref].name : "INVALID" );
 #endif
-
-    // count out all the requests for this particle type
-    ppip->prt_create_count++;
 
     if( MAX_CHR != pprt->attachedto_ref )
     {
@@ -846,8 +854,6 @@ prt_t * prt_config_init( prt_t * pprt )
     base_ptr = POBJ_GET_PBASE( pprt );
     if ( !STATE_INITIALIZING_PBASE( base_ptr ) ) return pprt;
 
-    POBJ_BEGIN_SPAWN( pprt );
-
     pprt = prt_config_do_init( pprt );
     if( NULL == pprt ) return NULL;
 
@@ -949,7 +955,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile
     ppip = PipStack.lst + ipip;
 
     // count all the requests for this particle type
-    ppip->prt_request_count++;
+    ppip->request_count++;
 
     iprt = PrtList_allocate( ppip->force );
     if ( !DEFINED_PRT( iprt ) )
@@ -964,6 +970,8 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile
         return ( PRT_REF )MAX_PRT;
     }
     pprt = PrtList.lst + iprt;
+
+    POBJ_BEGIN_SPAWN( pprt );
 
     pprt->spawn_data.pos        = pos;
     pprt->spawn_data.facing     = facing;
@@ -982,10 +990,11 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile
     // actually force the character to spawn
     pprt = prt_config_activate( pprt, 100 );
 
-    // count out all the requests for this particle type
+    // count all the successful spawns of this particle
     if ( NULL != pprt )
     {
-        ppip->prt_create_count++;
+        POBJ_END_SPAWN( pprt );
+        ppip->create_count++;
     }
 
     return iprt;
@@ -1295,6 +1304,95 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
+prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
+{
+    /// @details BB@> A helper function that computes particle friction with the floor
+    ///
+    /// @note this is pretty much ripped from the character version of this function and may
+    ///       contain some features that are not necessary for any particles that are actually in game.
+    ///       For instance, the only particles that is under their own control are the homing particles
+    ///       but they do not have friction with the mesh, but that case is still treated in the code below.
+
+    prt_t             * loc_pprt;
+    pip_t             * loc_ppip;
+    prt_environment_t * loc_penviro;
+    phys_data_t       * loc_pphys;
+
+    fvec3_t fluid_acc;
+    float loc_fluid_friction;
+
+    if ( NULL == pbdl_prt ) return NULL;
+    loc_pprt    = pbdl_prt->prt_ptr;
+    loc_ppip    = pbdl_prt->pip_ptr;
+    loc_penviro = &( loc_pprt->enviro );
+    loc_pphys   = &( loc_pprt->phys );
+
+    // if the particle is a homing-type particle, ignore friction
+    if ( SPRITE_LIGHT == loc_pprt->type ) return pbdl_prt;
+
+    // assume no acceleration
+    fvec3_clear( &fluid_acc );
+
+    // Light isn't affected by fluid velocity
+    loc_fluid_friction = loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
+
+    if ( loc_pprt->inwater )
+    {
+        fluid_acc = fvec3_sub( waterspeed.v, loc_pprt->vel.v );
+        fvec3_scale( &fluid_acc, 1.0f - loc_fluid_friction );
+    }
+    else
+    {
+        fluid_acc = fvec3_sub( windspeed.v, loc_pprt->vel.v );
+        fvec3_scale( &fluid_acc, 1.0f - loc_fluid_friction );
+    }
+
+    // Apply fluid friction for all particles
+    if( loc_pprt->buoyancy > 0.0f )
+    {
+        float buoyancy_friction = air_friction * loc_pprt->air_resistance;
+
+        // this is a buoyant particle, like smoke
+        if( loc_pprt->inwater )
+        {
+            float water_friction = POW( buoyancy_friction, 2.0f );
+
+            fluid_acc.x += (waterspeed.x-loc_pprt->vel.x) * ( 1.0f - water_friction  );
+            fluid_acc.y += (waterspeed.y-loc_pprt->vel.y) * ( 1.0f - water_friction  );
+            fluid_acc.z += (waterspeed.z-loc_pprt->vel.z) * ( 1.0f - water_friction  );
+        }
+        else
+        {
+            fluid_acc.x += (windspeed.x-loc_pprt->vel.x) * ( 1.0f - buoyancy_friction  );
+            fluid_acc.y += (windspeed.y-loc_pprt->vel.y) * ( 1.0f - buoyancy_friction  );
+            fluid_acc.z += (windspeed.z-loc_pprt->vel.z) * ( 1.0f - buoyancy_friction  );
+        }
+    }
+    else
+    {
+        // this is a normal particle
+        if( loc_pprt->inwater )
+        {
+            fluid_acc.x += (waterspeed.x-loc_pprt->vel.x) * ( 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            fluid_acc.y += (waterspeed.y-loc_pprt->vel.y) * ( 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            fluid_acc.z += (waterspeed.z-loc_pprt->vel.z) * ( 1.0f - loc_penviro->fluid_friction_vrt * loc_pprt->air_resistance );
+        }
+        else
+        {
+            fluid_acc.x += (windspeed.x-loc_pprt->vel.x) * ( 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            fluid_acc.y += (windspeed.y-loc_pprt->vel.y) * ( 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance );
+            fluid_acc.z += (windspeed.z-loc_pprt->vel.z) * ( 1.0f - loc_penviro->fluid_friction_vrt * loc_pprt->air_resistance );
+        }
+    }
+
+    loc_pprt->vel.x += fluid_acc.x;
+    loc_pprt->vel.y += fluid_acc.y;
+    loc_pprt->vel.z += fluid_acc.z;
+
+    return pbdl_prt;
+}
+
+//--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
 {
     /// @details BB@> A helper function that computes particle friction with the floor
@@ -1320,133 +1418,94 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     if ( loc_pprt->is_homing ) return pbdl_prt;
 
     // limit floor friction effects to solid objects
-    if ( SPRITE_SOLID == loc_pprt->type )
+    if ( SPRITE_SOLID != loc_pprt->type )  return pbdl_prt;
+
+    // figure out the acceleration due to the current "floor"
+    floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
+    temp_friction_xy = 1.0f;
+    if ( INGAME_CHR( loc_pprt->onwhichplatform_ref ) )
     {
-        // figure out the acceleration due to the current "floor"
-        floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
-        temp_friction_xy = 1.0f;
-        if ( INGAME_CHR( loc_pprt->onwhichplatform_ref ) )
+        chr_t * pplat = ChrList.lst + loc_pprt->onwhichplatform_ref;
+
+        temp_friction_xy = platstick;
+
+        floor_acc.x = pplat->vel.x - pplat->vel_old.x;
+        floor_acc.y = pplat->vel.y - pplat->vel_old.y;
+        floor_acc.z = pplat->vel.z - pplat->vel_old.z;
+
+        chr_getMatUp( pplat, &vup );
+    }
+    else
+    {
+        temp_friction_xy = 0.5f;
+        floor_acc.x = -loc_pprt->vel.x;
+        floor_acc.y = -loc_pprt->vel.y;
+        floor_acc.z = -loc_pprt->vel.z;
+
+        if ( TWIST_FLAT == penviro->twist )
         {
-            chr_t * pplat = ChrList.lst + loc_pprt->onwhichplatform_ref;
-
-            temp_friction_xy = platstick;
-
-            floor_acc.x = pplat->vel.x - pplat->vel_old.x;
-            floor_acc.y = pplat->vel.y - pplat->vel_old.y;
-            floor_acc.z = pplat->vel.z - pplat->vel_old.z;
-
-            chr_getMatUp( pplat, &vup );
+            vup.x = vup.y = 0.0f;
+            vup.z = 1.0f;
         }
         else
         {
-            temp_friction_xy = 0.5f;
-            floor_acc.x = -loc_pprt->vel.x;
-            floor_acc.y = -loc_pprt->vel.y;
-            floor_acc.z = -loc_pprt->vel.z;
-
-            if ( TWIST_FLAT == penviro->twist )
-            {
-                vup.x = vup.y = 0.0f;
-                vup.z = 1.0f;
-            }
-            else
-            {
-                vup = map_twist_nrm[penviro->twist];
-            }
+            vup = map_twist_nrm[penviro->twist];
         }
+    }
 
-        // the first guess about the floor friction
+    // the first guess about the floor friction
+    fric_floor.x = floor_acc.x * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
+    fric_floor.y = floor_acc.y * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
+    fric_floor.z = floor_acc.z * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
+
+    // the total "friction" due to the floor
+    fric.x = fric_floor.x + penviro->acc.x;
+    fric.y = fric_floor.y + penviro->acc.y;
+    fric.z = fric_floor.z + penviro->acc.z;
+
+    //---- limit the friction to whatever is horizontal to the mesh
+    if ( TWIST_FLAT == penviro->twist )
+    {
+        floor_acc.z = 0.0f;
+        fric.z      = 0.0f;
+    }
+    else
+    {
+        float ftmp;
+        fvec3_t   vup = map_twist_nrm[penviro->twist];
+
+        ftmp = fvec3_dot_product( floor_acc.v, vup.v );
+
+        floor_acc.x -= ftmp * vup.x;
+        floor_acc.y -= ftmp * vup.y;
+        floor_acc.z -= ftmp * vup.z;
+
+        ftmp = fvec3_dot_product( fric.v, vup.v );
+
+        fric.x -= ftmp * vup.x;
+        fric.y -= ftmp * vup.y;
+        fric.z -= ftmp * vup.z;
+    }
+
+    // test to see if the player has any more friction left?
+    penviro->is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > penviro->friction_hrz );
+
+    if ( penviro->is_slipping )
+    {
+        penviro->traction *= 0.5f;
+        temp_friction_xy  = SQRT( temp_friction_xy );
+
         fric_floor.x = floor_acc.x * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
         fric_floor.y = floor_acc.y * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
         fric_floor.z = floor_acc.z * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
-
-        // the total "friction" due to the floor
-        fric.x = fric_floor.x + penviro->acc.x;
-        fric.y = fric_floor.y + penviro->acc.y;
-        fric.z = fric_floor.z + penviro->acc.z;
-
-        //---- limit the friction to whatever is horizontal to the mesh
-        if ( TWIST_FLAT == penviro->twist )
-        {
-            floor_acc.z = 0.0f;
-            fric.z      = 0.0f;
-        }
-        else
-        {
-            float ftmp;
-            fvec3_t   vup = map_twist_nrm[penviro->twist];
-
-            ftmp = fvec3_dot_product( floor_acc.v, vup.v );
-
-            floor_acc.x -= ftmp * vup.x;
-            floor_acc.y -= ftmp * vup.y;
-            floor_acc.z -= ftmp * vup.z;
-
-            ftmp = fvec3_dot_product( fric.v, vup.v );
-
-            fric.x -= ftmp * vup.x;
-            fric.y -= ftmp * vup.y;
-            fric.z -= ftmp * vup.z;
-        }
-
-        // test to see if the player has any more friction left?
-        penviro->is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > penviro->friction_hrz );
-
-        if ( penviro->is_slipping )
-        {
-            penviro->traction *= 0.5f;
-            temp_friction_xy  = SQRT( temp_friction_xy );
-
-            fric_floor.x = floor_acc.x * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
-            fric_floor.y = floor_acc.y * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
-            fric_floor.z = floor_acc.z * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
-        }
-
-        //apply the floor friction
-        loc_pprt->vel.x += fric_floor.x;
-        loc_pprt->vel.y += fric_floor.y;
-        loc_pprt->vel.z += fric_floor.z;
     }
 
-    // Apply fluid friction for all particles
-    if( loc_pprt->buoyancy > 0.0f )
-    {
-        float buoyancy_friction = air_friction * loc_pprt->air_resistance;
+    //apply the floor friction
+    loc_pprt->vel.x += fric_floor.x;
+    loc_pprt->vel.y += fric_floor.y;
+    loc_pprt->vel.z += fric_floor.z;
 
-        // this is a buoyant particle, like smoke
-        if( loc_pprt->inwater )
-        {
-            float water_friction = POW( buoyancy_friction, 2.0f );
 
-            loc_pprt->vel.x += (waterspeed.x-loc_pprt->vel.x) * ( 1.0f - water_friction  );
-            loc_pprt->vel.y += (waterspeed.y-loc_pprt->vel.y) * ( 1.0f - water_friction  );
-            loc_pprt->vel.z += (waterspeed.z-loc_pprt->vel.z) * ( 1.0f - water_friction  );
-        }
-        else
-        {
-            loc_pprt->vel.x += (windspeed.x-loc_pprt->vel.x) * ( 1.0f - buoyancy_friction  );
-            loc_pprt->vel.y += (windspeed.y-loc_pprt->vel.y) * ( 1.0f - buoyancy_friction  );
-            loc_pprt->vel.z += (windspeed.z-loc_pprt->vel.z) * ( 1.0f - buoyancy_friction  );
-        }
-    }
-
-	//Light isnt affected by the wind
-    else if( loc_pprt->type != SPRITE_LIGHT )
-    {
-        // this is a normal particle
-        if( loc_pprt->inwater )
-        {
-            loc_pprt->vel.x += (waterspeed.x-loc_pprt->vel.x) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
-            loc_pprt->vel.y += (waterspeed.y-loc_pprt->vel.y) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
-            loc_pprt->vel.z += (waterspeed.z-loc_pprt->vel.z) * ( 1.0f - penviro->fluid_friction_vrt * loc_pprt->air_resistance );
-        }
-        else
-        {
-            loc_pprt->vel.x += (windspeed.x-loc_pprt->vel.x) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
-            loc_pprt->vel.y += (windspeed.y-loc_pprt->vel.y) * ( 1.0f - penviro->fluid_friction_hrz * loc_pprt->air_resistance );
-            loc_pprt->vel.z += (windspeed.z-loc_pprt->vel.z) * ( 1.0f - penviro->fluid_friction_vrt * loc_pprt->air_resistance );
-        }
-    }
 
     return pbdl_prt;
 }
@@ -1563,14 +1622,40 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
     penviro  = &(loc_pprt->enviro);
 
-	//ZF> We really can't do gravity for Light! A lot of magical effects and attacks in the game depend on being able
-	//    to move forward in a straight line without being dragged down into the dust!
-	if ( loc_pprt->type == SPRITE_LIGHT || loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
+    /// @note ZF@> We really can't do gravity for Light! A lot of magical effects and attacks in the game depend on being able
+    ///            to move forward in a straight line without being dragged down into the dust!
+    /// @note BB@> however, the fireball particle is light, and without gravity it will never bounce on the
+    ///            ground as it is supposed to
+    if ( /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
     // Do particle buoyancy. This is kinda BS the way it is calculated
-    loc_pprt->vel.z += loc_pprt->buoyancy - (1.0f - loc_zlerp) * gravity;
+    if ( loc_pprt->buoyancy > 0.01f )
+    {
+        float loc_buoyancy = loc_pprt->buoyancy  + ( STANDARD_GRAVITY - gravity );
+
+        if ( loc_zlerp < 1.0f )
+        {
+            // the particle is close to the ground
+            if ( loc_pprt->buoyancy + gravity < 0.0f )
+            {
+                // the particle is not bouyant enough to hold itself up.
+                // this means that the normal force will overcome it as it gets close to the ground
+                // and the force needs to disappear close to the ground
+                loc_buoyancy *= loc_zlerp;
+            }
+            else
+            {
+                // the particle floats up in the air. it does not reduce its upward
+                // acceleration as we get closer to the floor.
+                loc_buoyancy += loc_zlerp * gravity;
+            }
+        }
+
+        loc_pprt->vel.z += loc_buoyancy;
+    }
+
 
     // do gravity
     if ( penviro->is_slippy && (TWIST_FLAT != penviro->twist) && loc_zlerp < 1.0f )
@@ -1761,14 +1846,22 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
 
         vel_dot = fvec3_dot_product(floor_nrm.v, loc_pprt->vel.v);
+        if( 0.0f == vel_dot )
+        {
+            fvec3_clear( &vel_perp );
+            vel_para = loc_pprt->vel;
+        }
+        else
+        {
+            vel_perp.x = floor_nrm.x * vel_dot;
+            vel_perp.y = floor_nrm.y * vel_dot;
+            vel_perp.z = floor_nrm.z * vel_dot;
 
-        vel_perp.x = floor_nrm.x * vel_dot;
-        vel_perp.y = floor_nrm.y * vel_dot;
-        vel_perp.z = floor_nrm.z * vel_dot;
+            vel_para.x = loc_pprt->vel.x - vel_perp.x;
+            vel_para.y = loc_pprt->vel.y - vel_perp.y;
+            vel_para.z = loc_pprt->vel.z - vel_perp.z;
+        }
 
-        vel_para.x = loc_pprt->vel.x - vel_perp.x;
-        vel_para.y = loc_pprt->vel.y - vel_perp.y;
-        vel_para.z = loc_pprt->vel.z - vel_perp.z;
 
         if ( vel_dot < - STOPBOUNCINGPART )
         {
@@ -1777,18 +1870,20 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             nrm_total.y += floor_nrm.y;
             nrm_total.z += floor_nrm.z;
 
-            tmp_pos.z = ftmp;
+            // take reflection in the floor into account when computing the new level
+            tmp_pos.z = loc_level + (loc_level - ftmp) * loc_ppip->dampen + 0.1f;
+
             hit_a_floor = btrue;
         }
         else if ( vel_dot > 0.0f )
         {
             // the particle is not bouncing, it is just at the wrong height
-            tmp_pos.z = loc_level;
+            tmp_pos.z = loc_level + 0.1f;
         }
         else
         {
             // the particle is in the "stop bouncing zone"
-            tmp_pos.z     = loc_level + 0.0001f;
+            tmp_pos.z     = loc_level + 0.1f;
             loc_pprt->vel = vel_para;
         }
     }
@@ -2005,6 +2100,10 @@ bool_t move_one_particle( prt_bundle_t * pbdl_prt )
 
     // what is the local environment like?
     pbdl_prt = move_one_particle_get_environment( pbdl_prt );
+    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
+
+    // wind, current, and other fluid friction effects
+    pbdl_prt = move_one_particle_do_fluid_friction( pbdl_prt );
     if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
 
     // do friction with the floor before voluntary motion
@@ -2415,7 +2514,7 @@ void release_all_pip()
         {
             pip_t * ppip = PipStack.lst + cnt;
 
-            max_request = MAX( max_request, ppip->prt_request_count );
+            max_request = MAX( max_request, ppip->request_count );
             tnc++;
         }
     }
@@ -2432,7 +2531,7 @@ void release_all_pip()
                 if ( LOADED_PIP( cnt ) )
                 {
                     pip_t * ppip = PipStack.lst + cnt;
-                    fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->prt_create_count, ppip->prt_request_count );
+                    fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->create_count, ppip->request_count );
                 }
             }
 
@@ -2929,7 +3028,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
             loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
         }
 
-        loc_pprt->is_homing = loc_ppip->homing && !INGAME_CHR( loc_pprt->attachedto_ref );
+        loc_pprt->is_homing = loc_ppip->homing && INGAME_CHR( loc_pprt->attachedto_ref );
     }
 
     // figure out where the particle is on the mesh and update pbdl_prt->prt_ref states
@@ -3009,7 +3108,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt  )
         loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
     }
 
-    loc_pprt->is_homing = loc_ppip->homing && !INGAME_CHR( loc_pprt->attachedto_ref );
+    loc_pprt->is_homing = loc_ppip->homing && INGAME_CHR( loc_pprt->attachedto_ref );
 
     // the following functions should not be done the first time through the update loop
     if ( 0 == update_wld ) return pbdl_prt;

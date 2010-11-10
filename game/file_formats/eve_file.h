@@ -109,7 +109,7 @@ typedef enum e_enchant_add enum_enchant_add;
 /// @details An internal representation of the "enchant.txt" file
 struct s_eve
 {
-    EGO_PROFILE_STUFF;
+    EGO_PROFILE_STUFF
 
     bool_t  override;                    ///< Override other enchants?
     bool_t  removeoverridden;            ///< Remove other enchants?

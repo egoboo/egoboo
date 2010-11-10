@@ -103,7 +103,7 @@ chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
 /// a wrapper for all the datafiles in the *.obj dir
 struct s_object_profile
 {
-    EGO_PROFILE_STUFF;
+    EGO_PROFILE_STUFF
 
     // the sub-profiles
     REF_T   iai;                              ///< the AI  for this profile

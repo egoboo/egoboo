@@ -114,7 +114,7 @@ typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
 /// the module data that the menu system needs
 struct s_mnu_module
 {
-    EGO_PROFILE_STUFF;                           ///< the "base class" of a profile obbject
+    EGO_PROFILE_STUFF                           ///< the "base class" of a profile obbject
 
     mod_file_t base;                               ///< the data for the "base class" of the module
 

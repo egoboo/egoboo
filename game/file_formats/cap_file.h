@@ -173,7 +173,7 @@ typedef struct s_cap_stat cap_stat_t;
 /// The internal representation of the information in data.txt
 struct s_cap
 {
-    EGO_PROFILE_STUFF;
+    EGO_PROFILE_STUFF
 
     // naming
     char         classname[MAXCAPNAMESIZE];            ///< Class name

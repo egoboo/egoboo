@@ -1047,7 +1047,7 @@ bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby, NULL );
+        retval = (0 != mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby, NULL ));
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
@@ -2367,7 +2367,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     {
         // Throw the weapon if it's stacked or a hurl animation
         ithrown = spawn_one_character( pchr->pos, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
-        if ( INGAME_CHR( ithrown ) )
+        if ( DEFINED_CHR( ithrown ) )
         {
             chr_t * pthrown = ChrList.lst + ithrown;
 
@@ -4434,8 +4434,6 @@ chr_t * chr_config_init( chr_t * pchr )
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pchr;
 
-    POBJ_BEGIN_SPAWN(pchr);
-
     pchr = chr_config_do_init( pchr );
     if ( NULL == pchr ) return NULL;
 
@@ -4521,6 +4519,8 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF 
 
     CHR_REF   ichr;
     chr_t   * pchr;
+    cap_t   * pcap;
+    pro_t   * ppro;
 
     // fix a "bad" name
     if ( NULL == name ) name = "";
@@ -4539,6 +4539,17 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF 
         }
         return ( CHR_REF )MAX_CHR;
     }
+    ppro = ProList.lst + profile;
+
+    if ( !LOADED_CAP( ppro->icap ) )
+    {
+        log_debug( "spawn_one_character() - invalid character profile %d\n", ppro->icap );
+        return ( CHR_REF )MAX_CHR;
+    }
+    pcap = CapStack.lst + ppro->icap;
+
+    // count all the requests for this character type
+    pcap->request_count++;
 
     // allocate a new character
     ichr = ChrList_allocate( override );
@@ -4547,8 +4558,9 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF 
         log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( ichr ) );
         return ( CHR_REF )MAX_CHR;
     }
-
     pchr = ChrList.lst + ichr;
+
+    POBJ_BEGIN_SPAWN( pchr );
 
     // just set the spawn info
     pchr->spawn_data.pos      = pos;
@@ -4560,7 +4572,14 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF 
     pchr->spawn_data.override = override;
 
     // actually force the character to spawn
-    chr_config_activate( pchr, 100 );
+    pchr = chr_config_activate( pchr, 100 );
+
+    // count all the successful spawns of this character
+    if ( NULL != pchr )
+    {
+        POBJ_END_SPAWN( pchr );
+        pcap->create_count++;
+    }
 
 #if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
     {

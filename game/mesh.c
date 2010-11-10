@@ -1394,7 +1394,7 @@ struct s_mesh_wall_data
 typedef struct s_mesh_wall_data mesh_wall_data_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits, mesh_wall_data_t * pdata )
+BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits, mesh_wall_data_t * pdata )
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
@@ -1403,20 +1403,22 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD b
     BIT_FIELD pass;
     int   ix, iy;
 
+    ego_irect_t bound;
+
     // deal with the optional parameters
     if( NULL == pdata ) pdata = &loc_data;
 
     // if there is no interaction with the mesh, return 0
     if( 0 == bits ) return 0;
 
+    // require a valid position
+    if ( NULL == pos ) return 0;
+
     // if the mesh is empty, return 0
     if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
     pdata->pinfo = &( pmesh->info );
     pdata->tlist = pmesh->tmem.tile_list;
     pdata->glist = pmesh->gmem.grid_list;
-
-    // require a valid position
-    if ( NULL == pos ) return 0;
 
     if ( 0.0f == radius )
     {
@@ -1435,36 +1437,49 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD b
         pdata->fy_max = pos[kY] + radius;
     }
 
-    pdata->ix_min = floor( pdata->fx_min / GRID_SIZE );
-    pdata->ix_max = floor( pdata->fx_max / GRID_SIZE );
+    // make a large limit in case the pos is so large that it cannot be represented by an int
+    pdata->fx_min = MAX(pdata->fx_min, -9.0*pmesh->gmem.edge_x);
+    pdata->fx_max = MIN(pdata->fx_max, 10.0*pmesh->gmem.edge_x);
 
-    pdata->iy_min = floor( pdata->fy_min / GRID_SIZE );
-    pdata->iy_max = floor( pdata->fy_max / GRID_SIZE );
+    pdata->fy_min = MAX(pdata->fy_min, -9.0*pmesh->gmem.edge_y);
+    pdata->fy_max = MIN(pdata->fy_max, 10.0*pmesh->gmem.edge_y);
 
+    // find an integer bound. 
+    // we need to know about out of range values below clamp these to valid values
+    bound.xmin = floor( pdata->fx_min / GRID_SIZE );
+    bound.xmax = floor( pdata->fx_max / GRID_SIZE );
+    bound.ymin = floor( pdata->fy_min / GRID_SIZE );
+    bound.ymax = floor( pdata->fy_max / GRID_SIZE );
+
+    // limit the test values to be in-bounds
+    pdata->fx_min = MAX(pdata->fx_min, 0.0f);
+    pdata->fx_max = MIN(pdata->fx_max, pmesh->gmem.edge_x);
+    pdata->fy_min = MAX(pdata->fy_min, 0.0f);
+    pdata->fy_max = MIN(pdata->fy_max, pmesh->gmem.edge_y);
+
+    pdata->ix_min = MAX(bound.xmin, 0);
+    pdata->ix_max = MIN(bound.xmax, pmesh->info.tiles_x - 1 );
+    pdata->iy_min = MAX(bound.ymin, 0);
+    pdata->iy_max = MIN(bound.ymax, pmesh->info.tiles_y - 1 );
+
+    // clear the bit accumulator
     pass = 0;
 
     // detect out of bounds in the y-direction
-    if ( pdata->iy_min < 0 || pdata->iy_max >= pdata->pinfo->tiles_y )
+    if ( bound.ymin < 0 || bound.ymax >= pdata->pinfo->tiles_y )
     {
         pass |= ( MPDFX_IMPASS | MPDFX_WALL );
         mesh_bound_tests++;
     }
-    if ( 0 != ( pass & bits ) ) return btrue;
+    if ( 0 != ( pass & bits ) ) return (pass & bits);
 
     // detect out of bounds in the x-direction
-    if ( pdata->ix_min < 0 || pdata->ix_max >= pdata->pinfo->tiles_x )
+    if ( bound.xmin < 0 || bound.xmax >= pdata->pinfo->tiles_x )
     {
         pass |= ( MPDFX_IMPASS | MPDFX_WALL );
         mesh_bound_tests++;
     }
-    if ( 0 != ( pass & bits ) ) return btrue;
-
-    // limit the test values to be in-bounds
-    pdata->ix_min = MAX( pdata->ix_min, 0 );
-    pdata->ix_max = MIN( pdata->ix_max, pdata->pinfo->tiles_x - 1 );
-
-    pdata->iy_min = MAX( pdata->iy_min, 0 );
-    pdata->iy_max = MIN( pdata->iy_max, pdata->pinfo->tiles_y - 1 );
+    if ( 0 != ( pass & bits ) ) return (pass & bits);
 
     for ( iy = pdata->iy_min; iy <= pdata->iy_max; iy++ )
     {
@@ -1479,11 +1494,11 @@ bool_t mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD b
             SET_BIT( pass, pdata->glist[itile].fx );
             mesh_mpdfx_tests++;
 
-            if( HAS_SOME_BITS(pass, bits) ) return btrue;
+            if( HAS_SOME_BITS(pass, bits) ) return (pass & bits);
         }
     }
 
-    return HAS_SOME_BITS( pass, bits );
+    return (pass & bits);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1741,10 +1756,12 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
     if ( NULL == nrm ) nrm = loc_nrm;
     nrm[kX] = nrm[kY] = 0.0f;
 
-    // Do te simplest test.
+    // Do the simplest test.
     // Initializes the shared mesh_wall_data_t struct, so no need to do it again
     // Eliminates all cases of bad source data, so no need to test them again.
-    if( !mesh_test_wall( pmesh, pos, radius, bits, &data ) ) return 0;
+    if( 0 == mesh_test_wall( pmesh, pos, radius, bits, &data ) ) return 0;
+
+    // mesh_test_wall() clamps data.ix_* and data.iy_* to valid values
 
     pass = loc_pass = 0;
     nrm[kX] = nrm[kY] = 0.0f;

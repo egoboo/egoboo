@@ -2772,7 +2772,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
     // Spawn the character
     new_object = spawn_one_character( psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, ( CHR_REF )MAX_CHR );
-    if ( !INGAME_CHR( new_object ) ) return bfalse;
+    if ( !DEFINED_CHR( new_object ) ) return bfalse;
 
     pobject = ChrList.lst + new_object;
 

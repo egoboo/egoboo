@@ -98,6 +98,9 @@ breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst );
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values
+
+#define STANDARD_GRAVITY -1.0f              ///< The ordinary amount of gravity
+
 extern float   hillslide;                   ///< Extra downhill force
 extern float   airfriction;                 ///< 0.9868 is approximately real world air friction
 extern float   waterfriction;               ///< Water resistance

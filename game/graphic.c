@@ -713,17 +713,24 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
 {
     /// @details ZZ@> This function draws a single blip
     ego_frect_t tx_rect, sc_rect;
-    float   width, height;
+
+    float width, height;
+    float loc_x, loc_y;
 
     //Adjust the position values so that they fit inside the minimap
     if ( mini_map )
     {
-        x = x * MAPSIZE / PMesh->gmem.edge_x;
-        y = ( y * MAPSIZE / PMesh->gmem.edge_y ) + sdl_scr.y - MAPSIZE;
+        loc_x = x * MAPSIZE / PMesh->gmem.edge_x;
+        loc_y = ( y * MAPSIZE / PMesh->gmem.edge_y ) + sdl_scr.y - MAPSIZE;
+    }
+    else
+    {
+        loc_x = x;
+        loc_y = y;
     }
 
     //Now draw it
-    if ( x > 0 && y > 0 )
+    if ( loc_x > 0.0f && loc_y > 0.0f )
     {
         oglx_texture_t * ptex = TxTexture_get_ptr(( TX_REF )TX_BLIP );
 
@@ -732,18 +739,15 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
         tx_rect.ymin = ( float )bliprect[color].top    / ( float )oglx_texture_GetTextureHeight( ptex );
         tx_rect.ymax = ( float )bliprect[color].bottom / ( float )oglx_texture_GetTextureHeight( ptex );
 
-        width  = bliprect[color].right  - bliprect[color].left;
-        height = bliprect[color].bottom - bliprect[color].top;
+        width  = sizeFactor * (bliprect[color].right  - bliprect[color].left);
+        height = sizeFactor * (bliprect[color].bottom - bliprect[color].top);
 
-        width  *= sizeFactor;
-        height *= sizeFactor;
+        sc_rect.xmin = loc_x - ( width / 2 );
+        sc_rect.xmax = loc_x + ( width / 2 );
+        sc_rect.ymin = loc_y - ( height / 2 );
+        sc_rect.ymax = loc_y + ( height / 2 );
 
-        sc_rect.xmin = x - ( width / 2 );
-        sc_rect.xmax = x + ( width / 2 );
-        sc_rect.ymin = y - ( height / 2 );
-        sc_rect.ymax = y - ( height / 2 );
-
-        draw_quad_2d( TxTexture_get_ptr(( TX_REF )TX_BLIP ), sc_rect, tx_rect, bfalse );
+        draw_quad_2d( ptex, sc_rect, tx_rect, btrue );
     }
 }
 
@@ -953,6 +957,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
 
     // allow the bitmap to be scaled to arbitrary size
     tx_width   = 128.0f;
+    tx_height  = 128.0f;
     img_width  = 112.0f;    
     if( NULL != tx_ptr )
     {
@@ -1040,7 +1045,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         //---- draw a partial row of empty ticks
         tmp_bartype = 0;
 
-        tx_rect.xmin  = ( tab_width + tick_width * empty_ticks ) / tx_width;
+        tx_rect.xmin  = ( tab_width + tick_width * full_ticks ) / tx_width;
         tx_rect.xmax  = img_width  / tx_width;
         tx_rect.ymin  = tick_height * ( tmp_bartype + 0 ) / tx_height;
         tx_rect.ymax  = tick_height * ( tmp_bartype + 1 ) / tx_height;

@@ -156,7 +156,7 @@ enum e_action
 /// The definition of the Egoboo model type
 struct s_mad
 {
-    EGO_PROFILE_STUFF;
+    EGO_PROFILE_STUFF
 
     Uint16  frameliptowalkframe[4][16];        ///< For walk animations
 

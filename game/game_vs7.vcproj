@@ -84,10 +84,10 @@
 				Optimization="4"
 				GlobalOptimizations="TRUE"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="TRUE"
+				EnableIntrinsicFunctions="FALSE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				EnableFiberSafeOptimizations="TRUE"
+				EnableFiberSafeOptimizations="FALSE"
 				WholeProgramOptimization="FALSE"
 				OptimizeForProcessor="3"
 				OptimizeForWindowsApplication="TRUE"
@@ -157,6 +157,9 @@
 				RelativePath=".\clock.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_console.c">
+			</File>
+			<File
 				RelativePath=".\egoboo_endian.c">
 			</File>
 			<File
@@ -210,6 +213,9 @@
 			</File>
 			<File
 				RelativePath=".\egoboo_config.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_console.h">
 			</File>
 			<File
 				RelativePath=".\egoboo_endian.h">
@@ -507,55 +513,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="lua_interface"
-			Filter="">
-			<File
-				RelativePath=".\ego.i">
-			</File>
-			<File
-				RelativePath=".\ego_wrap.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\egoboo_console.c">
-			</File>
-			<File
-				RelativePath=".\egoboo_console.h">
-			</File>
-			<File
-				RelativePath=".\egoboo_console.inl">
-			</File>
-			<File
-				RelativePath=".\lua_console.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\lua_console.h">
-			</File>
-		</Filter>
-		<Filter
 			Name="SDL extensions"
 			Filter="">
 			<File
@@ -802,114 +759,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Inspirational">
-			<File
-				RelativePath=".\MainLoop.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Task.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Task.h">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCustomBuildTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCustomBuildTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Ticker.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Ticker.h">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCustomBuildTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCustomBuildTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Timer.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Timer.h">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCustomBuildTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCustomBuildTool"/>
-				</FileConfiguration>
-			</File>
-		</Filter>
-		<Filter
 			Name="Resource Files">
 			<File
 				RelativePath="..\res\egoboo.ico">
@@ -927,6 +776,9 @@
 		<Filter
 			Name="Core Inline"
 			Filter="">
+			<File
+				RelativePath=".\egoboo_console.inl">
+			</File>
 			<File
 				RelativePath=".\egoboo_math.inl">
 			</File>

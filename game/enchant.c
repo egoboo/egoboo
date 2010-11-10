@@ -1274,8 +1274,6 @@ enc_t * enc_config_init( enc_t * penc )
     pbase = POBJ_GET_PBASE( penc );
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return penc;
 
-    POBJ_BEGIN_SPAWN(penc);
-
     penc = enc_config_do_init( penc );
     if ( NULL == penc ) return NULL;
 
@@ -1474,6 +1472,8 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     }
     penc = EncList.lst + enc_ref;
 
+    POBJ_BEGIN_SPAWN( penc );
+
     penc->spawn_data.owner_ref   = owner;
     penc->spawn_data.target_ref  = loc_target;
     penc->spawn_data.spawner_ref = spawner;
@@ -1483,10 +1483,11 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     // actually force the character to spawn
     penc = enc_config_activate( penc, 100 );
 
-    // count out all the requests for this particle type
+    // log all the successful spawns
     if ( NULL != penc )
     {
-        peve->enc_create_count++;
+        POBJ_END_SPAWN( penc );
+        peve->create_count++;
     }
 
     return enc_ref;

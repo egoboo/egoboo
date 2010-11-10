@@ -1849,7 +1849,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = 0;
 
     ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
-    if ( !INGAME_CHR( ichr ) )
+    if ( !DEFINED_CHR( ichr ) )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -5276,8 +5276,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
-
-    if ( !INGAME_CHR( ichr ) )
+    if ( !DEFINED_CHR( ichr ) )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -5331,7 +5330,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
-    if ( !INGAME_CHR( ichr ) )
+    if ( !DEFINED_CHR( ichr ) )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -6584,6 +6583,11 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     returncode = bfalse;
     if ( NULL != ppip )
     {
+        /// @note BB@> if we do not change both the ppip->damage.from AND the ppip->damage.to
+        /// an error will be generated down the line...
+
+        float damage_rand = ppip->damage.to - ppip->damage.from;
+
         // save some values
         iTmp = ppip->vel_hrz_pair.base;
         tTmp = ppip->spacing_hrz_pair.base;
@@ -6593,6 +6597,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         ppip->vel_hrz_pair.base     = pstate->x;
         ppip->spacing_hrz_pair.base = pstate->y;
         ppip->damage.from           = FP8_TO_FLOAT( pstate->argument );
+        ppip->damage.to             = ppip->damage.from + damage_rand;
 
         spawn_poof( pself->index, pchr->profile_ref );
 
@@ -6600,6 +6605,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         ppip->vel_hrz_pair.base     = iTmp;
         ppip->spacing_hrz_pair.base = tTmp;
         ppip->damage.from           = fTmp;
+        ppip->damage.to             = ppip->damage.from + damage_rand;
 
         returncode = btrue;
     }
@@ -7194,13 +7200,13 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, FACE_NORTH, NULL, ( CHR_REF )MAX_CHR );
-    if ( !INGAME_CHR( ichr ) )
+    if ( !DEFINED_CHR( ichr ) )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
             cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "IVALID" : pcap->classname, pstate->argument );
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
         }
     }
     else
