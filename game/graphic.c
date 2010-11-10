@@ -317,23 +317,31 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
         cTmp = szText[cnt];
         while ( CSTR_END != cTmp )
         {
+            Uint8 iTmp;
+
             // Convert ASCII to our own little font
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = fmod( x, TABADD ) + TABADD;
+                x = (floor( (float)x / (float)TABADD ) + 1.0f) * TABADD;
             }
             else if ( '\n' == cTmp )
             {
                 x  = x_stt;
                 y += fontyspacing;
             }
+            else if (isspace(cTmp))
+            {
+                // other whitespace
+                iTmp = asciitofont[cTmp];
+                x += fontxspacing[iTmp] / 2;
+            }
             else
             {
                 // Normal letter
-                cTmp = asciitofont[cTmp];
-                draw_one_font(tx_ptr, cTmp, x, y );
-                x += fontxspacing[cTmp];
+                iTmp = asciitofont[cTmp];
+                draw_one_font(tx_ptr, iTmp, x, y );
+                x += fontxspacing[iTmp];
             }
 
             cnt++;
@@ -627,7 +635,7 @@ bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
     pgfx->shaon        = pcfg->shadow_allowed;
     pgfx->shasprite    = pcfg->shadow_sprite;
 
-    pgfx->shading      = pcfg->gourard_req ? GL_SMOOTH : GL_FLAT;
+    pgfx->shading      = pcfg->gouraud_req ? GL_SMOOTH : GL_FLAT;
     pgfx->dither       = pcfg->use_dither;
     pgfx->perspective  = pcfg->use_perspective;
     pgfx->phongon      = pcfg->use_phong;
@@ -1161,7 +1169,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 
     maxx = maxx + stt_x;
 
-    while ( cTmp != 0 )
+    while ( '\0' != cTmp )
     {
         // Check each new word for wrapping
         if ( newword )
@@ -1185,10 +1193,12 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
         }
         else
         {
+            Uint8 iTmp;
+
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = fmod( x, TABADD ) + TABADD;
+                x = (floor( (float)x / (float)TABADD ) + 1.0f) * TABADD;
             }
             else if ( '\n' == cTmp )
             {
@@ -1196,21 +1206,27 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
                 y += fontyspacing;
                 newy += fontyspacing;
             }
+            else if (isspace(cTmp))
+            {
+                // other whitespace
+                iTmp = asciitofont[cTmp];
+                x += fontxspacing[iTmp] / 2;
+            }
             else
             {
                 // Normal letter
-                cTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr, cTmp, x, y );
-                x += fontxspacing[cTmp];
+                iTmp = asciitofont[cTmp];
+                draw_one_font(tx_ptr, iTmp, x, y );
+                x += fontxspacing[iTmp];
             }
 
             cTmp = szText[cnt];
-            if ( '~' == cTmp || ' ' == cTmp )
+            cnt++;
+
+            if ( '~' == cTmp || '\n' == cTmp || '\r' == cTmp || isspace(cTmp) )
             {
                 newword = btrue;
             }
-
-            cnt++;
         }
     }
 
@@ -4750,7 +4766,7 @@ void load_graphics()
         GL_DEBUG( glDisable )( GL_DITHER );
     }
 
-    // Enable gourad shading? (Important!)
+    // Enable Gouraud shading? (Important!)
     GL_DEBUG( glShadeModel )( gfx.shading );
 
     // Enable antialiasing?
@@ -5391,15 +5407,14 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
     tile_mem_t      * ptmem;
     ego_grid_info_t * glist;
 
+    dynalight_t fake_dynalight;
+
     if ( NULL == pmesh ) return;
     pinfo = &( pmesh->info );
     pgmem = &( pmesh->gmem );
     ptmem = &( pmesh->tmem );
 
     glist = pgmem->grid_list;
-
-    // refresh the dynamic light list
-    gfx_make_dynalist( pcam );
 
     // find a bounding box for the "frustum"
     mesh_bound.xmin = pgmem->edge_x;
@@ -5423,34 +5438,48 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
         mesh_bound.ymax = MAX( mesh_bound.ymax, y0 + GRID_SIZE / 2 );
     }
 
-    if ( mesh_bound.xmin >= mesh_bound.xmax || mesh_bound.ymin >= mesh_bound.ymax ) return;
+    // is the visible mesh list empty?
+    if ( mesh_bound.xmin >= mesh_bound.xmax || mesh_bound.ymin >= mesh_bound.ymax ) 
+        return;
+
+    // clear out the dynalight registry
+    reg_count = 0;
+
+    // refresh the dynamic light list
+    gfx_make_dynalist( pcam );
+
+    // assume no dynamic lighting
+    needs_dynalight = bfalse;
+
+    // assume no "extra halp" for systems with only flat lighting
+    memset( &fake_dynalight, 0, sizeof(fake_dynalight) );
 
     // make bounding boxes for each dynamic light
-    reg_count = 0;
-    light_bound.xmin = pgmem->edge_x;
-    light_bound.xmax = 0;
-    light_bound.ymin = pgmem->edge_y;
-    light_bound.ymax = 0;
-    for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+    if( GL_FLAT != gfx.shading )
     {
-        float radius;
-        ego_frect_t ftmp;
-
-        dynalight_t * pdyna = dyna_list + cnt;
-
-        if ( pdyna->falloff <= 0 ) continue;
-
-        radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
-
-        ftmp.xmin = floor(( pdyna->pos.x - radius ) / GRID_SIZE ) * GRID_SIZE;
-        ftmp.xmax = ceil(( pdyna->pos.x + radius ) / GRID_SIZE ) * GRID_SIZE;
-        ftmp.ymin = floor(( pdyna->pos.y - radius ) / GRID_SIZE ) * GRID_SIZE;
-        ftmp.ymax = ceil(( pdyna->pos.y + radius ) / GRID_SIZE ) * GRID_SIZE;
-
-        // check to see if it intersects the "frustum"
-        if ( ftmp.xmin <= mesh_bound.xmax && ftmp.xmax >= mesh_bound.xmin )
+        light_bound.xmin = pgmem->edge_x;
+        light_bound.xmax = 0;
+        light_bound.ymin = pgmem->edge_y;
+        light_bound.ymax = 0;
+        for ( cnt = 0; cnt < dyna_list_count; cnt++ )
         {
-            if ( ftmp.ymin <= mesh_bound.ymax && ftmp.ymax >= mesh_bound.ymin )
+            float radius;
+            ego_frect_t ftmp;
+
+            dynalight_t * pdyna = dyna_list + cnt;
+
+            if ( pdyna->falloff <= 0.0f || 0.0f == pdyna->level ) continue;
+
+            radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
+            
+            // find the intersection with the frustum boundary
+            ftmp.xmin = MAX( pdyna->pos.x - radius, mesh_bound.xmin );
+            ftmp.xmax = MIN( pdyna->pos.x + radius, mesh_bound.xmax );
+            ftmp.ymin = MAX( pdyna->pos.y - radius, mesh_bound.ymin );
+            ftmp.ymax = MIN( pdyna->pos.y + radius, mesh_bound.ymax );
+
+            // check to see if it intersects the "frustum"
+            if ( ftmp.xmin < ftmp.xmax && ftmp.ymin < ftmp.ymax )
             {
                 reg[reg_count].bound     = ftmp;
                 reg[reg_count].reference = cnt;
@@ -5463,12 +5492,75 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
                 light_bound.ymax = MAX( light_bound.ymax, ftmp.ymax );
             }
         }
-    }
 
-    needs_dynalight = btrue;
-    if ( 0 == reg_count || light_bound.xmin >= light_bound.xmax || light_bound.ymin >= light_bound.ymax )
+        // are there any dynalights visible?
+        if ( reg_count > 0 && light_bound.xmax >= light_bound.xmin && light_bound.ymax >= light_bound.ymin )
+        {
+            needs_dynalight = btrue;
+        }
+    }
+    else
     {
-        needs_dynalight = bfalse;
+        float dyna_weight = 0.0f;
+        float dyna_weight_sum = 0.0f;
+
+        fvec3_t       diff;
+        dynalight_t * pdyna;
+
+        // evaluate all the lights at the camera position
+        for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+        {
+            pdyna = dyna_list + cnt;
+        
+            // evaluate the intensity at the camera
+            diff.x = pdyna->pos.x - pcam->center.x;
+            diff.y = pdyna->pos.y - pcam->center.y;
+            diff.z = pdyna->pos.z - pcam->center.z - 90.0f;   // evaluated at the "head height" of a character
+
+            dyna_weight = ABS(dyna_lighting_intensity( pdyna, diff.v ));
+
+            fake_dynalight.distance += dyna_weight * pdyna->distance;
+            fake_dynalight.falloff  += dyna_weight * pdyna->falloff;
+            fake_dynalight.level    += dyna_weight * pdyna->level;
+            fake_dynalight.pos.x    += dyna_weight * (pdyna->pos.x - pcam->center.x);
+            fake_dynalight.pos.y    += dyna_weight * (pdyna->pos.y - pcam->center.y);
+            fake_dynalight.pos.z    += dyna_weight * (pdyna->pos.z - pcam->center.z);
+
+            dyna_weight_sum         += dyna_weight;
+        }
+
+        // use a singel dynalight to represent the sum of all dynalights
+        if( dyna_weight_sum > 0.0f )
+        {
+            float radius;
+            ego_frect_t ftmp;
+
+            fake_dynalight.distance /= dyna_weight_sum;
+            fake_dynalight.falloff  /= dyna_weight_sum;
+            fake_dynalight.level    /= dyna_weight_sum;
+            fake_dynalight.pos.x    = fake_dynalight.pos.x / dyna_weight_sum + pcam->center.x;
+            fake_dynalight.pos.y    = fake_dynalight.pos.y / dyna_weight_sum + pcam->center.y;
+            fake_dynalight.pos.z    = fake_dynalight.pos.z / dyna_weight_sum + pcam->center.z;
+
+            radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
+
+            // find the intersection with the frustum boundary
+            ftmp.xmin = MAX( fake_dynalight.pos.x - radius, mesh_bound.xmin );
+            ftmp.xmax = MIN( fake_dynalight.pos.x + radius, mesh_bound.xmax );
+            ftmp.ymin = MAX( fake_dynalight.pos.y - radius, mesh_bound.ymin );
+            ftmp.ymax = MIN( fake_dynalight.pos.y + radius, mesh_bound.ymax );
+
+            // make a fake light bound
+            light_bound = ftmp;
+
+            // register the fake dynalight
+            reg[reg_count].bound     = ftmp;
+            reg[reg_count].reference = -1;
+            reg_count++;
+
+            // leth the downstream calc know we are coming
+            needs_dynalight = btrue;
+        }
     }
 
     // sum up the lighting from global sources
@@ -5492,14 +5584,14 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
         // not every light-tile calculation is done every single frame
-        resist_lighting_calculation = ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) );
+        resist_lighting_calculation = ( 0 != ( ( (ix + iy) ^ frame_all ) & 0x03 ) );
 
         if ( !resist_lighting_calculation )
         {
             lighting_cache_t * pcache_old;
             lighting_cache_t   cache_new;
 
-            int    dynalight_count = 0;
+            int dynalight_count = 0;
 
             // this is not a "bad" grid box, so grab the lighting info
             pcache_old = &( glist[fan].cache );
@@ -5514,7 +5606,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
             };
 
             // do we need any dynamic lighting at all?
-            if ( gfx.shading != GL_FLAT && needs_dynalight )
+            if ( needs_dynalight )
             {
                 // calculate the local lighting
 
@@ -5548,7 +5640,14 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
 
                             // this should be a valid intersection, so proceed
                             tnc = reg[cnt].reference;
-                            pdyna = dyna_list + tnc;
+                            if( tnc < 0 )
+                            {
+                                pdyna = &fake_dynalight;
+                            }
+                            else
+                            {
+                                pdyna = dyna_list + tnc;
+                            }
 
                             nrm.x = pdyna->pos.x - x0;
                             nrm.y = pdyna->pos.y - y0;
@@ -5561,9 +5660,12 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
                     }
                 }
             }
-
+            else if( GL_FLAT == gfx.shading )
+            {
+                // evaluate the intensity at the camera
+            }
+            
             // blend in the global lighting every single time
-
             // average this in with the existing lighting
             lighting_cache_blend( pcache_old, &cache_new, local_keep );
 

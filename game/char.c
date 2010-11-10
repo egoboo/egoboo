@@ -3212,7 +3212,7 @@ CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_overr
     // do the rest of the levels not listed in data.txt
     setup_xp_table( icap );
 
-    if ( cfg.gourard_req )
+    if ( cfg.gouraud_req )
     {
         pcap->uniformlit = bfalse;
     }

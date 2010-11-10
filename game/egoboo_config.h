@@ -75,7 +75,7 @@
 #undef   DEBUG_CHR_LIST      ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst
 
 #define CLIP_LIGHT_FANS      ///< is the light_fans() function going to be throttled?
-#define CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
+#undef  CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
 
 #undef  DEBUG_WAYPOINTS      ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
 

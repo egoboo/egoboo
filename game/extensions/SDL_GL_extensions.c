@@ -143,7 +143,7 @@ SDL_bool SDL_GL_set_gl_mode( struct s_oglx_video_parameters * v )
     if ( v->dither ) GL_DEBUG( glEnable )( GL_DITHER );
     else GL_DEBUG( glDisable )( GL_DITHER );
 
-    // Enable gourad v->shading? (Important!)
+    // Enable Gouraud v->shading? (Important!)
     GL_DEBUG( glShadeModel )( v->shading );
 
     // Enable v->antialiasing?

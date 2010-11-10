@@ -64,7 +64,7 @@ struct s_egoboo_config
     bool_t                  overlay_allowed;           ///< Allow large overlay?
     bool_t                  background_allowed;        ///< Allow large background?
     bool_t                  fog_allowed;
-    bool_t                  gourard_req;               ///< Gourad shading?
+    bool_t                  gouraud_req;               ///< Gouraud shading?
     Uint8                   multisamples;          ///< Antialiasing?
     Uint8                   texturefilter_req;             ///< Texture filtering?
     int                     dyna_count_req;            ///< Max number of lights to draw

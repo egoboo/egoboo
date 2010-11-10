@@ -112,7 +112,7 @@ void egoboo_config_init( egoboo_config_t * pcfg )
     pcfg->overlay_allowed       = bfalse;               // Allow large overlay?
     pcfg->background_allowed    = bfalse;            // Allow large background?
     pcfg->fog_allowed           = btrue;
-    pcfg->gourard_req           = btrue;              // Gourad shading?
+    pcfg->gouraud_req           = btrue;              // Gouraud shading?
     pcfg->multisamples          = 0;                  // Antialiasing?
     pcfg->texturefilter_req     = TX_UNFILTERED;      // Texture filtering?
     pcfg->dyna_count_req        = 12;                 // Max number of lights to draw
@@ -268,8 +268,8 @@ bool_t setup_download( egoboo_config_t * pcfg )
     // Enable fog?
     GetKey_bool( "FOG", pcfg->fog_allowed, cfg_default.fog_allowed );
 
-    // Do gourad shading?
-    GetKey_bool( "GOURAUD_SHADING", pcfg->gourard_req, cfg_default.gourard_req );
+    // Do Gouraud shading?
+    GetKey_bool( "GOURAUD_SHADING", pcfg->gouraud_req, cfg_default.gouraud_req );
 
     // Enable antialiasing?
     GetKey_int( "ANTIALIASING", pcfg->multisamples, cfg_default.multisamples );
@@ -493,8 +493,8 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Enable fog?
     SetKey_bool( "FOG", pcfg->fog_allowed );
 
-    // Do gourad shading?
-    SetKey_bool( "GOURAUD_SHADING", pcfg->gourard_req );
+    // Do Gouraud shading?
+    SetKey_bool( "GOURAUD_SHADING", pcfg->gouraud_req );
 
     // Enable antialiasing?
     SetKey_int( "ANTIALIASING", pcfg->multisamples );

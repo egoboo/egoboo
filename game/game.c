@@ -3754,7 +3754,7 @@ bool_t make_water( water_instance_t * pinst, wawalite_water_t * pdata )
 
         // [claforte] Probably need to replace this with a
         //           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
-        if ( gfx.shading == GL_FLAT )
+        if ( GL_FLAT == gfx.shading )
             pinst->spek[cnt] = 0;
         else
             pinst->spek[cnt] = spek;

@@ -561,7 +561,7 @@ float lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t sum_dyna_lighting( dynalight_t * pdyna, lighting_vector_t lighting, fvec3_base_t nrm )
+float dyna_lighting_intensity( dynalight_t * pdyna, fvec3_base_t diff )
 {
     /// @details BB@> In the Aaron's lighting, the falloff function was
     ///                  light = (255 - r^2 / falloff) / 255.0f
@@ -595,20 +595,39 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, lighting_vector_t lighting, fvec3
     ///              exact problem because the infinite range means that it can potentally affect
     ///              the entire mesh, causing problems with computing a large number of lights
 
-    fvec3_base_t local_nrm;
-
-    float rad_sqr;
-    float rho_sqr  = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY];
-    float y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
-
+    float rho_sqr;
+    float y2;
     float level = 0.0f;
+
+    if( NULL == diff ) return 0.0f;
+
+    if( NULL == pdyna || 0.0f == pdyna->level ) return 0.0f;
+
+    rho_sqr  = diff[kX] * diff[kX] + diff[kY] * diff[kY];
+    y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
+
     if ( y2 > 1.0f ) return bfalse;
 
     level = 1.0f - 0.5f * y2 * ( 3.0f - y2 * y2 );
-    level *= 255 * pdyna->level;
+    level *= pdyna->level;
+
+    return level;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t sum_dyna_lighting( dynalight_t * pdyna, lighting_vector_t lighting, fvec3_base_t nrm )
+{
+    fvec3_base_t local_nrm;
+
+    float rad_sqr, level;
+
+    if( NULL == pdyna || NULL == lighting || NULL == nrm ) return bfalse;
+
+    level = 255 * dyna_lighting_intensity( pdyna, nrm );
+    if( 0.0f == level ) return btrue;
 
     // allow negative lighting, or blind spots will not work properly
-    rad_sqr = rho_sqr + nrm[kZ] * nrm[kZ];
+    rad_sqr = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] + nrm[kZ] * nrm[kZ];
 
     // make a local copy of the normal so we do not normalize the data in the calling function
     memcpy( local_nrm, nrm, sizeof( local_nrm ) );

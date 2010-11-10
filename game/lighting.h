@@ -102,3 +102,4 @@ float lighting_cache_test( lighting_cache_t * src[], float u, float v, float * l
 float lighting_evaluate_cache( lighting_cache_t * src, fvec3_base_t nrm, float z, aabb_t bbox, float * light_amb, float * light_dir );
 
 bool_t sum_dyna_lighting( dynalight_t * pdyna, lighting_vector_t lighting, fvec3_base_t nrm );
+float  dyna_lighting_intensity( dynalight_t * pdyna, fvec3_base_t diff );
