@@ -275,13 +275,10 @@ int CoNode_cmp( const void * vleft, const void * vright )
     itmp = ( signed )REF_TO_INT( pleft->prta ) - ( signed )REF_TO_INT( pright->prta );
     if ( 0 != itmp ) return itmp;
 
-    itmp = ( signed )REF_TO_INT( pleft->chra ) - ( signed )REF_TO_INT( pright->chra );
+    itmp = ( signed )REF_TO_INT( pleft->chrb ) - ( signed )REF_TO_INT( pright->chrb );
     if ( 0 != itmp ) return itmp;
 
     itmp = ( signed )REF_TO_INT( pleft->prtb ) - ( signed )REF_TO_INT( pright->prtb );
-    if ( 0 != itmp ) return itmp;
-
-    itmp = ( signed )REF_TO_INT( pleft->chrb ) - ( signed )REF_TO_INT( pright->chrb );
     if ( 0 != itmp ) return itmp;
 
     itmp = ( signed )pleft->tileb - ( signed )pright->tileb;
