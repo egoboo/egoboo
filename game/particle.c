@@ -1642,7 +1642,7 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
             {
                 // the particle floats up in the air. it does not reduce its upward
                 // acceleration as we get closer to the floor.
-                loc_buoyancy += loc_zlerp * gravity;
+                loc_buoyancy += (1.0f - loc_zlerp) * gravity;
             }
         }
 

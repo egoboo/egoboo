@@ -5610,18 +5610,20 @@ void gfx_reload_all_textures()
 //--------------------------------------------------------------------------------------------
 void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha )
 {
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
+    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {
         if ( NULL == ptex || INVALID_GL_ID == ptex->base.binding )
         {
-            GL_DEBUG( glDisable )( GL_TEXTURE_1D );                               // GL_ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );                               // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_TEXTURE_2D );                           // GL_ENABLE_BIT
         }
         else
         {
-            GL_DEBUG( glEnable )( ptex->base.target );                               // GL_ENABLE_BIT
+            GL_DEBUG( glEnable )( ptex->base.target );                        // GL_ENABLE_BIT
             oglx_texture_Bind( ptex );
         }
+
+        GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );                      // GL_CURRENT_BIT
 
         if ( use_alpha )
         {
