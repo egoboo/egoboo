@@ -28,6 +28,7 @@
 //--------------------------------------------------------------------------------------------
 struct s_BSP_aabb
 {
+    bool_t      valid;
     size_t      dim;
     float_ary_t mins;
     float_ary_t mids;
@@ -44,6 +45,9 @@ typedef struct s_BSP_aabb BSP_aabb_t;
 BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim );
 BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb );
 
+BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim );
+BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb );
+
 bool_t       BSP_aabb_empty( BSP_aabb_t * psrc1 );
 bool_t       BSP_aabb_clear( BSP_aabb_t * psrc1 );
 bool_t       BSP_aabb_lhs_contains_rhs( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr );
@@ -51,7 +55,11 @@ bool_t       BSP_aabb_overlap( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr );
 
 bool_t       BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc );
 
-#define BSP_AABB_INIT_VALUES { 0, DYNAMIC_ARY_INIT_VALS, DYNAMIC_ARY_INIT_VALS }
+bool_t       BSP_aabb_validate( BSP_aabb_t * psrc1 );
+bool_t       BSP_aabb_invalidate( BSP_aabb_t * psrc1 );
+bool_t       BSP_aabb_copy( BSP_aabb_t * pdst, BSP_aabb_t * psrc );
+
+#define BSP_AABB_INIT_VALUES { bfalse, 0, DYNAMIC_ARY_INIT_VALS, DYNAMIC_ARY_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_leaf

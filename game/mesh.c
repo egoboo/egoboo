@@ -1444,7 +1444,7 @@ BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIEL
     pdata->fy_min = MAX(pdata->fy_min, -9.0*pmesh->gmem.edge_y);
     pdata->fy_max = MIN(pdata->fy_max, 10.0*pmesh->gmem.edge_y);
 
-    // find an integer bound. 
+    // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
     bound.xmin = floor( pdata->fx_min / GRID_SIZE );
     bound.xmax = floor( pdata->fx_max / GRID_SIZE );

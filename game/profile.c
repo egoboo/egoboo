@@ -1204,25 +1204,27 @@ bool_t obj_BSP_ctor( obj_BSP_t * pbsp, mesh_BSP_t * pmesh_bsp )
     t = &( pbsp->tree );
 
     // copy the volume from the mesh
-    t->bbox.mins.ary[0] = pmesh_bsp->volume.mins[OCT_X];
-    t->bbox.mins.ary[1] = pmesh_bsp->volume.mins[OCT_Y];
+    t->bbox.mins.ary[kX] = pmesh_bsp->volume.mins[OCT_X];
+    t->bbox.mins.ary[kY] = pmesh_bsp->volume.mins[OCT_Y];
 
-    t->bbox.maxs.ary[0] = pmesh_bsp->volume.maxs[OCT_X];
-    t->bbox.maxs.ary[1] = pmesh_bsp->volume.maxs[OCT_Y];
+    t->bbox.maxs.ary[kX] = pmesh_bsp->volume.maxs[OCT_X];
+    t->bbox.maxs.ary[kY] = pmesh_bsp->volume.maxs[OCT_Y];
 
     // make some extra space in the z direction
     bsp_size = MAX( ABS( t->bbox.mins.ary[OCT_X] ), ABS( t->bbox.maxs.ary[OCT_X] ) );
     bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Y] ), ABS( t->bbox.maxs.ary[OCT_Y] ) ) );
     bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Z] ), ABS( t->bbox.maxs.ary[OCT_Z] ) ) );
 
-    t->bbox.mins.ary[2] = -bsp_size * 2;
-    t->bbox.maxs.ary[2] =  bsp_size * 2;
+    t->bbox.mins.ary[kZ] = -bsp_size * 2;
+    t->bbox.maxs.ary[kZ] =  bsp_size * 2;
 
     // calculate the mid positions
     for ( cnt = 0; cnt < 3; cnt++ )
     {
         t->bbox.mids.ary[cnt] = 0.5f * ( t->bbox.mins.ary[cnt] + t->bbox.maxs.ary[cnt] );
     }
+
+    BSP_aabb_validate( &(t->bbox) );
 
     return btrue;
 }

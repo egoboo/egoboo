@@ -240,7 +240,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 				case 'C':	pcap->damagemodifier[damagetype][cnt] |= DAMAGECHARGE;		break;
 				case 'M':	pcap->damagemodifier[damagetype][cnt] |= DAMAGEMANA;			break;
 				case 'I':	pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVICTUS;		break;
-				
+
 				//F is nothing
 				default: break;
 			}
@@ -401,7 +401,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 		else if ( idsz == MAKE_IDSZ( 'I', 'N', 'T', 'D' ) ) pcap->int_bonus = fget_float( fileread );
 		else if ( idsz == MAKE_IDSZ( 'W', 'I', 'S', 'D' ) ) pcap->wis_bonus = fget_float( fileread );
 		else if ( idsz == MAKE_IDSZ( 'D', 'E', 'X', 'D' ) ) pcap->dex_bonus = fget_float( fileread );
-  
+
 		//If it is none of the predefined IDSZ extensions then add it as a new skill
 		else idsz_map_add( pcap->skills, SDL_arraysize( pcap->skills ), idsz, fget_int( fileread ) );
     }
@@ -725,7 +725,6 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 	if( pcap->wis_bonus > 0 )
 		fput_expansion_float( filewrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), pcap->wis_bonus );
 
-
     // Basic stuff that is always written
     fput_expansion( filewrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), pcap->money );
     fput_expansion( filewrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), pcap->canuseplatforms );
@@ -735,7 +734,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     fput_expansion( filewrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), pcap->level_override );
     fput_expansion_float( filewrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( pcap->life_spawn ) );
     fput_expansion_float( filewrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( pcap->mana_spawn ) );
-	
+
     // Copy all skill expansions
 	{
 		IDSZ_node_t *pidsz;

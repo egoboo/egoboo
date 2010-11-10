@@ -830,7 +830,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
                 case FIFTARGETISFACINGSELF:  returncode = scr_TargetIsFacingSelf( pstate, pself ); break;
                 case FDRAWBILLBOARD:         returncode = scr_DrawBillboard( pstate, pself ); break;
 				case FSETTARGETTOFIRSTBLAHINPASSAGE: returncode = scr_set_TargetToBlahInPassage( pstate, pself ); break;
-                
+
 				case FIFLEVELUP:            returncode = scr_LevelUp( pstate, pself ); break;
 				case FGIVESKILLTOTARGET:    returncode = scr_GiveSkillToTarget( pstate, pself ); break;
 

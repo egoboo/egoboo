@@ -195,7 +195,7 @@ DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 #define CAM_ROTMESH_DOWN                     30
 
 // The ones that get used
-extern int rotmeshtopside;                                 
+extern int rotmeshtopside;
 extern int rotmeshbottomside;
 extern int rotmeshup;
 extern int rotmeshdown;

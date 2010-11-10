@@ -185,7 +185,7 @@ enum e_chr_movement_bits
     CHR_MOVEMENT_BITS_STOP  = 1 << CHR_MOVEMENT_STOP,
     CHR_MOVEMENT_BITS_SNEAK = 1 << CHR_MOVEMENT_SNEAK,
     CHR_MOVEMENT_BITS_WALK  = 1 << CHR_MOVEMENT_WALK,
-    CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN  
+    CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN
 };
 
 //------------------------------------
@@ -228,7 +228,6 @@ struct s_chr_environment
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
-
 
     bool_t grounded;              ///< standing on something?
 
@@ -698,5 +697,9 @@ float * chr_get_pos_v( chr_t * pchr );
 
 bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
 bool_t character_is_attacking( chr_t *pchr );
+
+// this function is needed because the "hidden" state of an ai is determined by
+// whether  ai.state == cap.hidestate
+chr_t * chr_set_ai_state( chr_t * pchr, int state );
 
 void move_one_character_get_environment( chr_t * pchr );

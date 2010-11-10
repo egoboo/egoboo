@@ -101,7 +101,7 @@ typedef Uint32 BIT_FIELD;								///< A big string supporting 32 bits
 #define FULL_BIT_FIELD		0x7FFFFFFF					///< A bit string where all bits are flagged as 1
 #define EMPTY_BIT_FIELD		0							///< A bit string where all bits are flagged as 0
 #define FILL_BIT_FIELD(XX)	XX = FULL_BIT_FIELD			///< Fills up all bits in a bit pattern
-#define RESET_BIT_FIELD(XX) XX = EMPTY_BIT_FIELD		///< Resets all bits in a BIT_FIELD to 0		
+#define RESET_BIT_FIELD(XX) XX = EMPTY_BIT_FIELD		///< Resets all bits in a BIT_FIELD to 0
 
 #if !defined(SET_BIT)
 	#define SET_BIT(XX, YY) XX |= YY
@@ -237,7 +237,6 @@ typedef char STRING[256];
     STRING name;        /** Usually the source filename */ \
     int    request_count;          /** the number of attempted spawnx */ \
     int    create_count;           /** the number of successful spawns */
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -250,16 +250,16 @@ SDL_bool egoboo_console_destroy( egoboo_console_t ** pcon, SDL_bool do_free )
 //--------------------------------------------------------------------------------------------
 void egoboo_console_draw_begin()
 {
-    ATTRIB_PUSH( "egoboo_console_draw_begin", GL_ENABLE_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
-    GL_DEBUG( glDisable )( GL_CULL_FACE );
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+    GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                        // GL_ENABLE_BIT
+    GL_DEBUG( glDisable )( GL_CULL_FACE );                                         // GL_ENABLE_BIT
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                         // GL_ENABLE_BIT
 
-    GL_DEBUG( glEnable )( GL_BLEND );
-    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    GL_DEBUG( glEnable )( GL_BLEND );                                              // GL_ENABLE_BIT
+    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );               // GL_COLOR_BUFFER_BIT
 
-    GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );
+    GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );                          // GL_VIEWPORT_BIT
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -284,7 +284,7 @@ void egoboo_console_draw_end()
     GL_DEBUG( glLoadIdentity )();
 
     // Re-enable any states disabled by gui_beginFrame
-    ATTRIB_POP( "egoboo_console_draw_end" );
+    ATTRIB_POP( __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-    ATTRIB_PUSH( "egoboo_console_draw", GL_SCISSOR_BIT | GL_ENABLE_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
 
@@ -393,7 +393,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
     };
 
-    ATTRIB_POP( "egoboo_console_draw" );
+    ATTRIB_POP( __FUNCTION__ );
     return SDL_TRUE;
 }
 
@@ -526,8 +526,8 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
         }
     };
 
-    // quit the top console
-    if ( !is_alt && !is_shift && SDLK_ESCAPE == vkey )
+    // quit the top console. I would like escape, but it is getting confused with the ui "quit" command
+    if ( !is_alt && !is_shift && SDLK_BACKQUOTE == vkey )
     {
         if ( pcon->on )
         {

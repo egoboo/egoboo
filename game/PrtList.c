@@ -43,7 +43,8 @@ static PRT_REF prt_activation_list[MAX_PRT];
 //--------------------------------------------------------------------------------------------
 int prt_loop_depth = 0;
 
-size_t maxparticles = 512;
+size_t maxparticles       = 512;
+size_t maxparticles_dirty = btrue;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ void PrtList_init()
     int cnt;
 
     // fix any problems with maxparticles
-    if ( maxparticles > MAX_PRT ) maxparticles = MAX_PRT;
+    maxparticles = MIN(maxparticles, MAX_PRT);
 
     // free all the particles
     PrtList.free_count = 0;
@@ -89,6 +90,8 @@ void PrtList_init()
 
         PrtList_add_free( iprt );
     }
+
+    maxparticles_dirty = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -261,7 +264,8 @@ size_t PrtList_get_free()
 
     size_t retval = MAX_PRT;
 
-    if ( PrtList.free_count > 0 )
+    // shed any values that are greater than maxparticles
+    while ( PrtList.free_count > 0 && retval >= maxparticles )
     {
         PrtList.free_count--;
         PrtList.update_guid++;

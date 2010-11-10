@@ -608,7 +608,7 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
     // open a file stream for access using the szAttribute attribute
     lTempFile = fopen( szFileName, local_attribute );
     if ( NULL == lTempFile )
-    {		
+    {
         return pConfigFile;
     }
     // assign the file info

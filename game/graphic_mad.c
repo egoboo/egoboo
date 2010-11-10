@@ -111,7 +111,7 @@ bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
     // Choose texture and matrix
     oglx_texture_Bind( ptex );
 
-    ATTRIB_PUSH( "render_one_mad_enviro", GL_CURRENT_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
         int cmd_count;
         MD2_GLCommand_t * glcommand;
@@ -188,7 +188,7 @@ bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
         }
     }
 
-    ATTRIB_POP( "render_one_mad_enviro" );
+    ATTRIB_POP( __FUNCTION__ );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
@@ -286,7 +286,7 @@ bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
     // Choose texture and matrix
     oglx_texture_Bind( ptex );
 
-    ATTRIB_PUSH( "render_one_mad_tex", GL_CURRENT_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
         float             base_amb;
         MD2_GLCommand_t * glcommand;
@@ -371,7 +371,7 @@ bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
             glcommand = glcommand->next;
         }
     }
-    ATTRIB_POP( "render_one_mad_tex" );
+    ATTRIB_POP( __FUNCTION__ );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
@@ -478,7 +478,7 @@ bool_t render_one_mad_ref( const CHR_REF ichr )
         }
     }
 
-    ATTRIB_PUSH( "render_one_mad_ref", GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
     {
         GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
@@ -519,7 +519,7 @@ bool_t render_one_mad_ref( const CHR_REF ichr )
             render_one_mad( ichr, tint, CHR_PHONG | CHR_REFLECT );
         }
     }
-    ATTRIB_POP( "render_one_mad_ref" );
+    ATTRIB_POP( __FUNCTION__ );
 
     return btrue;
 }

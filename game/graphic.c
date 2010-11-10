@@ -534,7 +534,7 @@ void gfx_init_SDL_graphics()
 	if ( cfg.scrz_req == 32 ) cfg.scrz_req = 24;
 
 #endif
-	
+
     // the flags to pass to SDL_SetVideoMode
     sdl_vparam.width                     = cfg.scrx_req;
     sdl_vparam.height                    = cfg.scry_req;
@@ -549,7 +549,7 @@ void gfx_init_SDL_graphics()
     sdl_vparam.gl_att.multi_buffers      = ( cfg.multisamples > 1 ) ? 1 : 0;
     sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
-	
+
 	ogl_vparam.dither         = cfg.use_dither ? GL_TRUE : GL_FALSE;
     ogl_vparam.antialiasing   = GL_TRUE;
     ogl_vparam.perspective    = cfg.use_perspective ? GL_NICEST : GL_FASTEST;
@@ -924,7 +924,6 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     return y + height;
 }
 
-
 //--------------------------------------------------------------------------------------------
 float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxticks )
 {
@@ -958,7 +957,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     // allow the bitmap to be scaled to arbitrary size
     tx_width   = 128.0f;
     tx_height  = 128.0f;
-    img_width  = 112.0f;    
+    img_width  = 112.0f;
     if( NULL != tx_ptr )
     {
         tx_width  = tx_ptr->base.width;
@@ -988,7 +987,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     sc_rect.ymax = y + height;
 
     draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue );
-   
+
     // make the new left-hand margin after the tab
     x_left = x_stt + width;
     x      = x_left;
@@ -1392,7 +1391,7 @@ void draw_map()
     // Map display
     if ( !mapvalid || !mapon ) return;
 
-    ATTRIB_PUSH( "draw_map()", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
 
         GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
@@ -1473,7 +1472,7 @@ void draw_map()
         //   draw_blip( 0.75f, COLOR_PURPLE, GET_MAP_X(PMesh, PCamera->pos.x), GET_MAP_Y(PMesh, PCamera->pos.y));
         // }
     }
-    ATTRIB_POP( "draw_map()" )
+    ATTRIB_POP( __FUNCTION__ )
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2268,7 +2267,7 @@ void render_scene_mesh( renderlist_t * prlist )
     {
         //---------------------------------------------
         // draw all tiles that do not reflect characters
-        ATTRIB_PUSH( "render_scene_mesh() - ndr", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
         {
             GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
 
@@ -2284,7 +2283,7 @@ void render_scene_mesh( renderlist_t * prlist )
             // reduce texture hashing by loading up each texture only once
             render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
         }
-        ATTRIB_POP( "render_scene_mesh() - ndr" );
+        ATTRIB_POP( __FUNCTION__ );
     }
     PROFILE_END( render_scene_mesh_ndr );
 
@@ -2298,7 +2297,7 @@ void render_scene_mesh( renderlist_t * prlist )
             // draw the reflective tiles, but turn off the depth buffer
             // this blanks out any background that might've been drawn
 
-            ATTRIB_PUSH( "render_scene_mesh() - drf - back", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
             {
                 GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - DO NOT store the surface depth
 
@@ -2315,7 +2314,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 // reduce texture hashing by loading up each texture only once
                 render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
             }
-            ATTRIB_POP( "render_scene_mesh() - drf - back" );
+            ATTRIB_POP( __FUNCTION__ );
         }
         PROFILE_END( render_scene_mesh_drf_back );
 
@@ -2323,7 +2322,7 @@ void render_scene_mesh( renderlist_t * prlist )
         {
             //------------------------------
             // Render all reflected objects
-            ATTRIB_PUSH( "render_scene_mesh() - reflected characters",  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
+            ATTRIB_PUSH( __FUNCTION__,  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
             {
                 GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT - turn off the depth mask by default. Can cause glitches if used improperly.
 
@@ -2373,7 +2372,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 }
 
             }
-            ATTRIB_POP( "render_scene_mesh() - reflected characters" )
+            ATTRIB_POP( __FUNCTION__ )
         }
         PROFILE_END( render_scene_mesh_ref );
 
@@ -2383,7 +2382,7 @@ void render_scene_mesh( renderlist_t * prlist )
             // Render the shadow floors ( let everything show through )
             // turn on the depth mask, so that no objects under the floor will show through
             // this assumes that the floor is not partially transparent...
-            ATTRIB_PUSH( "render_scene_mesh() - drf - front", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
             {
                 GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT - set the depth of these tiles
 
@@ -2398,7 +2397,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 // reduce texture hashing by loading up each texture only once
                 render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
             }
-            ATTRIB_POP( "render_scene_mesh() - drf - front" )
+            ATTRIB_POP( __FUNCTION__ )
         }
         PROFILE_END( render_scene_mesh_ref_chr );
     }
@@ -2409,7 +2408,7 @@ void render_scene_mesh( renderlist_t * prlist )
             //------------------------------
             // Render the shadow floors as normal solid floors
 
-            ATTRIB_PUSH( "render_scene_mesh() - drf - solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
             {
                 GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
                 GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
@@ -2423,7 +2422,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 // reduce texture hashing by loading up each texture only once
                 render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
             }
-            ATTRIB_POP( "render_scene_mesh() - drf - solid" );
+            ATTRIB_POP( __FUNCTION__ );
         }
         PROFILE_END( render_scene_mesh_drf_solid );
     }
@@ -2760,7 +2759,7 @@ void render_world_background( const TX_REF texture )
 
     oglx_texture_Bind( ptex );
 
-    ATTRIB_PUSH( "render_world_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
     {
         GL_DEBUG( glShadeModel )( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
         GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
@@ -2769,7 +2768,7 @@ void render_world_background( const TX_REF texture )
 
         if ( alpha > 0.0f )
         {
-            ATTRIB_PUSH( "render_world_background() - alpha", GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
+            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT );
             {
                 GL_DEBUG( glColor4f )( intens, intens, intens, alpha );             // GL_CURRENT_BIT
 
@@ -2793,12 +2792,12 @@ void render_world_background( const TX_REF texture )
                 }
                 GL_DEBUG_END();
             }
-            ATTRIB_POP( "render_world_background() - alpha" );
+            ATTRIB_POP( __FUNCTION__ );
         }
 
         if ( light > 0.0f )
         {
-            ATTRIB_PUSH( "render_world_background() - glow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
+            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
             {
                 GL_DEBUG( glDisable )( GL_BLEND );                           // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );            // GL_COLOR_BUFFER_BIT
@@ -2815,10 +2814,10 @@ void render_world_background( const TX_REF texture )
                 }
                 GL_DEBUG_END();
             }
-            ATTRIB_POP( "render_world_background() - glow" );
+            ATTRIB_POP( __FUNCTION__ );
         }
     }
-    ATTRIB_POP( "render_world_background()" );
+    ATTRIB_POP( __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2890,7 +2889,7 @@ void render_world_overlay( const TX_REF texture )
 
         ptex = TxTexture_get_ptr( texture );
 
-        ATTRIB_PUSH( "render_world_overlay()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
+        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
         {
             GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT, GL_NICEST );          // GL_HINT_BIT - make sure that the texture is as smooth as possible
 
@@ -2918,7 +2917,7 @@ void render_world_overlay( const TX_REF texture )
             }
             GL_DEBUG_END();
         }
-        ATTRIB_POP( "render_world_overlay()" );
+        ATTRIB_POP( __FUNCTION__ );
     }
 }
 
@@ -3639,7 +3638,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     vtlist[3].tex[SS] = 0;
     vtlist[3].tex[TT] = y1;
 
-    ATTRIB_PUSH( "render_billboard", GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
         GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
         GL_DEBUG( glPushMatrix )();
@@ -3672,7 +3671,7 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
         GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
         GL_DEBUG( glPopMatrix )();
     }
-    ATTRIB_POP( "render_billboard" );
+    ATTRIB_POP( __FUNCTION__ );
 
     return btrue;
 }
@@ -3687,7 +3686,7 @@ void render_all_billboards( camera_t * pcam )
 
     gfx_begin_3d( pcam );
     {
-        ATTRIB_PUSH( "render_all_billboards()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+        ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
         {
             GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT - Flat shade this
             GL_DEBUG( glDepthMask )( GL_FALSE );    // GL_DEPTH_BUFFER_BIT
@@ -3708,7 +3707,7 @@ void render_all_billboards( camera_t * pcam )
                 render_billboard( pcam, pbb, 0.75 );
             }
         }
-        ATTRIB_POP( "render_all_billboards()" );
+        ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
 }
@@ -3740,7 +3739,7 @@ void draw_all_lines( camera_t * pcam )
 
     gfx_begin_3d( pcam );
     {
-        ATTRIB_PUSH( "render_all_billboards()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
+        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
             GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT - Flat shade this
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
@@ -3772,7 +3771,7 @@ void draw_all_lines( camera_t * pcam )
                 GL_DEBUG_END();
             }
         }
-        ATTRIB_POP( "render_all_billboards()" );
+        ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
 }
@@ -3845,7 +3844,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 
     if ( NULL == bb ) return bfalse;
 
-    ATTRIB_PUSH( "render_oct_bb", GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
         // don't write into the depth buffer
         GL_DEBUG( glDepthMask )( GL_FALSE );
@@ -3979,7 +3978,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
         }
 
     }
-    ATTRIB_POP( "render_oct_bb" );
+    ATTRIB_POP( __FUNCTION__ );
 
     return retval;
 }

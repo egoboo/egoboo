@@ -196,7 +196,7 @@ bool_t render_one_prt_solid( const PRT_REF iprt )
     // billboard for the particle
     calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
 
-    ATTRIB_PUSH( "render_one_prt_solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
         GL_DEBUG( glDepthMask )( GL_TRUE );           // GL_ENABLE_BIT
 
@@ -225,7 +225,7 @@ bool_t render_one_prt_solid( const PRT_REF iprt )
         }
         GL_DEBUG_END();
     }
-    ATTRIB_POP( "render_one_prt_solid" );
+    ATTRIB_POP( __FUNCTION__ );
 
     return btrue;
 }
@@ -269,7 +269,7 @@ bool_t render_one_prt_trans( const PRT_REF iprt )
     // if the particle instance data is not valid, do not continue
     if ( !pinst->valid ) return bfalse;
 
-    ATTRIB_PUSH( "render_one_prt_trans", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
         GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - do not let transparent objects write into the depth buffer
 
@@ -342,7 +342,7 @@ bool_t render_one_prt_trans( const PRT_REF iprt )
         }
         GL_DEBUG_END();
     }
-    ATTRIB_POP( "render_one_prt_trans" );
+    ATTRIB_POP( __FUNCTION__ );
 
     return btrue;
 }
@@ -459,7 +459,7 @@ bool_t render_one_prt_ref( const PRT_REF iprt )
 
     if ( startalpha > 0 )
     {
-        ATTRIB_PUSH( "render_one_prt_ref", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
+        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
             GL_DEBUG( glDepthMask )( GL_FALSE );      // ENABLE_BIT
 
@@ -522,7 +522,7 @@ bool_t render_one_prt_ref( const PRT_REF iprt )
             GL_DEBUG_END();
 
         }
-        ATTRIB_POP( "render_one_prt_ref" );
+        ATTRIB_POP( __FUNCTION__ );
 
     }
 
@@ -647,7 +647,6 @@ void render_all_prt_attachment()
     }
     PRT_END_LOOP();
 }
-
 
 //--------------------------------------------------------------------------------------------
 void render_all_prt_bbox()

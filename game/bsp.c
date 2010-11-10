@@ -64,18 +64,8 @@ BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim )
     // initialize the memory
     memset( pbb, 0, sizeof( *pbb ) );
 
-    float_ary_ctor( &( pbb->mins ), dim );
-    float_ary_ctor( &( pbb->mids ), dim );
-    float_ary_ctor( &( pbb->maxs ), dim );
-
-    if ( 0 == pbb->mins.alloc || 0 == pbb->mids.alloc || 0 == pbb->maxs.alloc )
-    {
-        BSP_aabb_dtor( pbb );
-    }
-    else
-    {
-        pbb->dim = dim;
-    }
+    // allocate memory and clear it
+    BSP_aabb_alloc( pbb, dim );
 
     return pbb;
 }
@@ -86,12 +76,52 @@ BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb )
     if ( NULL == pbb ) return NULL;
 
     // deallocate everything
+    pbb = BSP_aabb_dealloc( pbb );
+
+    // wipe it
+    memset( pbb, 0, sizeof( *pbb ) );
+
+    return pbb;
+}
+
+//--------------------------------------------------------------------------------------------
+BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim )
+{
+    if( NULL == pbb ) return pbb;
+
+    pbb->dim = 0;
+
+    float_ary_ctor( &( pbb->mins ), dim );
+    float_ary_ctor( &( pbb->mids ), dim );
+    float_ary_ctor( &( pbb->maxs ), dim );
+
+    if ( dim != pbb->mins.alloc || dim != pbb->mids.alloc || dim != pbb->maxs.alloc )
+    {
+        BSP_aabb_dealloc(pbb);
+    }
+    else
+    {
+        pbb->dim = dim;
+        BSP_aabb_clear( pbb );
+    }
+
+    BSP_aabb_validate( pbb );
+
+    return pbb;
+}
+
+//--------------------------------------------------------------------------------------------
+BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb )
+{
+    if( NULL == pbb ) return pbb;
+
+    // deallocate everything
     float_ary_dtor( &( pbb->mins ) );
     float_ary_dtor( &( pbb->mids ) );
     float_ary_dtor( &( pbb->maxs ) );
 
-    // wipe it
-    memset( pbb, 0, sizeof( *pbb ) );
+    pbb->dim = 0;
+    pbb->valid = bfalse;
 
     return pbb;
 }
@@ -101,11 +131,11 @@ bool_t BSP_aabb_empty( BSP_aabb_t * psrc )
 {
     Uint32 cnt;
 
-    if ( NULL == psrc || 0 == psrc->dim ) return btrue;
+    if ( NULL == psrc || 0 == psrc->dim  || !psrc->valid ) return btrue;
 
     for ( cnt = 0; cnt < psrc->dim; cnt++ )
     {
-        if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] ) 
+        if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] )
             return btrue;
     }
 
@@ -120,7 +150,12 @@ bool_t BSP_aabb_clear( BSP_aabb_t * psrc )
     Uint32 cnt;
 
     if ( NULL == psrc ) return bfalse;
-    if ( NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary ) return bfalse;
+
+    if ( psrc->dim <= 0 || NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary )
+    {
+        BSP_aabb_invalidate( psrc );
+        return bfalse;
+    }
 
     for ( cnt = 0; cnt < psrc->dim; cnt++ )
     {
@@ -136,35 +171,21 @@ bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr )
     /// @details BB@> Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
-    int cnt;
-    int min_dim;
+    size_t cnt;
+    size_t min_dim;
 
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
+    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return bfalse;
+    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return bfalse;
 
     min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
-    if( min_dim <= 0 ) return bfalse;
+    if( 0 == min_dim ) return bfalse;
 
     for ( cnt = 0; cnt < min_dim; cnt++ )
     {
-        if ( rhs_ptr->maxs.ary[cnt] > lhs_ptr->maxs.ary[cnt] ) 
+        if ( rhs_ptr->maxs.ary[cnt] > lhs_ptr->maxs.ary[cnt] )
             return bfalse;
 
-        if ( rhs_ptr->mins.ary[cnt] < lhs_ptr->mins.ary[cnt] ) 
-            return bfalse;
-    }
-
-
-    for ( cnt = 0; cnt < lhs_ptr->dim; cnt++ )
-    {
-        // inverted aabb?
-        if( lhs_ptr->maxs.ary[cnt] < lhs_ptr->mins.ary[cnt] )
-            return bfalse;
-    }
-
-    for ( cnt = 0; cnt < rhs_ptr->dim; cnt++ )
-    {
-        // inverted aabb?
-        if( rhs_ptr->maxs.ary[cnt] < rhs_ptr->mins.ary[cnt] )
+        if ( rhs_ptr->mins.ary[cnt] < lhs_ptr->mins.ary[cnt] )
             return bfalse;
     }
 
@@ -177,14 +198,15 @@ bool_t BSP_aabb_overlap( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr )
     /// @details BB@> Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
-    int cnt;
-    int min_dim;
+    size_t cnt;
+    size_t min_dim;
     float minval, maxval;
 
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
+    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return bfalse;
+    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return bfalse;
 
     min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
-    if( min_dim <= 0 ) return bfalse;
+    if( 0 == min_dim ) return bfalse;
 
     for ( cnt = 0; cnt < min_dim; cnt++ )
     {
@@ -192,20 +214,6 @@ bool_t BSP_aabb_overlap( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr )
         maxval = MIN(lhs_ptr->maxs.ary[cnt], rhs_ptr->maxs.ary[cnt]);
 
         if( maxval < minval ) return bfalse;
-    }
-
-    for ( cnt = 0; cnt < lhs_ptr->dim; cnt++ )
-    {
-        // inverted aabb?
-        if( lhs_ptr->maxs.ary[cnt] < lhs_ptr->mins.ary[cnt] )
-            return bfalse;
-    }
-
-    for ( cnt = 0; cnt < rhs_ptr->dim; cnt++ )
-    {
-        // inverted aabb?
-        if( rhs_ptr->maxs.ary[cnt] < rhs_ptr->mins.ary[cnt] )
-            return bfalse;
     }
 
     return btrue;
@@ -220,33 +228,35 @@ bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc )
 
     if ( NULL == pdst || NULL == psrc ) return bfalse;
 
+    BSP_aabb_invalidate( pdst );
+
     if ( pdst->dim <= 0 ) return bfalse;
 
     // this process is a little bit complicated because the
     // order to the OCT_* indices is optimized for a different test.
     if ( 1 == pdst->dim )
     {
-        pdst->mins.ary[0] = psrc->mins[OCT_X];
+        pdst->mins.ary[kX] = psrc->mins[OCT_X];
 
-        pdst->maxs.ary[0] = psrc->maxs[OCT_X];
+        pdst->maxs.ary[kX] = psrc->maxs[OCT_X];
     }
     else if ( 2 == pdst->dim )
     {
-        pdst->mins.ary[0] = psrc->mins[OCT_X];
-        pdst->mins.ary[1] = psrc->mins[OCT_Y];
+        pdst->mins.ary[kX] = psrc->mins[OCT_X];
+        pdst->mins.ary[kY] = psrc->mins[OCT_Y];
 
-        pdst->maxs.ary[0] = psrc->maxs[OCT_X];
-        pdst->maxs.ary[1] = psrc->maxs[OCT_Y];
+        pdst->maxs.ary[kX] = psrc->maxs[OCT_X];
+        pdst->maxs.ary[kY] = psrc->maxs[OCT_Y];
     }
     else if ( pdst->dim >= 3 )
     {
-        pdst->mins.ary[0] = psrc->mins[OCT_X];
-        pdst->mins.ary[1] = psrc->mins[OCT_Y];
-        pdst->mins.ary[2] = psrc->mins[OCT_Z];
+        pdst->mins.ary[kX] = psrc->mins[OCT_X];
+        pdst->mins.ary[kY] = psrc->mins[OCT_Y];
+        pdst->mins.ary[kZ] = psrc->mins[OCT_Z];
 
-        pdst->maxs.ary[0] = psrc->maxs[OCT_X];
-        pdst->maxs.ary[1] = psrc->maxs[OCT_Y];
-        pdst->maxs.ary[2] = psrc->maxs[OCT_Z];
+        pdst->maxs.ary[kX] = psrc->maxs[OCT_X];
+        pdst->maxs.ary[kY] = psrc->maxs[OCT_Y];
+        pdst->maxs.ary[kZ] = psrc->maxs[OCT_Z];
 
         // blank any extended dimensions
         for ( cnt = 3; cnt < pdst->dim; cnt++ )
@@ -260,6 +270,84 @@ bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc )
     {
         pdst->mids.ary[cnt] = 0.5f * ( pdst->mins.ary[cnt] + pdst->maxs.ary[cnt] );
     }
+
+    BSP_aabb_validate(pdst);
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_aabb_validate( BSP_aabb_t * psrc )
+{
+    size_t cnt;
+
+    if( NULL == psrc ) return bfalse;
+
+    // set it to valid
+    psrc->valid = btrue;
+
+    // check to see if any dimension is inverted
+    for ( cnt = 0; cnt < psrc->dim; cnt++ )
+    {
+        if( psrc->maxs.ary[cnt] < psrc->mids.ary[cnt] )
+        {
+            psrc->valid = bfalse;
+            break;
+        }
+        if( psrc->maxs.ary[cnt] < psrc->mins.ary[cnt] )
+        {
+            psrc->valid = bfalse;
+            break;
+        }
+        if( psrc->mids.ary[cnt] < psrc->mins.ary[cnt] )
+        {
+            psrc->valid = bfalse;
+            break;
+        }
+    }
+
+    return psrc->valid;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_aabb_invalidate( BSP_aabb_t * psrc )
+{
+    if( NULL == psrc ) return bfalse;
+
+    // set it to valid
+    psrc->valid = bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_aabb_copy( BSP_aabb_t * pdst, BSP_aabb_t * psrc )
+{
+    size_t cnt;
+
+    if( NULL == pdst ) return bfalse;
+
+    if( NULL == psrc )
+    {
+        BSP_aabb_dtor( pdst );
+        return bfalse;
+    }
+
+    // ensure that they have the same dimensions
+    if( pdst->dim != psrc->dim )
+    {
+        BSP_aabb_dealloc(pdst);
+        BSP_aabb_alloc(pdst, psrc->dim);
+    }
+
+    for( cnt = 0; cnt < psrc->dim; cnt++)
+    {
+        pdst->mins.ary[cnt] = psrc->mins.ary[cnt];
+        pdst->mids.ary[cnt] = psrc->mids.ary[cnt];
+        pdst->maxs.ary[cnt] = psrc->maxs.ary[cnt];
+    }
+
+    BSP_aabb_validate( pdst );
 
     return btrue;
 }
@@ -1039,8 +1127,6 @@ bool_t   BSP_tree_prune( BSP_tree_t * t )
 //--------------------------------------------------------------------------------------------
 BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t )
 {
-    Uint32 cnt;
-
     BSP_branch_t * proot;
 
     if ( NULL == t ) return NULL;
@@ -1054,12 +1140,7 @@ BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t )
     BSP_branch_unlink( proot );
 
     // copy the tree bounding box to the root node
-    for ( cnt = 0; cnt < t->dimensions; cnt++ )
-    {
-        proot->bbox.mins.ary[cnt] = t->bbox.mins.ary[cnt];
-        proot->bbox.mids.ary[cnt] = t->bbox.mids.ary[cnt];
-        proot->bbox.maxs.ary[cnt] = t->bbox.maxs.ary[cnt];
-    }
+    BSP_aabb_copy( &(proot->bbox), &(t->bbox) );
 
     // fix the depth
     proot->depth = 0;
@@ -1521,6 +1602,8 @@ bool_t BSP_generate_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst 
         pdst->maxs.ary[cnt] = maxval;
         pdst->mids.ary[cnt] = 0.5f * ( minval + maxval );
     }
+
+    BSP_aabb_validate( pdst );
 
     return btrue;
 }

@@ -61,7 +61,7 @@ void oglx_ViewMatrix( GLXmatrix view,
                       const GLXvector3f world_up,  // world’s up, usually 0, 0, 1
                       const GLfloat roll )     // clockwise roll around viewing direction, in radians
 {
-    ATTRIB_PUSH( "ViewMatrix", GL_TRANSFORM_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_TRANSFORM_BIT );
     {
         GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
         GL_DEBUG( glPushMatrix )();
@@ -80,7 +80,7 @@ void oglx_ViewMatrix( GLXmatrix view,
 
         GL_DEBUG( glPopMatrix )();
     }
-    ATTRIB_POP( "ViewMatrix" );
+    ATTRIB_POP( __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ void oglx_ProjectionMatrix( GLXmatrix proj,
                             const GLfloat far_plane,      // distance to far clipping plane
                             const GLfloat fov )           // field of view angle, in radians
 {
-    ATTRIB_PUSH( "ProjectionMatrix", GL_TRANSFORM_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_TRANSFORM_BIT );
     {
         GLint viewport[ 4 ];
 
@@ -103,7 +103,7 @@ void oglx_ProjectionMatrix( GLXmatrix proj,
         GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, proj );
         GL_DEBUG( glPopMatrix )();
     }
-    ATTRIB_POP( "ProjectionMatrix" );
+    ATTRIB_POP( __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------

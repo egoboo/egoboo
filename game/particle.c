@@ -110,7 +110,7 @@ prt_t * prt_ctor( prt_t * pprt )
     // save the base object data, do not construct it with this function.
     if( NULL == pprt ) return NULL;
     base_ptr = POBJ_GET_PBASE( pprt );
-    
+
     memcpy( &save_base, base_ptr, sizeof( save_base ) );
 
     memset( pprt, 0, sizeof( *pprt ) );
@@ -231,15 +231,17 @@ const PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
         // the object is waiting to be killed, so
         // do all of the end of life care for the particle
-        prt_do_end_spawn( particle );        
+        prt_do_end_spawn( particle );
 
         if ( pprt->spawncharacterstate )
         {
             child = spawn_one_character( prt_get_pos(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
             if ( DEFINED_CHR( child ) )
             {
-                chr_get_pai( child )->state = pprt->spawncharacterstate;
-                chr_get_pai( child )->owner = pprt->owner_ref;
+                chr_t * pchild = ChrList.lst + child;
+
+                chr_set_ai_state( pchild , pprt->spawncharacterstate );
+                pchild->ai.owner = pprt->owner_ref;
             }
         }
 
@@ -1649,7 +1651,6 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
         z_motion_acc.z += loc_buoyancy;
     }
 
-
     // do gravity
     if ( penviro->is_slippy && (TWIST_FLAT != penviro->twist) && loc_zlerp < 1.0f )
     {
@@ -1859,7 +1860,6 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             vel_para.z = loc_pprt->vel.z - vel_perp.z;
         }
 
-
         if ( vel_dot < - STOPBOUNCINGPART )
         {
             // the particle will bounce
@@ -1938,7 +1938,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 
                 nrm_total.x += nrm.x;
                 nrm_total.y += nrm.y;
-				
+
 				hit_a_wall = (fvec2_dot_product(loc_pprt->vel.v, nrm.v) < 0.0f);
             }
         }
@@ -2293,7 +2293,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 
                     bestvertex   = 0;
                     bestdistance = 0xFFFFFFFF;         //Really high number
-					
+
                     for ( cnt = 0; cnt < vertices; cnt++ )
                     {
                         if ( vertex_occupied[cnt] != MAX_PRT )
@@ -2309,7 +2309,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                     bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
                                                   character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
 
-                    if ( ALLOCATED_PRT( bs_part ) )
+                    if ( DEFINED_PRT( bs_part ) )
                     {
                         vertex_occupied[bestvertex] = bs_part;
                         PrtList.lst[bs_part].is_bumpspawn = btrue;
@@ -2327,7 +2327,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                 //        bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
                 //                            character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
 
-                //        if( ALLOCATED_PRT(bs_part) )
+                //        if( DEFINED_PRT(bs_part) )
                 //        {
                 //            PrtList.lst[bs_part].is_bumpspawn = btrue;
                 //            bs_count++;
@@ -2578,8 +2578,8 @@ bool_t prt_request_terminate( const PRT_REF iprt )
 
     pprt = PrtList.lst + iprt;
 
-    is_visible = 
-        pprt->size > 0 && 
+    is_visible =
+        pprt->size > 0 &&
         !pprt->is_hidden &&
         pprt->inst.alpha > 0.0f;
 
@@ -2594,7 +2594,7 @@ bool_t prt_request_terminate( const PRT_REF iprt )
         // terminate it, as normal
         POBJ_REQUEST_TERMINATE( PrtList.lst + iprt );
     }
-    
+
     return btrue;
 }
 
@@ -2623,7 +2623,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
             PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, REF_TO_INT( pprt->end_spawn_pip ),
                                 ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
-            if( ALLOCATED_PRT(spawned_prt) )
+            if( DEFINED_PRT(spawned_prt) )
             {
                 end_spawn_count++;
             }
@@ -2665,7 +2665,7 @@ void cleanup_all_particles()
         }
         else if ( STATE_WAITING_PBASE( base_ptr ) )
         {
-            // do everything to end the particle in-game (spawn secondary particles, 
+            // do everything to end the particle in-game (spawn secondary particles,
             // play end sound, etc.) amd mark it with kill_me
             end_one_particle_in_game( iprt );
         }
@@ -2779,7 +2779,7 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt  )
             PRT_REF prt_child = spawn_one_particle( prt_get_pos(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn_pip,
                                                     ( CHR_REF )MAX_CHR, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
 
-			if ( ALLOCATED_PRT( prt_child ) )
+			if ( DEFINED_PRT( prt_child ) )
             {
 				// Inherit velocities from the particle we were spawned from, but only if it wasn't attached to something
 
@@ -3079,9 +3079,9 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt  )
     base_ptr = POBJ_GET_PBASE( loc_pprt );
 
     // is this the right function?
-    if( !loc_pprt->is_ghost ) 
+    if( !loc_pprt->is_ghost )
         return pbdl_prt;
-  
+
     // is the prt visible
     prt_visible = (loc_pprt->size > 0) && (loc_pprt->inst.alpha > 0) && !loc_pprt->is_hidden;
 
@@ -3298,7 +3298,7 @@ prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
 
     pbundle->prt_ref = (PRT_REF) MAX_PRT;
     pbundle->prt_ptr = NULL;
-    
+
     pbundle->pip_ref = (PIP_REF) MAX_PIP;
     pbundle->pip_ptr = NULL;
 

@@ -486,7 +486,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // init the vector with the desired position
     pos.x = pstate->x;
     pos.y = pstate->y;
-	
+
     // is this a safe position?
     returncode = bfalse;
 
@@ -705,7 +705,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ichr = chr_find_target( pchr, NEARBY, IDSZ_NONE, TARGET_ENEMIES );
-	
+
     if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
@@ -1391,11 +1391,8 @@ Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // set the state
-    pself->state = pstate->argument;
-
-    // determine whether the object is hidden
-    chr_update_hide( pchr );
+    // set the state - this function updates the is_hidden
+    chr_set_ai_state( pchr, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1849,7 +1846,9 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = 0;
 
     ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
-    if ( !DEFINED_CHR( ichr ) )
+    returncode = DEFINED_CHR( ichr );
+
+    if ( !returncode )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -1884,7 +1883,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = INGAME_CHR( ichr );
+    
 
     SCRIPT_FUNCTION_END();
 }
@@ -2114,7 +2113,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-    returncode = ALLOCATED_PRT( iprt );
+    returncode = DEFINED_PRT( iprt );
     if ( returncode )
     {
         fvec3_t tmp_pos;
@@ -2338,7 +2337,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 
     // set the spell effect parameters
     pself->content = 0;
-    pself->state   = 0;
+    chr_set_ai_state( pchr, 0 );
 
     // have to do this every time pself->state is modified
     chr_update_hide( pchr );
@@ -2377,7 +2376,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 	change_character( pself->index, ( PRO_REF )SPELLBOOK, iskin, ENC_LEAVE_NONE );
 
 	// Reset the spellbook state so it doesn't burn up
-	pself->state   = 0;
+	chr_set_ai_state( pchr, 0 );
 	pself->content = REF_TO_INT( old_profile );
 
 	// set the spellbook animations
@@ -2753,7 +2752,7 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = spawn_one_enchant( pself->owner, pself->target, pself->index, ( ENC_REF )MAX_ENC, ( PRO_REF )MAX_PROFILE );
-    returncode = INGAME_ENC( iTmp );
+    returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2771,7 +2770,7 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = spawn_one_enchant( pself->owner, pself->child, pself->index, ( ENC_REF )MAX_ENC, ( PRO_REF )MAX_PROFILE );
-    returncode = INGAME_ENC( iTmp );
+    returncode = DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3900,8 +3899,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
-
-    returncode = ALLOCATED_PRT( iprt );
+    returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3928,7 +3926,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
-    returncode = ALLOCATED_PRT( iprt );
+    returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4375,7 +4373,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
         // only sneak
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
     }
-    else 
+    else
     {
         // everything but sneak
         pchr->movement_bits = (unsigned)(~CHR_MOVEMENT_BITS_SNEAK);
@@ -4393,7 +4391,10 @@ Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList.lst[pself->child].ai.state = pstate->argument;
+    if( VALID_CHR_RANGE( pself->child ) )
+    {
+        chr_set_ai_state( ChrList.lst + pself->child, pstate->argument );
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -4417,9 +4418,10 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     }
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
-    returncode = bfalse;
 
-    if ( ALLOCATED_PRT( iprt ) )
+    returncode = DEFINED_PRT( iprt );
+
+    if ( returncode )
     {
         returncode = prt_set_size( PrtList.lst + iprt, pstate->turn );
     }
@@ -4528,7 +4530,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 
     iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-    returncode = ALLOCATED_PRT( iprt );
+    returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4910,7 +4912,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-    returncode = ALLOCATED_PRT( iprt );
+    returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5276,7 +5278,9 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
-    if ( !DEFINED_CHR( ichr ) )
+    returncode = DEFINED_CHR( ichr );
+
+    if ( !returncode )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -5306,8 +5310,6 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = INGAME_CHR( ichr );
-
     SCRIPT_FUNCTION_END();
 }
 
@@ -5330,7 +5332,9 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
-    if ( !DEFINED_CHR( ichr ) )
+    returncode = DEFINED_CHR( ichr );
+
+    if ( !returncode )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -5361,8 +5365,6 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
             pchild->dismount_object = pself->index;
         }
     }
-
-    returncode = INGAME_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5424,7 +5426,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
-    returncode = ALLOCATED_PRT( iprt );
+    returncode = DEFINED_PRT( iprt );
 
     if ( returncode )
     {
@@ -6547,7 +6549,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
-    returncode = ALLOCATED_PRT( iprt );
+    returncode = DEFINED_PRT( iprt );
 
     if ( returncode )
     {
@@ -7200,7 +7202,9 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.z = pstate->distance;
 
     ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, FACE_NORTH, NULL, ( CHR_REF )MAX_CHR );
-    if ( !DEFINED_CHR( ichr ) )
+    returncode = DEFINED_CHR( ichr );
+
+    if ( !returncode )
     {
         if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
         {
@@ -7276,8 +7280,6 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             }
         }
     }
-
-    returncode = INGAME_CHR( ichr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7746,11 +7748,11 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 
 	returncode = bfalse;
 	if( LOADED_PRO(pchr->profile_ref) )
-	{		
+	{
 		SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
 		int message_number, message_index;
 		char *ptext;
-		
+
 		//List of avalible colours
 		GLXvector4f tint_red  = { 1.00f, 0.25f, 0.25f, 1.00f };
         GLXvector4f tint_purple = { 0.88f, 0.75f, 1.00f, 1.00f };
@@ -7758,7 +7760,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 		GLXvector4f tint_yellow = { 1.00f, 1.00f, 0.75f, 1.00f };
 		GLXvector4f tint_green = { 0.25f, 1.00f, 0.25f, 1.00f };
 		GLXvector4f tint_blue = { 0.25f, 0.25f, 1.00f, 1.00f };
-		
+
 		//Figure out which color to use
 		GLfloat *do_tint;
 		switch( pstate->turn )
@@ -7771,12 +7773,12 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 			case COLOR_GREEN:	do_tint = tint_green;	break;
 			case COLOR_BLUE:	do_tint = tint_blue;	break;
 		}
-		
+
 	    message_number = ppro->message_start + pstate->argument;
 		message_index  = MessageOffset.ary[message_number];
 	    ptext = message_buffer + message_index;
-		
-		returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_all );	
+
+		returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_all );
 	}
 
     SCRIPT_FUNCTION_END();
@@ -7856,7 +7858,6 @@ Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself  )
 
 	SCRIPT_FUNCTION_END();
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

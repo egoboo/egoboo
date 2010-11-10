@@ -422,7 +422,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
         meshlasttexture = texture;
     }
 
-    ATTRIB_PUSH( "render_water_fan", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {
         GLboolean use_depth_mask = ( !water.light && ( 1.0f == falpha ) ) ? GL_TRUE : GL_FALSE;
 
@@ -460,7 +460,7 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
         }
         GL_DEBUG_END();
     }
-    ATTRIB_POP( "render_water_fan" );
+    ATTRIB_POP( __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------

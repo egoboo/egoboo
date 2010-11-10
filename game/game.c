@@ -208,6 +208,9 @@ static void   do_game_hud();
 // manage the game's vfs mount points
 static void   game_clear_vfs_paths();
 
+// place the object lists in the initial state
+void reset_all_object_lists( void );
+
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1543,7 +1546,6 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
         }
     }
 
-
     return retval;
 }
 
@@ -1563,7 +1565,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
     CHR_REF search_list[MAX_CHR];
 
     if ( !ACTIVE_PCHR( psrc ) ) return ( CHR_REF )MAX_CHR;
-	
+
 	max_dist2 = max_dist * max_dist;
 
     if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) )
@@ -1610,7 +1612,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
 
         diff  = fvec3_sub( psrc->pos.v, ptst->pos.v );
         dist2 = fvec3_dot_product( diff.v, diff.v );
-		
+
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( MAX_CHR == best_target || dist2 < best_dist2 ) )
         {
             //Invictus chars do not need a line of sight
@@ -1835,7 +1837,7 @@ void do_weather_spawn_particles()
 
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.particle, 0 );
-                    if ( ALLOCATED_PRT( particle ) )
+                    if ( DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList.lst + particle;
 
@@ -1880,7 +1882,6 @@ void set_one_player_latch( const PLA_REF player )
 {
     /// @details ZZ@> This function converts input readings to latch settings, so players can
     ///    move around
-
 
     Uint16 turnsin;
     float dist, scale;
@@ -2061,7 +2062,7 @@ void set_one_player_latch( const PLA_REF player )
     if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_KEYBOARD ) && keyb.on )
     {
         fvec2_t joy_pos, joy_new;
-		
+
         fvec2_clear( &joy_new );
         fvec2_clear( &joy_pos );
         if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
@@ -3159,7 +3160,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
         particle = spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
-        if ( ALLOCATED_PRT( particle ) )
+        if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList.lst + particle;
 
@@ -3301,7 +3302,11 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     // make sure the old game has been quit
     game_quit_module();
 
+    // reset all the game timers
     reset_timers();
+
+    // make sure that the object lists are in a good state
+    reset_all_object_lists();
 
     // set up the birtual file system for the module
     if ( !game_setup_vfs_paths( modname ) ) return bfalse;
@@ -3560,7 +3565,7 @@ void let_all_characters_think()
     last_update = update_wld;
 
     blip_count = 0;
-	
+
     CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
         cap_t * pcap;
@@ -3646,6 +3651,14 @@ void free_all_objects( void )
     PrtList_free_all();
     EncList_free_all();
     free_all_chraracters();
+}
+
+//--------------------------------------------------------------------------------------------
+void reset_all_object_lists( void )
+{
+    PrtList_init();
+    ChrList_init();
+    EncList_init();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4731,7 +4744,7 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     ilayer = wawalite_data.water.layer + 0;
     if( wawalite_data.water.background_req )
     {
-        // this is a bit complicated. 
+        // this is a bit complicated.
         // it is the best I can do at reverse engineering what I did in render_world_background()
 
         const float cam_height = 1500.0f;
@@ -5285,7 +5298,7 @@ void disenchant_character( const CHR_REF cnt )
 void cleanup_character_enchants( chr_t * pchr )
 {
     if( NULL == pchr ) return;
-	
+
     // clean up the enchant list
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &(pchr->firstenchant) );
 }

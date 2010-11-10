@@ -192,7 +192,7 @@ bool_t setup_write()
 
 	success = ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, _config_filename );
 	if( !success ) log_warning("Failed to save setup.txt!\n");
-    
+
 	return success;
 }
 
@@ -398,6 +398,8 @@ bool_t setup_download( egoboo_config_t * pcfg )
 //--------------------------------------------------------------------------------------------
 bool_t setup_synch( egoboo_config_t * pcfg )
 {
+    size_t old_max_particles;
+
     if ( NULL == pcfg ) return bfalse;
 
     // FPS display
@@ -410,7 +412,11 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     wraptolerance = pcfg->StatusList_on ? 90 : 32;
 
     // Get the particle limit
+    old_max_particles = maxparticles;
     maxparticles = CLIP( pcfg->particle_count_req, 0, MAX_PRT );
+
+    // if the particle limit has changed, make sure to make not of it
+    maxparticles_dirty = (old_max_particles != maxparticles);
 
     // sound options
     snd_config_synch( &snd, pcfg );

@@ -960,7 +960,6 @@ bool_t do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
@@ -1046,7 +1045,6 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
-
     cap_t * pchr_cap;
     fvec3_t   platform_up;
 
@@ -1100,7 +1098,6 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t detach_character_from_platform( chr_t * pchr )
@@ -1343,7 +1340,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chrb, ChrList.lst + d->chra );
 				}
-				
+
             }
         }
         else if ( MAX_CHR != d->chra && MAX_PRT != d->prtb )
@@ -1370,7 +1367,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 
     //---- remove any bad platforms
 
-    // attach_prt_to_platform() erases targetplatform_ref, so any character with 
+    // attach_prt_to_platform() erases targetplatform_ref, so any character with
     // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
@@ -1381,7 +1378,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
     }
     CHR_END_LOOP();
 
-    // attach_prt_to_platform() erases targetplatform_ref, so any particle with 
+    // attach_prt_to_platform() erases targetplatform_ref, so any particle with
     // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
     PRT_BEGIN_LOOP_DISPLAY( iprt, bdl_prt )
     {
@@ -2386,9 +2383,9 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
             }
 
             //Blocked!
-            spawn_defense_ping( pchr, pprt->owner_ref );	
+            spawn_defense_ping( pchr, pprt->owner_ref );
 			chr_make_text_billboard( GET_REF_PCHR(pchr), "Blocked!", text_color, tint, lifetime, bb_opt_all );
-				
+
 			//If the attack was blocked by a shield, then check if the block caused a knockback
 			if( chr_is_invictus && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
 			{
@@ -2712,7 +2709,7 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 					drain -= pchr->mana;
 					powner->mana = MIN( powner->mana + drain, powner->manamax );
 				}
-				
+
 				// Notify the attacker of a scored hit
 				SET_BIT( powner->ai.alert, ALERTIF_SCOREDAHIT );
 				powner->ai.hitlast = GET_REF_PCHR( pchr );
@@ -2730,10 +2727,10 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
 					ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
 				}
 			}
-			
+
 			// handle vulnerabilities, double the damage
 			if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
-			{				
+			{
 				//Double the damage
 				loc_damage.base = ( loc_damage.base << 1 );
 				loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
@@ -3013,7 +3010,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 			cap_t *pcap_a = chr_get_pcap( pchr_a->ai.index );
 
 			//This prevents books in shops from being burned
-			if ( pchr_a->isshopitem && pcap_a->spelleffect_type != NO_SKIN_OVERRIDE ) 
+			if ( pchr_a->isshopitem && pcap_a->spelleffect_type != NO_SKIN_OVERRIDE )
 				retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
         }
 

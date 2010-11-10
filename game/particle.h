@@ -203,7 +203,7 @@ struct s_prt_bundle
 {
     PRT_REF   prt_ref;
     prt_t   * prt_ptr;
-    
+
     PIP_REF   pip_ref;
     pip_t   * pip_ptr;
 };

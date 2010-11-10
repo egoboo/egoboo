@@ -221,7 +221,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
 
         if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList.lst + character;
-		
+
         // dont do scenery objects unless we allow items
 		if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && pchr->phys.weight == INFINITE_WEIGHT ) continue;
 
@@ -336,7 +336,7 @@ bool_t close_passage( const PASS_REF passage )
         CHR_REF crushedcharacters[MAX_CHR];
 
         // Make sure it isn't blocked
-		for( character = 0; character < MAX_CHR; character++ ) 
+		for( character = 0; character < MAX_CHR; character++ )
         {
 			chr_t *pchr;
 
@@ -345,7 +345,7 @@ bool_t close_passage( const PASS_REF passage )
 
 			//Don't do held items
 			if( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
-            
+
 			if ( pchr->bump.size != 0 )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )

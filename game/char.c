@@ -321,6 +321,12 @@ int chr_count_free()
 }
 
 //--------------------------------------------------------------------------------------------
+int chr_count_used()
+{
+    return ChrList.used_count; // MAX_CHR - ChrList.free_count;
+}
+
+//--------------------------------------------------------------------------------------------
 void flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
                             Uint8 valuehigh, Sint16 high )
 {
@@ -1062,7 +1068,7 @@ bool_t chr_is_over_water( chr_t *pchr )
 
 	if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
-	if( !water.is_water || !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return bfalse; 
+	if( !water.is_water || !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return bfalse;
 
     return 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER );
 }
@@ -2348,7 +2354,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if( iweapon != iholder && iweapon != ichr )
     {
         // This seems to be the "proper" place to activate the held object.
-        // If the attack action  of the character holding the weapon does not have 
+        // If the attack action  of the character holding the weapon does not have
         // MADFX_ACTLEFT or MADFX_ACTRIGHT bits (and so character_swipe function is never called)
         // then the action is played and the ALERTIF_USED bit is set in the chr_do_latch_attack()
         // function.
@@ -2411,7 +2417,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 // will this mess up wands?
                 iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
-                if ( ALLOCATED_PRT( iparticle ) )
+                if ( DEFINED_PRT( iparticle ) )
                 {
                     fvec3_t tmp_pos;
                     prt_t * pprt = PrtList.lst + iparticle;
@@ -3501,7 +3507,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
             do_feedback = bfalse;
         }
     }
-    
+
     // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
     // This can also be used to lessen effectiveness of healing
     actual_damage = generate_irand_pair( damage );
@@ -3548,16 +3554,16 @@ int damage_character( const CHR_REF character, FACING_T direction,
     // Remember the actual_damage type
     pchr->ai.damagetypelast = damagetype;
     pchr->ai.directionlast  = direction;
-        
+
     // Check for characters who are immune to this damage, no need to continue if they have
-	immune_to_damage = (actual_damage > 0 && actual_damage <= pchr->damagethreshold) || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS); 
+	immune_to_damage = (actual_damage > 0 && actual_damage <= pchr->damagethreshold) || HAS_SOME_BITS(pchr->damagemodifier[damagetype], DAMAGEINVICTUS);
 	if ( immune_to_damage )
     {
 		//Dark green text
 		const float lifetime = 3;
 	    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
 		GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
-            
+
         actual_damage = 0;
         spawn_defense_ping( pchr, attacker );
 
@@ -5041,8 +5047,8 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     }
 
     // AI stuff
+    chr_set_ai_state( pchr, 0 );
     pchr->ai.type           = pobj_new->iai;
-    pchr->ai.state          = 0;
     pchr->ai.timer          = 0;
     pchr->turnmode          = TURNMODE_VELOCITY;
 
@@ -5663,7 +5669,6 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         floor_acc.y = pplat->vel.y - pplat->vel_old.y;
         floor_acc.z = pplat->vel.z - pplat->vel_old.z;
 
-		
         chr_getMatUp( pplat, &vup );
     }
     else if ( !pchr->alive || pchr->isitem )
@@ -5768,7 +5773,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
 	pchr->vel.x += fric_floor.x;
 	pchr->vel.y += fric_floor.y;
 	pchr->vel.z += fric_floor.z;
-	
+
     // Apply fluid friction from last time
     pchr->vel.x += -pchr->vel.x * ( 1.0f - pchr->enviro.fluid_friction_hrz );
     pchr->vel.y += -pchr->vel.y * ( 1.0f - pchr->enviro.fluid_friction_hrz );
@@ -5797,7 +5802,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     ichr = GET_REF_PCHR( pchr );
 
     if ( !pchr->alive ) return;
-	
+
     pchr->enviro.new_vx = pchr->vel.x;
     pchr->enviro.new_vy = pchr->vel.y;
 
@@ -5831,13 +5836,13 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
     // this is the maximum speed that a character could go under the v2.22 system
     maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
-	
+
     sneak_mode_active = bfalse;
     if ( VALID_PLA( pchr->is_which_player ) )
     {
         // determine whether the user is hitting the "sneak button"
         player_t * ppla = PlaStack.lst + pchr->is_which_player;
-		
+
         if( HAS_SOME_BITS(ppla->device.bits, INPUT_BITS_KEYBOARD ) )
         {
             // use the shift keys to enter sneak mode
@@ -5855,7 +5860,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
         if ( VALID_PLA( ipla ) )
         {
             player_t * ppla;
-            bool_t sneak_mode_active; 
+            bool_t sneak_mode_active;
 
             float dv = POW( dv2, 0.25f );
 
@@ -6149,7 +6154,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 					float chr_dex = FP8_TO_INT( pchr->dexterity );
 
                     chr_play_action( pchr, action, bfalse );
-					
+
 					// Make the weapon animate the attack as well as the character holding it
 					if ( HAS_NO_BITS(action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
 					{
@@ -6162,11 +6167,11 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 						    chr_play_action( pweapon, ACTION_MJ, bfalse );
                         }
 					}
-					
+
 					//Determine the attack speed (how fast we play the animation)
 					pchr->inst.rate = 0.125f;						//base attack speed
 					pchr->inst.rate += chr_dex / 40;					//+0.25f for every 10 dexterity
-					
+
 					//Add some reload time as a true limit to attacks per second
 					//Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
 					//reduce reload time for spells or gonnes here.
@@ -6181,7 +6186,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 						else if( ACTION_IS_TYPE(action, L) ) base_reload_time += 50;		//Longbow  (Longbow)
 						else if( ACTION_IS_TYPE(action, X) ) base_reload_time += 100;		//Xbow	   (Crossbow)
 						else if( ACTION_IS_TYPE(action, F) ) base_reload_time += 50;		//Flinged  (Unused)
-						
+
 						//it is possible to have so high dex to eliminate all reload time
 						if( base_reload_time > 0 ) pweapon->reloadtime += base_reload_time;
 					}
@@ -7044,7 +7049,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
     {
         pchr->ai.poof_time = update_wld;
     }
-	
+
 	if ( cfg.sound_footfall && HAS_SOME_BITS(framefx, MADFX_FOOTFALL) )
     {
         cap_t * pcap = pro_get_pcap( pchr->profile_ref );
@@ -7146,7 +7151,7 @@ float set_character_animation_rate( chr_t * pchr )
 
     // if the action cannot be changed on the at this time, there's nothing to do.
     // keep the same animation rate
-    if ( !pinst->action_ready ) 
+    if ( !pinst->action_ready )
     {
         if( 0.0f == pinst->rate ) pinst->rate = 1.0f;
         return pinst->rate;
@@ -7243,7 +7248,7 @@ float set_character_animation_rate( chr_t * pchr )
 
         if( pchr->enviro.is_slipping )
         {
-            // the character is slipping as on ice. mke their little legs move based on 
+            // the character is slipping as on ice. mke their little legs move based on
             // their intended speed, for comic effect! :)
             speed = ABS( pchr->enviro.new_vx ) + ABS( pchr->enviro.new_vy );
         }
@@ -7646,7 +7651,6 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, Uint1
     {
         is_invictus = btrue;
     }
-
 
     return is_invictus;
 }
@@ -8177,7 +8181,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     else
     {
         pro_t * ppro = ProList.lst + pchr->profile_ref;
-		
+
         // copy the character's data.txt path
         strncpy( buffer, ppro->name, SDL_arraysize( buffer ) );
     }
@@ -8388,7 +8392,7 @@ TX_REF chr_get_icon_ref( const CHR_REF item )
     is_spell_fx = (NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type);       // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = (SPELLBOOK == pitem->profile_ref);
     draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && MAX_CHR != pitem->attachedto )*/ ) && ( bookicon_count > 0 );	//>ZF> uncommented a part because this caused a icon bug when you were morphed and mounted
-	
+
     if ( !draw_book )
     {
         iskin = pitem->skin;
@@ -9549,7 +9553,7 @@ void chr_set_light( chr_t * pchr, int light )
     if ( !DEFINED_PCHR( pchr ) ) return;
 
 	pchr->inst.light = CLIP( light, 0, 255 );
-	
+
 	//This prevents players from becoming completely invisible
     if( VALID_PLA(pchr->is_which_player) )  pchr->inst.light = MAX( 128, pchr->inst.light );
 
@@ -10054,4 +10058,16 @@ bool_t chr_set_maxaccel( chr_t * pchr, float new_val )
     pchr->maxaccel = ftmp * pchr->maxaccel_reset;
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * chr_set_ai_state( chr_t * pchr, int state )
+{
+    if ( !DEFINED_PCHR( pchr ) ) return pchr;
+
+	pchr->ai.state = state;
+
+    chr_update_hide( pchr );
+
+    return pchr;
 }

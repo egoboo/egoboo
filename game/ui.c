@@ -172,7 +172,7 @@ bool_t ui_handleSDLEvent( SDL_Event *evt )
 //--------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
-    ATTRIB_PUSH( "ui_beginFrame", GL_ENABLE_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT );
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );
     GL_DEBUG( glDisable )( GL_CULL_FACE );
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
@@ -208,7 +208,7 @@ void ui_endFrame()
     GL_DEBUG( glLoadIdentity )();
 
     // Re-enable any states disabled by gui_beginFrame
-    ATTRIB_POP( "ui_endFrame" );
+    ATTRIB_POP( __FUNCTION__ );
 
     // Clear input states at the end of the frame
     ui_context.mousePressed = ui_context.mouseReleased = 0;

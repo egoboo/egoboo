@@ -357,7 +357,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     {
         chr_t * ptarget = ChrList.lst + itarget;
         if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
-		
+
         kill_character( itarget, ( CHR_REF )MAX_CHR, btrue );
     }
 
@@ -864,8 +864,8 @@ enc_t * enc_config_do_init( enc_t * penc )
 
             penc->overlay_ref = overlay;  // Kill this character on end...
             povl->ai.target   = pdata->target_ref;
-            povl->ai.state    = peve->spawn_overlay;    // ??? WHY DO THIS ???
             povl->is_overlay  = btrue;
+            chr_set_ai_state( povl, peve->spawn_overlay );  // ??? WHY DO THIS ???
 
             // Start out with ActionMJ...  Object activated
             action = mad_get_action( chr_get_imad( overlay ), ACTION_MJ );
@@ -1842,9 +1842,8 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
             break;
         }
 
-		
 		//( !INGAME_CHR( EncList.lst[enc_now].target_ref ) && !EveStack.lst[EncList.lst[enc_now].eve_ref].stayiftargetdead )
-		
+
         // remove any expired enchants
         if ( !INGAME_ENC( enc_now ) )
         {
@@ -1900,7 +1899,6 @@ void cleanup_all_enchants()
         {
 			valid_owner = ChrList.lst[penc->owner_ref].alive;
         }
-
 
         if ( !LOADED_EVE( penc->eve_ref ) )
         {
