@@ -74,7 +74,7 @@ struct s_enc
     enc_spawn_data_t  spawn_data;
 
     int     time;                    ///< Time before end
-    int     spawntime;               ///< Time before spawn
+    int     spawn_timer;               ///< Time before spawn
 
     PRO_REF profile_ref;             ///< The object  profile index that spawned this enchant
     EVE_REF eve_ref;                 ///< The enchant profile index

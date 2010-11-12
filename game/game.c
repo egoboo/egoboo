@@ -1916,7 +1916,8 @@ void set_one_player_latch( const PLA_REF player )
     {
         fvec2_t joy_pos, joy_new;
 
-        fvec2_clear( &joy_new );
+        fvec2_self_clear( joy_new.v );
+
         if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
             !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
         {
@@ -1967,7 +1968,8 @@ void set_one_player_latch( const PLA_REF player )
     {
         fvec2_t joy_pos, joy_new;
 
-        fvec2_clear( &joy_new );
+        fvec2_self_clear( joy_new.v );
+
         if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
             !control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_CAMERA ) )
         {
@@ -2015,7 +2017,8 @@ void set_one_player_latch( const PLA_REF player )
     {
         fvec2_t joy_pos, joy_new;
 
-        fvec2_clear( &joy_new );
+        fvec2_self_clear( joy_new.v );
+
         if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
             !control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_CAMERA ) )
         {
@@ -2063,8 +2066,9 @@ void set_one_player_latch( const PLA_REF player )
     {
         fvec2_t joy_pos, joy_new;
 
-        fvec2_clear( &joy_new );
-        fvec2_clear( &joy_pos );
+        fvec2_self_clear( joy_new.v );
+        fvec2_self_clear( joy_pos.v );
+
         if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
             !control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_CAMERA ) )
         {
@@ -4736,10 +4740,10 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     }
 
     windspeed_count = 0;
-    fvec3_clear( &windspeed );
+    fvec3_self_clear( windspeed.v );
 
     waterspeed_count = 0;
-    fvec3_clear( &waterspeed );
+    fvec3_self_clear( waterspeed.v );
 
     ilayer = wawalite_data.water.layer + 0;
     if( wawalite_data.water.background_req )

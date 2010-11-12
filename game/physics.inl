@@ -131,8 +131,8 @@ INLINE bool_t test_interaction_close_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t c
     oct_vec_t oa, ob;
 
     // translate the positions to oct_vecs
-    oct_vec_ctor( oa, pos_a );
-    oct_vec_ctor( ob, pos_b );
+    oct_vec_ctor( oa, pos_a.v );
+    oct_vec_ctor( ob, pos_b.v );
 
     // calculate the depth
     for ( cnt = 0; cnt < OCT_Z; cnt++ )
@@ -161,8 +161,8 @@ INLINE bool_t test_interaction_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, f
     float depth;
 
     // translate the positions to oct_vecs
-    oct_vec_ctor( oa, pos_a );
-    oct_vec_ctor( ob, pos_b );
+    oct_vec_ctor( oa, pos_a.v );
+    oct_vec_ctor( ob, pos_b.v );
 
     // calculate the depth
     for ( cnt = 0; cnt < OCT_Z; cnt++ )
@@ -255,8 +255,8 @@ INLINE bool_t get_depth_close_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fv
     if ( NULL == depth ) return bfalse;
 
     // translate the positions to oct_vecs
-    oct_vec_ctor( oa, pos_a );
-    oct_vec_ctor( ob, pos_b );
+    oct_vec_ctor( oa, pos_a.v );
+    oct_vec_ctor( ob, pos_b.v );
 
     // calculate the depth
     valid = btrue;
@@ -303,8 +303,8 @@ INLINE bool_t get_depth_2( oct_bb_t cv_a, fvec3_t pos_a, oct_bb_t cv_b, fvec3_t 
     if ( NULL == depth ) return bfalse;
 
     // translate the positions to oct_vecs
-    oct_vec_ctor( oa, pos_a );
-    oct_vec_ctor( ob, pos_b );
+    oct_vec_ctor( oa, pos_a.v );
+    oct_vec_ctor( ob, pos_b.v );
 
     // calculate the depth
     valid = btrue;

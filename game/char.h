@@ -222,12 +222,12 @@ struct s_chr_environment
 {
     // floor stuff
 	float   grid_level;           ///< Height the current grid
-	float  zlerp;
 	Uint8   grid_twist;
 
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
+	float  zlerp;
 
     bool_t grounded;              ///< standing on something?
 
@@ -241,7 +241,8 @@ struct s_chr_environment
     // misc states
     bool_t   inwater;
     float    new_vx, new_vy;
-    fvec3_t   acc;
+    fvec3_t  acc;
+    fvec3_t  vel;
 };
 typedef struct s_chr_environment chr_environment_t;
 
@@ -328,9 +329,10 @@ struct s_chr
     ENC_REF        firstenchant;                  ///< Linked list for enchants
     ENC_REF        undoenchant;                   ///< Last enchantment spawned
 
+    float          fat_stt;                       ///< Character's initial size
     float          fat;                           ///< Character's size
     float          fat_goto;                      ///< Character's size goto
-    Sint16         fat_goto_time;                  ///< Time left in size change
+    Sint16         fat_goto_time;                 ///< Time left in size change
 
     // jump stuff
     float          jump_power;                    ///< Jump power
@@ -409,6 +411,7 @@ struct s_chr
     bool_t         StatusList_on;   ///< Display stats?
     SFP8_T         uoffvel;         ///< Moving texture speed
     SFP8_T         voffvel;
+    float          shadow_size_stt;  ///< Initial shadow size
     Uint32         shadow_size;      ///< Size of shadow
     Uint32         shadow_size_save; ///< Without size modifiers
     BBOARD_REF     ibillboard;       ///< The attached billboard
@@ -436,6 +439,7 @@ struct s_chr
     ///        The old bumper data that is read from the data.txt file will be kept in
     ///        the struct "bump". A new bumper that actually matches the size of the object will
     ///        be kept in the struct "collision"
+    bumper_t     bump_stt;
     bumper_t     bump;
     bumper_t     bump_save;
 

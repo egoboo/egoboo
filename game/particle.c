@@ -492,15 +492,19 @@ prt_t * prt_config_do_init( prt_t * pprt )
     range_to_pair( ppip->damage, &( pprt->damage ) );
 
     // Spawning data
-    pprt->contspawn_delay = ppip->contspawn_delay;
-    if ( pprt->contspawn_delay != 0 )
+    pprt->contspawn_timer = ppip->contspawn_delay;
+    if ( pprt->contspawn_timer != 0 )
     {
-        pprt->contspawn_delay = 1;
+        pprt->contspawn_timer = 1;
         if ( DEFINED_CHR( pprt->attachedto_ref ) )
         {
-            pprt->contspawn_delay++; // Because attachment takes an update before it happens
+            pprt->contspawn_timer++; // Because attachment takes an update before it happens
         }
     }
+
+    pprt->end_spawn_amount    = ppip->end_spawn_amount;
+    pprt->end_spawn_facingadd = ppip->end_spawn_facingadd;
+    pprt->end_spawn_pip       = ppip->end_spawn_pip;
 
     // Sound effect
     play_particle_sound( iprt, ppip->soundspawn );
@@ -527,7 +531,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     // estimate some parameters for buoyancy and air resistance
     loc_spdlimit = ppip->spdlimit;
-    if ( 0.0f == loc_spdlimit ) loc_spdlimit = -STANDARD_GRAVITY / ( 1.0f - air_friction );
+    //if ( 0.0f == loc_spdlimit ) loc_spdlimit = -STANDARD_GRAVITY / ( 1.0f - air_friction );
 
     {
         const float buoyancy_min       = 0.0f;
@@ -541,7 +545,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         pprt->buoyancy = CLIP( pprt->buoyancy, buoyancy_min, buoyancy_max );
 
         // reduce the buoyancy if the particle falls
-        if ( loc_spdlimit >= 0.0f ) pprt->buoyancy *= 0.5f;
+        if ( loc_spdlimit > 0.0f ) pprt->buoyancy *= 0.5f;
 
         // determine if there is any left-over air resistance
         pprt->air_resistance  = 1.0f - ( pprt->buoyancy + STANDARD_GRAVITY ) / -loc_spdlimit;
@@ -1333,7 +1337,7 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
     if ( SPRITE_LIGHT == loc_pprt->type ) return pbdl_prt;
 
     // assume no acceleration
-    fvec3_clear( &fluid_acc );
+    fvec3_self_clear( fluid_acc.v );
 
     // Light isn't affected by fluid velocity
     loc_fluid_friction = loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
@@ -1341,12 +1345,12 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
     if ( loc_pprt->inwater )
     {
         fluid_acc = fvec3_sub( waterspeed.v, loc_pprt->vel.v );
-        fvec3_scale( &fluid_acc, 1.0f - loc_fluid_friction );
+        fvec3_self_scale( fluid_acc.v, 1.0f - loc_fluid_friction );
     }
     else
     {
         fluid_acc = fvec3_sub( windspeed.v, loc_pprt->vel.v );
-        fvec3_scale( &fluid_acc, 1.0f - loc_fluid_friction );
+        fvec3_self_scale( fluid_acc.v, 1.0f - loc_fluid_friction );
     }
 
     // Apply fluid friction for all particles
@@ -1623,7 +1627,7 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
-    fvec3_clear( &z_motion_acc );
+    fvec3_self_clear( z_motion_acc.v );
 
     // Do particle buoyancy. This is kinda BS the way it is calculated
     if ( loc_pprt->buoyancy > 0.01f )
@@ -1846,7 +1850,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         vel_dot = fvec3_dot_product(floor_nrm.v, loc_pprt->vel.v);
         if( 0.0f == vel_dot )
         {
-            fvec3_clear( &vel_perp );
+            fvec3_self_clear( vel_perp.v );
             vel_para = loc_pprt->vel;
         }
         else
@@ -2603,13 +2607,16 @@ int prt_do_end_spawn( const PRT_REF iprt )
 {
     int end_spawn_count = 0;
     prt_t * pprt;
+    PIP_REF ipip;
 
     if( !ALLOCATED_PRT(iprt) ) return end_spawn_count;
 
     pprt = PrtList.lst + iprt;
 
+    ipip = pro_get_ipip( pprt->profile_ref, pprt->end_spawn_pip );
+
     // Spawn new particles if time for old one is up
-    if ( pprt->end_spawn_amount > 0 && LOADED_PIP( pprt->end_spawn_pip ) )
+    if ( pprt->end_spawn_amount > 0 && LOADED_PIP( ipip ) )
     {
         FACING_T facing;
         int      tnc;
@@ -2620,7 +2627,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
             // we have been given the absolute pip reference when the particle was spawned
             // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
             // value of pprt->end_spawn_pip will be used directly
-            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, REF_TO_INT( pprt->end_spawn_pip ),
+            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, ipip,
                                 ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
             if( DEFINED_PRT(spawned_prt) )
@@ -2751,7 +2758,9 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt  )
 {
     /// Spawn new particles if continually spawning
 
-    int spawn_count = 0;
+    int      spawn_count = 0;
+    FACING_T facing;
+    unsigned tnc;
 
     prt_t             * loc_pprt;
     pip_t             * loc_ppip;
@@ -2765,42 +2774,38 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt  )
         return spawn_count;
     }
 
-    if ( 0 == loc_pprt->contspawn_delay )
+    if( loc_pprt->contspawn_timer > 0 ) return spawn_count;
+
+    // reset the spawn timer
+    loc_pprt->contspawn_timer = loc_ppip->contspawn_delay;
+
+    facing = loc_pprt->facing;
+    for ( tnc = 0; tnc < loc_ppip->contspawn_amount; tnc++ )
     {
-        FACING_T facing;
-        Uint8    tnc;
+        PRT_REF prt_child = spawn_one_particle( prt_get_pos(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn_pip,
+                                                ( CHR_REF )MAX_CHR, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
 
-        // reset the spawn timer
-        loc_pprt->contspawn_delay = loc_ppip->contspawn_delay;
-
-        facing = loc_pprt->facing;
-        for ( tnc = 0; tnc < loc_ppip->contspawn_amount; tnc++ )
+		if ( DEFINED_PRT( prt_child ) )
         {
-            PRT_REF prt_child = spawn_one_particle( prt_get_pos(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn_pip,
-                                                    ( CHR_REF )MAX_CHR, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
+			// Inherit velocities from the particle we were spawned from, but only if it wasn't attached to something
 
-			if ( DEFINED_PRT( prt_child ) )
-            {
-				// Inherit velocities from the particle we were spawned from, but only if it wasn't attached to something
+            // ZF> I have disabled this at the moment. This is what caused the erratic particle movement for the Adventurer Torch
+            // BB> taking out the test works, though  I should have checked vs. loc_pprt->attached_ref, anyway,
+            //     since we already specified that the particle is not attached in the function call :P
+			//if( !ACTIVE_CHR( loc_pprt->attachedto_ref ) )
+			/*{
+				PrtList.lst[prt_child].vel.x += loc_pprt->vel.x;
+				PrtList.lst[prt_child].vel.y += loc_pprt->vel.y;
+				PrtList.lst[prt_child].vel.z += loc_pprt->vel.z;
+			}*/
+			// ZF> I have again disabled this. Is this really needed? It wasn't implemented before and causes
+			//     many, many, many issues with all particles around the game.
 
-                // ZF> I have disabled this at the moment. This is what caused the erratic particle movement for the Adventurer Torch
-                // BB> taking out the test works, though  I should have checked vs. loc_pprt->attached_ref, anyway,
-                //     since we already specified that the particle is not attached in the function call :P
-				//if( !ACTIVE_CHR( loc_pprt->attachedto_ref ) )
-				/*{
-					PrtList.lst[prt_child].vel.x += loc_pprt->vel.x;
-					PrtList.lst[prt_child].vel.y += loc_pprt->vel.y;
-					PrtList.lst[prt_child].vel.z += loc_pprt->vel.z;
-				}*/
-				// ZF> I have again disabled this. Is this really needed? It wasn't implemented before and causes
-				//     many, many, many issues with all particles around the game.
-
-				//Keep count of how many were actually spawned
-                spawn_count++;
-            }
-
-            facing += loc_ppip->contspawn_facingadd;
+			//Keep count of how many were actually spawned
+            spawn_count++;
         }
+
+        facing += loc_ppip->contspawn_facingadd;
     }
 
     return spawn_count;
@@ -2980,7 +2985,7 @@ prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt )
     if ( loc_pprt->lifetime_remaining > 0 ) loc_pprt->lifetime_remaining--;
 
     // down the continuous spawn timer
-    if ( loc_pprt->contspawn_delay > 0 ) loc_pprt->contspawn_delay--;
+    if ( loc_pprt->contspawn_timer > 0 ) loc_pprt->contspawn_timer--;
 
     return pbdl_prt;
 }

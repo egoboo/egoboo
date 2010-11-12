@@ -512,6 +512,22 @@ void fput_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, flo
 }
 
 //--------------------------------------------------------------------------------------------
+void fput_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str )
+{
+    /// @details ZF@> This function mimics vfs_printf in spitting out
+    ///    damage/stat pairs for floating point values
+
+    if( !VALID_CSTR(str) )
+    {
+        fput_expansion( filewrite, text, idsz, 0 );
+    }
+    else
+    {
+        vfs_printf( filewrite, "%s: [%s] %s\n", text, undo_idsz( idsz ), str );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t fget_range( vfs_FILE* fileread, FRange * prange )
 {

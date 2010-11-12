@@ -136,33 +136,6 @@ void camera_look_at( camera_t * pcam, float x, float y )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE float fvec3_length_abs( const fvec3_base_t A )
-{
-	if ( NULL == A ) return 0.0f;
-
-	return ABS( A[kX] ) + ABS( A[kY] ) + ABS( A[kZ] );
-}
-
-//--------------------------------------------------------------------------------------------
-INLINE bool_t  fvec3_self_normalize( fvec3_base_t A )
-{
-	if ( NULL == A ) return bfalse;
-
-	if ( 0.0f != fvec3_length_abs( A ) )
-	{
-		float len2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
-		float inv_len = 1.0f / SQRT( len2 );
-		LOG_NAN( inv_len );
-
-		A[kX] *= inv_len;
-		A[kY] *= inv_len;
-		A[kZ] *= inv_len;
-	}
-
-	return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 void camera_make_matrix( camera_t * pcam )
 {
 	/// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
@@ -315,7 +288,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
         sum_wt    = 0.0f;
         sum_level = 0.0f;
-        fvec3_clear( &sum_pos );
+        fvec3_self_clear( sum_pos.v );
 
         for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
         {
@@ -384,7 +357,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
             sum_wt    = 0.0f;
             sum_level = 0.0f;
-            fvec3_clear( &sum_pos );
+            fvec3_self_clear( sum_pos.v );
 
             for ( cnt = 0; cnt < local_chr_count; cnt++ )
             {

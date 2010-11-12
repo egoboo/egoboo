@@ -402,6 +402,35 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 		else if ( idsz == MAKE_IDSZ( 'W', 'I', 'S', 'D' ) ) pcap->wis_bonus = fget_float( fileread );
 		else if ( idsz == MAKE_IDSZ( 'D', 'E', 'X', 'D' ) ) pcap->dex_bonus = fget_float( fileread );
 
+        // get some model customization
+        else if ( MAKE_IDSZ( 'M', 'O', 'D', 'L' ) == idsz )
+        {
+            STRING tmp_buffer;
+            if ( fget_string( fileread, tmp_buffer, SDL_arraysize( tmp_buffer ) ) )
+            {
+                char * ptr;
+
+                ptr = strpbrk( tmp_buffer, "SBH" );
+                while ( NULL != ptr )
+                {
+                    if ( 'S' == *ptr )
+                    {
+                        pcap->bump_override_size = btrue;
+                    }
+                    else if ( 'B' == *ptr )
+                    {
+                        pcap->bump_override_sizebig = btrue;
+                    }
+                    else if ( 'H' == *ptr )
+                    {
+                        pcap->bump_override_height = btrue;
+                    }
+
+                    ptr = strpbrk( tmp_buffer, "SBH" );
+                }
+            }
+        }
+
 		//If it is none of the predefined IDSZ extensions then add it as a new skill
 		else idsz_map_add( pcap->skills, SDL_arraysize( pcap->skills ), idsz, fget_int( fileread ) );
     }
@@ -724,6 +753,21 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
 	if( pcap->wis_bonus > 0 )
 		fput_expansion_float( filewrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), pcap->wis_bonus );
+
+	if( pcap->bump_override_size || pcap->bump_override_sizebig ||  pcap->bump_override_height )
+    {
+        STRING sz_tmp = EMPTY_CSTR;
+
+        if( pcap->bump_override_size    ) strcat( sz_tmp, "S" );
+        if( pcap->bump_override_sizebig ) strcat( sz_tmp, "B" );
+        if( pcap->bump_override_height  ) strcat( sz_tmp, "H" );
+
+        if( CSTR_END != sz_tmp[0] )
+        {
+		    fput_expansion_string( filewrite, "", MAKE_IDSZ( 'M', 'O', 'D', 'L' ), sz_tmp );
+        }
+    }
+
 
     // Basic stuff that is always written
     fput_expansion( filewrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), pcap->money );

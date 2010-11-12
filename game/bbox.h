@@ -60,7 +60,8 @@ enum e_octagonal_axes
 /// a "vector" that measures distances based on the axes of an octagonal bounding box
 typedef float oct_vec_t[OCT_COUNT];
 
-bool_t oct_vec_ctor( oct_vec_t ovec , fvec3_t pos );
+bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos );
+bool_t oct_vec_self_clear( oct_vec_t * ovec );
 
 #define OCT_VEC_INIT_VALS { 0,0,0,0,0 }
 
@@ -81,9 +82,9 @@ struct s_oct_bb
 typedef struct s_oct_bb oct_bb_t;
 
 oct_bb_t * oct_bb_ctor( oct_bb_t * pobb );
-bool_t     oct_bb_union( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
-bool_t     oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
-bool_t     oct_bb_empty( oct_bb_t src1 );
+bool_t     oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
+bool_t     oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
+bool_t     oct_bb_empty( const oct_bb_t * psrc1 );
 
 #define OCT_BB_INIT_VALS { OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
 
@@ -150,11 +151,11 @@ struct s_OVolume
 };
 typedef struct s_OVolume OVolume_t;
 
-OVolume_t OVolume_merge( OVolume_t * pv1, OVolume_t * pv2 );
-OVolume_t OVolume_intersect( OVolume_t * pv1, OVolume_t * pv2 );
-bool_t    OVolume_draw( OVolume_t * cv, bool_t draw_square, bool_t draw_diamond );
-bool_t    OVolume_shift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
-bool_t    OVolume_unshift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
+OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 );
+OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 );
+//bool_t    OVolume_draw( OVolume_t * cv, bool_t draw_square, bool_t draw_diamond );
+//bool_t    OVolume_shift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
+//bool_t    OVolume_unshift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
 
 bool_t    OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume );
 
@@ -164,7 +165,7 @@ typedef struct s_OVolume_Tree OVolume_Tree_t;
 
 //--------------------------------------------------------------------------------------------
 
-/// @details A covex polygon representation of the collision of two objects
+/// @details A convex polygon representation of the collision of two objects
 struct s_CVolume
 {
     float            volume;
@@ -174,23 +175,22 @@ struct s_CVolume
 };
 typedef struct s_CVolume CVolume_t;
 
-bool_t CVolume_ctor( CVolume_t * pcv, OVolume_t * pva, OVolume_t * pvb );
+bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb );
 bool_t CVolume_refine( CVolume_t * pcv );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // type conversion routines
 
-bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst );
-bool_t bumper_to_oct_bb_1( bumper_t src, fvec3_t vel, oct_bb_t * pdst );
+bool_t bumper_to_oct_bb_0( const bumper_t src, oct_bb_t * pdst );
+//bool_t bumper_to_oct_bb_1( const bumper_t src, const fvec3_t vel, oct_bb_t * pdst );
 
-void   oct_bb_downgrade( oct_bb_t * psrc, bumper_t bump_base, bumper_t * p_bump, oct_bb_t * pdst );
-bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst );
+void   oct_bb_downgrade( const oct_bb_t * psrc, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * p_bump, oct_bb_t * pdst );
 
-int    oct_bb_to_points( oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
-void   points_to_oct_bb( oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
+int    oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
+void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count );
 
-bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst );
+bool_t oct_bb_add_vector( const oct_bb_t src, const fvec3_base_t vec, oct_bb_t * pdst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

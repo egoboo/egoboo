@@ -1267,7 +1267,7 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
     };
 
     retval = bfalse;
-    if ( !oct_bb_empty( pchr->chr_prt_cv ) )
+    if ( !oct_bb_empty( &(pchr->chr_prt_cv) ) )
     {
         oct_bb_t tmp_oct;
 
@@ -1371,6 +1371,7 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
         ChrList.lst[ichr].bsp_leaf.next = NULL;
+        ChrList.lst[ichr].bsp_leaf.inserted = bfalse;
     }
 
     // unlink all used particle nodes
@@ -1378,6 +1379,7 @@ bool_t obj_BSP_empty( obj_BSP_t * pbsp )
     for ( iprt = 0; iprt < MAX_PRT; iprt++ )
     {
         PrtList.lst[iprt].bsp_leaf.next = NULL;
+        PrtList.lst[iprt].bsp_leaf.inserted = bfalse;
     }
 
     return btrue;
@@ -1498,7 +1500,7 @@ int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * col
 //    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return bfalse;
 //
 //    // return if the object does not intersect the branch
-//    if ( !oct_bb_intersection( *pvobj, *pvbranch, &int_ov ) )
+//    if ( !oct_bb_intersection( pvobj, pvbranch, &int_ov ) )
 //    {
 //        return bfalse;
 //    }
@@ -1551,7 +1553,7 @@ int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * col
 //            tmp_ov.mins[OCT_Z] = z_mid;
 //        }
 //
-//        if ( oct_bb_intersection( *pvobj, tmp_ov, &int_ov ) )
+//        if ( oct_bb_intersection( pvobj, &tmp_ov, &int_ov ) )
 //        {
 //            // potential interaction with the child. go recursive!
 //            bool_t ret = obj_BSP_collide_branch( pbranch->children[i], &( tmp_ov ), pvobj, colst );
@@ -1597,7 +1599,7 @@ int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * col
 //            continue;
 //        }
 //
-//        if ( oct_bb_intersection( *pvobj, *pnodevol, &int_ov ) )
+//        if ( oct_bb_intersection( pvobj, pnodevol, &int_ov ) )
 //        {
 //            // we have a possible intersection
 //            int_ary_push_back( colst, pleaf->index *(( 1 == pleaf->data_type ) ? 1 : -1 ) );

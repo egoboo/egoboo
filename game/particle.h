@@ -148,7 +148,7 @@ struct s_prt
     size_t  lifetime;                        ///< Total particle lifetime in updates
     size_t  lifetime_remaining;              ///< How many updates does the particle have left?
     size_t  frames_remaining;                ///< How many frames does the particle have left?
-    int     contspawn_delay;                 ///< Time until spawn
+    int     contspawn_timer;                 ///< Time until spawn
 
     Uint32            bump_size_stt;                   ///< the starting size of the particle (8.8-bit fixed point)
     bumper_t          bump_real;                       ///< Actual size of the particle

@@ -95,6 +95,7 @@ void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usena
 void fput_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz );
 void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value );
 void fput_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value );
+void fput_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str );
 
 void    GLSetup_SupportedFormats();
 Uint32  ego_texture_load_vfs( struct s_oglx_texture *texture, const char *filename, Uint32 key );

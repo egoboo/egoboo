@@ -279,7 +279,7 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
 
             pframe->vertex_lst[tnc].nrm = fvec3_normalize( pframe->vertex_lst[tnc].nrm.v );
 
-            oct_vec_ctor( opos, pframe->vertex_lst[tnc].pos );
+            oct_vec_ctor( opos, pframe->vertex_lst[tnc].pos.v );
 
             // Re-calculate the bounding box for this frame
             if ( !bfound )

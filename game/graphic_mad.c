@@ -537,7 +537,7 @@ void render_chr_bbox( chr_t * pchr )
         {
             oct_bb_t bb;
 
-            oct_bb_add_vector( pchr->chr_prt_cv, pchr->pos, &bb );
+            oct_bb_add_vector( pchr->chr_prt_cv, pchr->pos.v, &bb );
 
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );

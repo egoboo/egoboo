@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 /// @file egoboo_math.h
-/// @The name's pretty self explanatory, doncha think?
+/// @details The name's pretty self explanatory, doncha think?
 
 #include "egoboo_typedef.h"
 
@@ -96,6 +96,10 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 
 #if !defined(SQRT)
 #    define SQRT(A) ((float)sqrt((float)(A)))
+#endif
+
+#if !defined(LOG)
+#    define LOG(A) ((float)log((float)(A)))
 #endif
 
 #if !defined(SIN)
@@ -181,10 +185,10 @@ typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct {
 typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } fvec4_t;
 
 // macros for initializing vectors to zero
-#define ZERO_VECT2 { {0,0} }
-#define ZERO_VECT3 { {0,0,0} }
-#define ZERO_VECT4 { {0,0,0,0} }
-#define ZERO_VECT4X4 { {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0} }
+#define ZERO_VECT2   { {0.0f,0.0f} }
+#define ZERO_VECT3   { {0.0f,0.0f,0.0f} }
+#define ZERO_VECT4   { {0.0f,0.0f,0.0f,0.0f} }
+#define ZERO_MAT_4X4 { {0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f} }
 
 // Macros for initializing vectors to specific values. Most C compilers will allow you to initialize
 // to non-constant values, but they do complain.

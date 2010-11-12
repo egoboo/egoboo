@@ -2072,7 +2072,7 @@ bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
         ego_tile_info_t * ptile = pmesh->tmem.tile_list + i;
 
         // add the bounding volume for this tile to the bounding volume for the mesh
-        oct_bb_union( pbsp->volume, ptile->oct, &( pbsp->volume ) );
+        oct_bb_union( &(pbsp->volume), &(ptile->oct), &( pbsp->volume ) );
 
         // let data type 1 stand for a tile, -1 is uninitialized
         BSP_leaf_ctor( pleaf, 2, pmesh->tmem.tile_list + i, 1 );

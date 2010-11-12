@@ -56,7 +56,7 @@ typedef struct s_orientation orientation_t;
 /// @details should prevent you from being bumped into a wall
 struct s_phys_data
 {
-    fvec3_t        apos_0, apos_1;
+    fvec3_t        apos_plat, apos_coll;
     fvec3_t        avel;
 
     float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
@@ -116,10 +116,10 @@ extern const float ice_friction;            ///< estimte if the friction on ice
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_t * pdst );
+bool_t phys_expand_oct_bb( const oct_bb_t src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst );
 bool_t phys_expand_chr_bb( struct s_chr * pchr, float tmin, float tmax, oct_bb_t * pdst );
 bool_t phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
 
 bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm );
-bool_t phys_intersect_oct_bb( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb_t src2, fvec3_t pos2, fvec3_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+bool_t phys_intersect_oct_bb( const oct_bb_t src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 

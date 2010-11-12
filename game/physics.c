@@ -284,13 +284,12 @@ egoboo_rv oct_bb_intersect_close_index( int index, oct_bb_t src1, oct_vec_t opos
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_intersect_oct_bb( oct_bb_t src1_orig, fvec3_t pos1, fvec3_t vel1, oct_bb_t src2_orig, fvec3_t pos2, fvec3_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+bool_t phys_intersect_oct_bb( const oct_bb_t src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
     /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
     ///               Designed to determine whether a bullet particle will interact with character.
 
     oct_bb_t src1, src2;
-
     oct_bb_t exp1, exp2;
 
     oct_vec_t opos1, opos2;
@@ -317,7 +316,7 @@ bool_t phys_intersect_oct_bb( oct_bb_t src1_orig, fvec3_t pos1, fvec3_t vel1, oc
     //    oct_bb_add_vector( src1_orig, pos1, &tmp1 );
     //    oct_bb_add_vector( src2_orig, pos2, &tmp2 );
 
-    //    oct_bb_intersection( tmp1, tmp2, pdst );
+    //    oct_bb_intersection( &tmp1, &tmp2, pdst );
 
     //    *tmin = *tmax = -1.0f;
 
@@ -334,7 +333,7 @@ bool_t phys_intersect_oct_bb( oct_bb_t src1_orig, fvec3_t pos1, fvec3_t vel1, oc
     // cycle through the coordinates to see when the two volumes might coincide
     found = bfalse;
     *tmin = *tmax = -1.0f;
-    if( 0 == fvec3_dist_abs(vel1.v, vel2.v) )
+    if( 0 == fvec3_dist_abs(vel1, vel2) )
     {
         // no relative motion, so avoid the loop to save time
         failure_count = OCT_COUNT;
@@ -406,7 +405,7 @@ bool_t phys_intersect_oct_bb( oct_bb_t src1_orig, fvec3_t pos1, fvec3_t vel1, oc
     phys_expand_oct_bb( src2, vel2, tmp_min, tmp_max, &exp2 );
 
     // determine the intersection of these two volumes
-    oct_bb_intersection( exp1, exp2, pdst );
+    oct_bb_intersection( &exp1, &exp2, pdst );
 
     // check to see if there is any possibility of interaction at all
     for ( cnt = 0; cnt < OCT_Z; cnt++ )
@@ -446,18 +445,18 @@ bool_t oct_bb_intersect_close( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb
     {
         if ( NULL != pdst )
         {
-            oct_bb_intersection( src1, src2, pdst );
+            oct_bb_intersection( &src1, &src2, pdst );
         }
 
         return btrue;
     }
 
     // convert the position and velocity vectors to octagonal format
-    oct_vec_ctor( ovel1, vel1 );
-    oct_vec_ctor( opos1, pos1 );
+    oct_vec_ctor( ovel1, vel1.v );
+    oct_vec_ctor( opos1, pos1.v );
 
-    oct_vec_ctor( ovel2, vel2 );
-    oct_vec_ctor( opos2, pos2 );
+    oct_vec_ctor( ovel2, vel2.v );
+    oct_vec_ctor( opos2, pos2.v );
 
     // cycle through the coordinates to see when the two volumes might coincide
     found = bfalse;
@@ -492,11 +491,11 @@ bool_t oct_bb_intersect_close( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb
     if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
 
     // determine the expanded collision volumes for both objects
-    phys_expand_oct_bb( src1, vel1, *tmin, *tmax, &exp1 );
-    phys_expand_oct_bb( src2, vel2, *tmin, *tmax, &exp2 );
+    phys_expand_oct_bb( src1, vel1.v, *tmin, *tmax, &exp1 );
+    phys_expand_oct_bb( src2, vel2.v, *tmin, *tmax, &exp2 );
 
     // determine the intersection of these two volumes
-    oct_bb_intersection( exp1, exp2, &intersection );
+    oct_bb_intersection( &exp1, &exp2, &intersection );
 
     // check to see if there is any possibility of interaction at all
     for ( cnt = 0; cnt < OCT_Z; cnt++ )
@@ -512,7 +511,7 @@ bool_t oct_bb_intersect_close( oct_bb_t src1, fvec3_t pos1, fvec3_t vel1, oct_bb
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oct_bb_t * pdst )
+bool_t phys_expand_oct_bb( const oct_bb_t src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst )
 {
     /// @details BB@> use the velocity of an object and its oct_bb_t to determine the
     ///               amount of territory that an object will cover in the range [tmin,tmax].
@@ -521,7 +520,7 @@ bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oc
     float abs_vel;
     oct_bb_t tmp_min, tmp_max;
 
-    abs_vel = ABS( vel.x ) + ABS( vel.y ) + ABS( vel.z );
+    abs_vel = ABS( vel[kX] ) + ABS( vel[kY] ) + ABS( vel[kZ] );
     if ( 0.0f == abs_vel )
     {
         if ( NULL != pdst )
@@ -540,12 +539,12 @@ bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oc
     {
         fvec3_t pos_min;
 
-        pos_min.x = vel.x * tmin;
-        pos_min.y = vel.y * tmin;
-        pos_min.z = vel.z * tmin;
+        pos_min.x = vel[kX] * tmin;
+        pos_min.y = vel[kY] * tmin;
+        pos_min.z = vel[kZ] * tmin;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_vector( src, pos_min, &tmp_min ) ) return bfalse;
+        if ( !oct_bb_add_vector( src, pos_min.v, &tmp_min ) ) return bfalse;
     }
 
     // determine the bounding volume at t == tmax
@@ -557,16 +556,16 @@ bool_t phys_expand_oct_bb( oct_bb_t src, fvec3_t vel, float tmin, float tmax, oc
     {
         fvec3_t pos_max;
 
-        pos_max.x = vel.x * tmax;
-        pos_max.y = vel.y * tmax;
-        pos_max.z = vel.z * tmax;
+        pos_max.x = vel[kX] * tmax;
+        pos_max.y = vel[kY] * tmax;
+        pos_max.z = vel[kZ] * tmax;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_vector( src, pos_max, &tmp_max ) ) return bfalse;
+        if ( !oct_bb_add_vector( src, pos_max.v, &tmp_max ) ) return bfalse;
     }
 
     // determine bounding box for the range of times
-    if ( !oct_bb_union( tmp_min, tmp_max, pdst ) ) return bfalse;
+    if ( !oct_bb_union( &tmp_min, &tmp_max, pdst ) ) return bfalse;
 
     return btrue;
 }
@@ -592,10 +591,10 @@ bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst
     }
 
     // add in the current position to the bounding volume
-    oct_bb_add_vector( tmp_oct1, pchr->pos, &tmp_oct2 );
+    oct_bb_add_vector( tmp_oct1, pchr->pos.v, &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
-    return phys_expand_oct_bb( tmp_oct2, pchr->vel, tmin, tmax, pdst );
+    return phys_expand_oct_bb( tmp_oct2, pchr->vel.v, tmin, tmax, pdst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -609,10 +608,10 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // add in the current position to the bounding volume
-    oct_bb_add_vector( pprt->chr_prt_cv, prt_get_pos(pprt), &tmp_oct );
+    oct_bb_add_vector( pprt->chr_prt_cv, prt_get_pos_v(pprt), &tmp_oct );
 
     // streach the bounging volume to cover the path of the object
-    return phys_expand_oct_bb( tmp_oct, pprt->vel, tmin, tmax, pdst );
+    return phys_expand_oct_bb( tmp_oct, pprt->vel.v, tmin, tmax, pdst );
 }
 
 //--------------------------------------------------------------------------------------------

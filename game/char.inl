@@ -549,13 +549,20 @@ INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
     /// @details BB@> initalize the character size info
 
     if ( !ALLOCATED_PCHR( pchr ) ) return;
+
     if ( NULL == pcap || !pcap->loaded ) return;
 
-    pchr->fat                = pcap->size;
-    pchr->shadow_size_save   = pcap->shadow_size;
-    pchr->bump_save.size     = pcap->bump_size;
-    pchr->bump_save.size_big = pcap->bump_sizebig;
-    pchr->bump_save.height   = pcap->bump_height;
+    pchr->fat_stt           = pcap->size;
+    pchr->shadow_size_stt   = pcap->shadow_size;
+    pchr->bump_stt.size     = ( pcap->bump_override_size    ? 1.0f : -1.0f ) * pcap->bump_size;
+    pchr->bump_stt.size_big = ( pcap->bump_override_sizebig ? 1.0f : -1.0f ) * pcap->bump_sizebig;
+    pchr->bump_stt.height   = ( pcap->bump_override_height  ? 1.0f : -1.0f ) * pcap->bump_height;
+
+    pchr->fat                = pchr->fat_stt;
+    pchr->shadow_size_save   = pchr->shadow_size_stt;
+    pchr->bump_save.size     = pchr->bump_stt.size;
+    pchr->bump_save.size_big = pchr->bump_stt.size_big;
+    pchr->bump_save.height   = pchr->bump_stt.height;
 
     chr_update_size( pchr );
 }

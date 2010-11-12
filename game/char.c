@@ -527,11 +527,23 @@ void make_one_character_matrix( const CHR_REF ichr )
     }
     else
     {
-        pinst->matrix = ScaleXYZRotateXYZTranslate( pchr->fat, pchr->fat, pchr->fat,
-            TO_TURN( pchr->ori.facing_z ),
-            TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
-            TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
-            pchr->pos.x, pchr->pos.y, pchr->pos.z );
+        if ( pchr->stickybutt )
+        {
+            pinst->matrix = ScaleXYZRotateXYZTranslate_SpaceFixed( pchr->fat, pchr->fat, pchr->fat,
+                            TO_TURN( pchr->ori.facing_z ),
+                            TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
+                            TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
+                            pchr->pos.x, pchr->pos.y, pchr->pos.z );
+        }
+        else
+        {
+            pinst->matrix = ScaleXYZRotateXYZTranslate_BodyFixed( pchr->fat, pchr->fat, pchr->fat,
+                            TO_TURN( pchr->ori.facing_z ),
+                            TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
+                            TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
+                            pchr->pos.x, pchr->pos.y, pchr->pos.z );
+        }
+
 
         pinst->matrix_cache.valid        = btrue;
         pinst->matrix_cache.matrix_valid = btrue;
@@ -781,13 +793,13 @@ void make_all_character_matrices( bool_t do_physics )
     //// blank the accumulators
     //for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     //{
-    //    ChrList.lst[ichr].phys.apos_0.x = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_0.y = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_0.z = 0.0f;
+    //    ChrList.lst[ichr].phys.apos_plat.x = 0.0f;
+    //    ChrList.lst[ichr].phys.apos_plat.y = 0.0f;
+    //    ChrList.lst[ichr].phys.apos_plat.z = 0.0f;
 
-    //    ChrList.lst[ichr].phys.apos_1.x = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_1.y = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_1.z = 0.0f;
+    //    ChrList.lst[ichr].phys.apos_coll.x = 0.0f;
+    //    ChrList.lst[ichr].phys.apos_coll.y = 0.0f;
+    //    ChrList.lst[ichr].phys.apos_coll.z = 0.0f;
 
     //    ChrList.lst[ichr].phys.avel.x = 0.0f;
     //    ChrList.lst[ichr].phys.avel.y = 0.0f;
@@ -822,10 +834,10 @@ void make_all_character_matrices( bool_t do_physics )
     ////        pchr->vel.z += pchr->phys.avel.z;
 
     ////        // do the "integration" on the position
-    ////        if ( ABS(pchr->phys.apos_1.x) > 0 )
+    ////        if ( ABS(pchr->phys.apos_coll.x) > 0 )
     ////        {
     ////            tmpx = tmp_pos.x;
-    ////            tmp_pos.x += pchr->phys.apos_1.x;
+    ////            tmp_pos.x += pchr->phys.apos_coll.x;
     ////            if ( chr_hit_wall(ichr, nrm, NULL) )
     ////            {
     ////                // restore the old values
@@ -833,15 +845,15 @@ void make_all_character_matrices( bool_t do_physics )
     ////            }
     ////            else
     ////            {
-    ////                // pchr->vel.x += pchr->phys.apos_1.x;
+    ////                // pchr->vel.x += pchr->phys.apos_coll.x;
     ////                pchr->safe_pos.x = tmpx;
     ////            }
     ////        }
 
-    ////        if ( ABS(pchr->phys.apos_1.y) > 0 )
+    ////        if ( ABS(pchr->phys.apos_coll.y) > 0 )
     ////        {
     ////            tmpy = tmp_pos.y;
-    ////            tmp_pos.y += pchr->phys.apos_1.y;
+    ////            tmp_pos.y += pchr->phys.apos_coll.y;
     ////            if ( chr_hit_wall(ichr, nrm, NULL) )
     ////            {
     ////                // restore the old values
@@ -849,15 +861,15 @@ void make_all_character_matrices( bool_t do_physics )
     ////            }
     ////            else
     ////            {
-    ////                // pchr->vel.y += pchr->phys.apos_1.y;
+    ////                // pchr->vel.y += pchr->phys.apos_coll.y;
     ////                pchr->safe_pos.y = tmpy;
     ////            }
     ////        }
 
-    ////        if ( ABS(pchr->phys.apos_1.z) > 0 )
+    ////        if ( ABS(pchr->phys.apos_coll.z) > 0 )
     ////        {
     ////            tmpz = tmp_pos.z;
-    ////            tmp_pos.z += pchr->phys.apos_1.z;
+    ////            tmp_pos.z += pchr->phys.apos_coll.z;
     ////            if ( tmp_pos.z < pchr->enviro.level )
     ////            {
     ////                // restore the old values
@@ -865,7 +877,7 @@ void make_all_character_matrices( bool_t do_physics )
     ////            }
     ////            else
     ////            {
-    ////                // pchr->vel.z += pchr->phys.apos_1.z;
+    ////                // pchr->vel.z += pchr->phys.apos_coll.z;
     ////                pchr->safe_pos.z = tmpz;
     ////            }
     ////        }
@@ -5939,12 +5951,12 @@ void move_one_character_do_voluntary( chr_t * pchr )
                 if ( VALID_PLA( pchr->is_which_player ) )
                 {
                     // Players turn quickly
-                    pchr->ori.facing_z = terp_dir_fast( pchr->ori.facing_z, vec_to_facing( dvx , dvy ) );
+                    pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 2 );
                 }
                 else
                 {
                     // AI turn slowly
-                    pchr->ori.facing_z = terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ) );
+                    pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
                 }
             }
         }
@@ -5955,7 +5967,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
         {
             if (( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
             {
-                pchr->ori.facing_z = terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ) );
+                pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
             }
         }
         break;
@@ -5965,7 +5977,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
         {
             if ( ichr != pchr->ai.target )
             {
-                pchr->ori.facing_z = terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ) );
+                pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ), 8 );
             }
         }
         break;
@@ -7467,7 +7479,8 @@ void move_one_character( chr_t * pchr )
 
     if ( pchr->pack.is_packed ) return;
 
-    // save the acceleration from the last time-step
+    // save the velocity and acceleration from the last time-step
+    pchr->enviro.vel = fvec3_sub( pchr->pos.v, pchr->pos_old.v );
     pchr->enviro.acc = fvec3_sub( pchr->vel.v, pchr->vel_old.v );
 
     // Character's old location
@@ -8246,7 +8259,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     points_to_oct_bb( pbmp, dst, vcount );
 
     // convert the level 1 bounding box to a level 0 bounding box
-    oct_bb_downgrade( pbmp, pchr->bump, &( pchr->bump_1 ), &( pchr->chr_prt_cv ) );
+    oct_bb_downgrade( pbmp, pchr->bump_stt, pchr->bump, &( pchr->bump_1 ), &( pchr->chr_prt_cv ) );
 
     return rv_success;
 }
@@ -8953,9 +8966,19 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
-    pchr->inst.matrix = ScaleXYZRotateXYZTranslate( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
-        TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
-        mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
+    if ( pchr->stickybutt )
+    {
+        pchr->inst.matrix = ScaleXYZRotateXYZTranslate_SpaceFixed( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
+                            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
+                            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
+    }
+    else
+    {
+        pchr->inst.matrix = ScaleXYZRotateXYZTranslate_BodyFixed( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
+                            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
+                            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
+    }
+
 
     memcpy( &( pchr->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
 

@@ -828,7 +828,7 @@ enc_t * enc_config_do_init( enc_t * penc )
 
     // set some other spawning parameters
     penc->time         = peve->time;
-    penc->spawntime    = 1;
+    penc->spawn_timer    = 1;
 
     // Now set all of the specific values, morph first
     for ( set_type = ENC_SET_FIRST; set_type <= ENC_SET_LAST; set_type++ )
@@ -911,12 +911,13 @@ enc_t * enc_config_do_active( enc_t * penc )
     if ( NULL == peve ) return penc;
 
     // check to see whether the enchant needs to spawn some particles
-    if ( penc->spawntime > 0 ) penc->spawntime--;
-    if ( penc->spawntime == 0 && peve->contspawn_amount <= 0 && INGAME_CHR( penc->target_ref ) )
+    if ( penc->spawn_timer > 0 ) penc->spawn_timer--;
+
+    if ( 0 == penc->spawn_timer && peve->contspawn_amount <= 0 )
     {
         int      tnc;
         FACING_T facing;
-        penc->spawntime = peve->contspawn_delay;
+        penc->spawn_timer = peve->contspawn_delay;
         ptarget = ChrList.lst + penc->target_ref;
 
         facing = ptarget->ori.facing_z;

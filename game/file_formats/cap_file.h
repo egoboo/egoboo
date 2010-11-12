@@ -226,8 +226,11 @@ struct s_cap
     float        size_perlevel;                  ///< Scale increases
     Uint32       shadow_size;                    ///< Shadow size
     Uint32       bump_size;                     ///< Bounding octagon
+    bool_t       bump_override_size;            ///< let bump_size override the measured object size
     Uint32       bump_sizebig;                  ///< For octagonal bumpers
-    Uint32       bump_height;
+    bool_t       bump_override_sizebig;         ///< let bump_sizebig override the measured object size
+    Uint32       bump_height;                   ///< the height of the object
+    bool_t       bump_override_height;          ///< let bump_height overrride the measured height of the object
     Uint8        stoppedby;                     ///< Collision Mask
 
     // movement

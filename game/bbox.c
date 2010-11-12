@@ -168,7 +168,7 @@ EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-OVolume_t OVolume_merge( OVolume_t * pv1, OVolume_t * pv2 )
+OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 )
 {
     OVolume_t rv;
 
@@ -234,7 +234,7 @@ OVolume_t OVolume_merge( OVolume_t * pv1, OVolume_t * pv2 )
 }
 
 //--------------------------------------------------------------------------------------------
-OVolume_t OVolume_intersect( OVolume_t * pv1, OVolume_t * pv2 )
+OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
 {
     OVolume_t rv;
 
@@ -426,7 +426,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     pd[cnt].pos.y = -pov->oct.maxs[OCT_X] + pov->oct.maxs[OCT_XY];
 
     // which points are outside both volumes
-    fvec3_clear( &center );
+    fvec3_self_clear( center.v );
     count = 0;
     for ( cnt = 0; cnt < 16; cnt++ )
     {
@@ -455,7 +455,9 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     if ( count < 3 ) return bfalse;
 
     // find the centroid
-    fvec3_scale( &center, 1.0f / ( float )count );
+    center.x *= 1.0f / ( float )count;
+    center.y *= 1.0f / ( float )count;
+    center.z *= 1.0f / ( float )count;
 
     // move the valid points to the beginning of the list
     for ( cnt = 0, tnc = 0; cnt < 16 && tnc < count; cnt++ )
@@ -468,7 +470,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
             pd[tnc] = pd[cnt];
         }
 
-        // record the cartesian rotation angle relative to center
+        // record the Cartesian rotation angle relative to center
         pd[tnc].rads = atan2( pd[cnt].pos.y - center.y, pd[cnt].pos.x - center.x );
         tnc++;
     }
@@ -478,7 +480,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     qsort(( void * )pd, count, sizeof( cv_point_data_t ), cv_point_data_cmp );
 
     // now we can use geometry to find the area of the planar collision area
-    fvec3_clear( &centroid );
+    fvec3_self_clear( centroid.v );
     {
         float ftmp;
         fvec3_t diff1, diff2;
@@ -517,7 +519,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
             darea = diff1.x * diff2.y - diff1.y * diff2.x;
 
-            // esitmate the centroid
+            // estimate the centroid
             area += darea;
             centroid.x += ( pd[cnt].pos.x + pd[tnc].pos.x + center.x ) / 3.0f * darea;
             centroid.y += ( pd[cnt].pos.y + pd[tnc].pos.y + center.y ) / 3.0f * darea;
@@ -571,7 +573,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t CVolume_ctor( CVolume_t * pcv, OVolume_t * pva, OVolume_t * pvb )
+bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb )
 {
     bool_t retval;
     CVolume_t cv;
@@ -634,7 +636,7 @@ static int cv_point_data_cmp( const void * pleft, const void * pright )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int oct_bb_to_points( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
+int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
 {
     /// @details BB@> convert the corners of the level 1 bounding box to a point cloud
     ///      set pos[].w to zero for now, that the transform does not
@@ -895,7 +897,7 @@ int oct_bb_to_points( oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
 }
 
 //--------------------------------------------------------------------------------------------
-void points_to_oct_bb( oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count )
+void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count )
 {
     /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t
     ///               array as the source
@@ -938,21 +940,37 @@ void points_to_oct_bb( oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t oct_vec_ctor( oct_vec_t ovec , fvec3_t pos )
+bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos )
 {
     if ( NULL == ovec ) return bfalse;
 
-    ovec[OCT_X ] =  pos.x;
-    ovec[OCT_Y ] =  pos.y;
-    ovec[OCT_Z ] =  pos.z;
-    ovec[OCT_XY] =  pos.x + pos.y;
-    ovec[OCT_YX] = -pos.x + pos.y;
+    ovec[OCT_X ] =  pos[kX];
+    ovec[OCT_Y ] =  pos[kY];
+    ovec[OCT_Z ] =  pos[kZ];
+    ovec[OCT_XY] =  pos[kX] + pos[kY];
+    ovec[OCT_YX] = -pos[kX] + pos[kY];
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t oct_vec_self_clear( oct_vec_t * ovec )
+{
+    int cnt;
+
+    if( NULL == ovec ) return bfalse;
+
+    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    {
+        (*ovec)[cnt] = 0.0f;
+    }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t bumper_to_oct_bb_0( bumper_t src, oct_bb_t * pdst )
+bool_t bumper_to_oct_bb_0( const bumper_t src, oct_bb_t * pdst )
 {
     if ( NULL == pdst ) return bfalse;
 
@@ -986,90 +1004,94 @@ oct_bb_t * oct_bb_ctor( oct_bb_t * pobb )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t oct_bb_union( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst )
+bool_t oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst )
 {
     /// @details BB@> find the union of two oct_bb_t
 
-    if ( NULL == pdst ) return bfalse;
+    if ( NULL == pdst || NULL == psrc1 || NULL == psrc2  ) return bfalse;
 
-    pdst->mins[OCT_X]  = MIN( src1.mins[OCT_X],  src2.mins[OCT_X] );
-    pdst->maxs[OCT_X]  = MAX( src1.maxs[OCT_X],  src2.maxs[OCT_X] );
+    pdst->mins[OCT_X]  = MIN( psrc1->mins[OCT_X],  psrc2->mins[OCT_X] );
+    pdst->maxs[OCT_X]  = MAX( psrc1->maxs[OCT_X],  psrc2->maxs[OCT_X] );
 
-    pdst->mins[OCT_Y]  = MIN( src1.mins[OCT_Y],  src2.mins[OCT_Y] );
-    pdst->maxs[OCT_Y]  = MAX( src1.maxs[OCT_Y],  src2.maxs[OCT_Y] );
+    pdst->mins[OCT_Y]  = MIN( psrc1->mins[OCT_Y],  psrc2->mins[OCT_Y] );
+    pdst->maxs[OCT_Y]  = MAX( psrc1->maxs[OCT_Y],  psrc2->maxs[OCT_Y] );
 
-    pdst->mins[OCT_XY] = MIN( src1.mins[OCT_XY], src2.mins[OCT_XY] );
-    pdst->maxs[OCT_XY] = MAX( src1.maxs[OCT_XY], src2.maxs[OCT_XY] );
+    pdst->mins[OCT_XY] = MIN( psrc1->mins[OCT_XY], psrc2->mins[OCT_XY] );
+    pdst->maxs[OCT_XY] = MAX( psrc1->maxs[OCT_XY], psrc2->maxs[OCT_XY] );
 
-    pdst->mins[OCT_YX] = MIN( src1.mins[OCT_YX], src2.mins[OCT_YX] );
-    pdst->maxs[OCT_YX] = MAX( src1.maxs[OCT_YX], src2.maxs[OCT_YX] );
+    pdst->mins[OCT_YX] = MIN( psrc1->mins[OCT_YX], psrc2->mins[OCT_YX] );
+    pdst->maxs[OCT_YX] = MAX( psrc1->maxs[OCT_YX], psrc2->maxs[OCT_YX] );
 
-    pdst->mins[OCT_Z]  = MIN( src1.mins[OCT_Z],  src2.mins[OCT_Z] );
-    pdst->maxs[OCT_Z]  = MAX( src1.maxs[OCT_Z],  src2.maxs[OCT_Z] );
+    pdst->mins[OCT_Z]  = MIN( psrc1->mins[OCT_Z],  psrc2->mins[OCT_Z] );
+    pdst->maxs[OCT_Z]  = MAX( psrc1->maxs[OCT_Z],  psrc2->maxs[OCT_Z] );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t oct_bb_intersection( oct_bb_t src1, oct_bb_t src2, oct_bb_t * pdst )
+bool_t oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst )
 {
     /// @details BB@> find the intersection of two oct_bb_t
 
-    if ( NULL == pdst ) return bfalse;
+    if ( NULL == pdst || NULL == psrc1 || NULL == psrc2 ) return bfalse;
 
-    pdst->mins[OCT_X]  = MAX( src1.mins[OCT_X],  src2.mins[OCT_X] );
-    pdst->maxs[OCT_X]  = MIN( src1.maxs[OCT_X],  src2.maxs[OCT_X] );
+    pdst->mins[OCT_X]  = MAX( psrc1->mins[OCT_X],  psrc2->mins[OCT_X] );
+    pdst->maxs[OCT_X]  = MIN( psrc1->maxs[OCT_X],  psrc2->maxs[OCT_X] );
 
-    pdst->mins[OCT_Y]  = MAX( src1.mins[OCT_Y],  src2.mins[OCT_Y] );
-    pdst->maxs[OCT_Y]  = MIN( src1.maxs[OCT_Y],  src2.maxs[OCT_Y] );
+    pdst->mins[OCT_Y]  = MAX( psrc1->mins[OCT_Y],  psrc2->mins[OCT_Y] );
+    pdst->maxs[OCT_Y]  = MIN( psrc1->maxs[OCT_Y],  psrc2->maxs[OCT_Y] );
 
-    pdst->mins[OCT_XY] = MAX( src1.mins[OCT_XY], src2.mins[OCT_XY] );
-    pdst->maxs[OCT_XY] = MIN( src1.maxs[OCT_XY], src2.maxs[OCT_XY] );
+    pdst->mins[OCT_XY] = MAX( psrc1->mins[OCT_XY], psrc2->mins[OCT_XY] );
+    pdst->maxs[OCT_XY] = MIN( psrc1->maxs[OCT_XY], psrc2->maxs[OCT_XY] );
 
-    pdst->mins[OCT_YX] = MAX( src1.mins[OCT_YX], src2.mins[OCT_YX] );
-    pdst->maxs[OCT_YX] = MIN( src1.maxs[OCT_YX], src2.maxs[OCT_YX] );
+    pdst->mins[OCT_YX] = MAX( psrc1->mins[OCT_YX], psrc2->mins[OCT_YX] );
+    pdst->maxs[OCT_YX] = MIN( psrc1->maxs[OCT_YX], psrc2->maxs[OCT_YX] );
 
-    pdst->mins[OCT_Z]  = MAX( src1.mins[OCT_Z],  src2.mins[OCT_Z] );
-    pdst->maxs[OCT_Z]  = MIN( src1.maxs[OCT_Z],  src2.maxs[OCT_Z] );
+    pdst->mins[OCT_Z]  = MAX( psrc1->mins[OCT_Z],  psrc2->mins[OCT_Z] );
+    pdst->maxs[OCT_Z]  = MIN( psrc1->maxs[OCT_Z],  psrc2->maxs[OCT_Z] );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t oct_bb_add_vector( oct_bb_t src, fvec3_t vec, oct_bb_t * pdst )
+bool_t oct_bb_add_vector( const oct_bb_t src, const fvec3_base_t vec, oct_bb_t * pdst )
 {
     /// @details BB@> shift the bounding box by the vector vec
 
     if ( NULL == pdst ) return bfalse;
 
-    pdst->mins[OCT_X]  = src.mins[OCT_X] + vec.x;
-    pdst->maxs[OCT_X]  = src.maxs[OCT_X] + vec.x;
+    if ( NULL == vec ) return btrue;
 
-    pdst->mins[OCT_Y]  = src.mins[OCT_Y] + vec.y;
-    pdst->maxs[OCT_Y]  = src.maxs[OCT_Y] + vec.y;
+    pdst->mins[OCT_X]  = src.mins[OCT_X] + vec[kX];
+    pdst->maxs[OCT_X]  = src.maxs[OCT_X] + vec[kX];
 
-    pdst->mins[OCT_XY] = src.mins[OCT_XY] + ( vec.x + vec.y );
-    pdst->maxs[OCT_XY] = src.maxs[OCT_XY] + ( vec.x + vec.y );
+    pdst->mins[OCT_Y]  = src.mins[OCT_Y] + vec[kY];
+    pdst->maxs[OCT_Y]  = src.maxs[OCT_Y] + vec[kY];
 
-    pdst->mins[OCT_YX] = src.mins[OCT_YX] + ( -vec.x + vec.y );
-    pdst->maxs[OCT_YX] = src.maxs[OCT_YX] + ( -vec.x + vec.y );
+    pdst->mins[OCT_XY] = src.mins[OCT_XY] + ( vec[kX] + vec[kY] );
+    pdst->maxs[OCT_XY] = src.maxs[OCT_XY] + ( vec[kX] + vec[kY] );
 
-    pdst->mins[OCT_Z]  = src.mins[OCT_Z] + vec.z;
-    pdst->maxs[OCT_Z]  = src.maxs[OCT_Z] + vec.z;
+    pdst->mins[OCT_YX] = src.mins[OCT_YX] + ( -vec[kX] + vec[kY] );
+    pdst->maxs[OCT_YX] = src.maxs[OCT_YX] + ( -vec[kX] + vec[kY] );
+
+    pdst->mins[OCT_Z]  = src.mins[OCT_Z] + vec[kZ];
+    pdst->maxs[OCT_Z]  = src.maxs[OCT_Z] + vec[kZ];
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t oct_bb_empty( oct_bb_t src1 )
+bool_t oct_bb_empty( const oct_bb_t * psrc1 )
 {
     int cnt;
     bool_t rv;
 
+    if( NULL == psrc1 ) return btrue;
+
     rv = bfalse;
     for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
     {
-        if ( src1.mins[cnt] >= src1.maxs[cnt] )
+        if ( psrc1->mins[cnt] >= psrc1->maxs[cnt] )
         {
             rv = btrue;
             break;
@@ -1080,7 +1102,7 @@ bool_t oct_bb_empty( oct_bb_t src1 )
 }
 
 //--------------------------------------------------------------------------------------------
-void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb )
+void oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb )
 {
     /// @details BB@> convert a level 1 bumper to an "equivalent" level 0 bumper
 
@@ -1092,7 +1114,7 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
     //---- handle all of the pdst_bump data first
     if ( NULL != pdst_bump )
     {
-        if ( 0 == bump_base.height )
+        if ( 0.0f == bump_stt.height )
         {
             pdst_bump->height = 0.0f;
         }
@@ -1105,7 +1127,7 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
             pdst_bump->height = MAX( bump_base.height, psrc_bb->maxs[OCT_Z] );
         }
 
-        if ( 0 == bump_base.size )
+        if ( 0.0f == bump_stt.size )
         {
             pdst_bump->size = 0.0f;
         }
@@ -1118,16 +1140,16 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
             pdst_bump->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
         }
 
-        if ( 0 == bump_base.size_big )
+        if ( 0.0f == bump_stt.size_big )
         {
             pdst_bump->size_big = 0;
         }
         else
         {
-            val1 =  psrc_bb->maxs[OCT_YX];
-            val2 = -psrc_bb->mins[OCT_YX];
-            val3 =  psrc_bb->maxs[OCT_XY];
-            val4 = -psrc_bb->mins[OCT_XY];
+            val1 = ABS( psrc_bb->maxs[OCT_YX] );
+            val2 = ABS( psrc_bb->mins[OCT_YX] );
+            val3 = ABS( psrc_bb->maxs[OCT_XY] );
+            val4 = ABS( psrc_bb->mins[OCT_XY] );
             pdst_bump->size_big = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
         }
     }
@@ -1141,7 +1163,7 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
             memmove( pdst_bb, psrc_bb, sizeof( *pdst_bb ) );
         }
 
-        if ( 0 == bump_base.height )
+        if ( 0.0f == bump_stt.height )
         {
             pdst_bb->mins[OCT_Z] = pdst_bb->maxs[OCT_Z] = 0.0f;
         }
@@ -1151,10 +1173,9 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
             pdst_bb->maxs[OCT_Z] = MAX( bump_base.height, psrc_bb->maxs[OCT_Z] );
         }
 
-        // 0 == bump_base.size is supposed to be shorthand for "this object doesn't interact
-        // with anything", so we have to set all of the horizontal pdst_bb data to zero to
-        // make
-        if ( 0 == bump_base.size )
+        // 0.0f == bump_stt.size is supposed to be shorthand for "this object doesn't interact
+        // with anything", so we have to set all of the horizontal pdst_bb data to zero
+        if ( 0.0f == bump_stt.size )
         {
             pdst_bb->mins[OCT_X ] = pdst_bb->maxs[OCT_X ] = 0.0f;
             pdst_bb->mins[OCT_Y ] = pdst_bb->maxs[OCT_Y ] = 0.0f;
@@ -1163,3 +1184,4 @@ void oct_bb_downgrade( oct_bb_t * psrc_bb, bumper_t bump_base, bumper_t * pdst_b
         }
     }
 }
+
