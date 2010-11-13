@@ -34,12 +34,19 @@ enum e_global_pips
     PIP_COIN5,
     PIP_COIN25,
     PIP_COIN100,
+    PIP_GEM200,
+    PIP_GEM500,
+    PIP_GEM1000,
+    PIP_GEM2000,
     PIP_WEATHER4,                                  ///< Weather particles
     PIP_WEATHER5,                                  ///< Weather particle finish
     PIP_SPLASH,                                    ///< Water effects are next
     PIP_RIPPLE,
     PIP_DEFEND,                                     ///< Defend particle
-    GLOBAL_PIP_COUNT
+    GLOBAL_PIP_COUNT,
+
+    // aliases
+    PIP_MONEY_COUNT = PIP_WEATHER4
 };
 
 /// particle types / sprite dosplay modes
@@ -147,33 +154,35 @@ struct s_pip
     bool_t  end_ground;                    ///< End if on ground
     bool_t  end_wall;                      ///< End if hit a wall
     bool_t  end_lastframe;                 ///< End on last frame
-    Uint8   end_spawn_amount;              ///< Spawn amount
-    Uint16  end_spawn_facingadd;           ///< Spawn in circle
-    int     end_spawn_pip;                 ///< Spawn type ( local )
     Sint8   end_sound;                     ///< Ending sound
     Sint8   end_sound_floor;               ///< Floor sound
     Sint8   end_sound_wall;                ///< Ricochet sound
 
+    // end spawn
+    Uint8   end_spawn_amount;              ///< Spawn amount
+    Uint16  end_spawn_facingadd;           ///< Spawn in circle
+    int     end_spawn_lpip;                ///< Spawn type ( local )
+
     // bumping
-    Sint8   bump_money;                   ///< Value of particle
+    int     bump_money;                   ///< Value of particle
     Uint32  bump_size;                    ///< Bounding box size
     Uint32  bump_height;                  ///< Bounding box height
 
     // "bump particle" spawning
     Uint8   bumpspawn_amount;            ///< Spawn amount
-    int     bumpspawn_pip;               ///< Spawn type ( global )
+    int     bumpspawn_lpip;               ///< Spawn type ( global )
 
     // continuous spawning
     Uint16  contspawn_delay;              ///< Spawn timer
     Uint8   contspawn_amount;             ///< Spawn amount
     Uint16  contspawn_facingadd;          ///< Spawn in circle
-    int     contspawn_pip;                ///< Spawn type ( local )
+    int     contspawn_lpip;                ///< Spawn type ( local )
 
     // damage
     FRange  damage;                       ///< Damage
     Uint8   damagetype;                   ///< Damage type
-    int     dazetime;                     ///< Daze
-    int     grogtime;                     ///< Drunkeness
+    int     daze_timer;                     ///< Daze
+    int     grog_timer;                     ///< Drunkeness
     Uint32  damfx;                        ///< Damage effects
     bool_t  intdamagebonus;               ///< Add intelligence as damage bonus
     bool_t  wisdamagebonus;               ///< Add wisdom as damage bonus

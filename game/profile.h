@@ -167,7 +167,7 @@ bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int depth );
 bool_t obj_BSP_free( obj_BSP_t * pbsp );
 
 bool_t obj_BSP_fill( obj_BSP_t * pbsp );
-bool_t obj_BSP_empty( obj_BSP_t * pbsp );
+bool_t obj_BSP_clear( obj_BSP_t * pbsp );
 
 //bool_t obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pnode, int depth, int address_x[], int address_y[], int address_z[] );
 bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, struct s_chr * pchr );

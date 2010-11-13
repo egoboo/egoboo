@@ -41,7 +41,7 @@
 #define MAXTILETYPE               256                        ///< Max number of tile images
 #define FANOFF                    0xFFFF                     ///< Don't draw the fansquare if tile = this
 
-#define CARTMAN_FIXNUM            4.125 ///< 4.150             ///< Magic number
+#define CARTMAN_FIXNUM            4.125f ///< 4.150f             ///< Magic number
 #define CARTMAN_SLOPE             50                        ///< increments for terrain slope
 
 #define INVALID_BLOCK ((Uint32)(~0))

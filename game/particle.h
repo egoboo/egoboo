@@ -28,6 +28,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+struct s_mesh_wall_data;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Particles
 
 #define MAXPARTICLEIMAGE                256         ///< Number of particle images ( frames )
@@ -170,7 +175,7 @@ struct s_prt
     // some data that needs to be copied from the particle profile
     Uint8             end_spawn_amount;        ///< The number of particles to be spawned at the end
     Uint16            end_spawn_facingadd;     ///< The angular spacing for the end spawn
-    int               end_spawn_pip;           ///< The actual pip that will be spawned at the end
+    int               end_spawn_lpip;          ///< The actual local pip that will be spawned at the end
 
     dynalight_info_t  dynalight;              ///< Dynamic lighting...
     prt_instance_t    inst;                   ///< Everything needed for rendering
@@ -209,10 +214,6 @@ struct s_prt_bundle
 };
 typedef struct s_prt_bundle prt_bundle_t;
 
-prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
-prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
-prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
-
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
@@ -240,15 +241,15 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget );
 
-#define spawn_one_particle_global( pos, facing, ipip, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, ipip, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
+#define spawn_one_particle_global( pos, facing, gpip_index, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, gpip_index, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
 
 int     prt_count_free();
 
 PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip_override );
 void    reset_particles();
 
-BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure );
-bool_t prt_test_wall( prt_t * pprt, float test_pos[] );
+BIT_FIELD prt_hit_wall(const  prt_t * pprt, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
+bool_t prt_test_wall( const prt_t * pprt, const float test_pos[], struct s_mesh_wall_data * pdata );
 
 bool_t prt_is_over_water( const PRT_REF particle );
 

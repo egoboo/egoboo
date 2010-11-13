@@ -62,7 +62,7 @@ static INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec );
 static INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
-static INLINE float   fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B );
+static INLINE float   fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B );
 
 static INLINE bool_t  fvec3_self_clear( fvec3_base_t A );
 static INLINE bool_t  fvec3_base_copy( fvec3_base_t A, const fvec3_base_t B );

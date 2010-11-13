@@ -819,7 +819,7 @@ bool_t fill_bumplists( obj_BSP_t * pbsp )
 {
     /// @details BB@> Fill in the obj_BSP_t for this frame
     ///
-    /// @note do not use obj_BSP_empty every frame, because the number of pre-allocated nodes can be quite large.
+    /// @note do not use obj_BSP_clear every frame, because the number of pre-allocated nodes can be quite large.
     /// Instead, just remove the nodes from the tree, fill the tree, and then prune any empty leaves
 
     if ( NULL == pbsp ) return bfalse;
@@ -832,7 +832,7 @@ bool_t fill_bumplists( obj_BSP_t * pbsp )
     }
 
     // empty out the BSP node lists
-    obj_BSP_empty( pbsp );
+    obj_BSP_clear( pbsp );
 
     // fill up the BSP list based on the current locations
     obj_BSP_fill( pbsp );
@@ -1141,7 +1141,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     chr_getMatUp( pplat, &platform_up );
     platform_up = fvec3_normalize( platform_up.v );
 
-    pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25 * pchr->enviro.zlerp;
+    pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 
     // tell the platform that we bumped into it
     // this is necessary for key buttons to work properly, for instance
@@ -1313,11 +1313,12 @@ void bump_all_objects( obj_BSP_t * pbsp )
             qsort( _coll_node_lst.ary, _coll_node_lst.top, sizeof( CoNode_t ), CoNode_cmp );
         }
 
+        // handle interaction with mounts
+        // put this before platforms, otherwise pointing is just too hard
+        bump_all_mounts( &_coll_node_lst );
+
         // handle interaction with platforms
         bump_all_platforms( &_coll_node_lst );
-
-        // handle interaction with mounts
-        bump_all_mounts( &_coll_node_lst );
 
         // handle all the collisions
         bump_all_collisions( &_coll_node_lst );
@@ -1553,7 +1554,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         {
             tmpx = tmp_pos.x;
             tmp_pos.x += pchr->phys.apos_plat.x + pchr->phys.apos_coll.x;
-            if ( chr_test_wall( pchr, tmp_pos.v ) )
+            if ( chr_test_wall( pchr, tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.x = tmpx;
@@ -1569,7 +1570,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         {
             tmpy = tmp_pos.y;
             tmp_pos.y += pchr->phys.apos_plat.y + pchr->phys.apos_coll.y;
-            if ( chr_test_wall( pchr, tmp_pos.v ) )
+            if ( chr_test_wall( pchr, tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.y = tmpy;
@@ -2468,7 +2469,7 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     prt_wants_deflection  = ( MISSILE_NORMAL != pchr->missiletreatment ) &&
                             ( pprt->owner_ref != GET_REF_PCHR( pchr ) ) && !pdata->ppip->bump_money;
 
-    chr_can_deflect = ( 0 != pchr->damagetime ) && ( pdata->max_damage > 0 );
+    chr_can_deflect = ( 0 != pchr->damage_timer ) && ( pdata->max_damage > 0 );
 
     // try to deflect the particle
     prt_deflected = bfalse;
@@ -2570,13 +2571,13 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 					{
 						//Defender won, the block holds
 						//Add a small stun to the attacker for about 0.8 seconds
-						pattacker->reloadtime += 40;
+						pattacker->reload_timer += 40;
 					}
 					else
 					{
 						//Attacker broke the block and batters away the shield
 						//Time to raise shield again (about 0.8 seconds)
-						pchr->reloadtime += 40;
+						pchr->reload_timer += 40;
 						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
 					}
 				}
@@ -2767,20 +2768,20 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     // Do confuse effects
-    if ( pdata->ppip->grogtime > 0 && pdata->pcap->canbegrogged )
+    if ( pdata->ppip->grog_timer > 0 && pdata->pcap->canbegrogged )
     {
         SET_BIT( pchr->ai.alert, ALERTIF_CONFUSED );
-        if ( pdata->ppip->grogtime > pchr->grogtime )
+        if ( pdata->ppip->grog_timer > pchr->grog_timer )
         {
-            pchr->grogtime = MAX( 0, pchr->grogtime + pdata->ppip->grogtime );
+            pchr->grog_timer = MAX( 0, pchr->grog_timer + pdata->ppip->grog_timer );
         }
     }
-    if ( pdata->ppip->dazetime > 0 && pdata->pcap->canbedazed )
+    if ( pdata->ppip->daze_timer > 0 && pdata->pcap->canbedazed )
     {
         SET_BIT( pchr->ai.alert, ALERTIF_CONFUSED );
-        if ( pdata->ppip->dazetime > pchr->dazetime )
+        if ( pdata->ppip->daze_timer > pchr->daze_timer )
         {
-            pchr->dazetime = MAX( 0, pchr->dazetime + pdata->ppip->dazetime );
+            pchr->daze_timer = MAX( 0, pchr->daze_timer + pdata->ppip->daze_timer );
         }
     }
 
@@ -3010,7 +3011,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_t * pchr, prt_t * pprt, chr_prt_col
                 }
             }
 
-            if ( pcollector->cangrabmoney && pcollector->alive && 0 == pcollector->damagetime && pcollector->money < MAXMONEY )
+            if ( pcollector->cangrabmoney && pcollector->alive && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
             {
                 pcollector->money += pdata->ppip->bump_money;
                 pcollector->money = CLIP( pcollector->money, 0, MAXMONEY );
@@ -3142,7 +3143,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     }
 
     // do "damage" to the character
-    if ( !prt_deflected && 0 == pchr_a->damagetime )
+    if ( !prt_deflected && 0 == pchr_a->damage_timer )
     {
         // Check reaffirmation of particles
         if ( pchr_a->reaffirmdamagetype == pprt_b->damagetype )

@@ -111,45 +111,51 @@ struct s_eve
 {
     EGO_PROFILE_STUFF
 
+    // enchant spawning info
     bool_t  override;                    ///< Override other enchants?
     bool_t  removeoverridden;            ///< Remove other enchants?
     bool_t  retarget;                    ///< Pick a weapon?
-    bool_t  killtargetonend;                   ///< Kill the target on end?
-    bool_t  poofonend;                   ///< Spawn a poof on end?
-    bool_t  endifcantpay;                ///< End on out of mana
-    bool_t  stayifnoowner;               ///< Stay if owner has died?
-    Sint16  time;                        ///< Time in seconds
-    Sint32  endmessage;                  ///< Message for end -1 for none
     Uint8   dontdamagetype;              ///< Don't work if ...
     Uint8   onlydamagetype;              ///< Only work if ...
-    IDSZ    removedbyidsz;               ///< By particle or [NONE]
-    Uint16  contspawn_delay;              ///< Spawn timer
-    Uint8   contspawn_amount;            ///< Spawn amount
-    Uint16  contspawn_facingadd;         ///< Spawn in circle
-    int     contspawn_pip;               ///< Spawn type ( local )
-    Sint16  endsound_index;              ///< Sound on end (-1 for none)
     bool_t  spawn_overlay;               ///< Spawn an overlay?
-    bool_t  stayiftargetdead;            ///< Stay if target has died?
 
-    // Boost values
+    // ending conditions
+    Sint16  time;                        ///< Time in seconds
+    bool_t  endifcantpay;                ///< End on out of mana
+    IDSZ    removedbyidsz;               ///< By particle or [NONE]
+
+    // despawning infp
+    bool_t  stayiftargetdead;            ///< Stay if target has died?
+    bool_t  stayifnoowner;               ///< Stay if owner has died?
+
+    // skill modifications
     Sint16  owner_mana;
     Sint16  owner_life;
     Sint16  target_mana;
     Sint16  target_life;
 
-    // the enchant values
+    // generic modifications
     bool_t  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
     float   setvalue[MAX_ENCHANT_SET];    ///< Value to use
 
     bool_t  addyesno[MAX_ENCHANT_ADD];    ///< Add this value?
     float   addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
-    // other values that are enchanted
+    // special modifications
     bool_t  seekurse;                    ///< Allow target to see kurses
 
-    // debugging parameters
-    int enc_request_count;                ///< a way to tell how popular this enchant is
-    int enc_create_count;                 ///< if this number is significantly less than the enc_request_count, there is a problem.
+    // continuous spawning
+    Uint16  contspawn_delay;              ///< Spawn timer
+    Uint8   contspawn_amount;             ///< Spawn amount
+    Uint16  contspawn_facingadd;          ///< Spawn in circle
+    int     contspawn_lpip;               ///< Spawn type ( local )
+
+    // what to so when the enchant ends
+    Sint16  endsound_index;              ///< Sound on end (-1 for none)
+    bool_t  killtargetonend;             ///< Kill the target on end?
+    bool_t  poofonend;                   ///< Spawn a poof on end?
+    Sint32  endmessage;                  ///< Message for end -1 for none
+
 };
 typedef struct s_eve eve_t;
 

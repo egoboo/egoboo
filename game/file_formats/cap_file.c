@@ -297,7 +297,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     // Particle attachments
     pcap->attachedprt_amount             = fget_next_int( fileread );
     pcap->attachedprt_reaffirmdamagetype = fget_next_damage_type( fileread );
-    pcap->attachedprt_pip                = fget_next_int( fileread );
+    pcap->attachedprt_lpip                = fget_next_int( fileread );
 
     // Character hands
     pcap->slotvalid[SLOT_LEFT]  = fget_next_bool( fileread );
@@ -305,12 +305,12 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     // Attack order ( weapon )
     pcap->attack_attached = fget_next_bool( fileread );
-    pcap->attack_pip  = fget_next_int( fileread );
+    pcap->attack_lpip  = fget_next_int( fileread );
 
     // GoPoof
     pcap->gopoofprt_amount    = fget_next_int( fileread );
     pcap->gopoofprt_facingadd = fget_next_int( fileread );
-    pcap->gopoofprt_pip       = fget_next_int( fileread );
+    pcap->gopoofprt_lpip       = fget_next_int( fileread );
 
     // Blud
     cTmp = fget_next_char( fileread );
@@ -318,7 +318,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     else if ( 'U' == toupper( cTmp ) )  pcap->blud_valid = ULTRABLUDY;
     else                              pcap->blud_valid = bfalse;
 
-    pcap->blud_pip = fget_next_int( fileread );
+    pcap->blud_lpip = fget_next_int( fileread );
 
     // Stuff I forgot
     pcap->waterwalk = fget_next_bool( fileread );
@@ -633,7 +633,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     // Particle attachments
     template_put_int( filetemp, filewrite, pcap->attachedprt_amount );
     template_put_damage_type( filetemp, filewrite, pcap->attachedprt_reaffirmdamagetype );
-    template_put_int( filetemp, filewrite, pcap->attachedprt_pip );
+    template_put_int( filetemp, filewrite, pcap->attachedprt_lpip );
 
     // Character hands
     template_put_bool( filetemp, filewrite, pcap->slotvalid[SLOT_LEFT] );
@@ -641,16 +641,16 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
     // Particle spawning on attack
     template_put_bool( filetemp, filewrite, 0 != pcap->attack_attached );
-    template_put_int( filetemp, filewrite, pcap->attack_pip );
+    template_put_int( filetemp, filewrite, pcap->attack_lpip );
 
     // Particle spawning for GoPoof
     template_put_int( filetemp, filewrite, pcap->gopoofprt_amount );
     template_put_int( filetemp, filewrite, pcap->gopoofprt_facingadd );
-    template_put_int( filetemp, filewrite, pcap->gopoofprt_pip );
+    template_put_int( filetemp, filewrite, pcap->gopoofprt_lpip );
 
     // Particle spawning for blud
     template_put_bool( filetemp, filewrite, 0 != pcap->blud_valid );
-    template_put_int( filetemp, filewrite, pcap->blud_pip );
+    template_put_int( filetemp, filewrite, pcap->blud_lpip );
 
     // Extra stuff
     template_put_bool( filetemp, filewrite, pcap->waterwalk );

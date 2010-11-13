@@ -160,7 +160,7 @@ fog_instance_t        fog;
 TEAM_REF local_senseenemiesTeam = ( TEAM_REF )TEAM_GOOD; // TEAM_MAX;
 IDSZ     local_senseenemiesID   = IDSZ_NONE;
 
-// declare the variables to do profiling
+bool_t activate_spawn_file_active = bfalse;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -727,14 +727,14 @@ int update_game()
                 local_seedark_level = MAX( local_seedark_level, pchr->darkvision_level );
             }
 
-			if ( pchr->grogtime > 0 )
+			if ( pchr->grog_timer > 0 )
 			{
-				local_groglevel += pchr->grogtime;
+				local_groglevel += pchr->grog_timer;
 			}
 
-			if ( pchr->dazetime > 0 )
+			if ( pchr->daze_timer > 0 )
 			{
-				local_dazelevel += pchr->dazetime;
+				local_dazelevel += pchr->daze_timer;
 			}
         }
         else
@@ -854,14 +854,14 @@ int update_game()
             PROFILE_END2( game_single_update );
 
             // estimate how much time the main loop is taking per second
-            est_single_update_time = 0.9 * est_single_update_time + 0.1 * PROFILE_QUERY( game_single_update );
-            est_single_ups         = 0.9 * est_single_ups         + 0.1 * ( 1.0f / PROFILE_QUERY( game_single_update ) );
+            est_single_update_time = 0.9F * est_single_update_time + 0.1F * PROFILE_QUERY( game_single_update );
+            est_single_ups         = 0.9F * est_single_ups         + 0.1F * ( 1.0F / PROFILE_QUERY( game_single_update ) );
         }
         update_lag = tnc;
     }
 
-    est_update_game_time = 0.9 * est_update_game_time + 0.1 * est_single_update_time * update_loop_cnt;
-    est_max_game_ups     = 0.9 * est_max_game_ups     + 0.1 * 1.0 / est_update_game_time;
+    est_update_game_time = 0.9F * est_update_game_time + 0.1F * est_single_update_time * update_loop_cnt;
+    est_max_game_ups     = 0.9F * est_max_game_ups     + 0.1F * (1.0F / est_update_game_time);
 
     if ( PNet->on )
     {
@@ -1223,13 +1223,13 @@ int do_game_proc_running( game_process_t * gproc )
         // even when the inner loop does not execute
         if ( update_loops > 0 )
         {
-            est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY( game_update_loop ) / update_loops;
-            est_max_ups     = 0.9 * est_max_ups     + 0.1 * ( update_loops / PROFILE_QUERY( game_update_loop ) );
+            est_update_time = 0.9F * est_update_time + 0.1F * PROFILE_QUERY( game_update_loop ) / update_loops;
+            est_max_ups     = 0.9F * est_max_ups     + 0.1F * ( update_loops / PROFILE_QUERY( game_update_loop ) );
         }
         else
         {
-            est_update_time = 0.9 * est_update_time + 0.1 * PROFILE_QUERY( game_update_loop );
-            est_max_ups     = 0.9 * est_max_ups     + 0.1 * ( 1.0f / PROFILE_QUERY( game_update_loop ) );
+            est_update_time = 0.9F * est_update_time + 0.1F * PROFILE_QUERY( game_update_loop );
+            est_max_ups     = 0.9F * est_max_ups     + 0.1F * ( 1.0F / PROFILE_QUERY( game_update_loop ) );
         }
 
         single_update_requested = bfalse;
@@ -1252,12 +1252,12 @@ int do_game_proc_running( game_process_t * gproc )
         PROFILE_END2( gfx_loop );
 
         // estimate how much time the main loop is taking per second
-        est_gfx_time = 0.9 * est_gfx_time + 0.1 * PROFILE_QUERY( gfx_loop );
-        est_max_gfx  = 0.9 * est_max_gfx  + 0.1 * ( 1.0f / PROFILE_QUERY( gfx_loop ) );
+        est_gfx_time = 0.9F * est_gfx_time + 0.1F * PROFILE_QUERY( gfx_loop );
+        est_max_gfx  = 0.9F * est_max_gfx  + 0.1F * ( 1.0F / PROFILE_QUERY( gfx_loop ) );
 
         // estimate how much time the main loop is taking per second
         est_render_time = est_gfx_time * TARGET_FPS;
-        est_max_fps  = 0.9 * est_max_fps + 0.1 * ( 1.0f - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
+        est_max_fps  = 0.9F * est_max_fps + 0.1F * ( 1.0F - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
 
         single_frame_requested = bfalse;
     }
@@ -1419,8 +1419,8 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 
         // we are going to give the player a break and not target things that
         // can't be damaged, unless the particle is homing. If it homes in,
-        // the he damagetime could drop off en route.
-        if ( !ppip->homing && ( 0 != pchr->damagetime ) ) continue;
+        // the he damage_timer could drop off en route.
+        if ( !ppip->homing && ( 0 != pchr->damage_timer ) ) continue;
 
         // Don't retarget someone we already had or not supposed to target
         if ( cnt == oldtarget || cnt == donttarget ) continue;
@@ -1699,15 +1699,15 @@ void do_damage_tiles()
         //    damagetile.sound_time = 0;
         //}
 
-        if ( 0 == pchr->damagetime )
+        if ( 0 == pchr->damage_timer )
         {
             int actual_damage;
             actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, ( TEAM_REF )TEAM_DAMAGE, ( CHR_REF )MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
-            pchr->damagetime = DAMAGETILETIME;
+            pchr->damage_timer = DAMAGETILETIME;
 
-            if (( actual_damage > 0 ) && ( -1 != damagetile.parttype ) && 0 == ( update_wld & damagetile.partand ) )
+            if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
-                spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.parttype, 0 );
+                spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.part_gpip, 0 );
             }
         }
     }
@@ -1836,7 +1836,7 @@ void do_weather_spawn_particles()
                     chr_t * pchr = ChrList.lst + ichr;
 
                     // Yes, so spawn over that character
-                    PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.particle, 0 );
+                    PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.part_gpip, 0 );
                     if ( DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList.lst + particle;
@@ -1847,7 +1847,7 @@ void do_weather_spawn_particles()
                         {
                             destroy_particle = btrue;
                         }
-                        else if ( prt_test_wall( pprt, NULL ) )
+                        else if ( prt_test_wall( pprt, NULL, NULL ) )
                         {
                             destroy_particle = btrue;
                         }
@@ -2890,6 +2890,9 @@ void activate_spawn_file_vfs()
     vfs_FILE         *fileread;
     spawn_file_info_t sp_info;
 
+    // tell everyone we are spawning a module
+    activate_spawn_file_active = btrue;
+
     // Turn some back on
     newloadname = "mp_data/spawn.txt";
     fileread = vfs_openRead( newloadname );
@@ -2946,6 +2949,9 @@ void activate_spawn_file_vfs()
 
     // Fix tilting trees problem
     tilt_characters_to_terrain();
+
+    // done spawning
+    activate_spawn_file_active = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3163,7 +3169,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
+        particle = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
         if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList.lst + particle;
@@ -4439,7 +4445,7 @@ bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pda
         // copy the data
         pinst->timer_reset = pdata->timer_reset;
         pinst->over_water  = pdata->over_water;
-        pinst->particle = pdata->particle;
+        pinst->part_gpip   = pdata->part_gpip;
     }
 
     // set the new data
@@ -4492,7 +4498,7 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
         pinst->amount.rand  = 1;
         pinst->type         = pdata->type;
 
-        pinst->parttype     = pdata->parttype;
+        pinst->part_gpip    = pdata->part_gpip;
         pinst->partand      = pdata->partand;
         pinst->sound_index  = CLIP( pdata->sound_index, INVALID_SOUND, MAX_WAVE );
     }

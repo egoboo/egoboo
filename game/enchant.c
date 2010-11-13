@@ -923,7 +923,7 @@ enc_t * enc_config_do_active( enc_t * penc )
         facing = ptarget->ori.facing_z;
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
         {
-            spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_pip,
+            spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_lpip,
                 ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
 
             facing += peve->contspawn_facingadd;
@@ -1403,7 +1403,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     peve = EveStack.lst + eve_ref;
 
     // count all the requests for this enchantment type
-    peve->enc_request_count++;
+    peve->request_count++;
 
     // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
     if ( !peve->stayifnoowner && ( !INGAME_CHR( owner ) || !ChrList.lst[owner].alive ) )

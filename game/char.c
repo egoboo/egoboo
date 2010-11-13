@@ -204,8 +204,8 @@ chr_t * chr_ctor( chr_t * pchr )
     // Set up model stuff
     pchr->inwhich_slot = SLOT_LEFT;
     pchr->hitready = btrue;
-    pchr->boretime = BORETIME;
-    pchr->carefultime = CAREFULTIME;
+    pchr->bore_timer = BORETIME;
+    pchr->careful_timer = CAREFULTIME;
 
     // Enchant stuff
     pchr->firstenchant = (ENC_REF) MAX_ENC;
@@ -996,7 +996,7 @@ fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure )
+BIT_FIELD chr_hit_wall( const chr_t * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata  )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
@@ -1026,7 +1026,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pre
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_hit_wall( PMesh, test_pos, radius, pchr->stoppedby, nrm, pressure );
+        retval = mesh_hit_wall( PMesh, test_pos, radius, pchr->stoppedby, nrm, pressure, NULL );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests  += mesh_pressure_tests;
@@ -1035,7 +1035,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pre
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
+bool_t chr_test_wall( const chr_t * pchr, const float test_pos[], mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
@@ -1065,7 +1065,7 @@ bool_t chr_test_wall( chr_t * pchr, float test_pos[] )
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = (0 != mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby, NULL ));
+        retval = (0 != mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby, pdata ));
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
@@ -1193,7 +1193,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     }
 
     // Make sure it's not dropped in a wall...
-    if ( chr_test_wall( pchr, NULL ) )
+    if ( chr_test_wall( pchr, NULL, NULL ) )
     {
         fvec3_t pos_tmp;
 
@@ -2423,11 +2423,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             }
 
             // Spawn an attack particle
-            if ( pweapon_cap->attack_pip != -1 )
+            if ( pweapon_cap->attack_lpip != -1 )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_pip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
@@ -2464,11 +2464,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         }
 
                         // Don't spawn in walls
-                        if ( prt_test_wall( pprt, tmp_pos.v ) )
+                        if ( prt_test_wall( pprt, tmp_pos.v, NULL ) )
                         {
                             tmp_pos.x = pweapon->pos.x;
                             tmp_pos.y = pweapon->pos.y;
-                            if ( prt_test_wall( pprt, tmp_pos.v ) )
+                            if ( prt_test_wall( pprt, tmp_pos.v, NULL ) )
                             {
                                 tmp_pos.x = pchr->pos.x;
                                 tmp_pos.y = pchr->pos.y;
@@ -2501,40 +2501,48 @@ void drop_money( const CHR_REF character, int money )
 {
     /// @details ZZ@> This function drops some of a character's money
 
-    int huns, tfives, fives, ones, cnt;
+    int vals[PIP_MONEY_COUNT] = {1,5,25,100,200,500,1000,2000};
+    chr_t * pchr;
+    fvec3_t loc_pos;
 
     if ( !INGAME_CHR( character ) ) return;
+    pchr = ChrList.lst + character;
 
-    if ( money > ChrList.lst[character].money )  money = ChrList.lst[character].money;
-    if ( money > 0 && ChrList.lst[character].pos.z > -2 )
+    fvec3_base_copy( loc_pos.v, chr_get_pos_v( pchr ) );
+
+    // limit the about of money to the character's actual money
+    if ( money > ChrList.lst[character].money )  
     {
-        ChrList.lst[character].money = ChrList.lst[character].money - money;
-        huns = money / 100;  money -= ( huns << 7 ) - ( huns << 5 ) + ( huns << 2 );
-        tfives = money / 25;  money -= ( tfives << 5 ) - ( tfives << 3 ) + tfives;
-        fives = money / 5;  money -= ( fives << 2 ) + fives;
-        ones = money;
+        money = ChrList.lst[character].money;
+    }
 
-        for ( cnt = 0; cnt < ones; cnt++ )
+
+    if ( money > 0 && loc_pos.z > -2 )
+    {
+        int cnt, tnc;
+        int count;
+
+        // remove the money from inventory
+        pchr->money -= money;
+
+        // make the particles emit from "waist high"
+        loc_pos.z += ( pchr->chr_chr_cv.maxs[OCT_Z] + pchr->chr_chr_cv.mins[OCT_Z] ) * 0.5f;
+
+        // Give the character a time-out from interacting with particles so it
+        // doesn't just grab the money again
+        pchr->damage_timer = DAMAGETIME;  
+
+        // count and spawn the various denominations
+        for( cnt = PIP_MONEY_COUNT-1; cnt >= 0 && money >= 0; cnt-- )
         {
-            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN1, cnt );
-        }
+            count = money / vals[cnt];
+            money -= count * vals[cnt];
 
-        for ( cnt = 0; cnt < fives; cnt++ )
-        {
-            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN5, cnt );
+            for ( tnc = 0; tnc < count; tnc++ )
+            {
+                spawn_one_particle_global( loc_pos, ATK_FRONT, PIP_COIN1 + cnt, tnc );
+            }
         }
-
-        for ( cnt = 0; cnt < tfives; cnt++ )
-        {
-            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN25, cnt );
-        }
-
-        for ( cnt = 0; cnt < huns; cnt++ )
-        {
-            spawn_one_particle_global( ChrList.lst[character].pos, ATK_FRONT, PIP_COIN100, cnt );
-        }
-
-        ChrList.lst[character].damagetime = DAMAGETIME;  // So it doesn't grab it again
     }
 }
 
@@ -2765,7 +2773,7 @@ chr_t * resize_one_character( chr_t * pchr )
         {
             pchr->bump.size += bump_increase;
 
-            if ( chr_test_wall( pchr, NULL ) )
+            if ( chr_test_wall( pchr, NULL, NULL ) )
             {
                 willgetcaught = btrue;
             }
@@ -3587,7 +3595,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
     if ( actual_damage > 0 )
     {
         // Only actual_damage if not invincible
-        if ( 0 == pchr->damagetime || ignore_invictus )
+        if ( 0 == pchr->damage_timer || ignore_invictus )
         {
             // Hard mode deals 25% extra actual damage to players!
             if ( cfg.difficulty >= GAME_HARD && VALID_PLA( pchr->is_which_player ) && !VALID_PLA(ChrList.lst[attacker].is_which_player) ) actual_damage *= 1.25f;
@@ -3613,7 +3621,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
                 {
                     if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && damagetype < DAMAGE_HOLY ) )
                     {
-                        spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_pip,
+                        spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_lpip,
                             ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
                     }
                 }
@@ -3628,14 +3636,14 @@ int damage_character( const CHR_REF character, FACING_T direction,
                     else
                     {
                         // Don't alert the character too much if under constant fire
-                        if ( pchr->carefultime == 0 )
+                        if ( pchr->careful_timer == 0 )
                         {
                             // Don't let characters chase themselves...  That would be silly
                             if ( attacker != character )
                             {
                                 SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
                                 pchr->ai.attacklast = attacker;
-                                pchr->carefultime = CAREFULTIME;
+                                pchr->careful_timer = CAREFULTIME;
                             }
                         }
                     }
@@ -3657,7 +3665,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
                         // Make the character invincible for a limited time only
                         if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
                         {
-                            pchr->damagetime = DAMAGETIME;
+                            pchr->damage_timer = DAMAGETIME;
                         }
                     }
                 }
@@ -3749,11 +3757,11 @@ int damage_character( const CHR_REF character, FACING_T direction,
 void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker )
 {
     /// @details ZF@> Spawn a defend particle
-	if( pchr->damagetime != 0 ) return;
+	if( pchr->damage_timer != 0 ) return;
 
     spawn_one_particle_global( pchr->pos, pchr->ori.facing_z, PIP_DEFEND, 0 );
 
-    pchr->damagetime    = DEFENDTIME;
+    pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
     pchr->ai.attacklast = attacker;                 // For the ones attacking a shield
 }
@@ -3780,7 +3788,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < pcap->gopoofprt_amount; cnt++ )
     {
-        spawn_one_particle( pchr->pos_old, facing_z, profile, pcap->gopoofprt_pip,
+        spawn_one_particle( pchr->pos_old, facing_z, profile, pcap->gopoofprt_lpip,
             ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, origin, ( PRT_REF )MAX_PRT, cnt, ( CHR_REF )MAX_CHR );
 
         facing_z += pcap->gopoofprt_facingadd;
@@ -3991,7 +3999,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // Particle attachments
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
-        spawn_one_particle( pchr->pos, 0, pchr->profile_ref, pcap->attachedprt_pip,
+        spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip,
             ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
     }
 
@@ -4130,9 +4138,9 @@ chr_t * chr_config_do_active( chr_t * pchr )
     // Do timers and such
 
     // reduce attack cooldowns
-    if ( pchr->reloadtime > 0 )
+    if ( pchr->reload_timer > 0 )
     {
-        pchr->reloadtime--;
+        pchr->reload_timer--;
     }
 
     // Texture movement
@@ -4140,16 +4148,10 @@ chr_t * chr_config_do_active( chr_t * pchr )
     pchr->inst.voffset += pchr->voffvel;
 
     // Down that ol' damage timer
-    if ( pchr->damagetime > 0 )
-    {
-        pchr->damagetime--;
-    }
+    if ( pchr->damage_timer > 0 ) pchr->damage_timer--;
 
     // Do "Be careful!" delay
-    if ( pchr->carefultime > 0 )
-    {
-        pchr->carefultime--;
-    }
+    if ( pchr->careful_timer > 0 ) pchr->careful_timer--;
 
     // Do stats once every second
     if ( clock_chr_stat >= ONESECOND )
@@ -4172,14 +4174,14 @@ chr_t * chr_config_do_active( chr_t * pchr )
         }
 
         // countdown confuse effects
-        if ( pchr->grogtime > 0 )
+        if ( pchr->grog_timer > 0 )
         {
-            pchr->grogtime--;
+            pchr->grog_timer--;
         }
 
-        if ( pchr->dazetime > 0 )
+        if ( pchr->daze_timer > 0 )
         {
-            pchr->dazetime--;
+            pchr->daze_timer--;
         }
 
         // possibly gain/lose darkvision
@@ -4632,8 +4634,8 @@ void respawn_character( const CHR_REF character )
     disaffirm_attached_particles( character );
 
     pchr->alive = btrue;
-    pchr->boretime = BORETIME;
-    pchr->carefultime = CAREFULTIME;
+    pchr->bore_timer = BORETIME;
+    pchr->careful_timer = CAREFULTIME;
     pchr->life = pchr->lifemax;
     pchr->mana = pchr->manamax;
     chr_set_pos( pchr, pchr->pos_stt.v );
@@ -4666,8 +4668,8 @@ void respawn_character( const CHR_REF character )
     pchr->ai.target = character;
     pchr->ai.timer  = 0;
 
-    pchr->grogtime = 0;
-    pchr->dazetime = 0;
+    pchr->grog_timer = 0;
+    pchr->daze_timer = 0;
 
     // Let worn items come back
     PACK_BEGIN_LOOP( item, pchr->pack.next )
@@ -5475,15 +5477,15 @@ void move_one_character_get_environment( chr_t * pchr )
 
     // get the current tile
     itile          = INVALID_TILE;
-    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
-    {
-        // this only works for 1 level of attachment
-        itile = ChrList.lst[pchr->onwhichplatform_ref].onwhichgrid;
-    }
-    else
-    {
+    //if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
+    //{
+    //    // this only works for 1 level of attachment
+    //    itile = ChrList.lst[pchr->onwhichplatform_ref].onwhichgrid;
+    //}
+    //else
+    //{
         itile = pchr->onwhichgrid;
-    }
+    //}
 
 	// determine if the character is standing on a platform
 	pplatform = NULL;
@@ -5562,7 +5564,7 @@ void move_one_character_get_environment( chr_t * pchr )
         chr_getMatUp( ChrList.lst + pchr->onwhichplatform_ref, &platform_up );
         platform_up = fvec3_normalize( platform_up.v );
 
-        pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25 * pchr->enviro.zlerp;
+        pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 
         if ( pchr->enviro.is_slippy )
         {
@@ -5571,7 +5573,7 @@ void move_one_character_get_environment( chr_t * pchr )
     }
     else if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
-        pchr->enviro.traction = ABS( map_twist_nrm[pchr->enviro.grid_twist].z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25 * pchr->enviro.zlerp;
+        pchr->enviro.traction = ABS( map_twist_nrm[pchr->enviro.grid_twist].z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 
         if ( pchr->enviro.is_slippy )
         {
@@ -5834,14 +5836,14 @@ void move_one_character_do_voluntary( chr_t * pchr )
     dvy = pchr->latch.y;
 
     // Reverse movements for daze
-    if ( pchr->dazetime > 0 )
+    if ( pchr->daze_timer > 0 )
     {
         dvx = -dvx;
         dvy = -dvy;
     }
 
     // Switch x and y for grog
-    if ( pchr->grogtime > 0 )
+    if ( pchr->grog_timer > 0 )
     {
         SWAP( float, dvx, dvy );
     }
@@ -6034,7 +6036,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     pweapon_cap = chr_get_pcap( iweapon );
 
 	//No need to continue if we have an attack cooldown
-	if( 0 != pweapon->reloadtime ) return bfalse;
+	if( 0 != pweapon->reload_timer ) return bfalse;
 
     // grab the iweapon's action
     base_action = pweapon_cap->weaponaction;
@@ -6080,7 +6082,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     if ( !allowedtoattack )
     {
         // This character can't use this iweapon
-        pweapon->reloadtime = 50;
+        pweapon->reload_timer = 50;
 		if ( pchr->StatusList_on || cfg.dev_mode )
         {
             // Tell the player that they can't use this iweapon
@@ -6092,7 +6094,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     if ( ACTION_DA == action )
     {
         allowedtoattack = bfalse;
-        if ( 0 == pweapon->reloadtime )
+        if ( 0 == pweapon->reload_timer )
         {
             SET_BIT( pweapon->ai.alert, ALERTIF_USED );
         }
@@ -6200,7 +6202,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 						else if( ACTION_IS_TYPE(action, F) ) base_reload_time += 50;		//Flinged  (Unused)
 
 						//it is possible to have so high dex to eliminate all reload time
-						if( base_reload_time > 0 ) pweapon->reloadtime += base_reload_time;
+						if( base_reload_time > 0 ) pweapon->reload_timer += base_reload_time;
 					}
                 }
 
@@ -6219,7 +6221,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     //Reset boredom timer if the attack succeeded
     if ( retval )
     {
-        pchr->boretime = BORETIME;
+        pchr->bore_timer = BORETIME;
     }
 
     return retval;
@@ -6328,11 +6330,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
         }
 
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_ALTLEFT;
 
-        pchr->reloadtime = GRABDELAY;
+        pchr->reload_timer = GRABDELAY;
         if ( !INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Grab left
@@ -6344,11 +6346,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
             chr_play_action( pchr, ACTION_MA, bfalse );
         }
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
 
-        pchr->reloadtime = GRABDELAY;
+        pchr->reload_timer = GRABDELAY;
         if ( !INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
         {
             // Grab right
@@ -6360,11 +6362,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
             chr_play_action( pchr, ACTION_MB, bfalse );
         }
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_PACKLEFT;
 
-        pchr->reloadtime = PACKDELAY;
+        pchr->reload_timer = PACKDELAY;
         item = pchr->holdingwhich[SLOT_LEFT];
 
         if ( INGAME_CHR( item ) )
@@ -6402,11 +6404,11 @@ bool_t chr_do_latch_button( chr_t * pchr )
         // Make it take a little time
         chr_play_action( pchr, ACTION_MG, bfalse );
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reloadtime )
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_PACKRIGHT;
 
-        pchr->reloadtime = PACKDELAY;
+        pchr->reload_timer = PACKDELAY;
         item = pchr->holdingwhich[SLOT_RIGHT];
         if ( INGAME_CHR( item ) )
         {
@@ -6447,12 +6449,12 @@ bool_t chr_do_latch_button( chr_t * pchr )
 
     // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
     attack_handled = bfalse;
-    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && 0 == pchr->reloadtime )
+    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_LEFT;
         attack_handled = chr_do_latch_attack( pchr, SLOT_LEFT );
     }
-    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && 0 == pchr->reloadtime )
+    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_RIGHT;
 
@@ -6508,12 +6510,13 @@ bool_t chr_update_safe_raw( chr_t * pchr )
 {
     bool_t retval = bfalse;
 
-    bool_t hit_a_wall;
+    BIT_FIELD hit_a_wall;
+    float pressure;
 
     if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
-    hit_a_wall = chr_hit_wall( pchr, NULL, NULL, NULL );
-    if( !hit_a_wall )
+    hit_a_wall = chr_hit_wall( pchr, NULL, NULL, &pressure, NULL );
+    if( (0 == hit_a_wall) && (0.0f == pressure) )
     {
         pchr->safe_valid = btrue;
         pchr->safe_pos   = chr_get_pos( pchr );
@@ -6573,12 +6576,21 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
 
     if( !ALLOCATED_PCHR(pchr) ) return bfalse;
 
+    // DO NOT require objects that are spawning in a module to have a
+    // valid position at spawn-time. For instance, if a suit of armor is
+    // spawned in a closed hallway, don't complain.
+    if( activate_spawn_file_active )
+    {
+        fvec3_base_copy( pos_v, chr_get_pos_v(pchr) );
+        return btrue;
+    }
+
     // handle optional parameters
     if( NULL == pos_v ) pos_v = loc_pos.v;
 
     if( !found && pchr->safe_valid )
     {
-        if( !chr_hit_wall( pchr, NULL, NULL, NULL ) )
+        if( !chr_hit_wall( pchr, NULL, NULL, NULL, NULL ) )
         {
             found = btrue;
             memmove( pos_v, pchr->safe_pos.v, sizeof(fvec3_base_t) );
@@ -6766,6 +6778,8 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     needs_test = bfalse;
     //if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) > 0.0f )
     {
+        mesh_wall_data_t wdata;
+
         float old_x, old_y, new_x, new_y;
 
         old_x = tmp_pos.x; LOG_NAN( old_x );
@@ -6777,7 +6791,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
         tmp_pos.x = new_x;
         tmp_pos.y = new_y;
 
-        if ( !chr_test_wall( pchr, tmp_pos.v ) )
+        if ( !chr_test_wall( pchr, tmp_pos.v, &wdata ) )
         {
             updated_2d = btrue;
         }
@@ -6787,7 +6801,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
             float   pressure;
             bool_t diff_function_called = bfalse;
 
-            chr_hit_wall( pchr, tmp_pos.v, nrm.v, &pressure );
+            chr_hit_wall( pchr, tmp_pos.v, nrm.v, &pressure, &wdata );
 
             // how is the character hitting the wall?
             if ( 0.0f != pressure )
@@ -7341,13 +7355,13 @@ float set_character_animation_rate( chr_t * pchr )
         // Do standstill
 
         // handle boredom
-        pchr->boretime--;
-        if ( pchr->boretime < 0 )
+        pchr->bore_timer--;
+        if ( pchr->bore_timer < 0 )
         {
             int tmp_action, rand_val;
 
             SET_BIT( pchr->ai.alert, ALERTIF_BORED );
-            pchr->boretime = BORETIME;
+            pchr->bore_timer = BORETIME;
 
             // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
             rand_val   = RANDIE;
@@ -8327,15 +8341,15 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     *rank_ptr = -5;
     strcpy( retval, "Unknown" );
 
-    if ( fval >= 1.50 )         { strcpy( retval, "Annihilation!" ); *rank_ptr =  5; }
-    else if ( fval >= 1.00 ) { strcpy( retval, "Overkill!" );     *rank_ptr =  4; }
-    else if ( fval >= 0.80 ) { strcpy( retval, "Deadly" );        *rank_ptr =  3; }
-    else if ( fval >= 0.70 ) { strcpy( retval, "Crippling" );     *rank_ptr =  2; }
-    else if ( fval >= 0.50 ) { strcpy( retval, "Devastating" );   *rank_ptr =  1; }
-    else if ( fval >= 0.25 ) { strcpy( retval, "Hurtful" );       *rank_ptr =  0; }
-    else if ( fval >= 0.10 ) { strcpy( retval, "A Scratch" );     *rank_ptr = -1; }
-    else if ( fval >= 0.05 ) { strcpy( retval, "Ticklish" );      *rank_ptr = -2; }
-    else if ( fval >= 0.00 ) { strcpy( retval, "Meh..." );        *rank_ptr = -3; }
+    if ( fval >= 1.50f )         { strcpy( retval, "Annihilation!" ); *rank_ptr =  5; }
+    else if ( fval >= 1.00f ) { strcpy( retval, "Overkill!" );     *rank_ptr =  4; }
+    else if ( fval >= 0.80f ) { strcpy( retval, "Deadly" );        *rank_ptr =  3; }
+    else if ( fval >= 0.70f ) { strcpy( retval, "Crippling" );     *rank_ptr =  2; }
+    else if ( fval >= 0.50f ) { strcpy( retval, "Devastating" );   *rank_ptr =  1; }
+    else if ( fval >= 0.25f ) { strcpy( retval, "Hurtful" );       *rank_ptr =  0; }
+    else if ( fval >= 0.10f ) { strcpy( retval, "A Scratch" );     *rank_ptr = -1; }
+    else if ( fval >= 0.05f ) { strcpy( retval, "Ticklish" );      *rank_ptr = -2; }
+    else if ( fval >= 0.00f ) { strcpy( retval, "Meh..." );        *rank_ptr = -3; }
 
     return retval;
 }
@@ -8537,7 +8551,7 @@ bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T fac
     pos_new.z  = z;
     facing_new = facing_z;
 
-    if ( chr_hit_wall( pchr, pos_new.v, NULL, NULL ) )
+    if ( chr_hit_wall( pchr, pos_new.v, NULL, NULL, NULL ) )
     {
         // No it didn't...
         chr_set_pos( pchr, pos_old.v );
@@ -9632,7 +9646,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
     {
         // solid characters are not blended onto the canvas
         // the alpha channel is not important
-        weight_sum += 1.0;
+        weight_sum += 1.0f;
 
         tint[0] += 1.0f / ( 1 << local_redshift );
         tint[1] += 1.0f / ( 1 << local_grnshift );
@@ -9644,7 +9658,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
     {
         // alpha characters are blended onto the canvas using the alpha channel
         // the alpha channel is not important
-        weight_sum += 1.0;
+        weight_sum += 1.0f;
 
         tint[0] += 1.0f / ( 1 << local_redshift );
         tint[1] += 1.0f / ( 1 << local_grnshift );
@@ -9658,7 +9672,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
         // the more black the colors, the less visible the character
         // the alpha channel is not important
 
-        weight_sum += 1.0;
+        weight_sum += 1.0f;
 
         if ( local_light < 255 )
         {
@@ -9677,7 +9691,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
 
         float amount;
 
-        weight_sum += 1.0;
+        weight_sum += 1.0f;
 
         amount = ( CLIP( local_sheen, 0, 15 ) << 4 ) / 240.0f;
 

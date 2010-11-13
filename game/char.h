@@ -45,6 +45,7 @@ struct s_eve;
 struct s_pip;
 struct s_object_profile;
 struct s_billboard_data_t;
+struct s_mesh_wall_data;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -396,12 +397,12 @@ struct s_chr
     Sint16         manacost;                      ///< Mana cost to use
 
     // misc timers
-    Sint16         grogtime;                      ///< Grog timer
-    Sint16         dazetime;                      ///< Daze timer
-    Sint16         boretime;                      ///< Boredom timer
-    Uint8          carefultime;                   ///< "You hurt me!" timer
-    Uint16         reloadtime;                    ///< Time before another shot
-    Uint8          damagetime;                    ///< Invincibility timer
+    Sint16         grog_timer;                    ///< Grog timer
+    Sint16         daze_timer;                    ///< Daze timer
+    Sint16         bore_timer;                    ///< Boredom timer
+    Uint8          careful_timer;                 ///< "You hurt me!" timer
+    Uint16         reload_timer;                  ///< Time before another shot
+    Uint8          damage_timer;                  ///< Invincibility timer
 
     // graphica info
     Uint8          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
@@ -566,8 +567,8 @@ bool_t setup_xp_table( const CHR_REF character );
 
 void free_all_chraracters();
 
-BIT_FIELD chr_hit_wall( chr_t * pchr, float test_pos[], float nrm[], float * pressure );
-bool_t chr_test_wall( chr_t * pchr, float test_pos[] );
+BIT_FIELD chr_hit_wall( const chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
+bool_t chr_test_wall( const chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
 
 int chr_count_free();
 

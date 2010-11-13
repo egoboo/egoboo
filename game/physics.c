@@ -133,64 +133,97 @@ bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec
 egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct_vec_t ovel1, oct_bb_t src2, oct_vec_t opos2, oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
 {
     float tolerance1, tolerance2;
-    float diff;
+    float vdiff;
+    float src1_min, src1_max;
+    float src2_min, src2_max;
 
     if ( NULL == tmin || NULL == tmax ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    diff = ovel2[index] - ovel1[index];
-    if ( diff == 0.0f ) return rv_fail;
+    vdiff = ovel2[index] - ovel1[index];
+    if ( vdiff == 0.0f ) return rv_fail;
 
     tolerance1 = (( OCT_Z == index ) && ( test_platform & PHYS_PLATFORM_OBJ1 ) ) ? PLATTOLERANCE : 0.0f;
     tolerance2 = (( OCT_Z == index ) && ( test_platform & PHYS_PLATFORM_OBJ2 ) ) ? PLATTOLERANCE : 0.0f;
 
+    src1_min = src1.mins[index] + opos1[index];
+    src1_max = src1.maxs[index] + opos1[index];
+    src2_min = src2.mins[index] + opos2[index];
+    src2_max = src2.maxs[index] + opos2[index];
+
     if ( 0.0f == tolerance1 && 0.0f == tolerance2 )
     {
+        // NEITHER ia a platform
+
         float time[4];
 
-        time[0] = (( src1.mins[index] + opos1[index] ) - ( src2.mins[index] + opos2[index] ) ) / diff;
-        time[1] = (( src1.mins[index] + opos1[index] ) - ( src2.maxs[index] + opos2[index] ) ) / diff;
-        time[2] = (( src1.maxs[index] + opos1[index] ) - ( src2.mins[index] + opos2[index] ) ) / diff;
-        time[3] = (( src1.maxs[index] + opos1[index] ) - ( src2.maxs[index] + opos2[index] ) ) / diff;
+        time[0] = ( src1_min - src2_min  ) / vdiff;
+        time[1] = ( src1_min - src2_max  ) / vdiff;
+        time[2] = ( src1_max - src2_min  ) / vdiff;
+        time[3] = ( src1_max - src2_max  ) / vdiff;
 
         *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
         *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
     }
+    else if ( 0.0f == tolerance1 )
+    {
+        // ONLY src2 is a platform
+        float time[4];
+
+        time[0] = ( src1_min - ( src2_min - tolerance2 ) ) / vdiff;
+        time[1] = ( src1_min - ( src2_max + tolerance2 ) ) / vdiff;
+        time[2] = ( src1_max - ( src2_min - tolerance2 ) ) / vdiff;
+        time[3] = ( src1_max - ( src2_max + tolerance2 ) ) / vdiff;
+
+        *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
+        *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+    }
+    else if ( 0.0f == tolerance2 )
+    {
+        // ONLY src1 is a platform
+        float time[4];
+
+        time[0] = (( src1_min - tolerance1 ) - src2_min ) / vdiff;
+        time[1] = (( src1_min - tolerance1 ) - src2_max ) / vdiff;
+        time[2] = (( src1_max + tolerance1 ) - src2_min ) / vdiff;
+        time[3] = (( src1_max + tolerance1 ) - src2_max ) / vdiff;
+
+        *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
+        *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+    }
+
     else if ( tolerance1 > 0.0f && tolerance2 > 0.0f )
     {
+        // BOTH are platforms
+        // they cannot both act as plaforms at the same time, so do 8 tests
+
         float time[8];
         float tmp_min1, tmp_max1;
         float tmp_min2, tmp_max2;
 
-        time[0] = (( src1.mins[index] + opos1[index] ) - ( src2.mins[index] - tolerance2 + opos2[index] ) ) / diff;
-        time[1] = (( src1.mins[index] + opos1[index] ) - ( src2.maxs[index] + tolerance2 + opos2[index] ) ) / diff;
-        time[2] = (( src1.maxs[index] + opos1[index] ) - ( src2.mins[index] - tolerance2 + opos2[index] ) ) / diff;
-        time[3] = (( src1.maxs[index] + opos1[index] ) - ( src2.maxs[index] + tolerance2 + opos2[index] ) ) / diff;
+        time[0] = (src1_min - ( src2_min - tolerance2 ) ) / vdiff;
+        time[1] = (src1_min - ( src2_max + tolerance2 ) ) / vdiff;
+        time[2] = (src1_max - ( src2_min - tolerance2 ) ) / vdiff;
+        time[3] = (src1_max - ( src2_max + tolerance2 ) ) / vdiff;
         tmp_min1 = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
         tmp_max1 = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
 
-        time[4] = (( src1.mins[index] - tolerance1 + opos1[index] ) - ( src2.mins[index] + opos2[index] ) ) / diff;
-        time[5] = (( src1.mins[index] - tolerance1 + opos1[index] ) - ( src2.maxs[index] + opos2[index] ) ) / diff;
-        time[6] = (( src1.maxs[index] + tolerance1 + opos1[index] ) - ( src2.mins[index] + opos2[index] ) ) / diff;
-        time[7] = (( src1.maxs[index] + tolerance1 + opos1[index] ) - ( src2.maxs[index] + opos2[index] ) ) / diff;
+        time[4] = (( src1_min - tolerance1 ) - src2_min ) / vdiff;
+        time[5] = (( src1_min - tolerance1 ) - src2_max ) / vdiff;
+        time[6] = (( src1_max + tolerance1 ) - src2_min ) / vdiff;
+        time[7] = (( src1_max + tolerance1 ) - src2_max ) / vdiff;
         tmp_min2 = MIN( MIN( time[4], time[5] ), MIN( time[6], time[7] ) );
         tmp_max2 = MAX( MAX( time[4], time[5] ), MAX( time[6], time[7] ) );
 
         *tmin = MIN( tmp_min1, tmp_min2 );
         *tmax = MAX( tmp_max1, tmp_max2 );
     }
+
     else
     {
-        float time[4];
-
-        time[0] = (( src1.mins[index] - tolerance1 + opos1[index] ) - ( src2.mins[index] - tolerance2 + opos2[index] ) ) / diff;
-        time[1] = (( src1.mins[index] - tolerance1 + opos1[index] ) - ( src2.maxs[index] + tolerance2 + opos2[index] ) ) / diff;
-        time[2] = (( src1.maxs[index] + tolerance1 + opos1[index] ) - ( src2.mins[index] - tolerance2 + opos2[index] ) ) / diff;
-        time[3] = (( src1.maxs[index] + tolerance1 + opos1[index] ) - ( src2.maxs[index] + tolerance2 + opos2[index] ) ) / diff;
-
-        *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-        *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+        // this should literally be impossible to reach
+        EGOBOO_ASSERT(bfalse);
     }
 
     // normalize the results for the diagonal directions
@@ -200,7 +233,10 @@ egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct
         *tmax *= INV_SQRT_TWO;
     }
 
-    if ( *tmax < *tmin ) return rv_fail;
+    // cannot possibly have more history than this
+    *tmin = MAX(*tmin, -((signed)(update_wld+1)));
+
+    if ( *tmax <= *tmin ) return rv_fail;
 
     return rv_success;
 }

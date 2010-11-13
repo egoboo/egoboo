@@ -1347,7 +1347,7 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int fan, float pos[], float *
         ( *plight )  += wt * ( *lc )[cnt];
     }
 
-    if (( *plight ) > 0 && weight_sum > 0.0 )
+    if (( *plight ) > 0 && weight_sum > 0.0f )
     {
         ( *plight ) /= weight_sum;
     }
@@ -1371,30 +1371,18 @@ float grid_get_mix( float u0, float u, float v0, float v )
     float dv = v - v0;
 
     // du *= 1.0f;
-    if ( ABS( du ) > 1.0 ) return 0;
+    if ( ABS( du ) > 1.0f ) return 0.0f;
     wt_u = ( 1.0f - du ) * ( 1.0f + du );
 
     // dv *= 1.0f;
-    if ( ABS( dv ) > 1.0 ) return 0;
+    if ( ABS( dv ) > 1.0f ) return 0.0f;
     wt_v = ( 1.0f - dv ) * ( 1.0f + dv );
 
     return wt_u * wt_v;
 }
 
 //--------------------------------------------------------------------------------------------
-struct s_mesh_wall_data
-{
-    int   ix_min, ix_max, iy_min, iy_max;
-    float fx_min, fx_max, fy_min, fy_max;
-
-    ego_mpd_info_t  * pinfo;
-    ego_tile_info_t * tlist;
-    ego_grid_info_t * glist;
-};
-typedef struct s_mesh_wall_data mesh_wall_data_t;
-
-//--------------------------------------------------------------------------------------------
-BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits, mesh_wall_data_t * pdata )
+BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * pdata )
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
@@ -1402,6 +1390,7 @@ BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIEL
 
     BIT_FIELD pass;
     int   ix, iy;
+    float loc_radius = radius;
 
     ego_irect_t bound;
 
@@ -1420,7 +1409,7 @@ BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIEL
     pdata->tlist = pmesh->tmem.tile_list;
     pdata->glist = pmesh->gmem.grid_list;
 
-    if ( 0.0f == radius )
+    if ( 0.0f == loc_radius )
     {
         pdata->fx_min = pdata->fx_max = pos[kX];
         pdata->fy_min = pdata->fy_max = pos[kY];
@@ -1428,21 +1417,21 @@ BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIEL
     else
     {
         // make sure it is positive
-        radius = ABS( radius );
+        loc_radius = ABS( loc_radius );
 
-        pdata->fx_min = pos[kX] - radius;
-        pdata->fx_max = pos[kX] + radius;
+        pdata->fx_min = pos[kX] - loc_radius;
+        pdata->fx_max = pos[kX] + loc_radius;
 
-        pdata->fy_min = pos[kY] - radius;
-        pdata->fy_max = pos[kY] + radius;
+        pdata->fy_min = pos[kY] - loc_radius;
+        pdata->fy_max = pos[kY] + loc_radius;
     }
 
     // make a large limit in case the pos is so large that it cannot be represented by an int
-    pdata->fx_min = MAX(pdata->fx_min, -9.0*pmesh->gmem.edge_x);
-    pdata->fx_max = MIN(pdata->fx_max, 10.0*pmesh->gmem.edge_x);
+    pdata->fx_min = MAX(pdata->fx_min, -9.0f*pmesh->gmem.edge_x);
+    pdata->fx_max = MIN(pdata->fx_max, 10.0f*pmesh->gmem.edge_x);
 
-    pdata->fy_min = MAX(pdata->fy_min, -9.0*pmesh->gmem.edge_y);
-    pdata->fy_max = MIN(pdata->fy_max, 10.0*pmesh->gmem.edge_y);
+    pdata->fy_min = MAX(pdata->fy_min, -9.0f*pmesh->gmem.edge_y);
+    pdata->fy_max = MIN(pdata->fy_max, 10.0f*pmesh->gmem.edge_y);
 
     // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
@@ -1468,7 +1457,7 @@ BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIEL
     // detect out of bounds in the y-direction
     if ( bound.ymin < 0 || bound.ymax >= pdata->pinfo->tiles_y )
     {
-        pass |= ( MPDFX_IMPASS | MPDFX_WALL );
+        SET_BIT( pass, MPDFX_IMPASS | MPDFX_WALL );
         mesh_bound_tests++;
     }
     if ( 0 != ( pass & bits ) ) return (pass & bits);
@@ -1476,7 +1465,7 @@ BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIEL
     // detect out of bounds in the x-direction
     if ( bound.xmin < 0 || bound.xmax >= pdata->pinfo->tiles_x )
     {
-        pass |= ( MPDFX_IMPASS | MPDFX_WALL );
+        SET_BIT( pass, MPDFX_IMPASS | MPDFX_WALL );
         mesh_bound_tests++;
     }
     if ( 0 != ( pass & bits ) ) return (pass & bits);
@@ -1732,7 +1721,7 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits, float nrm[], float * pressure )
+BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * pdata)
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
@@ -1747,7 +1736,7 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
     bool_t needs_pressure = (NULL != pressure);
     bool_t needs_nrm      = (NULL != nrm);
 
-    mesh_wall_data_t data;
+    mesh_wall_data_t loc_data;
 
     // deal with the optional parameters
     if ( NULL == pressure ) pressure = &loc_pressure;
@@ -1756,16 +1745,22 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
     if ( NULL == nrm ) nrm = loc_nrm;
     nrm[kX] = nrm[kY] = 0.0f;
 
-    // Do the simplest test.
-    // Initializes the shared mesh_wall_data_t struct, so no need to do it again
-    // Eliminates all cases of bad source data, so no need to test them again.
-    if( 0 == mesh_test_wall( pmesh, pos, radius, bits, &data ) ) return 0;
+    // if pdata is not NULL, someone has already run a version of mesh_test_wall
+    if( NULL == pdata )
+    {
+        pdata = &loc_data;
 
-    // mesh_test_wall() clamps data.ix_* and data.iy_* to valid values
+        // Do the simplest test.
+        // Initializes the shared mesh_wall_data_t struct, so no need to do it again
+        // Eliminates all cases of bad source data, so no need to test them again.
+        if( 0 == mesh_test_wall( pmesh, pos, radius, bits, pdata ) ) return 0;
+    }
+
+    // mesh_test_wall() clamps pdata->ix_* and pdata->iy_* to valid values
 
     pass = loc_pass = 0;
     nrm[kX] = nrm[kY] = 0.0f;
-    for ( iy = data.iy_min; iy <= data.iy_max; iy++ )
+    for ( iy = pdata->iy_min; iy <= pdata->iy_max; iy++ )
     {
         float ty_min, ty_max;
 
@@ -1774,7 +1769,7 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
         ty_min = ( iy + 0 ) * GRID_SIZE;
         ty_max = ( iy + 1 ) * GRID_SIZE;
 
-        if ( iy < 0 || iy >= data.pinfo->tiles_y )
+        if ( iy < 0 || iy >= pdata->pinfo->tiles_y )
         {
             loc_pass |= ( MPDFX_IMPASS | MPDFX_WALL );
 
@@ -1787,14 +1782,14 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
             mesh_bound_tests++;
         }
 
-        for ( ix = data.ix_min; ix <= data.ix_max; ix++ )
+        for ( ix = pdata->ix_min; ix <= pdata->ix_max; ix++ )
         {
             float tx_min, tx_max;
 
             tx_min = ( ix + 0 ) * GRID_SIZE;
             tx_max = ( ix + 1 ) * GRID_SIZE;
 
-            if ( ix < 0 || ix >= data.pinfo->tiles_x )
+            if ( ix < 0 || ix >= pdata->pinfo->tiles_x )
             {
                 loc_pass |=  MPDFX_IMPASS | MPDFX_WALL;
 
@@ -1812,7 +1807,7 @@ BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
-                    BIT_FIELD mpdfx   = data.glist[itile].fx;
+                    BIT_FIELD mpdfx   = pdata->glist[itile].fx;
                     bool_t is_blocked = mesh_has_some_mpdfx( mpdfx, bits );
 
                     if ( is_blocked )

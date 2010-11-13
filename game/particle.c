@@ -502,9 +502,10 @@ prt_t * prt_config_do_init( prt_t * pprt )
         }
     }
 
+    // the end-spawn data. determine the 
     pprt->end_spawn_amount    = ppip->end_spawn_amount;
     pprt->end_spawn_facingadd = ppip->end_spawn_facingadd;
-    pprt->end_spawn_pip       = ppip->end_spawn_pip;
+    pprt->end_spawn_lpip      = ppip->end_spawn_lpip;
 
     // Sound effect
     play_particle_sound( iprt, ppip->soundspawn );
@@ -519,7 +520,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     }
 
     // is the spawn location safe?
-    if( 0 == prt_hit_wall( pprt, tmp_pos.v, NULL, NULL ) )
+    if( 0 == prt_hit_wall( pprt, tmp_pos.v, NULL, NULL, NULL ) )
     {
         pprt->safe_pos   = tmp_pos;
         pprt->safe_valid = btrue;
@@ -1079,7 +1080,7 @@ fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pressure )
+BIT_FIELD prt_hit_wall( const prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
@@ -1104,7 +1105,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pre
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_hit_wall( PMesh, test_pos, 0.0f, stoppedby, nrm, pressure );
+        retval = mesh_hit_wall( PMesh, test_pos, 0.0f, stoppedby, nrm, pressure, pdata );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
@@ -1113,7 +1114,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, float test_pos[], float nrm[], float * pre
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
+bool_t prt_test_wall( const prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
@@ -1131,7 +1132,7 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // handle optional parameters
-     if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
+    if ( NULL == test_pos ) test_pos = prt_get_pos_v(pprt);
     if ( NULL == test_pos ) return 0;
 
     // do the wall test
@@ -1139,7 +1140,7 @@ bool_t prt_test_wall( prt_t * pprt, float test_pos[] )
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_test_wall( PMesh, test_pos, 0.0f, stoppedby, NULL );
+        retval = mesh_test_wall( PMesh, test_pos, 0.0f, stoppedby, pdata );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
@@ -1177,7 +1178,7 @@ void prt_set_level( prt_t * pprt, float level )
 
     pprt->enviro.level = level;
 
-    loc_height = prt_get_scale(pprt) * MAX( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5 );
+    loc_height = prt_get_scale(pprt) * MAX( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5f );
 
     pprt->enviro.adj_level = pprt->enviro.level;
     pprt->enviro.adj_floor = pprt->enviro.floor_level;
@@ -1262,7 +1263,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
         chr_getMatUp( ChrList.lst + loc_pprt->onwhichplatform_ref, &platform_up );
         platform_up = fvec3_normalize( platform_up.v );
 
-        penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25 * penviro->zlerp;
+        penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
         if ( penviro->is_slippy )
         {
@@ -1271,7 +1272,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     }
     else if ( mesh_grid_is_valid( PMesh, loc_pprt->onwhichgrid ) )
     {
-        penviro->traction = ABS( map_twist_nrm[penviro->twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25 * penviro->zlerp;
+        penviro->traction = ABS( map_twist_nrm[penviro->twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
         if ( penviro->is_slippy )
         {
@@ -1749,14 +1750,16 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     needs_test = bfalse;
     if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 0.0f )
     {
-        if ( prt_test_wall( loc_pprt, tmp_pos.v ) )
+        mesh_wall_data_t wdata;
+
+        if ( prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
         {
             Uint32  hit_bits;
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure );
+            hit_bits = prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata );
 
             if ( 0 != hit_bits )
             {
@@ -1909,6 +1912,8 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     needs_test = bfalse;
     if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 0.0f )
     {
+        mesh_wall_data_t wdata;
+
         float old_x, old_y, new_x, new_y;
 
         old_x = tmp_pos.x; LOG_NAN( old_x );
@@ -1920,7 +1925,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         tmp_pos.x = new_x;
         tmp_pos.y = new_y;
 
-        if ( !prt_test_wall( loc_pprt, tmp_pos.v ) )
+        if ( !prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
         {
             updated_2d = btrue;
         }
@@ -1931,7 +1936,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure );
+            hit_bits = prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata );
 
             if ( 0 != hit_bits )
             {
@@ -2310,7 +2315,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                         }
                     }
 
-                    bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
+                    bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
                                                   character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
 
                     if ( DEFINED_PRT( bs_part ) )
@@ -2328,7 +2333,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                 //    {
                 //        int irand = RANDIE;
 
-                //        bs_part = spawn_one_particle( pchr->pos, 0, pprt->profile_ref, ppip->bumpspawn_pip,
+                //        bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
                 //                            character, irand % vertices, pprt->team, pprt->owner_ref, particle, cnt, character );
 
                 //        if( DEFINED_PRT(bs_part) )
@@ -2447,6 +2452,30 @@ void reset_particles( /* const char* modname */ )
 
     loadpath = "mp_data/100money.txt";
     if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN100 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/200money.txt";
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM200 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/500money.txt";
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM500 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/1000money.txt";
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM1000 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/2000money.txt";
+    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM2000 ) )
     {
         log_error( "Data file was not found! (\"%s\")\n", loadpath );
     }
@@ -2607,16 +2636,13 @@ int prt_do_end_spawn( const PRT_REF iprt )
 {
     int end_spawn_count = 0;
     prt_t * pprt;
-    PIP_REF ipip;
 
     if( !ALLOCATED_PRT(iprt) ) return end_spawn_count;
 
     pprt = PrtList.lst + iprt;
 
-    ipip = pro_get_ipip( pprt->profile_ref, pprt->end_spawn_pip );
-
     // Spawn new particles if time for old one is up
-    if ( pprt->end_spawn_amount > 0 && LOADED_PIP( ipip ) )
+    if ( pprt->end_spawn_amount > 0 && LOADED_PRO( pprt->profile_ref) && pprt->end_spawn_lpip > -1 )
     {
         FACING_T facing;
         int      tnc;
@@ -2624,10 +2650,10 @@ int prt_do_end_spawn( const PRT_REF iprt )
         facing = pprt->facing;
         for ( tnc = 0; tnc < pprt->end_spawn_amount; tnc++ )
         {
-            // we have been given the absolute pip reference when the particle was spawned
+            // we have determined the absolute pip reference when the particle was spawned
             // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
-            // value of pprt->end_spawn_pip will be used directly
-            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, ( PRO_REF )MAX_PROFILE, ipip,
+            // value of pprt->end_spawn_lpip will be used directly
+            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, pprt->profile_ref, pprt->end_spawn_lpip,
                                 ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
             if( DEFINED_PRT(spawned_prt) )
@@ -2769,7 +2795,7 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt  )
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
-    if( loc_ppip->contspawn_amount <= 0 || -1 == loc_ppip->contspawn_pip )
+    if( loc_ppip->contspawn_amount <= 0 || -1 == loc_ppip->contspawn_lpip )
     {
         return spawn_count;
     }
@@ -2782,7 +2808,7 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt  )
     facing = loc_pprt->facing;
     for ( tnc = 0; tnc < loc_ppip->contspawn_amount; tnc++ )
     {
-        PRT_REF prt_child = spawn_one_particle( prt_get_pos(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn_pip,
+        PRT_REF prt_child = spawn_one_particle( prt_get_pos(loc_pprt), facing, loc_pprt->profile_ref, loc_ppip->contspawn_lpip,
                                                 ( CHR_REF )MAX_CHR, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
 
 		if ( DEFINED_PRT( prt_child ) )
@@ -2848,7 +2874,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt  )
     else if ( inwater )
     {
         bool_t  spawn_valid     = bfalse;
-        int     spawn_pip_index = -1;
+        int     global_pip_index = -1;
         fvec3_t vtmp            = VECT3( pbdl_prt->prt_ptr->pos.x, pbdl_prt->prt_ptr->pos.y, water.surface_level );
 
         if ( MAX_CHR == pbdl_prt->prt_ptr->owner_ref && ( PIP_SPLASH == pbdl_prt->prt_ptr->pip_ref || PIP_RIPPLE == pbdl_prt->prt_ptr->pip_ref ) )
@@ -2862,11 +2888,11 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt  )
             {
                 if ( SPRITE_SOLID == pbdl_prt->prt_ptr->type )
                 {
-                    spawn_pip_index = PIP_SPLASH;
+                    global_pip_index = PIP_SPLASH;
                 }
                 else
                 {
-                    spawn_pip_index = PIP_RIPPLE;
+                    global_pip_index = PIP_RIPPLE;
                 }
                 spawn_valid = btrue;
             }
@@ -2882,7 +2908,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt  )
                         {
 
                             spawn_valid = btrue;
-                            spawn_pip_index = PIP_RIPPLE;
+                            global_pip_index = PIP_RIPPLE;
                         }
                     }
                 }
@@ -2892,7 +2918,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt  )
         if ( spawn_valid )
         {
             // Splash for particles is just a ripple
-			spawn_one_particle_global( vtmp, 0, spawn_pip_index, 0);
+			spawn_one_particle_global( vtmp, 0, global_pip_index, 0);
         }
 
         pbdl_prt->prt_ptr->inwater  = btrue;
@@ -3185,8 +3211,8 @@ bool_t prt_update_safe_raw( prt_t * pprt )
 
     if( !ALLOCATED_PPRT( pprt ) ) return bfalse;
 
-    hit_a_wall = prt_hit_wall( pprt, NULL, NULL, &pressure );
-    if( hit_a_wall && 0.0f == pressure )
+    hit_a_wall = prt_hit_wall( pprt, NULL, NULL, &pressure, NULL );
+    if( (0 == hit_a_wall) && (0.0f == pressure) )
     {
         pprt->safe_valid = btrue;
         pprt->safe_pos   = prt_get_pos( pprt );
@@ -3293,75 +3319,4 @@ bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
-{
-    if( NULL == pbundle ) return NULL;
-
-    pbundle->prt_ref = (PRT_REF) MAX_PRT;
-    pbundle->prt_ptr = NULL;
-
-    pbundle->pip_ref = (PIP_REF) MAX_PIP;
-    pbundle->pip_ptr = NULL;
-
-    return pbundle;
-}
-
-//--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
-{
-    if( NULL == pbundle ) return NULL;
-
-    if( ALLOCATED_PRT(pbundle->prt_ref) )
-    {
-        pbundle->prt_ptr = PrtList.lst + pbundle->prt_ref;
-    }
-    else if( NULL != pbundle->prt_ptr )
-    {
-        pbundle->prt_ref = GET_REF_PPRT( pbundle->prt_ptr );
-    }
-    else
-    {
-        pbundle->prt_ref = MAX_PRT;
-        pbundle->prt_ptr = NULL;
-    }
-
-    if( !LOADED_PIP(pbundle->pip_ref) && NULL != pbundle->prt_ptr )
-    {
-        pbundle->pip_ref = pbundle->prt_ptr->pip_ref;
-    }
-
-    if( LOADED_PIP(pbundle->pip_ref) )
-    {
-        pbundle->pip_ptr = PipStack.lst + pbundle->pip_ref;
-    }
-    else
-    {
-        pbundle->pip_ref = (PIP_REF) MAX_PIP;
-        pbundle->pip_ptr = NULL;
-    }
-
-    return pbundle;
-}
-
-//--------------------------------------------------------------------------------------------
-prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
-{
-    if( NULL == pbundle ) return NULL;
-
-    // blank out old data
-    pbundle = prt_bundle_ctor( pbundle );
-
-    if( NULL == pbundle || NULL == pprt ) return pbundle;
-
-    // set the particle pointer
-    pbundle->prt_ptr = pprt;
-
-    // validate the particle data
-    pbundle = prt_bundle_validate( pbundle );
-
-    return pbundle;
 }

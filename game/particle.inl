@@ -27,16 +27,20 @@
 // FORWARD DECLARATION
 //--------------------------------------------------------------------------------------------
 
-INLINE PIP_REF  prt_get_ipip( const PRT_REF particle );
-INLINE pip_t  * prt_get_ppip( const PRT_REF particle );
-INLINE CHR_REF  prt_get_iowner( const PRT_REF iprt, int depth );
-INLINE bool_t   prt_set_size( prt_t *, int size );
-INLINE float    prt_get_scale( prt_t * pprt );
+static INLINE PIP_REF  prt_get_ipip( const PRT_REF particle );
+static INLINE pip_t  * prt_get_ppip( const PRT_REF particle );
+static INLINE CHR_REF  prt_get_iowner( const PRT_REF iprt, int depth );
+static INLINE bool_t   prt_set_size( prt_t *, int size );
+static INLINE float    prt_get_scale( prt_t * pprt );
+
+static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
+static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
+static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-INLINE PIP_REF prt_get_ipip( const PRT_REF iprt )
+static INLINE PIP_REF prt_get_ipip( const PRT_REF iprt )
 {
     prt_t * pprt;
 
@@ -49,7 +53,7 @@ INLINE PIP_REF prt_get_ipip( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE pip_t * prt_get_ppip( const PRT_REF iprt )
+static INLINE pip_t * prt_get_ppip( const PRT_REF iprt )
 {
     prt_t * pprt;
 
@@ -62,7 +66,7 @@ INLINE pip_t * prt_get_ppip( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE bool_t prt_set_size( prt_t * pprt, int size )
+static INLINE bool_t prt_set_size( prt_t * pprt, int size )
 {
     pip_t *ppip;
 
@@ -115,7 +119,7 @@ INLINE bool_t prt_set_size( prt_t * pprt, int size )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
+static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
 {
     /// BB@> A helper function for determining the owner of a paricle
     ///
@@ -184,7 +188,7 @@ INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE float prt_get_scale( prt_t * pprt )
+static INLINE float prt_get_scale( prt_t * pprt )
 {
     /// @details BB@> get the scale factor between the "graphical size" of the particle and the actual
     ///               display size
@@ -202,4 +206,75 @@ INLINE float prt_get_scale( prt_t * pprt )
     }
 
     return scale;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
+{
+    if( NULL == pbundle ) return NULL;
+
+    pbundle->prt_ref = (PRT_REF) MAX_PRT;
+    pbundle->prt_ptr = NULL;
+
+    pbundle->pip_ref = (PIP_REF) MAX_PIP;
+    pbundle->pip_ptr = NULL;
+
+    return pbundle;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
+{
+    if( NULL == pbundle ) return NULL;
+
+    if( ALLOCATED_PRT(pbundle->prt_ref) )
+    {
+        pbundle->prt_ptr = PrtList.lst + pbundle->prt_ref;
+    }
+    else if( NULL != pbundle->prt_ptr )
+    {
+        pbundle->prt_ref = GET_REF_PPRT( pbundle->prt_ptr );
+    }
+    else
+    {
+        pbundle->prt_ref = MAX_PRT;
+        pbundle->prt_ptr = NULL;
+    }
+
+    if( !LOADED_PIP(pbundle->pip_ref) && NULL != pbundle->prt_ptr )
+    {
+        pbundle->pip_ref = pbundle->prt_ptr->pip_ref;
+    }
+
+    if( LOADED_PIP(pbundle->pip_ref) )
+    {
+        pbundle->pip_ptr = PipStack.lst + pbundle->pip_ref;
+    }
+    else
+    {
+        pbundle->pip_ref = (PIP_REF) MAX_PIP;
+        pbundle->pip_ptr = NULL;
+    }
+
+    return pbundle;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
+{
+    if( NULL == pbundle ) return NULL;
+
+    // blank out old data
+    pbundle = prt_bundle_ctor( pbundle );
+
+    if( NULL == pbundle || NULL == pprt ) return pbundle;
+
+    // set the particle pointer
+    pbundle->prt_ptr = pprt;
+
+    // validate the particle data
+    pbundle = prt_bundle_validate( pbundle );
+
+    return pbundle;
 }

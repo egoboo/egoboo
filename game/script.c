@@ -80,7 +80,7 @@ void scripting_system_begin()
         for ( cnt = 0; cnt < SCRIPT_FUNCTIONS_COUNT; cnt++ )
         {
             _script_function_calls[cnt] = 0;
-            _script_function_times[cnt] = 0.0;
+            _script_function_times[cnt] = 0.0F;
         }
 
         _scripting_system_initialized = btrue;
@@ -1393,7 +1393,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETRELOADTIME:
                 varname = "TARGETRELOADTIME";
-                iTmp = (NULL == ptarget) ? 0 : ptarget->reloadtime;
+                iTmp = (NULL == ptarget) ? 0 : ptarget->reload_timer;
                 break;
 
             case VARSPAWNDISTANCE:

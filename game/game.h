@@ -149,7 +149,7 @@ struct s_damagetile_instance
     IPair   amount;                    ///< Amount of damage
     int    type;
 
-    int    parttype;
+    int    part_gpip;
     Uint32 partand;
     int    sound_index;
 
@@ -166,7 +166,7 @@ struct s_weather_instance
 {
     int     timer_reset;        ///< How long between each spawn?
     bool_t  over_water;         ///< Only spawn over water?
-    Uint8   particle;           ///< Which particle to spawn?
+    int     part_gpip;           ///< Which particle to spawn?
 
     PLA_REF iplayer;
     int     time;                ///< 0 is no weather
@@ -299,6 +299,8 @@ extern FACING_T  glouseangle;                                        ///< actual
 /// Sense enemies
 extern TEAM_REF local_senseenemiesTeam;
 extern IDSZ     local_senseenemiesID;
+
+extern bool_t activate_spawn_file_active;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

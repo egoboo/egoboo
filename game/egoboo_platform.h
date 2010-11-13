@@ -133,7 +133,7 @@
 /// In MS visual C, the "inline" keyword seems to be depricated. Must to be promoted to "_inline" or "__inline"
 #    define INLINE __inline
 #else
-#    define INLINE static inline
+#    define INLINE inline
 #endif
 
 //------------

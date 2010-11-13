@@ -30,15 +30,16 @@
 #include "log.h"
 #include "script_compile.h"
 #include "game.h"
-#include "mesh.inl"
-#include "bsp.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_vfs.h"
-
 #include "egoboo_mem.h"
+
+#include "mesh.inl"
+#include "bsp.inl"
+#include "particle.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1320,7 +1321,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
 
     does_damage = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
 
-    does_status_effect = ( 0 != loc_ppip->grogtime ) || ( 0 != loc_ppip->dazetime );
+    does_status_effect = ( 0 != loc_ppip->grog_timer ) || ( 0 != loc_ppip->daze_timer );
     needs_bump     = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bump_money );
     has_bump_size  = (0 != loc_ppip->bump_size) && (0 != loc_ppip->bump_height);
 
@@ -1357,7 +1358,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_empty( obj_BSP_t * pbsp )
+bool_t obj_BSP_clear( obj_BSP_t * pbsp )
 {
     CHR_REF ichr;
     PRT_REF iprt;
@@ -1396,6 +1397,7 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     {
         // reset a couple of things here
         pchr->holdingweight		   = 0;
+        pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_level = -1e32;
 
@@ -1412,7 +1414,8 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
         // reset a couple of things here
-        prt_bdl.prt_ptr->targetplatform_ref  = ( CHR_REF )MAX_CHR;
+        prt_bdl.prt_ptr->onwhichplatform_ref  = ( CHR_REF )MAX_CHR;
+        prt_bdl.prt_ptr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
         prt_bdl.prt_ptr->targetplatform_level = -1e32;
 
         // try to insert the particle

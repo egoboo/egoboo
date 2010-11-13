@@ -167,20 +167,20 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->contspawn_delay      = fget_next_int( fileread );
     ppip->contspawn_amount    = fget_next_int( fileread );
     ppip->contspawn_facingadd = fget_next_int( fileread );
-    ppip->contspawn_pip       = fget_next_int( fileread );
+    ppip->contspawn_lpip       = fget_next_int( fileread );
 
     // End spawning of other particles
     ppip->end_spawn_amount    = fget_next_int( fileread );
     ppip->end_spawn_facingadd = fget_next_int( fileread );
-    ppip->end_spawn_pip       = fget_next_int( fileread );
+    ppip->end_spawn_lpip       = fget_next_int( fileread );
 
     // Bump spawning of attached particles
     ppip->bumpspawn_amount = fget_next_int( fileread );
-    ppip->bumpspawn_pip    = fget_next_int( fileread );
+    ppip->bumpspawn_lpip    = fget_next_int( fileread );
 
     // Random stuff  !!!BAD!!! Not complete
-    ppip->dazetime     = fget_next_int( fileread );
-    ppip->grogtime     = fget_next_int( fileread );
+    ppip->daze_timer     = fget_next_int( fileread );
+    ppip->grog_timer     = fget_next_int( fileread );
     ppip->spawnenchant = fget_next_bool( fileread );
 
     goto_colon( NULL, fileread, bfalse );  // !!Cause roll

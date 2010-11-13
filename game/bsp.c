@@ -21,7 +21,7 @@
 /// @brief
 /// @details
 
-#include "bsp.h"
+#include "bsp.inl"
 #include "log.h"
 
 #include "egoboo.h"
@@ -128,7 +128,7 @@ BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_empty( BSP_aabb_t * psrc )
+bool_t BSP_aabb_empty( const BSP_aabb_t * psrc )
 {
     Uint32 cnt;
 
@@ -167,61 +167,7 @@ bool_t BSP_aabb_clear( BSP_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_lhs_contains_rhs( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr )
-{
-    /// @details BB@> Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-    ///               than lhs_ptr, just check the lowest common dimensions.
-
-    size_t cnt;
-    size_t min_dim;
-
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return bfalse;
-    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return bfalse;
-
-    min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
-    if( 0 == min_dim ) return bfalse;
-
-    for ( cnt = 0; cnt < min_dim; cnt++ )
-    {
-        if ( rhs_ptr->maxs.ary[cnt] > lhs_ptr->maxs.ary[cnt] )
-            return bfalse;
-
-        if ( rhs_ptr->mins.ary[cnt] < lhs_ptr->mins.ary[cnt] )
-            return bfalse;
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_overlap( BSP_aabb_t * lhs_ptr, BSP_aabb_t * rhs_ptr )
-{
-    /// @details BB@> Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
-    ///               than lhs_ptr, just check the lowest common dimensions.
-
-    size_t cnt;
-    size_t min_dim;
-    float minval, maxval;
-
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return bfalse;
-    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return bfalse;
-
-    min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
-    if( 0 == min_dim ) return bfalse;
-
-    for ( cnt = 0; cnt < min_dim; cnt++ )
-    {
-        minval = MAX(lhs_ptr->mins.ary[cnt], rhs_ptr->mins.ary[cnt]);
-        maxval = MIN(lhs_ptr->maxs.ary[cnt], rhs_ptr->maxs.ary[cnt]);
-
-        if( maxval < minval ) return bfalse;
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, oct_bb_t * psrc )
+bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, const oct_bb_t * psrc )
 {
     /// @details BB@> do an automatic conversion from an oct_bb_t to a BSP_aabb_t
 
@@ -322,7 +268,7 @@ bool_t BSP_aabb_invalidate( BSP_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_copy( BSP_aabb_t * pdst, BSP_aabb_t * psrc )
+bool_t BSP_aabb_copy( BSP_aabb_t * pdst, const BSP_aabb_t * psrc )
 {
     size_t cnt;
 

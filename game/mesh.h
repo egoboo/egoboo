@@ -26,10 +26,10 @@
 #include "bsp.h"
 
 //--------------------------------------------------------------------------------------------
+
+// struct for holding the mpd data
 struct s_ego_mpd;
 typedef struct s_ego_mpd ego_mpd_t;
-
-struct s_mesh_wall_data;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -228,6 +228,21 @@ struct s_ego_mpd
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// struct for caching fome values for wall collisions
+
+struct s_mesh_wall_data
+{
+    int   ix_min, ix_max, iy_min, iy_max;
+    float fx_min, fx_max, fy_min, fy_max;
+
+    ego_mpd_info_t  * pinfo;
+    ego_tile_info_t * tlist;
+    ego_grid_info_t * glist;
+};
+
+typedef struct s_mesh_wall_data mesh_wall_data_t;
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 extern fvec3_t   map_twist_nrm[256];
 extern Uint32    map_twist_y[256];            ///< For surface normal of mesh
 extern Uint32    map_twist_x[256];
@@ -260,8 +275,8 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float
 
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
-BIT_FIELD mesh_hit_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, float nrm[], float * pressure );
-BIT_FIELD mesh_test_wall( ego_mpd_t * pmesh, float pos[], float radius, Uint32 bits, struct s_mesh_wall_data * private_data );
+BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const Uint32 bits, float nrm[], float * pressure, mesh_wall_data_t * private_data  );
+BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const Uint32 bits, mesh_wall_data_t * private_data );
 
 float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y );
 float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );

@@ -313,7 +313,7 @@ struct s_cap
     Uint8        weaponaction;                   ///< Animation needed to swing
     Sint16       manacost;                       ///< How much mana to use this object?
     Uint8        attack_attached;                ///< Do we have attack particles?
-    Sint8        attack_pip;                     ///< What kind of attack partickes?
+    int          attack_lpip;                    ///< What kind of attack particles?
 	bool_t       attack_fast;					 ///< Ignores the default reload time?
 
     float        str_bonus;                      ///< Strength     damage factor
@@ -324,12 +324,12 @@ struct s_cap
     // special particle effects
     Uint8        attachedprt_amount;             ///< Number of sticky particles
     Uint8        attachedprt_reaffirmdamagetype; ///< Re-attach sticky particles? Relight that torch...
-    int          attachedprt_pip;                ///< Which kind of sticky particle
+    int          attachedprt_lpip;                ///< Which kind of sticky particle
     Uint8        gopoofprt_amount;               ///< Amount of poof particles
     Sint16       gopoofprt_facingadd;            ///< Angular spread of poof particles
-    int          gopoofprt_pip;                  ///< Which poof particle
+    int          gopoofprt_lpip;                  ///< Which poof particle
     Uint8        blud_valid;                     ///< Has blud? ( yuck )
-    int          blud_pip;                       ///< What kind of blud?
+    int          blud_lpip;                       ///< What kind of blud?
 
 	// skill system
 	IDSZ_node_t  skills[MAX_IDSZ_MAP_SIZE];

@@ -30,17 +30,17 @@
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS
 //--------------------------------------------------------------------------------------------
-INLINE PRO_REF   enc_get_ipro( const ENC_REF ienc );
-INLINE pro_t   * enc_get_ppro( const ENC_REF ienc );
+static INLINE PRO_REF   enc_get_ipro( const ENC_REF ienc );
+static INLINE pro_t   * enc_get_ppro( const ENC_REF ienc );
 
-INLINE CHR_REF   enc_get_iowner( const ENC_REF ienc );
-INLINE chr_t   * enc_get_powner( const ENC_REF ienc );
+static INLINE CHR_REF   enc_get_iowner( const ENC_REF ienc );
+static INLINE chr_t   * enc_get_powner( const ENC_REF ienc );
 
-INLINE EVE_REF   enc_get_ieve( const ENC_REF ienc );
-INLINE eve_t   * enc_get_peve( const ENC_REF ienc );
+static INLINE EVE_REF   enc_get_ieve( const ENC_REF ienc );
+static INLINE eve_t   * enc_get_peve( const ENC_REF ienc );
 
-INLINE IDSZ      enc_get_idszremove( const ENC_REF ienc );
-INLINE bool_t    enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile );
+static INLINE IDSZ      enc_get_idszremove( const ENC_REF ienc );
+static INLINE bool_t    enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION

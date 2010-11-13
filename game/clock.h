@@ -53,14 +53,14 @@ EGO_TIME getCurrentTime();                          ///< Returns a structure con
 
 //--------------------------------------------------------------------------------------------
 // macros to use the high resolution timer for profiling
-#define PROFILE_KEEP  0.9
-#define PROFILE_NEW  (1.0 - PROFILE_KEEP)
+#define PROFILE_KEEP  0.9F
+#define PROFILE_NEW  (1.0F - PROFILE_KEEP)
 
 #define PROFILE_DECLARE_STRUCT    ClockState_t * _clkstate; double _clkcount; double _clktime
 #define PROFILE_INIT_STRUCT(XX,PTR) (PTR)->_clkstate  = clk_create(#XX, -1);
 #define PROFILE_FREE_STRUCT(PTR)    clk_destroy(&((PTR)->_clkstate));
 
-#define PROFILE_DECLARE(XX)        static ClockState_t * clkstate_##XX = NULL; static double clkcount_##XX = 0.0; static double clktime_##XX = 0.0;
+#define PROFILE_DECLARE(XX)        static ClockState_t * clkstate_##XX = NULL; static double clkcount_##XX = 0.0F; static double clktime_##XX = 0.0F;
 #define PROFILE_INIT(XX)           clkstate_##XX  = clk_create(#XX, -1);
 #define PROFILE_RESET(XX)          clkcount_##XX = 0.0; clktime_##XX = 0.0;
 #define PROFILE_FREE(XX)           clk_destroy(&(clkstate_##XX));
@@ -69,24 +69,24 @@ EGO_TIME getCurrentTime();                          ///< Returns a structure con
 
 #    define PROFILE_QUERY_STRUCT(PTR)   ( (double)(PTR)->_clktime / (double)(PTR)->_clkcount )
 #    define PROFILE_BEGIN_STRUCT(PTR)  clk_frameStep((PTR)->_clkstate);
-#    define PROFILE_END_STRUCT(PTR)    clk_frameStep((PTR)->_clkstate);   (PTR)->_clkcount = (PTR)->_clkcount*PROFILE_KEEP + PROFILE_NEW*1.0; (PTR)->_clktime = (PTR)->_clktime*PROFILE_KEEP + PROFILE_NEW*clk_getFrameDuration((PTR)->_clkstate);
-#    define PROFILE_END2_STRUCT(PTR)   clk_frameStep((PTR)->_clkstate);   (PTR)->_clkcount += 1.0;  (PTR)->_clktime += clk_getFrameDuration((PTR)->_clkstate);
+#    define PROFILE_END_STRUCT(PTR)    clk_frameStep((PTR)->_clkstate);   (PTR)->_clkcount = (PTR)->_clkcount*PROFILE_KEEP + PROFILE_NEW*1.0F; (PTR)->_clktime = (PTR)->_clktime*PROFILE_KEEP + PROFILE_NEW*clk_getFrameDuration((PTR)->_clkstate);
+#    define PROFILE_END2_STRUCT(PTR)   clk_frameStep((PTR)->_clkstate);   (PTR)->_clkcount += 1.0F;  (PTR)->_clktime += clk_getFrameDuration((PTR)->_clkstate);
 
 #    define PROFILE_QUERY(XX)   ( (double)clktime_##XX / (double)clkcount_##XX )
 #    define PROFILE_BEGIN(XX)  clk_frameStep(clkstate_##XX);
-#    define PROFILE_END(XX)    clk_frameStep(clkstate_##XX);   clkcount_##XX = clkcount_##XX*PROFILE_KEEP + PROFILE_NEW*1.0; clktime_##XX = clktime_##XX*PROFILE_KEEP + PROFILE_NEW*clk_getFrameDuration(clkstate_##XX);
-#    define PROFILE_END2(XX)   clk_frameStep(clkstate_##XX);   clkcount_##XX += 1.0;  clktime_##XX += clk_getFrameDuration(clkstate_##XX);
+#    define PROFILE_END(XX)    clk_frameStep(clkstate_##XX);   clkcount_##XX = clkcount_##XX*PROFILE_KEEP + PROFILE_NEW*1.0F; clktime_##XX = clktime_##XX*PROFILE_KEEP + PROFILE_NEW*clk_getFrameDuration(clkstate_##XX);
+#    define PROFILE_END2(XX)   clk_frameStep(clkstate_##XX);   clkcount_##XX += 1.0F;  clktime_##XX += clk_getFrameDuration(clkstate_##XX);
 
 #else
 
-#    define PROFILE_QUERY_STRUCT(PTR)  1.0
+#    define PROFILE_QUERY_STRUCT(PTR)  1.0F
 #    define PROFILE_BEGIN_STRUCT(PTR)
-#    define PROFILE_END_STRUCT(PTR)    (PTR)->_clkcount  = 1.0;
-#    define PROFILE_END2_STRUCT(PTR)   (PTR)->_clkcount += 1.0;
+#    define PROFILE_END_STRUCT(PTR)    (PTR)->_clkcount  = 1.0F;
+#    define PROFILE_END2_STRUCT(PTR)   (PTR)->_clkcount += 1.0F;
 
-#    define PROFILE_QUERY(XX)  1.0
+#    define PROFILE_QUERY(XX)  1.0F
 #    define PROFILE_BEGIN(XX)
-#    define PROFILE_END(XX)    clkcount_##XX  = 1.0;
-#    define PROFILE_END2(XX)   clkcount_##XX += 1.0;
+#    define PROFILE_END(XX)    clkcount_##XX  = 1.0F;
+#    define PROFILE_END2(XX)   clkcount_##XX += 1.0F;
 
 #endif

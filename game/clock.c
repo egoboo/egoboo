@@ -317,7 +317,7 @@ Uint32 clk_getFrameNumber( ClockState_t * cs )
 //--------------------------------------------------------------------------------------------
 float clk_getFrameRate( ClockState_t * cs )
 {
-    return ( float )( 1.0 / cs->frameTime );
+    return ( float )( 1.0F / cs->frameTime );
 }
 
 //--------------------------------------------------------------------------------------------

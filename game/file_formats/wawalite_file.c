@@ -139,10 +139,10 @@ wawalite_data_t * read_wawalite_light( vfs_FILE * fileread, wawalite_data_t * pd
 {
     if ( NULL == pdata ) return pdata;
 
-    pdata->light_x = 1.00;
-    pdata->light_y = 1.00;
-    pdata->light_z = 0.50;
-    pdata->light_a = 0.20;
+    pdata->light_x = 1.00f;
+    pdata->light_y = 1.00f;
+    pdata->light_z = 0.50f;
+    pdata->light_a = 0.20f;
 
     if ( NULL == fileread ) return pdata;
 
@@ -218,11 +218,11 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
     // weather data
     if ( pdata->version >= 2 )
     {
-        pweather->particle    = fget_next_int( fileread );          //@todo: allow text to be read here
+        pweather->part_gpip = fget_next_int( fileread );          //@todo: allow text to be read here
     }
     else
     {
-        pweather->particle    = PIP_WEATHER4;           //Default if we use a older versioned wawalite.txt
+        pweather->part_gpip = PIP_WEATHER4;           //Default if we use a older versioned wawalite.txt
     }
     pweather->over_water  = fget_next_bool( fileread );
     pweather->timer_reset = fget_next_int( fileread );
@@ -283,7 +283,7 @@ wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdat
         // Read extra stuff for damage tile particles...
         if ( goto_colon( NULL, fileread, btrue ) )
         {
-            pdata->damagetile.parttype    = fget_int( fileread );
+            pdata->damagetile.part_gpip    = fget_int( fileread );
             pdata->damagetile.partand     = fget_next_int( fileread );
             pdata->damagetile.sound_index = fget_next_int( fileread );
         }
@@ -447,7 +447,7 @@ bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweath
     if ( NULL == filewrite || NULL == pweather ) return bfalse;
 
     // weather data
-    fput_int( filewrite, "Weather particle effect ( 0 to 10, RAIN or SNOW )  :", pweather->particle );
+    fput_int( filewrite, "Weather particle effect ( 0 to 10, RAIN or SNOW )  :", pweather->part_gpip );
     fput_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water );
     fput_int( filewrite, "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
 
@@ -495,7 +495,7 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
     fput_bool( filewrite, "Fog affects water ( TRUE or FALSE )               :", pdata->fog.affects_water );
 
     vfs_printf( filewrite, "\n\n// Damage tile expansion...  Must have fog first...\n" );
-    fput_int( filewrite, "Weather particle to spawn ( 4 or 5, 6 is splash )  :", pdata->damagetile.parttype );
+    fput_int( filewrite, "Weather particle to spawn ( 4 or 5, 6 is splash )  :", pdata->damagetile.part_gpip );
     fput_int( filewrite, "Particle timing AND ( 1, 3, 7, 15, etc. )          :", pdata->damagetile.partand );
     fput_int( filewrite, "Damage sound ( 0 to 4 )                            :", pdata->damagetile.sound_index );
 
@@ -607,7 +607,7 @@ bool_t wawalite_damagetile_init( wawalite_damagetile_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    pdata->parttype    = -1;
+    pdata->part_gpip    = -1;
     pdata->partand     = 255;
     pdata->sound_index = INVALID_SOUND;
     pdata->type        = DAMAGE_FIRE;

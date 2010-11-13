@@ -30,21 +30,21 @@
 // FORWARD DECLARATIONS
 //--------------------------------------------------------------------------------------------
 
-INLINE CAP_REF pro_get_icap( const PRO_REF iobj );
-INLINE MAD_REF pro_get_imad( const PRO_REF iobj );
-INLINE EVE_REF pro_get_ieve( const PRO_REF iobj );
-INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int ipip );
-INLINE IDSZ    pro_get_idsz( const PRO_REF iobj, int type );
+static INLINE CAP_REF pro_get_icap( const PRO_REF iobj );
+static INLINE MAD_REF pro_get_imad( const PRO_REF iobj );
+static INLINE EVE_REF pro_get_ieve( const PRO_REF iobj );
+static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int ipip );
+static INLINE IDSZ    pro_get_idsz( const PRO_REF iobj, int type );
 
-INLINE cap_t *     pro_get_pcap( const PRO_REF iobj );
-INLINE mad_t *     pro_get_pmad( const PRO_REF iobj );
-INLINE eve_t *     pro_get_peve( const PRO_REF iobj );
-INLINE pip_t *     pro_get_ppip( const PRO_REF iobj, int pip_index );
-INLINE Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index );
+static INLINE cap_t *     pro_get_pcap( const PRO_REF iobj );
+static INLINE mad_t *     pro_get_pmad( const PRO_REF iobj );
+static INLINE eve_t *     pro_get_peve( const PRO_REF iobj );
+static INLINE pip_t *     pro_get_ppip( const PRO_REF iobj, int pip_index );
+static INLINE Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INLINE CAP_REF pro_get_icap( const PRO_REF iobj )
+static INLINE CAP_REF pro_get_icap( const PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -55,7 +55,7 @@ INLINE CAP_REF pro_get_icap( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE MAD_REF pro_get_imad( const PRO_REF iobj )
+static INLINE MAD_REF pro_get_imad( const PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -66,7 +66,7 @@ INLINE MAD_REF pro_get_imad( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE EVE_REF pro_get_ieve( const PRO_REF iobj )
+static INLINE EVE_REF pro_get_ieve( const PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -77,7 +77,7 @@ INLINE EVE_REF pro_get_ieve( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
+static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
 {
     pro_t * pobj;
     PIP_REF found_pip, global_pip;
@@ -109,7 +109,7 @@ INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE IDSZ pro_get_idsz( const PRO_REF iobj, int type )
+static INLINE IDSZ pro_get_idsz( const PRO_REF iobj, int type )
 {
     cap_t * pcap;
 
@@ -122,7 +122,7 @@ INLINE IDSZ pro_get_idsz( const PRO_REF iobj, int type )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE cap_t * pro_get_pcap( const PRO_REF iobj )
+static INLINE cap_t * pro_get_pcap( const PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -135,7 +135,7 @@ INLINE cap_t * pro_get_pcap( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE mad_t * pro_get_pmad( const PRO_REF iobj )
+static INLINE mad_t * pro_get_pmad( const PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -148,7 +148,7 @@ INLINE mad_t * pro_get_pmad( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE eve_t * pro_get_peve( const PRO_REF iobj )
+static INLINE eve_t * pro_get_peve( const PRO_REF iobj )
 {
     pro_t * pobj;
 
@@ -161,7 +161,7 @@ INLINE eve_t * pro_get_peve( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
+static INLINE pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
 {
     pro_t * pobj;
     PIP_REF global_pip, local_pip;
@@ -194,7 +194,7 @@ INLINE pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
 }
 
 //--------------------------------------------------------------------------------------------
-INLINE Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index )
+static INLINE Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index )
 {
     pro_t * pobj;
 

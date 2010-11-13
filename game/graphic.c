@@ -480,7 +480,7 @@ int ogl_init()
     GL_DEBUG( glTexGeni )( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );  // Set The Texture Generation Mode For T To Sphere Mapping (NEW)
 
 	//Initialize the motion blur buffer
-	GL_DEBUG( glClearAccum )( 0.0, 0.0, 0.0, 1.0 );
+	GL_DEBUG( glClearAccum )( 0.0f, 0.0f, 0.0f, 1.0f );
 	GL_DEBUG( glClear )( GL_ACCUM_BUFFER_BIT );
 
     // Load the current graphical settings
@@ -1642,7 +1642,7 @@ float draw_debug( float y )
         y = _draw_string_raw( 0, y, text, PMod->exportvalid );
         y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
         y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
-        y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.parttype );
+        y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 
         // y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
@@ -2960,8 +2960,8 @@ void render_world( camera_t * pcam )
 		{
 			//Do motion blur
 			GL_DEBUG( glAccum )( GL_MULT, pcam->motion_blur );
-			GL_DEBUG( glAccum )( GL_ACCUM, 1.00f - pcam->motion_blur );
-			GL_DEBUG( glAccum )( GL_RETURN, 1.0 );
+			GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->motion_blur );
+			GL_DEBUG( glAccum )( GL_RETURN, 1.0f );
 		}
     }
     gfx_end_3d();
@@ -3720,7 +3720,7 @@ void render_all_billboards( camera_t * pcam )
 
                 if ( !pbb->valid ) continue;
 
-                render_billboard( pcam, pbb, 0.75 );
+                render_billboard( pcam, pbb, 0.75f );
             }
         }
         ATTRIB_POP( __FUNCTION__ );
@@ -3883,7 +3883,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
             float p1_x, p1_y;
             float p2_x, p2_y;
 
-            GL_DEBUG( glColor4f ) ( 0.5, 1, 1, 0.1 );
+            GL_DEBUG( glColor4f ) ( 0.5f, 1.0f, 1.0f, 0.1f );
 
             p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
             p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
@@ -3940,7 +3940,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
         // SQUARE BBOX
         if ( draw_square )
         {
-            GL_DEBUG( glColor4f ) ( 1, 0.5, 1, 0.1 );
+            GL_DEBUG( glColor4f ) ( 1.0f, 0.5f, 1.0f, 0.1f );
 
             // XZ FACE, min Y
             GL_DEBUG(glBegin) ( GL_QUADS );
@@ -5066,7 +5066,7 @@ void light_fans( renderlist_t * prlist )
     if ( NULL == prlist ) return;
 
 #if defined(CLIP_ALL_LIGHT_FANS)
-    // update all visible fans once every 4 uodates
+    // update all visible fans once every 4 updates
     if ( 0 != ( frame_all & 0x03 ) ) return;
 #endif
 

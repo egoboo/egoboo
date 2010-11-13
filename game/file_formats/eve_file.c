@@ -186,7 +186,7 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
         idsz = fget_idsz( fileread );
 
         if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) ) peve->contspawn_amount = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) ) peve->contspawn_pip = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) ) peve->contspawn_lpip = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) ) peve->contspawn_delay = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) ) peve->contspawn_facingadd = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) ) peve->endsound_index = fget_int( fileread );
@@ -352,9 +352,9 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
         fput_expansion( filewrite, "", MAKE_IDSZ( 'A', 'M', 'O', 'U' ), peve->contspawn_amount );
     }
 
-    if ( peve->contspawn_pip > 0 )
+    if ( peve->contspawn_lpip > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'Y', 'P', 'E' ), peve->contspawn_pip );
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'Y', 'P', 'E' ), peve->contspawn_lpip );
     }
 
     if ( peve->contspawn_facingadd > 0 )

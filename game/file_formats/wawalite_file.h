@@ -103,7 +103,7 @@ struct s_wawalite_damagetile
     Uint32 amount;
     int    type;
 
-    int    parttype;
+    int    part_gpip;
     Uint32 partand;
     int    sound_index;
 };
@@ -116,7 +116,7 @@ struct s_wawalite_weather
 {
     bool_t  over_water;
     int     timer_reset;
-    Uint8   particle;           ///< Which particle to spawn?
+    int     part_gpip;           ///< Which particle to spawn?
 };
 typedef struct s_wawalite_weather wawalite_weather_t;
 

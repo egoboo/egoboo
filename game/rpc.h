@@ -46,10 +46,10 @@ struct s_rpc_base
 };
 typedef struct s_rpc_base ego_rpc_base_t;
 
-INLINE bool_t ego_rpc_valid( ego_rpc_base_t * prpc )           { return ( NULL != prpc ) && prpc->allocated; }
-INLINE bool_t ego_rpc_matches( ego_rpc_base_t * prpc, int guid ) { return ( NULL != prpc ) && prpc->allocated && ( guid == prpc->guid ); }
-INLINE bool_t ego_rpc_finished( ego_rpc_base_t * prpc, int guid ) { return !ego_rpc_matches( prpc, guid ) || ( prpc->finished ); }
-INLINE bool_t ego_rpc_abort( ego_rpc_base_t * prpc, int guid ) { if ( !ego_rpc_matches( prpc, guid ) ) return bfalse; prpc->abort = btrue; return btrue; }
+static INLINE bool_t ego_rpc_valid( ego_rpc_base_t * prpc )           { return ( NULL != prpc ) && prpc->allocated; }
+static INLINE bool_t ego_rpc_matches( ego_rpc_base_t * prpc, int guid ) { return ( NULL != prpc ) && prpc->allocated && ( guid == prpc->guid ); }
+static INLINE bool_t ego_rpc_finished( ego_rpc_base_t * prpc, int guid ) { return !ego_rpc_matches( prpc, guid ) || ( prpc->finished ); }
+static INLINE bool_t ego_rpc_abort( ego_rpc_base_t * prpc, int guid ) { if ( !ego_rpc_matches( prpc, guid ) ) return bfalse; prpc->abort = btrue; return btrue; }
 
 ego_rpc_base_t * ego_rpc_base_ctor( ego_rpc_base_t * prpc, int data_type, void * data ) ;
 ego_rpc_base_t * ego_rpc_base_dtor( ego_rpc_base_t * prpc );

@@ -732,7 +732,7 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
         ///      commands that multiplied various quantities by 4 or by 4.125 throughout the code.
         ///      It was very counterintuitive, and caused me no end of headaches...  Of course the
         ///      solution is to scale the model!
-        md2_scale_model( pmad->md2_ptr, -3.5, 3.5, 3.5 );
+        md2_scale_model( pmad->md2_ptr, -3.5f, 3.5f, 3.5f );
     }
 
     // Create the actions table for this imad

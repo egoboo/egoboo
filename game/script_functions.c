@@ -2130,12 +2130,12 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
         // Don't spawn in walls
         tmp_pos.x += pstate->x;
-        if ( prt_test_wall( pprt, tmp_pos.v ) )
+        if ( prt_test_wall( pprt, tmp_pos.v, NULL ) )
         {
             tmp_pos.x = pprt->pos.x;
 
             tmp_pos.y += pstate->y;
-            if ( prt_test_wall( pprt, tmp_pos.v ) )
+            if ( prt_test_wall( pprt, tmp_pos.v, NULL ) )
             {
                 tmp_pos.y = pprt->pos.y;
             }
@@ -2677,7 +2677,7 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pstate->argument = pself_target->grogtime;
+    pstate->argument = pself_target->grog_timer;
 
     returncode = ( pstate->argument != 0 );
 
@@ -2697,7 +2697,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pstate->argument = pself_target->dazetime;
+    pstate->argument = pself_target->daze_timer;
 
     returncode = ( pstate->argument != 0 );
 
@@ -4239,8 +4239,8 @@ Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->argument > 0 ) pchr->reloadtime = pstate->argument;
-    else pchr->reloadtime = 0;
+    if ( pstate->argument > 0 ) pchr->reload_timer = pstate->argument;
+    else pchr->reload_timer = 0;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4933,11 +4933,11 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 
     if ( pstate->argument > 0 )
     {
-        pself_target->reloadtime = pstate->argument;
+        pself_target->reload_timer = pstate->argument;
     }
     else
     {
-        pself_target->reloadtime = 0;
+        pself_target->reload_timer = 0;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6157,7 +6157,7 @@ Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->damagetime = pstate->argument;
+    pchr->damage_timer = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6579,7 +6579,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return bfalse;
 
-    ppip = pro_get_ppip( pchr->profile_ref, pcap->gopoofprt_pip );
+    ppip = pro_get_ppip( pchr->profile_ref, pcap->gopoofprt_lpip );
     if ( NULL == ppip ) return bfalse;
 
     returncode = bfalse;
@@ -6656,7 +6656,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( NULL != pcap && pcap->canbegrogged )
     {
-        pself_target->grogtime += pstate->argument;
+        pself_target->grog_timer += pstate->argument;
         returncode = btrue;
     }
 
@@ -6682,7 +6682,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( NULL != pcap && ( pcap->canbedazed || pself->index == pself->target ) )
     {
-        pself_target->dazetime += pstate->argument;
+        pself_target->daze_timer += pstate->argument;
         returncode = btrue;
     }
 
