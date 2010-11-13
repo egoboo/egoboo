@@ -577,6 +577,9 @@
     <None Include="file_formats\id_normals.inl">
       <Filter>File System\Headers</Filter>
     </None>
+    <None Include="bsp.inl">
+      <Filter>Inline Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\egoboo.rc">

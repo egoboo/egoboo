@@ -142,7 +142,8 @@ struct s_eve
     float   addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
     // special modifications
-    bool_t  seekurse;                    ///< Allow target to see kurses
+    int  seekurse;						  ///< Allow target to see kurses
+	int  darkvision;					  ///< Allow target to see in darkness
 
     // continuous spawning
     Uint16  contspawn_delay;              ///< Spawn timer

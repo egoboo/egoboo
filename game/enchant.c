@@ -335,14 +335,21 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             spawn_poof( penc->target_ref, penc->profile_ref );
         }
 
-        // Remove see kurse enchant
+		//Remove special skills gained by the enchant
         if ( INGAME_CHR( itarget ) )
         {
             chr_t * ptarget = ChrList.lst + penc->target_ref;
 
-			if ( peve->seekurse && !chr_get_skill( ptarget, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) )
+			//Reset see kurses
+			if ( 0 != peve->seekurse )
 			{
-				ptarget->see_kurse_level = bfalse;
+				ptarget->see_kurse_level = chr_get_skill( ptarget, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
+			}
+
+			//Reset darkvision
+			if ( 0 != peve->darkvision )
+			{
+				ptarget->darkvision_level = chr_get_skill( ptarget, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
 			}
         }
     }
@@ -880,11 +887,23 @@ enc_t * enc_config_do_init( enc_t * penc )
         }
     }
 
-    // Allow them to see kurses?
-    if ( peve->seekurse && NULL != ptarget )
+	//Apply special skill effects
+	if( NULL != ptarget )
 	{
-		ptarget->see_kurse_level = btrue;
-    }
+
+		// Allow them to see kurses?
+		if ( peve->seekurse != 0 )
+		{
+			ptarget->see_kurse_level = peve->seekurse;
+		}
+
+		// Allow them to see in darkness (or blindness if negative)
+		if ( peve->darkvision != 0 )
+		{
+			ptarget->darkvision_level = peve->darkvision;
+		}
+
+	}
 
     return penc;
 }

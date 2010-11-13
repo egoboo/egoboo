@@ -201,6 +201,7 @@
     <None Include="..\res\egoboo3.ico" />
     <None Include="..\res\install.ico" />
     <None Include="..\res\old-egoboo.ico" />
+    <None Include="bsp.inl" />
     <None Include="char.inl" />
     <None Include="egoboo_console.inl" />
     <None Include="egoboo_math.inl" />
