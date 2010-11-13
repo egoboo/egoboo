@@ -931,7 +931,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
 
-    if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return retval;
+    if ( 0.0f == pchr->bump_stt.size || INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
@@ -967,7 +967,7 @@ fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
 
-    if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return retval;
+    if ( 0.0f == pchr->bump_stt.size || INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
@@ -1006,7 +1006,7 @@ BIT_FIELD chr_hit_wall( const chr_t * pchr, const float test_pos[], float nrm[],
 
     if ( !DEFINED_PCHR( pchr ) ) return 0;
 
-    if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return 0;
+    if ( 0.0f == pchr->bump_stt.size || INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
@@ -1045,7 +1045,7 @@ bool_t chr_test_wall( const chr_t * pchr, const float test_pos[], mesh_wall_data
 
     if ( !ACTIVE_PCHR( pchr ) ) return 0;
 
-    if ( 0 == pchr->bump.size || INFINITE_WEIGHT == pchr->phys.weight ) return bfalse;
+    if ( 0.0f == pchr->bump_stt.size || INFINITE_WEIGHT == pchr->phys.weight ) return bfalse;
 
     // calculate the radius based on whether the character is on camera
 	// ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
@@ -2502,6 +2502,12 @@ void drop_money( const CHR_REF character, int money )
     /// @details ZZ@> This function drops some of a character's money
 
     int vals[PIP_MONEY_COUNT] = {1,5,25,100,200,500,1000,2000};
+    int pips[PIP_MONEY_COUNT] = 
+    {
+        PIP_COIN1, PIP_COIN5, PIP_COIN25, PIP_COIN100,
+        PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
+    };
+
     chr_t * pchr;
     fvec3_t loc_pos;
 
@@ -2516,7 +2522,6 @@ void drop_money( const CHR_REF character, int money )
         money = ChrList.lst[character].money;
     }
 
-
     if ( money > 0 && loc_pos.z > -2 )
     {
         int cnt, tnc;
@@ -2526,7 +2531,7 @@ void drop_money( const CHR_REF character, int money )
         pchr->money -= money;
 
         // make the particles emit from "waist high"
-        loc_pos.z += ( pchr->chr_chr_cv.maxs[OCT_Z] + pchr->chr_chr_cv.mins[OCT_Z] ) * 0.5f;
+        loc_pos.z += ( pchr->chr_min_cv.maxs[OCT_Z] + pchr->chr_min_cv.mins[OCT_Z] ) * 0.5f;
 
         // Give the character a time-out from interacting with particles so it
         // doesn't just grab the money again
@@ -2540,7 +2545,7 @@ void drop_money( const CHR_REF character, int money )
 
             for ( tnc = 0; tnc < count; tnc++ )
             {
-                spawn_one_particle_global( loc_pos, ATK_FRONT, PIP_COIN1 + cnt, tnc );
+                spawn_one_particle_global( loc_pos, ATK_FRONT, pips[cnt], tnc );
             }
         }
     }
@@ -4015,7 +4020,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
             // Make sure the owner is not dead
             if ( SHOP_NOOWNER == ShopStack.lst[ishop].owner ) continue;
 
-            if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+            if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
             {
                 pchr->isshopitem = btrue;               // Full value
                 pchr->iskursed   = bfalse;              // Shop items are never kursed
@@ -4089,12 +4094,12 @@ chr_t * chr_config_do_active( chr_t * pchr )
         else
         {
             // Ripples
-			if ( !INGAME_CHR(pchr->attachedto) && pcap->ripple && pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_chr_cv.mins[OCT_Z] < water.surface_level )
+			if ( !INGAME_CHR(pchr->attachedto) && pcap->ripple && pchr->pos.z + pchr->chr_min_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_min_cv.mins[OCT_Z] < water.surface_level )
             {
                 int ripple_suppression;
 
                 // suppress ripples if we are far below the surface
-                ripple_suppression = water.surface_level - ( pchr->pos.z + pchr->chr_chr_cv.maxs[OCT_Z] );
+                ripple_suppression = water.surface_level - ( pchr->pos.z + pchr->chr_min_cv.maxs[OCT_Z] );
                 ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
                 ripple_suppression = CLIP( ripple_suppression, 0, 4 );
 
@@ -5502,7 +5507,7 @@ void move_one_character_get_environment( chr_t * pchr )
 	// The actual level of the character.
 	if ( NULL != pplatform )
 	{
-		pchr->enviro.floor_level = pplatform->pos.z + pplatform->chr_chr_cv.maxs[OCT_Z];
+		pchr->enviro.floor_level = pplatform->pos.z + pplatform->chr_min_cv.maxs[OCT_Z];
 	}
 	else
 	{
@@ -5515,7 +5520,7 @@ void move_one_character_get_environment( chr_t * pchr )
     pchr->enviro.level = pchr->enviro.floor_level;
     if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        pchr->enviro.level = ChrList.lst[pchr->onwhichplatform_ref].pos.z + ChrList.lst[pchr->onwhichplatform_ref].chr_chr_cv.maxs[OCT_Z];
+        pchr->enviro.level = ChrList.lst[pchr->onwhichplatform_ref].pos.z + ChrList.lst[pchr->onwhichplatform_ref].chr_min_cv.maxs[OCT_Z];
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
@@ -8219,7 +8224,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
-    ///< @detalis BB@> use this function to update the pchr->chr_prt_cv and  pchr->chr_chr_cv with
+    ///< @detalis BB@> use this function to update the pchr->chr_max_cv and  pchr->chr_min_cv with
     ///<       values that reflect the best possible collision volume
     ///<
     ///< @note This function takes quite a bit of time, so it must only be called when the
@@ -8232,13 +8237,11 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     fvec4_t   src[16];  // for the upper and lower octagon points
     fvec4_t   dst[16];  // for the upper and lower octagon points
 
-    oct_bb_t bsrc;
+    oct_bb_t bsrc, bdst;
 
     mad_t * pmad;
-    oct_bb_t * pbmp;
 
     if ( !DEFINED_PCHR( pchr ) ) return rv_error;
-    pbmp = &( pchr->chr_chr_cv );
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return rv_error;
@@ -8270,10 +8273,58 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     TransformVertices( &( pchr->inst.matrix ), src, dst, vcount );
 
     // convert the new point cloud into a level 1 bounding box
-    points_to_oct_bb( pbmp, dst, vcount );
+    points_to_oct_bb( &bdst, dst, vcount );
+
+    //---- set the bounding boxes
+    pchr->chr_min_cv = bdst;
+    pchr->chr_max_cv = bdst;
+
+    // only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
+    if ( pchr->bump_stt.size >= 0.0f )
+    {
+        pchr->chr_min_cv.mins[OCT_X ] = MAX( pchr->chr_min_cv.mins[OCT_X ], -pchr->bump.size );
+        pchr->chr_min_cv.mins[OCT_Y ] = MAX( pchr->chr_min_cv.mins[OCT_Y ], -pchr->bump.size );
+        pchr->chr_min_cv.maxs[OCT_X ] = MIN( pchr->chr_min_cv.maxs[OCT_X ],  pchr->bump.size );
+        pchr->chr_min_cv.maxs[OCT_Y ] = MIN( pchr->chr_min_cv.maxs[OCT_Y ],  pchr->bump.size );
+
+        pchr->chr_max_cv.mins[OCT_X ] = MIN( pchr->chr_max_cv.mins[OCT_X ], -pchr->bump.size );
+        pchr->chr_max_cv.mins[OCT_Y ] = MIN( pchr->chr_max_cv.mins[OCT_Y ], -pchr->bump.size );
+        pchr->chr_max_cv.maxs[OCT_X ] = MAX( pchr->chr_max_cv.maxs[OCT_X ],  pchr->bump.size );
+        pchr->chr_max_cv.maxs[OCT_Y ] = MAX( pchr->chr_max_cv.maxs[OCT_Y ],  pchr->bump.size );
+    }
+
+    // only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
+    if ( pchr->bump_stt.size_big >= 0.0f )
+    {
+        pchr->chr_min_cv.mins[OCT_YX] = MAX( pchr->chr_min_cv.mins[OCT_YX], -pchr->bump.size_big );
+        pchr->chr_min_cv.mins[OCT_XY] = MAX( pchr->chr_min_cv.mins[OCT_XY], -pchr->bump.size_big );
+        pchr->chr_min_cv.maxs[OCT_YX] = MIN( pchr->chr_min_cv.maxs[OCT_YX], pchr->bump.size_big );
+        pchr->chr_min_cv.maxs[OCT_XY] = MIN( pchr->chr_min_cv.maxs[OCT_XY], pchr->bump.size_big );
+
+        pchr->chr_max_cv.mins[OCT_YX] = MIN( pchr->chr_max_cv.mins[OCT_YX], -pchr->bump.size_big );
+        pchr->chr_max_cv.mins[OCT_XY] = MIN( pchr->chr_max_cv.mins[OCT_XY], -pchr->bump.size_big );
+        pchr->chr_max_cv.maxs[OCT_YX] = MAX( pchr->chr_max_cv.maxs[OCT_YX], pchr->bump.size_big );
+        pchr->chr_max_cv.maxs[OCT_XY] = MAX( pchr->chr_max_cv.maxs[OCT_XY], pchr->bump.size_big );
+    }
+
+    // only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
+    if ( pchr->bump_stt.height >= 0.0f )
+    {
+        pchr->chr_min_cv.mins[OCT_Z ] = MAX( pchr->chr_min_cv.mins[OCT_Z ], 0.0f );
+        pchr->chr_min_cv.maxs[OCT_Z ] = MIN( pchr->chr_min_cv.maxs[OCT_Z ], pchr->bump.height   * pchr->fat );
+
+        pchr->chr_max_cv.mins[OCT_Z ] = MIN( pchr->chr_max_cv.mins[OCT_Z ], 0.0f );
+        pchr->chr_max_cv.maxs[OCT_Z ] = MAX( pchr->chr_max_cv.maxs[OCT_Z ], pchr->bump.height   * pchr->fat );
+    }
+
+    // raise the upper bound for platforms
+    if ( pchr->platform )
+    {
+        pchr->chr_max_cv.maxs[OCT_Z] += PLATTOLERANCE;
+    }
 
     // convert the level 1 bounding box to a level 0 bounding box
-    oct_bb_downgrade( pbmp, pchr->bump_stt, pchr->bump, &( pchr->bump_1 ), &( pchr->chr_prt_cv ) );
+    oct_bb_downgrade( &bdst, pchr->bump_stt, pchr->bump, &( pchr->bump_1 ), &( pchr->chr_max_cv ) );
 
     return rv_success;
 }

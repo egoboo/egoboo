@@ -610,7 +610,7 @@ bool_t phys_expand_oct_bb( const oct_bb_t src, const fvec3_base_t vel, const flo
 bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
 {
     /// @details BB@> use the object velocity to figure out where the volume that the character will
-    ///               occupy during this update. Use the loser chr_prt_cv and include extra height if
+    ///               occupy during this update. Use the loser chr_max_cv and include extra height if
     ///               it is a platform.
 
     oct_bb_t tmp_oct1, tmp_oct2;
@@ -618,7 +618,7 @@ bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
     // copy the volume
-    tmp_oct1 = pchr->chr_prt_cv;
+    tmp_oct1 = pchr->chr_max_cv;
 
     if ( pchr->platform )
     {
@@ -644,7 +644,7 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // add in the current position to the bounding volume
-    oct_bb_add_vector( pprt->chr_prt_cv, prt_get_pos_v(pprt), &tmp_oct );
+    oct_bb_add_vector( pprt->prt_cv, prt_get_pos_v(pprt), &tmp_oct );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( tmp_oct, pprt->vel.v, tmin, tmax, pdst );

@@ -445,8 +445,8 @@ struct s_chr
     bumper_t     bump_save;
 
     bumper_t     bump_1;       ///< the loosest collision volume that mimics the current bump
-    oct_bb_t     chr_prt_cv;   ///< a looser collision volume for chr-prt interactions
-    oct_bb_t     chr_chr_cv;   ///< the tightest collision volume for chr-chr interactions
+    oct_bb_t     chr_max_cv;   ///< a looser collision volume for chr-prt interactions
+    oct_bb_t     chr_min_cv;   ///< the tightest collision volume for chr-chr interactions
 
     Uint8        stoppedby;                     ///< Collision mask
 

@@ -37,7 +37,8 @@ struct s_mesh_wall_data;
 
 #define MAXPARTICLEIMAGE                256         ///< Number of particle images ( frames )
 
-/// Physics
+#define SPAWNNOCHARACTER                255         ///< For particles that spawn characters...
+
 #define STOPBOUNCINGPART                5.0f         ///< To make particles stop bouncing
 
 DECLARE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
@@ -155,20 +156,20 @@ struct s_prt
     size_t  frames_remaining;                ///< How many frames does the particle have left?
     int     contspawn_timer;                 ///< Time until spawn
 
-    Uint32            bump_size_stt;                   ///< the starting size of the particle (8.8-bit fixed point)
-    bumper_t          bump_real;                       ///< Actual size of the particle
-    bumper_t          bump_padded;                     ///< The size of the particle with the additional bumpers added in
-    oct_bb_t          chr_prt_cv;                      ///< Collision volume for chr-prt interactions
-    PRT_REF           bumplist_next;                   ///< Next particle on fanblock
-    IPair             damage;                          ///< For strength
-    Uint8             damagetype;                      ///< Damage type
+    Uint32            bump_size_stt;         ///< the starting size of the particle (8.8-bit fixed point)
+    bumper_t          bump_real;             ///< Actual size of the particle
+    bumper_t          bump_padded;           ///< The size of the particle with the additional bumpers added in
+    oct_bb_t          prt_cv;                ///< Collision volume for chr-prt interactions
+
+    IPair             damage;                ///< For strength
+    Uint8             damagetype;            ///< Damage type
     Uint16            lifedrain;
     Uint16            manadrain;
 
-    bool_t            is_bumpspawn;                      ///< this particle is like a flame, burning something
+    bool_t            is_bumpspawn;          ///< this particle is like a flame, burning something
     bool_t            inwater;
 
-    int               spawncharacterstate;              ///< if != SPAWNNOCHARACTER, then a character is spawned on end
+    int               spawncharacterstate;   ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     bool_t            is_homing;                 ///< Is the particle in control of its motion?
 

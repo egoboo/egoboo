@@ -1253,10 +1253,22 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
-
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
+
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+    // no interactions with hidden objects
+    if ( pchr->is_hidden )
+        return bfalse;
+
+    // no interactions with packed objects
+    if ( pchr->pack.is_packed )
+        return bfalse;
+
+    // no interaction with objects of zero size
+    if ( 0 == pchr->bump_stt.size )
+        return bfalse;
 
     pleaf = &( pchr->bsp_leaf );
     if ( pchr != ( chr_t * )( pleaf->data ) )
@@ -1268,7 +1280,7 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
     };
 
     retval = bfalse;
-    if ( !oct_bb_empty( &(pchr->chr_prt_cv) ) )
+    if ( !oct_bb_empty( &(pchr->chr_max_cv) ) )
     {
         oct_bb_t tmp_oct;
 
@@ -1590,12 +1602,12 @@ int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * col
 //        if ( 1 == pleaf->data_type )
 //        {
 //            chr_t * pchr = ( chr_t* )pleaf->data;
-//            pnodevol = &( pchr->chr_prt_cv );
+//            pnodevol = &( pchr->chr_max_cv );
 //        }
 //        else if ( 2 == pleaf->data_type )
 //        {
 //            prt_t * pprt = ( prt_t* )pleaf->data;
-//            pnodevol = &( pprt->chr_prt_cv );
+//            pnodevol = &( pprt->prt_cv );
 //        }
 //        else
 //        {

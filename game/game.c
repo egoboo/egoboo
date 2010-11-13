@@ -5141,8 +5141,8 @@ float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
 
     for ( corner = 0; corner < 4; corner++ )
     {
-        pos_x[corner] = pchr->pos.x + (( 0 == ix_off[corner] ) ? pchr->chr_chr_cv.mins[OCT_X] : pchr->chr_chr_cv.maxs[OCT_X] );
-        pos_y[corner] = pchr->pos.y + (( 0 == iy_off[corner] ) ? pchr->chr_chr_cv.mins[OCT_Y] : pchr->chr_chr_cv.maxs[OCT_Y] );
+        pos_x[corner] = pchr->pos.x + (( 0 == ix_off[corner] ) ? pchr->chr_min_cv.mins[OCT_X] : pchr->chr_min_cv.maxs[OCT_X] );
+        pos_y[corner] = pchr->pos.y + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv.mins[OCT_Y] : pchr->chr_min_cv.maxs[OCT_Y] );
     }
 
     zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
@@ -5172,17 +5172,17 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
 
     // certain scenery items like doors and such just need to be able to
     // collide with the mesh. They all have 0 == pchr->bump.size
-    if ( 0 == pchr->bump.size )
+    if ( 0.0f == pchr->bump_stt.size )
     {
         return get_mesh_level( pmesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk );
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    bump.mins[OCT_X]  = pchr->chr_chr_cv.mins[OCT_X]  + pchr->pos.x;
-    bump.maxs[OCT_X]  = pchr->chr_chr_cv.maxs[OCT_X]  + pchr->pos.x;
-    bump.mins[OCT_Y]  = pchr->chr_chr_cv.mins[OCT_Y]  + pchr->pos.y;
-    bump.maxs[OCT_Y]  = pchr->chr_chr_cv.maxs[OCT_Y]  + pchr->pos.y;
+    bump.mins[OCT_X]  = pchr->chr_min_cv.mins[OCT_X]  + pchr->pos.x;
+    bump.maxs[OCT_X]  = pchr->chr_min_cv.maxs[OCT_X]  + pchr->pos.x;
+    bump.mins[OCT_Y]  = pchr->chr_min_cv.mins[OCT_Y]  + pchr->pos.y;
+    bump.maxs[OCT_Y]  = pchr->chr_min_cv.maxs[OCT_Y]  + pchr->pos.y;
 
     // determine the size of this object in tiles
     ixmin = bump.mins[OCT_X] / GRID_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
@@ -5198,12 +5198,12 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     }
 
     // hold off on these calculations in case they are not necessary
-    bump.mins[OCT_Z]  = pchr->chr_chr_cv.mins[OCT_Z]  + pchr->pos.z;
-    bump.maxs[OCT_Z]  = pchr->chr_chr_cv.maxs[OCT_Z]  + pchr->pos.z;
-    bump.mins[OCT_XY] = pchr->chr_chr_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-    bump.maxs[OCT_XY] = pchr->chr_chr_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-    bump.mins[OCT_YX] = pchr->chr_chr_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
-    bump.maxs[OCT_YX] = pchr->chr_chr_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
+    bump.mins[OCT_Z]  = pchr->chr_min_cv.mins[OCT_Z]  + pchr->pos.z;
+    bump.maxs[OCT_Z]  = pchr->chr_min_cv.maxs[OCT_Z]  + pchr->pos.z;
+    bump.mins[OCT_XY] = pchr->chr_min_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+    bump.maxs[OCT_XY] = pchr->chr_min_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
+    bump.mins[OCT_YX] = pchr->chr_min_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
+    bump.maxs[OCT_YX] = pchr->chr_min_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
 
     // otherwise, make up a list of tiles that the object might overlap
     for ( iy = iymin; iy <= iymax; iy++ )

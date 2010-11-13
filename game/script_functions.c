@@ -490,7 +490,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // is this a safe position?
     returncode = bfalse;
 
-	if ( chr_get_pcap( pself->index )->weight == 255 || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure ) )
+	if ( 255 == chr_get_pcap( pself->index )->weight || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
     {
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
@@ -6545,7 +6545,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     }
 
     {
-        fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
+        fvec3_t vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
@@ -7904,7 +7904,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
 
             if ( img >= starttile && img < endtile )
             {
-                if ( object_is_in_passage(( PASS_REF )passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+                if ( object_is_in_passage(( PASS_REF )passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
                 {
                     // Remember where the hit occured.
                     *ptilex = pchr->pos.x;

@@ -112,8 +112,8 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
         pprt->bump_padded.height   = MAX( pprt->bump_real.height,   ppip->bump_height          );
     }
 
-    // use the padded bumper to figure out the chr_prt_cv
-    bumper_to_oct_bb_0( pprt->bump_padded, &( pprt->chr_prt_cv ) );
+    // use the padded bumper to figure out the chr_max_cv
+    bumper_to_oct_bb_0( pprt->bump_padded, &( pprt->prt_cv ) );
 
     return btrue;
 }

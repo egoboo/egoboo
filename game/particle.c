@@ -233,7 +233,7 @@ const PRT_REF end_one_particle_in_game( const PRT_REF particle )
         // do all of the end of life care for the particle
         prt_do_end_spawn( particle );
 
-        if ( pprt->spawncharacterstate )
+        if ( SPAWNNOCHARACTER != pprt->spawncharacterstate )
         {
             child = spawn_one_character( prt_get_pos(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
             if ( DEFINED_CHR( child ) )
@@ -532,7 +532,6 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     // estimate some parameters for buoyancy and air resistance
     loc_spdlimit = ppip->spdlimit;
-    //if ( 0.0f == loc_spdlimit ) loc_spdlimit = -STANDARD_GRAVITY / ( 1.0f - air_friction );
 
     {
         const float buoyancy_min       = 0.0f;
@@ -555,6 +554,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
         pprt->air_resistance /= air_friction;
         pprt->air_resistance = CLIP( pprt->air_resistance, 0.0f, 1.0f );
     }
+
+    pprt->spawncharacterstate = SPAWNNOCHARACTER;
 
     prt_set_size( pprt, ppip->size_base );
 
@@ -1219,7 +1220,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     loc_level = penviro->floor_level;
     if ( INGAME_CHR( loc_pprt->onwhichplatform_ref ) )
     {
-        loc_level = MAX( penviro->floor_level, ChrList.lst[loc_pprt->onwhichplatform_ref].pos.z + ChrList.lst[loc_pprt->onwhichplatform_ref].chr_chr_cv.maxs[OCT_Z] );
+        loc_level = MAX( penviro->floor_level, ChrList.lst[loc_pprt->onwhichplatform_ref].pos.z + ChrList.lst[loc_pprt->onwhichplatform_ref].chr_min_cv.maxs[OCT_Z] );
     }
     prt_set_level( loc_pprt, loc_level );
 

@@ -28,25 +28,28 @@
 //--------------------------------------------------------------------------------------------
 
 /// Pre-defined global particle types
+
+/// \note I can't place all the money particles in the same place because it is expected
+/// that certain particles have certain slots (i.e. PIP_WEATHER4 being slot 4...)
 enum e_global_pips
 {
     PIP_COIN1 = 0,                                 ///< Coins are the first particles loaded
     PIP_COIN5,
     PIP_COIN25,
     PIP_COIN100,
-    PIP_GEM200,
-    PIP_GEM500,
-    PIP_GEM1000,
-    PIP_GEM2000,
     PIP_WEATHER4,                                  ///< Weather particles
     PIP_WEATHER5,                                  ///< Weather particle finish
     PIP_SPLASH,                                    ///< Water effects are next
     PIP_RIPPLE,
     PIP_DEFEND,                                     ///< Defend particle
+    PIP_GEM200,
+    PIP_GEM500,
+    PIP_GEM1000,
+    PIP_GEM2000,
     GLOBAL_PIP_COUNT,
 
     // aliases
-    PIP_MONEY_COUNT = PIP_WEATHER4
+    PIP_MONEY_COUNT = 8
 };
 
 /// particle types / sprite dosplay modes

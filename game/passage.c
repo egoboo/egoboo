@@ -229,7 +229,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
 		if ( !check_target( psrc, character, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
-        if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+        if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
         {
             // Found a live one, do we need to check for required items as well?
             if ( IDSZ_NONE == require_item )
@@ -304,7 +304,7 @@ void check_passage_music()
             if ( pchr->pack.is_packed || !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
 
             // Is it in the passage?
-            if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+            if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
             {
                 // Found a player, start music track
                 sound_play_song( ppass->music, 0, -1 );
@@ -346,9 +346,9 @@ bool_t close_passage( const PASS_REF passage )
 			//Don't do held items
 			if( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
 
-			if ( pchr->bump.size != 0 )
+			if ( 0.0f != pchr->bump_stt.size )
             {
-                if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump.size ) )
+                if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
                 {
                     if ( !pchr->canbecrushed )
                     {
