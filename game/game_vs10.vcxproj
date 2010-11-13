@@ -279,7 +279,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>enetd.lib; shlwapi.lib; SHFolder.lib; Shell32.lib; SDLd.lib; SDLmaind.lib; opengl32.lib; glu32.lib; ws2_32.lib; SDL_ttf.lib; SDL_mixerd.lib; SDL_imaged.lib; lua5.1.lib; physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>enet.lib;shlwapi.lib;SHFolder.lib;Shell32.lib;SDL.lib;SDLmain.lib;opengl32.lib;glu32.lib;ws2_32.lib;SDL_ttf_d.lib;SDL_mixer_d.lib;SDL_image_d.lib;lua5.1.lib;physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>2.8.0b</Version>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>

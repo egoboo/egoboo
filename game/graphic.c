@@ -1027,12 +1027,12 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
 
     if( ticks > 0 )
     {
-        int full_ticks = ticks;
-        int empty_ticks = NUMTICK - full_ticks;
+        int full_ticks = NUMTICK - ticks;
+        int empty_ticks = NUMTICK - ( MIN( NUMTICK, total_ticks ) - ticks );
 
         //---- draw a partial row of full ticks
         tx_rect.xmin  = tab_width  / tx_width;
-        tx_rect.xmax  = (img_width - tick_width * empty_ticks)  / tx_width;
+        tx_rect.xmax  = (img_width - tick_width * full_ticks )  / tx_width;
         tx_rect.ymin  = tick_height * ( tmp_bartype + 0 ) / tx_height;
         tx_rect.ymax  = tick_height * ( tmp_bartype + 1 ) / tx_height;
 
@@ -1052,8 +1052,8 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         //---- draw a partial row of empty ticks
         tmp_bartype = 0;
 
-        tx_rect.xmin  = ( tab_width + tick_width * full_ticks ) / tx_width;
-        tx_rect.xmax  = img_width  / tx_width;
+		tx_rect.xmin  = tab_width  / tx_width;
+		tx_rect.xmax  = (img_width - tick_width * empty_ticks )  / tx_width;
         tx_rect.ymin  = tick_height * ( tmp_bartype + 0 ) / tx_height;
         tx_rect.ymax  = tick_height * ( tmp_bartype + 1 ) / tx_height;
 
@@ -5247,7 +5247,7 @@ float get_ambient_level()
     min_amb = INVISIBLE;
     if ( local_seedark_level > 0 )
     {
-        min_amb = 52.0f * light_a * ( 1 + local_seedark_level );
+        min_amb = 52.0f * light_a * ( 1 + local_seedark_level * 2 );
     }
 
     return MAX( glob_amb, min_amb );
