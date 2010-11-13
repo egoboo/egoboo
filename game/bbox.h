@@ -58,6 +58,7 @@ enum e_octagonal_axes
 };
 
 /// a "vector" that measures distances based on the axes of an octagonal bounding box
+typedef float * oct_vec_base_t;
 typedef float oct_vec_t[OCT_COUNT];
 
 bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos );

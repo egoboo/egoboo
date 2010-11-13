@@ -6526,7 +6526,7 @@ bool_t chr_update_safe_raw( chr_t * pchr )
         pchr->safe_valid = btrue;
         pchr->safe_pos   = chr_get_pos( pchr );
         pchr->safe_time  = update_wld;
-        pchr->safe_grid  = mesh_get_tile(PMesh, pchr->pos.x, pchr->pos.y);
+        pchr->safe_grid  = mesh_get_grid(PMesh, pchr->pos.x, pchr->pos.y);
 
         retval = btrue;
     }
@@ -6549,7 +6549,7 @@ bool_t chr_update_safe( chr_t * pchr, bool_t force )
     }
     else
     {
-        new_grid = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+        new_grid = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
 
         if( INVALID_TILE == new_grid )
         {
@@ -6666,7 +6666,7 @@ bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force )
     }
     else
     {
-        new_grid = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+        new_grid = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
 
         if( INVALID_TILE == new_grid )
         {
@@ -8343,7 +8343,7 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
 
     if ( cfg.feedback == FEEDBACK_NUMBER )
     {
-        snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( value ) );
+        snprintf( retval, SDL_arraysize( retval ), "%2.1f", value );
         return retval;
     }
 
@@ -10102,7 +10102,7 @@ bool_t chr_update_pos( chr_t * pchr )
 {
     if( !ALLOCATED_PCHR(pchr) ) return bfalse;
 
-    pchr->onwhichgrid   = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+    pchr->onwhichgrid   = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
     pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
     // update whether the current character position is safe

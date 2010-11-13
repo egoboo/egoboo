@@ -30,7 +30,7 @@
 
 static INLINE float  mesh_get_level( ego_mpd_t * pmesh, float x, float y );
 static INLINE Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y );
-static INLINE Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y );
+static INLINE Uint32 mesh_get_grid( ego_mpd_t * pmesh, float pos_x, float pos_y );
 
 static INLINE Uint32 mesh_get_block_int( ego_mpd_t * pmesh, int block_x, int block_y );
 static INLINE Uint32 mesh_get_tile_int( ego_mpd_t * pmesh, int grid_x,  int grid_y );
@@ -72,7 +72,7 @@ static INLINE float mesh_get_level( ego_mpd_t * pmesh, float x, float y )
     float z0, z1, z2, z3;         // Height of each fan corner
     float zleft, zright, zdone;   // Weighted height of each side
 
-    tile = mesh_get_tile( pmesh, x, y );
+    tile = mesh_get_grid( pmesh, x, y );
     if ( !mesh_grid_is_valid( pmesh, tile ) ) return 0;
 
     ix = x;
@@ -115,7 +115,7 @@ static INLINE Uint32 mesh_get_block( ego_mpd_t * pmesh, float pos_x, float pos_y
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE Uint32 mesh_get_tile( ego_mpd_t * pmesh, float pos_x, float pos_y )
+static INLINE Uint32 mesh_get_grid( ego_mpd_t * pmesh, float pos_x, float pos_y )
 {
     Uint32 tile = INVALID_TILE;
 

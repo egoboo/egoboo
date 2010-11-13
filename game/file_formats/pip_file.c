@@ -179,13 +179,12 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->bumpspawn_lpip    = fget_next_int( fileread );
 
     // Random stuff  !!!BAD!!! Not complete
-    ppip->daze_timer     = fget_next_int( fileread );
-    ppip->grog_timer     = fget_next_int( fileread );
+    ppip->daze_time    = fget_next_int( fileread );
+    ppip->grog_time    = fget_next_int( fileread );
     ppip->spawnenchant = fget_next_bool( fileread );
 
-    goto_colon( NULL, fileread, bfalse );  // !!Cause roll
-
-    ppip->causepancake = fget_next_bool( fileread );
+    ppip->cause_roll    = fget_next_bool( fileread );  // !!Cause roll
+    ppip->cause_pancake = fget_next_bool( fileread );
 
     ppip->needtarget         = fget_next_bool( fileread );
     ppip->targetcaster       = fget_next_bool( fileread );

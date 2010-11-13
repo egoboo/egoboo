@@ -2362,7 +2362,7 @@ bool_t prt_is_over_water( const PRT_REF iprt )
 
     if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
 
-    fan = mesh_get_tile( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
+    fan = mesh_get_grid( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
     if ( mesh_grid_is_valid( PMesh, fan ) )
     {
         if ( 0 != mesh_test_fx( PMesh, fan, MPDFX_WATER ) )  return btrue;
@@ -3218,7 +3218,7 @@ bool_t prt_update_safe_raw( prt_t * pprt )
         pprt->safe_valid = btrue;
         pprt->safe_pos   = prt_get_pos( pprt );
         pprt->safe_time  = update_wld;
-        pprt->safe_grid  = mesh_get_tile(PMesh, pprt->pos.x, pprt->pos.y);
+        pprt->safe_grid  = mesh_get_grid(PMesh, pprt->pos.x, pprt->pos.y);
 
         retval = btrue;
     }
@@ -3241,7 +3241,7 @@ bool_t prt_update_safe( prt_t * pprt, bool_t force )
     }
     else
     {
-        new_grid = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+        new_grid = mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
 
         if( INVALID_TILE == new_grid )
         {
@@ -3291,7 +3291,7 @@ bool_t prt_update_pos( prt_t * pprt )
 {
     if( !ALLOCATED_PPRT(pprt) ) return bfalse;
 
-    pprt->onwhichgrid  = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
+    pprt->onwhichgrid  = mesh_get_grid ( PMesh, pprt->pos.x, pprt->pos.y );
     pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
     // update whether the current character position is safe

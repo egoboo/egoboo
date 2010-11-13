@@ -184,8 +184,8 @@ struct s_pip
     // damage
     FRange  damage;                       ///< Damage
     Uint8   damagetype;                   ///< Damage type
-    int     daze_timer;                     ///< Daze
-    int     grog_timer;                     ///< Drunkeness
+    int     daze_time;                    ///< Daze
+    int     grog_time;                    ///< Drunkeness
     Uint32  damfx;                        ///< Damage effects
     bool_t  intdamagebonus;               ///< Add intelligence as damage bonus
     bool_t  wisdamagebonus;               ///< Add wisdom as damage bonus
@@ -193,9 +193,10 @@ struct s_pip
     bool_t  onlydamagefriendly;           ///< Only friends?
     bool_t  friendlyfire;                 ///< Friendly fire
     bool_t  hateonly;                     ///< Only hit hategroup
-    bool_t  causepancake;                 ///< @todo Not implemented!!
-    Uint16  lifedrain;                      ///< Steal this much life
-    Uint16  manadrain;                      ///< Steal this much mana
+    bool_t  cause_roll;                   ///< @todo Not implemented!!
+    bool_t  cause_pancake;                ///< @todo Not implemented!!
+    Uint16  lifedrain;                    ///< Steal this much life
+    Uint16  manadrain;                    ///< Steal this much mana
 
     // homing
     bool_t   homing;                       ///< Homing?

@@ -1457,18 +1457,18 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
     // detect out of bounds in the y-direction
     if ( bound.ymin < 0 || bound.ymax >= pdata->pinfo->tiles_y )
     {
-        SET_BIT( pass, MPDFX_IMPASS | MPDFX_WALL );
+        pass = ( MPDFX_IMPASS | MPDFX_WALL ) & bits;
         mesh_bound_tests++;
     }
-    if ( 0 != ( pass & bits ) ) return (pass & bits);
+    if ( 0 != pass ) return pass;
 
     // detect out of bounds in the x-direction
     if ( bound.xmin < 0 || bound.xmax >= pdata->pinfo->tiles_x )
     {
-        SET_BIT( pass, MPDFX_IMPASS | MPDFX_WALL );
+        pass = ( MPDFX_IMPASS | MPDFX_WALL ) & bits;
         mesh_bound_tests++;
     }
-    if ( 0 != ( pass & bits ) ) return (pass & bits);
+    if ( 0 != pass ) return pass;
 
     for ( iy = pdata->iy_min; iy <= pdata->iy_max; iy++ )
     {
@@ -1480,14 +1480,17 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
             int itile = ix + irow;
 
             // since we KNOW that this is in range, allow raw access to the data strucutre
-            SET_BIT( pass, pdata->glist[itile].fx );
-            mesh_mpdfx_tests++;
+            pass = pdata->glist[itile].fx & bits;
+            if( 0 != pass )
+            {
+                return pass;
+            }
 
-            if( HAS_SOME_BITS(pass, bits) ) return (pass & bits);
+            mesh_mpdfx_tests++;
         }
     }
 
-    return (pass & bits);
+    return pass;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -5128,7 +5128,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    iTmp = mesh_get_tile( PMesh, pstate->x, pstate->y );
+    iTmp = mesh_get_grid( PMesh, pstate->x, pstate->y );
     if ( mesh_grid_is_valid( PMesh, iTmp ) )
     {
         returncode = btrue;
@@ -5148,7 +5148,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp       = mesh_get_tile( PMesh, pstate->x, pstate->y );
+    iTmp       = mesh_get_grid( PMesh, pstate->x, pstate->y );
     returncode = mesh_set_texture( PMesh, iTmp, pstate->argument );
 
     SCRIPT_FUNCTION_END();
@@ -7896,7 +7896,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        fan = mesh_get_tile( PMesh, pchr->pos.x, pchr->pos.y );
+        fan = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
         if ( mesh_grid_is_valid( PMesh, fan ) )
         {
             Uint16 img      = PMesh->tmem.tile_list[fan].img & 0x00FF;

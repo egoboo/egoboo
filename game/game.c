@@ -3711,7 +3711,7 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_tile( pmesh, x, y );
+        int tile = mesh_get_grid( pmesh, x, y );
 
         if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
         {
@@ -5097,7 +5097,7 @@ float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y, bool_t w
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_tile( pmesh, grid_x, grid_y );
+        int tile = mesh_get_grid( pmesh, grid_x, grid_y );
 
         if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
         {
@@ -5115,7 +5115,7 @@ float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, oct_bb_t
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_tile( pmesh, grid_x, grid_y );
+        int tile = mesh_get_grid( pmesh, grid_x, grid_y );
 
         if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
         {

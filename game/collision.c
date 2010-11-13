@@ -2768,25 +2768,19 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     // Do confuse effects
-    if ( pdata->ppip->grog_timer > 0 && pdata->pcap->canbegrogged )
+    if ( pdata->ppip->grog_time > 0 && pdata->pcap->canbegrogged )
     {
         SET_BIT( pchr->ai.alert, ALERTIF_CONFUSED );
-        if ( pdata->ppip->grog_timer > pchr->grog_timer )
-        {
-            pchr->grog_timer = MAX( 0, pchr->grog_timer + pdata->ppip->grog_timer );
-        }
+        pchr->grog_timer = MAX( pchr->grog_timer, pdata->ppip->grog_time );
     }
-    if ( pdata->ppip->daze_timer > 0 && pdata->pcap->canbedazed )
+    if ( pdata->ppip->daze_time > 0 && pdata->pcap->canbedazed )
     {
         SET_BIT( pchr->ai.alert, ALERTIF_CONFUSED );
-        if ( pdata->ppip->daze_timer > pchr->daze_timer )
-        {
-            pchr->daze_timer = MAX( 0, pchr->daze_timer + pdata->ppip->daze_timer );
-        }
+        pchr->daze_timer = MAX( pchr->daze_timer, pdata->ppip->daze_time );
     }
 
     //---- Damage the character, if necessary
-	if( ( pprt->damage.base + pprt->damage.base ) != 0 )
+	if( 0 != ABS( pprt->damage.base ) + ABS( pprt->damage.rand ) )
 	{
 		prt_needs_impact = pdata->ppip->rotatetoface || INGAME_CHR( pprt->attachedto_ref );
 		if ( INGAME_CHR( pprt->owner_ref ) )

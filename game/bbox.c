@@ -902,40 +902,33 @@ void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_co
     /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t
     ///               array as the source
 
-    Uint32 cnt;
+    Uint32 cnt, tnc;
+    oct_vec_t otmp;
+    oct_vec_base_t pmins, pmaxs;
 
     if ( NULL == pbmp || NULL == pos || 0 == pos_count ) return;
 
-    // determine a bounding box for the point cloud
-    pbmp->mins[OCT_X ] = pbmp->maxs[OCT_X ]  = pos[0].x;
-    pbmp->mins[OCT_Y ] = pbmp->maxs[OCT_Y ]  = pos[0].y;
-    pbmp->mins[OCT_Z ] = pbmp->maxs[OCT_Z ]  = pos[0].z;
-    pbmp->mins[OCT_XY] = pbmp->maxs[OCT_XY] =  pos[0].x + pos[0].y;
-    pbmp->mins[OCT_YX] = pbmp->maxs[OCT_YX] = -pos[0].x + pos[0].y;
+    // resolve the pointers
+    pmins = pbmp->mins;
+    pmaxs = pbmp->maxs;
 
+    // initialize using the first point
+    oct_vec_ctor( otmp, pos[0].v );
+    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    {
+        pmins[cnt] = pmaxs[cnt] = otmp[cnt];
+    }
+
+    // cycle through all other points
     for ( cnt = 1; cnt < pos_count; cnt++ )
     {
-        float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
+        oct_vec_ctor( otmp, pos[cnt].v );
 
-        tmp_x = pos[cnt].x;
-        pbmp->mins[OCT_X]  = MIN( pbmp->mins[OCT_X], tmp_x );
-        pbmp->maxs[OCT_X]  = MAX( pbmp->maxs[OCT_X], tmp_x );
-
-        tmp_y = pos[cnt].y;
-        pbmp->mins[OCT_Y]  = MIN( pbmp->mins[OCT_Y], tmp_y );
-        pbmp->maxs[OCT_Y]  = MAX( pbmp->maxs[OCT_Y], tmp_y );
-
-        tmp_z = pos[cnt].z;
-        pbmp->mins[OCT_Z]  = MIN( pbmp->mins[OCT_Z], tmp_z );
-        pbmp->maxs[OCT_Z]  = MAX( pbmp->maxs[OCT_Z], tmp_z );
-
-        tmp_xy = tmp_x + tmp_y;
-        pbmp->mins[OCT_XY] = MIN( pbmp->mins[OCT_XY], tmp_xy );
-        pbmp->maxs[OCT_XY] = MAX( pbmp->maxs[OCT_XY], tmp_xy );
-
-        tmp_yx = -tmp_x + tmp_y;
-        pbmp->mins[OCT_YX] = MIN( pbmp->mins[OCT_YX], tmp_yx );
-        pbmp->maxs[OCT_YX] = MAX( pbmp->maxs[OCT_YX], tmp_yx );
+        for( tnc = 0; tnc < OCT_COUNT; tnc++ )
+        {
+            pmins[tnc] = MIN( pmins[tnc], otmp[tnc] );
+            pmaxs[tnc] = MAX( pmaxs[tnc], otmp[tnc] );
+        }
     }
 }
 

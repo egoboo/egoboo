@@ -1510,17 +1510,18 @@ float draw_fps( float y )
     {
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
 
-#if defined(_DEBUG)
-
-#    if defined(DEBUG_BSP) && defined(_DEBUG)
+#    if defined(DEBUG_BSP)
         y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", BSP_chr_count, MAX_CHR - chr_count_free(), BSP_prt_count, maxparticles - prt_count_free() );
+        y = _draw_string_raw( 0, y, "BSP infinite %d", obj_BSP_root.tree.infinite_count );
         y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
-        y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
+        //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
 
-#if defined(DEBUG_RENDERLIST) && defined(_DEBUG)
+#if defined(DEBUG_RENDERLIST)
         y = _draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count  );
 #endif
+
+#if defined(_DEBUG)
 
 #    if defined(DEBUG_PROFILE_DISPLAY) && defined(_DEBUG)
 

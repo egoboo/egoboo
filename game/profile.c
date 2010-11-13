@@ -1310,9 +1310,12 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     prt_t *loc_pprt;
     pip_t *loc_ppip;
 
-    bool_t       has_enchant, has_bump_size;
+    bool_t       has_enchant;
     bool_t       does_damage, does_status_effect, does_special_effect;
     bool_t       needs_bump;
+    bool_t       can_push;
+
+    oct_bb_t tmp_oct;
 
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
@@ -1321,7 +1324,8 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
-    if ( !ACTIVE_PPRT( loc_pprt ) || loc_pprt->is_hidden ) return bfalse;
+    // is the particle in-game?
+    if ( !INGAME_PPRT( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     has_enchant = bfalse;
@@ -1331,16 +1335,14 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
         has_enchant = LOADED_EVE( ppro->ieve );
     }
 
-    does_damage = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
+    does_damage         = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
+    does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || (0 != loc_ppip->lifedrain) || ( 0 != loc_ppip->manadrain );
+    needs_bump          = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bump_money );
+    does_special_effect = loc_ppip->cause_pancake || loc_ppip->cause_roll;
+    can_push            = ((0 != loc_ppip->bump_size) || (0 != loc_ppip->bump_height)) && loc_ppip->allowpush;
 
-    does_status_effect = ( 0 != loc_ppip->grog_timer ) || ( 0 != loc_ppip->daze_timer );
-    needs_bump     = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bump_money );
-    has_bump_size  = (0 != loc_ppip->bump_size) && (0 != loc_ppip->bump_height);
-
-    does_special_effect = loc_ppip->causepancake;
-
-    if ( !has_bump_size && !needs_bump && !has_enchant && !does_damage && !does_status_effect && !does_special_effect )
-        return bfalse;
+    // particles with no effect 
+    if ( !can_push && !needs_bump && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;
 
     pleaf = &( loc_pprt->bsp_leaf );
     if ( loc_pprt != ( prt_t * )( pleaf->data ) )
@@ -1351,20 +1353,14 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
         pleaf->data_type = 1;
     };
 
-    retval = bfalse;
-    if ( ACTIVE_PPRT( loc_pprt ) )
-    {
-        oct_bb_t tmp_oct;
+    // use the object velocity to figure out where the volume that the object will occupy during this
+    // update
+    phys_expand_prt_bb( loc_pprt, 0.0f, 1.0f, &tmp_oct );
 
-        // use the object velocity to figure out where the volume that the object will occupy during this
-        // update
-        phys_expand_prt_bb( loc_pprt, 0.0f, 1.0f, &tmp_oct );
+    // convert the bounding box
+    BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
 
-        // convert the bounding box
-        BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
-
-        retval = BSP_tree_insert_leaf( ptree, pleaf );
-    }
+    retval = BSP_tree_insert_leaf( ptree, pleaf );
 
     return retval;
 }
@@ -1423,7 +1419,7 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
 
     // insert the particles
     BSP_prt_count = 0;
-    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
+    PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
         // reset a couple of things here
         prt_bdl.prt_ptr->onwhichplatform_ref  = ( CHR_REF )MAX_CHR;

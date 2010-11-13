@@ -968,10 +968,82 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
 }
 
 //--------------------------------------------------------------------------------------------
+void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst_ary[], MD2_Vertex_t nxt_ary[], int vmin, int vmax, float flip )
+{
+    /// raw indicates no bounds checking, so be careful
+
+    int i;
+
+    GLvertex     * dst;
+    MD2_Vertex_t * src_lst;
+    MD2_Vertex_t * src_nxt;
+
+    if ( 0.0f == flip )
+    {
+        for ( i = vmin; i <= vmax; i++ )
+        {
+            dst     = dst_ary + i;
+            src_lst = lst_ary + i;
+
+            fvec3_base_copy( dst->pos, src_lst->pos.v );
+            dst->pos[WW] = 1.0f;
+
+            fvec3_base_copy( dst->nrm, src_lst->nrm.v );
+
+            dst->env[XX] = indextoenvirox[src_lst->normal];
+            dst->env[YY] = 0.5f * ( 1.0f + dst->nrm[ZZ] );
+        }
+    }
+    else if ( 1.0f == flip )
+    {
+        for ( i = vmin; i <= vmax; i++ )
+        {
+            dst     = dst_ary + i;
+            src_nxt = nxt_ary + i;
+
+            fvec3_base_copy( dst->pos, src_nxt->pos.v );
+            dst->pos[WW] = 1.0f;
+
+            fvec3_base_copy( dst->nrm, src_nxt->nrm.v );
+
+            dst->env[XX] = indextoenvirox[src_nxt->normal];
+            dst->env[YY] = 0.5f * ( 1.0f + dst->nrm[ZZ] );
+        }
+    }
+    else
+    {
+        Uint16 vrta_lst, vrta_nxt;
+
+        for ( i = vmin; i <= vmax; i++ )
+        {
+            dst     = dst_ary + i;
+            src_lst = lst_ary + i;
+            src_nxt = nxt_ary + i;
+
+            dst->pos[XX] = src_lst->pos.x + ( src_nxt->pos.x - src_lst->pos.x ) * flip;
+            dst->pos[YY] = src_lst->pos.y + ( src_nxt->pos.y - src_lst->pos.y ) * flip;
+            dst->pos[ZZ] = src_lst->pos.z + ( src_nxt->pos.z - src_lst->pos.z ) * flip;
+            dst->pos[WW] = 1.0f;
+
+            dst->nrm[XX] = src_lst->nrm.x + ( src_nxt->nrm.x - src_lst->nrm.x ) * flip;
+            dst->nrm[YY] = src_lst->nrm.y + ( src_nxt->nrm.y - src_lst->nrm.y ) * flip;
+            dst->nrm[ZZ] = src_lst->nrm.z + ( src_nxt->nrm.z - src_lst->nrm.z ) * flip;
+
+            vrta_lst = src_lst->normal;
+            vrta_nxt = src_nxt->normal;
+
+            dst->env[XX] = indextoenvirox[vrta_lst] + ( indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst] ) * flip;
+            dst->env[YY] = 0.5f * ( 1.0f + dst->nrm[ZZ] );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force )
 {
-    int    i, maxvert, frame_count;
+    int    maxvert, frame_count;
     bool_t vertices_match, frames_match;
+    float  loc_flip;
 
     egoboo_rv retval;
 
@@ -980,6 +1052,9 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     mad_t       * pmad;
     MD2_Model_t * pmd2;
     MD2_Frame_t * frame_list, * pframe_nxt, * pframe_lst;
+
+    int vdirty1_min = -1, vdirty1_max = -1;
+    int vdirty2_min = -1, vdirty2_max = -1;
 
     if ( NULL == pinst ) return rv_error;
     psave = &( pinst->save );
@@ -1012,14 +1087,20 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     // are they in the right order?
     if ( vmax < vmin ) SWAP( int, vmax, vmin );
 
+    // make sure that the vertices are within the max range
+    vmin = CLIP( vmin, 0, maxvert );
+    vmax = CLIP( vmax, 0, maxvert );
+
     if ( force )
     {
         // force an update of vertices
 
         // select a range that encompases the requested vertices and the saved vertices
         // if this is the 1st update, the saved vertices may be set to invalid values, as well
-        vmin = ( psave->vmin < 0 ) ? vmin : MIN( vmin, psave->vmin );
-        vmax = ( psave->vmax < 0 ) ? vmax : MAX( vmax, psave->vmax );
+
+        // grab the dirty vertices
+        vdirty1_min = vmin;
+        vdirty1_max = vmax;
 
         // force the routine to update
         vertices_match = bfalse;
@@ -1027,14 +1108,32 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     }
     else
     {
-        // make sure that the vertices are within the max range
-        vmin = CLIP( vmin, 0, maxvert );
-        vmax = CLIP( vmax, 0, maxvert );
-
         // do we need to update?
         retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match );
         if ( rv_error == retval ) return rv_error;            // rv_error == retval means some pointer or reference is messed up
         if ( rv_fail  == retval ) return rv_success;          // rv_fail  == retval means we do not need to update this round
+
+        if( !frames_match )
+        {
+            // the entire frame is dirty
+            vdirty1_min = vmin;
+            vdirty1_max = vmax;
+        }
+        else
+        {
+            // grab the dirty vertices
+            if( vmin < psave->vmin )
+            {
+                vdirty1_min = vmin;
+                vdirty1_max = psave->vmin-1;
+            }
+
+            if( vmax > psave->vmax )
+            {
+                vdirty2_min = psave->vmax+1;
+                vdirty2_max = vmax;
+            }
+        }
     }
 
     // make sure the frames are in the valid range
@@ -1049,69 +1148,20 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     pframe_nxt = frame_list + pinst->frame_nxt;
     pframe_lst = frame_list + pinst->frame_lst;
 
-    if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
+    // fix the flip for objects that are not animating
+    loc_flip = pinst->flip;
+    if( pinst->frame_nxt == pinst->frame_lst ) loc_flip = 0.0f;
+
+    // interpolate the 1st dirty region
+    if( vdirty1_min >= 0 && vdirty1_max >= 0 )
     {
-        for ( i = vmin; i <= vmax; i++ )
-        {
-            Uint16 vrta_lst;
-
-            pinst->vrt_lst[i].pos[XX] = pframe_lst->vertex_lst[i].pos.x;
-            pinst->vrt_lst[i].pos[YY] = pframe_lst->vertex_lst[i].pos.y;
-            pinst->vrt_lst[i].pos[ZZ] = pframe_lst->vertex_lst[i].pos.z;
-            pinst->vrt_lst[i].pos[WW] = 1.0f;
-
-            pinst->vrt_lst[i].nrm[XX] = pframe_lst->vertex_lst[i].nrm.x;
-            pinst->vrt_lst[i].nrm[YY] = pframe_lst->vertex_lst[i].nrm.y;
-            pinst->vrt_lst[i].nrm[ZZ] = pframe_lst->vertex_lst[i].nrm.z;
-
-            vrta_lst = pframe_lst->vertex_lst[i].normal;
-
-            pinst->vrt_lst[i].env[XX] = indextoenvirox[vrta_lst];
-            pinst->vrt_lst[i].env[YY] = 0.5f * ( 1.0f + pinst->vrt_lst[i].nrm[ZZ] );
-        }
+        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, pframe_lst->vertex_lst, pframe_nxt->vertex_lst, vdirty1_min, vdirty1_max, loc_flip );
     }
-    else if ( pinst->flip == 1.0f )
+
+    // interpolate the 2nd dirty region
+    if( vdirty2_min >= 0 && vdirty2_max >= 0 )
     {
-        for ( i = vmin; i <= vmax; i++ )
-        {
-            Uint16 vrta_nxt;
-
-            pinst->vrt_lst[i].pos[XX] = pframe_nxt->vertex_lst[i].pos.x;
-            pinst->vrt_lst[i].pos[YY] = pframe_nxt->vertex_lst[i].pos.y;
-            pinst->vrt_lst[i].pos[ZZ] = pframe_nxt->vertex_lst[i].pos.z;
-            pinst->vrt_lst[i].pos[WW] = 1.0f;
-
-            pinst->vrt_lst[i].nrm[XX] = pframe_nxt->vertex_lst[i].nrm.x;
-            pinst->vrt_lst[i].nrm[YY] = pframe_nxt->vertex_lst[i].nrm.y;
-            pinst->vrt_lst[i].nrm[ZZ] = pframe_nxt->vertex_lst[i].nrm.z;
-
-            vrta_nxt = pframe_nxt->vertex_lst[i].normal;
-
-            pinst->vrt_lst[i].env[XX] = indextoenvirox[vrta_nxt];
-            pinst->vrt_lst[i].env[YY] = 0.5f * ( 1.0f + pinst->vrt_lst[i].nrm[ZZ] );
-        }
-    }
-    else
-    {
-        for ( i = vmin; i <= vmax; i++ )
-        {
-            Uint16 vrta_lst, vrta_nxt;
-
-            pinst->vrt_lst[i].pos[XX] = pframe_lst->vertex_lst[i].pos.x + ( pframe_nxt->vertex_lst[i].pos.x - pframe_lst->vertex_lst[i].pos.x ) * pinst->flip;
-            pinst->vrt_lst[i].pos[YY] = pframe_lst->vertex_lst[i].pos.y + ( pframe_nxt->vertex_lst[i].pos.y - pframe_lst->vertex_lst[i].pos.y ) * pinst->flip;
-            pinst->vrt_lst[i].pos[ZZ] = pframe_lst->vertex_lst[i].pos.z + ( pframe_nxt->vertex_lst[i].pos.z - pframe_lst->vertex_lst[i].pos.z ) * pinst->flip;
-            pinst->vrt_lst[i].pos[WW] = 1.0f;
-
-            pinst->vrt_lst[i].nrm[XX] = pframe_lst->vertex_lst[i].nrm.x + ( pframe_nxt->vertex_lst[i].nrm.x - pframe_lst->vertex_lst[i].nrm.x ) * pinst->flip;
-            pinst->vrt_lst[i].nrm[YY] = pframe_lst->vertex_lst[i].nrm.y + ( pframe_nxt->vertex_lst[i].nrm.y - pframe_lst->vertex_lst[i].nrm.y ) * pinst->flip;
-            pinst->vrt_lst[i].nrm[ZZ] = pframe_lst->vertex_lst[i].nrm.z + ( pframe_nxt->vertex_lst[i].nrm.z - pframe_lst->vertex_lst[i].nrm.z ) * pinst->flip;
-
-            vrta_lst = pframe_lst->vertex_lst[i].normal;
-            vrta_nxt = pframe_nxt->vertex_lst[i].normal;
-
-            pinst->vrt_lst[i].env[XX] = indextoenvirox[vrta_lst] + ( indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst] ) * pinst->flip;
-            pinst->vrt_lst[i].env[YY] = 0.5f * ( 1.0f + pinst->vrt_lst[i].nrm[ZZ] );
-        }
+        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, pframe_lst->vertex_lst, pframe_nxt->vertex_lst, vdirty2_min, vdirty2_max, loc_flip );
     }
 
     // update the saved parameters
@@ -1145,6 +1195,10 @@ egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int 
         psave->vmin   = vmin;
         psave->vmax   = vmax;
         verts_updated = btrue;
+    }
+    else if ( vertices_match && frames_match )
+    {
+        // everything matches, so there is nothing to do
     }
     else if ( vertices_match )
     {
@@ -1304,6 +1358,8 @@ egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t ac
 egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 {
     mad_t * pmad;
+    int     new_lst, new_nxt;
+    bool_t  vlst_valid;
 
     // did we get a bad pointer?
     if ( NULL == pinst ) return rv_error;
@@ -1322,14 +1378,25 @@ egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
     if ( frame <  pmad->action_stt[ pinst->action_which ] ) return rv_fail;
     if ( frame >= pmad->action_end[ pinst->action_which ] ) return rv_fail;
 
-    // jump to the next frame
-    pinst->flip = 0.0f;
-    pinst->ilip = 0;
-    pinst->frame_lst = pinst->frame_nxt;
-    pinst->frame_nxt = frame;
+    vlst_valid = pinst->save.valid;
+    new_lst = pinst->frame_nxt;
+    new_nxt = frame;
 
-    // invalidate the vlst_cache
-    pinst->save.valid = bfalse;
+    if( new_lst != pinst->frame_lst || new_nxt != pinst->frame_nxt )
+    {
+        // invalidate the vlst_cache
+        vlst_valid = bfalse;
+    }
+    else if( (pinst->frame_lst != pinst->frame_nxt) &&  ( 0.0f != pinst->flip || 0 != pinst->ilip) )
+    {
+        vlst_valid = bfalse;
+    }
+
+    // jump to the next frame
+    pinst->flip      = 0.0f;
+    pinst->ilip      = 0;
+    pinst->frame_lst = new_lst;
+    pinst->frame_nxt = new_nxt;
 
     return rv_success;
 }
