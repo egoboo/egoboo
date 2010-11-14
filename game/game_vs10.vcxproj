@@ -58,6 +58,7 @@
     <ClCompile Include="file_formats\SDL_md2.c" />
     <ClCompile Include="file_formats\spawn_file.c" />
     <ClCompile Include="file_formats\template.c" />
+    <ClCompile Include="file_formats\treasure_table_file.c" />
     <ClCompile Include="file_formats\wawalite_file.c" />
     <ClCompile Include="font_bmp.c" />
     <ClCompile Include="font_ttf.c" />
@@ -159,6 +160,7 @@
     <ClInclude Include="file_formats\SDL_md2.h" />
     <ClInclude Include="file_formats\spawn_file.h" />
     <ClInclude Include="file_formats\template.h" />
+    <ClInclude Include="file_formats\treasure_table_file.h" />
     <ClInclude Include="file_formats\wawalite_file.h" />
     <ClInclude Include="font_bmp.h" />
     <ClInclude Include="font_ttf.h" />

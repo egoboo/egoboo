@@ -276,6 +276,9 @@
     <ClCompile Include="IDSZ_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="file_formats\treasure_table_file.c">
+      <Filter>File System\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bbox.h">
@@ -526,6 +529,9 @@
     </ClInclude>
     <ClInclude Include="IDSZ_map.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\treasure_table_file.h">
+      <Filter>File System\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

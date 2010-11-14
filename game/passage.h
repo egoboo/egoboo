@@ -35,7 +35,7 @@ struct s_script_state;
 //--------------------------------------------------------------------------------------------
 #define MAX_PASS             256                     ///< Maximum number of passages ( mul 32 )
 #define MAX_SHOP             MAX_PASS
-#define CLOSETOLERANCE       2                       ///< For closing doors
+#define CLOSETOLERANCE       3                       ///< For closing doors
 
 #define SHOP_NOOWNER 0xFFFF        ///< Shop has no owner
 #define SHOP_STOLEN  0xFFFF        ///< Someone stole a item

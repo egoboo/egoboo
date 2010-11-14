@@ -42,6 +42,7 @@
 #include "collision.h"
 
 #include "file_formats/scancode_file.h"
+#include "file_formats/treasure_table_file.h"
 #include "SDL_extensions.h"
 
 #include "egoboo_fileutil.h"
@@ -141,6 +142,9 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // initialize the sound system
     sound_initialize();
     load_all_music_sounds_vfs();
+
+	// initialize the random treasure system
+	init_random_treasure_tables_vfs( "mp_data/randomtreasure.txt" );
 
     // make sure that a bunch of stuff gets initialized properly
     object_systems_begin();
