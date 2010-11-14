@@ -2624,6 +2624,7 @@ void do_level_up( const CHR_REF character )
             // do the level up
             pchr->experiencelevel++;
             xpneeded = pcap->experience_forlevel[curlevel];
+			SET_BIT( pchr->ai.alert, ALERTIF_LEVELUP );
 
             // The character is ready to advance...
             if ( VALID_PLA( pchr->is_which_player ) )
@@ -5870,7 +5871,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     }
 
     pchr->enviro.new_vx = pchr->enviro.new_vy = 0.0f;
-    if ( ABS( dvx ) + ABS( dvy ) > 0 )
+    if ( ABS( dvx ) + ABS( dvy ) > 0.05f )
     {
         PLA_REF ipla = pchr->is_which_player;
 
@@ -7027,6 +7028,9 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t chr_handle_madfx( chr_t * pchr )
 {
+	///@details This handles special commands an animation frame might execute, for example 
+	///         grabbing stuff or spawning attack particles.
+
     CHR_REF ichr;
     Uint32 framefx;
 
@@ -7081,6 +7085,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
         pchr->ai.poof_time = update_wld;
     }
 
+	//Do footfall sound effect
 	if ( cfg.sound_footfall && HAS_SOME_BITS(framefx, MADFX_FOOTFALL) )
     {
         cap_t * pcap = pro_get_pcap( pchr->profile_ref );
@@ -7227,7 +7232,7 @@ float set_character_animation_rate( chr_t * pchr )
     anim_info[CHR_MOVEMENT_WALK ].lip = LIPWB;
     anim_info[CHR_MOVEMENT_RUN  ].lip = LIPWC;
 
-    // set up the arrays that are going tp
+    // set up the arrays that are going to
     // determine whether the various movements are allowed
     for( cnt = 0; cnt < CHR_MOVEMENT_COUNT; cnt++ )
     {
@@ -7238,6 +7243,13 @@ float set_character_animation_rate( chr_t * pchr )
     {
         // no specific walk animation exists
         anim_info[CHR_MOVEMENT_SNEAK].allowed = bfalse;
+
+		//ZF> small fix here, if there is no sneak animation, try to default to normal walk with reduced animation speed
+		if( HAS_SOME_BITS(pchr->movement_bits, CHR_MOVEMENT_BITS_SNEAK ) )
+		{
+			anim_info[CHR_MOVEMENT_WALK].allowed = btrue;
+			anim_info[CHR_MOVEMENT_WALK].speed *= 2;
+		}
     }
 
     if( ACTION_WB != pmad->action_map[ACTION_WB] )
@@ -7279,7 +7291,7 @@ float set_character_animation_rate( chr_t * pchr )
 
         if( pchr->enviro.is_slipping )
         {
-            // the character is slipping as on ice. mke their little legs move based on
+            // the character is slipping as on ice. make their little legs move based on
             // their intended speed, for comic effect! :)
             speed = ABS( pchr->enviro.new_vx ) + ABS( pchr->enviro.new_vy );
         }
@@ -7320,7 +7332,7 @@ float set_character_animation_rate( chr_t * pchr )
         {
             found = (speed < speed_mid);
         }
-
+		
         if( found )
         {
             action = anim_info[cnt].action;

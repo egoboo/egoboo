@@ -729,15 +729,6 @@ int pro_get_slot_vfs( const char * tmploadname, int slot_override )
         slot = slot_override;
     }
 
-	// Dynamic load this into a random slot number
-	else if( slot_override == -1 )
-	{
-		//Go backwards from the last valid slot number and find the first free slot number
-		slot = MAX_PROFILE-1;
-		while( LOADED_PRO(( PRO_REF )slot ) ) slot--;
-	}
-
-
 	// grab the slot from the file
     else
     {
