@@ -728,9 +728,19 @@ int pro_get_slot_vfs( const char * tmploadname, int slot_override )
         // just use the slot that was provided
         slot = slot_override;
     }
+
+	// Dynamic load this into a random slot number
+	else if( slot_override == -1 )
+	{
+		//Go backwards from the last valid slot number and find the first free slot number
+		slot = MAX_PROFILE-1;
+		while( LOADED_PRO(( PRO_REF )slot ) ) slot--;
+	}
+
+
+	// grab the slot from the file
     else
     {
-        // grab the slot from the file
         int tmp_slot = obj_read_slot_vfs( tmploadname );
 
         // set the slot slot
@@ -767,10 +777,10 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     PRO_REF iobj;
     pro_t * pobj;
 
-    required = !VALID_CAP_RANGE( slot_override );
+	required = !VALID_CAP_RANGE( slot_override );
 
     // get a slot value
-    islot = pro_get_slot_vfs( tmploadname, slot_override );
+	islot = pro_get_slot_vfs( tmploadname, slot_override );
 
     // throw an error code if the slot is invalid of if the file doesn't exist
     if ( islot < 0 || islot > MAX_PROFILE )

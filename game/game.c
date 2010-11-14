@@ -2736,7 +2736,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     STRING filename;
     PRO_REF ipro;
 
-    if ( NULL == psp_info || psp_info->slot < 0 ) return bfalse;
+    if ( NULL == psp_info || psp_info->slot < -1 ) return bfalse;
 
     ipro = psp_info->slot;
     if ( LOADED_PRO( ipro ) ) return bfalse;
@@ -2918,20 +2918,20 @@ void activate_spawn_file_vfs()
             int save_slot = sp_info.slot;
 
             // check to see if the slot is valid
-            if ( -1 == sp_info.slot || sp_info.slot >= MAX_PROFILE )
+            if ( sp_info.slot >= MAX_PROFILE )
             {
                 log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", sp_info.slot, sp_info.spawn_coment, newloadname );
                 continue;
             }
 
-            // If nothing is in that slot, try to load it
-            if ( sp_info.slot >= 0 && !LOADED_PRO(( PRO_REF )sp_info.slot ) )
+            // If nothing is in that slot, try to load it. If the slot number is -1 here, it means assign a new dynamic slot number
+            if ( !LOADED_PRO(( PRO_REF )sp_info.slot ) )
             {
                 activate_spawn_file_load_object( &sp_info );
             }
 
             // do we have a valid profile, yet?
-            if ( sp_info.slot >= 0 && !LOADED_PRO(( PRO_REF )sp_info.slot ) )
+            if ( !LOADED_PRO(( PRO_REF )sp_info.slot ) )
             {
                 // no, give a warning if it is useful
                 if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
@@ -2941,6 +2941,8 @@ void activate_spawn_file_vfs()
             }
             else
             {
+				//printf("Loaded %s into %i\n", sp_info.spawn_coment, sp_info.slot);
+
                 // yes, do the spawning if need be
                 activate_spawn_file_spawn( &sp_info );
             }
@@ -3281,6 +3283,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_objects", 1 );
 
     //---- add the "/basicdat/globalobjects/*" directories to mp_objects
+	//ZF> TODO: Maybe we should dynamically search for all folders in this directory and add them as valid mount points?
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "items",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic_item",       "mp_objects", 1 );
@@ -3293,6 +3296,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "work_in_progress", "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "traps",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "pets",             "mp_objects", 1 );
+	vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "scrolls",          "mp_objects", 1 );
 
     //---- add the "/modules/*.mod/gamedat" directory to mp_data
     snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
