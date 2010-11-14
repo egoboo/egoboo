@@ -2767,7 +2767,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
         psp_info->slot = load_one_profile_vfs( filename, psp_info->slot );
     }
 
-    return btrue;
+    return LOADED_PRO( (PRO_REF) psp_info->slot );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2940,7 +2940,7 @@ void activate_spawn_file_vfs()
 			}
 
 			// If nothing is already in that slot, try to load it.
-			if ( !LOADED_PRO(( PRO_REF )sp_info.slot ) )
+			if ( !LOADED_PRO( (PRO_REF) sp_info.slot ) )
 			{
 				if( activate_spawn_file_load_object( &sp_info ) )
 				{
@@ -2953,10 +2953,12 @@ void activate_spawn_file_vfs()
 					if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
 					{
 						log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info.spawn_coment, save_slot, newloadname );
-						continue;
 					}
+					continue;
 				}
 			}
+
+			if( !LOADED_PRO( (PRO_REF) sp_info.slot ) ) log_error( "This should not happen %s uses slot %i\n", sp_info.spawn_coment, sp_info.slot );
 			
 			// we only reach this if everything was loaded properly
 			activate_spawn_file_spawn( &sp_info );
