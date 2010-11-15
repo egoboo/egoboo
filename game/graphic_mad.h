@@ -227,7 +227,7 @@ egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t ac
 egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action );
 
 egoboo_rv chr_instance_increment_action( chr_instance_t * pinst );
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount );
+egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
 egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t actionready );
 
 egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst );

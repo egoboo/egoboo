@@ -1273,6 +1273,20 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     pchr->ori.map_facing_y = MAP_TURN_OFFSET;
     pchr->ori.map_facing_x = MAP_TURN_OFFSET;
 
+    // turn off keeping, unless the object is dead
+    if( pchr->life <= 0 )
+    {
+        // the object is dead. play the killed animation and make it freeze there
+        chr_play_action( pchr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
+        chr_instance_set_action_keep( &( pchr->inst ), btrue );
+    }
+    else
+    {
+        // play the jump animation, and un-keep it
+        chr_play_action( pchr, ACTION_JA, btrue );
+        chr_instance_set_action_keep( &( pchr->inst ), bfalse );
+    }
+
     chr_update_matrix( pchr, btrue );
 
     return btrue;
@@ -1387,11 +1401,24 @@ void attach_character_to_mount( const CHR_REF iitem, const CHR_REF iholder, grip
     pitem->jumptime = JUMPDELAY * 4;
 
     // Run the held animation
-    if ( pholder->ismount && grip_off == GRIP_ONLY )
+    if ( pholder->ismount && (GRIP_ONLY == grip_off) )
     {
         // Riding iholder
-        chr_play_action( pitem, ACTION_MI, btrue );
-        chr_instance_set_action_keep( &( pitem->inst ), btrue );
+        
+        if( INGAME_CHR(pitem->holdingwhich[SLOT_LEFT]) || INGAME_CHR(pitem->holdingwhich[SLOT_RIGHT]) )
+        {
+            // if the character is holding anything, make the animation
+            // ACTION_MH == "sitting" so that it dies not look so silly
+            chr_play_action( pitem, ACTION_MH, btrue );
+        }
+        else
+        {
+            // if it is not holding anything, go for the riding animation
+            chr_play_action( pitem, ACTION_MI, btrue );
+        }
+
+        // set tehis action to loop
+        chr_instance_set_action_loop( &( pitem->inst ), btrue );
     }
     else if ( pitem->alive )
     {
@@ -1401,6 +1428,7 @@ void attach_character_to_mount( const CHR_REF iitem, const CHR_REF iholder, grip
 
         chr_instance_remove_interpolation( &( pitem->inst ) );
 
+        // set the action to keep for items
         if ( pitem->isitem )
         {
             // Item grab
@@ -7150,6 +7178,14 @@ float set_character_animation_rate( chr_t * pchr )
     // dont change the rate if it is an attack animation
     if ( character_is_attacking( pchr ) )  return pinst->rate;
 
+    // if the character is mounted or sitting, base the rate off of the mounr
+    if( INGAME_CHR(pchr->attachedto) && ((ACTION_MI == pinst->action_which) || (ACTION_MH == pinst->action_which) ))
+    {
+        // just copy the rate from the mount
+        pinst->rate = ChrList.lst[pchr->attachedto].inst.rate;
+        return pinst->rate;
+    }
+
     // if the animation is not a walking-type animation, ignore the variable animation rates
     // and the automatic determination of the walk animation
     // "dance" is walking with zero speed
@@ -9605,7 +9641,7 @@ bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     action_mi = mad_get_action( chr_get_imad( ichr_a ), ACTION_MI );
     has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
 
-    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && 0 == pchr_a->flyheight &&
+    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && (0 == pchr_a->flyheight) &&
                        !INGAME_CHR( pchr_a->attachedto ) && has_ride_anim;
 
     is_valid_mount_b = pchr_b->ismount && pchr_b->alive &&
@@ -9724,14 +9760,59 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
 {
     egoboo_rv retval;
     mad_t * pmad;
+    int mount_action;
+    CHR_REF imount;
+    bool_t needs_keep;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    imount = pchr->attachedto;
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return rv_error;
 
-    retval = chr_instance_increment_frame( &( pchr->inst ), pmad, pchr->attachedto );
+    // do we need to keep this animation?
+    needs_keep = bfalse;
+
+    if( !INGAME_CHR(imount) )
+    {
+        imount = (CHR_REF)MAX_CHR;
+        mount_action = ACTION_DA;
+    }
+    else
+    {
+        // determine what kind of action we are going to substitute for a riding character
+        if( INGAME_CHR(pchr->holdingwhich[SLOT_LEFT]) || INGAME_CHR(pchr->holdingwhich[SLOT_RIGHT]) )
+        {
+            // if the character is holding anything, make the animation
+            // ACTION_MH == "sitting" so that it does not look so silly
+
+            mount_action = mad_get_action(pchr->inst.imad, ACTION_MH);
+            if( ACTION_MH != mount_action )
+            {
+                // no real sitting animation. set the animation to keep
+                needs_keep = btrue;
+            }
+        }
+        else
+        {
+            // if it is not holding anything, go for the riding animation
+            mount_action = mad_get_action(pchr->inst.imad, ACTION_MI);
+            if( ACTION_MI != mount_action )
+            {
+                // no real riding animation. set the animation to keep
+                needs_keep = btrue;
+            }
+        }
+    }
+
+    retval = chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
     if ( rv_success != retval ) return retval;
+
+    // set keep if needed
+    if( needs_keep )
+    {
+        chr_instance_set_action_keep( &( pchr->inst ), btrue );
+    }
 
     // if the instance is invalid, invalidate everything that depends on this object
     if ( !pchr->inst.save.valid )

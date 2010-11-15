@@ -241,9 +241,9 @@ extern "C"
         // movement
         float        jump;                          ///< Jump power
         Uint8        jumpnumber;                    ///< Number of jumps ( Ninja )
-        float        anim_speed_sneak;                      ///< Sneak threshold
-        float        anim_speed_walk;                       ///< Walk threshold
-        float        anim_speed_run;                        ///< Run threshold
+        float        anim_speed_sneak;              ///< Sneak threshold
+        float        anim_speed_walk;               ///< Walk threshold
+        float        anim_speed_run;                ///< Run threshold
         Uint8        flyheight;                     ///< Fly height
         bool_t       waterwalk;                     ///< Walk on water?
 
