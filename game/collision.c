@@ -223,7 +223,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
 {
     REF_T AA, BB;
 
-    AA = ( Uint32 )( ~(( Uint32 )0 ) );
+    AA = ( Uint32 )( ~0 );
     if ( INGAME_CHR( coll->chra ) )
     {
         AA = REF_TO_INT( coll->chra );
@@ -233,7 +233,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
         AA = REF_TO_INT( coll->prta );
     }
 
-    BB = ( Uint32 )( ~(( Uint32 )0 ) );
+    BB = ( Uint32 )( ~0 );
     if ( INGAME_CHR( coll->chrb ) )
     {
         BB = REF_TO_INT( coll->chra );

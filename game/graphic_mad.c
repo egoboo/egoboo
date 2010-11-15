@@ -1643,24 +1643,24 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_free( chr_instance_t * pinst )
+egoboo_rv chr_instance_free( chr_instance_t * pinst )
 {
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return rv_error;
 
     EGOBOO_DELETE_ARY( pinst->vrt_lst );
     pinst->vrt_count = 0;
 
-    return btrue;
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
+egoboo_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
 {
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return rv_error;
 
     chr_instance_free( pinst );
 
-    if ( 0 == vlst_size ) return btrue;
+    if ( 0 == vlst_size ) return rv_success;
 
     pinst->vrt_lst = EGOBOO_NEW_ARY( GLvertex, vlst_size );
     if ( NULL != pinst->vrt_lst )
@@ -1668,11 +1668,11 @@ bool_t chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
         pinst->vrt_count = vlst_size;
     }
 
-    return ( NULL != pinst->vrt_lst );
+    return ( NULL != pinst->vrt_lst ) ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
+egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 {
     /// @details BB@> try to set the model used by the character instance.
     ///     If this fails, it leaves the old data. Just to be safe it
@@ -1683,13 +1683,15 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     bool_t updated = bfalse;
     size_t vlst_size;
 
-    if ( !LOADED_MAD( imad ) ) return bfalse;
+    if( NULL == pinst ) return rv_error;
+
+    if ( !LOADED_MAD( imad ) ) return rv_fail;
     pmad = MadStack.lst + imad;
 
-    if ( NULL == pmad || pmad->md2_ptr == NULL )
+    if ( pmad->md2_ptr == NULL )
     {
         log_error( "Invalid pmad instance spawn. (Slot number %i)\n", imad );
-        return bfalse;
+        return rv_fail;
     }
 
     if ( pinst->imad != imad )
@@ -1723,15 +1725,15 @@ bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
         chr_instance_update_vertices( pinst, -1, -1, btrue );
     }
 
-    return updated;
+    return updated ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix )
+egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix )
 {
     int trans_temp;
 
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return rv_error;
 
     if ( need_matrix )
     {
@@ -1764,18 +1766,18 @@ bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_
 
     pinst->ref.sheen    = pinst->sheen >> 1;
 
-    return btrue;
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin )
+egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin )
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
     pro_t * pobj;
     cap_t * pcap;
 
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return rv_error;
 
     // Remember any previous color shifts in case of lasting enchantments
     greensave = pinst->grnshift;
@@ -1785,7 +1787,7 @@ bool_t chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 
     // clear the instance
     chr_instance_ctor( pinst );
 
-    if ( !LOADED_PRO( profile ) ) return bfalse;
+    if ( !LOADED_PRO( profile ) ) return rv_fail;
     pobj = ProList.lst + profile;
 
     pcap = pro_get_pcap( profile );
@@ -1809,7 +1811,7 @@ bool_t chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 
     // upload these parameters to the reflection cache, but don't compute the matrix
     chr_instance_update_ref( pinst, 0, bfalse );
 
-    return btrue;
+    return rv_success;
 }
 
 

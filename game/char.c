@@ -985,7 +985,7 @@ fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD chr_hit_wall( const chr_t * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
@@ -1024,7 +1024,7 @@ BIT_FIELD chr_hit_wall( const chr_t * pchr, const float test_pos[], float nrm[],
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_test_wall( const chr_t * pchr, const float test_pos[], mesh_wall_data_t * pdata )
+bool_t chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross

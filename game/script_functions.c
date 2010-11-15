@@ -2498,7 +2498,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     CHR_REF ichr;
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = ichr = chr_find_target( pchr, WIDE, IDSZ_NONE, TARGET_ENEMIES );
+    ichr = chr_find_target( pchr, WIDE, IDSZ_NONE, TARGET_ENEMIES );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -6917,8 +6917,6 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     // IfBackstabbed()
     /// @details ZF@> Proceeds if HitFromBehind, target has [STAB] skill and damage dealt is physical
     /// automatically fails if attacker has a code of conduct
-
-    Uint16 sTmp = 0;
 
     SCRIPT_FUNCTION_BEGIN();
 

@@ -1074,7 +1074,7 @@ fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD prt_hit_wall( const prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
+BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
@@ -1108,7 +1108,7 @@ BIT_FIELD prt_hit_wall( const prt_t * pprt, const float test_pos[], float nrm[],
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_test_wall( const prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
+bool_t prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross

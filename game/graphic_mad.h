@@ -132,7 +132,6 @@ struct s_vlst_cache
     int    vmax;              ///< the maximum clean vertex the last time the vertices were updated
     Uint32 vert_wld;          ///< the update_wld the last time the vertices were updated
 };
-typedef struct s_vlst_cache vlst_cache_t;
 
 vlst_cache_t * vlst_cache_init( vlst_cache_t * );
 egoboo_rv      vlst_cache_test( vlst_cache_t *, chr_instance_t * );

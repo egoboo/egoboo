@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="egoboo workspace">
-		<Project filename="../../svn/sf_egoboo/branches/2.6.x/game/game.cbp" active="1">
-			<Depends filename="../../svn/sf_egoboo/branches/2.6.x/enet/enet.cbp" />
+		<Project filename="game/game.cbp" active="1">
+			<Depends filename="enet/enet.cbp" />
 		</Project>
-		<Project filename="../../svn/sf_egoboo/branches/2.6.x/enet/enet.cbp" />
+		<Project filename="enet/enet.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

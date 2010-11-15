@@ -562,8 +562,8 @@ bool_t setup_xp_table( const CHR_REF character );
 
 void free_all_chraracters();
 
-BIT_FIELD chr_hit_wall( const chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
-bool_t chr_test_wall( const chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
+BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
+bool_t chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
 
 int chr_count_free();
 

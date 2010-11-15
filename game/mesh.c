@@ -781,7 +781,7 @@ void mesh_make_twist()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile )
+Uint8 cartman_get_fan_twist( const ego_mpd_t * pmesh, Uint32 tile )
 {
     size_t vrtstart;
     float z0, z1, z2, z3;
@@ -1475,7 +1475,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 }
 
 //--------------------------------------------------------------------------------------------
-float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits )
+float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, BIT_FIELD bits )
 {
     const float tile_area = GRID_SIZE * GRID_SIZE;
 
@@ -1486,9 +1486,9 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
 
     float  loc_pressure;
 
-    ego_mpd_info_t  * pinfo;
-    ego_tile_info_t * tlist;
-    ego_grid_info_t * glist;
+    const ego_mpd_info_t  * pinfo;
+    const ego_tile_info_t * tlist;
+    const ego_grid_info_t * glist;
 
     // deal with the optional parameters
     loc_pressure = 0.0f;
@@ -1629,7 +1629,7 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
 }
 
 //--------------------------------------------------------------------------------------------
-fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float center_pressure, Uint32 bits )
+fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, Uint32 bits )
 {
     /// @details BB@> determine the shortest "way out", but creating an array of "pressures"
     /// with each element representing the pressure when the object is moved in different directions
@@ -1856,7 +1856,7 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y )
+float mesh_get_max_vertex_0( const ego_mpd_t * pmesh, int grid_x, int grid_y )
 {
     Uint32 itile;
     int type;
@@ -1885,7 +1885,7 @@ float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y )
 }
 
 //--------------------------------------------------------------------------------------------
-float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax )
+float mesh_get_max_vertex_1( const ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax )
 {
     Uint32 itile, cnt;
     int type;

@@ -358,6 +358,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="EncList.h" />
+		<Unit filename="IDSZ_map.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="IDSZ_map.h" />
 		<Unit filename="PrtList.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -370,6 +374,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="bsp.h" />
+		<Unit filename="bsp.inl" />
 		<Unit filename="camera.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -434,6 +439,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="egoboo_setup.h" />
+		<Unit filename="egoboo_state_machine.h" />
 		<Unit filename="egoboo_strutil.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -45,8 +45,6 @@ BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb );
 
 bool_t       BSP_aabb_empty( const BSP_aabb_t * psrc1 );
 bool_t       BSP_aabb_clear( BSP_aabb_t * psrc1 );
-bool_t       BSP_aabb_lhs_contains_rhs( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
-bool_t       BSP_aabb_overlap( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
 
 bool_t       BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, const oct_bb_t * psrc );
 

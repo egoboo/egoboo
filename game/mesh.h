@@ -248,13 +248,13 @@ bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nr
 BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const Uint32 bits, float nrm[], float * pressure, mesh_wall_data_t * private_data );
 BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const Uint32 bits, mesh_wall_data_t * private_data );
 
-float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y );
-float mesh_get_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
+float mesh_get_max_vertex_0( const ego_mpd_t * pmesh, int grid_x, int grid_y );
+float mesh_get_max_vertex_1( const ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
 
 bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
 bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile );
 
-fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float center_pressure, BIT_FIELD bits );
-float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD bits );
+fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, BIT_FIELD bits );
+float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, BIT_FIELD bits );
 
-Uint8 cartman_get_fan_twist( ego_mpd_t * pmesh, Uint32 tile );
+Uint8 cartman_get_fan_twist( const ego_mpd_t * pmesh, Uint32 tile );
