@@ -1427,78 +1427,78 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
 
         if ( LOADED_CAP( icap ) )
         {
-			STRING temp_string;
+            STRING temp_string;
             cap_t * pcap = CapStack.lst + icap;
             Uint8 skin = MAX( 0, pcap->skin_override );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
-			// fix class name capitalization
-			pcap->classname[0] = toupper( pcap->classname[0] );
+            // fix class name capitalization
+            pcap->classname[0] = toupper( pcap->classname[0] );
 
             //Character level and class
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-			snprintf(temp_string, SDL_arraysize(temp_string), "A level %d %s", pcap->level_override + 1, pcap->classname );
-			ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            snprintf( temp_string, SDL_arraysize( temp_string ), "A level %d %s", pcap->level_override + 1, pcap->classname );
+            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
             // Armor
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-			snprintf(temp_string, SDL_arraysize(temp_string), "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
-			ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 30;
+            snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
+            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 30;
 
             // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-				snprintf(temp_string, SDL_arraysize(temp_string), "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
-				ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
+                ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
-				y1 = ui_drawBar( 0, x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->lifecolor );
+                y1 = ui_drawBar( 0, x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->lifecolor );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
-					snprintf(temp_string, SDL_arraysize(temp_string), "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
-					ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
+                    ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
-					y1 = ui_drawBar( 0, x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->manacolor );
+                    y1 = ui_drawBar( 0, x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->manacolor );
                 }
             }
             else
             {
-				snprintf(temp_string, SDL_arraysize(temp_string), "Life: %d", ( int )pcap->life_stat.val.from );
-				ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d", ( int )pcap->life_stat.val.from );
+                ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
-				y1 = ui_drawBar( 0, x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from, pcap->lifecolor );
+                y1 = ui_drawBar( 0, x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from, pcap->lifecolor );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
-					snprintf(temp_string, SDL_arraysize(temp_string), "Mana: %d", ( int )pcap->mana_stat.val.from );
-					ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d", ( int )pcap->mana_stat.val.from );
+                    ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
-					y1 = ui_drawBar( 0, x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->manacolor );
+                    y1 = ui_drawBar( 0, x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->manacolor );
                 }
             }
 
             //SWID
-			ui_drawTextBox( menuFont, "Stats", x1, y1, 0, 0, 20 ); y1 += 20;
+            ui_drawTextBox( menuFont, "Stats", x1, y1, 0, 0, 20 ); y1 += 20;
 
-			snprintf(temp_string, SDL_arraysize(temp_string), "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), ( int )pcap->strength_stat.val.from );
-			ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), ( int )pcap->strength_stat.val.from );
+            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
-			snprintf(temp_string, SDL_arraysize(temp_string), "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), ( int )pcap->wisdom_stat.val.from );
-			ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), ( int )pcap->wisdom_stat.val.from );
+            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
-			snprintf(temp_string, SDL_arraysize(temp_string), "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), ( int )pcap->intelligence_stat.val.from );
-			ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), ( int )pcap->intelligence_stat.val.from );
+            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
 
-			snprintf(temp_string, SDL_arraysize(temp_string), "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), ( int )pcap->dexterity_stat.val.from );
-			ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 30;
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), ( int )pcap->dexterity_stat.val.from );
+            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 30;
 
-			//Inventory
+            //Inventory
             if ( objects.count > 1 )
             {
                 ChoosePlayer_element_t * pdata;
 
-				ui_drawTextBox( menuFont, "Inventory", x1, y1, 0, 0, 20 ); y1 += 20;
+                ui_drawTextBox( menuFont, "Inventory", x1, y1, 0, 0, 20 ); y1 += 20;
 
                 for ( i = 1; i < objects.count; i++ )
                 {
@@ -1514,24 +1514,24 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                         if ( pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( pdata->chop ) ), SDL_arraysize( itemname ) );
                         else                   strncpy( itemname, pcap->classname,   SDL_arraysize( itemname ) );
 
-						//draw the icon for this item
-						icon_ref = mnu_get_icon_ref( icap, pdata->tx_ref );
-						ui_drawImage( 0, TxTexture_get_ptr( icon_ref ), x1, y1, 32, 32, NULL );
+                        //draw the icon for this item
+                        icon_ref = mnu_get_icon_ref( icap, pdata->tx_ref );
+                        ui_drawImage( 0, TxTexture_get_ptr( icon_ref ), x1, y1, 32, 32, NULL );
 
                         if ( icap == SLOT_LEFT + 1 )
                         {
-							snprintf(temp_string, SDL_arraysize(temp_string), "  Left: %s", itemname );
-							ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
+                            snprintf( temp_string, SDL_arraysize( temp_string ), "  Left: %s", itemname );
+                            ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
                         }
                         else if ( icap == SLOT_RIGHT + 1 )
                         {
-							snprintf(temp_string, SDL_arraysize(temp_string), "  Right: %s", itemname );
-							ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
+                            snprintf( temp_string, SDL_arraysize( temp_string ), "  Right: %s", itemname );
+                            ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
                         }
                         else
                         {
-							snprintf(temp_string, SDL_arraysize(temp_string), "  Item: %s", itemname );
-							ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
+                            snprintf( temp_string, SDL_arraysize( temp_string ), "  Item: %s", itemname );
+                            ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
                         }
                     }
                 }
@@ -3846,11 +3846,11 @@ int doShowResults( float deltaTime )
                     // Should be okay to randomize the seed here, the random seed isnt standarized or
                     // used elsewhere before the module is loaded.
                     srand( time( NULL ) );
-                    if ( mnu_GameTip_load_local_vfs() )   
-					{
-							game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
-							printf("using local hint %s\n", game_hint);
-					}
+                    if ( mnu_GameTip_load_local_vfs() )
+                    {
+                        game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
+                        printf( "using local hint %s\n", game_hint );
+                    }
                     else if ( mnu_GameTip.count > 0 )     game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
                 }
             }
@@ -3875,16 +3875,16 @@ int doShowResults( float deltaTime )
 
                 // Loading game... please wait
                 fnt_getTextSize( font, "Loading module...", &text_w, &text_h );
-				ui_drawTextBox( font, "Loading module...", ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 200, 0, 0, 20 );
+                ui_drawTextBox( font, "Loading module...", ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 200, 0, 0, 20 );
 
                 // Draw the game tip
                 if ( VALID_CSTR( game_hint ) )
                 {
                     fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
-					ui_drawTextBox( font, "GAME TIP", ( GFX_WIDTH / 2 ) - (text_w / 2), GFX_HEIGHT - 150, 0, 0, 20 );
+                    ui_drawTextBox( font, "GAME TIP", ( GFX_WIDTH / 2 ) - ( text_w / 2 ), GFX_HEIGHT - 150, 0, 0, 20 );
 
                     fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );       /// @todo ZF@> : this doesnt work as I intended, fnt_get_TextSize() does not take line breaks into account
-                    ui_drawTextBox( menuFont, game_hint, ( GFX_WIDTH / 2 ) - (text_w / 2), GFX_HEIGHT - 110, 0, 0, 10 );
+                    ui_drawTextBox( menuFont, game_hint, ( GFX_WIDTH / 2 ) - ( text_w / 2 ), GFX_HEIGHT - 110, 0, 0, 10 );
                 }
 
                 // keep track of the iterations through this section for a timer
@@ -4969,10 +4969,10 @@ bool_t mnu_GameTip_load_local_vfs()
 
     // reset the count
     mnu_GameTip.local_count = 0;
-	
-	
+
+
     // Open all the tips
-	snprintf( buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", pickedmodule_name );
+    snprintf( buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", pickedmodule_name );
     fileread = vfs_openRead( buffer );
     if ( NULL == fileread ) return bfalse;
 

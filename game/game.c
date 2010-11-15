@@ -3340,7 +3340,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "scrolls",          "mp_objects", 1 );
 
     //---- add the "/modules/*.mod/gamedat" directory to mp_data
-	snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
+    snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
 
     // mount the user's module gamedat directory at the beginning of the mount point list
     vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_data", 1 );

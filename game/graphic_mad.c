@@ -1472,7 +1472,7 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
     /// @details BB@> This function starts the next action for a character
 
     egoboo_rv retval;
-    mad_t * pmad;
+
     int     action, action_old;
     bool_t  action_ready;
 
@@ -1482,7 +1482,6 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
     action_old = pinst->action_which;
 
     if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
-    pmad = MadStack.lst + pinst->imad;
 
     // get the correct action
     action = mad_get_action( pinst->imad, pinst->action_next );
@@ -1507,7 +1506,7 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
 
     // fix the ilip and flip
     pinst->ilip = pinst->ilip % 4;
-    pinst->flip = fmod( pinst->ilip, 1.0f );
+    pinst->flip = fmod( pinst->flip, 1.0f );
 
     // Change frames
     pinst->frame_lst = pinst->frame_nxt;
@@ -1516,12 +1515,9 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
     // detect the end of the animation and handle special end conditions
     if ( pinst->frame_nxt >= pmad->action_end[pinst->action_which] )
     {
-        // make sure that the frame_nxt points to a valid frame in this action
-        pinst->frame_nxt = pmad->action_end[pinst->action_which] - 1;
-
         if ( pinst->action_keep )
         {
-            // Freeze that anumation at the last frame
+            // Freeze that animation at the last frame
             pinst->frame_nxt = pinst->frame_lst;
 
             // Break a kept action at any time
@@ -1544,6 +1540,9 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
         }
         else
         {
+            // make sure that the frame_nxt points to a valid frame in this action
+            pinst->frame_nxt = pmad->action_end[pinst->action_which] - 1;
+
             // Go on to the next action. don't let just anything interrupt it?
             chr_instance_increment_action( pinst );
         }
@@ -1824,14 +1823,17 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
 
     if ( NULL == pinst ) return 0;
 
-    pmad = chr_get_pmad( pinst->imad );
-    if ( NULL == pmad ) return 0;
+    if ( !LOADED_MAD( pinst->imad ) ) return 0;
+    pmad = MadStack.lst + pinst->imad;
 
     pmd2 = pmad->md2_ptr;
     if ( NULL == pmd2 ) return 0;
 
     frame_count = md2_get_numFrames( pmd2 );
-    EGOBOO_ASSERT( pchr->inst.frame_nxt < frame_count );
+    if ( pinst->frame_nxt > frame_count )
+    {
+        log_error( "chr_instance_get_framefx() - invalid frame %d/%d\n", pinst->frame_nxt, frame_count );
+    }
 
     frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
     pframe_nxt  = frame_list + pinst->frame_nxt;
@@ -2012,7 +2014,7 @@ egoboo_rv chr_instance_update_one_lip( chr_instance_t * pinst )
     if ( NULL == pinst ) return rv_error;
 
     pinst->ilip += 1;
-    pinst->flip += 0.25f;
+    pinst->flip = 0.25f * pinst->ilip;
 
     vlst_cache_test( &( pinst->save ), pinst );
 

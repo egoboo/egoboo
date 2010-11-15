@@ -7013,8 +7013,10 @@ bool_t chr_handle_madfx( chr_t * pchr )
 
     if ( NULL == pchr ) return bfalse;
 
-    ichr    = GET_REF_PCHR( pchr );
     framefx = chr_get_framefx( pchr );
+    if ( 0 == framefx ) return btrue;
+
+    ichr    = GET_REF_PCHR( pchr );
 
     // Check frame effects
     if ( HAS_SOME_BITS( framefx, MADFX_ACTLEFT ) )
@@ -7402,7 +7404,8 @@ void move_one_character_do_animation( chr_t * pchr )
     // Animate the character.
     // Right now there are 50/4 = 12.5 animation frames per second
 
-    float dflip, flip_diff, flip_next;
+    float flip_diff, flip_next;
+    float dflip;
 
     chr_instance_t * pinst;
     CHR_REF          ichr;
@@ -7412,11 +7415,11 @@ void move_one_character_do_animation( chr_t * pchr )
     pinst = &( pchr->inst );
 
     dflip     = 0.25f * pinst->rate;
-    flip_diff = fmod( pinst->flip, 0.25f ) + dflip;
+    flip_diff = ( pinst->flip - 0.25f * pinst->ilip ) + dflip;
 
     flip_next = chr_instance_get_remaining_flip( pinst );
 
-    while ( flip_diff >= flip_next )
+    while ( flip_next > 0.0f && flip_diff >= flip_next )
     {
         flip_diff -= flip_next;
 
@@ -7436,7 +7439,10 @@ void move_one_character_do_animation( chr_t * pchr )
             }
         }
 
-        EGOBOO_ASSERT( pinst->ilip < 4 );
+        if ( pinst->ilip > 4 )
+        {
+            log_error( "chr_increment_frame() - invalid ilip\n" );
+        }
 
         flip_next = chr_instance_get_remaining_flip( pinst );
     }
@@ -7463,7 +7469,10 @@ void move_one_character_do_animation( chr_t * pchr )
                 }
             }
 
-            EGOBOO_ASSERT( pinst->ilip < 4 );
+            if ( pinst->ilip > 4 )
+            {
+                log_error( "chr_increment_frame() - invalid ilip\n" );
+            }
         }
     }
 
