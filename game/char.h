@@ -222,15 +222,20 @@ typedef struct s_team team_t;
 struct s_chr_environment
 {
     // floor stuff
-    float   grid_level;           ///< Height the current grid
-    Uint8   grid_twist;
+    Uint8   grid_twist;           ///< The twist parameter of the current grid (what angle it it at)
+    float   grid_level;           ///< Height relative to the current grid
+    float   grid_lerp;
+
+    float   water_level;           ///< Height relative to the current water level
+    float   water_lerp;
 
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
+
     float  zlerp;
 
-    bool_t grounded;              ///< standing on something?
+    fvec3_t floor_speed;
 
     // friction stuff
     bool_t is_slipping;
@@ -240,8 +245,11 @@ struct s_chr_environment
     float  traction, friction_hrz;
 
     // misc states
-    bool_t   inwater;
-    float    new_vx, new_vy;
+    bool_t inwater;
+    bool_t grounded;              ///< standing on something?
+
+    // various motion parameters
+    fvec3_t  new_v;
     fvec3_t  acc;
     fvec3_t  vel;
 };

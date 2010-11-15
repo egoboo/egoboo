@@ -1924,27 +1924,31 @@ void drop_keys( const CHR_REF character )
                     ChrList.lst[lastitem].pack.next = pitem->pack.next;
                     pitem->pack.next = ( CHR_REF )MAX_CHR;
                     pchr->pack.count--;
-                    pitem->attachedto = ( CHR_REF )MAX_CHR;
-                    pitem->dismount_timer = PHYS_DISMOUNT_TIME;
-                    SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-                    pitem->hitready = btrue;
-                    pitem->pack.was_packed = pitem->pack.is_packed;
-                    pitem->pack.is_packed  = bfalse;
-                    pitem->isequipped    = bfalse;
 
-                    chr_set_pos( pitem, chr_get_pos_v( pchr ) );
-
-                    pitem->ori.facing_z           = direction + ATK_BEHIND;
-                    pitem->enviro.floor_level     = pchr->enviro.floor_level;
-                    pitem->enviro.level           = pchr->enviro.level;
-                    pitem->enviro.fly_level       = pchr->enviro.fly_level;
+                    // fix the attachments
+                    pitem->attachedto             = ( CHR_REF )MAX_CHR;
+                    pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
+                    pitem->dismount_object        = GET_REF_PCHR(pchr);
                     pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
                     pitem->onwhichplatform_update = pchr->onwhichplatform_update;
-                    pitem->vel.x                  = turntocos[ turn ] * DROPXYVEL;
-                    pitem->vel.y                  = turntosin[ turn ] * DROPXYVEL;
-                    pitem->vel.z                  = DROPZVEL;
+
+                    // fix some flags
+                    pitem->hitready               = btrue;
+                    pitem->pack.was_packed        = pitem->pack.is_packed;
+                    pitem->pack.is_packed         = bfalse;
+                    pitem->isequipped             = bfalse;
+                    pitem->ori.facing_z           = direction + ATK_BEHIND;
                     pitem->team                   = pitem->baseteam;
 
+                    // fix the current velocity
+                    pitem->vel.x                  += turntocos[ turn ] * DROPXYVEL;
+                    pitem->vel.y                  += turntosin[ turn ] * DROPXYVEL;
+                    pitem->vel.z                  += DROPZVEL;
+
+                    // do some more complicated things
+                    SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
+                    chr_set_pos( pitem, chr_get_pos_v( pchr ) );
+                    move_one_character_get_environment( pitem );
                     chr_set_floor_level( pitem, pchr->enviro.floor_level );
                 }
                 else
@@ -1985,24 +1989,30 @@ bool_t drop_all_items( const CHR_REF character )
             {
                 chr_t * pitem = ChrList.lst + item;
 
+                // detach the item
                 detach_character_from_mount( item, btrue, btrue );
 
-                chr_set_pos( pitem, chr_get_pos_v( pchr ) );
-                pitem->hitready           = btrue;
-                SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-                pitem->dismount_timer          = PHYS_DISMOUNT_TIME;
+                // fix the attachments
+                pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
+                pitem->dismount_object        = GET_REF_PCHR(pchr);
                 pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
                 pitem->onwhichplatform_update = pchr->onwhichplatform_update;
+
+                // fix some flags
+                pitem->hitready               = btrue;
                 pitem->ori.facing_z           = direction + ATK_BEHIND;
-                pitem->vel.x                  = turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.y                  = turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.z                  = DROPZVEL;
                 pitem->team                   = pitem->baseteam;
 
-                pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-                pitem->dismount_object        = character;
+                // fix the current velocity
+                pitem->vel.x                  += turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                pitem->vel.y                  += turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+                pitem->vel.z                  += DROPZVEL;
 
-                chr_copy_enviro( pitem, pchr );
+                // do some more complicated things
+                SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
+                chr_set_pos( pitem, chr_get_pos_v( pchr ) );
+                move_one_character_get_environment( pitem );
+                chr_set_floor_level( pitem, pchr->enviro.floor_level );
             }
 
             direction += diradd;
@@ -5462,24 +5472,14 @@ void update_all_characters()
 //--------------------------------------------------------------------------------------------
 void move_one_character_get_environment( chr_t * pchr )
 {
-    Uint32 itile = INVALID_TILE;
 
     float   grid_level, water_level;
     chr_t * pplatform = NULL;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return;
+    chr_environment_t * penviro;
 
-    // get the current tile
-    itile          = INVALID_TILE;
-    //if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
-    //{
-    //    // this only works for 1 level of attachment
-    //    itile = ChrList.lst[pchr->onwhichplatform_ref].onwhichgrid;
-    //}
-    //else
-    //{
-    itile = pchr->onwhichgrid;
-    //}
+    if ( !ACTIVE_PCHR( pchr ) ) return;
+    penviro = &(pchr->enviro);
 
     // determine if the character is standing on a platform
     pplatform = NULL;
@@ -5489,65 +5489,74 @@ void move_one_character_get_environment( chr_t * pchr )
     }
 
     //---- character "floor" level
-    grid_level  = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, bfalse );
+    grid_level = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, bfalse );
     water_level = get_mesh_level( PMesh, pchr->pos.x, pchr->pos.y, btrue );
+
+    // chr_set_enviro_grid_level() sets up the reflection level and reflection matrix
     chr_set_enviro_grid_level( pchr, grid_level );
 
-    // The actual level of the character.
+    penviro->grid_lerp  = ( pchr->pos.z - grid_level ) / PLATTOLERANCE;
+    penviro->grid_lerp  = CLIP( penviro->grid_lerp, 0.0f, 1.0f );
+
+    penviro->water_level = water_level;
+    penviro->water_lerp  = ( pchr->pos.z - water_level ) / PLATTOLERANCE;
+    penviro->water_lerp  = CLIP( penviro->water_lerp, 0.0f, 1.0f );
+
+    // The actual level of the floor underneath the character.
     if ( NULL != pplatform )
     {
-        pchr->enviro.floor_level = pplatform->pos.z + pplatform->chr_min_cv.maxs[OCT_Z];
+        penviro->floor_level = pplatform->pos.z + pplatform->chr_min_cv.maxs[OCT_Z];
     }
     else
     {
-        pchr->enviro.floor_level = pchr->waterwalk ? water_level : grid_level;
+        penviro->floor_level = pchr->waterwalk ? water_level : grid_level;
     }
 
     //---- The actual level of the characer.
     //     Estimate platform attachment from whatever is in the onwhichplatform_ref variable from the
     //     last loop
-    pchr->enviro.level = pchr->enviro.floor_level;
-    if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
+    penviro->level = penviro->floor_level;
+    if ( NULL != pplatform )
     {
-        pchr->enviro.level = ChrList.lst[pchr->onwhichplatform_ref].pos.z + ChrList.lst[pchr->onwhichplatform_ref].chr_min_cv.maxs[OCT_Z];
+        penviro->level = pplatform->pos.z + pplatform->chr_min_cv.maxs[OCT_Z];
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
-    if ( 0 != mesh_test_fx( PMesh, itile, MPDFX_WATER ) )
+    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) )
     {
-        pchr->enviro.fly_level = MAX( pchr->enviro.level, water.surface_level );
+        penviro->fly_level = MAX( penviro->level, water.surface_level );
     }
 
-    if ( pchr->enviro.fly_level < 0 )
+    if ( penviro->fly_level < 0 )
     {
-        pchr->enviro.fly_level = 0;  // fly above pits...
+        penviro->fly_level = 0;  // fly above pits...
     }
 
     // set the zlerp after we have done everything to the particle's level we care to
-    pchr->enviro.zlerp = ( pchr->pos.z - pchr->enviro.level ) / PLATTOLERANCE;
-    pchr->enviro.zlerp = CLIP( pchr->enviro.zlerp, 0, 1 );
+    penviro->zlerp = ( pchr->pos.z - penviro->level ) / PLATTOLERANCE;
+    penviro->zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
-    pchr->enviro.grounded = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+    penviro->grounded = ( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f );
 
     //---- the "twist" of the floor
-    pchr->enviro.grid_twist = TWIST_FLAT;
-    if ( mesh_grid_is_valid( PMesh, itile ) )
+    penviro->grid_twist = TWIST_FLAT;
+    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
-        pchr->enviro.grid_twist = PMesh->gmem.grid_list[itile].twist;
+        penviro->grid_twist = PMesh->gmem.grid_list[pchr->onwhichgrid].twist;
     }
 
     // the "watery-ness" of whatever water might be here
-    pchr->enviro.is_watery = water.is_water && pchr->enviro.inwater;
-    pchr->enviro.is_slippy = !pchr->enviro.is_watery && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_SLIPPY ) );
+    penviro->is_watery = water.is_water && penviro->inwater;
+    penviro->is_slippy = !penviro->is_watery && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_SLIPPY ) );
 
     //---- traction
-    pchr->enviro.traction = 1.0f;
+    penviro->traction = 1.0f;
     if ( 0 != pchr->flyheight )
     {
         // any traction factor here
         /* traction = ??; */
     }
-    else if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
+    else if ( NULL != pplatform )
     {
         // in case the platform is tilted
         // unfortunately platforms are attached in the collision section
@@ -5555,60 +5564,60 @@ void move_one_character_get_environment( chr_t * pchr )
 
         fvec3_t   platform_up;
 
-        chr_getMatUp( ChrList.lst + pchr->onwhichplatform_ref, &platform_up );
+        chr_getMatUp( pplatform, &platform_up );
         platform_up = fvec3_normalize( platform_up.v );
 
-        pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
+        penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
-        if ( pchr->enviro.is_slippy )
+        if ( penviro->is_slippy )
         {
-            pchr->enviro.traction /= 4.00f * hillslide * ( 1.0f - pchr->enviro.zlerp ) + 1.0f * pchr->enviro.zlerp;
+            penviro->traction /= 4.00f * hillslide * ( 1.0f - penviro->zlerp ) + 1.0f * penviro->zlerp;
         }
     }
     else if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
-        pchr->enviro.traction = ABS( map_twist_nrm[pchr->enviro.grid_twist].z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
+        penviro->traction = ABS( map_twist_nrm[penviro->grid_twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
-        if ( pchr->enviro.is_slippy )
+        if ( penviro->is_slippy )
         {
-            pchr->enviro.traction /= 4.00f * hillslide * ( 1.0f - pchr->enviro.zlerp ) + 1.0f * pchr->enviro.zlerp;
+            penviro->traction /= 4.00f * hillslide * ( 1.0f - penviro->zlerp ) + 1.0f * penviro->zlerp;
         }
     }
 
     //---- the friction of the fluid we are in
-    if ( pchr->enviro.is_watery )
+    if ( penviro->is_watery )
     {
-        pchr->enviro.fluid_friction_vrt  = waterfriction;
-        pchr->enviro.fluid_friction_hrz = waterfriction;
+        penviro->fluid_friction_vrt  = waterfriction;
+        penviro->fluid_friction_hrz = waterfriction;
     }
     else
     {
-        pchr->enviro.fluid_friction_hrz = pchr->enviro.air_friction;       // like real-life air friction
-        pchr->enviro.fluid_friction_vrt  = pchr->enviro.air_friction;
+        penviro->fluid_friction_hrz = penviro->air_friction;       // like real-life air friction
+        penviro->fluid_friction_vrt  = penviro->air_friction;
     }
 
     //---- friction
-    pchr->enviro.friction_hrz       = 1.0f;
+    penviro->friction_hrz       = 1.0f;
     if ( 0 != pchr->flyheight )
     {
         if ( pchr->platform )
         {
             // override the z friction for platforms.
             // friction in the z direction will make the bouncing stop
-            pchr->enviro.fluid_friction_vrt = 1.0f;
+            penviro->fluid_friction_vrt = 1.0f;
         }
     }
     else
     {
         // Make the characters slide
         float temp_friction_xy = noslipfriction;
-        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) && pchr->enviro.is_slippy )
+        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) && penviro->is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = slippyfriction;
         }
 
-        pchr->enviro.friction_hrz = pchr->enviro.zlerp * 1.0f + ( 1.0f - pchr->enviro.zlerp ) * temp_friction_xy;
+        penviro->friction_hrz = penviro->zlerp * 1.0f + ( 1.0f - penviro->zlerp ) * temp_friction_xy;
     }
 
     //---- jump stuff
@@ -5620,36 +5629,47 @@ void move_one_character_get_environment( chr_t * pchr )
     else
     {
         // Character is in the air
-        pchr->jumpready = pchr->enviro.grounded;
+        pchr->jumpready = penviro->grounded;
 
         // Down jump timer
         if (( INGAME_CHR( pchr->attachedto ) || pchr->jumpready || pchr->jumpnumber > 0 ) && pchr->jumptime > 0 ) pchr->jumptime--;
 
         // Do ground hits
-        if ( pchr->enviro.grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
+        if ( penviro->grounded && pchr->vel.z < -STOPBOUNCING && pchr->hitready )
         {
             SET_BIT( pchr->ai.alert, ALERTIF_HITGROUND );
             pchr->hitready = bfalse;
         }
 
         // Special considerations for slippy surfaces
-        if ( pchr->enviro.is_slippy )
+        if ( penviro->is_slippy )
         {
-            if ( map_twist_flat[pchr->enviro.grid_twist] )
+            if ( map_twist_flat[penviro->grid_twist] )
             {
                 // Reset jumping on flat areas of slippiness
-                if ( pchr->enviro.grounded && pchr->jumptime == 0 )
+                if ( penviro->grounded && pchr->jumptime == 0 )
                 {
                     pchr->jumpnumber = pchr->jumpnumberreset;
                 }
             }
         }
-        else if ( pchr->enviro.grounded && pchr->jumptime == 0 )
+        else if ( penviro->grounded && pchr->jumptime == 0 )
         {
             // Reset jumping
             pchr->jumpnumber = pchr->jumpnumberreset;
         }
     }
+
+    // add in something for the "ground speed"
+    if( NULL == pplatform )
+    {
+        fvec3_self_clear( penviro->floor_speed.v );
+    }
+    else
+    {
+        fvec3_base_copy( penviro->floor_speed.v, pplatform->vel.v );
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5659,133 +5679,110 @@ void move_one_character_do_floor_friction( chr_t * pchr )
 
     float temp_friction_xy;
     fvec3_t   vup, floor_acc, fric, fric_floor;
+    chr_environment_t * penviro;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
+    penviro = &(pchr->enviro);
 
     if ( 0 != pchr->flyheight ) return;
 
-    // figure out the acceleration due to the current "floor"
-    floor_acc.x = floor_acc.y = floor_acc.z = 0.0f;
+    // assume the best
+    fvec3_self_clear( floor_acc.v );
     temp_friction_xy = 1.0f;
+    vup.x = 0.0f; vup.y = 0.0f; vup.z = 1.0f;
+
+    // figure out the acceleration due to the current "floor"
     if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
         chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
 
         temp_friction_xy = platstick;
 
-        floor_acc.x = pplat->vel.x - pplat->vel_old.x;
-        floor_acc.y = pplat->vel.y - pplat->vel_old.y;
-        floor_acc.z = pplat->vel.z - pplat->vel_old.z;
-
         chr_getMatUp( pplat, &vup );
     }
     else if ( !pchr->alive || pchr->isitem )
     {
         temp_friction_xy = 0.5f;
-        floor_acc.x = -pchr->vel.x;
-        floor_acc.y = -pchr->vel.y;
-        floor_acc.z = -pchr->vel.z;
 
-        if ( TWIST_FLAT == pchr->enviro.grid_twist )
+        if ( TWIST_FLAT != penviro->grid_twist )
         {
-            vup.x = vup.y = 0.0f;
-            vup.z = 1.0f;
-        }
-        else
-        {
-            vup = map_twist_nrm[pchr->enviro.grid_twist];
+            vup = map_twist_nrm[penviro->grid_twist];
         }
 
     }
     else
     {
-        temp_friction_xy = pchr->enviro.friction_hrz;
+        temp_friction_xy = penviro->friction_hrz;
 
-        if ( TWIST_FLAT == pchr->enviro.grid_twist )
+        if ( TWIST_FLAT != penviro->grid_twist )
         {
-            vup.x = vup.y = 0.0f;
-            vup.z = 1.0f;
+            vup = map_twist_nrm[penviro->grid_twist];
         }
-        else
-        {
-            vup = map_twist_nrm[pchr->enviro.grid_twist];
-        }
+    }
 
-        if ( ABS( pchr->vel.x ) + ABS( pchr->vel.y ) + ABS( pchr->vel.z ) > 0.0f )
-        {
-            float ftmp;
-            fvec3_t   vfront = mat_getChrForward( pchr->inst.matrix );
+    floor_acc = fvec3_sub( penviro->floor_speed.v, pchr->vel.v );
+    fvec3_self_scale( floor_acc.v, ( 1.0f - penviro->zlerp ) );
 
-            floor_acc.x = -pchr->vel.x;
-            floor_acc.y = -pchr->vel.y;
-            floor_acc.z = -pchr->vel.z;
+    // reduce the volountary acceleration peopendicular to the direction of motion?
+    if ( fvec3_length_abs( floor_acc.v ) > 0.0f )
+    {
+        fvec3_t acc_para, acc_perp;
+        fvec3_t   vfront;
 
-            //---- get the "bad" velocity (perpendicular to the direction of motion)
-            vfront = fvec3_normalize( vfront.v );
-            ftmp = fvec3_dot_product( floor_acc.v, vfront.v );
+        // get the direction of motion
+        vfront = mat_getChrForward( pchr->inst.matrix );
+        vfront = fvec3_normalize( vfront.v );
 
-            floor_acc.x -= ftmp * vfront.x;
-            floor_acc.y -= ftmp * vfront.y;
-            floor_acc.z -= ftmp * vfront.z;
-        }
+        // decompose the acceleration into parallel and perpendicular components
+        fvec3_decompose( floor_acc.v, vfront.v, acc_para.v, acc_perp.v );
+
+        // re-compose the acceleration with 1/2 of the perpendicular taken away
+        floor_acc = fvec3_scale( acc_perp.v, 0.5f );
+        fvec3_self_sum( floor_acc.v, acc_para.v );
     }
 
     // the first guess about the floor friction
-    fric_floor.x = floor_acc.x * ( 1.0f - pchr->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pchr->enviro.traction;
-    fric_floor.y = floor_acc.y * ( 1.0f - pchr->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pchr->enviro.traction;
-    fric_floor.z = floor_acc.z * ( 1.0f - pchr->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pchr->enviro.traction;
+    fric_floor = fvec3_scale( floor_acc.v, penviro->traction * ( 1.0f - temp_friction_xy ) );
 
-    // the total "friction" due to the floor
-    fric.x = fric_floor.x + pchr->enviro.acc.x;
-    fric.y = fric_floor.y + pchr->enviro.acc.y;
-    fric.z = fric_floor.z + pchr->enviro.acc.z;
+    // the total "friction" with to the floor
+    fric = fvec3_add( fric_floor.v, penviro->acc.v );
 
-    //---- limit the friction to whatever is horizontal to the mesh
-    if ( TWIST_FLAT == pchr->enviro.grid_twist )
+    // limit the friction to whatever is horizontal to the mesh
+    if ( 1.0f == ABS(vup.z) )
     {
-        floor_acc.z = 0.0f;
         fric.z      = 0.0f;
+        floor_acc.z = 0.0f;
     }
     else
     {
-        float ftmp;
-        fvec3_t   vup = map_twist_nrm[pchr->enviro.grid_twist];
+        fvec3_t acc_perp, acc_para;
+            
+        fvec3_decompose( fric.v, vup.v, acc_perp.v, acc_para.v );
+        fric = acc_para;
 
-        ftmp = fvec3_dot_product( floor_acc.v, vup.v );
-
-        floor_acc.x -= ftmp * vup.x;
-        floor_acc.y -= ftmp * vup.y;
-        floor_acc.z -= ftmp * vup.z;
-
-        ftmp = fvec3_dot_product( fric.v, vup.v );
-
-        fric.x -= ftmp * vup.x;
-        fric.y -= ftmp * vup.y;
-        fric.z -= ftmp * vup.z;
+        fvec3_decompose( floor_acc.v, vup.v, acc_perp.v, acc_para.v );
+        floor_acc = acc_para;
     }
 
     // test to see if the player has any more friction left?
-    pchr->enviro.is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > pchr->enviro.friction_hrz );
+    penviro->is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > penviro->friction_hrz );
 
-    if ( pchr->enviro.is_slipping )
+    if ( penviro->is_slipping )
     {
-        pchr->enviro.traction *= 0.5f;
+        penviro->traction *= 0.5f;
         temp_friction_xy  = SQRT( temp_friction_xy );
 
-        fric_floor.x = floor_acc.x * ( 1.0f - pchr->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pchr->enviro.traction;
-        fric_floor.y = floor_acc.y * ( 1.0f - pchr->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pchr->enviro.traction;
-        fric_floor.z = floor_acc.z * ( 1.0f - pchr->enviro.zlerp ) * ( 1.0f - temp_friction_xy ) * pchr->enviro.traction;
+        // the first guess about the floor friction
+        fric_floor = fvec3_scale( floor_acc.v, penviro->traction * ( 1.0f - temp_friction_xy ) );
     }
 
     //apply the floor friction
-    pchr->vel.x += fric_floor.x;
-    pchr->vel.y += fric_floor.y;
-    pchr->vel.z += fric_floor.z;
+    fvec3_self_sum( pchr->vel.v, fric_floor.v );
 
     // Apply fluid friction from last time
-    pchr->vel.x += -pchr->vel.x * ( 1.0f - pchr->enviro.fluid_friction_hrz );
-    pchr->vel.y += -pchr->vel.y * ( 1.0f - pchr->enviro.fluid_friction_hrz );
-    pchr->vel.z += -pchr->vel.z * ( 1.0f - pchr->enviro.fluid_friction_vrt );
+    pchr->vel.x += -pchr->vel.x * ( 1.0f - penviro->fluid_friction_hrz );
+    pchr->vel.y += -pchr->vel.y * ( 1.0f - penviro->fluid_friction_hrz );
+    pchr->vel.z += -pchr->vel.z * ( 1.0f - penviro->fluid_friction_vrt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5806,8 +5803,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
     if ( !pchr->alive ) return;
 
-    pchr->enviro.new_vx = pchr->vel.x;
-    pchr->enviro.new_vy = pchr->vel.y;
+    fvec2_base_copy( pchr->enviro.new_v.v, pchr->vel.v );
 
     if ( INGAME_CHR( pchr->attachedto ) ) return;
 
@@ -5847,7 +5843,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
         }
     }
 
-    pchr->enviro.new_vx = pchr->enviro.new_vy = 0.0f;
+    pchr->enviro.new_v.x = pchr->enviro.new_v.y = 0.0f;
     if ( ABS( dvx ) + ABS( dvy ) > 0.05f )
     {
         PLA_REF ipla = pchr->is_which_player;
@@ -5869,10 +5865,8 @@ void move_one_character_do_voluntary( chr_t * pchr )
                 sneak_mode_active = ( dv2 < 1.0f / 9.0f );
             }
 
-            pchr->enviro.new_vx = dvx;
-            pchr->enviro.new_vy = dvy;
-            pchr->enviro.new_vx = maxspeed * dvx / dv;
-            pchr->enviro.new_vy = maxspeed * dvy / dv;
+            pchr->enviro.new_v.x = maxspeed * dvx / dv;
+            pchr->enviro.new_v.y = maxspeed * dvy / dv;
         }
         else
         {
@@ -5885,8 +5879,8 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
             scale /= POW( dv2, 0.5f );
 
-            pchr->enviro.new_vx = dvx * maxspeed * scale;
-            pchr->enviro.new_vy = dvy * maxspeed * scale;
+            pchr->enviro.new_v.x = dvx * maxspeed * scale;
+            pchr->enviro.new_v.y = dvy * maxspeed * scale;
         }
     }
 
@@ -5908,13 +5902,13 @@ void move_one_character_do_voluntary( chr_t * pchr )
     {
         chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
 
-        new_ax += ( pplat->vel.x + pchr->enviro.new_vx - pchr->vel.x );
-        new_ay += ( pplat->vel.y + pchr->enviro.new_vy - pchr->vel.y );
+        new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - pchr->vel.x );
+        new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - pchr->vel.y );
     }
     else
     {
-        new_ax += ( pchr->enviro.new_vx - pchr->vel.x );
-        new_ay += ( pchr->enviro.new_vy - pchr->vel.y );
+        new_ax += ( pchr->enviro.new_v.x - pchr->vel.x );
+        new_ay += ( pchr->enviro.new_v.y - pchr->vel.y );
     }
 
     new_ax *= pchr->enviro.traction;
@@ -6457,34 +6451,33 @@ void move_one_character_do_z_motion( chr_t * pchr )
     {
         pchr->vel.z += ( pchr->enviro.fly_level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
     }
+    else if ( 
+        pchr->enviro.is_slippy && pchr->phys.weight != INFINITE_WEIGHT &&
+        pchr->enviro.grid_twist != TWIST_FLAT && pchr->enviro.grid_lerp < pchr->enviro.zlerp )
+    {
+        // Slippy hills make characters slide
+
+        fvec3_t   gperp;    // gravity perpendicular to the mesh
+        fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
+
+        // RELATIVE TO THE GRID, since you might be riding a platform!
+        float     loc_zlerp = pchr->enviro.grid_lerp;
+
+        gpara.x = map_twistvel_x[pchr->enviro.grid_twist];
+        gpara.y = map_twistvel_y[pchr->enviro.grid_twist];
+        gpara.z = map_twistvel_z[pchr->enviro.grid_twist];
+
+        gperp.x = 0       - gpara.x;
+        gperp.y = 0       - gpara.y;
+        gperp.z = gravity - gpara.z;
+
+        pchr->vel.x += gpara.x * ( 1.0f - loc_zlerp ) + gperp.x * loc_zlerp;
+        pchr->vel.y += gpara.y * ( 1.0f - loc_zlerp ) + gperp.y * loc_zlerp;
+        pchr->vel.z += gpara.z * ( 1.0f - loc_zlerp ) + gperp.z * loc_zlerp;
+    }
     else
     {
-        if ( pchr->enviro.is_slippy && pchr->phys.weight != INFINITE_WEIGHT &&
-             pchr->enviro.grid_twist != TWIST_FLAT && pchr->enviro.zlerp < 1.0f )
-        {
-            // Slippy hills make characters slide
-
-            fvec3_t   gperp;    // gravity perpendicular to the mesh
-            fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
-
-            float     loc_zlerp = pchr->enviro.zlerp;
-
-            gpara.x = map_twistvel_x[pchr->enviro.grid_twist];
-            gpara.y = map_twistvel_y[pchr->enviro.grid_twist];
-            gpara.z = map_twistvel_z[pchr->enviro.grid_twist];
-
-            gperp.x = 0       - gpara.x;
-            gperp.y = 0       - gpara.y;
-            gperp.z = gravity - gpara.z;
-
-            pchr->vel.x += gpara.x * ( 1.0f - loc_zlerp ) + gperp.x * loc_zlerp;
-            pchr->vel.y += gpara.y * ( 1.0f - loc_zlerp ) + gperp.y * loc_zlerp;
-            pchr->vel.z += gpara.z * ( 1.0f - loc_zlerp ) + gperp.z * loc_zlerp;
-        }
-        else
-        {
-            pchr->vel.z += pchr->enviro.zlerp * gravity;
-        }
+        pchr->vel.z += pchr->enviro.zlerp * gravity;
     }
 }
 
@@ -7271,12 +7264,12 @@ float set_character_animation_rate( chr_t * pchr )
         {
             // the character is slipping as on ice. make their little legs move based on
             // their intended speed, for comic effect! :)
-            speed = ABS( pchr->enviro.new_vx ) + ABS( pchr->enviro.new_vy );
+            speed = fvec2_length_abs( pchr->enviro.new_v.v );
         }
         else
         {
-            // new_vx, new_vy is the speed before any latches are applied
-            speed = ABS( pchr->enviro.new_vx ) + ABS( pchr->enviro.new_vy );
+            // new_v.x, new_v.y is the speed before any latches are applied
+            speed = fvec2_length_abs( pchr->enviro.new_v.v );
         }
     }
 
@@ -7495,8 +7488,7 @@ void move_one_character( chr_t * pchr )
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
-    pchr->enviro.new_vx = pchr->vel.x;
-    pchr->enviro.new_vy = pchr->vel.y;
+    fvec2_base_copy( pchr->enviro.new_v.v, pchr->vel.v );
 
     move_one_character_get_environment( pchr );
 
@@ -8125,7 +8117,7 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     *rank_ptr = -5;
     strcpy( retval, "Unknown" );
 
-    if ( fval >= 1.50f )         { strcpy( retval, "Annihilation!" ); *rank_ptr =  5; }
+    if ( fval >= 1.50f )      { strcpy( retval, "Annihilation!" ); *rank_ptr =  5; }
     else if ( fval >= 1.00f ) { strcpy( retval, "Overkill!" );     *rank_ptr =  4; }
     else if ( fval >= 0.80f ) { strcpy( retval, "Deadly" );        *rank_ptr =  3; }
     else if ( fval >= 0.70f ) { strcpy( retval, "Crippling" );     *rank_ptr =  2; }
@@ -8133,7 +8125,7 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     else if ( fval >= 0.25f ) { strcpy( retval, "Hurtful" );       *rank_ptr =  0; }
     else if ( fval >= 0.10f ) { strcpy( retval, "A Scratch" );     *rank_ptr = -1; }
     else if ( fval >= 0.05f ) { strcpy( retval, "Ticklish" );      *rank_ptr = -2; }
-    else if ( fval >= 0.00f ) { strcpy( retval, "No damage!" );    *rank_ptr = -3; }
+    else if ( fval >= 0.00f ) { strcpy( retval, "Meh..." );        *rank_ptr = -3; }
 
     return retval;
 }
