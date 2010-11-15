@@ -3671,7 +3671,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
                 const char * tmpstr;
                 int rank;
 
-                tmpstr = describe_wounds( pchr->lifemax, pchr->life );
+                //tmpstr = describe_wounds( pchr->lifemax, pchr->life );
 
                 tmpstr = describe_value( actual_damage, INT_TO_FP8( 10 ), &rank );
                 if ( rank < 4 )
@@ -8133,7 +8133,7 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
     else if ( fval >= 0.25f ) { strcpy( retval, "Hurtful" );       *rank_ptr =  0; }
     else if ( fval >= 0.10f ) { strcpy( retval, "A Scratch" );     *rank_ptr = -1; }
     else if ( fval >= 0.05f ) { strcpy( retval, "Ticklish" );      *rank_ptr = -2; }
-    else if ( fval >= 0.00f ) { strcpy( retval, "Meh..." );        *rank_ptr = -3; }
+    else if ( fval >= 0.00f ) { strcpy( retval, "No damage!" );    *rank_ptr = -3; }
 
     return retval;
 }

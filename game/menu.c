@@ -1388,7 +1388,7 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width, int height )
+bool_t doChoosePlayer_show_stats( int player, int mode, const int x, const int y, const int width, const int height )
 {
     int i, x1, y1;
 
@@ -1477,6 +1477,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, int x, int y, int width,
                     y1 = ui_drawBar( 0, x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->manacolor );
                 }
             }
+			y1 += 10;
 
             //SWID
             ui_drawTextBox( menuFont, "Stats", x1, y1, 0, 0, 20 ); y1 += 20;
@@ -3846,11 +3847,7 @@ int doShowResults( float deltaTime )
                     // Should be okay to randomize the seed here, the random seed isnt standarized or
                     // used elsewhere before the module is loaded.
                     srand( time( NULL ) );
-                    if ( mnu_GameTip_load_local_vfs() )
-                    {
-                        game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
-                        printf( "using local hint %s\n", game_hint );
-                    }
+                    if ( mnu_GameTip_load_local_vfs() )   game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
                     else if ( mnu_GameTip.count > 0 )     game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
                 }
             }
@@ -4995,7 +4992,7 @@ bool_t mnu_GameTip_load_local_vfs()
     }
 
     vfs_close( fileread );
-
+	
     return mnu_GameTip.local_count > 0;
 }
 
