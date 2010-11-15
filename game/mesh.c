@@ -67,14 +67,10 @@ static float grid_get_mix( float u0, float u, float v0, float v );
 //--------------------------------------------------------------------------------------------
 ego_mpd_t   mesh;
 
-#if defined(__cplusplus)
-mesh_BSP_t mesh_BSP_root;
-#else
 mesh_BSP_t mesh_BSP_root =
 {
     OCT_BB_INIT_VALS, DYNAMIC_ARY_INIT_VALS, BSP_TREE_INIT_VALS
 };
-#endif
 
 int mesh_mpdfx_tests = 0;
 int mesh_bound_tests = 0;
@@ -119,11 +115,6 @@ ego_mpd_info_t * mesh_info_dtor( ego_mpd_info_t * pinfo )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_tile_mem::s_tile_mem() { tile_mem_ctor( this ); }
-s_tile_mem::~s_tile_mem() { tile_mem_dtor( this ); }
-#endif
-
 tile_mem_t * tile_mem_ctor( tile_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
@@ -147,11 +138,6 @@ tile_mem_t * tile_mem_dtor( tile_mem_t * pmem )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_ego_mpd::s_ego_mpd() { mesh_ctor( this ); }
-s_ego_mpd::~s_ego_mpd() { mesh_dtor( this ); }
-#endif
-
 ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh )
 {
     /// @details BB@> initialize the ego_mpd_t structure
@@ -519,11 +505,6 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_grid_mem::s_grid_mem() { grid_mem_ctor( this ); }
-s_grid_mem::~s_grid_mem() { grid_mem_dtor( this ); }
-#endif
-
 grid_mem_t * grid_mem_ctor( grid_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
@@ -760,7 +741,7 @@ void mesh_make_twist()
     Uint16 cnt;
 
     float     gdot;
-    fvec3_t   grav = VECT3(0,0,gravity);
+    fvec3_t   grav = VECT3( 0, 0, gravity );
 
     for ( cnt = 0; cnt < 256; cnt++ )
     {
@@ -1395,10 +1376,10 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
     ego_irect_t bound;
 
     // deal with the optional parameters
-    if( NULL == pdata ) pdata = &loc_data;
+    if ( NULL == pdata ) pdata = &loc_data;
 
     // if there is no interaction with the mesh, return 0
-    if( 0 == bits ) return 0;
+    if ( 0 == bits ) return 0;
 
     // require a valid position
     if ( NULL == pos ) return 0;
@@ -1427,11 +1408,11 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
     }
 
     // make a large limit in case the pos is so large that it cannot be represented by an int
-    pdata->fx_min = MAX(pdata->fx_min, -9.0f*pmesh->gmem.edge_x);
-    pdata->fx_max = MIN(pdata->fx_max, 10.0f*pmesh->gmem.edge_x);
+    pdata->fx_min = MAX( pdata->fx_min, -9.0f * pmesh->gmem.edge_x );
+    pdata->fx_max = MIN( pdata->fx_max, 10.0f * pmesh->gmem.edge_x );
 
-    pdata->fy_min = MAX(pdata->fy_min, -9.0f*pmesh->gmem.edge_y);
-    pdata->fy_max = MIN(pdata->fy_max, 10.0f*pmesh->gmem.edge_y);
+    pdata->fy_min = MAX( pdata->fy_min, -9.0f * pmesh->gmem.edge_y );
+    pdata->fy_max = MIN( pdata->fy_max, 10.0f * pmesh->gmem.edge_y );
 
     // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
@@ -1441,15 +1422,15 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
     bound.ymax = floor( pdata->fy_max / GRID_SIZE );
 
     // limit the test values to be in-bounds
-    pdata->fx_min = MAX(pdata->fx_min, 0.0f);
-    pdata->fx_max = MIN(pdata->fx_max, pmesh->gmem.edge_x);
-    pdata->fy_min = MAX(pdata->fy_min, 0.0f);
-    pdata->fy_max = MIN(pdata->fy_max, pmesh->gmem.edge_y);
+    pdata->fx_min = MAX( pdata->fx_min, 0.0f );
+    pdata->fx_max = MIN( pdata->fx_max, pmesh->gmem.edge_x );
+    pdata->fy_min = MAX( pdata->fy_min, 0.0f );
+    pdata->fy_max = MIN( pdata->fy_max, pmesh->gmem.edge_y );
 
-    pdata->ix_min = MAX(bound.xmin, 0);
-    pdata->ix_max = MIN(bound.xmax, pmesh->info.tiles_x - 1 );
-    pdata->iy_min = MAX(bound.ymin, 0);
-    pdata->iy_max = MIN(bound.ymax, pmesh->info.tiles_y - 1 );
+    pdata->ix_min = MAX( bound.xmin, 0 );
+    pdata->ix_max = MIN( bound.xmax, pmesh->info.tiles_x - 1 );
+    pdata->iy_min = MAX( bound.ymin, 0 );
+    pdata->iy_max = MIN( bound.ymax, pmesh->info.tiles_y - 1 );
 
     // clear the bit accumulator
     pass = 0;
@@ -1481,7 +1462,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 
             // since we KNOW that this is in range, allow raw access to the data strucutre
             pass = pdata->glist[itile].fx & bits;
-            if( 0 != pass )
+            if ( 0 != pass )
             {
                 return pass;
             }
@@ -1577,11 +1558,11 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
                 tile_valid = bfalse;
             }
 
-            if( tile_valid )
+            if ( tile_valid )
             {
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 tile_valid = mesh_grid_is_valid( pmesh, itile );
-                if( !tile_valid )
+                if ( !tile_valid )
                 {
                     is_blocked = btrue;
                 }
@@ -1591,12 +1572,12 @@ float mesh_get_pressure( ego_mpd_t * pmesh, float pos[], float radius, BIT_FIELD
                 }
             }
 
-            if( !tile_valid )
+            if ( !tile_valid )
             {
                 is_blocked = btrue;
             }
 
-            if( is_blocked )
+            if ( is_blocked )
             {
                 // hiting the mesh
 
@@ -1665,13 +1646,13 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
 
     // find the pressure for the 9 points of jittering around the current position
     pressure_ary[4] = center_pressure;
-    for( cnt = 0, fy = pos[kY] - jitter_size; fy <= pos[kY] + jitter_size; fy += jitter_size )
+    for ( cnt = 0, fy = pos[kY] - jitter_size; fy <= pos[kY] + jitter_size; fy += jitter_size )
     {
-        for( fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++ )
+        for ( fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++ )
         {
             fvec2_t jitter_pos = VECT2( fx, fy );
 
-            if( 4 == cnt ) continue;
+            if ( 4 == cnt ) continue;
 
             pressure_ary[cnt] = mesh_get_pressure( pmesh, jitter_pos.v, radius, bits );
         }
@@ -1680,16 +1661,16 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
     // determine the "minimum number of tiles to move" to get into a clear area
     diff.x = diff.y = 0.0f;
     sum_diff = 0.0f;
-    for( cnt = 0, fy = -0.5f; fy <= 0.5f; fy += 0.5f )
+    for ( cnt = 0, fy = -0.5f; fy <= 0.5f; fy += 0.5f )
     {
-        for( fx = -0.5f; fx <= 0.5f; fx += 0.5f, cnt++ )
+        for ( fx = -0.5f; fx <= 0.5f; fx += 0.5f, cnt++ )
         {
-            if( 4 == cnt ) continue;
+            if ( 4 == cnt ) continue;
 
-            dpressure = (pressure_ary[cnt] - center_pressure);
+            dpressure = ( pressure_ary[cnt] - center_pressure );
 
             // find the maximal pressure gradient == the minimal distance to move
-            if( 0.0f != dpressure )
+            if ( 0.0f != dpressure )
             {
                 float weight;
                 float   dist = pressure_ary[4] / dpressure;
@@ -1699,7 +1680,7 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
 
                 diff.x += tmp.y * weight;
                 diff.y += tmp.x * weight;
-                sum_diff += ABS(weight);
+                sum_diff += ABS( weight );
             }
         }
     }
@@ -1712,9 +1693,9 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
     //}
 
     // limit the maximum displacement to less than one tile
-    if( ABS(diff.x) + ABS(diff.y) > 0.0f )
+    if ( ABS( diff.x ) + ABS( diff.y ) > 0.0f )
     {
-        float fmax = MAX( ABS(diff.x), ABS(diff.y) );
+        float fmax = MAX( ABS( diff.x ), ABS( diff.y ) );
 
         diff.x /= fmax;
         diff.y /= fmax;
@@ -1724,11 +1705,11 @@ fvec2_t mesh_get_diff( ego_mpd_t * pmesh, float pos[], float radius, float cente
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * pdata)
+BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
     /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
-	BIT_FIELD loc_pass;
+    BIT_FIELD loc_pass;
     Uint32 itile, pass;
     int ix, iy;
     bool_t invalid;
@@ -1736,8 +1717,8 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
     float  loc_pressure;
     fvec3_base_t loc_nrm;
 
-    bool_t needs_pressure = (NULL != pressure);
-    bool_t needs_nrm      = (NULL != nrm);
+    bool_t needs_pressure = ( NULL != pressure );
+    bool_t needs_nrm      = ( NULL != nrm );
 
     mesh_wall_data_t loc_data;
 
@@ -1749,14 +1730,14 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
     nrm[kX] = nrm[kY] = 0.0f;
 
     // if pdata is not NULL, someone has already run a version of mesh_test_wall
-    if( NULL == pdata )
+    if ( NULL == pdata )
     {
         pdata = &loc_data;
 
         // Do the simplest test.
         // Initializes the shared mesh_wall_data_t struct, so no need to do it again
         // Eliminates all cases of bad source data, so no need to test them again.
-        if( 0 == mesh_test_wall( pmesh, pos, radius, bits, pdata ) ) return 0;
+        if ( 0 == mesh_test_wall( pmesh, pos, radius, bits, pdata ) ) return 0;
     }
 
     // mesh_test_wall() clamps pdata->ix_* and pdata->iy_* to valid values
@@ -1776,9 +1757,9 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
         {
             loc_pass |= ( MPDFX_IMPASS | MPDFX_WALL );
 
-            if( needs_nrm )
+            if ( needs_nrm )
             {
-                nrm[kY] += pos[kY] - (ty_max + ty_min) * 0.5f;
+                nrm[kY] += pos[kY] - ( ty_max + ty_min ) * 0.5f;
             }
 
             invalid = btrue;
@@ -1796,9 +1777,9 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
             {
                 loc_pass |=  MPDFX_IMPASS | MPDFX_WALL;
 
-                if( needs_nrm )
+                if ( needs_nrm )
                 {
-                    nrm[kX] += pos[kX] - (tx_max + tx_min) * 0.5f;
+                    nrm[kX] += pos[kX] - ( tx_max + tx_min ) * 0.5f;
                 }
 
                 invalid = btrue;
@@ -1817,10 +1798,10 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
                     {
                         SET_BIT( loc_pass,  mpdfx );
 
-                        if( needs_nrm )
+                        if ( needs_nrm )
                         {
-                            nrm[kX] += pos[kX] - (tx_max + tx_min) * 0.5f;
-                            nrm[kY] += pos[kY] - (ty_max + ty_min) * 0.5f;
+                            nrm[kX] += pos[kX] - ( tx_max + tx_min ) * 0.5f;
+                            nrm[kY] += pos[kY] - ( ty_max + ty_min ) * 0.5f;
                         }
                     }
                 }
@@ -1830,7 +1811,7 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
 
     pass = loc_pass & bits;
 
-    if( 0 == pass )
+    if ( 0 == pass )
     {
         // if there is no impact at all, there is no normal and no pressure
         nrm[kX] = nrm[kY] = 0.0f;
@@ -1838,7 +1819,7 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
     }
     else
     {
-        if( needs_nrm )
+        if ( needs_nrm )
         {
             // special cases happen a lot. try to avoid computing the square root
             if ( 0.0f == nrm[kX] && 0.0f == nrm[kY] )
@@ -1864,7 +1845,7 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
             }
         }
 
-        if( needs_pressure )
+        if ( needs_pressure )
         {
             *pressure = mesh_get_pressure( pmesh, pos, radius, bits );
         }
@@ -2000,12 +1981,6 @@ ego_tile_info_t * ego_tile_info_alloc_ary( size_t count )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_mpd_BSP::s_mpd_BSP() { memset( this, 0, sizeof( *this ) ); }
-s_mpd_BSP::s_mpd_BSP( ego_mpd_t * pmesh ) { mesh_BSP_ctor( this, pmesh ); }
-s_mpd_BSP::~s_mpd_BSP()  { mesh_BSP_dtor( this ); }
-#endif
-
 mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
 {
     /// @details BB@> Create a new BSP tree for the mesh.
@@ -2070,7 +2045,7 @@ bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
         ego_tile_info_t * ptile = pmesh->tmem.tile_list + i;
 
         // add the bounding volume for this tile to the bounding volume for the mesh
-        oct_bb_union( &(pbsp->volume), &(ptile->oct), &( pbsp->volume ) );
+        oct_bb_union( &( pbsp->volume ), &( ptile->oct ), &( pbsp->volume ) );
 
         // let data type 1 stand for a tile, -1 is uninitialized
         BSP_leaf_ctor( pleaf, 2, pmesh->tmem.tile_list + i, 1 );

@@ -49,7 +49,7 @@ void PassageStack_free_all()
 //--------------------------------------------------------------------------------------------
 int PasageStack_get_free()
 {
-    int ipass = (PASS_REF) MAX_PASS;
+    int ipass = ( PASS_REF ) MAX_PASS;
 
     if ( PassageStack.count < MAX_PASS )
     {
@@ -77,7 +77,7 @@ void ShopStack_free_all()
 //--------------------------------------------------------------------------------------------
 int ShopStack_get_free()
 {
-    int ishop = (PASS_REF) MAX_PASS;
+    int ishop = ( PASS_REF ) MAX_PASS;
 
     if ( ShopStack.count < MAX_PASS )
     {
@@ -203,13 +203,13 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
 
     CHR_REF character, foundother;
     passage_t * ppass;
-	chr_t *psrc;
+    chr_t *psrc;
 
-	// Skip if the one who is looking doesn't exist
+    // Skip if the one who is looking doesn't exist
     if ( !INGAME_CHR( isrc ) ) return ( CHR_REF )MAX_CHR;
     psrc = ChrList.lst + isrc;
 
-	// Skip invalid passages
+    // Skip invalid passages
     if ( INVALID_PASSAGE( passage ) ) return ( CHR_REF )MAX_CHR;
     ppass = PassageStack.lst + passage;
 
@@ -223,24 +223,24 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
         pchr = ChrList.lst + character;
 
         // dont do scenery objects unless we allow items
-		if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && pchr->phys.weight == INFINITE_WEIGHT ) continue;
+        if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && pchr->phys.weight == INFINITE_WEIGHT ) continue;
 
-		//Check if the object has the requirements
-		if ( !check_target( psrc, character, idsz, targeting_bits ) ) continue;
+        //Check if the object has the requirements
+        if ( !check_target( psrc, character, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
         {
             // Found a live one, do we need to check for required items as well?
             if ( IDSZ_NONE == require_item )
-			{
-				return character;
-			}
+            {
+                return character;
+            }
 
             // It needs to have a specific item as well
             else
             {
-  	            CHR_REF item;
+                CHR_REF item;
 
                 // I: Check left hand
                 if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], require_item ) )
@@ -289,7 +289,7 @@ void check_passage_music()
         PLA_REF ipla;
         passage_t * ppass = PassageStack.lst + passage;
 
-		if ( ppass->music == NO_MUSIC || ppass->music == get_current_song_playing() ) continue;
+        if ( ppass->music == NO_MUSIC || ppass->music == get_current_song_playing() ) continue;
 
         // Look at each player
         for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -336,17 +336,17 @@ bool_t close_passage( const PASS_REF passage )
         CHR_REF crushedcharacters[MAX_CHR];
 
         // Make sure it isn't blocked
-		for( character = 0; character < MAX_CHR; character++ )
+        for ( character = 0; character < MAX_CHR; character++ )
         {
-			chr_t *pchr;
+            chr_t *pchr;
 
-			if( !INGAME_CHR(character) ) continue;
-			pchr = ChrList.lst + character;
+            if ( !INGAME_CHR( character ) ) continue;
+            pchr = ChrList.lst + character;
 
-			//Don't do held items
-			if( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
+            //Don't do held items
+            if ( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
 
-			if ( 0.0f != pchr->bump_stt.size )
+            if ( 0.0f != pchr->bump_stt.size )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
                 {
@@ -422,13 +422,13 @@ void add_shop_passage( const CHR_REF owner, const PASS_REF passage )
         if ( !INGAME_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
-		if ( pchr->isitem )
-		{
-			if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
-			{
-				pchr->isshopitem = btrue;               // Full value
-				pchr->iskursed   = bfalse;              // Shop items are never kursed
-				pchr->nameknown  = btrue;
+        if ( pchr->isitem )
+        {
+            if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
+            {
+                pchr->isshopitem = btrue;               // Full value
+                pchr->iskursed   = bfalse;              // Shop items are never kursed
+                pchr->nameknown  = btrue;
             }
         }
     }

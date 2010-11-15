@@ -97,10 +97,10 @@ struct vfs_FILE
 struct s_vfs_search_context
 {
     char **    file_list;
-    char **	   ptr;
+    char **    ptr;
 
     char       path[VFS_MAX_PATH];
-    char	   ext[255];
+    char       ext[255];
     BIT_FIELD  bits;
 
     VFS_PATH found;
@@ -150,10 +150,10 @@ void vfs_init()
 
     fs_init();
 
-    if( _vfs_initialized ) return;
+    if ( _vfs_initialized ) return;
 
     // set the root path to be the Data Directory, regardless of the executable's path
-    snprintf( tmp_path, SDL_arraysize(tmp_path), "%s" SLASH_STR, fs_getDataDirectory() );
+    snprintf( tmp_path, SDL_arraysize( tmp_path ), "%s" SLASH_STR, fs_getDataDirectory() );
     PHYSFS_init( tmp_path );
 
     //---- !!!! make sure the basic directories exist !!!!
@@ -182,7 +182,7 @@ void vfs_init()
     // set the write directory to the root user directory
     PHYSFS_setWriteDir( fs_getUserDirectory() );
 
-    if( !_vfs_atexit_registered )
+    if ( !_vfs_atexit_registered )
     {
         atexit( _vfs_exit );
         _vfs_atexit_registered = btrue;
@@ -330,7 +330,7 @@ const char * vfs_convert_fname_sys( const char * fname )
         return local_fname;
     }
 
-    if( VFS_TRUE == _vfs_mount_info_search( fname ) )
+    if ( VFS_TRUE == _vfs_mount_info_search( fname ) )
     {
         // this path contains a virtual mount point
         EGOBOO_ASSERT( bfalse );
@@ -343,7 +343,7 @@ const char * vfs_convert_fname_sys( const char * fname )
 
     // convert the path string to local notation
     string_ptr = str_convert_slash_sys( copy_fname, strlen( fname ) );
-    if( !VALID_CSTR(string_ptr) )
+    if ( !VALID_CSTR( string_ptr ) )
     {
         strncpy( local_fname, SLASH_STR, SDL_arraysize( local_fname ) );
         return local_fname;
@@ -359,7 +359,7 @@ const char * vfs_convert_fname_sys( const char * fname )
     // root directories using this code...
 
     // if the path already exists, just return the path
-    if( fs_fileExists( copy_fname ) )
+    if ( fs_fileExists( copy_fname ) )
     {
         strncpy( local_fname, copy_fname, SDL_arraysize( local_fname ) );
         return local_fname;
@@ -482,7 +482,7 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
     }
 
     // return the potential mount point in system-dependent format
-    return str_convert_slash_sys( found_path, strlen(found_path) );
+    return str_convert_slash_sys( found_path, strlen( found_path ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -678,7 +678,7 @@ int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
             *tmpstr = CSTR_END;
         }
 
-        if( CSTR_END == temp_dirname[0] )
+        if ( CSTR_END == temp_dirname[0] )
         {
             temp_dirname[0] = '/';
             temp_dirname[1] = CSTR_END;
@@ -1702,7 +1702,7 @@ vfs_search_context_t * _vfs_search( vfs_search_context_t ** pctxt )
 
     if ( NULL == retval )
     {
-        if( NULL != *pctxt )
+        if ( NULL != *pctxt )
         {
             ( *pctxt )->found[0] = CSTR_END;
         }
@@ -2270,20 +2270,20 @@ int vfs_add_mount_point( const char * root_path, const char * relative_path, con
     BAIL_IF_NOT_INIT();
 
     // a bare slash is taken to mean the PHYSFS root directory, not the root of the currently mounted volume
-    if ( !VALID_CSTR(mount_point) || 0 == strcmp( mount_point, "/" ) ) return 0;
+    if ( !VALID_CSTR( mount_point ) || 0 == strcmp( mount_point, "/" ) ) return 0;
 
     // make a complete version of the pathname
-    if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
+    if ( VALID_CSTR( root_path ) && VALID_CSTR( relative_path ) )
     {
-        snprintf( dirname, SDL_arraysize(dirname), "%s" SLASH_STR "%s", root_path, relative_path );
+        snprintf( dirname, SDL_arraysize( dirname ), "%s" SLASH_STR "%s", root_path, relative_path );
     }
-    else if ( VALID_CSTR(root_path) )
+    else if ( VALID_CSTR( root_path ) )
     {
-        strncpy( dirname, root_path, SDL_arraysize(dirname) );
+        strncpy( dirname, root_path, SDL_arraysize( dirname ) );
     }
-    else if ( VALID_CSTR(relative_path) )
+    else if ( VALID_CSTR( relative_path ) )
     {
-        strncpy( dirname, relative_path, SDL_arraysize(dirname) );
+        strncpy( dirname, relative_path, SDL_arraysize( dirname ) );
     }
     else
     {
@@ -2514,20 +2514,20 @@ bool_t _vfs_mount_info_add( const char * mount_point, const char * root_path, co
     if ( _vfs_mount_info_count >= MAX_MOUNTINFO ) return bfalse;
 
     // if the mount point is not a string, do nothing
-    if ( !VALID_CSTR(mount_point) ) return bfalse;
+    if ( !VALID_CSTR( mount_point ) ) return bfalse;
 
     // make a complete version of the pathname
-    if( VALID_CSTR(root_path) && VALID_CSTR(relative_path) )
+    if ( VALID_CSTR( root_path ) && VALID_CSTR( relative_path ) )
     {
-        snprintf( local_path, SDL_arraysize(local_path), "%s" SLASH_STR "%s", root_path, relative_path );
+        snprintf( local_path, SDL_arraysize( local_path ), "%s" SLASH_STR "%s", root_path, relative_path );
     }
-    else if ( VALID_CSTR(root_path) )
+    else if ( VALID_CSTR( root_path ) )
     {
-        strncpy( local_path, root_path, SDL_arraysize(local_path) );
+        strncpy( local_path, root_path, SDL_arraysize( local_path ) );
     }
-    else if ( VALID_CSTR(relative_path) )
+    else if ( VALID_CSTR( relative_path ) )
     {
-        strncpy( local_path, relative_path, SDL_arraysize(local_path) );
+        strncpy( local_path, relative_path, SDL_arraysize( local_path ) );
     }
     else
     {
@@ -2555,13 +2555,13 @@ bool_t _vfs_mount_info_add( const char * mount_point, const char * root_path, co
     strncpy( _vfs_mount_info[_vfs_mount_info_count].full_path, local_path, VFS_MAX_PATH );
 
     _vfs_mount_info[_vfs_mount_info_count].root_path[0] = '\0';
-    if( VALID_CSTR(root_path) )
+    if ( VALID_CSTR( root_path ) )
     {
         strncpy( _vfs_mount_info[_vfs_mount_info_count].root_path, root_path, VFS_MAX_PATH );
     }
 
     _vfs_mount_info[_vfs_mount_info_count].relative_path[0] = '\0';
-    if( VALID_CSTR(relative_path) )
+    if ( VALID_CSTR( relative_path ) )
     {
         strncpy( _vfs_mount_info[_vfs_mount_info_count].relative_path, relative_path, VFS_MAX_PATH );
     }
@@ -2598,8 +2598,8 @@ void vfs_set_base_search_paths()
     BAIL_IF_NOT_INIT();
 
     // Put write dir first in search path...
-    PHYSFS_addToSearchPath( fs_getUserDirectory(), 0);
+    PHYSFS_addToSearchPath( fs_getUserDirectory(), 0 );
 
     // Put base path on search path...
-    PHYSFS_addToSearchPath( fs_getDataDirectory(), 1);
+    PHYSFS_addToSearchPath( fs_getDataDirectory(), 1 );
 }

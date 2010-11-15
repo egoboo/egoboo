@@ -678,8 +678,8 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
     GL_DEBUG( glPointSize )( 5 );
 
@@ -689,15 +689,15 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
-        GL_DEBUG( glVertex3fv ) ( pinst->vrt_lst[vrt].pos );
+        GL_DEBUG( glVertex3fv )( pinst->vrt_lst[vrt].pos );
     }
     GL_DEBUG_END();
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -709,7 +709,7 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
     prt_t * loc_pprt;
 
-    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
     loc_pprt = pbdl_prt->prt_ptr;
 
     if ( !DISPLAY_PPRT( loc_pprt ) ) return;
@@ -778,11 +778,11 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     pinst->image_ref = FP8_TO_INT( pprt->image + pprt->image_stt );
 
     // set the position
-    pinst->pos         = prt_get_pos(pprt);
+    pinst->pos         = prt_get_pos( pprt );
     pinst->orientation = ppip->orientation;
 
     // calculate the billboard vectors for the reflecions
-    pinst->ref_pos      = prt_get_pos(pprt);
+    pinst->ref_pos      = prt_get_pos( pprt );
     pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
@@ -1158,17 +1158,17 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
     prt_t * loc_pprt;
     pip_t * loc_ppip;
 
-    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
     // only draw bullets
-    if( 50 != loc_ppip->vel_hrz_pair.base ) return;
+    if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
     if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 
-     // draw the object bounding box as a part of the graphics debug mode F7
-    if ( (cfg.dev_mode && SDLKEYDOWN( SDLK_F7 )) || single_frame_mode )
+    // draw the object bounding box as a part of the graphics debug mode F7
+    if (( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) ) || single_frame_mode )
     {
         oct_bb_t loc_bb, tmp_bb, exp_bb;
 

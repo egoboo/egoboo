@@ -69,12 +69,6 @@ struct s_mpd_BSP
     oct_bb_t       volume;
     BSP_leaf_ary_t nodes;
     BSP_tree_t     tree;
-
-#if defined(__cplusplus)
-    s_mpd_BSP();
-    s_mpd_BSP( ego_mpd_t * pmesh );
-    ~s_mpd_BSP();
-#endif
 };
 typedef struct s_mpd_BSP mesh_BSP_t;
 
@@ -131,10 +125,6 @@ struct s_ego_grid_info
     Uint8            a, l;                     ///< the raw mesh lighting... pretty much ignored
     lighting_cache_t cache;                    ///< the per-grid lighting info
 
-#if defined(__cplusplus)
-    s_ego_grid_info() { memset( this, 0, sizeof( *this ) ); }
-#endif
-
 };
 typedef struct s_ego_grid_info ego_grid_info_t;
 
@@ -157,11 +147,6 @@ struct s_grid_mem
 
     // the per-grid info
     ego_grid_info_t* grid_list;                        ///< tile command info
-
-#if defined(__cplusplus)
-    s_grid_mem();
-    ~s_grid_mem();
-#endif
 };
 typedef struct s_grid_mem grid_mem_t;
 
@@ -183,11 +168,6 @@ struct s_tile_mem
     GLXvector2f   * tlst;                              ///< the texture coordinate list
     GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
     GLXvector3f   * nlst;                              ///< the normal list
-
-#if defined(__cplusplus)
-    s_tile_mem();
-    ~s_tile_mem();
-#endif
 };
 typedef struct s_tile_mem tile_mem_t;
 
@@ -201,11 +181,6 @@ struct s_ego_mpd_info
     int             tiles_x;                          ///< Size in tiles
     int             tiles_y;
     Uint32          tiles_count;                      ///< Number of tiles
-
-#if defined(__cplusplus)
-    s_ego_mpd_info() { memset( this, 0, sizeof( *this ) ); }
-#endif
-
 };
 typedef struct s_ego_mpd_info ego_mpd_info_t;
 
@@ -219,11 +194,6 @@ struct s_ego_mpd
     grid_mem_t      gmem;
 
     fvec2_t         tileoff[MAXTILETYPE];     ///< Tile texture offset
-
-#if defined(__cplusplus)
-    s_ego_mpd();
-    ~s_ego_mpd();
-#endif
 };
 
 //--------------------------------------------------------------------------------------------
@@ -275,7 +245,7 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float
 
 bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
-BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const Uint32 bits, float nrm[], float * pressure, mesh_wall_data_t * private_data  );
+BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const Uint32 bits, float nrm[], float * pressure, mesh_wall_data_t * private_data );
 BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const Uint32 bits, mesh_wall_data_t * private_data );
 
 float mesh_get_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y );

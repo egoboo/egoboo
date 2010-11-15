@@ -124,11 +124,6 @@ struct s_GLvertex
     GLint   color_dir;   ///< the vertex-dependent, directional lighting
 
     GLfloat col[4];      ///< the total vertex-dependent lighting (ambient + directional)
-
-#if defined(__cplusplus)
-    s_GLvertex() { memset( this, 0, sizeof( *this ) ); }
-#endif
-
 };
 typedef struct s_GLvertex GLvertex;
 
@@ -258,11 +253,11 @@ extern Uint8           blip_c[MAXBLIP];
 enum e_bb_opt
 {
     bb_opt_none          = EMPTY_BIT_FIELD,
-    bb_opt_randomize_pos = (1 << 0),		// Randomize the position of the bb to witin 1 grid
-    bb_opt_randomize_vel = (1 << 1),		// Randomize the velocity of the bb. Enough to move it by 2 tiles within its lifetime.
-    bb_opt_fade          = (1 << 2),		// Make the billboard fade out
-    bb_opt_burn          = (1 << 3),		// Make the tint fully saturate over time.
-    bb_opt_all           = FULL_BIT_FIELD	//(size_t)(~0)   Enum doesn't support unsigned integers, size_t is also unsigned.
+    bb_opt_randomize_pos = ( 1 << 0 ),      // Randomize the position of the bb to witin 1 grid
+    bb_opt_randomize_vel = ( 1 << 1 ),      // Randomize the velocity of the bb. Enough to move it by 2 tiles within its lifetime.
+    bb_opt_fade          = ( 1 << 2 ),      // Make the billboard fade out
+    bb_opt_burn          = ( 1 << 3 ),      // Make the tint fully saturate over time.
+    bb_opt_all           = FULL_BIT_FIELD   //(size_t)(~0)   Enum doesn't support unsigned integers, size_t is also unsigned.
 };
 
 /// Description of a generic bilboarded object.

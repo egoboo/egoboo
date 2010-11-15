@@ -57,11 +57,7 @@ INSTANTIATE_STATIC_ARY( MessageOffsetAry, MessageOffset );
 Uint32  message_buffer_carat = 0;                           // Where to put letter
 char    message_buffer[MESSAGEBUFFERSIZE] = EMPTY_CSTR;     // The text buffer
 
-#if defined(__cplusplus)
-obj_BSP_t obj_BSP_root;
-#else
 obj_BSP_t obj_BSP_root = { BSP_TREE_INIT_VALS };
-#endif
 
 int BSP_chr_count = 0;
 int BSP_prt_count = 0;
@@ -185,13 +181,13 @@ bool_t pro_init( pro_t * pobj )
     //---- reset everything to safe values
     memset( pobj, 0, sizeof( *pobj ) );
 
-    pobj->icap = (CAP_REF) MAX_CAP;
-    pobj->imad = (MAD_REF) MAX_MAD;
-    pobj->ieve = (EVE_REF) MAX_EVE;
+    pobj->icap = ( CAP_REF ) MAX_CAP;
+    pobj->imad = ( MAD_REF ) MAX_MAD;
+    pobj->ieve = ( EVE_REF ) MAX_EVE;
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
-        pobj->prtpip[cnt] = (PIP_REF) MAX_PIP;
+        pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
     }
 
     chop_definition_init( &( pobj->chop ) );
@@ -656,7 +652,7 @@ bool_t release_one_local_pips( const PRO_REF iobj )
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
         release_one_pip( pobj->prtpip[cnt] );
-        pobj->prtpip[cnt] = (PIP_REF) MAX_PIP;
+        pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
     }
 
     return btrue;
@@ -680,7 +676,7 @@ void release_all_local_pips()
         for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
         {
             release_one_pip( pobj->prtpip[cnt] );
-            pobj->prtpip[cnt] = (PIP_REF) MAX_PIP;
+            pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
         }
     }
 }
@@ -729,7 +725,7 @@ int pro_get_slot_vfs( const char * tmploadname, int slot_override )
         slot = slot_override;
     }
 
-	// grab the slot from the file
+    // grab the slot from the file
     else
     {
         int tmp_slot = obj_read_slot_vfs( tmploadname );
@@ -768,10 +764,10 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     PRO_REF iobj;
     pro_t * pobj;
 
-	required = !VALID_CAP_RANGE( slot_override );
+    required = !VALID_CAP_RANGE( slot_override );
 
     // get a slot value
-	islot = pro_get_slot_vfs( tmploadname, slot_override );
+    islot = pro_get_slot_vfs( tmploadname, slot_override );
 
     // throw an error code if the slot is invalid of if the file doesn't exist
     if ( islot < 0 || islot > MAX_PROFILE )
@@ -1226,7 +1222,7 @@ bool_t obj_BSP_ctor( obj_BSP_t * pbsp, mesh_BSP_t * pmesh_bsp )
         t->bbox.mids.ary[cnt] = 0.5f * ( t->bbox.mins.ary[cnt] + t->bbox.maxs.ary[cnt] );
     }
 
-    BSP_aabb_validate( &(t->bbox) );
+    BSP_aabb_validate( &( t->bbox ) );
 
     return btrue;
 }
@@ -1281,7 +1277,7 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
     };
 
     retval = bfalse;
-    if ( !oct_bb_empty( &(pchr->chr_max_cv) ) )
+    if ( !oct_bb_empty( &( pchr->chr_max_cv ) ) )
     {
         oct_bb_t tmp_oct;
 
@@ -1321,7 +1317,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
 
-    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
@@ -1337,12 +1333,12 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     }
 
     does_damage         = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
-    does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || (0 != loc_ppip->lifedrain) || ( 0 != loc_ppip->manadrain );
+    does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || ( 0 != loc_ppip->lifedrain ) || ( 0 != loc_ppip->manadrain );
     needs_bump          = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bump_money );
     does_special_effect = loc_ppip->cause_pancake || loc_ppip->cause_roll;
-    can_push            = ((0 != loc_ppip->bump_size) || (0 != loc_ppip->bump_height)) && loc_ppip->allowpush;
+    can_push            = (( 0 != loc_ppip->bump_size ) || ( 0 != loc_ppip->bump_height ) ) && loc_ppip->allowpush;
 
-    // particles with no effect 
+    // particles with no effect
     if ( !can_push && !needs_bump && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;
 
     pleaf = &( loc_pprt->bsp_leaf );
@@ -1405,7 +1401,7 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
         // reset a couple of things here
-        pchr->holdingweight		   = 0;
+        pchr->holdingweight        = 0;
         pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_level = -1e32;

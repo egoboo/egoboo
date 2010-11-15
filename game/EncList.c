@@ -69,7 +69,7 @@ void EncList_init()
 
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        ENC_REF ienc = (MAX_ENC-1) - cnt;
+        ENC_REF ienc = ( MAX_ENC - 1 ) - cnt;
         enc_t * penc = EncList.lst + ienc;
 
         // blank out all the data, including the obj_base data
@@ -115,12 +115,12 @@ void EncList_prune_used()
 
         ienc = EncList.used_ref[cnt];
 
-        if( !VALID_ENC_RANGE(ienc) || !DEFINED_ENC(ienc) )
+        if ( !VALID_ENC_RANGE( ienc ) || !DEFINED_ENC( ienc ) )
         {
             removed = EncList_remove_used_index( cnt );
         }
 
-        if( removed && !EncList.lst[ienc].obj_base.in_free_list )
+        if ( removed && !EncList.lst[ienc].obj_base.in_free_list )
         {
             EncList_add_free( ienc );
         }
@@ -141,12 +141,12 @@ void EncList_prune_free()
 
         ienc = EncList.free_ref[cnt];
 
-        if( VALID_ENC_RANGE(ienc) && INGAME_PRT_BASE(ienc) )
+        if ( VALID_ENC_RANGE( ienc ) && INGAME_PRT_BASE( ienc ) )
         {
             removed = EncList_remove_free_index( cnt );
         }
 
-        if( removed && !EncList.lst[ienc].obj_base.in_free_list )
+        if ( removed && !EncList.lst[ienc].obj_base.in_free_list )
         {
             EncList_add_used( ienc );
         }
@@ -164,20 +164,20 @@ void EncList_update_used()
     EncList_prune_free();
 
     // go through the enchant list to see if there are any dangling enchants
-    for( ienc = 0; ienc < MAX_ENC; ienc++ )
+    for ( ienc = 0; ienc < MAX_ENC; ienc++ )
     {
-        if( !ALLOCATED_ENC(ienc) ) continue;
+        if ( !ALLOCATED_ENC( ienc ) ) continue;
 
-        if ( INGAME_ENC(ienc) )
+        if ( INGAME_ENC( ienc ) )
         {
-            if( !EncList.lst[ienc].obj_base.in_used_list )
+            if ( !EncList.lst[ienc].obj_base.in_used_list )
             {
                 EncList_add_used( ienc );
             }
         }
-        else if( !DEFINED_ENC( ienc ) )
+        else if ( !DEFINED_ENC( ienc ) )
         {
-            if( !EncList.lst[ienc].obj_base.in_free_list )
+            if ( !EncList.lst[ienc].obj_base.in_free_list )
             {
                 EncList_add_free( ienc );
             }
@@ -229,12 +229,12 @@ bool_t EncList_free_one( const ENC_REF ienc )
         penc = enc_config_deinitialize( penc, 100 );
         if ( NULL == penc ) return bfalse;
 
-        if( pbase->in_used_list )
+        if ( pbase->in_used_list )
         {
             EncList_remove_used( ienc );
         }
 
-        if( pbase->in_free_list )
+        if ( pbase->in_free_list )
         {
             retval = btrue;
         }
@@ -268,7 +268,7 @@ size_t EncList_get_free()
         // completely remove it from the free list
         EncList.free_ref[EncList.free_count] = MAX_ENC;
 
-        if( VALID_ENC_RANGE(retval) )
+        if ( VALID_ENC_RANGE( retval ) )
         {
             // let the object know it is not in the free list any more
             EncList.lst[retval].obj_base.in_free_list = bfalse;
@@ -294,7 +294,7 @@ int EncList_get_free_list_index( const ENC_REF ienc )
 {
     int retval = -1, cnt;
 
-    if( !VALID_ENC_RANGE(ienc) ) return retval;
+    if ( !VALID_ENC_RANGE( ienc ) ) return retval;
 
     for ( cnt = 0; cnt < EncList.free_count; cnt++ )
     {
@@ -314,10 +314,10 @@ bool_t EncList_add_free( const ENC_REF ienc )
 {
     bool_t retval;
 
-    if( !VALID_ENC_RANGE(ienc) ) return bfalse;
+    if ( !VALID_ENC_RANGE( ienc ) ) return bfalse;
 
 #if defined(_DEBUG) && defined(DEBUG_ENC_LIST)
-    if( EncList_get_free_list_index(ienc) > 0 )
+    if ( EncList_get_free_list_index( ienc ) > 0 )
     {
         return bfalse;
     }
@@ -326,7 +326,7 @@ bool_t EncList_add_free( const ENC_REF ienc )
     EGOBOO_ASSERT( !EncList.lst[ienc].obj_base.in_free_list );
 
     retval = bfalse;
-    if( EncList.free_count < MAX_ENC )
+    if ( EncList.free_count < MAX_ENC )
     {
         EncList.free_ref[EncList.free_count] = ienc;
 
@@ -347,14 +347,14 @@ bool_t EncList_remove_free_index( int index )
     ENC_REF ienc;
 
     // was it found?
-    if( index < 0 || index >= EncList.free_count ) return bfalse;
+    if ( index < 0 || index >= EncList.free_count ) return bfalse;
 
     ienc = EncList.free_ref[index];
 
     // blank out the index in the list
     EncList.free_ref[index] = MAX_ENC;
 
-    if( VALID_ENC_RANGE(ienc) )
+    if ( VALID_ENC_RANGE( ienc ) )
     {
         // let the object know it is not in the list anymore
         EncList.lst[ienc].obj_base.in_free_list = bfalse;
@@ -364,7 +364,7 @@ bool_t EncList_remove_free_index( int index )
     EncList.free_count--;
     EncList.update_guid++;
 
-    if( EncList.free_count > 0 )
+    if ( EncList.free_count > 0 )
     {
         // swap the last element for the deleted element
         SWAP( size_t, EncList.free_ref[index], EncList.free_ref[EncList.free_count] );
@@ -377,7 +377,7 @@ bool_t EncList_remove_free_index( int index )
 bool_t EncList_remove_free( const ENC_REF ienc )
 {
     // find the object in the free list
-    int index = EncList_get_free_list_index(ienc);
+    int index = EncList_get_free_list_index( ienc );
 
     return EncList_remove_free_index( index );
 }
@@ -387,7 +387,7 @@ int EncList_get_used_list_index( const ENC_REF ienc )
 {
     int retval = -1, cnt;
 
-    if( !VALID_ENC_RANGE(ienc) ) return retval;
+    if ( !VALID_ENC_RANGE( ienc ) ) return retval;
 
     for ( cnt = 0; cnt < EncList.used_count; cnt++ )
     {
@@ -407,10 +407,10 @@ bool_t EncList_add_used( const ENC_REF ienc )
 {
     bool_t retval;
 
-    if( !VALID_ENC_RANGE(ienc) ) return bfalse;
+    if ( !VALID_ENC_RANGE( ienc ) ) return bfalse;
 
 #if defined(_DEBUG) && defined(DEBUG_ENC_LIST)
-    if( EncList_get_used_list_index(ienc) > 0 )
+    if ( EncList_get_used_list_index( ienc ) > 0 )
     {
         return bfalse;
     }
@@ -419,7 +419,7 @@ bool_t EncList_add_used( const ENC_REF ienc )
     EGOBOO_ASSERT( !EncList.lst[ienc].obj_base.in_used_list );
 
     retval = bfalse;
-    if( EncList.used_count < MAX_ENC )
+    if ( EncList.used_count < MAX_ENC )
     {
         EncList.used_ref[EncList.used_count] = ienc;
 
@@ -440,14 +440,14 @@ bool_t EncList_remove_used_index( int index )
     ENC_REF ienc;
 
     // was it found?
-    if( index < 0 || index >= EncList.used_count ) return bfalse;
+    if ( index < 0 || index >= EncList.used_count ) return bfalse;
 
     ienc = EncList.used_ref[index];
 
     // blank out the index in the list
     EncList.used_ref[index] = MAX_ENC;
 
-    if( VALID_ENC_RANGE(ienc) )
+    if ( VALID_ENC_RANGE( ienc ) )
     {
         // let the object know it is not in the list anymore
         EncList.lst[ienc].obj_base.in_used_list = bfalse;
@@ -457,7 +457,7 @@ bool_t EncList_remove_used_index( int index )
     EncList.used_count--;
     EncList.update_guid++;
 
-    if( EncList.used_count > 0 )
+    if ( EncList.used_count > 0 )
     {
         // swap the last element for the deleted element
         SWAP( size_t, EncList.used_ref[index], EncList.used_ref[EncList.used_count] );
@@ -470,7 +470,7 @@ bool_t EncList_remove_used_index( int index )
 bool_t EncList_remove_used( const ENC_REF ienc )
 {
     // find the object in the used list
-    int index = EncList_get_used_list_index(ienc);
+    int index = EncList_get_used_list_index( ienc );
 
     return EncList_remove_used_index( index );
 }
@@ -487,9 +487,9 @@ ENC_REF EncList_allocate( const ENC_REF override )
         {
             int override_index = EncList_get_free_list_index( override );
 
-            if( override_index < 0 || override_index >= EncList.free_count )
+            if ( override_index < 0 || override_index >= EncList.free_count )
             {
-                ienc = (ENC_REF)MAX_ENC;
+                ienc = ( ENC_REF )MAX_ENC;
             }
             else
             {
@@ -578,9 +578,9 @@ bool_t EncList_add_activation( ENC_REF ienc )
 
     bool_t retval = bfalse;
 
-    if( !VALID_ENC_RANGE(ienc) ) return bfalse;
+    if ( !VALID_ENC_RANGE( ienc ) ) return bfalse;
 
-    if( enc_activation_count < MAX_ENC )
+    if ( enc_activation_count < MAX_ENC )
     {
         enc_activation_list[enc_activation_count] = ienc;
         enc_activation_count++;
@@ -598,9 +598,9 @@ bool_t EncList_add_termination( ENC_REF ienc )
 {
     bool_t retval = bfalse;
 
-    if( !VALID_ENC_RANGE(ienc) ) return bfalse;
+    if ( !VALID_ENC_RANGE( ienc ) ) return bfalse;
 
-    if( enc_termination_count < MAX_ENC )
+    if ( enc_termination_count < MAX_ENC )
     {
         enc_termination_list[enc_termination_count] = ienc;
         enc_termination_count++;

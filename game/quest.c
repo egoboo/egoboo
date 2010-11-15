@@ -30,6 +30,8 @@
 #include "egoboo_vfs.h"
 #include "egoboo.h"
 
+#include "egoboo_math.inl"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ConfigFilePtr_t quest_file_open( const char *player_directory )

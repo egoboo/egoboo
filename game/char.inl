@@ -24,12 +24,11 @@
 
 #include "char.h"
 
-#include "enchant.inl"
-#include "particle.inl"
-
 /// @note include "profile.inl" here.
 ///  Do not include "char.inl" in "profile.inl", otherwise there is a bootstrapping problem.
 #include "profile.inl"
+#include "enchant.inl"
+#include "particle.inl"
 
 #include "egoboo_math.inl"
 
@@ -169,7 +168,7 @@ static INLINE bool_t team_hates_team( const TEAM_REF ipredator_team, const TEAM_
 
     if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return bfalse;
 
-    return TeamStack.lst[ipredator_team].hatesteam[ REF_TO_INT( iprey_team ) ];
+    return TeamStack.lst[ipredator_team].hatesteam[ REF_TO_INT( iprey_team )];
 }
 
 //--------------------------------------------------------------------------------------------
@@ -560,9 +559,9 @@ static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 
     pchr->fat                = pchr->fat_stt;
     pchr->shadow_size_save   = pchr->shadow_size_stt;
-    pchr->bump_save.size     = ABS(pchr->bump_stt.size);
-    pchr->bump_save.size_big = ABS(pchr->bump_stt.size_big);
-    pchr->bump_save.height   = ABS(pchr->bump_stt.height);
+    pchr->bump_save.size     = ABS( pchr->bump_stt.size );
+    pchr->bump_save.size_big = ABS( pchr->bump_stt.size_big );
+    pchr->bump_save.height   = ABS( pchr->bump_stt.height );
 
     chr_update_size( pchr );
 }
@@ -596,7 +595,7 @@ static INLINE void chr_set_width( chr_t * pchr, float width )
     if ( !DEFINED_PCHR( pchr ) ) return;
 
     ratio = width / pchr->bump_stt.size;
-    ratio = ABS(ratio);
+    ratio = ABS( ratio );
 
     pchr->shadow_size_stt   *= ratio;
     pchr->bump_stt.size     *= ratio;
@@ -642,3 +641,8 @@ static INLINE void chr_set_height( chr_t * pchr, float height )
 
     chr_update_size( pchr );
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _char_inl

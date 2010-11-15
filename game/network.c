@@ -1318,8 +1318,8 @@ void net_handlePacket( ENetEvent *event )
                 // Check to see if the module exists
                 if ( -1 != pickedmodule_index )
                 {
-                    strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
-                    strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
+                    strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path( pickedmodule_index ), SDL_arraysize( pickedmodule_path ) );
+                    strncpy( pickedmodule_name,       mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pickedmodule_name ) );
                     strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
                     pickedmodule_ready = btrue;
@@ -2172,12 +2172,12 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
 //--------------------------------------------------------------------------------------------
 player_t* chr_get_ppla( const CHR_REF ichr )
 {
-	PLA_REF iplayer;
+    PLA_REF iplayer;
 
-	if ( !INGAME_CHR( ichr ) ) return NULL;
-	iplayer = ChrList.lst[ichr].is_which_player;
+    if ( !INGAME_CHR( ichr ) ) return NULL;
+    iplayer = ChrList.lst[ichr].is_which_player;
 
-	if ( !VALID_PLA( iplayer ) ) return NULL;
+    if ( !VALID_PLA( iplayer ) ) return NULL;
 
-	return PlaStack.lst + iplayer;
+    return PlaStack.lst + iplayer;
 }

@@ -36,18 +36,12 @@
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
 
-#if defined __cplusplus
-#   define bool_t bool
-#   define btrue  true
-#   define bfalse false
-#else
 enum e_bool
 {
     btrue  = ( 1 == 1 ),
     bfalse = ( !btrue )
 };
 typedef enum e_bool bool_t;
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -97,18 +91,18 @@ typedef Sint32 SFP16_T;
 
 //--------------------------------------------------------------------------------------------
 // BIT FIELDS
-typedef Uint32 BIT_FIELD;								///< A big string supporting 32 bits
-#define FULL_BIT_FIELD		0x7FFFFFFF					///< A bit string where all bits are flagged as 1
-#define EMPTY_BIT_FIELD		0							///< A bit string where all bits are flagged as 0
-#define FILL_BIT_FIELD(XX)	XX = FULL_BIT_FIELD			///< Fills up all bits in a bit pattern
-#define RESET_BIT_FIELD(XX) XX = EMPTY_BIT_FIELD		///< Resets all bits in a BIT_FIELD to 0
+typedef Uint32 BIT_FIELD;                               ///< A big string supporting 32 bits
+#define FULL_BIT_FIELD      0x7FFFFFFF                  ///< A bit string where all bits are flagged as 1
+#define EMPTY_BIT_FIELD     0                           ///< A bit string where all bits are flagged as 0
+#define FILL_BIT_FIELD(XX)  XX = FULL_BIT_FIELD         ///< Fills up all bits in a bit pattern
+#define RESET_BIT_FIELD(XX) XX = EMPTY_BIT_FIELD        ///< Resets all bits in a BIT_FIELD to 0
 
 #if !defined(SET_BIT)
-	#define SET_BIT(XX, YY) XX |= YY
+#define SET_BIT(XX, YY) XX |= YY
 #endif
 
 #if !defined(UNSET_BIT)
-	#define UNSET_BIT(XX, YY) XX &= ~YY
+#define UNSET_BIT(XX, YY) XX &= ~YY
 #endif
 
 #if !defined(BOOL_TO_BIT)
@@ -388,120 +382,38 @@ typedef Uint16 REF_T;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// place this include here so that the REF_T is defined for egoboo_typedef_cpp.h
-
-#if defined(__cplusplus)
-#    include "egoboo_typedef_cpp.h"
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // definitions for the compiler environment
 
-#if defined(__cplusplus)
 
-#   define EGOBOO_ASSERT(X) CPP_EGOBOO_ASSERT(X)
-#   define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
-
-#else
-
-#   define EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
-#   define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
-
-#endif
+#define EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
+#define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // implementation of forward declaration of references
 
-#if defined(__cplusplus) && defined(DEBUG_CPP_LISTS)
+#define REF_TO_INT(X)  C_REF_TO_INT(X)
 
-#   define REF_TO_INT(X)  REF_TO_INT(X)
-#   define _REF_TO_INT(X) C_REF_TO_INT(X)
+#define DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
 
-#   define DECLARE_T_ARY(TYPE, NAME, COUNT)              CPP_DECLARE_T_ARY(TYPE, NAME, COUNT)
+#define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
+#define INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
+#define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
 
-#   define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        CPP_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
-#   define INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     CPP_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
-#   define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     CPP_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
-
-#    define DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      CPP_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
-#    define INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  CPP_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
-#    define INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) CPP_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+#define DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
+#define INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
+#define INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
 
 // use an underscore to force the c implementation
-#   define _DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
+#define _DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
 
-#   define _DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
-#   define _INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
-#   define _INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
+#define _DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
+#define _INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
+#define _INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
 
-#    define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
-#    define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
-#    define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
-
-typedef struct s_cap cap_t;
-typedef struct s_chr chr_t;
-typedef struct s_team team_t;
-typedef struct s_eve eve_t;
-typedef struct s_enc enc_t;
-typedef struct s_mad mad_t;
-typedef struct s_player player_t;
-typedef struct s_pip pip_t;
-typedef struct s_prt prt_t;
-typedef struct s_passage passage_t;
-typedef struct s_shop shop_t;
-typedef struct s_object_profile pro_t;
-typedef struct s_oglx_texture oglx_texture_t;
-typedef struct s_billboard_data billboard_data_t;
-typedef struct s_looped_sound_data looped_sound_data_t;
-typedef struct s_mnu_module mnu_module_t;
-typedef struct s_tx_request tx_request_t;
-
-CPP_DECLARE_REF( cap_t, CAP_REF );
-CPP_DECLARE_REF( chr_t, CHR_REF );
-CPP_DECLARE_REF( team_t, TEAM_REF );
-CPP_DECLARE_REF( eve_t, EVE_REF );
-CPP_DECLARE_REF( enc_t, ENC_REF );
-CPP_DECLARE_REF( mad_t, MAD_REF );
-CPP_DECLARE_REF( player_t, PLA_REF );
-CPP_DECLARE_REF( pip_t, PIP_REF );
-CPP_DECLARE_REF( prt_t, PRT_REF );
-CPP_DECLARE_REF( passage_t, PASS_REF );
-CPP_DECLARE_REF( shop_t, SHOP_REF );
-CPP_DECLARE_REF( pro_t, PRO_REF );
-CPP_DECLARE_REF( oglx_texture_t, TX_REF );
-CPP_DECLARE_REF( billboard_data_t, BBOARD_REF );
-CPP_DECLARE_REF( looped_sound_data_t, LOOP_REF );
-CPP_DECLARE_REF( mnu_module_t, MOD_REF );
-CPP_DECLARE_REF( MOD_REF, MOD_REF_REF );
-CPP_DECLARE_REF( tx_request_t, TREQ_REF );
-
-#else
-
-#   define REF_TO_INT(X)  C_REF_TO_INT(X)
-#   define _REF_TO_INT(X) C_REF_TO_INT(X)
-
-#   define DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
-
-#   define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
-#   define INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
-#   define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
-
-#    define DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
-#    define INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
-#    define INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
-
-// use an underscore to force the c implementation
-#   define _DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
-
-#   define _DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
-#   define _INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
-#   define _INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
-
-#    define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
-#    define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
-#    define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+#define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
+#define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
+#define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
 
 C_DECLARE_REF( CAP_REF );
 C_DECLARE_REF( CHR_REF );
@@ -521,7 +433,7 @@ C_DECLARE_REF( LOOP_REF );
 C_DECLARE_REF( MOD_REF );
 C_DECLARE_REF( TREQ_REF );
 C_DECLARE_REF( MOD_REF_REF );
-#endif
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

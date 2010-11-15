@@ -23,6 +23,9 @@
 
 #include "clock.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define MSGDISTANCE         2000                    ///< Range for SendMessageNear
 #define PITNOSOUND          -256                    ///< Stop sound at bottom of pits...
 
@@ -41,6 +44,9 @@
 #define NEARBY      3*GRID_SIZE    ///< 3 tiles away
 #define WIDE        6*GRID_SIZE    ///< 6 tiles away
 #define NEAREST     0              ///< unlimited range
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /// Character AI alerts
 enum chr_alert_bits
@@ -85,8 +91,9 @@ enum chr_alert_bits
 };
 
 //--------------------------------------------------------------------------------------------
+// struct s_waypoint_list
 //--------------------------------------------------------------------------------------------
-// AI variables
+
 #define MAXWAY              8                       ///< Waypoints
 #define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
 
@@ -118,6 +125,10 @@ bool_t waypoint_list_clear( waypoint_list_t * plst );
 bool_t waypoint_list_empty( waypoint_list_t * plst );
 bool_t waypoint_list_finished( waypoint_list_t * plst );
 bool_t waypoint_list_advance( waypoint_list_t * plst );
+
+//--------------------------------------------------------------------------------------------
+// struct s_ai_state
+//--------------------------------------------------------------------------------------------
 
 /// the state variables for a script / AI
 struct s_ai_state
@@ -185,6 +196,7 @@ bool_t       ai_state_get_wp( ai_state_t * pself );
 bool_t       ai_state_ensure_wp( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
+// struct s_script_state
 //--------------------------------------------------------------------------------------------
 
 /// The state of the scripting system
@@ -201,8 +213,8 @@ struct s_script_state
 typedef struct s_script_state script_state_t;
 
 //--------------------------------------------------------------------------------------------
+// FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
-// Prototypes
 
 void  scr_run_chr_script( const CHR_REF character );
 

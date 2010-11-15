@@ -22,22 +22,22 @@
 /// @details
 
 #include "sound.h"
+
 #include "camera.h"
 #include "log.h"
 #include "game.h"
-#include "char.inl"
-
-#include "pip_file.h"
+#include "graphic.h"
 
 #include "egoboo_vfs.h"
-#include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
 
-#include "egoboo.h"
+#include "egoboo_math.inl"
 
 #include <SDL.h>
+
+#include "char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,12 +53,6 @@ struct s_looped_sound_data
 typedef struct s_looped_sound_data looped_sound_data_t;
 
 INSTANTIATE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
-
-//#if !defined(DEBUG_CPP_LISTS)
-//
-//#elif defined(__cplusplus)
-//    INSTANTIATE_LIST( static, looped_sound_data_t, LoopedList, LOOPED_COUNT );
-//#endif
 
 static void   LoopedList_init();
 static void   LoopedList_clear();
@@ -93,7 +87,7 @@ static const char * wavenames[GSND_COUNT] =
     "coinfall",
     "lvlup",
     "pitfall",
-	"shieldblock"
+    "shieldblock"
 };
 
 static bool_t sound_atexit_registered = bfalse;
@@ -618,7 +612,7 @@ int sound_play_chunk_full( Mix_Chunk * pchunk )
     channel = Mix_PlayChannel( -1, pchunk, 0 );
 
     // we are still limited by the global sound volume
-    Mix_Volume( channel, (128*snd.soundvolume) / 100 );
+    Mix_Volume( channel, ( 128*snd.soundvolume ) / 100 );
 
     return channel;
 }
@@ -737,7 +731,7 @@ void load_global_waves()
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_PITFALL] );
     g_wavelist[GSND_PITFALL] = sound_load_chunk_vfs( wavename );
 
-	snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_SHIELDBLOCK] );
+    snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_SHIELDBLOCK] );
     g_wavelist[GSND_SHIELDBLOCK] = sound_load_chunk_vfs( wavename );
 
     /*
@@ -1168,6 +1162,6 @@ void sound_free_chunk( Mix_Chunk * pchunk )
 //--------------------------------------------------------------------------------------------
 int get_current_song_playing()
 {
-	//ZF> This gives read access to the private variable 'songplaying'
-	return songplaying;
+    //ZF> This gives read access to the private variable 'songplaying'
+    return songplaying;
 }

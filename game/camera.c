@@ -81,12 +81,12 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->zgoto        =  800;
     pcam->turn_z_rad   = -PI / 4.0f;
     pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
-    pcam->ori.facing_z = CLIP_TO_16BITS( ( int )( pcam->turn_z_one * (float)0x00010000 ) ) ;
+    pcam->ori.facing_z = CLIP_TO_16BITS(( int )( pcam->turn_z_one * ( float )0x00010000 ) ) ;
     pcam->turnadd      =  0;
     pcam->sustain      =  0.60f;
     pcam->turnupdown   = ( float )( PI / 4 );
-	pcam->roll         =  0;
-	pcam->motion_blur  =  0;
+    pcam->roll         =  0;
+    pcam->motion_blur  =  0;
 
     pcam->mView       = pcam->mViewSave = ViewMatrix( t1.v, t2.v, t3.v, 0 );
     pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( CAM_FOV * PI / 180 ) ); // 60 degree CAM_FOV
@@ -138,70 +138,70 @@ void camera_look_at( camera_t * pcam, float x, float y )
 //--------------------------------------------------------------------------------------------
 void camera_make_matrix( camera_t * pcam )
 {
-	/// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
+    /// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
 
-	float local_swingamp = pcam->swingamp;
+    float local_swingamp = pcam->swingamp;
 
-	//Fade out the motion blur
-	if ( pcam->motion_blur > 0 )
-	{
-		pcam->motion_blur *= 0.99f; //Decay factor
-		if ( pcam->motion_blur < 0.001f ) pcam->motion_blur = 0;
-	}
+    //Fade out the motion blur
+    if ( pcam->motion_blur > 0 )
+    {
+        pcam->motion_blur *= 0.99f; //Decay factor
+        if ( pcam->motion_blur < 0.001f ) pcam->motion_blur = 0;
+    }
 
-	//Swing the camera if players are groggy and apply motion blur
-	if ( local_groglevel > 0 )
-	{
-		float zoom_add;
-		pcam->swing = ( pcam->swing + 120 ) & 0x3FFF;
-		local_swingamp = MAX( local_swingamp, 0.175f );
+    //Swing the camera if players are groggy and apply motion blur
+    if ( local_groglevel > 0 )
+    {
+        float zoom_add;
+        pcam->swing = ( pcam->swing + 120 ) & 0x3FFF;
+        local_swingamp = MAX( local_swingamp, 0.175f );
 
-		zoom_add = ( 0 == ( local_groglevel % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_groglevel * 0.35f;
-		pcam->zaddgoto = CLIP( pcam->zaddgoto + zoom_add, CAM_ZADD_MIN, CAM_ZADD_MAX );
-		pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_groglevel );
-	}
+        zoom_add = ( 0 == ( local_groglevel % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_groglevel * 0.35f;
+        pcam->zaddgoto = CLIP( pcam->zaddgoto + zoom_add, CAM_ZADD_MIN, CAM_ZADD_MAX );
+        pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_groglevel );
+    }
 
-	//Rotate camera if they are dazed and apply motion blur
-	if ( local_dazelevel > 0 )
-	{
-		pcam->turnadd = local_dazelevel * CAM_TURN_KEY;
-		pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_dazelevel );
-	}
+    //Rotate camera if they are dazed and apply motion blur
+    if ( local_dazelevel > 0 )
+    {
+        pcam->turnadd = local_dazelevel * CAM_TURN_KEY;
+        pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_dazelevel );
+    }
 
-	//Apply camera swinging
-	pcam->mView = MatrixMult( Translate( pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave );  // xgg
-	if ( local_swingamp > 0.001f )
-	{
-		pcam->roll = turntosin[pcam->swing] * local_swingamp;
-		pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
-	}
+    //Apply camera swinging
+    pcam->mView = MatrixMult( Translate( pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave );  // xgg
+    if ( local_swingamp > 0.001f )
+    {
+        pcam->roll = turntosin[pcam->swing] * local_swingamp;
+        pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
+    }
 
-	// If the camera stops swinging for some reason, slowly return to original position
-	else if ( pcam->roll != 0 )
-	{
-		pcam->roll *= 0.9875f;            //Decay factor
-		pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
+    // If the camera stops swinging for some reason, slowly return to original position
+    else if ( pcam->roll != 0 )
+    {
+        pcam->roll *= 0.9875f;            //Decay factor
+        pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
 
-		// Come to a standstill at some point
-		if ( ABS( pcam->roll ) < 0.001f )
-		{
-			pcam->roll = 0;
-			pcam->swing = 0;
-		}
-	}
+        // Come to a standstill at some point
+        if ( ABS( pcam->roll ) < 0.001f )
+        {
+            pcam->roll = 0;
+            pcam->swing = 0;
+        }
+    }
 
-	pcam->mView = MatrixMult( RotateZ( pcam->turn_z_rad ), pcam->mView );
-	pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
+    pcam->mView = MatrixMult( RotateZ( pcam->turn_z_rad ), pcam->mView );
+    pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
 
-	//--- pre-compute some camera vectors
-	pcam->vfw = mat_getCamForward( pcam->mView );
-	fvec3_self_normalize( pcam->vfw.v );
+    //--- pre-compute some camera vectors
+    pcam->vfw = mat_getCamForward( pcam->mView );
+    fvec3_self_normalize( pcam->vfw.v );
 
-	pcam->vup = mat_getCamUp( pcam->mView );
-	fvec3_self_normalize( pcam->vup.v );
+    pcam->vup = mat_getCamUp( pcam->mView );
+    fvec3_self_normalize( pcam->vup.v );
 
-	pcam->vrt = mat_getCamRight( pcam->mView );
-	fvec3_self_normalize( pcam->vrt.v );
+    pcam->vrt = mat_getCamRight( pcam->mView );
+    fvec3_self_normalize( pcam->vrt.v );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -612,7 +612,7 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->zgoto        = 1500;
     pcam->turn_z_rad   = -PI / 4.0f;
     pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
-    pcam->ori.facing_z = CLIP_TO_16BITS( ( int )( pcam->turn_z_one * (float)0x00010000 ) ) ;
+    pcam->ori.facing_z = CLIP_TO_16BITS(( int )( pcam->turn_z_one * ( float )0x00010000 ) ) ;
     pcam->turnupdown   = PI / 4.0f;
     pcam->roll         = 0;
 

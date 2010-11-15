@@ -151,11 +151,11 @@ void oglx_upload_2d_mipmap( GLboolean use_alpha, GLsizei w, GLsizei h, const GLv
 {
     if ( use_alpha )
     {
-        GL_DEBUG(gluBuild2DMipmaps)( GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, data );
+        GL_DEBUG( gluBuild2DMipmaps )( GL_TEXTURE_2D, 4, w, h, GL_RGBA, GL_UNSIGNED_BYTE, data );
     }
     else
     {
-        GL_DEBUG(gluBuild2DMipmaps)( GL_TEXTURE_2D, GL_RGB, w, h, GL_BGR_EXT, GL_UNSIGNED_BYTE, data );
+        GL_DEBUG( gluBuild2DMipmaps )( GL_TEXTURE_2D, GL_RGB, w, h, GL_BGR_EXT, GL_UNSIGNED_BYTE, data );
     }
 }
 
@@ -173,8 +173,8 @@ void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
     pcaps->gl_renderer    = GL_DEBUG( glGetString )( GL_RENDERER );
     pcaps->gl_extensions  = GL_DEBUG( glGetString )( GL_EXTENSIONS );
 
-    pcaps->glu_version    = GL_DEBUG(gluGetString)( GL_VERSION );
-    pcaps->glu_extensions = GL_DEBUG(gluGetString)( GL_EXTENSIONS );
+    pcaps->glu_version    = GL_DEBUG( gluGetString )( GL_VERSION );
+    pcaps->glu_extensions = GL_DEBUG( gluGetString )( GL_EXTENSIONS );
 
     GL_DEBUG( glGetIntegerv )( GL_MAX_MODELVIEW_STACK_DEPTH,     &pcaps->max_modelview_stack_depth );
     GL_DEBUG( glGetIntegerv )( GL_MAX_PROJECTION_STACK_DEPTH,    &pcaps->max_projection_stack_depth );

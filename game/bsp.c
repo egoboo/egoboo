@@ -51,13 +51,6 @@ static bool_t BSP_leaf_list_collide( BSP_leaf_t * leaf_lst, size_t leaf_count, B
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_BSP_aabb::s_BSP_aabb() { memset( this, 0, sizeof( *this ) ); };
-s_BSP_aabb::s_BSP_aabb( size_t dim ) { BSP_aabb_ctor( this, dim ); };
-s_BSP_aabb::~s_BSP_aabb()  { BSP_aabb_dtor( this ); };
-#endif
-
-//--------------------------------------------------------------------------------------------
 BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim )
 {
     if ( NULL == pbb ) return NULL;
@@ -88,7 +81,7 @@ BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb )
 //--------------------------------------------------------------------------------------------
 BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim )
 {
-    if( NULL == pbb ) return pbb;
+    if ( NULL == pbb ) return pbb;
 
     pbb->dim = 0;
 
@@ -98,7 +91,7 @@ BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim )
 
     if ( dim != pbb->mins.alloc || dim != pbb->mids.alloc || dim != pbb->maxs.alloc )
     {
-        BSP_aabb_dealloc(pbb);
+        BSP_aabb_dealloc( pbb );
     }
     else
     {
@@ -114,7 +107,7 @@ BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim )
 //--------------------------------------------------------------------------------------------
 BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb )
 {
-    if( NULL == pbb ) return pbb;
+    if ( NULL == pbb ) return pbb;
 
     // deallocate everything
     float_ary_dtor( &( pbb->mins ) );
@@ -218,7 +211,7 @@ bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, const oct_bb_t * psrc )
         pdst->mids.ary[cnt] = 0.5f * ( pdst->mins.ary[cnt] + pdst->maxs.ary[cnt] );
     }
 
-    BSP_aabb_validate(pdst);
+    BSP_aabb_validate( pdst );
 
     return btrue;
 }
@@ -228,7 +221,7 @@ bool_t BSP_aabb_validate( BSP_aabb_t * psrc )
 {
     size_t cnt;
 
-    if( NULL == psrc ) return bfalse;
+    if ( NULL == psrc ) return bfalse;
 
     // set it to valid
     psrc->valid = btrue;
@@ -236,17 +229,17 @@ bool_t BSP_aabb_validate( BSP_aabb_t * psrc )
     // check to see if any dimension is inverted
     for ( cnt = 0; cnt < psrc->dim; cnt++ )
     {
-        if( psrc->maxs.ary[cnt] < psrc->mids.ary[cnt] )
+        if ( psrc->maxs.ary[cnt] < psrc->mids.ary[cnt] )
         {
             psrc->valid = bfalse;
             break;
         }
-        if( psrc->maxs.ary[cnt] < psrc->mins.ary[cnt] )
+        if ( psrc->maxs.ary[cnt] < psrc->mins.ary[cnt] )
         {
             psrc->valid = bfalse;
             break;
         }
-        if( psrc->mids.ary[cnt] < psrc->mins.ary[cnt] )
+        if ( psrc->mids.ary[cnt] < psrc->mins.ary[cnt] )
         {
             psrc->valid = bfalse;
             break;
@@ -259,7 +252,7 @@ bool_t BSP_aabb_validate( BSP_aabb_t * psrc )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_aabb_invalidate( BSP_aabb_t * psrc )
 {
-    if( NULL == psrc ) return bfalse;
+    if ( NULL == psrc ) return bfalse;
 
     // set it to valid
     psrc->valid = bfalse;
@@ -272,22 +265,22 @@ bool_t BSP_aabb_copy( BSP_aabb_t * pdst, const BSP_aabb_t * psrc )
 {
     size_t cnt;
 
-    if( NULL == pdst ) return bfalse;
+    if ( NULL == pdst ) return bfalse;
 
-    if( NULL == psrc )
+    if ( NULL == psrc )
     {
         BSP_aabb_dtor( pdst );
         return bfalse;
     }
 
     // ensure that they have the same dimensions
-    if( pdst->dim != psrc->dim )
+    if ( pdst->dim != psrc->dim )
     {
-        BSP_aabb_dealloc(pdst);
-        BSP_aabb_alloc(pdst, psrc->dim);
+        BSP_aabb_dealloc( pdst );
+        BSP_aabb_alloc( pdst, psrc->dim );
     }
 
-    for( cnt = 0; cnt < psrc->dim; cnt++)
+    for ( cnt = 0; cnt < psrc->dim; cnt++ )
     {
         pdst->mins.ary[cnt] = psrc->mins.ary[cnt];
         pdst->mids.ary[cnt] = psrc->mids.ary[cnt];
@@ -301,11 +294,6 @@ bool_t BSP_aabb_copy( BSP_aabb_t * pdst, const BSP_aabb_t * psrc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_BSP_leaf::s_BSP_leaf() { memset( this, 0, sizeof( *this ) ); } ;
-s_BSP_leaf::~s_BSP_leaf() { BSP_leaf_dtor( this ); };
-#endif
-
 BSP_leaf_t * BSP_leaf_create( int dim, void * data, int type )
 {
     BSP_leaf_t * rv;
@@ -361,12 +349,6 @@ bool_t BSP_leaf_dtor( BSP_leaf_t * L )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_BSP_branch::s_BSP_branch()           { memset( this, 0, sizeof( *this ) ); }
-s_BSP_branch::s_BSP_branch( size_t dim ) { BSP_branch_ctor( this, dim ); }
-s_BSP_branch::~s_BSP_branch()          { BSP_branch_dtor( this ); }
-#endif
-
 BSP_branch_t * BSP_branch_create( size_t dim )
 {
     BSP_branch_t * rv;
@@ -728,12 +710,6 @@ bool_t BSP_branch_collide( BSP_branch_t * pbranch, BSP_aabb_t * paabb, BSP_leaf_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_BSP_tree::s_BSP_tree() { memset( this, 0, sizeof( *this ) ); }
-s_BSP_tree::s_BSP_tree( Sint32 dim, Sint32 depth ) { BSP_tree_ctor( this, dim, depth ); }
-s_BSP_tree::~s_BSP_tree() { BSP_tree_dtor( this ); }
-#endif
-
 bool_t BSP_tree_init_0( BSP_tree_t * t )
 {
     /// @details BB@> reset the tree to the "empty" state. Assume we do not own the node_lst or child_lst.

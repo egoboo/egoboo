@@ -28,20 +28,20 @@
 
 /* Typedefs for various platforms */
 #include "egoboo_typedef.h"
-#include "egoboo_math.h"  /* vector and matrix math */
-#include "egoboo_config.h"
+//#include "egoboo_math.h"  /* vector and matrix math */
+//#include "egoboo_config.h"
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include "file_common.h"
-#include <string.h>
-#include <fcntl.h>
-#include <ctype.h>
-#include <time.h>
-#include <math.h>
+//#include <stdlib.h>
+//#include <stdarg.h>
+//#include "file_common.h"
+//#include <string.h>
+//#include <fcntl.h>
+//#include <ctype.h>
+//#include <time.h>
+//#include <math.h>
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+//#include <SDL.h>
+//#include <SDL_opengl.h>
 
 /// The following magic allows this include to work in multiple files
 #if defined(DECLARE_GLOBALS)
@@ -132,14 +132,14 @@ EXTERN Uint32          true_frame  EQ( 0 );
 EXTERN int             update_lag  EQ( 0 );
 EXTERN bool_t          soundon  EQ( btrue );              ///< Is the sound alive?
 
-EXTERN bool_t          pickedmodule_ready EQ(bfalse);   ///< Is there a new picked module?
-EXTERN int             pickedmodule_index EQ(-1);       ///< The module index number
+EXTERN bool_t          pickedmodule_ready EQ( bfalse ); ///< Is there a new picked module?
+EXTERN int             pickedmodule_index EQ( -1 );     ///< The module index number
 EXTERN STRING          pickedmodule_path;               ///< The picked module's full path name
 EXTERN STRING          pickedmodule_name;               ///< The picked module's short name
 EXTERN STRING          pickedmodule_write_path;         ///< The picked module's path name relative to the userdata directory
 
 /// Respawning
-EXTERN bool_t                   local_allpladead EQ(bfalse);    ///< Has everyone died?
+EXTERN bool_t                   local_allpladead EQ( bfalse );  ///< Has everyone died?
 EXTERN int                      revivetimer EQ( 0 );
 
 /// Imports
@@ -162,8 +162,8 @@ EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from 
 
 #define INVISIBLE           20                      ///< The character can't be detected
 
-EXTERN int                       local_groglevel		 EQ( 0 );
-EXTERN int                       local_dazelevel		 EQ( 0 );
+EXTERN int                       local_groglevel         EQ( 0 );
+EXTERN int                       local_dazelevel         EQ( 0 );
 EXTERN int                       local_seeinvis_level    EQ( 0 );
 EXTERN int                       local_seedark_level     EQ( 0 );
 EXTERN int                       local_seekurse          EQ( 0 );
@@ -194,7 +194,7 @@ typedef struct s_ego_process ego_process_t;
 
 extern ego_process_t * EProc;
 
-void ego_init_SDL_base(void);
+void ego_init_SDL_base( void );
 
 EXTERN bool_t screenshot_requested EQ( bfalse );
 
@@ -203,9 +203,15 @@ EXTERN bool_t single_frame_keyready EQ( btrue );
 EXTERN bool_t single_frame_requested EQ( bfalse );
 EXTERN bool_t single_update_requested EQ( bfalse );
 
-void egoboo_clear_vfs_paths(void);
-void egoboo_setup_vfs_paths(void);
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+void egoboo_clear_vfs_paths( void );
+void egoboo_setup_vfs_paths( void );
 
 Uint32 egoboo_get_ticks( void );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 #define  _EGOBOO_H_

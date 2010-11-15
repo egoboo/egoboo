@@ -223,7 +223,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
 {
     REF_T AA, BB;
 
-    AA = ( Uint32 )( ~((Uint32)0) );
+    AA = ( Uint32 )( ~(( Uint32 )0 ) );
     if ( INGAME_CHR( coll->chra ) )
     {
         AA = REF_TO_INT( coll->chra );
@@ -233,7 +233,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
         AA = REF_TO_INT( coll->prta );
     }
 
-    BB = ( Uint32 )( ~((Uint32)0) );
+    BB = ( Uint32 )( ~(( Uint32 )0 ) );
     if ( INGAME_CHR( coll->chrb ) )
     {
         BB = REF_TO_INT( coll->chra );
@@ -321,7 +321,7 @@ int CoNode_matches( CoNode_t * pleft, CoNode_t * pright )
 {
     CoNode_t right_rev;
 
-    if( 0 == CoNode_cmp_unique( pleft, pright ) ) return btrue;
+    if ( 0 == CoNode_cmp_unique( pleft, pright ) ) return btrue;
 
     // make a reversed version of pright
     right_rev.tmin = pright->tmin;
@@ -330,9 +330,9 @@ int CoNode_matches( CoNode_t * pleft, CoNode_t * pright )
     right_rev.prta = pright->prtb;
     right_rev.chrb = pright->chra;
     right_rev.prtb = pright->prta;
-    right_rev.tileb  = pright->tileb; 
+    right_rev.tileb  = pright->tileb;
 
-    if( 0 == CoNode_cmp_unique( pleft, &right_rev ) ) return btrue;
+    if ( 0 == CoNode_cmp_unique( pleft, &right_rev ) ) return btrue;
 
     return bfalse;
 }
@@ -726,7 +726,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( pchr_a->chr_max_cv, pchr_a->pos.v, pchr_a->vel.v, pprt_b->prt_cv, prt_get_pos_v(pprt_b), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( pchr_a->chr_max_cv, pchr_a->pos.v, pchr_a->vel.v, pprt_b->prt_cv, prt_get_pos_v( pprt_b ), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.prtb = iprt_b;
@@ -1057,16 +1057,16 @@ bool_t do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     // size of b doesn't matter
 
     odepth[OCT_X]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pprt_b->pos.x,
-                            pprt_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
+                         pprt_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
     odepth[OCT_Y]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pprt_b->pos.y,
-                            pprt_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+                         pprt_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
     odepth[OCT_XY] = MIN(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
-                            ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+                         ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
     odepth[OCT_YX] = MIN(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
-                            ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+                         ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
 
     collide_x  = odepth[OCT_X]  > 0.0f;
     collide_y  = odepth[OCT_Y]  > 0.0f;
@@ -1174,19 +1174,19 @@ bool_t detach_character_from_platform( chr_t * pchr )
     old_level        = pchr->enviro.level;
     old_platform_ptr = NULL;
     old_zlerp        = pchr->enviro.zlerp;
-    if( INGAME_CHR(old_platform_ref) )
+    if ( INGAME_CHR( old_platform_ref ) )
     {
         old_platform_ptr = ChrList.lst + old_platform_ref;
     }
 
     // undo the attachment
-    pchr->onwhichplatform_ref    = (CHR_REF) MAX_CHR;
+    pchr->onwhichplatform_ref    = ( CHR_REF ) MAX_CHR;
     pchr->onwhichplatform_update = 0;
-    pchr->targetplatform_ref     = (CHR_REF) MAX_CHR;
+    pchr->targetplatform_ref     = ( CHR_REF ) MAX_CHR;
     pchr->targetplatform_level   = -1e32;
 
     // adjust the platform weight, if necessary
-    if( NULL != old_platform_ptr )
+    if ( NULL != old_platform_ptr )
     {
         old_platform_ptr->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
     }
@@ -1246,12 +1246,12 @@ bool_t detach_particle_from_platform( prt_t * pprt )
     prt_bundle_set( &bdl_prt, pprt );
 
     // check if they can be connected
-    if ( INGAME_CHR(pprt->onwhichplatform_ref) ) return bfalse;
+    if ( INGAME_CHR( pprt->onwhichplatform_ref ) ) return bfalse;
 
     // undo the attachment
-    pprt->onwhichplatform_ref    = (CHR_REF) MAX_CHR;
+    pprt->onwhichplatform_ref    = ( CHR_REF ) MAX_CHR;
     pprt->onwhichplatform_update = 0;
-    pprt->targetplatform_ref     = (CHR_REF) MAX_CHR;
+    pprt->targetplatform_ref     = ( CHR_REF ) MAX_CHR;
     pprt->targetplatform_level   = -1e32;
 
     // get the correct particle environment
@@ -1391,7 +1391,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
                 else if ( ChrList.lst[d->chrb].targetplatform_ref == d->chra )
                 {
                     attach_chr_to_platform( ChrList.lst + d->chrb, ChrList.lst + d->chra );
-				}
+                }
 
             }
         }
@@ -1423,7 +1423,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
     // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        if( MAX_CHR != pchr->onwhichplatform_ref && pchr->onwhichplatform_update < update_wld )
+        if ( MAX_CHR != pchr->onwhichplatform_ref && pchr->onwhichplatform_update < update_wld )
         {
             detach_character_from_platform( pchr );
         }
@@ -1434,7 +1434,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
     // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
     PRT_BEGIN_LOOP_DISPLAY( iprt, bdl_prt )
     {
-        if( MAX_CHR != bdl_prt.prt_ptr->onwhichplatform_ref && bdl_prt.prt_ptr->onwhichplatform_update < update_wld )
+        if ( MAX_CHR != bdl_prt.prt_ptr->onwhichplatform_ref && bdl_prt.prt_ptr->onwhichplatform_update < update_wld )
         {
             detach_particle_from_platform( bdl_prt.prt_ptr );
         }
@@ -1590,12 +1590,12 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             {
                 // restore the old values
                 tmp_pos.z = pchr->enviro.floor_level;
-                if( pchr->vel.z < 0 )
+                if ( pchr->vel.z < 0 )
                 {
                     cap_t * pcap = chr_get_pcap( ichr );
-                    if( NULL != pcap )
+                    if ( NULL != pcap )
                     {
-                        pchr->vel.z += -(1.0f + pcap->dampen) * pchr->vel.z;
+                        pchr->vel.z += -( 1.0f + pcap->dampen ) * pchr->vel.z;
                     }
                 }
                 position_updated = btrue;
@@ -1607,7 +1607,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             }
         }
 
-        if( position_updated )
+        if ( position_updated )
         {
             chr_set_pos( pchr, tmp_pos.v );
         }
@@ -1656,8 +1656,8 @@ bool_t do_mounts( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
     if ( !mount_a && !mount_b ) return bfalse;
 
-	//Ready for position calulations
-	xa = pchr_a->pos.x;
+    //Ready for position calulations
+    xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
     za = pchr_a->pos.z;
 
@@ -1665,7 +1665,7 @@ bool_t do_mounts( const CHR_REF ichr_a, const CHR_REF ichr_b )
     yb = pchr_b->pos.y;
     zb = pchr_b->pos.z;
 
-	mounted = bfalse;
+    mounted = bfalse;
     if ( !mounted && mount_b && ( pchr_a->vel.z - pchr_b->vel.z ) < 0 )
     {
         // A falling on B?
@@ -1913,8 +1913,8 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
-	//skip objects that are inside inventories
-	if( pchr_a->pack.is_packed || pchr_b->pack.is_packed ) return bfalse;
+    //skip objects that are inside inventories
+    if ( pchr_a->pack.is_packed || pchr_b->pack.is_packed ) return bfalse;
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
@@ -2004,7 +2004,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
         float tmp_min, tmp_max;
 
         tmp_min = d->tmin;
-        tmp_max = d->tmin + (d->tmax - d->tmin) * 0.1f;
+        tmp_max = d->tmin + ( d->tmax - d->tmin ) * 0.1f;
 
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_add_vector( pchr_a->chr_min_cv, pchr_a->pos.v, &src1 );
@@ -2032,7 +2032,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     //collision = !get_depth_2( pchr_a->chr_min_cv, pchr_a->pos_old, pchr_b->chr_min_cv, pchr_b->pos_old, btrue, odepth_old );
 
     // use the info from the collision volume to determine whether the objects are colliding
-    collision = (d->tmin >= 0.0f);
+    collision = ( d->tmin >= 0.0f );
 
     //------------------
     // do character-character interactions
@@ -2143,7 +2143,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
             bump = btrue;
         }
-        else if( wta >= 0.0f || wtb >= 0.0f )
+        else if ( wta >= 0.0f || wtb >= 0.0f )
         {
             // not a bump at all. two objects are rubbing against one another
             // and continually overlapping. use pressure to push them appart.
@@ -2165,30 +2165,30 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
             oct_vec_self_clear( &tmp_depth );
 
-            for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+            for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
             {
                 float diff1 = 0.0f;
                 float diff2 = 0.0f;
 
-                if( (pchr_a->chr_min_cv.mins[cnt] + tmp_opos_a[cnt]) < (pchr_b->chr_min_cv.maxs[cnt] + tmp_opos_b[cnt]) &&
-                    (pchr_a->chr_min_cv.maxs[cnt] + tmp_opos_a[cnt]) > (pchr_b->chr_min_cv.mins[cnt] + tmp_opos_b[cnt]) )
+                if (( pchr_a->chr_min_cv.mins[cnt] + tmp_opos_a[cnt] ) < ( pchr_b->chr_min_cv.maxs[cnt] + tmp_opos_b[cnt] ) &&
+                    ( pchr_a->chr_min_cv.maxs[cnt] + tmp_opos_a[cnt] ) > ( pchr_b->chr_min_cv.mins[cnt] + tmp_opos_b[cnt] ) )
                 {
-                    diff1 = (pchr_b->chr_min_cv.maxs[cnt] + tmp_opos_b[cnt]) - (pchr_a->chr_min_cv.mins[cnt] + tmp_opos_a[cnt]);
+                    diff1 = ( pchr_b->chr_min_cv.maxs[cnt] + tmp_opos_b[cnt] ) - ( pchr_a->chr_min_cv.mins[cnt] + tmp_opos_a[cnt] );
                 }
 
-                if( (pchr_a->chr_min_cv.maxs[cnt] + tmp_opos_a[cnt]) > (pchr_b->chr_min_cv.mins[cnt] + tmp_opos_b[cnt]) &&
-                    (pchr_a->chr_min_cv.mins[cnt] + tmp_opos_a[cnt]) < (pchr_b->chr_min_cv.maxs[cnt] + tmp_opos_b[cnt]) )
+                if (( pchr_a->chr_min_cv.maxs[cnt] + tmp_opos_a[cnt] ) > ( pchr_b->chr_min_cv.mins[cnt] + tmp_opos_b[cnt] ) &&
+                    ( pchr_a->chr_min_cv.mins[cnt] + tmp_opos_a[cnt] ) < ( pchr_b->chr_min_cv.maxs[cnt] + tmp_opos_b[cnt] ) )
                 {
-                    diff2 = (pchr_b->chr_min_cv.mins[cnt] + tmp_opos_b[cnt]) - (pchr_a->chr_min_cv.maxs[cnt] + tmp_opos_a[cnt]);
+                    diff2 = ( pchr_b->chr_min_cv.mins[cnt] + tmp_opos_b[cnt] ) - ( pchr_a->chr_min_cv.maxs[cnt] + tmp_opos_a[cnt] );
                 }
 
-                if( ABS(diff1) < ABS(diff2) )
+                if ( ABS( diff1 ) < ABS( diff2 ) )
                 {
-                    tmp_depth[cnt] = diff1; 
+                    tmp_depth[cnt] = diff1;
                 }
                 else
                 {
-                    tmp_depth[cnt] = diff2; 
+                    tmp_depth[cnt] = diff2;
                 }
             }
 
@@ -2198,69 +2198,69 @@ bool_t do_chr_chr_collision( CoNode_t * d )
             // first do the aa axes
             fvec3_self_clear( tmp_nrm1.v );
 
-            if( 0.0f != tmp_depth[OCT_X] ) tmp_nrm1.x = 1.0f / tmp_depth[OCT_X];
-            if( 0.0f != tmp_depth[OCT_Y] ) tmp_nrm1.y = 1.0f / tmp_depth[OCT_Y];
-            if( 0.0f != tmp_depth[OCT_Z] ) tmp_nrm1.z = 1.0f / tmp_depth[OCT_Z];
+            if ( 0.0f != tmp_depth[OCT_X] ) tmp_nrm1.x = 1.0f / tmp_depth[OCT_X];
+            if ( 0.0f != tmp_depth[OCT_Y] ) tmp_nrm1.y = 1.0f / tmp_depth[OCT_Y];
+            if ( 0.0f != tmp_depth[OCT_Z] ) tmp_nrm1.z = 1.0f / tmp_depth[OCT_Z];
 
             fvec3_self_normalize( tmp_nrm1.v );
 
             // find a minimum distance
             tmin1 = 1e6;
 
-            if( tmp_nrm1.x != 0.0f )
+            if ( tmp_nrm1.x != 0.0f )
             {
-                tmin1 = MIN(tmin1, tmp_depth[OCT_X] / tmp_nrm1.x );
+                tmin1 = MIN( tmin1, tmp_depth[OCT_X] / tmp_nrm1.x );
             }
 
-            if( tmp_nrm1.y != 0.0f )
+            if ( tmp_nrm1.y != 0.0f )
             {
-                tmin1 = MIN(tmin1, tmp_depth[OCT_Y] / tmp_nrm1.y );
+                tmin1 = MIN( tmin1, tmp_depth[OCT_Y] / tmp_nrm1.y );
             }
 
-            if( tmp_nrm1.z != 0.0f )
+            if ( tmp_nrm1.z != 0.0f )
             {
-                tmin1 = MIN(tmin1, tmp_depth[OCT_Z] / tmp_nrm1.z );
+                tmin1 = MIN( tmin1, tmp_depth[OCT_Z] / tmp_nrm1.z );
             }
 
             // next do the diagonal axes
             fvec3_self_clear( tmp_nrm2.v );
 
-            if( 0.0f != tmp_depth[OCT_XY] ) tmp_nrm2.x = 1.0f / (tmp_depth[OCT_XY] * INV_SQRT_TWO);
-            if( 0.0f != tmp_depth[OCT_YX] ) tmp_nrm2.y = 1.0f / (tmp_depth[OCT_YX] * INV_SQRT_TWO);
-            if( 0.0f != tmp_depth[OCT_Z ] ) tmp_nrm2.z = 1.0f / tmp_depth[OCT_Z];
+            if ( 0.0f != tmp_depth[OCT_XY] ) tmp_nrm2.x = 1.0f / ( tmp_depth[OCT_XY] * INV_SQRT_TWO );
+            if ( 0.0f != tmp_depth[OCT_YX] ) tmp_nrm2.y = 1.0f / ( tmp_depth[OCT_YX] * INV_SQRT_TWO );
+            if ( 0.0f != tmp_depth[OCT_Z ] ) tmp_nrm2.z = 1.0f / tmp_depth[OCT_Z];
 
             fvec3_self_normalize( tmp_nrm2.v );
 
             // find a minimum distance
             tmin2 = 1e6;
 
-            if( tmp_nrm2.x != 0.0f )
+            if ( tmp_nrm2.x != 0.0f )
             {
-                tmin2 = MIN(tmin2, INV_SQRT_TWO * tmp_depth[OCT_XY] / tmp_nrm2.x );
+                tmin2 = MIN( tmin2, INV_SQRT_TWO * tmp_depth[OCT_XY] / tmp_nrm2.x );
             }
 
-            if( tmp_nrm2.y != 0.0f )
+            if ( tmp_nrm2.y != 0.0f )
             {
-                tmin2 = MIN(tmin2, INV_SQRT_TWO * tmp_depth[OCT_YX] / tmp_nrm2.y );
+                tmin2 = MIN( tmin2, INV_SQRT_TWO * tmp_depth[OCT_YX] / tmp_nrm2.y );
             }
 
-            if( tmp_nrm2.z != 0.0f )
+            if ( tmp_nrm2.z != 0.0f )
             {
-                tmin2 = MIN(tmin2, tmp_depth[OCT_Z] / tmp_nrm2.z );
+                tmin2 = MIN( tmin2, tmp_depth[OCT_Z] / tmp_nrm2.z );
             }
 
             fvec3_self_clear( diff_a.v );
 
-            if( tmin1 < tmin2 && tmin1 < 1e6 )
+            if ( tmin1 < tmin2 && tmin1 < 1e6 )
             {
                 diff_a.x = tmin1 * tmp_nrm1.x;
                 diff_a.y = tmin1 * tmp_nrm1.y;
                 diff_a.z = tmin1 * tmp_nrm1.z;
             }
-            else if( tmin2 < tmin1 && tmin2 < 1e6 )
+            else if ( tmin2 < tmin1 && tmin2 < 1e6 )
             {
-                diff_a.x = tmin2 * (tmp_nrm2.x - tmp_nrm2.y) * INV_SQRT_TWO;
-                diff_a.y = tmin2 * (tmp_nrm2.x + tmp_nrm2.y) * INV_SQRT_TWO;
+                diff_a.x = tmin2 * ( tmp_nrm2.x - tmp_nrm2.y ) * INV_SQRT_TWO;
+                diff_a.y = tmin2 * ( tmp_nrm2.x + tmp_nrm2.y ) * INV_SQRT_TWO;
                 diff_a.z = tmin2 * tmp_nrm2.z;
             }
 
@@ -2371,7 +2371,7 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( pplat->chr_max_cv, pplat->pos, pprt->bump_padded, prt_get_pos(pprt), btrue );
+    plat_collision = test_interaction_close_1( pplat->chr_max_cv, pplat->pos, pprt->bump_padded, prt_get_pos( pprt ), btrue );
 
     if ( !plat_collision ) return bfalse;
 
@@ -2476,10 +2476,10 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
     pdata->mana_paid = bfalse;
     if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
     {
-		//Initialize for the billboard
-		const float lifetime = 3;
-	    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-		GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
+        //Initialize for the billboard
+        const float lifetime = 3;
+        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+        GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
 
         // magically deflect the particle or make a ricochet if the character is invictus
         int treatment;
@@ -2525,63 +2525,63 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 
             //Blocked!
             spawn_defense_ping( pchr, pprt->owner_ref );
-			chr_make_text_billboard( GET_REF_PCHR(pchr), "Blocked!", text_color, tint, lifetime, bb_opt_all );
+            chr_make_text_billboard( GET_REF_PCHR( pchr ), "Blocked!", text_color, tint, lifetime, bb_opt_all );
 
-			//If the attack was blocked by a shield, then check if the block caused a knockback
-			if( chr_is_invictus && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
-			{
-				bool_t using_shield;
-				CHR_REF item;
+            //If the attack was blocked by a shield, then check if the block caused a knockback
+            if ( chr_is_invictus && ACTION_IS_TYPE( pchr->inst.action_which, P ) )
+            {
+                bool_t using_shield;
+                CHR_REF item;
 
-				// Figure out if we are really using a shield or if it is just a invictus frame
-				using_shield = bfalse;
+                // Figure out if we are really using a shield or if it is just a invictus frame
+                using_shield = bfalse;
 
-				// Check right hand for a shield
-				item = pchr->holdingwhich[SLOT_RIGHT];
-				if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
-				{
-					using_shield = btrue;
-				}
+                // Check right hand for a shield
+                item = pchr->holdingwhich[SLOT_RIGHT];
+                if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
+                {
+                    using_shield = btrue;
+                }
 
-				// Check left hand for a shield
-				if ( !using_shield )
-				{
-					item = pchr->holdingwhich[SLOT_LEFT];
-					if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
-					{
-						using_shield = btrue;
-					}
-				}
+                // Check left hand for a shield
+                if ( !using_shield )
+                {
+                    item = pchr->holdingwhich[SLOT_LEFT];
+                    if ( INGAME_CHR( item ) && pchr->ai.lastitemused == item )
+                    {
+                        using_shield = btrue;
+                    }
+                }
 
-				// Now we have the block rating and know the enemy
-				if( INGAME_CHR( pprt->owner_ref )&& using_shield )
-				{
-					chr_t *pshield = ChrList.lst + item;
-					chr_t *pattacker = ChrList.lst + pprt->owner_ref;
-					int total_block_rating;
+                // Now we have the block rating and know the enemy
+                if ( INGAME_CHR( pprt->owner_ref ) && using_shield )
+                {
+                    chr_t *pshield = ChrList.lst + item;
+                    chr_t *pattacker = ChrList.lst + pprt->owner_ref;
+                    int total_block_rating;
 
-					//use the character block skill plus the base block rating of the shield and adjust for strength
-					total_block_rating = chr_get_skill( pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
-					total_block_rating += chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
-					total_block_rating -= SFP8_TO_SINT( pattacker->strength ) * 4;            //-4% per attacker strength
-					total_block_rating += SFP8_TO_SINT( pchr->strength )      * 2;            //+2% per defender strength
+                    //use the character block skill plus the base block rating of the shield and adjust for strength
+                    total_block_rating = chr_get_skill( pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
+                    total_block_rating += chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
+                    total_block_rating -= SFP8_TO_SINT( pattacker->strength ) * 4;            //-4% per attacker strength
+                    total_block_rating += SFP8_TO_SINT( pchr->strength )      * 2;            //+2% per defender strength
 
-					//Now determine the result of the block
-					if ( generate_randmask( 1, 100 ) <= total_block_rating )
-					{
-						//Defender won, the block holds
-						//Add a small stun to the attacker for about 0.8 seconds
-						pattacker->reload_timer += 40;
-					}
-					else
-					{
-						//Attacker broke the block and batters away the shield
-						//Time to raise shield again (about 0.8 seconds)
-						pchr->reload_timer += 40;
-						sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
-					}
-				}
-			}
+                    //Now determine the result of the block
+                    if ( generate_randmask( 1, 100 ) <= total_block_rating )
+                    {
+                        //Defender won, the block holds
+                        //Add a small stun to the attacker for about 0.8 seconds
+                        pattacker->reload_timer += 40;
+                    }
+                    else
+                    {
+                        //Attacker broke the block and batters away the shield
+                        //Time to raise shield again (about 0.8 seconds)
+                        pchr->reload_timer += 40;
+                        sound_play_chunk( pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
+                    }
+                }
+            }
 
         }
     }
@@ -2780,103 +2780,103 @@ bool_t do_chr_prt_collision_damage( chr_t * pchr, prt_t * pprt, chr_prt_collsion
     }
 
     //---- Damage the character, if necessary
-	if( 0 != ABS( pprt->damage.base ) + ABS( pprt->damage.rand ) )
-	{
-		prt_needs_impact = pdata->ppip->rotatetoface || INGAME_CHR( pprt->attachedto_ref );
-		if ( INGAME_CHR( pprt->owner_ref ) )
-		{
-			chr_t * powner = ChrList.lst + pprt->owner_ref;
-			cap_t * powner_cap = pro_get_pcap( powner->profile_ref );
+    if ( 0 != ABS( pprt->damage.base ) + ABS( pprt->damage.rand ) )
+    {
+        prt_needs_impact = pdata->ppip->rotatetoface || INGAME_CHR( pprt->attachedto_ref );
+        if ( INGAME_CHR( pprt->owner_ref ) )
+        {
+            chr_t * powner = ChrList.lst + pprt->owner_ref;
+            cap_t * powner_cap = pro_get_pcap( powner->profile_ref );
 
-			if ( powner_cap->isranged ) prt_needs_impact = btrue;
-		}
+            if ( powner_cap->isranged ) prt_needs_impact = btrue;
+        }
 
-		// DAMFX_ARRO means that it only does damage to the one it's attached to
-		if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
-		{
-			FACING_T direction;
-			IPair loc_damage = pprt->damage;
+        // DAMFX_ARRO means that it only does damage to the one it's attached to
+        if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && !( prt_needs_impact && !( pdata->dot < 0.0f ) ) )
+        {
+            FACING_T direction;
+            IPair loc_damage = pprt->damage;
 
-			direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
-			direction = pchr->ori.facing_z - direction + ATK_BEHIND;
+            direction = vec_to_facing( pprt->vel.x , pprt->vel.y );
+            direction = pchr->ori.facing_z - direction + ATK_BEHIND;
 
-			//These things only apply if the particle has an owner
-			if ( INGAME_CHR( pprt->owner_ref ) )
-			{
-				CHR_REF item;
-				int drain;
-				chr_t * powner = ChrList.lst + pprt->owner_ref;
+            //These things only apply if the particle has an owner
+            if ( INGAME_CHR( pprt->owner_ref ) )
+            {
+                CHR_REF item;
+                int drain;
+                chr_t * powner = ChrList.lst + pprt->owner_ref;
 
-				// Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-				// +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-				if ( pdata->ppip->intdamagebonus )
-				{
-					float percent;
-					percent = (( FP8_TO_INT( powner->intelligence ) ) - 14 ) * 2;
-					percent /= 100;
-					loc_damage.base *= 1.00f + percent;
-					loc_damage.rand *= 1.00f + percent;
-				}
+                // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+                // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+                if ( pdata->ppip->intdamagebonus )
+                {
+                    float percent;
+                    percent = (( FP8_TO_INT( powner->intelligence ) ) - 14 ) * 2;
+                    percent /= 100;
+                    loc_damage.base *= 1.00f + percent;
+                    loc_damage.rand *= 1.00f + percent;
+                }
 
-				if ( pdata->ppip->wisdamagebonus )
-				{
-					float percent;
-					percent = ( FP8_TO_INT( powner->wisdom ) - 14 ) * 2;
-					percent /= 100;
-					loc_damage.base *= 1.00f + percent;
-					loc_damage.rand *= 1.00f + percent;
-				}
+                if ( pdata->ppip->wisdamagebonus )
+                {
+                    float percent;
+                    percent = ( FP8_TO_INT( powner->wisdom ) - 14 ) * 2;
+                    percent /= 100;
+                    loc_damage.base *= 1.00f + percent;
+                    loc_damage.rand *= 1.00f + percent;
+                }
 
-				//Steal some life
-				if ( pprt->lifedrain > 0 )
-				{
-					drain = pchr->life;
-					pchr->life = CLIP( pchr->life, 1, pchr->life - pprt->lifedrain );
-					drain -= pchr->life;
-					powner->life = MIN( powner->life + drain, powner->lifemax );
-				}
+                //Steal some life
+                if ( pprt->lifedrain > 0 )
+                {
+                    drain = pchr->life;
+                    pchr->life = CLIP( pchr->life, 1, pchr->life - pprt->lifedrain );
+                    drain -= pchr->life;
+                    powner->life = MIN( powner->life + drain, powner->lifemax );
+                }
 
-				//Steal some mana
-				if ( pprt->manadrain > 0 )
-				{
-					drain = pchr->mana;
-					pchr->mana = CLIP( pchr->mana, 0, pchr->mana - pprt->manadrain );
-					drain -= pchr->mana;
-					powner->mana = MIN( powner->mana + drain, powner->manamax );
-				}
+                //Steal some mana
+                if ( pprt->manadrain > 0 )
+                {
+                    drain = pchr->mana;
+                    pchr->mana = CLIP( pchr->mana, 0, pchr->mana - pprt->manadrain );
+                    drain -= pchr->mana;
+                    powner->mana = MIN( powner->mana + drain, powner->manamax );
+                }
 
-				// Notify the attacker of a scored hit
-				SET_BIT( powner->ai.alert, ALERTIF_SCOREDAHIT );
-				powner->ai.hitlast = GET_REF_PCHR( pchr );
+                // Notify the attacker of a scored hit
+                SET_BIT( powner->ai.alert, ALERTIF_SCOREDAHIT );
+                powner->ai.hitlast = GET_REF_PCHR( pchr );
 
-				//Tell the weapons who the attacker hit last
-				item = powner->holdingwhich[SLOT_LEFT];
-				if ( INGAME_CHR( item ) )
-				{
-					ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
-				}
+                //Tell the weapons who the attacker hit last
+                item = powner->holdingwhich[SLOT_LEFT];
+                if ( INGAME_CHR( item ) )
+                {
+                    ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
+                }
 
-				item = powner->holdingwhich[SLOT_RIGHT];
-				if ( INGAME_CHR( item ) )
-				{
-					ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
-				}
-			}
+                item = powner->holdingwhich[SLOT_RIGHT];
+                if ( INGAME_CHR( item ) )
+                {
+                    ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pchr );
+                }
+            }
 
-			// handle vulnerabilities, double the damage
-			if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
-			{
-				//Double the damage
-				loc_damage.base = ( loc_damage.base << 1 );
-				loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
+            // handle vulnerabilities, double the damage
+            if ( chr_has_vulnie( GET_REF_PCHR( pchr ), pprt->profile_ref ) )
+            {
+                //Double the damage
+                loc_damage.base = ( loc_damage.base << 1 );
+                loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
 
-				SET_BIT( pchr->ai.alert, ALERTIF_HITVULNERABLE );
-			}
+                SET_BIT( pchr->ai.alert, ALERTIF_HITVULNERABLE );
+            }
 
-			// Damage the character
-			pdata->actual_damage = damage_character( GET_REF_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
-		}
-	}
+            // Damage the character
+            pdata->actual_damage = damage_character( GET_REF_PCHR( pchr ), direction, loc_damage, pprt->damagetype, pprt->team, pprt->owner_ref, pdata->ppip->damfx, bfalse );
+        }
+    }
 
     //---- estimate the impulse on the particle
     if ( pdata->dot < 0.0f )
@@ -3044,7 +3044,7 @@ bool_t do_chr_prt_collision_init( chr_t * pchr, prt_t * pprt, chr_prt_collsion_d
     pdata->ppip = PipStack.lst + pprt->pip_ref;
 
     // measure the collision depth
-    full_collision = get_depth_1( pchr->chr_max_cv, pchr->pos, pprt->bump_padded, prt_get_pos(pprt), btrue, pdata->odepth );
+    full_collision = get_depth_1( pchr->chr_max_cv, pchr->pos, pprt->bump_padded, prt_get_pos( pprt ), btrue, pdata->odepth );
 
     //// measure the collision depth in the last update
     //// the objects were not touching last frame, so they must have collided this frame
@@ -3099,8 +3099,8 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
 
-	//skip objects that are inside inventories
-	if( pchr_a->pack.is_packed ) return bfalse;
+    //skip objects that are inside inventories
+    if ( pchr_a->pack.is_packed ) return bfalse;
 
     // detect a full collision
     full_collision = do_chr_prt_collision_init( pchr_a, pprt_b, &cn_lst );
@@ -3142,11 +3142,11 @@ bool_t do_chr_prt_collision( CoNode_t * d )
         // Check reaffirmation of particles
         if ( pchr_a->reaffirmdamagetype == pprt_b->damagetype )
         {
-			cap_t *pcap_a = chr_get_pcap( pchr_a->ai.index );
+            cap_t *pcap_a = chr_get_pcap( pchr_a->ai.index );
 
-			//This prevents books in shops from being burned
-			if ( pchr_a->isshopitem && pcap_a->spelleffect_type != NO_SKIN_OVERRIDE )
-				retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
+            //This prevents books in shops from being burned
+            if ( pchr_a->isshopitem && pcap_a->spelleffect_type != NO_SKIN_OVERRIDE )
+                retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
         }
 
         // refine the logic for a particle to hit a character

@@ -35,36 +35,38 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 #define EGO_NORMAL_COUNT  (MD2_MAX_NORMALS + 1)
 #define EGO_AMBIENT_INDEX  MD2_MAX_NORMALS
 
 //--------------------------------------------------------------------------------------------
+// MD2_Vertex_t
 //--------------------------------------------------------------------------------------------
-typedef struct s_ego_md2_vertex
+
+struct s_ego_md2_vertex
 {
     fvec3_t pos;
     fvec3_t nrm;
     int     normal;  ///< index to id-normal array
 
-#if defined(__cplusplus)
-    s_ego_md2_vertex() { memset( this, 0, sizeof( *this ) ); }
-#endif
-
-} MD2_Vertex_t;
+};
+typedef struct s_ego_md2_vertex MD2_Vertex_t;
 
 //--------------------------------------------------------------------------------------------
-typedef struct s_ego_md2_texcoord
+// MD2_TexCoord_t
+//--------------------------------------------------------------------------------------------
+
+struct s_ego_md2_texcoord
 {
     fvec2_t tex;
-
-#if defined(__cplusplus)
-    s_ego_md2_texcoord() { memset( this, 0, sizeof( *this ) ); }
-#endif
-
-} MD2_TexCoord_t;
+};
+typedef struct s_ego_md2_texcoord MD2_TexCoord_t;
 
 //--------------------------------------------------------------------------------------------
-typedef struct s_ego_md2_frame
+// MD2_Frame_t
+//--------------------------------------------------------------------------------------------
+
+struct s_ego_md2_frame
 {
     char          name[16];
 
@@ -74,22 +76,25 @@ typedef struct s_ego_md2_frame
     oct_bb_t      bb;             ///< axis-aligned octagonal bounding box limits
     int           framelip;       ///< the position in the current animation
     BIT_FIELD     framefx;        ///< the special effects associated with this frame
-
-#if defined(__cplusplus)
-    s_ego_md2_frame();
-    s_ego_md2_frame( size_t size );
-    ~s_ego_md2_frame();
-#endif
-
-} MD2_Frame_t;
+};
+typedef struct s_ego_md2_frame MD2_Frame_t;
 
 //--------------------------------------------------------------------------------------------
+// MD2_Triangle_t
+//--------------------------------------------------------------------------------------------
+
 typedef id_md2_triangle_t MD2_Triangle_t;
 
 //--------------------------------------------------------------------------------------------
+// MD2_SkinName_t
+//--------------------------------------------------------------------------------------------
+
 typedef id_md2_skin_t MD2_SkinName_t;
 
 //--------------------------------------------------------------------------------------------
+// MD2_GLCommand_t
+//--------------------------------------------------------------------------------------------
+
 struct s_ego_md2_glcommand
 {
     struct s_ego_md2_glcommand * next;
@@ -97,11 +102,6 @@ struct s_ego_md2_glcommand
     GLenum              gl_mode;
     signed int          command_count;
     id_glcmd_packed_t * data;
-
-#if defined(__cplusplus)
-    s_ego_md2_glcommand();
-    ~s_ego_md2_glcommand();
-#endif
 };
 typedef struct s_ego_md2_glcommand MD2_GLCommand_t;
 
@@ -114,6 +114,9 @@ void              MD2_GLCommand_destroy( MD2_GLCommand_t ** m );
 void              MD2_GLCommand_delete_vector( MD2_GLCommand_t * v, int n );
 
 //--------------------------------------------------------------------------------------------
+// MD2_Model_t
+//--------------------------------------------------------------------------------------------
+
 struct s_ego_md2_model
 {
     int m_numVertices;
@@ -129,28 +132,32 @@ struct s_ego_md2_model
     MD2_Frame_t     *m_frames;
     MD2_GLCommand_t *m_commands;
 
-#if defined(__cplusplus)
-    s_ego_md2_model();
-    ~s_ego_md2_model();
-#endif
 };
 typedef struct s_ego_md2_model MD2_Model_t;
 
 // CTORS
-MD2_Model_t * md2_ctor( MD2_Model_t * m );
-MD2_Model_t * md2_dtor( MD2_Model_t * m );
-MD2_Model_t * md2_create( void );
-MD2_Model_t * md2_new_vector( int n );
-void          md2_destroy( MD2_Model_t ** m );
-void          md2_delete_vector( MD2_Model_t * v, int n );
+MD2_Model_t * MD2_Model_ctor( MD2_Model_t * m );
+MD2_Model_t * MD2_Model_dtor( MD2_Model_t * m );
+MD2_Model_t * MD2_Model_create( void );
+void          MD2_Model_destroy( MD2_Model_t ** m );
+MD2_Model_t * MD2_Model_new_vector( int n );
+void          MD2_Model_delete_vector( MD2_Model_t * v, int n );
 
-// Other functions
+//--------------------------------------------------------------------------------------------
+// EXTERNAL VARIABLES
+//--------------------------------------------------------------------------------------------
+
+extern float kMd2Normals[EGO_NORMAL_COUNT][3];
+
+//--------------------------------------------------------------------------------------------
+// GLOBAL FUNCTION PROTOTYPES
+//--------------------------------------------------------------------------------------------
+
 MD2_Model_t * md2_load( const char * szFilename, MD2_Model_t* m );
 void          md2_free( MD2_Model_t * m );
 void          md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern float kMd2Normals[EGO_NORMAL_COUNT][3];
 
-#define EGOBOO_MD2_H
+#define _egoboo_md2_h

@@ -158,10 +158,10 @@ egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct
 
         float time[4];
 
-        time[0] = ( src1_min - src2_min  ) / vdiff;
-        time[1] = ( src1_min - src2_max  ) / vdiff;
-        time[2] = ( src1_max - src2_min  ) / vdiff;
-        time[3] = ( src1_max - src2_max  ) / vdiff;
+        time[0] = ( src1_min - src2_min ) / vdiff;
+        time[1] = ( src1_min - src2_max ) / vdiff;
+        time[2] = ( src1_max - src2_min ) / vdiff;
+        time[3] = ( src1_max - src2_max ) / vdiff;
 
         *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
         *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
@@ -202,10 +202,10 @@ egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct
         float tmp_min1, tmp_max1;
         float tmp_min2, tmp_max2;
 
-        time[0] = (src1_min - ( src2_min - tolerance2 ) ) / vdiff;
-        time[1] = (src1_min - ( src2_max + tolerance2 ) ) / vdiff;
-        time[2] = (src1_max - ( src2_min - tolerance2 ) ) / vdiff;
-        time[3] = (src1_max - ( src2_max + tolerance2 ) ) / vdiff;
+        time[0] = ( src1_min - ( src2_min - tolerance2 ) ) / vdiff;
+        time[1] = ( src1_min - ( src2_max + tolerance2 ) ) / vdiff;
+        time[2] = ( src1_max - ( src2_min - tolerance2 ) ) / vdiff;
+        time[3] = ( src1_max - ( src2_max + tolerance2 ) ) / vdiff;
         tmp_min1 = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
         tmp_max1 = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
 
@@ -223,7 +223,7 @@ egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct
     else
     {
         // this should literally be impossible to reach
-        EGOBOO_ASSERT(bfalse);
+        EGOBOO_ASSERT( bfalse );
     }
 
     // normalize the results for the diagonal directions
@@ -234,7 +234,7 @@ egoboo_rv oct_bb_intersect_index( int index, oct_bb_t src1, oct_vec_t opos1, oct
     }
 
     // cannot possibly have more history than this
-    *tmin = MAX(*tmin, -((signed)(update_wld+1)));
+    *tmin = MAX( *tmin, -(( signed )( update_wld + 1 ) ) );
 
     if ( *tmax <= *tmin ) return rv_fail;
 
@@ -369,7 +369,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t src1_orig, const fvec3_base_t pos1,
     // cycle through the coordinates to see when the two volumes might coincide
     found = bfalse;
     *tmin = *tmax = -1.0f;
-    if( 0 == fvec3_dist_abs(vel1, vel2) )
+    if ( 0 == fvec3_dist_abs( vel1, vel2 ) )
     {
         // no relative motion, so avoid the loop to save time
         failure_count = OCT_COUNT;
@@ -409,7 +409,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t src1_orig, const fvec3_base_t pos1,
         }
     }
 
-    if( OCT_COUNT == failure_count )
+    if ( OCT_COUNT == failure_count )
     {
         // No relative motion on any axis.
         // Just say that they are interacting for the whole frame
@@ -425,7 +425,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t src1_orig, const fvec3_base_t pos1,
         if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
 
         // limit the negative values of time to the start of the module
-        if( (*tmin) + update_wld < 0 ) *tmin = -((Sint32)update_wld);
+        if (( *tmin ) + update_wld < 0 ) *tmin = -(( Sint32 )update_wld );
     }
 
     // clip the interaction time to just one frame
@@ -644,7 +644,7 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // add in the current position to the bounding volume
-    oct_bb_add_vector( pprt->prt_cv, prt_get_pos_v(pprt), &tmp_oct );
+    oct_bb_add_vector( pprt->prt_cv, prt_get_pos_v( pprt ), &tmp_oct );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( tmp_oct, pprt->vel.v, tmin, tmax, pdst );
@@ -654,21 +654,21 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
 //--------------------------------------------------------------------------------------------
 breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
 {
-    if( NULL == bc ) return bc;
+    if ( NULL == bc ) return bc;
 
-    memset( bc, 0, sizeof(breadcrumb_t) );
+    memset( bc, 0, sizeof( breadcrumb_t ) );
     bc->time = update_wld;
 
-    if( NULL == pchr ) return bc;
+    if ( NULL == pchr ) return bc;
 
     bc->bits   = pchr->stoppedby;
     bc->radius = pchr->bump_1.size;
-    bc->pos.x  = (floor(pchr->pos.x / GRID_SIZE) + 0.5f) * GRID_SIZE;
-    bc->pos.y  = (floor(pchr->pos.y / GRID_SIZE) + 0.5f) * GRID_SIZE;
+    bc->pos.x  = ( floor( pchr->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.y  = ( floor( pchr->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
     bc->pos.z  = pchr->pos.z;
 
     bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
-    bc->valid  = (0 == mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL));
+    bc->valid  = ( 0 == mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;
 
@@ -681,15 +681,15 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     BIT_FIELD bits = 0;
     pip_t * ppip;
 
-    if( NULL == bc ) return bc;
+    if ( NULL == bc ) return bc;
 
-    memset( bc, 0, sizeof(breadcrumb_t) );
+    memset( bc, 0, sizeof( breadcrumb_t ) );
     bc->time = update_wld;
 
-    if( NULL == pprt ) return bc;
+    if ( NULL == pprt ) return bc;
 
-    ppip = prt_get_ppip( GET_REF_PPRT(pprt) );
-    if( NULL == ppip ) return bc;
+    ppip = prt_get_ppip( GET_REF_PPRT( pprt ) );
+    if ( NULL == ppip ) return bc;
 
     bits = MPDFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( bits, MPDFX_WALL );
@@ -697,12 +697,12 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->bits   = bits;
     bc->radius = pprt->bump_real.size;
 
-    bc->pos = prt_get_pos(pprt);
-    bc->pos.x  = (floor(bc->pos.x / GRID_SIZE) + 0.5f) * GRID_SIZE;
-    bc->pos.y  = (floor(bc->pos.y / GRID_SIZE) + 0.5f) * GRID_SIZE;
+    bc->pos = prt_get_pos( pprt );
+    bc->pos.x  = ( floor( bc->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.y  = ( floor( bc->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
 
     bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
-    bc->valid  = (0 == mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL));
+    bc->valid  = ( 0 == mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;
 
@@ -715,14 +715,14 @@ int breadcrumb_cmp( const void * lhs, const void * rhs )
     // comparison to sort from oldest to newest
     int retval;
 
-    breadcrumb_t * bc_lhs = (breadcrumb_t *)lhs;
-    breadcrumb_t * bc_rhs = (breadcrumb_t *)rhs;
+    breadcrumb_t * bc_lhs = ( breadcrumb_t * )lhs;
+    breadcrumb_t * bc_rhs = ( breadcrumb_t * )rhs;
 
-    retval = (int)((Sint64)bc_rhs->time - (Sint64)bc_lhs->time);
+    retval = ( int )(( Sint64 )bc_rhs->time - ( Sint64 )bc_lhs->time );
 
-    if( 0 == retval )
+    if ( 0 == retval )
     {
-        retval = (int)((Sint64)bc_rhs->id - (Sint64)bc_lhs->id);
+        retval = ( int )(( Sint64 )bc_rhs->id - ( Sint64 )bc_lhs->id );
     }
 
     return retval;
@@ -732,21 +732,21 @@ int breadcrumb_cmp( const void * lhs, const void * rhs )
 //--------------------------------------------------------------------------------------------
 bool_t breadcrumb_list_full( breadcrumb_list_t *  lst )
 {
-    if( NULL == lst || !lst->on ) return btrue;
+    if ( NULL == lst || !lst->on ) return btrue;
 
-    lst->count = CLIP(lst->count, 0, MAX_BREADCRUMB);
+    lst->count = CLIP( lst->count, 0, MAX_BREADCRUMB );
 
-    return (lst->count >= MAX_BREADCRUMB);
+    return ( lst->count >= MAX_BREADCRUMB );
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t breadcrumb_list_empty( breadcrumb_list_t * lst )
 {
-    if( NULL == lst || !lst->on ) return btrue;
+    if ( NULL == lst || !lst->on ) return btrue;
 
-    lst->count = CLIP(lst->count, 0, MAX_BREADCRUMB);
+    lst->count = CLIP( lst->count, 0, MAX_BREADCRUMB );
 
-    return (0 == lst->count);
+    return ( 0 == lst->count );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -754,19 +754,19 @@ void breadcrumb_list_compact( breadcrumb_list_t * lst )
 {
     int cnt, tnc;
 
-    if( NULL == lst || !lst->on ) return;
+    if ( NULL == lst || !lst->on ) return;
 
     // compact the list of breadcrumbs
-    for( cnt = 0, tnc = 0; cnt < lst->count; cnt ++)
+    for ( cnt = 0, tnc = 0; cnt < lst->count; cnt ++ )
     {
         breadcrumb_t * bc_src = lst->lst + cnt;
         breadcrumb_t * bc_dst = lst->lst + tnc;
 
-        if( bc_src->valid )
+        if ( bc_src->valid )
         {
-            if( bc_src != bc_dst )
+            if ( bc_src != bc_dst )
             {
-                memcpy( bc_dst, bc_src, sizeof(breadcrumb_t) );
+                memcpy( bc_dst, bc_src, sizeof( breadcrumb_t ) );
             }
 
             tnc++;
@@ -780,20 +780,20 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
 {
     int cnt, invalid_cnt;
 
-    if( NULL == lst || !lst->on ) return;
+    if ( NULL == lst || !lst->on ) return;
 
     // invalidate all bad breadcrumbs
-    for( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++)
+    for ( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++ )
     {
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid )
+        if ( !bc->valid )
         {
             invalid_cnt++;
         }
         else
         {
-            if( 0 != mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) )
+            if ( 0 != mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) )
             {
                 bc->valid = bfalse;
                 invalid_cnt++;
@@ -802,15 +802,15 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
     }
 
     // clean up the list
-    if( invalid_cnt > 0 )
+    if ( invalid_cnt > 0 )
     {
         breadcrumb_list_compact( lst );
     }
 
     // sort the values from lowest to highest
-    if( lst->count > 1 )
+    if ( lst->count > 1 )
     {
-        qsort( lst->lst, lst->count, sizeof(breadcrumb_t), breadcrumb_cmp );
+        qsort( lst->lst, lst->count, sizeof( breadcrumb_t ), breadcrumb_cmp );
     }
 }
 
@@ -819,11 +819,11 @@ breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst )
 {
     breadcrumb_t * retval = NULL;
 
-    if( NULL == lst || !lst->on ) return NULL;
+    if ( NULL == lst || !lst->on ) return NULL;
 
     breadcrumb_list_validate( lst );
 
-    if( !breadcrumb_list_empty( lst ) )
+    if ( !breadcrumb_list_empty( lst ) )
     {
         retval = lst->lst + 0;
     }
@@ -839,15 +839,15 @@ breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst )
     Uint32         old_time = 0xFFFFFFFF;
     breadcrumb_t * old_ptr = NULL;
 
-    if( NULL == lst || !lst->on ) return NULL;
+    if ( NULL == lst || !lst->on ) return NULL;
 
-    for( cnt = 0; cnt < lst->count; cnt ++)
+    for ( cnt = 0; cnt < lst->count; cnt ++ )
     {
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid ) continue;
+        if ( !bc->valid ) continue;
 
-        if( NULL == old_ptr )
+        if ( NULL == old_ptr )
         {
             old_ptr  = bc;
             old_time = bc->time;
@@ -856,16 +856,16 @@ breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst )
         }
     }
 
-    for( cnt++; cnt < lst->count; cnt++)
+    for ( cnt++; cnt < lst->count; cnt++ )
     {
         int tmp;
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid ) continue;
+        if ( !bc->valid ) continue;
 
         tmp = breadcrumb_cmp( old_ptr, bc );
 
-        if( tmp < 0 )
+        if ( tmp < 0 )
         {
             old_ptr  = bc;
             old_time = bc->time;
@@ -885,15 +885,15 @@ breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst )
     Uint32         old_time = 0xFFFFFFFF;
     breadcrumb_t * old_ptr = NULL;
 
-    if( NULL == lst || !lst->on ) return NULL;
+    if ( NULL == lst || !lst->on ) return NULL;
 
-    for( cnt = 0; cnt < lst->count; cnt ++)
+    for ( cnt = 0; cnt < lst->count; cnt ++ )
     {
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid ) continue;
+        if ( !bc->valid ) continue;
 
-        if( NULL == old_ptr )
+        if ( NULL == old_ptr )
         {
             old_ptr  = bc;
             old_time = bc->time;
@@ -902,16 +902,16 @@ breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst )
         }
     }
 
-    for( cnt++; cnt < lst->count; cnt++)
+    for ( cnt++; cnt < lst->count; cnt++ )
     {
         int tmp;
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid ) continue;
+        if ( !bc->valid ) continue;
 
         tmp = breadcrumb_cmp( old_ptr, bc );
 
-        if( tmp > 0 )
+        if ( tmp > 0 )
         {
             old_ptr  = bc;
             old_time = bc->time;
@@ -931,15 +931,15 @@ breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 matc
     Uint32         old_time = 0xFFFFFFFF;
     breadcrumb_t * old_ptr = NULL;
 
-    if( NULL == lst || !lst->on ) return NULL;
+    if ( NULL == lst || !lst->on ) return NULL;
 
-    for( cnt = 0; cnt < lst->count; cnt ++)
+    for ( cnt = 0; cnt < lst->count; cnt ++ )
     {
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid ) continue;
+        if ( !bc->valid ) continue;
 
-        if( (NULL == old_ptr) && (bc->grid == match_grid) )
+        if (( NULL == old_ptr ) && ( bc->grid == match_grid ) )
         {
             old_ptr  = bc;
             old_time = bc->time;
@@ -948,17 +948,17 @@ breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 matc
         }
     }
 
-    for( cnt++; cnt < lst->count; cnt++)
+    for ( cnt++; cnt < lst->count; cnt++ )
     {
         int tmp;
 
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid ) continue;
+        if ( !bc->valid ) continue;
 
         tmp = breadcrumb_cmp( old_ptr, bc );
 
-        if( (tmp > 0) && (bc->grid == match_grid) )
+        if (( tmp > 0 ) && ( bc->grid == match_grid ) )
         {
             old_ptr  = bc;
             old_time = bc->time;
@@ -975,12 +975,12 @@ breadcrumb_t * breadcrumb_list_alloc( breadcrumb_list_t * lst )
 {
     breadcrumb_t * retval = NULL;
 
-    if( breadcrumb_list_full(lst) )
+    if ( breadcrumb_list_full( lst ) )
     {
         breadcrumb_list_compact( lst );
     }
 
-    if( breadcrumb_list_full(lst) )
+    if ( breadcrumb_list_full( lst ) )
     {
         retval = breadcrumb_list_oldest( lst );
     }
@@ -1002,36 +1002,36 @@ bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
     bool_t retval;
     breadcrumb_t * pold, *ptmp;
 
-    if( NULL == lst || !lst->on) return bfalse;
+    if ( NULL == lst || !lst->on ) return bfalse;
 
-    if( NULL == pnew ) return bfalse;
+    if ( NULL == pnew ) return bfalse;
 
-    for( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++)
+    for ( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++ )
     {
         breadcrumb_t * bc = lst->lst + cnt;
 
-        if( !bc->valid )
+        if ( !bc->valid )
         {
             invalid_cnt++;
             break;
         }
     }
 
-    if( invalid_cnt > 0 )
+    if ( invalid_cnt > 0 )
     {
         breadcrumb_list_compact( lst );
     }
 
     // find the newest tile with the same grid position
     ptmp = breadcrumb_list_newest( lst );
-    if( NULL != ptmp && ptmp->valid )
+    if ( NULL != ptmp && ptmp->valid )
     {
-        if( ptmp->grid == pnew->grid )
+        if ( ptmp->grid == pnew->grid )
         {
-            if( INVALID_TILE == ptmp->grid )
+            if ( INVALID_TILE == ptmp->grid )
             {
                 // both are off the map, so determine the difference in distance
-                if( ABS(ptmp->pos.x - pnew->pos.x) < GRID_SIZE && ABS(ptmp->pos.y - pnew->pos.y) < GRID_SIZE )
+                if ( ABS( ptmp->pos.x - pnew->pos.x ) < GRID_SIZE && ABS( ptmp->pos.y - pnew->pos.y ) < GRID_SIZE )
                 {
                     // not far enough apart
                     pold = ptmp;
@@ -1045,14 +1045,14 @@ bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
         }
     }
 
-    if( breadcrumb_list_full(lst) )
+    if ( breadcrumb_list_full( lst ) )
     {
         // the list is full, so we have to reuse an element
 
         // try the oldest element at this grid position
         pold = breadcrumb_list_oldest_grid( lst, pnew->grid );
 
-        if( NULL == pold )
+        if ( NULL == pold )
         {
             // not found, so find the oldest breadcrumb
             pold = breadcrumb_list_oldest( lst );
@@ -1067,7 +1067,7 @@ bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
 
     // assign the data to the list element
     retval = bfalse;
-    if( NULL != pold )
+    if ( NULL != pold )
     {
         *pold = *pnew;
 

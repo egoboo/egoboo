@@ -157,7 +157,7 @@ Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    SET_BIT( pself->alert, pstate->argument);
+    SET_BIT( pself->alert, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -202,7 +202,7 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->y >= 0 && pstate->y < 32 )
     {
-		SET_BIT( pstate->x, 1 << pstate->y );
+        SET_BIT( pstate->x, 1 << pstate->y );
         returncode = btrue;
     }
 
@@ -221,7 +221,7 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->y >= 0 && pstate->y < 32 )
     {
-		UNSET_BIT(pstate->x, 1 << pstate->y);
+        UNSET_BIT( pstate->x, 1 << pstate->y );
         returncode = btrue;
     }
 
@@ -255,7 +255,7 @@ Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	SET_BIT(pstate->x, pstate->y);
+    SET_BIT( pstate->x, pstate->y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -269,7 +269,7 @@ Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	UNSET_BIT(pstate->x, pstate->y);
+    UNSET_BIT( pstate->x, pstate->y );
 
     SCRIPT_FUNCTION_END();
 }
@@ -490,7 +490,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // is this a safe position?
     returncode = bfalse;
 
-	if ( 255 == chr_get_pcap( pself->index )->weight || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
+    if ( 255 == chr_get_pcap( pself->index )->weight || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
     {
         // yes it is safe. add it.
         returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
@@ -970,11 +970,11 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
     // IfTargetHasSkillID( tmpargument = "skill idsz" )
     /// @details ZZ@> This function proceeds if ID matches tmpargument
 
-	chr_t *pself_target;
+    chr_t *pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
-	SCRIPT_REQUIRE_TARGET( pself_target );
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = ( 0 != chr_get_skill( pself_target, ( IDSZ )pstate->argument ) );
 
@@ -1074,7 +1074,7 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.action_keep = btrue;
+    chr_instance_set_action_keep( &( pchr->inst ), btrue );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1442,14 +1442,14 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     {
         CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
 
-        if( DEFINED_CHR(iheld) )
+        if ( DEFINED_CHR( iheld ) )
         {
             // can the rider open the
             returncode = ChrList.lst[iheld].openstuff;
         }
     }
 
-    if( !returncode )
+    if ( !returncode )
     {
         // if a rider can't openstuff, can the target openstuff?
         returncode = pself_target->openstuff;
@@ -1590,7 +1590,7 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->inst.action_keep = bfalse;
+    chr_instance_set_action_keep( &( pchr->inst ), bfalse );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1883,7 +1883,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    
+
 
     SCRIPT_FUNCTION_END();
 }
@@ -2123,7 +2123,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
-        tmp_pos = prt_get_pos(pprt);
+        tmp_pos = prt_get_pos( pprt );
 
         // Correct X, Y, Z spacing
         tmp_pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
@@ -2355,48 +2355,48 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 {
-	// BecomeSpellbook()
-	//
-	/// @details ZZ@> This function turns a spell character into a spellbook and sets the content accordingly.
-	/// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
-	/// them too much
+    // BecomeSpellbook()
+    //
+    /// @details ZZ@> This function turns a spell character into a spellbook and sets the content accordingly.
+    /// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
+    /// them too much
 
-	PRO_REF  old_profile;
-	mad_t * pmad;
-	int iskin;
+    PRO_REF  old_profile;
+    mad_t * pmad;
+    int iskin;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
-	// Figure out what this spellbook looks like
-	iskin = 0;
-	if ( NULL != chr_get_pcap(pself->index) ) iskin = chr_get_pcap(pself->index)->spelleffect_type;
+    // Figure out what this spellbook looks like
+    iskin = 0;
+    if ( NULL != chr_get_pcap( pself->index ) ) iskin = chr_get_pcap( pself->index )->spelleffect_type;
 
-	// convert the spell effect to a spellbook
-	old_profile = pchr->profile_ref;
-	change_character( pself->index, ( PRO_REF )SPELLBOOK, iskin, ENC_LEAVE_NONE );
+    // convert the spell effect to a spellbook
+    old_profile = pchr->profile_ref;
+    change_character( pself->index, ( PRO_REF )SPELLBOOK, iskin, ENC_LEAVE_NONE );
 
-	// Reset the spellbook state so it doesn't burn up
-	chr_set_ai_state( pchr, 0 );
-	pself->content = REF_TO_INT( old_profile );
+    // Reset the spellbook state so it doesn't burn up
+    chr_set_ai_state( pchr, 0 );
+    pself->content = REF_TO_INT( old_profile );
 
-	// set the spellbook animations
-	pmad = chr_get_pmad( pself->index );
+    // set the spellbook animations
+    pmad = chr_get_pmad( pself->index );
 
-	if ( NULL != pmad )
-	{
-		// Do dropped animation
-		int tmp_action = mad_get_action( pchr->inst.imad, ACTION_JB );
+    if ( NULL != pmad )
+    {
+        // Do dropped animation
+        int tmp_action = mad_get_action( pchr->inst.imad, ACTION_JB );
 
-		if ( rv_success == chr_start_anim( pchr, tmp_action, bfalse, btrue ) )
-		{
-			returncode = btrue;
-		}
-	}
+        if ( rv_success == chr_start_anim( pchr, tmp_action, bfalse, btrue ) )
+        {
+            returncode = btrue;
+        }
+    }
 
-	// have to do this every time pself->state is modified
-	chr_update_hide( pchr );
+    // have to do this every time pself->state is modified
+    chr_update_hide( pchr );
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3132,7 +3132,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( INGAME_ENC(pchr->undoenchant) )
+    if ( INGAME_ENC( pchr->undoenchant ) )
     {
         returncode = remove_enchant( pchr->undoenchant, NULL );
     }
@@ -3744,7 +3744,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	returncode = chr_is_over_water( pchr );
+    returncode = chr_is_over_water( pchr );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4201,14 +4201,14 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
     // SetFrame( tmpargument = "frame" )
     /// @details ZZ@> This function sets the current .MD2 frame for the character.  Values are * 4
 
-    int iTmp;
-    Uint16 sTmp = 0;
+    int    frame_along = 0;
+    Uint16 ilip        = 0;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = pstate->argument & 3;
-    iTmp = pstate->argument >> 2;
-    chr_set_frame( pself->index, ACTION_DA, iTmp, sTmp );
+    frame_along = pstate->argument & 3;
+    ilip        = pstate->argument >> 2;
+    chr_set_frame( pself->index, ACTION_DA, frame_along, ilip );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4257,7 +4257,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Try to find one
-	ichr = chr_find_target( pchr, WIDE, pstate->argument, pstate->distance );
+    ichr = chr_find_target( pchr, WIDE, pstate->argument, pstate->distance );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -4286,7 +4286,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    if ( INVALID_PLA( pself_target->is_which_player ) )				//Do not poof players
+    if ( INVALID_PLA( pself_target->is_which_player ) )             //Do not poof players
     {
         returncode = btrue;
         if ( pself->target == pself->index )
@@ -4364,11 +4364,11 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     reset_character_accel( pself->index );
 
     fvalue = pstate->argument / 100.0f;
-    fvalue = MAX(0.0f, fvalue);
+    fvalue = MAX( 0.0f, fvalue );
 
     pchr->maxaccel = pchr->maxaccel_reset * fvalue;
 
-    if( pchr->maxaccel < 0.33f )
+    if ( pchr->maxaccel < 0.33f )
     {
         // only sneak
         pchr->movement_bits = CHR_MOVEMENT_BITS_SNEAK | CHR_MOVEMENT_BITS_STOP;
@@ -4376,7 +4376,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     else
     {
         // everything but sneak
-        pchr->movement_bits = (unsigned)(~CHR_MOVEMENT_BITS_SNEAK);
+        pchr->movement_bits = ( unsigned )( ~CHR_MOVEMENT_BITS_SNEAK );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4391,7 +4391,7 @@ Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( VALID_CHR_RANGE( pself->child ) )
+    if ( VALID_CHR_RANGE( pself->child ) )
     {
         chr_set_ai_state( ChrList.lst + pself->child, pstate->argument );
     }
@@ -4499,9 +4499,9 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
             int channel;
             channel = sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr( pchr, pstate->argument ) );
 
-            if( channel != INVALID_SOUND_CHANNEL )
+            if ( channel != INVALID_SOUND_CHANNEL )
             {
-                Mix_Volume( channel, (128*pstate->distance) / 100 );
+                Mix_Volume( channel, ( 128*pstate->distance ) / 100 );
             }
         }
     }
@@ -4559,7 +4559,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = chr_find_target( pchr, pstate->distance, IDSZ_NONE, TARGET_ENEMIES );
+    ichr = chr_find_target( pchr, pstate->distance, IDSZ_NONE, TARGET_ENEMIES );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -4805,7 +4805,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
     if ( heal_character( pself->target, pself->index, pstate->argument, bfalse ) )
     {
         returncode = btrue;
-		remove_all_enchants_with_idsz( pself->target, MAKE_IDSZ( 'H', 'E', 'A', 'L' ) );
+        remove_all_enchants_with_idsz( pself->target, MAKE_IDSZ( 'H', 'E', 'A', 'L' ) );
     }
 
     SCRIPT_FUNCTION_END();
@@ -5204,7 +5204,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
+    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -5578,7 +5578,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         if ( rv_success == chr_start_anim( pself_target, action, bfalse, btrue ) )
         {
             // remove the interpolation
-            pself_target->inst.frame_lst = pself_target->inst.frame_nxt;
+            chr_instance_remove_interpolation( &( pself_target->inst ) );
 
             returncode = btrue;
         }
@@ -5617,7 +5617,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     SCRIPT_FUNCTION_BEGIN();
 
     // Try to find one
-	ichr = chr_find_target( pchr, NEAREST, pstate->argument, pstate->distance );
+    ichr = chr_find_target( pchr, NEAREST, pstate->argument, pstate->distance );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -5641,7 +5641,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ENEMIES );
+    ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ENEMIES );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -5665,7 +5665,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_FRIENDS );
+    ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_FRIENDS );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -5691,7 +5691,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
+    ichr = chr_find_target( pchr, NEAREST, IDSZ_NONE, TARGET_ITEMS | TARGET_FRIENDS | TARGET_ENEMIES );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -6305,7 +6305,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = (pself_target->firstenchant != MAX_ENC);
+    returncode = ( pself_target->firstenchant != MAX_ENC );
 
     disenchant_character( pself->target );
 
@@ -6496,7 +6496,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance );
+    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -6922,26 +6922,26 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	//Now check if it really was backstabbed
-	returncode = bfalse;
-	if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
-	{
-		//Who is the dirty backstabber?
-		chr_t * pattacker = ChrList.lst + pself->attacklast;
-		if ( !ACTIVE_PCHR( pattacker ) ) return bfalse;
+    //Now check if it really was backstabbed
+    returncode = bfalse;
+    if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
+    {
+        //Who is the dirty backstabber?
+        chr_t * pattacker = ChrList.lst + pself->attacklast;
+        if ( !ACTIVE_PCHR( pattacker ) ) return bfalse;
 
-		//Only if hit from behind
-		if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
-		{
-			//And require the backstab skill
-			if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
-			{
-				//Finally we require it to be physical damage!
-				Uint16 sTmp = sTmp = pself->damagetypelast;
-				if ( sTmp == DAMAGE_CRUSH || sTmp == DAMAGE_POKE || sTmp == DAMAGE_SLASH ) returncode = btrue;
-			}
-		}
-	}
+        //Only if hit from behind
+        if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
+        {
+            //And require the backstab skill
+            if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
+            {
+                //Finally we require it to be physical damage!
+                Uint16 sTmp = sTmp = pself->damagetypelast;
+                if ( sTmp == DAMAGE_CRUSH || sTmp == DAMAGE_POKE || sTmp == DAMAGE_SLASH ) returncode = btrue;
+            }
+        }
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6966,153 +6966,153 @@ Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 {
-	// AddQuest( tmpargument = "quest idsz" )
-	/// @details ZF@> This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
+    // AddQuest( tmpargument = "quest idsz" )
+    /// @details ZF@> This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
 
-	int quest_level = QUEST_NONE;
-	chr_t * pself_target;
-	PLA_REF ipla;
+    int quest_level = QUEST_NONE;
+    chr_t * pself_target;
+    PLA_REF ipla;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
-	SCRIPT_REQUIRE_TARGET( pself_target );
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
-	ipla = pself_target->is_which_player;
-	if ( VALID_PLA( ipla ) )
-	{
-		player_t * ppla = PlaStack.lst + ipla;
+    ipla = pself_target->is_which_player;
+    if ( VALID_PLA( ipla ) )
+    {
+        player_t * ppla = PlaStack.lst + ipla;
 
-		quest_level = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, 0 );
-	}
+        quest_level = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, 0 );
+    }
 
-	returncode = ( 0 == quest_level );
+    returncode = ( 0 == quest_level );
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
-	// BeatQuestAllPlayers()
-	/// @details ZF@> This function marks a IDSZ in the targets quest.txt as beaten
-	///               returns true if at least one quest got marked as beaten.
+    // BeatQuestAllPlayers()
+    /// @details ZF@> This function marks a IDSZ in the targets quest.txt as beaten
+    ///               returns true if at least one quest got marked as beaten.
 
-	PLA_REF ipla;
+    PLA_REF ipla;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
-	returncode = bfalse;
-	for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
-	{
-		CHR_REF ichr;
-		player_t * ppla = PlaStack.lst + ipla;
+    returncode = bfalse;
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    {
+        CHR_REF ichr;
+        player_t * ppla = PlaStack.lst + ipla;
 
-		if ( !ppla->valid ) continue;
+        if ( !ppla->valid ) continue;
 
-		ichr = ppla->index;
-		if ( !INGAME_CHR( ichr ) ) continue;
+        ichr = ppla->index;
+        if ( !INGAME_CHR( ichr ) ) continue;
 
-		if ( QUEST_BEATEN == quest_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )pstate->argument, QUEST_MAXVAL ) )
-		{
-			returncode = btrue;
-		}
-	}
+        if ( QUEST_BEATEN == quest_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )pstate->argument, QUEST_MAXVAL ) )
+        {
+            returncode = btrue;
+        }
+    }
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 {
-	// tmpdistance = IfTargetHasQuest( tmpargument = "quest idsz )
-	/// @details ZF@> This function proceeds if the Target has the unfinIshed quest specified in tmpargument
-	/// and sets tmpdistance to the Quest Level of the specified quest.
+    // tmpdistance = IfTargetHasQuest( tmpargument = "quest idsz )
+    /// @details ZF@> This function proceeds if the Target has the unfinIshed quest specified in tmpargument
+    /// and sets tmpdistance to the Quest Level of the specified quest.
 
-	int     quest_level = QUEST_NONE;
-	chr_t * pself_target = NULL;
-	PLA_REF ipla;
+    int     quest_level = QUEST_NONE;
+    chr_t * pself_target = NULL;
+    PLA_REF ipla;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
-	SCRIPT_REQUIRE_TARGET( pself_target );
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
-	returncode = bfalse;
-	ipla = pchr->is_which_player;
-	if ( VALID_PLA( ipla ) )
-	{
-		player_t * ppla = PlaStack.lst + ipla;
+    returncode = bfalse;
+    ipla = pchr->is_which_player;
+    if ( VALID_PLA( ipla ) )
+    {
+        player_t * ppla = PlaStack.lst + ipla;
 
-		quest_level = quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument );
-	}
+        quest_level = quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument );
+    }
 
-	// only find active quests
-	if ( quest_level >= 0 )
-	{
-		pstate->distance = quest_level;
-		returncode       = btrue;
-	}
+    // only find active quests
+    if ( quest_level >= 0 )
+    {
+        pstate->distance = quest_level;
+        returncode       = btrue;
+    }
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 {
-	// SetQuestLevel( tmpargument = "idsz", distance = "adjustment" )
-	/// @details ZF@> This function modifies the quest level for a specific quest IDSZ
-	/// tmpargument specifies quest idsz (tmpargument) and the adjustment (tmpdistance, which may be negative)
+    // SetQuestLevel( tmpargument = "idsz", distance = "adjustment" )
+    /// @details ZF@> This function modifies the quest level for a specific quest IDSZ
+    /// tmpargument specifies quest idsz (tmpargument) and the adjustment (tmpdistance, which may be negative)
 
-	chr_t * pself_target;
-	PLA_REF ipla;
+    chr_t * pself_target;
+    PLA_REF ipla;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
-	SCRIPT_REQUIRE_TARGET( pself_target );
+    SCRIPT_REQUIRE_TARGET( pself_target );
 
-	returncode = bfalse;
-	ipla = pself_target->is_which_player;
-	if ( VALID_PLA( ipla ) && pstate->distance != 0 )
-	{
-		int        quest_level = QUEST_NONE;
-		player_t * ppla        = PlaStack.lst + ipla;
+    returncode = bfalse;
+    ipla = pself_target->is_which_player;
+    if ( VALID_PLA( ipla ) && pstate->distance != 0 )
+    {
+        int        quest_level = QUEST_NONE;
+        player_t * ppla        = PlaStack.lst + ipla;
 
-		quest_level = quest_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        quest_level = quest_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
 
-		returncode = QUEST_NONE != quest_level;
-	}
+        returncode = QUEST_NONE != quest_level;
+    }
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
 Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
-	// AddQuestAllPlayers( tmpargument = "quest idsz" )
-	/// @details ZF@> This function adds a quest idsz set in tmpargument into all local player's quest logs
-	/// The quest level Is set to tmpdistance if the level Is not already higher
+    // AddQuestAllPlayers( tmpargument = "quest idsz" )
+    /// @details ZF@> This function adds a quest idsz set in tmpargument into all local player's quest logs
+    /// The quest level Is set to tmpdistance if the level Is not already higher
 
-	PLA_REF ipla;
-	int success_count, player_count;
+    PLA_REF ipla;
+    int success_count, player_count;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
-	returncode = bfalse;
-	for ( player_count = 0, success_count = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
-	{
-		int quest_level;
-		player_t * ppla = PlaStack.lst + ipla;
+    returncode = bfalse;
+    for ( player_count = 0, success_count = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    {
+        int quest_level;
+        player_t * ppla = PlaStack.lst + ipla;
 
-		if ( !ppla->valid || !INGAME_CHR( ppla->index ) ) continue;
-		player_count++;
+        if ( !ppla->valid || !INGAME_CHR( ppla->index ) ) continue;
+        player_count++;
 
-		// Try to add it or replace it if this one is higher
-		quest_level = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
-		if ( QUEST_NONE != quest_level ) success_count++;
-	}
+        // Try to add it or replace it if this one is higher
+        quest_level = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        if ( QUEST_NONE != quest_level ) success_count++;
+    }
 
-	returncode = ( player_count > 0 ) && ( success_count >= player_count );
+    returncode = ( player_count > 0 ) && ( success_count >= player_count );
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7465,15 +7465,15 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     /// @details ZF@> Proceeds if the specified module has the required IDSZ specified in tmpdistance
     /// The module folder name to be checked is a string from message.txt
 
-	int message_number, message_index;
-	char *ptext;
+    int message_number, message_index;
+    char *ptext;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
     ///use message.txt to send the module name
-	message_number = ppro->message_start + pstate->argument;
-	message_index  = MessageOffset.ary[message_number];
-	ptext = message_buffer + message_index;
+    message_number = ppro->message_start + pstate->argument;
+    message_index  = MessageOffset.ary[message_number];
+    ptext = message_buffer + message_index;
 
     returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ptext );
 
@@ -7595,11 +7595,11 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-	returncode = bfalse;
+    returncode = bfalse;
     if ( pself_target->alive )
     {
         // Check all enchants to see if they are removed
-		returncode = remove_all_enchants_with_idsz(pself->target, pstate->argument );
+        returncode = remove_all_enchants_with_idsz( pself->target, pstate->argument );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7746,40 +7746,40 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	returncode = bfalse;
-	if( LOADED_PRO(pchr->profile_ref) )
-	{
-		SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-		int message_number, message_index;
-		char *ptext;
+    returncode = bfalse;
+    if ( LOADED_PRO( pchr->profile_ref ) )
+    {
+        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+        int message_number, message_index;
+        char *ptext;
 
-		//List of avalible colours
-		GLXvector4f tint_red  = { 1.00f, 0.25f, 0.25f, 1.00f };
+        //List of avalible colours
+        GLXvector4f tint_red  = { 1.00f, 0.25f, 0.25f, 1.00f };
         GLXvector4f tint_purple = { 0.88f, 0.75f, 1.00f, 1.00f };
-		GLXvector4f tint_white = { 1.00f, 1.00f, 1.00f, 1.00f };
-		GLXvector4f tint_yellow = { 1.00f, 1.00f, 0.75f, 1.00f };
-		GLXvector4f tint_green = { 0.25f, 1.00f, 0.25f, 1.00f };
-		GLXvector4f tint_blue = { 0.25f, 0.25f, 1.00f, 1.00f };
+        GLXvector4f tint_white = { 1.00f, 1.00f, 1.00f, 1.00f };
+        GLXvector4f tint_yellow = { 1.00f, 1.00f, 0.75f, 1.00f };
+        GLXvector4f tint_green = { 0.25f, 1.00f, 0.25f, 1.00f };
+        GLXvector4f tint_blue = { 0.25f, 0.25f, 1.00f, 1.00f };
 
-		//Figure out which color to use
-		GLfloat *do_tint;
-		switch( pstate->turn )
-		{
-		default:
-			case COLOR_WHITE:	do_tint = tint_white;	break;
-			case COLOR_RED:		do_tint = tint_red;		break;
-			case COLOR_PURPLE:	do_tint = tint_purple;	break;
-			case COLOR_YELLOW:	do_tint = tint_yellow;	break;
-			case COLOR_GREEN:	do_tint = tint_green;	break;
-			case COLOR_BLUE:	do_tint = tint_blue;	break;
-		}
+        //Figure out which color to use
+        GLfloat *do_tint;
+        switch ( pstate->turn )
+        {
+            default:
+            case COLOR_WHITE:   do_tint = tint_white;   break;
+            case COLOR_RED:     do_tint = tint_red;     break;
+            case COLOR_PURPLE:  do_tint = tint_purple;  break;
+            case COLOR_YELLOW:  do_tint = tint_yellow;  break;
+            case COLOR_GREEN:   do_tint = tint_green;   break;
+            case COLOR_BLUE:    do_tint = tint_blue;    break;
+        }
 
-	    message_number = ppro->message_start + pstate->argument;
-		message_index  = MessageOffset.ary[message_number];
-	    ptext = message_buffer + message_index;
+        message_number = ppro->message_start + pstate->argument;
+        message_index  = MessageOffset.ary[message_number];
+        ptext = message_buffer + message_index;
 
-		returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_all );
-	}
+        returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_all );
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -7789,13 +7789,13 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 {
     // SetTargetToBlahInPassage()
     /// @details ZF@> This function sets the target to whatever object with the specified bits
-	/// in tmpdistance is blocking the given passage. This function lets passage rectangles be used as event triggers
+    /// in tmpdistance is blocking the given passage. This function lets passage rectangles be used as event triggers
 
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );
+    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
     {
@@ -7829,34 +7829,34 @@ Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself  )
+Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself )
 {
-	// IfLevelUp()
-	/// @details ZF@> This function proceeds if the character gained a new level this update
-	SCRIPT_FUNCTION_BEGIN();
+    // IfLevelUp()
+    /// @details ZF@> This function proceeds if the character gained a new level this update
+    SCRIPT_FUNCTION_BEGIN();
 
-	returncode = HAS_SOME_BITS( pself->alert, ALERTIF_LEVELUP );
+    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_LEVELUP );
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself  )
+Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself )
 {
-	// GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
-	/// @details ZF@> This function permanently gives the target character a skill
-	chr_t *ptarget;
-	egoboo_rv rv;
+    // GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
+    /// @details ZF@> This function permanently gives the target character a skill
+    chr_t *ptarget;
+    egoboo_rv rv;
 
-	SCRIPT_FUNCTION_BEGIN();
+    SCRIPT_FUNCTION_BEGIN();
 
-	SCRIPT_REQUIRE_TARGET( ptarget );
+    SCRIPT_REQUIRE_TARGET( ptarget );
 
-	rv = idsz_map_add( ptarget->skills, SDL_arraysize( ptarget->skills ), pstate->argument, pstate->distance );
+    rv = idsz_map_add( ptarget->skills, SDL_arraysize( ptarget->skills ), pstate->argument, pstate->distance );
 
-	returncode = ( rv_success == rv );
+    returncode = ( rv_success == rv );
 
-	SCRIPT_FUNCTION_END();
+    SCRIPT_FUNCTION_END();
 }
 
 //--------------------------------------------------------------------------------------------

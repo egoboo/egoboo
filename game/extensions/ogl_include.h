@@ -28,15 +28,10 @@
 
 #include <SDL_opengl.h>
 
-#if defined(__cplusplus)
-#    include <cassert>
-#    include <cstdio>
-extern "C"
-{
-#else
-#    include <assert.h>
-#    include "file_common.h"
-#endif
+
+#include <assert.h>
+#include "file_common.h"
+
 
 #if defined(DEBUG_ATTRIB) && defined(_DEBUG)
 #    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); GL_DEBUG(glPushAttrib)(BITS); vfs_printf( stdout, "INFO: PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }
@@ -62,55 +57,50 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 
-    enum { XX = 0, YY, ZZ, WW };         ///< indices for x, y, z, and w coordinates in a 4-vector
-    enum { RR = 0, GG, BB, AA };         ///< indices for r, g, b, and alpha coordinates in a 4-color vector
-    enum { SS = 0, TT };                 ///< indices for s and t, 4-vector texture coordinate
+enum { XX = 0, YY, ZZ, WW };         ///< indices for x, y, z, and w coordinates in a 4-vector
+enum { RR = 0, GG, BB, AA };         ///< indices for r, g, b, and alpha coordinates in a 4-color vector
+enum { SS = 0, TT };                 ///< indices for s and t, 4-vector texture coordinate
 
-    typedef GLfloat GLXmatrix[16];       ///< generic 4x4 matrix type
-    typedef GLfloat GLXvector4f[4];      ///< generic 4-vector
-    typedef GLfloat GLXvector3f[3];      ///< generic 3-vector
-    typedef GLfloat GLXvector2f[2];      ///< generic 2-vector
-
-//--------------------------------------------------------------------------------------------
-    /// generic OpenGL vertex
-    struct oglx_vertex
-    {
-        GLXvector4f pos;     ///< the position of the vertex
-        GLXvector3f rt, up;  ///< 3-vectors for billboarding
-        GLfloat     dist;    ///< a generic float parameter
-        GLXvector4f col;     ///< r,g,b,a usinf glColor4fv
-        GLuint      color;   ///< r,g,b,a using glColor4ubv
-        GLXvector2f tx;      ///< s,t coorsinates for texture mapping glTexCoord2fv
-    };
+typedef GLfloat GLXmatrix[16];       ///< generic 4x4 matrix type
+typedef GLfloat GLXvector4f[4];      ///< generic 4-vector
+typedef GLfloat GLXvector3f[3];      ///< generic 3-vector
+typedef GLfloat GLXvector2f[2];      ///< generic 2-vector
 
 //--------------------------------------------------------------------------------------------
-    /// generic OpenGL lighting struct
-    struct s_oglx_light
-    {
-        GLXvector4f emission, diffuse, specular;
-        float     shininess[1];
-    };
-    typedef struct s_oglx_light oglx_light_t;
-
-//--------------------------------------------------------------------------------------------
-    GLboolean handle_opengl_error( void );
-
-    void oglx_ViewMatrix( GLXmatrix view,
-                          const GLXvector3f from,      ///< @var camera location
-                          const GLXvector3f at,        ///< @var camera look-at target
-                          const GLXvector3f world_up,  ///< @var world’s up, usually 0, 0, 1
-                          const GLfloat roll );        ///< @var clockwise roll around viewing direction, in radians
-
-    void oglx_ProjectionMatrix( GLXmatrix proj,
-                                const GLfloat near_plane,    ///< @var distance to near clipping plane
-                                const GLfloat far_plane,     ///< @var distance to far clipping plane
-                                const GLfloat fov );         ///< @var field of view angle, in radians
-
-    /// Set the FILE that ogl_include will use to dump debugging information.
-    /// If not set, it will default to stderr.
-    FILE * set_ogl_include_stderr( FILE * pfile );
-
-#if defined(__cplusplus)
+/// generic OpenGL vertex
+struct oglx_vertex
+{
+    GLXvector4f pos;     ///< the position of the vertex
+    GLXvector3f rt, up;  ///< 3-vectors for billboarding
+    GLfloat     dist;    ///< a generic float parameter
+    GLXvector4f col;     ///< r,g,b,a usinf glColor4fv
+    GLuint      color;   ///< r,g,b,a using glColor4ubv
+    GLXvector2f tx;      ///< s,t coorsinates for texture mapping glTexCoord2fv
 };
-#endif
 
+//--------------------------------------------------------------------------------------------
+/// generic OpenGL lighting struct
+struct s_oglx_light
+{
+    GLXvector4f emission, diffuse, specular;
+    float     shininess[1];
+};
+typedef struct s_oglx_light oglx_light_t;
+
+//--------------------------------------------------------------------------------------------
+GLboolean handle_opengl_error( void );
+
+void oglx_ViewMatrix( GLXmatrix view,
+                      const GLXvector3f from,      ///< @var camera location
+                      const GLXvector3f at,        ///< @var camera look-at target
+                      const GLXvector3f world_up,  ///< @var world’s up, usually 0, 0, 1
+                      const GLfloat roll );        ///< @var clockwise roll around viewing direction, in radians
+
+void oglx_ProjectionMatrix( GLXmatrix proj,
+                            const GLfloat near_plane,    ///< @var distance to near clipping plane
+                            const GLfloat far_plane,     ///< @var distance to far clipping plane
+                            const GLfloat fov );         ///< @var field of view angle, in radians
+
+/// Set the FILE that ogl_include will use to dump debugging information.
+/// If not set, it will default to stderr.
+FILE * set_ogl_include_stderr( FILE * pfile );

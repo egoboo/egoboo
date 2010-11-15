@@ -194,8 +194,8 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
         else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->spawn_overlay = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'D', 'E', 'A', 'D' ) ) peve->stayiftargetdead = ( 0 != fget_int( fileread ) );
 
-		else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) peve->seekurse = fget_int( fileread );
-		else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) peve->darkvision = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) peve->seekurse = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) peve->darkvision = fget_int( fileread );
     }
 
     // All done ( finally )
@@ -389,10 +389,10 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
         fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'K', 'U', 'R' ), peve->seekurse );
     }
 
-	if ( peve->darkvision )
-	{
-		fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'A', 'R', 'K' ), peve->darkvision );
-	}
+    if ( peve->darkvision )
+    {
+        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'A', 'R', 'K' ), peve->darkvision );
+    }
 
     if ( peve->stayiftargetdead )
     {

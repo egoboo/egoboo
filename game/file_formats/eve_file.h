@@ -25,6 +25,7 @@
 #include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /// Special modes for particle reflections from characters
 enum e_missle_treatment
@@ -71,6 +72,7 @@ enum e_enchant_set
     ENC_SET_LAST  = SETCHANNEL
 
 };
+
 typedef enum e_enchant_set enum_enchant_set;
 
 //--------------------------------------------------------------------------------------------
@@ -100,6 +102,7 @@ enum e_enchant_add
     ENC_ADD_LAST  = ADDDEXTERITY
 
 };
+
 typedef enum e_enchant_add enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------
@@ -142,8 +145,8 @@ struct s_eve
     float   addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
     // special modifications
-    int  seekurse;						  ///< Allow target to see kurses
-	int  darkvision;					  ///< Allow target to see in darkness
+    int  seekurse;                        ///< Allow target to see kurses
+    int  darkvision;                      ///< Allow target to see in darkness
 
     // continuous spawning
     Uint16  contspawn_delay;              ///< Spawn timer
@@ -158,11 +161,25 @@ struct s_eve
     Sint32  endmessage;                  ///< Message for end -1 for none
 
 };
+
 typedef struct s_eve eve_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 eve_t *  load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve );
 bool_t   save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve );
 
 eve_t * eve_init( eve_t * peve );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _eve_file_h

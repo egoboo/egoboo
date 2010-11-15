@@ -75,10 +75,6 @@ bool_t oct_vec_self_clear( oct_vec_t * ovec );
 struct s_oct_bb
 {
     oct_vec_t mins,  maxs;
-
-#if defined(__cplusplus)
-    s_oct_bb() { memset( this, 0, sizeof( *this ) ); }
-#endif
 };
 typedef struct s_oct_bb oct_bb_t;
 
@@ -100,10 +96,6 @@ struct s_ego_aabb
     int    address;
 
     aabb_t  bb;
-
-#if defined(__cplusplus)
-    s_ego_aabb() { memset( this, 0, sizeof( *this ) ); }
-#endif
 };
 
 typedef struct s_ego_aabb ego_aabb_t;
@@ -113,11 +105,6 @@ struct s_aabb_lst
 {
     int       count;
     ego_aabb_t * list;
-
-#if defined(__cplusplus)
-    s_aabb_lst();
-    ~s_aabb_lst();
-#endif
 };
 typedef struct s_aabb_lst aabb_lst_t;
 

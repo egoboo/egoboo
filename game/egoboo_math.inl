@@ -1060,9 +1060,9 @@ static INLINE fmat_4x4_t FourPoints( const fvec4_base_t ori, const fvec4_base_t 
 
 //--------------------------------------------------------------------------------------------
 static INLINE fmat_4x4_t ViewMatrix( const fvec3_base_t   from,     // camera location
-                              const fvec3_base_t   at,        // camera look-at target
-                              const fvec3_base_t   world_up,  // world’s up, usually 0, 0, 1
-                              const float roll )         // clockwise roll around
+                                     const fvec3_base_t   at,        // camera look-at target
+                                     const fvec3_base_t   world_up,  // world’s up, usually 0, 0, 1
+                                     const float roll )         // clockwise roll around
 //   viewing direction,
 //   in radians
 {
@@ -1103,8 +1103,8 @@ static INLINE fmat_4x4_t ViewMatrix( const fvec3_base_t   from,     // camera lo
 
 //--------------------------------------------------------------------------------------------
 static INLINE fmat_4x4_t ProjectionMatrix( const float near_plane,    // distance to near clipping plane
-                                    const float far_plane,      // distance to far clipping plane
-                                    const float fov )           // field of view angle, in radians
+        const float far_plane,      // distance to far clipping plane
+        const float fov )           // field of view angle, in radians
 {
     /// @details MN@> Again, there is a gl function for this, glFrustum or gluPerspective...
     ///               does this account for viewport ratio?

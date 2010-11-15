@@ -64,15 +64,15 @@ enum e_order
 /// functions like chr_find_target() or find_object_in_passage()
 enum e_targeting_bits
 {
-    TARGET_DEAD			= ( 1 << 0 ),		///< Target dead stuff
-    TARGET_ENEMIES		= ( 1 << 1 ),		///< Target enemies
-    TARGET_FRIENDS		= ( 1 << 2 ),		///< Target friends
-    TARGET_ITEMS		= ( 1 << 3 ),		///< Target items
-    TARGET_INVERTID		= ( 1 << 4 ),		///< Target everything but the specified IDSZ
-    TARGET_PLAYERS		= ( 1 << 5 ),		///< Target only players
-    TARGET_SKILL		= ( 1 << 6 ),		///< Target needs the specified skill IDSZ
-    TARGET_QUEST		= ( 1 << 7 ),		///< Target needs the specified quest IDSZ
-	TARGET_SELF			= ( 1 << 8 )		///< Allow self as a target?
+    TARGET_DEAD         = ( 1 << 0 ),       ///< Target dead stuff
+    TARGET_ENEMIES      = ( 1 << 1 ),       ///< Target enemies
+    TARGET_FRIENDS      = ( 1 << 2 ),       ///< Target friends
+    TARGET_ITEMS        = ( 1 << 3 ),       ///< Target items
+    TARGET_INVERTID     = ( 1 << 4 ),       ///< Target everything but the specified IDSZ
+    TARGET_PLAYERS      = ( 1 << 5 ),       ///< Target only players
+    TARGET_SKILL        = ( 1 << 6 ),       ///< Target needs the specified skill IDSZ
+    TARGET_QUEST        = ( 1 << 7 ),       ///< Target needs the specified quest IDSZ
+    TARGET_SELF         = ( 1 << 8 )        ///< Allow self as a target?
 };
 
 //--------------------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ struct s_game_module
 {
     Uint8   importamount;               ///< Number of imports for this module
     bool_t  exportvalid;                ///< Can it export?
-	bool_t  exportreset;				///< Allow to export when module is reset?
+    bool_t  exportreset;                ///< Allow to export when module is reset?
     Uint8   playeramount;               ///< How many players?
     bool_t  importvalid;                ///< Can it import?
     bool_t  respawnvalid;               ///< Can players respawn with Spacebar?

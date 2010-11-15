@@ -421,14 +421,14 @@ void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight,
 //--------------------------------------------------------------------------------------------
 void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector4f image_tint )
 {
-    GLXvector4f tmp_tint = {1,1,1,1};
+    GLXvector4f tmp_tint = {1, 1, 1, 1};
 
     float vw, vh;
     float tx, ty;
     float x1, x2, y1, y2;
 
     // handle optional parameters
-    if( NULL == image_tint ) image_tint = tmp_tint;
+    if ( NULL == image_tint ) image_tint = tmp_tint;
 
     if ( img )
     {
@@ -453,7 +453,7 @@ void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vw
         // Draw the image
         oglx_texture_Bind( img );
 
-        GL_DEBUG( glColor4fv ) ( image_tint );
+        GL_DEBUG( glColor4fv )( image_tint );
 
         GL_DEBUG( glBegin )( GL_QUADS );
         {
@@ -762,8 +762,8 @@ bool_t ui_widgetAddMask( ui_Widget_t * pw, BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 
-	SET_BIT( pw->mask, mbits );
-	UNSET_BIT( pw->state, mbits );
+    SET_BIT( pw->mask, mbits );
+    UNSET_BIT( pw->state, mbits );
 
     return btrue;
 }
@@ -773,8 +773,8 @@ bool_t ui_widgetRemoveMask( ui_Widget_t * pw, BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 
-	UNSET_BIT( pw->mask, mbits );
-	UNSET_BIT( pw->state, mbits );
+    UNSET_BIT( pw->mask, mbits );
+    UNSET_BIT( pw->state, mbits );
 
     return btrue;
 }

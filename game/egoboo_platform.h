@@ -113,11 +113,9 @@
 
 //------------
 // deal with gcc's the warnings about const on return types in C
-#if defined(__cplusplus)
-#    define EGO_CONST const
-#else
-#    define EGO_CONST
-#endif
+
+#define EGO_CONST
+
 
 //------------
 // fix how MSVC handles throw specifications on member functions

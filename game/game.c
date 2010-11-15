@@ -319,9 +319,9 @@ void export_one_character( const CHR_REF character, const CHR_REF owner, int num
         snprintf( tofile, SDL_arraysize( tofile ),   "%s/credits.txt", todir );
         vfs_copyFile( fromfile, tofile );
 
-		// Build the QUEST.TXT file
-		snprintf( tofile, SDL_arraysize( tofile ), "%s/quest.txt", todir );
-		export_one_character_quest_vfs( tofile, character );
+        // Build the QUEST.TXT file
+        snprintf( tofile, SDL_arraysize( tofile ), "%s/quest.txt", todir );
+        export_one_character_quest_vfs( tofile, character );
 
         // Copy all of the particle files
         for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
@@ -525,51 +525,36 @@ void statlist_sort()
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_frame( const CHR_REF character, int action, int frame, int lip )
+egoboo_rv chr_set_frame( const CHR_REF character, int req_action, int frame_along, int ilip )
 {
     /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
 
     chr_t * pchr;
-    mad_t * pmad;
-    int frame_stt, frame_nxt;
+    MAD_REF imad;
+    egoboo_rv retval;
+    int action;
 
-    if ( !INGAME_CHR( character ) ) return;
+    if ( !INGAME_CHR( character ) ) return rv_error;
     pchr = ChrList.lst + character;
 
-    pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return;
+    imad = chr_get_imad( character );
+    if ( !LOADED_MAD( imad ) ) return rv_fail;
 
-    action = mad_get_action( chr_get_imad( character ), action );
+    // resolve the requested action to a action that is valid for this model (if possible)
+    action = mad_get_action( imad, req_action );
 
-    if ( rv_success == chr_set_action( pchr, action, btrue, btrue ) )
+    // set the action
+    retval = chr_set_action( pchr, action, btrue, btrue );
+    if ( rv_success == retval )
     {
-        frame_stt = pmad->action_stt[action] + frame;
-        frame_stt = MIN( frame_stt, pmad->action_end[action] - 1 );
-
-        frame_nxt = frame_stt + 1;
-        frame_nxt = MIN( frame_nxt, pmad->action_end[action] - 1 );
-
-        pchr->inst.ilip  = lip;
-        pchr->inst.flip  = lip / 4.0f;
-
-        // force the vlst_cache to be invalid if the initial frame changes
-        // this should be picked up, by the automated routinr, but take no chances
-        if ( pchr->inst.frame_lst != frame_stt )
-        {
-            pchr->inst.frame_lst  = frame_stt;
-            pchr->inst.save.valid = bfalse;
-        }
-
-        // force the vlst_cache to be invalid if the initial frame changes
-        // this should be picked up, by the automated routinr, but take no chances
-        if ( pchr->inst.frame_nxt != frame_nxt )
-        {
-            pchr->inst.frame_nxt  = frame_nxt;
-            pchr->inst.save.valid = bfalse;
-        }
-
+        // the action is set. now set the frame info.
+        // pass along the imad in case the pchr->inst is not using this same mad
+        // (corrupted data?)
+        retval = chr_instance_set_frame_full( &( pchr->inst ), frame_along, ilip, imad );
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -680,9 +665,9 @@ int update_game()
     local_allpladead     = bfalse;
     local_seeinvis_level = 0;
     local_seekurse       = 0;
-	local_seedark_level  = 0;
-	local_groglevel		 = 0;
-	local_dazelevel		 = 0;
+    local_seedark_level  = 0;
+    local_groglevel      = 0;
+    local_dazelevel      = 0;
 
     numplayer = 0;
     numdead = numalive = 0;
@@ -718,25 +703,25 @@ int update_game()
                 local_seeinvis_level = MAX( local_seeinvis_level, pchr->see_invisible_level );
             }
 
-			if ( pchr->see_kurse_level > 0 )
-			{
-				local_seekurse = MAX( local_seekurse, pchr->see_kurse_level );
-			}
+            if ( pchr->see_kurse_level > 0 )
+            {
+                local_seekurse = MAX( local_seekurse, pchr->see_kurse_level );
+            }
 
             if ( pchr->darkvision_level )
             {
                 local_seedark_level = MAX( local_seedark_level, pchr->darkvision_level );
             }
 
-			if ( pchr->grog_timer > 0 )
-			{
-				local_groglevel += pchr->grog_timer;
-			}
+            if ( pchr->grog_timer > 0 )
+            {
+                local_groglevel += pchr->grog_timer;
+            }
 
-			if ( pchr->daze_timer > 0 )
-			{
-				local_dazelevel += pchr->daze_timer;
-			}
+            if ( pchr->daze_timer > 0 )
+            {
+                local_dazelevel += pchr->daze_timer;
+            }
         }
         else
         {
@@ -744,12 +729,12 @@ int update_game()
         }
     }
 
-	// Dampen groggyness if not all players are grogged (this assumes they all share the same camera view)
-	if ( 0 != numalive )
-	{
-		local_groglevel /= numalive;
-		local_dazelevel /= numalive;
-	}
+    // Dampen groggyness if not all players are grogged (this assumes they all share the same camera view)
+    if ( 0 != numalive )
+    {
+        local_groglevel /= numalive;
+        local_dazelevel /= numalive;
+    }
 
     // Did everyone die?
     if ( numdead >= local_numlpla )
@@ -862,7 +847,7 @@ int update_game()
     }
 
     est_update_game_time = 0.9F * est_update_game_time + 0.1F * est_single_update_time * update_loop_cnt;
-    est_max_game_ups     = 0.9F * est_max_game_ups     + 0.1F * (1.0F / est_update_game_time);
+    est_max_game_ups     = 0.9F * est_max_game_ups     + 0.1F * ( 1.0F / est_update_game_time );
 
     if ( PNet->on )
     {
@@ -1142,7 +1127,7 @@ int do_game_proc_running( game_process_t * gproc )
     if ( gproc->base.paused ) return 0;
 
     gproc->ups_ticks_now = SDL_GetTicks();
-    if ( (!single_frame_mode && gproc->ups_ticks_now > gproc->ups_ticks_next) || (single_frame_mode && single_update_requested) )
+    if (( !single_frame_mode && gproc->ups_ticks_now > gproc->ups_ticks_next ) || ( single_frame_mode && single_update_requested ) )
     {
         // UPS limit
         gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP / 4;
@@ -1238,7 +1223,7 @@ int do_game_proc_running( game_process_t * gproc )
 
     // Do the display stuff
     gproc->fps_ticks_now = SDL_GetTicks();
-    if ( (!single_frame_mode && gproc->fps_ticks_now > gproc->fps_ticks_next) || (single_frame_mode && single_frame_requested) )
+    if (( !single_frame_mode && gproc->fps_ticks_now > gproc->fps_ticks_next ) || ( single_frame_mode && single_frame_requested ) )
     {
         // FPS limit
         float  frameskip = ( float )TICKS_PER_SEC / ( float )cfg.framelimit;
@@ -1410,10 +1395,10 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
     {
         bool_t target_friend, target_enemy;
 
-		if ( !pchr->alive || pchr->isitem || pchr->pack.is_packed ) continue;
+        if ( !pchr->alive || pchr->isitem || pchr->pack.is_packed ) continue;
 
-		// prefer targeting riders over the mount itself
-		if( pchr->ismount && ( INGAME_CHR(pchr->holdingwhich[SLOT_LEFT]) || INGAME_CHR(pchr->holdingwhich[SLOT_RIGHT]) ) ) continue;
+        // prefer targeting riders over the mount itself
+        if ( pchr->ismount && ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) || INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
 
         // ignore invictus
         if ( pchr->invictus ) continue;
@@ -1471,55 +1456,55 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
     if ( !INGAME_CHR( ichr_test ) ) return bfalse;
     ptst = ChrList.lst + ichr_test;
 
-	// Skip hidden characters
-	if( ptst->is_hidden ) return bfalse;
+    // Skip hidden characters
+    if ( ptst->is_hidden ) return bfalse;
 
-	// Players only?
-    if ( ( HAS_SOME_BITS(targeting_bits, TARGET_PLAYERS) || HAS_SOME_BITS(targeting_bits, TARGET_QUEST) ) && !VALID_PLA(ptst->is_which_player) ) return bfalse;
+    // Players only?
+    if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return bfalse;
 
     // Skip held objects
     if ( INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
 
-	// Allow to target ourselves?
-	if ( psrc == ptst && HAS_NO_BITS(targeting_bits, TARGET_SELF ) ) return bfalse;
+    // Allow to target ourselves?
+    if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return bfalse;
 
-	// Dont target our holder if we are an item and being held
-	if( psrc->isitem && psrc->attachedto == GET_REF_PCHR(ptst) ) return bfalse;
+    // Dont target our holder if we are an item and being held
+    if ( psrc->isitem && psrc->attachedto == GET_REF_PCHR( ptst ) ) return bfalse;
 
-	// Allow to target dead stuff stuff?
-    if ( ptst->alive == HAS_SOME_BITS(targeting_bits, TARGET_DEAD) ) return bfalse;
+    // Allow to target dead stuff stuff?
+    if ( ptst->alive == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return bfalse;
 
     // Dont target invisible stuff, unless we can actually see them
     if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
 
-	//Need specific skill? ([NONE] always passes)
-	if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return bfalse;
+    //Need specific skill? ([NONE] always passes)
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return bfalse;
 
-	// Require player to have specific quest?
-	if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && VALID_PLA( ptst->is_which_player ) )
-	{
-		int quest_level = QUEST_NONE;
-		player_t * ppla = PlaStack.lst + ptst->is_which_player;
+    // Require player to have specific quest?
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && VALID_PLA( ptst->is_which_player ) )
+    {
+        int quest_level = QUEST_NONE;
+        player_t * ppla = PlaStack.lst + ptst->is_which_player;
 
-		quest_level = quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
+        quest_level = quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
 
-		// find only active quests?
-		// this makes it backward-compatible with zefz's version
-		if ( quest_level < 0 ) return bfalse;
-	}
+        // find only active quests?
+        // this makes it backward-compatible with zefz's version
+        if ( quest_level < 0 ) return bfalse;
+    }
 
     is_hated = team_hates_team( psrc->team, ptst->team );
     hates_me = team_hates_team( ptst->team, psrc->team );
 
     // Target neutral items? (still target evil items, could be pets)
-	if ( (ptst->isitem || ptst->invictus) && !HAS_SOME_BITS(targeting_bits, TARGET_ITEMS) ) return bfalse;
+    if (( ptst->isitem || ptst->invictus ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return bfalse;
 
-	// Only target those of proper team. Skip this part if it's a item
-	if( !ptst->isitem )
-	{
-		if ( ( HAS_NO_BITS(targeting_bits, TARGET_ENEMIES) && is_hated ) ) return bfalse;
-		if ( ( HAS_NO_BITS(targeting_bits, TARGET_FRIENDS) && !is_hated ) ) return bfalse;
-	}
+    // Only target those of proper team. Skip this part if it's a item
+    if ( !ptst->isitem )
+    {
+        if (( HAS_NO_BITS( targeting_bits, TARGET_ENEMIES ) && is_hated ) ) return bfalse;
+        if (( HAS_NO_BITS( targeting_bits, TARGET_FRIENDS ) && !is_hated ) ) return bfalse;
+    }
 
     // these options are here for ideas of ways to mod this function
     is_friend    = !is_hated && !hates_me;
@@ -1527,7 +1512,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
     is_predator  = !is_hated &&  hates_me;
     is_mutual    =  is_hated &&  hates_me;
 
-	//This is the last and final step! Check for specific IDSZ too?
+    //This is the last and final step! Check for specific IDSZ too?
     if ( IDSZ_NONE == idsz )
     {
         retval = btrue;
@@ -1539,11 +1524,11 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
 
         if ( match_idsz )
         {
-            if ( !HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
+            if ( !HAS_SOME_BITS( targeting_bits, TARGET_INVERTID ) ) retval = btrue;
         }
         else
         {
-            if ( HAS_SOME_BITS(targeting_bits, TARGET_INVERTID) ) retval = btrue;
+            if ( HAS_SOME_BITS( targeting_bits, TARGET_INVERTID ) ) retval = btrue;
         }
     }
 
@@ -1567,7 +1552,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
 
     if ( !ACTIVE_PCHR( psrc ) ) return ( CHR_REF )MAX_CHR;
 
-	max_dist2 = max_dist * max_dist;
+    max_dist2 = max_dist * max_dist;
 
     if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) )
     {
@@ -2348,16 +2333,16 @@ void show_armor( int statindex )
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - pcap->defense[skinlevel],
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_SLASH][skinlevel]),
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_CRUSH][skinlevel]),
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_POKE ][skinlevel]) );
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_SLASH][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_CRUSH][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_POKE ][skinlevel] ) );
 
     debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_HOLY][skinlevel]),
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_EVIL][skinlevel]),
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_FIRE][skinlevel]),
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_ICE ][skinlevel]),
-                  GET_DAMAGE_RESIST(pcap->damagemodifier[DAMAGE_ZAP ][skinlevel]) );
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_HOLY][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_EVIL][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_FIRE][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_ICE ][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_ZAP ][skinlevel] ) );
 
     debug_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
@@ -2394,7 +2379,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     ( *pliferegen ) = pchr->life_return;
 
     // Don't forget to add gains and costs from enchants
-    ENC_BEGIN_LOOP_ACTIVE ( enchant, penc )
+    ENC_BEGIN_LOOP_ACTIVE( enchant, penc )
     {
         if ( penc->target_ref == ichr )
         {
@@ -2437,16 +2422,16 @@ void show_full_status( int statindex )
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
                   255 - pchr->defense,
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_SLASH]),
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_CRUSH]),
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_POKE ]) );
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_SLASH] ),
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_CRUSH] ),
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_POKE ] ) );
 
     debug_printf( "~HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_HOLY]),
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_EVIL]),
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_FIRE]),
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_ICE ]),
-                  GET_DAMAGE_RESIST(pchr->damagemodifier[DAMAGE_ZAP ]) );
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_HOLY] ),
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_EVIL] ),
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_FIRE] ),
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_ICE ] ),
+                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_ZAP ] ) );
 
     get_chr_regeneration( pchr, &liferegen, &manaregen );
 
@@ -2744,11 +2729,11 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     // trim any excess spaces off the psp_info->spawn_coment
     str_trim( psp_info->spawn_coment );
 
-	//If it is a reference to a random treasure table then get a random object from that table
-	if ( '%' == psp_info->spawn_coment[0]  )
-	{
-		get_random_treasure( psp_info->spawn_coment );
-	}
+    //If it is a reference to a random treasure table then get a random object from that table
+    if ( '%' == psp_info->spawn_coment[0] )
+    {
+        get_random_treasure( psp_info->spawn_coment );
+    }
 
     if ( NULL == strstr( psp_info->spawn_coment, ".obj" ) )
     {
@@ -2767,7 +2752,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
         psp_info->slot = load_one_profile_vfs( filename, psp_info->slot );
     }
 
-    return LOADED_PRO( (PRO_REF) psp_info->slot );
+    return LOADED_PRO(( PRO_REF ) psp_info->slot );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2912,17 +2897,17 @@ void activate_spawn_file_vfs()
     }
     else
     {
-		spawn_file_info_t dynamic_list[MAX_PROFILE];		//These need to be dynamically loaded later
-		STRING loaded_objects[MAX_PROFILE];					//This is a list of all objects already loaded
-		size_t i, dynamic_count = 0;						//The length of dynamic_list
+        spawn_file_info_t dynamic_list[MAX_PROFILE];        //These need to be dynamically loaded later
+        STRING loaded_objects[MAX_PROFILE];                 //This is a list of all objects already loaded
+        size_t i, dynamic_count = 0;                        //The length of dynamic_list
 
-		//Empty the list of loaded objects
-		memset( loaded_objects, CSTR_END, SDL_arraysize( loaded_objects) );
-	
+        //Empty the list of loaded objects
+        memset( loaded_objects, CSTR_END, SDL_arraysize( loaded_objects ) );
+
         sp_info.parent = ( CHR_REF )MAX_CHR;
         while ( spawn_file_scan( fileread, &sp_info ) )
         {
-			int save_slot = sp_info.slot;
+            int save_slot = sp_info.slot;
 
             // check to see if the slot is valid
             if ( sp_info.slot >= MAX_PROFILE )
@@ -2931,78 +2916,78 @@ void activate_spawn_file_vfs()
                 continue;
             }
 
-			// If it is a dynamic slot, then wait with loading it until we have load all the static slot numbers
-			if ( sp_info.slot == -1 )
-			{
-				dynamic_list[dynamic_count] = sp_info;
-				dynamic_count++;
-				continue;
-			}
+            // If it is a dynamic slot, then wait with loading it until we have load all the static slot numbers
+            if ( sp_info.slot == -1 )
+            {
+                dynamic_list[dynamic_count] = sp_info;
+                dynamic_count++;
+                continue;
+            }
 
-			// If nothing is already in that slot, try to load it.
-			if ( !LOADED_PRO( (PRO_REF) sp_info.slot ) )
-			{
-				if( activate_spawn_file_load_object( &sp_info ) )
-				{
-					// successfully loaded the object
-					strncpy( loaded_objects[sp_info.slot], sp_info.spawn_coment, SDL_arraysize(loaded_objects[sp_info.slot]) );
-				}
-				else
-				{
-					// no, give a warning if it is useful
-					if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
-					{
-						log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info.spawn_coment, save_slot, newloadname );
-					}
-					continue;
-				}
-			}
+            // If nothing is already in that slot, try to load it.
+            if ( !LOADED_PRO(( PRO_REF ) sp_info.slot ) )
+            {
+                if ( activate_spawn_file_load_object( &sp_info ) )
+                {
+                    // successfully loaded the object
+                    strncpy( loaded_objects[sp_info.slot], sp_info.spawn_coment, SDL_arraysize( loaded_objects[sp_info.slot] ) );
+                }
+                else
+                {
+                    // no, give a warning if it is useful
+                    if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
+                    {
+                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info.spawn_coment, save_slot, newloadname );
+                    }
+                    continue;
+                }
+            }
 
-			if( !LOADED_PRO( (PRO_REF) sp_info.slot ) ) log_error( "This should not happen %s uses slot %i\n", sp_info.spawn_coment, sp_info.slot );
-			
-			// we only reach this if everything was loaded properly
-			activate_spawn_file_spawn( &sp_info );
+            if ( !LOADED_PRO(( PRO_REF ) sp_info.slot ) ) log_error( "This should not happen %s uses slot %i\n", sp_info.spawn_coment, sp_info.slot );
+
+            // we only reach this if everything was loaded properly
+            activate_spawn_file_spawn( &sp_info );
         }
 
-		//Now finally do dynamic slot numbers
-		for( i = 0; i < dynamic_count; i++ )
-		{
-			bool_t already_loaded = bfalse;
-			sp_info = dynamic_list[i];
-			
-			//First check if this object is already loaded before, no need to reload it then
-			for( sp_info.slot = MAXIMPORTPERPLAYER*4; sp_info.slot < MAX_PROFILE; sp_info.slot++ )
-			{
-				if( strcmp( loaded_objects[sp_info.slot], sp_info.spawn_coment ) == 0 )
-				{
-					already_loaded = btrue;
-					break;
-				}
-			}
+        //Now finally do dynamic slot numbers
+        for ( i = 0; i < dynamic_count; i++ )
+        {
+            bool_t already_loaded = bfalse;
+            sp_info = dynamic_list[i];
 
-			// It wasn't loaded yet so we need to do it here for the first time
-			if( !already_loaded )
-			{
-				//Find first free slot and load the object in there
-				sp_info.slot = MAXIMPORTPERPLAYER*4;
-				while( LOADED_PRO( ( PRO_REF ) sp_info.slot ) ) sp_info.slot++;
+            //First check if this object is already loaded before, no need to reload it then
+            for ( sp_info.slot = MAXIMPORTPERPLAYER * 4; sp_info.slot < MAX_PROFILE; sp_info.slot++ )
+            {
+                if ( strcmp( loaded_objects[sp_info.slot], sp_info.spawn_coment ) == 0 )
+                {
+                    already_loaded = btrue;
+                    break;
+                }
+            }
 
-				if( activate_spawn_file_load_object( &sp_info ) )
-				{
-					// successfully loaded the object into a dynamic slot number
-					strncpy( loaded_objects[sp_info.slot], sp_info.spawn_coment, SDL_arraysize(loaded_objects[sp_info.slot]) );
-				}
-				else
-				{
-					//something went wrong
-					log_warning("Could not load object (%s) into dynamic slot number %i\n", sp_info.spawn_coment, sp_info.slot);
-					continue;
-				}
-			}
+            // It wasn't loaded yet so we need to do it here for the first time
+            if ( !already_loaded )
+            {
+                //Find first free slot and load the object in there
+                sp_info.slot = MAXIMPORTPERPLAYER * 4;
+                while ( LOADED_PRO(( PRO_REF ) sp_info.slot ) ) sp_info.slot++;
 
-			// we only reach this if everything was loaded properly
-			activate_spawn_file_spawn( &sp_info );
-		}
+                if ( activate_spawn_file_load_object( &sp_info ) )
+                {
+                    // successfully loaded the object into a dynamic slot number
+                    strncpy( loaded_objects[sp_info.slot], sp_info.spawn_coment, SDL_arraysize( loaded_objects[sp_info.slot] ) );
+                }
+                else
+                {
+                    //something went wrong
+                    log_warning( "Could not load object (%s) into dynamic slot number %i\n", sp_info.spawn_coment, sp_info.slot );
+                    continue;
+                }
+            }
+
+            // we only reach this if everything was loaded properly
+            activate_spawn_file_spawn( &sp_info );
+        }
 
         vfs_close( fileread );
     }
@@ -3240,7 +3225,7 @@ int reaffirm_attached_particles( const CHR_REF character )
             prt_t * pprt = PrtList.lst + particle;
 
             pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
-            if( NULL == pprt ) continue;
+            if ( NULL == pprt ) continue;
 
             number_added++;
             number_attached++;
@@ -3339,7 +3324,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_objects", 1 );
 
     //---- add the "/basicdat/globalobjects/*" directories to mp_objects
-	//ZF> TODO: Maybe we should dynamically search for all folders in this directory and add them as valid mount points?
+    //ZF> TODO: Maybe we should dynamically search for all folders in this directory and add them as valid mount points?
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "items",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic_item",       "mp_objects", 1 );
@@ -3352,7 +3337,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "work_in_progress", "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "traps",            "mp_objects", 1 );
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "pets",             "mp_objects", 1 );
-	vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "scrolls",          "mp_objects", 1 );
+    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "scrolls",          "mp_objects", 1 );
 
     //---- add the "/modules/*.mod/gamedat" directory to mp_data
     snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
@@ -3363,7 +3348,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     // append the global module gamedat directory
     vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_data", 1 );
 
-	// put the global globalparticles data after the module gamedat data
+    // put the global globalparticles data after the module gamedat data
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
 
     return btrue;
@@ -3547,14 +3532,14 @@ bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
     prt_t * pprt;
     chr_t * pchr;
 
-    if( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
     pprt = pbdl_prt->prt_ptr;
 
     if ( !INGAME_CHR( pbdl_prt->prt_ptr->attachedto_ref ) ) return bfalse;
     pchr = ChrList.lst + pbdl_prt->prt_ptr->attachedto_ref;
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
-    if( NULL == pprt ) return bfalse;
+    if ( NULL == pprt ) return bfalse;
 
     // the previous function can inactivate a particle
     if ( ACTIVE_PPRT( pprt ) )
@@ -3585,49 +3570,49 @@ void attach_all_particles()
 //--------------------------------------------------------------------------------------------
 bool_t add_player( const CHR_REF character, const PLA_REF player, Uint32 device_bits )
 {
-	/// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
+    /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
-	player_t * ppla = NULL;
-	chr_t    * pchr = NULL;
+    player_t * ppla = NULL;
+    chr_t    * pchr = NULL;
 
-	if ( !VALID_PLA_RANGE( player ) ) return bfalse;
-	ppla = PlaStack.lst + player;
+    if ( !VALID_PLA_RANGE( player ) ) return bfalse;
+    ppla = PlaStack.lst + player;
 
-	// does the player already exist?
-	if ( ppla->valid ) return bfalse;
+    // does the player already exist?
+    if ( ppla->valid ) return bfalse;
 
-	// re-construct the players
-	pla_reinit( ppla );
+    // re-construct the players
+    pla_reinit( ppla );
 
-	if ( !DEFINED_CHR( character ) ) return bfalse;
-	pchr = ChrList.lst + character;
+    if ( !DEFINED_CHR( character ) ) return bfalse;
+    pchr = ChrList.lst + character;
 
-	// set the reference to the player
-	pchr->is_which_player = player;
+    // set the reference to the player
+    pchr->is_which_player = player;
 
-	// download the quest info
-	quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), chr_get_dir_name( character ) );
+    // download the quest info
+    quest_log_download_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), chr_get_dir_name( character ) );
 
-	//---- skeleton for using a ConfigFile to save quests
-	// ppla->quest_file = quest_file_open( chr_get_dir_name(character) );
+    //---- skeleton for using a ConfigFile to save quests
+    // ppla->quest_file = quest_file_open( chr_get_dir_name(character) );
 
-	ppla->index       = character;
-	ppla->valid       = btrue;
-	ppla->device.bits = device_bits;
+    ppla->index       = character;
+    ppla->valid       = btrue;
+    ppla->device.bits = device_bits;
 
-	if ( device_bits != EMPTY_BIT_FIELD )
-	{
-		local_noplayers = bfalse;
-		pchr->islocalplayer = btrue;
-		local_numlpla++;
+    if ( device_bits != EMPTY_BIT_FIELD )
+    {
+        local_noplayers = bfalse;
+        pchr->islocalplayer = btrue;
+        local_numlpla++;
 
-		// reset the camera
-		camera_reset_target( PCamera, PMesh );
-	}
+        // reset the camera
+        camera_reset_target( PCamera, PMesh );
+    }
 
-	PlaStack.count++;
+    PlaStack.count++;
 
-	return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3668,7 +3653,7 @@ void let_all_characters_think()
             // Cleaned up characters shouldn't be alert to anything else
             if ( is_cleanedup )  { pchr->ai.alert = ALERTIF_CLEANEDUP; /*pchr->ai.timer = update_wld + 1;*/ }
 
-			// Crushed characters shouldn't be alert to anything else
+            // Crushed characters shouldn't be alert to anything else
             if ( is_crushed )  { pchr->ai.alert = ALERTIF_CRUSHED; pchr->ai.timer = update_wld + 1; }
 
             scr_run_chr_script( character );
@@ -3713,11 +3698,11 @@ void game_finish_module()
     // export all the local and remote characters
     game_update_imports();
 
-	// restart the menu song
+    // restart the menu song
     sound_play_song( MENU_SONG, 0, -1 );
 
     // quit the old module
-    //game_quit_module();		//@note: ZF> uncommented, but might cause a texture allocation bug?
+    //game_quit_module();       //@note: ZF> uncommented, but might cause a texture allocation bug?
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4716,8 +4701,8 @@ bool_t game_module_setup( game_module_t * pinst, mod_file_t * pdata, const char 
 
     pinst->importamount   = pdata->importamount;
     pinst->exportvalid    = pdata->allowexport;
-	pinst->exportreset    = pdata->allowexport;
-	pinst->playeramount   = pdata->maxplayers;
+    pinst->exportreset    = pdata->allowexport;
+    pinst->playeramount   = pdata->maxplayers;
     pinst->importvalid    = ( pinst->importamount > 0 );
     pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
     pinst->respawnanytime = ( RESPAWN_ANYTIME == pdata->respawnvalid );
@@ -4749,7 +4734,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed )
     if ( NULL == pinst ) return bfalse;
 
     pinst->beat        = bfalse;
-	pinst->exportvalid = pinst->exportreset;
+    pinst->exportvalid = pinst->exportreset;
     pinst->seed        = seed;
 
     return btrue;
@@ -4819,7 +4804,7 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     fvec3_self_clear( waterspeed.v );
 
     ilayer = wawalite_data.water.layer + 0;
-    if( wawalite_data.water.background_req )
+    if ( wawalite_data.water.background_req )
     {
         // this is a bit complicated.
         // it is the best I can do at reverse engineering what I did in render_world_background()
@@ -4829,8 +4814,8 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
 
         windspeed_count++;
 
-        windspeed.x += -ilayer->tx_add.x * GRID_SIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.x) / cam_height;
-        windspeed.y += -ilayer->tx_add.y * GRID_SIZE / (wawalite_data.water.backgroundrepeat / default_bg_repeat) * (cam_height + 1.0f / ilayer->dist.y) / cam_height;
+        windspeed.x += -ilayer->tx_add.x * GRID_SIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.x ) / cam_height;
+        windspeed.y += -ilayer->tx_add.y * GRID_SIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.y ) / cam_height;
         windspeed.z += -0;
     }
     else
@@ -4843,7 +4828,7 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     }
 
     ilayer = wawalite_data.water.layer + 1;
-    if( wawalite_data.water.overlay_req )
+    if ( wawalite_data.water.overlay_req )
     {
         windspeed_count++;
 
@@ -4860,18 +4845,18 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
         waterspeed.z += -0;
     }
 
-    if( waterspeed_count > 1 )
+    if ( waterspeed_count > 1 )
     {
-        waterspeed.x /= (float)waterspeed_count;
-        waterspeed.y /= (float)waterspeed_count;
-        waterspeed.z /= (float)waterspeed_count;
+        waterspeed.x /= ( float )waterspeed_count;
+        waterspeed.y /= ( float )waterspeed_count;
+        waterspeed.z /= ( float )waterspeed_count;
     }
 
-    if( windspeed_count > 1 )
+    if ( windspeed_count > 1 )
     {
-        windspeed.x /= (float)windspeed_count;
-        windspeed.y /= (float)windspeed_count;
-        windspeed.z /= (float)windspeed_count;
+        windspeed.x /= ( float )windspeed_count;
+        windspeed.y /= ( float )windspeed_count;
+        windspeed.z /= ( float )windspeed_count;
     }
 
     return &wawalite_data;
@@ -4916,7 +4901,7 @@ Uint8 get_local_light( int light )
 {
     if ( 0xFF == light ) return light;
 
-    //if ( local_seedark_level > 0 )				//ZF> Why should Darkvision reveal invisible?
+    //if ( local_seedark_level > 0 )                //ZF> Why should Darkvision reveal invisible?
     if ( local_seeinvis_level > 0 )
     {
         light = MAX( light, INVISIBLE );
@@ -5364,7 +5349,7 @@ void disenchant_character( const CHR_REF cnt )
     while ( MAX_ENC != pchr->firstenchant )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
-        if ( !remove_enchant( pchr->firstenchant, &(pchr->firstenchant) ) )
+        if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
         {
             break;
         }
@@ -5374,8 +5359,8 @@ void disenchant_character( const CHR_REF cnt )
 //--------------------------------------------------------------------------------------------
 void cleanup_character_enchants( chr_t * pchr )
 {
-    if( NULL == pchr ) return;
+    if ( NULL == pchr ) return;
 
     // clean up the enchant list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &(pchr->firstenchant) );
+    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &( pchr->firstenchant ) );
 }

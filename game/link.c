@@ -118,8 +118,8 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
         pickedmodule_index = mnu_get_mod_number( modname );
         if ( -1 != pickedmodule_index )
         {
-            strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path ( pickedmodule_index ), SDL_arraysize( pickedmodule_path       ) );
-            strncpy( pickedmodule_name,       mnu_ModList_get_name     ( pickedmodule_index ), SDL_arraysize( pickedmodule_name       ) );
+            strncpy( pickedmodule_path,       mnu_ModList_get_vfs_path( pickedmodule_index ), SDL_arraysize( pickedmodule_path ) );
+            strncpy( pickedmodule_name,       mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pickedmodule_name ) );
             strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
         }
     }

@@ -24,18 +24,35 @@
 
 #include "file_common.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+//--------------------------------------------------------------------------------------------
+// FUNCTION PROTOTYPES
+//--------------------------------------------------------------------------------------------
+
+    void   log_init( const char * logname );
+    void   log_shutdown( void );
+
+    FILE * log_get_file();
+
+    void   log_setLoggingLevel( int level );
+    void   log_message( const char *format, ... );
+    void   log_debug( const char *format, ... );
+    void   log_info( const char *format, ... );
+    void   log_warning( const char *format, ... );
+    void   log_error( const char *format, ... );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void   log_init( const char * logname );
-void   log_shutdown( void );
 
-FILE * log_get_file();
+#if defined(__cplusplus)
+}
+#endif
 
-void   log_setLoggingLevel( int level );
-void   log_message( const char *format, ... );
-void   log_debug( const char *format, ... );
-void   log_info( const char *format, ... );
-void   log_warning( const char *format, ... );
-void   log_error( const char *format, ... );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
-#define egoboo_Log_h
+#define egoboo_log_h

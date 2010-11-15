@@ -24,6 +24,12 @@
 
 #include "egoboo_typedef.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // basic constants
@@ -64,8 +70,8 @@
 ///         I think that we should use "face" or "facing" to mean the fill 16-bit value
 ///         and use "turn" to be the TRIG_TABLE_BITS-bit value
 
-extern float turntosin[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to sine
-extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to cosine
+    extern float turntosin[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to sine
+    extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING_T>>2...  to cosine
 
 /// pre defined directions
 #define FACE_WEST    0x0000
@@ -159,30 +165,30 @@ extern float turntocos[TRIG_TABLE_SIZE];           ///< Convert TURN_T == FACING
 //--------------------------------------------------------------------------------------------
 // vector definitions
 
-enum { kX = 0, kY, kZ, kW };             ///< Enumerated indices for the elements of the base vector types
+    enum { kX = 0, kY, kZ, kW };             ///< Enumerated indices for the elements of the base vector types
 
-typedef float fmat_4x4_base_t[16];       ///< the basic 4x4 floating point matrix type
-typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector type
-typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
-typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
+    typedef float fmat_4x4_base_t[16];       ///< the basic 4x4 floating point matrix type
+    typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector type
+    typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
+    typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
 
-typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision matrix type
-typedef double dvec2_base_t[2];          ///< the basic double precision 2-vector type
-typedef double dvec3_base_t[3];          ///< the basic double precision 3-vector type
-typedef double dvec4_base_t[4];          ///< the basic double precision 4-vector type
+    typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision matrix type
+    typedef double dvec2_base_t[2];          ///< the basic double precision 2-vector type
+    typedef double dvec3_base_t[3];          ///< the basic double precision 3-vector type
+    typedef double dvec4_base_t[4];          ///< the basic double precision 4-vector type
 
 /// A wrapper for fmat_4x4_base_t
 /// Necessary in c so that the function return can be assigned to another matrix more simply.
-typedef struct s_fmat_4x4  { fmat_4x4_base_t  v; } fmat_4x4_t;
+    typedef struct s_fmat_4x4  { fmat_4x4_base_t  v; } fmat_4x4_t;
 
 /// A 2-vector type that allows more than one form of access
-typedef union  u_fvec2     { fvec2_base_t v; struct { float x, y; }; struct { float s, t; }; } fvec2_t;
+    typedef union  u_fvec2     { fvec2_base_t v; struct { float x, y; }; struct { float s, t; }; } fvec2_t;
 
 /// A 3-vector type that allows more than one form of access
-typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } fvec3_t;
+    typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } fvec3_t;
 
 /// A 4-vector type that allows more than one form of access
-typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } fvec4_t;
+    typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } fvec4_t;
 
 // macros for initializing vectors to zero
 #define ZERO_VECT2   { {0.0f,0.0f} }
@@ -212,11 +218,25 @@ typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struc
 #define RANDIE_MASK  ((Uint32)(RANDIE_COUNT - 1))
 #define RANDIE       randie[randindex & RANDIE_MASK ];  randindex++; randindex &= RANDIE_MASK
 
-extern Uint32  randindex;
-extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
+    extern Uint32  randindex;
+    extern Uint16  randie[RANDIE_COUNT];   ///< My lil' random number table
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 // prototypes of other math functions
 
-void make_turntosin( void );
-void make_randie();
+    void make_turntosin( void );
+    void make_randie();
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _egoboo_math_h

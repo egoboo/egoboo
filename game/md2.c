@@ -46,12 +46,6 @@ static MD2_Frame_t * MD2_Frame_dtor( MD2_Frame_t * pframe );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_ego_md2_frame::s_ego_md2_frame()            { memset( this, 0, sizeof( *this ) ); }
-s_ego_md2_frame::s_ego_md2_frame( size_t size ) { MD2_Frame_ctor( this, size ); }
-s_ego_md2_frame::~s_ego_md2_frame()           { MD2_Frame_dtor( this ); }
-#endif
-
 MD2_Frame_t * MD2_Frame_ctor( MD2_Frame_t * pframe, size_t size )
 {
     if ( NULL == pframe ) return pframe;
@@ -79,11 +73,6 @@ MD2_Frame_t * MD2_Frame_dtor( MD2_Frame_t * pframe )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_ego_md2_glcommand::s_ego_md2_glcommand() { MD2_GLCommand_ctor( this ); }
-s_ego_md2_glcommand::~s_ego_md2_glcommand() { MD2_GLCommand_dtor( this ); }
-#endif
-
 void MD2_GLCommand_ctor( MD2_GLCommand_t * m )
 {
     if ( NULL == m ) return;
@@ -153,12 +142,7 @@ void MD2_GLCommand_delete_list( MD2_GLCommand_t * command_ptr, int command_count
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_ego_md2_model::s_ego_md2_model() { md2_ctor( this ); }
-s_ego_md2_model::~s_ego_md2_model() { md2_dtor( this ); }
-#endif
-
-MD2_Model_t * md2_ctor( MD2_Model_t * m )
+MD2_Model_t * MD2_Model_ctor( MD2_Model_t * m )
 {
     if ( NULL == m ) return m;
 
@@ -197,7 +181,7 @@ void md2_free( MD2_Model_t * m )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Model_t * md2_dtor( MD2_Model_t * m )
+MD2_Model_t * MD2_Model_dtor( MD2_Model_t * m )
 {
     if ( NULL == m ) return NULL;
 
@@ -207,40 +191,40 @@ MD2_Model_t * md2_dtor( MD2_Model_t * m )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Model_t * md2_create()
+MD2_Model_t * MD2_Model_create()
 {
     MD2_Model_t * m = EGOBOO_NEW( MD2_Model_t );
 
-    md2_ctor( m );
+    MD2_Model_ctor( m );
 
     return m;
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Model_t * md2_new_vector( int n )
+MD2_Model_t * MD2_Model_new_vector( int n )
 {
     int i;
     MD2_Model_t * v = EGOBOO_NEW_ARY( MD2_Model_t, n );
-    for ( i = 0; i < n; i++ ) md2_ctor( v + i );
+    for ( i = 0; i < n; i++ ) MD2_Model_ctor( v + i );
     return v;
 }
 
 //--------------------------------------------------------------------------------------------
-void md2_destroy( MD2_Model_t ** m )
+void MD2_Model_destroy( MD2_Model_t ** m )
 {
     if ( NULL == m || NULL == *m ) return;
 
-    md2_dtor( *m );
+    MD2_Model_dtor( *m );
 
     EGOBOO_DELETE( *m );
 }
 
 //--------------------------------------------------------------------------------------------
-void md2_delete_vector( MD2_Model_t * v, int n )
+void MD2_Model_delete_vector( MD2_Model_t * v, int n )
 {
     int i;
     if ( NULL == v || 0 == n ) return;
-    for ( i = 0; i < n; i++ ) md2_dtor( v + i );
+    for ( i = 0; i < n; i++ ) MD2_Model_dtor( v + i );
     EGOBOO_DELETE( v );
 }
 
@@ -351,7 +335,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     }
 
     // Allocate a MD2_Model_t to hold all this stuff
-    model = ( NULL == mdl ) ? md2_create() : mdl;
+    model = ( NULL == mdl ) ? MD2_Model_create() : mdl;
     if ( NULL == model )
     {
         log_error( "md2_load() - could create MD2_Model_t\n" );

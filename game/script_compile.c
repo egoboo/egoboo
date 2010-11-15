@@ -489,8 +489,8 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
     "FTARGETDAMAGESELF",           // == 381
     "FSETTARGETSIZE",              // == 382
     "FIFTARGETISFACINGSELF",       // == 383
-    "FDRAWBILLBOARD",		       // == 384
-	"FSETTARGETTOBLAHINPASSAGE"    // == 385
+    "FDRAWBILLBOARD",              // == 384
+    "FSETTARGETTOBLAHINPASSAGE"    // == 385
 };
 
 //--------------------------------------------------------------------------------------------
@@ -860,7 +860,7 @@ void emit_opcode( BIT_FIELD highbits )
     // detect a constant value
     if ( 'C' == Token.cType || 'F' == Token.cType )
     {
-		SET_BIT( highbits, FUNCTION_BIT );
+        SET_BIT( highbits, FUNCTION_BIT );
     }
     if ( AisCompiled_offset < AISMAXCOMPILESIZE )
     {

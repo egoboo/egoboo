@@ -47,11 +47,6 @@ static int cv_point_data_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-s_aabb_lst::s_aabb_lst() { aabb_lst_ctor( this ); }
-s_aabb_lst::~s_aabb_lst() { aabb_lst_dtor( this ); }
-#endif
-
 EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst )
 {
     if ( NULL == lst ) return NULL;
@@ -914,7 +909,7 @@ void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_co
 
     // initialize using the first point
     oct_vec_ctor( otmp, pos[0].v );
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pmins[cnt] = pmaxs[cnt] = otmp[cnt];
     }
@@ -924,7 +919,7 @@ void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_co
     {
         oct_vec_ctor( otmp, pos[cnt].v );
 
-        for( tnc = 0; tnc < OCT_COUNT; tnc++ )
+        for ( tnc = 0; tnc < OCT_COUNT; tnc++ )
         {
             pmins[tnc] = MIN( pmins[tnc], otmp[tnc] );
             pmaxs[tnc] = MAX( pmaxs[tnc], otmp[tnc] );
@@ -952,11 +947,11 @@ bool_t oct_vec_self_clear( oct_vec_t * ovec )
 {
     int cnt;
 
-    if( NULL == ovec ) return bfalse;
+    if ( NULL == ovec ) return bfalse;
 
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        (*ovec)[cnt] = 0.0f;
+        ( *ovec )[cnt] = 0.0f;
     }
 
     return btrue;
@@ -1001,7 +996,7 @@ bool_t oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t *
 {
     /// @details BB@> find the union of two oct_bb_t
 
-    if ( NULL == pdst || NULL == psrc1 || NULL == psrc2  ) return bfalse;
+    if ( NULL == pdst || NULL == psrc1 || NULL == psrc2 ) return bfalse;
 
     pdst->mins[OCT_X]  = MIN( psrc1->mins[OCT_X],  psrc2->mins[OCT_X] );
     pdst->maxs[OCT_X]  = MAX( psrc1->maxs[OCT_X],  psrc2->maxs[OCT_X] );
@@ -1079,7 +1074,7 @@ bool_t oct_bb_empty( const oct_bb_t * psrc1 )
     int cnt;
     bool_t rv;
 
-    if( NULL == psrc1 ) return btrue;
+    if ( NULL == psrc1 ) return btrue;
 
     rv = bfalse;
     for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )

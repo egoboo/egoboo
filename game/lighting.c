@@ -599,9 +599,9 @@ float dyna_lighting_intensity( dynalight_t * pdyna, fvec3_base_t diff )
     float y2;
     float level = 0.0f;
 
-    if( NULL == diff ) return 0.0f;
+    if ( NULL == diff ) return 0.0f;
 
-    if( NULL == pdyna || 0.0f == pdyna->level ) return 0.0f;
+    if ( NULL == pdyna || 0.0f == pdyna->level ) return 0.0f;
 
     rho_sqr  = diff[kX] * diff[kX] + diff[kY] * diff[kY];
     y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
@@ -621,10 +621,10 @@ bool_t sum_dyna_lighting( dynalight_t * pdyna, lighting_vector_t lighting, fvec3
 
     float rad_sqr, level;
 
-    if( NULL == pdyna || NULL == lighting || NULL == nrm ) return bfalse;
+    if ( NULL == pdyna || NULL == lighting || NULL == nrm ) return bfalse;
 
     level = 255 * dyna_lighting_intensity( pdyna, nrm );
-    if( 0.0f == level ) return btrue;
+    if ( 0.0f == level ) return btrue;
 
     // allow negative lighting, or blind spots will not work properly
     rad_sqr = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] + nrm[kZ] * nrm[kZ];

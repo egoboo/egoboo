@@ -112,8 +112,8 @@ struct s_camera
     float         turnadd;                 ///< Turning rate
     float         sustain;                 ///< Turning rate falloff
     float         turnupdown;
-	float         roll;
-	float         motion_blur;      ///< Blurry effect
+    float         roll;
+    float         motion_blur;      ///< Blurry effect
 
     fvec3_t   vfw;                 ///< the camera forward vector
     fvec3_t   vup;                 ///< the camera up vector

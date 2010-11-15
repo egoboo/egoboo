@@ -222,13 +222,13 @@ typedef struct s_team team_t;
 struct s_chr_environment
 {
     // floor stuff
-	float   grid_level;           ///< Height the current grid
-	Uint8   grid_twist;
+    float   grid_level;           ///< Height the current grid
+    Uint8   grid_twist;
 
     float  floor_level;           ///< Height of tile
     float  level;                 ///< Height of a tile or a platform
     float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
-	float  zlerp;
+    float  zlerp;
 
     bool_t grounded;              ///< standing on something?
 
@@ -427,10 +427,10 @@ struct s_chr
     chr_instance_t inst;                          ///< the render data
 
     // Skills
-	int           darkvision_level;
-	int           see_kurse_level;
-	int           see_invisible_level;
-	IDSZ_node_t      skills[MAX_IDSZ_MAP_SIZE];
+    int           darkvision_level;
+    int           see_kurse_level;
+    int           see_invisible_level;
+    IDSZ_node_t      skills[MAX_IDSZ_MAP_SIZE];
 
     /// collision info
 
@@ -490,11 +490,6 @@ struct s_chr
     Uint32         safe_grid;                     ///< the last "safe" grid
 
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
-
-#if defined(__cplusplus)
-    s_chr();
-    ~s_chr();
-#endif
 };
 
 typedef struct s_chr chr_t;
@@ -664,7 +659,7 @@ bool_t chr_is_over_water( chr_t *pchr );
 
 Uint32 chr_get_framefx( chr_t * pchr );
 
-void      chr_set_frame( const CHR_REF character, int action, int frame, int lip );
+egoboo_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
 
 egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
 egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );

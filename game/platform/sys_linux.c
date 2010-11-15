@@ -70,17 +70,17 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
 {
     //ZF> Basic untested implementation of error messaging in Linux
 
-/*    STRING message, buffer;
-    snprintf( message, SDL_arraysize( message ), warning );
-    vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
-    strcat( message, buffer );
-    strcat( message, "\n Press OK to exit." );
+    /*    STRING message, buffer;
+        snprintf( message, SDL_arraysize( message ), warning );
+        vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
+        strcat( message, buffer );
+        strcat( message, "\n Press OK to exit." );
 
-    sprintf(buffer, "xmessage -center \"%s\"", message);
+        sprintf(buffer, "xmessage -center \"%s\"", message);
 
-    if( fork() == 0 )
-    {
-        close(1); close(2);
-        system(cmd);
-    }*/
+        if( fork() == 0 )
+        {
+            close(1); close(2);
+            system(cmd);
+        }*/
 }

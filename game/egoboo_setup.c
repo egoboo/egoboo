@@ -24,17 +24,19 @@
 #include "egoboo_setup.h"
 
 #include "log.h"
-#include "file_formats/configfile.h"
 #include "graphic.h"
 #include "input.h"
-#include "particle.inl"
 #include "sound.h"
 #include "network.h"
 #include "camera.h"
 
+#include "file_formats/configfile.h"
+
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
 #include "egoboo.h"
+
+#include "particle.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -123,11 +125,11 @@ void egoboo_config_init( egoboo_config_t * pcfg )
     pcfg->sound_allowed         = bfalse;
     pcfg->music_allowed         = bfalse;
     pcfg->music_volume          = 50;               // The sound volume of music
-    pcfg->sound_volume          = 75;				// Volume of sounds played
-    pcfg->sound_channel_count   = 16;				// Max number of sounds playing at the same time
-    pcfg->sound_buffer_size     = 2048;				// Buffer chunk size
-	pcfg->sound_highquality		= bfalse;			// High quality sounds
-	pcfg->sound_footfall			= btrue;			// Play footstep sounds
+    pcfg->sound_volume          = 75;               // Volume of sounds played
+    pcfg->sound_channel_count   = 16;               // Max number of sounds playing at the same time
+    pcfg->sound_buffer_size     = 2048;             // Buffer chunk size
+    pcfg->sound_highquality     = bfalse;           // High quality sounds
+    pcfg->sound_footfall            = btrue;            // Play footstep sounds
 
     // {GAME}
     pcfg->message_count_req     = 6;
@@ -163,37 +165,37 @@ bool_t setup_read_vfs()
 {
     /// @details BB@> read the setup file
 
-	// Read the local setup.txt
-	fs_ensureUserFile( "setup.txt", btrue );
-	snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
+    // Read the local setup.txt
+    fs_ensureUserFile( "setup.txt", btrue );
+    snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
 
-	// do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
-	// linux if the directory is read-only
-	lConfigSetup = LoadConfigFile( _config_filename, bfalse );
+    // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
+    // linux if the directory is read-only
+    lConfigSetup = LoadConfigFile( _config_filename, bfalse );
 
-	//Did something go wrong?
-	if ( NULL == lConfigSetup )
-	{
-		log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
-		return bfalse;
-	}
+    //Did something go wrong?
+    if ( NULL == lConfigSetup )
+    {
+        log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
+        return bfalse;
+    }
 
-	log_info( "Loaded setup file - \"%s\".\n", _config_filename );
-	return btrue;
+    log_info( "Loaded setup file - \"%s\".\n", _config_filename );
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t setup_write()
 {
     /// @details BB@> save the current setup file
-	bool_t success = bfalse;
+    bool_t success = bfalse;
 
     if ( INVALID_CSTR( _config_filename ) ) return bfalse;
 
-	success = ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, _config_filename );
-	if( !success ) log_warning("Failed to save setup.txt!\n");
+    success = ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, _config_filename );
+    if ( !success ) log_warning( "Failed to save setup.txt!\n" );
 
-	return success;
+    return success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -325,10 +327,10 @@ bool_t setup_download( egoboo_config_t * pcfg )
     GetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality, cfg_default.sound_highquality );
     pcfg->sound_highquality_base = pcfg->sound_highquality;
 
-	// Extra high sound quality?
+    // Extra high sound quality?
     GetKey_bool( "ENABLE_FOOTSTEPS", pcfg->sound_footfall, cfg_default.sound_footfall );
 
-	//*********************************************
+    //*********************************************
     //* CONTROL Section
     //*********************************************
 
@@ -416,7 +418,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     maxparticles = CLIP( pcfg->particle_count_req, 0, MAX_PRT );
 
     // if the particle limit has changed, make sure to make not of it
-    maxparticles_dirty = (old_max_particles != maxparticles);
+    maxparticles_dirty = ( old_max_particles != maxparticles );
 
     // sound options
     snd_config_synch( &snd, pcfg );
@@ -549,8 +551,8 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Extra high sound quality
     SetKey_bool( "HIGH_SOUND_QUALITY", pcfg->sound_highquality );
 
-	// Draw phong mapping?
-	SetKey_bool( "ENABLE_FOOTSTEPS", pcfg->sound_footfall );
+    // Draw phong mapping?
+    SetKey_bool( "ENABLE_FOOTSTEPS", pcfg->sound_footfall );
 
     //*********************************************
     //* GAME Section

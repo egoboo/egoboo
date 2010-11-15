@@ -93,7 +93,7 @@ struct s_breadcrumb_list
 typedef struct s_breadcrumb_list breadcrumb_list_t;
 
 void           breadcrumb_list_validate( breadcrumb_list_t * lst );
-bool_t         breadcrumb_list_add(breadcrumb_list_t * lst, breadcrumb_t * pnew );
+bool_t         breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );
 breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst );
 
 //--------------------------------------------------------------------------------------------

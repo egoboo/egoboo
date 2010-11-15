@@ -59,7 +59,7 @@ pip_t * pip_init( pip_t * ppip )
     // clear the pip
     memset( ppip, 0, sizeof( *ppip ) );
 
-    ppip->end_sound		  = INVALID_SOUND;
+    ppip->end_sound       = INVALID_SOUND;
     ppip->end_sound_floor = INVALID_SOUND;
     ppip->end_sound_wall  = INVALID_SOUND;
     ppip->damfx           = DAMFX_TURN;
@@ -224,7 +224,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     {
         idsz = fget_idsz( fileread );
 
-        if ( idsz == MAKE_IDSZ( 'T', 'U', 'R', 'N' ) )		 SET_BIT( ppip->damfx, DAMFX_NONE );		//ZF> This line doesnt do anything?
+        if ( idsz == MAKE_IDSZ( 'T', 'U', 'R', 'N' ) )       SET_BIT( ppip->damfx, DAMFX_NONE );        //ZF> This line doesnt do anything?
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'M', 'O' ) )  SET_BIT( ppip->damfx, DAMFX_ARMO );
         else if ( idsz == MAKE_IDSZ( 'B', 'L', 'O', 'C' ) )  SET_BIT( ppip->damfx, DAMFX_NBLOC );
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  SET_BIT( ppip->damfx, DAMFX_ARRO );

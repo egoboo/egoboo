@@ -93,6 +93,8 @@
 				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions;Fluid_Studios_Memory_Manager"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
+				GeneratePreprocessedFile="0"
+				KeepComments="FALSE"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
@@ -104,6 +106,7 @@
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
 				CompileAs="0"
+				ShowIncludes="FALSE"
 				UndefinePreprocessorDefinitions="_DEBUG"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -249,9 +252,6 @@
 			</File>
 			<File
 				RelativePath=".\egoboo_typedef.h">
-			</File>
-			<File
-				RelativePath=".\egoboo_typedef_cpp.h">
 			</File>
 			<File
 				RelativePath=".\font_bmp.h">
@@ -726,6 +726,16 @@
 				</File>
 				<File
 					RelativePath=".\file_formats\scancode_file.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="treasure_table"
+				Filter="">
+				<File
+					RelativePath=".\file_formats\treasure_table_file.c">
+				</File>
+				<File
+					RelativePath=".\file_formats\treasure_table_file.h">
 				</File>
 			</Filter>
 		</Filter>

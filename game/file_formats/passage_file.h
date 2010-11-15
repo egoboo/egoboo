@@ -26,8 +26,15 @@
 
 #include "egoboo_vfs.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 #define NO_MUSIC -1            ///< For passages that play no music
 
 //--------------------------------------------------------------------------------------------
@@ -35,17 +42,29 @@
 
 /// The definition of an "active area" in the game
 /// @detalis Used for a variety of purposes, including doors and shops.
-struct s_passage
-{
-    // Passage positions
-    irect_t area;
-    Sint8   music;                ///< Music track appointed to the specific passage
-    Uint8   mask;                 ///< Is it IMPASSABLE, SLIPPERY or whatever
-    bool_t  open;                 ///< Is the passage open?
-};
+    struct s_passage
+    {
+        // Passage positions
+        irect_t area;
+        Sint8   music;                ///< Music track appointed to the specific passage
+        Uint8   mask;                 ///< Is it IMPASSABLE, SLIPPERY or whatever
+        bool_t  open;                 ///< Is the passage open?
+    };
 
-typedef struct s_passage passage_t;
+    typedef struct s_passage passage_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass );
+    bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define  _passage_file_h

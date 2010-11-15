@@ -62,8 +62,8 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     // Read basic data
     fget_next_name( fileread, pmod->longname, sizeof( pmod->longname ) );
     fget_next_string( fileread, pmod->reference, SDL_arraysize( pmod->reference ) );
-	pmod->unlockquest.id    = fget_next_idsz( fileread );
-	pmod->unlockquest.level = fget_int( fileread );
+    pmod->unlockquest.id    = fget_next_idsz( fileread );
+    pmod->unlockquest.level = fget_int( fileread );
 
     pmod->importamount = fget_next_int( fileread );
     pmod->allowexport  = fget_next_bool( fileread );
@@ -81,11 +81,11 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     str_trim( pmod->rank );
 
     // convert the special ranks of "unranked" or "-" ("rank 0") to an empty string
-    if( 0 == strncmp(pmod->rank, "-", RANKSIZE) )
+    if ( 0 == strncmp( pmod->rank, "-", RANKSIZE ) )
     {
         pmod->rank[0] = CSTR_END;
     }
-    else if( 'U' == toupper(pmod->rank[0]) )
+    else if ( 'U' == toupper( pmod->rank[0] ) )
     {
         pmod->rank[0] = CSTR_END;
     }
@@ -117,7 +117,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
             cTmp = fget_first_letter( fileread );
 
             // parse the expansion value
-            if      ( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
+            if ( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
             else if ( 'S' == toupper( cTmp ) )  pmod->moduletype = FILTER_SIDE;
             else if ( 'T' == toupper( cTmp ) )  pmod->moduletype = FILTER_TOWN;
             else if ( 'F' == toupper( cTmp ) )  pmod->moduletype = FILTER_FUN;
@@ -184,13 +184,13 @@ int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, ch
         }
     }
 
-    if( NULL != buffer )
+    if ( NULL != buffer )
     {
-        if( buffer_len < 1 )
+        if ( buffer_len < 1 )
         {
             /* nothing */
         }
-        else if( 1 == buffer_len )
+        else if ( 1 == buffer_len )
         {
             buffer[0] = '\0';
         }
@@ -217,8 +217,8 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
         STRING src_file, dst_file;
 
         // make sure that the file exists in the user data directory since we are WRITING to it
-        snprintf( src_file, SDL_arraysize(src_file), "mp_modules/%s/gamedat/menu.txt", szModName );
-        snprintf( dst_file, SDL_arraysize(dst_file), "/modules/%s/gamedat/menu.txt", szModName );
+        snprintf( src_file, SDL_arraysize( src_file ), "mp_modules/%s/gamedat/menu.txt", szModName );
+        snprintf( dst_file, SDL_arraysize( dst_file ), "/modules/%s/gamedat/menu.txt", szModName );
         vfs_copyFile( src_file, dst_file );
 
         // Try to open the file in append mode
@@ -229,7 +229,7 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
             vfs_printf( filewrite, "\n:[%s]", undo_idsz( idsz ) );
 
             // output an optional parameter
-            if( NULL != buffer && buffer_len > 1 )
+            if ( NULL != buffer && buffer_len > 1 )
             {
                 vfs_printf( filewrite, " %s", undo_idsz( idsz ) );
             }

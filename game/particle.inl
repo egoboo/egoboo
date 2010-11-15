@@ -107,9 +107,9 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
         }
 
         // make sure that the virtual bumper size is at least as big as what is in the pip file
-        pprt->bump_padded.size     = MAX( pprt->bump_real.size,     ppip->bump_size            );
+        pprt->bump_padded.size     = MAX( pprt->bump_real.size,     ppip->bump_size );
         pprt->bump_padded.size_big = MAX( pprt->bump_real.size_big, ppip->bump_size * SQRT_TWO );
-        pprt->bump_padded.height   = MAX( pprt->bump_real.height,   ppip->bump_height          );
+        pprt->bump_padded.height   = MAX( pprt->bump_real.height,   ppip->bump_height );
     }
 
     // use the padded bumper to figure out the chr_max_cv
@@ -212,12 +212,12 @@ static INLINE float prt_get_scale( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
 {
-    if( NULL == pbundle ) return NULL;
+    if ( NULL == pbundle ) return NULL;
 
-    pbundle->prt_ref = (PRT_REF) MAX_PRT;
+    pbundle->prt_ref = ( PRT_REF ) MAX_PRT;
     pbundle->prt_ptr = NULL;
 
-    pbundle->pip_ref = (PIP_REF) MAX_PIP;
+    pbundle->pip_ref = ( PIP_REF ) MAX_PIP;
     pbundle->pip_ptr = NULL;
 
     return pbundle;
@@ -226,13 +226,13 @@ static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
 //--------------------------------------------------------------------------------------------
 static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
 {
-    if( NULL == pbundle ) return NULL;
+    if ( NULL == pbundle ) return NULL;
 
-    if( ALLOCATED_PRT(pbundle->prt_ref) )
+    if ( ALLOCATED_PRT( pbundle->prt_ref ) )
     {
         pbundle->prt_ptr = PrtList.lst + pbundle->prt_ref;
     }
-    else if( NULL != pbundle->prt_ptr )
+    else if ( NULL != pbundle->prt_ptr )
     {
         pbundle->prt_ref = GET_REF_PPRT( pbundle->prt_ptr );
     }
@@ -242,18 +242,18 @@ static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
         pbundle->prt_ptr = NULL;
     }
 
-    if( !LOADED_PIP(pbundle->pip_ref) && NULL != pbundle->prt_ptr )
+    if ( !LOADED_PIP( pbundle->pip_ref ) && NULL != pbundle->prt_ptr )
     {
         pbundle->pip_ref = pbundle->prt_ptr->pip_ref;
     }
 
-    if( LOADED_PIP(pbundle->pip_ref) )
+    if ( LOADED_PIP( pbundle->pip_ref ) )
     {
         pbundle->pip_ptr = PipStack.lst + pbundle->pip_ref;
     }
     else
     {
-        pbundle->pip_ref = (PIP_REF) MAX_PIP;
+        pbundle->pip_ref = ( PIP_REF ) MAX_PIP;
         pbundle->pip_ptr = NULL;
     }
 
@@ -263,12 +263,12 @@ static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
 //--------------------------------------------------------------------------------------------
 static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
 {
-    if( NULL == pbundle ) return NULL;
+    if ( NULL == pbundle ) return NULL;
 
     // blank out old data
     pbundle = prt_bundle_ctor( pbundle );
 
-    if( NULL == pbundle || NULL == pprt ) return pbundle;
+    if ( NULL == pbundle || NULL == pprt ) return pbundle;
 
     // set the particle pointer
     pbundle->prt_ptr = pprt;
@@ -278,3 +278,8 @@ static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * ppr
 
     return pbundle;
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _particle_inl

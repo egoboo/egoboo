@@ -45,10 +45,10 @@ static INLINE bool_t BSP_aabb_overlap( const BSP_aabb_t * lhs_ptr, const BSP_aab
     if ( NULL == lhs_ptr || !lhs_ptr->valid ) return bfalse;
     if ( NULL == rhs_ptr || !rhs_ptr->valid ) return bfalse;
 
-    min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
-    if( 0 == min_dim ) return bfalse;
+    min_dim = MIN( rhs_ptr->dim, lhs_ptr->dim );
+    if ( 0 == min_dim ) return bfalse;
 
-    // the optomizer is supposed to do this stuff all by itself, 
+    // the optomizer is supposed to do this stuff all by itself,
     // but isn't
     rhs_mins = rhs_ptr->mins.ary;
     rhs_maxs = rhs_ptr->maxs.ary;
@@ -57,8 +57,8 @@ static INLINE bool_t BSP_aabb_overlap( const BSP_aabb_t * lhs_ptr, const BSP_aab
 
     for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if( (*rhs_maxs) < (*lhs_mins) ) return bfalse;
-        if( (*rhs_mins) > (*lhs_maxs) ) return bfalse;
+        if (( *rhs_maxs ) < ( *lhs_mins ) ) return bfalse;
+        if (( *rhs_mins ) > ( *lhs_maxs ) ) return bfalse;
     }
 
     return btrue;
@@ -78,10 +78,10 @@ static INLINE bool_t BSP_aabb_lhs_contains_rhs( const BSP_aabb_t * lhs_ptr, cons
     if ( NULL == lhs_ptr || !lhs_ptr->valid ) return bfalse;
     if ( NULL == rhs_ptr || !rhs_ptr->valid ) return bfalse;
 
-    min_dim = MIN(rhs_ptr->dim, lhs_ptr->dim);
-    if( 0 == min_dim ) return bfalse;
+    min_dim = MIN( rhs_ptr->dim, lhs_ptr->dim );
+    if ( 0 == min_dim ) return bfalse;
 
-    // the optomizer is supposed to do this stuff all by itself, 
+    // the optomizer is supposed to do this stuff all by itself,
     // but isn't
     rhs_mins = rhs_ptr->mins.ary;
     rhs_maxs = rhs_ptr->maxs.ary;
@@ -90,8 +90,8 @@ static INLINE bool_t BSP_aabb_lhs_contains_rhs( const BSP_aabb_t * lhs_ptr, cons
 
     for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if ( (*rhs_maxs) > (*lhs_maxs) ) return bfalse;
-        if ( (*rhs_mins) < (*lhs_mins) ) return bfalse;
+        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return bfalse;
+        if (( *rhs_mins ) < ( *lhs_mins ) ) return bfalse;
     }
 
     return btrue;

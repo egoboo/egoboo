@@ -508,7 +508,7 @@ void fput_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, flo
     /// @details ZF@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs for floating point values
 
-    vfs_printf( filewrite, "%s: [%s] %4.2f\n", text, undo_idsz( idsz), value );
+    vfs_printf( filewrite, "%s: [%s] %4.2f\n", text, undo_idsz( idsz ), value );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -517,7 +517,7 @@ void fput_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, co
     /// @details ZF@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs for floating point values
 
-    if( !VALID_CSTR(str) )
+    if ( !VALID_CSTR( str ) )
     {
         fput_expansion( filewrite, text, idsz, 0 );
     }
@@ -1022,11 +1022,11 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 
     switch ( toupper( cTmp ) )
     {
-        case 'T': iTmp = DAMAGEINVERT;		break;
-        case 'C': iTmp = DAMAGECHARGE;		break;
-        case 'M': iTmp = DAMAGEMANA;		break;
-        case 'I': iTmp = DAMAGEINVICTUS;	break;
-        default:  iTmp = 0;					break;
+        case 'T': iTmp = DAMAGEINVERT;      break;
+        case 'C': iTmp = DAMAGECHARGE;      break;
+        case 'M': iTmp = DAMAGEMANA;        break;
+        case 'I': iTmp = DAMAGEINVICTUS;    break;
+        default:  iTmp = 0;                 break;
     };
 
     tTmp = fget_int( fileread );

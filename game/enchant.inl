@@ -148,3 +148,7 @@ bool_t enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile )
 
     return bfalse;
 }
+
+//--------------------------------------------------------------------------------------------
+
+#define _enchant_inl

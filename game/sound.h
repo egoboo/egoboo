@@ -40,11 +40,10 @@ struct s_egoboo_config;
 #define INVALID_SOUND_CHANNEL -1           ///< SDL_mixer sound channel is invalid
 #define MENU_SONG              0           ///< default music theme played when in the menu
 
-#define MIX_HIGH_QUALITY   44100        ///< frequency 44100 for 44.1KHz, which is CD audio rate.
+/// frequency 44100 for 44.1KHz, which is CD audio rate.
 /// @details Most games use 22050, because 44100 requires too much
 /// CPU power on older computers.
-
-#define VALID_SND( ISND )       ( ISND >= 0 && ISND < MAX_WAVE )
+#define MIX_HIGH_QUALITY   44100
 
 /// Pre defined global particle sounds
 typedef enum e_global_sounds
@@ -60,12 +59,19 @@ typedef enum e_global_sounds
     GSND_COUNT
 } GSND_GLOBAL;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 /// what type of music data is used by mix_ptr_t
 enum e_mix_type { MIX_UNKNOWN = 0, MIX_MUS, MIX_SND };
 typedef enum e_mix_type mix_type_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0, (CHR_REF)MAX_CHR )
+
+#define VALID_SND( ISND )       ( ISND >= 0 && ISND < MAX_WAVE )
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /// an anonymized "pointer" type in case we want to store data that is either a chunk or a music
 struct s_mix_ptr
@@ -123,7 +129,6 @@ bool_t      sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t ty
 
 int     sound_play_mix( fvec3_t pos, struct s_mix_ptr * pptr );
 int     sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF object );
-#define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0, (CHR_REF)MAX_CHR )
 void    sound_play_song( int songnumber, Uint16 fadetime, int loops );
 void    sound_finish_song( Uint16 fadetime );
 int     sound_play_chunk_full( Mix_Chunk * pchunk );
@@ -147,3 +152,8 @@ void   sound_free_chunk( Mix_Chunk * pchunk );
 
 int get_current_song_playing();
 bool_t LoopedList_remove( int channel );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _sound_h

@@ -22,26 +22,19 @@
 /// @file egoboo_mem.h
 /// @details Macros to control allocation and deallocation of memory
 
-#if defined(__cplusplus)
-#    include "mmgr.h"
-#else
-#    include <memory.h>
-#    include <string.h>
-#endif
+
+#include <memory.h>
+#include <string.h>
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if defined(__cplusplus)
-#    define EGOBOO_NEW( TYPE ) new TYPE
-#    define EGOBOO_NEW_ARY( TYPE, COUNT ) new TYPE [ COUNT ]
-#    define EGOBOO_DELETE(PTR) if(NULL != PTR) { delete PTR; PTR = NULL; }
-#    define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { delete [] PTR; PTR = NULL; }
-#else
-#    define EGOBOO_NEW( TYPE ) (TYPE *)calloc(1, sizeof(TYPE))
-#    define EGOBOO_NEW_ARY( TYPE, COUNT ) (TYPE *)calloc(COUNT, sizeof(TYPE))
-#    define EGOBOO_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
-#    define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
-#endif
+
+#define EGOBOO_NEW( TYPE ) (TYPE *)calloc(1, sizeof(TYPE))
+#define EGOBOO_NEW_ARY( TYPE, COUNT ) (TYPE *)calloc(COUNT, sizeof(TYPE))
+#define EGOBOO_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
+#define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

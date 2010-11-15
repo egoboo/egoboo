@@ -225,7 +225,7 @@ void fs_findClose( fs_find_context_t * fs_search )
 
     amiga_find_context_t * pcnt;
 
-   if ( NULL == fs_search || fs_search->type != amiga_find ) return;
+    if ( NULL == fs_search || fs_search->type != amiga_find ) return;
 
     pcnt = fs_search->ptr.l;
     if ( NULL == pcnt )  return;

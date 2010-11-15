@@ -21,28 +21,43 @@
 
 /// @file treasure_tables.h
 #include "egoboo_typedef.h"
-#include "char.h"
 
-#define MAX_TABLES				32				//< Max number of tables
-#define TREASURE_TABLE_SIZE		128				//< Max number of objects per table
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+
+#define MAX_TABLES              32              //< Max number of tables
+#define TREASURE_TABLE_SIZE     128             //< Max number of objects per table
 
 //Data structure for one treasure table, we can have up to MAX_TABLES of these
-struct s_treasure_table 
-{
-	STRING table_name;							//< What is the name of this treasure table
-	STRING object_list[TREASURE_TABLE_SIZE];	//< List of treasure objects in this table
-	size_t size;								//< Number of objects loaded into this table
-};
-typedef struct s_treasure_table treasure_table_t;
+    struct s_treasure_table
+    {
+        STRING table_name;                          //< What is the name of this treasure table
+        STRING object_list[TREASURE_TABLE_SIZE];    //< List of treasure objects in this table
+        size_t size;                                //< Number of objects loaded into this table
+    };
+    typedef struct s_treasure_table treasure_table_t;
 
 //Global variables
 //ZF> TODO: This should probably be moved into a game.c data structure or something like that, we should also implement
 //    so that any local module can override the default randomtreasure.txt found in basicdat folder
-static treasure_table_t treasureTableList[MAX_TABLES];
+    static treasure_table_t treasureTableList[MAX_TABLES];
 
 //Public functions
-egoboo_rv init_random_treasure_tables_vfs( const char* filepath );
-void get_random_treasure( char* pStr );
+    egoboo_rv init_random_treasure_tables_vfs( const char* filepath );
+    void      get_random_treasure( char* pStr );
 
-#define TREASURE_TABLES_H
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _treasure_tables_h
 

@@ -44,6 +44,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// the flip tolerance is the default flip increment / 2
+static const float flip_tolerance = 0.25f * 0.5f;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool_t force );
 
 static void draw_points( chr_t * pchr, int vrt_offset, int verts );
@@ -428,7 +433,7 @@ bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits
 
     if ( pchr->is_hidden ) return bfalse;
 
-    if ( pchr->inst.enviro || HAS_SOME_BITS(bits, CHR_PHONG) )
+    if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
         retval = render_one_mad_enviro( character, tint, bits );
     }
@@ -583,8 +588,8 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
@@ -594,7 +599,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
         {
-            GL_DEBUG( glVertex3fv ) ( pchr->inst.vrt_lst[cnt].pos );
+            GL_DEBUG( glVertex3fv )( pchr->inst.vrt_lst[cnt].pos );
         }
     }
     GL_DEBUG_END();
@@ -602,8 +607,8 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -616,8 +621,8 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
@@ -628,8 +633,8 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -671,16 +676,16 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
                 dst.y = src.y + 3 * diff.y;
                 dst.z = src.z + 3 * diff.z;
 
-                GL_DEBUG( glColor4fv ) ( col_ary[cnt-1] );
+                GL_DEBUG( glColor4fv )( col_ary[cnt-1] );
 
-                GL_DEBUG( glVertex3fv ) ( src.v );
-                GL_DEBUG( glVertex3fv ) ( dst.v );
+                GL_DEBUG( glVertex3fv )( src.v );
+                GL_DEBUG( glVertex3fv )( dst.v );
             }
         }
         GL_DEBUG_END();
     }
 
-    GL_DEBUG( glColor4f ) ( 1, 1, 1, 1 );
+    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -726,8 +731,8 @@ void chr_draw_grips( chr_t * pchr )
 
     // disable the texturing so all the points will be white,
     // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
@@ -748,8 +753,8 @@ void chr_draw_grips( chr_t * pchr )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    if ( texture_1d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
+    if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -775,6 +780,52 @@ egoboo_rv chr_update_instance( chr_t * pchr )
     return retval;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
+{
+    if ( NULL == pcache ) return NULL;
+
+    memset( pcache, 0, sizeof( *pcache ) );
+
+    pcache->vmin = -1;
+    pcache->vmax = -1;
+
+    return pcache;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
+{
+    if ( NULL == pcache ) return rv_error;
+
+    if ( !pcache->valid ) return rv_success;
+
+    if ( NULL == pinst )
+    {
+        pcache->valid = bfalse;
+        return rv_success;
+    }
+
+    if ( pinst->frame_lst != pcache->frame_nxt )
+    {
+        pcache->valid = bfalse;
+    }
+
+    if ( pinst->frame_lst != pcache->frame_lst )
+    {
+        pcache->valid = bfalse;
+    }
+
+    if (( pinst->frame_lst != pinst->frame_lst )  && ABS( pcache->flip - pinst->flip ) > flip_tolerance )
+    {
+        pcache->valid = bfalse;
+    }
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool_t force )
 {
@@ -913,8 +964,6 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     //                rv_error   means that the function was passed invalid values
     //                rv_fail    means that the instance does not need to be updated
     //                rv_success means that the instance should be updated
-
-    const float flip_tolerance = 0.25f * 0.5f;  // the flip tolerance is the default flip increment / 2
 
     bool_t local_verts_match, flips_match, local_frames_match;
 
@@ -1113,7 +1162,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         if ( rv_error == retval ) return rv_error;            // rv_error == retval means some pointer or reference is messed up
         if ( rv_fail  == retval ) return rv_success;          // rv_fail  == retval means we do not need to update this round
 
-        if( !frames_match )
+        if ( !frames_match )
         {
             // the entire frame is dirty
             vdirty1_min = vmin;
@@ -1122,15 +1171,15 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
         else
         {
             // grab the dirty vertices
-            if( vmin < psave->vmin )
+            if ( vmin < psave->vmin )
             {
                 vdirty1_min = vmin;
-                vdirty1_max = psave->vmin-1;
+                vdirty1_max = psave->vmin - 1;
             }
 
-            if( vmax > psave->vmax )
+            if ( vmax > psave->vmax )
             {
-                vdirty2_min = psave->vmax+1;
+                vdirty2_min = psave->vmax + 1;
                 vdirty2_max = vmax;
             }
         }
@@ -1150,16 +1199,16 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 
     // fix the flip for objects that are not animating
     loc_flip = pinst->flip;
-    if( pinst->frame_nxt == pinst->frame_lst ) loc_flip = 0.0f;
+    if ( pinst->frame_nxt == pinst->frame_lst ) loc_flip = 0.0f;
 
     // interpolate the 1st dirty region
-    if( vdirty1_min >= 0 && vdirty1_max >= 0 )
+    if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
     {
         chr_instance_interpolate_vertices_raw( pinst->vrt_lst, pframe_lst->vertex_lst, pframe_nxt->vertex_lst, vdirty1_min, vdirty1_max, loc_flip );
     }
 
     // interpolate the 2nd dirty region
-    if( vdirty2_min >= 0 && vdirty2_max >= 0 )
+    if ( vdirty2_min >= 0 && vdirty2_max >= 0 )
     {
         chr_instance_interpolate_vertices_raw( pinst->vrt_lst, pframe_lst->vertex_lst, pframe_nxt->vertex_lst, vdirty2_min, vdirty2_max, loc_flip );
     }
@@ -1358,8 +1407,6 @@ egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t ac
 egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 {
     mad_t * pmad;
-    int     new_lst, new_nxt;
-    bool_t  vlst_valid;
 
     // did we get a bad pointer?
     if ( NULL == pinst ) return rv_error;
@@ -1378,25 +1425,13 @@ egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
     if ( frame <  pmad->action_stt[ pinst->action_which ] ) return rv_fail;
     if ( frame >= pmad->action_end[ pinst->action_which ] ) return rv_fail;
 
-    vlst_valid = pinst->save.valid;
-    new_lst = pinst->frame_nxt;
-    new_nxt = frame;
-
-    if( new_lst != pinst->frame_lst || new_nxt != pinst->frame_nxt )
-    {
-        // invalidate the vlst_cache
-        vlst_valid = bfalse;
-    }
-    else if( (pinst->frame_lst != pinst->frame_nxt) &&  ( 0.0f != pinst->flip || 0 != pinst->ilip) )
-    {
-        vlst_valid = bfalse;
-    }
-
     // jump to the next frame
     pinst->flip      = 0.0f;
     pinst->ilip      = 0;
-    pinst->frame_lst = new_lst;
-    pinst->frame_nxt = new_nxt;
+    pinst->frame_lst = pinst->frame_nxt;
+    pinst->frame_nxt = frame;
+
+    vlst_cache_test( &( pinst->save ), pinst );
 
     return rv_success;
 }
@@ -1470,6 +1505,10 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
 
     if ( NULL == pinst || NULL == pmad ) return rv_error;
 
+    // fix the ilip and flip
+    pinst->ilip = pinst->ilip % 4;
+    pinst->flip = fmod( pinst->ilip, 1.0f );
+
     // Change frames
     pinst->frame_lst = pinst->frame_nxt;
     pinst->frame_nxt++;
@@ -1510,6 +1549,8 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
         }
     }
 
+    vlst_cache_test( &( pinst->save ), pinst );
+
     return rv_success;
 }
 
@@ -1529,16 +1570,493 @@ egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t a
     return chr_instance_start_anim( pinst, action, action_ready, btrue );
 }
 
+
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
+void chr_instance_clear_cache( chr_instance_t * pinst )
 {
-    if ( NULL == pcache ) return NULL;
+    /// @details BB@> force chr_instance_update_vertices() recalculate the vertices the next time
+    ///     the function is called
+
+    vlst_cache_init( &( pinst->save ) );
+
+    matrix_cache_init( &( pinst->matrix_cache ) );
+
+    chr_reflection_cache_init( &( pinst->ref ) );
+
+    pinst->lighting_update_wld = 0;
+    pinst->lighting_frame_all  = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_instance_t * chr_instance_dtor( chr_instance_t * pinst )
+{
+    if ( NULL == pinst ) return pinst;
+
+    chr_instance_free( pinst );
+
+    EGOBOO_ASSERT( NULL == pinst->vrt_lst );
+
+    memset( pinst, 0, sizeof( *pinst ) );
+
+    return pinst;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
+{
+    Uint32 cnt;
+
+    if ( NULL == pinst ) return pinst;
+
+    memset( pinst, 0, sizeof( *pinst ) );
+
+    // model parameters
+    pinst->imad = MAX_MAD;
+    pinst->vrt_count = 0;
+
+    // set the initial cache parameters
+    chr_instance_clear_cache( pinst );
+
+    // Set up initial fade in lighting
+    pinst->color_amb = 0;
+    for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
+    {
+        pinst->vrt_lst[cnt].color_dir = 0;
+    }
+
+    // clear out the matrix cache
+    matrix_cache_init( &( pinst->matrix_cache ) );
+
+    // the matrix should never be referenced if the cache is not valid,
+    // but it never pays to have a 0 matrix...
+    pinst->matrix = IdentityMatrix();
+
+    // set the animation state
+    pinst->rate         = 1.0f;
+    pinst->action_next  = ACTION_DA;
+    pinst->action_ready = btrue;                     // argh! this must be set at the beginning, script's spawn animations do not work!
+    pinst->frame_nxt    = pinst->frame_lst = 0;
+
+    // the vlst_cache parameters are not valid
+    pinst->save.valid = bfalse;
+
+    return pinst;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_free( chr_instance_t * pinst )
+{
+    if ( NULL == pinst ) return bfalse;
+
+    EGOBOO_DELETE_ARY( pinst->vrt_lst );
+    pinst->vrt_count = 0;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
+{
+    if ( NULL == pinst ) return bfalse;
+
+    chr_instance_free( pinst );
+
+    if ( 0 == vlst_size ) return btrue;
+
+    pinst->vrt_lst = EGOBOO_NEW_ARY( GLvertex, vlst_size );
+    if ( NULL != pinst->vrt_lst )
+    {
+        pinst->vrt_count = vlst_size;
+    }
+
+    return ( NULL != pinst->vrt_lst );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
+{
+    /// @details BB@> try to set the model used by the character instance.
+    ///     If this fails, it leaves the old data. Just to be safe it
+    ///     would be best to check whether the old modes is valid, and
+    ///     if not, the data chould be set to safe values...
+
+    mad_t * pmad;
+    bool_t updated = bfalse;
+    size_t vlst_size;
+
+    if ( !LOADED_MAD( imad ) ) return bfalse;
+    pmad = MadStack.lst + imad;
+
+    if ( NULL == pmad || pmad->md2_ptr == NULL )
+    {
+        log_error( "Invalid pmad instance spawn. (Slot number %i)\n", imad );
+        return bfalse;
+    }
+
+    if ( pinst->imad != imad )
+    {
+        updated = btrue;
+        pinst->imad = imad;
+    }
+
+    // set the vertex size
+    vlst_size = md2_get_numVertices( pmad->md2_ptr );
+    if ( pinst->vrt_count != vlst_size )
+    {
+        updated = btrue;
+        chr_instance_alloc( pinst, vlst_size );
+    }
+
+    // set the frames to frame 0 of this object's data
+    if ( pinst->frame_nxt != 0 || pinst->frame_lst != 0 )
+    {
+        updated = btrue;
+        pinst->frame_nxt = pinst->frame_lst = 0;
+
+        // the vlst_cache parameters are not valid
+        pinst->save.valid = bfalse;
+    }
+
+    if ( updated )
+    {
+        // update the vertex and lighting cache
+        chr_instance_clear_cache( pinst );
+        chr_instance_update_vertices( pinst, -1, -1, btrue );
+    }
+
+    return updated;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix )
+{
+    int trans_temp;
+
+    if ( NULL == pinst ) return bfalse;
+
+    if ( need_matrix )
+    {
+        // reflect the ordinary matrix
+        apply_reflection_matrix( pinst, floor_level );
+    }
+
+    trans_temp = 255;
+    if ( pinst->ref.matrix_valid )
+    {
+        float pos_z;
+
+        // determine the reflection alpha
+        pos_z = floor_level - pinst->ref.matrix.CNV( 3, 2 );
+        if ( pos_z < 0 ) pos_z = 0;
+
+        trans_temp -= (( int )pos_z ) >> 1;
+        if ( trans_temp < 0 ) trans_temp = 0;
+
+        trans_temp |= gfx.reffadeor;  // Fix for Riva owners
+        trans_temp = CLIP( trans_temp, 0, 255 );
+    }
+
+    pinst->ref.alpha = ( pinst->alpha * trans_temp * INV_FF ) * 0.5f;
+    pinst->ref.light = ( 255 == pinst->light ) ? 255 : ( pinst->light * trans_temp * INV_FF ) * 0.5f;
+
+    pinst->ref.redshift = pinst->redshift + 1;
+    pinst->ref.grnshift = pinst->grnshift + 1;
+    pinst->ref.blushift = pinst->blushift + 1;
+
+    pinst->ref.sheen    = pinst->sheen >> 1;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin )
+{
+    Sint8 greensave = 0, redsave = 0, bluesave = 0;
+
+    pro_t * pobj;
+    cap_t * pcap;
+
+    if ( NULL == pinst ) return bfalse;
+
+    // Remember any previous color shifts in case of lasting enchantments
+    greensave = pinst->grnshift;
+    redsave   = pinst->redshift;
+    bluesave  = pinst->blushift;
+
+    // clear the instance
+    chr_instance_ctor( pinst );
+
+    if ( !LOADED_PRO( profile ) ) return bfalse;
+    pobj = ProList.lst + profile;
+
+    pcap = pro_get_pcap( profile );
+
+    // lighting parameters
+    pinst->texture   = pobj->tex_ref[skin];
+    pinst->enviro    = pcap->enviro;
+    pinst->alpha     = pcap->alpha;
+    pinst->light     = pcap->light;
+    pinst->sheen     = pcap->sheen;
+    pinst->grnshift  = greensave;
+    pinst->redshift  = redsave;
+    pinst->blushift  = bluesave;
+
+    // model parameters
+    chr_instance_set_mad( pinst, pro_get_imad( profile ) );
+
+    // set the initial action, all actions override it
+    chr_instance_play_action( pinst, ACTION_DA, btrue );
+
+    // upload these parameters to the reflection cache, but don't compute the matrix
+    chr_instance_update_ref( pinst, 0, bfalse );
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
+{
+    int           frame_count;
+    MD2_Frame_t * frame_list, * pframe_nxt;
+    mad_t       * pmad;
+    MD2_Model_t * pmd2;
+
+    if ( NULL == pinst ) return 0;
+
+    pmad = chr_get_pmad( pinst->imad );
+    if ( NULL == pmad ) return 0;
+
+    pmd2 = pmad->md2_ptr;
+    if ( NULL == pmd2 ) return 0;
+
+    frame_count = md2_get_numFrames( pmd2 );
+    EGOBOO_ASSERT( pchr->inst.frame_nxt < frame_count );
+
+    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
+    pframe_nxt  = frame_list + pinst->frame_nxt;
+
+    return pframe_nxt->framefx;
+}
+
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override )
+{
+    MAD_REF imad;
+    mad_t * pmad;
+    int     frame_stt, frame_end, frame_count;
+
+    int    new_nxt;
+
+    if ( NULL == pinst ) return rv_error;
+
+    // handle optional parameters
+    if ( VALID_MAD_RANGE( mad_override ) )
+    {
+        imad = mad_override;
+    }
+    else
+    {
+        imad = pinst->imad;
+    }
+
+    if ( !LOADED_MAD( imad ) ) return rv_error;
+    pmad = MadStack.lst + imad;
+
+    // we have to have a valid action range
+    if ( pinst->action_which > ACTION_COUNT ) return rv_fail;
+
+    // try to heal a bad action
+    if ( pinst->action_which != pmad->action_map[pinst->action_which] )
+    {
+        pinst->action_which = pmad->action_map[pinst->action_which];
+    }
+
+    // reject the action if it is cannot be made valid
+    if ( pinst->action_which == ACTION_COUNT ) return rv_fail;
+
+    // get some frame info
+    frame_stt   = pmad->action_stt[pinst->action_which];
+    frame_end   = pmad->action_end[pinst->action_which];
+    frame_count = frame_end - frame_stt;
+
+    // try to heal an out of range value
+    frame_along %= frame_count;
+
+    //get the next frames
+    new_nxt = frame_stt + frame_along;
+    new_nxt = MIN( new_nxt, frame_end - 1 );
+
+    pinst->frame_nxt  = new_nxt;
+    pinst->ilip       = ilip;
+    pinst->flip       = ilip * 0.25f;
+
+    // set the validity of the cache
+    vlst_cache_test( &( pinst->save ), pinst );
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val )
+{
+    if ( NULL == pinst ) return rv_error;
+
+    pinst->action_keep = val;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val )
+{
+    if ( NULL == pinst ) return rv_error;
+
+    pinst->action_ready = val;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val )
+{
+    if ( NULL == pinst ) return rv_error;
+
+    pinst->action_loop = val;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_set_action_next( chr_instance_t * pinst, int val )
+{
+    if ( NULL == pinst ) return rv_error;
+
+    if ( val < 0 || val > ACTION_COUNT ) return rv_fail;
+
+    pinst->action_next = val;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
+{
+    if ( NULL == pinst ) return rv_error;
+
+    if ( pinst->frame_lst != pinst->frame_nxt )
+    {
+        pinst->frame_lst = pinst->frame_nxt;
+        pinst->ilip      = 0;
+        pinst->flip      = 0.0f;
+
+        vlst_cache_test( &( pinst->save ), pinst );
+    }
+
+    return rv_success;
+}
+
+
+//--------------------------------------------------------------------------------------------
+MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst )
+{
+    mad_t       * pmad;
+    MD2_Model_t * pmd2;
+    MD2_Frame_t * frame_list;
+    int           frame_count;
+
+    if ( NULL == pinst ) return NULL;
+
+    if ( !LOADED_MAD( pinst->imad ) ) return NULL;
+    pmad = MadStack.lst + pinst->imad;
+
+    pmd2 = pmad->md2_ptr;
+    if ( NULL == pmd2 ) return NULL;
+
+    frame_count = md2_get_numFrames( pmd2 );
+    if ( pinst->frame_nxt < 0 || pinst->frame_nxt > frame_count ) return NULL;
+
+    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
+
+    return frame_list + pinst->frame_nxt;
+}
+
+//--------------------------------------------------------------------------------------------
+MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst )
+{
+    mad_t       * pmad;
+    MD2_Model_t * pmd2;
+    MD2_Frame_t * frame_list;
+    int           frame_count;
+
+    if ( NULL == pinst ) return NULL;
+
+    if ( !LOADED_MAD( pinst->imad ) ) return NULL;
+    pmad = MadStack.lst + pinst->imad;
+
+    pmd2 = pmad->md2_ptr;
+    if ( NULL == pmd2 ) return NULL;
+
+    frame_count = md2_get_numFrames( pmd2 );
+    if ( pinst->frame_lst < 0 || pinst->frame_lst > frame_count ) return NULL;
+
+    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
+
+    return frame_list + pinst->frame_lst;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_update_one_lip( chr_instance_t * pinst )
+{
+    if ( NULL == pinst ) return rv_error;
+
+    pinst->ilip += 1;
+    pinst->flip += 0.25f;
+
+    vlst_cache_test( &( pinst->save ), pinst );
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
+{
+    if ( NULL == pinst ) return rv_error;
+
+    if ( 0.0f == dflip ) return rv_fail;
+
+    // update the lips
+    pinst->flip += dflip;
+    pinst->ilip  = (( int )floor( pinst->flip * 4 ) ) % 4;
+
+    vlst_cache_test( &( pinst->save ), pinst );
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+float chr_instance_get_remaining_flip( chr_instance_t * pinst )
+{
+    float remaining = 0.0f;
+
+    if ( NULL == pinst ) return 0.0f;
+
+    remaining = ( pinst->ilip + 1 ) * 0.25f - pinst->flip;
+
+    return remaining;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache )
+{
+    if ( NULL == pcache ) return pcache;
 
     memset( pcache, 0, sizeof( *pcache ) );
 
-    pcache->vmin = -1;
-    pcache->vmax = -1;
+    pcache->alpha = 127;
+    pcache->light = 255;
 
     return pcache;
 }

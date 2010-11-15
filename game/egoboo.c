@@ -97,7 +97,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 {
     // initialize the virtual filesystem first
     vfs_init();
-	egoboo_setup_vfs_paths();
+    egoboo_setup_vfs_paths();
 
     // Initialize logging next, so that we can use it everywhere.
     log_init( vfs_resolveWriteFilename( "/debug/log.txt" ) );
@@ -129,8 +129,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // read all the scantags
     scantag_read_all_vfs( "mp_data/scancode.txt" );
 
-	if( fs_ensureUserFile( "controls.txt", btrue ) )
-	{
+    if ( fs_ensureUserFile( "controls.txt", btrue ) )
+    {
         input_settings_load_vfs( "/controls.txt" );
     }
 
@@ -143,8 +143,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     sound_initialize();
     load_all_music_sounds_vfs();
 
-	// initialize the random treasure system
-	init_random_treasure_tables_vfs( "mp_data/randomtreasure.txt" );
+    // initialize the random treasure system
+    init_random_treasure_tables_vfs( "mp_data/randomtreasure.txt" );
 
     // make sure that a bunch of stuff gets initialized properly
     object_systems_begin();
@@ -233,7 +233,7 @@ int do_ego_proc_running( ego_process_t * eproc )
         process_kill( PROC_PBASE( eproc ) );
     }
 
-    if( cfg.dev_mode )
+    if ( cfg.dev_mode )
     {
         if ( !SDLKEYDOWN( SDLK_F10 ) )
         {
@@ -241,7 +241,7 @@ int do_ego_proc_running( ego_process_t * eproc )
         }
         else if ( single_frame_keyready && SDLKEYDOWN( SDLK_F10 ) )
         {
-            if( !single_frame_mode )
+            if ( !single_frame_mode )
             {
                 single_frame_mode = btrue;
             }
@@ -686,7 +686,7 @@ void egoboo_setup_vfs_paths()
     vfs_add_mount_point( fs_getUserDirectory(), "players", "mp_players", 1 );
 
     // Create a mount point for the /data/players directory
-    //vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );		//ZF> Let's remove the local players folder since it caused so many problems for people
+    //vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );     //ZF> Let's remove the local players folder since it caused so many problems for people
 
     // Create a mount point for the /user/remote directory
     vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
@@ -700,7 +700,7 @@ Uint32 egoboo_get_ticks( void )
 {
     Uint32 ticks = 0;
 
-    if( single_frame_mode )
+    if ( single_frame_mode )
     {
         ticks = UPDATE_SKIP * update_wld;
     }

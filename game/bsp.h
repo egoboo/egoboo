@@ -34,12 +34,6 @@ struct s_BSP_aabb
     float_ary_t mins;
     float_ary_t mids;
     float_ary_t maxs;
-
-#if defined(__cplusplus)
-    s_BSP_aabb();
-    s_BSP_aabb( size_t dim );
-    ~s_BSP_aabb();
-#endif
 };
 typedef struct s_BSP_aabb BSP_aabb_t;
 
@@ -73,11 +67,6 @@ struct s_BSP_leaf
     size_t              index;
 
     BSP_aabb_t          bbox;
-
-#if defined(__cplusplus)
-    s_BSP_leaf();
-    ~s_BSP_leaf();
-#endif
 };
 typedef struct s_BSP_leaf BSP_leaf_t;
 
@@ -103,12 +92,6 @@ struct s_BSP_branch
 
     BSP_aabb_t             bbox;
     int                    depth;
-
-#if defined(__cplusplus)
-    s_BSP_branch();
-    s_BSP_branch( size_t dim );
-    ~s_BSP_branch();
-#endif
 };
 typedef struct s_BSP_branch BSP_branch_t;
 
@@ -148,12 +131,6 @@ struct s_BSP_tree
     BSP_leaf_t      * infinite;
 
     BSP_aabb_t        bbox;
-
-#if defined(__cplusplus)
-    s_BSP_tree();
-    s_BSP_tree( Sint32 dim, Sint32 depth );
-    ~s_BSP_tree();
-#endif
 };
 typedef struct s_BSP_tree BSP_tree_t;
 

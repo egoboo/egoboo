@@ -27,6 +27,14 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_chr_instance;
+typedef struct s_chr_instance chr_instance_t;
+
+struct s_vlst_cache;
+typedef struct s_vlst_cache vlst_cache_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /// Bits used to request a character tint
 enum e_chr_render_bits
@@ -106,6 +114,8 @@ struct s_chr_reflection_cache
 };
 typedef struct s_chr_reflection_cache chr_reflection_cache_t;
 
+chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache );
+
 //--------------------------------------------------------------------------------------------
 
 /// the data to determine whether re-calculation of vlst is necessary
@@ -125,6 +135,7 @@ struct s_vlst_cache
 typedef struct s_vlst_cache vlst_cache_t;
 
 vlst_cache_t * vlst_cache_init( vlst_cache_t * );
+egoboo_rv      vlst_cache_test( vlst_cache_t *, chr_instance_t * );
 
 //--------------------------------------------------------------------------------------------
 
@@ -164,11 +175,11 @@ struct s_chr_instance
     float          rate;
 
     // action info
-    Uint8          action_ready;                   ///< Ready to play a new one
-    Uint8          action_which;                   ///< Character's action
+    bool_t         action_ready;                   ///< Ready to play a new one
+    int            action_which;                   ///< Character's action
     bool_t         action_keep;                    ///< Keep the action playing
     bool_t         action_loop;                    ///< Loop it too
-    Uint8          action_next;                    ///< Character's action to play next
+    int            action_next;                    ///< Character's action to play next
 
     // lighting info
     Sint32         color_amb;
@@ -194,15 +205,17 @@ struct s_chr_instance
     // Uint8          lightlevel_dir;  ///< 0-255, terrain light
 };
 
-typedef struct s_chr_instance chr_instance_t;
+chr_instance_t * chr_instance_ctor( chr_instance_t * pinst );
+chr_instance_t * chr_instance_dtor( chr_instance_t * pinst );
 
-//--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_ref( const CHR_REF tnc );
+egoboo_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
+egoboo_rv chr_instance_free( chr_instance_t * pinst );
 
-void      update_all_chr_instance();
+egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin );
+egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
+
+egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix );
+
 egoboo_rv chr_update_instance( struct s_chr * pchr );
 egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst );
 egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
@@ -217,3 +230,32 @@ egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, 
 egoboo_rv chr_instance_increment_action( chr_instance_t * pinst );
 egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount );
 egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t actionready );
+
+egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst );
+void      chr_instance_clear_cache( chr_instance_t * pinst );
+BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
+
+egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override );
+
+egoboo_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val );
+egoboo_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val );
+egoboo_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val );
+egoboo_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
+
+egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst );
+
+MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst );
+MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst );
+
+float chr_instance_get_remaining_flip( chr_instance_t * pinst );
+egoboo_rv chr_instance_update_one_lip( chr_instance_t * pinst );
+egoboo_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, Uint32 bits );
+bool_t render_one_mad_ref( const CHR_REF tnc );
+
+void      update_all_chr_instance();

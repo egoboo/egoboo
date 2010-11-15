@@ -26,17 +26,23 @@
 #include "egoboo_vfs.h"
 #include "egoboo_math.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// Where a spawned character can be attached
-enum e_attachment_type
-{
-    ATTACH_NONE       = 0,
-    ATTACH_INVENTORY,
-    ATTACH_LEFT,
-    ATTACH_RIGHT
-};
+    enum e_attachment_type
+    {
+        ATTACH_NONE       = 0,
+        ATTACH_INVENTORY,
+        ATTACH_LEFT,
+        ATTACH_RIGHT
+    };
 
 #define FACE_RANDOM  generate_randmask(0, 0xFFFF)
 
@@ -44,27 +50,39 @@ enum e_attachment_type
 //--------------------------------------------------------------------------------------------
 
 /// The internal representation of a single line in "spawn.txt"
-struct s_spawn_file_info
-{
-    bool_t     do_spawn;
-    STRING     spawn_coment;
+    struct s_spawn_file_info
+    {
+        bool_t     do_spawn;
+        STRING     spawn_coment;
 
-    STRING     spawn_name;
-    char      *pname;
-    int        slot;
-    fvec3_t    pos;
-    int        passage, content, money, level, skin;
-    bool_t     stat;
-    TEAM_REF   team;
-    FACING_T   facing;
-    CHR_REF    attach;
-    CHR_REF    parent;
-};
-typedef struct s_spawn_file_info spawn_file_info_t;
+        STRING     spawn_name;
+        char      *pname;
+        int        slot;
+        fvec3_t    pos;
+        int        passage, content, money, level, skin;
+        bool_t     stat;
+        TEAM_REF   team;
+        FACING_T   facing;
+        CHR_REF    attach;
+        CHR_REF    parent;
+    };
+    typedef struct s_spawn_file_info spawn_file_info_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo );
-spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo );
+    spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo );
+    spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo );
 
-bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo );
+    bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _spawn_file_h
