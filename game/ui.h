@@ -114,6 +114,7 @@ ui_buttonValues  ui_WidgetBehavior( ui_Widget_t * pw );
 void ui_drawButton( ui_id_t id, float x, float y, float width, float height, GLXvector4f pcolor );
 void ui_drawImage( ui_id_t id, oglx_texture_t *img, float x, float y, float width, float height, GLXvector4f image_tint );
 void ui_drawTextBox( Font * font, const char *text, float x, float y, float width, float height, float spacing );
+int  ui_drawBar( ui_id_t id, float vx, float vy, int current, int max, Uint8 bar_type );
 
 /// virtual screen
 void ui_set_virtual_screen( float vw, float vh, float ww, float wh );
