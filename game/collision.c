@@ -2007,8 +2007,8 @@ bool_t do_chr_chr_collision( CoNode_t * d )
         tmp_max = d->tmin + ( d->tmax - d->tmin ) * 0.1f;
 
         // shift the source bounding boxes to be centered on the given positions
-        oct_bb_add_vector( pchr_a->chr_min_cv, pchr_a->pos.v, &src1 );
-        oct_bb_add_vector( pchr_b->chr_min_cv, pchr_b->pos.v, &src2 );
+        oct_bb_add_fvec3( &(pchr_a->chr_min_cv), pchr_a->pos.v, &src1 );
+        oct_bb_add_fvec3( &(pchr_b->chr_min_cv), pchr_b->pos.v, &src2 );
 
         // determine the expanded collision volumes for both objects
         phys_expand_oct_bb( src1, pchr_a->vel.v, tmp_min, tmp_max, &exp1 );

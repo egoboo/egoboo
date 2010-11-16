@@ -250,7 +250,6 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
         bfound = bfalse;
         for ( tnc = 0; tnc  < num_verts; tnc++ )
         {
-            int       cnt;
             oct_vec_t opos;
 
             pframe->vertex_lst[tnc].pos.x *= scale_x;
@@ -268,20 +267,12 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             // Re-calculate the bounding box for this frame
             if ( !bfound )
             {
-                for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
-                {
-                    pframe->bb.mins[cnt] = pframe->bb.maxs[cnt] = opos[cnt];
-                }
-
+                oct_bb_set_ovec( &( pframe->bb), opos );
                 bfound = btrue;
             }
             else
             {
-                for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
-                {
-                    pframe->bb.mins[cnt] = MIN( pframe->bb.mins[cnt], opos[cnt] );
-                    pframe->bb.maxs[cnt] = MAX( pframe->bb.maxs[cnt], opos[cnt] );
-                }
+                oct_bb_self_sum_ovec( &( pframe->bb), opos );
             }
         }
     }
@@ -416,6 +407,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
         bfound = bfalse;
         for ( v = 0; v < md2_header.num_vertices; v++ )
         {
+            oct_vec_t ovec;
             MD2_Frame_t   * pframe;
             id_md2_vertex_t frame_vert;
 
@@ -439,29 +431,16 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
             pframe->vertex_lst[v].nrm.z = kMd2Normals[frame_vert.normalIndex][2];
 
             // Calculate the bounding box for this frame
+            oct_vec_ctor( ovec, pframe->vertex_lst[v].pos.v );
             if ( !bfound )
             {
-                pframe->bb.mins[OCT_X ] = pframe->bb.maxs[OCT_X ] =  pframe->vertex_lst[v].pos.x;
-                pframe->bb.mins[OCT_Y ] = pframe->bb.maxs[OCT_Y ] =  pframe->vertex_lst[v].pos.y;
-                pframe->bb.mins[OCT_XY] = pframe->bb.maxs[OCT_XY] =  pframe->vertex_lst[v].pos.x + pframe->vertex_lst[v].pos.y;
-                pframe->bb.mins[OCT_YX] = pframe->bb.maxs[OCT_YX] = -pframe->vertex_lst[v].pos.x + pframe->vertex_lst[v].pos.y;
-                pframe->bb.mins[OCT_Z ] = pframe->bb.maxs[OCT_Z ] =  pframe->vertex_lst[v].pos.z;
+                oct_bb_set_ovec( &(pframe->bb), ovec );
 
                 bfound = btrue;
             }
             else
             {
-                pframe->bb.mins[OCT_X ] = MIN( pframe->bb.mins[OCT_X ], pframe->vertex_lst[v].pos.x );
-                pframe->bb.mins[OCT_Y ] = MIN( pframe->bb.mins[OCT_Y ], pframe->vertex_lst[v].pos.y );
-                pframe->bb.mins[OCT_XY] = MIN( pframe->bb.mins[OCT_XY], pframe->vertex_lst[v].pos.x + pframe->vertex_lst[v].pos.y );
-                pframe->bb.mins[OCT_YX] = MIN( pframe->bb.mins[OCT_YX], -pframe->vertex_lst[v].pos.x + pframe->vertex_lst[v].pos.y );
-                pframe->bb.mins[OCT_Z ] = MIN( pframe->bb.mins[OCT_Z ], pframe->vertex_lst[v].pos.z );
-
-                pframe->bb.maxs[OCT_X ] = MAX( pframe->bb.maxs[OCT_X ], pframe->vertex_lst[v].pos.x );
-                pframe->bb.maxs[OCT_Y ] = MAX( pframe->bb.maxs[OCT_Y ], pframe->vertex_lst[v].pos.y );
-                pframe->bb.maxs[OCT_XY] = MAX( pframe->bb.maxs[OCT_XY], pframe->vertex_lst[v].pos.x + pframe->vertex_lst[v].pos.y );
-                pframe->bb.maxs[OCT_YX] = MAX( pframe->bb.maxs[OCT_YX], -pframe->vertex_lst[v].pos.x + pframe->vertex_lst[v].pos.y );
-                pframe->bb.maxs[OCT_Z ] = MAX( pframe->bb.maxs[OCT_Z ], pframe->vertex_lst[v].pos.z );
+                oct_bb_self_sum_ovec( &(pframe->bb), ovec );
             }
         }
 

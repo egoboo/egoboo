@@ -7434,7 +7434,6 @@ void move_one_character_do_animation( chr_t * pchr )
     // Right now there are 50/4 = 12.5 animation frames per second
 
     float flip_diff, flip_next;
-    float dflip;
 
     chr_instance_t * pinst;
     CHR_REF          ichr;
@@ -7443,8 +7442,7 @@ void move_one_character_do_animation( chr_t * pchr )
     ichr  = GET_REF_PCHR( pchr );
     pinst = &( pchr->inst );
 
-    dflip     = 0.25f * pinst->rate;
-    flip_diff = ( pinst->flip - 0.25f * pinst->ilip ) + dflip;
+    flip_diff  = 0.25f * pinst->rate;
 
     flip_next = chr_instance_get_remaining_flip( pinst );
 
@@ -7998,11 +7996,24 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     fvec4_t   src[16];  // for the upper and lower octagon points
     fvec4_t   dst[16];  // for the upper and lower octagon points
 
-    oct_bb_t bsrc, bdst;
+    int cnt;
+    oct_bb_t bsrc, bdst, bmin;
 
     mad_t * pmad;
+    cap_t * pcap;
 
     if ( !DEFINED_PCHR( pchr ) ) return rv_error;
+
+    // re-initialize the collision volumes
+    oct_bb_ctor( &(pchr->chr_min_cv) );
+    oct_bb_ctor( &(pchr->chr_max_cv) );
+    for( cnt=0; cnt< SLOT_COUNT; cnt++ )
+    {
+        oct_bb_ctor( pchr->slot_cv + cnt );
+    }
+
+    pcap = pro_get_pcap( pchr->profile_ref );
+    if( NULL == pcap ) return rv_error;
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return rv_error;
@@ -8037,51 +8048,53 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     points_to_oct_bb( &bdst, dst, vcount );
 
     //---- set the bounding boxes
-    pchr->chr_min_cv = bdst;
-    pchr->chr_max_cv = bdst;
+    oct_bb_copy( &(pchr->chr_min_cv), &bdst );
+    oct_bb_copy( &(pchr->chr_max_cv), &bdst );
+
+    oct_bb_set_bumper( &bmin, pchr->bump );
 
     // only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
-    if ( pchr->bump_stt.size >= 0.0f )
+    if ( pcap->bump_override_size )
     {
-        pchr->chr_min_cv.mins[OCT_X ] = MAX( pchr->chr_min_cv.mins[OCT_X ], -pchr->bump.size );
-        pchr->chr_min_cv.mins[OCT_Y ] = MAX( pchr->chr_min_cv.mins[OCT_Y ], -pchr->bump.size );
-        pchr->chr_min_cv.maxs[OCT_X ] = MIN( pchr->chr_min_cv.maxs[OCT_X ],  pchr->bump.size );
-        pchr->chr_min_cv.maxs[OCT_Y ] = MIN( pchr->chr_min_cv.maxs[OCT_Y ],  pchr->bump.size );
+        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_X );
+        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_Y );
 
-        pchr->chr_max_cv.mins[OCT_X ] = MIN( pchr->chr_max_cv.mins[OCT_X ], -pchr->bump.size );
-        pchr->chr_max_cv.mins[OCT_Y ] = MIN( pchr->chr_max_cv.mins[OCT_Y ], -pchr->bump.size );
-        pchr->chr_max_cv.maxs[OCT_X ] = MAX( pchr->chr_max_cv.maxs[OCT_X ],  pchr->bump.size );
-        pchr->chr_max_cv.maxs[OCT_Y ] = MAX( pchr->chr_max_cv.maxs[OCT_Y ],  pchr->bump.size );
+        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_X );
+        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_Y );
     }
 
     // only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
-    if ( pchr->bump_stt.size_big >= 0.0f )
+    if ( pcap->bump_override_sizebig )
     {
-        pchr->chr_min_cv.mins[OCT_YX] = MAX( pchr->chr_min_cv.mins[OCT_YX], -pchr->bump.size_big );
-        pchr->chr_min_cv.mins[OCT_XY] = MAX( pchr->chr_min_cv.mins[OCT_XY], -pchr->bump.size_big );
-        pchr->chr_min_cv.maxs[OCT_YX] = MIN( pchr->chr_min_cv.maxs[OCT_YX], pchr->bump.size_big );
-        pchr->chr_min_cv.maxs[OCT_XY] = MIN( pchr->chr_min_cv.maxs[OCT_XY], pchr->bump.size_big );
+        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_XY );
+        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_YX );
 
-        pchr->chr_max_cv.mins[OCT_YX] = MIN( pchr->chr_max_cv.mins[OCT_YX], -pchr->bump.size_big );
-        pchr->chr_max_cv.mins[OCT_XY] = MIN( pchr->chr_max_cv.mins[OCT_XY], -pchr->bump.size_big );
-        pchr->chr_max_cv.maxs[OCT_YX] = MAX( pchr->chr_max_cv.maxs[OCT_YX], pchr->bump.size_big );
-        pchr->chr_max_cv.maxs[OCT_XY] = MAX( pchr->chr_max_cv.maxs[OCT_XY], pchr->bump.size_big );
+        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_XY );
+        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_YX );
     }
 
     // only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
-    if ( pchr->bump_stt.height >= 0.0f )
+    if ( pcap->bump_override_height )
     {
-        pchr->chr_min_cv.mins[OCT_Z ] = MAX( pchr->chr_min_cv.mins[OCT_Z ], 0.0f );
-        pchr->chr_min_cv.maxs[OCT_Z ] = MIN( pchr->chr_min_cv.maxs[OCT_Z ], pchr->bump.height   * pchr->fat );
+        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_Z );
 
-        pchr->chr_max_cv.mins[OCT_Z ] = MIN( pchr->chr_max_cv.mins[OCT_Z ], 0.0f );
-        pchr->chr_max_cv.maxs[OCT_Z ] = MAX( pchr->chr_max_cv.maxs[OCT_Z ], pchr->bump.height   * pchr->fat );
+        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_Z );
     }
 
     // raise the upper bound for platforms
     if ( pchr->platform )
     {
         pchr->chr_max_cv.maxs[OCT_Z] += PLATTOLERANCE;
+    }
+
+    // calculate collision volumes for various slots
+    for( cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    {
+        if( !pcap->slotvalid[ cnt ] ) continue;
+
+        chr_calc_grip_cv( pchr, GRIP_LEFT, pchr->slot_cv + cnt, NULL, NULL, bfalse ); 
+
+        oct_bb_self_union( &(pchr->chr_max_cv), pchr->slot_cv + cnt );
     }
 
     // convert the level 1 bounding box to a level 0 bounding box
@@ -9973,3 +9986,156 @@ chr_t * chr_set_ai_state( chr_t * pchr, int state )
 
     return pchr;
 }
+
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin, fvec3_base_t grip_up, bool_t shift_origin )
+{
+    /// @details BB@> use a standard size for the grip
+
+    // take the character size from the adventurer model
+    const float default_chr_height = 88.0f;
+    const float default_chr_radius = 22.0f;
+
+    int              cnt;
+    chr_instance_t * pmount_inst;
+    oct_bb_t         tmp_cv = OCT_BB_INIT_VALS;
+
+    int     grip_count;
+    Uint16  grip_verts[GRIP_VERTS];
+    fvec4_t grip_points[GRIP_VERTS];
+    fvec4_t grip_nupoints[GRIP_VERTS];
+    bumper_t bmp;
+
+    if ( !DEFINED_PCHR( pmount ) ) return bfalse;
+
+    // alias this variable for notation simplicity
+    pmount_inst = &( pmount->inst );
+
+    // tune the grip radius
+    bmp.size     = default_chr_radius * pmount->fat * 0.5f;
+    bmp.height   = default_chr_radius * pmount->fat * 2.0f;
+    bmp.size_big = bmp.size * SQRT_TWO;
+
+    oct_bb_set_bumper( &tmp_cv, bmp );
+
+    // move the vertical bounding box down a little
+    tmp_cv.mins[OCT_Z] -= bmp.height * 0.25f;
+    tmp_cv.maxs[OCT_Z] -= bmp.height * 0.25f;
+
+    // get appropriate vertices for this model's grip
+    {
+        // do the automatic vertex update
+        int vert_stt = ( signed )( pmount_inst->vrt_count ) - ( signed )grip_offset;
+        if( vert_stt < 0 ) return bfalse;
+
+        if( rv_error == chr_instance_update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, bfalse ) )
+        {
+            grip_count = 0;
+            for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
+            {
+                grip_verts[cnt] = 0xFFFF;
+            }
+        }
+        else
+        {
+            // calculate the grip vertices
+            for ( grip_count = 0, cnt = 0; cnt < GRIP_VERTS && ( size_t )( vert_stt + cnt ) < pmount_inst->vrt_count; grip_count++, cnt++ )
+            {
+                grip_verts[cnt] = vert_stt + cnt;
+            }
+            for ( /* nothing */ ; cnt < GRIP_VERTS; cnt++ )
+            {
+                grip_verts[cnt] = 0xFFFF;
+            }
+        }
+
+        // calculate grip_origin and grip_up
+        if ( 4 == grip_count )
+        {
+            // Calculate grip point locations with linear interpolation and other silly things
+            convert_grip_to_local_points( pmount, grip_verts, grip_points );
+        }
+        else if ( grip_count > 0 )
+        {
+            // Calculate grip point locations with linear interpolation and other silly things
+            convert_grip_to_local_points( pmount, grip_verts, grip_points );
+
+            if( grip_count < 2 )
+            {
+                fvec4_self_clear( grip_points[2].v );
+                grip_points[2].y = 1.0f;
+            }
+
+            if( grip_count < 3 )
+            {
+                fvec4_self_clear( grip_points[3].v );
+                grip_points[3].z = 1.0f;
+            }
+        }
+        else if ( 0 == grip_count )
+        {
+            // choose the location point at the model's origin and axis aligned
+
+            for( cnt = 0; cnt < 4; cnt++ )
+            {
+                fvec4_self_clear( grip_points[cnt].v );
+            }
+
+            grip_points[1].x = 1.0f;
+            grip_points[2].y = 1.0f;
+            grip_points[3].z = 1.0f;
+        }
+
+        // fix the 4th component depending on the whether we shift the origin of the cv
+        if( !shift_origin )
+        {
+            for( cnt = 0; cnt < grip_count; cnt++ )
+            {
+                grip_points[cnt].w = 0.0f;
+            }
+        }
+    }
+
+    // transform the vertices to calculate the grip_vecs[]
+    if( NULL == grip_up )
+    {
+        // we only need one vertex
+        TransformVertices( &( pmount_inst->matrix ), grip_points, grip_nupoints, 1 );
+    }
+    else
+    {
+        // transform all the vertices
+        TransformVertices( &( pmount_inst->matrix ), grip_points, grip_nupoints, GRIP_VERTS );
+    }
+
+    // find the up vector, if needed
+    if( NULL != grip_up )
+    {
+        fvec3_t grip_vecs[3];
+
+        // determine the grip vectors
+        for ( cnt = 0; cnt < 3; cnt++ )
+        {
+            grip_vecs[cnt] = fvec3_sub( grip_nupoints[cnt + 1].v, grip_nupoints[0].v );
+        }
+
+        // grab the grip's "up" vector
+        fvec3_base_assign( grip_up, fvec3_normalize( grip_vecs[2].v ) );
+    }
+
+    // save the origin, if necessary
+    if( NULL != grip_origin )
+    {
+        fvec3_base_copy( grip_origin, grip_nupoints[0].v );
+    }
+
+    // add in the "origin" of the grip, if necessary
+    if( NULL != grip_cv_ptr )
+    {
+        oct_bb_add_fvec3( &tmp_cv, grip_nupoints[0].v, grip_cv_ptr );
+    }
+
+    return btrue;
+}
+

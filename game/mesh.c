@@ -834,6 +834,7 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
         ego_tile_info_t * ptile;
         Uint16 vertices;
         Uint8 type;
+        oct_vec_t ovec;
 
         ptile = ptmem->tile_list + cnt;
         poct   = &( ptile->oct );
@@ -844,19 +845,15 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
         mesh_vrt = ptmem->tile_list[cnt].vrtstart;    // Number of vertices
         vertices = tile_dict[type].numvertices;          // Number of vertices
 
-        // set the bounding box for this tile
-        poct->mins[XX] = poct->maxs[XX] = ptmem->plst[mesh_vrt][XX];
-        poct->mins[YY] = poct->maxs[YY] = ptmem->plst[mesh_vrt][YY];
-        poct->mins[ZZ] = poct->maxs[ZZ] = ptmem->plst[mesh_vrt][ZZ];
+        // initialize the bounding box
+        oct_vec_ctor( ovec, ptmem->plst[mesh_vrt] );
+        oct_bb_set_ovec( poct, ovec );
+
+        // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            poct->mins[XX] = MIN( poct->mins[XX], ptmem->plst[mesh_vrt][XX] );
-            poct->mins[YY] = MIN( poct->mins[YY], ptmem->plst[mesh_vrt][YY] );
-            poct->mins[ZZ] = MIN( poct->mins[ZZ], ptmem->plst[mesh_vrt][ZZ] );
-
-            poct->maxs[XX] = MAX( poct->maxs[XX], ptmem->plst[mesh_vrt][XX] );
-            poct->maxs[YY] = MAX( poct->maxs[YY], ptmem->plst[mesh_vrt][YY] );
-            poct->maxs[ZZ] = MAX( poct->maxs[ZZ], ptmem->plst[mesh_vrt][ZZ] );
+            oct_vec_ctor( ovec, ptmem->plst[mesh_vrt] );
+            oct_bb_self_sum_ovec( poct, ovec );
         }
 
         // extend the mesh bounding box
@@ -2017,7 +2014,7 @@ mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp )
     mesh_BSP_free( pbsp );
 
     // set the volume to zero
-    pbsp->volume.mins[OCT_X] = pbsp->volume.maxs[OCT_X] = 0.0f;
+    oct_bb_ctor( &(pbsp->volume) );
 
     return pbsp;
 }
@@ -2035,8 +2032,8 @@ bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
     BSP_leaf_ary_ctor( &( pbsp->nodes ), pmesh->gmem.grid_count );
     if ( NULL == pbsp->nodes.ary ) return bfalse;
 
-    // set up the initial bounding volume size
-    pbsp->volume = pmesh->tmem.tile_list[0].oct;
+    // initialize the bounding volume size
+    oct_bb_copy( &(pbsp->volume), &(pmesh->tmem.tile_list[0].oct) );
 
     // construct the BSP_leaf_t list
     for ( i = 0; i < pmesh->gmem.grid_count; i++ )
@@ -2045,7 +2042,7 @@ bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
         ego_tile_info_t * ptile = pmesh->tmem.tile_list + i;
 
         // add the bounding volume for this tile to the bounding volume for the mesh
-        oct_bb_union( &( pbsp->volume ), &( ptile->oct ), &( pbsp->volume ) );
+        oct_bb_self_union( &( pbsp->volume ), &( ptile->oct ) );
 
         // let data type 1 stand for a tile, -1 is uninitialized
         BSP_leaf_ctor( pleaf, 2, pmesh->tmem.tile_list + i, 1 );

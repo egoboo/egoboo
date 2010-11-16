@@ -71,8 +71,8 @@ static INLINE bool_t test_interaction_close_0( bumper_t bump_a, fvec3_t pos_a, b
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb_0( bump_a, &cv_a );
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     return test_interaction_close_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -86,8 +86,8 @@ static INLINE bool_t test_interaction_0( bumper_t bump_a, fvec3_t pos_a, bumper_
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb_0( bump_a, &cv_a );
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     return test_interaction_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -101,7 +101,7 @@ static INLINE bool_t test_interaction_close_1( oct_bb_t cv_a, fvec3_t pos_a, bum
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     return test_interaction_close_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -115,7 +115,7 @@ static INLINE bool_t test_interaction_1( oct_bb_t cv_a, fvec3_t pos_a, bumper_t 
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     return test_interaction_2( cv_a, pos_a, cv_b, pos_b, test_platform );
 }
@@ -190,9 +190,9 @@ static INLINE bool_t get_depth_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb_0( bump_a, &cv_a );
-    bumper_to_oct_bb_0( bump_b, &cv_b );
-
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
+                            
     return get_depth_close_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
 
@@ -205,11 +205,11 @@ static INLINE bool_t get_depth_0( bumper_t bump_a, fvec3_t pos_a, bumper_t bump_
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
-    bumper_to_oct_bb_0( bump_a, &cv_a );
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     return get_depth_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
@@ -223,7 +223,7 @@ static INLINE bool_t get_depth_close_1( oct_bb_t cv_a, fvec3_t pos_a, bumper_t b
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     return get_depth_close_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
@@ -237,7 +237,7 @@ static INLINE bool_t get_depth_1( oct_bb_t cv_a, fvec3_t pos_a, bumper_t bump_b,
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
-    bumper_to_oct_bb_0( bump_b, &cv_b );
+    oct_bb_set_bumper( &cv_b, bump_b );
 
     return get_depth_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }

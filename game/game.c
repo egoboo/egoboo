@@ -5231,10 +5231,7 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    bump.mins[OCT_X]  = pchr->chr_min_cv.mins[OCT_X]  + pchr->pos.x;
-    bump.maxs[OCT_X]  = pchr->chr_min_cv.maxs[OCT_X]  + pchr->pos.x;
-    bump.mins[OCT_Y]  = pchr->chr_min_cv.mins[OCT_Y]  + pchr->pos.y;
-    bump.maxs[OCT_Y]  = pchr->chr_min_cv.maxs[OCT_Y]  + pchr->pos.y;
+    oct_bb_add_fvec3( &(pchr->chr_min_cv), pchr->pos.v, &bump );
 
     // determine the size of this object in tiles
     ixmin = bump.mins[OCT_X] / GRID_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
@@ -5248,14 +5245,6 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     {
         return get_mesh_max_vertex_2( pmesh, pchr );
     }
-
-    // hold off on these calculations in case they are not necessary
-    bump.mins[OCT_Z]  = pchr->chr_min_cv.mins[OCT_Z]  + pchr->pos.z;
-    bump.maxs[OCT_Z]  = pchr->chr_min_cv.maxs[OCT_Z]  + pchr->pos.z;
-    bump.mins[OCT_XY] = pchr->chr_min_cv.mins[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-    bump.maxs[OCT_XY] = pchr->chr_min_cv.maxs[OCT_XY] + ( pchr->pos.x + pchr->pos.y );
-    bump.mins[OCT_YX] = pchr->chr_min_cv.mins[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
-    bump.maxs[OCT_YX] = pchr->chr_min_cv.maxs[OCT_YX] + ( -pchr->pos.x + pchr->pos.y );
 
     // otherwise, make up a list of tiles that the object might overlap
     for ( iy = iymin; iy <= iymax; iy++ )

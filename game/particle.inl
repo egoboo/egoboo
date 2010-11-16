@@ -113,7 +113,7 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
     }
 
     // use the padded bumper to figure out the chr_max_cv
-    bumper_to_oct_bb_0( pprt->bump_padded, &( pprt->prt_cv ) );
+    oct_bb_set_bumper( &( pprt->prt_cv ), pprt->bump_padded );
 
     return btrue;
 }

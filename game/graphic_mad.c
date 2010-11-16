@@ -542,7 +542,7 @@ void render_chr_bbox( chr_t * pchr )
         {
             oct_bb_t bb;
 
-            oct_bb_add_vector( pchr->chr_max_cv, pchr->pos.v, &bb );
+            oct_bb_add_fvec3( &(pchr->chr_max_cv), pchr->pos.v, &bb );
 
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );
@@ -915,7 +915,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 {
-    int           i, frame_count;
+    int           frame_count;
 
     mad_t       * pmad;
     MD2_Model_t * pmd2;
@@ -939,19 +939,15 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
-        pinst->bbox = pframe_lst->bb;
+        oct_bb_copy( &(pinst->bbox), &(pframe_lst->bb) );
     }
     else if ( pinst->flip == 1.0f )
     {
-        pinst->bbox = pframe_nxt->bb;
+        oct_bb_copy( &(pinst->bbox), &(pframe_nxt->bb) );
     }
     else
     {
-        for ( i = 0; i < OCT_COUNT; i++ )
-        {
-            pinst->bbox.mins[i] = pframe_lst->bb.mins[i] + ( pframe_nxt->bb.mins[i] - pframe_lst->bb.mins[i] ) * pinst->flip;
-            pinst->bbox.maxs[i] = pframe_lst->bb.maxs[i] + ( pframe_nxt->bb.maxs[i] - pframe_lst->bb.maxs[i] ) * pinst->flip;
-        }
+        oct_bb_interpolate( &(pinst->bbox), &(pframe_lst->bb), &(pframe_nxt->bb), pinst->flip );
     }
 
     return rv_success;

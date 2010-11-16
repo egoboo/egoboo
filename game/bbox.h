@@ -74,16 +74,37 @@ bool_t oct_vec_self_clear( oct_vec_t * ovec );
 /// values in data.txt. Computed on the fly.
 struct s_oct_bb
 {
+    bool_t    empty;
     oct_vec_t mins,  maxs;
 };
 typedef struct s_oct_bb oct_bb_t;
 
 oct_bb_t * oct_bb_ctor( oct_bb_t * pobb );
-bool_t     oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
-bool_t     oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
-bool_t     oct_bb_empty( const oct_bb_t * psrc1 );
+egoboo_rv  oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc );
+egoboo_rv  oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src );
 
-#define OCT_BB_INIT_VALS { OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
+egoboo_rv  oct_bb_validate( oct_bb_t * pobb );
+egoboo_rv  oct_bb_empty( const oct_bb_t * psrc1 );
+egoboo_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec );
+
+egoboo_rv  oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
+egoboo_rv  oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
+
+egoboo_rv  oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
+
+egoboo_rv  oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
+egoboo_rv  oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
+
+egoboo_rv  oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc );
+egoboo_rv  oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc );
+
+egoboo_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
+egoboo_rv  oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
+
+
+egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
+
+#define OCT_BB_INIT_VALS { btrue, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
 struct s_ego_aabb
@@ -170,15 +191,19 @@ bool_t CVolume_refine( CVolume_t * pcv );
 //--------------------------------------------------------------------------------------------
 // type conversion routines
 
-bool_t bumper_to_oct_bb_0( const bumper_t src, oct_bb_t * pdst );
+
 //bool_t bumper_to_oct_bb_1( const bumper_t src, const fvec3_t vel, oct_bb_t * pdst );
 
-void   oct_bb_downgrade( const oct_bb_t * psrc, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * p_bump, oct_bb_t * pdst );
+egoboo_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb );
 
 int    oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
 void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count );
 
-bool_t oct_bb_add_vector( const oct_bb_t src, const fvec3_base_t vec, oct_bb_t * pdst );
+egoboo_rv oct_bb_add_fvec3( const oct_bb_t * src, const fvec3_base_t vec, oct_bb_t * pdst );
+egoboo_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t * pdst );
+
+egoboo_rv oct_bb_self_add_fvec3( oct_bb_t * dst, const fvec3_base_t vec );
+egoboo_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

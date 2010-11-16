@@ -456,6 +456,8 @@ struct s_chr
     oct_bb_t     chr_max_cv;   ///< a looser collision volume for chr-prt interactions
     oct_bb_t     chr_min_cv;   ///< the tightest collision volume for chr-chr interactions
 
+    oct_bb_t     slot_cv[SLOT_COUNT];  ///< the cv's for the object's slots
+
     Uint8        stoppedby;                     ///< Collision mask
 
     // character location data
@@ -711,3 +713,5 @@ bool_t character_is_attacking( chr_t *pchr );
 chr_t * chr_set_ai_state( chr_t * pchr, int state );
 
 void move_one_character_get_environment( chr_t * pchr );
+
+bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_ary, fvec3_base_t grip_up_ary, bool_t shift_origin );
