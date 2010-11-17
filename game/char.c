@@ -4165,23 +4165,28 @@ chr_t * chr_config_do_active( chr_t * pchr )
     // the following functions should not be done the first time through the update loop
     if ( 0 == update_wld ) return pchr;
 
-    // Do timers and such
+    //---- Do timers and such
 
     // reduce attack cooldowns
-    if ( pchr->reload_timer > 0 )
-    {
-        pchr->reload_timer--;
-    }
+    if ( pchr->reload_timer > 0 ) pchr->reload_timer--;
 
-    // Texture movement
-    pchr->inst.uoffset += pchr->uoffvel;
-    pchr->inst.voffset += pchr->voffvel;
+    // decrement the dismount timer
+    if ( pchr->dismount_timer > 0 ) pchr->dismount_timer--;
+
+    if ( 0 == pchr->dismount_timer )
+    {
+        pchr->dismount_object = ( CHR_REF )MAX_CHR;
+    }
 
     // Down that ol' damage timer
     if ( pchr->damage_timer > 0 ) pchr->damage_timer--;
 
     // Do "Be careful!" delay
     if ( pchr->careful_timer > 0 ) pchr->careful_timer--;
+
+    // Texture movement
+    pchr->inst.uoffset += pchr->uoffvel;
+    pchr->inst.voffset += pchr->voffvel;
 
     // Do stats once every second
     if ( clock_chr_stat >= ONESECOND )
