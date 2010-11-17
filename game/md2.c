@@ -267,12 +267,12 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             // Re-calculate the bounding box for this frame
             if ( !bfound )
             {
-                oct_bb_set_ovec( &( pframe->bb), opos );
+                oct_bb_set_ovec( &( pframe->bb ), opos );
                 bfound = btrue;
             }
             else
             {
-                oct_bb_self_sum_ovec( &( pframe->bb), opos );
+                oct_bb_self_sum_ovec( &( pframe->bb ), opos );
             }
         }
     }
@@ -434,13 +434,13 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
             oct_vec_ctor( ovec, pframe->vertex_lst[v].pos.v );
             if ( !bfound )
             {
-                oct_bb_set_ovec( &(pframe->bb), ovec );
+                oct_bb_set_ovec( &( pframe->bb ), ovec );
 
                 bfound = btrue;
             }
             else
             {
-                oct_bb_self_sum_ovec( &(pframe->bb), ovec );
+                oct_bb_self_sum_ovec( &( pframe->bb ), ovec );
             }
         }
 

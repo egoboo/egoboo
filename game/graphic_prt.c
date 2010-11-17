@@ -1173,7 +1173,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         oct_bb_t loc_bb, tmp_bb, exp_bb;
 
         // copy the bounding volume
-        oct_bb_copy( &tmp_bb, &(loc_pprt->prt_cv) );
+        oct_bb_copy( &tmp_bb, &( loc_pprt->prt_cv ) );
 
         // make sure that it has some minimum extent
         //for(cnt = 0; cnt < OCT_COUNT; cnt++ )

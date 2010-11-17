@@ -614,10 +614,10 @@ bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
     // copy the volume
-    oct_bb_copy( &tmp_oct1, &(pchr->chr_max_cv) );
+    oct_bb_copy( &tmp_oct1, &( pchr->chr_max_cv ) );
 
     // add in the current position to the bounding volume
-    oct_bb_add_fvec3( &(tmp_oct1), pchr->pos.v, &tmp_oct2 );
+    oct_bb_add_fvec3( &( tmp_oct1 ), pchr->pos.v, &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( tmp_oct2, pchr->vel.v, tmin, tmax, pdst );
@@ -634,7 +634,7 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
     // add in the current position to the bounding volume
-    oct_bb_add_fvec3( &(pprt->prt_cv), prt_get_pos_v( pprt ), &tmp_oct );
+    oct_bb_add_fvec3( &( pprt->prt_cv ), prt_get_pos_v( pprt ), &tmp_oct );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( tmp_oct, pprt->vel.v, tmin, tmax, pdst );

@@ -469,17 +469,16 @@ void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vw
 //--------------------------------------------------------------------------------------------
 int ui_drawBar( ui_id_t id, float vx, float vy, int current, int max, Uint8 bar_type )
 {
-	float x1, y1;
+    float x1, y1;
 
     // convert the virtual coordinates to screen coordinates
     ui_virtual_to_screen( vx, vy, &x1, &y1 );
 
-	//Draw the bar
-	y1 = draw_one_bar( bar_type, x1, y1, current, max );	
-	ui_virtual_to_screen( vx, y1, &x1, &y1 );
-	return y1;
+    //Draw the bar
+    y1 = draw_one_bar( bar_type, x1, y1, current, max );
+    ui_virtual_to_screen( vx, y1, &x1, &y1 );
+    return y1;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void ui_drawWidgetButton( ui_Widget_t * pw )

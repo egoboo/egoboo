@@ -67,7 +67,6 @@ extern "C"
 /// but if we change the package we are using, it might care...
 #define vfs_delete_directory vfs_delete_file
 
-
 //--------------------------------------------------------------------------------------------
 // FUNCTION PROTOYPES
 //--------------------------------------------------------------------------------------------

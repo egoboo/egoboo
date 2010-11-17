@@ -287,7 +287,6 @@ int CoNode_cmp( const void * vleft, const void * vright )
     return 0;
 }
 
-
 //--------------------------------------------------------------------------------------------
 int CoNode_cmp_unique( const void * vleft, const void * vright )
 {
@@ -336,7 +335,6 @@ int CoNode_matches( CoNode_t * pleft, CoNode_t * pright )
 
     return bfalse;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -872,15 +870,19 @@ bool_t do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     platform_b = pchr_a->canuseplatforms && pchr_b->platform;
     if ( !platform_a && !platform_b ) return bfalse;
 
-    // If we can mount this platform, skip it
-    mount_a = chr_can_mount( ichr_b, ichr_a );
-    if ( mount_a && pchr_a->enviro.level < pchr_b->pos.z + pchr_b->bump.height + PLATTOLERANCE )
-        return bfalse;
-
-    // If we can mount this platform, skip it
-    mount_b = chr_can_mount( ichr_a, ichr_b );
-    if ( mount_b && pchr_b->enviro.level < pchr_a->pos.z + pchr_a->bump.height + PLATTOLERANCE )
-        return bfalse;
+    //---- since we are doing bump_all_mounts() before bump_all_platforms()
+    // mount detection is done before platform attachment, and these lines of code
+    // aren't needed
+    //
+    //// If we can mount this platform, skip it
+    //mount_a = chr_can_mount( ichr_b, ichr_a );
+    //if ( mount_a && pchr_a->enviro.level < pchr_b->pos.z + pchr_b->bump.height + PLATTOLERANCE )
+    //    return bfalse;
+    //
+    //// If we can mount this platform, skip it
+    //mount_b = chr_can_mount( ichr_a, ichr_b );
+    //if ( mount_b && pchr_b->enviro.level < pchr_a->pos.z + pchr_a->bump.height + PLATTOLERANCE )
+    //    return bfalse;
 
     odepth[OCT_Z]  = MIN( pchr_b->chr_min_cv.maxs[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
                      MAX( pchr_b->chr_min_cv.mins[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->pos.z );
@@ -1460,7 +1462,7 @@ bool_t bump_all_mounts( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
-        if ( MAX_PRT != d->prtb ) continue;
+        if ( MAX_CHR == d->chra || MAX_CHR == d->chrb ) continue;
 
         do_mounts( d->chra, d->chrb );
     }
@@ -1620,35 +1622,21 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool_t do_mounts( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    float xa, ya, za;
-    float xb, yb, zb;
+    oct_vec_t apos, bpos;
 
     chr_t * pchr_a, * pchr_b;
-    cap_t * pcap_a, * pcap_b;
 
     bool_t mount_a, mount_b;
-    float  dx, dy, dist;
-    float  depth_z;
 
-    bool_t collide_x  = bfalse;
-    bool_t collide_y  = bfalse;
-    bool_t collide_xy = bfalse;
-
-    bool_t mounted;
+    bool_t mounted = bfalse;
 
     // make sure that A is valid
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
-    pcap_a = chr_get_pcap( ichr_a );
-    if ( NULL == pcap_a ) return bfalse;
-
     // make sure that B is valid
     if ( !INGAME_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
-
-    pcap_b = chr_get_pcap( ichr_b );
-    if ( NULL == pcap_b ) return bfalse;
 
     // can either of these objects mount the other?
     mount_a = chr_can_mount( ichr_b, ichr_a );
@@ -1657,53 +1645,22 @@ bool_t do_mounts( const CHR_REF ichr_a, const CHR_REF ichr_b )
     if ( !mount_a && !mount_b ) return bfalse;
 
     //Ready for position calulations
-    xa = pchr_a->pos.x;
-    ya = pchr_a->pos.y;
-    za = pchr_a->pos.z;
+    oct_vec_ctor( apos, chr_get_pos_v( pchr_a ) );
+    oct_vec_ctor( bpos, chr_get_pos_v( pchr_b ) );
 
-    xb = pchr_b->pos.x;
-    yb = pchr_b->pos.y;
-    zb = pchr_b->pos.z;
-
+    // assume the worst
     mounted = bfalse;
-    if ( !mounted && mount_b && ( pchr_a->vel.z - pchr_b->vel.z ) < 0 )
+
+    // mount a on b ?
+    if ( !mounted && mount_b && ( pchr_a->vel.z - pchr_b->vel.z ) < 0.0f )
     {
-        // A falling on B?
-        fvec4_t   point[1], nupoint[1];
-
-        // determine the actual location of the mount point
+        if ( !pchr_b->slot_cv[SLOT_LEFT].empty )
         {
-            int vertex;
-            chr_instance_t * pinst = &( pchr_b->inst );
+            oct_bb_t saddle_b;
 
-            vertex = (( int )pinst->vrt_count ) - GRIP_LEFT;
+            oct_bb_add_ovec( pchr_b->slot_cv + SLOT_LEFT, bpos, &saddle_b );
 
-            // do the automatic update
-            chr_instance_update_vertices( pinst, vertex, vertex, bfalse );
-
-            // Calculate grip point locations with linear interpolation and other silly things
-            point[0].x = pinst->vrt_lst[vertex].pos[XX];
-            point[0].y = pinst->vrt_lst[vertex].pos[YY];
-            point[0].z = pinst->vrt_lst[vertex].pos[ZZ];
-            point[0].w = 1.0f;
-
-            // Do the transform
-            TransformVertices( &( pinst->matrix ), point, nupoint, 1 );
-        }
-
-        dx = ABS( xa - nupoint[0].x );
-        dy = ABS( ya - nupoint[0].y );
-        dist = dx + dy;
-        depth_z = za - nupoint[0].z;
-
-        if ( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
-        {
-            // estimate the collisions this frame
-            collide_x  = ( dx <= pchr_a->bump.size * 2 );
-            collide_y  = ( dy <= pchr_a->bump.size * 2 );
-            collide_xy = ( dist <= pchr_a->bump.size_big * 2 );
-
-            if ( collide_x && collide_y && collide_xy )
+            if ( oct_bb_point_inside( &saddle_b, apos ) )
             {
                 attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
                 mounted = INGAME_CHR( pchr_a->attachedto );
@@ -1711,48 +1668,19 @@ bool_t do_mounts( const CHR_REF ichr_a, const CHR_REF ichr_b )
         }
     }
 
-    if ( !mounted && mount_a && ( pchr_b->vel.z - pchr_a->vel.z ) < 0 )
+    // mount b on a ?
+    if ( !mounted && mount_a && ( pchr_b->vel.z - pchr_a->vel.z ) < 0.0f )
     {
-        // B falling on A?
-
-        fvec4_t   point[1], nupoint[1];
-
-        // determine the actual location of the mount point
+        if ( !pchr_a->slot_cv[SLOT_LEFT].empty )
         {
-            int vertex;
-            chr_instance_t * pinst = &( pchr_a->inst );
+            oct_bb_t saddle_a;
 
-            vertex = (( int )pinst->vrt_count ) - GRIP_LEFT;
+            oct_bb_add_ovec( pchr_a->slot_cv + SLOT_LEFT, apos, &saddle_a );
 
-            // do the automatic update
-            chr_instance_update_vertices( pinst, vertex, vertex, bfalse );
-
-            // Calculate grip point locations with linear interpolation and other silly things
-            point[0].x = pinst->vrt_lst[vertex].pos[XX];
-            point[0].y = pinst->vrt_lst[vertex].pos[YY];
-            point[0].z = pinst->vrt_lst[vertex].pos[ZZ];
-            point[0].w = 1.0f;
-
-            // Do the transform
-            TransformVertices( &( pinst->matrix ), point, nupoint, 1 );
-        }
-
-        dx = ABS( xb - nupoint[0].x );
-        dy = ABS( yb - nupoint[0].y );
-        dist = dx + dy;
-        depth_z = zb - nupoint[0].z;
-
-        if ( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
-        {
-            // estimate the collisions this frame
-            collide_x  = ( dx <= pchr_b->bump.size * 2 );
-            collide_y  = ( dy <= pchr_b->bump.size * 2 );
-            collide_xy = ( dist <= pchr_b->bump.size_big * 2 );
-
-            if ( collide_x && collide_y && collide_xy )
+            if ( oct_bb_point_inside( &saddle_a, bpos ) )
             {
                 attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
-                mounted = INGAME_CHR( pchr_a->attachedto );
+                mounted = INGAME_CHR( pchr_b->attachedto );
             }
         }
     }
@@ -2007,8 +1935,8 @@ bool_t do_chr_chr_collision( CoNode_t * d )
         tmp_max = d->tmin + ( d->tmax - d->tmin ) * 0.1f;
 
         // shift the source bounding boxes to be centered on the given positions
-        oct_bb_add_fvec3( &(pchr_a->chr_min_cv), pchr_a->pos.v, &src1 );
-        oct_bb_add_fvec3( &(pchr_b->chr_min_cv), pchr_b->pos.v, &src2 );
+        oct_bb_add_fvec3( &( pchr_a->chr_min_cv ), pchr_a->pos.v, &src1 );
+        oct_bb_add_fvec3( &( pchr_b->chr_min_cv ), pchr_b->pos.v, &src2 );
 
         // determine the expanded collision volumes for both objects
         phys_expand_oct_bb( src1, pchr_a->vel.v, tmp_min, tmp_max, &exp1 );
@@ -2161,7 +2089,6 @@ bool_t do_chr_chr_collision( CoNode_t * d )
             // create an "octagonal position" for each object
             oct_vec_ctor( tmp_opos_a, pchr_a->pos.v );
             oct_vec_ctor( tmp_opos_b, pchr_b->pos.v );
-
 
             oct_vec_self_clear( &tmp_depth );
 

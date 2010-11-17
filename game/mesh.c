@@ -2014,7 +2014,7 @@ mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp )
     mesh_BSP_free( pbsp );
 
     // set the volume to zero
-    oct_bb_ctor( &(pbsp->volume) );
+    oct_bb_ctor( &( pbsp->volume ) );
 
     return pbsp;
 }
@@ -2033,7 +2033,7 @@ bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
     if ( NULL == pbsp->nodes.ary ) return bfalse;
 
     // initialize the bounding volume size
-    oct_bb_copy( &(pbsp->volume), &(pmesh->tmem.tile_list[0].oct) );
+    oct_bb_copy( &( pbsp->volume ), &( pmesh->tmem.tile_list[0].oct ) );
 
     // construct the BSP_leaf_t list
     for ( i = 0; i < pmesh->gmem.grid_count; i++ )

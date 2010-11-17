@@ -1477,7 +1477,7 @@ bool_t doChoosePlayer_show_stats( int player, int mode, const int x, const int y
                     y1 = ui_drawBar( 0, x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->manacolor );
                 }
             }
-			y1 += 10;
+            y1 += 10;
 
             //SWID
             ui_drawTextBox( menuFont, "Stats", x1, y1, 0, 0, 20 ); y1 += 20;
@@ -4967,7 +4967,6 @@ bool_t mnu_GameTip_load_local_vfs()
     // reset the count
     mnu_GameTip.local_count = 0;
 
-
     // Open all the tips
     snprintf( buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", pickedmodule_name );
     fileread = vfs_openRead( buffer );
@@ -4992,7 +4991,7 @@ bool_t mnu_GameTip_load_local_vfs()
     }
 
     vfs_close( fileread );
-	
+
     return mnu_GameTip.local_count > 0;
 }
 

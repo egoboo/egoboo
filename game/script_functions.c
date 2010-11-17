@@ -1883,8 +1883,6 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-
-
     SCRIPT_FUNCTION_END();
 }
 

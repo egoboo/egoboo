@@ -27,7 +27,6 @@ extern "C"
 {
 #endif
 
-
 #if defined(_APPLE_)
 #    include <Endian.h>
 #endif

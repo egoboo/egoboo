@@ -48,7 +48,6 @@ static egoboo_rv  oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int
 static egoboo_rv  oct_bb_validate_index( oct_bb_t * pobb, int index );
 static bool_t     oct_bb_empty_index( const oct_bb_t * pbb, int index );
 
-
 static bool_t oct_bb_empty_raw( const oct_bb_t * pbb );
 static bool_t oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
 
@@ -213,7 +212,7 @@ OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 )
         };
 
         // merge the volumes
-        oct_bb_union( &(pv1->oct), &(pv2->oct), &(rv.oct) );
+        oct_bb_union( &( pv1->oct ), &( pv2->oct ), &( rv.oct ) );
 
         // check for an invalid volume
         rv.lod = rv.oct.empty ? -1 : 1;
@@ -252,21 +251,21 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
         }
 
         // intersect the volumes
-        oct_bb_intersection_index( &(pv1->oct), &(pv1->oct), &(rv.oct), OCT_X );
+        oct_bb_intersection_index( &( pv1->oct ), &( pv1->oct ), &( rv.oct ), OCT_X );
         if ( rv.oct.mins[OCT_X] >= rv.oct.maxs[OCT_X] ) return rv;
 
-        oct_bb_intersection_index( &(pv1->oct), &(pv1->oct), &(rv.oct), OCT_Y );
+        oct_bb_intersection_index( &( pv1->oct ), &( pv1->oct ), &( rv.oct ), OCT_Y );
         if ( rv.oct.mins[OCT_Y] >= rv.oct.maxs[OCT_Y] ) return rv;
 
-        oct_bb_intersection_index( &(pv1->oct), &(pv1->oct), &(rv.oct), OCT_Z );
+        oct_bb_intersection_index( &( pv1->oct ), &( pv1->oct ), &( rv.oct ), OCT_Z );
         if ( rv.oct.mins[OCT_Z] >= rv.oct.maxs[OCT_Z] ) return rv;
 
         if ( pv1->lod >= 0 && pv2->lod >= 0 )
         {
-            oct_bb_intersection_index( &(pv1->oct), &(pv1->oct), &(rv.oct), OCT_XY );
+            oct_bb_intersection_index( &( pv1->oct ), &( pv1->oct ), &( rv.oct ), OCT_XY );
             if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
 
-            oct_bb_intersection_index( &(pv1->oct), &(pv1->oct), &(rv.oct), OCT_YX );
+            oct_bb_intersection_index( &( pv1->oct ), &( pv1->oct ), &( rv.oct ), OCT_YX );
             if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
         }
         else if ( pv1->lod >= 0 )
@@ -471,7 +470,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
         oct_vec_ctor( opd, pd[0].pos.v );
 
-        oct_bb_set_ovec( &(pov->oct), opd );
+        oct_bb_set_ovec( &( pov->oct ), opd );
 
         area = 0;
         for ( cnt = 0; cnt < count - 1; cnt++ )
@@ -480,7 +479,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
             // optimize the bounding volume
             oct_vec_ctor( opd, pd[tnc].pos.v );
-            oct_bb_self_sum_ovec( &(pov->oct), opd );
+            oct_bb_self_sum_ovec( &( pov->oct ), opd );
 
             // determine the area for this element
             diff1.x = pd[cnt].pos.x - center.x;
@@ -920,7 +919,6 @@ bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t oct_vec_self_clear( oct_vec_t * ovec )
 {
@@ -969,21 +967,21 @@ egoboo_rv oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src )
     pobb->mins[OCT_Z] = -src.height;
     pobb->maxs[OCT_Z] =  src.height;
 
-    return oct_bb_validate(pobb);
+    return oct_bb_validate( pobb );
 }
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc )
 {
-    if( NULL == pdst ) return rv_error;
+    if ( NULL == pdst ) return rv_error;
 
-    if( NULL == psrc || psrc->empty )
+    if ( NULL == psrc || psrc->empty )
     {
         oct_bb_ctor( pdst );
         return rv_success;
     }
 
-    memmove( pdst, psrc, sizeof( *pdst) );
+    memmove( pdst, psrc, sizeof( *pdst ) );
 
     return oct_bb_validate( pdst );
 }
@@ -991,9 +989,9 @@ egoboo_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc )
 //--------------------------------------------------------------------------------------------
 egoboo_rv oct_bb_validate( oct_bb_t * pobb )
 {
-    if( NULL == pobb ) return rv_error;
+    if ( NULL == pobb ) return rv_error;
 
-    pobb->empty = oct_bb_empty_raw(pobb);
+    pobb->empty = oct_bb_empty_raw( pobb );
 
     return rv_success;
 }
@@ -1029,9 +1027,9 @@ egoboo_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec )
 {
     int cnt;
 
-    if( NULL == pobb ) return rv_error;
+    if ( NULL == pobb ) return rv_error;
 
-    if( NULL == ovec )
+    if ( NULL == ovec )
     {
         oct_bb_ctor( pobb ) ;
         return rv_fail;
@@ -1055,7 +1053,7 @@ oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index )
 {
     if ( NULL == pobb ) return NULL;
 
-    if( index >= 0 && index < OCT_COUNT )
+    if ( index >= 0 && index < OCT_COUNT )
     {
         pobb->mins[index] = pobb->maxs[index] = 0.0f;
         pobb->empty = btrue;
@@ -1067,9 +1065,9 @@ oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index )
 //--------------------------------------------------------------------------------------------
 egoboo_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
 {
-    if( NULL == pdst ) return rv_error;
+    if ( NULL == pdst ) return rv_error;
 
-    if( NULL == psrc || psrc->empty )
+    if ( NULL == psrc || psrc->empty )
     {
         oct_bb_ctor_index( pdst, index );
         return rv_success;
@@ -1084,9 +1082,9 @@ egoboo_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
 //--------------------------------------------------------------------------------------------
 egoboo_rv oct_bb_validate_index( oct_bb_t * pobb, int index )
 {
-    if( NULL == pobb ) return rv_error;
+    if ( NULL == pobb ) return rv_error;
 
-    if( oct_bb_empty_index( pobb, index ) )
+    if ( oct_bb_empty_index( pobb, index ) )
     {
         pobb->empty = btrue;
     }
@@ -1105,7 +1103,7 @@ bool_t oct_bb_empty_index( const oct_bb_t * pbb, int index )
 {
     if ( NULL == pbb || pbb->empty ) return btrue;
 
-    if( index < 0 || index >= OCT_COUNT ) return btrue;
+    if ( index < 0 || index >= OCT_COUNT ) return btrue;
 
     return oct_bb_empty_index_raw( pbb, index );
 }
@@ -1116,25 +1114,25 @@ egoboo_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, o
     /// @details BB@> find the union of two oct_bb_t
 
     bool_t src1_empty, src2_empty;
- 
+
     if ( NULL == pdst ) return rv_error;
-    
-    if( index < 0 || index >= OCT_COUNT ) return rv_error;
+
+    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
     src1_empty = ( NULL == psrc1 || psrc1->empty );
     src2_empty = ( NULL == psrc2 || psrc2->empty );
 
-    if( src1_empty && src2_empty )
+    if ( src1_empty && src2_empty )
     {
         oct_bb_ctor_index( pdst, index );
         return rv_fail;
     }
-    else if( src2_empty )
+    else if ( src2_empty )
     {
         oct_bb_copy_index( pdst, psrc1, index );
         return rv_success;
     }
-    else if( src1_empty )
+    else if ( src1_empty )
     {
         oct_bb_copy_index( pdst, psrc2, index );
         return rv_success;
@@ -1157,12 +1155,12 @@ egoboo_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * ps
 
     if ( NULL == pdst ) return rv_error;
 
-    if( index < 0 || index >= OCT_COUNT ) return rv_error;
+    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
     src1_empty = ( NULL == psrc1 || psrc1->empty );
     src2_empty = ( NULL == psrc2 || psrc2->empty );
 
-    if( src1_empty || src2_empty )
+    if ( src1_empty || src2_empty )
     {
         oct_bb_ctor_index( pdst, index );
         return rv_success;
@@ -1185,17 +1183,17 @@ egoboo_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int 
 
     if ( NULL == pdst ) return rv_error;
 
-    if( index < 0 || index >= OCT_COUNT ) return rv_error;
+    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
     dst_empty = pdst->empty;
     src_empty = ( NULL == psrc || psrc->empty );
 
-    if( src_empty )
+    if ( src_empty )
     {
         oct_bb_ctor_index( pdst, index );
         return rv_fail;
     }
-    else if( dst_empty )
+    else if ( dst_empty )
     {
         oct_bb_copy_index( pdst, psrc, index );
         return rv_success;
@@ -1218,12 +1216,12 @@ bool_t oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, i
 
     if ( NULL == pdst ) return rv_error;
 
-    if( index < 0 || index >= OCT_COUNT ) return rv_error;
+    if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
     dst_empty = pdst->empty;
     src_empty = ( NULL == psrc || psrc->empty );
 
-    if( dst_empty || src_empty )
+    if ( dst_empty || src_empty )
     {
         oct_bb_ctor_index( pdst, index );
         return rv_fail;
@@ -1251,22 +1249,22 @@ egoboo_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_
     src1_empty = ( NULL == psrc1 || psrc1->empty );
     src2_empty = ( NULL == psrc2 || psrc2->empty );
 
-    if( src1_empty && src2_empty )
+    if ( src1_empty && src2_empty )
     {
         oct_bb_ctor( pdst );
         return rv_fail;
     }
-    else if( src2_empty )
+    else if ( src2_empty )
     {
         return oct_bb_copy( pdst, psrc1 );
     }
-    else if( src1_empty )
+    else if ( src1_empty )
     {
         return oct_bb_copy( pdst, psrc2 );
     }
 
     // no simple case, do the hard work
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pdst->mins[cnt]  = MIN( psrc1->mins[cnt],  psrc2->mins[cnt] );
         pdst->maxs[cnt]  = MAX( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
@@ -1288,14 +1286,14 @@ egoboo_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
     src1_empty = ( NULL == psrc1 || psrc1->empty );
     src2_empty = ( NULL == psrc2 || psrc2->empty );
 
-    if( src1_empty || src2_empty )
+    if ( src1_empty || src2_empty )
     {
         oct_bb_ctor( pdst );
         return rv_fail;
     }
 
     // no simple case. do the hard work
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pdst->mins[cnt]  = MAX( psrc1->mins[cnt],  psrc2->mins[cnt] );
         pdst->maxs[cnt]  = MIN( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
@@ -1317,18 +1315,18 @@ egoboo_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc )
     dst_empty = pdst->empty;
     src_empty = ( NULL == psrc || psrc->empty );
 
-    if( src_empty )
+    if ( src_empty )
     {
         oct_bb_ctor( pdst );
         return rv_fail;
     }
-    else if( dst_empty )
+    else if ( dst_empty )
     {
         return oct_bb_copy( pdst, psrc );
     }
 
     // no simple case, do the hard work
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pdst->mins[cnt]  = MIN( pdst->mins[cnt],  psrc->mins[cnt] );
         pdst->maxs[cnt]  = MAX( pdst->maxs[cnt],  psrc->maxs[cnt] );
@@ -1350,14 +1348,14 @@ bool_t oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc )
     dst_empty = pdst->empty;
     src_empty = ( NULL == psrc || psrc->empty );
 
-    if( dst_empty || src_empty )
+    if ( dst_empty || src_empty )
     {
         oct_bb_ctor( pdst );
         return rv_fail;
     }
 
     // no simple case. do the hard work
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pdst->mins[cnt]  = MAX( pdst->mins[cnt],  psrc->mins[cnt] );
         pdst->maxs[cnt]  = MIN( pdst->maxs[cnt],  psrc->maxs[cnt] );
@@ -1445,7 +1443,7 @@ egoboo_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t
         oct_bb_copy( pdst, psrc );
     }
 
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pdst->mins[cnt] += ovec[cnt];
         pdst->maxs[cnt] += ovec[cnt];
@@ -1465,7 +1463,7 @@ egoboo_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec )
 
     if ( NULL == ovec ) return rv_success;
 
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pdst->mins[cnt] += ovec[cnt];
         pdst->maxs[cnt] += ovec[cnt];
@@ -1479,12 +1477,12 @@ egoboo_rv  oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec )
 {
     int cnt;
 
-    if( NULL == pdst ) return rv_fail;
+    if ( NULL == pdst ) return rv_fail;
 
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        pdst->mins[cnt] = MIN(pdst->mins[cnt], ovec[cnt]);
-        pdst->maxs[cnt] = MAX(pdst->maxs[cnt], ovec[cnt]);
+        pdst->mins[cnt] = MIN( pdst->mins[cnt], ovec[cnt] );
+        pdst->maxs[cnt] = MAX( pdst->maxs[cnt], ovec[cnt] );
     }
 
     return oct_bb_validate( pdst );
@@ -1589,30 +1587,48 @@ egoboo_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oc
     src1_empty = ( NULL == psrc1 || psrc1->empty );
     src2_empty = ( NULL == psrc2 || psrc2->empty );
 
-    if( src1_empty && src2_empty )
+    if ( src1_empty && src2_empty )
     {
         oct_bb_ctor( pdst );
         return rv_fail;
     }
-    else if( !src1_empty && 0.0f == flip )
+    else if ( !src1_empty && 0.0f == flip )
     {
         return oct_bb_copy( pdst, psrc1 );
     }
-    else if( !src2_empty && 1.0f == flip )
+    else if ( !src2_empty && 1.0f == flip )
     {
         return oct_bb_copy( pdst, psrc2 );
     }
-    else if( src1_empty || src2_empty )
+    else if ( src1_empty || src2_empty )
     {
         oct_bb_ctor( pdst );
         return rv_fail;
     }
 
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pdst->mins[cnt] = psrc1->mins[cnt] + ( psrc2->mins[cnt] - psrc1->mins[cnt] ) * flip;
         pdst->maxs[cnt] = psrc1->maxs[cnt] + ( psrc2->maxs[cnt] - psrc1->maxs[cnt] ) * flip;
     }
 
     return oct_bb_validate( pdst );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec )
+{
+    int cnt;
+
+    if ( NULL == pobb || pobb->empty ) return bfalse;
+
+    if ( NULL == ovec ) return bfalse;
+
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    {
+        if ( ovec[cnt] < pobb->mins[cnt] ) return bfalse;
+        if ( ovec[cnt] > pobb->maxs[cnt] ) return bfalse;
+    }
+
+    return btrue;
 }

@@ -101,7 +101,6 @@ egoboo_rv  oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc );
 egoboo_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
 egoboo_rv  oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
 
-
 egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
 
 #define OCT_BB_INIT_VALS { btrue, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
@@ -191,7 +190,6 @@ bool_t CVolume_refine( CVolume_t * pcv );
 //--------------------------------------------------------------------------------------------
 // type conversion routines
 
-
 //bool_t bumper_to_oct_bb_1( const bumper_t src, const fvec3_t vel, oct_bb_t * pdst );
 
 egoboo_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb );
@@ -204,6 +202,8 @@ egoboo_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t
 
 egoboo_rv oct_bb_self_add_fvec3( oct_bb_t * dst, const fvec3_base_t vec );
 egoboo_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
+
+bool_t oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -442,7 +442,7 @@ bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits
         retval = render_one_mad_tex( character, tint, bits );
     }
 
-#if defined(_DEBUG) && defined(DEBUG_CHR_BBOX)
+#if defined(DRAW_CHR_BBOX)
     // don't draw the debug stuff for reflections
     if ( 0 == ( bits & CHR_REFLECT ) )
     {
@@ -536,13 +536,13 @@ void render_chr_bbox( chr_t * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) && pchr->ismount )
     {
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
             oct_bb_t bb;
 
-            oct_bb_add_fvec3( &(pchr->chr_max_cv), pchr->pos.v, &bb );
+            oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->pos.v, &bb );
 
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             render_oct_bb( &bb, btrue, btrue );
@@ -550,15 +550,15 @@ void render_chr_bbox( chr_t * pchr )
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );
     }
 
-    // the grips and vertrices of all objects
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
-    {
-        chr_draw_attached_grip( pchr );
+    //// the grips and vertrices of all objects
+    //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
+    //{
+    //    chr_draw_attached_grip( pchr );
 
-        // draw all the vertices of an object
-        GL_DEBUG( glPointSize( 5 ) );
-        draw_points( pchr, 0, pchr->inst.vrt_count );
-    }
+    //    // draw all the vertices of an object
+    //    GL_DEBUG( glPointSize( 5 ) );
+    //    draw_points( pchr, 0, pchr->inst.vrt_count );
+    //}
 }
 
 //--------------------------------------------------------------------------------------------
@@ -939,15 +939,15 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
-        oct_bb_copy( &(pinst->bbox), &(pframe_lst->bb) );
+        oct_bb_copy( &( pinst->bbox ), &( pframe_lst->bb ) );
     }
     else if ( pinst->flip == 1.0f )
     {
-        oct_bb_copy( &(pinst->bbox), &(pframe_nxt->bb) );
+        oct_bb_copy( &( pinst->bbox ), &( pframe_nxt->bb ) );
     }
     else
     {
-        oct_bb_interpolate( &(pinst->bbox), &(pframe_lst->bb), &(pframe_nxt->bb), pinst->flip );
+        oct_bb_interpolate( &( pinst->bbox ), &( pframe_lst->bb ), &( pframe_nxt->bb ), pinst->flip );
     }
 
     return rv_success;
@@ -1565,7 +1565,6 @@ egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t a
     return chr_instance_start_anim( pinst, action, action_ready, btrue );
 }
 
-
 //--------------------------------------------------------------------------------------------
 void chr_instance_clear_cache( chr_instance_t * pinst )
 {
@@ -1679,7 +1678,7 @@ egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     bool_t updated = bfalse;
     size_t vlst_size;
 
-    if( NULL == pinst ) return rv_error;
+    if ( NULL == pinst ) return rv_error;
 
     if ( !LOADED_MAD( imad ) ) return rv_fail;
     pmad = MadStack.lst + imad;
@@ -1810,7 +1809,6 @@ egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uin
     return rv_success;
 }
 
-
 //--------------------------------------------------------------------------------------------
 BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
 {
@@ -1838,7 +1836,6 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
 
     return pframe_nxt->framefx;
 }
-
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override )
@@ -1956,7 +1953,6 @@ egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
 
     return rv_success;
 }
-
 
 //--------------------------------------------------------------------------------------------
 MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst )

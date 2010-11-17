@@ -28,10 +28,8 @@
 
 #include <SDL_opengl.h>
 
-
 #include <assert.h>
 #include "file_common.h"
-
 
 #if defined(DEBUG_ATTRIB) && defined(_DEBUG)
 #    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); GL_DEBUG(glPushAttrib)(BITS); vfs_printf( stdout, "INFO: PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }

@@ -192,7 +192,7 @@ static INLINE bool_t get_depth_close_0( bumper_t bump_a, fvec3_t pos_a, bumper_t
     // convert the bumpers to the correct format
     oct_bb_set_bumper( &cv_a, bump_a );
     oct_bb_set_bumper( &cv_b, bump_b );
-                            
+
     return get_depth_close_2( cv_a, pos_a, cv_b, pos_b, break_out, depth );
 }
 

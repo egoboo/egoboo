@@ -384,7 +384,6 @@ typedef Uint16 REF_T;
 //--------------------------------------------------------------------------------------------
 // definitions for the compiler environment
 
-
 #define EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
 #define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
 
@@ -433,7 +432,6 @@ C_DECLARE_REF( LOOP_REF );
 C_DECLARE_REF( MOD_REF );
 C_DECLARE_REF( TREQ_REF );
 C_DECLARE_REF( MOD_REF_REF );
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

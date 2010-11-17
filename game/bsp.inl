@@ -64,7 +64,6 @@ static INLINE bool_t BSP_aabb_overlap( const BSP_aabb_t * lhs_ptr, const BSP_aab
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t BSP_aabb_lhs_contains_rhs( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
 {

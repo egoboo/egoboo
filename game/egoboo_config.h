@@ -88,8 +88,8 @@
 
 #undef DEBUG_CPP_LISTS
 
-#undef DEBUG_CHR_BBOX        ///< display the all character bounding boxes
-#define DEBUG_PRT_BBOX        ///< display the all particle bounding boxes
+#define DRAW_CHR_BBOX        ///< display the all character bounding boxes
+#undef DEBUG_PRT_BBOX        ///< display the all particle bounding boxes
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -32,7 +32,6 @@
 static void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_table );
 static void add_object_to_table( treasure_table_t table[], const char *name );
 
-
 void add_object_to_table( treasure_table_t table[], const char *name )
 {
     //ZF> Adds a new treasure object to the specified treasure table

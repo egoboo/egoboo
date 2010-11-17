@@ -101,7 +101,6 @@ static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 
 void cleanup_one_character( chr_t * pchr );
 
-
 static void chr_log_script_time( const CHR_REF ichr );
 
 static bool_t update_chr_darkvision( const CHR_REF character );
@@ -532,7 +531,6 @@ void make_one_character_matrix( const CHR_REF ichr )
                             TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
                             pchr->pos.x, pchr->pos.y, pchr->pos.z );
         }
-
 
         pinst->matrix_cache.valid        = btrue;
         pinst->matrix_cache.matrix_valid = btrue;
@@ -1274,7 +1272,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     pchr->ori.map_facing_x = MAP_TURN_OFFSET;
 
     // turn off keeping, unless the object is dead
-    if( pchr->life <= 0 )
+    if ( pchr->life <= 0 )
     {
         // the object is dead. play the killed animation and make it freeze there
         chr_play_action( pchr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
@@ -1401,11 +1399,11 @@ void attach_character_to_mount( const CHR_REF iitem, const CHR_REF iholder, grip
     pitem->jumptime = JUMPDELAY * 4;
 
     // Run the held animation
-    if ( pholder->ismount && (GRIP_ONLY == grip_off) )
+    if ( pholder->ismount && ( GRIP_ONLY == grip_off ) )
     {
         // Riding iholder
-        
-        if( INGAME_CHR(pitem->holdingwhich[SLOT_LEFT]) || INGAME_CHR(pitem->holdingwhich[SLOT_RIGHT]) )
+
+        if ( INGAME_CHR( pitem->holdingwhich[SLOT_LEFT] ) || INGAME_CHR( pitem->holdingwhich[SLOT_RIGHT] ) )
         {
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it dies not look so silly
@@ -1956,7 +1954,7 @@ void drop_keys( const CHR_REF character )
                     // fix the attachments
                     pitem->attachedto             = ( CHR_REF )MAX_CHR;
                     pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-                    pitem->dismount_object        = GET_REF_PCHR(pchr);
+                    pitem->dismount_object        = GET_REF_PCHR( pchr );
                     pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
                     pitem->onwhichplatform_update = pchr->onwhichplatform_update;
 
@@ -2022,7 +2020,7 @@ bool_t drop_all_items( const CHR_REF character )
 
                 // fix the attachments
                 pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-                pitem->dismount_object        = GET_REF_PCHR(pchr);
+                pitem->dismount_object        = GET_REF_PCHR( pchr );
                 pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
                 pitem->onwhichplatform_update = pchr->onwhichplatform_update;
 
@@ -5507,7 +5505,7 @@ void move_one_character_get_environment( chr_t * pchr )
     chr_environment_t * penviro;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
-    penviro = &(pchr->enviro);
+    penviro = &( pchr->enviro );
 
     // determine if the character is standing on a platform
     pplatform = NULL;
@@ -5689,7 +5687,7 @@ void move_one_character_get_environment( chr_t * pchr )
     }
 
     // add in something for the "ground speed"
-    if( NULL == pplatform )
+    if ( NULL == pplatform )
     {
         fvec3_self_clear( penviro->floor_speed.v );
     }
@@ -5710,7 +5708,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     chr_environment_t * penviro;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
-    penviro = &(pchr->enviro);
+    penviro = &( pchr->enviro );
 
     if ( 0 != pchr->flyheight ) return;
 
@@ -5776,7 +5774,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     fric = fvec3_add( fric_floor.v, penviro->acc.v );
 
     // limit the friction to whatever is horizontal to the mesh
-    if ( 1.0f == ABS(vup.z) )
+    if ( 1.0f == ABS( vup.z ) )
     {
         fric.z      = 0.0f;
         floor_acc.z = 0.0f;
@@ -5784,7 +5782,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     else
     {
         fvec3_t acc_perp, acc_para;
-            
+
         fvec3_decompose( fric.v, vup.v, acc_perp.v, acc_para.v );
         fric = acc_para;
 
@@ -6479,7 +6477,7 @@ void move_one_character_do_z_motion( chr_t * pchr )
     {
         pchr->vel.z += ( pchr->enviro.fly_level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
     }
-    else if ( 
+    else if (
         pchr->enviro.is_slippy && pchr->phys.weight != INFINITE_WEIGHT &&
         pchr->enviro.grid_twist != TWIST_FLAT && pchr->enviro.grid_lerp < pchr->enviro.zlerp )
     {
@@ -7179,7 +7177,7 @@ float set_character_animation_rate( chr_t * pchr )
     if ( character_is_attacking( pchr ) )  return pinst->rate;
 
     // if the character is mounted or sitting, base the rate off of the mounr
-    if( INGAME_CHR(pchr->attachedto) && ((ACTION_MI == pinst->action_which) || (ACTION_MH == pinst->action_which) ))
+    if ( INGAME_CHR( pchr->attachedto ) && (( ACTION_MI == pinst->action_which ) || ( ACTION_MH == pinst->action_which ) ) )
     {
         // just copy the rate from the mount
         pinst->rate = ChrList.lst[pchr->attachedto].inst.rate;
@@ -8005,15 +8003,15 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     if ( !DEFINED_PCHR( pchr ) ) return rv_error;
 
     // re-initialize the collision volumes
-    oct_bb_ctor( &(pchr->chr_min_cv) );
-    oct_bb_ctor( &(pchr->chr_max_cv) );
-    for( cnt=0; cnt< SLOT_COUNT; cnt++ )
+    oct_bb_ctor( &( pchr->chr_min_cv ) );
+    oct_bb_ctor( &( pchr->chr_max_cv ) );
+    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
         oct_bb_ctor( pchr->slot_cv + cnt );
     }
 
     pcap = pro_get_pcap( pchr->profile_ref );
-    if( NULL == pcap ) return rv_error;
+    if ( NULL == pcap ) return rv_error;
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return rv_error;
@@ -8048,37 +8046,37 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     points_to_oct_bb( &bdst, dst, vcount );
 
     //---- set the bounding boxes
-    oct_bb_copy( &(pchr->chr_min_cv), &bdst );
-    oct_bb_copy( &(pchr->chr_max_cv), &bdst );
+    oct_bb_copy( &( pchr->chr_min_cv ), &bdst );
+    oct_bb_copy( &( pchr->chr_max_cv ), &bdst );
 
     oct_bb_set_bumper( &bmin, pchr->bump );
 
     // only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
     if ( pcap->bump_override_size )
     {
-        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_X );
-        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_Y );
+        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_X );
+        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_Y );
 
-        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_X );
-        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_Y );
+        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_X );
+        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_Y );
     }
 
     // only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
     if ( pcap->bump_override_sizebig )
     {
-        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_XY );
-        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_YX );
+        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_XY );
+        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_YX );
 
-        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_XY );
-        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_YX );
+        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_XY );
+        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_YX );
     }
 
     // only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
     if ( pcap->bump_override_height )
     {
-        oct_bb_self_intersection_index( &(pchr->chr_min_cv), &bmin, OCT_Z );
+        oct_bb_self_intersection_index( &( pchr->chr_min_cv ), &bmin, OCT_Z );
 
-        oct_bb_self_union_index( &(pchr->chr_max_cv), &bmin, OCT_Z );
+        oct_bb_self_union_index( &( pchr->chr_max_cv ), &bmin, OCT_Z );
     }
 
     // raise the upper bound for platforms
@@ -8088,13 +8086,13 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     }
 
     // calculate collision volumes for various slots
-    for( cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        if( !pcap->slotvalid[ cnt ] ) continue;
+        if ( !pcap->slotvalid[ cnt ] ) continue;
 
-        chr_calc_grip_cv( pchr, GRIP_LEFT, pchr->slot_cv + cnt, NULL, NULL, bfalse ); 
+        chr_calc_grip_cv( pchr, GRIP_LEFT, pchr->slot_cv + cnt, NULL, NULL, bfalse );
 
-        oct_bb_self_union( &(pchr->chr_max_cv), pchr->slot_cv + cnt );
+        oct_bb_self_union( &( pchr->chr_max_cv ), pchr->slot_cv + cnt );
     }
 
     // convert the level 1 bounding box to a level 0 bounding box
@@ -8817,7 +8815,6 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
                             TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
                             mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
     }
-
 
     memcpy( &( pchr->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
 
@@ -9654,7 +9651,7 @@ bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     action_mi = mad_get_action( chr_get_imad( ichr_a ), ACTION_MI );
     has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
 
-    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && (0 == pchr_a->flyheight) &&
+    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && ( 0 == pchr_a->flyheight ) &&
                        !INGAME_CHR( pchr_a->attachedto ) && has_ride_anim;
 
     is_valid_mount_b = pchr_b->ismount && pchr_b->alive &&
@@ -9670,7 +9667,6 @@ Uint32 chr_get_framefx( chr_t * pchr )
 
     return chr_instance_get_framefx( &( pchr->inst ) );
 };
-
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_invalidate_child_instances( chr_t * pchr )
@@ -9786,21 +9782,21 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
     // do we need to keep this animation?
     needs_keep = bfalse;
 
-    if( !INGAME_CHR(imount) )
+    if ( !INGAME_CHR( imount ) )
     {
-        imount = (CHR_REF)MAX_CHR;
+        imount = ( CHR_REF )MAX_CHR;
         mount_action = ACTION_DA;
     }
     else
     {
         // determine what kind of action we are going to substitute for a riding character
-        if( INGAME_CHR(pchr->holdingwhich[SLOT_LEFT]) || INGAME_CHR(pchr->holdingwhich[SLOT_RIGHT]) )
+        if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) || INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
         {
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it does not look so silly
 
-            mount_action = mad_get_action(pchr->inst.imad, ACTION_MH);
-            if( ACTION_MH != mount_action )
+            mount_action = mad_get_action( pchr->inst.imad, ACTION_MH );
+            if ( ACTION_MH != mount_action )
             {
                 // no real sitting animation. set the animation to keep
                 needs_keep = btrue;
@@ -9809,8 +9805,8 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
         else
         {
             // if it is not holding anything, go for the riding animation
-            mount_action = mad_get_action(pchr->inst.imad, ACTION_MI);
-            if( ACTION_MI != mount_action )
+            mount_action = mad_get_action( pchr->inst.imad, ACTION_MI );
+            if ( ACTION_MI != mount_action )
             {
                 // no real riding animation. set the animation to keep
                 needs_keep = btrue;
@@ -9822,7 +9818,7 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
     if ( rv_success != retval ) return retval;
 
     // set keep if needed
-    if( needs_keep )
+    if ( needs_keep )
     {
         chr_instance_set_action_keep( &( pchr->inst ), btrue );
     }
@@ -9987,7 +9983,6 @@ chr_t * chr_set_ai_state( chr_t * pchr, int state )
     return pchr;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin, fvec3_base_t grip_up, bool_t shift_origin )
 {
@@ -10013,8 +10008,8 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
     pmount_inst = &( pmount->inst );
 
     // tune the grip radius
-    bmp.size     = default_chr_radius * pmount->fat * 0.5f;
-    bmp.height   = default_chr_radius * pmount->fat * 2.0f;
+    bmp.size     = default_chr_radius * pmount->fat * 0.75f;
+    bmp.height   = default_chr_height * pmount->fat * 2.00f;
     bmp.size_big = bmp.size * SQRT_TWO;
 
     oct_bb_set_bumper( &tmp_cv, bmp );
@@ -10027,9 +10022,9 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
     {
         // do the automatic vertex update
         int vert_stt = ( signed )( pmount_inst->vrt_count ) - ( signed )grip_offset;
-        if( vert_stt < 0 ) return bfalse;
+        if ( vert_stt < 0 ) return bfalse;
 
-        if( rv_error == chr_instance_update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, bfalse ) )
+        if ( rv_error == chr_instance_update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, bfalse ) )
         {
             grip_count = 0;
             for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
@@ -10061,13 +10056,13 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
             // Calculate grip point locations with linear interpolation and other silly things
             convert_grip_to_local_points( pmount, grip_verts, grip_points );
 
-            if( grip_count < 2 )
+            if ( grip_count < 2 )
             {
                 fvec4_self_clear( grip_points[2].v );
                 grip_points[2].y = 1.0f;
             }
 
-            if( grip_count < 3 )
+            if ( grip_count < 3 )
             {
                 fvec4_self_clear( grip_points[3].v );
                 grip_points[3].z = 1.0f;
@@ -10077,7 +10072,7 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
         {
             // choose the location point at the model's origin and axis aligned
 
-            for( cnt = 0; cnt < 4; cnt++ )
+            for ( cnt = 0; cnt < 4; cnt++ )
             {
                 fvec4_self_clear( grip_points[cnt].v );
             }
@@ -10088,9 +10083,9 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
         }
 
         // fix the 4th component depending on the whether we shift the origin of the cv
-        if( !shift_origin )
+        if ( !shift_origin )
         {
-            for( cnt = 0; cnt < grip_count; cnt++ )
+            for ( cnt = 0; cnt < grip_count; cnt++ )
             {
                 grip_points[cnt].w = 0.0f;
             }
@@ -10098,7 +10093,7 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
     }
 
     // transform the vertices to calculate the grip_vecs[]
-    if( NULL == grip_up )
+    if ( NULL == grip_up )
     {
         // we only need one vertex
         TransformVertices( &( pmount_inst->matrix ), grip_points, grip_nupoints, 1 );
@@ -10110,7 +10105,7 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
     }
 
     // find the up vector, if needed
-    if( NULL != grip_up )
+    if ( NULL != grip_up )
     {
         fvec3_t grip_vecs[3];
 
@@ -10125,13 +10120,13 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
     }
 
     // save the origin, if necessary
-    if( NULL != grip_origin )
+    if ( NULL != grip_origin )
     {
         fvec3_base_copy( grip_origin, grip_nupoints[0].v );
     }
 
     // add in the "origin" of the grip, if necessary
-    if( NULL != grip_cv_ptr )
+    if ( NULL != grip_cv_ptr )
     {
         oct_bb_add_fvec3( &tmp_cv, grip_nupoints[0].v, grip_cv_ptr );
     }

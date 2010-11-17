@@ -116,7 +116,6 @@
 
 #define EGO_CONST
 
-
 //------------
 // fix how MSVC handles throw specifications on member functions
 #if defined(_MSC_VER)

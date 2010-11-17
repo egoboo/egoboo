@@ -768,7 +768,6 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
         }
     }
 
-
     // Basic stuff that is always written
     fput_expansion( filewrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), pcap->money );
     fput_expansion( filewrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), pcap->canuseplatforms );
