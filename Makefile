@@ -57,7 +57,7 @@ install:
 
 #	copy the players to the user's data folder
 	mkdir -p ${HOME}/.${PROJ_NAME}
-	cp -rdf ./players ${HOME}/.${PROJ_NAME}
+#	cp -rdf ./players ${HOME}/.${PROJ_NAME}
 
 #	copy the basic configuration files to the config directory
 	mkdir -p ${PREFIX}/etc/${PROJ_NAME}

@@ -4603,7 +4603,7 @@ void delete_all_graphics()
     init_map_data();
 
     BillboardList_free_all();
-    TxTexture_delete_all();
+	TxTexture_delete_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4625,7 +4625,7 @@ bool_t load_all_global_icons()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_basic_textures( /* const char *modname */ )
+void load_basic_textures()
 {
     /// @details ZZ@> This function loads the standard textures for a module
 

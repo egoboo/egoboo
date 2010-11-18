@@ -1379,7 +1379,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 
     // Target must both be alive and on and valid
     loc_target = target;
-    if ( !INGAME_CHR( loc_target ) )
+    if ( !DEFINED_CHR( loc_target ) )
     {
         log_warning( "spawn_one_enchant() - failed because the target does not exist.\n" );
         return ( ENC_REF )MAX_ENC;
@@ -1447,8 +1447,8 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         }
     }
 
-    // make sure the loc_target is valid
-    if ( !INGAME_CHR( loc_target ) || !ptarget->alive )
+    // make sure the loc_target is alive
+    if ( !ptarget->alive )
     {
         log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
         return ( ENC_REF )MAX_ENC;

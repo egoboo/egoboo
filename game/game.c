@@ -3370,7 +3370,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     // make sure that the object lists are in a good state
     reset_all_object_lists();
 
-    // set up the birtual file system for the module
+    // set up the virtual file system for the module
     if ( !game_setup_vfs_paths( modname ) ) return bfalse;
 
     // load all the in-game module data
@@ -3504,7 +3504,7 @@ void game_release_module_data()
 
     ego_mpd_t * ptmp;
 
-    // Disable EMP
+    // Disable ESP
     local_senseenemiesID = IDSZ_NONE;
     local_senseenemiesTeam = TEAM_MAX;
 
@@ -3702,7 +3702,7 @@ void game_finish_module()
     sound_play_song( MENU_SONG, 0, -1 );
 
     // quit the old module
-    //game_quit_module();       //@note: ZF> uncommented, but might cause a texture allocation bug?
+//    game_quit_module();       //@note: ZF> uncommented, but might cause a texture allocation bug?
 }
 
 //--------------------------------------------------------------------------------------------

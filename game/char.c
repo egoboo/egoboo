@@ -3951,7 +3951,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     if ( pcap->skin_override != NO_SKIN_OVERRIDE )
     {
         // override the value passed into the function from spawn.txt
-        // with the calue from the expansion in data.txt
+        // with the value from the expansion in data.txt
         pchr->spawn_data.skin = pchr->skin;
     }
     if ( pchr->spawn_data.skin >= ProList.lst[pchr->spawn_data.profile].skins )
@@ -6191,8 +6191,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                     }
 
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.rate = 0.125f;                       //base attack speed
-                    pchr->inst.rate += chr_dex / 40;                    //+0.25f for every 10 dexterity
+                    pchr->inst.rate = 0.25f;                       //base attack speed
+                    pchr->inst.rate += chr_dex / 20;                    //+0.25f for every 5 dexterity
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
@@ -7471,7 +7471,9 @@ void move_one_character_do_animation( chr_t * pchr )
 
         if ( pinst->ilip > 4 )
         {
-            log_error( "chr_increment_frame() - invalid ilip\n" );
+            log_warning( "chr_increment_frame() - invalid ilip\n" );
+			pinst->ilip = 0;
+			break;
         }
 
         flip_next = chr_instance_get_remaining_flip( pinst );
@@ -7501,7 +7503,8 @@ void move_one_character_do_animation( chr_t * pchr )
 
             if ( pinst->ilip > 4 )
             {
-                log_error( "chr_increment_frame() - invalid ilip\n" );
+                log_warning( "chr_increment_frame() - invalid ilip\n" );
+				pinst->ilip = 0;
             }
         }
     }
