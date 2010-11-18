@@ -2052,7 +2052,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     if (( pchr_a->ismount && MAX_CHR == pchr_a->holdingwhich[SLOT_LEFT] && !pchr_b->ismount ) ||
         ( pchr_b->ismount && MAX_CHR == pchr_b->holdingwhich[SLOT_LEFT] && !pchr_a->ismount ) )
     {
-        interaction_strength *= 0.015625f;
+        interaction_strength *= 0.03125f;
     }
 
     // reduce the interaction strength with platforms
@@ -2231,7 +2231,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
             // and continually overlapping.
             // use pressure to push them appart. reduce their relative velocities.
 
-            const float pressure_strength = 0.9f * interaction_strength;
+            const float pressure_strength = 0.5f * interaction_strength;
 
             float tmin;
 

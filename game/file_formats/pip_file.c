@@ -229,7 +229,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'B', 'L', 'O', 'C' ) )  SET_BIT( ppip->damfx, DAMFX_NBLOC );
         else if ( idsz == MAKE_IDSZ( 'A', 'R', 'R', 'O' ) )  SET_BIT( ppip->damfx, DAMFX_ARRO );
         else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) )  SET_BIT( ppip->damfx, DAMFX_TIME );
-        else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'Z', 'S', 'P', 'D' ) )  ppip->zaimspd = fget_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'F', 'S', 'N', 'D' ) )  ppip->end_sound_floor = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'W', 'S', 'N', 'D' ) )  ppip->end_sound_wall = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'W', 'E', 'N', 'D' ) )  ppip->end_wall = ( 0 != fget_int( fileread ) );

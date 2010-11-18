@@ -350,8 +350,10 @@ prt_t * prt_config_do_init( prt_t * pprt )
             pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
             if ( DEFINED_CHR( pprt->target_ref ) && !ppip->homing )
             {
-                loc_facing -= glouseangle;        // ZF> ?What does this do?!
-                // BB> glouseangle is the angle found in prt_find_target()
+                /// @note ZF@> ?What does this do?!
+                /// @note BB@> glouseangle is the angle found in prt_find_target()
+                loc_facing -= glouseangle;
+                
             }
 
             // Correct loc_facing for dexterity...
@@ -363,7 +365,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                 offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECTSTAT;
             }
 
-            if ( DEFINED_CHR( pprt->target_ref ) && ppip->zaimspd != 0 )
+            if ( DEFINED_CHR( pprt->target_ref ) && ppip->zaimspd != 0.0f )
             {
                 // These aren't velocities...  This is to do aiming on the Z axis
                 if ( velocity > 0 )
@@ -371,11 +373,11 @@ prt_t * prt_config_do_init( prt_t * pprt )
                     vel.x = ChrList.lst[pprt->target_ref].pos.x - pdata->pos.x;
                     vel.y = ChrList.lst[pprt->target_ref].pos.y - pdata->pos.y;
                     tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
-                    if ( tvel > 0 )
+                    if ( tvel > 0.0f )
                     {
                         vel.z = ( ChrList.lst[pprt->target_ref].pos.z + ( ChrList.lst[pprt->target_ref].bump.height * 0.5f ) - tmp_pos.z ) / tvel;  // This is the vel.z alteration
-                        if ( vel.z < -( ppip->zaimspd >> 1 ) ) vel.z = -( ppip->zaimspd >> 1 );
-                        if ( vel.z > ppip->zaimspd ) vel.z = ppip->zaimspd;
+
+                        vel.z = CLIP(vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd );
                     }
                 }
             }

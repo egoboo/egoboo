@@ -208,7 +208,7 @@ extern "C"
         FACING_T targetangle;                  ///< To find target
         float    homingaccel;                  ///< Acceleration rate
         float    homingfriction;               ///< Deceleration rate
-        int      zaimspd;                      ///< [ZSPD] For Z aiming
+        float    zaimspd;                      ///< [ZSPD] For Z aiming
         bool_t   rotatetoface;                 ///< Arrows/Missiles
         bool_t   targetcaster;                 ///< Target caster?
 
