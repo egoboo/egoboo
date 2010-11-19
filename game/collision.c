@@ -1328,7 +1328,7 @@ void bump_all_objects( obj_BSP_t * pbsp )
     // The following functions need to be called any time you actually change a charcter's position
     keep_weapons_with_holders();
     attach_all_particles();
-    make_all_character_matrices( update_wld != 0 );
+    update_all_character_matrices();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1480,19 +1480,20 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
     // blank the accumulators
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
-        pchr->phys.apos_plat.x = 0.0f;
-        pchr->phys.apos_plat.y = 0.0f;
-        pchr->phys.apos_plat.z = 0.0f;
-
-        pchr->phys.apos_coll.x = 0.0f;
-        pchr->phys.apos_coll.y = 0.0f;
-        pchr->phys.apos_coll.z = 0.0f;
-
-        pchr->phys.avel.x = 0.0f;
-        pchr->phys.avel.y = 0.0f;
-        pchr->phys.avel.z = 0.0f;
+        fvec3_self_clear( pchr->phys.apos_plat.v );
+        fvec3_self_clear( pchr->phys.apos_coll.v );
+        fvec3_self_clear( pchr->phys.avel.v );
     }
     CHR_END_LOOP();
+
+
+    PRT_BEGIN_LOOP_ACTIVE( cnt, prt_bdl )
+    {
+        fvec3_self_clear( prt_bdl.prt_ptr->phys.apos_plat.v );
+        fvec3_self_clear( prt_bdl.prt_ptr->phys.apos_coll.v );
+        fvec3_self_clear( prt_bdl.prt_ptr->phys.avel.v );
+    }
+    PRT_END_LOOP();
 
     // do all interactions
     for ( cnt = 0; cnt < pcn_ary->top; cnt++ )
@@ -1518,6 +1519,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         float tmpx, tmpy, tmpz;
         float bump_str;
         bool_t position_updated = bfalse;
+        fvec3_t max_apos;
 
         fvec3_t tmp_pos = chr_get_pos( pchr );
 
@@ -1528,17 +1530,20 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         }
 
         // do the "integration" of the accumulated accelerations
-        pchr->vel.x += pchr->phys.avel.x;
-        pchr->vel.y += pchr->phys.avel.y;
-        pchr->vel.z += pchr->phys.avel.z;
+        fvec3_self_sum( pchr->vel.v, pchr->phys.avel.v );        
 
         position_updated = bfalse;
 
+        max_apos = fvec3_add( pchr->phys.apos_plat.v, pchr->phys.apos_coll.v );
+        max_apos.x = CLIP( max_apos.x, -GRID_SIZE, GRID_SIZE );
+        max_apos.y = CLIP( max_apos.y, -GRID_SIZE, GRID_SIZE );
+        max_apos.z = CLIP( max_apos.z, -GRID_SIZE, GRID_SIZE );
+
         // do the "integration" on the position
-        if ( ABS( pchr->phys.apos_plat.x + pchr->phys.apos_coll.x ) > 0 )
+        if ( ABS( max_apos.x ) > 0.0f )
         {
             tmpx = tmp_pos.x;
-            tmp_pos.x += pchr->phys.apos_plat.x + pchr->phys.apos_coll.x;
+            tmp_pos.x += max_apos.x;
             if ( chr_test_wall( pchr, tmp_pos.v, NULL ) )
             {
                 // restore the old values
@@ -1546,15 +1551,15 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             }
             else
             {
-                pchr->vel.x += pchr->phys.apos_coll.x * bump_str;
+                //pchr->vel.x += pchr->phys.apos_coll.x * bump_str;
                 position_updated = btrue;
             }
         }
 
-        if ( ABS( pchr->phys.apos_plat.y + pchr->phys.apos_coll.y ) > 0 )
+        if ( ABS( max_apos.y ) > 0.0f )
         {
             tmpy = tmp_pos.y;
-            tmp_pos.y += pchr->phys.apos_plat.y + pchr->phys.apos_coll.y;
+            tmp_pos.y += max_apos.y;
             if ( chr_test_wall( pchr, tmp_pos.v, NULL ) )
             {
                 // restore the old values
@@ -1562,15 +1567,15 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             }
             else
             {
-                pchr->vel.y += pchr->phys.apos_coll.y * bump_str;
+                //pchr->vel.y += pchr->phys.apos_coll.y * bump_str;
                 position_updated = btrue;
             }
         }
 
-        if ( ABS( pchr->phys.apos_plat.z + pchr->phys.apos_coll.z ) > 0 )
+        if ( ABS( max_apos.z ) > 0.0f )
         {
             tmpz = tmp_pos.z;
-            tmp_pos.z += pchr->phys.apos_plat.z + pchr->phys.apos_coll.z;
+            tmp_pos.z += max_apos.z;
             if ( tmp_pos.z < pchr->enviro.floor_level )
             {
                 // restore the old values
@@ -1587,7 +1592,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             }
             else
             {
-                pchr->vel.z += pchr->phys.apos_coll.z * bump_str;
+                //pchr->vel.z += pchr->phys.apos_coll.z * bump_str;
                 position_updated = btrue;
             }
         }
@@ -1598,6 +1603,120 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         }
     }
     CHR_END_LOOP();
+
+    // accumulate the accumulators
+    PRT_BEGIN_LOOP_ACTIVE( iprt, bdl )
+    {
+        float tmpx, tmpy, tmpz;
+        float bump_str;
+        bool_t position_updated = bfalse;
+        fvec3_t max_apos;
+
+        fvec3_t tmp_pos = prt_get_pos( bdl.prt_ptr );
+
+        bump_str = 1.0f;
+        if ( INGAME_CHR( bdl.prt_ptr->attachedto_ref ) )
+        {
+            bump_str = 0.0f;
+        }
+
+        // do the "integration" of the accumulated accelerations
+        fvec3_self_sum( bdl.prt_ptr->vel.v, bdl.prt_ptr->phys.avel.v );        
+
+        position_updated = bfalse;
+
+        max_apos = fvec3_add( bdl.prt_ptr->phys.apos_plat.v, bdl.prt_ptr->phys.apos_coll.v );
+        max_apos.x = CLIP( max_apos.x, -GRID_SIZE, GRID_SIZE );
+        max_apos.y = CLIP( max_apos.y, -GRID_SIZE, GRID_SIZE );
+        max_apos.z = CLIP( max_apos.z, -GRID_SIZE, GRID_SIZE );
+
+        // do the "integration" on the position
+        if ( ABS( max_apos.x ) > 0.0f )
+        {
+            tmpx = tmp_pos.x;
+            tmp_pos.x += max_apos.x;
+            if ( prt_test_wall( bdl.prt_ptr, tmp_pos.v, NULL ) )
+            {
+                // restore the old values
+                tmp_pos.x = tmpx;
+            }
+            else
+            {
+                //bdl.prt_ptr->vel.x += bdl.prt_ptr->phys.apos_coll.x * bump_str;
+                position_updated = btrue;
+            }
+        }
+
+        if ( ABS( max_apos.y ) > 0.0f )
+        {
+            tmpy = tmp_pos.y;
+            tmp_pos.y += max_apos.y;
+            if ( prt_test_wall( bdl.prt_ptr, tmp_pos.v, NULL ) )
+            {
+                // restore the old values
+                tmp_pos.y = tmpy;
+            }
+            else
+            {
+                //bdl.prt_ptr->vel.y += bdl.prt_ptr->phys.apos_coll.y * bump_str;
+                position_updated = btrue;
+            }
+        }
+
+        if ( ABS( max_apos.z ) > 0.0f )
+        {
+            tmpz = tmp_pos.z;
+            tmp_pos.z += max_apos.z;
+            if ( tmp_pos.z < bdl.prt_ptr->enviro.floor_level )
+            {
+                // restore the old values
+                tmp_pos.z = bdl.prt_ptr->enviro.floor_level;
+                if ( bdl.prt_ptr->vel.z < 0 )
+                {                    
+                    if ( LOADED_PIP( bdl.prt_ptr->pip_ref ) )
+                    {
+                        pip_t * ppip = PipStack.lst + bdl.prt_ptr->pip_ref;
+                        bdl.prt_ptr->vel.z += -( 1.0f + ppip->dampen ) * bdl.prt_ptr->vel.z;
+                    }
+                    else
+                    {
+                        bdl.prt_ptr->vel.z += -( 1.0f + 0.5f ) * bdl.prt_ptr->vel.z;
+                    }
+                }
+                position_updated = btrue;
+            }
+            else
+            {
+                //bdl.prt_ptr->vel.z += bdl.prt_ptr->phys.apos_coll.z * bump_str;
+                position_updated = btrue;
+            }
+        }
+
+        if ( position_updated )
+        {
+            prt_set_pos( bdl.prt_ptr, tmp_pos.v );
+        }
+    }
+    PRT_END_LOOP();
+
+
+    // blank the accumulators
+    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+    {
+        fvec3_self_clear( pchr->phys.apos_plat.v );
+        fvec3_self_clear( pchr->phys.apos_coll.v );
+        fvec3_self_clear( pchr->phys.avel.v );
+    }
+    CHR_END_LOOP();
+
+
+    PRT_BEGIN_LOOP_ACTIVE( cnt, prt_bdl )
+    {
+        fvec3_self_clear( prt_bdl.prt_ptr->phys.apos_plat.v );
+        fvec3_self_clear( prt_bdl.prt_ptr->phys.apos_coll.v );
+        fvec3_self_clear( prt_bdl.prt_ptr->phys.avel.v );
+    }
+    PRT_END_LOOP();
 
     return btrue;
 }
@@ -2128,7 +2247,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     // do character-character interactions
 
     // calculate a "mass" for each object, taking into account possible infinite masses
-    chr_get_mass_pair( pchr_a, pchr_b, &wta, &wtb );
+    get_chr_chr_mass_pair( pchr_a, pchr_b, &wta, &wtb );
 
     // create an "octagonal position" for each object
     oct_vec_ctor( ocm_a, pchr_a->pos.v );
@@ -2144,7 +2263,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
     if ( phys_estimate_chr_chr_normal( ocm_a, ocm_b, odepth, exponent, nrm.v ) )
     {
-        float factor_a, factor_b;
+        float recoil_a, recoil_b;
 
         fvec3_t   vpara_a, vperp_a;
         fvec3_t   vpara_b, vperp_b;
@@ -2163,31 +2282,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
         fvec3_self_clear( pimp_b.v );
 
         // determine the relative effect of impulses, given the known weights
-        if ( wta < 0.0f && wtb < 0.0f )
-        {
-            factor_a = 0.5f;
-            factor_b = 0.5f;
-        }
-        else if ( wta == wtb )
-        {
-            factor_a = 0.5f;
-            factor_b = 0.5f;
-        }
-        else if ( wta < 0.0f || wtb == 0.0f )
-        {
-            factor_a = 0.0f;
-            factor_b = 1.0f;
-        }
-        else if ( wtb < 0.0f || wta == 0.0f )
-        {
-            factor_a = 1.0f;
-            factor_b = 0.0f;
-        }
-        else
-        {
-            factor_a = wtb / ( wta + wtb );
-            factor_b = wta / ( wta + wtb );
-        }
+        get_recoil_factors( wta, wtb, &recoil_a, &recoil_b );
 
         // what type of "collision" is this? (impulse or pressure)
         if ( collision )
@@ -2204,14 +2299,14 @@ bool_t do_chr_chr_collision( CoNode_t * d )
             // the difference in perpendicular velocities
             vdiff_a = fvec3_sub( vperp_b.v, vperp_a.v );
 
-            if ( factor_a > 0.0f )
+            if ( recoil_a > 0.0f )
             {
-                vimp_a = fvec3_scale( vdiff_a.v, factor_a * ( 1.0f + cr ) * interaction_strength );
+                vimp_a = fvec3_scale( vdiff_a.v, recoil_a * ( 1.0f + cr ) * interaction_strength );
             }
 
-            if ( factor_b > 0.0f )
+            if ( recoil_b > 0.0f )
             {
-                vimp_b = fvec3_scale( vdiff_a.v, -factor_b * ( 1.0f + cr ) * interaction_strength );
+                vimp_b = fvec3_scale( vdiff_a.v, -recoil_b * ( 1.0f + cr ) * interaction_strength );
             }
 
             // add in the bump impulses
@@ -2251,21 +2346,21 @@ bool_t do_chr_chr_collision( CoNode_t * d )
                 pdiff_a = fvec3_scale( nrm_pres.v, tmin );
                 vdot    = fvec3_dot_product( vdiff_a.v, nrm_pres.v );
 
-                if ( factor_a > 0.0f )
+                if ( recoil_a > 0.0f )
                 {
-                    pimp_a = fvec3_scale( pdiff_a.v, factor_a * pressure_strength );
+                    pimp_a = fvec3_scale( pdiff_a.v, recoil_a * pressure_strength );
                     if ( vdot < 0.0f )
                     {
-                        vimp_a = fvec3_scale( vdiff_a.v, factor_a * pressure_strength );
+                        vimp_a = fvec3_scale( vdiff_a.v, recoil_a * pressure_strength );
                     }
                 }
 
-                if ( factor_b > 0.0f )
+                if ( recoil_b > 0.0f )
                 {
-                    pimp_b = fvec3_scale( pdiff_a.v,  -factor_b * pressure_strength );
+                    pimp_b = fvec3_scale( pdiff_a.v,  -recoil_b * pressure_strength );
                     if ( vdot < 0.0f )
                     {
-                        vimp_b = fvec3_scale( vdiff_a.v, -factor_b * pressure_strength );
+                        vimp_b = fvec3_scale( vdiff_a.v, -recoil_b * pressure_strength );
                     }
                 }
 
@@ -2369,8 +2464,8 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     if ( z_collide && !was_z_collide )
     {
         // Particle is falling onto the platform
-        pprt->pos.z = pplat->pos.z + pplat->chr_max_cv.maxs[OCT_Z];
-        pprt->vel.z = pplat->vel.z - pprt->vel.z * pdata->ppip->dampen;
+        pprt->phys.apos_plat.z += pplat->pos.z + pplat->chr_max_cv.maxs[OCT_Z] - pprt->pos.z;
+        pprt->phys.avel.z      += (pplat->pos.z - pprt->vel.z) * ( 1.0f + pdata->ppip->dampen );
 
         // This should prevent raindrops from stacking up on the top of trees and other
         // objects
@@ -2384,18 +2479,18 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
     else if ( z_collide && was_z_collide )
     {
         // colliding this time and last time. particle is *embedded* in the platform
-        pprt->pos.z = pplat->pos.z + pplat->chr_max_cv.maxs[OCT_Z];
+        pprt->phys.apos_plat.z += pplat->pos.z + pplat->chr_max_cv.maxs[OCT_Z] - pprt->pos.z;
 
         if ( pprt->vel.z - pplat->vel.z < 0 )
         {
-            pprt->vel.z = pplat->vel.z * pdata->ppip->dampen + platstick * pplat->vel.z;
+            pprt->phys.avel.z += pplat->vel.z * pdata->ppip->dampen + platstick * pplat->vel.z - pprt->vel.z;
         }
         else
         {
-            pprt->vel.z = pprt->vel.z * ( 1.0f - platstick ) + pplat->vel.z * platstick;
+            pprt->phys.avel.z += pprt->vel.z * ( 1.0f - platstick ) + pplat->vel.z * platstick - pprt->vel.z;
         }
-        pprt->vel.x = pprt->vel.x * ( 1.0f - platstick ) + pplat->vel.x * platstick;
-        pprt->vel.y = pprt->vel.y * ( 1.0f - platstick ) + pplat->vel.y * platstick;
+        pprt->phys.avel.x += pprt->vel.x * ( 1.0f - platstick ) + pplat->vel.x * platstick - pprt->vel.x;
+        pprt->phys.avel.y += pprt->vel.y * ( 1.0f - platstick ) + pplat->vel.y * platstick - pprt->vel.y;
 
         plat_collision = btrue;
     }
@@ -2405,12 +2500,11 @@ bool_t do_prt_platform_physics( prt_t * pprt, chr_t * pplat, chr_prt_collsion_da
         float lerp_z = ( pprt->pos.z - ( pplat->pos.z + pplat->chr_max_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1, 1 );
 
-        if ( lerp_z > 0 )
+        if ( lerp_z > 0.0f )
         {
-            float tmp_platstick = platstick * lerp_z;
-            pprt->vel.z = pprt->vel.z * ( 1.0f - tmp_platstick ) + pplat->vel.z * tmp_platstick;
-            pprt->vel.x = pprt->vel.x * ( 1.0f - tmp_platstick ) + pplat->vel.x * tmp_platstick;
-            pprt->vel.y = pprt->vel.y * ( 1.0f - tmp_platstick ) + pplat->vel.y * tmp_platstick;
+            pprt->phys.avel.x += ( pplat->vel.x - pprt->vel.x ) * platstick * lerp_z;
+            pprt->phys.avel.y += ( pplat->vel.y - pprt->vel.y ) * platstick * lerp_z;
+            pprt->phys.avel.z += ( pplat->vel.z - pprt->vel.z ) * platstick * lerp_z;
 
             plat_collision = btrue;
         }
@@ -2576,7 +2670,9 @@ bool_t do_chr_prt_collision_deflect( chr_t * pchr, prt_t * pprt, chr_prt_collsio
 bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion_data_t * pdata )
 {
     /// @details BB@> make the character and particle recoil from the collision
-    float prt_mass;
+    float chr_mass, prt_mass;
+    float chr_recoil, prt_recoil;
+
     float attack_factor;
 
     if ( NULL == pdata ) return 0;
@@ -2609,118 +2705,82 @@ bool_t do_chr_prt_collision_recoil( chr_t * pchr, prt_t * pprt, chr_prt_collsion
         attack_factor = INV_SQRT_TWO;
     }
 
-    prt_mass = 1.0f;
-    if ( 0 == pdata->max_damage )
-    {
-        // this is a particle like the wind particles in the whirlwind
-        // make the particle have some kind of predictable constant effect
-        // relative to any character;
-        prt_mass = pchr->phys.weight / 10.0f;
-    }
-    else
-    {
-        // determine an "effective mass" for the particle, based on it's max damage
-        // and velocity
+    // get some type of mass info for the particle
+    get_chr_prt_mass_pair( pchr, pprt, &chr_mass, &prt_mass );
 
-        float prt_vel2;
-        float prt_ke;
-
-        // the damage is basically like the kinetic energy of the particle
-        prt_vel2 = fvec3_dot_product( pdata->vdiff.v, pdata->vdiff.v );
-
-        // It can happen that a damage particle can hit something
-        // at almost zero velocity, which would make for a huge "effective mass".
-        // by making a reasonable "minimum velocity", we limit the maximum mass to
-        // something reasonable
-        prt_vel2 = MAX( 100.0f, prt_vel2 );
-
-        // get the "kinetic energy" from the damage
-        prt_ke = 3.0f * pdata->max_damage;
-
-        // the faster the particle is going, the smaller the "mass" it
-        // needs to do the damage
-        prt_mass = prt_ke / ( 0.5f * prt_vel2 );
-    }
+    // get recoil factors for the masses
+    get_recoil_factors( chr_mass, prt_mass, &chr_recoil, &prt_recoil );
 
     // now, we have the particle's impulse and mass
     // Do the impulse to the object that was hit
     // If the particle was magically deflected, there is no rebound on the target
-    if ( pchr->phys.weight != INFINITE_WEIGHT && !pdata->mana_paid )
+    if ( !pdata->mana_paid )
     {
-        float factor = attack_factor;
-
-        if ( pchr->phys.weight > 0 )
-        {
-            // limit the prt_mass to be something relatice to this object
-            float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * pchr->phys.weight );
-
-            factor *= loc_prt_mass / pchr->phys.weight;
-        }
+        fvec3_t tmp_impulse;
 
         // modify it by the the severity of the damage
         // reduces the damage below pdata->actual_damage == pchr->lifemax
         // and it doubles it if pdata->actual_damage is really huge
-        //factor *= 2.0f * ( float )pdata->actual_damage / ( float )( ABS( pdata->actual_damage ) + pchr->lifemax );
+        //attack_factor *= 2.0f * ( float )pdata->actual_damage / ( float )( ABS( pdata->actual_damage ) + pchr->lifemax );
 
-        factor = CLIP( factor, 0.0f, 3.0f );
+        attack_factor = CLIP( attack_factor, 0.0f, 3.0f );
 
-        // calculate the "impulse"
-        pchr->phys.avel.x -= pdata->impulse.x * factor;
-        pchr->phys.avel.y -= pdata->impulse.y * factor;
-        pchr->phys.avel.z -= pdata->impulse.z * factor;
+        // calculate the "impulse" to the character
+        tmp_impulse = fvec3_scale( pdata->impulse.v, -chr_recoil * attack_factor );
+        fvec3_self_sum( pchr->phys.avel.v, tmp_impulse.v );
     }
 
     // if the particle is attached to a weapon, the particle can force the
     // weapon (actually, the weapon's holder) to rebound.
     if ( INGAME_CHR( pprt->attachedto_ref ) )
     {
-        chr_t * ptarget;
+        chr_t * pholder;
         CHR_REF iholder;
 
-        ptarget = NULL;
+        // assume the worst
+        pholder = NULL;
 
-        // transmit the force of the blow back to the character that is
-        // holding the weapon
-
+        // who is holding the weapon?
         iholder = chr_get_lowest_attachment( pprt->attachedto_ref, bfalse );
         if ( INGAME_CHR( iholder ) )
         {
-            ptarget = ChrList.lst + iholder;
+            pholder = ChrList.lst + iholder;
         }
         else
         {
             iholder = chr_get_lowest_attachment( pprt->owner_ref, bfalse );
             if ( INGAME_CHR( iholder ) )
             {
-                ptarget = ChrList.lst + iholder;
+                pholder = ChrList.lst + iholder;
             }
         }
 
-        if ( ptarget->phys.weight != INFINITE_WEIGHT )
+        if( NULL != pholder )
         {
-            float factor = attack_factor;
+            fvec3_t tmp_impulse;
 
-            if ( ptarget->phys.weight > 0 )
-            {
-                // limit the prt_mass to be something relative to this object
-                float loc_prt_mass = CLIP( prt_mass, 1.0f, 2.0f * ptarget->phys.weight );
+            float holder_mass, tmp_prt_mass;
+            float tmp_holder_recoil, tmp_prt_recoil, holder_recoil;
 
-                factor *= ( float ) loc_prt_mass / ( float )ptarget->phys.weight;
-            }
+            get_chr_prt_mass_pair( pholder, pprt, &holder_mass, &tmp_prt_mass );
+            get_recoil_factors( holder_mass, tmp_prt_mass, &tmp_holder_recoil, &tmp_prt_recoil );
 
-            factor = CLIP( factor, 0.0f, 3.0f );
+            // get the actual holder recoil
+            holder_recoil = tmp_holder_recoil * prt_recoil / attack_factor;
 
             // in the SAME direction as the particle
-            ptarget->phys.avel.x += pdata->impulse.x * factor;
-            ptarget->phys.avel.y += pdata->impulse.y * factor;
-            ptarget->phys.avel.z += pdata->impulse.z * factor;
+            tmp_impulse = fvec3_scale( pdata->impulse.v, holder_recoil );
+            fvec3_self_sum( pholder->phys.avel.v, tmp_impulse.v );
         }
     }
 
     // apply the impulse to the particle velocity
-    pprt->vel.x += pdata->impulse.x;
-    pprt->vel.y += pdata->impulse.y;
-    pprt->vel.z += pdata->impulse.z;
+    {
+        fvec3_t tmp_impulse;
+    
+        tmp_impulse = fvec3_scale( pdata->impulse.v, prt_recoil );
+        fvec3_self_sum( pprt->phys.avel.v, tmp_impulse.v );
+    }
 
     return btrue;
 }
@@ -3054,11 +3114,11 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     bool_t retval = bfalse;
 
-    CHR_REF ichr_a;
-    PRT_REF iprt_b;
+    CHR_REF ichr;
+    PRT_REF iprt;
 
-    chr_t * pchr_a;
-    prt_t * pprt_b;
+    chr_t * pchr;
+    prt_t * pprt;
 
     bool_t prt_deflected;
     bool_t prt_can_hit_chr;
@@ -3067,33 +3127,52 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     chr_prt_collsion_data_t cn_lst;
 
-    if ( NULL == d || MAX_PRT != d->prta || MAX_CHR != d->chrb ) return bfalse;
-    ichr_a = d->chra;
-    iprt_b = d->prtb;
+    // valid node?
+    if ( NULL == d ) return bfalse;
+
+    if( MAX_CHR != d->chra && MAX_PRT != d->prtb )
+    {
+        // character was first
+        ichr = d->chra;
+        iprt = d->prtb;
+    }
+    else if( MAX_CHR != d->chrb && MAX_PRT != d->prta )
+    {
+        // particle was first
+        ichr = d->chrb;
+        iprt = d->prta;
+    }
+    else
+    {
+        // not a valid interaction
+        return bfalse;
+    }
+
+    if ( !INGAME_PRT( iprt ) ) return bfalse;
+    pprt = PrtList.lst + iprt;
 
     // make sure that it is on
-    if ( !INGAME_CHR( ichr_a ) ) return bfalse;
-    pchr_a = ChrList.lst + ichr_a;
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
+    pchr = ChrList.lst + ichr;
 
-    if ( !pchr_a->alive ) return bfalse;
-
-    if ( !INGAME_PRT( iprt_b ) ) return bfalse;
-    pprt_b = PrtList.lst + iprt_b;
-
-    if ( ichr_a == pprt_b->attachedto_ref ) return bfalse;
+    // ignore dead characters
+    if ( !pchr->alive ) return bfalse;
 
     //skip objects that are inside inventories
-    if ( pchr_a->pack.is_packed ) return bfalse;
+    if ( pchr->pack.is_packed ) return bfalse;
+
+    // if the particle is attached to this character, ignore a "collision"
+    if ( ichr == pprt->attachedto_ref ) return bfalse;
 
     // detect a full collision
-    full_collision = do_chr_prt_collision_init( pchr_a, pprt_b, &cn_lst );
+    full_collision = do_chr_prt_collision_init( pchr, pprt, &cn_lst );
 
     // platform interaction. we can still have a platform interaction even if there
-    // is not a "full_collision" since the z-distance thes
+    // is not a "full_collision" because of the extended the z-distance
     plat_collision = bfalse;
-    if ( pchr_a->platform && !INGAME_CHR( pprt_b->attachedto_ref ) )
+    if ( pchr->platform && !INGAME_CHR( pprt->attachedto_ref ) )
     {
-        plat_collision = do_prt_platform_physics( pprt_b, pchr_a, &cn_lst );
+        plat_collision = do_prt_platform_physics( pprt, pchr, &cn_lst );
     }
 
     // if there is no collision, no point in going farther
@@ -3101,17 +3180,17 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     // estimate the "normal" for the collision, using the center-of-mass difference
     // put this off until this point to reduce calling this "expensive" function
-    cn_lst.dot = estimate_chr_prt_normal( pchr_a, pprt_b, cn_lst.nrm.v, cn_lst.vdiff.v );
+    cn_lst.dot = estimate_chr_prt_normal( pchr, pprt, cn_lst.nrm.v, cn_lst.vdiff.v );
 
     // handle particle deflection.
     // if the platform collision was already handled, there is nothing left to do
     prt_deflected = bfalse;
-    //if ( full_collision && !plat_collision )
+    if ( full_collision && !plat_collision )
     {
         // determine whether the particle is deflected by the character
         if ( cn_lst.dot < 0.0f )
         {
-            prt_deflected = do_chr_prt_collision_deflect( pchr_a, pprt_b, &cn_lst );
+            prt_deflected = do_chr_prt_collision_deflect( pchr, pprt, &cn_lst );
             if ( prt_deflected )
             {
                 retval = btrue;
@@ -3120,27 +3199,27 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     }
 
     // do "damage" to the character
-    if ( !prt_deflected && 0 == pchr_a->damage_timer )
+    if ( !prt_deflected && 0 == pchr->damage_timer )
     {
         // Check reaffirmation of particles
-        if ( pchr_a->reaffirmdamagetype == pprt_b->damagetype )
+        if ( pchr->reaffirmdamagetype == pprt->damagetype )
         {
-            cap_t *pcap_a = chr_get_pcap( pchr_a->ai.index );
+            cap_t *pcap_a = chr_get_pcap( pchr->ai.index );
 
             //This prevents books in shops from being burned
-            if ( pchr_a->isshopitem && pcap_a->spelleffect_type != NO_SKIN_OVERRIDE )
-                retval = ( 0 != reaffirm_attached_particles( ichr_a ) );
+            if ( pchr->isshopitem && pcap_a->spelleffect_type != NO_SKIN_OVERRIDE )
+                retval = ( 0 != reaffirm_attached_particles( ichr ) );
         }
 
         // refine the logic for a particle to hit a character
-        prt_can_hit_chr = do_chr_prt_collision_bump( pchr_a, pprt_b, &cn_lst );
+        prt_can_hit_chr = do_chr_prt_collision_bump( pchr, pprt, &cn_lst );
 
         // does the particle damage/heal the character?
         if ( prt_can_hit_chr )
         {
             // we can't even get to this point if the character is completely invulnerable (invictus)
             // or can't be damaged this round
-            cn_lst.prt_damages_chr = do_chr_prt_collision_damage( pchr_a, pprt_b, &cn_lst );
+            cn_lst.prt_damages_chr = do_chr_prt_collision_damage( pchr, pprt, &cn_lst );
             if ( cn_lst.prt_damages_chr )
             {
                 retval = btrue;
@@ -3151,7 +3230,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // make the character and particle recoil from the collision
     if ( ABS( cn_lst.impulse.x ) + ABS( cn_lst.impulse.y ) + ABS( cn_lst.impulse.z ) > 0.0f )
     {
-        if ( do_chr_prt_collision_recoil( pchr_a, pprt_b, &cn_lst ) )
+        if ( do_chr_prt_collision_recoil( pchr, pprt, &cn_lst ) )
         {
             retval = btrue;
         }
@@ -3160,7 +3239,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // handle a couple of special cases
     if ( cn_lst.prt_bumps_chr )
     {
-        if ( do_chr_prt_collision_handle_bump( pchr_a, pprt_b, &cn_lst ) )
+        if ( do_chr_prt_collision_handle_bump( pchr, pprt, &cn_lst ) )
         {
             retval = btrue;
         }
@@ -3169,9 +3248,204 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // terminate the particle if needed
     if ( cn_lst.terminate_particle )
     {
-        end_one_particle_in_game( iprt_b );
+        end_one_particle_in_game( iprt );
         retval = btrue;
     }
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t get_chr_chr_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * wtb )
+{
+    /// @details BB@> calculate a "mass" for each object, taking into account possible infinite masses.
+
+    float loc_wta, loc_wtb;
+
+    if ( !ACTIVE_PCHR( pchr_a ) || !ACTIVE_PCHR( pchr_b ) ) return bfalse;
+
+    if ( NULL == wta ) wta = &loc_wta;
+    if ( NULL == wtb ) wtb = &loc_wtb;
+
+    *wta = ( INFINITE_WEIGHT == pchr_a->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_a->phys.weight;
+    *wtb = ( INFINITE_WEIGHT == pchr_b->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_b->phys.weight;
+
+    if ( *wta == 0 && *wtb == 0 )
+    {
+        *wta = *wtb = 1;
+    }
+    else if ( *wta == 0 )
+    {
+        *wta = 1;
+        *wtb = -( float )INFINITE_WEIGHT;
+    }
+    else if ( *wtb == 0 )
+    {
+        *wtb = 1;
+        *wta = -( float )INFINITE_WEIGHT;
+    }
+
+    if ( 0.0f == pchr_a->phys.bumpdampen && 0.0f == pchr_b->phys.bumpdampen )
+    {
+        /* do nothing */
+    }
+    else if ( 0.0f == pchr_a->phys.bumpdampen )
+    {
+        // make the weight infinite
+        *wta = -( float )INFINITE_WEIGHT;
+    }
+    else if ( 0.0f == pchr_b->phys.bumpdampen )
+    {
+        // make the weight infinite
+        *wtb = -( float )INFINITE_WEIGHT;
+    }
+    else
+    {
+        // adjust the weights to respect bumpdampen
+        ( *wta ) /= pchr_a->phys.bumpdampen;
+        ( *wtb ) /= pchr_b->phys.bumpdampen;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t get_chr_prt_mass_pair( chr_t * pchr, prt_t * pprt, float * wchr, float * wprt )
+{
+    /// @details BB@> calculate a "mass" for each object, taking into account possible infinite masses.
+
+    float loc_wchr, loc_wprt;
+
+    if ( !ACTIVE_PCHR( pchr ) || !ACTIVE_PPRT( pprt ) ) return bfalse;
+
+    if ( NULL == wchr ) wchr = &loc_wchr;
+    if ( NULL == wprt ) wprt = &loc_wprt;
+
+    *wchr = ( INFINITE_WEIGHT == pchr->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr->phys.weight;
+
+    // determine an approximate mass for the particle
+    if( DEFINED_CHR(pprt->attachedto_ref) )
+    {
+        // the weight of swipe particles has already been set to that of their character
+        *wprt = ( INFINITE_WEIGHT == pprt->phys.weight ) ? -( float )INFINITE_WEIGHT : pprt->phys.weight;
+    }
+    else
+    {
+        float max_damage = ABS(pprt->damage.base) + ABS(pprt->damage.rand);
+
+        *wprt = 1.0f;
+
+        if ( 0 == max_damage )
+        {
+            // this is a particle like the wind particles in the whirlwind
+            // make the particle have some kind of predictable constant effect
+            // relative to any character;
+            *wprt = pchr->phys.weight / 10.0f;
+        }
+        else
+        {
+            // determine an "effective mass" for the particle, based on it's max damage
+            // and velocity
+
+            float prt_vel2;
+            float prt_ke;
+
+            fvec3_t vdiff = fvec3_sub( pprt->vel.v, pchr->vel.v );
+
+            // the damage is basically like the kinetic energy of the particle
+            prt_vel2 = fvec3_dot_product( vdiff.v, vdiff.v );
+
+            // It can happen that a damage particle can hit something
+            // at almost zero velocity, which would make for a huge "effective mass".
+            // by making a reasonable "minimum velocity", we limit the maximum mass to
+            // something reasonable
+            prt_vel2 = MAX( 100.0f, prt_vel2 );
+
+            // get the "kinetic energy" from the damage
+            prt_ke = 3.0f * max_damage;
+
+            // the faster the particle is going, the smaller the "mass" it
+            // needs to do the damage
+            *wprt = prt_ke / ( 0.5f * prt_vel2 );
+        }
+    }
+
+    if ( 0.0f == pchr->phys.bumpdampen && 0.0f == pprt->phys.bumpdampen )
+    {
+        *wprt = -( float )INFINITE_WEIGHT;
+        *wprt = -( float )INFINITE_WEIGHT;
+    }
+    else if ( 0.0f == pchr->phys.bumpdampen )
+    {
+        // make the weight infinite
+        *wchr = -( float )INFINITE_WEIGHT;
+    }
+    else if ( 0.0f == pprt->phys.bumpdampen )
+    {
+        // make the weight infinite
+        *wprt = -( float )INFINITE_WEIGHT;
+    }
+    else
+    {
+        // adjust the weights to respect bumpdampen
+        ( *wchr ) /= pchr->phys.bumpdampen;
+        ( *wprt ) /= pprt->phys.bumpdampen;
+    }
+
+    if ( *wchr < 0.0f && *wprt < 0.0f )
+    {
+        *wchr = *wprt = 1.0f;
+    }
+    if ( *wchr == 0.0f && *wprt == 0.0f )
+    {
+        *wchr = *wprt = 1.0f;
+    }
+    else if ( *wchr == 0.0f || *wprt < 0.0f )
+    {
+        *wchr = 0.0f;
+        *wprt = -( float )INFINITE_WEIGHT;
+    }
+    else if ( *wprt == 0.0f || *wchr < 0.0f )
+    {
+        *wprt = 0.0f;
+        *wchr = -( float )INFINITE_WEIGHT;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b )
+{
+    float loc_recoil_a, loc_recoil_b;
+
+    if( NULL == recoil_a ) recoil_a = &loc_recoil_a;
+    if( NULL == recoil_b ) recoil_b = &loc_recoil_b;
+
+    if ( wta < 0.0f && wtb < 0.0f )
+    {
+        *recoil_a = 0.5f;
+        *recoil_b = 0.5f;
+    }
+    else if ( wta == wtb )
+    {
+        *recoil_a = 0.5f;
+        *recoil_b = 0.5f;
+    }
+    else if ( wta < 0.0f || wtb == 0.0f )
+    {
+        *recoil_a = 0.0f;
+        *recoil_b = 1.0f;
+    }
+    else if ( wtb < 0.0f || wta == 0.0f )
+    {
+        *recoil_a = 1.0f;
+        *recoil_b = 0.0f;
+    }
+    else
+    {
+        *recoil_a = wtb / ( wta + wtb );
+        *recoil_b = wta / ( wta + wtb );
+    }
 }

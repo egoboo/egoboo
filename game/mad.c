@@ -466,7 +466,7 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF imad, int frame )
 
         if ( -1 == token_index )
         {
-            log_debug( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", szModelName, frame, cFrameName, ptmp );
+            //log_debug( "Model %s, frame %d, frame name \"%s\" has unknown frame effects command \"%s\"\n", szModelName, frame, cFrameName, ptmp );
             ptmp++;
         }
         else

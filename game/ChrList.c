@@ -141,7 +141,7 @@ void ChrList_prune_free()
 
         ichr = ChrList.free_ref[cnt];
 
-        if ( VALID_CHR_RANGE( ichr ) && INGAME_PRT_BASE( ichr ) )
+        if ( VALID_CHR_RANGE( ichr ) && INGAME_CHR_BASE( ichr ) )
         {
             removed = ChrList_remove_free_index( cnt );
         }

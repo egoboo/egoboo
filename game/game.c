@@ -3364,9 +3364,6 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     // make sure the old game has been quit
     game_quit_module();
 
-    // reset all the game timers
-    reset_timers();
-
     // make sure that the object lists are in a good state
     reset_all_object_lists();
 
@@ -3391,7 +3388,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     cursor_reset();
     game_module_reset( PMod, seed );
     camera_reset( PCamera, PMesh );
-    make_all_character_matrices( update_wld != 0 );
+    update_all_character_matrices();
     attach_all_particles();
 
     // log debug info for every object loaded into the module
@@ -3406,6 +3403,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // initialize the timers as the very last thing
     timeron = bfalse;
+    reset_timers();
 
     return btrue;
 }

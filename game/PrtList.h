@@ -47,16 +47,17 @@
 
 // Macros to determine whether the particle is in the game or not.
 // If objects are being spawned, then any object that is just "defined" is treated as "in game"
+
+// all particles that are ON are displayed
 #define INGAME_PRT_BASE(IPRT)       ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && ON_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define INGAME_PPRT_BASE(PPRT)      ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) && ON_PBASE( POBJ_GET_PBASE(PPRT) ) )
+#define INGAME_PRT_PBASE(PPRT)      ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) && ON_PBASE( POBJ_GET_PBASE(PPRT) ) )
 
-#define INGAME_PRT(IPRT)            ( (ego_object_spawn_depth) > 0 ? DEFINED_PRT(IPRT) : INGAME_PRT_BASE(IPRT) )
-#define INGAME_PPRT(PPRT)           ( (ego_object_spawn_depth) > 0 ? DEFINED_PPRT(PPRT) : INGAME_PPRT_BASE(PPRT) )
+#define INGAME_PRT(IPRT)            ( ( (ego_object_spawn_depth) > 0 ? DEFINED_PRT(IPRT) : INGAME_PRT_BASE(IPRT) ) && (!PrtList.lst[IPRT].is_ghost) )
+#define INGAME_PPRT(PPRT)           ( ( (ego_object_spawn_depth) > 0 ? INGAME_PRT_PBASE(PPRT) : DISPLAY_PPRT(PPRT) ) && ( !(PPRT)->is_ghost ) )
 
-// the same as INGAME_*_BASE except that the particle does not have to be "on"
-// visible particles stick around in the active state (but off) until they have been displayed at least once
-#define DISPLAY_PRT( IPRT )      ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE(POBJ_GET_PBASE(PrtList.lst + (IPRT))) )
-#define DISPLAY_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT )   && ACTIVE_PBASE(POBJ_GET_PBASE(PPRT)) )
+#define DISPLAY_PRT(IPRT)           INGAME_PRT_BASE(IPRT)
+#define DISPLAY_PPRT(PPRT)          INGAME_PRT_PBASE(PPRT)
+
 
 //--------------------------------------------------------------------------------------------
 // looping macros

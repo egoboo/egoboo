@@ -4204,8 +4204,8 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    frame_along = pstate->argument & 3;
-    ilip        = pstate->argument >> 2;
+    ilip        = pstate->argument & 3;
+    frame_along = pstate->argument >> 2;
     chr_set_frame( pself->index, ACTION_DA, frame_along, ilip );
 
     SCRIPT_FUNCTION_END();

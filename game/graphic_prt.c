@@ -200,16 +200,19 @@ bool_t render_one_prt_solid( const PRT_REF iprt )
     {
         GL_DEBUG( glDepthMask )( GL_TRUE );           // GL_ENABLE_BIT
 
+        // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );        // GL_ENABLE_BIT
-        GL_DEBUG( glDisable )( GL_DITHER );           // GL_ENABLE_BIT
 
+        // do not draw hidden surfaces
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );        // GL_ENABLE_BIT
-        GL_DEBUG( glDepthFunc )( GL_LESS );           // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );           // GL_DEPTH_BUFFER_BIT
 
         GL_DEBUG( glDisable )( GL_BLEND );            // GL_ENABLE_BIT
 
+        // only display the portion of the particle that is
+        // 100% solid
         GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
-        GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1 );       // GL_COLOR_BUFFER_BIT
+        GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );       // GL_COLOR_BUFFER_BIT
 
         oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_PARTICLE_TRANS ) ); // GL_CURRENT_BIT
 
@@ -271,8 +274,10 @@ bool_t render_one_prt_trans( const PRT_REF iprt )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
+        // don't write into the depth buffer (disable glDepthMask for transparent objects)
         GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - do not let transparent objects write into the depth buffer
 
+        // do not draw hidden surfaces
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
@@ -314,8 +319,9 @@ bool_t render_one_prt_trans( const PRT_REF iprt )
         {
             // do the transparent sprites
 
+            // do not display the completely transparent portion
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );                         // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                         // GL_COLOR_BUFFER_BIT
 
             GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
@@ -461,13 +467,18 @@ bool_t render_one_prt_ref( const PRT_REF iprt )
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
+            // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );      // ENABLE_BIT
 
+            // do not draw hidden surfaces
             GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // ENABLE_BIT
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
+            // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );    // ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_DITHER );       // ENABLE_BIT
+
+            // turn off ditehring
+            //GL_DEBUG( glDisable )( GL_DITHER );       // ENABLE_BIT
 
             if ( SPRITE_LIGHT == pprt->type )
             {
@@ -494,8 +505,9 @@ bool_t render_one_prt_ref( const PRT_REF iprt )
                     alpha *= pinst->falpha;
                 }
 
+                // do not display the completely transparent portion
                 GL_DEBUG( glEnable )( GL_ALPHA_TEST );         // ENABLE_BIT
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );      // GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );      // GL_COLOR_BUFFER_BIT
 
                 GL_DEBUG( glEnable )( GL_BLEND );                                 // ENABLE_BIT
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
@@ -1163,7 +1175,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
 
     // only draw bullets
-    if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
+    //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
     if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 

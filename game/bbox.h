@@ -92,6 +92,8 @@ egoboo_rv  oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, 
 
 egoboo_rv  oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
 
+egoboo_rv  oct_bb_self_grow( oct_bb_t * pdst, const oct_vec_t ovec );
+
 egoboo_rv  oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
 egoboo_rv  oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
 

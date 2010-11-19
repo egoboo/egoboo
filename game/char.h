@@ -47,6 +47,10 @@ struct s_object_profile;
 struct s_billboard_data_t;
 struct s_mesh_wall_data;
 
+struct s_prt;
+struct s_chr;
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Attack directions
@@ -554,8 +558,7 @@ void flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low
 void flash_character( const CHR_REF character, Uint8 value );
 
 void free_one_character_in_game( const CHR_REF character );
-//void make_one_weapon_matrix( const CHR_REF iweap, const CHR_REF iholder, bool_t do_phys  );
-void make_all_character_matrices( bool_t do_physics );
+void update_all_character_matrices();
 void free_inventory_in_game( const CHR_REF character );
 
 void keep_weapons_with_holders();
@@ -660,8 +663,6 @@ void chr_set_light( chr_t * pchr, int light );
 void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );
 
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item );
-
-bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * wtb );
 
 bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 

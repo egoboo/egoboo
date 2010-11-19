@@ -451,13 +451,17 @@ int ogl_init()
     // depth buffer stuff
     GL_DEBUG( glClearDepth )( 1.0f );
     GL_DEBUG( glDepthMask )( GL_TRUE );
+
+    // do not draw hidden surfaces
     GL_DEBUG( glEnable )( GL_DEPTH_TEST );
     GL_DEBUG( glDepthFunc )( GL_LESS );
 
     // alpha stuff
     GL_DEBUG( glDisable )( GL_BLEND );
+
+    // do not display the completely transparent portion
     GL_DEBUG( glEnable )( GL_ALPHA_TEST );
-    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
+    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     // backface culling
@@ -2288,14 +2292,18 @@ void render_scene_mesh( renderlist_t * prlist )
         {
             GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
 
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+            // do not draw hidden surfaces
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
             GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
+
+            // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
 
+            // do not display the completely transparent portion
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
 
             // reduce texture hashing by loading up each texture only once
             render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
@@ -2316,17 +2324,20 @@ void render_scene_mesh( renderlist_t * prlist )
 
             ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
             {
-                GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - DO NOT store the surface depth
+                // DO NOT store the surface depth
+                GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
-                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
+                // do not draw hidden surfaces
+                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - 
                 GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
                 // black out any backgound, but allow the background to show through any holes in the floor
                 GL_DEBUG( glEnable )( GL_BLEND );                   // GL_ENABLE_BIT - allow transparent surfaces
                 GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );    // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
 
+                // do not display the completely transparent portion
                 GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
 
                 // reduce texture hashing by loading up each texture only once
                 render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
@@ -2341,8 +2352,11 @@ void render_scene_mesh( renderlist_t * prlist )
             // Render all reflected objects
             ATTRIB_PUSH( __FUNCTION__,  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
             {
-                GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT - turn off the depth mask by default. Can cause glitches if used improperly.
+                // don't write into the depth buffer (disable glDepthMask for transparent objects)
+                // turn off the depth mask by default. Can cause glitches if used improperly.
+                GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
 
+                // do not draw hidden surfaces
                 GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT - do not draw hidden surfaces
                 GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT - surfaces must be closer to the camera to be drawn
 
@@ -2353,7 +2367,8 @@ void render_scene_mesh( renderlist_t * prlist )
                         CHR_REF ichr;
                         Uint32 itile;
 
-                        GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT - cull backward facing faces
+                        // cull backward facing polygons
+                        GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT 
                         GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT - use couter-clockwise orientation to determine backfaces
 
                         GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
@@ -2375,6 +2390,7 @@ void render_scene_mesh( renderlist_t * prlist )
                         iprt = dolist[cnt].iprt;
                         itile = PrtList.lst[iprt].onwhichgrid;
 
+                        // draw draw front and back faces of polygons
                         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
                         // render_one_prt_ref() actually sets its own blend function, but just to be safe
@@ -2406,8 +2422,10 @@ void render_scene_mesh( renderlist_t * prlist )
                 GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
 
+                // draw draw front and back faces of polygons
                 GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT - draw all faces
 
+                // do not draw hidden surfaces
                 GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT - do not draw hidden surfaces
                 GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
@@ -2428,13 +2446,17 @@ void render_scene_mesh( renderlist_t * prlist )
             ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
             {
                 GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
+
+                // draw draw front and back faces of polygons
                 GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
 
+                // do not draw hidden surfaces
                 GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
                 GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
 
+                // do not display the completely transparent portion
                 GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
 
                 // reduce texture hashing by loading up each texture only once
                 render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
@@ -2459,7 +2481,10 @@ void render_scene_mesh( renderlist_t * prlist )
         // Render the shadows
         if ( gfx.shaon )
         {
+            // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );
+
+            // do not draw hidden surfaces
             GL_DEBUG( glEnable )( GL_DEPTH_TEST );
 
             GL_DEBUG( glEnable )( GL_BLEND );
@@ -2503,14 +2528,17 @@ void render_scene_solid()
     {
         GL_DEBUG( glDepthMask )( GL_TRUE );
 
+        // do not draw hidden surfaces
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 
+        // do not display the completely transparent portion
         GL_DEBUG( glEnable )( GL_ALPHA_TEST );
-        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );
+        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
         GL_DEBUG( glDisable )( GL_BLEND );
 
+        // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
         if ( MAX_PRT == dolist[cnt].iprt )
@@ -2527,6 +2555,7 @@ void render_scene_solid()
         }
         else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
         {
+            // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );
 
             render_one_prt_solid( dolist[cnt].iprt );
@@ -2548,9 +2577,12 @@ void render_scene_trans()
     int cnt;
     GLXvector4f tint;
 
-    // set the the transparency parameters
+    //---- set the the transparency parameters
+
+    // don't write into the depth buffer (disable glDepthMask for transparent objects)
     GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
 
+    // do not draw hidden surfaces
     GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
     GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
@@ -2563,10 +2595,11 @@ void render_scene_trans()
             chr_t * pchr = ChrList.lst + ichr;
             chr_instance_t * pinst = &( pchr->inst );
 
+            // cull backward facing polygons
             GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
             GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
 
-            if ( pinst->alpha != 255 && pinst->light == 255 )
+            if ( pinst->alpha < 255 && 255 == pinst->light )
             {
                 GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
@@ -2576,7 +2609,7 @@ void render_scene_trans()
                 render_one_mad( ichr, tint, CHR_ALPHA );
             }
 
-            if ( pinst->light != 255 )
+            if ( pinst->light < 255 )
             {
                 GL_DEBUG( glEnable )( GL_BLEND );           // GL_ENABLE_BIT
                 GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
@@ -2668,7 +2701,7 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     //render_all_prt_attachment();
 #endif
 
-#if defined(_DEBUG) && defined(DEBUG_PRT_BBOX)
+#if defined(DRAW_PRT_BBOX)
     render_all_prt_bbox();
 #endif
 
@@ -2778,9 +2811,17 @@ void render_world_background( const TX_REF texture )
 
     ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT );
     {
-        GL_DEBUG( glShadeModel )( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+        // flat shading
+        GL_DEBUG( glShadeModel )( GL_FLAT );      // GL_LIGHTING_BIT
+
+        // don't write into the depth buffer (disable glDepthMask for transparent objects)
         GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
+
+        // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
         GL_DEBUG( glDepthFunc )( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
+
+        // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );    // GL_ENABLE_BIT
 
         if ( alpha > 0.0f )
@@ -2910,15 +2951,22 @@ void render_world_overlay( const TX_REF texture )
         {
             GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT, GL_NICEST );          // GL_HINT_BIT - make sure that the texture is as smooth as possible
 
-            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT - Flat shade this
+            // flat shading
+            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT
 
+            // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );    // GL_DEPTH_BUFFER_BIT
+
+            // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
             GL_DEBUG( glDepthFunc )( GL_ALWAYS );   // GL_DEPTH_BUFFER_BIT
 
+            // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
+            // do not display the completely transparent portion
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );  // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f ); // GL_COLOR_BUFFER_BIT
 
             GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
@@ -3661,15 +3709,17 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
         GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glTranslatef )( pbb->offset[XX], pbb->offset[YY], pbb->offset[ZZ] );
 
-        GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT - Flat shade this
+        // flat shading
+        GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT
 
         if ( pbb->tint[AA] < 1.0f )
         {
             GL_DEBUG( glEnable )( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
 
+            // do not display the completely transparent portion
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );  // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f ); // GL_COLOR_BUFFER_BIT
         }
 
         // Go on and draw it
@@ -3705,9 +3755,17 @@ void render_all_billboards( camera_t * pcam )
     {
         ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
         {
-            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT - Flat shade this
+            // flat shading
+            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT
+
+            // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );    // GL_DEPTH_BUFFER_BIT
+
+            // do not draw hidden surfaces
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );   // GL_DEPTH_BUFFER_BIT
+
+            // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
             GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
@@ -3758,9 +3816,17 @@ void draw_all_lines( camera_t * pcam )
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT - Flat shade this
+            // flat shading
+            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT
+
+            // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+
+            // do not draw hidden surfaces
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
+
+            // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );   // GL_ENABLE_BIT
 
             GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
@@ -3863,11 +3929,15 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
-        // don't write into the depth buffer
+        // don't write into the depth buffer (disable glDepthMask for transparent objects)
         GL_DEBUG( glDepthMask )( GL_FALSE );
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+
+        // do not draw hidden surfaces
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 
         // fix the poorly chosen normals...
+        // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
         // make them transparent
@@ -4269,7 +4339,10 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
 
     ego_tile_info_t * tlist;
 
-    if ( 0 != ( frame_all & 7 ) ) return;
+    // because the main loop of the program will always flip the
+    // page before rendering the 1st frame of the actual game,
+    // frame_all will always start at 1
+    if ( 1 != ( frame_all & 3 ) ) return;
 
     // reset the renderlist
     renderlist_reset();
@@ -4764,11 +4837,11 @@ void load_graphics()
     else
     {
         GL_DEBUG( glHint )( GL_GENERATE_MIPMAP_HINT, GL_FASTEST );
-        GL_DEBUG( glDisable )( GL_DITHER );
+        GL_DEBUG( glDisable )( GL_DITHER );                          // ENABLE_BIT
     }
 
     // Enable Gouraud shading? (Important!)
-    GL_DEBUG( glShadeModel )( gfx.shading );
+    GL_DEBUG( glShadeModel )( gfx.shading );         // GL_LIGHTING_BIT
 
     // Enable antialiasing?
     if ( gfx.antialiasing )
@@ -4849,13 +4922,17 @@ void gfx_begin_text()
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
+    // do not display the completely transparent portion
     GL_DEBUG( glEnable )( GL_ALPHA_TEST );                               // GL_ENABLE_BIT
-    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0 );                            // GL_COLOR_BUFFER_BIT
+    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                            // GL_COLOR_BUFFER_BIT
 
     GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
+    // don't worry about hidden surfaces
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );                              // GL_ENABLE_BIT
+
+    // draw draw front and back faces of polygons
     GL_DEBUG( glDisable )( GL_CULL_FACE );                               // GL_ENABLE_BIT
 
     GL_DEBUG( glColor4f )( 1, 1, 1, 1 );                                // GL_CURRENT_BIT
@@ -4917,15 +4994,22 @@ void gfx_begin_2d( void )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glLoadIdentity )();
 
+    // don't worry about hidden surfaces
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+
+    // draw draw front and back faces of polygons
     GL_DEBUG( glDisable )( GL_CULL_FACE );
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_end_2d( void )
 {
+    // cull backward facing polygons
     GL_DEBUG( glEnable )( GL_CULL_FACE );
+
+    // do not draw hidden surfaces
     GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDepthFunc )( GL_LEQUAL );
 }
 
 //--------------------------------------------------------------------------------------------

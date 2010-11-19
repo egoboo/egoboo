@@ -848,12 +848,27 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
         // initialize the bounding box
         oct_vec_ctor( ovec, ptmem->plst[mesh_vrt] );
         oct_bb_set_ovec( poct, ovec );
+        mesh_vrt++;
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
             oct_vec_ctor( ovec, ptmem->plst[mesh_vrt] );
             oct_bb_self_sum_ovec( poct, ovec );
+        }
+
+        // ensure that NO tile has zero volume.
+        // if a tile is declared to have all the same height, it will accidentally be called "empty".
+        if( poct->empty )
+        {
+            if( ABS(poct->maxs[OCT_X] - poct->mins[OCT_X]) + 
+                ABS(poct->maxs[OCT_Y] - poct->mins[OCT_Y]) + 
+                ABS(poct->maxs[OCT_Z] - poct->mins[OCT_Z]) > 0.0f )
+            {
+                ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 1e-6;
+                ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
+                oct_bb_self_grow( poct, ovec );
+            }
         }
 
         // extend the mesh bounding box
@@ -2036,7 +2051,7 @@ bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh )
     oct_bb_copy( &( pbsp->volume ), &( pmesh->tmem.tile_list[0].oct ) );
 
     // construct the BSP_leaf_t list
-    for ( i = 0; i < pmesh->gmem.grid_count; i++ )
+    for ( i = 1; i < pmesh->gmem.grid_count; i++ )
     {
         BSP_leaf_t      * pleaf = pbsp->nodes.ary + i;
         ego_tile_info_t * ptile = pmesh->tmem.tile_list + i;

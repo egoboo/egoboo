@@ -65,6 +65,8 @@ struct s_phys_data
 };
 typedef struct s_phys_data phys_data_t;
 
+phys_data_t * phys_data_ctor( phys_data_t * pphys );
+
 //--------------------------------------------------------------------------------------------
 struct s_breadcrumb
 {
@@ -122,4 +124,8 @@ bool_t phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t
 
 bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm );
 bool_t phys_intersect_oct_bb( const oct_bb_t src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+
+bool_t get_chr_chr_mass_pair( struct s_chr * pchr_a, struct s_chr * pchr_b, float * wta, float * wtb );
+bool_t get_chr_prt_mass_pair( struct s_chr * pchr, struct s_prt * pprt, float * wchr, float * wprt );
+void   get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 

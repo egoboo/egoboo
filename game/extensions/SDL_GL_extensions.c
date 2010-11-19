@@ -143,10 +143,10 @@ SDL_bool SDL_GL_set_gl_mode( struct s_oglx_video_parameters * v )
     if ( v->dither ) GL_DEBUG( glEnable )( GL_DITHER );
     else GL_DEBUG( glDisable )( GL_DITHER );
 
-    // Enable Gouraud v->shading? (Important!)
+    // Enable Gouraud shading? (Important!)
     GL_DEBUG( glShadeModel )( v->shading );
 
-    // Enable v->antialiasing?
+    // Enable antialiasing?
     if ( v->antialiasing )
     {
         GL_DEBUG( glEnable )( GL_LINE_SMOOTH );
@@ -194,6 +194,8 @@ SDL_bool SDL_GL_set_gl_mode( struct s_oglx_video_parameters * v )
 
     /* Backface culling */
     // The glEnable() seems implied - DDOI
+
+    // cull backward facing polygons
     GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
     GL_DEBUG( glCullFace )( GL_BACK );   // GL_ENABLE_BIT | GL_POLYGON_BIT
 

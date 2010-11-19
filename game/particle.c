@@ -140,6 +140,9 @@ prt_t * prt_ctor( prt_t * pprt )
     BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, 2 );
     pprt->bsp_leaf.index = GET_INDEX_PPRT( pprt );
 
+    // initialize the physics
+    phys_data_ctor( &(pprt->phys) );
+
     pprt->obj_base.state = ego_object_initializing;
 
     return pprt;
@@ -498,9 +501,9 @@ prt_t * prt_config_do_init( prt_t * pprt )
     }
 
     // the end-spawn data. determine the
-    pprt->end_spawn_amount    = ppip->end_spawn_amount;
-    pprt->end_spawn_facingadd = ppip->end_spawn_facingadd;
-    pprt->end_spawn_lpip      = ppip->end_spawn_lpip;
+    pprt->endspawn_amount    = ppip->endspawn_amount;
+    pprt->endspawn_facingadd = ppip->endspawn_facingadd;
+    pprt->endspawn_lpip      = ppip->endspawn_lpip;
 
     // Sound effect
     play_particle_sound( iprt, ppip->soundspawn );
@@ -2630,43 +2633,43 @@ bool_t prt_request_terminate( const PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 int prt_do_end_spawn( const PRT_REF iprt )
 {
-    int end_spawn_count = 0;
+    int endspawn_count = 0;
     prt_t * pprt;
 
-    if ( !ALLOCATED_PRT( iprt ) ) return end_spawn_count;
+    if ( !ALLOCATED_PRT( iprt ) ) return endspawn_count;
 
     pprt = PrtList.lst + iprt;
 
     // Spawn new particles if time for old one is up
-    if ( pprt->end_spawn_amount > 0 && LOADED_PRO( pprt->profile_ref ) && pprt->end_spawn_lpip > -1 )
+    if ( pprt->endspawn_amount > 0 && LOADED_PRO( pprt->profile_ref ) && pprt->endspawn_lpip > -1 )
     {
         FACING_T facing;
         int      tnc;
 
         facing = pprt->facing;
-        for ( tnc = 0; tnc < pprt->end_spawn_amount; tnc++ )
+        for ( tnc = 0; tnc < pprt->endspawn_amount; tnc++ )
         {
             // we have determined the absolute pip reference when the particle was spawned
             // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
-            // value of pprt->end_spawn_lpip will be used directly
-            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, pprt->profile_ref, pprt->end_spawn_lpip,
+            // value of pprt->endspawn_lpip will be used directly
+            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, pprt->profile_ref, pprt->endspawn_lpip,
                                   ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
             if ( DEFINED_PRT( spawned_prt ) )
             {
-                end_spawn_count++;
+                endspawn_count++;
             }
 
-            facing += pprt->end_spawn_facingadd;
+            facing += pprt->endspawn_facingadd;
         }
 
         // we have already spawned these particles, so set this amount to
         // zero in case we are not actually calling end_one_particle_in_game()
         // this time around.
-        pprt->end_spawn_amount = 0;
+        pprt->endspawn_amount = 0;
     }
 
-    return end_spawn_count;
+    return endspawn_count;
 }
 
 //--------------------------------------------------------------------------------------------

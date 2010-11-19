@@ -141,7 +141,7 @@ void EncList_prune_free()
 
         ienc = EncList.free_ref[cnt];
 
-        if ( VALID_ENC_RANGE( ienc ) && INGAME_PRT_BASE( ienc ) )
+        if ( VALID_ENC_RANGE( ienc ) && INGAME_ENC_BASE( ienc ) )
         {
             removed = EncList_remove_free_index( cnt );
         }

@@ -283,6 +283,9 @@ chr_t * chr_ctor( chr_t * pchr )
     BSP_leaf_ctor( &( pchr->bsp_leaf ), 3, pchr, 1 );
     pchr->bsp_leaf.index = GET_INDEX_PCHR( pchr );
 
+    // initialize the physics
+    phys_data_ctor( &(pchr->phys) );
+
     return pchr;
 }
 
@@ -770,28 +773,9 @@ place_particle_at_vertex_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-void make_all_character_matrices( bool_t do_physics )
+void update_all_character_matrices()
 {
     /// @details ZZ@> This function makes all of the character's matrices
-
-    //int cnt;
-    //bool_t done;
-
-    //// blank the accumulators
-    //for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-    //{
-    //    ChrList.lst[ichr].phys.apos_plat.x = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_plat.y = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_plat.z = 0.0f;
-
-    //    ChrList.lst[ichr].phys.apos_coll.x = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_coll.y = 0.0f;
-    //    ChrList.lst[ichr].phys.apos_coll.z = 0.0f;
-
-    //    ChrList.lst[ichr].phys.avel.x = 0.0f;
-    //    ChrList.lst[ichr].phys.avel.y = 0.0f;
-    //    ChrList.lst[ichr].phys.avel.z = 0.0f;
-    //}
 
     // just call chr_update_matrix on every character
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
@@ -799,98 +783,6 @@ void make_all_character_matrices( bool_t do_physics )
         chr_update_matrix( pchr, btrue );
     }
     CHR_END_LOOP();
-
-    ////if ( do_physics )
-    ////{
-    ////    // accumulate the accumulators
-    ////    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-    ////    {
-    ////        float nrm[2];
-    ////        float tmpx, tmpy, tmpz;
-    ////        fvec3_t tmp_pos;
-    ////        chr_t * pchr;
-
-    ////        if ( !INGAME_CHR(ichr) ) continue;
-    ////        pchr = ChrList.lst + ichr;
-
-    ////        tmp_pos = chr_get_pos( pchr );
-
-    ////        // do the "integration" of the accumulated accelerations
-    ////        pchr->vel.x += pchr->phys.avel.x;
-    ////        pchr->vel.y += pchr->phys.avel.y;
-    ////        pchr->vel.z += pchr->phys.avel.z;
-
-    ////        // do the "integration" on the position
-    ////        if ( ABS(pchr->phys.apos_coll.x) > 0 )
-    ////        {
-    ////            tmpx = tmp_pos.x;
-    ////            tmp_pos.x += pchr->phys.apos_coll.x;
-    ////            if ( chr_hit_wall(ichr, nrm, NULL) )
-    ////            {
-    ////                // restore the old values
-    ////                tmp_pos.x = tmpx;
-    ////            }
-    ////            else
-    ////            {
-    ////                // pchr->vel.x += pchr->phys.apos_coll.x;
-    ////                pchr->safe_pos.x = tmpx;
-    ////            }
-    ////        }
-
-    ////        if ( ABS(pchr->phys.apos_coll.y) > 0 )
-    ////        {
-    ////            tmpy = tmp_pos.y;
-    ////            tmp_pos.y += pchr->phys.apos_coll.y;
-    ////            if ( chr_hit_wall(ichr, nrm, NULL) )
-    ////            {
-    ////                // restore the old values
-    ////                tmp_pos.y = tmpy;
-    ////            }
-    ////            else
-    ////            {
-    ////                // pchr->vel.y += pchr->phys.apos_coll.y;
-    ////                pchr->safe_pos.y = tmpy;
-    ////            }
-    ////        }
-
-    ////        if ( ABS(pchr->phys.apos_coll.z) > 0 )
-    ////        {
-    ////            tmpz = tmp_pos.z;
-    ////            tmp_pos.z += pchr->phys.apos_coll.z;
-    ////            if ( tmp_pos.z < pchr->enviro.level )
-    ////            {
-    ////                // restore the old values
-    ////                tmp_pos.z = tmpz;
-    ////            }
-    ////            else
-    ////            {
-    ////                // pchr->vel.z += pchr->phys.apos_coll.z;
-    ////                pchr->safe_pos.z = tmpz;
-    ////            }
-    ////        }
-
-    ////        if ( 0 == chr_hit_wall(ichr, nrm, NULL) )
-    ////        {
-    ////            pchr->safe_valid = btrue;
-    ////        }
-    ////        chr_set_pos( pchr, tmp_pos.v );
-    ////    }
-
-    ////    // fix the matrix positions
-    ////    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-    ////    {
-    ////        chr_t * pchr;
-
-    ////        if ( !INGAME_CHR(ichr) ) continue;
-    ////        pchr = ChrList.lst + ichr;
-
-    ////        if( !pchr->inst.matrix_cache.valid ) continue;
-
-    ////        pchr->inst.matrix.CNV( 3, 0 ) = pchr->pos.x;
-    ////        pchr->inst.matrix.CNV( 3, 1 ) = pchr->pos.y;
-    ////        pchr->inst.matrix.CNV( 3, 2 ) = pchr->pos.z;
-    ////    }
-    ////}
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2447,7 +2339,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             }
 
             // Spawn an attack particle
-            if ( pweapon_cap->attack_lpip != -1 )
+            if ( -1 != pweapon_cap->attack_lpip )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
@@ -2465,27 +2357,24 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                         // attached particles get a strength bonus for reeling...
                         dampen = REELBASE + ( pchr->strength / REEL );
 
-                        pprt->vel_stt.x *= dampen;
-                        pprt->vel_stt.y *= dampen;
-                        pprt->vel_stt.z *= dampen;
+                        pprt->phys.weight     = pweapon->phys.weight;
+                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen * dampen;
 
                         pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
                         if ( NULL == pprt ) return;
+                    }
+                    else if ( prt_get_ppip( iparticle )->startontarget && INGAME_CHR( pprt->target_ref ) )
+                    {
+                        pprt = place_particle_at_vertex( pprt, pprt->target_ref, spawn_vrt_offset );
+                        if ( NULL == pprt ) return;
+
+                        // Correct Z spacing base, but nothing else...
+                        tmp_pos.z += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
                     }
                     else
                     {
                         // NOT ATTACHED
                         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
-
-                        // Detach the particle
-                        if ( !prt_get_ppip( iparticle )->startontarget || !INGAME_CHR( pprt->target_ref ) )
-                        {
-                            pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
-                            if ( NULL == pprt ) return;
-
-                            // Correct Z spacing base, but nothing else...
-                            tmp_pos.z += prt_get_ppip( iparticle )->spacing_vrt_pair.base;
-                        }
 
                         // Don't spawn in walls
                         if ( prt_test_wall( pprt, tmp_pos.v, NULL ) )
@@ -6483,8 +6372,8 @@ void move_one_character_do_z_motion( chr_t * pchr )
         pchr->vel.z += ( pchr->enviro.fly_level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
     }
     else if (
-        pchr->enviro.is_slippy && pchr->phys.weight != INFINITE_WEIGHT &&
-        pchr->enviro.grid_twist != TWIST_FLAT && pchr->enviro.grid_lerp < pchr->enviro.zlerp )
+        pchr->enviro.is_slippy && pchr->enviro.grid_twist != TWIST_FLAT &&
+        pchr->phys.weight != INFINITE_WEIGHT && pchr->enviro.grid_lerp <= pchr->enviro.zlerp )
     {
         // Slippy hills make characters slide
 
@@ -7580,7 +7469,7 @@ void move_all_characters( void )
     // The following functions need to be called any time you actually change a charcter's position
     keep_weapons_with_holders();
     attach_all_particles();
-    make_all_character_matrices( update_wld != 0 );
+    update_all_character_matrices();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9478,10 +9367,10 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
         // the alpha channel is not important
         weight_sum += 1.0f;
 
-        tint[0] += 1.0f / ( 1 << local_redshift );
-        tint[1] += 1.0f / ( 1 << local_grnshift );
-        tint[2] += 1.0f / ( 1 << local_blushift );
-        tint[3] += 1.0f;
+        tint[RR] += 1.0f / ( 1 << local_redshift );
+        tint[GG] += 1.0f / ( 1 << local_grnshift );
+        tint[BB] += 1.0f / ( 1 << local_blushift );
+        tint[AA] += 1.0f;
     }
 
     if ( HAS_SOME_BITS( bits, CHR_ALPHA ) )
@@ -9490,10 +9379,10 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
         // the alpha channel is not important
         weight_sum += 1.0f;
 
-        tint[0] += 1.0f / ( 1 << local_redshift );
-        tint[1] += 1.0f / ( 1 << local_grnshift );
-        tint[2] += 1.0f / ( 1 << local_blushift );
-        tint[3] += local_alpha * INV_FF;
+        tint[RR] += 1.0f / ( 1 << local_redshift );
+        tint[GG] += 1.0f / ( 1 << local_grnshift );
+        tint[BB] += 1.0f / ( 1 << local_blushift );
+        tint[AA] += local_alpha * INV_FF;
     }
 
     if ( HAS_SOME_BITS( bits, CHR_LIGHT ) )
@@ -9506,12 +9395,12 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
 
         if ( local_light < 255 )
         {
-            tint[0] += local_light * INV_FF / ( 1 << local_redshift );
-            tint[1] += local_light * INV_FF / ( 1 << local_grnshift );
-            tint[2] += local_light * INV_FF / ( 1 << local_blushift );
+            tint[RR] += local_light * INV_FF / ( 1 << local_redshift );
+            tint[GG] += local_light * INV_FF / ( 1 << local_grnshift );
+            tint[BB] += local_light * INV_FF / ( 1 << local_blushift );
         }
 
-        tint[3] += 1.0f;
+        tint[AA] += 1.0f;
     }
 
     if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
@@ -9525,10 +9414,10 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
 
         amount = ( CLIP( local_sheen, 0, 15 ) << 4 ) / 240.0f;
 
-        tint[0] += amount;
-        tint[1] += amount;
-        tint[2] += amount;
-        tint[3] += 1.0f;
+        tint[RR] += amount;
+        tint[GG] += amount;
+        tint[BB] += amount;
+        tint[AA] += 1.0f;
     }
 
     // average the tint
@@ -9577,60 +9466,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item )
     }
 
     return object;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_get_mass_pair( chr_t * pchr_a, chr_t * pchr_b, float * wta, float * wtb )
-{
-    /// @details BB@> calculate a "mass" for each object, taking into account possible infinite masses.
-
-    float loc_wta, loc_wtb;
-
-    if ( !ACTIVE_PCHR( pchr_a ) || !ACTIVE_PCHR( pchr_b ) ) return bfalse;
-
-    if ( NULL == wta ) wta = &loc_wta;
-    if ( NULL == wtb ) wtb = &loc_wtb;
-
-    *wta = ( INFINITE_WEIGHT == pchr_a->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_a->phys.weight;
-    *wtb = ( INFINITE_WEIGHT == pchr_b->phys.weight ) ? -( float )INFINITE_WEIGHT : pchr_b->phys.weight;
-
-    if ( *wta == 0 && *wtb == 0 )
-    {
-        *wta = *wtb = 1;
-    }
-    else if ( *wta == 0 )
-    {
-        *wta = 1;
-        *wtb = -( float )INFINITE_WEIGHT;
-    }
-    else if ( *wtb == 0 )
-    {
-        *wtb = 1;
-        *wta = -( float )INFINITE_WEIGHT;
-    }
-
-    if ( 0.0f == pchr_a->phys.bumpdampen && 0.0f == pchr_b->phys.bumpdampen )
-    {
-        /* do nothing */
-    }
-    else if ( 0.0f == pchr_a->phys.bumpdampen )
-    {
-        // make the weight infinite
-        *wta = -( float )INFINITE_WEIGHT;
-    }
-    else if ( 0.0f == pchr_b->phys.bumpdampen )
-    {
-        // make the weight infinite
-        *wtb = -( float )INFINITE_WEIGHT;
-    }
-    else
-    {
-        // adjust the weights to respect bumpdampen
-        ( *wta ) /= pchr_a->phys.bumpdampen;
-        ( *wtb ) /= pchr_b->phys.bumpdampen;
-    }
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

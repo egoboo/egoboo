@@ -170,9 +170,9 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->contspawn_lpip       = fget_next_int( fileread );
 
     // End spawning of other particles
-    ppip->end_spawn_amount    = fget_next_int( fileread );
-    ppip->end_spawn_facingadd = fget_next_int( fileread );
-    ppip->end_spawn_lpip       = fget_next_int( fileread );
+    ppip->endspawn_amount    = fget_next_int( fileread );
+    ppip->endspawn_facingadd = fget_next_int( fileread );
+    ppip->endspawn_lpip       = fget_next_int( fileread );
 
     // Bump spawning of attached particles
     ppip->bumpspawn_amount = fget_next_int( fileread );

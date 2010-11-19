@@ -142,7 +142,8 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
 
     GL_DEBUG( glPushClientAttrib )( GL_CLIENT_VERTEX_ARRAY_BIT );
     {
-        GL_DEBUG( glShadeModel )( GL_SMOOTH );
+        // per-vertex coloring
+        GL_DEBUG( glShadeModel )( GL_SMOOTH );  // GL_LIGHTING_BIT
 
         // [claforte] Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
@@ -350,8 +351,10 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
         SWAP( int, imap[2], imap[3] );
     }
 
-    // Original points
+    // draw draw front and back faces of polygons
     GL_DEBUG( glDisable )( GL_CULL_FACE );
+
+    // Original points
     badvertex = ptile->vrtstart;
     {
         GLXvector3f nrm = {0, 0, 1};
@@ -426,12 +429,14 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     {
         GLboolean use_depth_mask = ( !water.light && ( 1.0f == falpha ) ) ? GL_TRUE : GL_FALSE;
 
+        // do not draw hidden surfaces
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );                                  // GL_ENABLE_BIT
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                                   // GL_DEPTH_BUFFER_BIT
 
         // only use the depth mask if the tile is NOT transparent
         GL_DEBUG( glDepthMask )( use_depth_mask );                              // GL_DEPTH_BUFFER_BIT
 
+        // cull backward facing polygons
         GL_DEBUG( glEnable )( GL_CULL_FACE );                                   // GL_ENABLE_BIT
         GL_DEBUG( glFrontFace )( GL_CW );                                       // GL_POLYGON_BIT
 
@@ -447,8 +452,10 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
         }
 
-        // Render each command
+        // per-vertex coloring
         GL_DEBUG( glShadeModel )( GL_SMOOTH );                // GL_LIGHTING_BIT
+
+        // Render each command
         GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
         {
             for ( cnt = 0; cnt < 4; cnt++ )

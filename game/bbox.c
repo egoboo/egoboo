@@ -469,11 +469,10 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
         oct_vec_t opd;
 
         oct_vec_ctor( opd, pd[0].pos.v );
-
         oct_bb_set_ovec( &( pov->oct ), opd );
 
         area = 0;
-        for ( cnt = 0; cnt < count - 1; cnt++ )
+        for ( cnt = 1; cnt < count - 1; cnt++ )
         {
             tnc = cnt + 1;
 
@@ -1190,8 +1189,8 @@ egoboo_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int 
 
     if ( src_empty )
     {
-        oct_bb_ctor_index( pdst, index );
-        return rv_fail;
+        // !!!! DO NOTHING !!!!
+        return rv_success;
     }
     else if ( dst_empty )
     {
@@ -1317,8 +1316,8 @@ egoboo_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc )
 
     if ( src_empty )
     {
-        oct_bb_ctor( pdst );
-        return rv_fail;
+        // !!!! DO NOTHING !!!!
+        return rv_success;
     }
     else if ( dst_empty )
     {
@@ -1483,6 +1482,24 @@ egoboo_rv  oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec )
     {
         pdst->mins[cnt] = MIN( pdst->mins[cnt], ovec[cnt] );
         pdst->maxs[cnt] = MAX( pdst->maxs[cnt], ovec[cnt] );
+    }
+
+    return oct_bb_validate( pdst );
+}
+
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv  oct_bb_self_grow( oct_bb_t * pdst, const oct_vec_t ovec )
+{
+    int cnt;
+
+    if( NULL == pdst ) return rv_error;
+    if( NULL == ovec ) return rv_error;
+
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    {
+        pdst->mins[cnt] = pdst->mins[cnt] - ABS(ovec[cnt]);
+        pdst->maxs[cnt] = pdst->maxs[cnt] + ABS(ovec[cnt]);
     }
 
     return oct_bb_validate( pdst );

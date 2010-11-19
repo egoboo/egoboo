@@ -252,8 +252,12 @@ void egoboo_console_draw_begin()
 {
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
+    // don't worry about hidden surfaces
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                        // GL_ENABLE_BIT
+
+    // draw draw front and back faces of polygons
     GL_DEBUG( glDisable )( GL_CULL_FACE );                                         // GL_ENABLE_BIT
+
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                         // GL_ENABLE_BIT
 
     GL_DEBUG( glEnable )( GL_BLEND );                                              // GL_ENABLE_BIT

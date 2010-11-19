@@ -1448,7 +1448,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     }
 
     // make sure the loc_target is alive
-    if ( !ptarget->alive )
+    if ( !DEFINED_PCHR(ptarget) || !ptarget->alive )
     {
         log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
         return ( ENC_REF )MAX_ENC;

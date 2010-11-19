@@ -444,7 +444,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t src1_orig, const fvec3_base_t pos1,
     oct_bb_intersection( &exp1, &exp2, pdst );
 
     // check to see if there is any possibility of interaction at all
-    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    for ( cnt = 0; cnt < OCT_Z - 1; cnt++ )
     {
         if ( pdst->mins[cnt] > pdst->maxs[cnt] ) return bfalse;
     }
@@ -1065,4 +1065,21 @@ bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
     }
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+phys_data_t * phys_data_ctor( phys_data_t * pphys )
+{
+    if( NULL == pphys ) return pphys;
+
+    fvec3_self_clear( pphys->apos_plat.v );
+    fvec3_self_clear( pphys->apos_coll.v );
+    fvec3_self_clear( pphys->avel.v );
+
+    pphys->bumpdampen = 1.0f;
+    pphys->weight     = 1.0f;
+    pphys->dampen     = 0.5f;
+
+    return pphys;
 }

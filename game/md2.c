@@ -275,6 +275,22 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
                 oct_bb_self_sum_ovec( &( pframe->bb ), opos );
             }
         }
+
+        // we don't really want objects that have extent in more than one
+        // dimension to be called empty
+        if( pframe->bb.empty )
+        {
+            if( ABS(pframe->bb.maxs[OCT_X] - pframe->bb.mins[OCT_X]) + 
+                ABS(pframe->bb.maxs[OCT_Y] - pframe->bb.mins[OCT_Y]) + 
+                ABS(pframe->bb.maxs[OCT_Z] - pframe->bb.mins[OCT_Z]) > 0.0f )
+            {
+                oct_vec_t ovec;
+
+                ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 1e-6;
+                ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
+                oct_bb_self_grow( &( pframe->bb ), ovec );
+            }
+        }
     }
 }
 
@@ -435,7 +451,6 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
             if ( !bfound )
             {
                 oct_bb_set_ovec( &( pframe->bb ), ovec );
-
                 bfound = btrue;
             }
             else

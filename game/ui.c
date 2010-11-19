@@ -173,8 +173,13 @@ bool_t ui_handleSDLEvent( SDL_Event *evt )
 void ui_beginFrame( float deltaTime )
 {
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT );
+
+    // don't worry about hidden surfaces
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+
+    // draw draw front and back faces of polygons
     GL_DEBUG( glDisable )( GL_CULL_FACE );
+
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
     GL_DEBUG( glEnable )( GL_BLEND );

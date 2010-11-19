@@ -345,18 +345,18 @@ bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
                         // every object that is not being rendered using CHR_LIGHT
                         fcol   = pvrt->color_dir * INV_FF;
 
-                        col[0] = fcol * tint[0];
-                        col[1] = fcol * tint[1];
-                        col[2] = fcol * tint[2];
-                        col[3] = tint[0];
+                        col[0] = fcol * tint[RR];
+                        col[1] = fcol * tint[GG];
+                        col[2] = fcol * tint[BB];
+                        col[3] = tint[AA];
 
                         if ( 0 != ( bits & CHR_PHONG ) )
                         {
                             fcol = base_amb + pinst->color_amb * INV_FF;
 
-                            col[0] += fcol * tint[0];
-                            col[1] += fcol * tint[1];
-                            col[2] += fcol * tint[2];
+                            col[0] += fcol * tint[RR];
+                            col[1] += fcol * tint[GG];
+                            col[2] += fcol * tint[BB];
                         }
 
                         col[0] = CLIP( col[0], 0.0f, 1.0f );
@@ -485,6 +485,7 @@ bool_t render_one_mad_ref( const CHR_REF ichr )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
     {
+        // cull backward facing polygons
         GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 
         // cull face CCW because we are rendering a reflected object

@@ -167,9 +167,9 @@ extern "C"
         Sint8   end_sound_wall;                ///< Ricochet sound
 
         // end spawn
-        Uint8   end_spawn_amount;              ///< Spawn amount
-        Uint16  end_spawn_facingadd;           ///< Spawn in circle
-        int     end_spawn_lpip;                ///< Spawn type ( local )
+        Uint8   endspawn_amount;              ///< Spawn amount
+        Uint16  endspawn_facingadd;           ///< Spawn in circle
+        int     endspawn_lpip;                ///< Spawn type ( local )
 
         // bumping
         int     bump_money;                   ///< Value of particle
@@ -177,14 +177,14 @@ extern "C"
         Uint32  bump_height;                  ///< Bounding box height
 
         // "bump particle" spawning
-        Uint8   bumpspawn_amount;            ///< Spawn amount
-        int     bumpspawn_lpip;               ///< Spawn type ( global )
+        Uint8   bumpspawn_amount;             ///< Spawn amount
+        int     bumpspawn_lpip;               ///< Spawn type ( local )
 
         // continuous spawning
         Uint16  contspawn_delay;              ///< Spawn timer
         Uint8   contspawn_amount;             ///< Spawn amount
         Uint16  contspawn_facingadd;          ///< Spawn in circle
-        int     contspawn_lpip;                ///< Spawn type ( local )
+        int     contspawn_lpip;               ///< Spawn type ( local )
 
         // damage
         FRange  damage;                       ///< Damage

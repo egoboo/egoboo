@@ -1322,7 +1322,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
 
     // is the particle in-game?
-    if ( !INGAME_PPRT( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
+    if ( !INGAME_PRT_PBASE( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     has_enchant = bfalse;
@@ -1334,7 +1334,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
 
     does_damage         = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
     does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || ( 0 != loc_ppip->lifedrain ) || ( 0 != loc_ppip->manadrain );
-    needs_bump          = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 ) || ( 0 != loc_ppip->bump_money );
+    needs_bump          = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 && -1 != loc_ppip->bumpspawn_lpip) || ( 0 != loc_ppip->bump_money );
     does_special_effect = loc_ppip->cause_pancake || loc_ppip->cause_roll;
     can_push            = (( 0 != loc_ppip->bump_size ) || ( 0 != loc_ppip->bump_height ) ) && loc_ppip->allowpush;
 
