@@ -2654,7 +2654,7 @@ void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype )
     {
         if ( pchr->team == team )
         {
-            give_experience( cnt, amount, (xp_type)xptype, bfalse );
+            give_experience( cnt, amount, ( xp_type )xptype, bfalse );
         }
     }
     CHR_END_LOOP();
@@ -9670,11 +9670,12 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
     retval = chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
+    // BB@> this did not work as expected...
     // set keep if needed
-    if ( needs_keep )
-    {
-        chr_instance_set_action_keep( &( pchr->inst ), btrue );
-    }
+    //if ( needs_keep )
+    //{
+    //    chr_instance_set_action_keep( &( pchr->inst ), btrue );
+    //}
 
     // if the instance is invalid, invalidate everything that depends on this object
     if ( !pchr->inst.save.valid )

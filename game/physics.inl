@@ -266,19 +266,19 @@ static INLINE bool_t get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * 
 
     if ( NULL == depth ) return bfalse;
 
-    if( NULL == cv_a || NULL == cv_b ) return bfalse;
+    if ( NULL == cv_a || NULL == cv_b ) return bfalse;
 
     // calculate the depth
     valid = btrue;
     for ( cnt = 0; cnt < OCT_Z; cnt++ )
     {
         // get positions from the bounding volumes
-        opos_a = ( cv_a->mins[cnt] + cv_a->maxs[cnt]) * 0.5f;
-        opos_b = ( cv_b->mins[cnt] + cv_b->maxs[cnt]) * 0.5f;
+        opos_a = ( cv_a->mins[cnt] + cv_a->maxs[cnt] ) * 0.5f;
+        opos_b = ( cv_b->mins[cnt] + cv_b->maxs[cnt] ) * 0.5f;
 
         // measue the depth
-        ftmp1 = MIN(cv_b->maxs[cnt] - opos_a, opos_a - cv_b->mins[cnt] );
-        ftmp2 = MIN(cv_a->maxs[cnt] - opos_b, opos_b - cv_a->mins[cnt] );
+        ftmp1 = MIN( cv_b->maxs[cnt] - opos_a, opos_a - cv_b->mins[cnt] );
+        ftmp2 = MIN( cv_a->maxs[cnt] - opos_b, opos_b - cv_a->mins[cnt] );
         depth[cnt] = MAX( ftmp1, ftmp2 );
 
         if ( depth[cnt] <= 0.0f )

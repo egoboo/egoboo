@@ -2796,7 +2796,7 @@ Uint8 scr_GiveExperienceToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_experience( pself->target, pstate->argument, (xp_type)pstate->distance, bfalse );
+    give_experience( pself->target, pstate->argument, ( xp_type )pstate->distance, bfalse );
 
     SCRIPT_FUNCTION_END();
 }

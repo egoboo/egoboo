@@ -1236,7 +1236,7 @@ int doChooseModule( float deltaTime )
                         //Swap to the next filter
                         mnu_moduleFilter = CLIP( mnu_moduleFilter, FILTER_NORMAL_BEGIN, FILTER_NORMAL_END );
 
-                        mnu_moduleFilter = (module_filter_t)(mnu_moduleFilter + 1);
+                        mnu_moduleFilter = ( module_filter_t )( mnu_moduleFilter + 1 );
 
                         if ( mnu_moduleFilter > FILTER_NORMAL_END ) mnu_moduleFilter = FILTER_NORMAL_BEGIN;
 

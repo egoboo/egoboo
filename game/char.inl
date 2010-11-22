@@ -86,10 +86,8 @@ static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vec );
 static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vec );
 static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vec );
 
-
 static INLINE float   * chr_get_pos_v( chr_t * pchr );
 static INLINE fvec3_t   chr_get_pos( chr_t * pchr );
-
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
@@ -444,7 +442,7 @@ static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
         rv = mat_getChrUp( pchr->inst.matrix.v, vup );
     }
 
-    if( !rv )
+    if ( !rv )
     {
         // assume default Up is +z
         vup[kZ] = 1.0f;
@@ -475,8 +473,8 @@ static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
     {
         rv = mat_getChrRight( pchr->inst.matrix.v, vright );
     }
-    
-    if( !rv )
+
+    if ( !rv )
     {
         // assume default Right is +y
         vright[kY] = 1.0f;
@@ -507,8 +505,8 @@ static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
     {
         rv = mat_getChrForward( pchr->inst.matrix.v, vfwd );
     }
-    
-    if( !rv )
+
+    if ( !rv )
     {
         // assume default Forward is +x
         vfwd[kX] = 1.0f;
@@ -539,8 +537,8 @@ static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
     {
         rv = mat_getTranslate( pchr->inst.matrix.v, vtrans );
     }
-    
-    if( !rv )
+
+    if ( !rv )
     {
         fvec3_base_copy( vtrans, chr_get_pos_v( pchr ) );
     }

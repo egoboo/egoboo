@@ -40,7 +40,6 @@ static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * ppr
 static INLINE float * prt_get_pos_v( prt_t * pprt );
 static INLINE fvec3_t prt_get_pos( prt_t * pprt );
 
-
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------

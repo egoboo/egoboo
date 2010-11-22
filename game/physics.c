@@ -852,13 +852,13 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
     // determine the intersection of these two volumes (for this frame)
     oct_bb_intersection( &exp1, &exp2, pdst );
 
-    if( 0 != test_platform )
+    if ( 0 != test_platform )
     {
         pdst->maxs[OCT_Z] += PLATTOLERANCE;
         oct_bb_validate( pdst );
     }
 
-    if( pdst->empty ) return bfalse;
+    if ( pdst->empty ) return bfalse;
 
     return btrue;
 }

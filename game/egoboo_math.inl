@@ -394,9 +394,9 @@ static INLINE bool_t  fvec2_self_normalize( fvec2_base_t A )
     float len2;
     float inv_len;
 
-    if( NULL == A ) return bfalse;
+    if ( NULL == A ) return bfalse;
 
-    if( 0.0f == fvec2_length_abs( A ) ) return bfalse;
+    if ( 0.0f == fvec2_length_abs( A ) ) return bfalse;
 
     len2 = A[kX] * A[kX] + A[kY] * A[kY];
     inv_len = 1.0f / SQRT( len2 );
@@ -735,7 +735,7 @@ static INLINE bool_t fvec4_self_clear( fvec4_base_t A )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vpos )
 {
-    if( NULL == mat || NULL == vpos ) return bfalse;
+    if ( NULL == mat || NULL == vpos ) return bfalse;
 
     vpos[kX] = mat[MAT_IDX( 3, 0 )];
     vpos[kY] = mat[MAT_IDX( 3, 1 )];
@@ -747,7 +747,7 @@ static INLINE bool_t mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t v
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
 {
-    if( NULL == mat || NULL == vup ) return bfalse;
+    if ( NULL == mat || NULL == vup ) return bfalse;
 
     // for a character
     vup[kX] = mat[MAT_IDX( 2, 0 )];
@@ -760,7 +760,7 @@ static INLINE bool_t mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vright )
 {
-    if( NULL == mat || NULL == vright ) return bfalse;
+    if ( NULL == mat || NULL == vright ) return bfalse;
 
     // for a character
     vright[kX] = -mat[MAT_IDX( 0, 0 )];
@@ -773,7 +773,7 @@ static INLINE bool_t mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t 
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
 {
-    if( NULL == mat || NULL == vfrw ) return bfalse;
+    if ( NULL == mat || NULL == vfrw ) return bfalse;
 
     // for a character's matrix
     vfrw[kX] = mat[MAT_IDX( 1, 0 )];
@@ -786,7 +786,7 @@ static INLINE bool_t mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vf
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
 {
-    if( NULL == mat || NULL == vup ) return bfalse;
+    if ( NULL == mat || NULL == vup ) return bfalse;
 
     // for the camera
     vup[kX] = -mat[MAT_IDX( 0, 1 )];
@@ -799,7 +799,7 @@ static INLINE bool_t mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vright )
 {
-    if( NULL == mat || NULL == vright ) return bfalse;
+    if ( NULL == mat || NULL == vright ) return bfalse;
 
     // for the camera
     vright[kX] = mat[MAT_IDX( 0, 0 )];
@@ -812,7 +812,7 @@ static INLINE bool_t mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vr
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
 {
-    if( NULL == mat || NULL == vfrw ) return bfalse;
+    if ( NULL == mat || NULL == vfrw ) return bfalse;
 
     // for the camera
     vfrw[kX] = mat[MAT_IDX( 0, 2 )];
@@ -833,7 +833,6 @@ static INLINE float * mat_getTranslate_v( const fmat_4x4_base_t mat )
 
     return pos.v;
 }
-
 
 //--------------------------------------------------------------------------------------------
 static INLINE fmat_4x4_t IdentityMatrix()

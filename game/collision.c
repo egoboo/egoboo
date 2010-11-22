@@ -417,7 +417,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
         hn = hash_list_get_node( pchlst, hashval );
         for ( k = 0; k < count; k++ )
         {
-            if ( !CoNode_matches( (CoNode_t *)(hn->data), pdata ) )
+            if ( !CoNode_matches(( CoNode_t * )( hn->data ), pdata ) )
             {
                 found = btrue;
                 break;
@@ -862,7 +862,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
         oct_bb_t   tmp_oct;
 
         // ignore in-accessible objects
-        if( pchr_a->pack.is_packed || pchr_a->is_hidden ) continue;
+        if ( pchr_a->pack.is_packed || pchr_a->is_hidden ) continue;
 
         // ignore non-interacting objects
         if ( 0.0f == pchr_a->bump_stt.size && pchr_a->reaffirm_damagetype < DAMAGE_COUNT ) continue;
@@ -914,7 +914,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v(pchr_a), pchr_a->vel.v, &( pchr_b->chr_min_cv ), chr_get_pos_v(pchr_b), pchr_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( pchr_b->chr_min_cv ), chr_get_pos_v( pchr_b ), pchr_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.chrb = ichr_b;
@@ -939,7 +939,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v(pchr_a), pchr_a->vel.v, &( pprt_b->prt_max_cv ), prt_get_pos_v( pprt_b ), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( pprt_b->prt_max_cv ), prt_get_pos_v( pprt_b ), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.prtb = iprt_b;
@@ -2087,7 +2087,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
         }
     }
 
-    if ( pchr_a->canuseplatforms && pchr_b->platform && MAX_CHR != pchr_a->onwhichplatform_ref && ichr_b != pchr_a->onwhichplatform_ref  )
+    if ( pchr_a->canuseplatforms && pchr_b->platform && MAX_CHR != pchr_a->onwhichplatform_ref && ichr_b != pchr_a->onwhichplatform_ref )
     {
         float lerp_z = ( pchr_a->pos.z - ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1, 1 );
@@ -2351,8 +2351,8 @@ bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t *
 {
     // Get details about the character-particle interaction
     //
-    // We already know that the largest particle cv intersects with the a 
-    // character cv sometime this frame. We need more details to know 
+    // We already know that the largest particle cv intersects with the a
+    // character cv sometime this frame. We need more details to know
     // how to handle the collision.
 
     bool_t handled;
@@ -2383,13 +2383,13 @@ bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t *
     // the largest particle collision volume (the hit-box)
     oct_bb_add_fvec3( &( pdata->pprt->prt_max_cv ), prt_get_pos_v( pdata->pprt ), &cv_prt_max );
 
-    if ( d->tmin <= 0.0f || ABS(d->tmin) > 1e6 || ABS(d->tmax) > 1e6 )
+    if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
     {
         // use "pressure" to determine the normal and overlap
-         phys_estimate_pressure_normal( &cv_chr, &cv_prt_min, exponent, &odepth, pdata->nrm.v, &(pdata->depth_min) ); 
+        phys_estimate_pressure_normal( &cv_chr, &cv_prt_min, exponent, &odepth, pdata->nrm.v, &( pdata->depth_min ) );
 
         handled = btrue;
-        if( d->tmin <= 0.0f )
+        if ( d->tmin <= 0.0f )
         {
             handled = pdata->depth_min > 0.0f;
         }
@@ -2400,21 +2400,21 @@ bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t *
     else
     {
         // use "collision" to determine the normal and overlap
-        handled = phys_estimate_collision_normal( &cv_chr, &cv_prt_min, exponent, &odepth, pdata->nrm.v, &(pdata->depth_min) ); 
+        handled = phys_estimate_collision_normal( &cv_chr, &cv_prt_min, exponent, &odepth, pdata->nrm.v, &( pdata->depth_min ) );
 
         // tag the type of interaction
         pdata->int_min = handled;
     }
 
-    if( !handled )
+    if ( !handled )
     {
-        if ( d->tmin <= 0.0f || ABS(d->tmin) > 1e6 || ABS(d->tmax) > 1e6 )
+        if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
         {
             // use "pressure" to determine the normal and overlap
-            phys_estimate_pressure_normal( &cv_chr, &cv_prt_max, exponent, &odepth, pdata->nrm.v, &(pdata->depth_max) ); 
+            phys_estimate_pressure_normal( &cv_chr, &cv_prt_max, exponent, &odepth, pdata->nrm.v, &( pdata->depth_max ) );
 
             handled = btrue;
-            if( d->tmin <= 0.0f )
+            if ( d->tmin <= 0.0f )
             {
                 handled = pdata->depth_min > 0.0f;
             }
@@ -2425,7 +2425,7 @@ bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t *
         else
         {
             // use "collision" to determine the normal and overlap
-            handled = phys_estimate_collision_normal( &cv_chr, &cv_prt_max, exponent, &odepth, pdata->nrm.v, &(pdata->depth_max) ); 
+            handled = phys_estimate_collision_normal( &cv_chr, &cv_prt_max, exponent, &odepth, pdata->nrm.v, &( pdata->depth_max ) );
 
             // tag the type of interaction
             pdata->int_max = handled;
@@ -2684,7 +2684,7 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                     total_block_rating -= 4 * SFP8_TO_SINT( pattacker->strength );
 
                     // +2% per defender strength
-                    total_block_rating += 2 * SFP8_TO_SINT( pdata->pchr->strength );            
+                    total_block_rating += 2 * SFP8_TO_SINT( pdata->pchr->strength );
 
                     //Now determine the result of the block
                     rand_pair.base = 0;
@@ -2722,8 +2722,8 @@ bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 
     if ( NULL == pdata ) return bfalse;
 
-    if ( 0.0f == fvec3_length_abs( pdata->vimpulse.v ) && 
-         0.0f == fvec3_length_abs( pdata->pimpulse.v ) ) 
+    if ( 0.0f == fvec3_length_abs( pdata->vimpulse.v ) &&
+         0.0f == fvec3_length_abs( pdata->pimpulse.v ) )
     {
         return btrue;
     }
@@ -3183,7 +3183,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
         intialized = bfalse;
 
         // in here to keep the compiler from complaining
-        memset( &cn_data, 0, sizeof(cn_data) );
+        memset( &cn_data, 0, sizeof( cn_data ) );
     }
 
     if ( !intialized ) return bfalse;
@@ -3211,7 +3211,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
 
     // if the particle is not actually hitting the object, then limit the
     // interaction to 2d
-    if( cn_data.int_max && !cn_data.int_min )
+    if ( cn_data.int_max && !cn_data.int_min )
     {
         cn_data.nrm.z = 0.0f;
         fvec2_self_normalize( cn_data.nrm.v );
@@ -3239,7 +3239,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     prt_can_hit_chr = do_chr_prt_collision_bump( &cn_data );
 
     // do "damage" to the character
-    if ( (cn_data.int_min || cn_data.int_max) && !prt_deflected && 0 == cn_data.pchr->damage_timer )
+    if (( cn_data.int_min || cn_data.int_max ) && !prt_deflected && 0 == cn_data.pchr->damage_timer )
     {
         // Check reaffirmation of particles
         if ( cn_data.pchr->reaffirm_damagetype == cn_data.pprt->damagetype )
@@ -3264,15 +3264,15 @@ bool_t do_chr_prt_collision( CoNode_t * d )
         }
     }
 
-    // calculate the "pressure" recoil. 
+    // calculate the "pressure" recoil.
     // It will only be applied if cn_data.ppip->allowpush
     if ( cn_data.int_min )
     {
-        cn_data.pimpulse = fvec3_scale( cn_data.nrm.v, -cn_data.depth_min );    
+        cn_data.pimpulse = fvec3_scale( cn_data.nrm.v, -cn_data.depth_min );
     }
 
     // make the character and particle recoil from the collision
-    if ( fvec3_length_abs( cn_data.vimpulse.v ) > 0.0f || 
+    if ( fvec3_length_abs( cn_data.vimpulse.v ) > 0.0f ||
          fvec3_length_abs( cn_data.pimpulse.v ) > 0.0f )
     {
         if ( do_chr_prt_collision_recoil( &cn_data ) )

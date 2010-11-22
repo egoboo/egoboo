@@ -1580,7 +1580,7 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
                 }
                 else
                 {
-                    is_blocked = (0 != mesh_has_some_mpdfx( glist[itile].fx, bits ));
+                    is_blocked = ( 0 != mesh_has_some_mpdfx( glist[itile].fx, bits ) );
                 }
             }
 
@@ -1804,7 +1804,7 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
                 if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
                     BIT_FIELD mpdfx   = pdata->glist[itile].fx;
-                    bool_t is_blocked = (0 != mesh_has_some_mpdfx( mpdfx, bits ));
+                    bool_t is_blocked = ( 0 != mesh_has_some_mpdfx( mpdfx, bits ) );
 
                     if ( is_blocked )
                     {

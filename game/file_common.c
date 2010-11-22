@@ -366,5 +366,5 @@ bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
         log_error( "Cannot find the file \"%s\".\n", relative_filename );
     }
 
-    return (0 != found);
+    return ( 0 != found );
 }
