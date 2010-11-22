@@ -190,6 +190,10 @@ chr_t * chr_ctor( chr_t * pchr )
     // restore the base object data
     memcpy( pbase, &save_base, sizeof( obj_data_t ) );
 
+    // reset the base counters
+    pbase->update_count = 0;
+    pbase->frame_count = 0;
+
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD;
     pchr->sparkle = NOSPARKLE;
@@ -3535,11 +3539,11 @@ int damage_character( const CHR_REF character, FACING_T direction,
                 if ( !VALID_PLA( ChrList.lst[attacker].is_which_player ) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.75f;
             }
 
-            if ( actual_damage != 0 )
+            if ( 0 != actual_damage )
             {
                 if ( HAS_NO_BITS( DAMFX_ARMO, effects ) )
                 {
-                    actual_damage = ( actual_damage * pchr->defense  * INV_FF );
+                    actual_damage *= pchr->defense * INV_FF;
                 }
 
                 pchr->life -= actual_damage;

@@ -769,13 +769,6 @@ int update_game()
         }
     }
 
-    PROFILE_BEGIN( talk_to_remotes );
-    {
-        // get all player latches from the "remotes"
-        sv_talkToRemotes();
-    }
-    PROFILE_END2( talk_to_remotes );
-
     update_lag = 0;
     update_loop_cnt = 0;
     if ( update_wld < true_update )
@@ -791,6 +784,35 @@ int update_game()
 
                 srand( PMod->randsave );
                 PMod->randsave = rand();
+
+                // read the input values
+                input_read();
+
+                // NETWORK PORT
+                PROFILE_BEGIN( listen_for_packets );
+                {
+                    listen_for_packets();
+                }
+                PROFILE_END2( listen_for_packets );
+
+                PROFILE_BEGIN( set_local_latches );
+                {
+                    set_local_latches();
+                }
+                PROFILE_END2( set_local_latches );
+
+                PROFILE_BEGIN( cl_talkToHost );
+                {
+                    cl_talkToHost();
+                }
+                PROFILE_END2( cl_talkToHost );
+
+                PROFILE_BEGIN( talk_to_remotes );
+                {
+                    // get all player latches from the "remotes"
+                    sv_talkToRemotes();
+                }
+                PROFILE_END2( talk_to_remotes );
 
                 //---- begin the code for updating misc. game stuff
                 {
@@ -819,8 +841,6 @@ int update_game()
                 }
                 finalize_all_objects();
                 //---- end the code for updating in-game objects
-
-                game_update_timers();
 
                 // put the camera movement inside here
                 camera_move( PCamera, PMesh );
@@ -1134,12 +1154,6 @@ int do_game_proc_running( game_process_t * gproc )
 
         PROFILE_BEGIN( game_update_loop );
         {
-            // This is the control loop
-            if ( PNet->on && console_done )
-            {
-                net_send_message();
-            }
-
             // update all the timers
             game_update_timers();
 
@@ -1161,24 +1175,19 @@ int do_game_proc_running( game_process_t * gproc )
                     keyb.buffer[0] = CSTR_END;
                 }
 
-                // NETWORK PORT
-                PROFILE_BEGIN( listen_for_packets );
+                // This is the control loop
+                if ( PNet->on && console_done )
                 {
-                    listen_for_packets();
+                    net_send_message();
                 }
-                PROFILE_END2( listen_for_packets );
+
+                game_update_timers();
 
                 PROFILE_BEGIN( check_stats );
                 {
                     check_stats();
                 }
                 PROFILE_END2( check_stats );
-
-                PROFILE_BEGIN( set_local_latches );
-                {
-                    set_local_latches();
-                }
-                PROFILE_END2( set_local_latches );
 
                 PROFILE_BEGIN( check_passage_music );
                 {
@@ -1192,12 +1201,6 @@ int do_game_proc_running( game_process_t * gproc )
                 }
                 else
                 {
-                    PROFILE_BEGIN( cl_talkToHost );
-                    {
-                        cl_talkToHost();
-                    }
-                    PROFILE_END2( cl_talkToHost );
-
                     update_loops = update_game();
                 }
             }

@@ -118,6 +118,10 @@ prt_t * prt_ctor( prt_t * pprt )
     // restore the base object data
     memcpy( base_ptr, &save_base, sizeof( save_base ) );
 
+    // reset the base counters
+    base_ptr->update_count = 0;
+    base_ptr->frame_count = 0;
+
     // "no lifetime" = "eternal"
     pprt->lifetime           = ( size_t )( ~0 );
     pprt->lifetime_remaining = pprt->lifetime;
@@ -368,22 +372,30 @@ prt_t * prt_config_do_init( prt_t * pprt )
                 offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECTSTAT;
             }
 
-            if ( DEFINED_CHR( pprt->target_ref ) && ppip->zaimspd != 0.0f )
+            if ( 0.0f != ppip->zaimspd )
             {
-                // These aren't velocities...  This is to do aiming on the Z axis
-                if ( velocity > 0 )
+                if ( DEFINED_CHR( pprt->target_ref ) )
                 {
-                    vel.x = ChrList.lst[pprt->target_ref].pos.x - pdata->pos.x;
-                    vel.y = ChrList.lst[pprt->target_ref].pos.y - pdata->pos.y;
-                    tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
-                    if ( tvel > 0.0f )
+                    // These aren't velocities...  This is to do aiming on the Z axis
+                    if ( velocity > 0 )
                     {
-                        vel.z = ( ChrList.lst[pprt->target_ref].pos.z + ( ChrList.lst[pprt->target_ref].bump.height * 0.5f ) - tmp_pos.z ) / tvel;  // This is the vel.z alteration
-
-                        vel.z = CLIP( vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd );
+                        vel.x = ChrList.lst[pprt->target_ref].pos.x - pdata->pos.x;
+                        vel.y = ChrList.lst[pprt->target_ref].pos.y - pdata->pos.y;
+                        tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
+                        if ( tvel > 0.0f )
+                        {
+                            // This is the vel.z alteration
+                            vel.z = ( ChrList.lst[pprt->target_ref].pos.z + ( ChrList.lst[pprt->target_ref].bump.height * 0.5f ) - tmp_pos.z ) / tvel;
+                        }
                     }
                 }
+                else
+                {
+                    vel.z = 0.5f * ppip->zaimspd;
+                }
             }
+
+            vel.z = CLIP( vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd );
         }
 
         // Does it go away?

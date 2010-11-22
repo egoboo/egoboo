@@ -426,13 +426,17 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
                         pcap->bump_override_height = btrue;
                     }
 
-                    ptr = strpbrk( tmp_buffer, "SBH" );
+                    // start on the next character
+                    ptr++;
+                    ptr = strpbrk( ptr, "SBH" );
                 }
             }
         }
-
         //If it is none of the predefined IDSZ extensions then add it as a new skill
-        else idsz_map_add( pcap->skills, SDL_arraysize( pcap->skills ), idsz, fget_int( fileread ) );
+        else
+        {
+            idsz_map_add( pcap->skills, SDL_arraysize( pcap->skills ), idsz, fget_int( fileread ) );
+        }
     }
     vfs_close( fileread );
 

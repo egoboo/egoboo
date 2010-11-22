@@ -94,6 +94,10 @@ enc_t * enc_ctor( enc_t * penc )
     // restore the base object data
     memcpy( pbase, &save_base, sizeof( obj_data_t ) );
 
+    // reset the base counters
+    pbase->update_count = 0;
+    pbase->frame_count = 0;
+
     penc->profile_ref      = ( PRO_REF )MAX_PROFILE;
     penc->eve_ref          = ( EVE_REF )MAX_EVE;
 

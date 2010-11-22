@@ -78,12 +78,12 @@
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
 			CharacterSet="2"
-			WholeProgramOptimization="TRUE">
+			WholeProgramOptimization="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
-				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="2"
+				GlobalOptimizations="FALSE"
+				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="FALSE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
