@@ -24,6 +24,10 @@
 
 #include "egoboo_typedef.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -115,21 +119,21 @@ struct s_eve
     EGO_PROFILE_STUFF
 
     // enchant spawning info
-    bool_t  override;                    ///< Override other enchants?
-    bool_t  removeoverridden;            ///< Remove other enchants?
-    bool_t  retarget;                    ///< Pick a weapon?
-    Uint8   dontdamagetype;              ///< Don't work if ...
-    Uint8   onlydamagetype;              ///< Only work if ...
-    bool_t  spawn_overlay;               ///< Spawn an overlay?
+    bool_t  override;                         ///< Override other enchants?
+    bool_t  remove_overridden;                ///< Remove other enchants?
+    bool_t  retarget;                         ///< Pick a weapon?
+    Uint8   required_damagetype;              ///< Don't enchant if the target is immune to required_damagetype
+    Uint8   require_damagetarget_damagetype;  ///< Only enchant the target if the target damagetarget_damagetype matches this value
+    bool_t  spawn_overlay;                    ///< Spawn an overlay?
 
     // ending conditions
-    Sint16  time;                        ///< Time in seconds
-    bool_t  endifcantpay;                ///< End on out of mana
-    IDSZ    removedbyidsz;               ///< By particle or [NONE]
+    int     lifetime;                         ///< Time in seconds
+    bool_t  endifcantpay;                     ///< End on out of mana
+    IDSZ    removedbyidsz;                    ///< By particle or [NONE]
 
-    // despawning infp
-    bool_t  stayiftargetdead;            ///< Stay if target has died?
-    bool_t  stayifnoowner;               ///< Stay if owner has died?
+    // despawning info
+    bool_t  stayiftargetdead;                 ///< Stay if target has died?
+    bool_t  stayifnoowner;                    ///< Stay if owner has died?
 
     // skill modifications
     Sint16  owner_mana;
@@ -158,7 +162,7 @@ struct s_eve
     Sint16  endsound_index;              ///< Sound on end (-1 for none)
     bool_t  killtargetonend;             ///< Kill the target on end?
     bool_t  poofonend;                   ///< Spawn a poof on end?
-    Sint32  endmessage;                  ///< Message for end -1 for none
+    int     endmessage;                  ///< Message for end -1 for none
 
 };
 

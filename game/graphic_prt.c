@@ -130,7 +130,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
     prt_instance_update_all( pcam );
 
-    vfwd = mat_getCamForward( pcam->mView );
+    mat_getCamForward( pcam->mView.v, vfwd.v );
     vcam = pcam->pos;
 
     // Original points
@@ -395,7 +395,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 
     prt_instance_update_all( pcam );
 
-    vfwd = mat_getCamForward( pcam->mView );
+    mat_getCamForward( pcam->mView.v, vfwd.v );
     vcam = pcam->pos;
 
     // Original points
@@ -410,7 +410,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 
         if ( !prt_bdl.prt_ptr->inview || prt_bdl.prt_ptr->is_hidden ) continue;
 
-        if ( pinst->size != 0 )
+        if ( 0 != pinst->size )
         {
             fvec3_t   vpos;
             float dist;
@@ -903,14 +903,14 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
             switch ( pinst->orientation )
             {
-                case ORIENTATION_X: vup = mat_getChrForward( cinst->matrix ); break;
-                case ORIENTATION_Y: vup = mat_getChrRight( cinst->matrix ); break;
+                case ORIENTATION_X: mat_getChrForward( cinst->matrix.v, vup.v ); break;
+                case ORIENTATION_Y: mat_getChrRight( cinst->matrix.v, vup.v ); break;
 
                 default:
-                case ORIENTATION_Z: vup = mat_getChrUp( cinst->matrix ); break;
+                case ORIENTATION_Z: mat_getChrUp( cinst->matrix.v, vup.v ); break;
             }
 
-            vup = fvec3_normalize( vup.v );
+            fvec3_self_normalize( vup.v );
         }
         else
         {
@@ -1006,7 +1006,7 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
     //
     // 2) If the particle is like a rug, then basically nothing happens since
     //    neither the up or right vectors point in the wodld up direction.
-    //    This corresponds to ndot == 0 in the code below.
+    //    This corresponds to0 == ndotin the code below.
     //
     // This process does not affect the normal the length of the vector, or the
     // direction of the normal to the quad.
@@ -1185,7 +1185,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         oct_bb_t loc_bb, tmp_bb, exp_bb;
 
         // copy the bounding volume
-        oct_bb_copy( &tmp_bb, &( loc_pprt->prt_cv ) );
+        oct_bb_copy( &tmp_bb, &( loc_pprt->prt_max_cv ) );
 
         // make sure that it has some minimum extent
         //for(cnt = 0; cnt < OCT_COUNT; cnt++ )
@@ -1195,7 +1195,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         //}
 
         // determine the expanded collision volumes for both objects
-        phys_expand_oct_bb( tmp_bb, loc_pprt->vel.v, 0, 1, &exp_bb );
+        phys_expand_oct_bb( &tmp_bb, loc_pprt->vel.v, 0, 1, &exp_bb );
 
         // shift the source bounding boxes to be centered on the given positions
         oct_bb_add_fvec3( &exp_bb, loc_pprt->pos.v, &loc_bb );

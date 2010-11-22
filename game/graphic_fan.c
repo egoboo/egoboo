@@ -476,7 +476,7 @@ void animate_tiles()
     /// ZZ@> This function changes the animated tile frame
 
     // make sure this updates per frame
-    if (( true_frame & animtile_update_and ) == 0 )
+    if ( 0 == ( true_frame & animtile_update_and ) )
     {
         animtile[0].frame_add = ( animtile[0].frame_add + 1 ) & animtile[0].frame_and;
         animtile[1].frame_add = ( animtile[1].frame_add + 1 ) & animtile[1].frame_and;

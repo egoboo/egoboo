@@ -57,6 +57,7 @@
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
+#include "egoboo_fileutil.h"
 
 #if defined(USE_LUA_CONSOLE)
 #    include "lua_console.h"
@@ -325,7 +326,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
                 // Use squiggle for tab
                 x = ( floor(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
-            else if ( '\n' == cTmp )
+            else if ( C_NEW_LINE_CHAR == cTmp )
             {
                 x  = x_stt;
                 y += fontyspacing;
@@ -542,8 +543,8 @@ void gfx_init_SDL_graphics()
     // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
     // will cause SDL_SetVideoMode to fail with:
     // "Unable to set video mode: Couldn't find matching GLX visual"
-    if ( cfg.scrd_req == 32 ) cfg.scrd_req = 24;
-    if ( cfg.scrz_req == 32 ) cfg.scrz_req = 24;
+    if ( 32 == cfg.scrd_req ) cfg.scrd_req = 24;
+    if ( 32 == cfg.scrz_req ) cfg.scrz_req = 24;
 
 #endif
 
@@ -689,9 +690,9 @@ bool_t gfx_synch_oglx_texture_parameters( oglx_texture_parameters_t * ptex, egob
 {
     //// @details BB@> synch the texture parameters with the video mode
 
-    if ( NULL == ptex || NULL == pcfg ) return GL_FALSE;
+    if ( NULL == ptex || NULL == pcfg ) return bfalse;
 
-    if ( ogl_caps.maxAnisotropy == 0.0f )
+    if ( ogl_caps.maxAnisotropy <= 1.0f )
     {
         ptex->userAnisotropy = 0.0f;
         ptex->texturefilter  = ( TX_FILTERS )MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
@@ -702,7 +703,7 @@ bool_t gfx_synch_oglx_texture_parameters( oglx_texture_parameters_t * ptex, egob
         ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
     }
 
-    return GL_TRUE;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1173,7 +1174,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 
     maxx = maxx + stt_x;
 
-    while ( '\0' != cTmp )
+    while ( CSTR_END != cTmp )
     {
         // Check each new word for wrapping
         if ( newword )
@@ -1204,7 +1205,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
                 // Use squiggle for tab
                 x = ( floor(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
-            else if ( '\n' == cTmp )
+            else if ( C_NEW_LINE_CHAR == cTmp )
             {
                 x = stt_x;
                 y += fontyspacing;
@@ -1227,7 +1228,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
             cTmp = szText[cnt];
             cnt++;
 
-            if ( '~' == cTmp || '\n' == cTmp || '\r' == cTmp || isspace( cTmp ) )
+            if ( '~' == cTmp || C_NEW_LINE_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || isspace( cTmp ) )
             {
                 newword = btrue;
             }
@@ -1259,7 +1260,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
     // draw the ammo, if requested
     if ( draw_ammo && ( NULL != pitem ) )
     {
-        if ( pitem->ammomax != 0 && pitem->ammoknown )
+        if ( 0 != pitem->ammomax && pitem->ammoknown )
         {
             cap_t * pitem_cap = chr_get_pcap( item );
 
@@ -1616,14 +1617,14 @@ float draw_debug( float y )
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_SLASH] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_CRUSH] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_POKE ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_HOLY ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_EVIL ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_FIRE ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_ICE  ] & 3,
-                              ChrList.lst[ichr].damagemodifier[DAMAGE_ZAP  ] & 3 );
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_SLASH] & 3,
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_CRUSH] & 3,
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_POKE ] & 3,
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_HOLY ] & 3,
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_EVIL ] & 3,
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_FIRE ] & 3,
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_ICE  ] & 3,
+                              ChrList.lst[ichr].damage_modifier[DAMAGE_ZAP  ] & 3 );
 
         ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_SIZE, ChrList.lst[ichr].pos.y / GRID_SIZE );
@@ -1946,7 +1947,7 @@ void render_shadow( const CHR_REF character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
+    if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
     if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return;
@@ -2077,7 +2078,7 @@ void render_bad_shadow( const CHR_REF character )
     pchr = ChrList.lst + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    if ( pchr->is_hidden || pchr->shadow_size == 0 ) return;
+    if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
     if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return;
@@ -2303,7 +2304,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
             // do not display the completely transparent portion
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with0 == alphasections
 
             // reduce texture hashing by loading up each texture only once
             render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
@@ -2328,7 +2329,7 @@ void render_scene_mesh( renderlist_t * prlist )
                 GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
                 // do not draw hidden surfaces
-                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - 
+                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT -
                 GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
                 // black out any backgound, but allow the background to show through any holes in the floor
@@ -2337,7 +2338,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                 // do not display the completely transparent portion
                 GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with0 == alphasections
 
                 // reduce texture hashing by loading up each texture only once
                 render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
@@ -2362,13 +2363,13 @@ void render_scene_mesh( renderlist_t * prlist )
 
                 for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
                 {
-                    if ( MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
+                    if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
                     {
                         CHR_REF ichr;
                         Uint32 itile;
 
                         // cull backward facing polygons
-                        GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT 
+                        GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT
                         GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT - use couter-clockwise orientation to determine backfaces
 
                         GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
@@ -2383,7 +2384,7 @@ void render_scene_mesh( renderlist_t * prlist )
                             render_one_mad_ref( ichr );
                         }
                     }
-                    else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
+                    else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
                     {
                         Uint32 itile;
                         PRT_REF iprt;
@@ -2456,7 +2457,7 @@ void render_scene_mesh( renderlist_t * prlist )
 
                 // do not display the completely transparent portion
                 GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with alpha == 0 sections
+                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with0 == alphasections
 
                 // reduce texture hashing by loading up each texture only once
                 render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
@@ -2541,19 +2542,19 @@ void render_scene_solid()
         // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-        if ( MAX_PRT == dolist[cnt].iprt )
+        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
         {
             GLXvector4f tint;
             chr_instance_t * pinst = chr_get_pinstance( dolist[cnt].ichr );
 
-            if ( NULL != pinst && pinst->alpha == 255 && pinst->light == 255 )
+            if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
             {
                 chr_instance_get_tint( pinst, tint, CHR_SOLID );
 
                 render_one_mad( dolist[cnt].ichr, tint, CHR_SOLID );
             }
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
+        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
         {
             // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );
@@ -2589,7 +2590,7 @@ void render_scene_trans()
     // Now render all transparent and light objects
     for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
     {
-        if ( MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
+        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
         {
             CHR_REF  ichr = dolist[cnt].ichr;
             chr_t * pchr = ChrList.lst + ichr;
@@ -2629,7 +2630,7 @@ void render_scene_trans()
                 render_one_mad( ichr, tint, CHR_PHONG );
             }
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
+        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
         {
             render_one_prt_trans( dolist[cnt].iprt );
         }
@@ -2895,8 +2896,8 @@ void render_world_overlay( const TX_REF texture )
     vforw_wind.z = 0;
     vforw_wind = fvec3_normalize( vforw_wind.v );
 
-    vforw_cam = mat_getCamForward( PCamera->mView );
-    vforw_cam = fvec3_normalize( vforw_cam.v );
+    mat_getCamForward( PCamera->mView.v, vforw_cam.v );
+    fvec3_self_normalize( vforw_cam.v );
 
     // make the texture begin to disappear if you are not looking straight down
     ftmp = fvec3_dot_product( vforw_wind.v, vforw_cam.v );
@@ -3402,7 +3403,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     pchr = ChrList.lst + pbb->ichr;
 
     // determine where the new position should be
-    chr_getMatUp( pchr, &vup );
+    chr_getMatUp( pchr, vup.v );
 
     height = pchr->bump.height;
     offset = MIN( pchr->bump.height * 0.5f, pchr->bump.size );
@@ -4076,10 +4077,11 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr )
 {
     /// ZZ@> This function puts a character in the list
-    Uint32 itile;
+
     chr_t * pchr;
     cap_t * pcap;
     chr_instance_t * pinst;
+    ego_tile_info_t * ptile;
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
@@ -4087,18 +4089,18 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr )
     pchr  = ChrList.lst + ichr;
     pinst = &( pchr->inst );
 
-    if ( pinst->indolist ) return btrue;
+    if ( pinst->indolist || pchr->is_hidden ) return bfalse;
+
+    if ( !mesh_grid_is_valid( pmesh, pchr->onwhichgrid ) ) return bfalse;
+    ptile = pmesh->tmem.tile_list + pchr->onwhichgrid;
 
     pcap = chr_get_pcap( ichr );
     if ( NULL == pcap ) return bfalse;
 
-    itile = pchr->onwhichgrid;
-    if ( !mesh_grid_is_valid( pmesh, itile ) ) return bfalse;
-
-    if ( pmesh->tmem.tile_list[itile].inrenderlist )
+    if ( ptile->inrenderlist )
     {
         dolist[dolist_count].ichr = ichr;
-        dolist[dolist_count].iprt = MAX_PRT;
+        dolist[dolist_count].iprt = ( PRT_REF )MAX_PRT;
         dolist_count++;
 
         pinst->indolist = btrue;
@@ -4108,7 +4110,7 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr )
         // Double check for large/special objects
 
         dolist[dolist_count].ichr = ichr;
-        dolist[dolist_count].iprt = MAX_PRT;
+        dolist[dolist_count].iprt = ( PRT_REF )MAX_PRT;
         dolist_count++;
 
         pinst->indolist = btrue;
@@ -4130,6 +4132,7 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF iprt )
     /// ZZ@> This function puts a character in the list
     prt_t * pprt;
     prt_instance_t * pinst;
+    ego_tile_info_t * ptile;
 
     if ( dolist_count >= DOLIST_SIZE ) return bfalse;
 
@@ -4137,15 +4140,21 @@ bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF iprt )
     pprt = PrtList.lst + iprt;
     pinst = &( pprt->inst );
 
-    if ( pinst->indolist ) return btrue;
+    if ( pinst->indolist || pprt->is_hidden ) return btrue;
 
-    if ( 0 == pinst->size || pprt->is_hidden || !mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) ) return bfalse;
+    if ( pinst->size <= 0.0f ) return bfalse;
 
-    dolist[dolist_count].ichr = ( CHR_REF )MAX_CHR;
-    dolist[dolist_count].iprt = iprt;
-    dolist_count++;
+    if ( !mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) ) return bfalse;
+    ptile = pmesh->tmem.tile_list + pprt->onwhichgrid;
 
-    pinst->indolist = btrue;
+    if ( ptile->inrenderlist )
+    {
+        dolist[dolist_count].ichr = ( CHR_REF )MAX_CHR;
+        dolist[dolist_count].iprt = iprt;
+        dolist_count++;
+
+        pinst->indolist = btrue;
+    }
 
     return btrue;
 }
@@ -4204,7 +4213,7 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
     fvec3_t   vcam;
     size_t    count;
 
-    vcam = mat_getCamForward( pcam->mView );
+    mat_getCamForward( pcam->mView.v, vcam.v );
 
     // Figure the distance of each
     count = 0;
@@ -4213,7 +4222,7 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
         fvec3_t   vtmp;
         float dist;
 
-        if ( MAX_PRT == dolist[cnt].iprt && INGAME_CHR( dolist[cnt].ichr ) )
+        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;
@@ -4222,16 +4231,16 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
 
             if ( do_reflect )
             {
-                pos_tmp = mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix );
+                mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp.v );
             }
             else
             {
-                pos_tmp = mat_getTranslate( ChrList.lst[ichr].inst.matrix );
+                mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
             }
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && DISPLAY_PRT( dolist[cnt].iprt ) )
+        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
         {
             PRT_REF iprt = dolist[cnt].iprt;
 
@@ -4676,7 +4685,7 @@ void delete_all_graphics()
     init_map_data();
 
     BillboardList_free_all();
-	TxTexture_delete_all();
+    TxTexture_delete_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5627,7 +5636,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
             fake_dynalight.pos.y    = fake_dynalight.pos.y / dyna_weight_sum + pcam->center.y;
             fake_dynalight.pos.z    = fake_dynalight.pos.z / dyna_weight_sum + pcam->center.z;
 
-            radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
+            radius = SQRT( fake_dynalight.falloff * 765.0f / 2.0f );
 
             // find the intersection with the frustum boundary
             ftmp.xmin = MAX( fake_dynalight.pos.x - radius, mesh_bound.xmin );

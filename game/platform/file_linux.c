@@ -181,7 +181,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
         return NULL;
 
     pcnt->find_index = 0;
-    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], '/' );
+    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR );
     if ( last_slash )
         return last_slash + 1;
 
@@ -204,7 +204,7 @@ const char *fs_findNextFile( fs_find_context_t * fs_search )
     if ( pcnt->find_index >= pcnt->last_find.gl_pathc )
         return NULL;
 
-    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], '/' );
+    last_slash = strrchr( pcnt->last_find.gl_pathv[pcnt->find_index], C_SLASH_CHR );
     if ( last_slash )
         return last_slash + 1;
 

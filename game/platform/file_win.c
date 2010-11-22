@@ -99,7 +99,7 @@ void sys_fs_init()
         }
     }
 
-    if ( '\0' == win32_dataPath[0] )
+    if ( CSTR_END == win32_dataPath[0] )
     {
         // fatal error here, we can't find the game data.
         printf( "Could not find basicdat directory!\n" );
@@ -198,7 +198,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     fs_search->ptr.w = pcnt;
 
     len = strlen( searchDir ) + 1;
-    if ( '/' != searchDir[len] || '\\' != searchDir[len] )
+    if ( C_SLASH_CHR != searchDir[len] || C_BACKSLASH_CHR != searchDir[len] )
     {
         _snprintf( searchSpec, MAX_PATH, "%s" SLASH_STR, searchDir );
     }

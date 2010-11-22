@@ -131,7 +131,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->end_bump      = fget_next_bool( fileread );
     ppip->end_ground    = fget_next_bool( fileread );
     ppip->end_lastframe = fget_next_bool( fileread );
-    ppip->time         = fget_next_int( fileread );
+    ppip->end_time      = fget_next_int( fileread );
 
     // Collision data
     ppip->dampen     = fget_next_float( fileread );

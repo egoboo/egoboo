@@ -129,7 +129,7 @@ void camera_look_at( camera_t * pcam, float x, float y )
     /// @details ZZ@> This function makes the camera turn to face the character
 
     pcam->zgoto = pcam->zadd;
-    if ( pcam->turn_time != 0 )
+    if ( 0 != pcam->turn_time )
     {
         pcam->turn_z_rad = ( 1.5f * PI ) - ATAN2( y - pcam->pos.y, x - pcam->pos.x );  // xgg
     }
@@ -177,7 +177,7 @@ void camera_make_matrix( camera_t * pcam )
     }
 
     // If the camera stops swinging for some reason, slowly return to original position
-    else if ( pcam->roll != 0 )
+    else if ( 0 != pcam->roll )
     {
         pcam->roll *= 0.9875f;            //Decay factor
         pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
@@ -194,13 +194,13 @@ void camera_make_matrix( camera_t * pcam )
     pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
 
     //--- pre-compute some camera vectors
-    pcam->vfw = mat_getCamForward( pcam->mView );
+    mat_getCamForward( pcam->mView.v, pcam->vfw.v );
     fvec3_self_normalize( pcam->vfw.v );
 
-    pcam->vup = mat_getCamUp( pcam->mView );
+    mat_getCamUp( pcam->mView.v, pcam->vup.v );
     fvec3_self_normalize( pcam->vup.v );
 
-    pcam->vrt = mat_getCamRight( pcam->mView );
+    mat_getCamRight( pcam->mView.v, pcam->vrt.v );
     fvec3_self_normalize( pcam->vrt.v );
 }
 
@@ -230,7 +230,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
     if ( CAM_TURN_NONE != pcam->turn_mode )
         pcam->turn_time = 255;
-    else if ( pcam->turn_time != 0 )
+    else if ( 0 != pcam->turn_time )
         pcam->turn_time--;
 
     // the default camera motion is to do nothing
@@ -520,7 +520,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->pos.y += ( float )( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;
 
     // Center on target for doing rotation...
-    if ( pcam->turn_time != 0 )
+    if ( 0 != pcam->turn_time )
     {
         pcam->center.x = pcam->center.x * 0.9f + pcam->track_pos.x * 0.1f;
         pcam->center.y = pcam->center.y * 0.9f + pcam->track_pos.y * 0.1f;

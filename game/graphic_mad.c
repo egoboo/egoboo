@@ -1497,8 +1497,6 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
 {
     /// @details BB@> all the code necessary to move on to the next frame of the animation
 
-    int tmp_action;
-
     if ( NULL == pinst || NULL == pmad ) return rv_error;
 
     // fix the ilip and flip
@@ -1525,8 +1523,7 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
             // Convert the action into a riding action if the character is mounted
             if ( INGAME_CHR( imount ) )
             {
-                tmp_action = mad_get_action( pinst->imad, ACTION_MI );
-                chr_instance_start_anim( pinst, tmp_action, btrue, btrue );
+                chr_instance_start_anim( pinst, mount_action, btrue, btrue );
             }
 
             // set the frame to the beginning of the action
@@ -1705,7 +1702,7 @@ egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     }
 
     // set the frames to frame 0 of this object's data
-    if ( pinst->frame_nxt != 0 || pinst->frame_lst != 0 )
+    if ( 0 != pinst->frame_nxt || 0 != pinst->frame_lst )
     {
         updated = btrue;
         pinst->frame_nxt = pinst->frame_lst = 0;

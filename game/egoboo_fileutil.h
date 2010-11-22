@@ -38,6 +38,64 @@ extern "C"
     struct s_oglx_texture;
 
 //--------------------------------------------------------------------------------------------
+// MACROS
+//--------------------------------------------------------------------------------------------
+
+// ASCII terminal/printer control codes
+#    define ASCII_NUL_CHAR  '\x00'            /**< null */
+#    define ASCII_SOH_CHAR  '\x01'            /**< start of heading */
+#    define ASCII_STX_CHAR  '\x02'            /**< start of text */
+#    define ASCII_ETX_CHAR  '\x03'            /**< end of text */
+#    define ASCII_EOT_CHAR  '\x04'            /**< end of transmission */
+#    define ASCII_ENQ_CHAR  '\x05'            /**< enquiry */
+#    define ASCII_ACK_CHAR  '\x06'            /**< acknowledge */
+#    define ASCII_BEL_CHAR  '\x07'            /**< bell */
+#    define ASCII_BS_CHAR   '\x08'            /**< backspace */
+#    define ASCII_HT_CHAR   '\x09'            /**< horizontal tab */
+#    define ASCII_NL_CHAR   '\x0A'            /**< new line (or LF, line feed) */
+#    define ASCII_VT_CHAR   '\x0B'            /**< vertical tab */
+#    define ASCII_NP_CHAR   '\x0C'            /**< new page (or FF, form feed) */
+#    define ASCII_CR_CHAR   '\x0D'            /**< carriage return */
+#    define ASCII_SO_CHAR   '\x0E'            /**< shift out */
+#    define ASCII_SI_CHAR   '\x0F'            /**< shift in */
+#    define ASCII_DLE_CHAR  '\x10'            /**< data link escape */
+#    define ASCII_DC1_CHAR  '\x11'            /**< device control 1 */
+#    define ASCII_DC2_CHAR  '\x12'            /**< device control 2 */
+#    define ASCII_DC3_CHAR  '\x13'            /**< device control 3 */
+#    define ASCII_DC4_CHAR  '\x14'            /**< device control 4 */
+#    define ASCII_NAK_CHAR  '\x15'            /**< negative acknowledge */
+#    define ASCII_SYN_CHAR  '\x16'            /**< synchronous idle */
+#    define ASCII_ETB_CHAR  '\x17'            /**< end of transmission block */
+#    define ASCII_CAN_CHAR  '\x18'            /**< cancel */
+#    define ASCII_EM_CHAR   '\x19'            /**< end of medium */
+#    define ASCII_SUB_CHAR  '\x1A'            /**< substitute */
+#    define ASCII_ESC_CHAR  '\x1B'            /**< escape */
+#    define ASCII_FS_CHAR   '\x1C'            /**< file separator */
+#    define ASCII_GS_CHAR   '\x1D'            /**< group separator */
+#    define ASCII_RS_CHAR   '\x1E'            /**< record separator */
+#    define ASCII_US_CHAR   '\x1F'            /**< unit separator */
+#    define ASCII_SP_CHAR   '\x20'            /**< space  */
+
+/// @note win32 systems (and some others) handle newlines by using a combinarion
+///       of linefeed and carriage return characters. So...
+///       the numerical values of '\n' and '\r' may vary from system to system and
+///       may be different for input and output (i.e. '\n' writing '\x0D\x0A" on win32 systems)
+
+#    define ASCII_LINEFEED_CHAR    ASCII_NL_CHAR
+
+/// @note the following escape codes are translated by the compiler
+///       to whatever encoding is necessary
+#    define C_BELL_CHAR            '\a'
+#    define C_BACKSPACE_CHAR       '\b'
+#    define C_FORMFEED_CHAR        '\f'
+#    define C_NEW_LINE_CHAR        '\n'
+#    define C_CARRIAGE_RETURN_CHAR '\r'
+#    define C_TAB_CHAR             '\t'
+#    define C_VERTICAL TAB_CHAR    '\v'
+#    define C_SINGLE_QUOTE_CHAR    '\''
+#    define C_DOUBLE_QUOTE_CHAR    '\"'
+
+//--------------------------------------------------------------------------------------------
 // EXTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 

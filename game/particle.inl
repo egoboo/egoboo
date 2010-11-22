@@ -37,6 +37,10 @@ static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
 static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
 static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
 
+static INLINE float * prt_get_pos_v( prt_t * pprt );
+static INLINE fvec3_t prt_get_pos( prt_t * pprt );
+
+
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
@@ -112,8 +116,11 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
         pprt->bump_padded.height   = MAX( pprt->bump_real.height,   ppip->bump_height );
     }
 
+    // set the real size of the particle
+    oct_bb_set_bumper( &( pprt->prt_min_cv ), pprt->bump_real );
+
     // use the padded bumper to figure out the chr_max_cv
-    oct_bb_set_bumper( &( pprt->prt_cv ), pprt->bump_padded );
+    oct_bb_set_bumper( &( pprt->prt_max_cv ), pprt->bump_padded );
 
     return btrue;
 }
@@ -277,6 +284,26 @@ static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * ppr
     pbundle = prt_bundle_validate( pbundle );
 
     return pbundle;
+}
+
+//--------------------------------------------------------------------------------------------
+fvec3_t prt_get_pos( prt_t * pprt )
+{
+    fvec3_t vtmp = ZERO_VECT3;
+
+    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp;
+
+    return pprt->pos;
+}
+
+//--------------------------------------------------------------------------------------------
+float * prt_get_pos_v( prt_t * pprt )
+{
+    static fvec3_t vtmp = ZERO_VECT3;
+
+    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
+
+    return pprt->pos.v;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -78,7 +78,7 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
 
         sprintf(buffer, "xmessage -center \"%s\"", message);
 
-        if( fork() == 0 )
+        if( 0 == fork() )
         {
             close(1); close(2);
             system(cmd);

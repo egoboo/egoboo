@@ -302,7 +302,7 @@ vfs_FILE * vfs_openAppendB( const char * filename )
 //--------------------------------------------------------------------------------------------
 const char * vfs_convert_fname_sys( const char * fname )
 {
-    // PHYSFS and this vfs use a "/" at the front of relative filenames. if this is not removed
+    // PHYSFS and this vfs use a C_SLASH_STR at the front of relative filenames. if this is not removed
     // when converting to system dependent filenames, it will reference the filename relative to the
     // root point, rather than relative to the current directory.
     //
@@ -680,7 +680,7 @@ int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
 
         if ( CSTR_END == temp_dirname[0] )
         {
-            temp_dirname[0] = '/';
+            temp_dirname[0] = C_SLASH_CHR;
             temp_dirname[1] = CSTR_END;
         }
     }
@@ -2092,7 +2092,7 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
             *str_ptr = cTmp;
             str_ptr++;
 
-            if ( 0x0A == cTmp || 0x0D == cTmp ) break;
+            if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp ) break;
 
             iTmp = PHYSFS_read( pfile->ptr.p, &cTmp, 1, sizeof( cTmp ) );
 
@@ -2270,7 +2270,7 @@ int vfs_add_mount_point( const char * root_path, const char * relative_path, con
     BAIL_IF_NOT_INIT();
 
     // a bare slash is taken to mean the PHYSFS root directory, not the root of the currently mounted volume
-    if ( !VALID_CSTR( mount_point ) || 0 == strcmp( mount_point, "/" ) ) return 0;
+    if ( !VALID_CSTR( mount_point ) || 0 == strcmp( mount_point, C_SLASH_STR ) ) return 0;
 
     // make a complete version of the pathname
     if ( VALID_CSTR( root_path ) && VALID_CSTR( relative_path ) )
@@ -2320,7 +2320,7 @@ int vfs_remove_mount_point( const char * mount_point )
 
     // don't allow it to remove the default directory
     if ( !VALID_CSTR( mount_point ) ) return 0;
-    if ( 0 == strcmp( mount_point, "/" ) ) return 0;
+    if ( 0 == strcmp( mount_point, C_SLASH_STR ) ) return 0;
 
     // assume we are going to fail
     retval = 0;
@@ -2554,13 +2554,13 @@ bool_t _vfs_mount_info_add( const char * mount_point, const char * root_path, co
     strncpy( _vfs_mount_info[_vfs_mount_info_count].mount,     ptmp,       VFS_MAX_PATH );
     strncpy( _vfs_mount_info[_vfs_mount_info_count].full_path, local_path, VFS_MAX_PATH );
 
-    _vfs_mount_info[_vfs_mount_info_count].root_path[0] = '\0';
+    _vfs_mount_info[_vfs_mount_info_count].root_path[0] = CSTR_END;
     if ( VALID_CSTR( root_path ) )
     {
         strncpy( _vfs_mount_info[_vfs_mount_info_count].root_path, root_path, VFS_MAX_PATH );
     }
 
-    _vfs_mount_info[_vfs_mount_info_count].relative_path[0] = '\0';
+    _vfs_mount_info[_vfs_mount_info_count].relative_path[0] = CSTR_END;
     if ( VALID_CSTR( relative_path ) )
     {
         strncpy( _vfs_mount_info[_vfs_mount_info_count].relative_path, relative_path, VFS_MAX_PATH );

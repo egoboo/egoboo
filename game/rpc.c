@@ -26,6 +26,8 @@
 #include "texture.h"
 #include "menu.h"
 
+#include "egoboo_strutil.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define MAX_TX_TEXTURE_REQ 100
@@ -87,7 +89,7 @@ tx_request_t * tx_request_ctor( tx_request_t * preq, int type )
 
     if ( NULL == ego_rpc_base_ctor( &( preq->ego_rpc_base ), type, preq ) ) return NULL;
 
-    preq->filename[0] = '\0';
+    preq->filename[0] = CSTR_END;
     preq->index       = ( TX_REF )INVALID_TX_TEXTURE;
     preq->key         = ( Uint32 )( ~0 );
 

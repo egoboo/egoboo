@@ -82,12 +82,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
-				GlobalOptimizations="FALSE"
-				InlineFunctionExpansion="1"
+				GlobalOptimizations="TRUE"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="FALSE"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="FALSE"
-				EnableFiberSafeOptimizations="FALSE"
+				OmitFramePointers="TRUE"
+				EnableFiberSafeOptimizations="TRUE"
 				WholeProgramOptimization="FALSE"
 				OptimizeForProcessor="3"
 				OptimizeForWindowsApplication="TRUE"
@@ -102,7 +102,7 @@
 				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				BrowseInformation="1"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
 				CompileAs="0"
@@ -786,6 +786,9 @@
 		<Filter
 			Name="Core Inline"
 			Filter="">
+			<File
+				RelativePath=".\bbox.inl">
+			</File>
 			<File
 				RelativePath=".\bsp.inl">
 			</File>

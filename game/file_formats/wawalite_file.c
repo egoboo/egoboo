@@ -199,8 +199,8 @@ wawalite_damagetile_t * read_wawalite_damagetile( vfs_FILE * fileread, wawalite_
     wawalite_damagetile_init( pdamagetile );            //Reset
 
     // damage tile
-    pdamagetile->amount = fget_next_int( fileread );
-    pdamagetile->type   = fget_next_damage_type( fileread );
+    pdamagetile->amount     = fget_next_int( fileread );
+    pdamagetile->damagetype = fget_next_damage_type( fileread );
 
     return pdamagetile;
 }
@@ -436,7 +436,7 @@ bool_t write_wawalite_damagetile( vfs_FILE * filewrite, wawalite_damagetile_t * 
 
     // basic damage tile
     fput_int( filewrite, "Damage tile damage ( 0 to 65535, 512 is 1 life block )  :", pdamagetile->amount );
-    fput_damage_type( filewrite, "Damage tile damage type ( SLASH, CRUSH, POKE, HOLY\n                          EVIL, FIRE, ICE, ZAP )  :", pdamagetile->type );
+    fput_damage_type( filewrite, "Damage tile damage type ( SLASH, CRUSH, POKE, HOLY\n                          EVIL, FIRE, ICE, ZAP )  :", pdamagetile->damagetype );
 
     return btrue;
 }
@@ -610,7 +610,7 @@ bool_t wawalite_damagetile_init( wawalite_damagetile_t * pdata )
     pdata->part_gpip    = -1;
     pdata->partand     = 255;
     pdata->sound_index = INVALID_SOUND;
-    pdata->type        = DAMAGE_FIRE;
+    pdata->damagetype  = DAMAGE_FIRE;
     pdata->amount      = 256;
 
     return btrue;

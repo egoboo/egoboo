@@ -57,9 +57,11 @@ static INLINE bool_t  fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B );
 static INLINE bool_t  fvec2_base_assign( fvec2_base_t A, const fvec2_t B );
 static INLINE float   fvec2_length( const fvec2_base_t A );
 static INLINE float   fvec2_length_abs( const fvec2_base_t A );
+static INLINE float   fvec2_length_2( const fvec2_base_t A );
 static INLINE bool_t  fvec2_self_scale( fvec2_base_t A, const float B );
 static INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec );
+static INLINE bool_t  fvec2_self_normalize( fvec2_base_t A );
 static INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE float   fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B );
@@ -99,14 +101,14 @@ static INLINE fmat_4x4_t ViewMatrix( const fvec3_base_t   from, const fvec3_base
 static INLINE fmat_4x4_t ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 static INLINE void       TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t *pSourceV, fvec4_t *pDestV, const Uint32 NumVertor );
 
-static INLINE fvec3_t   mat_getChrUp( const fmat_4x4_t mat );
-static INLINE fvec3_t   mat_getChrForward( const fmat_4x4_t mat );
-static INLINE fvec3_t   mat_getChrRight( const fmat_4x4_t mat );
-static INLINE fvec3_t   mat_getCamUp( const fmat_4x4_t mat );
-static INLINE fvec3_t   mat_getCamRight( const fmat_4x4_t mat );
-static INLINE fvec3_t   mat_getCamForward( const fmat_4x4_t mat );
-static INLINE fvec3_t   mat_getTranslate( const fmat_4x4_t mat );
-static INLINE float *   mat_getTranslate_v( const fmat_4x4_t mat );
+static INLINE bool_t   mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
+static INLINE bool_t   mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
+static INLINE bool_t   mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
+static INLINE bool_t   mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
+static INLINE bool_t   mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
+static INLINE bool_t   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
+static INLINE bool_t   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
+static INLINE float *  mat_getTranslate_v( const fmat_4x4_base_t mat );
 
 //--------------------------------------------------------------------------------------------
 // CONVERSION FUNCTIONS
@@ -123,12 +125,12 @@ static INLINE void facing_to_vec( const FACING_T facing, float * dx, float * dy 
 
     if ( NULL != dx )
     {
-        *dx = turntocos[ turn ];
+        *dx = turntocos[turn];
     }
 
     if ( NULL != dy )
     {
-        *dy = turntosin[ turn ];
+        *dy = turntosin[turn];
     }
 }
 
@@ -312,6 +314,18 @@ static INLINE float fvec2_length_abs( const fvec2_base_t A )
 }
 
 //--------------------------------------------------------------------------------------------
+static INLINE float fvec2_length_2( const fvec2_base_t A )
+{
+    float A2;
+
+    if ( NULL == A ) return 0.0f;
+
+    A2 = A[kX] * A[kX] + A[kY] * A[kY];
+
+    return A2;
+}
+
+//--------------------------------------------------------------------------------------------
 static INLINE float fvec2_length( const fvec2_base_t A )
 {
     float A2;
@@ -372,6 +386,25 @@ static INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec )
     }
 
     return tmp;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t  fvec2_self_normalize( fvec2_base_t A )
+{
+    float len2;
+    float inv_len;
+
+    if( NULL == A ) return bfalse;
+
+    if( 0.0f == fvec2_length_abs( A ) ) return bfalse;
+
+    len2 = A[kX] * A[kX] + A[kY] * A[kY];
+    inv_len = 1.0f / SQRT( len2 );
+
+    A[kX] *= inv_len;
+    A[kY] *= inv_len;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -700,106 +733,107 @@ static INLINE bool_t fvec4_self_clear( fvec4_base_t A )
 //--------------------------------------------------------------------------------------------
 // MATIX FUNCTIONS
 //--------------------------------------------------------------------------------------------
-static INLINE fvec3_t mat_getTranslate( const fmat_4x4_t mat )
+static INLINE bool_t mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vpos )
 {
-    fvec3_t   pos;
+    if( NULL == mat || NULL == vpos ) return bfalse;
 
-    pos.x = mat.CNV( 3, 0 );
-    pos.y = mat.CNV( 3, 1 );
-    pos.z = mat.CNV( 3, 2 );
+    vpos[kX] = mat[MAT_IDX( 3, 0 )];
+    vpos[kY] = mat[MAT_IDX( 3, 1 )];
+    vpos[kZ] = mat[MAT_IDX( 3, 2 )];
 
-    return pos;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE float * mat_getTranslate_v( const fmat_4x4_t mat )
+static INLINE bool_t mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
+{
+    if( NULL == mat || NULL == vup ) return bfalse;
+
+    // for a character
+    vup[kX] = mat[MAT_IDX( 2, 0 )];
+    vup[kY] = mat[MAT_IDX( 2, 1 )];
+    vup[kZ] = mat[MAT_IDX( 2, 2 )];
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vright )
+{
+    if( NULL == mat || NULL == vright ) return bfalse;
+
+    // for a character
+    vright[kX] = -mat[MAT_IDX( 0, 0 )];
+    vright[kY] = -mat[MAT_IDX( 0, 1 )];
+    vright[kZ] = -mat[MAT_IDX( 0, 2 )];
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
+{
+    if( NULL == mat || NULL == vfrw ) return bfalse;
+
+    // for a character's matrix
+    vfrw[kX] = mat[MAT_IDX( 1, 0 )];
+    vfrw[kY] = mat[MAT_IDX( 1, 1 )];
+    vfrw[kZ] = mat[MAT_IDX( 1, 2 )];
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
+{
+    if( NULL == mat || NULL == vup ) return bfalse;
+
+    // for the camera
+    vup[kX] = -mat[MAT_IDX( 0, 1 )];
+    vup[kY] = -mat[MAT_IDX( 1, 1 )];
+    vup[kZ] = -mat[MAT_IDX( 2, 1 )];
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vright )
+{
+    if( NULL == mat || NULL == vright ) return bfalse;
+
+    // for the camera
+    vright[kX] = mat[MAT_IDX( 0, 0 )];
+    vright[kY] = mat[MAT_IDX( 1, 0 )];
+    vright[kZ] = mat[MAT_IDX( 2, 0 )];
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
+{
+    if( NULL == mat || NULL == vfrw ) return bfalse;
+
+    // for the camera
+    vfrw[kX] = mat[MAT_IDX( 0, 2 )];
+    vfrw[kY] = mat[MAT_IDX( 1, 2 )];
+    vfrw[kZ] = mat[MAT_IDX( 2, 2 )];
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_getTranslate_v( const fmat_4x4_base_t mat )
 {
     static fvec3_t pos;
 
-    pos.x = mat.CNV( 3, 0 );
-    pos.y = mat.CNV( 3, 1 );
-    pos.z = mat.CNV( 3, 2 );
+    pos.x = mat[MAT_IDX( 3, 0 )];
+    pos.y = mat[MAT_IDX( 3, 1 )];
+    pos.z = mat[MAT_IDX( 3, 2 )];
 
     return pos.v;
 }
 
-//--------------------------------------------------------------------------------------------
-static INLINE fvec3_t mat_getChrUp( const fmat_4x4_t mat )
-{
-    fvec3_t   up;
-
-    // for a character
-    up.x = mat.CNV( 2, 0 );
-    up.y = mat.CNV( 2, 1 );
-    up.z = mat.CNV( 2, 2 );
-
-    return up;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fvec3_t mat_getChrForward( const fmat_4x4_t mat )
-{
-    fvec3_t   right;
-
-    // for a character
-    right.x = -mat.CNV( 0, 0 );
-    right.y = -mat.CNV( 0, 1 );
-    right.z = -mat.CNV( 0, 2 );
-
-    return right;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fvec3_t mat_getChrRight( const fmat_4x4_t mat )
-{
-    fvec3_t   frw;
-
-    // for a character's matrix
-    frw.x = mat.CNV( 1, 0 );
-    frw.y = mat.CNV( 1, 1 );
-    frw.z = mat.CNV( 1, 2 );
-
-    return frw;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fvec3_t mat_getCamUp( const fmat_4x4_t mat )
-{
-    fvec3_t   up;
-
-    // for the camera
-    up.x = -mat.CNV( 0, 1 );
-    up.y = -mat.CNV( 1, 1 );
-    up.z = -mat.CNV( 2, 1 );
-
-    return up;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fvec3_t mat_getCamRight( const fmat_4x4_t mat )
-{
-    fvec3_t   right;
-
-    // for the camera
-    right.x = mat.CNV( 0, 0 );
-    right.y = mat.CNV( 1, 0 );
-    right.z = mat.CNV( 2, 0 );
-
-    return right;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fvec3_t mat_getCamForward( const fmat_4x4_t mat )
-{
-    fvec3_t   frw;
-
-    // for the camera
-    frw.x = mat.CNV( 0, 2 );
-    frw.y = mat.CNV( 1, 2 );
-    frw.z = mat.CNV( 2, 2 );
-
-    return frw;
-}
 
 //--------------------------------------------------------------------------------------------
 static INLINE fmat_4x4_t IdentityMatrix()
@@ -930,12 +964,12 @@ static INLINE fmat_4x4_t ScaleXYZRotateXYZTranslate_SpaceFixed( const float scal
 {
     fmat_4x4_t ret;
 
-    float cx = turntocos[ turn_x & TRIG_TABLE_MASK ];
-    float sx = turntosin[ turn_x & TRIG_TABLE_MASK ];
-    float cy = turntocos[ turn_y & TRIG_TABLE_MASK ];
-    float sy = turntosin[ turn_y & TRIG_TABLE_MASK ];
-    float cz = turntocos[ turn_z & TRIG_TABLE_MASK ];
-    float sz = turntosin[ turn_z & TRIG_TABLE_MASK ];
+    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
+    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
+    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
+    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
+    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
+    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
 
     ret.CNV( 0, 0 ) = scale_x * ( cz * cy );
     ret.CNV( 0, 1 ) = scale_x * ( cz * sy * sx + sz * cx );
@@ -967,12 +1001,12 @@ static INLINE fmat_4x4_t ScaleXYZRotateXYZTranslate_BodyFixed( const float scale
 
     fmat_4x4_t ret;
 
-    float cx = turntocos[ turn_x & TRIG_TABLE_MASK ];
-    float sx = turntosin[ turn_x & TRIG_TABLE_MASK ];
-    float cy = turntocos[ turn_y & TRIG_TABLE_MASK ];
-    float sy = turntosin[ turn_y & TRIG_TABLE_MASK ];
-    float cz = turntocos[ turn_z & TRIG_TABLE_MASK ];
-    float sz = turntosin[ turn_z & TRIG_TABLE_MASK ];
+    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
+    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
+    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
+    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
+    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
+    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
 
     //ret.CNV( 0, 0 ) = scale_x * ( cz * cy);
     //ret.CNV( 0, 1 ) = scale_x * ( sz * cy);
@@ -1140,8 +1174,8 @@ static INLINE void  TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t 
     {
         for ( cnt = 0; cnt < NumVertor; cnt++ )
         {
-            pDestV->x = SourceIt->x * pMatrix->v[0] + SourceIt->y * pMatrix->v[4] + SourceIt->z * pMatrix->v[ 8] + pMatrix->v[12];
-            pDestV->y = SourceIt->x * pMatrix->v[1] + SourceIt->y * pMatrix->v[5] + SourceIt->z * pMatrix->v[ 9] + pMatrix->v[13];
+            pDestV->x = SourceIt->x * pMatrix->v[0] + SourceIt->y * pMatrix->v[4] + SourceIt->z * pMatrix->v[8] + pMatrix->v[12];
+            pDestV->y = SourceIt->x * pMatrix->v[1] + SourceIt->y * pMatrix->v[5] + SourceIt->z * pMatrix->v[9] + pMatrix->v[13];
             pDestV->z = SourceIt->x * pMatrix->v[2] + SourceIt->y * pMatrix->v[6] + SourceIt->z * pMatrix->v[10] + pMatrix->v[14];
             pDestV->w = SourceIt->x * pMatrix->v[3] + SourceIt->y * pMatrix->v[7] + SourceIt->z * pMatrix->v[11] + pMatrix->v[15];
 
@@ -1153,8 +1187,8 @@ static INLINE void  TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t 
     {
         for ( cnt = 0; cnt < NumVertor; cnt++ )
         {
-            pDestV->x = SourceIt->x * pMatrix->v[0] + SourceIt->y * pMatrix->v[4] + SourceIt->z * pMatrix->v[ 8];
-            pDestV->y = SourceIt->x * pMatrix->v[1] + SourceIt->y * pMatrix->v[5] + SourceIt->z * pMatrix->v[ 9];
+            pDestV->x = SourceIt->x * pMatrix->v[0] + SourceIt->y * pMatrix->v[4] + SourceIt->z * pMatrix->v[8];
+            pDestV->y = SourceIt->x * pMatrix->v[1] + SourceIt->y * pMatrix->v[5] + SourceIt->z * pMatrix->v[9];
             pDestV->z = SourceIt->x * pMatrix->v[2] + SourceIt->y * pMatrix->v[6] + SourceIt->z * pMatrix->v[10];
             pDestV->w = SourceIt->x * pMatrix->v[3] + SourceIt->y * pMatrix->v[7] + SourceIt->z * pMatrix->v[11];
 

@@ -51,7 +51,7 @@ static STRING _config_filename = EMPTY_CSTR;
 
 #define GetKey_bool(label, var, default) \
     { \
-        if ( ConfigFile_GetValue_Boolean( lConfigSetup, lCurSectionName, (label), &lTempBool ) == 0 ) \
+        if ( 0 == ConfigFile_GetValue_Boolean( lConfigSetup, lCurSectionName, (label), &lTempBool ) ) \
         { \
             lTempBool = (default); \
         } \
@@ -60,7 +60,7 @@ static STRING _config_filename = EMPTY_CSTR;
 
 #define GetKey_int(label, var, default) \
     { \
-        if ( ConfigFile_GetValue_Int( lConfigSetup, lCurSectionName, (label), &lTempInt ) == 0 ) \
+        if ( 0 == ConfigFile_GetValue_Int( lConfigSetup, lCurSectionName, (label), &lTempInt ) ) \
         { \
             lTempInt = (default); \
         } \
@@ -70,7 +70,7 @@ static STRING _config_filename = EMPTY_CSTR;
 // Don't make len larger than 64
 #define GetKey_string(label, var, len, default) \
     { \
-        if ( ConfigFile_GetValue_String( lConfigSetup, lCurSectionName, (label), lTempStr, SDL_arraysize( lTempStr ) ) == 0 ) \
+        if ( 0 == ConfigFile_GetValue_String( lConfigSetup, lCurSectionName, (label), lTempStr, SDL_arraysize( lTempStr ) ) ) \
         { \
             strncpy( lTempStr, (default), SDL_arraysize( lTempStr ) ); \
         } \

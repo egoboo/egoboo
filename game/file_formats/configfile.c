@@ -58,10 +58,33 @@
 
 #include "configfile.h"
 
-#include "egoboo_typedef.h"
-#include "egoboo_strutil.h"
 #include "log.h"
 #include "string.h"
+
+//--------------------------------------------------------------------------------------------
+// MACROS
+//
+// duplicate these macro definitions here since configfile should have no dependence on egoboo...
+//
+//--------------------------------------------------------------------------------------------
+
+#define CSTR_END '\0'
+#define EMPTY_CSTR { CSTR_END }
+
+#define VALID_CSTR(PSTR)   ((NULL!=PSTR) && (CSTR_END != PSTR[0]))
+#define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
+
+#define C_BELL_CHAR            '\a'
+#define C_BACKSPACE_CHAR       '\b'
+#define C_FORMFEED_CHAR        '\f'
+#define C_NEW_LINE_CAHR        '\n'
+#define C_CARRIAGE_RETURN_CHAR '\r'
+#define C_TAB_CHAR             '\t'
+#define C_VERTICAL TAB_CHAR    '\v'
+
+#define DOUBLE_QUOTE_CHAR   '\"'
+#define SINGLE_QUOTE_CHAR   '\''
+#define ASCII_LINEFEED_CHAR '\x0A'
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -105,7 +128,7 @@ ConfigFilePtr_t ConfigFile_create()
 
     // set the file
     ptmp->f           = NULL;
-    ptmp->filename[0] = '\0';
+    ptmp->filename[0] = CSTR_END;
 
     return ptmp;
 }
@@ -117,7 +140,7 @@ ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ppConfigFile )
     if ( NULL == ppConfigFile || NULL == *ppConfigFile ) return ConfigFile_fail;
 
     ConfigFile_close( *ppConfigFile );
-    ( *ppConfigFile )->filename[0] = '\0';
+    ( *ppConfigFile )->filename[0] = CSTR_END;
 
     // delete all sections form the ConfigFile_t
     lTempSection = ( *ppConfigFile )->ConfigSectionList;
@@ -200,7 +223,7 @@ char * ConfigFileString_create( size_t len )
     char * ptmp;
 
     ptmp = ( char * )malloc( len * sizeof( char ) );
-    if ( NULL != ptmp ) *ptmp = '\0';
+    if ( NULL != ptmp ) *ptmp = CSTR_END;
 
     return ptmp;
 }
@@ -228,7 +251,7 @@ ConfigFile_retval ConfigFileString_destroy( char ** ptmp )
 //--------------------------------------------------------------------------------------------
 char * ConfigFileString_resize( char * str, size_t new_len )
 {
-    size_t old_len = ( NULL == str || '\0' == *str ) ? 0 : strlen( str );
+    size_t old_len = INVALID_CSTR( str ) ? 0 : strlen( str );
 
     // if value already exists, verify if allocated memory is enough
     // if not allocate more memory
@@ -322,7 +345,7 @@ ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
 
     lc = fgetc( pConfigFile->f );
 
-    while ( lc != 13 && lc != 10 && 0 == feof( pConfigFile->f ) )
+    while ( C_CARRIAGE_RETURN_CHAR != lc && ASCII_LINEFEED_CHAR != lc && !feof( pConfigFile->f ) )
     {
         lc = fgetc( pConfigFile->f );
     }
@@ -398,14 +421,14 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
 
 //--------------------------------------------------------------------------------------------
 // ConfigFile_ReadValue reads characters from the config file until it encounters
-// a _dtor of value '"'. The resulting string is copied in pValue->Value.
+// a _dtor of value DOUBLE_QUOTE_CHAR. The resulting string is copied in pValue->Value.
 // The length of the value is returned, or -1 if there is an error.
 
 // The memory for pValue->Value is allocated here.
 
 ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t pValue )
 {
-    static char lTempStr[MAX_CONFIG_VALUE_LENGTH] = { '\0' };
+    static char lTempStr[MAX_CONFIG_VALUE_LENGTH] = EMPTY_CSTR;
     char lc;
     Sint32  lEndScan = 0;
     Sint32  lState = 0;
@@ -421,13 +444,13 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
         {
             case 0:
 
-                // search for _dtor of string '"'
-                if ( '"' == lc )
+                // search for _dtor of string DOUBLE_QUOTE_CHAR
+                if ( DOUBLE_QUOTE_CHAR == lc )
                 {
                     // state change :
                     lState = 1;
                 }
-                else if ( lc == 13 || lc == 10 || feof( pConfigFile->f ) )
+                else if ( C_CARRIAGE_RETURN_CHAR == lc || ASCII_LINEFEED_CHAR == lc || feof( pConfigFile->f ) )
                 {
                     // error
                     lEndScan = 1;
@@ -446,9 +469,9 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
             case 1:
 
                 // check if really _dtor of string
-                if ( '"' == lc )
+                if ( DOUBLE_QUOTE_CHAR == lc )
                 {
-                    // add '"' in string
+                    // add DOUBLE_QUOTE_CHAR in string
                     if ( lLengthName < MAX_CONFIG_VALUE_LENGTH )
                     {
                         lTempStr[lLengthName] = lc;
@@ -492,7 +515,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
 
 ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t pValue )
 {
-    static char lTempStr[MAX_CONFIG_COMMENTARY_LENGTH] = { '\0' };
+    static char lTempStr[MAX_CONFIG_COMMENTARY_LENGTH] = EMPTY_CSTR;
     char lc;
     Sint32  lEndScan = 0;
     Sint32  lState = 0;
@@ -509,12 +532,12 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
         {
             case 0:
 
-                // search for _dtor of string '"'
-                if ( '/' == lc ||  ' ' == lc )
+                // search for _dtor of string DOUBLE_QUOTE_CHAR
+                if ( C_SLASH_CHR == lc ||  ' ' == lc )
                 {
                     // continue scan until a letter appears
                 }
-                else if ( lc == 13 || lc == 10 || feof( pConfigFile->f ) )
+                else if ( C_CARRIAGE_RETURN_CHAR == lc || ASCII_LINEFEED_CHAR == lc || feof( pConfigFile->f ) )
                 {
                     // error
                     lEndScan = 1;
@@ -536,7 +559,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
             case 1:
 
                 // check if really _dtor of string
-                if ( lc == 13 || lc == 10 || feof( pConfigFile->f ) )
+                if ( C_CARRIAGE_RETURN_CHAR == lc || ASCII_LINEFEED_CHAR == lc || feof( pConfigFile->f ) )
                 {
                     // allocate memory for commentary
                     pValue->Commentary = CONFIG_NEW_ARY( char, lLengthName + 1 );
@@ -576,12 +599,12 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 
 ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute, bool_t force )
 {
-    char    local_attribute[32] = { '\0' };
+    char    local_attribute[32] = EMPTY_CSTR;
     FILE   *lTempFile;
 
-    if ( NULL == szFileName || '\0' == szFileName[0] ) return pConfigFile;
+    if ( INVALID_CSTR( szFileName ) ) return pConfigFile;
 
-    if ( NULL == szAttribute || '\0' == szAttribute[0] )
+    if ( INVALID_CSTR( szAttribute ) )
     {
         strncpy( local_attribute, "rt", SDL_arraysize( local_attribute ) - 2 );
     }
@@ -653,7 +676,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
                     // state change : look for new value or section
                     lState = 1;
                 }
-                else if ( '/' == lc )
+                else if ( C_SLASH_CHR == lc )
                 {
                     // pass over commentary ( bad!!! will be lost )
                     ConfigFile_ReadCommentary( pConfigFile, lCurValue );
@@ -676,7 +699,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
                     // state change : get value
                     lState = 2;
                 }
-                else if ( '/' == lc )
+                else if ( C_SLASH_CHR == lc )
                 {
                     // pass over commentary ( bad!!! will be lost )
                     ConfigFile_ReadCommentary( pConfigFile, lCurValue );
@@ -686,7 +709,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
             case 2:
 
                 // search for value
-                if ( '"' == lc )
+                if ( DOUBLE_QUOTE_CHAR == lc )
                 {
                     // load value in current value
                     ConfigFile_ReadValue( pConfigFile, lCurValue );
@@ -698,14 +721,14 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
             case 3:
 
                 // search for commentary
-                if ( '/' == lc )
+                if ( C_SLASH_CHR == lc )
                 {
                     // load commentary in current value
                     ConfigFile_ReadCommentary( pConfigFile, lCurValue );
                     // state change : look for new value or section
                     lState = 1;
                 }
-                else if ( lc == 10 || lc == 13 )
+                else if ( ASCII_LINEFEED_CHAR == lc || C_CARRIAGE_RETURN_CHAR == lc )
                 {
                     // state change : look for new value or section
                     lState = 1;
@@ -747,7 +770,7 @@ long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSec
 
         while ( 0 == lFound && ( NULL != pConfigFile->CurrentSection ) )
         {
-            if ( strcmp( pConfigFile->CurrentSection->SectionName, pSection ) == 0 )
+            if ( 0 == strcmp( pConfigFile->CurrentSection->SectionName, pSection ) )
             {
                 lFound = 1;
             }
@@ -759,7 +782,7 @@ long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSec
     }
     else
     {
-        if ( strcmp( pConfigFile->CurrentSection->SectionName, pSection ) == 0 )
+        if ( 0 == strcmp( pConfigFile->CurrentSection->SectionName, pSection ) )
         {
             lFound = 1;
         }
@@ -769,7 +792,7 @@ long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSec
 
             while ( 0 == lFound && ( NULL != pConfigFile->CurrentSection ) )
             {
-                if ( strcmp( pConfigFile->CurrentSection->SectionName, pSection ) == 0 )
+                if ( 0 == strcmp( pConfigFile->CurrentSection->SectionName, pSection ) )
                 {
                     lFound = 1;
                 }
@@ -804,7 +827,7 @@ ConfigFile_retval SetConfigCurrentValueFromCurrentSection( ConfigFilePtr_t pConf
 
     while ( 0 == lFound && ( NULL != pConfigFile->CurrentValue ) )
     {
-        if ( strcmp( pConfigFile->CurrentValue->KeyName, pKey ) == 0 )
+        if ( 0 == strcmp( pConfigFile->CurrentValue->KeyName, pKey ) )
         {
             lFound = 1;
         }
@@ -874,7 +897,7 @@ ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const
 
 ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, bool_t   *pBool )
 {
-    char lBoolStr[16] = { '\0' };
+    char lBoolStr[16] = EMPTY_CSTR;
     Sint32 lRet;
 
     memset( lBoolStr, 0, sizeof( lBoolStr ) );
@@ -883,7 +906,7 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
     if ( lRet != 0 )
     {
         // check for btrue
-        if ( strcmp( lBoolStr, "TRUE" ) == 0 )
+        if ( 0 == strcmp( lBoolStr, "TRUE" ) )
         {
             *pBool = btrue;
         }
@@ -902,7 +925,7 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
 
 ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, Sint32 *pInt )
 {
-    char lIntStr[24] = { '\0' };
+    char lIntStr[24] = EMPTY_CSTR;
     Sint32 lRet;
 
     memset( lIntStr, 0, sizeof( lIntStr ) );
@@ -927,8 +950,8 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     ConfigFileValuePtr_t  lTempValue = NULL;
     Sint32 lOK = 0;
     size_t lLengthNewValue;
-    char   lNewSectionName[MAX_CONFIG_SECTION_LENGTH] = { '\0' };
-    char   lNewKeyName[MAX_CONFIG_KEY_LENGTH] = { '\0' };
+    char   lNewSectionName[MAX_CONFIG_SECTION_LENGTH] = EMPTY_CSTR;
+    char   lNewKeyName[MAX_CONFIG_KEY_LENGTH] = EMPTY_CSTR;
     if ( NULL == pConfigFile )
     {
         return ConfigFile_fail;
@@ -945,7 +968,8 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     ConfigFileString_Encode( lNewKeyName );
 
     // look for section = pSection
-    if (( lOK = ConfigFile_SetCurrentSection( pConfigFile, lNewSectionName ) )  == 0 )
+    lOK = ConfigFile_SetCurrentSection( pConfigFile, lNewSectionName );
+    if ( 0 == lOK )
     {
         // section doesn't exist so create it and create value
         lTempSection = ConfigFileSection_create();
@@ -1016,7 +1040,7 @@ ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
 
 ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, int pInt )
 {
-    static char lIntStr[16] = { '\0' };
+    static char lIntStr[16] = EMPTY_CSTR;
 
     snprintf( lIntStr, SDL_arraysize( lIntStr ), "%i", pInt );
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lIntStr );
@@ -1027,7 +1051,7 @@ ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const ch
 
 ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, float pFloat )
 {
-    static char lFloatStr[16] = { '\0' };
+    static char lFloatStr[16] = EMPTY_CSTR;
 
     snprintf( lFloatStr, SDL_arraysize( lFloatStr ), "%f", pFloat );
     return ConfigFile_SetValue_String( pConfigFile, pSection, pKey, lFloatStr );
@@ -1051,29 +1075,29 @@ ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 
 //--------------------------------------------------------------------------------------------
 // ConfigValue_write saves the value from pValue at the current position
-// of the pConfigFile file. The '"' are doubled.
+// of the pConfigFile file. The DOUBLE_QUOTE_CHAR are doubled.
 
 ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
 {
     Sint32 lPos = 0;
     if ( NULL == pFile )  return ConfigFile_fail;
-    if ( NULL == pValue || NULL == pValue->Value || '\0' == pValue->Value[0] ) return ConfigFile_fail;
+    if ( NULL == pValue || INVALID_CSTR( pValue->Value ) ) return ConfigFile_fail;
 
-    fputc( '"', pFile );
+    fputc( DOUBLE_QUOTE_CHAR, pFile );
 
     while ( pValue->Value[lPos] != 0 )
     {
         fputc( pValue->Value[lPos], pFile );
-        if ( '"' == pValue->Value[lPos] )
+        if ( DOUBLE_QUOTE_CHAR == pValue->Value[lPos] )
         {
-            // double the '"'
-            fputc( '"', pFile );
+            // double the DOUBLE_QUOTE_CHAR
+            fputc( DOUBLE_QUOTE_CHAR, pFile );
         }
 
         lPos++;
     }
 
-    fputc( '"', pFile );
+    fputc( DOUBLE_QUOTE_CHAR, pFile );
 
     return ConfigFile_succeed;
 }
@@ -1172,10 +1196,10 @@ ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile )
 ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szFileName )
 {
     ConfigFile_retval retval;
-    char old_filename[256] = { '\0' };
+    char old_filename[256] = EMPTY_CSTR;
 
     if ( NULL == pConfigFile ) return ConfigFile_fail;
-    if ( NULL == szFileName || '\0' == szFileName ) return ConfigFile_fail;
+    if ( INVALID_CSTR( szFileName ) ) return ConfigFile_fail;
 
     // save the original filename
     strncpy( old_filename, pConfigFile->filename, SDL_arraysize( old_filename ) );

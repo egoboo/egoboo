@@ -1128,7 +1128,7 @@ bool_t chop_export_vfs( const char *szSaveName, const char * szChop )
     cnt = 0;
     cTmp = szChop[0];
     cnt++;
-    while ( cnt < MAXCAPNAMESIZE && cTmp != 0 )
+    while ( cnt < MAXCAPNAMESIZE && CSTR_END != cTmp )
     {
         vfs_printf( filewrite, ":" );
 
@@ -1273,7 +1273,7 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
         // some kind of error. re-initialize the data.
         pleaf->data      = pchr;
         pleaf->index     = GET_INDEX_PCHR( pchr );
-        pleaf->data_type = 1;
+        pleaf->data_type = BSP_LEAF_CHR;
     };
 
     retval = bfalse;
@@ -1334,7 +1334,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
 
     does_damage         = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
     does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || ( 0 != loc_ppip->lifedrain ) || ( 0 != loc_ppip->manadrain );
-    needs_bump          = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 && -1 != loc_ppip->bumpspawn_lpip) || ( 0 != loc_ppip->bump_money );
+    needs_bump          = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 && -1 != loc_ppip->bumpspawn_lpip ) || ( 0 != loc_ppip->bump_money );
     does_special_effect = loc_ppip->cause_pancake || loc_ppip->cause_roll;
     can_push            = (( 0 != loc_ppip->bump_size ) || ( 0 != loc_ppip->bump_height ) ) && loc_ppip->allowpush;
 
@@ -1347,7 +1347,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
         // some kind of error. re-initialize the data.
         pleaf->data      = loc_pprt;
         pleaf->index     = GET_INDEX_PPRT( loc_pprt );
-        pleaf->data_type = 1;
+        pleaf->data_type = BSP_LEAF_PRT;
     };
 
     // use the object velocity to figure out where the volume that the object will occupy during this
@@ -1592,15 +1592,15 @@ int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * col
 //
 //        // get the volume of the node
 //        pnodevol = NULL;
-//        if ( 1 == pleaf->data_type )
+//        if ( BSP_LEAF_CHR == pleaf->data_type )
 //        {
 //            chr_t * pchr = ( chr_t* )pleaf->data;
 //            pnodevol = &( pchr->chr_max_cv );
 //        }
-//        else if ( 2 == pleaf->data_type )
+//        else if ( BSP_LEAF_PRT == pleaf->data_type )
 //        {
 //            prt_t * pprt = ( prt_t* )pleaf->data;
-//            pnodevol = &( pprt->prt_cv );
+//            pnodevol = &( pprt->prt_max_cv );
 //        }
 //        else
 //        {
@@ -1610,7 +1610,7 @@ int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * col
 //        if ( oct_bb_intersection( pvobj, pnodevol, &int_ov ) )
 //        {
 //            // we have a possible intersection
-//            int_ary_push_back( colst, pleaf->index *(( 1 == pleaf->data_type ) ? 1 : -1 ) );
+//            int_ary_push_back( colst, pleaf->index *(( BSP_LEAF_CHR == pleaf->data_type ) ? 1 : -1 ) );
 //
 //            if ( int_ary_get_top( colst ) >= int_ary_get_size( colst ) )
 //            {

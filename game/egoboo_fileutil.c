@@ -126,7 +126,7 @@ bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t opt
     {
         if ( delim == cTmp ) break;
 
-        if ( 0x0A == cTmp || 0x0D == cTmp || CSTR_END == cTmp )
+        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp || CSTR_END == cTmp )
         {
             write = 0;
         }
@@ -186,7 +186,7 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
             break;
         }
 
-        if ( 0x0A == cTmp || 0x0D == cTmp || CSTR_END == cTmp )
+        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp || CSTR_END == cTmp )
         {
             write = 0;
         }
@@ -235,7 +235,7 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
     {
         if ( ':' == cTmp ) { pmem++; break; }
 
-        if ( 0x0A == cTmp || 0x0D == cTmp )
+        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp )
         {
             write = 0;
         }
@@ -468,7 +468,7 @@ void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usena
     cnt = 0;
     cTmp = usename[0];
     cnt++;
-    while ( cTmp != 0 )
+    while ( CSTR_END != cTmp )
     {
         if ( ' ' == cTmp )
         {
@@ -606,7 +606,7 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 
     cnt = 0;
     ctmp = modname[cnt];
-    while ( ctmp != 0 )
+    while ( CSTR_END != ctmp )
     {
         newloadname[cnt] = ctmp;
         cnt++;
@@ -615,7 +615,7 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 
     tnc = 0;
     ctmp = appendname[tnc];
-    while ( ctmp != 0 )
+    while ( CSTR_END != ctmp )
     {
         newloadname[cnt] = ctmp;
         cnt++;
@@ -650,16 +650,16 @@ int fget_version( vfs_FILE* fileread )
         ch = vfs_getc( fileread );
 
         // trap new lines
-        if ( 0x0A == ch || 0x0D == ch ) { newline = btrue; iscomment = bfalse; continue; }
+        if ( ASCII_LINEFEED_CHAR ==  ch || C_CARRIAGE_RETURN_CHAR ==  ch ) { newline = btrue; iscomment = bfalse; continue; }
 
         // ignore whitespace
         if ( isspace( ch ) ) continue;
 
         // possible comment
-        if ( '/' == ch )
+        if ( C_SLASH_CHR == ch )
         {
             ch = vfs_getc( fileread );
-            if ( '/' == ch )
+            if ( C_SLASH_CHR == ch )
             {
                 iscomment = btrue;
             }
@@ -687,7 +687,7 @@ int fget_version( vfs_FILE* fileread )
             // the wrong type of line to be a file_version statement
 
             ch = vfs_getc( fileread );
-            while ( !vfs_eof( fileread ) && 0x0A != ch && 0x0D != ch )
+            while ( !vfs_eof( fileread ) && ASCII_LINEFEED_CHAR != ch && C_CARRIAGE_RETURN_CHAR != ch )
             {
                 ch = vfs_getc( fileread );
             }
@@ -734,7 +734,7 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
     {
         if ( delim == cTmp ) break;
 
-        if ( 0x0A == cTmp || 0x0D == cTmp )
+        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp )
         {
             // output the temp_buffer
             temp_buffer[write] = CSTR_END;
@@ -872,7 +872,7 @@ IDSZ fget_next_idsz( vfs_FILE * fileread )
 int fget_damage_type( vfs_FILE * fileread )
 {
     char cTmp;
-    int type = DAMAGE_NONE;
+    int type;
 
     cTmp = fget_first_letter( fileread );
 
@@ -886,6 +886,8 @@ int fget_damage_type( vfs_FILE * fileread )
         case 'F': type = DAMAGE_FIRE;  break;
         case 'I': type = DAMAGE_ICE;   break;
         case 'Z': type = DAMAGE_ZAP;   break;
+
+        default: type = DAMAGE_NONE; break;
     }
 
     return type;
@@ -997,7 +999,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         if ( NULL == image ) return INVALID_GL_ID;
 
         tx_target = GL_TEXTURE_2D;
-        if ( image->w != image->h && ( image->w == 1 || image->h ) )
+        if ( image->w != image->h && ( 1 == image->w || image->h ) )
         {
             tx_target = GL_TEXTURE_1D;
         }

@@ -100,7 +100,7 @@ extern game_process_t * GProc;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //#define TILESOUNDTIME 16                ///< Not used anywhere
-#define TILEREAFFIRMAND  3
+#define TILE_REAFFIRM_AND  3
 
 #define MAXWATERLAYER 2                             ///< Maximum water layers
 #define MAXWATERFRAME 512                           ///< Maximum number of wave frames
@@ -147,7 +147,7 @@ extern animtile_instance_t animtile[2];
 struct s_damagetile_instance
 {
     IPair   amount;                    ///< Amount of damage
-    int    type;
+    int     damagetype;
 
     int    part_gpip;
     Uint32 partand;
@@ -411,3 +411,9 @@ bool_t game_setup_vfs_paths( const char * mod_path );
 void cleanup_character_enchants( struct s_chr * pchr );
 
 bool_t attach_one_particle( struct s_prt_bundle * pbdl_prt );
+
+bool_t attach_chr_to_platform( struct s_chr * pchr, struct s_chr * pplat );
+bool_t attach_prt_to_platform( struct s_prt * pprt, struct s_chr * pplat );
+
+bool_t detach_character_from_platform( struct s_chr * pchr );
+bool_t detach_particle_from_platform( struct s_prt * pprt );

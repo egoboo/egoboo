@@ -1115,7 +1115,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
             fvec3_t tmp_pos;
 
             ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[ichr].jumptime = JUMPDELAY;
+            ChrList.lst[ichr].jump_timer = JUMPDELAY;
 
             tmp_pos = chr_get_pos( ChrList.lst + ichr );
             tmp_pos.z += DISMOUNTZVEL;
@@ -1132,7 +1132,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
             fvec3_t tmp_pos;
 
             ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[ichr].jumptime = JUMPDELAY;
+            ChrList.lst[ichr].jump_timer = JUMPDELAY;
 
             tmp_pos = chr_get_pos( ChrList.lst + ichr );
             tmp_pos.z += DISMOUNTZVEL;
@@ -1521,7 +1521,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
     tmp_damage.base = pstate->argument;
     tmp_damage.rand = 1;
 
-    damage_character( pself->target, ATK_FRONT, tmp_damage, pchr->damagetargettype, pchr->team, pself->index, DAMFX_NBLOC, btrue );
+    damage_character( pself->target, ATK_FRONT, tmp_damage, pchr->damagetarget_damagetype, pchr->team, pself->index, DAMFX_NBLOC, btrue );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2128,12 +2128,12 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
         // Don't spawn in walls
         tmp_pos.x += pstate->x;
-        if ( prt_test_wall( pprt, tmp_pos.v, NULL ) )
+        if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, tmp_pos.v, NULL ) )
         {
             tmp_pos.x = pprt->pos.x;
 
             tmp_pos.y += pstate->y;
-            if ( prt_test_wall( pprt, tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, tmp_pos.v, NULL ) )
             {
                 tmp_pos.y = pprt->pos.y;
             }
@@ -2677,7 +2677,7 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 
     pstate->argument = pself_target->grog_timer;
 
-    returncode = ( pstate->argument != 0 );
+    returncode = ( 0 != pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2697,7 +2697,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 
     pstate->argument = pself_target->daze_timer;
 
-    returncode = ( pstate->argument != 0 );
+    returncode = ( 0 != pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2710,7 +2710,7 @@ Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->damagetargettype = pstate->argument % DAMAGE_COUNT;
+    pchr->damagetarget_damagetype = pstate->argument % DAMAGE_COUNT;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2796,7 +2796,7 @@ Uint8 scr_GiveExperienceToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_experience( pself->target, pstate->argument, pstate->distance, bfalse );
+    give_experience( pself->target, pstate->argument, (xp_type)pstate->distance, bfalse );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3552,9 +3552,9 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     {
         cap_t * pcap = chr_get_pcap( ichr );
 
-        if ( NULL != pcap && pcap->isranged && ( ChrList.lst[ichr].ammomax == 0 || ( ChrList.lst[ichr].ammo != 0 && ChrList.lst[ichr].ammoknown ) ) )
+        if ( NULL != pcap && pcap->isranged && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
         {
-            if ( pstate->argument == 0 || ( update_wld & 1 ) )
+            if ( 0 == pstate->argument || ( update_wld & 1 ) )
             {
                 pstate->argument = LATCHBUTTON_RIGHT;
                 returncode = btrue;
@@ -3570,7 +3570,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
         {
             cap_t * pcap = chr_get_pcap( ichr );
 
-            if ( NULL != pcap && pcap->isranged && ( ChrList.lst[ichr].ammomax == 0 || ( ChrList.lst[ichr].ammo != 0 && ChrList.lst[ichr].ammoknown ) ) )
+            if ( NULL != pcap && pcap->isranged && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = btrue;
@@ -3606,7 +3606,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 
             if ( NULL != pcap && !pcap->isranged && pcap->weaponaction != ACTION_PA )
             {
-                if ( pstate->argument == 0 || ( update_wld & 1 ) )
+                if ( 0 == pstate->argument || ( update_wld & 1 ) )
                 {
                     pstate->argument = LATCHBUTTON_RIGHT;
                     returncode = btrue;
@@ -4053,7 +4053,7 @@ Uint8 scr_AmmoOut( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->ammo == 0 );
+    returncode = ( 0 == pchr->ammo );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7067,7 +7067,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 
     returncode = bfalse;
     ipla = pself_target->is_which_player;
-    if ( VALID_PLA( ipla ) && pstate->distance != 0 )
+    if ( VALID_PLA( ipla ) && 0 != pstate->distance )
     {
         int        quest_level = QUEST_NONE;
         player_t * ppla        = PlaStack.lst + ipla;
@@ -7308,7 +7308,7 @@ Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->argument > 0 ) pchr->damagethreshold = pstate->argument;
+    if ( pstate->argument > 0 ) pchr->damage_threshold = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }

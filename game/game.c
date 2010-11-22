@@ -851,7 +851,7 @@ int update_game()
 
     if ( PNet->on )
     {
-        if ( numplatimes == 0 )
+        if ( 0 == numplatimes )
         {
             // The remote ran out of messages, and is now twiddling its thumbs...
             // Make it go slower so it doesn't happen again
@@ -1657,9 +1657,9 @@ void do_damage_tiles()
         // but make the tolerance closer so that books won't burn so easily
         if ( !INGAME_CHR( pchr->attachedto ) || pchr->pos.z < pchr->enviro.floor_level + DAMAGERAISE )
         {
-            if ( pchr->reaffirmdamagetype == damagetile.type )
+            if ( pchr->reaffirm_damagetype == damagetile.damagetype )
             {
-                if ( 0 == ( update_wld & TILEREAFFIRMAND ) )
+                if ( 0 == ( update_wld & TILE_REAFFIRM_AND ) )
                 {
                     reaffirm_attached_particles( character );
                 }
@@ -1688,7 +1688,7 @@ void do_damage_tiles()
         if ( 0 == pchr->damage_timer )
         {
             int actual_damage;
-            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.type, ( TEAM_REF )TEAM_DAMAGE, ( CHR_REF )MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, ( CHR_REF )MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
             pchr->damage_timer = DAMAGETILETIME;
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
@@ -1710,7 +1710,7 @@ void update_pits()
         //Decrease the timer
         if ( clock_pit > 0 ) clock_pit--;
 
-        if ( clock_pit == 0 )
+        if ( 0 == clock_pit )
         {
             //Reset timer
             clock_pit = 20;
@@ -1776,7 +1776,7 @@ void update_pits()
                         }
 
                         // Do some damage (same as damage tile)
-                        damage_character( ichr, ATK_BEHIND, damagetile.amount, damagetile.type, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( ichr )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+                        damage_character( ichr, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( ichr )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
                     }
                 }
             }
@@ -1833,7 +1833,7 @@ void do_weather_spawn_particles()
                         {
                             destroy_particle = btrue;
                         }
-                        else if ( prt_test_wall( pprt, NULL, NULL ) )
+                        else if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, NULL, NULL ) )
                         {
                             destroy_particle = btrue;
                         }
@@ -1922,7 +1922,7 @@ void set_one_player_latch( const PLA_REF player )
 
                 if ( CAM_TURN_GOOD == PCamera->turn_mode &&
                      1 == local_numlpla &&
-                     control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  joy_pos.x = 0;
+                     0 == control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  joy_pos.x = 0;
 
                 joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
                 joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
@@ -2333,16 +2333,16 @@ void show_armor( int statindex )
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - pcap->defense[skinlevel],
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_SLASH][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_CRUSH][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_POKE ][skinlevel] ) );
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_SLASH][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_CRUSH][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_POKE ][skinlevel] ) );
 
     debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_HOLY][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_EVIL][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_FIRE][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_ICE ][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damagemodifier[DAMAGE_ZAP ][skinlevel] ) );
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_HOLY][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_EVIL][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_FIRE][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_ICE ][skinlevel] ),
+                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_ZAP ][skinlevel] ) );
 
     debug_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
@@ -2422,16 +2422,16 @@ void show_full_status( int statindex )
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
                   255 - pchr->defense,
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_SLASH] ),
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_CRUSH] ),
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_POKE ] ) );
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_SLASH] ),
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_CRUSH] ),
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_POKE ] ) );
 
     debug_printf( "~HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_HOLY] ),
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_EVIL] ),
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_FIRE] ),
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_ICE ] ),
-                  GET_DAMAGE_RESIST( pchr->damagemodifier[DAMAGE_ZAP ] ) );
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_HOLY] ),
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_EVIL] ),
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_FIRE] ),
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_ICE ] ),
+                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_ZAP ] ) );
 
     get_chr_regeneration( pchr, &liferegen, &manaregen );
 
@@ -2958,7 +2958,7 @@ void activate_spawn_file_vfs()
             //First check if this object is already loaded before, no need to reload it then
             for ( sp_info.slot = MAXIMPORTPERPLAYER * 4; sp_info.slot < MAX_PROFILE; sp_info.slot++ )
             {
-                if ( strcmp( loaded_objects[sp_info.slot], sp_info.spawn_coment ) == 0 )
+                if ( 0 == strcmp( loaded_objects[sp_info.slot], sp_info.spawn_coment ) )
                 {
                     already_loaded = btrue;
                     break;
@@ -3209,8 +3209,8 @@ int reaffirm_attached_particles( const CHR_REF character )
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
-    amount = pcap->attachedprt_amount;
 
+    amount = pcap->attachedprt_amount;
     if ( 0 == amount ) return 0;
 
     number_attached = number_of_attached_particles( character );
@@ -3837,7 +3837,7 @@ void reset_end_text()
     }
     else
     {
-        if ( PlaStack.count == 0 )
+        if ( 0 == PlaStack.count )
         {
             // No players???
             endtext_carat = snprintf( endtext, SDL_arraysize( endtext), "The game has ended..." );
@@ -4546,7 +4546,7 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
     {
         pinst->amount.base  = pdata->amount;
         pinst->amount.rand  = 1;
-        pinst->type         = pdata->type;
+        pinst->damagetype   = pdata->damagetype;
 
         pinst->part_gpip    = pdata->part_gpip;
         pinst->partand      = pdata->partand;
@@ -5351,3 +5351,177 @@ void cleanup_character_enchants( chr_t * pchr )
     // clean up the enchant list
     pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &( pchr->firstenchant ) );
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
+{
+    /// @details BB@> attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    cap_t * pchr_cap;
+    fvec3_t   platform_up;
+
+    // verify that we do not have two dud pointers
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
+
+    pchr_cap = pro_get_pcap( pchr->profile_ref );
+    if ( NULL == pchr_cap ) return bfalse;
+
+    // check if they can be connected
+    if ( !pchr_cap->canuseplatforms || ( 0 != pchr->flyheight ) ) return bfalse;
+    if ( !pplat->platform ) return bfalse;
+
+    // do the attachment
+    pchr->onwhichplatform_ref    = GET_REF_PCHR( pplat );
+    pchr->onwhichplatform_update = update_wld;
+    pchr->targetplatform_ref     = ( CHR_REF )MAX_CHR;
+
+    // update the character's relationship to the ground
+    pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] );
+    pchr->enviro.zlerp     = ( pchr->pos.z - pchr->enviro.level ) / PLATTOLERANCE;
+    pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0, 1 );
+    pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
+
+    pchr->enviro.fly_level = MAX( pchr->enviro.fly_level, pchr->enviro.level );
+    if ( 0 != pchr->flyheight )
+    {
+        if ( pchr->enviro.fly_level < 0 ) pchr->enviro.fly_level = 0;  // fly above pits...
+    }
+
+    // add the weight to the platform based on the new zlerp
+    pplat->holdingweight += pchr->phys.weight * ( 1.0f - pchr->enviro.zlerp );
+
+    // update the character jumping
+    pchr->jumpready = pchr->enviro.grounded;
+    if ( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->jumpnumberreset;
+    }
+
+    // what to do about traction if the platform is tilted... hmmm?
+    chr_getMatUp( pplat, platform_up.v );
+    platform_up = fvec3_normalize( platform_up.v );
+
+    pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
+
+    // tell the platform that we bumped into it
+    // this is necessary for key buttons to work properly, for instance
+    ai_state_set_bumplast( &( pplat->ai ), GET_REF_PCHR( pchr ) );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t detach_character_from_platform( chr_t * pchr )
+{
+    /// @details BB@> attach a character to a platform
+    ///
+    /// @note the function move_one_character_get_environment() has already been called from within the
+    ///  move_one_character() function, so the environment has already been determined this round
+
+    cap_t * pchr_cap;
+    CHR_REF old_platform_ref;
+    chr_t * old_platform_ptr;
+    float   old_level, old_zlerp;
+
+    // verify that we do not have two dud pointers
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+    pchr_cap = pro_get_pcap( pchr->profile_ref );
+    if ( NULL == pchr_cap ) return bfalse;
+
+    // save some values
+    old_platform_ref = pchr->onwhichplatform_ref;
+    old_level        = pchr->enviro.level;
+    old_platform_ptr = NULL;
+    old_zlerp        = pchr->enviro.zlerp;
+    if ( INGAME_CHR( old_platform_ref ) )
+    {
+        old_platform_ptr = ChrList.lst + old_platform_ref;
+    }
+
+    // undo the attachment
+    pchr->onwhichplatform_ref    = ( CHR_REF ) MAX_CHR;
+    pchr->onwhichplatform_update = 0;
+    pchr->targetplatform_ref     = ( CHR_REF ) MAX_CHR;
+    pchr->targetplatform_level   = -1e32;
+
+    // adjust the platform weight, if necessary
+    if ( NULL != old_platform_ptr )
+    {
+        old_platform_ptr->holdingweight -= pchr->phys.weight * ( 1.0f - old_zlerp );
+    }
+
+    // update the character-platform properties
+    move_one_character_get_environment( pchr );
+
+    // update the character jumping
+    pchr->jumpready = pchr->enviro.grounded;
+    if ( pchr->jumpready )
+    {
+        pchr->jumpnumber = pchr->jumpnumberreset;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
+{
+    /// @details BB@> attach a particle to a platform
+
+    pip_t   * pprt_pip;
+
+    // verify that we do not have two dud pointers
+    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
+
+    pprt_pip = prt_get_ppip( GET_REF_PPRT( pprt ) );
+    if ( NULL == pprt_pip ) return bfalse;
+
+    // check if they can be connected
+    if ( !pplat->platform ) return bfalse;
+
+    // do the attachment
+    pprt->onwhichplatform_ref    = GET_REF_PCHR( pplat );
+    pprt->onwhichplatform_update = update_wld;
+    pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
+
+    // update the character's relationship to the ground
+    prt_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] ) );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t detach_particle_from_platform( prt_t * pprt )
+{
+    /// @details BB@> attach a particle to a platform
+
+    prt_bundle_t bdl_prt;
+
+    // verify that we do not have two dud pointers
+    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+
+    // grab all of the particle info
+    prt_bundle_set( &bdl_prt, pprt );
+
+    // check if they can be connected
+    if ( INGAME_CHR( pprt->onwhichplatform_ref ) ) return bfalse;
+
+    // undo the attachment
+    pprt->onwhichplatform_ref    = ( CHR_REF ) MAX_CHR;
+    pprt->onwhichplatform_update = 0;
+    pprt->targetplatform_ref     = ( CHR_REF ) MAX_CHR;
+    pprt->targetplatform_level   = -1e32;
+
+    // get the correct particle environment
+    move_one_particle_get_environment( &bdl_prt );
+
+    return btrue;
+}
+

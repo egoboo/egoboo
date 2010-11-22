@@ -251,13 +251,13 @@ bool_t lighting_project_cache( lighting_cache_t * dst, lighting_cache_t * src, f
     if ( src->max_light == 0.0f ) return btrue;
 
     // grab the character directions
-    fwd   = mat_getChrForward( mat );         // along body-fixed +y-axis
-    right = mat_getChrRight( mat );        // along body-fixed +x-axis
-    up    = mat_getChrUp( mat );            // along body-fixed +z axis
+    mat_getChrForward( mat.v, fwd.v  );         // along body-fixed +y-axis
+    mat_getChrRight  ( mat.v, right.v );        // along body-fixed +x-axis
+    mat_getChrUp     ( mat.v, up.v    );            // along body-fixed +z axis
 
-    fwd   = fvec3_normalize( fwd.v );
-    right = fvec3_normalize( right.v );
-    up    = fvec3_normalize( up.v );
+    fvec3_self_normalize( fwd.v );
+    fvec3_self_normalize( right.v );
+    fvec3_self_normalize( up.v );
 
     // split the lighting cache up
     lighting_sum_project( dst, src, right, 0 );

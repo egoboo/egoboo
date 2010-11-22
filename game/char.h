@@ -50,7 +50,6 @@ struct s_mesh_wall_data;
 struct s_prt;
 struct s_chr;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Attack directions
@@ -67,8 +66,8 @@ struct s_chr;
 
 #define MAX_CAP    MAX_PROFILE
 
-#define INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
-#define MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
+#define CHR_INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
+#define CHR_MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
 
 #define GRABSIZE            135.0f //90.0f             ///< Grab tolerance
 #define NOHIDE              127                        ///< Don't hide
@@ -349,7 +348,7 @@ struct s_chr
 
     // jump stuff
     float          jump_power;                    ///< Jump power
-    Uint8          jumptime;                      ///< Delay until next jump
+    Uint8          jump_timer;                      ///< Delay until next jump
     Uint8          jumpnumber;                    ///< Number of jumps remaining
     Uint8          jumpnumberreset;               ///< Number of jumps total, 255=Flying
     Uint8          jumpready;                     ///< For standing on a platform character
@@ -368,12 +367,12 @@ struct s_chr
     Uint32         onwhichplatform_update;        ///< When was the last platform attachment made?
 
     // combat stuff
-    Uint8          damagetargettype;              ///< Type of damage for AI DamageTarget
-    Uint8          reaffirmdamagetype;            ///< For relighting torches
-    Uint8          damagemodifier[DAMAGE_COUNT];  ///< Resistances and inversion
+    Uint8          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
+    Uint8          reaffirm_damagetype;           ///< For relighting torches
+    Uint8          damage_modifier[DAMAGE_COUNT]; ///< Resistances and inversion
     Uint8          defense;                       ///< Base defense rating
-    SFP8_T         damageboost;                   ///< Add to swipe damage
-    SFP8_T         damagethreshold;               ///< Damage below this number is ignored
+    SFP8_T         damage_boost;                  ///< Add to swipe damage
+    SFP8_T         damage_threshold;              ///< Damage below this number is ignored
 
     // sound stuff
     Sint8          sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
@@ -576,7 +575,7 @@ bool_t setup_xp_table( const CHR_REF character );
 void free_all_chraracters();
 
 BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
-bool_t chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
+BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
 
 int chr_count_free();
 
@@ -701,10 +700,7 @@ bool_t chr_update_safe_raw( chr_t * pchr );
 bool_t chr_update_safe( chr_t * pchr, bool_t force );
 bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos );
 
-fvec3_t chr_get_pos( chr_t * pchr );
 bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
-
-float * chr_get_pos_v( chr_t * pchr );
 
 bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
 bool_t character_is_attacking( chr_t *pchr );

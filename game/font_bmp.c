@@ -27,6 +27,7 @@
 #include "log.h"
 
 #include "egoboo_vfs.h"
+#include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
@@ -90,7 +91,7 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     // Get the size of the bitmap
     xsize = oglx_texture_GetImageWidth( TxTexture_get_ptr(( TX_REF )TX_FONT ) );
     ysize = oglx_texture_GetImageHeight( TxTexture_get_ptr(( TX_REF )TX_FONT ) );
-    if ( xsize == 0 || ysize == 0 )
+    if ( 0 == xsize || 0 == ysize )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
     }
@@ -149,7 +150,7 @@ int font_bmp_length_of_word( const char *szText )
     int cnt = 0;
     Uint8 cTmp = szText[cnt];
 
-    while ( ' ' == cTmp || '~' == cTmp || '\n' == cTmp )
+    while ( ' ' == cTmp || '~' == cTmp || C_NEW_LINE_CHAR == cTmp )
     {
         if ( ' ' == cTmp )
         {
@@ -164,7 +165,7 @@ int font_bmp_length_of_word( const char *szText )
         cTmp = szText[cnt];
     }
 
-    while ( ' ' != cTmp && '~' != cTmp && '\n' != cTmp && cTmp != 0 )
+    while ( ' ' != cTmp && '~' != cTmp && C_NEW_LINE_CHAR != cTmp && CSTR_END != cTmp )
     {
         x += fontxspacing[asciitofont[cTmp]];
         cnt++;

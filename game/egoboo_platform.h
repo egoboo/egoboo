@@ -88,12 +88,18 @@
 
 // os-dependent pathname conventions
 
-#define WIN32_SLASH_STR "\\"
-#define WIN32_SLASH_CHR '\\'
+#define C_SLASH_CHR     '/'
+#define C_SLASH_STR     "/"
+
+#define C_BACKSLASH_CHR '\\'
+#define C_BACKSLASH_STR "\\"
+
+#define WIN32_SLASH_CHR C_BACKSLASH_CHR
+#define WIN32_SLASH_STR C_BACKSLASH_STR
 
 // everyone uses the same convention for the internet...
-#define NET_SLASH_STR "/"
-#define NET_SLASH_CHR '/'
+#define NET_SLASH_CHR C_SLASH_CHR
+#define NET_SLASH_STR C_SLASH_STR
 
 #if defined(WIN32) || defined(_WIN32)
 

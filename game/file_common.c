@@ -135,7 +135,7 @@ int fs_fileExists( const char *filename )
 
     int retval = 0;
 
-    if ( NULL == filename || '\0' == filename[0] ) return retval;
+    if ( INVALID_CSTR( filename ) ) return retval;
 
     ptmp = fopen( filename, "rb" );
     if ( NULL != ptmp )
@@ -341,7 +341,7 @@ bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
     /// seems pretty stupid to me, but there you have it.
 
     STRING path_str;
-    bool_t found;
+    int found;
 
     snprintf( path_str, SDL_arraysize( path_str ), "%s" SLASH_STR "%s", fs_getUserDirectory(), relative_filename );
     str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
@@ -366,5 +366,5 @@ bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
         log_error( "Cannot find the file \"%s\".\n", relative_filename );
     }
 
-    return found;
+    return (0 != found);
 }

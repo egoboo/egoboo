@@ -28,6 +28,7 @@
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
+#include "egoboo_fileutil.h"
 #include "egoboo_math.h"
 #include "egoboo.h"
 
@@ -580,28 +581,28 @@ int load_one_line( int read )
     {
         cTmp = cLoadBuffer[read];
 
-        if ( cTmp == 0x0a && cLoadBuffer[read+1] == 0x0d )
+        if ( ASCII_LINEFEED_CHAR == cTmp && C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read+1] )
         {
             iLineSize = 0;
             cLineBuffer[0] = CSTR_END;
             return read + 2;
         }
 
-        if ( cTmp == 0x0d && cLoadBuffer[read+1] == 0x0a )
+        if ( C_CARRIAGE_RETURN_CHAR == cTmp && ASCII_LINEFEED_CHAR == cLoadBuffer[read+1] )
         {
             iLineSize = 0;
             cLineBuffer[0] = CSTR_END;
             return read + 2;
         }
 
-        if ( cTmp == 0x0a || cTmp == 0x0d )
+        if ( ASCII_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp )
         {
             iLineSize = 0;
             cLineBuffer[0] = CSTR_END;
             return read + 1;
         }
 
-        if ( '\t' == cTmp )
+        if ( C_TAB_CHAR == cTmp )
         {
             tabs_warning_needed = btrue;
             cTmp = ' ';
@@ -624,7 +625,7 @@ int load_one_line( int read )
     while ( read < iLoadSize )
     {
         cTmp = cLoadBuffer[read];
-        if ( cTmp == 0x0d || cTmp == 0x0a )
+        if ( C_CARRIAGE_RETURN_CHAR == cTmp || ASCII_LINEFEED_CHAR == cTmp )
         {
             break;
         }
@@ -666,17 +667,17 @@ int load_one_line( int read )
     // Parse to end of line
     while ( read < iLoadSize )
     {
-        if ( 0x0a == cLoadBuffer[read] && 0x0d == cLoadBuffer[read+1] )
+        if ( ASCII_LINEFEED_CHAR == cLoadBuffer[read] && C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read+1] )
         {
             read += 2;
             break;
         }
-        else if ( 0x0d == cLoadBuffer[read] && 0x0a == cLoadBuffer[read+1] )
+        else if ( C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read] && ASCII_LINEFEED_CHAR == cLoadBuffer[read+1] )
         {
             read += 2;
             break;
         }
-        else if ( CSTR_END == cLoadBuffer[read] || 0x0a == cLoadBuffer[read] || 0x0d == cLoadBuffer[read] )
+        else if ( CSTR_END == cLoadBuffer[read] || ASCII_LINEFEED_CHAR == cLoadBuffer[read] || C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read] )
         {
             read += 1;
             break;

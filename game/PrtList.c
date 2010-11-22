@@ -44,7 +44,7 @@ static PRT_REF prt_activation_list[MAX_PRT];
 int prt_loop_depth = 0;
 
 size_t maxparticles       = 512;
-size_t maxparticles_dirty = btrue;
+bool_t maxparticles_dirty = btrue;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

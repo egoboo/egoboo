@@ -223,7 +223,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
         pchr = ChrList.lst + character;
 
         // dont do scenery objects unless we allow items
-        if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && pchr->phys.weight == INFINITE_WEIGHT ) continue;
+        if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
 
         //Check if the object has the requirements
         if ( !check_target( psrc, character, idsz, targeting_bits ) ) continue;

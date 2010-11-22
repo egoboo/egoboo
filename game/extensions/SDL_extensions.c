@@ -485,7 +485,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
             SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
 
-            if ( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
+            if ( v->gl_att.multi_samples > 0 && 0 == actual_multi_buffers )
             {
                 // could not create the multi-buffer with this pixel format
                 // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and
@@ -496,7 +496,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
                 // we will try to reduce the amount of super sampling and try again
 
                 v->gl_att.multi_samples -= 1;
-                while ( v->gl_att.multi_samples > 1 && actual_multi_buffers == 0 )
+                while ( v->gl_att.multi_samples > 1 && 0 == actual_multi_buffers )
                 {
                     v->gl_att.multi_buffers = 1;
 

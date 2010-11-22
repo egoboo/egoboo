@@ -81,10 +81,15 @@ static INLINE bool_t chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 static INLINE bool_t chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 static INLINE bool_t chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
-static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_t   * pvec );
-static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_t   * pvec );
-static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_t   * pvec );
-static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_t   * pvec );
+static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vec );
+static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vec );
+static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vec );
+static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vec );
+
+
+static INLINE float   * chr_get_pos_v( chr_t * pchr );
+static INLINE fvec3_t   chr_get_pos( chr_t * pchr );
+
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
@@ -418,109 +423,126 @@ static INLINE bool_t chr_has_vulnie( const CHR_REF item, const PRO_REF test_prof
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_t   *pvec )
+static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
 {
     /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
+    bool_t rv;
+
     if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
-    if ( NULL == pvec ) return bfalse;
+    if ( NULL == vup ) return bfalse;
 
     if ( !chr_matrix_valid( pchr ) )
     {
         chr_update_matrix( pchr, btrue );
     }
 
+    rv = bfalse;
     if ( chr_matrix_valid( pchr ) )
     {
-        ( *pvec ) = mat_getChrUp( pchr->inst.matrix );
+        rv = mat_getChrUp( pchr->inst.matrix.v, vup );
     }
-    else
+
+    if( !rv )
     {
-        ( *pvec ).x = ( *pvec ).y = 0.0f;
-        ( *pvec ).z = 1.0f;
+        // assume default Up is +z
+        vup[kZ] = 1.0f;
+        vup[kX] = vup[kY] = 0.0f;
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_t   *pvec )
+static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
 {
     /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
+    bool_t rv;
+
     if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
-    if ( NULL == pvec ) return bfalse;
+    if ( NULL == vright ) return bfalse;
 
     if ( !chr_matrix_valid( pchr ) )
     {
         chr_update_matrix( pchr, btrue );
     }
 
+    rv = bfalse;
     if ( chr_matrix_valid( pchr ) )
     {
-        ( *pvec ) = mat_getChrRight( pchr->inst.matrix );
+        rv = mat_getChrRight( pchr->inst.matrix.v, vright );
     }
-    else
+    
+    if( !rv )
     {
         // assume default Right is +y
-        ( *pvec ).y = 1.0f;
-        ( *pvec ).x = ( *pvec ).z = 0.0f;
+        vright[kY] = 1.0f;
+        vright[kX] = vright[kZ] = 0.0f;
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_t   *pvec )
+static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
 {
     /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
+    bool_t rv;
+
     if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
-    if ( NULL == pvec ) return bfalse;
+    if ( NULL == vfwd ) return bfalse;
 
     if ( !chr_matrix_valid( pchr ) )
     {
         chr_update_matrix( pchr, btrue );
     }
 
+    rv = bfalse;
     if ( chr_matrix_valid( pchr ) )
     {
-        ( *pvec ) = mat_getChrForward( pchr->inst.matrix );
+        rv = mat_getChrForward( pchr->inst.matrix.v, vfwd );
     }
-    else
+    
+    if( !rv )
     {
         // assume default Forward is +x
-        ( *pvec ).x = 1.0f;
-        ( *pvec ).y = ( *pvec ).z = 0.0f;
+        vfwd[kX] = 1.0f;
+        vfwd[kY] = vfwd[kZ] = 0.0f;
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_t   *pvec )
+static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
 {
     /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
 
+    bool_t rv;
+
     if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
-    if ( NULL == pvec ) return bfalse;
+    if ( NULL == vtrans ) return bfalse;
 
     if ( !chr_matrix_valid( pchr ) )
     {
         chr_update_matrix( pchr, btrue );
     }
 
+    rv = bfalse;
     if ( chr_matrix_valid( pchr ) )
     {
-        ( *pvec ) = mat_getTranslate( pchr->inst.matrix );
+        rv = mat_getTranslate( pchr->inst.matrix.v, vtrans );
     }
-    else
+    
+    if( !rv )
     {
-        ( *pvec ) = chr_get_pos( pchr );
+        fvec3_base_copy( vtrans, chr_get_pos_v( pchr ) );
     }
 
     return btrue;
@@ -640,6 +662,26 @@ static INLINE void chr_set_height( chr_t * pchr, float height )
     pchr->bump_save.height = height;
 
     chr_update_size( pchr );
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * chr_get_pos_v( chr_t * pchr )
+{
+    static fvec3_t vtmp = ZERO_VECT3;
+
+    if ( !ALLOCATED_PCHR( pchr ) ) return vtmp.v;
+
+    return pchr->pos.v;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE fvec3_t chr_get_pos( chr_t * pchr )
+{
+    fvec3_t vtmp = ZERO_VECT3;
+
+    if ( !ALLOCATED_PCHR( pchr ) ) return vtmp;
+
+    return pchr->pos;
 }
 
 //--------------------------------------------------------------------------------------------

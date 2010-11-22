@@ -38,7 +38,10 @@ extern "C"
 #define MAXBASELEVEL            6                 ///< Basic Levels 0-5
 #define MAXLEVEL               20                 ///< Absolute max level
 
-#define GRIP_VERTS                       4
+#define GRIP_VERTS             4
+
+#define CAP_INFINITE_WEIGHT   0xFF
+#define CAP_MAX_WEIGHT        0xFE
 
 /// The various ID strings that every character has
     enum e_idsz_type
@@ -276,7 +279,7 @@ extern "C"
         // defense
         bool_t       resistbumpspawn;                        ///< Don't catch fire
         Uint8        defense[MAX_SKIN];                      ///< Defense for each skin
-        Uint8        damagemodifier[DAMAGE_COUNT][MAX_SKIN];
+        Uint8        damage_modifier[DAMAGE_COUNT][MAX_SKIN];
 
         // xp
         Uint32       experience_forlevel[MAXLEVEL];  ///< Experience needed for next level
@@ -305,7 +308,7 @@ extern "C"
         bool_t       nameknown;                      ///< Is the class name known?
         bool_t       usageknown;                     ///< Is its usage known
         bool_t       cancarrytonextmodule;           ///< Take it with you?
-        Uint8        damagetargettype;               ///< For AI DamageTarget
+        Uint8        damagetarget_damagetype;               ///< For AI DamageTarget
         bool_t       slotvalid[SLOT_COUNT];          ///< Left/Right hands valid
         bool_t       ridercanattack;                 ///< Rider attack?
         Uint8        kursechance;                    ///< Chance of being kursed
@@ -327,13 +330,15 @@ extern "C"
         float        dex_bonus;                      ///< dexterity    damage factor
 
         // special particle effects
-        Uint8        attachedprt_amount;             ///< Number of sticky particles
-        Uint8        attachedprt_reaffirmdamagetype; ///< Re-attach sticky particles? Relight that torch...
+        Uint8        attachedprt_amount;              ///< Number of sticky particles
+        Uint8        attachedprt_reaffirm_damagetype; ///< Re-attach sticky particles? Relight that torch...
         int          attachedprt_lpip;                ///< Which kind of sticky particle
-        Uint8        gopoofprt_amount;               ///< Amount of poof particles
-        Sint16       gopoofprt_facingadd;            ///< Angular spread of poof particles
+
+        Uint8        gopoofprt_amount;                ///< Amount of poof particles
+        Sint16       gopoofprt_facingadd;             ///< Angular spread of poof particles
         int          gopoofprt_lpip;                  ///< Which poof particle
-        Uint8        blud_valid;                     ///< Has blud? ( yuck )
+
+        Uint8        blud_valid;                      ///< Has blud? ( yuck )
         int          blud_lpip;                       ///< What kind of blud?
 
         // skill system

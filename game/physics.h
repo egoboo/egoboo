@@ -21,7 +21,7 @@
 
 /// @file physics.h
 
-#include "bbox.h"
+#include "bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -118,12 +118,14 @@ extern const float ice_friction;            ///< estimte if the friction on ice
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_oct_bb( const oct_bb_t src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst );
+bool_t phys_expand_oct_bb( const oct_bb_t * src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst );
 bool_t phys_expand_chr_bb( struct s_chr * pchr, float tmin, float tmax, oct_bb_t * pdst );
 bool_t phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
 
-bool_t phys_estimate_chr_chr_normal( oct_vec_t opos_a, oct_vec_t opos_b, oct_vec_t odepth, float exponent, fvec3_base_t nrm );
-bool_t phys_intersect_oct_bb( const oct_bb_t src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
+bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth );
+
+bool_t phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 
 bool_t get_chr_chr_mass_pair( struct s_chr * pchr_a, struct s_chr * pchr_b, float * wta, float * wtb );
 bool_t get_chr_prt_mass_pair( struct s_chr * pchr, struct s_prt * pprt, float * wchr, float * wprt );

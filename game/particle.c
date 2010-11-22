@@ -137,11 +137,11 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
 
     // initialize the bsp node for this particle
-    BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, 2 );
+    BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, BSP_LEAF_PRT );
     pprt->bsp_leaf.index = GET_INDEX_PPRT( pprt );
 
     // initialize the physics
-    phys_data_ctor( &(pprt->phys) );
+    phys_data_ctor( &( pprt->phys ) );
 
     pprt->obj_base.state = ego_object_initializing;
 
@@ -262,7 +262,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     fvec3_t vel;
     float   tvel;
     int     offsetfacing = 0, newrand;
-    Uint32  prt_lifetime;
+    int     prt_lifetime;
     fvec3_t tmp_pos;
     Uint16  turn;
     float   loc_spdlimit;
@@ -356,7 +356,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                 /// @note ZF@> ?What does this do?!
                 /// @note BB@> glouseangle is the angle found in prt_find_target()
                 loc_facing -= glouseangle;
-                
+
             }
 
             // Correct loc_facing for dexterity...
@@ -380,7 +380,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                     {
                         vel.z = ( ChrList.lst[pprt->target_ref].pos.z + ( ChrList.lst[pprt->target_ref].bump.height * 0.5f ) - tmp_pos.z ) / tvel;  // This is the vel.z alteration
 
-                        vel.z = CLIP(vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd );
+                        vel.z = CLIP( vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd );
                     }
                 }
             }
@@ -448,10 +448,10 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->image_max     = INT_TO_FP8( ppip->numframes );
 
     // figure out the actual particle lifetime
-    prt_lifetime        = ppip->time;
-    if ( ppip->end_lastframe && pprt->image_add != 0 )
+    prt_lifetime        = ppip->end_time;
+    if ( ppip->end_lastframe && 0 != pprt->image_add )
     {
-        if ( 0 == ppip->time )
+        if ( ppip->end_time <= 0 )
         {
             // Part time is set to 1 cycle
             int frames = ( pprt->image_max / pprt->image_add ) - 1;
@@ -461,12 +461,12 @@ prt_t * prt_config_do_init( prt_t * pprt )
         {
             // Part time is used to give number of cycles
             int frames = (( pprt->image_max / pprt->image_add ) - 1 );
-            prt_lifetime = ppip->time * frames;
+            prt_lifetime = ppip->end_time * frames;
         }
     }
 
     // "no lifetime" = "eternal"
-    if ( 0 == prt_lifetime )
+    if ( prt_lifetime <= 0 )
     {
         pprt->lifetime           = ( size_t )( ~0 );
         pprt->lifetime_remaining = pprt->lifetime;
@@ -491,7 +491,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     // Spawning data
     pprt->contspawn_timer = ppip->contspawn_delay;
-    if ( pprt->contspawn_timer != 0 )
+    if ( 0 != pprt->contspawn_timer )
     {
         pprt->contspawn_timer = 1;
         if ( DEFINED_CHR( pprt->attachedto_ref ) )
@@ -1113,16 +1113,16 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
+BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
 {
     /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
 
-    bool_t retval;
+    BIT_FIELD retval;
     pip_t * ppip;
     BIT_FIELD  stoppedby;
 
-    if ( !ACTIVE_PPRT( pprt ) ) return 0;
+    if ( !ACTIVE_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
     ppip = PipStack.lst + pprt->pip_ref;
@@ -1132,7 +1132,7 @@ bool_t prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * p
 
     // handle optional parameters
     if ( NULL == test_pos ) test_pos = prt_get_pos_v( pprt );
-    if ( NULL == test_pos ) return 0;
+    if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     // do the wall test
     mesh_mpdfx_tests = 0;
@@ -1259,7 +1259,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
 
         fvec3_t   platform_up;
 
-        chr_getMatUp( ChrList.lst + loc_pprt->onwhichplatform_ref, &platform_up );
+        chr_getMatUp( ChrList.lst + loc_pprt->onwhichplatform_ref, platform_up.v );
         platform_up = fvec3_normalize( platform_up.v );
 
         penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
@@ -1439,7 +1439,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
         floor_acc.y = pplat->vel.y - pplat->vel_old.y;
         floor_acc.z = pplat->vel.z - pplat->vel_old.z;
 
-        chr_getMatUp( pplat, &vup );
+        chr_getMatUp( pplat, vup.v );
     }
     else
     {
@@ -1751,7 +1751,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     {
         mesh_wall_data_t wdata;
 
-        if ( prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
+        if ( EMPTY_BIT_FIELD != prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
         {
             Uint32  hit_bits;
             fvec2_t nrm;
@@ -1924,7 +1924,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         tmp_pos.x = new_x;
         tmp_pos.y = new_y;
 
-        if ( !prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
+        if ( EMPTY_BIT_FIELD == prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
         {
             updated_2d = btrue;
         }
@@ -2212,6 +2212,8 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     // Check that direction
     if ( !is_invictus_direction( direction, character, ppip->damfx ) )
     {
+        Uint8 damage_modifier;
+
         // Spawn new enchantments
         if ( ppip->spawnenchant )
         {
@@ -2225,7 +2227,10 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
         //
         // however, it seems that the bump particles in game rarely attach more than
         // one bump particle
-        if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && GET_DAMAGE_RESIST( pchr->damagemodifier[pprt->damagetype] ) )
+
+        damage_modifier = ( pprt->damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_modifier[pprt->damagetype];
+
+        if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && 0 != GET_DAMAGE_RESIST( damage_modifier ) )
         {
             int grip_verts, vertices;
             int slot_count;
@@ -2234,7 +2239,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
             if ( pcap->slotvalid[SLOT_LEFT] ) slot_count++;
             if ( pcap->slotvalid[SLOT_RIGHT] ) slot_count++;
 
-            if ( slot_count == 0 )
+            if ( 0 == slot_count )
             {
                 grip_verts = 1;  // always at least 1?
             }
@@ -3205,7 +3210,7 @@ bool_t prt_update_safe_raw( prt_t * pprt )
 {
     bool_t retval = bfalse;
 
-    bool_t hit_a_wall;
+    BIT_FIELD hit_a_wall;
     float  pressure;
 
     if ( !ALLOCATED_PPRT( pprt ) ) return bfalse;
@@ -3264,26 +3269,6 @@ bool_t prt_update_safe( prt_t * pprt, bool_t force )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-fvec3_t prt_get_pos( prt_t * pprt )
-{
-    fvec3_t vtmp = ZERO_VECT3;
-
-    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp;
-
-    return pprt->pos;
-}
-
-//--------------------------------------------------------------------------------------------
-float * prt_get_pos_v( prt_t * pprt )
-{
-    static fvec3_t vtmp = ZERO_VECT3;
-
-    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
-
-    return pprt->pos.v;
-}
-
 //--------------------------------------------------------------------------------------------
 bool_t prt_update_pos( prt_t * pprt )
 {

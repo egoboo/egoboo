@@ -27,16 +27,27 @@
 //--------------------------------------------------------------------------------------------
 struct s_chr;
 struct s_prt;
-
 struct s_cap;
 struct s_mad;
 struct s_eve;
 struct s_pip;
+
 struct Mix_Chunk;
 
 struct s_mpd_BSP;
-
 struct s_prt_bundle;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+enum obj_BSP_type
+{
+    BSP_LEAF_NONE = -1,
+    BSP_LEAF_CHR,
+    BSP_LEAF_ENC,
+    BSP_LEAF_PRT,
+    BSP_LEAF_TILE,
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -169,7 +180,6 @@ bool_t obj_BSP_free( obj_BSP_t * pbsp );
 bool_t obj_BSP_fill( obj_BSP_t * pbsp );
 bool_t obj_BSP_clear( obj_BSP_t * pbsp );
 
-//bool_t obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pnode, int depth, int address_x[], int address_y[], int address_z[] );
 bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, struct s_chr * pchr );
 bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, struct s_prt_bundle * pbdl_prt );
 

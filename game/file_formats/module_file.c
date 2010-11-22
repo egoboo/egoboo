@@ -192,7 +192,7 @@ int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, ch
         }
         else if ( 1 == buffer_len )
         {
-            buffer[0] = '\0';
+            buffer[0] = CSTR_END;
         }
         else
         {

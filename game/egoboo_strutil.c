@@ -22,6 +22,7 @@
 /// @details
 
 #include "egoboo_strutil.h"
+#include "egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -81,7 +82,7 @@ char * str_decode( char *strout, size_t insize, const char * strin )
     {
         *pout = *pin;
         if ( '_' == *pout ) *pout = ' ';
-        else if ( '~' == *pout ) *pout = '\t';
+        else if ( '~' == *pout ) *pout = C_TAB_CHAR;
         pout++;
         pin++;
     };
@@ -114,7 +115,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
             pin++;
             pout++;
         }
-        else if ( '\t' == *pin )
+        else if ( C_TAB_CHAR == *pin )
         {
             chrlast = *pout = '~';
             pin++;
@@ -156,13 +157,13 @@ char * str_clean_path( char * str, size_t size )
           psrc < psrc_end && pdst < pdst_end;
           /*nothing*/ )
     {
-        if ( '/' == *psrc || '\\' == *psrc )
+        if ( C_SLASH_CHR == *psrc || C_BACKSLASH_CHR == *psrc )
         {
             *pdst = *psrc;
             psrc++;
             pdst++;
 
-            while ( psrc < psrc_end && ( '/' == *psrc || '\\' == *psrc ) )
+            while ( psrc < psrc_end && ( C_SLASH_CHR == *psrc || C_BACKSLASH_CHR == *psrc ) )
             {
                 psrc++;
             }
@@ -198,7 +199,7 @@ char * str_convert_slash_net( char * str, size_t size )
     {
         char cTmp = *psrc;
 
-        if ( '/' == cTmp || '\\' == cTmp ) cTmp = NET_SLASH_CHR;
+        if ( C_SLASH_CHR == cTmp || C_BACKSLASH_CHR == cTmp ) cTmp = NET_SLASH_CHR;
 
         *pdst = cTmp;
     }
@@ -226,7 +227,7 @@ char * str_convert_slash_sys( char * str, size_t size )
     {
         char cTmp = *psrc;
 
-        if ( '/' == cTmp || '\\' == cTmp ) cTmp = SLASH_CHR;
+        if ( C_SLASH_CHR == cTmp || C_BACKSLASH_CHR == cTmp ) cTmp = SLASH_CHR;
 
         *pdst = cTmp;
     }
@@ -249,7 +250,7 @@ char * str_append_slash_net( char * str, size_t size )
     if ( INVALID_CSTR( str ) ) return str;
 
     len = strlen( str );
-    if ( '/' != str[len-1] && '\\' != str[len-1] )
+    if ( C_SLASH_CHR != str[len-1] && C_BACKSLASH_CHR != str[len-1] )
     {
         strncat( str, NET_SLASH_STR, size );
     }
@@ -267,7 +268,7 @@ char * str_append_slash( char * str, size_t size )
     if ( INVALID_CSTR( str ) ) return NULL;
 
     len = strlen( str );
-    if ( '/' != str[len-1] && '\\' != str[len-1] )
+    if ( C_SLASH_CHR != str[len-1] && C_BACKSLASH_CHR != str[len-1] )
     {
         strncat( str, SLASH_STR, size );
     }
@@ -333,7 +334,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
             // reached the end of the string
             break;
         }
-        else if ( '\n' == *text )
+        else if ( C_NEW_LINE_CHAR == *text )
         {
             // respect existing line breaks
             text_break = text;
@@ -342,7 +343,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
         }
 
         // until the line is too long, then insert
-        // replace the last good ' ' with '\n'
+        // replace the last good ' ' with C_NEW_LINE_CHAR
         if ((( size_t )text - ( size_t )text_break ) > line_len )
         {
             if ( ' ' != *text_break )
@@ -351,7 +352,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
             }
 
             // convert the character
-            *text_break = '\n';
+            *text_break = C_NEW_LINE_CHAR;
 
             // start over again
             text = text_break;

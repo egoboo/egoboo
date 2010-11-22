@@ -314,7 +314,7 @@ void packet_addString( const char *string )
     cTmp = 1;
     cp = ( char* )( &packetbuffer[packethead] );
 
-    while ( cTmp != 0 )
+    while ( CSTR_END != cTmp )
     {
         cTmp = string[cnt];
         *cp = cTmp;
@@ -530,7 +530,7 @@ void net_copyFileToAllPlayers( const char *source, const char *dest )
         // net_fileTransferTail should already be pointed at an open
         // slot in the queue.
         state = &( net_transferStates[net_fileTransferTail] );
-        EGOBOO_ASSERT( state->sourceName[0] == 0 );
+        EGOBOO_ASSERT( CSTR_END == state->sourceName[0] );
 
         // Just do the first player for now
         state->target = &net_myHost->peers[0];
@@ -658,7 +658,7 @@ void net_copyFileToHost( const char *source, const char *dest )
         // net_fileTransferTail should already be pointed at an open
         // slot in the queue.
         state = &( net_transferStates[net_fileTransferTail] );
-        EGOBOO_ASSERT( state->sourceName[0] == 0 );
+        EGOBOO_ASSERT( CSTR_END == state->sourceName[0] );
 
         state->target = net_gameHost;
         strncpy( state->sourceName, source, NET_MAX_FILE_NAME );
@@ -1262,7 +1262,7 @@ void net_handlePacket( ENetEvent *event )
             file = vfs_openReadB( filename );
             if ( file )
             {
-                if ( vfs_seek( file, fileposition ) == 0 )
+                if ( 0 == vfs_seek( file, fileposition ) )
                 {
                     while ( packet_remainingSize() > 0 )
                     {
@@ -1427,7 +1427,7 @@ void net_handlePacket( ENetEvent *event )
                 file = vfs_openReadB( filename );
                 if ( file )
                 {
-                    if ( vfs_seek( file, fileposition ) == 0 )
+                    if ( 0 == vfs_seek( file, fileposition ) )
                     {
                         while ( packet_remainingSize() > 0 )
                         {
@@ -1585,7 +1585,7 @@ void unbuffer_player_latches()
         }
         latch_count = tnc;
 
-        if ( latch_count == 1 )
+        if ( 1 == latch_count )
         {
             // there is just one valid latch
             tmp_latch.x = tlatch_list[0].x;
@@ -1738,7 +1738,7 @@ void net_initialize()
         {
             log_info( "Failure!\n" );
             gnet.on = bfalse;
-            gnet.serviceon = 0;
+            gnet.serviceon = bfalse;
         }
         else
         {

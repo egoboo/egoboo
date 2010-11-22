@@ -106,7 +106,7 @@ extern "C"
     struct s_wawalite_damagetile
     {
         Uint32 amount;
-        int    type;
+        int    damagetype;
 
         int    part_gpip;
         Uint32 partand;

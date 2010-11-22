@@ -26,6 +26,7 @@
 #include "template.h"
 #include "sound.h"
 
+#include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_vfs.h"
 
@@ -62,13 +63,13 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     // btrue/bfalse values
     peve->retarget = fget_next_bool( fileread );
     peve->override = fget_next_bool( fileread );
-    peve->removeoverridden = fget_next_bool( fileread );
+    peve->remove_overridden = fget_next_bool( fileread );
     peve->killtargetonend = fget_next_bool( fileread );
 
     peve->poofonend = fget_next_bool( fileread );
 
     // More stuff
-    peve->time = fget_next_int( fileread );
+    peve->lifetime   = fget_next_int( fileread );
     peve->endmessage = fget_next_int( fileread );
 
     // Drain stuff
@@ -79,9 +80,9 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     peve->target_life   = fget_next_float( fileread ) * 256;
 
     // Specifics
-    peve->dontdamagetype = fget_next_damage_type( fileread );
-    peve->onlydamagetype = fget_next_damage_type( fileread );
-    peve->removedbyidsz  = fget_next_idsz( fileread );
+    peve->required_damagetype = fget_next_damage_type( fileread );
+    peve->require_damagetarget_damagetype = fget_next_damage_type( fileread );
+    peve->removedbyidsz   = fget_next_idsz( fileread );
 
     // Now the set values
     peve->setyesno[SETDAMAGETYPE] = fget_next_bool( fileread );
@@ -221,7 +222,7 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
     filetemp = NULL;
 
     // try the given template file
-    if ( NULL != szTemplateName && '\0' != szTemplateName )
+    if ( VALID_CSTR( szTemplateName ) )
     {
         filetemp = template_open_vfs( szTemplateName );
     }
@@ -235,13 +236,13 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
     // btrue/bfalse values
     template_put_bool( filetemp, filewrite, peve->retarget );
     template_put_bool( filetemp, filewrite, peve->override );
-    template_put_bool( filetemp, filewrite, peve->removeoverridden );
+    template_put_bool( filetemp, filewrite, peve->remove_overridden );
     template_put_bool( filetemp, filewrite, peve->killtargetonend );
 
     template_put_bool( filetemp, filewrite, peve->poofonend );
 
     // More stuff
-    template_put_int( filetemp, filewrite, peve->time );
+    template_put_int( filetemp, filewrite, MAX( -1, peve->lifetime ) );
     template_put_int( filetemp, filewrite, peve->endmessage );
 
     // Drain stuff
@@ -252,8 +253,8 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
     template_put_float( filetemp, filewrite, FP8_TO_FLOAT( peve->target_life ) );
 
     // Specifics
-    template_put_damage_type( filetemp, filewrite, peve->dontdamagetype );
-    template_put_damage_type( filetemp, filewrite, peve->onlydamagetype );
+    template_put_damage_type( filetemp, filewrite, peve->required_damagetype );
+    template_put_damage_type( filetemp, filewrite, peve->require_damagetarget_damagetype );
     template_put_idsz( filetemp, filewrite, peve->removedbyidsz );
 
     // Now the set values

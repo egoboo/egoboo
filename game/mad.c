@@ -1099,13 +1099,13 @@ int randomize_action( int action, int slot )
 //    /// @details ZZ@> This function returns btrue if the 4th, 5th, 6th, or 7th letters
 //    ///    of the frame name matches the input argument
 //
-//    if ( cFrameName[4] == letter ) return btrue;
-//    if ( cFrameName[4] == 0 ) return bfalse;
-//    if ( cFrameName[5] == letter ) return btrue;
-//    if ( cFrameName[5] == 0 ) return bfalse;
-//    if ( cFrameName[6] == letter ) return btrue;
-//    if ( cFrameName[6] == 0 ) return bfalse;
-//    if ( cFrameName[7] == letter ) return btrue;
+//    if ( letter   == cFrameName[4] ) return btrue;
+//    if ( CSTR_END == cFrameName[4] ) return bfalse;
+//    if ( letter   == cFrameName[5] ) return btrue;
+//    if ( CSTR_END == cFrameName[5] ) return bfalse;
+//    if ( letter   == cFrameName[6] ) return btrue;
+//    if ( CSTR_END == cFrameName[6] ) return bfalse;
+//    if ( letter   == cFrameName[7] ) return btrue;
 //
 //    return bfalse;
 //}

@@ -159,7 +159,8 @@ struct s_prt
     Uint32            bump_size_stt;         ///< the starting size of the particle (8.8-bit fixed point)
     bumper_t          bump_real;             ///< Actual size of the particle
     bumper_t          bump_padded;           ///< The size of the particle with the additional bumpers added in
-    oct_bb_t          prt_cv;                ///< Collision volume for chr-prt interactions
+    oct_bb_t          prt_min_cv;            ///< Collision volume for chr-prt interactions
+    oct_bb_t          prt_max_cv;            ///< Collision volume for chr-prt interactions
 
     IPair             damage;                ///< For strength
     Uint8             damagetype;            ///< Damage type
@@ -245,7 +246,7 @@ PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip
 void    reset_particles();
 
 BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
-bool_t prt_test_wall( prt_t * pprt, const float test_pos[], struct s_mesh_wall_data * pdata );
+BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], struct s_mesh_wall_data * pdata );
 
 bool_t prt_is_over_water( const PRT_REF particle );
 
@@ -263,7 +264,5 @@ prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
 
 bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos );
-float * prt_get_pos_v( prt_t * pprt );
-fvec3_t prt_get_pos( prt_t * pprt );
 
 prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );

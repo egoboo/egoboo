@@ -431,7 +431,7 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
             if ( DEFINED_ENC( conflict ) )
             {
                 // Multiple enchantments aren't allowed for sets
-                if ( peve->removeoverridden )
+                if ( peve->remove_overridden )
                 {
                     // Kill the old enchantment
                     remove_enchant( conflict, NULL );
@@ -454,8 +454,8 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
                 switch ( value_idx )
                 {
                     case SETDAMAGETYPE:
-                        penc->setsave[value_idx]  = ptarget->damagetargettype;
-                        ptarget->damagetargettype = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]  = ptarget->damagetarget_damagetype;
+                        ptarget->damagetarget_damagetype = peve->setvalue[value_idx];
                         break;
 
                     case SETNUMBEROFJUMPS:
@@ -474,43 +474,43 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
                         break;
 
                     case SETSLASHMODIFIER:
-                        penc->setsave[value_idx]              = ptarget->damagemodifier[DAMAGE_SLASH];
-                        ptarget->damagemodifier[DAMAGE_SLASH] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]              = ptarget->damage_modifier[DAMAGE_SLASH];
+                        ptarget->damage_modifier[DAMAGE_SLASH] = peve->setvalue[value_idx];
                         break;
 
                     case SETCRUSHMODIFIER:
-                        penc->setsave[value_idx]              = ptarget->damagemodifier[DAMAGE_CRUSH];
-                        ptarget->damagemodifier[DAMAGE_CRUSH] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]              = ptarget->damage_modifier[DAMAGE_CRUSH];
+                        ptarget->damage_modifier[DAMAGE_CRUSH] = peve->setvalue[value_idx];
                         break;
 
                     case SETPOKEMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damagemodifier[DAMAGE_POKE];
-                        ptarget->damagemodifier[DAMAGE_POKE] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_POKE];
+                        ptarget->damage_modifier[DAMAGE_POKE] = peve->setvalue[value_idx];
                         break;
 
                     case SETHOLYMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damagemodifier[DAMAGE_HOLY];
-                        ptarget->damagemodifier[DAMAGE_HOLY] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_HOLY];
+                        ptarget->damage_modifier[DAMAGE_HOLY] = peve->setvalue[value_idx];
                         break;
 
                     case SETEVILMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damagemodifier[DAMAGE_EVIL];
-                        ptarget->damagemodifier[DAMAGE_EVIL] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_EVIL];
+                        ptarget->damage_modifier[DAMAGE_EVIL] = peve->setvalue[value_idx];
                         break;
 
                     case SETFIREMODIFIER:
-                        penc->setsave[value_idx]             = ptarget->damagemodifier[DAMAGE_FIRE];
-                        ptarget->damagemodifier[DAMAGE_FIRE] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]             = ptarget->damage_modifier[DAMAGE_FIRE];
+                        ptarget->damage_modifier[DAMAGE_FIRE] = peve->setvalue[value_idx];
                         break;
 
                     case SETICEMODIFIER:
-                        penc->setsave[value_idx]            = ptarget->damagemodifier[DAMAGE_ICE];
-                        ptarget->damagemodifier[DAMAGE_ICE] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]            = ptarget->damage_modifier[DAMAGE_ICE];
+                        ptarget->damage_modifier[DAMAGE_ICE] = peve->setvalue[value_idx];
                         break;
 
                     case SETZAPMODIFIER:
-                        penc->setsave[value_idx]            = ptarget->damagemodifier[DAMAGE_ZAP];
-                        ptarget->damagemodifier[DAMAGE_ZAP] = peve->setvalue[value_idx];
+                        penc->setsave[value_idx]            = ptarget->damage_modifier[DAMAGE_ZAP];
+                        ptarget->damage_modifier[DAMAGE_ZAP] = peve->setvalue[value_idx];
                         break;
 
                     case SETFLASHINGAND:
@@ -535,7 +535,7 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
 
                     case SETFLYTOHEIGHT:
                         penc->setsave[value_idx] = ptarget->flyheight;
-                        if ( ptarget->flyheight == 0 && ptarget->pos.z > -2 )
+                        if ( 0 == ptarget->flyheight && ptarget->pos.z > -2 )
                         {
                             ptarget->flyheight = peve->setvalue[value_idx];
                         }
@@ -638,10 +638,10 @@ void enchant_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             break;
 
         case ADDDAMAGE:
-            newvalue = ptarget->damageboost;
+            newvalue = ptarget->damage_boost;
             valuetoadd = peve->addvalue[value_idx];
             getadd( 0, newvalue, 4096, &valuetoadd );
-            ptarget->damageboost += valuetoadd;
+            ptarget->damage_boost += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
 
@@ -828,7 +828,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     }
 
     // set some other spawning parameters
-    penc->time         = peve->time;
+    penc->lifetime       = peve->lifetime;
     penc->spawn_timer    = 1;
 
     // Now set all of the specific values, morph first
@@ -886,13 +886,13 @@ enc_t * enc_config_do_init( enc_t * penc )
     {
 
         // Allow them to see kurses?
-        if ( peve->seekurse != 0 )
+        if ( 0 != peve->seekurse )
         {
             ptarget->see_kurse_level = peve->seekurse;
         }
 
         // Allow them to see in darkness (or blindness if negative)
-        if ( peve->darkvision != 0 )
+        if ( 0 != peve->darkvision )
         {
             ptarget->darkvision_level = peve->darkvision;
         }
@@ -946,14 +946,14 @@ enc_t * enc_config_do_active( enc_t * penc )
     // Do enchant drains and regeneration
     if ( clock_enc_stat >= ONESECOND )
     {
-        if ( 0 == penc->time )
+        if ( 0 == penc->lifetime )
         {
             enc_request_terminate( ienc );
         }
         else
         {
             // Do enchant timer
-            if ( penc->time > 0 ) penc->time--;
+            if ( penc->lifetime > 0 ) penc->lifetime--;
 
             // To make life easier
             owner  = enc_get_iowner( ienc );
@@ -965,7 +965,7 @@ enc_t * enc_config_do_active( enc_t * penc )
             {
 
                 // Change life
-                if ( penc->owner_life != 0 )
+                if ( 0 != penc->owner_life )
                 {
                     ChrList.lst[owner].life += penc->owner_life;
                     if ( ChrList.lst[owner].life <= 0 )
@@ -979,7 +979,7 @@ enc_t * enc_config_do_active( enc_t * penc )
                 }
 
                 // Change mana
-                if ( penc->owner_mana != 0 )
+                if ( 0 != penc->owner_mana )
                 {
                     bool_t mana_paid = cost_mana( owner, -penc->owner_mana, target );
                     if ( EveStack.lst[eve].endifcantpay && !mana_paid )
@@ -1002,7 +1002,7 @@ enc_t * enc_config_do_active( enc_t * penc )
                 {
 
                     // Change life
-                    if ( penc->target_life != 0 )
+                    if ( 0 != penc->target_life )
                     {
                         ChrList.lst[target].life += penc->target_life;
                         if ( ChrList.lst[target].life <= 0 )
@@ -1016,7 +1016,7 @@ enc_t * enc_config_do_active( enc_t * penc )
                     }
 
                     // Change mana
-                    if ( penc->target_mana != 0 )
+                    if ( 0 != penc->target_mana )
                     {
                         bool_t mana_paid = cost_mana( target, -penc->target_mana, owner );
                         if ( EveStack.lst[eve].endifcantpay && !mana_paid )
@@ -1448,30 +1448,31 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     }
 
     // make sure the loc_target is alive
-    if ( !DEFINED_PCHR(ptarget) || !ptarget->alive )
+    if ( !DEFINED_PCHR( ptarget ) || !ptarget->alive )
     {
         log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
         return ( ENC_REF )MAX_ENC;
     }
     ptarget = ChrList.lst + loc_target;
 
-    // Check peve->dontdamagetype
-    if ( peve->dontdamagetype != DAMAGE_NONE )
+    // Check peve->required_damagetype
+    if ( peve->required_damagetype < DAMAGE_COUNT )
     {
-        if ( GET_DAMAGE_RESIST( ptarget->damagemodifier[peve->dontdamagetype] ) >= 3 ||
-             HAS_SOME_BITS( ptarget->damagemodifier[peve->dontdamagetype], DAMAGECHARGE ) )
+        if (
+            GET_DAMAGE_RESIST( ptarget->damage_modifier[peve->required_damagetype] ) >= 3 ||
+            HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGECHARGE ) )
         {
             log_warning( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
             return ( ENC_REF )MAX_ENC;
         }
     }
 
-    // Check peve->onlydamagetype
-    if ( peve->onlydamagetype != DAMAGE_NONE )
+    // Check peve->require_damagetarget_damagetype
+    if ( peve->require_damagetarget_damagetype < DAMAGE_COUNT )
     {
-        if ( ptarget->damagetargettype != peve->onlydamagetype )
+        if ( ptarget->damagetarget_damagetype != peve->require_damagetarget_damagetype )
         {
-            log_warning( "spawn_one_enchant() - failed because the target not have the right damagetargettype.\n" );
+            log_warning( "spawn_one_enchant() - failed because the target not have the right damagetarget_damagetype.\n" );
             return ( ENC_REF )MAX_ENC;
         }
     }
@@ -1552,7 +1553,7 @@ void enchant_remove_set( const ENC_REF ienc, int value_idx )
     switch ( value_idx )
     {
         case SETDAMAGETYPE:
-            ptarget->damagetargettype = penc->setsave[value_idx];
+            ptarget->damagetarget_damagetype = penc->setsave[value_idx];
             break;
 
         case SETNUMBEROFJUMPS:
@@ -1568,35 +1569,35 @@ void enchant_remove_set( const ENC_REF ienc, int value_idx )
             break;
 
         case SETSLASHMODIFIER:
-            ptarget->damagemodifier[DAMAGE_SLASH] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_SLASH] = penc->setsave[value_idx];
             break;
 
         case SETCRUSHMODIFIER:
-            ptarget->damagemodifier[DAMAGE_CRUSH] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_CRUSH] = penc->setsave[value_idx];
             break;
 
         case SETPOKEMODIFIER:
-            ptarget->damagemodifier[DAMAGE_POKE] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_POKE] = penc->setsave[value_idx];
             break;
 
         case SETHOLYMODIFIER:
-            ptarget->damagemodifier[DAMAGE_HOLY] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_HOLY] = penc->setsave[value_idx];
             break;
 
         case SETEVILMODIFIER:
-            ptarget->damagemodifier[DAMAGE_EVIL] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_EVIL] = penc->setsave[value_idx];
             break;
 
         case SETFIREMODIFIER:
-            ptarget->damagemodifier[DAMAGE_FIRE] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_FIRE] = penc->setsave[value_idx];
             break;
 
         case SETICEMODIFIER:
-            ptarget->damagemodifier[DAMAGE_ICE] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_ICE] = penc->setsave[value_idx];
             break;
 
         case SETZAPMODIFIER:
-            ptarget->damagemodifier[DAMAGE_ZAP] = penc->setsave[value_idx];
+            ptarget->damage_modifier[DAMAGE_ZAP] = penc->setsave[value_idx];
             break;
 
         case SETFLASHINGAND:
@@ -1690,7 +1691,7 @@ void enchant_remove_add( const ENC_REF ienc, int value_idx )
 
             case ADDDAMAGE:
                 valuetoadd = penc->addsave[value_idx];
-                ptarget->damageboost -= valuetoadd;
+                ptarget->damage_boost -= valuetoadd;
                 break;
 
             case ADDSIZE:
@@ -1941,12 +1942,12 @@ void cleanup_all_enchants()
         else if ( valid_owner && peve->endifcantpay )
         {
             // Undo enchants that cannot be sustained anymore
-            if ( ChrList.lst[penc->owner_ref].mana == 0 ) do_remove = btrue;
+            if ( 0 == ChrList.lst[penc->owner_ref].mana ) do_remove = btrue;
         }
         else
         {
             // the enchant has timed out
-            do_remove = ( 0 == penc->time );
+            do_remove = ( 0 == penc->lifetime );
         }
 
         if ( do_remove )

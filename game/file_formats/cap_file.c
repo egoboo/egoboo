@@ -204,7 +204,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     // Resist burning and stuck arrows with nframe angle of 1 or more
     if ( pcap->nframeangle > 0 )
     {
-        if ( pcap->nframeangle == 1 )
+        if ( 1 == pcap->nframeangle )
         {
             pcap->nframeangle = 0;
         }
@@ -223,7 +223,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         goto_colon( NULL, fileread, bfalse );
         for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            pcap->damagemodifier[damagetype][cnt] = fget_int( fileread );
+            pcap->damage_modifier[damagetype][cnt] = fget_int( fileread );
         }
     }
 
@@ -236,10 +236,10 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
             cTmp = toupper( fget_first_letter( fileread ) );
             switch ( cTmp )
             {
-                case 'T':   pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVERT;      break;
-                case 'C':   pcap->damagemodifier[damagetype][cnt] |= DAMAGECHARGE;      break;
-                case 'M':   pcap->damagemodifier[damagetype][cnt] |= DAMAGEMANA;            break;
-                case 'I':   pcap->damagemodifier[damagetype][cnt] |= DAMAGEINVICTUS;        break;
+                case 'T': pcap->damage_modifier[damagetype][cnt] |= DAMAGEINVERT;   break;
+                case 'C': pcap->damage_modifier[damagetype][cnt] |= DAMAGECHARGE;   break;
+                case 'M': pcap->damage_modifier[damagetype][cnt] |= DAMAGEMANA;     break;
+                case 'I': pcap->damage_modifier[damagetype][cnt] |= DAMAGEINVICTUS; break;
 
                     //F is nothing
                 default: break;
@@ -291,12 +291,12 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     pcap->canopenstuff         = fget_next_bool( fileread );
 
     // More item and damage stuff
-    pcap->damagetargettype = fget_next_damage_type( fileread );
-    pcap->weaponaction     = action_which( fget_next_char( fileread ) );
+    pcap->damagetarget_damagetype = fget_next_damage_type( fileread );
+    pcap->weaponaction      = action_which( fget_next_char( fileread ) );
 
     // Particle attachments
-    pcap->attachedprt_amount             = fget_next_int( fileread );
-    pcap->attachedprt_reaffirmdamagetype = fget_next_damage_type( fileread );
+    pcap->attachedprt_amount              = fget_next_int( fileread );
+    pcap->attachedprt_reaffirm_damagetype = fget_next_damage_type( fileread );
     pcap->attachedprt_lpip                = fget_next_int( fileread );
 
     // Character hands
@@ -546,10 +546,10 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damagemodifier[damagetype][0] ) );
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damagemodifier[damagetype][1] ) );
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damagemodifier[damagetype][2] ) );
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damagemodifier[damagetype][3] ) );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][0] ) );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][1] ) );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][2] ) );
+        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][3] ) );
     }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
@@ -558,19 +558,19 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
         for ( skin = 0; skin < MAX_SKIN; skin++ )
         {
-            if ( HAS_SOME_BITS( pcap->damagemodifier[damagetype][skin], DAMAGEMANA ) )
+            if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGEMANA ) )
             {
                 code = 'M';
             }
-            else if ( HAS_SOME_BITS( pcap->damagemodifier[damagetype][skin], DAMAGECHARGE ) )
+            else if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGECHARGE ) )
             {
                 code = 'C';
             }
-            else if ( HAS_SOME_BITS( pcap->damagemodifier[damagetype][skin], DAMAGEINVERT ) )
+            else if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGEINVERT ) )
             {
                 code = 'T';
             }
-            else if ( HAS_SOME_BITS( pcap->damagemodifier[damagetype][skin], DAMAGEINVICTUS ) )
+            else if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGEINVICTUS ) )
             {
                 code = 'I';
             }
@@ -627,12 +627,12 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     template_put_bool( filetemp, filewrite, pcap->canopenstuff );
 
     // Other item and damage stuff
-    template_put_damage_type( filetemp, filewrite, pcap->damagetargettype );
+    template_put_damage_type( filetemp, filewrite, pcap->damagetarget_damagetype );
     template_put_action( filetemp, filewrite, pcap->weaponaction );
 
     // Particle attachments
     template_put_int( filetemp, filewrite, pcap->attachedprt_amount );
-    template_put_damage_type( filetemp, filewrite, pcap->attachedprt_reaffirmdamagetype );
+    template_put_damage_type( filetemp, filewrite, pcap->attachedprt_reaffirm_damagetype );
     template_put_int( filetemp, filewrite, pcap->attachedprt_lpip );
 
     // Character hands

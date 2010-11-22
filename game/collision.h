@@ -24,7 +24,7 @@
 #include "egoboo_typedef.h"
 
 #include "hash.h"
-#include "bbox.h"
+#include "bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -92,6 +92,3 @@ bool_t collision_system_begin();
 void   collision_system_end();
 
 void bump_all_objects( struct s_obj_BSP * pbsp );
-
-bool_t detach_character_from_platform( struct s_chr * pchr );
-bool_t detach_particle_from_platform( struct s_prt * pprt );

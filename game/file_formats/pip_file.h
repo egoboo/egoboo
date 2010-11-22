@@ -138,11 +138,10 @@ extern "C"
         bool_t  force;                        ///< Force spawn?
         Uint8   type;                         ///< Transparency mode
         Uint8   numframes;                    ///< Number of frames
-        Uint8   image_base;                    ///< Starting image
-        IPair   image_add;                     ///< Frame rate
-        int     time;                         ///< Time until end
+        Uint8   image_base;                   ///< Starting image
+        IPair   image_add;                    ///< Frame rate
         IPair   rotate_pair;                  ///< Rotation
-        Sint16  rotate_add;                    ///< Rotation rate
+        Sint16  rotate_add;                   ///< Rotation rate
         Uint16  size_base;                    ///< Size
         Sint16  size_add;                     ///< Size rate
         Sint8   soundspawn;                   ///< Beginning sound
@@ -157,6 +156,7 @@ extern "C"
         bool_t  startontarget;                ///< Start on target?
 
         // ending conditions
+        int     end_time;                      ///< Time until end
         bool_t  end_water;                     ///< End if underwater
         bool_t  end_bump;                      ///< End if bumped
         bool_t  end_ground;                    ///< End if on ground

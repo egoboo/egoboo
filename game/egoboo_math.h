@@ -88,7 +88,7 @@ extern "C"
 #endif
 
 #if !defined(SGN)
-#    define SGN(X)  (((X) == 0) ? 0 : (((X) > 0) ? 1 : -1) )
+#    define SGN(X)  ((0 == (X)) ? 0 : (((X) > 0) ? 1 : -1) )
 #endif
 
 #if !defined(MIN)
@@ -131,8 +131,9 @@ extern "C"
 #    define SWAP(TYPE, A, B) { TYPE temp; temp = A; A = B; B = temp; }
 #endif
 
-#define CNV(i,j) v[4*i+j]
-#define CopyMatrix( pMatrixDest, pMatrixSource ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( fmat_4x4_t ) )
+#define MAT_IDX(I,J) (4*(I)+(J))
+#define CNV(I,J)     v[MAT_IDX(I,J)]
+#define CopyMatrix( pMatrixDest, pMatrixSource ) memmove( pMatrixDest, pMatrixSource, sizeof( *pMatrixDest ) )
 
 #if defined(TEST_NAN_RESULT)
 #    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );

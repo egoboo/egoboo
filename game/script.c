@@ -152,7 +152,7 @@ void scr_run_chr_script( const CHR_REF character )
     PROFILE_BEGIN_STRUCT( pself );
 
     // debug a certain script
-    // debug_scripts = ( pself->index == 385 && pchr->profile_ref == 76 );
+    // debug_scripts = ( 385 == pself->index && 76 == pchr->profile_ref );
 
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;

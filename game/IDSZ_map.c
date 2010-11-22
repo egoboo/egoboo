@@ -169,7 +169,7 @@ IDSZ_node_t* idsz_map_iterate( const IDSZ_node_t idsz_map[], const size_t idsz_m
     else
     {
         // no, increment the iterator
-        node          = idsz_map + step;
+        node          = (IDSZ_node_t *)(idsz_map + step);
         *iterator_ptr = step     + 1;
     }
 

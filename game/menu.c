@@ -303,7 +303,7 @@ which_menu_t mnu_stack_pop()
         mnu_stack_index = MENU_STACK_COUNT;
     }
 
-    if ( mnu_stack_index == 0 ) return emnu_Main;
+    if ( 0 == mnu_stack_index ) return emnu_Main;
 
     mnu_stack_index--;
     return mnu_stack[mnu_stack_index];
@@ -1073,7 +1073,7 @@ int doChooseModule( float deltaTime )
                 //Allow arrow keys to scroll as well
                 if ( SDLKEYDOWN( SDLK_RIGHT ) )
                 {
-                    if ( keycooldown == 0 )
+                    if ( 0 == keycooldown )
                     {
                         startIndex++;
                         keycooldown = 5;
@@ -1081,7 +1081,7 @@ int doChooseModule( float deltaTime )
                 }
                 else if ( SDLKEYDOWN( SDLK_LEFT ) )
                 {
-                    if ( keycooldown == 0 )
+                    if ( 0 == keycooldown )
                     {
                         startIndex--;
                         keycooldown = 5;
@@ -1236,7 +1236,7 @@ int doChooseModule( float deltaTime )
                         //Swap to the next filter
                         mnu_moduleFilter = CLIP( mnu_moduleFilter, FILTER_NORMAL_BEGIN, FILTER_NORMAL_END );
 
-                        mnu_moduleFilter++;
+                        mnu_moduleFilter = (module_filter_t)(mnu_moduleFilter + 1);
 
                         if ( mnu_moduleFilter > FILTER_NORMAL_END ) mnu_moduleFilter = FILTER_NORMAL_BEGIN;
 
@@ -1271,7 +1271,7 @@ int doChooseModule( float deltaTime )
             pickedmodule_write_path[0] = CSTR_END;
 
             menuState = MM_Begin;
-            if ( ext_module == -1 )
+            if ( -1 == ext_module )
             {
                 result = -1;
             }
@@ -2142,7 +2142,7 @@ int doInputOptions( float deltaTime )
             if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  // Someone pressed abort
 
             // Grab the key/button input from the selected device
-            if ( waitingforinput != -1 )
+            if ( -1 != waitingforinput )
             {
                 if ( NULL == pdevice || idevice < 0 || idevice >= input_device_count )
                 {
@@ -2237,7 +2237,7 @@ int doInputOptions( float deltaTime )
                     }
                 }
             }
-            if ( NULL != pdevice && waitingforinput == -1 )
+            if ( NULL != pdevice && -1 == waitingforinput )
             {
                 // update the control names
                 for ( i = CONTROL_BEGIN; i <= CONTROL_END && i < pdevice->count; i++ )
@@ -2526,7 +2526,7 @@ int doGameOptions( float deltaTime )
             sz_buttons[0] = Cdifficulty;
 
             maxmessage = CLIP( maxmessage, 4, MAX_MESSAGE );
-            if ( maxmessage == 0 )
+            if ( 0 == maxmessage )
             {
                 snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "None" );          // Set to default
             }
@@ -3244,7 +3244,7 @@ int doVideoOptions( float deltaTime )
             }
 
             // Load all the current video settings
-            if ( cfg.multisamples == 0 ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
+            if ( 0 == cfg.multisamples ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
             else snprintf( Cantialiasing, SDL_arraysize( Cantialiasing ), "X%i", cfg.multisamples );
             sz_buttons[but_antialiasing] = Cantialiasing;
 
@@ -3288,7 +3288,7 @@ int doVideoOptions( float deltaTime )
                 if ( cfg.reflect_prt )
                 {
                     sz_buttons[but_reflections] = "Medium";
-                    if ( cfg.reflect_fade == 0 )
+                    if ( 0 == cfg.reflect_fade )
                     {
                         sz_buttons[but_reflections] = "High";
                     }
@@ -3409,7 +3409,7 @@ int doVideoOptions( float deltaTime )
                 // set some arbitrary limit
                 if ( cfg.multisamples > 4 ) cfg.multisamples = 0;
 
-                if ( cfg.multisamples == 0 ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
+                if ( 0 == cfg.multisamples ) strncpy( Cantialiasing , "Off", SDL_arraysize( Cantialiasing ) );
                 else snprintf( Cantialiasing, SDL_arraysize( Cantialiasing ), "X%i", cfg.multisamples );
 
                 sz_buttons[but_antialiasing] = Cantialiasing;
@@ -3437,7 +3437,7 @@ int doVideoOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 5, sz_buttons[but_reflections], menuFont, buttonLeft + 150, GFX_HEIGHT - 250, 100, 30 ) )
             {
 
-                if ( cfg.reflect_allowed && cfg.reflect_fade == 0 && cfg.reflect_prt )
+                if ( cfg.reflect_allowed && 0 == cfg.reflect_fade && cfg.reflect_prt )
                 {
                     cfg.reflect_allowed = bfalse;
                     cfg.reflect_fade = 255;
@@ -4185,10 +4185,10 @@ int doMenu( float deltaTime )
             result = doMainMenu( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 )      { mnu_begin_menu( emnu_ChooseModule ); start_new_player = btrue; }
-                else if ( result == 2 ) { mnu_begin_menu( emnu_ChoosePlayer ); start_new_player = bfalse; }
-                else if ( result == 3 ) { mnu_begin_menu( emnu_Options ); }
-                else if ( result == 4 ) retval = MENU_QUIT;  // need to request a quit somehow
+                if ( 1 == result )      { mnu_begin_menu( emnu_ChooseModule ); start_new_player = btrue; }
+                else if ( 2 == result ) { mnu_begin_menu( emnu_ChoosePlayer ); start_new_player = bfalse; }
+                else if ( 3 == result ) { mnu_begin_menu( emnu_Options ); }
+                else if ( 4 == result ) retval = MENU_QUIT;  // need to request a quit somehow
             }
             break;
 
@@ -4197,17 +4197,17 @@ int doMenu( float deltaTime )
 
             if ( result != 0 )
             {
-                if ( result == 1 )
+                if ( 1 == result )
                 {
                     mnu_begin_menu( emnu_ChooseModule );
                     start_new_player = btrue;
                 }
-                else if ( result == 2 )
+                else if ( 2 == result )
                 {
                     mnu_begin_menu( emnu_ChoosePlayer );
                     start_new_player = bfalse;
                 }
-                else if ( result == 3 )
+                else if ( 3 == result )
                 {
                     mnu_end_menu();
                     retval = MENU_END;
@@ -4222,17 +4222,17 @@ int doMenu( float deltaTime )
         case emnu_ChooseModule:
             result = doChooseModule( deltaTime );
 
-            if ( result == -1 )     { mnu_end_menu(); retval = MENU_END; }
-            else if ( result == 1 ) mnu_begin_menu( emnu_ShowMenuResults );  // imports are not valid (starter module)
-            else if ( result == 2 ) mnu_begin_menu( emnu_ShowMenuResults );  // imports are valid
+            if ( -1 == result )     { mnu_end_menu(); retval = MENU_END; }
+            else if ( 1 == result ) mnu_begin_menu( emnu_ShowMenuResults );  // imports are not valid (starter module)
+            else if ( 2 == result ) mnu_begin_menu( emnu_ShowMenuResults );  // imports are valid
 
             break;
 
         case emnu_ChoosePlayer:
             result = doChoosePlayer( deltaTime );
 
-            if ( result == -1 )     { mnu_end_menu(); retval = MENU_END; }
-            else if ( result == 1 ) mnu_begin_menu( emnu_ChooseModule );
+            if ( -1 == result )     { mnu_end_menu(); retval = MENU_END; }
+            else if ( 1 == result ) mnu_begin_menu( emnu_ChooseModule );
 
             break;
 
@@ -4240,11 +4240,11 @@ int doMenu( float deltaTime )
             result = doOptions( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 )      mnu_begin_menu( emnu_AudioOptions );
-                else if ( result == 2 ) mnu_begin_menu( emnu_InputOptions );
-                else if ( result == 3 ) mnu_begin_menu( emnu_VideoOptions );
-                else if ( result == 4 ) { mnu_end_menu(); retval = MENU_END; }
-                else if ( result == 5 ) mnu_begin_menu( emnu_GameOptions );
+                if ( 1 == result )      mnu_begin_menu( emnu_AudioOptions );
+                else if ( 2 == result ) mnu_begin_menu( emnu_InputOptions );
+                else if ( 3 == result ) mnu_begin_menu( emnu_VideoOptions );
+                else if ( 4 == result ) { mnu_end_menu(); retval = MENU_END; }
+                else if ( 5 == result ) mnu_begin_menu( emnu_GameOptions );
             }
             break;
 
@@ -4297,7 +4297,7 @@ int doMenu( float deltaTime )
             result = doGamePaused( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 )
+                if ( 1 == result )
                 {
                     // "Quit Module"
 
@@ -4322,24 +4322,24 @@ int doMenu( float deltaTime )
 
                     result = MENU_QUIT;
                 }
-                else if ( result == 2 )
+                else if ( 2 == result )
                 {
                     // "Restart Module"
                     mnu_end_menu();
 
-					//Simply quit the current module and begin it again
-					game_quit_module();
-					game_begin_module( PMod->loadname, ( Uint32 )~0 );
+                    //Simply quit the current module and begin it again
+                    game_quit_module();
+                    game_begin_module( PMod->loadname, ( Uint32 )~0 );
 
                     retval = MENU_END;
                 }
-                else if ( result == 3 )
+                else if ( 3 == result )
                 {
                     // "Return to Module"
                     mnu_end_menu();
                     retval = MENU_END;
                 }
-                else if ( result == 4 )
+                else if ( 4 == result )
                 {
                     // "Options"
                     mnu_begin_menu( emnu_Options );
@@ -4349,7 +4349,7 @@ int doMenu( float deltaTime )
 
         case emnu_ShowEndgame:
             result = doShowEndgame( deltaTime );
-            if ( result == 1 )
+            if ( 1 == result )
             {
                 mnu_end_menu();
                 retval = MENU_END;
@@ -4551,11 +4551,11 @@ TX_REF mnu_get_icon_ref( const CAP_REF icap, const TX_REF default_ref )
     {
         int iskin = 0;
 
-        if ( pitem_cap->spelleffect_type != 0 )
+        if ( 0 != pitem_cap->spelleffect_type )
         {
             iskin = pitem_cap->spelleffect_type;
         }
-        else if ( pitem_cap->skin_override != 0 )
+        else if ( 0 != pitem_cap->skin_override )
         {
             iskin = pitem_cap->skin_override;
         }
@@ -5095,7 +5095,7 @@ bool_t mnu_Selected_remove( int loadplayer_idx )
 
     if ( loadplayer_idx > loadplayer_count || mnu_selectedPlayerCount <= 0 ) return bfalse;
 
-    if ( mnu_selectedPlayerCount == 1 )
+    if ( 1 == mnu_selectedPlayerCount )
     {
         if ( mnu_selectedPlayer[0] == loadplayer_idx )
         {

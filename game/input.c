@@ -268,7 +268,7 @@ void input_read()
                     // The ui will handle its own issues.
 
                     // grab all the new SDL screen info
-                    SDLX_Get_Screen_Info( &sdl_scr, bfalse );
+                    SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
 
                     // fix the camera rotation angles to estimate what is in-view
                     camera_rotmesh_init();

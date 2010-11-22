@@ -278,11 +278,11 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
 
         // we don't really want objects that have extent in more than one
         // dimension to be called empty
-        if( pframe->bb.empty )
+        if ( pframe->bb.empty )
         {
-            if( ABS(pframe->bb.maxs[OCT_X] - pframe->bb.mins[OCT_X]) + 
-                ABS(pframe->bb.maxs[OCT_Y] - pframe->bb.mins[OCT_Y]) + 
-                ABS(pframe->bb.maxs[OCT_Z] - pframe->bb.mins[OCT_Z]) > 0.0f )
+            if ( ABS( pframe->bb.maxs[OCT_X] - pframe->bb.mins[OCT_X] ) +
+                 ABS( pframe->bb.maxs[OCT_Y] - pframe->bb.mins[OCT_Y] ) +
+                 ABS( pframe->bb.maxs[OCT_Z] - pframe->bb.mins[OCT_Z] ) > 0.0f )
             {
                 oct_vec_t ovec;
 

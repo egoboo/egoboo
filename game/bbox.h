@@ -61,9 +61,6 @@ enum e_octagonal_axes
 typedef float * oct_vec_base_t;
 typedef float oct_vec_t[OCT_COUNT];
 
-bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos );
-bool_t oct_vec_self_clear( oct_vec_t * ovec );
-
 #define OCT_VEC_INIT_VALS { 0,0,0,0,0 }
 
 //--------------------------------------------------------------------------------------------
@@ -78,30 +75,6 @@ struct s_oct_bb
     oct_vec_t mins,  maxs;
 };
 typedef struct s_oct_bb oct_bb_t;
-
-oct_bb_t * oct_bb_ctor( oct_bb_t * pobb );
-egoboo_rv  oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc );
-egoboo_rv  oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src );
-
-egoboo_rv  oct_bb_validate( oct_bb_t * pobb );
-egoboo_rv  oct_bb_empty( const oct_bb_t * psrc1 );
-egoboo_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec );
-
-egoboo_rv  oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
-egoboo_rv  oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
-
-egoboo_rv  oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
-
-egoboo_rv  oct_bb_self_grow( oct_bb_t * pdst, const oct_vec_t ovec );
-
-egoboo_rv  oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
-egoboo_rv  oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
-
-egoboo_rv  oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc );
-egoboo_rv  oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc );
-
-egoboo_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
-egoboo_rv  oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
 
 egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
 
@@ -198,14 +171,6 @@ egoboo_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
 
 int    oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
 void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count );
-
-egoboo_rv oct_bb_add_fvec3( const oct_bb_t * src, const fvec3_base_t vec, oct_bb_t * pdst );
-egoboo_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t * pdst );
-
-egoboo_rv oct_bb_self_add_fvec3( oct_bb_t * dst, const fvec3_base_t vec );
-egoboo_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
-
-bool_t oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

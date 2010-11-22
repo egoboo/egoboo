@@ -859,11 +859,11 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 
         // ensure that NO tile has zero volume.
         // if a tile is declared to have all the same height, it will accidentally be called "empty".
-        if( poct->empty )
+        if ( poct->empty )
         {
-            if( ABS(poct->maxs[OCT_X] - poct->mins[OCT_X]) + 
-                ABS(poct->maxs[OCT_Y] - poct->mins[OCT_Y]) + 
-                ABS(poct->maxs[OCT_Z] - poct->mins[OCT_Z]) > 0.0f )
+            if ( ABS( poct->maxs[OCT_X] - poct->mins[OCT_X] ) +
+                 ABS( poct->maxs[OCT_Y] - poct->mins[OCT_Y] ) +
+                 ABS( poct->maxs[OCT_Z] - poct->mins[OCT_Z] ) > 0.0f )
             {
                 ovec[OCT_X] = ovec[OCT_Y] = ovec[OCT_Z] = 1e-6;
                 ovec[OCT_XY] = ovec[OCT_YX] = SQRT_TWO * ovec[OCT_X];
@@ -1580,7 +1580,7 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
                 }
                 else
                 {
-                    is_blocked = mesh_has_some_mpdfx( glist[itile].fx, bits );
+                    is_blocked = (0 != mesh_has_some_mpdfx( glist[itile].fx, bits ));
                 }
             }
 
@@ -1804,7 +1804,7 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
                 if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
                     BIT_FIELD mpdfx   = pdata->glist[itile].fx;
-                    bool_t is_blocked = mesh_has_some_mpdfx( mpdfx, bits );
+                    bool_t is_blocked = (0 != mesh_has_some_mpdfx( mpdfx, bits ));
 
                     if ( is_blocked )
                     {

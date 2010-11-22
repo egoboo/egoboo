@@ -154,7 +154,7 @@ bool_t ui_handleSDLEvent( SDL_Event *evt )
                 // recalculated
 
                 // grab all the new SDL screen info
-                SDLX_Get_Screen_Info( &sdl_scr, bfalse );
+                SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
 
                 // set the ui's virtual screen size based on the graphic system's
                 // configuration
@@ -437,7 +437,7 @@ void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vw
 
     if ( img )
     {
-        if ( vwidth == 0 || vheight == 0 )
+        if ( 0 == vwidth || 0 == vheight )
         {
             vw = img->imgW;
             vh = img->imgH;
