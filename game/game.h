@@ -386,8 +386,8 @@ void attach_all_particles();
 struct s_wawalite_data * read_wawalite();
 bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );
 
-Uint8 get_local_alpha( int alpha );
-Uint8 get_local_light( int light );
+Uint8 get_alpha( int alpha, float seeinvis_mag );
+Uint8 get_light( int alpha, float seedark_mag );
 
 bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem );
 

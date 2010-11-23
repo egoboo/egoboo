@@ -334,6 +334,14 @@ void mnu_stack_clear()
 //--------------------------------------------------------------------------------------------
 int do_menu_proc_begin( menu_process_t * mproc )
 {
+    // reset the fps counter
+    menu_fps_clock        = 0;
+    menu_fps_loops        = 0;
+
+    stabilized_menu_fps        = TARGET_FPS;
+    stabilized_menu_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_menu_fps_weight = 0.1f;
+
     // play some music
     sound_play_song( MENU_SONG, 0, -1 );
 
@@ -401,6 +409,14 @@ int do_menu_proc_leaving( menu_process_t * mproc )
 
     // finish the menu song
     sound_finish_song( 500 );
+
+    // reset the fps counter
+    menu_fps_clock        = 0;
+    menu_fps_loops        = 0;
+
+    stabilized_menu_fps        = TARGET_FPS;
+    stabilized_menu_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_menu_fps_weight = 0.1f;
 
     return 1;
 }

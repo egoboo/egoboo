@@ -844,7 +844,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     vrt_lst = pinst->vrt_lst;
 
     // force this function to be evaluated the 1st time through
-    if ( 0 == update_wld && 0 == frame_all ) force = btrue;
+    if ( 0 == update_wld && 0 == game_frame_all ) force = btrue;
 
     // has this already been calculated this update?
     if ( !force && pinst->lighting_update_wld >= update_wld ) return;
@@ -854,11 +854,11 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     chr_update_matrix( pchr, btrue );
 
     // has this already been calculated this frame?
-    if ( !force && pinst->lighting_frame_all >= frame_all ) return;
+    if ( !force && pinst->lighting_frame_all >= game_frame_all ) return;
 
     // reduce the amount of updates to an average of about 1 every 2 frames, but dither
     // the updating so that not all objects update on the same frame
-    pinst->lighting_frame_all = frame_all + (( frame_all + pchr->obj_base.guid ) & 0x03 );
+    pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->obj_base.guid ) & 0x03 );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadStack.lst + pinst->imad;

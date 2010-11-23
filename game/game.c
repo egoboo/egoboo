@@ -663,11 +663,11 @@ int update_game()
 
     // Check for all local players being dead
     local_allpladead     = bfalse;
-    local_seeinvis_level = 0;
-    local_seekurse       = 0;
-    local_seedark_level  = 0;
-    local_groglevel      = 0;
-    local_dazelevel      = 0;
+    local_seeinvis_level = 0.0f;
+    local_seekurse_level = 0.0f;
+    local_seedark_level  = 0.0f;
+    local_grog_level      = 0.0f;
+    local_daze_level      = 0.0f;
 
     numplayer = 0;
     numdead = numalive = 0;
@@ -698,30 +698,11 @@ int update_game()
         {
             numalive++;
 
-            if ( pchr->see_invisible_level > 0 )
-            {
-                local_seeinvis_level = MAX( local_seeinvis_level, pchr->see_invisible_level );
-            }
-
-            if ( pchr->see_kurse_level > 0 )
-            {
-                local_seekurse = MAX( local_seekurse, pchr->see_kurse_level );
-            }
-
-            if ( pchr->darkvision_level )
-            {
-                local_seedark_level = MAX( local_seedark_level, pchr->darkvision_level );
-            }
-
-            if ( pchr->grog_timer > 0 )
-            {
-                local_groglevel += pchr->grog_timer;
-            }
-
-            if ( pchr->daze_timer > 0 )
-            {
-                local_dazelevel += pchr->daze_timer;
-            }
+            local_seeinvis_level += pchr->see_invisible_level;
+            local_seekurse_level += pchr->see_kurse_level;
+            local_seedark_level  += pchr->darkvision_level;
+            local_grog_level      += pchr->grog_timer;
+            local_daze_level      += pchr->daze_timer;
         }
         else
         {
@@ -729,11 +710,24 @@ int update_game()
         }
     }
 
+    if( numalive > 0 )
+    {
+        local_seeinvis_level /= (float)numalive;
+        local_seekurse_level /= (float)numalive;
+        local_seedark_level  /= (float)numalive;
+        local_grog_level     /= (float)numalive;
+        local_daze_level     /= (float)numalive;
+    }
+
+    // this allows for kurses, which might make negative values to do something reasonable
+    local_seeinvis_mag = exp(0.32f * local_seeinvis_level);
+    local_seedark_mag  = exp(0.32f * local_seedark_level);
+
     // Dampen groggyness if not all players are grogged (this assumes they all share the same camera view)
     if ( 0 != numalive )
     {
-        local_groglevel /= numalive;
-        local_dazelevel /= numalive;
+        local_grog_level /= numalive;
+        local_daze_level /= numalive;
     }
 
     // Did everyone die?
@@ -921,9 +915,6 @@ void game_update_timers()
     ticks_diff = ticks_now - ticks_last;
     if ( 0 == ticks_diff ) return;
 
-    // measure the time since the last call
-    clock_lst  = clock_all;
-
     // calculate the time since the from the last update
     // if the game was paused, assume that only one update time elapsed since the last time through this function
     clock_diff = UPDATE_SKIP;
@@ -990,15 +981,13 @@ void reset_timers()
     clock_stt = ticks_now = ticks_last = egoboo_get_ticks();
 
     clock_all = 0;
-    clock_lst = 0;
     clock_wld = 0;
     clock_enc_stat = 0;
     clock_chr_stat = 0;
     clock_pit = 0;
 
     update_wld = 0;
-    frame_all = 0;
-    frame_fps = 0;
+    game_frame_all = 0;
     outofsync = bfalse;
 
     pits.kill = pits.teleport = bfalse;
@@ -1063,12 +1052,6 @@ int do_game_proc_begin( game_process_t * gproc )
     make_randie();
     make_turntosin();
 
-    // reset the fps counter
-    fps_clock             = 0;
-    fps_loops             = 0;
-    stabilized_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_fps_weight = 0.1f;
-
     // Linking system
     log_info( "Initializing module linking... " );
     if ( link_build_vfs( "mp_data/link.txt", LinkList ) ) log_message( "Success!\n" );
@@ -1108,11 +1091,21 @@ int do_game_proc_begin( game_process_t * gproc )
     PROFILE_RESET( check_passage_music );
     PROFILE_RESET( cl_talkToHost );
 
-    stabilized_ups_sum    = 0.0f;
-    stabilized_ups_weight = 0.0f;
+    // reset the ups counter
+    ups_clock        = 0;
+    ups_loops        = 0;
 
-    stabilized_fps_sum    = 0.0f;
-    stabilized_fps_weight = 0.0f;
+    stabilized_ups        = TARGET_UPS;
+    stabilized_ups_sum    = 0.1f * TARGET_UPS;
+    stabilized_ups_weight = 0.1f;
+
+    // reset the fps counter
+    game_fps_clock        = 0;
+    game_fps_loops        = 0;
+
+    stabilized_game_fps        = TARGET_FPS;
+    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_game_fps_weight = 0.1f;
 
     // re-initialize these variables
     est_max_fps          =  TARGET_FPS;
@@ -1298,10 +1291,12 @@ int do_game_proc_leaving( game_process_t * gproc )
     release_all_mad();
 
     // reset the fps counter
-    fps_clock             = 0;
-    fps_loops             = 0;
-    stabilized_fps_sum    = 0.1f * stabilized_fps_sum / stabilized_fps_weight;
-    stabilized_fps_weight = 0.1f;
+    game_fps_clock             = 0;
+    game_fps_loops             = 0;
+
+    stabilized_game_fps        = TARGET_FPS;
+    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_game_fps_weight = 0.1f;
 
     PROFILE_FREE( game_update_loop );
     PROFILE_FREE( game_single_update );
@@ -4380,10 +4375,15 @@ void game_reset_players()
     /// @details ZZ@> This function clears the player list data
 
     // Reset the local data stuff
-    local_seekurse         = bfalse;
-    local_senseenemiesTeam = TEAM_MAX;
-    local_seeinvis_level     = 0;
     local_allpladead       = bfalse;
+
+    local_seeinvis_level = 0.0f;
+    local_seekurse_level = 0.0f;
+    local_seedark_level  = 0.0f;
+    local_grog_level      = 0.0f;
+    local_daze_level      = 0.0f;
+
+    local_senseenemiesTeam = TEAM_MAX;
 
     net_reset_players();
 }
@@ -4886,31 +4886,55 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 get_local_alpha( int light )
+Uint8 get_alpha( int alpha, float seeinvis_mag )
 {
-    if ( local_seeinvis_level > 0 )
+    // This is a bit of a kludge, but it should allow the characters to see
+    // completely invisible objects as SEEINVISIBLE if their level is high enough.
+    // AND it should make mostly invisible objects approach SEEINVISIBLE
+    // BUT objects that are already more visible than SEEINVISIBLE can be made fully visible
+    // with a large enough level
+
+    if ( 1.0f != local_seeinvis_mag )
     {
-        light = MAX( light, INVISIBLE );
-//        light *= local_seeinvis_level + 1;
+        if ( 0 == alpha  )
+        {
+            if( local_seeinvis_mag > 1.0f )
+            {
+                alpha = SEEINVISIBLE * (1.0f - 1.0f/local_seeinvis_mag);
+            }
+        }
+        else if( alpha < SEEINVISIBLE )
+        {
+            alpha *= local_seeinvis_mag;
+            alpha = MAX( alpha, SEEINVISIBLE );
+        }
+        else
+        {
+            alpha *= local_seeinvis_mag;
+        }
     }
 
-    return CLIP( light, 0, 255 );
+    return CLIP( alpha, 0, 255 );
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 get_local_light( int light )
+Uint8 get_light( int light, float seedark_mag )
 {
-    if ( 0xFF == light ) return light;
+    // ZF> Why should Darkvision reveal invisible?
+    // BB> This modification makes the character's light (i.e how much it glows)
+    //     more visible to characters with darkvision. This does not affect an object's
+    //     alpha, which is what makes somethig invisible. If the object is glowing AND invisible,
+    //     darkvision should make it more visible
 
-    //if ( local_seedark_level > 0 )                //ZF> Why should Darkvision reveal invisible?
-    if ( local_seeinvis_level > 0 )
+    // is this object NOT glowing?
+    if( light >= 0xFF ) return 0xFF;
+
+    if ( seedark_mag != 1.0f )
     {
-        light = MAX( light, INVISIBLE );
-        light *= local_seeinvis_level + 1;
-//        light *= local_seedark_level + 1;
+        light *= seedark_mag;
     }
 
-    return CLIP( light, 0, 254 );
+    return CLIP( light, 0, 0xFE );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5093,6 +5117,7 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 //--------------------------------------------------------------------------------------------
 bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
 {
+    CHR_REF shop_owner_ref;
     bool_t can_grab;
     bool_t is_invis, can_steal, in_shop;
     chr_t * pchr, * pitem;
@@ -5111,12 +5136,15 @@ bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
 
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
-    in_shop = INGAME_CHR( shop_get_owner( ix, iy ) );
+    shop_owner_ref = shop_get_owner( ix, iy );
+    in_shop = INGAME_CHR( shop_owner_ref );
 
     if ( in_shop )
     {
+        chr_t * shop_owner_ptr;
+
         // check for a stealthy pickup
-        is_invis  = !chr_can_see_object( ichr, iitem );
+        is_invis  = !chr_can_see_object( shop_owner_ref, ichr );
 
         // pets are automatically stealthy
         can_steal = is_invis || pchr->isitem;

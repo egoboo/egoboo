@@ -1027,7 +1027,7 @@ bool_t fill_bumplists( obj_BSP_t * pbsp )
 
     // Remove any unused branches from the tree.
     // If you do this after BSP_tree_free_nodes() it will remove all branches
-    if ( 7 == ( frame_all & 7 ) )
+    if ( 7 == ( game_frame_all & 7 ) )
     {
         BSP_tree_prune( &( pbsp->tree ) );
     }
@@ -2872,7 +2872,16 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     ENC_REF enchant, enc_next;
     bool_t prt_needs_impact;
 
+    chr_t * powner = NULL;
+    cap_t * powner_cap = NULL;
+
     if ( NULL == pdata ) return bfalse;
+
+    if ( INGAME_CHR( pdata->pprt->owner_ref ) )
+    {
+        powner = ChrList.lst + pdata->pprt->owner_ref;
+        powner_cap = pro_get_pcap( powner->profile_ref );
+    }
 
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pdata->pchr );
@@ -2889,12 +2898,54 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
         enchant = enc_next;
     }
 
-    // Do confuse effects
+    // Steal some life
+    if ( pdata->pprt->lifedrain > 0 )
+    {
+        int val_stt, val_end;
+        int drain;
+
+        val_stt = pdata->pchr->life;
+        val_end = MAX( 1, val_stt - pdata->pprt->lifedrain );
+        drain   = val_stt - val_end;
+
+        // remove the drain from the character that was hit
+        pdata->pchr->life -= drain;
+
+        // add it to the "caster"
+        if( NULL != powner )
+        {
+            powner->life = MIN( powner->life + drain, powner->lifemax );
+        }
+    }
+
+    // Steal some mana
+    if ( pdata->pprt->manadrain > 0 )
+    {
+        int val_stt, val_end;
+        int drain;
+
+        val_stt = pdata->pchr->mana;
+        val_end = MAX( 1, val_stt - pdata->pprt->manadrain );
+        drain   = val_stt - val_end;
+
+        // remove the drain from the character that was hit
+        pdata->pchr->mana -= drain;
+
+        // add it to the "caster"
+        if( NULL != powner )
+        {
+            powner->mana = MIN( powner->mana + drain, powner->manamax );
+        }
+    }
+
+    // Do grog
     if ( pdata->ppip->grog_time > 0 && pdata->pcap->canbegrogged )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->grog_timer = MAX( pdata->pchr->grog_timer, pdata->ppip->grog_time );
     }
+
+    // Do daze
     if ( pdata->ppip->daze_time > 0 && pdata->pcap->canbedazed )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
@@ -2905,13 +2956,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     if ( 0 != ABS( pdata->pprt->damage.base ) + ABS( pdata->pprt->damage.rand ) )
     {
         prt_needs_impact = pdata->ppip->rotatetoface || INGAME_CHR( pdata->pprt->attachedto_ref );
-        if ( INGAME_CHR( pdata->pprt->owner_ref ) )
-        {
-            chr_t * powner = ChrList.lst + pdata->pprt->owner_ref;
-            cap_t * powner_cap = pro_get_pcap( powner->profile_ref );
-
-            if ( powner_cap->isranged ) prt_needs_impact = btrue;
-        }
+        if ( NULL != powner_cap && powner_cap->isranged ) prt_needs_impact = btrue;
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
         if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && ( !prt_needs_impact || pdata->is_impact ) )
@@ -2923,11 +2968,9 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
             direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
             //These things only apply if the particle has an owner
-            if ( INGAME_CHR( pdata->pprt->owner_ref ) )
+            if ( NULL != powner )
             {
                 CHR_REF item;
-                int drain;
-                chr_t * powner = ChrList.lst + pdata->pprt->owner_ref;
 
                 // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
                 // +2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
@@ -2947,24 +2990,6 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                     percent /= 100;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;
-                }
-
-                //Steal some life
-                if ( pdata->pprt->lifedrain > 0 )
-                {
-                    drain = pdata->pchr->life;
-                    pdata->pchr->life = CLIP( pdata->pchr->life, 1, pdata->pchr->life - pdata->pprt->lifedrain );
-                    drain -= pdata->pchr->life;
-                    powner->life = MIN( powner->life + drain, powner->lifemax );
-                }
-
-                //Steal some mana
-                if ( pdata->pprt->manadrain > 0 )
-                {
-                    drain = pdata->pchr->mana;
-                    pdata->pchr->mana = CLIP( pdata->pchr->mana, 0, pdata->pchr->mana - pdata->pprt->manadrain );
-                    drain -= pdata->pchr->mana;
-                    powner->mana = MIN( powner->mana + drain, powner->manamax );
                 }
 
                 // Notify the attacker of a scored hit

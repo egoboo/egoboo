@@ -85,11 +85,20 @@ EXTERN Uint8           timeron     EQ( bfalse );          ///< Game timer displa
 EXTERN Uint32          timervalue  EQ( 0 );           ///< Timer time ( 50ths of a second )
 
 // fps stuff
-EXTERN Sint32          fps_clock             EQ( 0 );             ///< The number of ticks this second
-EXTERN Uint32          fps_loops             EQ( 0 );             ///< The number of frames drawn this second
-EXTERN float           stabilized_fps        EQ( TARGET_FPS );
-EXTERN float           stabilized_fps_sum    EQ( 0 );
-EXTERN float           stabilized_fps_weight EQ( 0 );
+EXTERN Sint32          game_fps_clock             EQ( 0 );             ///< The number of ticks this second
+EXTERN float           stabilized_menu_fps        EQ( TARGET_FPS );
+EXTERN float           stabilized_menu_fps_sum    EQ( 0.1f * TARGET_FPS );
+EXTERN float           stabilized_menu_fps_weight EQ( 0.1f );
+
+EXTERN Uint32          game_fps_loops             EQ( 0 );             ///< The number of frames drawn this second
+EXTERN float           stabilized_game_fps        EQ( TARGET_FPS );
+EXTERN float           stabilized_game_fps_sum    EQ( 0.1f * TARGET_FPS );
+EXTERN float           stabilized_game_fps_weight EQ( 0.1f );
+
+EXTERN float           stabilized_fps             EQ( TARGET_FPS );
+
+EXTERN Sint32          menu_fps_clock        EQ( 0 );             ///< The number of ticks this second
+EXTERN Uint32          menu_fps_loops        EQ( 0 );             ///< The number of frames drawn this second
 
 EXTERN float           est_max_fps           EQ( TARGET_FPS );
 EXTERN float           est_render_time       EQ( 1.0f / TARGET_FPS );
@@ -109,20 +118,17 @@ EXTERN float           est_max_game_ups      EQ( TARGET_UPS );
 EXTERN Sint32          ups_clock             EQ( 0 );             ///< The number of ticks this second
 EXTERN Uint32          ups_loops             EQ( 0 );             ///< The number of frames drawn this second
 EXTERN float           stabilized_ups        EQ( TARGET_UPS );
-EXTERN float           stabilized_ups_sum    EQ( 0 );
-EXTERN float           stabilized_ups_weight EQ( 0 );
+EXTERN float           stabilized_ups_sum    EQ( 0.1f * TARGET_UPS );
+EXTERN float           stabilized_ups_weight EQ( 0.1f );
 
 /// Timers
 EXTERN Sint32          ticks_last  EQ( 0 );
 EXTERN Sint32          ticks_now   EQ( 0 );
 EXTERN Sint32          clock_stt   EQ( 0 );             ///< GetTickCount at start
 EXTERN Sint32          clock_all   EQ( 0 );             ///< The total number of ticks so far
-EXTERN Sint32          clock_lst   EQ( 0 );             ///< The last total of ticks so far
 EXTERN Sint32          clock_wld   EQ( 0 );             ///< The sync clock
-EXTERN Sint32          clock_fps   EQ( 0 );             ///< The number of ticks this second
 EXTERN Uint32          update_wld  EQ( 0 );             ///< The number of times the game has been updated
-EXTERN Uint32          frame_all   EQ( 0 );             ///< The total number of frames drawn so far
-EXTERN Uint32          frame_fps   EQ( 0 );             ///< The number of frames drawn this second
+EXTERN Uint32          game_frame_all   EQ( 0 );             ///< The total number of frames drawn so far
 EXTERN Uint32          clock_enc_stat  EQ( 0 );         ///< For character stat regeneration
 EXTERN Uint32          clock_chr_stat  EQ( 0 );         ///< For enchant stat regeneration
 EXTERN Uint32          clock_pit   EQ( 0 );             ///< For pit kills
@@ -162,13 +168,15 @@ EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from 
 
 #define INVISIBLE           20                      ///< The character can't be detected
 
-EXTERN int                       local_groglevel         EQ( 0 );
-EXTERN int                       local_dazelevel         EQ( 0 );
-EXTERN int                       local_seeinvis_level    EQ( 0 );
-EXTERN int                       local_seedark_level     EQ( 0 );
-EXTERN int                       local_seekurse          EQ( 0 );
-EXTERN bool_t                    local_listening         EQ( bfalse );  ///< Players with listen skill?
-EXTERN bool_t                    local_noplayers;                    ///< Are there any local players?
+EXTERN float                     local_grog_level         EQ( 0.0f );
+EXTERN float                     local_daze_level         EQ( 0.0f );
+EXTERN float                     local_seeinvis_level    EQ( 0.0f );
+EXTERN float                     local_seeinvis_mag      EQ( 1.0f );
+EXTERN float                     local_seedark_level     EQ( 0.0f );
+EXTERN float                     local_seedark_mag       EQ( 1.0f );
+EXTERN float                     local_seekurse_level    EQ( 0.0f );
+EXTERN float                     local_listening_level   EQ( 0.0f );  ///< Players with listen skill?
+EXTERN bool_t                    local_noplayers         EQ(btrue);   ///< Are there any local players?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

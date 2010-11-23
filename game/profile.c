@@ -1307,12 +1307,13 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     prt_t *loc_pprt;
     pip_t *loc_ppip;
 
+    oct_bb_t tmp_oct;
+
+    // Each one of these tests allows one MORE reason to include the particle, not one less.
     bool_t       has_enchant;
     bool_t       does_damage, does_status_effect, does_special_effect;
     bool_t       needs_bump;
     bool_t       can_push;
-
-    oct_bb_t tmp_oct;
 
     if ( NULL == pbsp ) return bfalse;
     ptree = &( pbsp->tree );
@@ -1332,11 +1333,21 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
         has_enchant = LOADED_EVE( ppro->ieve );
     }
 
+    // any possible damage?
     does_damage         = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
+
+    // the other possible status effects
+    // do not require damage
     does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || ( 0 != loc_ppip->lifedrain ) || ( 0 != loc_ppip->manadrain );
-    needs_bump          = loc_ppip->end_bump || loc_ppip->end_ground || ( loc_ppip->bumpspawn_amount > 0 && -1 != loc_ppip->bumpspawn_lpip ) || ( 0 != loc_ppip->bump_money );
+
+    // OMIT the the particle effects that do not influence characters (i.e. money)
+    needs_bump          = ( loc_ppip->end_bump && 0 != loc_ppip->bump_money );
+
+    // these are not implemented yet
     does_special_effect = loc_ppip->cause_pancake || loc_ppip->cause_roll;
-    can_push            = (( 0 != loc_ppip->bump_size ) || ( 0 != loc_ppip->bump_height ) ) && loc_ppip->allowpush;
+
+    // according to v1.0, only particles that cause damage can push
+    can_push            = does_damage && loc_ppip->allowpush;
 
     // particles with no effect
     if ( !can_push && !needs_bump && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;

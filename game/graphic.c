@@ -407,8 +407,9 @@ void gfx_system_begin()
     PROFILE_INIT( render_scene_mesh_render_shadows );
 
     // init some other variables
-    stabilized_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_fps_weight = 0.1f;
+    stabilized_game_fps        = TARGET_FPS;
+    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_game_fps_weight = 0.1f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1513,7 +1514,7 @@ float draw_fps( float y )
 
     if ( fpson )
     {
-        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_fps, stabilized_ups, update_lag );
+        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_ups, update_lag );
 
 #    if defined(DEBUG_BSP)
         y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", BSP_chr_count, MAX_CHR - chr_count_free(), BSP_prt_count, maxparticles - prt_count_free() );
@@ -3327,31 +3328,61 @@ void gfx_update_timers()
     gfx_clock      = egoboo_get_ticks() - gfx_clock_stt;
     dclock         = gfx_clock - gfx_clock_last;
 
-    // if there has been a gap in time (the module was loading, for instance)
-    // make sure we do not count that gap
-    if ( dclock > TICKS_PER_SEC / 5 )
+    if( process_running( PROC_PBASE( MProc ) ) )
     {
-        return;
-    }
-    fps_clock += dclock;
+        menu_fps_clock += dclock;
 
-    if ( fps_loops > 0 && fps_clock > 0 )
-    {
-        stabilized_fps_sum    = fold * stabilized_fps_sum    + fnew * ( float ) fps_loops / (( float ) fps_clock / TICKS_PER_SEC );
-        stabilized_fps_weight = fold * stabilized_fps_weight + fnew;
-
-        // blank these every so often so that the numbers don't overflow
-        if ( fps_loops > 10 * TARGET_FPS )
+        if ( menu_fps_loops > 0 && menu_fps_clock > 0 )
         {
-            fps_loops = 0;
-            fps_clock = 0;
-        }
-    };
+            stabilized_menu_fps_sum    = fold * stabilized_menu_fps_sum    + fnew * ( float ) menu_fps_loops / (( float ) menu_fps_clock / TICKS_PER_SEC );
+            stabilized_menu_fps_weight = fold * stabilized_menu_fps_weight + fnew;
 
-    if ( stabilized_fps_weight > 0.5f )
-    {
-        stabilized_fps = stabilized_fps_sum / stabilized_fps_weight;
+            // blank these every so often so that the numbers don't overflow
+            if ( menu_fps_loops > 10 * TARGET_FPS )
+            {
+                menu_fps_loops = 0;
+                menu_fps_clock = 0;
+            }
+        };
+
+        if ( stabilized_menu_fps_weight > 0.5f )
+        {
+            stabilized_menu_fps = stabilized_menu_fps_sum / stabilized_menu_fps_weight;
+        }
     }
+
+    if( process_running( PROC_PBASE( GProc ) ) )
+    {
+        game_fps_clock += dclock;
+
+        if ( game_fps_loops > 0 && game_fps_clock > 0 )
+        {
+            stabilized_game_fps_sum    = fold * stabilized_game_fps_sum    + fnew * ( float ) game_fps_loops / (( float ) game_fps_clock / TICKS_PER_SEC );
+            stabilized_game_fps_weight = fold * stabilized_game_fps_weight + fnew;
+
+            // blank these every so often so that the numbers don't overflow
+            if ( game_fps_loops > 10 * TARGET_FPS )
+            {
+                game_fps_loops = 0;
+                game_fps_clock = 0;
+            }
+        };
+
+        if ( stabilized_game_fps_weight > 0.5f )
+        {
+            stabilized_game_fps = stabilized_game_fps_sum / stabilized_game_fps_weight;
+        }
+    }
+
+    if( process_running( PROC_PBASE( GProc ) ) )
+    {
+        stabilized_fps = stabilized_game_fps;
+    }
+    else if( process_running( PROC_PBASE( MProc ) ) )
+    {
+        stabilized_fps = stabilized_game_fps;
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4350,8 +4381,8 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
 
     // because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
-    // frame_all will always start at 1
-    if ( 1 != ( frame_all & 3 ) ) return;
+    // game_frame_all will always start at 1
+    if ( 1 != ( game_frame_all & 3 ) ) return;
 
     // reset the renderlist
     renderlist_reset();
@@ -4501,13 +4532,13 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
             tlist[cnt].inrenderlist       = btrue;
 
             // if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
-            if ( tlist[cnt].inrenderlist_frame < frame_all - 1 )
+            if ( tlist[cnt].inrenderlist_frame < game_frame_all - 1 )
             {
                 tlist[cnt].needs_lighting_update = btrue;
             }
 
             // make sure to cache the frame number of this update
-            tlist[cnt].inrenderlist_frame = frame_all;
+            tlist[cnt].inrenderlist_frame = game_frame_all;
 
             // Put each tile in basic list
             renderlist.all[renderlist.all_count] = cnt;
@@ -4660,8 +4691,9 @@ void init_all_graphics()
     PROFILE_RESET( render_scene_mesh_drf_solid );
     PROFILE_RESET( render_scene_mesh_render_shadows );
 
-    stabilized_fps_sum    = 0.0f;
-    stabilized_fps_weight = 0.0f;
+    stabilized_game_fps        = TARGET_FPS;
+    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_game_fps_weight = 0.1f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4752,8 +4784,9 @@ void load_basic_textures()
     PROFILE_RESET( render_scene_mesh_drf_solid );
     PROFILE_RESET( render_scene_mesh_render_shadows );
 
-    stabilized_fps_sum    = 0.0f;
-    stabilized_fps_weight = 0.0f;
+    stabilized_game_fps        = TARGET_FPS;
+    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
+    stabilized_game_fps_weight = 0.1f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4902,9 +4935,12 @@ void do_chr_flashing()
         }
 
         // Do blacking
-        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && local_seekurse && ChrList.lst[ichr].iskursed )
+        // having one holy player in your party will cause the effect, BUT
+        // having some non-holy players will dilute it
+        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && (0.0f != local_seekurse_level) && ChrList.lst[ichr].iskursed )
         {
-            flash_character( ichr, 0 );
+            float tmp_seekurse_level = CLIP(local_seekurse_level, 0.0f, 1.0f);
+            flash_character( ichr, 255 * (1.0f - tmp_seekurse_level)  );
         }
     }
 }
@@ -5113,11 +5149,18 @@ void _flip_pages()
     // draw the console on top of everything
     egoboo_console_draw_all();
 
-    frame_all++;
-    frame_fps++;
-    fps_loops++;
-
     SDL_GL_SwapBuffers();
+
+    if( process_running( PROC_PBASE( MProc ) ) )
+    {
+        menu_fps_loops++;
+    }
+
+    if( process_running( PROC_PBASE( GProc ) ) )
+    {
+        game_fps_loops++;
+        game_frame_all++;
+    }
 
     gfx_update_timers();
 
@@ -5161,7 +5204,7 @@ void light_fans( renderlist_t * prlist )
 
 #if defined(CLIP_ALL_LIGHT_FANS)
     // update all visible fans once every 4 updates
-    if ( 0 != ( frame_all & 0x03 ) ) return;
+    if ( 0 != ( game_frame_all & 0x03 ) ) return;
 #endif
 
     pmesh = prlist->pmesh;
@@ -5205,7 +5248,7 @@ void light_fans( renderlist_t * prlist )
             // use a kind of checkerboard pattern
             ix = fan % pgmem->grids_x;
             iy = fan / pgmem->grids_x;
-            if ( 0 != ((( ix ^ iy ) + frame_all ) & 0x03 ) )
+            if ( 0 != ((( ix ^ iy ) + game_frame_all ) & 0x03 ) )
             {
                 needs_update = btrue;
             }
@@ -5330,18 +5373,29 @@ float get_ambient_level()
     min_amb  = 0.0f;
     if ( gfx.usefaredge )
     {
+        // for outside modules, max light_a means bright sunlight
         glob_amb = light_a * 255.0f;
     }
     else
     {
+        // for inside modules, max light_a means dingy dungeon lighting
         glob_amb = light_a * 32.0f;
     }
 
     // determine the minimum ambient, based on darkvision
-    min_amb = INVISIBLE;
-    if ( local_seedark_level > 0 )
+    min_amb = INVISIBLE / 4;
+    if ( local_seedark_mag != 1.0f )
     {
-        min_amb = 52.0f * light_a * ( 1 + local_seedark_level * 2 );
+        // start with the global light
+        min_amb  = glob_amb;
+
+        // give a iny boost in the case of no light_a
+        if( local_seedark_mag > 0.0f ) min_amb += 1.0f;
+
+        // light_a can be quite dark, so we need a large magnification
+        min_amb *= local_seedark_mag * local_seedark_mag;
+        min_amb *= local_seedark_mag * local_seedark_mag;
+        min_amb *= local_seedark_mag;
     }
 
     return MAX( glob_amb, min_amb );
@@ -5678,7 +5732,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
         // Resist the lighting calculation?
         // This is a speedup for lighting calculations so that
         // not every light-tile calculation is done every single frame
-        resist_lighting_calculation = ( 0 != ((( ix + iy ) ^ frame_all ) & 0x03 ) );
+        resist_lighting_calculation = ( 0 != ((( ix + iy ) ^ game_frame_all ) & 0x03 ) );
 
         if ( !resist_lighting_calculation )
         {

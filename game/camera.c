@@ -150,22 +150,22 @@ void camera_make_matrix( camera_t * pcam )
     }
 
     //Swing the camera if players are groggy and apply motion blur
-    if ( local_groglevel > 0 )
+    if ( local_grog_level > 0 )
     {
         float zoom_add;
         pcam->swing = ( pcam->swing + 120 ) & 0x3FFF;
         local_swingamp = MAX( local_swingamp, 0.175f );
 
-        zoom_add = ( 0 == ( local_groglevel % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_groglevel * 0.35f;
+        zoom_add = ( 0 == ( ((int)local_grog_level) % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_grog_level * 0.35f;
         pcam->zaddgoto = CLIP( pcam->zaddgoto + zoom_add, CAM_ZADD_MIN, CAM_ZADD_MAX );
-        pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_groglevel );
+        pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_grog_level );
     }
 
     //Rotate camera if they are dazed and apply motion blur
-    if ( local_dazelevel > 0 )
+    if ( local_daze_level > 0 )
     {
-        pcam->turnadd = local_dazelevel * CAM_TURN_KEY;
-        pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_dazelevel );
+        pcam->turnadd = local_daze_level * CAM_TURN_KEY;
+        pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_daze_level );
     }
 
     //Apply camera swinging

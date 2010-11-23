@@ -6783,7 +6783,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    local_listening = btrue;
+    local_listening_level = btrue;
 
     SCRIPT_FUNCTION_END();
 }

@@ -581,7 +581,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                "\tprofile == %d(\"%s\")\n"
                "\n",
                iprt,
-               update_wld, pprt->lifetime, frame_all, pprt->safe_time,
+               update_wld, pprt->lifetime, game_frame_all, pprt->safe_time,
                loc_chr_origin, DEFINED_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
                pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
                pdata->iprofile, LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );

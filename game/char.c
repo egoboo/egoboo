@@ -1949,7 +1949,7 @@ bool_t drop_all_items( const CHR_REF character )
 struct s_grab_data
 {
     CHR_REF ichr;
-    float  dist;
+    float   dist;
 };
 typedef struct s_grab_data grab_data_t;
 
@@ -1995,8 +1995,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     //   SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
 
     chr_t * pchr_a;
-
-    int ticks;
+    cap_t * pcap_a;
 
     bool_t retval;
 
@@ -2011,13 +2010,14 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList.lst + ichr_a;
 
-    ticks = egoboo_get_ticks();
+    pcap_a = pro_get_pcap( pchr_a->profile_ref );
+    if( NULL == pcap_a ) return bfalse;
 
     // Make life easier
     slot = grip_offset_to_slot( grip_off );  // 0 is left, 1 is right
 
     // Make sure the character doesn't have something already, and that it has hands
-    if ( INGAME_CHR( pchr_a->holdingwhich[slot] ) || !chr_get_pcap( ichr_a )->slotvalid[slot] )
+    if ( INGAME_CHR( pchr_a->holdingwhich[slot] ) || !pcap_a->slotvalid[slot] )
         return bfalse;
 
     // Do we have a matrix???
@@ -2060,8 +2060,14 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         // Dont do hidden objects
         if ( pchr_b->is_hidden ) continue;
 
-        if ( pchr_b->pack.is_packed ) continue;        // pickpocket not allowed yet
-        if ( INGAME_CHR( pchr_b->attachedto ) ) continue; // disarm not allowed yet
+        // pickpocket not allowed yet
+        if ( pchr_b->pack.is_packed ) continue;
+
+        // disarm not allowed yet
+        if ( INGAME_CHR( pchr_b->attachedto ) ) continue;
+
+        // can't pick up something you can't see
+        if( !chr_can_see_object( ichr_a, ichr_b ) ) continue;
 
         // do not pick up your mount
         if ( pchr_b->holdingwhich[SLOT_LEFT] == ichr_a ||
@@ -2095,36 +2101,12 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             grab_list[grab_count].ichr = ichr_b;
             grab_list[grab_count].dist = dxy;
             grab_count++;
-
-            //iline = get_free_line();
-            //if( iline >= 0)
-            //{
-            //    line_list[iline].src     = nupoint[0];
-            //    line_list[iline].dst     = pchr_b->pos;
-            //    line_list[iline].color.r = color_grn.r * INV_FF;
-            //    line_list[iline].color.g = color_grn.g * INV_FF;
-            //    line_list[iline].color.b = color_grn.b * INV_FF;
-            //    line_list[iline].color.a = 1.0f;
-            //    line_list[iline].time    = ticks + ONESECOND * 5;
-            //}
         }
         else
         {
-            ungrab_list[grab_count].ichr = ichr_b;
-            ungrab_list[grab_count].dist = dxy;
+            ungrab_list[ungrab_count].ichr = ichr_b;
+            ungrab_list[ungrab_count].dist = dxy;
             ungrab_count++;
-
-            //iline = get_free_line();
-            //if( iline >= 0)
-            //{
-            //    line_list[iline].src     = nupoint[0];
-            //    line_list[iline].dst     = pchr_b->pos;
-            //    line_list[iline].color.r = color_red.r * INV_FF;
-            //    line_list[iline].color.g = color_red.g * INV_FF;
-            //    line_list[iline].color.b = color_red.b * INV_FF;
-            //    line_list[iline].color.a = 1.0f;
-            //    line_list[iline].time    = ticks + ONESECOND * 5;
-            //}
         }
     }
     CHR_END_LOOP();
@@ -9170,6 +9152,8 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
     /// @detalis BB@> can ichr see iobj?
 
     chr_t * pchr, * pobj;
+    cap_t * pcap;
+
     int     light, self_light, enviro_light;
     int     alpha;
 
@@ -9180,9 +9164,9 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
     pobj = ChrList.lst + iobj;
 
     alpha = pobj->inst.alpha;
-    if ( pchr->see_invisible_level > 0 )
+    if ( 0 != pchr->see_invisible_level )
     {
-        alpha *= pchr->see_invisible_level + 1;
+        alpha = get_alpha( alpha, exp(0.32f * (float)pchr->see_invisible_level) );
     }
     alpha = CLIP( alpha, 0, 255 );
 
@@ -9193,13 +9177,22 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
     self_light   = ( pobj->inst.light == 255 ) ? 0 : pobj->inst.light;
     light        = MAX( enviro_light, self_light );
 
-    if ( pchr->darkvision_level > 0 )
+    if ( 0 != pchr->darkvision_level )
     {
-        light *= pchr->darkvision_level + 1;
+        light *= exp(0.32f * (float)pchr->darkvision_level );
     }
 
-    //Scenery, spells and quest objects can always see through darkness
-    if ( pchr->invictus ) light *= 20;
+    // Scenery, spells and quest objects can always see through darkness
+    // Checking pchr->invictus is not enough, since that could be temporary
+    // and not indicate the appropriate objects
+    pcap = pro_get_pcap( pchr->profile_ref );
+    if( NULL != pcap )
+    {
+        if( pcap->invictus )
+        {
+            light = INVISIBLE;
+        }
+    }
 
     return light >= INVISIBLE;
 }
@@ -9367,9 +9360,9 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
         local_blushift = pinst->blushift;
     }
 
-    // modify these values based on local characte abilities
-    local_alpha = get_local_alpha( local_alpha );
-    local_light = get_local_light( local_light );
+    // modify these values based on local character abilities
+    local_alpha = get_alpha( local_alpha, local_seeinvis_mag );
+    local_light = get_light( local_light, local_seedark_mag  );
 
     // clear out the tint
     weight_sum = 0;
