@@ -16,4 +16,4 @@ all: $(ENET_OBJLST)
 	ar -rcs ./lib/$(ENET_TARGET) $(ENET_OBJLST)
 
 clean:
-	rm -f $(ENET_TARGET) $(ENET_OBJLST)
+	rm -f ./lib/$(ENET_TARGET) $(ENET_OBJLST)

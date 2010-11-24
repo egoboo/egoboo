@@ -20,8 +20,10 @@ clean:
 	make -C ./enet clean
 	make -C ./game clean
 
-enet:
+./enet/lib/libenet.a:
 	make -C ./enet all
+
+enet:   ./enet/lib/libenet.a
 
 egoboo:
 	make -C ./game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)

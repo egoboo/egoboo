@@ -20,13 +20,15 @@ clean:
 	make -C ./enet clean
 	make -C ./game clean
 
-enet:
+./enet/lib/libenet.a:
 	make -C ./enet all
 
-egoboo:
+enet:   ./enet/lib/libenet.a
+
+egoboo: enet
 	make -C ./game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
 	
-egoboo_lua:
+egoboo_lua: enet
 	make -F Makefile.lua -C game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
 
 install:
