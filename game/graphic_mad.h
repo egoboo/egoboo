@@ -213,7 +213,7 @@ egoboo_rv chr_instance_free( chr_instance_t * pinst );
 egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin );
 egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
 
-egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix );
+egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix );
 
 egoboo_rv chr_update_instance( struct s_chr * pchr );
 egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst );

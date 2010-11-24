@@ -30,6 +30,7 @@
 #include "mesh.inl"
 #include "game.h"
 #include "mesh.h"
+#include "obj_BSP.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -2745,25 +2746,38 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
 
     CHR_REF ichr, iholder;
     Uint32  update_count;
-    IPair  local_damage;
+    IPair   local_damage;
+    int     max_damage, actual_damage;
 
-    prt_t             * loc_pprt;
-    pip_t             * loc_ppip;
+    prt_t * loc_pprt;
+    pip_t * loc_ppip;
+    chr_t * loc_pchr;
+
+    bool_t skewered_by_arrow;
+    bool_t has_vulnie;
+    bool_t is_immolated_by;
+    bool_t no_protection_from;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
+
+    // this is often set to zero when the particle hits something
+    max_damage = ABS(loc_pprt->damage.base) + ABS(loc_pprt->damage.rand);
 
     // wait until the right time
     update_count = update_wld + loc_pprt->obj_base.guid;
     if ( 0 != ( update_count & 31 ) ) return pbdl_prt;
 
     // do nothing if the particle is hidden
-    //if ( loc_pprt->is_hidden ) return;        //ZF> This is already checked in prt_update_ingame()
+    // ZF> This is already checked in prt_update_ingame()
+    //if ( loc_pprt->is_hidden ) return;        
 
     // we must be attached to something
-    ichr = loc_pprt->attachedto_ref;
-    if ( !INGAME_CHR( ichr ) ) return pbdl_prt;
+    if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
+
+    ichr     = loc_pprt->attachedto_ref;
+    loc_pchr = ChrList.lst + loc_pprt->attachedto_ref;
 
     // find out who is holding the owner of this object
     iholder = chr_get_lowest_attachment( ichr, btrue );
@@ -2772,7 +2786,58 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     // do nothing if you are attached to your owner
     if (( MAX_CHR != loc_pprt->owner_ref ) && ( iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref ) ) return pbdl_prt;
 
-    // Attached particle damage ( Burning )
+    //---- only do damage in certain cases:
+
+    // 1) the particle has the DAMFX_ARRO bit
+    skewered_by_arrow = HAS_SOME_BITS( loc_ppip->damfx, DAMFX_ARRO );
+
+    // 2) the character is vulnerable to this damage type
+    has_vulnie = chr_has_vulnie( GET_REF_PCHR( loc_pchr ), loc_pprt->profile_ref );
+
+    // 3) the character is "lit on fire" by the particle damage type
+    is_immolated_by = ( loc_pprt->damagetype < DAMAGE_COUNT && loc_pchr->reaffirm_damagetype == loc_pprt->damagetype );
+
+    // 4) the character has no protection to the particle
+    no_protection_from = ( 0 != max_damage ) && ( loc_pprt->damagetype < DAMAGE_COUNT ) && ( 0 == loc_pchr->damage_modifier[loc_pprt->damagetype] );
+
+    if( !skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from )
+    {
+        return pbdl_prt;
+    }
+
+    if( has_vulnie || is_immolated_by )
+    {
+        // the damage is the maximum damage over and over again until the particle dies
+        range_to_pair( loc_ppip->damage, &local_damage );
+    }
+    else if ( no_protection_from )
+    {
+        // take a portion of whatever damage remains
+        local_damage = loc_pprt->damage;
+    }
+    else
+    {
+        range_to_pair( loc_ppip->damage, &local_damage );
+
+        local_damage.base /= 2;
+        local_damage.rand /= 2;
+
+        // distribute 1/2 of the maximum damage over the particle's lifetime
+        if ( !loc_pprt->is_eternal )
+        {
+            // how many 32 update cycles will this particle live through?
+            int cycles = loc_pprt->lifetime / 32;
+
+            if( cycles > 1 )
+            {
+                local_damage.base /= cycles;
+                local_damage.rand /= cycles;
+            }
+        }
+    }
+
+
+    //---- special effects
     if ( loc_ppip->allowpush && 0 == loc_ppip->vel_hrz_pair.base )
     {
         // Make character limp
@@ -2780,17 +2845,18 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
         ChrList.lst[ichr].vel.y *= 0.5f;
     }
 
-    /// @note  Why is this commented out? Attached arrows need to do damage.
-    local_damage = loc_pprt->damage;
+    //---- do the damage
+    actual_damage = damage_character( ichr, ATK_BEHIND, local_damage, loc_pprt->damagetype, loc_pprt->team, loc_pprt->owner_ref, loc_ppip->damfx, bfalse );
 
-    // distribute the damage over the particle's lifetime
-    if ( !loc_pprt->is_eternal )
+    // adjust any remaining particle damage
+    if( loc_pprt->damage.base > 0 )
     {
-        local_damage.base /= loc_pprt->lifetime;
-        local_damage.rand /= loc_pprt->lifetime;
-    }
+        loc_pprt->damage.base -= actual_damage;
+        loc_pprt->damage.base  = MAX( 0, loc_pprt->damage.base );
 
-    damage_character( ichr, ATK_BEHIND, local_damage, loc_pprt->damagetype, loc_pprt->team, loc_pprt->owner_ref, loc_ppip->damfx, bfalse );
+        // properly scale the random amount
+        loc_pprt->damage.rand  = ABS( loc_ppip->damage.to - loc_ppip->damage.from ) * loc_pprt->damage.base / loc_ppip->damage.from;
+    }
 
     return pbdl_prt;
 }

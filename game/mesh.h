@@ -63,27 +63,6 @@ typedef float       light_cache_t[4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// the BSP structure housing the mesh
-struct s_mpd_BSP
-{
-    oct_bb_t       volume;
-    BSP_leaf_ary_t nodes;
-    BSP_tree_t     tree;
-};
-typedef struct s_mpd_BSP mesh_BSP_t;
-
-mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, ego_mpd_t * pmesh );
-mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * );
-bool_t       mesh_BSP_alloc( mesh_BSP_t * pbsp, ego_mpd_t * pmesh );
-bool_t       mesh_BSP_free( mesh_BSP_t * pbsp );
-
-bool_t mesh_BSP_fill( mesh_BSP_t * pbsp );
-
-int    mesh_BSP_collide( mesh_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
-
-extern mesh_BSP_t mesh_BSP_root;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// The data describing an Egoboo tile

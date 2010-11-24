@@ -95,7 +95,7 @@ extern "C"
         DAMFX_NBLOC          = ( 1 << 2 ),              ///< Cannot be blocked by shield
         DAMFX_ARRO           = ( 1 << 3 ),              ///< Only hurts the one it's attached to
         DAMFX_TURN           = ( 1 << 4 ),              ///< Turn to attached direction
-        DAMFX_TIME           = ( 1 << 5 )
+        DAMFX_TIME           = ( 1 << 5 )               ///< Do not reset the damage timer
     };
 
 /// Turn values specifying corrections to the rotation of particles

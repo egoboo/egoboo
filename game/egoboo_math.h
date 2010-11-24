@@ -24,6 +24,9 @@
 
 #include "egoboo_typedef.h"
 
+#include <math.h>
+#include <float.h>
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -130,6 +133,15 @@ extern "C"
 #if !defined(SWAP)
 #    define SWAP(TYPE, A, B) { TYPE temp; temp = A; A = B; B = temp; }
 #endif
+
+#if !defined(CEIL)
+#    define CEIL(VAL) ( (float)ceil((float)VAL) )
+#endif
+
+#if !defined(FLOOR)
+#    define FLOOR(VAL) ( (float)floor((float)VAL) )
+#endif
+
 
 #define MAT_IDX(I,J) (4*(I)+(J))
 #define CNV(I,J)     v[MAT_IDX(I,J)]

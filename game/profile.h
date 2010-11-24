@@ -19,8 +19,6 @@
 //*
 //********************************************************************************************
 
-#include "bsp.h"
-
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -36,18 +34,6 @@ struct Mix_Chunk;
 
 struct s_mpd_BSP;
 struct s_prt_bundle;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-enum obj_BSP_type
-{
-    BSP_LEAF_NONE = -1,
-    BSP_LEAF_CHR,
-    BSP_LEAF_ENC,
-    BSP_LEAF_PRT,
-    BSP_LEAF_TILE
-};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -162,33 +148,6 @@ bool_t  ProList_free_one( const PRO_REF object_ref );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// the BSP structure housing the object
-struct s_obj_BSP
-{
-    // the BSP of characters for character-character and character-particle interactions
-    BSP_tree_t   tree;
-};
-
-typedef struct s_obj_BSP obj_BSP_t;
-
-bool_t obj_BSP_ctor( obj_BSP_t * pbsp, struct s_mpd_BSP * pmesh_bsp );
-bool_t obj_BSP_dtor( obj_BSP_t * pbsp );
-
-bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int depth );
-bool_t obj_BSP_free( obj_BSP_t * pbsp );
-
-bool_t obj_BSP_fill( obj_BSP_t * pbsp );
-bool_t obj_BSP_clear( obj_BSP_t * pbsp );
-
-bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, struct s_chr * pchr );
-bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, struct s_prt_bundle * pbdl_prt );
-
-int    obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
-
-extern obj_BSP_t obj_BSP_root;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 extern size_t  bookicon_count;
 extern TX_REF  bookicon_ref[MAX_SKIN];                      ///< The first book icon
 
@@ -201,11 +160,9 @@ DECLARE_EXTERN_STATIC_ARY( MessageOffsetAry, MessageOffset );
 extern Uint32          message_buffer_carat;                                  ///< Where to put letter
 extern char            message_buffer[MESSAGEBUFFERSIZE];                     ///< The text buffer
 
-extern int             BSP_chr_count;                                         ///< the number of characters in the obj_BSP_root structure
-extern int             BSP_prt_count;                                         ///< the number of particles  in the obj_BSP_root structure
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void profile_system_begin();
 void profile_system_end();
 

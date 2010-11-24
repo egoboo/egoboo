@@ -25,8 +25,6 @@
 #include "ChrList.h"
 
 #include "mad.h"
-#include "md2.inl"
-#include "mesh.inl"
 
 #include "log.h"
 #include "script.h"
@@ -41,15 +39,17 @@
 #include "ui.h"
 #include "collision.h"                  //Only or detach_character_from_platform()
 #include "quest.h"
+#include "obj_BSP.h"
 
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
-#include "egoboo_math.inl"
 #include "egoboo.h"
 
-#include <float.h>
+#include "egoboo_math.inl"
+#include "mesh.inl"
+
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -3953,7 +3953,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // determine whether the object is hidden
     chr_update_hide( pchr );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, btrue );
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     if ( DEFINED_CHR( pchr->attachedto ) && CHR_INFINITE_WEIGHT != pchr->phys.weight && !pchr->safe_valid )
@@ -4615,7 +4615,7 @@ void respawn_character( const CHR_REF character )
         new_attached_prt_count = number_of_attached_particles( character );
     }
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, btrue );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5123,7 +5123,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
 
     ai_state_set_changed( &( pchr->ai ) );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, btrue );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, btrue );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8796,7 +8796,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     if ( applied )
     {
-        apply_reflection_matrix( &( pchr->inst ), pchr->enviro.floor_level );
+        apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level );
     }
 
     return applied;
@@ -9256,7 +9256,6 @@ void chr_set_floor_level( chr_t * pchr, float level )
     if ( level != pchr->enviro.floor_level )
     {
         pchr->enviro.floor_level = level;
-        apply_reflection_matrix( &( pchr->inst ), level );
     }
 }
 
@@ -9267,7 +9266,7 @@ void chr_set_redshift( chr_t * pchr, int rs )
 
     pchr->inst.redshift = rs;
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9277,7 +9276,7 @@ void chr_set_grnshift( chr_t * pchr, int gs )
 
     pchr->inst.grnshift = gs;
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9287,7 +9286,7 @@ void chr_set_blushift( chr_t * pchr, int bs )
 
     pchr->inst.blushift = bs;
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9297,7 +9296,7 @@ void chr_set_sheen( chr_t * pchr, int sheen )
 
     pchr->inst.sheen = sheen;
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9307,7 +9306,7 @@ void chr_set_alpha( chr_t * pchr, int alpha )
 
     pchr->inst.alpha = CLIP( alpha, 0, 255 );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9320,7 +9319,7 @@ void chr_set_light( chr_t * pchr, int light )
     //This prevents players from becoming completely invisible
     if ( VALID_PLA( pchr->is_which_player ) )  pchr->inst.light = MAX( 128, pchr->inst.light );
 
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.floor_level, bfalse );
+    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------

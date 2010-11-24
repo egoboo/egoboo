@@ -477,7 +477,7 @@ bool_t render_one_mad_ref( const CHR_REF ichr )
 
     if ( !pinst->ref.matrix_valid )
     {
-        if ( !apply_reflection_matrix( &( pchr->inst ), pchr->enviro.floor_level ) )
+        if ( !apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level ) )
         {
             return bfalse;
         }
@@ -1722,7 +1722,7 @@ egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bool_t need_matrix )
+egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix )
 {
     int trans_temp;
 
@@ -1731,7 +1731,7 @@ egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bo
     if ( need_matrix )
     {
         // reflect the ordinary matrix
-        apply_reflection_matrix( pinst, floor_level );
+        apply_reflection_matrix( pinst, grid_level );
     }
 
     trans_temp = 255;
@@ -1740,7 +1740,7 @@ egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float floor_level, bo
         float pos_z;
 
         // determine the reflection alpha
-        pos_z = floor_level - pinst->ref.matrix.CNV( 3, 2 );
+        pos_z = grid_level - pinst->ref.matrix.CNV( 3, 2 );
         if ( pos_z < 0 ) pos_z = 0;
 
         trans_temp -= (( int )pos_z ) >> 1;

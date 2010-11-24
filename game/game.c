@@ -23,17 +23,12 @@
 
 #include "game.h"
 
-#include "char.inl"
-#include "particle.inl"
 #include "mad.h"
-#include "enchant.inl"
-#include "profile.inl"
 
 #include "controls_file.h"
 #include "scancode_file.h"
 #include "treasure_table_file.h"
 
-#include "physics.inl"
 #include "clock.h"
 #include "link.h"
 #include "ui.h"
@@ -48,7 +43,6 @@
 #include "input.h"
 #include "menu.h"
 #include "network.h"
-#include "mesh.inl"
 #include "texture.h"
 #include "wawalite_file.h"
 #include "clock.h"
@@ -58,6 +52,8 @@
 #include "collision.h"
 #include "graphic_fan.h"
 #include "quest.h"
+#include "obj_BSP.h"
+#include "mpd_BSP.h"
 
 #include "script_compile.h"
 #include "script.h"
@@ -76,6 +72,13 @@
 #if defined(USE_LUA_CONSOLE)
 #include "lua_console.h"
 #endif
+
+#include "char.inl"
+#include "particle.inl"
+#include "enchant.inl"
+#include "profile.inl"
+#include "mesh.inl"
+#include "physics.inl"
 
 #include <SDL_image.h>
 
@@ -1123,7 +1126,7 @@ int do_game_proc_begin( game_process_t * gproc )
     est_update_game_time  = 1.0f / TARGET_UPS;
     est_max_game_ups      = TARGET_UPS;
 
-    obj_BSP_ctor( &obj_BSP_root, &mesh_BSP_root );
+    obj_BSP_system_begin( &mpd_BSP_root );
 
     return 1;
 }
@@ -1283,6 +1286,9 @@ int do_game_proc_leaving( game_process_t * gproc )
 
     // deallocate any data used by the profile system
     profile_system_end();
+
+    // deallocate the obj_BSP
+    obj_BSP_system_end();
 
     // deallocate any dynamically allocated scripting memory
     scripting_system_end();
@@ -3113,6 +3119,7 @@ bool_t game_load_module_data( const char *smallname )
     /// @details ZZ@> This function loads a module
 
     STRING modname;
+    ego_mpd_t * pmesh_rv;
 
     log_info( "Loading module \"%s\"\n", smallname );
 
@@ -3132,7 +3139,8 @@ bool_t game_load_module_data( const char *smallname )
     // load all module objects
     game_load_all_profiles( modname );
 
-    if ( NULL == mesh_load( modname, PMesh ) )
+    pmesh_rv = mesh_load( modname, PMesh );
+    if ( NULL == pmesh_rv )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
@@ -3140,6 +3148,8 @@ bool_t game_load_module_data( const char *smallname )
 
         goto game_load_module_data_fail;
     }
+
+    mpd_BSP_system_begin( pmesh_rv );
 
     return btrue;
 
@@ -3515,8 +3525,12 @@ void game_release_module_data()
     // deal with the mesh
     clear_all_passages();
 
+    // delete the mesh data
     ptmp = PMesh;
     mesh_destroy( &ptmp );
+
+    // delete the mesh BSP data
+    mpd_BSP_system_end();
 
     // restore the original statically allocated ego_mpd_t header
     PMesh = _mesh + 0;
@@ -4894,23 +4908,23 @@ Uint8 get_alpha( int alpha, float seeinvis_mag )
     // BUT objects that are already more visible than SEEINVISIBLE can be made fully visible
     // with a large enough level
 
-    if ( 1.0f != local_seeinvis_mag )
+    if ( 1.0f != seeinvis_mag )
     {
         if ( 0 == alpha  )
         {
-            if( local_seeinvis_mag > 1.0f )
+            if( seeinvis_mag > 1.0f )
             {
-                alpha = SEEINVISIBLE * (1.0f - 1.0f/local_seeinvis_mag);
+                alpha = SEEINVISIBLE * (1.0f - 1.0f/seeinvis_mag);
             }
         }
         else if( alpha < SEEINVISIBLE )
         {
-            alpha *= local_seeinvis_mag;
+            alpha *= seeinvis_mag;
             alpha = MAX( alpha, SEEINVISIBLE );
         }
         else
         {
-            alpha *= local_seeinvis_mag;
+            alpha *= seeinvis_mag;
         }
     }
 
@@ -5141,8 +5155,6 @@ bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
 
     if ( in_shop )
     {
-        chr_t * shop_owner_ptr;
-
         // check for a stealthy pickup
         is_invis  = !chr_can_see_object( shop_owner_ref, ichr );
 

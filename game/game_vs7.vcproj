@@ -350,7 +350,13 @@
 				RelativePath=".\mesh.c">
 			</File>
 			<File
+				RelativePath=".\mpd_BSP.c">
+			</File>
+			<File
 				RelativePath=".\network.c">
+			</File>
+			<File
+				RelativePath=".\obj_BSP.c">
 			</File>
 			<File
 				RelativePath=".\particle.c">
@@ -454,7 +460,13 @@
 				RelativePath=".\mesh.h">
 			</File>
 			<File
+				RelativePath=".\mpd_BSP.h">
+			</File>
+			<File
 				RelativePath=".\network.h">
+			</File>
+			<File
+				RelativePath=".\obj_BSP.h">
 			</File>
 			<File
 				RelativePath=".\particle.h">

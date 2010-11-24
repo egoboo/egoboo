@@ -28,7 +28,6 @@
 #include "ogl_include.h"
 #include "ogl_debug.h"
 
-#include <math.h>
 #include <float.h>
 
 //--------------------------------------------------------------------------------------------

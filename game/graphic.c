@@ -26,12 +26,8 @@
 #include "graphic_mad.h"
 #include "graphic_fan.h"
 
-#include "char.inl"
-#include "particle.inl"
-#include "enchant.inl"
 #include "mad.h"
-#include "profile.inl"
-#include "mesh.inl"
+#include "obj_BSP.h"
 
 #include "collision.h"
 
@@ -51,22 +47,27 @@
 #include "font_bmp.h"
 #include "lighting.h"
 
-#include "SDL_extensions.h"
-#include "SDL_GL_extensions.h"
-
-#include "egoboo_vfs.h"
-#include "egoboo_setup.h"
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
-
 #if defined(USE_LUA_CONSOLE)
 #    include "lua_console.h"
 #else
 #    include "egoboo_console.h"
 #endif
 
+#include "egoboo_vfs.h"
+#include "egoboo_setup.h"
+#include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
+
+#include "SDL_extensions.h"
+#include "SDL_GL_extensions.h"
+
+#include "char.inl"
+#include "particle.inl"
+#include "enchant.inl"
+#include "profile.inl"
+#include "mesh.inl"
+
 
 #include <SDL_image.h>
 
@@ -1517,7 +1518,7 @@ float draw_fps( float y )
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_ups, update_lag );
 
 #    if defined(DEBUG_BSP)
-        y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", BSP_chr_count, MAX_CHR - chr_count_free(), BSP_prt_count, maxparticles - prt_count_free() );
+        y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", obj_BSP_root.chr_count, MAX_CHR - chr_count_free(), obj_BSP_root.prt_count, maxparticles - prt_count_free() );
         y = _draw_string_raw( 0, y, "BSP infinite %d", obj_BSP_root.tree.infinite_count );
         y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
         //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
@@ -5602,13 +5603,15 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
     // assume no "extra halp" for systems with only flat lighting
     memset( &fake_dynalight, 0, sizeof( fake_dynalight ) );
 
+    // initialize the light_bound
+    light_bound.xmin = pgmem->edge_x;
+    light_bound.xmax = 0;
+    light_bound.ymin = pgmem->edge_y;
+    light_bound.ymax = 0;
+
     // make bounding boxes for each dynamic light
     if ( GL_FLAT != gfx.shading )
     {
-        light_bound.xmin = pgmem->edge_x;
-        light_bound.xmax = 0;
-        light_bound.ymin = pgmem->edge_y;
-        light_bound.ymax = 0;
         for ( cnt = 0; cnt < dyna_list_count; cnt++ )
         {
             float radius;

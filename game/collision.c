@@ -22,17 +22,18 @@
 /// @details
 
 #include "collision.h"
+#include "obj_BSP.h"
+
+#include "log.h"
+#include "hash.h"
+#include "game.h"
+#include "SDL_extensions.h"
 
 #include "char.inl"
 #include "particle.inl"
 #include "enchant.inl"
 #include "profile.inl"
 #include "physics.inl"
-
-#include "log.h"
-#include "hash.h"
-#include "game.h"
-#include "SDL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -959,7 +960,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
     //    if ( !INGAME_CHR( ichra ) ) continue;
 
     //    // find all character collisions with mesh tiles
-    //    mesh_BSP_collide( &mesh_BSP_root, &( ChrList.lst[ichra].chr_max_cv ), &_coll_leaf_lst );
+    //    mpd_BSP_collide( &mpd_BSP_root, &( ChrList.lst[ichra].chr_max_cv ), &_coll_leaf_lst );
     //    if ( _coll_leaf_lst.top > 0 )
     //    {
     //        int j;
@@ -988,7 +989,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
     //    if ( !INGAME_PRT( iprta ) ) continue;
 
     //    // find all particle collisions with mesh tiles
-    //    mesh_BSP_collide( &mesh_BSP_root, &( PrtList.lst[iprta].chr_max_cv ), &_coll_leaf_lst );
+    //    mpd_BSP_collide( &mpd_BSP_root, &( PrtList.lst[iprta].chr_max_cv ), &_coll_leaf_lst );
     //    if ( _coll_leaf_lst.top > 0 )
     //    {
     //        int j;
@@ -1969,7 +1970,9 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
     float depth_min;
     float interaction_strength = 1.0f;
+
     float wta, wtb;
+    float recoil_a, recoil_b;
 
     // object bounding boxes shifted so that they are in the correct place on the map
     oct_bb_t map_bb_a, map_bb_b;
@@ -2042,12 +2045,18 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     // reduce your interaction strength if you have just detached from an object
     if ( pchr_a->dismount_object == ichr_b )
     {
-        interaction_strength *= 1.0f - ( float )pchr_a->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        float dismount_lerp = ( float )pchr_a->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        dismount_lerp = CLIP( dismount_lerp, 0.0f, 1.0f );
+
+        interaction_strength *= dismount_lerp;
     }
 
     if ( pchr_b->dismount_object == ichr_a )
     {
-        interaction_strength *= 1.0f - ( float )pchr_b->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        float dismount_lerp = ( float )pchr_b->dismount_timer / ( float )PHYS_DISMOUNT_TIME;
+        dismount_lerp = CLIP( dismount_lerp, 0.0f, 1.0f );
+
+        interaction_strength *= dismount_lerp;
     }
 
     // seriously reduce the interaction_strength with mounts
@@ -2055,7 +2064,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     if (( pchr_a->ismount && MAX_CHR == pchr_a->holdingwhich[SLOT_LEFT] && !pchr_b->ismount ) ||
         ( pchr_b->ismount && MAX_CHR == pchr_b->holdingwhich[SLOT_LEFT] && !pchr_a->ismount ) )
     {
-        interaction_strength *= 0.03125f;
+        interaction_strength *= 0.25;
     }
 
     // reduce the interaction strength with platforms
@@ -2063,7 +2072,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     if ( pchr_b->canuseplatforms && pchr_a->platform && MAX_CHR != pchr_b->onwhichplatform_ref && ichr_a != pchr_b->onwhichplatform_ref )
     {
         float lerp_z = ( pchr_b->pos.z - ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
-        lerp_z = CLIP( lerp_z, -1, 1 );
+        lerp_z = CLIP( lerp_z, -1.0f, 1.0f );
 
         if ( lerp_z >= 0.0f )
         {
@@ -2139,114 +2148,145 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     // calculate a "mass" for each object, taking into account possible infinite masses
     get_chr_chr_mass_pair( pchr_a, pchr_b, &wta, &wtb );
 
+    // determine the relative effect of impulses, given the known weights
+    get_recoil_factors( wta, wtb, &recoil_a, &recoil_b );
+
     //---- calculate the character-character interactions
     {
-        float recoil_a, recoil_b;
+        const float max_pressure_strength = 0.125f; 
+        const float pressure_strength     = max_pressure_strength * interaction_strength;
 
-        fvec3_t   vpara_a, vperp_a;
-        fvec3_t   vpara_b, vperp_b;
+        fvec3_t   pdiff_a;
 
-        fvec3_t   pimp_a, pimp_b;
-        fvec3_t   vimp_a, vimp_b;
+        bool_t need_displacement = bfalse;
+        bool_t need_velocity = bfalse;
 
-        fvec3_decompose( pchr_a->vel.v, nrm.v, vperp_a.v, vpara_a.v );
-        fvec3_decompose( pchr_b->vel.v, nrm.v, vperp_b.v, vpara_b.v );
-
-        // clear the "impulses"
-        fvec3_self_clear( vimp_a.v );
-        fvec3_self_clear( pimp_a.v );
-
-        fvec3_self_clear( vimp_b.v );
-        fvec3_self_clear( pimp_b.v );
-
-        // determine the relative effect of impulses, given the known weights
-        get_recoil_factors( wta, wtb, &recoil_a, &recoil_b );
-
-        // what type of "collision" is this? (impulse or pressure)
-        if ( collision )
+        fvec3_t   vdiff_a;
+        
+        if( depth_min <= 0.0f || collision )
         {
-            // !!!! COLLISION !!!!
-
-            // an actual bump, use impulse to make the objects bounce appart
-
-            fvec3_t vdiff_a;
-
-            // generic coefficient of restitution.
-            float cr = pchr_a->phys.dampen * pchr_b->phys.dampen;
-
-            // the difference in perpendicular velocities
-            vdiff_a = fvec3_sub( vperp_b.v, vperp_a.v );
-
-            if ( recoil_a > 0.0f )
-            {
-                vimp_a = fvec3_scale( vdiff_a.v, recoil_a * ( 1.0f + cr ) * interaction_strength );
-            }
-
-            if ( recoil_b > 0.0f )
-            {
-                vimp_b = fvec3_scale( vdiff_a.v, -recoil_b * ( 1.0f + cr ) * interaction_strength );
-            }
-
-            // add in the velocity impulses
-            fvec3_self_sum( pchr_a->phys.avel.v, vimp_a.v );
-            fvec3_self_sum( pchr_b->phys.avel.v, vimp_b.v );
-
-            // this was definitely a bump
-            bump = btrue;
+            need_displacement = bfalse;
+            fvec3_self_clear( pdiff_a.v );
         }
-        // ignore the case of both objects having infinite mass
-        // this is normally due to two scenery objects being too close to each other
-        else if ( !collision && ( wta >= 0.0f || wtb >= 0.0f ) )
+        else
         {
-            // !!!! PRESSURE !!!!
+            // add a small amount to the pressure difference so that
+            // the function will actually separate the objects in a finite number
+            // of iterations
+            need_displacement = btrue;
+            pdiff_a = fvec3_scale( nrm.v, depth_min + 1.0f );
+        }
 
-            // not a bump at all. two objects are rubbing against one another
-            // and continually overlapping.
-            // use pressure to push them appart. reduce their relative velocities.
+        // find the relative velocity
+        vdiff_a = fvec3_sub( pchr_b->vel.v, pchr_a->vel.v );
 
-            const float pressure_strength = 0.5f * interaction_strength;
+        need_velocity = bfalse;
+        if( fvec3_length_abs(vdiff_a.v) > 1e-6 )
+        {
+            need_velocity = btrue;
+        }
 
-            float     vdot;
-            fvec3_t   pdiff_a, vdiff_a;
+        //---- handle the relative velocity
+        if( need_velocity )
+        {
+            fvec3_t vimp_a, vimp_b;
 
-            // find the relative velocity
-            vdiff_a = fvec3_sub( pchr_b->vel.v, pchr_a->vel.v );
+            fvec3_self_clear( vimp_a.v );
+            fvec3_self_clear( vimp_b.v );
 
-            // find the motion to take a out of b
-            pdiff_a = fvec3_scale( nrm.v, depth_min );
+            // what type of "collision" is this? (impulse or pressure)
+            if ( collision )
+            {
+                // !!!! COLLISION !!!!
 
-            // are the objects moving towards each other, or appart?
-            vdot    = fvec3_dot_product( vdiff_a.v, nrm.v );
+                // an actual bump, use impulse to make the objects bounce appart
+
+                fvec3_t vdiff_para_a, vdiff_perp_a;
+
+                // generic coefficient of restitution.
+                float cr = pchr_a->phys.dampen * pchr_b->phys.dampen;
+
+                // decompose this relative to the collision normal
+                fvec3_decompose( vdiff_a.v, nrm.v, vdiff_perp_a.v, vdiff_para_a.v );
+
+                if ( recoil_a > 0.0f )
+                {
+                    vimp_a = fvec3_scale( vdiff_perp_a.v, recoil_a * ( 1.0f + cr ) * interaction_strength );
+                }
+
+                if ( recoil_b > 0.0f )
+                {
+                    vimp_b = fvec3_scale( vdiff_perp_a.v, -recoil_b * ( 1.0f + cr ) * interaction_strength );
+                }
+
+                // add in the velocity impulses
+                fvec3_self_sum( pchr_a->phys.avel.v, vimp_a.v );
+                fvec3_self_sum( pchr_b->phys.avel.v, vimp_b.v );
+
+                // this was definitely a bump
+                bump = btrue;
+            }
+            // ignore the case of both objects having infinite mass
+            // this is normally due to two scenery objects being too close to each other
+            else if ( !collision && ( wta >= 0.0f || wtb >= 0.0f ) )
+            {
+                // !!!! PRESSURE !!!!
+
+                // not a bump at all. two objects are rubbing against one another
+                // and continually overlapping.
+                //
+                // reduce the relative velocity if the objects are moving towards each other,
+                // but ignore it if they are moving away.
+
+                // use pressure to push them appart. reduce their relative velocities.
+
+                float     vdot;
+
+                // are the objects moving towards each other, or appart?
+                vdot = fvec3_dot_product( vdiff_a.v, nrm.v );
+
+                if ( vdot < 0.0f )
+                {
+                    if ( recoil_a > 0.0f )
+                    {
+                        vimp_a = fvec3_scale( vdiff_a.v, recoil_a * pressure_strength );
+                    }
+
+                    if ( recoil_b > 0.0f )
+                    {
+                        vimp_b = fvec3_scale( vdiff_a.v, -recoil_b * pressure_strength );
+                    }
+
+                    // add in any changes in velocity
+                    fvec3_self_sum( pchr_a->phys.avel.v,      vimp_a.v );
+                    fvec3_self_sum( pchr_b->phys.avel.v,      vimp_b.v );
+                }
+
+                // you could "bump" something if you changed your velocity, even if you were still touching
+                bump = ( fvec3_dot_product( pchr_a->vel.v, nrm.v ) * fvec3_dot_product( pchr_a->vel_old.v, nrm.v ) < 0 ) ||
+                    ( fvec3_dot_product( pchr_b->vel.v, nrm.v ) * fvec3_dot_product( pchr_b->vel_old.v, nrm.v ) < 0 );
+            }
+
+        }
+
+        //---- fix the displacement regardless of what kind of interaction
+        if( need_displacement )
+        {
+            fvec3_t   pimp_a, pimp_b;
 
             if ( recoil_a > 0.0f )
             {
                 pimp_a = fvec3_scale( pdiff_a.v, recoil_a * pressure_strength );
-                if ( vdot < 0.0f )
-                {
-                    vimp_a = fvec3_scale( vdiff_a.v, recoil_a * pressure_strength );
-                }
             }
 
             if ( recoil_b > 0.0f )
             {
                 pimp_b = fvec3_scale( pdiff_a.v,  -recoil_b * pressure_strength );
-                if ( vdot < 0.0f )
-                {
-                    vimp_b = fvec3_scale( vdiff_a.v, -recoil_b * pressure_strength );
-                }
             }
 
             // add in the pressure impulses
             fvec3_self_sum( pchr_a->phys.apos_coll.v, pimp_a.v );
             fvec3_self_sum( pchr_b->phys.apos_coll.v, pimp_b.v );
-
-            // add in any changes in velocity
-            fvec3_self_sum( pchr_a->phys.avel.v,      vimp_a.v );
-            fvec3_self_sum( pchr_b->phys.avel.v,      vimp_b.v );
-
-            // you could "bump" something if you changed your velocity, even if you were still touching
-            bump = ( fvec3_dot_product( pchr_a->vel.v, nrm.v ) * fvec3_dot_product( pchr_a->vel_old.v, nrm.v ) < 0 ) ||
-                   ( fvec3_dot_product( pchr_b->vel.v, nrm.v ) * fvec3_dot_product( pchr_b->vel_old.v, nrm.v ) < 0 );
         }
 
         //// add in the friction due to the "collision"
