@@ -2763,7 +2763,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
 
     // this is often set to zero when the particle hits something
-    max_damage = ABS(loc_pprt->damage.base) + ABS(loc_pprt->damage.rand);
+    max_damage = ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand );
 
     // wait until the right time
     update_count = update_wld + loc_pprt->obj_base.guid;
@@ -2771,7 +2771,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
 
     // do nothing if the particle is hidden
     // ZF> This is already checked in prt_update_ingame()
-    //if ( loc_pprt->is_hidden ) return;        
+    //if ( loc_pprt->is_hidden ) return;
 
     // we must be attached to something
     if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
@@ -2800,12 +2800,12 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     // 4) the character has no protection to the particle
     no_protection_from = ( 0 != max_damage ) && ( loc_pprt->damagetype < DAMAGE_COUNT ) && ( 0 == loc_pchr->damage_modifier[loc_pprt->damagetype] );
 
-    if( !skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from )
+    if ( !skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from )
     {
         return pbdl_prt;
     }
 
-    if( has_vulnie || is_immolated_by )
+    if ( has_vulnie || is_immolated_by )
     {
         // the damage is the maximum damage over and over again until the particle dies
         range_to_pair( loc_ppip->damage, &local_damage );
@@ -2828,14 +2828,13 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
             // how many 32 update cycles will this particle live through?
             int cycles = loc_pprt->lifetime / 32;
 
-            if( cycles > 1 )
+            if ( cycles > 1 )
             {
                 local_damage.base /= cycles;
                 local_damage.rand /= cycles;
             }
         }
     }
-
 
     //---- special effects
     if ( loc_ppip->allowpush && 0 == loc_ppip->vel_hrz_pair.base )
@@ -2849,7 +2848,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     actual_damage = damage_character( ichr, ATK_BEHIND, local_damage, loc_pprt->damagetype, loc_pprt->team, loc_pprt->owner_ref, loc_ppip->damfx, bfalse );
 
     // adjust any remaining particle damage
-    if( loc_pprt->damage.base > 0 )
+    if ( loc_pprt->damage.base > 0 )
     {
         loc_pprt->damage.base -= actual_damage;
         loc_pprt->damage.base  = MAX( 0, loc_pprt->damage.base );

@@ -713,18 +713,18 @@ int update_game()
         }
     }
 
-    if( numalive > 0 )
+    if ( numalive > 0 )
     {
-        local_seeinvis_level /= (float)numalive;
-        local_seekurse_level /= (float)numalive;
-        local_seedark_level  /= (float)numalive;
-        local_grog_level     /= (float)numalive;
-        local_daze_level     /= (float)numalive;
+        local_seeinvis_level /= ( float )numalive;
+        local_seekurse_level /= ( float )numalive;
+        local_seedark_level  /= ( float )numalive;
+        local_grog_level     /= ( float )numalive;
+        local_daze_level     /= ( float )numalive;
     }
 
     // this allows for kurses, which might make negative values to do something reasonable
-    local_seeinvis_mag = exp(0.32f * local_seeinvis_level);
-    local_seedark_mag  = exp(0.32f * local_seedark_level);
+    local_seeinvis_mag = exp( 0.32f * local_seeinvis_level );
+    local_seedark_mag  = exp( 0.32f * local_seedark_level );
 
     // Dampen groggyness if not all players are grogged (this assumes they all share the same camera view)
     if ( 0 != numalive )
@@ -834,7 +834,7 @@ int update_game()
                 initialize_all_objects();
                 {
                     move_all_objects();                   // clears some latches
-                    bump_all_objects( &obj_BSP_root );    // do the actual object interaction
+                    bump_all_objects();    // do the actual object interaction
                 }
                 finalize_all_objects();
                 //---- end the code for updating in-game objects
@@ -4910,14 +4910,14 @@ Uint8 get_alpha( int alpha, float seeinvis_mag )
 
     if ( 1.0f != seeinvis_mag )
     {
-        if ( 0 == alpha  )
+        if ( 0 == alpha )
         {
-            if( seeinvis_mag > 1.0f )
+            if ( seeinvis_mag > 1.0f )
             {
-                alpha = SEEINVISIBLE * (1.0f - 1.0f/seeinvis_mag);
+                alpha = SEEINVISIBLE * ( 1.0f - 1.0f / seeinvis_mag );
             }
         }
-        else if( alpha < SEEINVISIBLE )
+        else if ( alpha < SEEINVISIBLE )
         {
             alpha *= seeinvis_mag;
             alpha = MAX( alpha, SEEINVISIBLE );
@@ -4941,7 +4941,7 @@ Uint8 get_light( int light, float seedark_mag )
     //     darkvision should make it more visible
 
     // is this object NOT glowing?
-    if( light >= 0xFF ) return 0xFF;
+    if ( light >= 0xFF ) return 0xFF;
 
     if ( seedark_mag != 1.0f )
     {

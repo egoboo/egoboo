@@ -142,7 +142,6 @@ extern "C"
 #    define FLOOR(VAL) ( (float)floor((float)VAL) )
 #endif
 
-
 #define MAT_IDX(I,J) (4*(I)+(J))
 #define CNV(I,J)     v[MAT_IDX(I,J)]
 #define CopyMatrix( pMatrixDest, pMatrixSource ) memmove( pMatrixDest, pMatrixSource, sizeof( *pMatrixDest ) )

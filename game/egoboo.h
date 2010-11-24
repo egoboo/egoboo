@@ -176,7 +176,7 @@ EXTERN float                     local_seedark_level     EQ( 0.0f );
 EXTERN float                     local_seedark_mag       EQ( 1.0f );
 EXTERN float                     local_seekurse_level    EQ( 0.0f );
 EXTERN float                     local_listening_level   EQ( 0.0f );  ///< Players with listen skill?
-EXTERN bool_t                    local_noplayers         EQ(btrue);   ///< Are there any local players?
+EXTERN bool_t                    local_noplayers         EQ( btrue ); ///< Are there any local players?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

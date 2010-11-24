@@ -44,19 +44,19 @@ mpd_BSP_t mpd_BSP_root =
 
 void mpd_BSP_system_begin( ego_mpd_t * pmpd )
 {
-    if( _mpd_BSP_system_initialized )
+    if ( _mpd_BSP_system_initialized )
     {
         mpd_BSP_system_end();
     }
 
-    if( NULL != pmpd )
+    if ( NULL != pmpd )
     {
         mpd_BSP_t * rv;
 
         // initialize the mesh's BSP structure with the mesh tiles
         rv = mpd_BSP_ctor( &mpd_BSP_root, pmpd );
 
-        _mpd_BSP_system_initialized = (NULL != rv);
+        _mpd_BSP_system_initialized = ( NULL != rv );
     }
 }
 
@@ -64,14 +64,13 @@ void mpd_BSP_system_begin( ego_mpd_t * pmpd )
 //--------------------------------------------------------------------------------------------
 void mpd_BSP_system_end()
 {
-    if( _mpd_BSP_system_initialized )
+    if ( _mpd_BSP_system_initialized )
     {
         mpd_BSP_dtor( &mpd_BSP_root );
     }
 
     _mpd_BSP_system_initialized = bfalse;
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -68,7 +68,6 @@
 #include "profile.inl"
 #include "mesh.inl"
 
-
 #include <SDL_image.h>
 
 #include <assert.h>
@@ -1518,8 +1517,8 @@ float draw_fps( float y )
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_ups, update_lag );
 
 #    if defined(DEBUG_BSP)
-        y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", obj_BSP_root.chr_count, MAX_CHR - chr_count_free(), obj_BSP_root.prt_count, maxparticles - prt_count_free() );
-        y = _draw_string_raw( 0, y, "BSP infinite %d", obj_BSP_root.tree.infinite_count );
+        y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - chr_count_free(), prt_BSP_root.count, maxparticles - prt_count_free() );
+        y = _draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite_count + prt_BSP_root.tree.infinite_count );
         y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
         //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
@@ -3329,7 +3328,7 @@ void gfx_update_timers()
     gfx_clock      = egoboo_get_ticks() - gfx_clock_stt;
     dclock         = gfx_clock - gfx_clock_last;
 
-    if( process_running( PROC_PBASE( MProc ) ) )
+    if ( process_running( PROC_PBASE( MProc ) ) )
     {
         menu_fps_clock += dclock;
 
@@ -3352,7 +3351,7 @@ void gfx_update_timers()
         }
     }
 
-    if( process_running( PROC_PBASE( GProc ) ) )
+    if ( process_running( PROC_PBASE( GProc ) ) )
     {
         game_fps_clock += dclock;
 
@@ -3375,11 +3374,11 @@ void gfx_update_timers()
         }
     }
 
-    if( process_running( PROC_PBASE( GProc ) ) )
+    if ( process_running( PROC_PBASE( GProc ) ) )
     {
         stabilized_fps = stabilized_game_fps;
     }
-    else if( process_running( PROC_PBASE( MProc ) ) )
+    else if ( process_running( PROC_PBASE( MProc ) ) )
     {
         stabilized_fps = stabilized_game_fps;
     }
@@ -4938,10 +4937,10 @@ void do_chr_flashing()
         // Do blacking
         // having one holy player in your party will cause the effect, BUT
         // having some non-holy players will dilute it
-        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && (0.0f != local_seekurse_level) && ChrList.lst[ichr].iskursed )
+        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && ( 0.0f != local_seekurse_level ) && ChrList.lst[ichr].iskursed )
         {
-            float tmp_seekurse_level = CLIP(local_seekurse_level, 0.0f, 1.0f);
-            flash_character( ichr, 255 * (1.0f - tmp_seekurse_level)  );
+            float tmp_seekurse_level = CLIP( local_seekurse_level, 0.0f, 1.0f );
+            flash_character( ichr, 255 *( 1.0f - tmp_seekurse_level ) );
         }
     }
 }
@@ -5152,12 +5151,12 @@ void _flip_pages()
 
     SDL_GL_SwapBuffers();
 
-    if( process_running( PROC_PBASE( MProc ) ) )
+    if ( process_running( PROC_PBASE( MProc ) ) )
     {
         menu_fps_loops++;
     }
 
-    if( process_running( PROC_PBASE( GProc ) ) )
+    if ( process_running( PROC_PBASE( GProc ) ) )
     {
         game_fps_loops++;
         game_frame_all++;
@@ -5391,7 +5390,7 @@ float get_ambient_level()
         min_amb  = glob_amb;
 
         // give a iny boost in the case of no light_a
-        if( local_seedark_mag > 0.0f ) min_amb += 1.0f;
+        if ( local_seedark_mag > 0.0f ) min_amb += 1.0f;
 
         // light_a can be quite dark, so we need a large magnification
         min_amb *= local_seedark_mag * local_seedark_mag;

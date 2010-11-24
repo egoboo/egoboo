@@ -46,39 +46,42 @@ enum obj_BSP_type
 // the BSP structure housing the object
 struct s_obj_BSP
 {
-    int          chr_count;                     ///< the number of characters in the obj_BSP_root structure
-    int          prt_count;                     ///< the number of particles  in the obj_BSP_root structure
+    /// the number of objects in thhis obj_BSP
+    int          count;
 
-    // the BSP of characters for character-character and character-particle interactions
+    /// the BSP of characters for character-character and character-particle interactions
     BSP_tree_t   tree;
 };
 
 typedef struct s_obj_BSP obj_BSP_t;
 
-bool_t obj_BSP_ctor( obj_BSP_t * pbsp, struct s_mpd_BSP * pmesh_bsp );
+bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int dim, struct s_mpd_BSP * pmesh_bsp );
 bool_t obj_BSP_dtor( obj_BSP_t * pbsp );
 
-bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int depth );
+bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth );
 bool_t obj_BSP_free( obj_BSP_t * pbsp );
-
-bool_t obj_BSP_fill( obj_BSP_t * pbsp );
-bool_t obj_BSP_clear( obj_BSP_t * pbsp );
-
-bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, struct s_chr * pchr );
-bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, struct s_prt_bundle * pbdl_prt );
 
 int    obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern obj_BSP_t obj_BSP_root;
+extern obj_BSP_t chr_BSP_root;
+extern obj_BSP_t prt_BSP_root;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 void obj_BSP_system_begin( struct s_mpd_BSP * pBSP );
 void obj_BSP_system_end();
+
+bool_t chr_BSP_insert( struct s_chr * pchr );
+bool_t chr_BSP_fill();
+bool_t chr_BSP_clear_nodes();
+
+bool_t prt_BSP_insert( struct s_prt_bundle * pbdl_prt );
+bool_t prt_BSP_fill();
+bool_t prt_BSP_clear_nodes();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

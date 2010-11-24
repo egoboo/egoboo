@@ -127,7 +127,7 @@ bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * 
 
 bool_t phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 
-bool_t get_chr_chr_mass_pair( struct s_chr * pchr_a, struct s_chr * pchr_b, float * wta, float * wtb );
-bool_t get_chr_prt_mass_pair( struct s_chr * pchr, struct s_prt * pprt, float * wchr, float * wprt );
+bool_t get_chr_mass( struct s_chr * pchr, float * wt );
+bool_t get_prt_mass( struct s_prt * pprt, struct s_chr * pchr, float * wt );
 void   get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 

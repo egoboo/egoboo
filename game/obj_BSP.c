@@ -36,7 +36,8 @@ static bool_t _obj_BSP_system_initialized = bfalse;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-obj_BSP_t obj_BSP_root = { 0, 0, BSP_TREE_INIT_VALS };
+obj_BSP_t chr_BSP_root = { 0, BSP_TREE_INIT_VALS };
+obj_BSP_t prt_BSP_root = { 0, BSP_TREE_INIT_VALS };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -50,8 +51,12 @@ void obj_BSP_system_begin( mpd_BSP_t * pBSP )
         obj_BSP_system_end();
     }
 
+    // use 2D BSPs for the moment
+    obj_BSP_ctor( &chr_BSP_root, 2, pBSP );
+    obj_BSP_ctor( &prt_BSP_root, 2, pBSP );
+
     // let the code know that everything is initialized
-    _obj_BSP_system_initialized = obj_BSP_ctor( &obj_BSP_root, pBSP );
+    _obj_BSP_system_initialized = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -63,7 +68,8 @@ void obj_BSP_system_end()
     if ( _obj_BSP_system_initialized )
     {
         // delete the object BSP data
-        obj_BSP_dtor( &obj_BSP_root );
+        obj_BSP_dtor( &chr_BSP_root );
+        obj_BSP_dtor( &prt_BSP_root );
 
         _obj_BSP_system_initialized = bfalse;
     }
@@ -71,17 +77,18 @@ void obj_BSP_system_end()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int depth )
+bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth )
 {
+    // allocate make a 2D BSP tree
+
     BSP_tree_t * rv;
 
     if ( NULL == pbsp ) return bfalse;
 
     obj_BSP_free( pbsp );
 
-    rv = BSP_tree_ctor( &( pbsp->tree ), 3, depth );
+    rv = BSP_tree_ctor( &( pbsp->tree ), dim, depth );
 
-    // make a 3D BSP tree, depth copied from the mesh depth
     return ( NULL != rv );
 }
 
@@ -96,41 +103,59 @@ bool_t obj_BSP_free( obj_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_ctor( obj_BSP_t * pbsp, mpd_BSP_t * pmesh_bsp )
+bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int dim, mpd_BSP_t * pmesh_bsp )
 {
-    /// @details BB@> Create a new BSP tree for the mesh.
+    /// @details BB@> Create a new BSP tree for game objects.
     //     These parameters duplicate the max resolution of the old system.
 
     int          cnt;
     float        bsp_size;
     BSP_tree_t * t;
 
+    if ( dim < 2 )
+    {
+        log_error( "obj_BSP_ctor() - cannot construct an object BSP with less than 2 dimensions\n" );
+    }
+    else if ( dim > 3 )
+    {
+        log_error( "obj_BSP_ctor() - cannot construct an object BSP with more than than 3 dimensions\n" );
+    }
+
     if ( NULL == pbsp || NULL == pmesh_bsp ) return bfalse;
 
     memset( pbsp, 0, sizeof( *pbsp ) );
 
     // allocate the data
-    obj_BSP_alloc( pbsp, pmesh_bsp->tree.depth );
+    obj_BSP_alloc( pbsp, dim, pmesh_bsp->tree.depth );
 
     t = &( pbsp->tree );
 
-    // copy the volume from the mesh
-    t->bbox.mins.ary[kX] = pmesh_bsp->volume.mins[OCT_X];
-    t->bbox.mins.ary[kY] = pmesh_bsp->volume.mins[OCT_Y];
+    //---- copy the volume from the mesh
+    if ( dim > 0 )
+    {
+        t->bbox.mins.ary[kX] = pmesh_bsp->volume.mins[OCT_X];
+        t->bbox.mins.ary[kY] = pmesh_bsp->volume.mins[OCT_Y];
+    }
 
-    t->bbox.maxs.ary[kX] = pmesh_bsp->volume.maxs[OCT_X];
-    t->bbox.maxs.ary[kY] = pmesh_bsp->volume.maxs[OCT_Y];
+    if ( dim > 1 )
+    {
+        t->bbox.maxs.ary[kX] = pmesh_bsp->volume.maxs[OCT_X];
+        t->bbox.maxs.ary[kY] = pmesh_bsp->volume.maxs[OCT_Y];
+    }
 
-    // make some extra space in the z direction
-    bsp_size = MAX( ABS( t->bbox.mins.ary[OCT_X] ), ABS( t->bbox.maxs.ary[OCT_X] ) );
-    bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Y] ), ABS( t->bbox.maxs.ary[OCT_Y] ) ) );
-    bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Z] ), ABS( t->bbox.maxs.ary[OCT_Z] ) ) );
+    if ( dim > 2 )
+    {
+        // make some extra space in the z direction
+        bsp_size = MAX( ABS( t->bbox.mins.ary[OCT_X] ), ABS( t->bbox.maxs.ary[OCT_X] ) );
+        bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Y] ), ABS( t->bbox.maxs.ary[OCT_Y] ) ) );
+        bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Z] ), ABS( t->bbox.maxs.ary[OCT_Z] ) ) );
 
-    t->bbox.mins.ary[kZ] = -bsp_size * 2;
-    t->bbox.maxs.ary[kZ] =  bsp_size * 2;
+        t->bbox.mins.ary[kZ] = -bsp_size * 2;
+        t->bbox.maxs.ary[kZ] =  bsp_size * 2;
+    }
 
     // calculate the mid positions
-    for ( cnt = 0; cnt < 3; cnt++ )
+    for ( cnt = 0; cnt < dim; cnt++ )
     {
         t->bbox.mids.ary[cnt] = 0.5f * ( t->bbox.mins.ary[cnt] + t->bbox.maxs.ary[cnt] );
     }
@@ -155,7 +180,7 @@ bool_t obj_BSP_dtor( obj_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
+bool_t chr_BSP_insert( chr_t * pchr )
 {
     /// @details BB@> insert a character's BSP_leaf_t into the BSP_tree_t
 
@@ -163,8 +188,15 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
 
-    if ( NULL == pbsp ) return bfalse;
-    ptree = &( pbsp->tree );
+    bool_t can_be_reaffirmed;
+    bool_t can_grab_money;
+    bool_t can_use_platforms;
+    bool_t can_collide;
+
+    bool_t requires_chr_chr;
+    bool_t requires_chr_prt;
+
+    ptree = &( chr_BSP_root.tree );
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
@@ -176,9 +208,22 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
     if ( pchr->pack.is_packed )
         return bfalse;
 
-    // no interaction with objects of zero size
-    if ( 0 == pchr->bump_stt.size )
-        return bfalse;
+    // generic flags for character interaction
+    can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );
+    can_grab_money    = pchr->cangrabmoney;
+    can_use_platforms = pchr->canuseplatforms;
+    can_collide       = ( 0 != pchr->bump_stt.size ) && ( MAX_CHR == pchr->attachedto );
+
+    // conditions for normal chr-chr interaction
+    // platform tests are done elsewhere
+    requires_chr_chr = can_collide /* || can_use_platforms */;
+
+    // conditions for chr-prt interaction
+    requires_chr_prt = can_be_reaffirmed /* || can_grab_money */;
+
+    // even if an object does not interact with other characters,
+    // it must still be inserted if it might interact with a particle
+    if ( !requires_chr_chr && !requires_chr_prt ) return bfalse;
 
     pleaf = &( pchr->bsp_leaf );
     if ( pchr != ( chr_t * )( pleaf->data ) )
@@ -209,7 +254,7 @@ bool_t obj_BSP_insert_chr( obj_BSP_t * pbsp, chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
+bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
 {
     /// @details BB@> insert a particle's BSP_leaf_t into the BSP_tree_t
 
@@ -223,13 +268,15 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     oct_bb_t tmp_oct;
 
     // Each one of these tests allows one MORE reason to include the particle, not one less.
+    // Removed bump particles. We have another loop that can detect these, and there
+    // is no reason to fill up the BSP with particles like coins.
     bool_t       has_enchant;
-    bool_t       does_damage, does_status_effect, does_special_effect;
-    bool_t       needs_bump;
+    bool_t       does_damage;
+    bool_t       does_status_effect;
+    bool_t       does_special_effect;
     bool_t       can_push;
 
-    if ( NULL == pbsp ) return bfalse;
-    ptree = &( pbsp->tree );
+    ptree = &( prt_BSP_root.tree );
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
     loc_pprt = pbdl_prt->prt_ptr;
@@ -240,10 +287,13 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     has_enchant = bfalse;
-    if ( !LOADED_PRO( loc_pprt->profile_ref ) )
+    if ( loc_ppip->spawnenchant )
     {
-        pro_t * ppro = ProList.lst + loc_pprt->profile_ref;
-        has_enchant = LOADED_EVE( ppro->ieve );
+        if ( !LOADED_PRO( loc_pprt->profile_ref ) )
+        {
+            pro_t * ppro = ProList.lst + loc_pprt->profile_ref;
+            has_enchant = LOADED_EVE( ppro->ieve );
+        }
     }
 
     // any possible damage?
@@ -253,9 +303,6 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     // do not require damage
     does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || ( 0 != loc_ppip->lifedrain ) || ( 0 != loc_ppip->manadrain );
 
-    // OMIT the the particle effects that do not influence characters (i.e. money)
-    needs_bump          = ( loc_ppip->end_bump && 0 != loc_ppip->bump_money );
-
     // these are not implemented yet
     does_special_effect = loc_ppip->cause_pancake || loc_ppip->cause_roll;
 
@@ -263,7 +310,7 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
     can_push            = does_damage && loc_ppip->allowpush;
 
     // particles with no effect
-    if ( !can_push && !needs_bump && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;
+    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;
 
     pleaf = &( loc_pprt->bsp_leaf );
     if ( loc_pprt != ( prt_t * )( pleaf->data ) )
@@ -287,15 +334,12 @@ bool_t obj_BSP_insert_prt( obj_BSP_t * pbsp, prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_clear( obj_BSP_t * pbsp )
+bool_t chr_BSP_clear_nodes()
 {
     CHR_REF ichr;
-    PRT_REF iprt;
-
-    if ( NULL == pbsp ) return bfalse;
 
     // unlink all the BSP nodes
-    BSP_tree_clear_nodes( &( pbsp->tree ), btrue );
+    BSP_tree_clear_nodes( &( chr_BSP_root.tree ), btrue );
 
     // unlink all used character nodes
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
@@ -304,8 +348,19 @@ bool_t obj_BSP_clear( obj_BSP_t * pbsp )
         ChrList.lst[ichr].bsp_leaf.inserted = bfalse;
     }
 
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_BSP_clear_nodes()
+{
+    PRT_REF iprt;
+
+    // unlink all the BSP nodes
+    BSP_tree_clear_nodes( &( prt_BSP_root.tree ), btrue );
+
     // unlink all used particle nodes
-    obj_BSP_root.prt_count = 0;
+    prt_BSP_root.count = 0;
     for ( iprt = 0; iprt < MAX_PRT; iprt++ )
     {
         PrtList.lst[iprt].bsp_leaf.next = NULL;
@@ -316,12 +371,10 @@ bool_t obj_BSP_clear( obj_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_fill( obj_BSP_t * pbsp )
+bool_t chr_BSP_fill()
 {
-    if ( NULL == pbsp ) return bfalse;
-
     // insert the characters
-    obj_BSP_root.chr_count = 0;
+    chr_BSP_root.count = 0;
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
         // reset a couple of things here
@@ -331,15 +384,21 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
         pchr->targetplatform_level = -1e32;
 
         // try to insert the character
-        if ( obj_BSP_insert_chr( pbsp, pchr ) )
+        if ( chr_BSP_insert( pchr ) )
         {
-            obj_BSP_root.chr_count++;
+            chr_BSP_root.count++;
         }
     }
     CHR_END_LOOP()
 
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_BSP_fill()
+{
     // insert the particles
-    obj_BSP_root.prt_count = 0;
+    prt_BSP_root.count = 0;
     PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
         // reset a couple of things here
@@ -348,9 +407,9 @@ bool_t obj_BSP_fill( obj_BSP_t * pbsp )
         prt_bdl.prt_ptr->targetplatform_level = -1e32;
 
         // try to insert the particle
-        if ( obj_BSP_insert_prt( pbsp, &prt_bdl ) )
+        if ( prt_BSP_insert( &prt_bdl ) )
         {
-            obj_BSP_root.prt_count++;
+            prt_BSP_root.count++;
         }
     }
     PRT_END_LOOP()

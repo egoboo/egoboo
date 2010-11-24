@@ -156,7 +156,7 @@ void camera_make_matrix( camera_t * pcam )
         pcam->swing = ( pcam->swing + 120 ) & 0x3FFF;
         local_swingamp = MAX( local_swingamp, 0.175f );
 
-        zoom_add = ( 0 == ( ((int)local_grog_level) % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_grog_level * 0.35f;
+        zoom_add = ( 0 == ((( int )local_grog_level ) % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_grog_level * 0.35f;
         pcam->zaddgoto = CLIP( pcam->zaddgoto + zoom_add, CAM_ZADD_MIN, CAM_ZADD_MAX );
         pcam->motion_blur = MIN( 1.00f, 0.6f + 0.075f * local_grog_level );
     }

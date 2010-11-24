@@ -67,7 +67,6 @@ static float grid_get_mix( float u0, float u, float v0, float v );
 //--------------------------------------------------------------------------------------------
 ego_mpd_t   mesh;
 
-
 int mesh_mpdfx_tests = 0;
 int mesh_bound_tests = 0;
 int mesh_pressure_tests = 0;

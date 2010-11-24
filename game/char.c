@@ -2011,7 +2011,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     pchr_a = ChrList.lst + ichr_a;
 
     pcap_a = pro_get_pcap( pchr_a->profile_ref );
-    if( NULL == pcap_a ) return bfalse;
+    if ( NULL == pcap_a ) return bfalse;
 
     // Make life easier
     slot = grip_offset_to_slot( grip_off );  // 0 is left, 1 is right
@@ -2067,7 +2067,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         if ( INGAME_CHR( pchr_b->attachedto ) ) continue;
 
         // can't pick up something you can't see
-        if( !chr_can_see_object( ichr_a, ichr_b ) ) continue;
+        if ( !chr_can_see_object( ichr_a, ichr_b ) ) continue;
 
         // do not pick up your mount
         if ( pchr_b->holdingwhich[SLOT_LEFT] == ichr_a ||
@@ -2232,7 +2232,6 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     int   spawn_vrt_offset;
     Uint8 action;
     Uint16 turn;
-    float dampen;
     float velocity;
 
     bool_t unarmed_attack;
@@ -2341,10 +2340,14 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     if ( pweapon_cap->attack_attached )
                     {
                         // attached particles get a strength bonus for reeling...
-                        dampen = REELBASE + ( pchr->strength / REEL );
+                        // dampen = REELBASE + ( pchr->strength / REEL );
+
+                        // this gives a factor of 10 increase in bumping
+                        // at a stat of 60, and a penalty for stats below about 10
+                        float bumpdampen = exp( -1.8e-4 * ( pchr->strength - 2611 ) );
 
                         pprt->phys.weight     = pweapon->phys.weight;
-                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen * dampen;
+                        pprt->phys.bumpdampen = pweapon->phys.bumpdampen * bumpdampen;
 
                         pprt = place_particle_at_vertex( pprt, iweapon, spawn_vrt_offset );
                         if ( NULL == pprt ) return;
@@ -6637,21 +6640,33 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     // interaction with the mesh
     //if ( ABS( pchr->vel.z ) > 0.0f )
     {
+        const float vert_offset = RAISE;
+        float grid_level = pchr->enviro.grid_level + vert_offset;
+
         tmp_pos.z += pchr->vel.z;
         LOG_NAN( tmp_pos.z );
-        if ( tmp_pos.z < pchr->enviro.floor_level )
+        if ( tmp_pos.z < grid_level )
         {
-            pchr->vel.z *= -pchr->phys.bumpdampen;
-
             if ( ABS( pchr->vel.z ) < STOPBOUNCING )
             {
                 pchr->vel.z = 0.0f;
-                tmp_pos.z = pchr->enviro.level;
+                tmp_pos.z = grid_level;
             }
             else
             {
-                float diff = pchr->enviro.level - tmp_pos.z;
-                tmp_pos.z = pchr->enviro.level + diff;
+                if ( pchr->vel.z < 0.0f )
+                {
+                    float diff = pchr->enviro.grid_level - tmp_pos.z;
+
+                    pchr->vel.z *= -pchr->phys.bumpdampen;
+                    diff        *= -pchr->phys.bumpdampen;
+
+                    tmp_pos.z = MAX( tmp_pos.z + diff, grid_level );
+                }
+                else
+                {
+                    tmp_pos.z = grid_level;
+                }
             }
         }
     }
@@ -7989,7 +8004,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     }
 
     // convert the level 1 bounding box to a level 0 bounding box
-    oct_bb_downgrade( &bdst, pchr->bump_stt, pchr->bump, &( pchr->bump_1 ), &( pchr->chr_max_cv ) );
+    oct_bb_downgrade( &bdst, pchr->bump_stt, pchr->bump, &( pchr->bump_1 ), NULL );
 
     return rv_success;
 }
@@ -9166,7 +9181,7 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
     alpha = pobj->inst.alpha;
     if ( 0 != pchr->see_invisible_level )
     {
-        alpha = get_alpha( alpha, exp(0.32f * (float)pchr->see_invisible_level) );
+        alpha = get_alpha( alpha, exp( 0.32f * ( float )pchr->see_invisible_level ) );
     }
     alpha = CLIP( alpha, 0, 255 );
 
@@ -9179,16 +9194,16 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
 
     if ( 0 != pchr->darkvision_level )
     {
-        light *= exp(0.32f * (float)pchr->darkvision_level );
+        light *= exp( 0.32f * ( float )pchr->darkvision_level );
     }
 
     // Scenery, spells and quest objects can always see through darkness
     // Checking pchr->invictus is not enough, since that could be temporary
     // and not indicate the appropriate objects
     pcap = pro_get_pcap( pchr->profile_ref );
-    if( NULL != pcap )
+    if ( NULL != pcap )
     {
-        if( pcap->invictus )
+        if ( pcap->invictus )
         {
             light = INVISIBLE;
         }
@@ -9361,7 +9376,7 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
 
     // modify these values based on local character abilities
     local_alpha = get_alpha( local_alpha, local_seeinvis_mag );
-    local_light = get_light( local_light, local_seedark_mag  );
+    local_light = get_light( local_light, local_seedark_mag );
 
     // clear out the tint
     weight_sum = 0;

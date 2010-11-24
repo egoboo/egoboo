@@ -91,4 +91,4 @@ extern int CHashList_inserted;
 bool_t collision_system_begin();
 void   collision_system_end();
 
-void bump_all_objects( struct s_obj_BSP * pbsp );
+void bump_all_objects();
