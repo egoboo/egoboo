@@ -131,7 +131,6 @@
 					<Add library="libSDL_mixer" />
 					<Add library="libGL" />
 					<Add library="libGLU" />
-					<Add library="libenet" />
 					<Add library="liblua50" />
 					<Add library="liblualib50" />
 					<Add library="libenet_d" />
@@ -152,7 +151,6 @@
 					<Add option="-O3" />
 					<Add option="-Wmain" />
 					<Add option="-pedantic" />
-					<Add option="-W" />
 					<Add option="-Wall" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_CONSOLE" />
@@ -370,6 +368,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="bbox.h" />
+		<Unit filename="bbox.inl" />
 		<Unit filename="bsp.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -539,6 +538,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="file_formats/template.h" />
+		<Unit filename="file_formats/treasure_table_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/treasure_table_file.h" />
 		<Unit filename="file_formats/wawalite_file.c">
 			<Option compilerVar="CC" />
 		</Unit>

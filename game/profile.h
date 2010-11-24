@@ -46,7 +46,7 @@ enum obj_BSP_type
     BSP_LEAF_CHR,
     BSP_LEAF_ENC,
     BSP_LEAF_PRT,
-    BSP_LEAF_TILE,
+    BSP_LEAF_TILE
 };
 
 //--------------------------------------------------------------------------------------------
