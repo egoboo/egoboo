@@ -2000,11 +2000,11 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     bool_t retval;
 
     // valid objects that can be grabbed
-    int         grab_count = 0;
+    size_t      grab_count = 0;
     grab_data_t grab_list[MAX_CHR];
 
     // valid objects that cannot be grabbed
-    int         ungrab_count = 0;
+    size_t      ungrab_count = 0;
     grab_data_t ungrab_list[MAX_CHR];
 
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
@@ -2066,6 +2066,9 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         // disarm not allowed yet
         if ( INGAME_CHR( pchr_b->attachedto ) ) continue;
 
+
+		printf("Checking %s\n", pchr_b->Name);
+
         // can't pick up something you can't see
         if ( !chr_can_see_object( ichr_a, ichr_b ) ) continue;
 
@@ -2082,6 +2085,8 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         dxy = dx + dy;
 
         if ( dxy > GRID_SIZE * 2 || dz > MAX( pchr_b->bump.height, GRABSIZE ) ) continue;
+
+		printf("%s grabbing %s\n", pchr_a->Name, pchr_b->Name);
 
         // reasonable carrying capacity
         if ( pchr_b->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
@@ -2128,6 +2133,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         ichr_b = grab_list[cnt].ichr;
         pchr_b = ChrList.lst + ichr_b;
 
+		//It's too far away for us to actually grab it
         if ( grab_list[cnt].dist > GRABSIZE ) continue;
 
         can_grab = do_item_pickup( ichr_a, ichr_b );
@@ -3101,11 +3107,11 @@ CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_overr
         // The data file wasn't found
         if ( required )
         {
-            log_debug( "load_one_character_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
+            log_warning( "load_one_character_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
         }
         else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "load_one_character_profile_vfs() - Not able to open file \"%s\"\n", szLoadName );
+            log_debug( "load_one_character_profile_vfs() - Not able to open file \"%s\"\n", szLoadName );
         }
 
         return ( CAP_REF )MAX_CAP;
@@ -5195,22 +5201,50 @@ bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 void switch_team( const CHR_REF character, const TEAM_REF team )
 {
     /// @details ZZ@> This function makes a character join another team...
+	chr_t *pchr;
 
-    if ( !INGAME_CHR( character ) || team >= TEAM_MAX ) return;
+    if ( !INGAME_CHR( character ) || team >= TEAM_MAX || team < 0 ) return;
+	pchr = ChrList.lst + character;
 
-    if ( !ChrList.lst[character].invictus )
+	// keep track of how many live ones we have on any team
+    if ( !pchr->invictus )
     {
         if ( chr_get_pteam_base( character )->morale > 0 ) chr_get_pteam_base( character )->morale--;
         TeamStack.lst[team].morale++;
     }
-    if (( !ChrList.lst[character].ismount || !INGAME_CHR( ChrList.lst[character].holdingwhich[SLOT_LEFT] ) ) &&
-        ( !ChrList.lst[character].isitem  || !INGAME_CHR( ChrList.lst[character].attachedto ) ) )
+	
+	/*
+	// change our current team if we are not a item or a mount
+    if (( !pchr->ismount || !INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) ) &&
+        ( !pchr->isitem  || !INGAME_CHR( pchr->attachedto ) ) )
     {
-        ChrList.lst[character].team = team;
+        pchr->team = team;
     }
+	*/
 
-    ChrList.lst[character].baseteam = team;
-    if ( TeamStack.lst[team].leader == NOLEADER )
+	// actually change our team
+    pchr->baseteam = team;
+	pchr->team = team;
+
+	//change our mount team as well
+	if( INGAME_CHR( pchr->attachedto ) )
+	{
+		chr_t *pmount = ChrList.lst + pchr->attachedto;
+		if( pmount->ismount ) pmount->team = team;
+	}
+
+	// update the team of anything we are holding as well
+	if( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+	{
+		ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
+	}
+	if( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
+	{
+		ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
+	}
+
+	// we are the new leader if there isn't one already
+	if ( TeamStack.lst[team].leader == NOLEADER )
     {
         TeamStack.lst[team].leader = character;
     }

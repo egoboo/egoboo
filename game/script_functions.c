@@ -2575,7 +2575,7 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = ChrList.lst[pself->index].grog_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2589,7 +2589,7 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+	returncode = ChrList.lst[pself->index].daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }

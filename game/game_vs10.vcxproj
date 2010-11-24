@@ -81,7 +81,9 @@
     <ClCompile Include="md2.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="mesh.c" />
+    <ClCompile Include="mpd_BSP.c" />
     <ClCompile Include="network.c" />
+    <ClCompile Include="obj_BSP.c" />
     <ClCompile Include="particle.c" />
     <ClCompile Include="passage.c" />
     <ClCompile Include="physics.c" />
@@ -180,7 +182,9 @@
     <ClInclude Include="md2.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="mpd_BSP.h" />
     <ClInclude Include="network.h" />
+    <ClInclude Include="obj_BSP.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="passage.h" />
     <ClInclude Include="physics.h" />
@@ -203,6 +207,7 @@
     <None Include="..\res\egoboo3.ico" />
     <None Include="..\res\install.ico" />
     <None Include="..\res\old-egoboo.ico" />
+    <None Include="bbox.inl" />
     <None Include="bsp.inl" />
     <None Include="char.inl" />
     <None Include="egoboo_console.inl" />
@@ -250,7 +255,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\Egoboo\</OutDir>
     <TargetName>egoboo_debug</TargetName>
   </PropertyGroup>
@@ -283,7 +288,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>enet.lib;shlwapi.lib;SHFolder.lib;Shell32.lib;SDL.lib;SDLmain.lib;opengl32.lib;glu32.lib;ws2_32.lib;SDL_ttf_d.lib;SDL_mixer_d.lib;SDL_image_d.lib;lua5.1.lib;physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <Version>2.8.0b</Version>
+      <Version>2.8.1</Version>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
     </Link>
@@ -305,12 +310,15 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
       <CompileAsManaged>false</CompileAsManaged>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <Optimization>Full</Optimization>
+      <ErrorReporting>None</ErrorReporting>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -319,10 +327,11 @@
       <TargetMachine>MachineX86</TargetMachine>
       <EnableUAC>false</EnableUAC>
       <Version>2.8.1</Version>
-      <IgnoreSpecificDefaultLibraries>LIBCMT.lib;</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

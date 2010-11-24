@@ -3595,9 +3595,9 @@ int doVideoOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, GFX_HEIGHT - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 9, sz_buttons[but_maxlights], menuFont, buttonLeft + 450, GFX_HEIGHT - 285, 100, 30 ) )
             {
-                if ( cfg.dyna_count_req < 8 )
+                if ( cfg.dyna_count_req < 16 )
                 {
-                    cfg.dyna_count_req = 8;
+                    cfg.dyna_count_req = 16;
                 }
                 else
                 {

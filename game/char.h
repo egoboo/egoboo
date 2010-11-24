@@ -69,7 +69,7 @@ struct s_chr;
 #define CHR_INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
 #define CHR_MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
 
-#define GRABSIZE            135.0f //90.0f             ///< Grab tolerance
+#define GRABSIZE            90.0f //135.0f             ///< Grab tolerance
 #define NOHIDE              127                        ///< Don't hide
 #define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
 #define RESPAWN_ANYTIME     0xFF                       ///< Code for respawnvalid...

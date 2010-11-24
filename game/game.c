@@ -704,8 +704,8 @@ int update_game()
             local_seeinvis_level += pchr->see_invisible_level;
             local_seekurse_level += pchr->see_kurse_level;
             local_seedark_level  += pchr->darkvision_level;
-            local_grog_level      += pchr->grog_timer;
-            local_daze_level      += pchr->daze_timer;
+            local_grog_level     += pchr->grog_timer;
+            local_daze_level     += pchr->daze_timer;
         }
         else
         {
@@ -725,13 +725,6 @@ int update_game()
     // this allows for kurses, which might make negative values to do something reasonable
     local_seeinvis_mag = exp( 0.32f * local_seeinvis_level );
     local_seedark_mag  = exp( 0.32f * local_seedark_level );
-
-    // Dampen groggyness if not all players are grogged (this assumes they all share the same camera view)
-    if ( 0 != numalive )
-    {
-        local_grog_level /= numalive;
-        local_daze_level /= numalive;
-    }
 
     // Did everyone die?
     if ( numdead >= local_numlpla )
@@ -1472,13 +1465,13 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
     // Allow to target ourselves?
     if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return bfalse;
 
-    // Dont target our holder if we are an item and being held
+    // Don't target our holder if we are an item and being held
     if ( psrc->isitem && psrc->attachedto == GET_REF_PCHR( ptst ) ) return bfalse;
 
-    // Allow to target dead stuff stuff?
+    // Allow to target dead stuff?
     if ( ptst->alive == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return bfalse;
 
-    // Dont target invisible stuff, unless we can actually see them
+    // Don't target invisible stuff, unless we can actually see them
     if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
 
     //Need specific skill? ([NONE] always passes)
@@ -5133,9 +5126,10 @@ bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
 {
     CHR_REF shop_owner_ref;
     bool_t can_grab;
-    bool_t is_invis, can_steal, in_shop;
+    bool_t is_invis, can_steal;
     chr_t * pchr, * pitem;
     int ix, iy;
+	CHR_REF shop_keeper;
 
     // ?? lol what ??
     if ( ichr == iitem ) return bfalse;
@@ -5150,13 +5144,13 @@ bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
 
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
-    shop_owner_ref = shop_get_owner( ix, iy );
-    in_shop = INGAME_CHR( shop_owner_ref );
 
-    if ( in_shop )
+	// check if we are doing this inside a shop
+	shop_keeper = shop_get_owner( ix, iy );
+    if ( INGAME_CHR( shop_keeper ) )
     {
         // check for a stealthy pickup
-        is_invis  = !chr_can_see_object( shop_owner_ref, ichr );
+        is_invis  = !chr_can_see_object( shop_keeper, ichr );
 
         // pets are automatically stealthy
         can_steal = is_invis || pchr->isitem;

@@ -11,8 +11,8 @@ EGO_SRC  := \
 	egoboo_math.c egoboo_setup.c egoboo_strutil.c egoboo_typedef.c \
 	egoboo_vfs.c enchant.c file_common.c font_bmp.c font_ttf.c game.c \
 	graphic.c graphic_fan.c graphic_mad.c graphic_prt.c hash.c input.c \
-	lighting.c IDSZ_map.c link.c log.c mad.c md2.c menu.c mesh.c network.c \
-	particle.c passage.c profile.c quest.c script.c script_compile.c \
+	lighting.c IDSZ_map.c link.c log.c mad.c md2.c menu.c mesh.c mpd_BSP.c network.c \
+	obj_BSP.c particle.c passage.c profile.c quest.c script.c script_compile.c \
 	script_functions.c server.c sound.c texture.c ui.c egoboo.c physics.c\
 	egoboo_process.c ChrList.c EncList.c PrtList.c egoboo_object.c
 

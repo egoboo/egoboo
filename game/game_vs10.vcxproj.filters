@@ -279,6 +279,12 @@
     <ClCompile Include="file_formats\treasure_table_file.c">
       <Filter>File System\Source</Filter>
     </ClCompile>
+    <ClCompile Include="mpd_BSP.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj_BSP.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bbox.h">
@@ -533,6 +539,12 @@
     <ClInclude Include="file_formats\treasure_table_file.h">
       <Filter>File System\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="mpd_BSP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="obj_BSP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="char.inl">
@@ -584,6 +596,9 @@
       <Filter>File System\Headers</Filter>
     </None>
     <None Include="bsp.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="bbox.inl">
       <Filter>Inline Files</Filter>
     </None>
   </ItemGroup>

@@ -28,9 +28,9 @@
 // compliation flags
 
 // object pre-allocations
-#define MAX_CHR            512             ///< Maximum number of characters
-#define MAX_ENC            200             ///< Maximum number of enchantments
-#define MAX_PRT     2048             ///< Maximum number of particles
+#define MAX_CHR				512             ///< Maximum number of characters
+#define MAX_ENC				200             ///< Maximum number of enchantments
+#define MAX_PRT				2048             ///< Maximum number of particles
 #define TOTAL_MAX_DYNA      64             ///< Maximum number of dynamic lights
 
 #define MAX_TEXTURE        (MAX_CHR * 4)     ///< Maximum number of textures
@@ -86,7 +86,7 @@
 /// >= 3 -- decompile every script (requires defined(_DEBUG))
 #define DEBUG_SCRIPT_LEVEL 0
 
-#define DRAW_CHR_BBOX        ///< display selected character bounding boxes
+//#undef DRAW_CHR_BBOX        ///< display selected character bounding boxes
 #define DRAW_PRT_BBOX        ///< display selected particle bounding boxes
 
 //--------------------------------------------------------------------------------------------
