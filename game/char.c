@@ -2066,9 +2066,6 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         // disarm not allowed yet
         if ( INGAME_CHR( pchr_b->attachedto ) ) continue;
 
-
-		printf("Checking %s\n", pchr_b->Name);
-
         // can't pick up something you can't see
         if ( !chr_can_see_object( ichr_a, ichr_b ) ) continue;
 
@@ -2085,8 +2082,6 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         dxy = dx + dy;
 
         if ( dxy > GRID_SIZE * 2 || dz > MAX( pchr_b->bump.height, GRABSIZE ) ) continue;
-
-		printf("%s grabbing %s\n", pchr_a->Name, pchr_b->Name);
 
         // reasonable carrying capacity
         if ( pchr_b->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )

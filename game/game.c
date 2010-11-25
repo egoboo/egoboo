@@ -5124,7 +5124,6 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 //--------------------------------------------------------------------------------------------
 bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
 {
-    CHR_REF shop_owner_ref;
     bool_t can_grab;
     bool_t is_invis, can_steal;
     chr_t * pchr, * pitem;
