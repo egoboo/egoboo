@@ -31,7 +31,7 @@ egoboo: enet
 egoboo_lua: enet
 	make -F Makefile.lua -C game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
 
-install:
+install: egoboo
 
 	######################################
 	# Thank you for installing egoboo! 
@@ -65,6 +65,35 @@ install:
 	mkdir -p ${PREFIX}/etc/${PROJ_NAME}
 	cp -rdf setup.txt ${PREFIX}/etc/${PROJ_NAME}/setup.txt
 	cp -rdf controls.txt ${PREFIX}/etc/${PROJ_NAME}/controls.txt
+
+	#####################################
+	# Egoboo installation is finished
+	#####################################
+
+install_svn: egoboo
+
+	######################################
+	# This command will install egoboo using the
+	# directory structure currently used in svn repository
+	#
+
+#	copy the binary to the games folder
+	mkdir -p ${PREFIX}/games
+	install -m 755 ./game/${PROJ_NAME} ${PREFIX}/games
+
+#	copy the data to the games folder
+	mkdir -p ${PREFIX}/share/games/${PROJ_NAME}
+	cp -rdf ../install/basicdat ${PREFIX}/share/games/${PROJ_NAME}
+	cp -rdf ../install/modules ${PREFIX}/share/games/${PROJ_NAME}
+
+#	copy the players to the user's data folder
+	mkdir -p ${HOME}/.${PROJ_NAME}
+	mkdir -p ${HOME}/.${PROJ_NAME}/players
+
+#	copy the basic configuration files to the config directory
+	mkdir -p ${PREFIX}/etc/${PROJ_NAME}
+	cp -rdf ../install/setup.txt ${PREFIX}/etc/${PROJ_NAME}/setup.txt
+	cp -rdf ../install/controls.txt ${PREFIX}/etc/${PROJ_NAME}/controls.txt
 
 	#####################################
 	# Egoboo installation is finished
