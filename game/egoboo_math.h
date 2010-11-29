@@ -102,6 +102,10 @@ extern "C"
 #    define MAX(x, y)  (((x) > (y)) ? (x) : (y))
 #endif
 
+#if !defined(SQR)
+#    define SQR(A) ((A)*(A))
+#endif
+
 #if !defined(SQRT)
 #    define SQRT(A) ((float)sqrt((float)(A)))
 #endif

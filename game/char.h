@@ -647,6 +647,8 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_R
 bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
 bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj );
+bool_t chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
+bool_t chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
 int    chr_get_price( const CHR_REF ichr );
 
 bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );

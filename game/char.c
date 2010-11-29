@@ -909,7 +909,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_hit_wall( PMesh, test_pos, radius, pchr->stoppedby, nrm, pressure, NULL );
+        retval = mesh_hit_wall( PMesh, test_pos, radius, pchr->stoppedby, nrm, pressure, pdata );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests  += mesh_pressure_tests;
@@ -1949,7 +1949,10 @@ bool_t drop_all_items( const CHR_REF character )
 struct s_grab_data
 {
     CHR_REF ichr;
-    float   dist;
+    fvec3_t diff;
+    float   diff2_hrz;
+    float   diff2_vrt;
+    bool_t  too_dark, too_invis;
 };
 typedef struct s_grab_data grab_data_t;
 
@@ -1962,7 +1965,14 @@ int grab_data_cmp( const void * pleft, const void * pright )
     grab_data_t * dleft  = ( grab_data_t * )pleft;
     grab_data_t * dright = ( grab_data_t * )pright;
 
-    diff = dleft->dist - dright->dist;
+    // use only the horizontal distance
+    diff = dleft->diff2_hrz - dright->diff2_hrz;
+
+    // unless they are equal, then use the vertical distance
+    if( 0.0f == diff )
+    {
+        diff = dleft->diff2_vrt - dright->diff2_vrt;
+    }
 
     if ( diff < 0.0f )
     {
@@ -1985,14 +1995,20 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 {
     /// @details ZZ@> This function makes the character pick up an item if there's one around
 
+    const SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
+    const SDL_Color color_grn = {0x7F, 0xFF, 0x7F, 0xFF};
+    const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
+    const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
+
+    const float const_max2_hrz = SQR( 2 * GRID_SIZE );
+    const float const_max2_vrt = SQR( GRABSIZE );
+
     int       cnt;
-    size_t    vertex;
     CHR_REF   ichr_b;
     slot_t    slot;
-    fvec4_t   point[1], nupoint[1];
-    SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
-    SDL_Color color_grn = {0x7F, 0xFF, 0x7F, 0xFF};
-    //   SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
+    oct_vec_t mids;
+    fvec3_t   slot_pos;
+    float     bump_size2_a;
 
     chr_t * pchr_a;
     cap_t * pcap_a;
@@ -2001,10 +2017,12 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 
     // valid objects that can be grabbed
     size_t      grab_count = 0;
+    size_t      grab_visible_count = 0;
     grab_data_t grab_list[MAX_CHR];
 
     // valid objects that cannot be grabbed
     size_t      ungrab_count = 0;
+    size_t      ungrab_visible_count = 0;
     grab_data_t ungrab_list[MAX_CHR];
 
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
@@ -2013,46 +2031,32 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     pcap_a = pro_get_pcap( pchr_a->profile_ref );
     if ( NULL == pcap_a ) return bfalse;
 
-    // Make life easier
-    slot = grip_offset_to_slot( grip_off );  // 0 is left, 1 is right
+    // find the slot from the grip
+    slot = grip_offset_to_slot( grip_off );  
+    if( slot < 0 || slot >= SLOT_COUNT ) return bfalse;
 
     // Make sure the character doesn't have something already, and that it has hands
     if ( INGAME_CHR( pchr_a->holdingwhich[slot] ) || !pcap_a->slotvalid[slot] )
         return bfalse;
 
-    // Do we have a matrix???
-    if ( chr_matrix_valid( pchr_a ) )
-    {
-        // Transform the weapon grip_off from pchr_a->profile_ref to world space
-        vertex = pchr_a->inst.vrt_count - grip_off;
+    //Determine the position of the grip
+    oct_bb_get_mids( pchr_a->slot_cv + slot, mids );
+    slot_pos.x = mids[OCT_X];
+    slot_pos.y = mids[OCT_Y];
+    slot_pos.z = mids[OCT_Z];
+    fvec3_self_sum( slot_pos.v, chr_get_pos_v(pchr_a) );
 
-        // do the automatic update
-        chr_instance_update_vertices( &( pchr_a->inst ), vertex, vertex, bfalse );
-
-        // Calculate grip_off point locations with linear interpolation and other silly things
-        point[0].x = pchr_a->inst.vrt_lst[vertex].pos[XX];
-        point[0].y = pchr_a->inst.vrt_lst[vertex].pos[YY];
-        point[0].z = pchr_a->inst.vrt_lst[vertex].pos[ZZ];
-        point[0].w = 1.0f;
-
-        // Do the transform
-        TransformVertices( &( pchr_a->inst.matrix ), point, nupoint, 1 );
-    }
-    else
-    {
-        // Just wing it
-        nupoint[0].x = pchr_a->pos.x;
-        nupoint[0].y = pchr_a->pos.y;
-        nupoint[0].z = pchr_a->pos.z;
-        nupoint[0].w = 1.0f;
-    }
+    // get the size of object a
+    bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
 
     // Go through all characters to find the best match
     CHR_BEGIN_LOOP_ACTIVE( ichr_b, pchr_b )
     {
-        fvec3_t   pos_b;
-        float     dx, dy, dz, dxy;
+        fvec3_t   diff;
+        float     diff2_hrz, diff2_vrt, max2_vrt, max2_hrz, bump_size2_b;
         bool_t    can_grab = btrue;
+        bool_t    too_dark = btrue;
+        bool_t    too_invis = btrue;
 
         // do nothing to yourself
         if ( ichr_a == ichr_b ) continue;
@@ -2064,24 +2068,11 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         if ( pchr_b->pack.is_packed ) continue;
 
         // disarm not allowed yet
-        if ( INGAME_CHR( pchr_b->attachedto ) ) continue;
-
-        // can't pick up something you can't see
-        if ( !chr_can_see_object( ichr_a, ichr_b ) ) continue;
+        if ( MAX_CHR != pchr_b->attachedto ) continue;
 
         // do not pick up your mount
         if ( pchr_b->holdingwhich[SLOT_LEFT] == ichr_a ||
              pchr_b->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
-
-        pos_b = pchr_b->pos;
-
-        // First check absolute value diamond
-        dx = ABS( nupoint[0].x - pos_b.x );
-        dy = ABS( nupoint[0].y - pos_b.y );
-        dz = ABS( nupoint[0].z - pos_b.z );
-        dxy = dx + dy;
-
-        if ( dxy > GRID_SIZE * 2 || dz > MAX( pchr_b->bump.height, GRABSIZE ) ) continue;
 
         // reasonable carrying capacity
         if ( pchr_b->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
@@ -2096,16 +2087,72 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             can_grab = bfalse;
         }
 
+        // is the object visible
+        too_dark  = !chr_can_see_dark( pchr_a, pchr_b );
+        too_invis = !chr_can_see_invis( pchr_a, pchr_b );
+
+        // calculate the distance
+        diff = fvec3_sub( chr_get_pos_v( pchr_b ), slot_pos.v );
+        diff.z += pchr_b->bump.height * 0.5f;
+
+        // find the squared difference horizontal and vertical
+        diff2_hrz = fvec2_length_2( diff.v );
+        diff2_vrt = diff.z * diff.z;
+
+        // determine the actual max vertical distance
+        max2_vrt = SQR( pchr_b->bump.height );
+        max2_vrt = MAX( max2_vrt, const_max2_vrt );
+
+        // Is it too far away?
+        if ( diff2_hrz > const_max2_hrz || diff2_vrt > max2_vrt ) continue;
+
+        // count the number of objects that are within the max range
+        // a difference between the *_total_count and the *_count
+        // indicates that some objects were not detectable
+        if( !too_invis )
+        {
+            if( can_grab )
+            {
+                grab_visible_count++;
+            }
+            else
+            {
+                ungrab_visible_count++;
+            }
+        }
+
+        // the size of b
+        bump_size2_b = SQR(pchr_b->bump.size);
+
+        // visibility affects the max grab distance.
+        // if it is not visible then we have to be touching it.
+        max2_hrz = MAX(bump_size2_a, bump_size2_b);
+        if( !too_dark && !too_invis )
+        {
+            max2_hrz = MAX( max2_hrz, const_max2_hrz );
+        }
+
+        // is it close enough? (visibility determines the max distance)
+        if ( diff2_hrz > max2_hrz || diff2_vrt > max2_vrt ) continue;
+
         if ( can_grab )
         {
-            grab_list[grab_count].ichr = ichr_b;
-            grab_list[grab_count].dist = dxy;
+            grab_list[grab_count].ichr      = ichr_b;
+            grab_list[grab_count].diff      = diff;
+            grab_list[grab_count].diff2_hrz = diff2_hrz;
+            grab_list[grab_count].diff2_vrt = diff2_vrt;
+            grab_list[grab_count].too_dark  = too_dark;
+            grab_list[grab_count].too_invis = too_invis;
             grab_count++;
         }
         else
         {
-            ungrab_list[ungrab_count].ichr = ichr_b;
-            ungrab_list[ungrab_count].dist = dxy;
+            ungrab_list[ungrab_count].ichr      = ichr_b;
+            ungrab_list[ungrab_count].diff      = diff;
+            ungrab_list[ungrab_count].diff2_hrz = diff2_hrz;
+            ungrab_list[ungrab_count].diff2_vrt = diff2_vrt;
+            ungrab_list[ungrab_count].too_dark  = too_dark;
+            ungrab_list[ungrab_count].too_invis = too_invis;
             ungrab_count++;
         }
     }
@@ -2119,41 +2166,52 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 
     // try to grab something
     retval = bfalse;
-    for ( cnt = 0; cnt < grab_count; cnt++ )
+    if( 0 == grab_count && 0 != grab_visible_count )
     {
-        bool_t can_grab;
+        // There are items within the "normal" rance that could be grabbed
+        // but somehow they can't be seen. 
+        // Generate a billboard that tells the player what the problem is.
+        // NOTE: this is not corerect since it could alert a player to an invisible object
 
-        chr_t * pchr_b;
+        // 5 seconds and blue
+        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 5, bb_opt_none );
 
-        ichr_b = grab_list[cnt].ichr;
-        pchr_b = ChrList.lst + ichr_b;
-
-		//It's too far away for us to actually grab it
-        if ( grab_list[cnt].dist > GRABSIZE ) continue;
-
-        can_grab = do_item_pickup( ichr_a, ichr_b );
-
-        if ( can_grab )
+        retval = btrue;
+    }
+    else
+    {
+        for ( cnt = 0; cnt < grab_count; cnt++ )
         {
-            // Stick 'em together and quit
-            attach_character_to_mount( ichr_b, ichr_a, grip_off );
-            if ( grab_people )
+            bool_t can_grab;
+
+            chr_t * pchr_b;
+
+            ichr_b = grab_list[cnt].ichr;
+            pchr_b = ChrList.lst + ichr_b;
+
+            can_grab = do_item_pickup( ichr_a, ichr_b );
+
+            if ( can_grab )
             {
-                // Do a slam animation...  ( Be sure to drop!!! )
-                chr_play_action( pchr_a, ACTION_MC + slot, bfalse );
+                // Stick 'em together and quit
+                attach_character_to_mount( ichr_b, ichr_a, grip_off );
+                if ( grab_people )
+                {
+                    // Do a slam animation...  ( Be sure to drop!!! )
+                    chr_play_action( pchr_a, ACTION_MC + slot, bfalse );
+                }
+                retval = btrue;
+                break;
             }
-            retval = btrue;
-            break;
+            else
+            {
+                // Lift the item a little and quit...
+                pchr_b->vel.z = DROPZVEL;
+                pchr_b->hitready = btrue;
+                SET_BIT( pchr_b->ai.alert, ALERTIF_DROPPED );
+                break;
+            }
         }
-        else
-        {
-            // Lift the item a little and quit...
-            pchr_b->vel.z = DROPZVEL;
-            pchr_b->hitready = btrue;
-            SET_BIT( pchr_b->ai.alert, ALERTIF_DROPPED );
-            break;
-        }
-
     }
 
     if ( !retval )
@@ -2163,20 +2221,38 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         //---- generate billboards for things that players can interact with
         if ( cfg.feedback != FEEDBACK_OFF && VALID_PLA( pchr_a->is_which_player ) )
         {
-            GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
-            // things that can be grabbed (5 secs and green)
+            // things that can be grabbed
             for ( cnt = 0; cnt < grab_count; cnt++ )
             {
                 ichr_b = grab_list[cnt].ichr;
-                chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, default_tint, 5, bb_opt_none );
+                if( grab_list[cnt].too_dark || grab_list[cnt].too_invis )
+                {
+                    // (5 secs and blue)
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_none );
+                }
+                else
+                {
+                    // (5 secs and green)
+                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, default_tint, 5, bb_opt_none );
+                }
             }
 
-            // things that can't be grabbed (5 secs and red)
+            // things that can't be grabbed
             for ( cnt = 0; cnt < ungrab_count; cnt++ )
             {
                 ichr_b = ungrab_list[cnt].ichr;
-                chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, default_tint, 5, bb_opt_none );
+
+                if( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis )
+                {
+                    // (5 secs and blue)
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_none );
+                }
+                else
+                {
+                    // (5 secs and red)
+                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, default_tint, 5, bb_opt_none );
+                }
             }
         }
 
@@ -2194,23 +2270,20 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             for ( cnt = 0; cnt < ungrab_count; cnt++ )
             {
                 float       ftmp;
-                fvec3_t     diff;
                 chr_t     * pchr_b;
 
-                if ( ungrab_list[cnt].dist > GRABSIZE ) continue;
+                // only do visible objects
+                if( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis ) continue;
 
-                ichr_b = ungrab_list[cnt].ichr;
-                if ( !INGAME_CHR( ichr_b ) ) continue;
+                pchr_b = ChrList.lst + ungrab_list[cnt].ichr;
 
-                pchr_b = ChrList.lst + ichr_b;
-
-                diff = fvec3_sub( pchr_a->pos.v, pchr_b->pos.v );
-
-                // ignore vertical displacement in the dot product
-                ftmp = vforward.x * diff.x + vforward.y * diff.y;
+                // only bump the closest character that is in front of the character
+                // (ignore vertical displacement)
+                ftmp = fvec2_dot_product( vforward.v, ungrab_list[cnt].diff.v );
                 if ( ftmp > 0.0f )
                 {
                     ai_state_set_bumplast( &( pchr_b->ai ), ichr_a );
+                    break;
                 }
             }
         }
@@ -9191,21 +9264,16 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_R
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
+bool_t chr_can_see_invis( const chr_t * pchr, const chr_t * pobj )
 {
     /// @detalis BB@> can ichr see iobj?
 
-    chr_t * pchr, * pobj;
-    cap_t * pcap;
-
-    int     light, self_light, enviro_light;
     int     alpha;
 
-    if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    if( NULL == pchr || NULL == pobj ) return bfalse;
 
-    if ( !INGAME_CHR( iobj ) ) return bfalse;
-    pobj = ChrList.lst + iobj;
+    /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
+    if( pchr->invictus ) return btrue;
 
     alpha = pobj->inst.alpha;
     if ( 0 != pchr->see_invisible_level )
@@ -9214,10 +9282,21 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
     }
     alpha = CLIP( alpha, 0, 255 );
 
-    /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
-    if ( pchr->invictus && alpha >= INVISIBLE ) return btrue;
+    return alpha >= INVISIBLE;
+}
 
-    enviro_light = ( alpha * pobj->inst.max_light ) * INV_FF;
+//--------------------------------------------------------------------------------------------
+bool_t chr_can_see_dark( const chr_t * pchr, const chr_t * pobj )
+{
+    /// @detalis BB@> can ichr see iobj?
+
+    cap_t * pcap;
+
+    int     light, self_light, enviro_light;
+
+    if( NULL == pchr || NULL == pobj ) return bfalse;
+
+    enviro_light = ( pobj->inst.alpha * pobj->inst.max_light ) * INV_FF;
     self_light   = ( pobj->inst.light == 255 ) ? 0 : pobj->inst.light;
     light        = MAX( enviro_light, self_light );
 
@@ -9232,13 +9311,31 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL != pcap )
     {
-        if ( pcap->invictus )
-        {
-            light = INVISIBLE;
-        }
+        if ( pcap->invictus ) light = INVISIBLE;
     }
 
     return light >= INVISIBLE;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
+{
+    /// @detalis BB@> can ichr see iobj?
+
+    chr_t * pchr, * pobj;
+
+    bool_t too_dark, too_invis;
+
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
+    pchr = ChrList.lst + ichr;
+
+    if ( !INGAME_CHR( iobj ) ) return bfalse;
+    pobj = ChrList.lst + iobj;
+
+    too_dark  = !chr_can_see_dark( pchr, pobj );
+    too_invis = !chr_can_see_invis( pchr, pobj );
+
+    return !too_dark && !too_invis;
 }
 
 //--------------------------------------------------------------------------------------------
