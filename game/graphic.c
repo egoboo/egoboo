@@ -5833,7 +5833,7 @@ void render_water( renderlist_t * prlist )
     int cnt;
 
     // Bottom layer first
-    if ( gfx.draw_water_1 /* && water.layer[1].z > -water.layer[1].amp */ )
+    if ( gfx.draw_water_1 )
     {
         for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
         {
@@ -5842,7 +5842,7 @@ void render_water( renderlist_t * prlist )
     }
 
     // Top layer second
-    if ( gfx.draw_water_0 /* && water.layer[0].z > -water.layer[0].amp */ )
+    if ( gfx.draw_water_0 )
     {
         for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
         {

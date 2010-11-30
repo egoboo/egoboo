@@ -374,7 +374,7 @@ void export_all_players( bool_t require_local )
     bool_t is_local;
     PLA_REF ipla;
     int number;
-    CHR_REF character, item;
+    CHR_REF character;
 
     // Don't export if the module isn't running
     if ( !process_running( PROC_PBASE( GProc ) ) ) return;
@@ -385,6 +385,8 @@ void export_all_players( bool_t require_local )
     // Check each player
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
+        CHR_REF item;
+
         is_local = ( 0 != PlaStack.lst[ipla].device.bits );
         if ( require_local && !is_local ) continue;
         if ( !PlaStack.lst[ipla].valid ) continue;
@@ -412,17 +414,17 @@ void export_all_players( bool_t require_local )
 
         // Export the inventory
         number = 0;
-        PACK_BEGIN_LOOP( item, ChrList.lst[character].pack.next )
+        PACK_BEGIN_LOOP( ipacked, ChrList.lst[character].pack.next )
         {
             if ( number >= MAXINVENTORY ) break;
 
-            if ( ChrList.lst[item].isitem )
+            if ( ChrList.lst[ipacked].isitem )
             {
-                export_one_character( item, character, number + 2, is_local );
+                export_one_character( ipacked, character, number + 2, is_local );
                 number++;
             }
         }
-        PACK_END_LOOP( item );
+        PACK_END_LOOP( ipacked );
     }
 }
 
@@ -5365,18 +5367,23 @@ void disenchant_character( const CHR_REF cnt )
     /// @details ZZ@> This function removes all enchantments from a character
 
     chr_t * pchr;
+    size_t ienc_count;
 
     if ( !ALLOCATED_CHR( cnt ) ) return;
     pchr = ChrList.lst + cnt;
 
-    while ( MAX_ENC != pchr->firstenchant )
+    ienc_count = 0;
+    while ( (MAX_ENC != pchr->firstenchant) && (ienc_count < MAX_ENC) )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
         if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
         {
             break;
         }
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+
 }
 
 //--------------------------------------------------------------------------------------------

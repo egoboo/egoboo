@@ -2882,11 +2882,11 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     iTmp += restock_ammo( ichr, pstate->argument );
 
-    PACK_BEGIN_LOOP( ichr, pself_target->pack.next )
+    PACK_BEGIN_LOOP( ipacked, pself_target->pack.next )
     {
-        iTmp += restock_ammo( ichr, pstate->argument );
+        iTmp += restock_ammo( ipacked, pstate->argument );
     }
-    PACK_END_LOOP( ichr );
+    PACK_END_LOOP( ipacked );
 
     pstate->argument = iTmp;
     returncode = ( iTmp != 0 );
@@ -2902,7 +2902,6 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     /// if the item matches the ID given ( parent or child type )
 
     int     iTmp;
-    CHR_REF ichr;
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2913,22 +2912,22 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
 
     if ( 0 == iTmp )
     {
-        PACK_BEGIN_LOOP( ichr, pself_target->holdingwhich[SLOT_LEFT] )
+        PACK_BEGIN_LOOP( ipacked, pself_target->holdingwhich[SLOT_LEFT] )
         {
-            iTmp += restock_ammo( ichr, pstate->argument );
+            iTmp += restock_ammo( ipacked, pstate->argument );
             if ( 0 != iTmp ) break;
         }
-        PACK_END_LOOP( ichr )
+        PACK_END_LOOP( ipacked )
     }
 
     if ( 0 == iTmp )
     {
-        PACK_BEGIN_LOOP( ichr, pself_target->holdingwhich[SLOT_RIGHT] )
+        PACK_BEGIN_LOOP( ipacked, pself_target->holdingwhich[SLOT_RIGHT] )
         {
-            iTmp += restock_ammo( ichr, pstate->argument );
+            iTmp += restock_ammo( ipacked, pstate->argument );
             if ( 0 != iTmp ) break;
         }
-        PACK_END_LOOP( ichr )
+        PACK_END_LOOP( ipacked )
     }
 
     pstate->argument = iTmp;
@@ -5495,14 +5494,14 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
         ChrList.lst[ichr].iskursed = bfalse;
     }
 
-    PACK_BEGIN_LOOP( ichr, pself_target->pack.next )
+    PACK_BEGIN_LOOP( ipacked, pself_target->pack.next )
     {
-        if ( INGAME_CHR( ichr ) )
+        if ( INGAME_CHR( ipacked ) )
         {
-            ChrList.lst[ichr].iskursed = bfalse;
+            ChrList.lst[ipacked].iskursed = bfalse;
         }
     }
-    PACK_END_LOOP( ichr );
+    PACK_END_LOOP( ipacked );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6303,7 +6302,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ( pself_target->firstenchant != MAX_ENC );
+    returncode = ( MAX_ENC != pself_target->firstenchant );
 
     disenchant_character( pself->target );
 

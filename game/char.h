@@ -268,8 +268,8 @@ struct s_pack
 };
 typedef struct s_pack pack_t;
 
-#define PACK_BEGIN_LOOP(IT,INIT) IT = INIT; while( MAX_CHR != IT ) { CHR_REF IT##_internal = ChrList.lst[IT].pack.next;
-#define PACK_END_LOOP(IT) IT = IT##_internal; }
+#define PACK_BEGIN_LOOP(IT,INIT) { size_t IT_count; CHR_REF IT = INIT; IT_count = 0; while( (MAX_CHR != IT) && (IT_count < MAXNUMINPACK) ) { CHR_REF IT##_nxt = ChrList.lst[IT].pack.next;
+#define PACK_END_LOOP(IT) IT = IT##_nxt; } if(IT_count >= MAXNUMINPACK ) log_error( "%s - bad pack loop\n", __FUNCTION__ ); }
 
 //--------------------------------------------------------------------------------------------
 

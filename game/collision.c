@@ -2996,7 +2996,9 @@ bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 {
-    ENC_REF enchant, enc_next;
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
+
     bool_t prt_needs_impact;
 
     chr_t * powner = NULL;
@@ -3014,16 +3016,21 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     cleanup_character_enchants( pdata->pchr );
 
     // Check all enchants to see if they are removed
-    enchant = pdata->pchr->firstenchant;
-    while ( enchant != MAX_ENC )
+    ienc_now = pdata->pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        enc_next = EncList.lst[enchant].nextenchant_ref;
-        if ( enc_is_removed( enchant, pdata->pprt->profile_ref ) )
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+
+        if ( enc_is_removed( ienc_now, pdata->pprt->profile_ref ) )
         {
-            remove_enchant( enchant, NULL );
+            remove_enchant( ienc_now, NULL );
         }
-        enchant = enc_next;
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Steal some life
     if ( pdata->pprt->lifedrain > 0 )

@@ -153,10 +153,12 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // find the parent reference for the enchant
     if ( NULL == enc_parent && ALLOCATED_CHR( penc->target_ref ) )
     {
-        ENC_REF ienc_last, ienc_now;
+        ENC_REF ienc_last, ienc_now, ienc_nxt;
+        size_t ienc_count;
+
         chr_t * ptarget;
 
-        ptarget =  ChrList.lst + penc->target_ref;
+        ptarget = ChrList.lst + penc->target_ref;
 
         if ( ptarget->firstenchant == ienc )
         {
@@ -167,11 +169,18 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         {
             // Search until we find it
             ienc_last = ienc_now = ptarget->firstenchant;
-            while ( MAX_ENC != ienc_now && ienc_now != ienc )
+            ienc_count = 0;
+            while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
             {
-                ienc_last    = ienc_now;
-                ienc_now = EncList.lst[ienc_now].nextenchant_ref;
+                ienc_last = ienc_now;
+                ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
+
+                if( ienc_now == ienc ) break;
+
+                ienc_now  = ienc_nxt;
+                ienc_count++;
             }
+            if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
             // Relink the last enchantment
             if ( ienc_now == ienc )
@@ -197,7 +206,9 @@ bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
     ///               IDSZ. If idsz [NONE] is specified, all enchants will be removed. Return btrue
     ///               if at least one enchant was removed.
 
-    ENC_REF enc_now, enc_next;
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
+
     eve_t * peve;
     bool_t retval = bfalse;
     chr_t *pchr;
@@ -210,20 +221,24 @@ bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
     cleanup_character_enchants( pchr );
 
     // Check all enchants to see if they are removed
-    enc_now = pchr->firstenchant;
-    while ( enc_now != MAX_ENC )
+    ienc_now = pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        enc_next  = EncList.lst[enc_now].nextenchant_ref;
+        ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
 
-        peve = enc_get_peve( enc_now );
+        peve = enc_get_peve( ienc_now );
         if ( NULL != peve && ( IDSZ_NONE == remove_idsz || remove_idsz == peve->removedbyidsz ) )
         {
-            remove_enchant( enc_now, NULL );
+            remove_enchant( ienc_now, NULL );
             retval = btrue;
         }
 
-        enc_now = enc_next;
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+
     return retval;
 }
 
@@ -377,8 +392,10 @@ ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
     ///    of the conflicting enchantment
 
     CHR_REF character;
-    ENC_REF currenchant;
     chr_t * pchr;
+
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
 
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return ( ENC_REF )MAX_ENC;
 
@@ -392,18 +409,23 @@ ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
     cleanup_character_enchants( pchr );
 
     // scan the enchant list
-    currenchant = pchr->firstenchant;
-    while ( currenchant != MAX_ENC )
+    ienc_now = pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        if ( INGAME_ENC( currenchant ) && EncList.lst[currenchant].setyesno[value_idx] )
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+
+        if ( INGAME_ENC( ienc_now ) && EncList.lst[ienc_now].setyesno[value_idx] )
         {
             break;
         }
 
-        currenchant = EncList.lst[currenchant].nextenchant_ref;
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
-    return currenchant;
+    return ienc_now;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1834,7 +1856,9 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     bool_t enc_used[MAX_ENC];
 
     ENC_REF first_valid_enchant;
-    ENC_REF enc_now, enc_next;
+
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
 
     if ( !VALID_ENC_RANGE( ienc ) ) return MAX_ENC;
 
@@ -1842,48 +1866,51 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     memset( enc_used, 0, sizeof( enc_used ) );
 
     // scan the list of enchants
-    enc_next            = ( ENC_REF ) MAX_ENC;
-    first_valid_enchant = enc_now = ienc;
-    while ( enc_now < MAX_ENC )
+    ienc_nxt            = ( ENC_REF ) MAX_ENC;
+    first_valid_enchant = ienc_now = ienc;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        enc_next = EncList.lst[enc_now].nextenchant_ref;
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
         // coerce the list of enchants to a valid value
-        if ( !VALID_ENC_RANGE( enc_next ) )
+        if ( !VALID_ENC_RANGE( ienc_nxt ) )
         {
-            enc_next = EncList.lst[enc_now].nextenchant_ref = MAX_ENC;
+            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref = MAX_ENC;
         }
 
         // fix any loops in the enchant list
-        if ( enc_used[enc_next] )
+        if ( enc_used[ienc_nxt] )
         {
-            EncList.lst[enc_now].nextenchant_ref = MAX_ENC;
+            EncList.lst[ienc_now].nextenchant_ref = MAX_ENC;
             break;
         }
 
-        //( !INGAME_CHR( EncList.lst[enc_now].target_ref ) && !EveStack.lst[EncList.lst[enc_now].eve_ref].stayiftargetdead )
+        //( !INGAME_CHR( EncList.lst[ienc_now].target_ref ) && !EveStack.lst[EncList.lst[ienc_now].eve_ref].stayiftargetdead )
 
         // remove any expired enchants
-        if ( !INGAME_ENC( enc_now ) )
+        if ( !INGAME_ENC( ienc_now ) )
         {
-            remove_enchant( enc_now, enc_parent );
-            enc_used[enc_now] = btrue;
+            remove_enchant( ienc_now, enc_parent );
+            enc_used[ienc_now] = btrue;
         }
         else
         {
             // store this enchant in the list of used enchants
-            enc_used[enc_now] = btrue;
+            enc_used[ienc_now] = btrue;
 
             // keep track of the first valid enchant
             if ( MAX_ENC == first_valid_enchant )
             {
-                first_valid_enchant = enc_now;
+                first_valid_enchant = ienc_now;
             }
         }
 
-        enc_parent = &( EncList.lst[enc_now].nextenchant_ref );
-        enc_now    = enc_next;
+        enc_parent = &( EncList.lst[ienc_now].nextenchant_ref );
+        ienc_now    = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return first_valid_enchant;
 }

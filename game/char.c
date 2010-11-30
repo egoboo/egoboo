@@ -262,7 +262,6 @@ chr_t * chr_ctor( chr_t * pchr )
     pchr->onwhichplatform_ref    = ( CHR_REF )MAX_CHR;
     pchr->onwhichplatform_update = 0;
     pchr->targetplatform_ref     = ( CHR_REF )MAX_CHR;
-    pchr->attachedto             = ( CHR_REF )MAX_CHR;
 
     // all movements valid
     pchr->movement_bits   = ( unsigned )( ~0 );
@@ -474,14 +473,14 @@ void keep_weapons_with_holders()
             // Keep inventory with iattached
             if ( !pchr->pack.is_packed )
             {
-                PACK_BEGIN_LOOP( iattached, pchr->pack.next )
+                PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
                 {
-                    chr_set_pos( ChrList.lst + iattached, chr_get_pos_v( pchr ) );
+                    chr_set_pos( ChrList.lst + ipacked, chr_get_pos_v( pchr ) );
 
                     // Copy olds to make SendMessageNear work
-                    ChrList.lst[iattached].pos_old = pchr->pos_old;
+                    ChrList.lst[ipacked].pos_old = pchr->pos_old;
                 }
-                PACK_END_LOOP( iattached );
+                PACK_END_LOOP( ipacked );
             }
         }
     }
@@ -674,15 +673,13 @@ void free_inventory_in_game( const CHR_REF character )
     ///
     /// @note this should only be called by cleanup_all_characters()
 
-    CHR_REF cnt;
-
     if ( !DEFINED_CHR( character ) ) return;
 
-    PACK_BEGIN_LOOP( cnt, ChrList.lst[character].pack.next )
+    PACK_BEGIN_LOOP( ipacked, ChrList.lst[character].pack.next )
     {
-        free_one_character_in_game( cnt );
+        free_one_character_in_game( ipacked );
     }
-    PACK_END_LOOP( cnt );
+    PACK_END_LOOP( ipacked );
 
     // set the inventory to the "empty" state
     ChrList.lst[character].pack.count = 0;
@@ -973,7 +970,8 @@ void reset_character_accel( const CHR_REF character )
 {
     /// @details ZZ@> This function fixes a character's max acceleration
 
-    ENC_REF enchant;
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
     chr_t * pchr;
     cap_t * pcap;
 
@@ -984,12 +982,18 @@ void reset_character_accel( const CHR_REF character )
     cleanup_character_enchants( pchr );
 
     // Okay, remove all acceleration enchants
-    enchant = pchr->firstenchant;
-    while ( enchant != MAX_ENC )
+    ienc_now = pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        enchant_remove_add( enchant, ADDACCEL );
-        enchant = EncList.lst[enchant].nextenchant_ref;
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+
+        enchant_remove_add( ienc_now, ADDACCEL );
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Set the starting value
     pchr->maxaccel_reset = 0;
@@ -1003,12 +1007,18 @@ void reset_character_accel( const CHR_REF character )
     cleanup_character_enchants( pchr );
 
     // Put the acceleration enchants back on
-    enchant = pchr->firstenchant;
-    while ( enchant != MAX_ENC )
+    ienc_now = pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        enchant_apply_add( enchant, ADDACCEL, enc_get_ieve( enchant ) );
-        enchant = EncList.lst[enchant].nextenchant_ref;
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+
+        enchant_apply_add( ienc_now, ADDACCEL, enc_get_ieve( ienc_now ) );
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1018,7 +1028,6 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
 
     CHR_REF mount;
     Uint16  hand;
-    ENC_REF enchant;
     bool_t  inshop;
     chr_t * pchr, * pmount;
 
@@ -1128,18 +1137,26 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     // Reset transparency
     if ( pchr->isitem && pmount->transferblend )
     {
+        ENC_REF ienc_now, ienc_nxt;
+        size_t  ienc_count;
+
         // cleanup the enchant list
         cleanup_character_enchants( pchr );
 
         // Okay, reset transparency
-        enchant = pchr->firstenchant;
-        while ( enchant != MAX_ENC )
+        ienc_now = pchr->firstenchant;
+        ienc_count = 0;
+        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
         {
-            enchant_remove_set( enchant, SETALPHABLEND );
-            enchant_remove_set( enchant, SETLIGHTBLEND );
+            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-            enchant = EncList.lst[enchant].nextenchant_ref;
+            enchant_remove_set( ienc_now, SETALPHABLEND );
+            enchant_remove_set( ienc_now, SETLIGHTBLEND );
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
         }
+        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
         chr_set_alpha( pchr, pchr->alpha_base );
         chr_set_light( pchr, pchr->light_base );
@@ -1148,19 +1165,23 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         cleanup_character_enchants( pchr );
 
         // apply the blend enchants
-        enchant = pchr->firstenchant;
-        while ( enchant != MAX_ENC )
+        ienc_now = pchr->firstenchant;
+        ienc_count = 0;
+        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
         {
-            PRO_REF ipro = enc_get_ipro( enchant );
+            PRO_REF ipro = enc_get_ipro( ienc_now );
+            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
             if ( LOADED_PRO( ipro ) )
             {
-                enchant_apply_set( enchant, SETALPHABLEND, ipro );
-                enchant_apply_set( enchant, SETLIGHTBLEND, ipro );
+                enchant_apply_set( ienc_now, SETALPHABLEND, ipro );
+                enchant_apply_set( ienc_now, SETLIGHTBLEND, ipro );
             }
 
-            enchant = EncList.lst[enchant].nextenchant_ref;
+            ienc_now = ienc_nxt;
+            ienc_count++;
         }
+        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Set twist
@@ -1192,7 +1213,6 @@ void reset_character_alpha( const CHR_REF character )
     /// @details ZZ@> This function fixes an item's transparency
 
     CHR_REF mount;
-    ENC_REF enchant;
     chr_t * pchr, * pmount;
 
     // Make sure the character is valid
@@ -1206,18 +1226,26 @@ void reset_character_alpha( const CHR_REF character )
 
     if ( pchr->isitem && pmount->transferblend )
     {
+        ENC_REF ienc_now, ienc_nxt;
+        size_t  ienc_count;
+
         // cleanup the enchant list
         cleanup_character_enchants( pchr );
 
         // Okay, reset transparency
-        enchant = pchr->firstenchant;
-        while ( enchant != MAX_ENC )
+        ienc_now = pchr->firstenchant;
+        ienc_count = 0;
+        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
         {
-            enchant_remove_set( enchant, SETALPHABLEND );
-            enchant_remove_set( enchant, SETLIGHTBLEND );
+            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-            enchant = EncList.lst[enchant].nextenchant_ref;
+            enchant_remove_set( ienc_now, SETALPHABLEND );
+            enchant_remove_set( ienc_now, SETLIGHTBLEND );
+
+            ienc_now = ienc_nxt;
+            ienc_count++;
         }
+        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
         chr_set_alpha( pchr, pchr->alpha_base );
         chr_set_light( pchr, pchr->light_base );
@@ -1225,19 +1253,24 @@ void reset_character_alpha( const CHR_REF character )
         // cleanup the enchant list
         cleanup_character_enchants( pchr );
 
-        enchant = pchr->firstenchant;
-        while ( enchant != MAX_ENC )
+        ienc_now = pchr->firstenchant;
+        ienc_count = 0;
+        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
         {
-            PRO_REF ipro = enc_get_ipro( enchant );
+            PRO_REF ipro = enc_get_ipro( ienc_now );
+
+            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
             if ( LOADED_PRO( ipro ) )
             {
-                enchant_apply_set( enchant, SETALPHABLEND, ipro );
-                enchant_apply_set( enchant, SETLIGHTBLEND, ipro );
+                enchant_apply_set( ienc_now, SETALPHABLEND, ipro );
+                enchant_apply_set( ienc_now, SETLIGHTBLEND, ipro );
             }
 
-            enchant = EncList.lst[enchant].nextenchant_ref;
+            ienc_now = ienc_nxt;
+            ienc_count++;
         }
+        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 }
 
@@ -1535,12 +1568,12 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 
     if ( pitem_cap->isstackable )
     {
-        PACK_BEGIN_LOOP( istack, ChrList.lst[character].pack.next )
+        PACK_BEGIN_LOOP( ipacked, ChrList.lst[character].pack.next )
         {
-            if ( INGAME_CHR( istack ) )
+            if ( INGAME_CHR( ipacked ) )
             {
-                chr_t * pstack     = ChrList.lst + istack;
-                cap_t * pstack_cap = chr_get_pcap( istack );
+                chr_t * pstack     = ChrList.lst + ipacked;
+                cap_t * pstack_cap = chr_get_pcap( ipacked );
 
                 found = pstack_cap->isstackable;
 
@@ -1555,7 +1588,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
                 {
                     for ( id = 0; id < IDSZ_COUNT && found; id++ )
                     {
-                        if ( chr_get_idsz( istack, id ) != chr_get_idsz( item, id ) )
+                        if ( chr_get_idsz( ipacked, id ) != chr_get_idsz( item, id ) )
                         {
                             found = bfalse;
                         }
@@ -1563,14 +1596,13 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
                 }
             }
 
-            if ( found ) break;
+            if ( found ) 
+            {
+                istack = ipacked;
+                break;
+            }
         }
-        PACK_END_LOOP( istack );
-
-        if ( !found )
-        {
-            istack = ( CHR_REF )MAX_CHR;
-        }
+        PACK_END_LOOP( ipacked );
     }
 
     return istack;
@@ -1712,7 +1744,7 @@ CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool
     /// @details ZZ@> This function takes the last item in the character's pack and puts
     ///    it into the designated hand.  It returns the item number or MAX_CHR.
 
-    CHR_REF item, found_item, found_item_parent;
+    CHR_REF found_item, found_item_parent;
 
     chr_t  * pchr, * pfound_item, *pfound_item_parent;
     pack_t * pchr_pack, * pfound_item_pack, *pfound_item_parent_pack;
@@ -1731,12 +1763,12 @@ CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool
     // Find the last item in the pack
     found_item_parent = character;
     found_item        = character;
-    PACK_BEGIN_LOOP( item, pchr_pack->next )
+    PACK_BEGIN_LOOP( ipacked, pchr_pack->next )
     {
         found_item_parent = found_item;
-        found_item        = item;
+        found_item        = ipacked;
     }
-    PACK_END_LOOP( item );
+    PACK_END_LOOP( ipacked );
 
     // did we find anything?
     if ( character == found_item || MAX_CHR == found_item ) return bfalse;
@@ -1813,73 +1845,103 @@ void drop_keys( const CHR_REF character )
     ///    inventory ( Not hands ).
 
     chr_t  * pchr;
-    CHR_REF  item, lastitem;
+
     FACING_T direction;
     IDSZ     testa, testz;
+
+    CHR_REF   key_lst[MAXNUMINPACK];
+    CHR_REF * key_parent[MAXNUMINPACK];
+    size_t    key_count;
+
+    size_t    cnt;
+    CHR_REF * pparent;
 
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
-    if ( pchr->pos.z > ( PITDEPTH >> 1 ) ) // Don't lose keys in pits...
+    // Don't lose keys in pits...
+    if ( pchr->pos.z <= ( PITDEPTH >> 1 ) ) return;
+
+    // The IDSZs to find
+    testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
+    testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
+
+    key_count = 0;
+    pparent = &(pchr->pack.next);
+    PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
     {
-        // The IDSZs to find
-        testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
-        testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
-
-        lastitem = character;
-        PACK_BEGIN_LOOP( item, pchr->pack.next )
+        if ( INGAME_CHR( ipacked ) && ipacked != character )  // Should never happen...
         {
-            if ( INGAME_CHR( item ) && item != character )  // Should never happen...
+            IDSZ idsz_parent;
+            IDSZ idsz_type;
+
+            chr_t * pitem = ChrList.lst + ipacked;
+
+            idsz_parent = chr_get_idsz( ipacked, IDSZ_PARENT );
+            idsz_type   = chr_get_idsz( ipacked, IDSZ_TYPE   );
+
+
+            if (( idsz_parent >= testa && idsz_parent <= testz ) ||
+                ( idsz_type >= testa && idsz_type <= testz ) )
             {
-                chr_t * pitem = ChrList.lst + item;
-
-                if (( chr_get_idsz( item, IDSZ_PARENT ) >= testa && chr_get_idsz( item, IDSZ_PARENT ) <= testz ) ||
-                    ( chr_get_idsz( item, IDSZ_TYPE ) >= testa && chr_get_idsz( item, IDSZ_TYPE ) <= testz ) )
-                {
-                    // We found a key...
-                    TURN_T turn;
-
-                    direction = RANDIE;
-                    turn      = TO_TURN( direction );
-
-                    // unpack the item
-                    ChrList.lst[lastitem].pack.next = pitem->pack.next;
-                    pitem->pack.next = ( CHR_REF )MAX_CHR;
-                    pchr->pack.count--;
-
-                    // fix the attachments
-                    pitem->attachedto             = ( CHR_REF )MAX_CHR;
-                    pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-                    pitem->dismount_object        = GET_REF_PCHR( pchr );
-                    pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
-                    pitem->onwhichplatform_update = pchr->onwhichplatform_update;
-
-                    // fix some flags
-                    pitem->hitready               = btrue;
-                    pitem->pack.was_packed        = pitem->pack.is_packed;
-                    pitem->pack.is_packed         = bfalse;
-                    pitem->isequipped             = bfalse;
-                    pitem->ori.facing_z           = direction + ATK_BEHIND;
-                    pitem->team                   = pitem->baseteam;
-
-                    // fix the current velocity
-                    pitem->vel.x                  += turntocos[ turn ] * DROPXYVEL;
-                    pitem->vel.y                  += turntosin[ turn ] * DROPXYVEL;
-                    pitem->vel.z                  += DROPZVEL;
-
-                    // do some more complicated things
-                    SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-                    chr_set_pos( pitem, chr_get_pos_v( pchr ) );
-                    move_one_character_get_environment( pitem );
-                    chr_set_floor_level( pitem, pchr->enviro.floor_level );
-                }
-                else
-                {
-                    lastitem = item;
-                }
+                key_lst[key_count]    = ipacked;
+                key_parent[key_count] = pparent;
+                key_count++;
+            }
+            else
+            {
+                // only save non-keys as parents
+                pparent = &(pitem->pack.next);
             }
         }
-        PACK_END_LOOP( item );
+    }
+    PACK_END_LOOP( ipacked );
+
+    // We found some keys?
+    // since we are MODIFYING the pack list, do not change the list 
+    // while inside the PACK_BEGIN_LOOP() ... PACK_END_LOOP()
+    for( cnt = 0; cnt < key_count; cnt++ )
+    {
+        CHR_REF ikey     = key_lst[cnt];
+        CHR_REF *pparent = key_parent[cnt];
+
+        chr_t * pkey = ChrList.lst + ikey;
+
+        TURN_T turn;
+
+        direction = RANDIE;
+        turn      = TO_TURN( direction );
+
+        // unpack the ikey
+        *pparent = pkey->pack.next;
+        pkey->pack.next = ( CHR_REF )MAX_CHR;
+        pchr->pack.count--;
+
+        // fix the attachments
+        pkey->attachedto             = ( CHR_REF )MAX_CHR;
+        pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
+        pkey->dismount_object        = GET_REF_PCHR( pchr );
+        pkey->onwhichplatform_ref    = pchr->onwhichplatform_ref;
+        pkey->onwhichplatform_update = pchr->onwhichplatform_update;
+
+        // fix some flags
+        pkey->hitready               = btrue;
+        pkey->pack.was_packed        = pkey->pack.is_packed;
+        pkey->pack.is_packed         = bfalse;
+        pkey->isequipped             = bfalse;
+        pkey->ori.facing_z           = direction + ATK_BEHIND;
+        pkey->team                   = pkey->baseteam;
+
+        // fix the current velocity
+        pkey->vel.x                  += turntocos[ turn ] * DROPXYVEL;
+        pkey->vel.y                  += turntosin[ turn ] * DROPXYVEL;
+        pkey->vel.z                  += DROPZVEL;
+
+        // do some more complicated things
+        SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
+        chr_set_pos( pkey, chr_get_pos_v( pchr ) );
+        move_one_character_get_environment( pkey );
+        chr_set_floor_level( pkey, pchr->enviro.floor_level );
     }
 }
 
@@ -2166,9 +2228,9 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 
     // try to grab something
     retval = bfalse;
-    if( 0 == grab_count && 0 != grab_visible_count )
+    if( (0 == grab_count) && (0 != grab_visible_count) )
     {
-        // There are items within the "normal" rance that could be grabbed
+        // There are items within the "normal" range that could be grabbed
         // but somehow they can't be seen. 
         // Generate a billboard that tells the player what the problem is.
         // NOTE: this is not corerect since it could alert a player to an invisible object
@@ -3323,25 +3385,29 @@ void cleanup_one_character( chr_t * pchr )
     else
     {
         eve_t * peve;
-        ENC_REF enc_now, enc_next;
+        ENC_REF ienc_now, ienc_nxt;
+        size_t  ienc_count;
 
         // cleanup the enchant list
         cleanup_character_enchants( pchr );
 
         // remove all invalid enchants
-        enc_now = pchr->firstenchant;
-        while ( enc_now != MAX_ENC )
+        ienc_now = pchr->firstenchant;
+        ienc_count = 0;
+        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
         {
-            enc_next = EncList.lst[enc_now].nextenchant_ref;
+            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-            peve = enc_get_peve( enc_now );
+            peve = enc_get_peve( ienc_now );
             if ( NULL != peve && !peve->stayiftargetdead )
             {
-                remove_enchant( enc_now, NULL );
+                remove_enchant( ienc_now, NULL );
             }
 
-            enc_now = enc_next;
+            ienc_now = ienc_nxt;
+            ienc_count++;
         }
+        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Stop all sound loops for this object
@@ -4049,6 +4115,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
     cap_t * pcap;
     int     ripand;
     CHR_REF ichr;
+    float water_level = 0.0f;
 
     if ( NULL == pchr ) return pchr;
     ichr = GET_REF_PCHR( pchr );
@@ -4062,14 +4129,25 @@ chr_t * chr_config_do_active( chr_t * pchr )
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return pchr;
 
+    water_level = water.layer[0].z + water.layer[0].amp;
+    if( cfg.twolayerwater_allowed )
+    {
+        int cnt;
+
+        for( cnt = 1; cnt < MAXWATERLAYER; cnt++ )
+        {
+            water_level = MAX( water_level, water.layer[cnt].z + water.layer[cnt].amp );
+        }
+    }
+
     // do the character interaction with water
-    if ( !pchr->is_hidden && pchr->pos.z < water.surface_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
+    if ( !pchr->is_hidden && pchr->pos.z < water_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
     {
         // do splash and ripple
         if ( !pchr->enviro.inwater )
         {
             // Splash
-            fvec3_t vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level + RAISE );
+            fvec3_t vtmp = VECT3( pchr->pos.x, pchr->pos.y, water_level + RAISE );
 
             spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
 
@@ -4081,12 +4159,12 @@ chr_t * chr_config_do_active( chr_t * pchr )
         else
         {
             // Ripples
-            if ( !INGAME_CHR( pchr->attachedto ) && pcap->ripple && pchr->pos.z + pchr->chr_min_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water.surface_level && pchr->pos.z + pchr->chr_min_cv.mins[OCT_Z] < water.surface_level )
+            if ( !INGAME_CHR( pchr->attachedto ) && pcap->ripple && pchr->pos.z + pchr->chr_min_cv.maxs[OCT_Z] + RIPPLETOLERANCE > water_level && pchr->pos.z + pchr->chr_min_cv.mins[OCT_Z] < water_level )
             {
                 int ripple_suppression;
 
                 // suppress ripples if we are far below the surface
-                ripple_suppression = water.surface_level - ( pchr->pos.z + pchr->chr_min_cv.maxs[OCT_Z] );
+                ripple_suppression = water_level - ( pchr->pos.z + pchr->chr_min_cv.maxs[OCT_Z] );
                 ripple_suppression = ( 4 * ripple_suppression ) / RIPPLETOLERANCE;
                 ripple_suppression = CLIP( ripple_suppression, 0, 4 );
 
@@ -4102,9 +4180,9 @@ chr_t * chr_config_do_active( chr_t * pchr )
                     ripand = RIPPLEAND >> ( -ripple_suppression );
                 }
 
-                if ( 0 == (( update_wld + pchr->obj_base.guid ) & ripand ) && pchr->pos.z < water.surface_level && pchr->alive )
+                if ( 0 == (( update_wld + pchr->obj_base.guid ) & ripand ) && pchr->pos.z < water_level && pchr->alive )
                 {
-                    fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water.surface_level );
+                    fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water_level );
 
                     spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
                 }
@@ -4613,7 +4691,6 @@ void respawn_character( const CHR_REF character )
 {
     /// @details ZZ@> This function respawns a character
 
-    CHR_REF item;
     int old_attached_prt_count, new_attached_prt_count;
 
     chr_t * pchr;
@@ -4669,15 +4746,15 @@ void respawn_character( const CHR_REF character )
     pchr->daze_timer = 0;
 
     // Let worn items come back
-    PACK_BEGIN_LOOP( item, pchr->pack.next )
+    PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
     {
-        if ( INGAME_CHR( item ) && ChrList.lst[item].isequipped )
+        if ( INGAME_CHR( ipacked ) && ChrList.lst[ipacked].isequipped )
         {
-            ChrList.lst[item].isequipped = bfalse;
-            SET_BIT( chr_get_pai( item )->alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
+            ChrList.lst[ipacked].isequipped = bfalse;
+            SET_BIT( chr_get_pai( ipacked )->alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
         }
     }
-    PACK_END_LOOP( item );
+    PACK_END_LOOP( ipacked );
 
     // re-initialize the instance
     chr_instance_spawn( &( pchr->inst ), pchr->profile_ref, pchr->skin );
@@ -4769,7 +4846,9 @@ int change_armor( const CHR_REF character, int skin )
 {
     /// @details ZZ@> This function changes the armor of the character
 
-    ENC_REF enchant;
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
+
     int     iTmp;
     cap_t * pcap;
     chr_t * pchr;
@@ -4781,20 +4860,25 @@ int change_armor( const CHR_REF character, int skin )
     cleanup_character_enchants( pchr );
 
     // Remove armor enchantments
-    enchant = pchr->firstenchant;
-    while ( enchant < MAX_ENC )
+    ienc_now = pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        enchant_remove_set( enchant, SETSLASHMODIFIER );
-        enchant_remove_set( enchant, SETCRUSHMODIFIER );
-        enchant_remove_set( enchant, SETPOKEMODIFIER );
-        enchant_remove_set( enchant, SETHOLYMODIFIER );
-        enchant_remove_set( enchant, SETEVILMODIFIER );
-        enchant_remove_set( enchant, SETFIREMODIFIER );
-        enchant_remove_set( enchant, SETICEMODIFIER );
-        enchant_remove_set( enchant, SETZAPMODIFIER );
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-        enchant = EncList.lst[enchant].nextenchant_ref;
+        enchant_remove_set( ienc_now, SETSLASHMODIFIER );
+        enchant_remove_set( ienc_now, SETCRUSHMODIFIER );
+        enchant_remove_set( ienc_now, SETPOKEMODIFIER );
+        enchant_remove_set( ienc_now, SETHOLYMODIFIER );
+        enchant_remove_set( ienc_now, SETEVILMODIFIER );
+        enchant_remove_set( ienc_now, SETFIREMODIFIER );
+        enchant_remove_set( ienc_now, SETICEMODIFIER );
+        enchant_remove_set( ienc_now, SETZAPMODIFIER );
+
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Change the skin
     pcap = chr_get_pcap( character );
@@ -4817,30 +4901,35 @@ int change_armor( const CHR_REF character, int skin )
     // Reset armor enchantments
     /// @todo These should really be done in reverse order ( Start with last enchant ), but
     /// I don't care at this point !!!BAD!!!
-    enchant = pchr->firstenchant;
-    while ( enchant < MAX_ENC )
+    ienc_now = pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        PRO_REF ipro = enc_get_ipro( enchant );
+        PRO_REF ipro = enc_get_ipro( ienc_now );
+
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
         if ( LOADED_PRO( ipro ) )
         {
             EVE_REF ieve = pro_get_ieve( ipro );
 
-            enchant_apply_set( enchant, SETSLASHMODIFIER, ipro );
-            enchant_apply_set( enchant, SETCRUSHMODIFIER, ipro );
-            enchant_apply_set( enchant, SETPOKEMODIFIER,  ipro );
-            enchant_apply_set( enchant, SETHOLYMODIFIER,  ipro );
-            enchant_apply_set( enchant, SETEVILMODIFIER,  ipro );
-            enchant_apply_set( enchant, SETFIREMODIFIER,  ipro );
-            enchant_apply_set( enchant, SETICEMODIFIER,   ipro );
-            enchant_apply_set( enchant, SETZAPMODIFIER,   ipro );
+            enchant_apply_set( ienc_now, SETSLASHMODIFIER, ipro );
+            enchant_apply_set( ienc_now, SETCRUSHMODIFIER, ipro );
+            enchant_apply_set( ienc_now, SETPOKEMODIFIER,  ipro );
+            enchant_apply_set( ienc_now, SETHOLYMODIFIER,  ipro );
+            enchant_apply_set( ienc_now, SETEVILMODIFIER,  ipro );
+            enchant_apply_set( ienc_now, SETFIREMODIFIER,  ipro );
+            enchant_apply_set( ienc_now, SETICEMODIFIER,   ipro );
+            enchant_apply_set( ienc_now, SETZAPMODIFIER,   ipro );
 
-            enchant_apply_add( enchant, ADDACCEL,         ieve );
-            enchant_apply_add( enchant, ADDDEFENSE,       ieve );
+            enchant_apply_add( ienc_now, ADDACCEL,         ieve );
+            enchant_apply_add( ienc_now, ADDDEFENSE,       ieve );
         }
 
-        enchant = EncList.lst[enchant].nextenchant_ref;
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return skin;
 }
@@ -4943,7 +5032,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     /// @details ZZ@> This function polymorphs a character, changing stats, dropping weapons
 
     int tnc;
-    ENC_REF enchant;
     CHR_REF item_ref, item;
     chr_t * pchr;
 
@@ -5013,20 +5101,24 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     // Remove enchantments
     if ( leavewhich == ENC_LEAVE_FIRST )
     {
-        // cleanup the enchant list
-        cleanup_character_enchants( pchr );
-
         // Remove all enchantments except top one
-        enchant = pchr->firstenchant;
-        if ( enchant != MAX_ENC )
+        if ( MAX_ENC != pchr->firstenchant )
         {
-            enchant = EncList.lst[enchant].nextenchant_ref;
-            while ( MAX_ENC != enchant )
-            {
-                remove_enchant( enchant, NULL );
+            ENC_REF ienc_now, ienc_nxt;
+            size_t  ienc_count;
 
-                enchant = EncList.lst[enchant].nextenchant_ref;
+            ienc_now = EncList.lst[pchr->firstenchant].nextenchant_ref;
+            ienc_count = 0;
+            while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+            {
+                ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+
+                remove_enchant( ienc_now, NULL );
+
+                ienc_now = ienc_nxt;
+                ienc_count++;
             }
+            if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
         }
     }
     else if ( ENC_LEAVE_NONE == leavewhich )
@@ -5426,8 +5518,11 @@ bool_t update_chr_darkvision( const CHR_REF character )
     /// @detalis BB@> as an offset to negative status effects like things like poisoning, a
     ///               character gains darkvision ability the more they are "poisoned".
     ///               True poisoning can be removed by [HEAL] and tints the character green
+
+    ENC_REF ienc_now, ienc_nxt;
+    size_t  ienc_count;
+
     eve_t * peve;
-    ENC_REF enc_now, enc_next;
     int life_regen = 0;
 
     chr_t * pchr;
@@ -5440,21 +5535,24 @@ bool_t update_chr_darkvision( const CHR_REF character )
 
     // grab the life loss due poison to determine how much darkvision a character has earned, he he he!
     // clean up the enchant list before doing anything
-    enc_now = pchr->firstenchant;
-    while ( enc_now != MAX_ENC )
+    ienc_now = pchr->firstenchant;
+    ienc_count = 0;
+    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
     {
-        enc_next = EncList.lst[enc_now].nextenchant_ref;
-        peve = enc_get_peve( enc_now );
+        ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
+        peve = enc_get_peve( ienc_now );
 
         //Is it true poison?
         if ( NULL != peve && MAKE_IDSZ( 'H', 'E', 'A', 'L' ) == peve->removedbyidsz )
         {
-            life_regen += EncList.lst[enc_now].target_life;
-            if ( EncList.lst[enc_now].owner_ref == pchr->ai.index ) life_regen += EncList.lst[enc_now].owner_life;
+            life_regen += EncList.lst[ienc_now].target_life;
+            if ( EncList.lst[ienc_now].owner_ref == pchr->ai.index ) life_regen += EncList.lst[ienc_now].owner_life;
         }
 
-        enc_now = enc_next;
+        ienc_now = ienc_nxt;
+        ienc_count++;
     }
+    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     if ( life_regen < 0 )
     {
@@ -9154,7 +9252,7 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, 
     /// @details BB@> check the pack a matching item
 
     bool_t matches_equipped;
-    CHR_REF item, tmp_item, tmp_var;
+    CHR_REF item, tmp_var;
     chr_t * pchr;
 
     if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
@@ -9167,19 +9265,19 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, 
 
     *pack_last = GET_REF_PCHR( pchr );
 
-    PACK_BEGIN_LOOP( tmp_item, pchr->pack.next )
+    PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
     {
-        matches_equipped = ( !equipped || ( INGAME_CHR( tmp_item ) && ChrList.lst[tmp_item].isequipped ) );
+        matches_equipped = ( !equipped || ( INGAME_CHR( ipacked ) && ChrList.lst[ipacked].isequipped ) );
 
-        if ( chr_is_type_idsz( tmp_item, idsz ) && matches_equipped )
+        if ( chr_is_type_idsz( ipacked, idsz ) && matches_equipped )
         {
-            item = tmp_item;
+            item = ipacked;
             break;
         }
 
-        *pack_last = tmp_item;
+        *pack_last = ipacked;
     }
-    PACK_END_LOOP( tmp_item );
+    PACK_END_LOOP( ipacked );
 
     return item;
 }

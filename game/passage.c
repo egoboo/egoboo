@@ -240,8 +240,6 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
             // It needs to have a specific item as well
             else
             {
-                CHR_REF item;
-
                 // I: Check left hand
                 if ( chr_is_type_idsz( pchr->holdingwhich[SLOT_LEFT], require_item ) )
                 {
@@ -257,15 +255,15 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
                 }
 
                 // III: Check the pack
-                PACK_BEGIN_LOOP( item, pchr->pack.next )
+                PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
                 {
-                    if ( chr_is_type_idsz( item, require_item ) )
+                    if ( chr_is_type_idsz( ipacked, require_item ) )
                     {
-                        // It has the item in inventory...
+                        // It has the ipacked in inventory...
                         return character;
                     }
                 }
-                PACK_END_LOOP( item );
+                PACK_END_LOOP( ipacked );
             }
         }
     }
