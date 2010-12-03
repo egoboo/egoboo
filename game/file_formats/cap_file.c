@@ -75,7 +75,7 @@ cap_t * cap_init( cap_t * pcap )
 
     // Skills
     pcap->spelleffect_type = NO_SKIN_OVERRIDE;
-    idsz_map_init( pcap->skills );
+    idsz_map_init( pcap->skills, SDL_arraysize( pcap->skills ) );
 
     return pcap;
 }
@@ -410,7 +410,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
             {
                 char * ptr;
 
-                ptr = strpbrk( tmp_buffer, "SBH" );
+                ptr = strpbrk( tmp_buffer, "SBHC" );
                 while ( NULL != ptr )
                 {
                     if ( 'S' == *ptr )
@@ -432,7 +432,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
                     // start on the next character
                     ptr++;
-                    ptr = strpbrk( ptr, "SBH" );
+                    ptr = strpbrk( ptr, "SBHC" );
                 }
             }
         }
@@ -444,7 +444,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     }
     vfs_close( fileread );
 
-    //log_info( "load_one_character_profile_vfs() - loaded icap %s (%d)\n", pcap->classname, icap );
+    //log_debug( "load_one_character_profile_vfs() - loaded icap %s (%d)\n", pcap->classname, icap );
 
     return pcap;
 }

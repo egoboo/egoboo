@@ -5132,9 +5132,6 @@ bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
     int ix, iy;
     CHR_REF shop_keeper;
 
-    // ?? lol what ??
-    if ( ichr == iitem ) return bfalse;
-
     if ( !INGAME_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 

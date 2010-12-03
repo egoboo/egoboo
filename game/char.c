@@ -5382,6 +5382,9 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 
     /*
     // change our current team if we are not a item or a mount
+    
+    /*
+    // change our current team if we are not a item or a mount
     if (( !pchr->ismount || !INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) ) &&
         ( !pchr->isitem  || !INGAME_CHR( pchr->attachedto ) ) )
     {
@@ -5399,6 +5402,12 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
         chr_t *pmount = ChrList.lst + pchr->attachedto;
         if ( pmount->ismount ) pmount->team = team;
     }
+    //change our mount team as well
+    if( INGAME_CHR( pchr->attachedto ) )
+    {
+        chr_t *pmount = ChrList.lst + pchr->attachedto;
+        if( pmount->ismount ) pmount->team = team;
+    }
 
     // update the team of anything we are holding as well
     if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
@@ -5406,6 +5415,15 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
         ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
     }
     if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
+    {
+        ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
+    }
+    // update the team of anything we are holding as well
+    if( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+    {
+        ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
+    }
+    if( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
     {
         ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
     }

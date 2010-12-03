@@ -29,14 +29,17 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-IDSZ_node_t * idsz_map_init( IDSZ_node_t * idsz_map )
+void idsz_map_init( IDSZ_node_t idsz_map[], const size_t idsz_map_len )
 {
-    if ( NULL == idsz_map ) return idsz_map;
+    size_t i;
 
-    idsz_map[0].id = IDSZ_NONE;
-    idsz_map[0].level = IDSZ_NOT_FOUND;
+    if ( NULL == idsz_map ) return;
 
-    return idsz_map;
+    for( i = 0; i < idsz_map_len; i++ )
+    {
+        idsz_map[i].id = IDSZ_NONE;
+        idsz_map[i].level = IDSZ_NOT_FOUND;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -46,7 +49,7 @@ egoboo_rv idsz_map_add( IDSZ_node_t idsz_map[], const size_t idsz_map_len, const
     ///              in the map, the higher of the two level values will be used.
 
     egoboo_rv rv = rv_error;
-    size_t    i;
+    size_t    i, key = 0;
 
     if ( NULL == idsz_map ) return rv_error;
 
@@ -56,23 +59,24 @@ egoboo_rv idsz_map_add( IDSZ_node_t idsz_map[], const size_t idsz_map_len, const
 
     for ( i = 0; i < idsz_map_len; i++ )
     {
-        // the end of the list?
-        if ( IDSZ_NONE == idsz_map[i].id ) break;
+        key = (idsz + i) % idsz_map_len;
+        
+        // found an empty spot?
+        if ( IDSZ_NONE == idsz_map[key].id ) break;
 
         // found a matching idsz?
-        if ( idsz == idsz_map[i].id )
+        if ( idsz == idsz_map[key].id )
         {
             // But only if the new idsz level is "better" than the previous one
-            if (( level > 0 && idsz_map[i].level >= level ) ||
-                ( level < 0 && idsz_map[i].level <= level ) )
+            if (( level > 0 && idsz_map[key].level >= level ) ||
+                ( level < 0 && idsz_map[key].level <= level ) )
             {
                 rv = rv_fail;
             }
             else
             {
                 rv = rv_success;
-
-                idsz_map[i].level = level;
+                idsz_map[key].level = level;
             }
 
             break;
@@ -86,22 +90,13 @@ egoboo_rv idsz_map_add( IDSZ_node_t idsz_map[], const size_t idsz_map_len, const
 
         rv = rv_fail;
     }
-    else if ( IDSZ_NONE == idsz_map[i].id )
+    else if ( IDSZ_NONE == idsz_map[key].id )
     {
-        // Reached the end of the list. Simply append the new idsz to idsz_map
-
-        size_t tail = i + 1;
-
-        // Set the termination down one step, if that step exists
-        if ( tail < idsz_map_len )
-        {
-            idsz_map[tail].id    = IDSZ_NONE;
-            idsz_map[tail].level = IDSZ_NOT_FOUND;
-        }
+        //Found an empty place in the list. Simply append the new idsz to idsz_map
 
         //Add the new idsz
-        idsz_map[i].id    = idsz;
-        idsz_map[i].level = level;
+        idsz_map[key].id    = idsz;
+        idsz_map[key].level = level;
 
         rv = rv_success;
     }
@@ -115,29 +110,26 @@ IDSZ_node_t* idsz_map_get( const IDSZ_node_t idsz_map[], const size_t idsz_map_l
     /// @details ZF> This function returns a pointer to the IDSZ_node_t from the IDSZ specified
     ///              or NULL if it wasn't found in the map.
 
-    int iterator;
-    IDSZ_node_t* pidsz;
+    int i;
+    size_t key;
     IDSZ_node_t* found_node = NULL;
 
     if ( NULL == idsz_map || IDSZ_NONE == idsz ) return NULL;
 
-    // initialize the loop
-    iterator = 0;
-    pidsz = idsz_map_iterate( idsz_map, idsz_map_len, &iterator );
-
     // iterate the map
-    while ( pidsz != NULL )
+    for ( i = 0; i < idsz_map_len; i++ )
     {
-        // Did we find the idsz?
-        if ( pidsz->id == idsz )
-        {
-            found_node = pidsz;
-            break;
-        }
+        key = (idsz + i) % idsz_map_len;
+        
+        // found an empty spot, it's not in here
+        if ( IDSZ_NONE == idsz_map[key].id ) break;
 
-        // Get the next element
-        pidsz = idsz_map_iterate( idsz_map, idsz_map_len, &iterator );
-    }
+        // found a matching idsz?
+        if ( idsz == idsz_map[key].id )
+        {
+            found_node = ( IDSZ_node_t * ) &idsz_map[key];
+        }
+      }
 
     return found_node;
 }
@@ -159,21 +151,18 @@ IDSZ_node_t* idsz_map_iterate( const IDSZ_node_t idsz_map[], const size_t idsz_m
     // Reached the end of the list without finding a matching idsz
     if ( step < 0  || ( size_t )step >= idsz_map_len ) return NULL;
 
-    // Found the end of the list?
-    if ( IDSZ_NONE == idsz_map[step].id )
+    // Keep looking until we actually find one
+    while ( IDSZ_NONE == idsz_map[step].id )
     {
-        // yes, set the return values to their terminal states
-        node          = NULL;
-        *iterator_ptr = -1;
-    }
-    else
-    {
-        // no, increment the iterator
-        node          = ( IDSZ_node_t * )( idsz_map + step );
-        *iterator_ptr = step     + 1;
+        step++;
+        if ( ( size_t )step >= idsz_map_len ) return NULL;
     }
 
-    return node;
+    // Increment the iterator for the next iteration
+    *iterator_ptr = step     + 1;
+
+    // Return the next element we found from the map
+    return ( IDSZ_node_t * )( idsz_map + step );    
 }
 
 //--------------------------------------------------------------------------------------------

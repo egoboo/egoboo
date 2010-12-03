@@ -111,7 +111,7 @@ egoboo_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len,
     if ( quest_log == NULL ) return rv_error;
 
     // blank out the existing map
-    idsz_map_init( quest_log );
+    idsz_map_init( quest_log, quest_log_len );
 
     // Figure out the file path
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
