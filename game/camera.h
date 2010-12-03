@@ -139,4 +139,4 @@ void camera_make_matrix( camera_t * pcam );
 void camera_look_at( camera_t * pcam, float x, float y );
 
 bool_t camera_reset_target( camera_t * pcam, struct s_ego_mpd * pmesh );
-void   camera_rotmesh_init();
+void   camera_rotmesh__init();

@@ -595,8 +595,8 @@ void mad_make_framelip( const MAD_REF imad, int action )
     if ( !LOADED_MAD( imad ) ) return;
     pmad = MadStack.lst + imad;
 
+    if ( NULL == pmad->md2_ptr ) return;
     md2 = pmad->md2_ptr;
-    if ( NULL == md2 ) return;
 
     action = mad_get_action( imad, action );
     if ( ACTION_COUNT == action || ACTION_DA == action ) return;
@@ -820,8 +820,8 @@ void mad_finalize( const MAD_REF imad )
     if ( !LOADED_MAD( imad ) ) return;
     pmad = MadStack.lst + imad;
 
+    if ( NULL == pmad->md2_ptr ) return;
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return;
 
     frame_count = md2_get_numFrames( pmd2 );
     frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
@@ -861,8 +861,8 @@ void mad_rip_actions( const MAD_REF imad )
     if ( !LOADED_MAD( imad ) ) return;
     pmad = MadStack.lst + imad;
 
+    if ( NULL == pmad->md2_ptr ) return;
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return;
 
     // Clear out all actions and reset to invalid
     for ( action = 0; action < ACTION_COUNT; action++ )

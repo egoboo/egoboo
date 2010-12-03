@@ -250,7 +250,8 @@ SDL_bool egoboo_console_destroy( egoboo_console_t ** pcon, SDL_bool do_free )
 //--------------------------------------------------------------------------------------------
 void egoboo_console_draw_begin()
 {
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
+    // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
+    GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                        // GL_ENABLE_BIT
@@ -268,27 +269,33 @@ void egoboo_console_draw_begin()
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
+
+    // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glLoadIdentity )();
     GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glLoadIdentity )();
 }
 
 //--------------------------------------------------------------------------------------------
 void egoboo_console_draw_end()
 {
-    // Restore the OpenGL matrices to what they were
+    // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPopMatrix )();
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glLoadIdentity )();
+    GL_DEBUG( glPopMatrix )();
 
     // Re-enable any states disabled by gui_beginFrame
-    ATTRIB_POP( __FUNCTION__ );
+    // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
+    GL_DEBUG( glPopAttrib )();
 }
 
 //--------------------------------------------------------------------------------------------

@@ -20,9 +20,12 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
-#include "egoboo_math.h"
+
+#include "graphic.h"
 
 #include "file_formats/pip_file.h"
+
+#include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,9 +96,9 @@ struct s_prt_instance
 typedef struct s_prt_instance prt_instance_t;
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( const PRT_REF iprt );
-bool_t render_one_prt_trans( const PRT_REF iprt );
-bool_t render_one_prt_ref( const PRT_REF iprt );
+gfx_rv render_one_prt_solid( const PRT_REF iprt );
+gfx_rv render_one_prt_trans( const PRT_REF iprt );
+gfx_rv render_one_prt_ref( const PRT_REF iprt );
 
 void   render_all_particles( struct s_camera * pcam );
 void   render_all_prt_bbox();
@@ -103,5 +106,5 @@ void   render_prt_ref( struct s_camera * pcam );
 
 void   render_all_prt_attachment();
 
-void prt_instance_update_all( struct s_camera * pcam );
+gfx_rv update_all_prt_instance( struct s_camera * pcam );
 

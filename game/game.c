@@ -811,7 +811,7 @@ int update_game()
                     BillboardList_update_all();
                     animate_tiles();
                     move_water( &water );
-                    looped_update_all_sound();
+                    looped_update_all_sound( &renderlist );
                     do_damage_tiles();
                     update_pits();
                     do_weather_spawn_particles();
@@ -3044,7 +3044,7 @@ void game_reset_module_data()
     game_reset_players();
 
     reset_end_text();
-    renderlist_reset();
+    renderlist_reset( &renderlist );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3747,10 +3747,10 @@ camera_t * set_PCamera( camera_t * pcam )
     PCamera = pcam;
 
     // Matrix init stuff (from remove.c)
-    rotmeshtopside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
-    rotmeshbottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
-    rotmeshup         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
-    rotmeshdown       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
+    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
+    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
+    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
+    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
 
     return pcam_old;
 }
@@ -5130,7 +5130,7 @@ bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
     bool_t is_invis, can_steal;
     chr_t * pchr, * pitem;
     int ix, iy;
-	CHR_REF shop_keeper;
+    CHR_REF shop_keeper;
 
     // ?? lol what ??
     if ( ichr == iitem ) return bfalse;
@@ -5146,8 +5146,8 @@ bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
 
-	// check if we are doing this inside a shop
-	shop_keeper = shop_get_owner( ix, iy );
+    // check if we are doing this inside a shop
+    shop_keeper = shop_get_owner( ix, iy );
     if ( INGAME_CHR( shop_keeper ) )
     {
         // check for a stealthy pickup
@@ -5373,7 +5373,7 @@ void disenchant_character( const CHR_REF cnt )
     pchr = ChrList.lst + cnt;
 
     ienc_count = 0;
-    while ( (MAX_ENC != pchr->firstenchant) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
         if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
@@ -5382,7 +5382,7 @@ void disenchant_character( const CHR_REF cnt )
         }
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
 }
 

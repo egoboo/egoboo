@@ -58,14 +58,15 @@ static void chr_draw_grips( chr_t * pchr );
 static void chr_draw_attached_grip( chr_t * pchr );
 static void render_chr_bbox( chr_t * pchr );
 
-static egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match );
+static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits )
+gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
+    GLint matrix_mode[1];
     Uint16 cnt;
     Uint16 vertex;
     float  uoffset, voffset;
@@ -76,18 +77,30 @@ bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
-    if ( !INGAME_CHR( character ) ) return bfalse;
+    if ( !INGAME_CHR( character ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
+        return gfx_error;
+    }
     pchr  = ChrList.lst + character;
     pinst = &( pchr->inst );
 
-    if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
+    if ( NULL == pmad->md2_ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL md2" );
+        return gfx_error;
+    }
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return bfalse;
 
     ptex = NULL;
-    if ( 0 != ( bits & CHR_PHONG ) )
+    if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
         ptex = TxTexture_get_ptr(( TX_REF )TX_PHONG );
     }
@@ -100,16 +113,19 @@ bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
     uoffset = pinst->uoffset - PCamera->turn_z_one;
     voffset = pinst->voffset;
 
-    if ( 0 != ( bits & CHR_REFLECT ) )
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+
+    if ( HAS_SOME_BITS( bits, CHR_REFLECT ) )
     {
-        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-        GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glMultMatrixf )( pinst->ref.matrix.v );
     }
     else
     {
-        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-        GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
     }
 
@@ -165,10 +181,10 @@ bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
                     }
 
                     // apply the tint
-                    col[RR] *= tint[RR];
-                    col[GG] *= tint[GG];
-                    col[BB] *= tint[BB];
-                    col[AA] *= tint[AA];
+                    col[RR] *= tint[RR] * curr_color[RR];
+                    col[GG] *= tint[GG] * curr_color[GG];
+                    col[BB] *= tint[BB] * curr_color[BB];
+                    col[AA] *= tint[AA] * curr_color[AA];
 
                     tex[0] = pvrt->env[XX] + uoffset;
                     tex[1] = CLIP( cmax, 0.0f, 1.0f );
@@ -192,13 +208,16 @@ bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
             glcommand = glcommand->next;
         }
     }
-
     ATTRIB_POP( __FUNCTION__ );
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    return btrue;
+    // restore the matrix mode
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
+
+    return gfx_success;
 }
 
 // Do fog...
@@ -244,9 +263,11 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits )
+gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits )
 {
     /// @details ZZ@> This function draws a model
+
+    GLint matrix_mode[1];
 
     int    cmd_count;
     int    cnt;
@@ -259,15 +280,27 @@ bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
-    if ( !INGAME_CHR( character ) ) return bfalse;
+    if ( !INGAME_CHR( character ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
+        return gfx_error;
+    }
     pchr  = ChrList.lst + character;
     pinst = &( pchr->inst );
 
-    if ( !LOADED_MAD( pinst->imad ) ) return bfalse;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
+    if ( NULL == pmad->md2_ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL md2" );
+        return gfx_error;
+    }
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return bfalse;
 
     // To make life easier
     ptex = TxTexture_get_ptr( pinst->texture );
@@ -275,16 +308,19 @@ bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
     uoffset = pinst->uoffset * INV_FFFF;
     voffset = pinst->voffset * INV_FFFF;
 
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+
     if ( 0 != ( bits & CHR_REFLECT ) )
     {
-        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-        GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glMultMatrixf )( pinst->ref.matrix.v );
     }
     else
     {
-        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-        GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
     }
 
@@ -378,10 +414,14 @@ bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
     }
     ATTRIB_POP( __FUNCTION__ );
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
-    return btrue;
+    // restore the matrix mode
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
+
+    return gfx_success;
 }
 
 /*
@@ -421,17 +461,21 @@ bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
 */
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits )
+gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits )
 {
     /// @details ZZ@> This function picks the actual function to use
 
     chr_t * pchr;
-    bool_t retval;
+    gfx_rv retval;
 
-    if ( !INGAME_CHR( character ) ) return bfalse;
+    if ( !INGAME_CHR( character ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
+        return gfx_error;
+    }
     pchr = ChrList.lst + character;
 
-    if ( pchr->is_hidden ) return bfalse;
+    if ( pchr->is_hidden ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
@@ -461,25 +505,33 @@ bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_ref( const CHR_REF ichr )
+gfx_rv render_one_mad_ref( const CHR_REF ichr )
 {
     /// @details ZZ@> This function draws characters reflected in the floor
 
     chr_t * pchr;
     chr_instance_t * pinst;
     GLXvector4f tint;
+    gfx_rv retval;
 
-    if ( !INGAME_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
+        return gfx_error;
+    }
     pchr = ChrList.lst + ichr;
     pinst = &( pchr->inst );
 
-    if ( pchr->is_hidden ) return bfalse;
+    if ( pchr->is_hidden ) return gfx_fail;
+
+    // assume the best
+    retval = gfx_success;
 
     if ( !pinst->ref.matrix_valid )
     {
         if ( !apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level ) )
         {
-            return bfalse;
+            return gfx_error;
         }
     }
 
@@ -500,7 +552,10 @@ bool_t render_one_mad_ref( const CHR_REF ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            render_one_mad( ichr, tint, CHR_ALPHA | CHR_REFLECT );
+            if ( gfx_error == render_one_mad( ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
+            {
+                retval = gfx_error;
+            }
         }
 
         if ( pinst->ref.light != 255 )
@@ -512,7 +567,10 @@ bool_t render_one_mad_ref( const CHR_REF ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            render_one_mad( ichr, tint, CHR_LIGHT | CHR_REFLECT );
+            if ( gfx_error == render_one_mad( ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
+            {
+                retval = gfx_error;
+            }
         }
 
         if ( gfx.phongon && pinst->sheen > 0 )
@@ -522,12 +580,88 @@ bool_t render_one_mad_ref( const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
-            render_one_mad( ichr, tint, CHR_PHONG | CHR_REFLECT );
+            if ( gfx_error == render_one_mad( ichr, tint, CHR_PHONG | CHR_REFLECT ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
     ATTRIB_POP( __FUNCTION__ );
 
-    return btrue;
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_one_chr_trans( const CHR_REF ichr )
+{
+    /// @details ZZ@> This function dispatches the rendering of transparent characters to the correct function
+
+    chr_t * pchr;
+    chr_instance_t * pinst;
+    GLXvector4f tint;
+    bool_t rendered;
+
+    if ( !INGAME_CHR( ichr ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
+        return gfx_error;
+    }
+    pchr = ChrList.lst + ichr;
+    pinst = &( pchr->inst );
+
+    if ( pchr->is_hidden ) return gfx_fail;
+
+    // there is an outside chance the onject will not be rendered
+    rendered = bfalse;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT )
+    {
+        // cull backward facing polygons
+        GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+        GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
+
+        if ( pinst->alpha < 255 && 255 == pinst->light )
+        {
+            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
+
+            chr_instance_get_tint( pinst, tint, CHR_ALPHA );
+
+            if ( render_one_mad( ichr, tint, CHR_ALPHA ) )
+            {
+                rendered = btrue;
+            }
+        }
+
+        if ( pinst->light < 255 )
+        {
+            GL_DEBUG( glEnable )( GL_BLEND );           // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
+
+            chr_instance_get_tint( pinst, tint, CHR_LIGHT );
+
+            if ( render_one_mad( ichr, tint, CHR_LIGHT ) )
+            {
+                rendered = btrue;
+            }
+        }
+
+        if ( gfx.phongon && pinst->sheen > 0 )
+        {
+            GL_DEBUG( glEnable )( GL_BLEND );             // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
+
+            chr_instance_get_tint( pinst, tint, CHR_PHONG );
+
+            if ( render_one_mad( ichr, tint, CHR_PHONG ) )
+            {
+                rendered = btrue;
+            }
+        }
+    }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return rendered ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -568,6 +702,8 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     /// @details BB@> a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
 
+    GLint matrix_mode[1];
+
     mad_t * pmad;
 
     int vmin, vmax, cnt;
@@ -592,6 +728,10 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
@@ -605,8 +745,12 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
     }
     GL_DEBUG_END();
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
+
+    // restore the matrix mode
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
@@ -615,6 +759,7 @@ void draw_points( chr_t * pchr, int vrt_offset, int verts )
 //--------------------------------------------------------------------------------------------
 void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
 {
+    GLint matrix_mode[1];
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
     texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
@@ -625,14 +770,22 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
     if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
 
     _draw_one_grip_raw( pinst, pmad, slot );
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
+
+    // restore the matrix mode
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
@@ -717,6 +870,8 @@ void chr_draw_grips( chr_t * pchr )
     cap_t * pcap;
 
     int slot;
+
+    GLint matrix_mode[1];
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
@@ -735,6 +890,10 @@ void chr_draw_grips( chr_t * pchr )
     if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
@@ -751,8 +910,12 @@ void chr_draw_grips( chr_t * pchr )
         _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
     }
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
+
+    // restore the matrix mode
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
@@ -760,19 +923,23 @@ void chr_draw_grips( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_update_instance( chr_t * pchr )
+gfx_rv chr_update_instance( chr_t * pchr )
 {
     chr_instance_t * pinst;
-    egoboo_rv retval;
+    gfx_rv retval;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
+    if ( !ACTIVE_PCHR( pchr ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR( pchr ), "invalid character" );
+        return gfx_error;
+    }
     pinst = &( pchr->inst );
 
     // make sure that the vertices are interpolated
     retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
-    if ( rv_error == retval )
+    if ( gfx_error == retval )
     {
-        return rv_error;
+        return gfx_error;
     }
 
     // do the basic lighting
@@ -796,16 +963,20 @@ vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
+gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
 {
-    if ( NULL == pcache ) return rv_error;
+    if ( NULL == pcache )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL cache" );
+        return gfx_error;
+    }
 
-    if ( !pcache->valid ) return rv_success;
+    if ( !pcache->valid ) return gfx_success;
 
     if ( NULL == pinst )
     {
         pcache->valid = bfalse;
-        return rv_success;
+        return gfx_success;
     }
 
     if ( pinst->frame_lst != pcache->frame_nxt )
@@ -823,7 +994,7 @@ egoboo_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
         pcache->valid = bfalse;
     }
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -914,7 +1085,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
+gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
 {
     int           frame_count;
 
@@ -922,17 +1093,33 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
     MD2_Model_t * pmd2;
     MD2_Frame_t * frame_list, * pframe_nxt, * pframe_lst;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     // get the model. try to heal a bad model.
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
+    if ( NULL == pmad->md2_ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL md2" );
+        return gfx_error;
+    }
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return rv_error;
 
     frame_count = md2_get_numFrames( pmd2 );
-    if ( pinst->frame_nxt >= frame_count ||  pinst->frame_lst >= frame_count ) return rv_error;
+    if ( pinst->frame_nxt >= frame_count ||  pinst->frame_lst >= frame_count )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid frame range" );
+        return gfx_error;
+    }
 
     frame_list = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
     pframe_lst = frame_list + pinst->frame_lst;
@@ -951,16 +1138,16 @@ egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst )
         oct_bb_interpolate( &( pinst->bbox ), &( pframe_lst->bb ), &( pframe_nxt->bb ), pinst->flip );
     }
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match )
+gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match )
 {
     /// @details BB@> determine whether some specific vertices of an instance need to be updated
-    //                rv_error   means that the function was passed invalid values
-    //                rv_fail    means that the instance does not need to be updated
-    //                rv_success means that the instance should be updated
+    //                gfx_error   means that the function was passed invalid values
+    //                gfx_fail    means that the instance does not need to be updated
+    //                gfx_success means that the instance should be updated
 
     bool_t local_verts_match, flips_match, local_frames_match;
 
@@ -978,26 +1165,34 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     *frames_match = bfalse;
 
     // do we have a valid instance?
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
     psave = &( pinst->save );
 
     // do we hace a valid mad?
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
-    if ( !psave->valid ) return rv_success;
+    if ( !psave->valid ) return gfx_success;
 
     // get the last valid vertex from the chr_instance
     maxvert = (( int )pinst->vrt_count ) - 1;
 
     // check to make sure the lower bound of the saved data is valid.
     // it is initialized to an invalid value (psave->vmin = psave->vmax = -1)
-    if ( psave->vmin < 0 || psave->vmax < 0 ) return rv_success;
+    if ( psave->vmin < 0 || psave->vmax < 0 ) return gfx_success;
 
     // check to make sure the upper bound of the saved data is valid.
-    if ( psave->vmin > maxvert || psave->vmax > maxvert ) return rv_success;
+    if ( psave->vmin > maxvert || psave->vmax > maxvert ) return gfx_success;
 
     // make sure that the min and max vertices are in the correct order
     if ( vmax < vmin ) SWAP( int, vmax, vmin );
@@ -1010,7 +1205,7 @@ egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax,
     *frames_match = ( pinst->frame_nxt == pinst->frame_lst && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst ) ||
                     ( flips_match && psave->frame_nxt == pinst->frame_nxt && psave->frame_lst == pinst->frame_lst );
 
-    return ( !( *verts_match ) || !( *frames_match ) ) ? rv_success : rv_fail;
+    return ( !( *verts_match ) || !( *frames_match ) ) ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1085,13 +1280,13 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force )
+gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force )
 {
     int    maxvert, frame_count;
     bool_t vertices_match, frames_match;
     float  loc_flip;
 
-    egoboo_rv retval;
+    gfx_rv retval;
 
     vlst_cache_t * psave;
 
@@ -1102,20 +1297,32 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     int vdirty1_min = -1, vdirty1_max = -1;
     int vdirty2_min = -1, vdirty2_max = -1;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
     psave = &( pinst->save );
 
-    if ( rv_error == chr_instance_update_bbox( pinst ) )
+    if ( gfx_error == chr_instance_update_bbox( pinst ) )
     {
-        return rv_error;
+        return gfx_error;
     }
 
     // get the model
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
+    if ( NULL == pmad->md2_ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL md2" );
+        return gfx_error;
+    }
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return rv_error;
 
     // make sure we have valid data
     if ( pinst->vrt_count != md2_get_numVertices( pmd2 ) )
@@ -1156,8 +1363,8 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
     {
         // do we need to update?
         retval = chr_instance_needs_update( pinst, vmin, vmax, &vertices_match, &frames_match );
-        if ( rv_error == retval ) return rv_error;            // rv_error == retval means some pointer or reference is messed up
-        if ( rv_fail  == retval ) return rv_success;          // rv_fail  == retval means we do not need to update this round
+        if ( gfx_error == retval ) return gfx_error;            // gfx_error == retval means some pointer or reference is messed up
+        if ( gfx_fail  == retval ) return gfx_success;          // gfx_fail  == retval means we do not need to update this round
 
         if ( !frames_match )
         {
@@ -1215,7 +1422,7 @@ egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vm
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match )
+gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match )
 {
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
@@ -1226,7 +1433,11 @@ egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int 
 
     vlst_cache_t * psave;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
     maxvert = (( int )pinst->vrt_count ) - 1;
     psave   = &( pinst->save );
 
@@ -1324,20 +1535,24 @@ egoboo_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int 
     // mark the saved vlst_cache data as valid
     psave->valid = btrue;
 
-    return ( verts_updated || frames_updated ) ? rv_success : rv_fail;
+    return ( verts_updated || frames_updated ) ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
+gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count )
 {
     int vmin, vmax;
     Uint32 cnt;
     size_t count;
-    egoboo_rv retval;
+    gfx_rv retval;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
-    if ( NULL == vrt_lst || 0 == vrt_count ) return rv_fail;
+    if ( NULL == vrt_lst || 0 == vrt_count ) return gfx_fail;
 
     // count the valid attachment points
     vmin = 0xFFFF;
@@ -1353,7 +1568,7 @@ egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst
     }
 
     // if there are no valid points, there is nothing to do
-    if ( 0 == count ) return rv_fail;
+    if ( 0 == count ) return gfx_fail;
 
     // force the vertices to update
     retval = chr_instance_update_vertices( pinst, vmin, vmax, btrue );
@@ -1362,26 +1577,38 @@ egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action )
+gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action )
 {
     int action_old;
     mad_t * pmad;
 
     // did we get a bad pointer?
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     // is the action in the valid range?
-    if ( action < 0 || action > ACTION_COUNT ) return rv_error;
+    if ( action < 0 || action > ACTION_COUNT )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, action, "invalid action range" );
+        return gfx_error;
+    }
 
     // do we have a valid model?
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
     // is the chosen action valid?
-    if ( !pmad->action_valid[ action ] ) return rv_fail;
+    if ( !pmad->action_valid[ action ] ) return gfx_fail;
 
     // are we going to check action_ready?
-    if ( !override_action && !pinst->action_ready ) return rv_fail;
+    if ( !override_action && !pinst->action_ready ) return gfx_fail;
 
     // save the old action
     action_old = pinst->action_which;
@@ -1397,30 +1624,42 @@ egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t ac
         pinst->save.valid = bfalse;
     }
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
+gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 {
     mad_t * pmad;
 
     // did we get a bad pointer?
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     // is the action in the valid range?
-    if ( pinst->action_which < 0 || pinst->action_which > ACTION_COUNT ) return rv_error;
+    if ( pinst->action_which < 0 || pinst->action_which > ACTION_COUNT )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->action_which, "invalid action range" );
+        return gfx_error;
+    }
 
     // do we have a valid model?
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
     // is the current action valid?
-    if ( !pmad->action_valid[ pinst->action_which ] ) return rv_fail;
+    if ( !pmad->action_valid[ pinst->action_which ] ) return gfx_fail;
 
     // is the frame within the valid range for this action?
-    if ( frame <  pmad->action_stt[ pinst->action_which ] ) return rv_fail;
-    if ( frame >= pmad->action_end[ pinst->action_which ] ) return rv_fail;
+    if ( frame <  pmad->action_stt[ pinst->action_which ] ) return gfx_fail;
+    if ( frame >= pmad->action_end[ pinst->action_which ] ) return gfx_fail;
 
     // jump to the next frame
     pinst->flip      = 0.0f;
@@ -1430,18 +1669,22 @@ egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 
     vlst_cache_test( &( pinst->save ), pinst );
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action )
+gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action )
 {
-    egoboo_rv retval;
+    gfx_rv retval;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     retval = chr_instance_set_action( pinst, action, action_ready, override_action );
-    if ( rv_success != retval ) return retval;
+    if ( gfx_success != retval ) return retval;
 
     retval = chr_instance_set_frame( pinst, frame );
 
@@ -1449,36 +1692,56 @@ egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, 
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action )
+gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action )
 {
     mad_t * pmad;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
-    if ( action < 0 || action >= ACTION_COUNT ) return rv_error;
+    if ( action < 0 || action >= ACTION_COUNT )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, action, "invalid action range" );
+        return gfx_error;
+    }
 
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
     return chr_instance_set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
+gfx_rv chr_instance_increment_action( chr_instance_t * pinst )
 {
     /// @details BB@> This function starts the next action for a character
 
-    egoboo_rv retval;
+    gfx_rv retval;
 
     int     action, action_old;
     bool_t  action_ready;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     // save the old action
     action_old = pinst->action_which;
 
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
 
     // get the correct action
     action = mad_get_action( pinst->imad, pinst->action_next );
@@ -1493,11 +1756,21 @@ egoboo_rv chr_instance_increment_action( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action )
+gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action )
 {
     /// @details BB@> all the code necessary to move on to the next frame of the animation
 
-    if ( NULL == pinst || NULL == pmad ) return rv_error;
+    if ( NULL == pmad )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mad" );
+        return gfx_error;
+    }
+
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     // fix the ilip and flip
     pinst->ilip = pinst->ilip % 4;
@@ -1544,18 +1817,26 @@ egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, co
 
     vlst_cache_test( &( pinst->save ), pinst );
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t action_ready )
+gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t action_ready )
 {
     /// @details ZZ@> This function starts a generic action for a character
     mad_t * pmad;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
-    if ( !LOADED_MAD( pinst->imad ) ) return rv_error;
+    if ( !LOADED_MAD( pinst->imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + pinst->imad;
 
     action = mad_get_action( pinst->imad, action );
@@ -1636,24 +1917,32 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_free( chr_instance_t * pinst )
+gfx_rv chr_instance_free( chr_instance_t * pinst )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     EGOBOO_DELETE_ARY( pinst->vrt_lst );
     pinst->vrt_count = 0;
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
+gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     chr_instance_free( pinst );
 
-    if ( 0 == vlst_size ) return rv_success;
+    if ( 0 == vlst_size ) return gfx_success;
 
     pinst->vrt_lst = EGOBOO_NEW_ARY( GLvertex, vlst_size );
     if ( NULL != pinst->vrt_lst )
@@ -1661,11 +1950,11 @@ egoboo_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
         pinst->vrt_count = vlst_size;
     }
 
-    return ( NULL != pinst->vrt_lst ) ? rv_success : rv_fail;
+    return ( NULL != pinst->vrt_lst ) ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
+gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 {
     /// @details BB@> try to set the model used by the character instance.
     ///     If this fails, it leaves the old data. Just to be safe it
@@ -1676,15 +1965,19 @@ egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     bool_t updated = bfalse;
     size_t vlst_size;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
-    if ( !LOADED_MAD( imad ) ) return rv_fail;
+    if ( !LOADED_MAD( imad ) ) return gfx_fail;
     pmad = MadStack.lst + imad;
 
     if ( pmad->md2_ptr == NULL )
     {
         log_error( "Invalid pmad instance spawn. (Slot number %i)\n", imad );
-        return rv_fail;
+        return gfx_fail;
     }
 
     if ( pinst->imad != imad )
@@ -1718,15 +2011,19 @@ egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
         chr_instance_update_vertices( pinst, -1, -1, btrue );
     }
 
-    return updated ? rv_success : rv_fail;
+    return updated ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix )
+gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix )
 {
     int trans_temp;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     if ( need_matrix )
     {
@@ -1759,18 +2056,22 @@ egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, boo
 
     pinst->ref.sheen    = pinst->sheen >> 1;
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin )
+gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin )
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
     pro_t * pobj;
     cap_t * pcap;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     // Remember any previous color shifts in case of lasting enchantments
     greensave = pinst->grnshift;
@@ -1780,7 +2081,7 @@ egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uin
     // clear the instance
     chr_instance_ctor( pinst );
 
-    if ( !LOADED_PRO( profile ) ) return rv_fail;
+    if ( !LOADED_PRO( profile ) ) return gfx_fail;
     pobj = ProList.lst + profile;
 
     pcap = pro_get_pcap( profile );
@@ -1804,7 +2105,7 @@ egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uin
     // upload these parameters to the reflection cache, but don't compute the matrix
     chr_instance_update_ref( pinst, 0, bfalse );
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1820,8 +2121,8 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
     if ( !LOADED_MAD( pinst->imad ) ) return 0;
     pmad = MadStack.lst + pinst->imad;
 
+    if ( NULL == pmad->md2_ptr ) return 0;
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return 0;
 
     frame_count = md2_get_numFrames( pmd2 );
     if ( pinst->frame_nxt > frame_count )
@@ -1836,7 +2137,7 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override )
+gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override )
 {
     MAD_REF imad;
     mad_t * pmad;
@@ -1844,7 +2145,11 @@ egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, 
 
     int    new_nxt;
 
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     // handle optional parameters
     if ( VALID_MAD_RANGE( mad_override ) )
@@ -1856,11 +2161,15 @@ egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, 
         imad = pinst->imad;
     }
 
-    if ( !LOADED_MAD( imad ) ) return rv_error;
+    if ( !LOADED_MAD( imad ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, imad, "invalid mad" );
+        return gfx_error;
+    }
     pmad = MadStack.lst + imad;
 
     // we have to have a valid action range
-    if ( pinst->action_which > ACTION_COUNT ) return rv_fail;
+    if ( pinst->action_which > ACTION_COUNT ) return gfx_fail;
 
     // try to heal a bad action
     if ( pinst->action_which != pmad->action_map[pinst->action_which] )
@@ -1869,7 +2178,7 @@ egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, 
     }
 
     // reject the action if it is cannot be made valid
-    if ( pinst->action_which == ACTION_COUNT ) return rv_fail;
+    if ( pinst->action_which == ACTION_COUNT ) return gfx_fail;
 
     // get some frame info
     frame_stt   = pmad->action_stt[pinst->action_which];
@@ -1890,55 +2199,75 @@ egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, 
     // set the validity of the cache
     vlst_cache_test( &( pinst->save ), pinst );
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val )
+gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     pinst->action_keep = val;
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val )
+gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     pinst->action_ready = val;
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val )
+gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     pinst->action_loop = val;
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_set_action_next( chr_instance_t * pinst, int val )
+gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
-    if ( val < 0 || val > ACTION_COUNT ) return rv_fail;
+    if ( val < 0 || val > ACTION_COUNT ) return gfx_fail;
 
     pinst->action_next = val;
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
+gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     if ( pinst->frame_lst != pinst->frame_nxt )
     {
@@ -1949,7 +2278,7 @@ egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
         vlst_cache_test( &( pinst->save ), pinst );
     }
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1965,8 +2294,8 @@ MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst )
     if ( !LOADED_MAD( pinst->imad ) ) return NULL;
     pmad = MadStack.lst + pinst->imad;
 
+    if ( NULL == pmad->md2_ptr ) return NULL;
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return NULL;
 
     frame_count = md2_get_numFrames( pmd2 );
     if ( pinst->frame_nxt < 0 || pinst->frame_nxt > frame_count ) return NULL;
@@ -1989,8 +2318,8 @@ MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst )
     if ( !LOADED_MAD( pinst->imad ) ) return NULL;
     pmad = MadStack.lst + pinst->imad;
 
+    if ( NULL == pmad->md2_ptr ) return NULL;
     pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return NULL;
 
     frame_count = md2_get_numFrames( pmd2 );
     if ( pinst->frame_lst < 0 || pinst->frame_lst > frame_count ) return NULL;
@@ -2001,24 +2330,32 @@ MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_one_lip( chr_instance_t * pinst )
+gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
     pinst->ilip += 1;
     pinst->flip = 0.25f * pinst->ilip;
 
     vlst_cache_test( &( pinst->save ), pinst );
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
+gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
 {
-    if ( NULL == pinst ) return rv_error;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
 
-    if ( 0.0f == dflip ) return rv_fail;
+    if ( 0.0f == dflip ) return gfx_fail;
 
     // update the lips
     pinst->flip += dflip;
@@ -2026,7 +2363,7 @@ egoboo_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
 
     vlst_cache_test( &( pinst->save ), pinst );
 
-    return rv_success;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------

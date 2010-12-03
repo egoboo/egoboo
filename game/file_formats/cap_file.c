@@ -425,6 +425,10 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
                     {
                         pcap->bump_override_height = btrue;
                     }
+                    else if ( 'C' == *ptr )
+                    {
+                        pcap->dont_cull_backfaces = btrue;
+                    }
 
                     // start on the next character
                     ptr++;
@@ -765,6 +769,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
         if ( pcap->bump_override_size ) strcat( sz_tmp, "S" );
         if ( pcap->bump_override_sizebig ) strcat( sz_tmp, "B" );
         if ( pcap->bump_override_height ) strcat( sz_tmp, "H" );
+        if ( pcap->dont_cull_backfaces ) strcat( sz_tmp, "C" );
 
         if ( CSTR_END != sz_tmp[0] )
         {

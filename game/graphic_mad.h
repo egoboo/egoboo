@@ -134,7 +134,7 @@ struct s_vlst_cache
 };
 
 vlst_cache_t * vlst_cache_init( vlst_cache_t * );
-egoboo_rv      vlst_cache_test( vlst_cache_t *, chr_instance_t * );
+gfx_rv      vlst_cache_test( vlst_cache_t *, chr_instance_t * );
 
 //--------------------------------------------------------------------------------------------
 
@@ -148,10 +148,11 @@ struct s_chr_instance
     FACING_T       facing_z;
 
     // render mode info
-    Uint8          alpha;           ///< 255 = Solid, 0 = Invisible
-    Uint8          light;           ///< 1 = Light, 0 = Normal
-    Uint8          sheen;           ///< 0-15, how shiny it is
-    bool_t         enviro;          ///< Environment map?
+    Uint8          alpha;               ///< 255 = Solid, 0 = Invisible
+    Uint8          light;               ///< 1 = Light, 0 = Normal
+    Uint8          sheen;               ///< 0-15, how shiny it is
+    bool_t         enviro;              ///< Environment map?
+    bool_t         dont_cull_backfaces; ///< Do we cull backfaces for this character or not?
 
     // color info
     Uint8          redshift;        ///< Color channel shifting
@@ -207,54 +208,55 @@ struct s_chr_instance
 chr_instance_t * chr_instance_ctor( chr_instance_t * pinst );
 chr_instance_t * chr_instance_dtor( chr_instance_t * pinst );
 
-egoboo_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
-egoboo_rv chr_instance_free( chr_instance_t * pinst );
+gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
+gfx_rv chr_instance_free( chr_instance_t * pinst );
 
-egoboo_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin );
-egoboo_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
+gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin );
+gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
 
-egoboo_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix );
+gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix );
 
-egoboo_rv chr_update_instance( struct s_chr * pchr );
-egoboo_rv chr_instance_update_bbox( chr_instance_t * pinst );
-egoboo_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
-egoboo_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force );
-egoboo_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
+gfx_rv chr_update_instance( struct s_chr * pchr );
+gfx_rv chr_instance_update_bbox( chr_instance_t * pinst );
+gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
+gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force );
+gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
 
-egoboo_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
-egoboo_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action );
+gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
+gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
+gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
+gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action );
 
-egoboo_rv chr_instance_increment_action( chr_instance_t * pinst );
-egoboo_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
-egoboo_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t actionready );
+gfx_rv chr_instance_increment_action( chr_instance_t * pinst );
+gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
+gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t actionready );
 
-egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst );
+gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst );
 void      chr_instance_clear_cache( chr_instance_t * pinst );
 BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
 
-egoboo_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override );
+gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override );
 
-egoboo_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val );
-egoboo_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val );
-egoboo_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val );
-egoboo_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
+gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val );
+gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val );
+gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val );
+gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
 
-egoboo_rv chr_instance_remove_interpolation( chr_instance_t * pinst );
+gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst );
 
 MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst );
 MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst );
 
 float chr_instance_get_remaining_flip( chr_instance_t * pinst );
-egoboo_rv chr_instance_update_one_lip( chr_instance_t * pinst );
-egoboo_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
+gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst );
+gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad( const CHR_REF character, GLXvector4f tint, Uint32 bits );
-bool_t render_one_mad_ref( const CHR_REF tnc );
+gfx_rv render_one_mad_enviro( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
+gfx_rv render_one_mad_tex( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
+gfx_rv render_one_mad( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
+gfx_rv render_one_mad_ref( const CHR_REF ichr );
+gfx_rv render_one_chr_trans( const CHR_REF ichr );
 
-void      update_all_chr_instance();
+gfx_rv update_all_chr_instance();

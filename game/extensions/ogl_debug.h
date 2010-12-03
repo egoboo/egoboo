@@ -510,7 +510,7 @@ typedef struct s_ogl_state_comp ogl_state_comp_t;
 /// If this function compares the states going into, and coming out of
 /// a drawing routine, you can determine whether the routine is re-entrant,
 /// or if not, which module the difference is in.
-void gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * ps2 );
+GLboolean gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * ps2 );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

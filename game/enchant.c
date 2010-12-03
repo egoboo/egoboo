@@ -170,17 +170,17 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             // Search until we find it
             ienc_last = ienc_now = ptarget->firstenchant;
             ienc_count = 0;
-            while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+            while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_last = ienc_now;
                 ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
 
-                if( ienc_now == ienc ) break;
+                if ( ienc_now == ienc ) break;
 
                 ienc_now  = ienc_nxt;
                 ienc_count++;
             }
-            if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+            if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
             // Relink the last enchantment
             if ( ienc_now == ienc )
@@ -223,7 +223,7 @@ bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
     // Check all enchants to see if they are removed
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -237,7 +237,7 @@ bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return retval;
 }
@@ -411,7 +411,7 @@ ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
     // scan the enchant list
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -423,7 +423,7 @@ ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return ienc_now;
 }
@@ -1869,7 +1869,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     ienc_nxt            = ( ENC_REF ) MAX_ENC;
     first_valid_enchant = ienc_now = ienc;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1910,7 +1910,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
         ienc_now    = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return first_valid_enchant;
 }

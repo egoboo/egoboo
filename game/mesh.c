@@ -1384,7 +1384,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 
     // if the mesh is empty, return 0
     if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
-    pdata->pinfo = &( pmesh->info );
+    pdata->pinfo = ( ego_mpd_info_t* ) & ( pmesh->info );
     pdata->tlist = pmesh->tmem.tile_list;
     pdata->glist = pmesh->gmem.grid_list;
 

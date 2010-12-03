@@ -154,7 +154,7 @@ bool_t mpd_BSP_free( mpd_BSP_t * pbsp )
     if ( NULL == pbsp ) return bfalse;
 
     // deallocate the tree
-    BSP_tree_free( &( pbsp->tree ) );
+    BSP_tree_dealloc( &( pbsp->tree ) );
 
     // deallocate the nodes
     BSP_leaf_ary_dtor( &( pbsp->nodes ) );

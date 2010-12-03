@@ -21,10 +21,13 @@
 
 #include "egoboo_typedef.h"
 
+#include "graphic.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 struct s_ego_mpd;
 struct s_camera;
+struct s_renderlist;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -35,10 +38,10 @@ extern TX_REF          meshlasttexture;             ///< Last texture used
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void animate_all_tiles( struct s_ego_mpd * pmesh );
-void render_fan( struct s_ego_mpd * pmesh, Uint32 fan );
-void render_hmap_fan( struct s_ego_mpd * pmesh, Uint32 fan );
-void render_water_fan( struct s_ego_mpd * pmesh, Uint32 fan, Uint8 layer );
+gfx_rv render_fan( struct s_ego_mpd * pmesh, Uint32 fan );
+gfx_rv render_hmap_fan( struct s_ego_mpd * pmesh, Uint32 fan );
+gfx_rv render_water_fan( struct s_ego_mpd * pmesh, Uint32 fan, Uint8 layer );
 
 void animate_tiles( void );
 
-void   do_grid_lighting( struct s_ego_mpd * pmesh, struct s_camera * pcam );
+gfx_rv do_grid_lighting( struct s_renderlist * prlist, struct s_camera * pcam );

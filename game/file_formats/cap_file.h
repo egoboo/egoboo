@@ -265,10 +265,11 @@ extern "C"
         SFP8_T       uoffvel;                       ///< "horizontal" texture movement rate
         SFP8_T       voffvel;                       ///< "vertical" texture movement rate
         bool_t       uniformlit;                    ///< Bad lighting?
-        bool_t       reflect;                        ///< Draw the reflection
-        bool_t       alwaysdraw;                     ///< Always render
-        bool_t       forceshadow;                    ///< Draw a shadow?
-        bool_t       ripple;                         ///< Spawn ripples?Uint8        manacolor;                     ///< Mana bar color
+        bool_t       reflect;                       ///< Draw the reflection
+        bool_t       alwaysdraw;                    ///< Always render
+        bool_t       forceshadow;                   ///< Draw a shadow?
+        bool_t       ripple;                        ///< Spawn ripples?
+        bool_t       dont_cull_backfaces;           ///< Force the drawing of backfaces?
 
         // attack blocking info
         Uint16       iframefacing;                  ///< Invincibility frame

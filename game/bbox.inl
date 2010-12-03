@@ -96,15 +96,15 @@ static INLINE bool_t oct_vec_self_clear( oct_vec_t * ovec )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst )
 {
-    if( NULL == odst ) return bfalse;
+    if ( NULL == odst ) return bfalse;
 
     oct_vec_ctor( odst, fvec );
 
-    if( NULL != osrc )
+    if ( NULL != osrc )
     {
         int cnt;
 
-        for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+        for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
         {
             odst[cnt] += osrc[cnt];
         }
@@ -119,11 +119,11 @@ static INLINE bool_t oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t 
     int cnt;
     oct_vec_t otmp;
 
-    if( NULL == osrc ) return bfalse;
+    if ( NULL == osrc ) return bfalse;
 
     oct_vec_ctor( otmp, fvec );
 
-    for( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         osrc[cnt] += otmp[cnt];
     }
@@ -738,19 +738,19 @@ static INLINE bool_t oct_bb_lhs_contains_rhs( const oct_bb_t * plhs, const oct_b
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t oct_bb_get_mids( const oct_bb_t * pbb, oct_vec_t mids )
 {
-    if( NULL == pbb || NULL == mids ) return bfalse;
+    if ( NULL == pbb || NULL == mids ) return bfalse;
 
-    if( oct_bb_empty(pbb) )
+    if ( oct_bb_empty( pbb ) )
     {
-        memmove( mids, pbb->maxs, sizeof(oct_vec_t) );
+        memmove( mids, pbb->maxs, sizeof( oct_vec_t ) );
     }
     else
     {
         int cnt;
 
-        for( cnt = 0; cnt<OCT_COUNT; cnt++)
+        for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
         {
-            mids[cnt] = 0.5f * (pbb->mins[cnt] + pbb->maxs[cnt]);
+            mids[cnt] = 0.5f * ( pbb->mins[cnt] + pbb->maxs[cnt] );
         }
     }
 

@@ -98,9 +98,9 @@ static bool_t sdl_audio_initialize();
 static bool_t sdl_mixer_initialize();
 static void   sdl_mixer_quit( void );
 
-int    _calculate_volume( fvec3_t   diff );
-bool_t _update_stereo_channel( int channel, fvec3_t   diff );
-bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff );
+int    _calculate_volume( fvec3_t   diff, renderlist_t * prlist );
+bool_t _update_stereo_channel( int channel, fvec3_t diff, renderlist_t * prlist );
+bool_t _update_channel_volume( int channel, int volume, fvec3_t diff );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -501,7 +501,7 @@ void sound_restart()
 // Mix_Chunk stuff -------------------
 //------------------------------------
 
-int _calculate_volume( fvec3_t   diff )
+int _calculate_volume( fvec3_t diff, renderlist_t * prlist )
 {
     /// @details BB@> This calculates the volume a sound should have depending on
     //  the distance from the camera
@@ -511,7 +511,7 @@ int _calculate_volume( fvec3_t   diff )
     float render_size;
 
     // approximate the radius of the area that the camera sees
-    render_size = renderlist.all_count * ( GRID_SIZE / 2 * GRID_SIZE / 2 ) / 4;
+    render_size = prlist->all_count * ( GRID_SIZE / 2 * GRID_SIZE / 2 ) / 4;
 
     dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
@@ -554,7 +554,7 @@ bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner )
+int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner, renderlist_t * prlist )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
@@ -568,7 +568,7 @@ int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const C
 
     // measure the distance in tiles
     diff = fvec3_sub( pos.v, PCamera->track_pos.v );
-    volume = _calculate_volume( diff );
+    volume = _calculate_volume( diff, prlist );
 
     // play the sound
     if ( volume > 0 )
@@ -1048,7 +1048,7 @@ bool_t LoopedList_remove( int channel )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _update_stereo_channel( int channel, fvec3_t   diff )
+bool_t _update_stereo_channel( int channel, fvec3_t diff, renderlist_t * prlist )
 {
     /// @details BB@> This updates the stereo image of a looped sound
 
@@ -1056,12 +1056,12 @@ bool_t _update_stereo_channel( int channel, fvec3_t   diff )
 
     if ( INVALID_SOUND_CHANNEL == channel ) return bfalse;
 
-    volume = _calculate_volume( diff );
+    volume = _calculate_volume( diff, prlist );
     return _update_channel_volume( channel, volume, diff );
 }
 
 //--------------------------------------------------------------------------------------------
-void looped_update_all_sound()
+void looped_update_all_sound( renderlist_t * prlist )
 {
     int cnt;
 
@@ -1085,14 +1085,14 @@ void looped_update_all_sound()
             // not a valid object
             fvec3_t   diff = VECT3( 0, 0, 0 );
 
-            _update_stereo_channel( plooped->channel, diff );
+            _update_stereo_channel( plooped->channel, diff, prlist );
         }
         else
         {
             // make the sound stick to the object
             diff = fvec3_sub( ChrList.lst[plooped->object].pos.v, PCamera->track_pos.v );
 
-            _update_stereo_channel( plooped->channel, diff );
+            _update_stereo_channel( plooped->channel, diff, prlist );
         }
     }
 }

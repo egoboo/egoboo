@@ -46,13 +46,13 @@ camera_t gCamera;
 // Camera control stuff
 
 //--------------------------------------------------------------------------------------------
-void camera_rotmesh_init()
+void camera_rotmesh__init()
 {
     // Matrix init stuff (from remove.c)
-    rotmeshtopside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
-    rotmeshbottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
-    rotmeshup         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
-    rotmeshdown       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
+    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
+    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
+    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
+    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->mProjection.v[10] /= 2.0f;
     pcam->mProjection.v[11] /= 2.0f;
 
-    camera_rotmesh_init();
+    camera_rotmesh__init();
 
     return pcam;
 }

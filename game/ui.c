@@ -172,29 +172,38 @@ bool_t ui_handleSDLEvent( SDL_Event *evt )
 //--------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT );
+    // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
+    GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
 
     // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
+    GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                    // GL_ENABLE_BIT
 
     // draw draw front and back faces of polygons
-    GL_DEBUG( glDisable )( GL_CULL_FACE );
+    GL_DEBUG( glDisable )( GL_CULL_FACE );                                     // GL_ENABLE_BIT
 
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+    GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                     // GL_ENABLE_BIT
 
-    GL_DEBUG( glEnable )( GL_BLEND );
-    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    // use normal alpha blending
+    GL_DEBUG( glEnable )( GL_BLEND );                                          // GL_ENABLE_BIT
+    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );           // GL_COLOR_BUFFER_BIT
 
-    GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );
+    // do not display the completely transparent portion
+    GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                     // GL_ENABLE_BIT
+    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                               // GL_COLOR_BUFFER_BIT
+
+    GL_DEBUG( glViewport )( 0, 0, sdl_scr.x, sdl_scr.y );                      // GL_VIEWPORT_BIT
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
+
+    // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glLoadIdentity )();
     GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glLoadIdentity )();
 
@@ -205,15 +214,17 @@ void ui_beginFrame( float deltaTime )
 //--------------------------------------------------------------------------------------------
 void ui_endFrame()
 {
-    // Restore the OpenGL matrices to what they were
+    // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPopMatrix )();
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glLoadIdentity )();
 
     // Re-enable any states disabled by gui_beginFrame
-    ATTRIB_POP( __FUNCTION__ );
+    // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
+    GL_DEBUG( glPopAttrib )();
 
     // Clear input states at the end of the frame
     ui_context.mousePressed = ui_context.mouseReleased = 0;

@@ -183,8 +183,8 @@ void gl_grab_alpha_state( gl_alpha_t * pa )
             case GL_LEQUAL:   pa->test_func_sz = "GL_LEQUAL"; break;
             case GL_EQUAL:    pa->test_func_sz = "GL_EQUAL";  break;
             case GL_GEQUAL:   pa->test_func_sz = "GL_GEQUAL"; break;
-            case GL_GREATER:  pa->test_func_sz = "GL_EQUAL";  break;
-            case GL_NOTEQUAL: pa->test_func_sz = "GL_GEQUAL"; break;
+            case GL_GREATER:  pa->test_func_sz = "GL_GREATER";  break;
+            case GL_NOTEQUAL: pa->test_func_sz = "GL_NOTEQUAL"; break;
             default:          pa->test_func_sz = "UNKNOWN";
         };
 
@@ -210,8 +210,8 @@ void gl_grab_stencil_state( gl_stencil_t * ps )
             case GL_LEQUAL:   ps->test_func_sz = "GL_LEQUAL"; break;
             case GL_EQUAL:    ps->test_func_sz = "GL_EQUAL"; break;
             case GL_GEQUAL:   ps->test_func_sz = "GL_GEQUAL"; break;
-            case GL_GREATER:  ps->test_func_sz = "GL_EQUAL"; break;
-            case GL_NOTEQUAL: ps->test_func_sz = "GL_GEQUAL"; break;
+            case GL_GREATER:  ps->test_func_sz = "GL_GREATER"; break;
+            case GL_NOTEQUAL: ps->test_func_sz = "GL_NOTEQUAL"; break;
             default:          ps->test_func_sz = "UNKNOWN";
         };
         GL_DEBUG( glGetIntegerv )( GL_STENCIL_REF, ps->test_ref );
@@ -282,8 +282,8 @@ void gl_grab_depth_state( gl_depth_t * pd )
             case GL_LEQUAL:   pd->test_func_sz = "GL_LEQUAL"; break;
             case GL_EQUAL:    pd->test_func_sz = "GL_EQUAL";  break;
             case GL_GEQUAL:   pd->test_func_sz = "GL_GEQUAL"; break;
-            case GL_GREATER:  pd->test_func_sz = "GL_EQUAL";  break;
-            case GL_NOTEQUAL: pd->test_func_sz = "GL_GEQUAL"; break;
+            case GL_GREATER:  pd->test_func_sz = "GL_GREATER";  break;
+            case GL_NOTEQUAL: pd->test_func_sz = "GL_NOTEQUAL"; break;
             default:          pd->test_func_sz = "UNKNOWN";
         };
     };
@@ -344,49 +344,19 @@ void gl_grab_mapping_state( gl_mapping_t * pm )
 //--------------------------------------------------------------------------------------------
 void gl_grab_state( ogl_state_t * ps )
 {
-    ogl_state_t      tmp_state;
-    ogl_state_comp_t tmp_cmp;
-
     if ( NULL == ps ) return;
 
     memset( ps, 0, sizeof( *ps ) );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
 
     gl_grab_texturing_state( &ps->texturing );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_clipping_state( &ps->clipping );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_render_options_state( &ps->options );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_mapping_state( &ps->mapping );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_unpacking_state( &ps->unpack );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_packing_state( &ps->pack );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_matrix_state( &ps->matrix );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_attrib_state( &ps->attrib );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
-
     gl_grab_logic_op_state( &ps->logic_op );
-    gl_comp_state( &tmp_cmp, &tmp_state, ps );
-    memcpy( &tmp_state, ps, sizeof( ogl_state_t ) );
 
     //---- zoom                    ";
     GL_DEBUG( glGetFloatv )( GL_ZOOM_X, ps->zoom_x );
@@ -400,23 +370,56 @@ void gl_grab_state( ogl_state_t * ps )
 }
 
 //--------------------------------------------------------------------------------------------
-void gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * ps2 )
+GLboolean gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_t * ps2 )
 {
+    // returns GL_TRUE if a difference is detected
+
+    GLboolean retval;
+
+    // check for valid pointers
+    if ( NULL == pcomp || NULL == ps1 || NULL == ps2 ) return GL_FALSE;
+
+    // setup the return value
+    retval = GL_FALSE;
+
+    // set the return state
+    memset( pcomp, 0, sizeof( *pcomp ) );
+
     // compare the entire state
-    pcomp->state     = ( 0 != memcmp( ps1,            ps2,          sizeof( ogl_state_t ) ) );
+    //pcomp->state     = ( 0 != memcmp( ps1, ps2, sizeof( *ps1 ) ) );
+    //if( pcomp->state ) retval = GL_TRUE;
 
     // compare the sub states
-    pcomp->texturing = ( 0 != memcmp( &ps1->texturing, &ps2->texturing,   sizeof( gl_texturing_t ) ) );
-    pcomp->clipping  = ( 0 != memcmp( &ps1->clipping,  &ps2->clipping,    sizeof( gl_clipping_t ) ) );
-    pcomp->options   = ( 0 != memcmp( &ps1->options,  &ps2->options,      sizeof( gl_render_options_t ) ) );
-    pcomp->mapping   = ( 0 != memcmp( &ps1->mapping,  &ps2->mapping,      sizeof( gl_mapping_t ) ) );
+    //pcomp->texturing = ( 0 != memcmp( &ps1->texturing, &ps2->texturing,   sizeof( ps1->texturing ) ) );
+    //if( pcomp->state ) retval = GL_TRUE;
 
-    pcomp->pack      = ( 0 != memcmp( &ps1->pack,    &ps2->pack,    sizeof( gl_packing_t ) ) );
-    pcomp->unpack    = ( 0 != memcmp( &ps1->unpack,  &ps2->unpack,  sizeof( gl_packing_t ) ) );
+    pcomp->clipping  = ( 0 != memcmp( &ps1->clipping,  &ps2->clipping,    sizeof( ps1->clipping ) ) );
+    if ( pcomp->state ) retval = GL_TRUE;
 
-    pcomp->matrix    = ( 0 != memcmp( &ps1->matrix,  &ps2->matrix,      sizeof( gl_matrix_t ) ) );
-    pcomp->attrib    = ( 0 != memcmp( &ps1->attrib,  &ps2->attrib,      sizeof( gl_attrib_t ) ) );
-    pcomp->logic_op  = ( 0 != memcmp( &ps1->logic_op,  &ps2->logic_op,      sizeof( gl_logic_op_t ) ) );
+    pcomp->options   = ( 0 != memcmp( &ps1->options,  &ps2->options,      sizeof( ps1->options ) ) );
+    if ( pcomp->options ) retval = GL_TRUE;
+
+    pcomp->mapping   = ( 0 != memcmp( &ps1->mapping,  &ps2->mapping,      sizeof( ps1->mapping ) ) );
+    if ( pcomp->mapping ) retval = GL_TRUE;
+
+    pcomp->pack      = ( 0 != memcmp( &ps1->pack,    &ps2->pack,    sizeof( ps1->pack ) ) );
+    if ( pcomp->pack ) retval = GL_TRUE;
+
+    pcomp->unpack    = ( 0 != memcmp( &ps1->unpack,  &ps2->unpack,  sizeof( ps1->unpack ) ) );
+    if ( pcomp->unpack ) retval = GL_TRUE;
+
+    pcomp->matrix    = ( 0 != memcmp( &ps1->matrix,  &ps2->matrix,      sizeof( ps1->matrix ) ) );
+    if ( pcomp->matrix ) retval = GL_TRUE;
+
+    pcomp->attrib    = ( 0 != memcmp( &ps1->attrib,  &ps2->attrib,      sizeof( ps1->attrib ) ) );
+    if ( pcomp->attrib ) retval = GL_TRUE;
+
+    pcomp->logic_op  = ( 0 != memcmp( &ps1->logic_op,  &ps2->logic_op,      sizeof( ps1->logic_op ) ) );
+    if ( pcomp->logic_op ) retval = GL_TRUE;
+
+    pcomp->state = retval;
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -77,11 +77,11 @@ void obj_BSP_system_end();
 
 bool_t chr_BSP_insert( struct s_chr * pchr );
 bool_t chr_BSP_fill();
-bool_t chr_BSP_clear_nodes();
+bool_t chr_BSP_clear();
 
 bool_t prt_BSP_insert( struct s_prt_bundle * pbdl_prt );
 bool_t prt_BSP_fill();
-bool_t prt_BSP_clear_nodes();
+bool_t prt_BSP_clear();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

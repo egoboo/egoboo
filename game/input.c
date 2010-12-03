@@ -271,7 +271,7 @@ void input_read()
                     SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
 
                     // fix the camera rotation angles to estimate what is in-view
-                    camera_rotmesh_init();
+                    camera_rotmesh__init();
                 }
                 break;
 

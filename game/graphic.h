@@ -41,6 +41,47 @@ struct Font;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+/// special return values
+enum e_gfx_rv
+{
+    gfx_error   = -1,
+    gfx_fail    = bfalse,
+    gfx_success = btrue
+};
+
+typedef enum e_gfx_rv gfx_rv;
+
+#define GFX_ERROR_MAX 256
+
+struct s_gfx_error_state
+{
+    const char * file;
+    const char * function;
+    int          line;
+
+    int          type;
+    const char * string;
+};
+typedef struct s_gfx_error_state gfx_error_state_t;
+
+#define GFX_ERROR_STATE_INIT { "UNKNOWN", "UNKNOWN", -1, -1, "NONE" }
+
+struct s_gfx_error_stack
+{
+    size_t count;
+    gfx_error_state_t lst[GFX_ERROR_MAX];
+};
+typedef struct s_gfx_error_stack gfx_error_stack_t;
+
+#define GFX_ERROR_STACK_INIT { 0, GFX_ERROR_STATE_INIT }
+
+egoboo_rv           gfx_error_add( const char * file, const char * function, int line, int id, const char * sz );
+gfx_error_state_t * gfx_error_pop();
+void                gfx_error_clear();
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define DOLIST_SIZE (MAX_CHR + MAX_PRT)
 
 #define MAXMESHRENDER             1024                       ///< Max number of tiles to draw
@@ -107,6 +148,8 @@ struct s_obj_registry_entity
 };
 typedef struct s_obj_registry_entity obj_registry_entity_t;
 
+#define OBJ_REGISTRY_ENTITY_INIT { MAX_CHR, MAX_PRT, 0.0f }
+
 int obj_registry_entity_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
@@ -154,6 +197,23 @@ struct s_renderlist
 };
 typedef struct s_renderlist renderlist_t;
 
+#define RENDERLIST_INIT   \
+    { \
+        NULL,           /* pmesh */  \
+        0,              /* all_count */  \
+        0,              /* ref_count */  \
+        0,              /* sha_count */  \
+        0,              /* drf_count */  \
+        0,              /* ndr_count */  \
+        0,              /* wat_count */  \
+        {INVALID_TILE}, /* all[MAXMESHRENDER] */  \
+        {INVALID_TILE}, /* ref[MAXMESHRENDER] */  \
+        {INVALID_TILE}, /* sha[MAXMESHRENDER] */  \
+        {INVALID_TILE}, /* drf[MAXMESHRENDER] */  \
+        {INVALID_TILE}, /* ndr[MAXMESHRENDER] */  \
+        {INVALID_TILE}  /* wat[MAXMESHRENDER] */  \
+    }
+
 extern renderlist_t renderlist;
 
 //--------------------------------------------------------------------------------------------
@@ -190,10 +250,10 @@ DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 #define CAM_ROTMESH_DOWN                     30
 
 // The ones that get used
-extern int rotmeshtopside;
-extern int rotmeshbottomside;
-extern int rotmeshup;
-extern int rotmeshdown;
+extern int rotmesh_topside;
+extern int rotmesh_bottomside;
+extern int rotmesh_up;
+extern int rotmesh_down;
 
 //--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
@@ -233,8 +293,6 @@ bool_t gfx_synch_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern obj_registry_entity_t dolist[DOLIST_SIZE];             ///< List of which characters to draw
-extern size_t                dolist_count;                  ///< How many in the list
 
 /// Minimap stuff
 #define MAXBLIP        128                          ///<Max blips on the screen
@@ -313,10 +371,9 @@ struct s_line_data
 };
 typedef struct s_line_data line_data_t;
 
-extern line_data_t line_list[LINE_COUNT];
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 extern float time_render_scene_init;
 extern float time_render_scene_mesh;
 extern float time_render_scene_solid;
@@ -358,11 +415,6 @@ bool_t flip_pages_requested();
 void   request_flip_pages();
 void   do_flip_pages();
 
-void   dolist_sort( struct s_camera * pcam, bool_t do_reflect );
-void   dolist_make( ego_mpd_t * pmesh );
-bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr );
-bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF iprt );
-
 void  draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle );
 void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
 void  draw_map_texture( float x, float y );
@@ -376,13 +428,13 @@ void  draw_cursor();
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map );
 void  draw_all_lines( struct s_camera * pcam );
 
-void   render_world( struct s_camera * pcam );
-void   render_shadow( const CHR_REF character );
-void   render_bad_shadow( const CHR_REF character );
-void   render_scene( ego_mpd_t * pmesh, struct s_camera * pcam );
-bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
-bool_t render_aabb( aabb_t * pbbox );
-void   render_all_billboards( struct s_camera * pcam );
+void      render_world( struct s_camera * pcam );
+void      render_shadow( const CHR_REF character );
+void      render_bad_shadow( const CHR_REF character );
+gfx_rv render_scene( ego_mpd_t * pmesh, struct s_camera * pcam );
+bool_t    render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
+bool_t    render_aabb( aabb_t * pbbox );
+gfx_rv render_all_billboards( struct s_camera * pcam );
 
 void   make_enviro();
 void   clear_messages();
@@ -393,8 +445,8 @@ int  DisplayMsg_get_free();
 
 int debug_printf( const char *format, ... );
 
-void renderlist_reset();
-void renderlist_make( ego_mpd_t * pmesh, struct s_camera * pcam );
+gfx_rv renderlist_reset( renderlist_t * prlist );
+gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, struct s_camera * pcam );
 
 bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, float fx, float fy );
 float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );

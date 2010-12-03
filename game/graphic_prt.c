@@ -96,7 +96,7 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting );
+static gfx_rv prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
@@ -128,7 +128,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
     fvec3_t vfwd, vcam;
     size_t  numparticle;
 
-    prt_instance_update_all( pcam );
+    update_all_prt_instance( pcam );
 
     mat_getCamForward( pcam->mView.v, vfwd.v );
     vcam = pcam->pos;
@@ -173,7 +173,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_solid( const PRT_REF iprt )
+gfx_rv render_one_prt_solid( const PRT_REF iprt )
 {
     /// @details BB@> Render the solid version of the particle
 
@@ -183,15 +183,21 @@ bool_t render_one_prt_solid( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
+    if ( !DISPLAY_PRT( iprt ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
+        return gfx_error;
+    }
     pprt = PrtList.lst + iprt;
     pinst = &( pprt->inst );
 
     // if the particle instance data is not valid, do not continue
-    if ( !pinst->valid ) return bfalse;
+    if ( !pinst->valid ) return gfx_fail;
+
+    if ( pprt->is_hidden ) return gfx_fail;
 
     // only render solid sprites
-    if ( SPRITE_SOLID != pprt->type ) return bfalse;
+    if ( SPRITE_SOLID != pprt->type ) return gfx_fail;
 
     // billboard for the particle
     calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
@@ -230,7 +236,7 @@ bool_t render_one_prt_solid( const PRT_REF iprt )
     }
     ATTRIB_POP( __FUNCTION__ );
 
-    return btrue;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -256,7 +262,7 @@ void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_trans( const PRT_REF iprt )
+gfx_rv render_one_prt_trans( const PRT_REF iprt )
 {
     /// @details BB@> do all kinds of transparent sprites next
 
@@ -265,17 +271,23 @@ bool_t render_one_prt_trans( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
+    if ( !DISPLAY_PRT( iprt ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
+        return gfx_error;
+    }
     pprt = PrtList.lst + iprt;
     pinst = &( pprt->inst );
 
     // if the particle instance data is not valid, do not continue
-    if ( !pinst->valid ) return bfalse;
+    if ( !pinst->valid ) return gfx_fail;
+
+    if ( pprt->is_hidden ) return gfx_fail;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT - do not let transparent objects write into the depth buffer
+        GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
         // do not draw hidden surfaces
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
@@ -334,7 +346,7 @@ bool_t render_one_prt_trans( const PRT_REF iprt )
         else
         {
             // unknown type
-            return bfalse;
+            return gfx_error;
         }
 
         // Go on and draw it
@@ -350,7 +362,7 @@ bool_t render_one_prt_trans( const PRT_REF iprt )
     }
     ATTRIB_POP( __FUNCTION__ );
 
-    return btrue;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -393,7 +405,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
     fvec3_t vfwd, vcam;
     size_t  numparticle;
 
-    prt_instance_update_all( pcam );
+    update_all_prt_instance( pcam );
 
     mat_getCamForward( pcam->mView.v, vfwd.v );
     vcam = pcam->pos;
@@ -435,7 +447,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_one_prt_ref( const PRT_REF iprt )
+gfx_rv render_one_prt_ref( const PRT_REF iprt )
 {
     /// @details BB@> render one particle
 
@@ -445,11 +457,15 @@ bool_t render_one_prt_ref( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
+    if ( !DISPLAY_PRT( iprt ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
+        return gfx_error;
+    }
 
     pprt = PrtList.lst + iprt;
     pinst = &( pprt->inst );
-    if ( !pinst->valid ) return bfalse;
+    if ( !pinst->valid ) return gfx_fail;
 
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
@@ -520,7 +536,7 @@ bool_t render_one_prt_ref( const PRT_REF iprt )
             else
             {
                 // unknown type
-                return bfalse;
+                return gfx_fail;
             }
 
             GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
@@ -538,7 +554,7 @@ bool_t render_one_prt_ref( const PRT_REF iprt )
 
     }
 
-    return btrue;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -677,6 +693,8 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
     ///     The original idea was to use this to debug the grip for attached items.
 
     Uint32 vrt;
+
+    GLint matrix_mode[1];
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( NULL == pinst || NULL == pmad ) return;
@@ -695,6 +713,10 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 
     GL_DEBUG( glPointSize )( 5 );
 
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
@@ -705,8 +727,12 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
     }
     GL_DEBUG_END();
 
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
+
+    // restore the matrix mode
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
@@ -740,14 +766,23 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void prt_instance_update_all( camera_t * pcam )
+gfx_rv update_all_prt_instance( camera_t * pcam )
 {
+    gfx_rv retval;
+
     if ( NULL == pcam ) pcam = PCamera;
-    if ( NULL == pcam ) return;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
 
     // only one update per frame
-    if ( instance_update == update_wld ) return;
+    if ( instance_update == update_wld ) return gfx_success;
     instance_update = update_wld;
+
+    // assume the best
+    retval = gfx_success;
 
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
@@ -766,23 +801,43 @@ void prt_instance_update_all( camera_t * pcam )
         else
         {
             // calculate the "billboard" for this particle
-            prt_instance_update( pcam, iprt, 255, btrue );
+            if ( gfx_error == prt_instance_update( pcam, iprt, 255, btrue ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
     PRT_END_LOOP();
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
+gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
 {
     pip_t * ppip;
 
     fvec3_t   vfwd, vup, vright;
     fvec3_t   vfwd_ref, vup_ref, vright_ref;
 
-    if ( NULL == pcam || !DISPLAY_PPRT( pprt ) ) return;
+    if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return;
+    if ( !DISPLAY_PPRT( pprt ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PPRT( pprt ), "invalid particle" );
+        return gfx_error;
+    }
+
+    if ( !LOADED_PIP( pprt->pip_ref ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pprt->pip_ref, "invalid pip" );
+        return gfx_error;
+    }
     ppip = PipStack.lst + pprt->pip_ref;
 
     pinst->type = pprt->type;
@@ -1075,6 +1130,8 @@ void prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_
 
     // this instance is now completely valid
     pinst->valid = btrue;
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1098,7 +1155,7 @@ fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool_t do_lighting )
+gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool_t do_lighting )
 {
     Uint32 alpha;
     Sint16  self_light;
@@ -1106,7 +1163,16 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     float amb, dir;
     fmat_4x4_t mat;
 
-    if ( NULL == pinst || NULL == pprt ) return;
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
+    if ( NULL == pprt )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL particle" );
+        return gfx_error;
+    }
 
     // To make life easier
     alpha = trans;
@@ -1145,23 +1211,41 @@ void prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 t
     // determine the alpha component
     pinst->falpha = ( alpha * INV_FF ) * ( pinst->alpha * INV_FF );
     pinst->falpha = CLIP( pinst->falpha, 0.0f, 1.0f );
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting )
+gfx_rv prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting )
 {
-    prt_t * pprt;
+    prt_t          * pprt;
     prt_instance_t * pinst;
+    gfx_rv        retval;
 
-    if ( !DISPLAY_PRT( particle ) ) return;
+    if ( !DISPLAY_PRT( particle ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, particle, "invalid particle" );
+        return gfx_error;
+    }
     pprt = PrtList.lst + particle;
     pinst = &( pprt->inst );
 
+    // assume the best
+    retval = gfx_success;
+
     // make sure that the vertices are interpolated
-    prt_instance_update_vertices( pcam, pinst, pprt );
+    if ( gfx_error == prt_instance_update_vertices( pcam, pinst, pprt ) )
+    {
+        retval = gfx_error;
+    }
 
     // do the lighting
-    prt_instance_update_lighting( pinst, pprt, trans, do_lighting );
+    if ( gfx_error == prt_instance_update_lighting( pinst, pprt, trans, do_lighting ) )
+    {
+        retval = gfx_error;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

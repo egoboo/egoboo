@@ -36,16 +36,18 @@
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
 
+#if defined(__cplusplus)
+typedef bool bool_t;
+#define btrue true
+#define bfalse false
+#else
 enum e_bool
 {
     btrue  = ( 1 == 1 ),
     bfalse = ( !btrue )
 };
 typedef enum e_bool bool_t;
-
-//typedef bool bool_t;
-//#define btrue true
-//#define bfalse false
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

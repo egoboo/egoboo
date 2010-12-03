@@ -97,7 +97,7 @@ bool_t obj_BSP_free( obj_BSP_t * pbsp )
 {
     if ( NULL == pbsp ) return bfalse;
 
-    BSP_tree_free( &( pbsp->tree ) );
+    BSP_tree_dealloc( &( pbsp->tree ) );
 
     return btrue;
 }
@@ -334,12 +334,12 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_clear_nodes()
+bool_t chr_BSP_clear()
 {
     CHR_REF ichr;
 
     // unlink all the BSP nodes
-    BSP_tree_clear_nodes( &( chr_BSP_root.tree ), btrue );
+    BSP_tree_clear( &( chr_BSP_root.tree ), btrue );
 
     // unlink all used character nodes
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
@@ -352,12 +352,12 @@ bool_t chr_BSP_clear_nodes()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_clear_nodes()
+bool_t prt_BSP_clear()
 {
     PRT_REF iprt;
 
     // unlink all the BSP nodes
-    BSP_tree_clear_nodes( &( prt_BSP_root.tree ), btrue );
+    BSP_tree_clear( &( prt_BSP_root.tree ), btrue );
 
     // unlink all used particle nodes
     prt_BSP_root.count = 0;

@@ -2589,7 +2589,7 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	returncode = ChrList.lst[pself->index].daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = ChrList.lst[pself->index].daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4088,7 +4088,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
         if ( playing_chunk != new_chunk )
         {
-            pchr->loopedsound_channel = sound_play_chunk_looped( pchr->pos_old, new_chunk, -1, pself->index );
+            pchr->loopedsound_channel = sound_play_chunk_looped( pchr->pos_old, new_chunk, -1, pself->index, &renderlist );
         }
     }
 

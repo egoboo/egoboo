@@ -94,37 +94,22 @@ typedef struct s_dynalight_registry dynalight_registry_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static SDL_bool _sdl_initialized_graphics = SDL_FALSE;
-static bool_t   _ogl_initialized          = bfalse;
+struct s_dolist
+{
+    size_t                count;                ///< How many in the list
+    obj_registry_entity_t lst[DOLIST_SIZE];     ///< List of which objects to draw
+};
+typedef struct s_dolist dolist_t;
 
-static float sinlut[MAXLIGHTROTATION];
-static float coslut[MAXLIGHTROTATION];
+#define DOLIST_INIT { 0, OBJ_REGISTRY_ENTITY_INIT }
 
-// Camera optimization stuff
-static float                   cornerx[4];
-static float                   cornery[4];
-static int                     cornerlistlowtohighy[4];
-static float                   cornerlowx;
-static float                   cornerhighx;
-static float                   cornerlowy;
-static float                   cornerhighy;
+static gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect );
+static gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh );
+static gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr );
+static gfx_rv dolist_add_prt( dolist_t * pdlist, ego_mpd_t * pmesh, const PRT_REF iprt );
 
-static float       dyna_distancetobeat;           // The number to beat
-static int         dyna_list_count = 0;           // Number of dynamic lights
-static dynalight_t dyna_list[TOTAL_MAX_DYNA];
-
-// Interface stuff
-static irect_t             iconrect;                   // The 32x32 icon rectangle
-
-static irect_t             tabrect[NUMBAR];            // The tab rectangles
-static irect_t             barrect[NUMBAR];            // The bar rectangles
-static irect_t             bliprect[COLOR_MAX];        // The blip rectangles
-static irect_t             maprect;                    // The map rectangle
-
-static bool_t             gfx_page_flip_requested  = bfalse;
-static bool_t             gfx_page_clear_requested = btrue;
-
-static float dynalight_keep = 0.9f;
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 INSTANTIATE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
@@ -139,7 +124,7 @@ PROFILE_DECLARE( dolist_make );
 PROFILE_DECLARE( do_grid_lighting );
 PROFILE_DECLARE( light_fans );
 PROFILE_DECLARE( update_all_chr_instance );
-PROFILE_DECLARE( prt_instance_update_all );
+PROFILE_DECLARE( update_all_prt_instance );
 
 PROFILE_DECLARE( render_scene_mesh_dolist_sort );
 PROFILE_DECLARE( render_scene_mesh_ndr );
@@ -171,29 +156,22 @@ float time_render_scene_mesh_ref_chr        = 0.0f;
 float time_render_scene_mesh_drf_solid      = 0.0f;
 float time_render_scene_mesh_render_shadows = 0.0f;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int GFX_WIDTH  = 800;
 int GFX_HEIGHT = 600;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 gfx_config_t     gfx;
 
-SDLX_video_parameters_t sdl_vparam;
-oglx_video_parameters_t ogl_vparam;
-
-size_t                dolist_count = 0;
-obj_registry_entity_t dolist[DOLIST_SIZE];
-
-renderlist_t     renderlist = {0, 0, 0, 0, 0, 0};         // zero all the counters at startup
+renderlist_t renderlist = RENDERLIST_INIT;         // zero all the counters at startup
 
 float            indextoenvirox[EGO_NORMAL_COUNT];
 float            lighttoenviroy[256];
 
-int rotmeshtopside;
-int rotmeshbottomside;
-int rotmeshup;
-int rotmeshdown;
+int rotmesh_topside;
+int rotmesh_bottomside;
+int rotmesh_up;
+int rotmesh_down;
 
 Uint8   mapon         = bfalse;
 Uint8   mapvalid      = bfalse;
@@ -208,7 +186,48 @@ int     msgtimechange = 0;
 
 INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
-line_data_t line_list[LINE_COUNT];
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
+
+static line_data_t line_list[LINE_COUNT];
+static dolist_t    dolist     = DOLIST_INIT;
+
+static SDLX_video_parameters_t sdl_vparam;
+static oglx_video_parameters_t ogl_vparam;
+
+static SDL_bool _sdl_initialized_graphics = SDL_FALSE;
+static bool_t   _ogl_initialized          = bfalse;
+
+static float sinlut[MAXLIGHTROTATION];
+static float coslut[MAXLIGHTROTATION];
+
+// Camera optimization stuff
+static float                   cornerx[4];
+static float                   cornery[4];
+static int                     cornerlistlowtohighy[4];
+static float                   cornerlowx;
+static float                   cornerhighx;
+static float                   cornerlowy;
+static float                   cornerhighy;
+
+static float       dyna_distancetobeat;           // The number to beat
+static int         dyna_list_count = 0;           // Number of dynamic lights
+static dynalight_t dyna_list[TOTAL_MAX_DYNA];
+
+// Interface stuff
+static irect_t iconrect;                   // The 32x32 icon rectangle
+
+static irect_t tabrect[NUMBAR];            // The tab rectangles
+static irect_t barrect[NUMBAR];            // The bar rectangles
+static irect_t bliprect[COLOR_MAX];        // The blip rectangles
+static irect_t maprect;                    // The map rectangle
+
+static bool_t  gfx_page_flip_requested  = bfalse;
+static bool_t  gfx_page_clear_requested = btrue;
+
+static float dynalight_keep = 0.9f;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -241,8 +260,8 @@ static void gfx_disable_texturing();
 static void gfx_begin_2d( void );
 static void gfx_end_2d( void );
 
-static void light_fans( renderlist_t * prlist );
-static void render_water( renderlist_t * prlist );
+static gfx_rv light_fans( renderlist_t * prlist );
+static gfx_rv render_water( renderlist_t * prlist );
 
 static void   gfx_make_dynalist( camera_t * pcam );
 
@@ -396,7 +415,7 @@ void gfx_system_begin()
     PROFILE_INIT( do_grid_lighting );
     PROFILE_INIT( light_fans );
     PROFILE_INIT( update_all_chr_instance );
-    PROFILE_INIT( prt_instance_update_all );
+    PROFILE_INIT( update_all_prt_instance );
 
     PROFILE_INIT( render_scene_mesh_dolist_sort );
     PROFILE_INIT( render_scene_mesh_ndr );
@@ -427,7 +446,7 @@ void gfx_system_end()
     PROFILE_FREE( do_grid_lighting );
     PROFILE_FREE( light_fans );
     PROFILE_FREE( update_all_chr_instance );
-    PROFILE_FREE( prt_instance_update_all );
+    PROFILE_FREE( update_all_prt_instance );
 
     PROFILE_FREE( render_scene_mesh_dolist_sort );
     PROFILE_FREE( render_scene_mesh_ndr );
@@ -705,6 +724,51 @@ bool_t gfx_synch_oglx_texture_parameters( oglx_texture_parameters_t * ptex, egob
     }
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+// SPECIAL FUNCTIONS
+//--------------------------------------------------------------------------------------------
+egoboo_rv gfx_error_add( const char * file, const char * function, int line, int id, const char * sz )
+{
+    gfx_error_state_t * pstate;
+
+    // too many errors?
+    if ( gfx_error_stack.count >= GFX_ERROR_MAX ) return rv_fail;
+
+    // grab an error state
+    pstate = gfx_error_stack.lst + gfx_error_stack.count;
+    gfx_error_stack.count++;
+
+    // where is the error
+    pstate->file     = file;
+    pstate->function = function;
+    pstate->line     = line;
+
+    // what is the error
+    pstate->type     = id;
+    pstate->string   = sz;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_error_state_t * gfx_error_pop()
+{
+    gfx_error_state_t * retval;
+
+    if ( 0 == gfx_error_stack.count || gfx_error_stack.count >= GFX_ERROR_MAX ) return NULL;
+
+    retval = gfx_error_stack.lst + gfx_error_stack.count;
+    gfx_error_stack.count--;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_error_clear()
+{
+    gfx_error_stack.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1518,7 +1582,7 @@ float draw_fps( float y )
 
 #    if defined(DEBUG_BSP)
         y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - chr_count_free(), prt_BSP_root.count, maxparticles - prt_count_free() );
-        y = _draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite_count + prt_BSP_root.tree.infinite_count );
+        y = _draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite.count + prt_BSP_root.tree.infinite.count );
         y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
         //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
@@ -1552,7 +1616,7 @@ float draw_fps( float y )
         y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
         y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
         y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
-        y = _draw_string_raw( 0, y, "init:prt_instance_update_all %2.4f", time_render_scene_init_update_all_prt_instance );
+        y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
 #        endif
 
 #    endif
@@ -1805,8 +1869,8 @@ void project_view( camera_t * pcam )
     ztemp = ( pcam->pos.z );
 
     // Topleft
-    mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
+    mTemp = MatrixMult( RotateY( -rotmesh_topside * PI / 360 ), PCamera->mView );
+    mTemp = MatrixMult( RotateX( rotmesh_up * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
     if ( zproject < 0 )
@@ -1820,8 +1884,8 @@ void project_view( camera_t * pcam )
     }
 
     // Topright
-    mTemp = MatrixMult( RotateY( rotmeshtopside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
+    mTemp = MatrixMult( RotateY( rotmesh_topside * PI / 360 ), PCamera->mView );
+    mTemp = MatrixMult( RotateX( rotmesh_up * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
     if ( zproject < 0 )
@@ -1835,8 +1899,8 @@ void project_view( camera_t * pcam )
     }
 
     // Bottomright
-    mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
+    mTemp = MatrixMult( RotateY( rotmesh_bottomside * PI / 360 ), PCamera->mView );
+    mTemp = MatrixMult( RotateX( -rotmesh_down * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
 
     // Camera must look down
@@ -1851,8 +1915,8 @@ void project_view( camera_t * pcam )
     }
 
     // Bottomleft
-    mTemp = MatrixMult( RotateY( -rotmeshbottomside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
+    mTemp = MatrixMult( RotateY( -rotmesh_bottomside * PI / 360 ), PCamera->mView );
+    mTemp = MatrixMult( RotateX( -rotmesh_down * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
     if ( zproject < 0 )
@@ -2156,34 +2220,61 @@ void render_bad_shadow( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_chr_instance()
+gfx_rv update_all_chr_instance()
 {
     CHR_REF cnt;
+    gfx_rv retval;
+
+    // assume the best
+    retval = gfx_success;
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         chr_t * pchr;
+        gfx_rv tmp_rv;
 
         if ( !INGAME_CHR( cnt ) ) continue;
         pchr = ChrList.lst + cnt;
 
         if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 
-        if ( rv_success == chr_update_instance( pchr ) )
+        tmp_rv = chr_update_instance( pchr );
+
+        if ( gfx_error == tmp_rv )
+        {
+            retval = gfx_error;
+            gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "chr_update_instance() failed" );
+        }
+        else if ( gfx_success == tmp_rv )
         {
             // the instance has changed, refresh the collision bound
             chr_update_collision_size( pchr, btrue );
         }
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
+gfx_rv render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 {
     Uint32 cnt;
     TX_REF tx;
 
-    if ( NULL == pmesh || NULL == list || 0 == list_size ) return bfalse;
+    if ( NULL == pmesh ) pmesh = PMesh;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
+        return gfx_error;
+    }
+
+    if ( NULL == list )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL tile list" );
+        return gfx_error;
+    }
+
+    if ( 0 == list_size ) return gfx_success;
 
     if ( meshnotexture )
     {
@@ -2209,24 +2300,34 @@ bool_t render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
         }
     }
 
-    return btrue;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
+gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdlist, ego_mpd_t * pmesh, camera_t * pcam )
 {
+    gfx_rv retval;
+
+    // assume the best;
+    retval = gfx_success;
 
     PROFILE_BEGIN( renderlist_make );
     {
         // Which tiles can be displayed
-        renderlist_make( pmesh, pcam );
+        if ( gfx_error == renderlist_make( prlist, pmesh, pcam ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( renderlist_make );
 
     PROFILE_BEGIN( dolist_make );
     {
         // determine which objects are visible
-        dolist_make( renderlist.pmesh );
+        if ( gfx_error == dolist_make( pdlist, prlist->pmesh ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( dolist_make );
 
@@ -2237,80 +2338,440 @@ void render_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( do_grid_lighting );
     {
         // figure out the terrain lighting
-        do_grid_lighting( renderlist.pmesh, pcam );
+        if ( gfx_error == do_grid_lighting( prlist, pcam ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( do_grid_lighting );
 
     PROFILE_BEGIN( light_fans );
     {
         // apply the lighting to the characters and particles
-        light_fans( &renderlist );
+        if ( gfx_error == light_fans( prlist ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( light_fans );
 
     PROFILE_BEGIN( update_all_chr_instance );
     {
         // make sure the characters are ready to draw
-        update_all_chr_instance();
+        if ( gfx_error == update_all_chr_instance() )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( update_all_chr_instance );
 
-    PROFILE_BEGIN( prt_instance_update_all );
+    PROFILE_BEGIN( update_all_prt_instance );
     {
         // make sure the particles are ready to draw
-        prt_instance_update_all( pcam );
+        if ( gfx_error == update_all_prt_instance( pcam ) )
+        {
+            retval = gfx_error;
+        }
     }
-    PROFILE_END( prt_instance_update_all );
+    PROFILE_END( update_all_prt_instance );
 
     time_render_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make ) * TARGET_FPS;
     time_render_scene_init_dolist_make             = PROFILE_QUERY( dolist_make ) * TARGET_FPS;
     time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * TARGET_FPS;
     time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * TARGET_FPS;
     time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
-    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( prt_instance_update_all ) * TARGET_FPS;
+    time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene_mesh( renderlist_t * prlist )
+gfx_rv render_scene_mesh_ndr( renderlist_t * prlist )
+{
+    /// @details BB@> draw all tiles that do not reflect characters
+
+    gfx_rv retval;
+
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+    {
+        // store the surface depth
+        GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT
+
+        // do not draw hidden surfaces
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
+
+        // no transparency
+        GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT
+
+        // draw draw front and back faces of polygons
+        GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT
+
+        // do not display the completely transparent portion
+        // use alpha test to allow the thatched roof tiles to look like thatch
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT
+        // speed-up drawing of surfaces with alpha == 0.0f sections
+        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
+
+        // reduce texture hashing by loading up each texture only once
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->ndr, prlist->ndr_count ) )
+        {
+            retval = gfx_error;
+        }
+    }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_scene_mesh_drf_back( renderlist_t * prlist )
+{
+    /// @details BB@> draw the reflective tiles, but turn off the depth buffer
+    ///               this blanks out any background that might've been drawn
+
+    gfx_rv retval;
+
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+    {
+        // DO NOT store the surface depth
+        GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
+
+        // do not draw hidden surfaces
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
+
+        // black out any backgound, but allow the background to show through any holes in the floor
+        GL_DEBUG( glEnable )( GL_BLEND );                              // GL_ENABLE_BIT
+        // use the alpha channel to modulate the transparency
+        GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );    // GL_COLOR_BUFFER_BIT
+
+        // do not display the completely transparent portion
+        // use alpha test to allow the thatched roof tiles to look like thatch
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT
+        // speed-up drawing of surfaces with alpha == 0.0f sections
+        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
+
+        // reduce texture hashing by loading up each texture only once
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        {
+            retval = gfx_error;
+        }
+    }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdlist )
+{
+    /// @details BB@> Render all reflected objects
+
+    int cnt;
+    gfx_rv retval;
+
+    ego_mpd_t * pmesh;
+
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    if ( NULL == prlist->pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
+        return gfx_error;
+    }
+    pmesh = prlist->pmesh;
+
+    // assume the best
+    retval = gfx_success;
+
+    ATTRIB_PUSH( __FUNCTION__,  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
+    {
+        // don't write into the depth buffer (disable glDepthMask for transparent objects)
+        // turn off the depth mask by default. Can cause glitches if used improperly.
+        GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
+
+        // do not draw hidden surfaces
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT
+        // surfaces must be closer to the camera to be drawn
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
+
+        for ( cnt = (( int )pdlist->count ) - 1; cnt >= 0; cnt-- )
+        {
+            if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
+            {
+                CHR_REF ichr;
+                Uint32 itile;
+
+                // cull backward facing polygons
+                GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT
+                // use couter-clockwise orientation to determine backfaces
+                GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT
+
+                // allow transparent objects
+                GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT
+                // use the alpha channel to modulate the transparency
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+
+                ichr  = pdlist->lst[cnt].ichr;
+                itile = ChrList.lst[ichr].onwhichgrid;
+
+                if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                {
+                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
+
+                    if ( gfx_error == render_one_mad_ref( ichr ) )
+                    {
+                        retval = gfx_error;
+                    }
+                }
+            }
+            else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
+            {
+                Uint32 itile;
+                PRT_REF iprt;
+
+                // draw draw front and back faces of polygons
+                GL_DEBUG( glDisable )( GL_CULL_FACE );
+
+                // render_one_prt_ref() actually sets its own blend function, but just to be safe
+                // allow transparent objects
+                GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT
+                // set the default particle blending
+                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
+
+                iprt = pdlist->lst[cnt].iprt;
+                itile = PrtList.lst[iprt].onwhichgrid;
+
+                if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                {
+                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
+
+                    if ( gfx_error == render_one_prt_ref( iprt ) )
+                    {
+                        retval = gfx_error;
+                    }
+                }
+            }
+        }
+    }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_scene_mesh_ref_chr( renderlist_t * prlist )
+{
+    /// @brief   BB@> Render the shadow floors ( let everything show through )
+    /// @details BB@> turn on the depth mask, so that no objects under the floor will show through
+    ///               this assumes that the floor is not partially transparent...
+
+    gfx_rv retval;
+
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+    {
+        // set the depth of these tiles
+        GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT
+
+        GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
+
+        // draw draw front and back faces of polygons
+        GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT
+
+        // do not draw hidden surfaces
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
+
+        // reduce texture hashing by loading up each texture only once
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        {
+            retval = gfx_error;
+        }
+    }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_scene_mesh_drf_solid( renderlist_t * prlist )
+{
+    /// @brief BB@> Render the shadow floors as normal solid floors
+
+    gfx_rv retval;
+
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+    {
+        // no transparency
+        GL_DEBUG( glDisable )( GL_BLEND );                    // GL_ENABLE_BIT
+
+        // draw draw front and back faces of polygons
+        GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT
+
+        // do not draw hidden surfaces
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+
+        // store the surface depth
+        GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT
+
+        // do not display the completely transparent portion
+        // use alpha test to allow the thatched roof tiles to look like thatch
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );                // GL_ENABLE_BIT
+        // speed-up drawing of surfaces with alpha = 0.0f sections
+        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );          // GL_COLOR_BUFFER_BIT
+
+        // reduce texture hashing by loading up each texture only once
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        {
+            retval = gfx_error;
+        }
+    }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_scene_mesh_render_shadows( dolist_t * pdlist )
+{
+    /// @details BB@> Render the shadows
+
+    int cnt, tnc;
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    if ( !gfx.shaon ) return gfx_success;
+
+    // don't write into the depth buffer (disable glDepthMask for transparent objects)
+    GL_DEBUG( glDepthMask )( GL_FALSE );
+
+    // do not draw hidden surfaces
+    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
+
+    GL_DEBUG( glEnable )( GL_BLEND );
+    GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
+
+    // keep track of the number of shadows actually rendered
+    tnc = 0;
+
+    if ( gfx.shasprite )
+    {
+        // Bad shadows
+        for ( cnt = 0; cnt < pdlist->count; cnt++ )
+        {
+            CHR_REF ichr = pdlist->lst[cnt].ichr;
+            if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
+
+            render_bad_shadow( ichr );
+            tnc++;
+        }
+    }
+    else
+    {
+        // Good shadows for me
+        for ( cnt = 0; cnt < pdlist->count; cnt++ )
+        {
+            CHR_REF ichr = pdlist->lst[cnt].ichr;
+            if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
+
+            render_shadow( ichr );
+            tnc++;
+        }
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdlist )
 {
     /// @details BB@> draw the mesh and any reflected objects
 
-    int cnt;
-    ego_mpd_t * pmesh;
+    gfx_rv retval;
 
-    if ( NULL == prlist ) return;
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
 
-    if ( NULL == prlist->pmesh ) return;
-    pmesh = prlist->pmesh;
+    // assume the best
+    retval = gfx_success;
 
     // advance the animation of all animated tiles
     animate_all_tiles( prlist->pmesh );
 
     PROFILE_BEGIN( render_scene_mesh_ndr );
     {
-        //---------------------------------------------
         // draw all tiles that do not reflect characters
-        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+        if ( gfx_error == render_scene_mesh_ndr( prlist ) )
         {
-            GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
-
-            // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
-
-            GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
-
-            // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
-
-            // do not display the completely transparent portion
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with0 == alphasections
-
-            // reduce texture hashing by loading up each texture only once
-            render_fans_by_list( pmesh, prlist->ndr, prlist->ndr_count );
+            retval = gfx_error;
         }
-        ATTRIB_POP( __FUNCTION__ );
     }
     PROFILE_END( render_scene_mesh_ndr );
 
@@ -2320,121 +2781,32 @@ void render_scene_mesh( renderlist_t * prlist )
     {
         PROFILE_BEGIN( render_scene_mesh_drf_back );
         {
-            //------------------------------
-            // draw the reflective tiles, but turn off the depth buffer
-            // this blanks out any background that might've been drawn
+            // blank out the background behind reflective tiles
 
-            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            if ( gfx_error == render_scene_mesh_drf_back( prlist ) )
             {
-                // DO NOT store the surface depth
-                GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
-
-                // do not draw hidden surfaces
-                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT -
-                GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
-
-                // black out any backgound, but allow the background to show through any holes in the floor
-                GL_DEBUG( glEnable )( GL_BLEND );                   // GL_ENABLE_BIT - allow transparent surfaces
-                GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_ALPHA );    // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
-
-                // do not display the completely transparent portion
-                GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with0 == alphasections
-
-                // reduce texture hashing by loading up each texture only once
-                render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+                retval = gfx_error;
             }
-            ATTRIB_POP( __FUNCTION__ );
         }
         PROFILE_END( render_scene_mesh_drf_back );
 
         PROFILE_BEGIN( render_scene_mesh_ref );
         {
-            //------------------------------
             // Render all reflected objects
-            ATTRIB_PUSH( __FUNCTION__,  GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT );
+            if ( gfx_error == render_scene_mesh_ref( prlist, pdlist ) )
             {
-                // don't write into the depth buffer (disable glDepthMask for transparent objects)
-                // turn off the depth mask by default. Can cause glitches if used improperly.
-                GL_DEBUG( glDepthMask )( GL_FALSE );      // GL_DEPTH_BUFFER_BIT
-
-                // do not draw hidden surfaces
-                GL_DEBUG( glEnable )( GL_DEPTH_TEST );    // GL_ENABLE_BIT - do not draw hidden surfaces
-                GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT - surfaces must be closer to the camera to be drawn
-
-                for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
-                {
-                    if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
-                    {
-                        CHR_REF ichr;
-                        Uint32 itile;
-
-                        // cull backward facing polygons
-                        GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT
-                        GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT - use couter-clockwise orientation to determine backfaces
-
-                        GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT - allow transparent objects
-                        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT - use the alpha channel to modulate the transparency
-
-                        ichr  = dolist[cnt].ichr;
-                        itile = ChrList.lst[ichr].onwhichgrid;
-
-                        if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
-                        {
-                            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
-                            render_one_mad_ref( ichr );
-                        }
-                    }
-                    else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
-                    {
-                        Uint32 itile;
-                        PRT_REF iprt;
-                        iprt = dolist[cnt].iprt;
-                        itile = PrtList.lst[iprt].onwhichgrid;
-
-                        // draw draw front and back faces of polygons
-                        GL_DEBUG( glDisable )( GL_CULL_FACE );
-
-                        // render_one_prt_ref() actually sets its own blend function, but just to be safe
-                        GL_DEBUG( glEnable )( GL_BLEND );                    // GL_ENABLE_BIT - allow transparent objects
-                        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT - set the default particle blending
-
-                        if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
-                        {
-                            render_one_prt_ref( iprt );
-                        }
-                    }
-                }
-
+                retval = gfx_error;
             }
-            ATTRIB_POP( __FUNCTION__ )
         }
         PROFILE_END( render_scene_mesh_ref );
 
         PROFILE_BEGIN( render_scene_mesh_ref_chr );
         {
-            //------------------------------
-            // Render the shadow floors ( let everything show through )
-            // turn on the depth mask, so that no objects under the floor will show through
-            // this assumes that the floor is not partially transparent...
-            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            // Render the shadow floors
+            if ( gfx_error == render_scene_mesh_ref_chr( prlist ) )
             {
-                GL_DEBUG( glDepthMask )( GL_TRUE );                   // GL_DEPTH_BUFFER_BIT - set the depth of these tiles
-
-                GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
-                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
-
-                // draw draw front and back faces of polygons
-                GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT - draw all faces
-
-                // do not draw hidden surfaces
-                GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT - do not draw hidden surfaces
-                GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
-
-                // reduce texture hashing by loading up each texture only once
-                render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+                retval = gfx_error;
             }
-            ATTRIB_POP( __FUNCTION__ )
         }
         PROFILE_END( render_scene_mesh_ref_chr );
     }
@@ -2442,91 +2814,63 @@ void render_scene_mesh( renderlist_t * prlist )
     {
         PROFILE_BEGIN( render_scene_mesh_drf_solid );
         {
-            //------------------------------
             // Render the shadow floors as normal solid floors
-
-            ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+            if ( gfx_error == render_scene_mesh_drf_solid( prlist ) )
             {
-                GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT - no transparency
-
-                // draw draw front and back faces of polygons
-                GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT - draw front and back of tiles
-
-                // do not draw hidden surfaces
-                GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT - do not draw hidden surfaces
-                GL_DEBUG( glDepthMask )( GL_TRUE );         // GL_DEPTH_BUFFER_BIT - store the surface depth
-
-                // do not display the completely transparent portion
-                GL_DEBUG( glEnable )( GL_ALPHA_TEST );      // GL_ENABLE_BIT - use alpha test to allow the thatched roof tiles to look like thatch
-                GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT - speed-up drawing of surfaces with0 == alphasections
-
-                // reduce texture hashing by loading up each texture only once
-                render_fans_by_list( pmesh, prlist->drf, prlist->drf_count );
+                retval = gfx_error;
             }
-            ATTRIB_POP( __FUNCTION__ );
         }
         PROFILE_END( render_scene_mesh_drf_solid );
     }
 
 #if defined(RENDER_HMAP) && defined(_DEBUG)
-    //------------------------------
+
     // render the heighmap
     for ( cnt = 0; cnt < prlist->all_count; cnt++ )
     {
         render_hmap_fan( pmesh, prlist->all[cnt] );
     }
+
 #endif
 
     PROFILE_BEGIN( render_scene_mesh_render_shadows );
     {
-        //------------------------------
         // Render the shadows
-        if ( gfx.shaon )
+        if ( gfx_error == render_scene_mesh_render_shadows( pdlist ) )
         {
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );
-
-            // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-
-            GL_DEBUG( glEnable )( GL_BLEND );
-            GL_DEBUG( glBlendFunc )( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
-
-            if ( gfx.shasprite )
-            {
-                // Bad shadows
-                for ( cnt = 0; cnt < dolist_count; cnt++ )
-                {
-                    CHR_REF ichr = dolist[cnt].ichr;
-                    if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
-
-                    render_bad_shadow( ichr );
-                }
-            }
-            else
-            {
-                // Good shadows for me
-                for ( cnt = 0; cnt < dolist_count; cnt++ )
-                {
-                    CHR_REF ichr = dolist[cnt].ichr;
-                    if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
-
-                    render_shadow( ichr );
-                }
-            }
+            retval = gfx_error;
         }
     }
     PROFILE_END( render_scene_mesh_render_shadows );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene_solid()
+gfx_rv render_scene_solid( dolist_t * pdlist )
 {
-    Uint32 cnt;
+    /// @detaile BB@> Render all solid objects
 
-    //------------------------------
+    Uint32 cnt;
+    gfx_rv retval;
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
     // Render all solid objects
-    for ( cnt = 0; cnt < dolist_count; cnt++ )
+    for ( cnt = 0; cnt < pdlist->count; cnt++ )
     {
         GL_DEBUG( glDepthMask )( GL_TRUE );
 
@@ -2543,112 +2887,134 @@ void render_scene_solid()
         // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
+        if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
         {
             GLXvector4f tint;
-            chr_instance_t * pinst = chr_get_pinstance( dolist[cnt].ichr );
+            chr_instance_t * pinst = chr_get_pinstance( pdlist->lst[cnt].ichr );
 
             if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
             {
                 chr_instance_get_tint( pinst, tint, CHR_SOLID );
 
-                render_one_mad( dolist[cnt].ichr, tint, CHR_SOLID );
+                if ( gfx_error == render_one_mad( pdlist->lst[cnt].ichr, tint, CHR_SOLID ) )
+                {
+                    retval = gfx_error;
+                }
             }
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
+        else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
         {
             // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-            render_one_prt_solid( dolist[cnt].iprt );
+            if ( gfx_error == render_one_prt_solid( pdlist->lst[cnt].iprt ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
 
     // Render the solid billboards
-    render_all_billboards( PCamera );
+    if ( gfx_error == render_all_billboards( PCamera ) )
+    {
+        retval = gfx_error;
+    }
 
     // daw some debugging lines
     draw_all_lines( PCamera );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene_trans()
+gfx_rv render_scene_trans( dolist_t * pdlist )
 {
     /// @details BB@> draw transparent objects
 
     int cnt;
-    GLXvector4f tint;
+    gfx_rv retval;
 
-    //---- set the the transparency parameters
-
-    // don't write into the depth buffer (disable glDepthMask for transparent objects)
-    GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
-
-    // do not draw hidden surfaces
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
-    GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
-
-    // Now render all transparent and light objects
-    for ( cnt = (( int )dolist_count ) - 1; cnt >= 0; cnt-- )
+    if ( NULL == pdlist )
     {
-        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT )
+    {
+        //---- set the the transparency parameters
+
+        // don't write into the depth buffer (disable glDepthMask for transparent objects)
+        GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
+
+        // do not draw hidden surfaces
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
+
+        // Now render all transparent and light objects
+        for ( cnt = (( int )pdlist->count ) - 1; cnt >= 0; cnt-- )
         {
-            CHR_REF  ichr = dolist[cnt].ichr;
-            chr_t * pchr = ChrList.lst + ichr;
-            chr_instance_t * pinst = &( pchr->inst );
-
-            // cull backward facing polygons
-            GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
-            GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
-
-            if ( pinst->alpha < 255 && 255 == pinst->light )
+            if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
             {
-                GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
-                GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
-
-                chr_instance_get_tint( pinst, tint, CHR_ALPHA );
-
-                render_one_mad( ichr, tint, CHR_ALPHA );
+                if ( gfx_error == render_one_chr_trans( pdlist->lst[cnt].ichr ) )
+                {
+                    retval = gfx_error;
+                }
             }
-
-            if ( pinst->light < 255 )
+            else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
             {
-                GL_DEBUG( glEnable )( GL_BLEND );           // GL_ENABLE_BIT
-                GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
-
-                chr_instance_get_tint( pinst, tint, CHR_LIGHT );
-
-                render_one_mad( ichr, tint, CHR_LIGHT );
+                // this is a particle
+                if ( gfx_error == render_one_prt_trans( pdlist->lst[cnt].iprt ) )
+                {
+                    retval = gfx_error;
+                }
             }
-
-            if ( gfx.phongon && pinst->sheen > 0 )
-            {
-                GL_DEBUG( glEnable )( GL_BLEND );             // GL_ENABLE_BIT
-                GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );    // GL_COLOR_BUFFER_BIT
-
-                chr_instance_get_tint( pinst, tint, CHR_PHONG );
-
-                render_one_mad( ichr, tint, CHR_PHONG );
-            }
-        }
-        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
-        {
-            render_one_prt_trans( dolist[cnt].iprt );
         }
     }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
+gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function draws 3D objects
 
+    gfx_rv retval;
+
     if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
     if ( NULL == pmesh ) pmesh = PMesh;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
 
     PROFILE_BEGIN( render_scene_init );
     {
-        render_scene_init( pmesh, pcam );
+        if ( gfx_error == render_scene_init( &renderlist, &dolist, pmesh, pcam ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( render_scene_init );
 
@@ -2658,12 +3024,18 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
         {
             // sort the dolist for reflected objects
             // reflected characters and objects are drawn in this pass
-            dolist_sort( pcam, btrue );
+            if ( gfx_error == dolist_sort( &dolist, pcam, btrue ) )
+            {
+                retval = gfx_error;
+            }
         }
         PROFILE_END( render_scene_mesh_dolist_sort );
 
         // do the render pass for the mesh
-        render_scene_mesh( &renderlist );
+        if ( gfx_error == render_scene_mesh( &renderlist, &dolist ) )
+        {
+            retval = gfx_error;
+        }
 
         time_render_scene_mesh_dolist_sort    = PROFILE_QUERY( render_scene_mesh_dolist_sort ) * TARGET_FPS;
         time_render_scene_mesh_ndr            = PROFILE_QUERY( render_scene_mesh_ndr ) * TARGET_FPS;
@@ -2678,24 +3050,36 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( render_scene_solid );
     {
         // sort the dolist for non-reflected objects
-        dolist_sort( pcam, bfalse );
+        if ( gfx_error == dolist_sort( &dolist, pcam, bfalse ) )
+        {
+            retval = gfx_error;
+        }
 
         // do the render pass for solid objects
-        render_scene_solid();
+        if ( gfx_error == render_scene_solid( &dolist ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( render_scene_solid );
 
     PROFILE_BEGIN( render_scene_water );
     {
         // draw the water
-        render_water( &renderlist );
+        if ( gfx_error == render_water( &renderlist ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( render_scene_water );
 
     PROFILE_BEGIN( render_scene_trans );
     {
         // do the render pass for transparent objects
-        render_scene_trans();
+        if ( gfx_error == render_scene_trans( &dolist ) )
+        {
+            retval = gfx_error;
+        }
     }
     PROFILE_END( render_scene_trans );
 
@@ -2714,6 +3098,8 @@ void render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     time_render_scene_trans = PROFILE_QUERY( render_scene_trans ) * TARGET_FPS;
 
     time_draw_scene = time_render_scene_init + time_render_scene_mesh + time_render_scene_solid + time_render_scene_water + time_render_scene_trans;
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2949,29 +3335,31 @@ void render_world_overlay( const TX_REF texture )
 
         ptex = TxTexture_get_ptr( texture );
 
-        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
+        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT );
         {
-            GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT, GL_NICEST );          // GL_HINT_BIT - make sure that the texture is as smooth as possible
+            // make sure that the texture is as smooth as possible
+            GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT, GL_NICEST );          // GL_HINT_BIT
 
             // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT
+            GL_DEBUG( glShadeModel )( GL_FLAT );                             // GL_LIGHTING_BIT
 
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );    // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDepthMask )( GL_FALSE );                             // GL_DEPTH_BUFFER_BIT
 
             // essentially disable the depth test without calling glDisable( GL_DEPTH_TEST )
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_ALWAYS );   // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                           // GL_ENABLE_BIT
+            GL_DEBUG( glDepthFunc )( GL_ALWAYS );                            // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_CULL_FACE );                           // GL_ENABLE_BIT
 
             // do not display the completely transparent portion
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );  // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f ); // GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
+            // make the texture a filter
+            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
 
             oglx_texture_Bind( ptex );
 
@@ -2991,6 +3379,10 @@ void render_world_overlay( const TX_REF texture )
 //--------------------------------------------------------------------------------------------
 void render_world( camera_t * pcam )
 {
+    gfx_error_state_t * err_tmp;
+
+    gfx_error_clear();
+
     gfx_begin_3d( pcam );
     {
         if ( gfx.draw_background )
@@ -3016,6 +3408,27 @@ void render_world( camera_t * pcam )
         }
     }
     gfx_end_3d();
+
+    err_tmp = gfx_error_pop();
+    if ( NULL != err_tmp )
+    {
+        printf( "****\nEncountered graphics errors in frame %d\n\n****", game_frame_all );
+        while ( NULL != err_tmp )
+        {
+            printf( "vvvv\n" );
+            printf(
+                "\tfile     == %s\n"
+                "\tline     == %d\n"
+                "\tfunction == %s\n"
+                "\tcode     == %d\n"
+                "\tstring   == %s\n",
+                err_tmp->file, err_tmp->line, err_tmp->function, err_tmp->type, err_tmp->string );
+            printf( "^^^^\n\n" );
+
+            err_tmp = gfx_error_pop();
+        }
+        printf( "****\n\n" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3240,7 +3653,13 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
     ego_grid_info_t  * glist;
     lighting_cache_t * cache_list[4];
 
-    if ( NULL == pmesh ) return bfalse;
+    if ( NULL == pmesh ) pmesh = PMesh;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
+        return 0.0f;
+    }
+
     glist = pmesh->gmem.grid_list;
 
     ix = floor( pos[XX] / GRID_SIZE );
@@ -3276,7 +3695,13 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
     ego_grid_info_t  * glist;
     lighting_cache_t * cache_list[4];
 
-    if ( NULL == pmesh ) return bfalse;
+    if ( NULL == pmesh ) pmesh = PMesh;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
+        return bfalse;
+    }
+
     glist = pmesh->gmem.grid_list;
 
     ix = floor( fx / GRID_SIZE );
@@ -3737,8 +4162,15 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
 
     ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
+        GLint matrix_mode[1];
+
+        // save the matrix mode
+        GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+        // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
         GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
         GL_DEBUG( glPushMatrix )();
+        GL_DEBUG( glLoadIdentity )();
         GL_DEBUG( glTranslatef )( pbb->offset[XX], pbb->offset[YY], pbb->offset[ZZ] );
 
         // flat shading
@@ -3767,8 +4199,12 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
         }
         GL_DEBUG_END();
 
+        // Restore the GL_MODELVIEW matrix
         GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
         GL_DEBUG( glPopMatrix )();
+
+        // restore the matrix mode
+        GL_DEBUG( glMatrixMode )( matrix_mode[0] );
     }
     ATTRIB_POP( __FUNCTION__ );
 
@@ -3776,12 +4212,16 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_billboards( camera_t * pcam )
+gfx_rv render_all_billboards( camera_t * pcam )
 {
     BBOARD_REF cnt;
 
     if ( NULL == pcam ) pcam = PCamera;
-    if ( NULL == pcam ) return;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
 
     gfx_begin_3d( pcam );
     {
@@ -3817,6 +4257,8 @@ void render_all_billboards( camera_t * pcam )
         ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3863,7 +4305,8 @@ void draw_all_lines( camera_t * pcam )
 
             GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
 
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT - we do not want texture mapped lines
+            // we do not want texture mapped lines
+            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
 
             ticks = egoboo_get_ticks();
 
@@ -3897,9 +4340,15 @@ void draw_all_lines( camera_t * pcam )
 bool_t render_aabb( aabb_t * pbbox )
 {
     GLXvector3f * pmin, * pmax;
+    GLint matrix_mode[1];
 
     if ( NULL == pbbox ) return bfalse;
 
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     {
         pmin = &( pbbox->mins );
@@ -3947,7 +4396,12 @@ bool_t render_aabb( aabb_t * pbbox )
         }
         GL_DEBUG_END();
     }
+    // Restore the GL_MODELVIEW matrix
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
+
+    // restore the matrix mode
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     return btrue;
 }
@@ -4105,7 +4559,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 //--------------------------------------------------------------------------------------------
 // GRAPHICS OPTIMIZATIONS
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr )
+gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr )
 {
     /// ZZ@> This function puts a character in the list
 
@@ -4114,25 +4568,56 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr )
     chr_instance_t * pinst;
     ego_tile_info_t * ptile;
 
-    if ( dolist_count >= DOLIST_SIZE ) return bfalse;
+    // if we are adding the "item" in an empty hand, don't complain
+    if ( !VALID_CHR_RANGE( ichr ) ) return rv_fail;
 
-    if ( !INGAME_CHR( ichr ) ) return bfalse;
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    if ( NULL == pmesh ) pmesh = PMesh;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
+        return gfx_error;
+    }
+
+    if ( !INGAME_CHR( ichr ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character index" );
+        return gfx_error;
+    }
+
     pchr  = ChrList.lst + ichr;
     pinst = &( pchr->inst );
 
-    if ( pinst->indolist || pchr->is_hidden ) return bfalse;
+    if ( pinst->indolist ) return gfx_success;
 
-    if ( !mesh_grid_is_valid( pmesh, pchr->onwhichgrid ) ) return bfalse;
+    if ( pchr->is_hidden ) return gfx_fail;
+
+    if ( !mesh_grid_is_valid( pmesh, pchr->onwhichgrid ) ) return gfx_fail;
     ptile = pmesh->tmem.tile_list + pchr->onwhichgrid;
 
     pcap = chr_get_pcap( ichr );
-    if ( NULL == pcap ) return bfalse;
+    if ( NULL == pcap )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character cap" );
+        return gfx_error;
+    }
 
     if ( ptile->inrenderlist )
     {
-        dolist[dolist_count].ichr = ichr;
-        dolist[dolist_count].iprt = ( PRT_REF )MAX_PRT;
-        dolist_count++;
+        pdlist->lst[pdlist->count].ichr = ichr;
+        pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
+        pdlist->count++;
 
         pinst->indolist = btrue;
     }
@@ -4140,9 +4625,9 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr )
     {
         // Double check for large/special objects
 
-        dolist[dolist_count].ichr = ichr;
-        dolist[dolist_count].iprt = ( PRT_REF )MAX_PRT;
-        dolist_count++;
+        pdlist->lst[pdlist->count].ichr = ichr;
+        pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
+        pdlist->count++;
 
         pinst->indolist = btrue;
     }
@@ -4150,67 +4635,98 @@ bool_t dolist_add_chr( ego_mpd_t * pmesh, const CHR_REF ichr )
     if ( pinst->indolist )
     {
         // Add its weapons too
-        dolist_add_chr( pmesh, pchr->holdingwhich[SLOT_LEFT] );
-        dolist_add_chr( pmesh, pchr->holdingwhich[SLOT_RIGHT] );
+        dolist_add_chr( pdlist, pmesh, pchr->holdingwhich[SLOT_LEFT] );
+        dolist_add_chr( pdlist, pmesh, pchr->holdingwhich[SLOT_RIGHT] );
     }
 
-    return btrue;
+    return pinst->indolist ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_prt( ego_mpd_t * pmesh, const PRT_REF iprt )
+gfx_rv dolist_add_prt( dolist_t * pdlist, ego_mpd_t * pmesh, const PRT_REF iprt )
 {
     /// ZZ@> This function puts a character in the list
     prt_t * pprt;
     prt_instance_t * pinst;
     ego_tile_info_t * ptile;
 
-    if ( dolist_count >= DOLIST_SIZE ) return bfalse;
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
 
-    if ( !DISPLAY_PRT( iprt ) ) return bfalse;
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    if ( !DISPLAY_PRT( iprt ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle index" );
+        return gfx_error;
+    }
+
     pprt = PrtList.lst + iprt;
     pinst = &( pprt->inst );
 
-    if ( pinst->indolist || pprt->is_hidden ) return btrue;
+    if ( pinst->indolist ) return gfx_success;
 
-    if ( pinst->size <= 0.0f ) return bfalse;
+    if ( pprt->is_hidden || pinst->size <= 0.0f ) return gfx_fail;
 
-    if ( !mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) ) return bfalse;
+    if ( !mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) ) return gfx_fail;
     ptile = pmesh->tmem.tile_list + pprt->onwhichgrid;
 
     if ( ptile->inrenderlist )
     {
-        dolist[dolist_count].ichr = ( CHR_REF )MAX_CHR;
-        dolist[dolist_count].iprt = iprt;
-        dolist_count++;
+        pdlist->lst[pdlist->count].ichr = ( CHR_REF )MAX_CHR;
+        pdlist->lst[pdlist->count].iprt = iprt;
+        pdlist->count++;
 
         pinst->indolist = btrue;
     }
 
-    return btrue;
+    return pinst->indolist ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-void dolist_make( ego_mpd_t * pmesh )
+gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh )
 {
     /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
 
     int cnt;
     CHR_REF ichr;
+    gfx_rv retval;
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
 
     // Remove everyone from the dolist
-    for ( cnt = 0; cnt < dolist_count; cnt++ )
+    for ( cnt = 0; cnt < pdlist->count; cnt++ )
     {
-        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
+        if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
         {
-            ChrList.lst[ dolist[cnt].ichr ].inst.indolist = bfalse;
+            ChrList.lst[ pdlist->lst[cnt].ichr ].inst.indolist = bfalse;
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
+        else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
         {
-            PrtList.lst[ dolist[cnt].iprt ].inst.indolist = bfalse;
+            PrtList.lst[ pdlist->lst[cnt].iprt ].inst.indolist = bfalse;
         }
     }
-    dolist_count = 0;
+    pdlist->count = 0;
+
+    // assume the best
+    retval = gfx_success;
 
     // Now fill it up again
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
@@ -4218,7 +4734,10 @@ void dolist_make( ego_mpd_t * pmesh )
         if ( INGAME_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
         {
             // Add the character
-            dolist_add_chr( pmesh, ichr );
+            if ( gfx_error == dolist_add_chr( pdlist, pmesh, ichr ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
 
@@ -4227,14 +4746,19 @@ void dolist_make( ego_mpd_t * pmesh )
         if ( mesh_grid_is_valid( pmesh, prt_bdl.prt_ptr->onwhichgrid ) )
         {
             // Add the character
-            dolist_add_prt( pmesh, prt_bdl.prt_ref );
+            if ( gfx_error == dolist_add_prt( pdlist, pmesh, prt_bdl.prt_ref ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
     PRT_END_LOOP();
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void dolist_sort( camera_t * pcam, bool_t do_reflect )
+gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect )
 {
     /// @details ZZ@> This function orders the dolist based on distance from camera,
     ///    which is needed for reflections to properly clip themselves.
@@ -4244,21 +4768,40 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
     fvec3_t   vcam;
     size_t    count;
 
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
     mat_getCamForward( pcam->mView.v, vcam.v );
 
     // Figure the distance of each
     count = 0;
-    for ( cnt = 0; cnt < dolist_count; cnt++ )
+    for ( cnt = 0; cnt < pdlist->count; cnt++ )
     {
         fvec3_t   vtmp;
         float dist;
 
-        if ( MAX_PRT == dolist[cnt].iprt && MAX_CHR != dolist[cnt].ichr )
+        if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;
 
-            ichr = dolist[cnt].ichr;
+            ichr = pdlist->lst[cnt].ichr;
 
             if ( do_reflect )
             {
@@ -4271,9 +4814,9 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
-        else if ( MAX_CHR == dolist[cnt].ichr && MAX_PRT != dolist[cnt].iprt )
+        else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
         {
-            PRT_REF iprt = dolist[cnt].iprt;
+            PRT_REF iprt = pdlist->lst[cnt].iprt;
 
             if ( do_reflect )
             {
@@ -4292,18 +4835,24 @@ void dolist_sort( camera_t * pcam, bool_t do_reflect )
         dist = fvec3_dot_product( vtmp.v, vcam.v );
         if ( dist > 0 )
         {
-            dolist[count].ichr = dolist[cnt].ichr;
-            dolist[count].iprt = dolist[cnt].iprt;
-            dolist[count].dist = dist;
+            pdlist->lst[count].ichr = pdlist->lst[cnt].ichr;
+            pdlist->lst[count].iprt = pdlist->lst[cnt].iprt;
+            pdlist->lst[count].dist = dist;
             count++;
         }
     }
-    dolist_count = count;
+    pdlist->count = count;
 
     // use qsort to sort the list in-place
-    qsort( dolist, dolist_count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
+    if ( pdlist->count > 1 )
+    {
+        qsort( pdlist->lst, pdlist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
+    }
+
+    return gfx_success;
 }
 
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int obj_registry_entity_cmp( const void * pleft, const void * pright )
 {
@@ -4332,42 +4881,51 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
 }
 
 //--------------------------------------------------------------------------------------------
-void renderlist_reset()
+gfx_rv renderlist_reset( renderlist_t * prlist )
 {
     /// @details BB@> Clear old render lists
 
-    if ( NULL != renderlist.pmesh )
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    if ( NULL != prlist->pmesh )
     {
         int cnt;
 
         // clear out the inrenderlist flag for the old mesh
-        ego_tile_info_t * tlist = renderlist.pmesh->tmem.tile_list;
+        ego_tile_info_t * tlist = prlist->pmesh->tmem.tile_list;
 
-        for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
+        for ( cnt = 0; cnt < prlist->all_count; cnt++ )
         {
-            Uint32 fan = renderlist.all[cnt];
-            if ( fan < renderlist.pmesh->info.tiles_count )
+            Uint32 fan = prlist->all[cnt];
+            if ( fan < prlist->pmesh->info.tiles_count )
             {
                 tlist[fan].inrenderlist       = bfalse;
                 tlist[fan].inrenderlist_frame = 0;
             }
         }
 
-        renderlist.pmesh = NULL;
+        prlist->pmesh = NULL;
     }
 
-    renderlist.all_count = 0;
-    renderlist.ref_count = 0;
-    renderlist.sha_count = 0;
-    renderlist.drf_count = 0;
-    renderlist.ndr_count = 0;
-    renderlist.wat_count = 0;
+    prlist->all_count = 0;
+    prlist->ref_count = 0;
+    prlist->sha_count = 0;
+    prlist->drf_count = 0;
+    prlist->ndr_count = 0;
+    prlist->wat_count = 0;
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
+gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pcam )
 {
     /// @details ZZ@> This function figures out which mesh fans to draw
+
     int cnt, grid_x, grid_y;
     int row, run, numrow;
     int corner_x[4], corner_y[4];
@@ -4376,26 +4934,49 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     int rowstt[128], rowend[128];
     int x, stepx, divx, basex;
     int from, to;
+    gfx_rv retval;
 
     ego_tile_info_t * tlist;
+
+    // Make sure it doesn't die ugly
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
+    if ( NULL == pmesh ) pmesh = PMesh;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
+        return gfx_error;
+    }
 
     // because the main loop of the program will always flip the
     // page before rendering the 1st frame of the actual game,
     // game_frame_all will always start at 1
-    if ( 1 != ( game_frame_all & 3 ) ) return;
+    if ( 1 != ( game_frame_all & 3 ) ) return gfx_success;
+
+    // assume the best
+    retval = gfx_success;
 
     // reset the renderlist
-    renderlist_reset();
-
-    // Make sure it doesn't die ugly
-    if ( NULL == pcam ) return;
+    if ( gfx_error == renderlist_reset( prlist ) )
+    {
+        retval = gfx_error;
+    }
 
     // Find the render area corners
     project_view( pcam );
 
-    if ( NULL == pmesh ) return;
-
-    renderlist.pmesh = pmesh;
+    prlist->pmesh = pmesh;
     tlist = pmesh->tmem.tile_list;
 
     // It works better this way...
@@ -4409,7 +4990,12 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     }
 
     // Find the center line
-    divx = corner_y[3] - corner_y[0]; if ( divx < 1 ) return;
+    divx = corner_y[3] - corner_y[0];
+    if ( divx < 1 )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "divx < 1" );
+        return gfx_error;
+    }
     stepx = corner_x[3] - corner_x[0];
     basex = corner_x[0];
 
@@ -4517,6 +5103,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     if ( numrow != row )
     {
         log_error( "ROW error (%i, %i)\n", numrow, row );
+        return gfx_fail;
     }
 
     // fill the renderlist from the projected view
@@ -4524,7 +5111,7 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
     grid_y = CLIP( grid_y, 0, pmesh->info.tiles_y - 1 );
     for ( row = 0; row < numrow; row++, grid_y++ )
     {
-        for ( grid_x = rowstt[row]; grid_x <= rowend[row] && renderlist.all_count < MAXMESHRENDER; grid_x++ )
+        for ( grid_x = rowstt[row]; grid_x <= rowend[row] && prlist->all_count < MAXMESHRENDER; grid_x++ )
         {
             cnt = pmesh->gmem.tilestart[grid_y] + grid_x;
 
@@ -4541,39 +5128,41 @@ void renderlist_make( ego_mpd_t * pmesh, camera_t * pcam )
             tlist[cnt].inrenderlist_frame = game_frame_all;
 
             // Put each tile in basic list
-            renderlist.all[renderlist.all_count] = cnt;
-            renderlist.all_count++;
+            prlist->all[prlist->all_count] = cnt;
+            prlist->all_count++;
 
             // Put each tile in one other list, for shadows and relections
             if ( 0 != mesh_test_fx( pmesh, cnt, MPDFX_SHA ) )
             {
-                renderlist.sha[renderlist.sha_count] = cnt;
-                renderlist.sha_count++;
+                prlist->sha[prlist->sha_count] = cnt;
+                prlist->sha_count++;
             }
             else
             {
-                renderlist.ref[renderlist.ref_count] = cnt;
-                renderlist.ref_count++;
+                prlist->ref[prlist->ref_count] = cnt;
+                prlist->ref_count++;
             }
 
             if ( 0 != mesh_test_fx( pmesh, cnt, MPDFX_DRAWREF ) )
             {
-                renderlist.drf[renderlist.drf_count] = cnt;
-                renderlist.drf_count++;
+                prlist->drf[prlist->drf_count] = cnt;
+                prlist->drf_count++;
             }
             else
             {
-                renderlist.ndr[renderlist.ndr_count] = cnt;
-                renderlist.ndr_count++;
+                prlist->ndr[prlist->ndr_count] = cnt;
+                prlist->ndr_count++;
             }
 
             if ( 0 != mesh_test_fx( pmesh, cnt, MPDFX_WATER ) )
             {
-                renderlist.wat[renderlist.wat_count] = cnt;
-                renderlist.wat_count++;
+                prlist->wat[prlist->wat_count] = cnt;
+                prlist->wat_count++;
             }
         }
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4681,7 +5270,7 @@ void init_all_graphics()
     PROFILE_RESET( do_grid_lighting );
     PROFILE_RESET( light_fans );
     PROFILE_RESET( update_all_chr_instance );
-    PROFILE_RESET( prt_instance_update_all );
+    PROFILE_RESET( update_all_prt_instance );
 
     PROFILE_RESET( render_scene_mesh_dolist_sort );
     PROFILE_RESET( render_scene_mesh_ndr );
@@ -4774,7 +5363,7 @@ void load_basic_textures()
     PROFILE_RESET( do_grid_lighting );
     PROFILE_RESET( light_fans );
     PROFILE_RESET( update_all_chr_instance );
-    PROFILE_RESET( prt_instance_update_all );
+    PROFILE_RESET( update_all_prt_instance );
 
     PROFILE_RESET( render_scene_mesh_dolist_sort );
     PROFILE_RESET( render_scene_mesh_ndr );
@@ -4918,13 +5507,25 @@ void load_graphics()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void do_chr_flashing()
+gfx_rv do_chr_flashing( dolist_t * pdlist )
 {
     Uint32 i;
 
-    for ( i = 0; i < dolist_count; i++ )
+    if ( NULL == pdlist )
     {
-        CHR_REF ichr = dolist[i].ichr;
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    for ( i = 0; i < pdlist->count; i++ )
+    {
+        CHR_REF ichr = pdlist->lst[i].ichr;
 
         if ( !INGAME_CHR( ichr ) ) continue;
 
@@ -4943,6 +5544,8 @@ void do_chr_flashing()
             flash_character( ichr, 255 *( 1.0f - tmp_seekurse_level ) );
         }
     }
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4963,7 +5566,8 @@ void flash_character( const CHR_REF character, Uint8 value )
 //--------------------------------------------------------------------------------------------
 void gfx_begin_text()
 {
-    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+    // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
+    GL_DEBUG( glPushAttrib )( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 
@@ -4986,7 +5590,8 @@ void gfx_begin_text()
 //--------------------------------------------------------------------------------------------
 void gfx_end_text()
 {
-    ATTRIB_POP( __FUNCTION__ )
+    // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
+    GL_DEBUG( glPopAttrib )();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5010,10 +5615,12 @@ void gfx_disable_texturing()
 //--------------------------------------------------------------------------------------------
 void gfx_begin_3d( camera_t * pcam )
 {
+    // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glLoadMatrixf )( pcam->mProjection.v );
 
+    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glLoadMatrixf )( pcam->mView.v );
@@ -5022,9 +5629,11 @@ void gfx_begin_3d( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void gfx_end_3d()
 {
+    // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPopMatrix )();
 
+    // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPopMatrix )();
 }
@@ -5180,7 +5789,7 @@ void _flip_pages()
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void light_fans( renderlist_t * prlist )
+gfx_rv light_fans( renderlist_t * prlist )
 {
     int    entry;
     Uint8  type;
@@ -5200,15 +5809,23 @@ void light_fans( renderlist_t * prlist )
     tile_mem_t     * ptmem;
     grid_mem_t     * pgmem;
 
-    if ( NULL == prlist ) return;
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    if ( NULL == prlist->pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
+        return gfx_error;
+    }
+    pmesh = prlist->pmesh;
 
 #if defined(CLIP_ALL_LIGHT_FANS)
     // update all visible fans once every 4 updates
-    if ( 0 != ( game_frame_all & 0x03 ) ) return;
+    if ( 0 != ( game_frame_all & 0x03 ) ) return gfx_success;
 #endif
-
-    pmesh = prlist->pmesh;
-    if ( NULL == pmesh ) return;
 
     ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
@@ -5360,6 +5977,8 @@ void light_fans( renderlist_t * prlist )
             ptile->needs_lighting_update = bfalse;
         }
     }
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5534,7 +6153,7 @@ void gfx_make_dynalist( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
+gfx_rv do_grid_lighting( renderlist_t * prlist, camera_t * pcam )
 {
     /// @details ZZ@> Do all tile lighting, dynamic and global
 
@@ -5542,6 +6161,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
     int ix, iy;
     float x0, y0, local_keep;
     bool_t needs_dynalight;
+    ego_mpd_t * pmesh;
 
     lighting_vector_t global_lighting;
 
@@ -5557,7 +6177,26 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
 
     dynalight_t fake_dynalight;
 
-    if ( NULL == pmesh ) return;
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
+    if ( NULL == prlist->pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
+        return gfx_error;
+    }
+    pmesh = prlist->pmesh;
+
     pinfo = &( pmesh->info );
     pgmem = &( pmesh->gmem );
     ptmem = &( pmesh->tmem );
@@ -5569,9 +6208,9 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
     mesh_bound.xmax = 0;
     mesh_bound.ymin = pgmem->edge_y;
     mesh_bound.ymax = 0;
-    for ( entry = 0; entry < renderlist.all_count; entry++ )
+    for ( entry = 0; entry < prlist->all_count; entry++ )
     {
-        fan = renderlist.all[entry];
+        fan = prlist->all[entry];
         if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
 
         ix = fan % pinfo->tiles_x;
@@ -5588,7 +6227,7 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
 
     // is the visible mesh list empty?
     if ( mesh_bound.xmin >= mesh_bound.xmax || mesh_bound.ymin >= mesh_bound.ymax )
-        return;
+        return gfx_success;
 
     // clear out the dynalight registry
     reg_count = 0;
@@ -5720,12 +6359,12 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
     local_keep = POW( dynalight_keep, 4 );
 
     // Add to base light level in normal mode
-    for ( entry = 0; entry < renderlist.all_count; entry++ )
+    for ( entry = 0; entry < prlist->all_count; entry++ )
     {
         bool_t resist_lighting_calculation = btrue;
 
         // grab each grid box in the "frustum"
-        fan = renderlist.all[entry];
+        fan = prlist->all[entry];
         if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
 
         ix = fan % pinfo->tiles_x;
@@ -5823,21 +6462,36 @@ void do_grid_lighting( ego_mpd_t * pmesh, camera_t * pcam )
             lighting_cache_max_light( pcache_old );
         }
     }
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_water( renderlist_t * prlist )
+gfx_rv render_water( renderlist_t * prlist )
 {
     /// @details ZZ@> This function draws all of the water fans
 
     int cnt;
+    gfx_rv retval;
+
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
 
     // Bottom layer first
     if ( gfx.draw_water_1 )
     {
         for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
         {
-            render_water_fan( prlist->pmesh, prlist->wat[cnt], 1 );
+            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 1 ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
 
@@ -5846,9 +6500,14 @@ void render_water( renderlist_t * prlist )
     {
         for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
         {
-            render_water_fan( prlist->pmesh, prlist->wat[cnt], 0 );
+            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 0 ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -1095,8 +1095,8 @@ bool_t fill_bumplists()
     /// Instead, just remove the nodes from the tree, fill the tree, and then prune any empty branches/leaves
 
     // empty out the BSP node lists
-    chr_BSP_clear_nodes();
-    prt_BSP_clear_nodes();
+    chr_BSP_clear();
+    prt_BSP_clear();
 
     // fill up the BSP list based on the current locations
     chr_BSP_fill();
@@ -3018,7 +3018,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     // Check all enchants to see if they are removed
     ienc_now = pdata->pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -3030,7 +3030,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Steal some life
     if ( pdata->pprt->lifedrain > 0 )

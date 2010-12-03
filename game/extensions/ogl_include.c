@@ -63,9 +63,16 @@ void oglx_ViewMatrix( GLXmatrix view,
 {
     ATTRIB_PUSH( __FUNCTION__, GL_TRANSFORM_BIT );
     {
+        GLint matrix_mode[1];
+
+        // save the matrix mode
+        GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+        // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
         GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
         GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glLoadIdentity )();
+
         GL_DEBUG( glScalef )( -1, 1, 1 );
 
         if ( roll > .001 )
@@ -79,6 +86,9 @@ void oglx_ViewMatrix( GLXmatrix view,
         GL_DEBUG( glGetFloatv )( GL_MODELVIEW_MATRIX, view );
 
         GL_DEBUG( glPopMatrix )();
+
+        // restore the matrix mode
+        GL_DEBUG( glMatrixMode )( matrix_mode[0] );
     }
     ATTRIB_POP( __FUNCTION__ );
 }
@@ -91,17 +101,29 @@ void oglx_ProjectionMatrix( GLXmatrix proj,
 {
     ATTRIB_PUSH( __FUNCTION__, GL_TRANSFORM_BIT );
     {
+        GLint matrix_mode[1];
         GLint viewport[ 4 ];
+
+        // save the matrix mode
+        GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
 
         // use OpenGl to create our projection matrix
         GL_DEBUG( glGetIntegerv )( GL_VIEWPORT, viewport );
 
+        // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
         GL_DEBUG( glMatrixMode )( GL_PROJECTION );
         GL_DEBUG( glPushMatrix )();
         GL_DEBUG( glLoadIdentity )();
+
         GL_DEBUG( gluPerspective )( fov, ( GLfloat )( viewport[ 2 ] - viewport[ 0 ] ) / ( GLfloat )( viewport[ 3 ] - viewport[ 1 ] ), near_plane, far_plane );
         GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, proj );
+
+        // restore the GL_PROJECTION matrix
+        GL_DEBUG( glMatrixMode )( GL_PROJECTION );
         GL_DEBUG( glPopMatrix )();
+
+        // restore the matrix mode
+        GL_DEBUG( glMatrixMode )( matrix_mode[0] );
     }
     ATTRIB_POP( __FUNCTION__ );
 }

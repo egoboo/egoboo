@@ -108,7 +108,7 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_fan( ego_mpd_t * pmesh, Uint32 itile )
+gfx_rv render_fan( ego_mpd_t * pmesh, Uint32 itile )
 {
     /// @details ZZ@> This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
@@ -123,18 +123,28 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
     tile_mem_t  * ptmem;
     ego_tile_info_t * ptile;
 
-    if ( NULL == pmesh ) return;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
+        return gfx_error;
+    }
+
     ptmem  = &( pmesh->tmem );
 
-    if ( !mesh_grid_is_valid( pmesh, itile ) ) return;
+    if ( !mesh_grid_is_valid( pmesh, itile ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
+        return gfx_error;
+    }
+
     ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
-    if ( TILE_IS_FANOFF( *ptile ) )  return;
+    if ( TILE_IS_FANOFF( *ptile ) )  return gfx_success;
 
     image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
     texture  = (( image >> 6 ) & 3 ) + TX_TILE_0; // 64 tiles in each 256x256 texture
-    if ( !meshnotexture && texture != meshlasttexture ) return;
+    if ( !meshnotexture && texture != meshlasttexture ) return gfx_success;
 
     type     = ptile->type;                         // Fan type ( index to points in itile )
     vertices = tile_dict[type].numvertices;      // Number of vertices
@@ -191,10 +201,12 @@ void render_fan( ego_mpd_t * pmesh, Uint32 itile )
     }
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
 #endif
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
+gfx_rv  render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
 {
     /// @details ZZ@> This function draws a mesh itile
     GLvertex v[4];
@@ -211,12 +223,21 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     grid_mem_t      * pgmem;
     ego_grid_info_t * pgrid;
 
-    if ( NULL == pmesh ) return;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
+        return gfx_error;
+    }
+
     ptmem  = &( pmesh->tmem );
     pgmem  = &( pmesh->gmem );
     pinfo  = &( pmesh->info );
 
-    if ( !mesh_grid_is_valid( pmesh, itile ) ) return;
+    if ( !mesh_grid_is_valid( pmesh, itile ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
+        return gfx_error;
+    }
     ptile = ptmem->tile_list + itile;
     pgrid = pgmem->grid_list + itile;
 
@@ -271,10 +292,12 @@ void render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
         }
     }
     GL_DEBUG_END();
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
+gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
 {
     /// @details ZZ@> This function draws a water itile
 
@@ -298,12 +321,21 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     ego_tile_info_t    * ptile;
     oglx_texture_t   * ptex;
 
-    if ( NULL == pmesh ) return;
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
+        return gfx_error;
+    }
+
     pinfo = &( pmesh->info );
     ptmem = &( pmesh->tmem );
     pgmem = &( pmesh->gmem );
 
-    if ( !mesh_grid_is_valid( pmesh, itile ) ) return;
+    if ( !mesh_grid_is_valid( pmesh, itile ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
+        return gfx_error;
+    }
     ptile = ptmem->tile_list + itile;
 
     falpha = FF_TO_FLOAT( water.layer[layer].alpha );
@@ -468,6 +500,8 @@ void render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
         GL_DEBUG_END();
     }
     ATTRIB_POP( __FUNCTION__ );
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------

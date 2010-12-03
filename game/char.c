@@ -984,7 +984,7 @@ void reset_character_accel( const CHR_REF character )
     // Okay, remove all acceleration enchants
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -993,7 +993,7 @@ void reset_character_accel( const CHR_REF character )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Set the starting value
     pchr->maxaccel_reset = 0;
@@ -1009,7 +1009,7 @@ void reset_character_accel( const CHR_REF character )
     // Put the acceleration enchants back on
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1018,7 +1018,7 @@ void reset_character_accel( const CHR_REF character )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1146,7 +1146,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1156,7 +1156,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
         chr_set_alpha( pchr, pchr->alpha_base );
         chr_set_light( pchr, pchr->light_base );
@@ -1167,7 +1167,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         // apply the blend enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
@@ -1181,7 +1181,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Set twist
@@ -1235,7 +1235,7 @@ void reset_character_alpha( const CHR_REF character )
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1245,7 +1245,7 @@ void reset_character_alpha( const CHR_REF character )
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
         chr_set_alpha( pchr, pchr->alpha_base );
         chr_set_light( pchr, pchr->light_base );
@@ -1255,7 +1255,7 @@ void reset_character_alpha( const CHR_REF character )
 
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -1270,7 +1270,7 @@ void reset_character_alpha( const CHR_REF character )
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 }
 
@@ -1596,7 +1596,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
                 }
             }
 
-            if ( found ) 
+            if ( found )
             {
                 istack = ipacked;
                 break;
@@ -1867,7 +1867,7 @@ void drop_keys( const CHR_REF character )
     testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
 
     key_count = 0;
-    pparent = &(pchr->pack.next);
+    pparent = &( pchr->pack.next );
     PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
     {
         if ( INGAME_CHR( ipacked ) && ipacked != character )  // Should never happen...
@@ -1878,8 +1878,7 @@ void drop_keys( const CHR_REF character )
             chr_t * pitem = ChrList.lst + ipacked;
 
             idsz_parent = chr_get_idsz( ipacked, IDSZ_PARENT );
-            idsz_type   = chr_get_idsz( ipacked, IDSZ_TYPE   );
-
+            idsz_type   = chr_get_idsz( ipacked, IDSZ_TYPE );
 
             if (( idsz_parent >= testa && idsz_parent <= testz ) ||
                 ( idsz_type >= testa && idsz_type <= testz ) )
@@ -1891,16 +1890,16 @@ void drop_keys( const CHR_REF character )
             else
             {
                 // only save non-keys as parents
-                pparent = &(pitem->pack.next);
+                pparent = &( pitem->pack.next );
             }
         }
     }
     PACK_END_LOOP( ipacked );
 
     // We found some keys?
-    // since we are MODIFYING the pack list, do not change the list 
+    // since we are MODIFYING the pack list, do not change the list
     // while inside the PACK_BEGIN_LOOP() ... PACK_END_LOOP()
-    for( cnt = 0; cnt < key_count; cnt++ )
+    for ( cnt = 0; cnt < key_count; cnt++ )
     {
         CHR_REF ikey     = key_lst[cnt];
         CHR_REF *pparent = key_parent[cnt];
@@ -2031,7 +2030,7 @@ int grab_data_cmp( const void * pleft, const void * pright )
     diff = dleft->diff2_hrz - dright->diff2_hrz;
 
     // unless they are equal, then use the vertical distance
-    if( 0.0f == diff )
+    if ( 0.0f == diff )
     {
         diff = dleft->diff2_vrt - dright->diff2_vrt;
     }
@@ -2062,7 +2061,8 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
     const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
-    const float const_max2_hrz = SQR( 2 * GRID_SIZE );
+    // 1 a grid is fine. anything more than that and it gets crazy
+    const float const_max2_hrz = SQR( 1.0f * GRID_SIZE );
     const float const_max2_vrt = SQR( GRABSIZE );
 
     int       cnt;
@@ -2094,8 +2094,8 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     if ( NULL == pcap_a ) return bfalse;
 
     // find the slot from the grip
-    slot = grip_offset_to_slot( grip_off );  
-    if( slot < 0 || slot >= SLOT_COUNT ) return bfalse;
+    slot = grip_offset_to_slot( grip_off );
+    if ( slot < 0 || slot >= SLOT_COUNT ) return bfalse;
 
     // Make sure the character doesn't have something already, and that it has hands
     if ( INGAME_CHR( pchr_a->holdingwhich[slot] ) || !pcap_a->slotvalid[slot] )
@@ -2106,7 +2106,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     slot_pos.x = mids[OCT_X];
     slot_pos.y = mids[OCT_Y];
     slot_pos.z = mids[OCT_Z];
-    fvec3_self_sum( slot_pos.v, chr_get_pos_v(pchr_a) );
+    fvec3_self_sum( slot_pos.v, chr_get_pos_v( pchr_a ) );
 
     // get the size of object a
     bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
@@ -2165,15 +2165,20 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         max2_vrt = SQR( pchr_b->bump.height );
         max2_vrt = MAX( max2_vrt, const_max2_vrt );
 
+        // the normal horizontal grab distance is dependent on the size of the two objects
+        bump_size2_b = SQR( pchr_b->bump.size );
+        max2_hrz = MAX( bump_size2_a, bump_size2_b );
+        max2_hrz = MAX( bump_size2_a + bump_size2_b, const_max2_hrz );
+
         // Is it too far away?
         if ( diff2_hrz > const_max2_hrz || diff2_vrt > max2_vrt ) continue;
 
         // count the number of objects that are within the max range
         // a difference between the *_total_count and the *_count
         // indicates that some objects were not detectable
-        if( !too_invis )
+        if ( !too_invis )
         {
-            if( can_grab )
+            if ( can_grab )
             {
                 grab_visible_count++;
             }
@@ -2183,13 +2188,10 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             }
         }
 
-        // the size of b
-        bump_size2_b = SQR(pchr_b->bump.size);
-
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
-        max2_hrz = MAX(bump_size2_a, bump_size2_b);
-        if( !too_dark && !too_invis )
+        max2_hrz = MAX( bump_size2_a, bump_size2_b );
+        if ( !too_dark && !too_invis )
         {
             max2_hrz = MAX( max2_hrz, const_max2_hrz );
         }
@@ -2228,10 +2230,10 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 
     // try to grab something
     retval = bfalse;
-    if( (0 == grab_count) && (0 != grab_visible_count) )
+    if (( 0 == grab_count ) && ( 0 != grab_visible_count ) )
     {
         // There are items within the "normal" range that could be grabbed
-        // but somehow they can't be seen. 
+        // but somehow they can't be seen.
         // Generate a billboard that tells the player what the problem is.
         // NOTE: this is not corerect since it could alert a player to an invisible object
 
@@ -2240,13 +2242,16 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 
         retval = btrue;
     }
-    else
+
+    if ( !retval )
     {
         for ( cnt = 0; cnt < grab_count; cnt++ )
         {
             bool_t can_grab;
 
             chr_t * pchr_b;
+
+            if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis ) continue;
 
             ichr_b = grab_list[cnt].ichr;
             pchr_b = ChrList.lst + ichr_b;
@@ -2283,12 +2288,11 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         //---- generate billboards for things that players can interact with
         if ( cfg.feedback != FEEDBACK_OFF && VALID_PLA( pchr_a->is_which_player ) )
         {
-
             // things that can be grabbed
             for ( cnt = 0; cnt < grab_count; cnt++ )
             {
                 ichr_b = grab_list[cnt].ichr;
-                if( grab_list[cnt].too_dark || grab_list[cnt].too_invis )
+                if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis )
                 {
                     // (5 secs and blue)
                     chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_none );
@@ -2305,7 +2309,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             {
                 ichr_b = ungrab_list[cnt].ichr;
 
-                if( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis )
+                if ( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis )
                 {
                     // (5 secs and blue)
                     chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_none );
@@ -2335,7 +2339,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
                 chr_t     * pchr_b;
 
                 // only do visible objects
-                if( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis ) continue;
+                if ( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis ) continue;
 
                 pchr_b = ChrList.lst + ungrab_list[cnt].ichr;
 
@@ -3119,11 +3123,14 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Other junk
     pchr->flyheight   = pcap->flyheight;
-    pchr->maxaccel = pchr->maxaccel_reset = pcap->maxaccel[pchr->skin];
-    pchr->alpha_base   = pcap->alpha;
-    pchr->light_base   = pcap->light;
+    pchr->maxaccel    = pchr->maxaccel_reset = pcap->maxaccel[pchr->skin];
+    pchr->alpha_base  = pcap->alpha;
+    pchr->light_base  = pcap->light;
     pchr->flashand    = pcap->flashand;
     pchr->phys.dampen = pcap->dampen;
+
+    // graphics overrides
+    pchr->inst.dont_cull_backfaces = pcap->dont_cull_backfaces;
 
     // Load current life and mana. this may be overridden later
     pchr->life = CLIP( pcap->life_spawn, LOWSTAT, pchr->lifemax );
@@ -3394,7 +3401,7 @@ void cleanup_one_character( chr_t * pchr )
         // remove all invalid enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -3407,7 +3414,7 @@ void cleanup_one_character( chr_t * pchr )
             ienc_now = ienc_nxt;
             ienc_count++;
         }
-        if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+        if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
     }
 
     // Stop all sound loops for this object
@@ -4130,11 +4137,11 @@ chr_t * chr_config_do_active( chr_t * pchr )
     if ( NULL == pcap ) return pchr;
 
     water_level = water.layer[0].z + water.layer[0].amp;
-    if( cfg.twolayerwater_allowed )
+    if ( cfg.twolayerwater_allowed )
     {
         int cnt;
 
-        for( cnt = 1; cnt < MAXWATERLAYER; cnt++ )
+        for ( cnt = 1; cnt < MAXWATERLAYER; cnt++ )
         {
             water_level = MAX( water_level, water.layer[cnt].z + water.layer[cnt].amp );
         }
@@ -4862,7 +4869,7 @@ int change_armor( const CHR_REF character, int skin )
     // Remove armor enchantments
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -4878,7 +4885,7 @@ int change_armor( const CHR_REF character, int skin )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     // Change the skin
     pcap = chr_get_pcap( character );
@@ -4903,7 +4910,7 @@ int change_armor( const CHR_REF character, int skin )
     /// I don't care at this point !!!BAD!!!
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -4929,7 +4936,7 @@ int change_armor( const CHR_REF character, int skin )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     return skin;
 }
@@ -5109,7 +5116,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
 
             ienc_now = EncList.lst[pchr->firstenchant].nextenchant_ref;
             ienc_count = 0;
-            while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+            while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -5118,7 +5125,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
                 ienc_now = ienc_nxt;
                 ienc_count++;
             }
-            if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+            if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
         }
     }
     else if ( ENC_LEAVE_NONE == leavewhich )
@@ -5361,50 +5368,50 @@ bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 void switch_team( const CHR_REF character, const TEAM_REF team )
 {
     /// @details ZZ@> This function makes a character join another team...
-	chr_t *pchr;
+    chr_t *pchr;
 
     if ( !INGAME_CHR( character ) || team >= TEAM_MAX || team < 0 ) return;
-	pchr = ChrList.lst + character;
+    pchr = ChrList.lst + character;
 
-	// keep track of how many live ones we have on any team
+    // keep track of how many live ones we have on any team
     if ( !pchr->invictus )
     {
         if ( chr_get_pteam_base( character )->morale > 0 ) chr_get_pteam_base( character )->morale--;
         TeamStack.lst[team].morale++;
     }
-	
-	/*
-	// change our current team if we are not a item or a mount
+
+    /*
+    // change our current team if we are not a item or a mount
     if (( !pchr->ismount || !INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) ) &&
         ( !pchr->isitem  || !INGAME_CHR( pchr->attachedto ) ) )
     {
         pchr->team = team;
     }
-	*/
+    */
 
-	// actually change our team
+    // actually change our team
     pchr->baseteam = team;
-	pchr->team = team;
+    pchr->team = team;
 
-	//change our mount team as well
-	if( INGAME_CHR( pchr->attachedto ) )
-	{
-		chr_t *pmount = ChrList.lst + pchr->attachedto;
-		if( pmount->ismount ) pmount->team = team;
-	}
+    //change our mount team as well
+    if ( INGAME_CHR( pchr->attachedto ) )
+    {
+        chr_t *pmount = ChrList.lst + pchr->attachedto;
+        if ( pmount->ismount ) pmount->team = team;
+    }
 
-	// update the team of anything we are holding as well
-	if( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
-	{
-		ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
-	}
-	if( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
-	{
-		ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
-	}
+    // update the team of anything we are holding as well
+    if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+    {
+        ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
+    }
+    if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
+    {
+        ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
+    }
 
-	// we are the new leader if there isn't one already
-	if ( TeamStack.lst[team].leader == NOLEADER )
+    // we are the new leader if there isn't one already
+    if ( TeamStack.lst[team].leader == NOLEADER )
     {
         TeamStack.lst[team].leader = character;
     }
@@ -5537,7 +5544,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
     // clean up the enchant list before doing anything
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( (MAX_ENC != ienc_now) && (ienc_count < MAX_ENC) )
+    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
         peve = enc_get_peve( ienc_now );
@@ -5552,7 +5559,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
         ienc_now = ienc_nxt;
         ienc_count++;
     }
-    if( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
+    if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
     if ( life_regen < 0 )
     {
@@ -7902,7 +7909,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, SDL_Color text_color, GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits )
+billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits )
 {
     chr_t            * pchr;
     billboard_data_t * pbb;
@@ -9368,10 +9375,10 @@ bool_t chr_can_see_invis( const chr_t * pchr, const chr_t * pobj )
 
     int     alpha;
 
-    if( NULL == pchr || NULL == pobj ) return bfalse;
+    if ( NULL == pchr || NULL == pobj ) return bfalse;
 
     /// @note ZF@> Invictus characters can always see through darkness (spells, items, quest handlers, etc.)
-    if( pchr->invictus ) return btrue;
+    if ( pchr->invictus ) return btrue;
 
     alpha = pobj->inst.alpha;
     if ( 0 != pchr->see_invisible_level )
@@ -9392,7 +9399,7 @@ bool_t chr_can_see_dark( const chr_t * pchr, const chr_t * pobj )
 
     int     light, self_light, enviro_light;
 
-    if( NULL == pchr || NULL == pobj ) return bfalse;
+    if ( NULL == pchr || NULL == pobj ) return bfalse;
 
     enviro_light = ( pobj->inst.alpha * pobj->inst.max_light ) * INV_FF;
     self_light   = ( pobj->inst.light == 255 ) ? 0 : pobj->inst.light;
