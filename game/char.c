@@ -8603,31 +8603,6 @@ bool_t ai_state_set_changed( ai_state_t * pai )
 }
 
 //--------------------------------------------------------------------------------------------
-matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
-{
-    /// @details BB@> clear out the matrix cache data
-
-    int cnt;
-
-    if ( NULL == mcache ) return mcache;
-
-    memset( mcache, 0, sizeof( *mcache ) );
-
-    mcache->type_bits = MAT_UNKNOWN;
-    mcache->grip_chr  = ( CHR_REF )MAX_CHR;
-    for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
-    {
-        mcache->grip_verts[cnt] = 0xFFFF;
-    }
-
-    mcache->rotate.x = 0;
-    mcache->rotate.y = 0;
-    mcache->rotate.z = 0;
-
-    return mcache;
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t chr_matrix_valid( chr_t * pchr )
 {
     /// @details BB@> Determine whether the character has a valid matrix

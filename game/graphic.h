@@ -275,7 +275,7 @@ struct s_gfx_config
     bool_t draw_water_0;      ///< Do we draw water layer 1 (TX_WATER_LOW)
     bool_t draw_water_1;      ///< Do we draw water layer 2 (TX_WATER_TOP)
 
-    int    dyna_list_max;     ///< Max number of dynamic lights to draw
+    int    dynalist_max;     ///< Max number of dynamic lights to draw
     bool_t exploremode;       ///< fog of war mode for mesh display
     bool_t usefaredge;        ///< Far edge maps? (Outdoor)
 

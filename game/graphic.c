@@ -103,10 +103,26 @@ typedef struct s_dolist dolist_t;
 
 #define DOLIST_INIT { 0, OBJ_REGISTRY_ENTITY_INIT }
 
-static gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect );
-static gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh );
-static gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr );
-static gfx_rv dolist_add_prt( dolist_t * pdlist, ego_mpd_t * pmesh, const PRT_REF iprt );
+static gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect );
+static gfx_rv dolist_make( dolist_t * pdolist, ego_mpd_t * pmesh );
+static gfx_rv dolist_add_chr( dolist_t * pdolist, ego_mpd_t * pmesh, const CHR_REF ichr );
+static gfx_rv dolist_add_prt( dolist_t * pdolist, ego_mpd_t * pmesh, const PRT_REF iprt );
+
+//--------------------------------------------------------------------------------------------
+
+/// The active dynamic lights
+struct s_dynalist
+{
+    int         count;                    ///< the count
+    dynalight_t lst[TOTAL_MAX_DYNA];      ///< the list
+};
+typedef struct s_dynalist dynalist_t;
+
+#define DYNALIST_INIT { 0.0f, 0 }
+
+static gfx_rv dynalist_init( dynalist_t * pdylist );
+static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t * pcam );
+static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -212,9 +228,7 @@ static float                   cornerhighx;
 static float                   cornerlowy;
 static float                   cornerhighy;
 
-static float       dyna_distancetobeat;           // The number to beat
-static int         dyna_list_count = 0;           // Number of dynamic lights
-static dynalight_t dyna_list[TOTAL_MAX_DYNA];
+static dynalist_t dynalist = DYNALIST_INIT;
 
 // Interface stuff
 static irect_t iconrect;                   // The 32x32 icon rectangle
@@ -240,7 +254,7 @@ static int  _debug_vprintf( const char *format, va_list args );
 static int  _va_draw_string( float x, float y, const char *format, va_list args );
 static int  _draw_string_raw( float x, float y, const char *format, ... );
 
-static void project_view( camera_t * pcam );
+static gfx_rv gfx_project_cam_view( camera_t * pcam );
 
 static void init_icon_data();
 static void init_bar_data();
@@ -263,9 +277,10 @@ static void gfx_end_2d( void );
 static gfx_rv light_fans( renderlist_t * prlist );
 static gfx_rv render_water( renderlist_t * prlist );
 
-static void   gfx_make_dynalist( camera_t * pcam );
-
 static void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, bool_t use_alpha );
+
+static gfx_rv update_one_chr_instance( struct s_chr * pchr );
+static gfx_rv update_all_chr_instance();
 
 //--------------------------------------------------------------------------------------------
 // MODULE "PRIVATE" FUNCTIONS
@@ -668,7 +683,7 @@ bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
     pgfx->draw_background = pcfg->background_allowed && water.background_req;
     pgfx->draw_overlay    = pcfg->overlay_allowed && water.overlay_req;
 
-    pgfx->dyna_list_max = CLIP( pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA );
+    pgfx->dynalist_max = CLIP( pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA );
 
     pgfx->draw_water_0 = !pgfx->draw_overlay && ( water.layer_count > 0 );
     pgfx->clearson     = !pgfx->draw_background;
@@ -700,7 +715,7 @@ bool_t gfx_config_init( gfx_config_t * pgfx )
     pgfx->draw_water_0     = btrue;   // Do we draw water layer 1 (TX_WATER_LOW)
     pgfx->draw_water_1     = btrue;   // Do we draw water layer 2 (TX_WATER_TOP)
 
-    pgfx->dyna_list_max    = 8;
+    pgfx->dynalist_max    = 8;
 
     return btrue;
 }
@@ -1852,18 +1867,25 @@ void draw_text()
 //--------------------------------------------------------------------------------------------
 // 3D RENDERER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void project_view( camera_t * pcam )
+gfx_rv gfx_project_cam_view( camera_t * pcam )
 {
     /// @details ZZ@> This function figures out where the corners of the view area
     ///    go when projected onto the plane of the PMesh->  Used later for
     ///    determining which mesh fans need to be rendered
 
-    int cnt, tnc, extra[4];
+    int cnt, tnc, extra[2];
     float ztemp;
     float numstep;
     float zproject;
     float xfin, yfin, zfin;
     fmat_4x4_t mTemp;
+
+    if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
 
     // Range
     ztemp = ( pcam->pos.z );
@@ -1873,7 +1895,12 @@ void project_view( camera_t * pcam )
     mTemp = MatrixMult( RotateX( rotmesh_up * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
-    if ( zproject < 0 )
+    if ( zproject >= 0.0f )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 0" );
+        return gfx_error;
+    }
+    else
     {
         numstep = -ztemp / zproject;
         xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
@@ -1888,7 +1915,12 @@ void project_view( camera_t * pcam )
     mTemp = MatrixMult( RotateX( rotmesh_up * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
-    if ( zproject < 0 )
+    if ( zproject >= 0.0f )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 1" );
+        return gfx_error;
+    }
+    else
     {
         numstep = -ztemp / zproject;
         xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
@@ -1904,7 +1936,12 @@ void project_view( camera_t * pcam )
     zproject = mTemp.CNV( 2, 2 );             // 2,2
 
     // Camera must look down
-    if ( zproject < 0 )
+    if ( zproject >= 0.0f )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 2" );
+        return gfx_error;
+    }
+    else
     {
         numstep = -ztemp / zproject;
         xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
@@ -1919,7 +1956,12 @@ void project_view( camera_t * pcam )
     mTemp = MatrixMult( RotateX( -rotmesh_down * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             // 2,2
     // Camera must look down
-    if ( zproject < 0 )
+    if ( zproject >= 0.0f )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 3" );
+        return gfx_error;
+    }
+    else
     {
         numstep = -ztemp / zproject;
         xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
@@ -1937,17 +1979,25 @@ void project_view( camera_t * pcam )
     cornerlistlowtohighy[0] = 0;
     cornerlistlowtohighy[3] = 0;
 
+    // sort the corners
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         if ( cornerx[cnt] < cornerlowx )
+        {
             cornerlowx = cornerx[cnt];
+        }
+
+        if ( cornerx[cnt] > cornerhighx )
+        {
+            cornerhighx = cornerx[cnt];
+        }
+
         if ( cornery[cnt] < cornerlowy )
         {
             cornerlowy = cornery[cnt];
             cornerlistlowtohighy[0] = cnt;
         }
-        if ( cornerx[cnt] > cornerhighx )
-            cornerhighx = cornerx[cnt];
+
         if ( cornery[cnt] > cornerhighy )
         {
             cornerhighy = cornery[cnt];
@@ -1972,6 +2022,8 @@ void project_view( camera_t * pcam )
         cornerlistlowtohighy[1] = extra[0];
         cornerlistlowtohighy[2] = extra[1];
     }
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2220,30 +2272,57 @@ void render_bad_shadow( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
+gfx_rv update_one_chr_instance( chr_t * pchr )
+{
+    chr_instance_t * pinst;
+    gfx_rv retval;
+
+    if ( !ACTIVE_PCHR( pchr ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR( pchr ), "invalid character" );
+        return gfx_error;
+    }
+    pinst = &( pchr->inst );
+
+    // make sure that the vertices are interpolated
+    retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
+    if ( gfx_error == retval )
+    {
+        return gfx_error;
+    }
+
+    // do the basic lighting
+    chr_instance_update_lighting_base( pinst, pchr, bfalse );
+
+    return retval;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
 gfx_rv update_all_chr_instance()
 {
     CHR_REF cnt;
     gfx_rv retval;
+    chr_t * pchr;
+    gfx_rv tmp_rv;
 
     // assume the best
     retval = gfx_success;
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        chr_t * pchr;
-        gfx_rv tmp_rv;
-
         if ( !INGAME_CHR( cnt ) ) continue;
         pchr = ChrList.lst + cnt;
 
         if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 
-        tmp_rv = chr_update_instance( pchr );
+        tmp_rv = update_one_chr_instance( pchr );
 
+        // deal with return values
         if ( gfx_error == tmp_rv )
         {
             retval = gfx_error;
-            gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "chr_update_instance() failed" );
         }
         else if ( gfx_success == tmp_rv )
         {
@@ -2304,7 +2383,7 @@ gfx_rv render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdlist, ego_mpd_t * pmesh, camera_t * pcam )
+gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, ego_mpd_t * pmesh, camera_t * pcam )
 {
     gfx_rv retval;
 
@@ -2324,7 +2403,7 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdlist, ego_mpd_t * 
     PROFILE_BEGIN( dolist_make );
     {
         // determine which objects are visible
-        if ( gfx_error == dolist_make( pdlist, prlist->pmesh ) )
+        if ( gfx_error == dolist_make( pdolist, prlist->pmesh ) )
         {
             retval = gfx_error;
         }
@@ -2338,7 +2417,7 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdlist, ego_mpd_t * 
     PROFILE_BEGIN( do_grid_lighting );
     {
         // figure out the terrain lighting
-        if ( gfx_error == do_grid_lighting( prlist, pcam ) )
+        if ( gfx_error == do_grid_lighting( prlist, pdylist, pcam ) )
         {
             retval = gfx_error;
         }
@@ -2482,7 +2561,7 @@ gfx_rv render_scene_mesh_drf_back( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdlist )
+gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdolist )
 {
     /// @details BB@> Render all reflected objects
 
@@ -2497,13 +2576,13 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdlist )
         return gfx_error;
     }
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -2530,9 +2609,9 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdlist )
         // surfaces must be closer to the camera to be drawn
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
-        for ( cnt = (( int )pdlist->count ) - 1; cnt >= 0; cnt-- )
+        for ( cnt = (( int )pdolist->count ) - 1; cnt >= 0; cnt-- )
         {
-            if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
+            if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
             {
                 CHR_REF ichr;
                 Uint32 itile;
@@ -2547,7 +2626,7 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdlist )
                 // use the alpha channel to modulate the transparency
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-                ichr  = pdlist->lst[cnt].ichr;
+                ichr  = pdolist->lst[cnt].ichr;
                 itile = ChrList.lst[ichr].onwhichgrid;
 
                 if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
@@ -2560,7 +2639,7 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdlist )
                     }
                 }
             }
-            else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
+            else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
             {
                 Uint32 itile;
                 PRT_REF iprt;
@@ -2574,7 +2653,7 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdlist )
                 // set the default particle blending
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
-                iprt = pdlist->lst[cnt].iprt;
+                iprt = pdolist->lst[cnt].iprt;
                 itile = PrtList.lst[iprt].onwhichgrid;
 
                 if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
@@ -2686,19 +2765,19 @@ gfx_rv render_scene_mesh_drf_solid( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_render_shadows( dolist_t * pdlist )
+gfx_rv render_scene_mesh_render_shadows( dolist_t * pdolist )
 {
     /// @details BB@> Render the shadows
 
     int cnt, tnc;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -2721,9 +2800,9 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdlist )
     if ( gfx.shasprite )
     {
         // Bad shadows
-        for ( cnt = 0; cnt < pdlist->count; cnt++ )
+        for ( cnt = 0; cnt < pdolist->count; cnt++ )
         {
-            CHR_REF ichr = pdlist->lst[cnt].ichr;
+            CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
             render_bad_shadow( ichr );
@@ -2733,9 +2812,9 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdlist )
     else
     {
         // Good shadows for me
-        for ( cnt = 0; cnt < pdlist->count; cnt++ )
+        for ( cnt = 0; cnt < pdolist->count; cnt++ )
         {
-            CHR_REF ichr = pdlist->lst[cnt].ichr;
+            CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
             render_shadow( ichr );
@@ -2747,7 +2826,7 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdlist )
+gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
 {
     /// @details BB@> draw the mesh and any reflected objects
 
@@ -2793,7 +2872,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdlist )
         PROFILE_BEGIN( render_scene_mesh_ref );
         {
             // Render all reflected objects
-            if ( gfx_error == render_scene_mesh_ref( prlist, pdlist ) )
+            if ( gfx_error == render_scene_mesh_ref( prlist, pdolist ) )
             {
                 retval = gfx_error;
             }
@@ -2836,7 +2915,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdlist )
     PROFILE_BEGIN( render_scene_mesh_render_shadows );
     {
         // Render the shadows
-        if ( gfx_error == render_scene_mesh_render_shadows( pdlist ) )
+        if ( gfx_error == render_scene_mesh_render_shadows( pdolist ) )
         {
             retval = gfx_error;
         }
@@ -2847,20 +2926,20 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_solid( dolist_t * pdlist )
+gfx_rv render_scene_solid( dolist_t * pdolist )
 {
     /// @detaile BB@> Render all solid objects
 
     Uint32 cnt;
     gfx_rv retval;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -2870,7 +2949,7 @@ gfx_rv render_scene_solid( dolist_t * pdlist )
     retval = gfx_success;
 
     // Render all solid objects
-    for ( cnt = 0; cnt < pdlist->count; cnt++ )
+    for ( cnt = 0; cnt < pdolist->count; cnt++ )
     {
         GL_DEBUG( glDepthMask )( GL_TRUE );
 
@@ -2887,27 +2966,27 @@ gfx_rv render_scene_solid( dolist_t * pdlist )
         // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-        if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
+        if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
         {
             GLXvector4f tint;
-            chr_instance_t * pinst = chr_get_pinstance( pdlist->lst[cnt].ichr );
+            chr_instance_t * pinst = chr_get_pinstance( pdolist->lst[cnt].ichr );
 
             if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
             {
                 chr_instance_get_tint( pinst, tint, CHR_SOLID );
 
-                if ( gfx_error == render_one_mad( pdlist->lst[cnt].ichr, tint, CHR_SOLID ) )
+                if ( gfx_error == render_one_mad( pdolist->lst[cnt].ichr, tint, CHR_SOLID ) )
                 {
                     retval = gfx_error;
                 }
             }
         }
-        else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
+        else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
         {
             // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );
 
-            if ( gfx_error == render_one_prt_solid( pdlist->lst[cnt].iprt ) )
+            if ( gfx_error == render_one_prt_solid( pdolist->lst[cnt].iprt ) )
             {
                 retval = gfx_error;
             }
@@ -2927,20 +3006,20 @@ gfx_rv render_scene_solid( dolist_t * pdlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans( dolist_t * pdlist )
+gfx_rv render_scene_trans( dolist_t * pdolist )
 {
     /// @details BB@> draw transparent objects
 
     int cnt;
     gfx_rv retval;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -2961,19 +3040,19 @@ gfx_rv render_scene_trans( dolist_t * pdlist )
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // Now render all transparent and light objects
-        for ( cnt = (( int )pdlist->count ) - 1; cnt >= 0; cnt-- )
+        for ( cnt = (( int )pdolist->count ) - 1; cnt >= 0; cnt-- )
         {
-            if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
+            if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
             {
-                if ( gfx_error == render_one_chr_trans( pdlist->lst[cnt].ichr ) )
+                if ( gfx_error == render_one_mad_trans( pdolist->lst[cnt].ichr ) )
                 {
                     retval = gfx_error;
                 }
             }
-            else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
+            else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
             {
                 // this is a particle
-                if ( gfx_error == render_one_prt_trans( pdlist->lst[cnt].iprt ) )
+                if ( gfx_error == render_one_prt_trans( pdolist->lst[cnt].iprt ) )
                 {
                     retval = gfx_error;
                 }
@@ -3011,7 +3090,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 
     PROFILE_BEGIN( render_scene_init );
     {
-        if ( gfx_error == render_scene_init( &renderlist, &dolist, pmesh, pcam ) )
+        if ( gfx_error == render_scene_init( &renderlist, &dolist, &dynalist, pmesh, pcam ) )
         {
             retval = gfx_error;
         }
@@ -4559,7 +4638,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 //--------------------------------------------------------------------------------------------
 // GRAPHICS OPTIMIZATIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr )
+gfx_rv dolist_add_chr( dolist_t * pdolist, ego_mpd_t * pmesh, const CHR_REF ichr )
 {
     /// ZZ@> This function puts a character in the list
 
@@ -4571,13 +4650,13 @@ gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr 
     // if we are adding the "item" in an empty hand, don't complain
     if ( !VALID_CHR_RANGE( ichr ) ) return rv_fail;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -4615,9 +4694,9 @@ gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr 
 
     if ( ptile->inrenderlist )
     {
-        pdlist->lst[pdlist->count].ichr = ichr;
-        pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
-        pdlist->count++;
+        pdolist->lst[pdolist->count].ichr = ichr;
+        pdolist->lst[pdolist->count].iprt = ( PRT_REF )MAX_PRT;
+        pdolist->count++;
 
         pinst->indolist = btrue;
     }
@@ -4625,9 +4704,9 @@ gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr 
     {
         // Double check for large/special objects
 
-        pdlist->lst[pdlist->count].ichr = ichr;
-        pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
-        pdlist->count++;
+        pdolist->lst[pdolist->count].ichr = ichr;
+        pdolist->lst[pdolist->count].iprt = ( PRT_REF )MAX_PRT;
+        pdolist->count++;
 
         pinst->indolist = btrue;
     }
@@ -4635,28 +4714,28 @@ gfx_rv dolist_add_chr( dolist_t * pdlist, ego_mpd_t * pmesh, const CHR_REF ichr 
     if ( pinst->indolist )
     {
         // Add its weapons too
-        dolist_add_chr( pdlist, pmesh, pchr->holdingwhich[SLOT_LEFT] );
-        dolist_add_chr( pdlist, pmesh, pchr->holdingwhich[SLOT_RIGHT] );
+        dolist_add_chr( pdolist, pmesh, pchr->holdingwhich[SLOT_LEFT] );
+        dolist_add_chr( pdolist, pmesh, pchr->holdingwhich[SLOT_RIGHT] );
     }
 
     return pinst->indolist ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_prt( dolist_t * pdlist, ego_mpd_t * pmesh, const PRT_REF iprt )
+gfx_rv dolist_add_prt( dolist_t * pdolist, ego_mpd_t * pmesh, const PRT_REF iprt )
 {
     /// ZZ@> This function puts a character in the list
     prt_t * pprt;
     prt_instance_t * pinst;
     ego_tile_info_t * ptile;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -4680,9 +4759,9 @@ gfx_rv dolist_add_prt( dolist_t * pdlist, ego_mpd_t * pmesh, const PRT_REF iprt 
 
     if ( ptile->inrenderlist )
     {
-        pdlist->lst[pdlist->count].ichr = ( CHR_REF )MAX_CHR;
-        pdlist->lst[pdlist->count].iprt = iprt;
-        pdlist->count++;
+        pdolist->lst[pdolist->count].ichr = ( CHR_REF )MAX_CHR;
+        pdolist->lst[pdolist->count].iprt = iprt;
+        pdolist->count++;
 
         pinst->indolist = btrue;
     }
@@ -4691,7 +4770,7 @@ gfx_rv dolist_add_prt( dolist_t * pdlist, ego_mpd_t * pmesh, const PRT_REF iprt 
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh )
+gfx_rv dolist_make( dolist_t * pdolist, ego_mpd_t * pmesh )
 {
     /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
 
@@ -4699,31 +4778,31 @@ gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh )
     CHR_REF ichr;
     gfx_rv retval;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
     }
 
     // Remove everyone from the dolist
-    for ( cnt = 0; cnt < pdlist->count; cnt++ )
+    for ( cnt = 0; cnt < pdolist->count; cnt++ )
     {
-        if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
+        if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
         {
-            ChrList.lst[ pdlist->lst[cnt].ichr ].inst.indolist = bfalse;
+            ChrList.lst[ pdolist->lst[cnt].ichr ].inst.indolist = bfalse;
         }
-        else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
+        else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
         {
-            PrtList.lst[ pdlist->lst[cnt].iprt ].inst.indolist = bfalse;
+            PrtList.lst[ pdolist->lst[cnt].iprt ].inst.indolist = bfalse;
         }
     }
-    pdlist->count = 0;
+    pdolist->count = 0;
 
     // assume the best
     retval = gfx_success;
@@ -4734,7 +4813,7 @@ gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh )
         if ( INGAME_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
         {
             // Add the character
-            if ( gfx_error == dolist_add_chr( pdlist, pmesh, ichr ) )
+            if ( gfx_error == dolist_add_chr( pdolist, pmesh, ichr ) )
             {
                 retval = gfx_error;
             }
@@ -4746,7 +4825,7 @@ gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh )
         if ( mesh_grid_is_valid( pmesh, prt_bdl.prt_ptr->onwhichgrid ) )
         {
             // Add the character
-            if ( gfx_error == dolist_add_prt( pdlist, pmesh, prt_bdl.prt_ref ) )
+            if ( gfx_error == dolist_add_prt( pdolist, pmesh, prt_bdl.prt_ref ) )
             {
                 retval = gfx_error;
             }
@@ -4758,7 +4837,7 @@ gfx_rv dolist_make( dolist_t * pdlist, ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect )
+gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect )
 {
     /// @details ZZ@> This function orders the dolist based on distance from camera,
     ///    which is needed for reflections to properly clip themselves.
@@ -4768,13 +4847,13 @@ gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect )
     fvec3_t   vcam;
     size_t    count;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -4791,17 +4870,17 @@ gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect )
 
     // Figure the distance of each
     count = 0;
-    for ( cnt = 0; cnt < pdlist->count; cnt++ )
+    for ( cnt = 0; cnt < pdolist->count; cnt++ )
     {
         fvec3_t   vtmp;
         float dist;
 
-        if ( MAX_PRT == pdlist->lst[cnt].iprt && MAX_CHR != pdlist->lst[cnt].ichr )
+        if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;
 
-            ichr = pdlist->lst[cnt].ichr;
+            ichr = pdolist->lst[cnt].ichr;
 
             if ( do_reflect )
             {
@@ -4814,9 +4893,9 @@ gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect )
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
-        else if ( MAX_CHR == pdlist->lst[cnt].ichr && MAX_PRT != pdlist->lst[cnt].iprt )
+        else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
         {
-            PRT_REF iprt = pdlist->lst[cnt].iprt;
+            PRT_REF iprt = pdolist->lst[cnt].iprt;
 
             if ( do_reflect )
             {
@@ -4835,18 +4914,18 @@ gfx_rv dolist_sort( dolist_t * pdlist, camera_t * pcam, bool_t do_reflect )
         dist = fvec3_dot_product( vtmp.v, vcam.v );
         if ( dist > 0 )
         {
-            pdlist->lst[count].ichr = pdlist->lst[cnt].ichr;
-            pdlist->lst[count].iprt = pdlist->lst[cnt].iprt;
-            pdlist->lst[count].dist = dist;
+            pdolist->lst[count].ichr = pdolist->lst[cnt].ichr;
+            pdolist->lst[count].iprt = pdolist->lst[cnt].iprt;
+            pdolist->lst[count].dist = dist;
             count++;
         }
     }
-    pdlist->count = count;
+    pdolist->count = count;
 
     // use qsort to sort the list in-place
-    if ( pdlist->count > 1 )
+    if ( pdolist->count > 1 )
     {
-        qsort( pdlist->lst, pdlist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
+        qsort( pdolist->lst, pdolist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
     }
 
     return gfx_success;
@@ -4964,6 +5043,13 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
     // game_frame_all will always start at 1
     if ( 1 != ( game_frame_all & 3 ) ) return gfx_success;
 
+    // Find the render area corners.
+    // if this fails, we cannot have a valid list of corners, so this function fails
+    if( rv_error == gfx_project_cam_view( pcam ) )
+    {
+        return rv_error;
+    }
+
     // assume the best
     retval = gfx_success;
 
@@ -4972,9 +5058,6 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
     {
         retval = gfx_error;
     }
-
-    // Find the render area corners
-    project_view( pcam );
 
     prlist->pmesh = pmesh;
     tlist = pmesh->tmem.tile_list;
@@ -5507,25 +5590,25 @@ void load_graphics()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv do_chr_flashing( dolist_t * pdlist )
+gfx_rv do_chr_flashing( dolist_t * pdolist )
 {
     Uint32 i;
 
-    if ( NULL == pdlist )
+    if ( NULL == pdolist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdolist->count >= DOLIST_SIZE )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
     }
 
-    for ( i = 0; i < pdlist->count; i++ )
+    for ( i = 0; i < pdolist->count; i++ )
     {
-        CHR_REF ichr = pdlist->lst[i].ichr;
+        CHR_REF ichr = pdolist->lst[i].ichr;
 
         if ( !INGAME_CHR( ichr ) ) continue;
 
@@ -6074,86 +6157,110 @@ void draw_cursor()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void gfx_make_dynalist( camera_t * pcam )
+gfx_rv dynalist_init( dynalist_t * pdylist )
+{
+    if( NULL == pdylist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dynalist" );
+        return gfx_error;
+    }
+
+    pdylist->count        = 0;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
 {
     /// @details ZZ@> This function figures out which particles are visible, and it sets up dynamic
     ///    lighting
 
-    int tnc, slot;
+    int      tnc;
     fvec3_t  vdist;
-    float    distance;
+
+    float         distance   = 0.0f;
+    dynalight_t * plight     = NULL;
+
+    float         distance_max = 0.0f;
+    dynalight_t * plight_max   = NULL;
+
+    if( NULL == pdylist ) 
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dynalist" );
+        return gfx_error;
+    }
 
     // Don't really make a list, just set to visible or not
-    dyna_list_count = 0;
-    dyna_distancetobeat = 1e12;
+    dynalist_init( pdylist );
+
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
-        prt_bdl.prt_ptr->inview = bfalse;
+        dynalight_info_t * pprt_dyna = &(prt_bdl.prt_ptr->dynalight);
 
-        if ( !mesh_grid_is_valid( PMesh, prt_bdl.prt_ptr->onwhichgrid ) ) continue;
+        // is the light on?
+        if ( !pprt_dyna->on || 0.0f == pprt_dyna->level ) continue;
 
-        prt_bdl.prt_ptr->inview = PMesh->tmem.tile_list[prt_bdl.prt_ptr->onwhichgrid].inrenderlist;
+        // reset the dynalight pointer
+        plight = NULL;
 
-        // Set up the lights we need
-        if ( !prt_bdl.prt_ptr->dynalight.on ) continue;
-
+        // find the distance to the camera
         vdist = fvec3_sub( prt_get_pos_v( prt_bdl.prt_ptr ), pcam->track_pos.v );
-
         distance = vdist.x * vdist.x + vdist.y * vdist.y + vdist.z * vdist.z;
-        if ( distance < dyna_distancetobeat )
+
+        // insert the dynalight
+        if ( pdylist->count < gfx.dynalist_max &&  pdylist->count < TOTAL_MAX_DYNA )
         {
-            bool_t found = bfalse;
-            if ( dyna_list_count < gfx.dyna_list_max )
+            if( 0 == pdylist->count )
             {
-                // Just add the light
-                slot = dyna_list_count;
-                dyna_list[slot].distance = distance;
-                dyna_list_count++;
-                found = btrue;
+                distance_max = distance;
             }
             else
             {
-                // Overwrite the worst one
-                slot = 0;
-                dyna_distancetobeat = dyna_list[0].distance;
-                for ( tnc = 1; tnc < gfx.dyna_list_max; tnc++ )
-                {
-                    if ( dyna_list[tnc].distance > dyna_distancetobeat )
-                    {
-                        slot = tnc;
-                        found = btrue;
-                    }
-                }
-
-                if ( found )
-                {
-                    dyna_list[slot].distance = distance;
-
-                    // Find the new distance to beat
-                    dyna_distancetobeat = dyna_list[0].distance;
-                    for ( tnc = 1; tnc < gfx.dyna_list_max; tnc++ )
-                    {
-                        if ( dyna_list[tnc].distance > dyna_distancetobeat )
-                        {
-                            dyna_distancetobeat = dyna_list[tnc].distance;
-                        }
-                    }
-                }
+                distance_max = MAX( distance_max, distance );
             }
 
-            if ( found )
+            // grab a new light from the list
+            plight = pdylist->lst + pdylist->count;
+            pdylist->count++;
+
+            if( distance_max == distance )
             {
-                dyna_list[slot].pos     = prt_get_pos( prt_bdl.prt_ptr );
-                dyna_list[slot].level   = prt_bdl.prt_ptr->dynalight.level;
-                dyna_list[slot].falloff = prt_bdl.prt_ptr->dynalight.falloff;
+                plight_max = plight;
             }
+        }
+        else if ( distance < distance_max )
+        {
+            plight = plight_max;
+
+            // find the new maximum distance
+            distance_max = pdylist->lst[0].distance;
+            plight_max   = pdylist->lst + 0;
+            for ( tnc = 1; tnc < gfx.dynalist_max; tnc++ )
+            {
+                if ( pdylist->lst[tnc].distance > distance_max )
+                {
+                    plight_max   = pdylist->lst + tnc;
+                    distance_max = plight->distance;
+                }
+            }
+        }
+
+        if ( NULL != plight )
+        {
+            plight->distance = distance;
+            plight->pos      = prt_get_pos( prt_bdl.prt_ptr );
+            plight->level    = pprt_dyna->level;
+            plight->falloff  = pprt_dyna->falloff;
         }
     }
     PRT_END_LOOP();
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv do_grid_lighting( renderlist_t * prlist, camera_t * pcam )
+gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t * pcam )
 {
     /// @details ZZ@> Do all tile lighting, dynamic and global
 
@@ -6233,7 +6340,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, camera_t * pcam )
     reg_count = 0;
 
     // refresh the dynamic light list
-    gfx_make_dynalist( pcam );
+    gfx_make_dynalist( pdylist, pcam );
 
     // assume no dynamic lighting
     needs_dynalight = bfalse;
@@ -6250,12 +6357,12 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, camera_t * pcam )
     // make bounding boxes for each dynamic light
     if ( GL_FLAT != gfx.shading )
     {
-        for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+        for ( cnt = 0; cnt < pdylist->count; cnt++ )
         {
             float radius;
             ego_frect_t ftmp;
 
-            dynalight_t * pdyna = dyna_list + cnt;
+            dynalight_t * pdyna = pdylist->lst + cnt;
 
             if ( pdyna->falloff <= 0.0f || 0.0f == pdyna->level ) continue;
 
@@ -6297,9 +6404,9 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, camera_t * pcam )
         dynalight_t * pdyna;
 
         // evaluate all the lights at the camera position
-        for ( cnt = 0; cnt < dyna_list_count; cnt++ )
+        for ( cnt = 0; cnt < pdylist->count; cnt++ )
         {
-            pdyna = dyna_list + cnt;
+            pdyna = pdylist->lst + cnt;
 
             // evaluate the intensity at the camera
             diff.x = pdyna->pos.x - pcam->center.x;
@@ -6435,7 +6542,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, camera_t * pcam )
                             }
                             else
                             {
-                                pdyna = dyna_list + tnc;
+                                pdyna = pdylist->lst + tnc;
                             }
 
                             nrm.x = pdyna->pos.x - x0;

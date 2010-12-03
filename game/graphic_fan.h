@@ -43,5 +43,3 @@ gfx_rv render_hmap_fan( struct s_ego_mpd * pmesh, Uint32 fan );
 gfx_rv render_water_fan( struct s_ego_mpd * pmesh, Uint32 fan, Uint8 layer );
 
 void animate_tiles( void );
-
-gfx_rv do_grid_lighting( struct s_renderlist * prlist, struct s_camera * pcam );

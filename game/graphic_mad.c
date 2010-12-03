@@ -44,21 +44,41 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 // the flip tolerance is the default flip increment / 2
 static const float flip_tolerance = 0.25f * 0.5f;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool_t force );
 
-static void draw_points( chr_t * pchr, int vrt_offset, int verts );
+static void draw_chr_verts( chr_t * pchr, int vrt_offset, int verts );
 static void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot );
 static void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot );
-static void chr_draw_grips( chr_t * pchr );
-static void chr_draw_attached_grip( chr_t * pchr );
-static void render_chr_bbox( chr_t * pchr );
+static void draw_chr_grips( chr_t * pchr );
+static void draw_chr_attached_grip( chr_t * pchr );
+static void draw_chr_bbox( chr_t * pchr );
 
+// these functions are only called by render_one_mad()
+static gfx_rv render_one_mad_enviro( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
+static gfx_rv render_one_mad_tex( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
+
+// private chr_instance_t methods
+static gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
+static gfx_rv chr_instance_free( chr_instance_t * pinst );
 static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool_t force, bool_t vertices_match, bool_t frames_match );
+static gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
+static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
+static void   chr_instance_clear_cache( chr_instance_t * pinst );
+
+// private vlst_cache_t methods
+vlst_cache_t * vlst_cache_init( vlst_cache_t * );
+gfx_rv         vlst_cache_test( vlst_cache_t *, chr_instance_t * );
+
+// private chr_reflection_cache_t methods
+chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache );
+
+// private matrix_cache_t methods
+matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,6 +123,12 @@ gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
     if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
         ptex = TxTexture_get_ptr(( TX_REF )TX_PHONG );
+    }
+
+
+    if( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
+    {
+        return rv_fail;
     }
 
     if ( NULL == ptex )
@@ -475,6 +501,11 @@ gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits
     }
     pchr = ChrList.lst + character;
 
+    if( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
+    {
+        return rv_fail;
+    }
+
     if ( pchr->is_hidden ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
@@ -490,15 +521,15 @@ gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits
     // don't draw the debug stuff for reflections
     if ( 0 == ( bits & CHR_REFLECT ) )
     {
-        render_chr_bbox( pchr );
+        draw_chr_bbox( pchr );
     }
 
     // the grips of all objects
-    //chr_draw_attached_grip( pchr );
+    //draw_chr_attached_grip( pchr );
 
     // draw all the vertices of an object
     //GL_DEBUG( glPointSize( 5 ) );
-    //draw_points( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertex_lst );
+    //draw_chr_verts( pchr, 0, pro_get_pmad(pchr->inst.imad)->md2_data.vertex_lst );
 #endif
 
     return retval;
@@ -592,7 +623,7 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_chr_trans( const CHR_REF ichr )
+gfx_rv render_one_mad_trans( const CHR_REF ichr )
 {
     /// @details ZZ@> This function dispatches the rendering of transparent characters to the correct function
 
@@ -666,7 +697,7 @@ gfx_rv render_one_chr_trans( const CHR_REF ichr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void render_chr_bbox( chr_t * pchr )
+void draw_chr_bbox( chr_t * pchr )
 {
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -688,16 +719,16 @@ void render_chr_bbox( chr_t * pchr )
     //// the grips and vertrices of all objects
     //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
     //{
-    //    chr_draw_attached_grip( pchr );
+    //    draw_chr_attached_grip( pchr );
 
     //    // draw all the vertices of an object
     //    GL_DEBUG( glPointSize( 5 ) );
-    //    draw_points( pchr, 0, pchr->inst.vrt_count );
+    //    draw_chr_verts( pchr, 0, pchr->inst.vrt_count );
     //}
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_points( chr_t * pchr, int vrt_offset, int verts )
+void draw_chr_verts( chr_t * pchr, int vrt_offset, int verts )
 {
     /// @details BB@> a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
@@ -843,7 +874,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_draw_attached_grip( chr_t * pchr )
+void draw_chr_attached_grip( chr_t * pchr )
 {
     mad_t * pholder_mad;
     cap_t * pholder_cap;
@@ -864,7 +895,7 @@ void chr_draw_attached_grip( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_draw_grips( chr_t * pchr )
+void draw_chr_grips( chr_t * pchr )
 {
     mad_t * pmad;
     cap_t * pcap;
@@ -919,82 +950,6 @@ void chr_draw_grips( chr_t * pchr )
 
     if ( texture_1d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_1D );
     if ( texture_2d_enabled ) GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-gfx_rv chr_update_instance( chr_t * pchr )
-{
-    chr_instance_t * pinst;
-    gfx_rv retval;
-
-    if ( !ACTIVE_PCHR( pchr ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR( pchr ), "invalid character" );
-        return gfx_error;
-    }
-    pinst = &( pchr->inst );
-
-    // make sure that the vertices are interpolated
-    retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
-    if ( gfx_error == retval )
-    {
-        return gfx_error;
-    }
-
-    // do the basic lighting
-    chr_instance_update_lighting_base( pinst, pchr, bfalse );
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
-{
-    if ( NULL == pcache ) return NULL;
-
-    memset( pcache, 0, sizeof( *pcache ) );
-
-    pcache->vmin = -1;
-    pcache->vmax = -1;
-
-    return pcache;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
-{
-    if ( NULL == pcache )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL cache" );
-        return gfx_error;
-    }
-
-    if ( !pcache->valid ) return gfx_success;
-
-    if ( NULL == pinst )
-    {
-        pcache->valid = bfalse;
-        return gfx_success;
-    }
-
-    if ( pinst->frame_lst != pcache->frame_nxt )
-    {
-        pcache->valid = bfalse;
-    }
-
-    if ( pinst->frame_lst != pcache->frame_lst )
-    {
-        pcache->valid = bfalse;
-    }
-
-    if (( pinst->frame_lst != pinst->frame_lst )  && ABS( pcache->flip - pinst->flip ) > flip_tolerance )
-    {
-        pcache->valid = bfalse;
-    }
-
-    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2390,5 +2345,80 @@ chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pca
     pcache->light = 255;
 
     return pcache;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
+{
+    if ( NULL == pcache ) return NULL;
+
+    memset( pcache, 0, sizeof( *pcache ) );
+
+    pcache->vmin = -1;
+    pcache->vmax = -1;
+
+    return pcache;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
+{
+    if ( NULL == pcache )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL cache" );
+        return gfx_error;
+    }
+
+    if ( !pcache->valid ) return gfx_success;
+
+    if ( NULL == pinst )
+    {
+        pcache->valid = bfalse;
+        return gfx_success;
+    }
+
+    if ( pinst->frame_lst != pcache->frame_nxt )
+    {
+        pcache->valid = bfalse;
+    }
+
+    if ( pinst->frame_lst != pcache->frame_lst )
+    {
+        pcache->valid = bfalse;
+    }
+
+    if (( pinst->frame_lst != pinst->frame_lst )  && ABS( pcache->flip - pinst->flip ) > flip_tolerance )
+    {
+        pcache->valid = bfalse;
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
+{
+    /// @details BB@> clear out the matrix cache data
+
+    int cnt;
+
+    if ( NULL == mcache ) return mcache;
+
+    memset( mcache, 0, sizeof( *mcache ) );
+
+    mcache->type_bits = MAT_UNKNOWN;
+    mcache->grip_chr  = ( CHR_REF )MAX_CHR;
+    for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
+    {
+        mcache->grip_verts[cnt] = 0xFFFF;
+    }
+
+    mcache->rotate.x = 0;
+    mcache->rotate.y = 0;
+    mcache->rotate.z = 0;
+
+    return mcache;
 }
 
