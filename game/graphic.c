@@ -2948,50 +2948,61 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
     // assume the best
     retval = gfx_success;
 
-    // Render all solid objects
-    for ( cnt = 0; cnt < pdolist->count; cnt++ )
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT )
     {
-        GL_DEBUG( glDepthMask )( GL_TRUE );
-
-        // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
-
-        // do not display the completely transparent portion
-        GL_DEBUG( glEnable )( GL_ALPHA_TEST );
-        GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
-
-        GL_DEBUG( glDisable )( GL_BLEND );
-
-        // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );
-
-        if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
+        // scan for solid objects
+        for ( cnt = 0; cnt < pdolist->count; cnt++ )
         {
-            GLXvector4f tint;
-            chr_instance_t * pinst = chr_get_pinstance( pdolist->lst[cnt].ichr );
+            // solid objects draw into the depth buffer for hidden surface removal
+            GL_DEBUG( glDepthMask )( GL_TRUE );                     // GL_ENABLE_BIT
 
-            if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
+            // do not draw hidden surfaces
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                  // GL_ENABLE_BIT
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );                   // GL_DEPTH_BUFFER_BIT
+
+            // do not display the completely transparent portion
+            // this allows characters that have "holes" in their 
+            // textures to display the solid portions properly
+            //
+            // Objects with partially transparent skins should enable the [MODL] parameter "T"
+            // which will enable the display of the partially transparent portion of the skin
+
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );             // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG( glDisable )( GL_BLEND );                     // GL_ENABLE_BIT
+
+            // draw draw front and back faces of polygons
+            GL_DEBUG( glDisable )( GL_CULL_FACE );
+
+            if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
             {
-                chr_instance_get_tint( pinst, tint, CHR_SOLID );
+                GLXvector4f tint;
+                chr_instance_t * pinst = chr_get_pinstance( pdolist->lst[cnt].ichr );
 
-                if ( gfx_error == render_one_mad( pdolist->lst[cnt].ichr, tint, CHR_SOLID ) )
+                if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
+                {
+                    chr_instance_get_tint( pinst, tint, CHR_SOLID );
+
+                    if ( gfx_error == render_one_mad( pdolist->lst[cnt].ichr, tint, CHR_SOLID ) )
+                    {
+                        retval = gfx_error;
+                    }
+                }
+            }
+            else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
+            {
+                // draw draw front and back faces of polygons
+                GL_DEBUG( glDisable )( GL_CULL_FACE );
+
+                if ( gfx_error == render_one_prt_solid( pdolist->lst[cnt].iprt ) )
                 {
                     retval = gfx_error;
                 }
             }
         }
-        else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
-        {
-            // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );
-
-            if ( gfx_error == render_one_prt_solid( pdolist->lst[cnt].iprt ) )
-            {
-                retval = gfx_error;
-            }
-        }
     }
+    ATTRIB_POP( __FUNCTION__ );
 
     // Render the solid billboards
     if ( gfx_error == render_all_billboards( PCamera ) )

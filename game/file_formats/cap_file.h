@@ -270,6 +270,7 @@ extern "C"
         bool_t       forceshadow;                   ///< Draw a shadow?
         bool_t       ripple;                        ///< Spawn ripples?
         bool_t       dont_cull_backfaces;           ///< Force the drawing of backfaces?
+        bool_t       skin_has_transparency;         ///< The skin has transparent areas
 
         // attack blocking info
         Uint16       iframefacing;                  ///< Invincibility frame

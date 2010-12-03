@@ -410,7 +410,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
             {
                 char * ptr;
 
-                ptr = strpbrk( tmp_buffer, "SBHC" );
+                ptr = strpbrk( tmp_buffer, "SBHCT" );
                 while ( NULL != ptr )
                 {
                     if ( 'S' == *ptr )
@@ -428,6 +428,10 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
                     else if ( 'C' == *ptr )
                     {
                         pcap->dont_cull_backfaces = btrue;
+                    }
+                    else if ( 'T' == *ptr )
+                    {
+                        pcap->skin_has_transparency = btrue;
                     }
 
                     // start on the next character

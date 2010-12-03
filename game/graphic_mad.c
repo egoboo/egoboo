@@ -501,11 +501,6 @@ gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits
     }
     pchr = ChrList.lst + character;
 
-    if( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
-    {
-        return rv_fail;
-    }
-
     if ( pchr->is_hidden ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
@@ -651,8 +646,22 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
         GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
         GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
 
+        if ( 255 == pinst->alpha && 255 == pinst->light && pinst->skin_has_transparency )
+        {
+            // enable only the partially transparent portion of the skin
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_LESS, 1.0f );                             // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
+        }
+
         if ( pinst->alpha < 255 && 255 == pinst->light )
         {
+            // get a speed-up by not displaying completely transparent portions of the skin
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                             // GL_COLOR_BUFFER_BIT
+
             GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
@@ -666,6 +675,9 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
         if ( pinst->light < 255 )
         {
+            // the alpha test can only mess us up here
+            GL_DEBUG( glDisable )( GL_ALPHA_TEST );     // GL_ENABLE_BIT
+
             GL_DEBUG( glEnable )( GL_BLEND );           // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
 

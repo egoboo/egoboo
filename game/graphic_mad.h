@@ -141,11 +141,12 @@ struct s_chr_instance
     FACING_T       facing_z;
 
     // render mode info
-    Uint8          alpha;               ///< 255 = Solid, 0 = Invisible
-    Uint8          light;               ///< 1 = Light, 0 = Normal
-    Uint8          sheen;               ///< 0-15, how shiny it is
-    bool_t         enviro;              ///< Environment map?
-    bool_t         dont_cull_backfaces; ///< Do we cull backfaces for this character or not?
+    Uint8          alpha;                 ///< 255 = Solid, 0 = Invisible
+    Uint8          light;                 ///< 1 = Light, 0 = Normal
+    Uint8          sheen;                 ///< 0-15, how shiny it is
+    bool_t         enviro;                ///< Environment map?
+    bool_t         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
+    bool_t         skin_has_transparency; ///< The object skin has partial transparency
 
     // color info
     Uint8          redshift;        ///< Color channel shifting
