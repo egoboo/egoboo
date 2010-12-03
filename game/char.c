@@ -6847,7 +6847,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     // interaction with the mesh
     //if ( ABS( pchr->vel.z ) > 0.0f )
     {
-        const float vert_offset = RAISE;
+        const float vert_offset = RAISE * 0.25f;
         float grid_level = pchr->enviro.grid_level + vert_offset;
 
         tmp_pos.z += pchr->vel.z;
@@ -6863,7 +6863,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
             {
                 if ( pchr->vel.z < 0.0f )
                 {
-                    float diff = pchr->enviro.grid_level - tmp_pos.z;
+                    float diff = grid_level - tmp_pos.z;
 
                     pchr->vel.z *= -pchr->phys.bumpdampen;
                     diff        *= -pchr->phys.bumpdampen;

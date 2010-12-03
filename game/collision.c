@@ -1830,6 +1830,8 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
+    fvec3_t vdiff;
+
     oct_vec_t apos, bpos;
 
     chr_t * pchr_a, * pchr_b;
@@ -1837,6 +1839,7 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool_t mount_a, mount_b;
 
     bool_t mounted = bfalse;
+    bool_t handled = bfalse;
 
     // make sure that A is valid
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
@@ -1845,6 +1848,9 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     // make sure that B is valid
     if ( !INGAME_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList.lst + ichr_b;
+
+    // find the difference in velocities
+    vdiff = fvec3_sub( pchr_b->vel.v, pchr_a->vel.v );
 
     // can either of these objects mount the other?
     mount_a = chr_can_mount( ichr_b, ichr_a );
@@ -1860,16 +1866,32 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     mounted = bfalse;
 
     // mount a on b ?
-    if ( !mounted && mount_b && ( pchr_a->vel.z - pchr_b->vel.z ) < 0.0f )
+    if ( !mounted && mount_b )
     {
-        if ( !pchr_b->slot_cv[SLOT_LEFT].empty )
+        oct_bb_t  tmp_cv, saddle_cv;
+
+        //---- find out whether the object is overlapping with the saddle
+
+        // the position of the saddle over the frame
+        oct_bb_add_fvec3( pchr_b->slot_cv + SLOT_LEFT, chr_get_pos_v( pchr_b ), &tmp_cv );
+        phys_expand_oct_bb( &tmp_cv, pchr_b->vel.v, 0.0f, 1.0f, &saddle_cv );
+
+        if ( oct_bb_point_inside( &saddle_cv, apos ) )
         {
-            oct_bb_t saddle_b;
+            oct_vec_t saddle_pos;
+            fvec3_t   pdiff;
 
-            oct_bb_add_ovec( pchr_b->slot_cv + SLOT_LEFT, bpos, &saddle_b );
+            oct_bb_get_mids( &saddle_cv, saddle_pos );
+            pdiff.x = saddle_pos[OCT_X] - apos[OCT_X];
+            pdiff.y = saddle_pos[OCT_Y] - apos[OCT_Y];
+            pdiff.z = saddle_pos[OCT_Z] - apos[OCT_Z];
 
-            if ( oct_bb_point_inside( &saddle_b, apos ) )
+            if ( fvec3_dot_product( pdiff.v, vdiff.v ) >= 0.0f )
             {
+                // the rider is in a mountable position, don't do any more collisions
+                // even if the object is doesn't actually mount
+                handled = btrue;
+
                 attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
                 mounted = INGAME_CHR( pchr_a->attachedto );
             }
@@ -1877,23 +1899,41 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     }
 
     // mount b on a ?
-    if ( !mounted && mount_a && ( pchr_b->vel.z - pchr_a->vel.z ) < 0.0f )
+    if ( !mounted && mount_a )
     {
-        if ( !pchr_a->slot_cv[SLOT_LEFT].empty )
+        oct_bb_t  tmp_cv, saddle_cv;
+
+        //---- find out whether the object is overlapping with the saddle
+
+        // the position of the saddle over the frame
+        oct_bb_add_fvec3( pchr_a->slot_cv + SLOT_LEFT, chr_get_pos_v( pchr_a ), &tmp_cv );
+        phys_expand_oct_bb( &tmp_cv, pchr_a->vel.v, 0.0f, 1.0f, &saddle_cv );
+
+        if ( oct_bb_point_inside( &saddle_cv, bpos ) )
         {
-            oct_bb_t saddle_a;
+            oct_vec_t saddle_pos;
+            fvec3_t   pdiff;
 
-            oct_bb_add_ovec( pchr_a->slot_cv + SLOT_LEFT, apos, &saddle_a );
+            oct_bb_get_mids( &saddle_cv, saddle_pos );
 
-            if ( oct_bb_point_inside( &saddle_a, bpos ) )
+            // vdiff is computed as b - a. keep the pdiff in the same sense
+            pdiff.x = bpos[OCT_X] - saddle_pos[OCT_X];
+            pdiff.y = bpos[OCT_Y] - saddle_pos[OCT_Y];
+            pdiff.z = bpos[OCT_Z] - saddle_pos[OCT_Z];
+
+            if ( fvec3_dot_product( pdiff.v, vdiff.v ) >= 0.0f )
             {
+                // the rider is in a mountable position, don't do any more collisions
+                // even if the object is doesn't actually mount
+                handled = btrue;
+
                 attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
                 mounted = INGAME_CHR( pchr_b->attachedto );
             }
         }
     }
 
-    return mounted;
+    return handled;
 }
 
 //--------------------------------------------------------------------------------------------
