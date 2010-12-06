@@ -436,7 +436,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
                     // start on the next character
                     ptr++;
-                    ptr = strpbrk( ptr, "SBHC" );
+                    ptr = strpbrk( ptr, "SBHCT" );
                 }
             }
         }
@@ -774,6 +774,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
         if ( pcap->bump_override_sizebig ) strcat( sz_tmp, "B" );
         if ( pcap->bump_override_height ) strcat( sz_tmp, "H" );
         if ( pcap->dont_cull_backfaces ) strcat( sz_tmp, "C" );
+        if ( pcap->skin_has_transparency ) strcat( sz_tmp, "T" );
 
         if ( CSTR_END != sz_tmp[0] )
         {

@@ -645,7 +645,7 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
         if ( 255 == pinst->alpha && 255 == pinst->light && pinst->skin_has_transparency )
         {
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
-            if( pinst->dont_cull_backfaces )
+            if ( pinst->dont_cull_backfaces )
             {
                 GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
             }
@@ -771,7 +771,7 @@ gfx_rv render_one_mad_solid( const CHR_REF ichr )
             GLXvector4f tint;
 
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
-            if( pinst->dont_cull_backfaces )
+            if ( pinst->dont_cull_backfaces )
             {
                 GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
             }
