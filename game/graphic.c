@@ -2297,8 +2297,6 @@ gfx_rv update_one_chr_instance( chr_t * pchr )
     return retval;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 gfx_rv update_all_chr_instance()
 {
@@ -2958,10 +2956,10 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
 
             // do not draw hidden surfaces
             GL_DEBUG( glEnable )( GL_DEPTH_TEST );                  // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );                   // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDepthFunc )( GL_LESS );                   // GL_DEPTH_BUFFER_BIT
 
             // do not display the completely transparent portion
-            // this allows characters that have "holes" in their 
+            // this allows characters that have "holes" in their
             // textures to display the solid portions properly
             //
             // Objects with partially transparent skins should enable the [MODL] parameter "T"
@@ -2970,24 +2968,11 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );             // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glDisable )( GL_BLEND );                     // GL_ENABLE_BIT
-
-            // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );
-
             if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
             {
-                GLXvector4f tint;
-                chr_instance_t * pinst = chr_get_pinstance( pdolist->lst[cnt].ichr );
-
-                if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
+                if ( gfx_error == render_one_mad_solid( pdolist->lst[cnt].ichr ) )
                 {
-                    chr_instance_get_tint( pinst, tint, CHR_SOLID );
-
-                    if ( gfx_error == render_one_mad( pdolist->lst[cnt].ichr, tint, CHR_SOLID ) )
-                    {
-                        retval = gfx_error;
-                    }
+                    retval = gfx_error;
                 }
             }
             else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
@@ -4004,7 +3989,6 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     ptex->base_valid = bfalse;
     oglx_grab_texture_state( GL_TEXTURE_2D, 0, ptex );
 
-    ptex->alpha = 1.0f;
     ptex->imgW  = ptex->surface->w;
     ptex->imgH  = ptex->surface->h;
     strncpy( ptex->name, "billboard text", SDL_arraysize( ptex->name ) );
@@ -4763,7 +4747,7 @@ gfx_rv dolist_add_prt( dolist_t * pdolist, ego_mpd_t * pmesh, const PRT_REF iprt
 
     if ( pinst->indolist ) return gfx_success;
 
-    if ( pprt->is_hidden || pinst->size <= 0.0f ) return gfx_fail;
+    if ( pprt->is_hidden || 0 == pprt->size ) return gfx_fail;
 
     if ( !mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) ) return gfx_fail;
     ptile = pmesh->tmem.tile_list + pprt->onwhichgrid;
@@ -5056,7 +5040,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
 
     // Find the render area corners.
     // if this fails, we cannot have a valid list of corners, so this function fails
-    if( rv_error == gfx_project_cam_view( pcam ) )
+    if ( rv_error == gfx_project_cam_view( pcam ) )
     {
         return rv_error;
     }
@@ -6170,7 +6154,7 @@ void draw_cursor()
 //--------------------------------------------------------------------------------------------
 gfx_rv dynalist_init( dynalist_t * pdylist )
 {
-    if( NULL == pdylist )
+    if ( NULL == pdylist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dynalist" );
         return gfx_error;
@@ -6196,7 +6180,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
     float         distance_max = 0.0f;
     dynalight_t * plight_max   = NULL;
 
-    if( NULL == pdylist ) 
+    if ( NULL == pdylist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dynalist" );
         return gfx_error;
@@ -6207,7 +6191,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
 
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
-        dynalight_info_t * pprt_dyna = &(prt_bdl.prt_ptr->dynalight);
+        dynalight_info_t * pprt_dyna = &( prt_bdl.prt_ptr->dynalight );
 
         // is the light on?
         if ( !pprt_dyna->on || 0.0f == pprt_dyna->level ) continue;
@@ -6222,7 +6206,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
         // insert the dynalight
         if ( pdylist->count < gfx.dynalist_max &&  pdylist->count < TOTAL_MAX_DYNA )
         {
-            if( 0 == pdylist->count )
+            if ( 0 == pdylist->count )
             {
                 distance_max = distance;
             }
@@ -6235,7 +6219,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
             plight = pdylist->lst + pdylist->count;
             pdylist->count++;
 
-            if( distance_max == distance )
+            if ( distance_max == distance )
             {
                 plight_max = plight;
             }

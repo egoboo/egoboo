@@ -4786,6 +4786,8 @@ int chr_change_skin( const CHR_REF character, int skin )
     pro_t * ppro;
     mad_t * pmad;
     chr_instance_t * pinst;
+    oglx_texture_t * ptex;
+    TX_REF new_texture = TX_WATER_TOP;
 
     if ( !INGAME_CHR( character ) ) return 0;
     pchr  = ChrList.lst + character;
@@ -4814,7 +4816,7 @@ int chr_change_skin( const CHR_REF character, int skin )
     }
     else
     {
-        TX_REF txref = ( TX_REF )TX_WATER_TOP;
+        new_texture = ( TX_REF )TX_WATER_TOP;
 
         // do the best we can to change the skin
         if ( NULL == ppro || 0 == ppro->skins )
@@ -4823,7 +4825,7 @@ int chr_change_skin( const CHR_REF character, int skin )
             ppro->tex_ref[0] = TX_WATER_TOP;
 
             skin  = 0;
-            txref = TX_WATER_TOP;
+            new_texture = TX_WATER_TOP;
         }
         else
         {
@@ -4832,12 +4834,13 @@ int chr_change_skin( const CHR_REF character, int skin )
                 skin = 0;
             }
 
-            txref = ppro->tex_ref[skin];
+            new_texture = ppro->tex_ref[skin];
         }
 
-        pchr->skin     = skin;
-        pinst->texture = txref;
+        pchr->skin = skin;
     }
+
+    chr_instance_set_texture( pinst, new_texture );
 
     // If the we are respawning a player, then the camera needs to be reset
     if ( VALID_PLA( pchr->is_which_player ) )
@@ -5382,7 +5385,7 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 
     /*
     // change our current team if we are not a item or a mount
-    
+
     /*
     // change our current team if we are not a item or a mount
     if (( !pchr->ismount || !INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) ) &&
@@ -5403,10 +5406,10 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
         if ( pmount->ismount ) pmount->team = team;
     }
     //change our mount team as well
-    if( INGAME_CHR( pchr->attachedto ) )
+    if ( INGAME_CHR( pchr->attachedto ) )
     {
         chr_t *pmount = ChrList.lst + pchr->attachedto;
-        if( pmount->ismount ) pmount->team = team;
+        if ( pmount->ismount ) pmount->team = team;
     }
 
     // update the team of anything we are holding as well
@@ -5419,11 +5422,11 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
         ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
     }
     // update the team of anything we are holding as well
-    if( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+    if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
     {
         ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
     }
-    if( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
+    if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
     {
         ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
     }
@@ -8952,6 +8955,9 @@ bool_t apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
         pinst->ref.matrix.CNV( 3, 2 ) = 2 * grid_level - pinst->ref.matrix.CNV( 3, 2 );
 
         pinst->ref.matrix_valid = btrue;
+
+        // fix the reflection
+        chr_instance_update_ref( pinst, grid_level, bfalse );
     }
 
     return pinst->ref.matrix_valid;

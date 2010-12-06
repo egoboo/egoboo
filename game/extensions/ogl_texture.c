@@ -220,7 +220,6 @@ GLuint oglx_texture_Convert( oglx_texture_t *ptex, SDL_Surface * image, Uint32 k
     ptex->surface    = image;
     ptex->imgW       = image->w;
     ptex->imgH       = image->h;
-    ptex->alpha      = image->format->alpha / 255.0f;
     strncpy( ptex->name, "SDL_Surface()", SDL_arraysize( ptex->name ) );
 
     //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
@@ -232,9 +231,170 @@ GLuint oglx_texture_Convert( oglx_texture_t *ptex, SDL_Surface * image, Uint32 k
 }
 
 //--------------------------------------------------------------------------------------------
+SDL_bool IMG_test_alpha( SDL_Surface * psurf )
+{
+    // test to see whether an image requires alpha blending
+
+    // aliases
+    SDL_PixelFormat * pformat;
+
+    // the color values
+    Uint32 pix_value;
+    Uint8  r, g, b, a;
+
+    // the info necessary to scan the image
+    int bypp, bpp, bit_mask;
+    int w, h;
+    int pitch;
+
+    // the location in the pixel data
+    int ix, iy;
+    const char * row_ptr;
+    const char * char_ptr;
+    Uint32     * ui32_ptr;
+
+    if ( NULL == psurf ) return SDL_FALSE;
+
+    // save this alias
+    pformat = psurf->format;
+
+    // if the surface is tagged as having an alpha value,
+    // it is partially transparent
+    if ( 0xff != pformat->alpha )
+    {
+        return SDL_TRUE;
+    }
+
+    // If it is an image without an alpha channel, then there is no alpha in the image
+    if ( NULL == pformat->palette && 0x00 == pformat->Amask )
+    {
+        return SDL_FALSE;
+    }
+
+    // grab the info for scanning the surface
+    bpp  = pformat->BitsPerPixel;
+    bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
+    bypp = pformat->BytesPerPixel;
+    w = psurf->w;
+    h = psurf->h;
+    pitch = psurf->pitch;
+
+    row_ptr = psurf->pixels;
+    for ( iy = 0; iy < h; iy++ )
+    {
+        char_ptr = row_ptr;
+        for ( ix = 0; ix < w; ix++ )
+        {
+            ui32_ptr = ( Uint32 * )char_ptr;
+            pix_value = ( *ui32_ptr ) & bit_mask;
+
+            SDL_GetRGBA( pix_value, pformat, &r, &g, &b, &a );
+
+            if ( 0xFF != a )
+            {
+                return SDL_TRUE;
+            }
+
+            // advance to the next entry
+            char_ptr += bypp;
+        }
+        row_ptr += pitch;
+    }
+
+    return SDL_FALSE;
+}
+
+//--------------------------------------------------------------------------------------------
+SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
+{
+    // test to see whether an image requires alpha blending
+
+    // aliases
+    SDL_PixelFormat * pformat;
+
+    // the color values
+    Uint32 pix_value;
+    Uint8  r, g, b, a;
+
+    // the info necessary to scan the image
+    int bypp, bpp, bit_mask;
+    int w, h;
+    int pitch;
+
+    // the location in the pixel data
+    int ix, iy;
+    const char * row_ptr;
+    const char * char_ptr;
+    Uint32     * ui32_ptr;
+
+    // flags
+    bool_t check_index = SDL_FALSE;
+
+    if ( NULL == psurf ) return SDL_FALSE;
+
+    // save this alias
+    pformat = psurf->format;
+
+    // if there is no key specified (or the image has an alpha channel), use the basic version
+    if ( INVALID_KEY == key || pformat->Aloss < 8 )
+    {
+        return IMG_test_alpha( psurf );
+    }
+
+    // if it is a colormapped image, there is one more test
+    check_index = SDL_FALSE;
+    if ( NULL != pformat->palette )
+    {
+        check_index = SDL_TRUE;
+    }
+
+    // if the surface is tagged as having an alpha value,
+    // it is partially transparent
+    if ( 0xff != pformat->alpha ) return SDL_TRUE;
+
+    // grab the info for scanning the surface
+    bpp  = pformat->BitsPerPixel;
+    bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
+    bypp = pformat->BytesPerPixel;
+    w = psurf->w;
+    h = psurf->h;
+    pitch = psurf->pitch;
+
+    row_ptr = psurf->pixels;
+    for ( iy = 0; iy < h; iy++ )
+    {
+        char_ptr = row_ptr;
+        for ( ix = 0; ix < w; ix++ )
+        {
+            ui32_ptr = ( Uint32 * )char_ptr;
+            pix_value = ( *ui32_ptr ) & bit_mask;
+
+            if ( pix_value == key )
+            {
+                return SDL_TRUE;
+            }
+            else
+            {
+                SDL_GetRGBA( pix_value, pformat, &r, &g, &b, &a );
+                if ( 0xFF != a )
+                {
+                    return SDL_TRUE;
+                }
+            }
+
+            // advance to the next entry
+            char_ptr += bypp;
+        }
+        row_ptr += pitch;
+    }
+
+    return SDL_FALSE;
+}
+
+//--------------------------------------------------------------------------------------------
 GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key )
 {
-    GLuint retval;
+    GLuint        retval;
     SDL_Surface * image;
 
     if ( VALID_TEXTURE( ptex ) )
@@ -252,6 +412,18 @@ GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key
     image = IMG_Load( filename );
     if ( NULL == image ) return INVALID_GL_ID;
 
+    // test to see if the image requires alpha blanding
+    ptex->has_alpha = bfalse;
+    if ( INVALID_KEY == key )
+    {
+        ptex->has_alpha = IMG_test_alpha( image );
+    }
+    else
+    {
+        ptex->has_alpha = IMG_test_alpha_key( image, key );
+    }
+
+    // upload the SDL_surface to OpenGL
     retval = oglx_texture_Convert( ptex, image, key );
 
     if ( !VALID_BINDING( retval ) )
@@ -297,21 +469,6 @@ GLsizei  oglx_texture_GetTextureWidth( oglx_texture_t *texture )
 GLsizei  oglx_texture_GetTextureHeight( oglx_texture_t *texture )
 {
     return ( NULL == texture ) ? 0 : texture->base.height;
-}
-
-//--------------------------------------------------------------------------------------------
-void  oglx_texture_SetAlpha( oglx_texture_t *texture, GLfloat alpha )
-{
-    if ( NULL != texture )
-    {
-        texture->alpha = alpha;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-GLfloat  oglx_texture_GetAlpha( oglx_texture_t *texture )
-{
-    return ( NULL == texture ) ? 0 : texture->alpha;
 }
 
 //--------------------------------------------------------------------------------------------

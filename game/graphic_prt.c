@@ -143,7 +143,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
         pinst = &( prt_bdl.prt_ptr->inst );
 
-        if ( !prt_bdl.prt_ptr->inview || prt_bdl.prt_ptr->is_hidden ) continue;
+        if ( !pinst->indolist ) continue;
 
         if ( 0 != pinst->size )
         {
@@ -189,12 +189,13 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         return gfx_error;
     }
     pprt = PrtList.lst + iprt;
-    pinst = &( pprt->inst );
+
+    // if the particle is hidden, do not continue
+    if ( pprt->is_hidden ) return gfx_fail;
 
     // if the particle instance data is not valid, do not continue
-    if ( !pinst->valid ) return gfx_fail;
-
-    if ( pprt->is_hidden ) return gfx_fail;
+    if ( !pprt->inst.valid ) return gfx_fail;
+    pinst = &( pprt->inst );
 
     // only render solid sprites
     if ( SPRITE_SOLID != pprt->type ) return gfx_fail;
@@ -204,25 +205,29 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
+        // Use the depth test to eliminate hidden portions of the particle
+        GL_DEBUG( glEnable )( GL_DEPTH_TEST );                                  // GL_ENABLE_BIT
+        GL_DEBUG( glDepthFunc )( GL_LESS );                                   // GL_DEPTH_BUFFER_BIT
+
+        // enable the depth mask for the solid portion of the particles
         GL_DEBUG( glDepthMask )( GL_TRUE );           // GL_ENABLE_BIT
 
         // draw draw front and back faces of polygons
         GL_DEBUG( glDisable )( GL_CULL_FACE );        // GL_ENABLE_BIT
 
-        // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );        // GL_ENABLE_BIT
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );           // GL_DEPTH_BUFFER_BIT
-
-        GL_DEBUG( glDisable )( GL_BLEND );            // GL_ENABLE_BIT
+        // Since the textures are probably mipmapped or minified with some kind of
+        // interpolation, we can never really turn blending off,
+        GL_DEBUG( glEnable )( GL_BLEND );                                           // GL_ENABLE_BIT
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );            // GL_ENABLE_BIT
 
         // only display the portion of the particle that is
         // 100% solid
         GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
         GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );       // GL_COLOR_BUFFER_BIT
 
-        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_PARTICLE_TRANS ) ); // GL_CURRENT_BIT
+        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_PARTICLE_TRANS ) );
 
-        GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );
+        GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );  // GL_CURRENT_BIT
 
         GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
         {
@@ -277,15 +282,19 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         return gfx_error;
     }
     pprt = PrtList.lst + iprt;
-    pinst = &( pprt->inst );
+
+    // if the particle is hidden, do not continue
+    if ( pprt->is_hidden ) return gfx_fail;
 
     // if the particle instance data is not valid, do not continue
-    if ( !pinst->valid ) return gfx_fail;
-
-    if ( pprt->is_hidden ) return gfx_fail;
+    if ( !pprt->inst.valid ) return gfx_fail;
+    pinst = &( pprt->inst );
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
+        bool_t draw_particle;
+        GLXvector4f particle_color;
+
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
         GL_DEBUG( glDepthMask )( GL_FALSE );        // GL_DEPTH_BUFFER_BIT
 
@@ -293,8 +302,10 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
-        calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
+        // draw draw front and back faces of polygons
+        GL_DEBUG( glDisable )( GL_CULL_FACE );    // ENABLE_BIT
 
+        draw_particle = bfalse;
         if ( SPRITE_SOLID == pprt->type )
         {
             // do the alpha blended edge ("anti-aliasing") of the solid particle
@@ -306,11 +317,15 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );  // GL_CURRENT_BIT
+            particle_color[RR] = pinst->fintens;
+            particle_color[GG] = pinst->fintens;
+            particle_color[BB] = pinst->fintens;
+            particle_color[AA] = 1.0f;
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
             oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
 
+            draw_particle = btrue;
         }
         else if ( SPRITE_LIGHT == pprt->type )
         {
@@ -322,10 +337,15 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );                      // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );          // GL_CURRENT_BIT
+            particle_color[RR] = intens;
+            particle_color[GG] = intens;
+            particle_color[BB] = intens;
+            particle_color[AA] = 1.0f;
 
             pinst->texture_ref = TX_PARTICLE_LIGHT;
             oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+
+            draw_particle = ( intens > 0.0f );
         }
         else if ( SPRITE_ALPHA == pprt->type )
         {
@@ -338,10 +358,15 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, pinst->falpha );  // GL_CURRENT_BIT
+            particle_color[RR] = pinst->fintens;
+            particle_color[GG] = pinst->fintens;
+            particle_color[BB] = pinst->fintens;
+            particle_color[AA] = pinst->falpha;
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
             oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+
+            draw_particle = ( pinst->falpha > 0.0f );
         }
         else
         {
@@ -349,16 +374,23 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             return gfx_error;
         }
 
-        // Go on and draw it
-        GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
+        if ( draw_particle )
         {
-            for ( i = 0; i < 4; i++ )
+            calc_billboard_verts( vtlist, pinst, pinst->size, bfalse );
+
+            GL_DEBUG( glColor4fv )( particle_color );             // GL_CURRENT_BIT
+
+            // Go on and draw it
+            GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
             {
-                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
-                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
+                for ( i = 0; i < 4; i++ )
+                {
+                    GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                    GL_DEBUG( glVertex3fv )( vtlist[i].pos );
+                }
             }
+            GL_DEBUG_END();
         }
-        GL_DEBUG_END();
     }
     ATTRIB_POP( __FUNCTION__ );
 
@@ -415,28 +447,25 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {
         prt_instance_t * pinst;
+        fvec3_t   vpos;
+        float dist;
 
         if ( numparticle >= reg_count ) break;
 
         pinst = &( prt_bdl.prt_ptr->inst );
 
-        if ( !prt_bdl.prt_ptr->inview || prt_bdl.prt_ptr->is_hidden ) continue;
+        if ( !pinst->indolist ) continue;
 
-        if ( 0 != pinst->size )
+        vpos = fvec3_sub( pinst->ref_pos.v, vcam.v );
+        dist = fvec3_dot_product( vfwd.v, vpos.v );
+
+        if ( dist > 0 )
         {
-            fvec3_t   vpos;
-            float dist;
-
-            vpos = fvec3_sub( pinst->ref_pos.v, vcam.v );
-            dist = fvec3_dot_product( vfwd.v, vpos.v );
-
-            if ( dist > 0 )
-            {
-                reg[numparticle].index = REF_TO_INT( iprt );
-                reg[numparticle].dist  = dist;
-                numparticle++;
-            }
+            reg[numparticle].index = REF_TO_INT( iprt );
+            reg[numparticle].dist  = dist;
+            numparticle++;
         }
+
     }
     PRT_END_LOOP();
 
@@ -462,19 +491,19 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
     }
-
     pprt = PrtList.lst + iprt;
+
+    // if the particle is hidden, do not continue
+    if ( pprt->is_hidden ) return gfx_fail;
+
+    if ( !pprt->inst.valid || !pprt->inst.ref_valid ) return gfx_fail;
     pinst = &( pprt->inst );
-    if ( !pinst->valid ) return gfx_fail;
 
-    // Calculate the position of the four corners of the billboard
-    // used to display the particle.
-    calc_billboard_verts( vtlist, pinst, pinst->size, btrue );
-
-    // Fill in the rest of the data
-    startalpha = 255 - ( pprt->enviro.floor_level - pinst->ref_pos.z );
+    // Fill in the rest of the data. (make it match the case for characters)
+    startalpha = 255;
+    startalpha -= 2.0f * ( pprt->enviro.floor_level - pinst->ref_pos.z );
+    startalpha *= 0.5f;
     startalpha = CLIP( startalpha, 0, 255 );
-    startalpha /= 2;
 
     //startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
     //startalpha = CLIP(startalpha, 0, 255);
@@ -483,6 +512,9 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
+            bool_t draw_particle;
+            GLXvector4f particle_color;
+
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );      // ENABLE_BIT
 
@@ -493,23 +525,26 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
             // draw draw front and back faces of polygons
             GL_DEBUG( glDisable )( GL_CULL_FACE );    // ENABLE_BIT
 
-            // turn off ditehring
-            //GL_DEBUG( glDisable )( GL_DITHER );       // ENABLE_BIT
-
+            draw_particle = bfalse;
             if ( SPRITE_LIGHT == pprt->type )
             {
                 // do the light sprites
-                float intens = startalpha * INV_FF * pinst->alpha * pinst->fintens;
+                float intens = startalpha * INV_FF * pinst->falpha * pinst->fintens;
 
                 GL_DEBUG( glDisable )( GL_ALPHA_TEST );         // ENABLE_BIT
 
                 GL_DEBUG( glEnable )( GL_BLEND );               // ENABLE_BIT
                 GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE );  // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG( glColor4f )( intens, intens, intens, 1.0f );      // GL_CURRENT_BIT
+                particle_color[RR] = intens;
+                particle_color[GG] = intens;
+                particle_color[BB] = intens;
+                particle_color[AA] = 1.0f;
 
                 pinst->texture_ref = TX_PARTICLE_LIGHT;
                 oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+
+                draw_particle = intens > 0.0f;
             }
             else if ( SPRITE_SOLID == pprt->type || SPRITE_ALPHA == pprt->type )
             {
@@ -528,10 +563,15 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 GL_DEBUG( glEnable )( GL_BLEND );                                 // ENABLE_BIT
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-                GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, alpha ); // GL_CURRENT_BIT
+                particle_color[RR] = pinst->fintens;
+                particle_color[GG] = pinst->fintens;
+                particle_color[BB] = pinst->fintens;
+                particle_color[AA] = alpha;
 
                 pinst->texture_ref = TX_PARTICLE_TRANS;
                 oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+
+                draw_particle = alpha > 0.0f;
             }
             else
             {
@@ -539,16 +579,24 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 return gfx_fail;
             }
 
-            GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
+            if ( draw_particle )
             {
-                for ( i = 0; i < 4; i++ )
-                {
-                    GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
-                    GL_DEBUG( glVertex3fv )( vtlist[i].pos );
-                }
-            }
-            GL_DEBUG_END();
+                // Calculate the position of the four corners of the billboard
+                // used to display the particle.
+                calc_billboard_verts( vtlist, pinst, pinst->size, btrue );
 
+                GL_DEBUG( glColor4fv )( particle_color );      // GL_CURRENT_BIT
+
+                GL_DEBUG( glBegin )( GL_TRIANGLE_FAN );
+                {
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
+                        GL_DEBUG( glVertex3fv )( vtlist[i].pos );
+                    }
+                }
+                GL_DEBUG_END();
+            }
         }
         ATTRIB_POP( __FUNCTION__ );
 
@@ -794,9 +842,10 @@ gfx_rv update_all_prt_instance( camera_t * pcam )
         prt_bdl.prt_ptr->obj_base.frame_count++;
         if ( prt_bdl.prt_ptr->frames_remaining > 0 ) prt_bdl.prt_ptr->frames_remaining--;
 
-        if ( !prt_bdl.prt_ptr->inview || prt_bdl.prt_ptr->is_hidden || 0 == prt_bdl.prt_ptr->size )
+        if ( !prt_bdl.prt_ptr->inst.indolist )
         {
-            pinst->valid = bfalse;
+            pinst->valid     = bfalse;
+            pinst->ref_valid = bfalse;
         }
         else
         {
@@ -819,6 +868,14 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
 
     fvec3_t   vfwd, vup, vright;
     fvec3_t   vfwd_ref, vup_ref, vright_ref;
+
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL particle instance" );
+        return gfx_error;
+    }
+    pinst->valid     = bfalse;
+    pinst->ref_valid = bfalse;
 
     if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam )
@@ -1060,8 +1117,8 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     //    This corresponds to the case where zdot == +/- 1 in the code below
     //
     // 2) If the particle is like a rug, then basically nothing happens since
-    //    neither the up or right vectors point in the wodld up direction.
-    //    This corresponds to0 == ndotin the code below.
+    //    neither the up or right vectors point in the world up direction.
+    //    This corresponds to 0 == ndot in the code below.
     //
     // This process does not affect the normal the length of the vector, or the
     // direction of the normal to the quad.
@@ -1129,7 +1186,8 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     }
 
     // this instance is now completely valid
-    pinst->valid = btrue;
+    pinst->valid     = btrue;
+    pinst->ref_valid = btrue;
 
     return gfx_success;
 }

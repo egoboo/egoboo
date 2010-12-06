@@ -229,6 +229,8 @@ gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val );
 gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val );
 gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
 
+gfx_rv chr_instance_set_texture( chr_instance_t * pinst, TX_REF itex );
+
 MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst );
 MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst );
 
@@ -242,3 +244,4 @@ void   chr_instance_update_lighting_base( chr_instance_t * pinst, struct s_chr *
 gfx_rv render_one_mad( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
 gfx_rv render_one_mad_ref( const CHR_REF ichr );
 gfx_rv render_one_mad_trans( const CHR_REF ichr );
+gfx_rv render_one_mad_solid( const CHR_REF ichr );

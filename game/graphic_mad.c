@@ -125,8 +125,7 @@ gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
         ptex = TxTexture_get_ptr(( TX_REF )TX_PHONG );
     }
 
-
-    if( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
+    if ( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
     {
         return rv_fail;
     }
@@ -620,7 +619,8 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad_trans( const CHR_REF ichr )
 {
-    /// @details ZZ@> This function dispatches the rendering of transparent characters to the correct function
+    /// @details ZZ@> This function dispatches the rendering of transparent characters
+    ///               to the correct function. (this does not handle characer reflection)
 
     chr_t * pchr;
     chr_instance_t * pinst;
@@ -637,7 +637,7 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
     if ( pchr->is_hidden ) return gfx_fail;
 
-    // there is an outside chance the onject will not be rendered
+    // there is an outside chance the object will not be rendered
     rendered = bfalse;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT )
@@ -654,6 +654,13 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
             GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
+
+            chr_instance_get_tint( pinst, tint, CHR_SOLID );
+
+            if ( render_one_mad( ichr, tint, CHR_ALPHA ) )
+            {
+                rendered = btrue;
+            }
         }
 
         if ( pinst->alpha < 255 && 255 == pinst->light )
@@ -672,7 +679,6 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
                 rendered = btrue;
             }
         }
-
         if ( pinst->light < 255 )
         {
             // the alpha test can only mess us up here
@@ -705,6 +711,62 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
     ATTRIB_POP( __FUNCTION__ );
 
     return rendered ? gfx_success : gfx_fail;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_one_mad_solid( const CHR_REF ichr )
+{
+    chr_t * pchr;
+    chr_instance_t * pinst;
+    gfx_rv retval = rv_error;
+
+    if ( !INGAME_CHR( ichr ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
+        return gfx_error;
+    }
+    pchr = ChrList.lst + ichr;
+    pinst = &( pchr->inst );
+
+    if ( pchr->is_hidden ) return gfx_fail;
+
+    // assume the best
+    retval = rv_success;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT );
+    {
+        // do not display the completely transparent portion
+        // this allows characters that have "holes" in their
+        // textures to display the solid portions properly
+        //
+        // Objects with partially transparent skins should enable the [MODL] parameter "T"
+        // which will enable the display of the partially transparent portion of the skin
+
+        GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
+        GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );             // GL_COLOR_BUFFER_BIT
+
+        // can I turn this off?
+        GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
+        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );   // GL_COLOR_BUFFER_BIT
+
+        // draw draw front and back faces of polygons
+        GL_DEBUG( glEnable )( GL_CULL_FACE );                 // GL_ENABLE_BIT
+        GL_DEBUG( glFrontFace )( GL_CW );                     // GL_POLYGON_BIT
+
+        if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
+        {
+            GLXvector4f tint;
+
+            chr_instance_get_tint( pinst, tint, CHR_SOLID );
+
+            if ( gfx_error == render_one_mad( ichr, tint, CHR_SOLID ) )
+            {
+                retval = gfx_error;
+            }
+        }
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1984,7 +2046,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix )
 {
-    int trans_temp;
+    int startalpha;
 
     if ( NULL == pinst )
     {
@@ -1998,24 +2060,22 @@ gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t
         apply_reflection_matrix( pinst, grid_level );
     }
 
-    trans_temp = 255;
+    startalpha = 255;
     if ( pinst->ref.matrix_valid )
     {
         float pos_z;
 
         // determine the reflection alpha
         pos_z = grid_level - pinst->ref.matrix.CNV( 3, 2 );
-        if ( pos_z < 0 ) pos_z = 0;
+        if ( pos_z < 0.0f ) pos_z = 0.0f;
 
-        trans_temp -= (( int )pos_z ) >> 1;
-        if ( trans_temp < 0 ) trans_temp = 0;
-
-        trans_temp |= gfx.reffadeor;  // Fix for Riva owners
-        trans_temp = CLIP( trans_temp, 0, 255 );
+        startalpha -= 2.0f * pos_z;
+        startalpha *= 0.5f;
+        startalpha = CLIP( startalpha, 0, 255 );
     }
 
-    pinst->ref.alpha = ( pinst->alpha * trans_temp * INV_FF ) * 0.5f;
-    pinst->ref.light = ( 255 == pinst->light ) ? 255 : ( pinst->light * trans_temp * INV_FF ) * 0.5f;
+    pinst->ref.alpha = ( pinst->alpha * startalpha * INV_FF );
+    pinst->ref.light = ( 255 == pinst->light ) ? 255 : ( pinst->light * startalpha * INV_FF );
 
     pinst->ref.redshift = pinst->redshift + 1;
     pinst->ref.grnshift = pinst->grnshift + 1;
@@ -2054,7 +2114,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 
     pcap = pro_get_pcap( profile );
 
     // lighting parameters
-    pinst->texture   = pobj->tex_ref[skin];
+    chr_instance_set_texture( pinst, pobj->tex_ref[skin] );
     pinst->enviro    = pcap->enviro;
     pinst->alpha     = pcap->alpha;
     pinst->light     = pcap->light;
@@ -2432,5 +2492,32 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
     mcache->rotate.z = 0;
 
     return mcache;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv chr_instance_set_texture( chr_instance_t * pinst, TX_REF itex )
+{
+    oglx_texture_t * ptex;
+
+    if ( NULL == pinst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL instance" );
+        return gfx_error;
+    }
+
+    // grab the texture
+    ptex = TxTexture_get_ptr( itex );
+
+    // get the transparency info from the texture
+    pinst->skin_has_transparency = bfalse;
+    if ( NULL != ptex )
+    {
+        pinst->skin_has_transparency = ptex->has_alpha;
+    }
+
+    // set the texture index
+    pinst->texture = itex;
+
+    return gfx_success;
 }
 

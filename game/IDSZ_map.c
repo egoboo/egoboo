@@ -35,7 +35,7 @@ void idsz_map_init( IDSZ_node_t idsz_map[], const size_t idsz_map_len )
 
     if ( NULL == idsz_map ) return;
 
-    for( i = 0; i < idsz_map_len; i++ )
+    for ( i = 0; i < idsz_map_len; i++ )
     {
         idsz_map[i].id = IDSZ_NONE;
         idsz_map[i].level = IDSZ_NOT_FOUND;
@@ -59,8 +59,8 @@ egoboo_rv idsz_map_add( IDSZ_node_t idsz_map[], const size_t idsz_map_len, const
 
     for ( i = 0; i < idsz_map_len; i++ )
     {
-        key = (idsz + i) % idsz_map_len;
-        
+        key = ( idsz + i ) % idsz_map_len;
+
         // found an empty spot?
         if ( IDSZ_NONE == idsz_map[key].id ) break;
 
@@ -119,17 +119,17 @@ IDSZ_node_t* idsz_map_get( const IDSZ_node_t idsz_map[], const size_t idsz_map_l
     // iterate the map
     for ( i = 0; i < idsz_map_len; i++ )
     {
-        key = (idsz + i) % idsz_map_len;
-        
+        key = ( idsz + i ) % idsz_map_len;
+
         // found an empty spot, it's not in here
         if ( IDSZ_NONE == idsz_map[key].id ) break;
 
         // found a matching idsz?
         if ( idsz == idsz_map[key].id )
         {
-            found_node = ( IDSZ_node_t * ) &idsz_map[key];
+            found_node = ( IDSZ_node_t * ) & idsz_map[key];
         }
-      }
+    }
 
     return found_node;
 }
@@ -155,14 +155,14 @@ IDSZ_node_t* idsz_map_iterate( const IDSZ_node_t idsz_map[], const size_t idsz_m
     while ( IDSZ_NONE == idsz_map[step].id )
     {
         step++;
-        if ( ( size_t )step >= idsz_map_len ) return NULL;
+        if (( size_t )step >= idsz_map_len ) return NULL;
     }
 
     // Increment the iterator for the next iteration
     *iterator_ptr = step     + 1;
 
     // Return the next element we found from the map
-    return ( IDSZ_node_t * )( idsz_map + step );    
+    return ( IDSZ_node_t * )( idsz_map + step );
 }
 
 //--------------------------------------------------------------------------------------------

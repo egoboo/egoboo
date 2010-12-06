@@ -65,9 +65,10 @@ struct s_oglx_texture
 
     GLuint        valid;           ///< whether or not the texture has been initialized
     char          name[256];       ///< the name of the original file
-    SDL_Surface * surface;         ///< the original texture data
     int           imgW, imgH;      ///< the height & width of the texture data
-    GLfloat       alpha;           ///< the alpha for the texture
+
+    SDL_Surface * surface;         ///< the original texture data
+    SDL_bool      has_alpha;       ///< the alpha for the texture
 };
 typedef struct s_oglx_texture oglx_texture_t;
 

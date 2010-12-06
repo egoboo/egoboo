@@ -144,7 +144,7 @@ struct s_prt
     UFP8_T  size;                            ///< Size of particle (8.8-bit fixed point)
     SFP8_T  size_add;                        ///< Change in size
 
-    bool_t  inview;                          ///< Render this one?
+    //bool_t  inview;                          ///< Render this one? (same as inst.indolist)
     UFP8_T  image;                           ///< Which image (8.8-bit fixed point)
     Uint16  image_add;                       ///< Animation rate
     Uint16  image_max;                       ///< End of image loop
