@@ -105,7 +105,7 @@ static void chr_log_script_time( const CHR_REF ichr );
 
 static bool_t update_chr_darkvision( const CHR_REF character );
 
-static fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure );
+static fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure );
 static float   chr_get_mesh_pressure( chr_t * pchr, float test_pos[] );
 
 static egoboo_rv chr_invalidate_child_instances( chr_t * pchr );
@@ -840,7 +840,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 }
 
 //--------------------------------------------------------------------------------------------
-fvec2_t chr_get_diff( chr_t * pchr, float test_pos[], float center_pressure )
+fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure )
 {
     fvec2_t retval = ZERO_VECT2;
     float   radius;
@@ -898,7 +898,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     {
         if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
         {
-            radius = pchr->bump.size;
+            radius = pchr->bump_1.size;
         }
     }
 
@@ -925,7 +925,7 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
 
     if ( !ACTIVE_PCHR( pchr ) ) return EMPTY_BIT_FIELD;
 
-    if ( 0.0f == pchr->bump_stt.size || CHR_INFINITE_WEIGHT == pchr->phys.weight ) return EMPTY_BIT_FIELD;
+    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return EMPTY_BIT_FIELD;
 
     // calculate the radius based on whether the character is on camera
     // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
@@ -7001,7 +7001,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                 {
                     fvec2_t diff;
 
-                    diff = chr_get_diff( pchr, tmp_pos.v, pressure );
+                    diff = chr_get_mesh_diff( pchr, tmp_pos.v, pressure );
                     diff_function_called = btrue;
 
                     nrm.x = diff.x;

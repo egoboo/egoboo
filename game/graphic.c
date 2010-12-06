@@ -6624,6 +6624,11 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
 {
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {
+        bool_t texture_1d_enabled, texture_2d_enabled;
+
+        texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+        texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
         if ( NULL == ptex || INVALID_GL_ID == ptex->base.binding )
         {
             GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
@@ -6639,12 +6644,16 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
 
         if ( use_alpha )
         {
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
         }
         else
         {
-            GL_DEBUG( glDisable )( GL_BLEND );                                 // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+            GL_DEBUG( glDisable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
         }
 
         GL_DEBUG( glBegin )( GL_QUADS );
@@ -6655,6 +6664,16 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
             GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymin );
         }
         GL_DEBUG_END();
+
+        // fix the texture enabling
+        if( texture_1d_enabled )
+        {
+            GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
+        }
+        else if ( texture_2d_enabled )
+        {
+            GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
+        }
     }
     ATTRIB_POP( __FUNCTION__ );
 }

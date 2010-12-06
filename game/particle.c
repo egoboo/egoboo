@@ -1050,7 +1050,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
 }
 
 //--------------------------------------------------------------------------------------------
-fvec2_t prt_get_diff( prt_t * pprt, float test_pos[], float center_pressure )
+fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
 {
     fvec2_t     retval = ZERO_VECT2;
     float       radius;
