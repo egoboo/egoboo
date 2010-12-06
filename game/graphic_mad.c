@@ -642,12 +642,20 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT )
     {
-        // cull backward facing polygons
-        GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
-        GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
-
         if ( 255 == pinst->alpha && 255 == pinst->light && pinst->skin_has_transparency )
         {
+            // allow the dont_cull_backfaces to keep solid objects from culling backfaces
+            if( pinst->dont_cull_backfaces )
+            {
+                GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+            }
+            else
+            {
+                GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+                GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
+            }
+
+
             // enable only the partially transparent portion of the skin
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_LESS, 1.0f );                             // GL_COLOR_BUFFER_BIT
@@ -655,6 +663,7 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
             GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
 
+            // get the tint for the solid
             chr_instance_get_tint( pinst, tint, CHR_SOLID );
 
             if ( render_one_mad( ichr, tint, CHR_ALPHA ) )
@@ -665,6 +674,11 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
         if ( pinst->alpha < 255 && 255 == pinst->light )
         {
+            // most alpha effects will be messed up by
+            // skipping backface culling, so don't
+            GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+            GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
+
             // get a speed-up by not displaying completely transparent portions of the skin
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                             // GL_COLOR_BUFFER_BIT
@@ -681,6 +695,9 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
         }
         if ( pinst->light < 255 )
         {
+            // light effects should show through transparent objects
+            GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+
             // the alpha test can only mess us up here
             GL_DEBUG( glDisable )( GL_ALPHA_TEST );     // GL_ENABLE_BIT
 
@@ -749,13 +766,20 @@ gfx_rv render_one_mad_solid( const CHR_REF ichr )
         GL_DEBUG( glEnable )( GL_BLEND );                     // GL_ENABLE_BIT
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );   // GL_COLOR_BUFFER_BIT
 
-        // draw draw front and back faces of polygons
-        GL_DEBUG( glEnable )( GL_CULL_FACE );                 // GL_ENABLE_BIT
-        GL_DEBUG( glFrontFace )( GL_CW );                     // GL_POLYGON_BIT
-
-        if ( NULL != pinst && 255 == pinst->alpha && 255 == pinst->light )
+        if ( 255 == pinst->alpha && 255 == pinst->light )
         {
             GLXvector4f tint;
+
+            // allow the dont_cull_backfaces to keep solid objects from culling backfaces
+            if( pinst->dont_cull_backfaces )
+            {
+                GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+            }
+            else
+            {
+                GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+                GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
+            }
 
             chr_instance_get_tint( pinst, tint, CHR_SOLID );
 
