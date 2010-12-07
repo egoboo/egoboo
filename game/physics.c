@@ -1066,8 +1066,8 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
 
     bc->bits   = pchr->stoppedby;
     bc->radius = pchr->bump_1.size;
-    bc->pos.x  = ( floor( pchr->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
-    bc->pos.y  = ( floor( pchr->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.x  = ( FLOOR( pchr->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.y  = ( FLOOR( pchr->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
     bc->pos.z  = pchr->pos.z;
 
     bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
@@ -1101,8 +1101,8 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->radius = pprt->bump_real.size;
 
     bc->pos = prt_get_pos( pprt );
-    bc->pos.x  = ( floor( bc->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
-    bc->pos.y  = ( floor( bc->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.x  = ( FLOOR( bc->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.y  = ( FLOOR( bc->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
 
     bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
     bc->valid  = ( 0 == mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );

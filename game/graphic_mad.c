@@ -2409,7 +2409,7 @@ gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip )
 
     // update the lips
     pinst->flip += dflip;
-    pinst->ilip  = (( int )floor( pinst->flip * 4 ) ) % 4;
+    pinst->ilip  = (( int )FLOOR( pinst->flip * 4 ) ) % 4;
 
     vlst_cache_test( &( pinst->save ), pinst );
 

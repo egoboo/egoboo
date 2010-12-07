@@ -491,7 +491,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         // to keep the number of updates stable, the frames could lag.
         // sooo... we just rescale the prt_lifetime so that it will work with the
         // updates and cross our fingers
-        pprt->lifetime           = ceil(( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
+        pprt->lifetime           = CEIL(( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
         pprt->lifetime_remaining = pprt->lifetime;
     }
 

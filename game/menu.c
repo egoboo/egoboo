@@ -3100,8 +3100,8 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
         sdl_aspect_ratio = ( float )prect->w / ( float )prect->h;
         sdl_screen_area  = prect->w * prect->h;
 
-        diff1 = log( sdl_aspect_ratio / aspect_ratio );
-        diff2 = log( sdl_screen_area / req_screen_area );
+        diff1 = LOG( sdl_aspect_ratio / aspect_ratio );
+        diff2 = LOG( sdl_screen_area / req_screen_area );
 
         diff = 2.0f * ABS( diff1 ) + ABS( diff2 );
 

@@ -1007,8 +1007,8 @@ void sv_talkToRemotes()
                 ptlatch->button = ppla->local_latch.b;
 
                 // reduce the resolution of the motion to match the network packets
-                ptlatch->x = floor( ppla->local_latch.x * SHORTLATCH ) / SHORTLATCH;
-                ptlatch->y = floor( ppla->local_latch.y * SHORTLATCH ) / SHORTLATCH;
+                ptlatch->x = FLOOR( ppla->local_latch.x * SHORTLATCH ) / SHORTLATCH;
+                ptlatch->y = FLOOR( ppla->local_latch.y * SHORTLATCH ) / SHORTLATCH;
 
                 ptlatch->time = true_update;
 

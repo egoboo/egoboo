@@ -4238,11 +4238,11 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 
     if ( 0 == plos->stopped_by ) return bfalse;
 
-    ix_stt = plos->x0 / GRID_SIZE;
-    ix_end = plos->x1 / GRID_SIZE;
+    ix_stt = FLOOR( plos->x0 / GRID_SIZE );
+    ix_end = FLOOR( plos->x1 / GRID_SIZE );
 
-    iy_stt = plos->y0 / GRID_SIZE;
-    iy_end = plos->y1 / GRID_SIZE;
+    iy_stt = FLOOR( plos->y0 / GRID_SIZE );
+    iy_end = FLOOR( plos->y1 / GRID_SIZE );
 
     Dx = plos->x1 - plos->x0;
     Dy = plos->y1 - plos->y0;
@@ -4963,8 +4963,8 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        int ix = pitem->pos.x / GRID_SIZE;
-        int iy = pitem->pos.y / GRID_SIZE;
+        int ix = FLOOR( pitem->pos.x / GRID_SIZE );
+        int iy = FLOOR( pitem->pos.y / GRID_SIZE );
 
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )
@@ -5019,8 +5019,8 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        int ix = pitem->pos.x / GRID_SIZE;
-        int iy = pitem->pos.y / GRID_SIZE;
+        int ix = FLOOR( pitem->pos.x / GRID_SIZE );
+        int iy = FLOOR( pitem->pos.y / GRID_SIZE );
 
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )
@@ -5098,8 +5098,8 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        int ix = pitem->pos.x / GRID_SIZE;
-        int iy = pitem->pos.y / GRID_SIZE;
+        int ix = FLOOR( pitem->pos.x / GRID_SIZE );
+        int iy = FLOOR( pitem->pos.y / GRID_SIZE );
 
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )

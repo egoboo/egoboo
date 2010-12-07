@@ -358,7 +358,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = ( floor(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
+                x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
             else if ( C_NEW_LINE_CHAR == cTmp )
             {
@@ -1283,7 +1283,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
             if ( '~' == cTmp )
             {
                 // Use squiggle for tab
-                x = ( floor(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
+                x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
             }
             else if ( C_NEW_LINE_CHAR == cTmp )
             {
@@ -3204,8 +3204,8 @@ void render_world_background( const TX_REF texture )
     z0 = 1500;
 
     // clip the waterlayer uv offset
-    ilayer->tx.x = ilayer->tx.x - ( float )floor( ilayer->tx.x );
-    ilayer->tx.y = ilayer->tx.y - ( float )floor( ilayer->tx.y );
+    ilayer->tx.x = ilayer->tx.x - ( float )FLOOR( ilayer->tx.x );
+    ilayer->tx.y = ilayer->tx.y - ( float )FLOOR( ilayer->tx.y );
 
     // determine the constants for the x-coordinate
     xmag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.x ) / GRID_SIZE;
@@ -3713,7 +3713,7 @@ void make_enviro( void )
 
     for ( cnt = 0; cnt < 256; cnt++ )
     {
-        z = cnt / 255.0f;  // Z is between 0 and 1
+        z = cnt / INV_FF;  // Z is between 0 and 1
         lighttoenviroy[cnt] = z;
     }
 }
@@ -3737,8 +3737,8 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
 
     glist = pmesh->gmem.grid_list;
 
-    ix = floor( pos[XX] / GRID_SIZE );
-    iy = floor( pos[YY] / GRID_SIZE );
+    ix = FLOOR( pos[XX] / GRID_SIZE );
+    iy = FLOOR( pos[YY] / GRID_SIZE );
 
     fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
     fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );
@@ -3779,8 +3779,8 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
 
     glist = pmesh->gmem.grid_list;
 
-    ix = floor( fx / GRID_SIZE );
-    iy = floor( fy / GRID_SIZE );
+    ix = FLOOR( fx / GRID_SIZE );
+    iy = FLOOR( fy / GRID_SIZE );
 
     fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
     fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );

@@ -1415,10 +1415,10 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 
     // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
-    bound.xmin = floor( pdata->fx_min / GRID_SIZE );
-    bound.xmax = floor( pdata->fx_max / GRID_SIZE );
-    bound.ymin = floor( pdata->fy_min / GRID_SIZE );
-    bound.ymax = floor( pdata->fy_max / GRID_SIZE );
+    bound.xmin = FLOOR( pdata->fx_min / GRID_SIZE );
+    bound.xmax = FLOOR( pdata->fx_max / GRID_SIZE );
+    bound.ymin = FLOOR( pdata->fy_min / GRID_SIZE );
+    bound.ymax = FLOOR( pdata->fy_max / GRID_SIZE );
 
     // limit the test values to be in-bounds
     pdata->fx_min = MAX( pdata->fx_min, 0.0f );
@@ -1483,7 +1483,7 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
     float fx_min, fx_max, fy_min, fy_max, obj_area;
     int ix, iy;
 
-    float  loc_pressure;
+    float  loc_pressure, loc_radius;
 
     const ego_mpd_info_t  * pinfo;
     const ego_tile_info_t * tlist;
@@ -1499,28 +1499,31 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
     tlist = pmesh->tmem.tile_list;
     glist = pmesh->gmem.grid_list;
 
+    // make an alias for the radius
+    loc_radius = radius;
+
     // set a minimum radius
-    if ( 0.0f == radius )
+    if ( 0.0f == loc_radius )
     {
-        radius = GRID_SIZE * 0.5f;
+        loc_radius = GRID_SIZE * 0.5f;
     }
 
     // make sure it is positive
-    radius = ABS( radius );
+    loc_radius = ABS( loc_radius );
 
-    fx_min = pos[kX] - radius;
-    fx_max = pos[kX] + radius;
+    fx_min = pos[kX] - loc_radius;
+    fx_max = pos[kX] + loc_radius;
 
-    fy_min = pos[kY] - radius;
-    fy_max = pos[kY] + radius;
+    fy_min = pos[kY] - loc_radius;
+    fy_max = pos[kY] + loc_radius;
 
     obj_area = ( fx_max - fx_min ) * ( fy_max - fy_min );
 
-    ix_min = floor( fx_min / GRID_SIZE );
-    ix_max = floor( fx_max / GRID_SIZE );
+    ix_min = FLOOR( fx_min / GRID_SIZE );
+    ix_max = FLOOR( fx_max / GRID_SIZE );
 
-    iy_min = floor( fy_min / GRID_SIZE );
-    iy_max = floor( fy_max / GRID_SIZE );
+    iy_min = FLOOR( fy_min / GRID_SIZE );
+    iy_max = FLOOR( fy_max / GRID_SIZE );
 
     for ( iy = iy_min; iy <= iy_max; iy++ )
     {
