@@ -95,7 +95,7 @@ enum chr_alert_bits
 //--------------------------------------------------------------------------------------------
 
 #define MAXWAY              8                       ///< Waypoints
-#define WAYTHRESH           (TILE_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
+#define WAYTHRESH           (GRID_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
 
 // swig chokes on the definition below
 #if defined(SWIG)

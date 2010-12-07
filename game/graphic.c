@@ -5185,7 +5185,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
     }
 
     // fill the renderlist from the projected view
-    grid_y = corner_y[0] / TILE_ISIZE;
+    grid_y = corner_y[0] / GRID_ISIZE;
     grid_y = CLIP( grid_y, 0, pmesh->info.tiles_y - 1 );
     for ( row = 0; row < numrow; row++, grid_y++ )
     {
@@ -6666,13 +6666,13 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
         GL_DEBUG_END();
 
         // fix the texture enabling
-        if( texture_1d_enabled )
+        if ( texture_1d_enabled )
         {
-            GL_DEBUG( glEnable ) ( GL_TEXTURE_1D );
+            GL_DEBUG( glEnable )( GL_TEXTURE_1D );
         }
         else if ( texture_2d_enabled )
         {
-            GL_DEBUG( glEnable ) ( GL_TEXTURE_2D );
+            GL_DEBUG( glEnable )( GL_TEXTURE_2D );
         }
     }
     ATTRIB_POP( __FUNCTION__ );

@@ -5282,13 +5282,13 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     // otherwise, make up a list of tiles that the object might overlap
     for ( iy = iymin; iy <= iymax; iy++ )
     {
-        float grid_y = iy * TILE_ISIZE;
+        float grid_y = iy * GRID_ISIZE;
 
         for ( ix = ixmin; ix <= ixmax; ix++ )
         {
             float ftmp;
             int   itile;
-            float grid_x = ix * TILE_ISIZE;
+            float grid_x = ix * GRID_ISIZE;
 
             ftmp = grid_x + grid_y;
             if ( ftmp < bump.mins[OCT_XY] || ftmp > bump.maxs[OCT_XY] ) continue;

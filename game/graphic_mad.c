@@ -655,7 +655,6 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
                 GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
             }
 
-
             // enable only the partially transparent portion of the skin
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_LESS, 1.0f );                             // GL_COLOR_BUFFER_BIT

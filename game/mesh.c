@@ -1369,7 +1369,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 
     BIT_FIELD pass;
     int   ix, iy;
-    float loc_radius = radius;
+    float loc_radius;
 
     ego_irect_t bound;
 
@@ -1388,22 +1388,23 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
     pdata->tlist = pmesh->tmem.tile_list;
     pdata->glist = pmesh->gmem.grid_list;
 
+    // make an alias for the radius
+    loc_radius = radius;
+
+    // set a minimum radius
     if ( 0.0f == loc_radius )
     {
-        pdata->fx_min = pdata->fx_max = pos[kX];
-        pdata->fy_min = pdata->fy_max = pos[kY];
+        loc_radius = GRID_SIZE * 0.5f;
     }
-    else
-    {
-        // make sure it is positive
-        loc_radius = ABS( loc_radius );
 
-        pdata->fx_min = pos[kX] - loc_radius;
-        pdata->fx_max = pos[kX] + loc_radius;
+    // make sure it is positive
+    loc_radius = ABS( loc_radius );
 
-        pdata->fy_min = pos[kY] - loc_radius;
-        pdata->fy_max = pos[kY] + loc_radius;
-    }
+    pdata->fx_min = pos[kX] - loc_radius;
+    pdata->fx_max = pos[kX] + loc_radius;
+
+    pdata->fy_min = pos[kY] - loc_radius;
+    pdata->fy_max = pos[kY] + loc_radius;
 
     // make a large limit in case the pos is so large that it cannot be represented by an int
     pdata->fx_min = MAX( pdata->fx_min, -9.0f * pmesh->gmem.edge_x );
@@ -1498,26 +1499,22 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
     tlist = pmesh->tmem.tile_list;
     glist = pmesh->gmem.grid_list;
 
+    // set a minimum radius
     if ( 0.0f == radius )
     {
-        fx_min = fx_max = pos[kX];
-        fy_min = fy_max = pos[kY];
-
-        obj_area = 0.0f;
+        radius = GRID_SIZE * 0.5f;
     }
-    else
-    {
-        // make sure it is positive
-        radius = ABS( radius );
 
-        fx_min = pos[kX] - radius;
-        fx_max = pos[kX] + radius;
+    // make sure it is positive
+    radius = ABS( radius );
 
-        fy_min = pos[kY] - radius;
-        fy_max = pos[kY] + radius;
+    fx_min = pos[kX] - radius;
+    fx_max = pos[kX] + radius;
 
-        obj_area = ( fx_max - fx_min ) * ( fy_max - fy_min );
-    }
+    fy_min = pos[kY] - radius;
+    fy_max = pos[kY] + radius;
+
+    obj_area = ( fx_max - fx_min ) * ( fy_max - fy_min );
 
     ix_min = floor( fx_min / GRID_SIZE );
     ix_max = floor( fx_max / GRID_SIZE );
@@ -1578,41 +1575,28 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
             if ( is_blocked )
             {
                 // hiting the mesh
+                float min_area;
 
-                if ( 0.0f == radius )
+                // determine the area overlap of the tile with the
+                // object's bounding box
+                ovl_x_min = MAX( fx_min, tx_min );
+                ovl_x_max = MIN( fx_max, tx_max );
+
+                ovl_y_min = MAX( fy_min, ty_min );
+                ovl_y_max = MIN( fy_max, ty_max );
+
+                min_area = MIN( tile_area, obj_area );
+
+                area_ratio = 0.0f;
+                if ( ovl_x_min <= ovl_x_max && ovl_y_min <= ovl_y_max )
                 {
-                    area_ratio = 1.0f;
-                    ovl_x_min = tx_min;
-                    ovl_x_max = tx_max;
-
-                    ovl_y_min = ty_min;
-                    ovl_y_max = ty_max;
-                }
-                else
-                {
-                    float min_area;
-
-                    // determine the area overlap of the tile with the
-                    // object's bounding box
-                    ovl_x_min = MAX( fx_min, tx_min );
-                    ovl_x_max = MIN( fx_max, tx_max );
-
-                    ovl_y_min = MAX( fy_min, ty_min );
-                    ovl_y_max = MIN( fy_max, ty_max );
-
-                    min_area = MIN( tile_area, obj_area );
-
-                    area_ratio = 0.0f;
-                    if ( ovl_x_min <= ovl_x_max && ovl_y_min <= ovl_y_max )
+                    if ( 0.0f == min_area )
                     {
-                        if ( 0.0f == min_area )
-                        {
-                            area_ratio = 1.0f;
-                        }
-                        else
-                        {
-                            area_ratio  = ( ovl_x_max - ovl_x_min ) * ( ovl_y_max - ovl_y_min ) / min_area;
-                        }
+                        area_ratio = 1.0f;
+                    }
+                    else
+                    {
+                        area_ratio  = ( ovl_x_max - ovl_x_min ) * ( ovl_y_max - ovl_y_min ) / min_area;
                     }
                 }
 

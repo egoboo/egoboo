@@ -276,8 +276,8 @@ void scr_run_chr_script( const CHR_REF character )
         else if ( pself->wp_valid )
         {
             // Normal AI
-            pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( TILE_ISIZE << 2 );
-            pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( TILE_ISIZE << 2 );
+            pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( GRID_ISIZE << 2 );
+            pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( GRID_ISIZE << 2 );
         }
         else
         {

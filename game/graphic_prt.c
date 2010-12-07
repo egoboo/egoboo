@@ -1178,13 +1178,6 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     pinst->scale = prt_get_scale( pprt );
     pinst->size  = FP8_TO_FLOAT( pprt->size ) * pinst->scale;
 
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F8 ) )
-    {
-        // a useful little mod to help with debugging particles
-        // will make things like the bare-handed-attack particles visible
-        pinst->size = MAX( 90, pinst->size );
-    }
-
     // this instance is now completely valid
     pinst->valid     = btrue;
     pinst->ref_valid = btrue;

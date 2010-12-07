@@ -811,7 +811,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
 
-    if ( 0.0f == pchr->bump_stt.size || CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
+    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
@@ -819,11 +819,14 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
     // calculate the radius based on whether the character is on camera
     // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
-    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
         {
-            radius = pchr->bump.size;
+            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+            {
+                radius = pchr->bump_1.size;
+            }
         }
     }
 
@@ -847,7 +850,7 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
 
-    if ( 0.0f == pchr->bump_stt.size || CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
+    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
@@ -855,11 +858,14 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
     // calculate the radius based on whether the character is on camera
     // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
-    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
         {
-            radius = pchr->bump.size;
+            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+            {
+                radius = pchr->bump_1.size;
+            }
         }
     }
 
@@ -886,7 +892,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
 
     if ( !DEFINED_PCHR( pchr ) ) return 0;
 
-    if ( 0.0f == pchr->bump_stt.size || CHR_INFINITE_WEIGHT == pchr->phys.weight ) return 0;
+    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
@@ -894,11 +900,14 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     // calculate the radius based on whether the character is on camera
     // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
-    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
         {
-            radius = pchr->bump_1.size;
+            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+            {
+                radius = pchr->bump_1.size;
+            }
         }
     }
 
@@ -930,11 +939,14 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
     // calculate the radius based on whether the character is on camera
     // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
-    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
         {
-            radius = pchr->bump_1.size;
+            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
+            {
+                radius = pchr->bump_1.size;
+            }
         }
     }
 
