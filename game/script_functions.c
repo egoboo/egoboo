@@ -7244,10 +7244,12 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             {
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
-                attach_character_to_mount( ichr, pself->target, grip_off );
 
-                // Handle the "grabbed" messages
-                scr_run_chr_script( ichr );
+                if( rv_success == attach_character_to_mount( ichr, pself->target, grip_off ) )
+                {
+                    // Handle the "grabbed" messages
+                    scr_run_chr_script( ichr );
+                }
 
                 //Set some AI values
                 pself->child = ichr;

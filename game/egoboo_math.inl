@@ -217,12 +217,10 @@ static INLINE int generate_irand_pair( const IPair num )
 {
     /// @details ZZ@> This function generates a random number
 
-    int tmp = 0;
-    int irand = RANDIE;
-
-    tmp = num.base;
+    int tmp = num.base;
     if ( num.rand > 1 )
     {
+        int irand = RANDIE;
         tmp += irand % num.rand;
     }
 

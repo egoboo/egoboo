@@ -60,7 +60,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     egoboo_rv init_random_treasure_tables_vfs( const char* filepath );
-    void      get_random_treasure( char* pStr );
+    egoboo_rv get_random_treasure( char * buffer, size_t buffer_length );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

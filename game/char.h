@@ -441,7 +441,7 @@ struct s_chr
     int           darkvision_level;
     int           see_kurse_level;
     int           see_invisible_level;
-    IDSZ_node_t      skills[MAX_IDSZ_MAP_SIZE];
+    IDSZ_node_t   skills[MAX_IDSZ_MAP_SIZE];
 
     /// collision info
 
@@ -553,8 +553,8 @@ void reset_character_alpha( const CHR_REF character );
 void reset_character_accel( const CHR_REF character );
 bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
 
-void flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
-void flash_character( const CHR_REF character, Uint8 value );
+egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
+egoboo_rv flash_character( const CHR_REF character, Uint8 value );
 
 void free_one_character_in_game( const CHR_REF character );
 void update_all_character_matrices();
@@ -588,7 +588,7 @@ bool_t  cost_mana( const CHR_REF character, int amount, const CHR_REF killer );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
 void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
-void    attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
+egoboo_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 bool_t  inventory_add_item( const CHR_REF item, const CHR_REF character );
 CHR_REF inventory_get_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
 void    drop_keys( const CHR_REF character );

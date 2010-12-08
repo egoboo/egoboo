@@ -1892,8 +1892,10 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
                 // even if the object is doesn't actually mount
                 handled = btrue;
 
-                attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
-                mounted = INGAME_CHR( pchr_a->attachedto );
+                if( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
+                {
+                    mounted = INGAME_CHR( pchr_a->attachedto );
+                }
             }
         }
     }
@@ -1927,8 +1929,10 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
                 // even if the object is doesn't actually mount
                 handled = btrue;
 
-                attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
-                mounted = INGAME_CHR( pchr_b->attachedto );
+                if( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
+                {
+                    mounted = INGAME_CHR( pchr_b->attachedto );
+                }
             }
         }
     }

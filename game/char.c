@@ -321,7 +321,7 @@ int chr_count_used()
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
+egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high )
 {
     /// @details ZZ@> This function sets a character's lighting depending on vertex height...
@@ -334,10 +334,10 @@ void flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low
     chr_instance_t * pinst;
 
     pinst = chr_get_pinstance( character );
-    if ( NULL == pinst ) return;
+    if ( NULL == pinst ) return rv_error;
 
     pmad = chr_get_pmad( character );
-    if ( NULL == pmad ) return;
+    if ( NULL == pmad ) return rv_error;
 
     for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
     {
@@ -345,21 +345,31 @@ void flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low
 
         if ( z < low )
         {
-            pinst->color_amb = valuelow;
+            pinst->vrt_lst[cnt].col[RR] = 
+            pinst->vrt_lst[cnt].col[GG] = 
+            pinst->vrt_lst[cnt].col[BB] = valuelow;
         }
         else
         {
             if ( z > high )
             {
-                pinst->color_amb = valuehigh;
+                pinst->vrt_lst[cnt].col[RR] = 
+                pinst->vrt_lst[cnt].col[GG] = 
+                pinst->vrt_lst[cnt].col[BB] = valuehigh;
             }
             else
             {
-                pinst->color_amb = ( valuehigh * ( z - low ) / ( high - low ) ) +
-                                   ( valuelow * ( high - z ) / ( high - low ) );
+                Uint8 valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
+                                 ( valuelow * ( high - z ) / ( high - low ) );
+
+                pinst->vrt_lst[cnt].col[RR] = 
+                pinst->vrt_lst[cnt].col[GG] = 
+                pinst->vrt_lst[cnt].col[BB] =  valuemid;
             }
         }
     }
+
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1287,119 +1297,128 @@ void reset_character_alpha( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void attach_character_to_mount( const CHR_REF iitem, const CHR_REF iholder, grip_offset_t grip_off )
+egoboo_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
     /// @details ZZ@> This function attaches one character/item to another ( the holder/mount )
     ///    at a certain vertex offset ( grip_off )
+    ///   - This function is called as a part of spawning a module, so the item or the holder may not
+    ///     be fully instantiated
+    ///   - This function should do very little testing to see if attachment is allowed.
+    ///     Most of that checking should be done by the calling function
 
     slot_t slot;
 
-    chr_t * pitem, * pholder;
+    chr_t * prider, * pmount;
+    cap_t *pmount_cap;
 
     // Make sure the character/item is valid
-    // this could be called before the item is fully instantiated
-    if ( !DEFINED_CHR( iitem ) || ChrList.lst[iitem].pack.is_packed ) return;
-    pitem = ChrList.lst + iitem;
+    if( !DEFINED_CHR( irider ) ) return rv_error;
+    prider = ChrList.lst + irider;
+
+    // Make sure the holder/mount is valid
+    if( !DEFINED_CHR( imount ) ) return rv_error;
+    pmount = ChrList.lst + imount;
+
+    pmount_cap = chr_get_pcap( imount );
+    if( NULL == pmount_cap ) return rv_error;
+
+    // do not deal with packed items at this time
+    // this would have to be changed to allow for pickpocketing
+    if ( prider->pack.is_packed || pmount->pack.is_packed ) return rv_fail;
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
-    if ( !pitem->isitem && pitem->dismount_timer > 0 )
-        return;
-
-    // Make sure the holder/mount is valid
-    if ( !INGAME_CHR( iholder ) || ChrList.lst[iholder].pack.is_packed ) return;
-    pholder = ChrList.lst + iholder;
-
-#if !defined(ENABLE_BODY_GRAB)
-    if ( !pitem->alive ) return;
-#endif
+    if ( imount == prider->dismount_object && prider->dismount_timer > 0 ) return rv_fail;
 
     // Figure out which slot this grip_off relates to
     slot = grip_offset_to_slot( grip_off );
 
     // Make sure the the slot is valid
-    if ( !chr_get_pcap( iholder )->slotvalid[slot] ) return;
+    if ( !pmount_cap->slotvalid[slot] ) return rv_fail;
 
     // This is a small fix that allows special grabbable mounts not to be mountable while
     // held by another character (such as the magic carpet for example)
-    if ( !pitem->isitem && pholder->ismount && INGAME_CHR( pholder->attachedto ) ) return;
+    // ( this is an example of a test that should not be done here )
+    if ( pmount->ismount && INGAME_CHR( pmount->attachedto ) ) return rv_fail;
 
     // Put 'em together
-    pitem->inwhich_slot   = slot;
-    pitem->attachedto     = iholder;
-    pholder->holdingwhich[slot] = iitem;
+    prider->inwhich_slot       = slot;
+    prider->attachedto         = imount;
+    pmount->holdingwhich[slot] = irider;
 
-    // set the grip vertices for the iitem
-    set_weapongrip( iitem, iholder, grip_off );
+    // set the grip vertices for the irider
+    set_weapongrip( irider, imount, grip_off );
 
-    chr_update_matrix( pitem, btrue );
+    chr_update_matrix( prider, btrue );
 
-    chr_set_pos( pitem, mat_getTranslate_v( pitem->inst.matrix.v ) );
+    chr_set_pos( prider, mat_getTranslate_v( prider->inst.matrix.v ) );
 
-    pitem->enviro.inwater  = bfalse;
-    pitem->jump_timer = JUMPDELAY * 4;
+    prider->enviro.inwater  = bfalse;
+    prider->jump_timer = JUMPDELAY * 4;
 
     // Run the held animation
-    if ( pholder->ismount && ( GRIP_ONLY == grip_off ) )
+    if ( pmount->ismount && ( GRIP_ONLY == grip_off ) )
     {
-        // Riding iholder
+        // Riding imount
 
-        if ( INGAME_CHR( pitem->holdingwhich[SLOT_LEFT] ) || INGAME_CHR( pitem->holdingwhich[SLOT_RIGHT] ) )
+        if ( INGAME_CHR( prider->holdingwhich[SLOT_LEFT] ) || INGAME_CHR( prider->holdingwhich[SLOT_RIGHT] ) )
         {
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it dies not look so silly
-            chr_play_action( pitem, ACTION_MH, btrue );
+            chr_play_action( prider, ACTION_MH, btrue );
         }
         else
         {
             // if it is not holding anything, go for the riding animation
-            chr_play_action( pitem, ACTION_MI, btrue );
+            chr_play_action( prider, ACTION_MI, btrue );
         }
 
         // set tehis action to loop
-        chr_instance_set_action_loop( &( pitem->inst ), btrue );
+        chr_instance_set_action_loop( &( prider->inst ), btrue );
     }
-    else if ( pitem->alive )
+    else if ( prider->alive )
     {
         /// @note ZF@> hmm, here is the torch holding bug. Removing
         /// the interpolation seems to fix it...
-        chr_play_action( pitem, ACTION_MM + slot, bfalse );
+        chr_play_action( prider, ACTION_MM + slot, bfalse );
 
-        chr_instance_remove_interpolation( &( pitem->inst ) );
+        chr_instance_remove_interpolation( &( prider->inst ) );
 
         // set the action to keep for items
-        if ( pitem->isitem )
+        if ( prider->isitem )
         {
             // Item grab
-            chr_instance_set_action_keep( &( pitem->inst ), btrue );
+            chr_instance_set_action_keep( &( prider->inst ), btrue );
         }
     }
 
     // Set the team
-    if ( pitem->isitem )
+    if ( prider->isitem )
     {
-        pitem->team = pholder->team;
+        prider->team = pmount->team;
 
         // Set the alert
-        if ( pitem->alive )
+        if ( prider->alive )
         {
-            SET_BIT( pitem->ai.alert, ALERTIF_GRABBED );
+            SET_BIT( prider->ai.alert, ALERTIF_GRABBED );
         }
     }
 
-    if ( pholder->ismount )
+    if ( pmount->ismount )
     {
-        pholder->team = pitem->team;
+        pmount->team = prider->team;
 
         // Set the alert
-        if ( !pholder->isitem && pholder->alive )
+        if ( !pmount->isitem && pmount->alive )
         {
-            SET_BIT( pholder->ai.alert, ALERTIF_GRABBED );
+            SET_BIT( pmount->ai.alert, ALERTIF_GRABBED );
         }
     }
 
     // It's not gonna hit the floor
-    pitem->hitready = bfalse;
+    prider->hitready = bfalse;
+
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1835,6 +1854,10 @@ CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool
         chr_remove_pack_item( character, found_item_parent, found_item );
 
         // Attach the found_item to the character's hand
+        // (1) if the mounting doesn't succees, I guess it will drop it at the character's feet,
+        // or will it drop the item at 0,0... I think the keep_weapons_with_holders() function
+        // works 
+        // (2) if it fails, do we need to treat it as if it was dropped? Or just not take it out?
         attach_character_to_mount( found_item, character, grip_off );
 
         // fix the flags
@@ -2151,6 +2174,9 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         if ( pchr_b->holdingwhich[SLOT_LEFT] == ichr_a ||
              pchr_b->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
 
+        // do not notice completely broken items?
+        if( pchr_b->isitem && !pchr_b->alive ) continue;
+
         // reasonable carrying capacity
         if ( pchr_b->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
         {
@@ -2159,7 +2185,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 
         // grab_people == btrue allows you to pick up living non-items
         // grab_people == false allows you to pick up living (functioning) items
-        if ( pchr_b->alive && ( grab_people == pchr_b->isitem ) )
+        if ( !grab_people && !pchr_b->isitem )
         {
             can_grab = bfalse;
         }
@@ -2275,18 +2301,20 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             ichr_b = grab_list[cnt].ichr;
             pchr_b = ChrList.lst + ichr_b;
 
-            can_grab = do_item_pickup( ichr_a, ichr_b );
+            can_grab = can_grab_item_in_shop( ichr_a, ichr_b );
 
             if ( can_grab )
             {
                 // Stick 'em together and quit
-                attach_character_to_mount( ichr_b, ichr_a, grip_off );
-                if ( grab_people )
+                if( rv_success == attach_character_to_mount( ichr_b, ichr_a, grip_off ) )
                 {
-                    // Do a slam animation...  ( Be sure to drop!!! )
-                    chr_play_action( pchr_a, ACTION_MC + slot, bfalse );
+                    if ( grab_people )
+                    {
+                        // Start the slam animation...  ( Be sure to drop!!! )
+                        chr_play_action( pchr_a, ACTION_MC + slot, bfalse );
+                    }
+                    retval = btrue;
                 }
-                retval = btrue;
                 break;
             }
             else
@@ -4287,6 +4315,10 @@ chr_t * chr_config_do_active( chr_t * pchr )
     }
 
     pchr = resize_one_character( pchr );
+
+    // update some special skills
+    pchr->see_kurse_level  = MAX( pchr->see_kurse_level,  chr_get_skill( pchr, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) );
+    pchr->darkvision_level = MAX( pchr->darkvision_level, chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) );
 
     return pchr;
 }

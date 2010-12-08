@@ -208,7 +208,7 @@ INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
 
 static line_data_t line_list[LINE_COUNT];
-static dolist_t    dolist     = DOLIST_INIT;
+static dolist_t    _dolist = DOLIST_INIT;
 
 static SDLX_video_parameters_t sdl_vparam;
 static oglx_video_parameters_t ogl_vparam;
@@ -281,6 +281,9 @@ static void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, con
 
 static gfx_rv update_one_chr_instance( struct s_chr * pchr );
 static gfx_rv update_all_chr_instance();
+
+
+static gfx_rv do_chr_flashing( dolist_t * pdolist );
 
 //--------------------------------------------------------------------------------------------
 // MODULE "PRIVATE" FUNCTIONS
@@ -2452,6 +2455,12 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
     }
     PROFILE_END( update_all_prt_instance );
 
+    // do the flashing for kursed objects
+    if ( gfx_error == do_chr_flashing( pdolist ) )
+    {
+        retval = gfx_error;
+    }
+
     time_render_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make ) * TARGET_FPS;
     time_render_scene_init_dolist_make             = PROFILE_QUERY( dolist_make ) * TARGET_FPS;
     time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * TARGET_FPS;
@@ -2801,6 +2810,8 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdolist )
         for ( cnt = 0; cnt < pdolist->count; cnt++ )
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
+            if( !VALID_CHR_RANGE(ichr) ) continue;
+
             if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
             render_bad_shadow( ichr );
@@ -2813,6 +2824,8 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdolist )
         for ( cnt = 0; cnt < pdolist->count; cnt++ )
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
+            if( !VALID_CHR_RANGE(ichr) ) continue;
+
             if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
             render_shadow( ichr );
@@ -2968,14 +2981,14 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );             // GL_COLOR_BUFFER_BIT
 
-            if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
+            if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE(pdolist->lst[cnt].ichr) )
             {
                 if ( gfx_error == render_one_mad_solid( pdolist->lst[cnt].ichr ) )
                 {
                     retval = gfx_error;
                 }
             }
-            else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
+            else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE(pdolist->lst[cnt].iprt) )
             {
                 // draw draw front and back faces of polygons
                 GL_DEBUG( glDisable )( GL_CULL_FACE );
@@ -3077,7 +3090,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 
     PROFILE_BEGIN( render_scene_init );
     {
-        if ( gfx_error == render_scene_init( &renderlist, &dolist, &dynalist, pmesh, pcam ) )
+        if ( gfx_error == render_scene_init( &renderlist, &_dolist, &dynalist, pmesh, pcam ) )
         {
             retval = gfx_error;
         }
@@ -3090,7 +3103,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
         {
             // sort the dolist for reflected objects
             // reflected characters and objects are drawn in this pass
-            if ( gfx_error == dolist_sort( &dolist, pcam, btrue ) )
+            if ( gfx_error == dolist_sort( &_dolist, pcam, btrue ) )
             {
                 retval = gfx_error;
             }
@@ -3098,7 +3111,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
         PROFILE_END( render_scene_mesh_dolist_sort );
 
         // do the render pass for the mesh
-        if ( gfx_error == render_scene_mesh( &renderlist, &dolist ) )
+        if ( gfx_error == render_scene_mesh( &renderlist, &_dolist ) )
         {
             retval = gfx_error;
         }
@@ -3116,13 +3129,13 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( render_scene_solid );
     {
         // sort the dolist for non-reflected objects
-        if ( gfx_error == dolist_sort( &dolist, pcam, bfalse ) )
+        if ( gfx_error == dolist_sort( &_dolist, pcam, bfalse ) )
         {
             retval = gfx_error;
         }
 
         // do the render pass for solid objects
-        if ( gfx_error == render_scene_solid( &dolist ) )
+        if ( gfx_error == render_scene_solid( &_dolist ) )
         {
             retval = gfx_error;
         }
@@ -3142,7 +3155,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( render_scene_trans );
     {
         // do the render pass for transparent objects
-        if ( gfx_error == render_scene_trans( &dolist ) )
+        if ( gfx_error == render_scene_trans( &_dolist ) )
         {
             retval = gfx_error;
         }
@@ -4767,11 +4780,11 @@ gfx_rv dolist_make( dolist_t * pdolist, ego_mpd_t * pmesh )
     // Remove everyone from the dolist
     for ( cnt = 0; cnt < pdolist->count; cnt++ )
     {
-        if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
+        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE(pdolist->lst[cnt].ichr) )
         {
             ChrList.lst[ pdolist->lst[cnt].ichr ].inst.indolist = bfalse;
         }
-        else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
+        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE(pdolist->lst[cnt].iprt) )
         {
             PrtList.lst[ pdolist->lst[cnt].iprt ].inst.indolist = bfalse;
         }
@@ -4849,7 +4862,7 @@ gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect )
         fvec3_t   vtmp;
         float dist;
 
-        if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
+        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE(pdolist->lst[cnt].ichr) )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;
@@ -4867,7 +4880,7 @@ gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect )
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
-        else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
+        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE(pdolist->lst[cnt].iprt) )
         {
             PRT_REF iprt = pdolist->lst[cnt].iprt;
 
@@ -5566,6 +5579,7 @@ void load_graphics()
 //--------------------------------------------------------------------------------------------
 gfx_rv do_chr_flashing( dolist_t * pdolist )
 {
+    gfx_rv retval;
     Uint32 i;
 
     if ( NULL == pdolist )
@@ -5580,11 +5594,11 @@ gfx_rv do_chr_flashing( dolist_t * pdolist )
         return gfx_error;
     }
 
+    retval = gfx_success;
     for ( i = 0; i < pdolist->count; i++ )
     {
         CHR_REF ichr = pdolist->lst[i].ichr;
-
-        if ( !INGAME_CHR( ichr ) ) continue;
+        if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
         // Do flashing
         if ( HAS_NO_BITS( true_frame, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
@@ -5595,27 +5609,44 @@ gfx_rv do_chr_flashing( dolist_t * pdolist )
         // Do blacking
         // having one holy player in your party will cause the effect, BUT
         // having some non-holy players will dilute it
-        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && ( 0.0f != local_seekurse_level ) && ChrList.lst[ichr].iskursed )
+        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && ( local_seekurse_level > 0.0f ) && ChrList.lst[ichr].iskursed )
         {
-            float tmp_seekurse_level = CLIP( local_seekurse_level, 0.0f, 1.0f );
-            flash_character( ichr, 255 *( 1.0f - tmp_seekurse_level ) );
+            float tmp_seekurse_level = MIN( local_seekurse_level, 1.0f );
+            if( gfx_error == flash_character( ichr, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
+            {
+                retval = gfx_error;
+            }
         }
     }
 
-    return gfx_success;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_character( const CHR_REF character, Uint8 value )
+gfx_rv flash_character( const CHR_REF character, Uint8 value )
 {
     /// @details ZZ@> This function sets a character's lighting
 
-    chr_instance_t * pinst = chr_get_pinstance( character );
+    int        cnt;
+    float      flash_val = value * INV_FF;
+    GLvertex * pv;
 
-    if ( NULL != pinst )
+    chr_instance_t * pinst = chr_get_pinstance( character );
+    if( NULL == pinst ) return rv_error;
+
+    // flash the ambient color
+    pinst->color_amb = flash_val;
+
+    // flash the directional lighting
+    pinst->color_amb = flash_val;
+    for( cnt = 0; cnt < pinst->vrt_count; cnt++ )
     {
-        pinst->color_amb = value;
+        pv = pinst->vrt_lst + cnt;
+
+        pv->color_dir = flash_val;
     }
+
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------

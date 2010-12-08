@@ -2650,10 +2650,12 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     {
         // Wielded character
         grip_offset_t grip_off = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
-        attach_character_to_mount( ichr, pinfo->parent, grip_off );
 
-        // Handle the "grabbed" messages
-        scr_run_chr_script( ichr );
+        if( rv_success == attach_character_to_mount( ichr, pinfo->parent, grip_off ) )
+        {
+            // Handle the "grabbed" messages
+            scr_run_chr_script( ichr );
+        }
     }
 
     // Set the starting pinfo->level
@@ -2731,7 +2733,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     //If it is a reference to a random treasure table then get a random object from that table
     if ( '%' == psp_info->spawn_coment[0] )
     {
-        get_random_treasure( psp_info->spawn_coment );
+        get_random_treasure( psp_info->spawn_coment, SDL_arraysize(psp_info->spawn_coment) );
     }
 
     if ( NULL == strstr( psp_info->spawn_coment, ".obj" ) )
@@ -5124,7 +5126,7 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem )
+bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 {
     bool_t can_grab;
     bool_t is_invis, can_steal;

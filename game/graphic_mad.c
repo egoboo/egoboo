@@ -384,7 +384,6 @@ gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
                 for ( tnc = 0; tnc < count; tnc++ )
                 {
                     GLXvector2f tex;
-                    GLXvector4f col;
                     GLvertex * pvrt;
 
                     vertex = glcommand->data[tnc].index;
@@ -396,33 +395,43 @@ gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
                     tex[0] = glcommand->data[tnc].s + uoffset;
                     tex[1] = glcommand->data[tnc].t + voffset;
 
-                    // determine the vertex color for objects that have
-                    // per vertex lighting
-                    if ( 0 == ( bits & CHR_LIGHT ) )
+                    // no per-vertex lighting for CHR_LIGHT objects
+                    if ( HAS_NO_BITS( bits, CHR_LIGHT ) )
                     {
+                        GLXvector4f col;
+
                         float fcol;
 
-                        // convert the "light" parameter to self-lighting for
-                        // every object that is not being rendered using CHR_LIGHT
+                        // the directional lighting
                         fcol   = pvrt->color_dir * INV_FF;
 
-                        col[0] = fcol * tint[RR];
-                        col[1] = fcol * tint[GG];
-                        col[2] = fcol * tint[BB];
-                        col[3] = tint[AA];
+                        col[RR] = fcol;
+                        col[GG] = fcol;
+                        col[BB] = fcol;
+                        col[AA] = 1.0f;
 
-                        if ( 0 != ( bits & CHR_PHONG ) )
+                        // ambient lighting
+                        if ( HAS_NO_BITS( bits, CHR_PHONG ) )
                         {
-                            fcol = base_amb + pinst->color_amb * INV_FF;
+                            // convert the "light" parameter to self-lighting for
+                            // every object that is not being rendered using CHR_LIGHT
 
-                            col[0] += fcol * tint[RR];
-                            col[1] += fcol * tint[GG];
-                            col[2] += fcol * tint[BB];
+                            float acol = base_amb + pinst->color_amb * INV_FF;
+
+                            col[0] += acol;
+                            col[1] += acol;
+                            col[2] += acol;
                         }
 
+                        // clip the colors
                         col[0] = CLIP( col[0], 0.0f, 1.0f );
                         col[1] = CLIP( col[1], 0.0f, 1.0f );
                         col[2] = CLIP( col[2], 0.0f, 1.0f );
+
+                        // tint the object
+                        col[0] *= tint[RR];
+                        col[1] *= tint[GG];
+                        col[2] *= tint[BB];
 
                         GL_DEBUG( glColor4fv )( col );
                     }

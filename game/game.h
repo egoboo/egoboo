@@ -393,7 +393,7 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem );
 
 bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
 bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
-bool_t do_item_pickup( const CHR_REF ichr, const CHR_REF iitem );
+bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
 bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
 

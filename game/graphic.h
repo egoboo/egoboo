@@ -161,12 +161,10 @@ struct s_GLvertex
     GLfloat pos[4];
     GLfloat nrm[3];
     GLfloat env[2];
-
     GLfloat tex[2];
-    GLfloat col_dir[4];
-    GLint   color_dir;   ///< the vertex-dependent, directional lighting
 
-    GLfloat col[4];      ///< the total vertex-dependent lighting (ambient + directional)
+    GLfloat col[4];      ///< generic per-vertex lighting
+    GLint   color_dir;   ///< "optimized" per-vertex directional lighting
 };
 typedef struct s_GLvertex GLvertex;
 
