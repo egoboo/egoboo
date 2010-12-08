@@ -788,6 +788,7 @@ gfx_rv render_one_mad_solid( const CHR_REF ichr )
             }
         }
     }
+    ATTRIB_POP( __FUNCTION__ );
 
     return retval;
 }

@@ -342,7 +342,7 @@ void gl_grab_mapping_state( gl_mapping_t * pm )
 }
 
 //--------------------------------------------------------------------------------------------
-void gl_grab_state( ogl_state_t * ps )
+void oglx_grab_state( ogl_state_t * ps )
 {
     if ( NULL == ps ) return;
 

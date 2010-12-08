@@ -484,7 +484,7 @@ struct s_ogl_state
 typedef struct s_ogl_state ogl_state_t;
 
 /// Grab the entire OpenGL state
-void gl_grab_state( ogl_state_t * ps );
+void oglx_grab_state( ogl_state_t * ps );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -261,7 +261,7 @@ static void init_bar_data();
 static void init_blip_data();
 static void init_map_data();
 
-static bool_t render_billboard( struct s_camera * pcam, billboard_data_t * pbb, float scale );
+static bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
 
 static void gfx_update_timers();
 
@@ -1495,7 +1495,7 @@ void draw_map()
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
     {
 
-        GL_DEBUG( glEnable )( GL_BLEND );                               // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+        GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
         GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -2989,15 +2989,6 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
     }
     ATTRIB_POP( __FUNCTION__ );
 
-    // Render the solid billboards
-    if ( gfx_error == render_all_billboards( PCamera ) )
-    {
-        retval = gfx_error;
-    }
-
-    // daw some debugging lines
-    draw_all_lines( PCamera );
-
     return retval;
 }
 
@@ -3159,7 +3150,10 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_END( render_scene_trans );
 
 #if defined(_DEBUG)
-    //render_all_prt_attachment();
+    render_all_prt_attachment();
+
+    // daw some debugging lines
+    draw_all_lines( PCamera );
 #endif
 
 #if defined(DRAW_PRT_BBOX)
@@ -3320,7 +3314,7 @@ void render_world_background( const TX_REF texture )
         {
             ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
             {
-                GL_DEBUG( glDisable )( GL_BLEND );                           // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+                GL_DEBUG( glDisable )( GL_BLEND );                           // GL_COLOR_BUFFER_BIT
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );            // GL_COLOR_BUFFER_BIT
 
                 GL_DEBUG( glColor4f )( light, light, light, 1.0f );         // GL_CURRENT_BIT
@@ -3483,6 +3477,9 @@ void render_world( camera_t * pcam )
         }
     }
     gfx_end_3d();
+
+    // Render the billboards
+    render_all_billboards( pcam );
 
     err_tmp = gfx_error_pop();
     if ( NULL != err_tmp )
@@ -4171,20 +4168,24 @@ billboard_data_t * BillboardList_get_ptr( const BBOARD_REF  ibb )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
+bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt )
 {
     int i;
     GLvertex vtlist[4];
     float x1, y1;
     float w, h;
-    fvec4_t   vector_up, vector_right;
+    fvec3_t vec_up, vec_rgt;
 
     oglx_texture_t     * ptex;
+    chr_t * pchr;
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
+    if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
+    pchr = ChrList.lst + pbb->ichr;
+
     // do not display for objects that are mounted or being held
-    if ( INGAME_CHR( pbb->ichr ) && INGAME_CHR( ChrList.lst[pbb->ichr].attachedto ) ) return bfalse;
+    if ( pchr->pack.is_packed || DEFINED_CHR( pchr->attachedto ) ) return bfalse;
 
     ptex = TxTexture_get_ptr( pbb->tex_ref );
 
@@ -4196,70 +4197,42 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
     x1 = w  / ( float ) oglx_texture_GetTextureWidth( ptex );
     y1 = h  / ( float ) oglx_texture_GetTextureHeight( ptex );
 
-    vector_right.x =  pcam->mView.CNV( 0, 0 ) * w * scale * pbb->size;
-    vector_right.y =  pcam->mView.CNV( 1, 0 ) * w * scale * pbb->size;
-    vector_right.z =  pcam->mView.CNV( 2, 0 ) * w * scale * pbb->size;
-
-    vector_up.x    = -pcam->mView.CNV( 0, 1 ) * h * scale * pbb->size;
-    vector_up.y    = -pcam->mView.CNV( 1, 1 ) * h * scale * pbb->size;
-    vector_up.z    = -pcam->mView.CNV( 2, 1 ) * h * scale * pbb->size;
-
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
+    // scale the camera vectors
+    vec_rgt = fvec3_scale( cam_rgt, w * scale * pbb->size );
+    vec_up  = fvec3_scale( cam_up, h * scale * pbb->size );
+
     // bottom left
-    vtlist[0].pos[XX] = pbb->pos.x + ( -vector_right.x - 0 * vector_up.x );
-    vtlist[0].pos[YY] = pbb->pos.y + ( -vector_right.y - 0 * vector_up.y );
-    vtlist[0].pos[ZZ] = pbb->pos.z + ( -vector_right.z - 0 * vector_up.z );
+    vtlist[0].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x - 0 * vec_up.x );
+    vtlist[0].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( -vec_rgt.y - 0 * vec_up.y );
+    vtlist[0].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( -vec_rgt.z - 0 * vec_up.z );
     vtlist[0].tex[SS] = x1;
     vtlist[0].tex[TT] = y1;
 
     // top left
-    vtlist[1].pos[XX] = pbb->pos.x + ( -vector_right.x + 2 * vector_up.x );
-    vtlist[1].pos[YY] = pbb->pos.y + ( -vector_right.y + 2 * vector_up.y );
-    vtlist[1].pos[ZZ] = pbb->pos.z + ( -vector_right.z + 2 * vector_up.z );
+    vtlist[1].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x + 2 * vec_up.x );
+    vtlist[1].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( -vec_rgt.y + 2 * vec_up.y );
+    vtlist[1].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( -vec_rgt.z + 2 * vec_up.z );
     vtlist[1].tex[SS] = x1;
     vtlist[1].tex[TT] = 0;
 
     // top right
-    vtlist[2].pos[XX] = pbb->pos.x + ( vector_right.x + 2 * vector_up.x );
-    vtlist[2].pos[YY] = pbb->pos.y + ( vector_right.y + 2 * vector_up.y );
-    vtlist[2].pos[ZZ] = pbb->pos.z + ( vector_right.z + 2 * vector_up.z );
+    vtlist[2].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( vec_rgt.x + 2 * vec_up.x );
+    vtlist[2].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( vec_rgt.y + 2 * vec_up.y );
+    vtlist[2].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( vec_rgt.z + 2 * vec_up.z );
     vtlist[2].tex[SS] = 0;
     vtlist[2].tex[TT] = 0;
 
     // bottom right
-    vtlist[3].pos[XX] = pbb->pos.x + ( vector_right.x - 0 * vector_up.x );
-    vtlist[3].pos[YY] = pbb->pos.y + ( vector_right.y - 0 * vector_up.y );
-    vtlist[3].pos[ZZ] = pbb->pos.z + ( vector_right.z - 0 * vector_up.z );
+    vtlist[3].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( vec_rgt.x - 0 * vec_up.x );
+    vtlist[3].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( vec_rgt.y - 0 * vec_up.y );
+    vtlist[3].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( vec_rgt.z - 0 * vec_up.z );
     vtlist[3].tex[SS] = 0;
     vtlist[3].tex[TT] = y1;
 
-    ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     {
-        GLint matrix_mode[1];
-
-        // save the matrix mode
-        GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-        // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-        GL_DEBUG( glPushMatrix )();
-        GL_DEBUG( glLoadIdentity )();
-        GL_DEBUG( glTranslatef )( pbb->offset[XX], pbb->offset[YY], pbb->offset[ZZ] );
-
-        // flat shading
-        GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT
-
-        if ( pbb->tint[AA] < 1.0f )
-        {
-            GL_DEBUG( glEnable )( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT
-
-            // do not display the completely transparent portion
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );  // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f ); // GL_COLOR_BUFFER_BIT
-        }
-
         // Go on and draw it
         GL_DEBUG( glBegin )( GL_QUADS );
         {
@@ -4272,13 +4245,6 @@ bool_t render_billboard( camera_t * pcam, billboard_data_t * pbb, float scale )
             }
         }
         GL_DEBUG_END();
-
-        // Restore the GL_MODELVIEW matrix
-        GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-        GL_DEBUG( glPopMatrix )();
-
-        // restore the matrix mode
-        GL_DEBUG( glMatrixMode )( matrix_mode[0] );
     }
     ATTRIB_POP( __FUNCTION__ );
 
@@ -4299,23 +4265,36 @@ gfx_rv render_all_billboards( camera_t * pcam )
 
     gfx_begin_3d( pcam );
     {
+        fvec3_t cam_rgt, cam_up;
+
+        cam_rgt.x =  pcam->mView.CNV( 0, 0 );
+        cam_rgt.y =  pcam->mView.CNV( 1, 0 );
+        cam_rgt.z =  pcam->mView.CNV( 2, 0 );
+
+        cam_up.x    = -pcam->mView.CNV( 0, 1 );
+        cam_up.y    = -pcam->mView.CNV( 1, 1 );
+        cam_up.z    = -pcam->mView.CNV( 2, 1 );
+
         ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
         {
-            // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );    // GL_LIGHTING_BIT
-
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );    // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
 
             // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );   // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
+            GL_DEBUG( glDepthFunc )( GL_ALWAYS );                 // GL_DEPTH_BUFFER_BIT
+
+            // flat shading
+            GL_DEBUG( glShadeModel )( GL_FLAT );                                  // GL_LIGHTING_BIT
 
             // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_CULL_FACE );                                // GL_ENABLE_BIT
 
             GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
 
             GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
 
@@ -4325,7 +4304,7 @@ gfx_rv render_all_billboards( camera_t * pcam )
 
                 if ( !pbb->valid ) continue;
 
-                render_billboard( pcam, pbb, 0.75f );
+                render_one_billboard( pbb, 0.75f, cam_up.v, cam_rgt.v );
             }
         }
         ATTRIB_POP( __FUNCTION__ );
@@ -5653,7 +5632,7 @@ void gfx_begin_text()
     GL_DEBUG( glEnable )( GL_ALPHA_TEST );                               // GL_ENABLE_BIT
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                            // GL_COLOR_BUFFER_BIT
 
-    GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+    GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_COLOR_BUFFER_BIT
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
 
     // don't worry about hidden surfaces

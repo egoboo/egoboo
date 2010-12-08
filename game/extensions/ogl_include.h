@@ -42,8 +42,8 @@
 #    define ATTRIB_GUARD_OPEN(XX)     { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&XX);  }
 #    define ATTRIB_GUARD_CLOSE(XX,YY) { GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&YY); EGOBOO_ASSERTXX==YY); if(XX!=YY) { vfs_printf( stderr, "ERROR: CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); exit(-1); }  }
 #else
-#    define ATTRIB_PUSH(TXT, BITS)     /* { ogl_state_t attrib_begin, attrib_end; ogl_state_comp_t attrib_diff; gl_grab_state(&attrib_begin); */ GL_DEBUG(glPushAttrib)(BITS);
-#    define ATTRIB_POP(TXT)           GL_DEBUG(glPopAttrib)(); /* gl_grab_state(&attrib_end); gl_comp_state(&attrib_diff, &attrib_begin, &attrib_end); } */
+#    define ATTRIB_PUSH(TXT, BITS)     /* { ogl_state_t attrib_begin, attrib_end; ogl_state_comp_t attrib_diff; oglx_grab_state(&attrib_begin); */ GL_DEBUG(glPushAttrib)(BITS);
+#    define ATTRIB_POP(TXT)           GL_DEBUG(glPopAttrib)(); /* oglx_grab_state(&attrib_end); gl_comp_state(&attrib_diff, &attrib_begin, &attrib_end); } */
 #    define ATTRIB_GUARD_OPEN(XX)
 #    define ATTRIB_GUARD_CLOSE(XX,YY)
 #endif

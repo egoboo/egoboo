@@ -2074,8 +2074,9 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
     // 1 a grid is fine. anything more than that and it gets crazy
-    const float const_max2_hrz = SQR( 1.0f * GRID_SIZE );
-    const float const_max2_vrt = SQR( GRABSIZE );
+    const float const_info2_hrz = SQR( 3.0f * GRID_SIZE );
+    const float const_grab2_hrz = SQR( 1.0f * GRID_SIZE );
+    const float const_grab2_vrt = SQR( GRABSIZE );
 
     int       cnt;
     CHR_REF   ichr_b;
@@ -2127,7 +2128,9 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     CHR_BEGIN_LOOP_ACTIVE( ichr_b, pchr_b )
     {
         fvec3_t   diff;
-        float     diff2_hrz, diff2_vrt, max2_vrt, max2_hrz, bump_size2_b;
+        float     bump_size2_b;
+        float     diff2_hrz, diff2_vrt;
+        float     grab2_vrt, grab2_hrz, info2_hrz;
         bool_t    can_grab = btrue;
         bool_t    too_dark = btrue;
         bool_t    too_invis = btrue;
@@ -2174,16 +2177,31 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         diff2_vrt = diff.z * diff.z;
 
         // determine the actual max vertical distance
-        max2_vrt = SQR( pchr_b->bump.height );
-        max2_vrt = MAX( max2_vrt, const_max2_vrt );
+        grab2_vrt = SQR( pchr_b->bump.height );
+        grab2_vrt = MAX( grab2_vrt, const_grab2_vrt );
 
         // the normal horizontal grab distance is dependent on the size of the two objects
         bump_size2_b = SQR( pchr_b->bump.size );
-        max2_hrz = MAX( bump_size2_a, bump_size2_b );
-        max2_hrz = MAX( bump_size2_a + bump_size2_b, const_max2_hrz );
 
-        // Is it too far away?
-        if ( diff2_hrz > const_max2_hrz || diff2_vrt > max2_vrt ) continue;
+        // visibility affects the max grab distance.
+        // if it is not visible then we have to be touching it.
+        grab2_hrz = MAX( bump_size2_a, bump_size2_b );
+        if ( !too_dark && !too_invis )
+        {
+            grab2_hrz = MAX( grab2_hrz, const_grab2_hrz );
+        }
+
+        // the player can get info from objects that are farther away
+        info2_hrz = MAX( grab2_hrz, const_info2_hrz );
+
+        // Is it too far away to interact with?
+        if ( diff2_hrz > info2_hrz || diff2_vrt > grab2_vrt ) continue;
+
+        // is it too far away to grab?
+        if ( diff2_hrz > grab2_hrz )
+        {
+            can_grab = bfalse;
+        }
 
         // count the number of objects that are within the max range
         // a difference between the *_total_count and the *_count
@@ -2199,17 +2217,6 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
                 ungrab_visible_count++;
             }
         }
-
-        // visibility affects the max grab distance.
-        // if it is not visible then we have to be touching it.
-        max2_hrz = MAX( bump_size2_a, bump_size2_b );
-        if ( !too_dark && !too_invis )
-        {
-            max2_hrz = MAX( max2_hrz, const_max2_hrz );
-        }
-
-        // is it close enough? (visibility determines the max distance)
-        if ( diff2_hrz > max2_hrz || diff2_vrt > max2_vrt ) continue;
 
         if ( can_grab )
         {
@@ -2298,7 +2305,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         fvec3_t   vforward;
 
         //---- generate billboards for things that players can interact with
-        if ( cfg.feedback != FEEDBACK_OFF && VALID_PLA( pchr_a->is_which_player ) )
+        if ( FEEDBACK_OFF != cfg.feedback && VALID_PLA( pchr_a->is_which_player ) )
         {
             // things that can be grabbed
             for ( cnt = 0; cnt < grab_count; cnt++ )
