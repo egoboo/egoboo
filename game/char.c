@@ -3148,9 +3148,6 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->flashand    = pcap->flashand;
     pchr->phys.dampen = pcap->dampen;
 
-    // graphics overrides
-    pchr->inst.dont_cull_backfaces = pcap->dont_cull_backfaces;
-
     // Load current life and mana. this may be overridden later
     pchr->life = CLIP( pcap->life_spawn, LOWSTAT, pchr->lifemax );
     pchr->mana = CLIP( pcap->mana_spawn,       0, pchr->manamax );

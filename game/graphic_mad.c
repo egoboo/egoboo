@@ -2146,6 +2146,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 
     pinst->grnshift  = greensave;
     pinst->redshift  = redsave;
     pinst->blushift  = bluesave;
+    pinst->dont_cull_backfaces = pcap->dont_cull_backfaces;
 
     // model parameters
     chr_instance_set_mad( pinst, pro_get_imad( profile ) );
