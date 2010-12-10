@@ -3807,7 +3807,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
 
                 if ( NULL != tmpstr )
                 {
-                    const float lifetime = 3;
+                    const int lifetime = 3;
                     STRING text_buffer = EMPTY_CSTR;
 
                     // "white" text
@@ -4834,7 +4834,6 @@ int chr_change_skin( const CHR_REF character, int skin )
     pro_t * ppro;
     mad_t * pmad;
     chr_instance_t * pinst;
-    oglx_texture_t * ptex;
     TX_REF new_texture = TX_WATER_TOP;
 
     if ( !INGAME_CHR( character ) ) return 0;
@@ -4891,10 +4890,10 @@ int chr_change_skin( const CHR_REF character, int skin )
     chr_instance_set_texture( pinst, new_texture );
 
     // If the we are respawning a player, then the camera needs to be reset
-    if ( VALID_PLA( pchr->is_which_player ) )
-    {
-        camera_reset_target( PCamera, PMesh );
-    }
+    // if ( VALID_PLA( pchr->is_which_player ) )
+    // {
+    //     camera_reset_target( PCamera, PMesh );
+    // }
 
     return pchr->skin;
 }

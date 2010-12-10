@@ -165,7 +165,6 @@ egoboo_rv get_random_treasure( char * buffer, size_t buffer_length )
     {
         // copy the local string to the output
         strncpy( buffer, tmp_buffer, buffer_length );
-        printf("Random treasure: %s\n", buffer);
     }
     else
     {

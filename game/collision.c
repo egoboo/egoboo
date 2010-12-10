@@ -3179,12 +3179,14 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 if ( INGAME_CHR( item ) )
                 {
                     ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pdata->pchr );
+                    if( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
                 }
 
                 item = powner->holdingwhich[SLOT_RIGHT];
                 if ( INGAME_CHR( item ) )
                 {
                     ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pdata->pchr );
+                    if( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
                 }
             }
 

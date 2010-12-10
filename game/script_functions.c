@@ -2407,17 +2407,17 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character scored a hit
-    if ( !INGAME_CHR( pchr->attachedto ) || ChrList.lst[pchr->attachedto].ismount )
-    {
+//    if ( !INGAME_CHR( pchr->attachedto ) || ChrList.lst[pchr->attachedto].ismount )
+//    {
         returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SCOREDAHIT );
-    }
+//    }
 
     // Proceed only if the holder scored a hit with the character
-    else if ( ChrList.lst[pchr->attachedto].ai.lastitemused == pself->index )
+/*    else if ( ChrList.lst[pchr->attachedto].ai.lastitemused == pself->index )
     {
         returncode = HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_SCOREDAHIT );
     }
-    else returncode = bfalse;
+    else returncode = bfalse;*/
 
     SCRIPT_FUNCTION_END();
 }
@@ -7775,7 +7775,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
         message_index  = MessageOffset.ary[message_number];
         ptext = message_buffer + message_index;
 
-        returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_all );
+        returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_none );
     }
 
     SCRIPT_FUNCTION_END();

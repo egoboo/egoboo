@@ -1480,7 +1480,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
     if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return bfalse;
 
     // Require player to have specific quest?
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) && VALID_PLA( ptst->is_which_player ) )
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         int quest_level = QUEST_NONE;
         player_t * ppla = PlaStack.lst + ptst->is_which_player;
@@ -1511,8 +1511,8 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
     is_predator  = !is_hated &&  hates_me;
     is_mutual    =  is_hated &&  hates_me;
 
-    //This is the last and final step! Check for specific IDSZ too?
-    if ( IDSZ_NONE == idsz )
+    //This is the last and final step! Check for specific IDSZ too? (not needed if we are looking for a quest)
+    if ( IDSZ_NONE == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         retval = btrue;
     }
