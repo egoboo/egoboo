@@ -166,6 +166,8 @@ IDSZ     local_senseenemiesID   = IDSZ_NONE;
 
 bool_t activate_spawn_file_active = bfalse;
 
+Import_list_t ImportList  = IMPORT_LIST_INIT;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -216,13 +218,12 @@ static void   game_clear_vfs_paths();
 void reset_all_object_lists( void );
 
 //--------------------------------------------------------------------------------------------
-// Random Things-----------------------------------------------------------------
+// Random Things
 //--------------------------------------------------------------------------------------------
-void export_one_character( const CHR_REF character, const CHR_REF owner, int number, bool_t is_local )
+egoboo_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local )
 {
     /// @details ZZ@> This function exports a character
 
-    int tnc = 0;
     cap_t * pcap;
     pro_t * pobj;
 
@@ -237,195 +238,192 @@ void export_one_character( const CHR_REF character, const CHR_REF owner, int num
     disenchant_character( character );
 
     pobj = chr_get_ppro( character );
-    if ( NULL == pobj ) return;
+    if ( NULL == pobj ) return rv_error;
 
     pcap = chr_get_pcap( character );
-    if ( NULL == pcap ) return;
+    if ( NULL == pcap ) return rv_error;
 
-    if (( pcap->cancarrytonextmodule || !pcap->isitem ) && PMod->exportvalid )
+    if ( !PMod->exportvalid || ( pcap->isitem && !pcap->cancarrytonextmodule ) )
     {
-        // TWINK_BO.OBJ
-        snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( ChrList.lst[owner].Name ) );
+        return rv_fail;
+    }
 
-        // Is it a character or an item?
-        if ( owner != character )
+    // TWINK_BO.OBJ
+    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( ChrList.lst[owner].Name ) );
+
+    // Is it a character or an item?
+    if ( chr_obj_index < 0 )
+    {
+        // Character directory
+        snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s", todirname );
+    }
+    else
+    {
+        // Item is a subdirectory of the owner directory...
+        snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s/%d.obj", todirname, chr_obj_index );
+    }
+
+    // players/twink.obj or players/twink.obj/0.obj
+    if ( is_local )
+    {
+        snprintf( todir, SDL_arraysize( todir ), "/players/%s", todirfullname );
+    }
+    else
+    {
+        snprintf( todir, SDL_arraysize( todir ), "/remote/%s", todirfullname );
+    }
+
+    // Remove all the original info
+    if ( chr_obj_index < 0 )
+    {
+        vfs_removeDirectoryAndContents( todir, VFS_TRUE );
+        if ( !vfs_mkdir( todir ) )
         {
-            // Item is a subdirectory of the owner directory...
-            snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s/%d.obj", todirname, number );
-        }
-        else
-        {
-            // Character directory
-            snprintf( todirfullname, SDL_arraysize( todirfullname ), "%s", todirname );
-        }
-
-        // players/twink.obj or players/twink.obj/0.obj
-        if ( is_local )
-        {
-            snprintf( todir, SDL_arraysize( todir ), "/players/%s", todirfullname );
-        }
-        else
-        {
-            snprintf( todir, SDL_arraysize( todir ), "/remote/%s", todirfullname );
-        }
-
-        // modules/advent.mod/objects/advent.obj
-        snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->name );
-
-        // Delete all the old items
-        if ( owner == character )
-        {
-            for ( tnc = 0; tnc < MAXIMPORTOBJECTS; tnc++ )
-            {
-                snprintf( tofile, SDL_arraysize( tofile ), "%s/%d.obj", todir, tnc ); /*.OBJ*/
-                vfs_removeDirectoryAndContents( tofile, btrue );
-            }
-        }
-
-        // Make the directory
-        vfs_mkdir( todir );
-
-        // Build the DATA.TXT file
-        snprintf( tofile, SDL_arraysize( tofile ), "%s/data.txt", todir ); /*DATA.TXT*/
-        export_one_character_profile_vfs( tofile, character );
-
-        // Build the SKIN.TXT file
-        snprintf( tofile, SDL_arraysize( tofile ), "%s/skin.txt", todir ); /*SKIN.TXT*/
-        export_one_character_skin_vfs( tofile, character );
-
-        // Build the NAMING.TXT file
-        snprintf( tofile, SDL_arraysize( tofile ), "%s/naming.txt", todir ); /*NAMING.TXT*/
-        export_one_character_name_vfs( tofile, character );
-
-        // Copy all of the misc. data files
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/message.txt", fromdir ); /*MESSAGE.TXT*/
-        snprintf( tofile, SDL_arraysize( tofile ), "%s/message.txt", todir ); /*MESSAGE.TXT*/
-        vfs_copyFile( fromfile, tofile );
-
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/tris.md2", fromdir ); /*TRIS.MD2*/
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s/tris.md2", todir ); /*TRIS.MD2*/
-        vfs_copyFile( fromfile, tofile );
-
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/copy.txt", fromdir ); /*COPY.TXT*/
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s/copy.txt", todir ); /*COPY.TXT*/
-        vfs_copyFile( fromfile, tofile );
-
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/script.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s/script.txt", todir );
-        vfs_copyFile( fromfile, tofile );
-
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/enchant.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s/enchant.txt", todir );
-        vfs_copyFile( fromfile, tofile );
-
-        snprintf( fromfile, SDL_arraysize( fromfile ), "%s/credits.txt", fromdir );
-        snprintf( tofile, SDL_arraysize( tofile ),   "%s/credits.txt", todir );
-        vfs_copyFile( fromfile, tofile );
-
-        // Build the QUEST.TXT file
-        snprintf( tofile, SDL_arraysize( tofile ), "%s/quest.txt", todir );
-        export_one_character_quest_vfs( tofile, character );
-
-        // Copy all of the particle files
-        for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
-        {
-            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/part%d.txt", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "%s/part%d.txt", todir,   tnc );
-            vfs_copyFile( fromfile, tofile );
-        }
-
-        // Copy all of the sound files
-        for ( tnc = 0; tnc < MAX_WAVE; tnc++ )
-        {
-            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/sound%d.wav", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "%s/sound%d.wav", todir,   tnc );
-            vfs_copyFile( fromfile, tofile );
-
-            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/sound%d.ogg", fromdir, tnc );
-            snprintf( tofile, SDL_arraysize( tofile ),   "%s/sound%d.ogg", todir,   tnc );
-            vfs_copyFile( fromfile, tofile );
-        }
-
-        // Copy all of the image files (try to copy all supported formats too)
-        for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
-        {
-            Uint8 type;
-
-            for ( type = 0; type < maxformattypes; type++ )
-            {
-                snprintf( fromfile, SDL_arraysize( fromfile ), "%s/tris%d%s", fromdir, tnc, TxFormatSupported[type] );
-                snprintf( tofile, SDL_arraysize( tofile ),   "%s/tris%d%s", todir,   tnc, TxFormatSupported[type] );
-                vfs_copyFile( fromfile, tofile );
-
-                snprintf( fromfile, SDL_arraysize( fromfile ), "%s/icon%d%s", fromdir, tnc, TxFormatSupported[type] );
-                snprintf( tofile, SDL_arraysize( tofile ),   "%s/icon%d%s", todir,   tnc, TxFormatSupported[type] );
-                vfs_copyFile( fromfile, tofile );
-            }
+            log_warning( "export_one_character() - cannot create object directory \"%s\"\n", todir );
+            return rv_error;
         }
     }
+
+    // modules/advent.mod/objects/advent.obj
+    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->name );
+
+    // Build the DATA.TXT file
+    snprintf( tofile, SDL_arraysize( tofile ), "%s/data.txt", todir ); /*DATA.TXT*/
+    export_one_character_profile_vfs( tofile, character );
+
+    // Build the SKIN.TXT file
+    // this is now handled by the [SKIN] expansion in data.txt
+    //snprintf( tofile, SDL_arraysize( tofile ), "%s/skin.txt", todir ); /*SKIN.TXT*/
+    //export_one_character_skin_vfs( tofile, character );
+
+    // Build the NAMING.TXT file
+    snprintf( tofile, SDL_arraysize( tofile ), "%s/naming.txt", todir ); /*NAMING.TXT*/
+    export_one_character_name_vfs( tofile, character );
+
+    // Build the QUEST.TXT file
+    snprintf( tofile, SDL_arraysize( tofile ), "%s/quest.txt", todir );
+    export_one_character_quest_vfs( tofile, character );
+
+    // copy every file that does not already exist in the todir
+    {
+        vfs_search_context_t * ctxt;
+        const char * searchResult;
+
+        ctxt = vfs_findFirst( fromdir, NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
+        searchResult = vfs_search_context_get_current( ctxt );
+
+        while ( NULL != ctxt && VALID_CSTR( searchResult ) )
+        {
+            snprintf( fromfile, SDL_arraysize( fromfile ), "%s/%s", fromdir, searchResult );
+            snprintf( tofile, SDL_arraysize( tofile ), "%s/%s", todir, searchResult );
+
+            if ( !vfs_exists( tofile ) )
+            {
+                vfs_copyFile( fromfile, tofile );
+            }
+
+            vfs_findNext( &ctxt );
+            searchResult = vfs_search_context_get_current( ctxt );
+        }
+
+        vfs_findClose( &ctxt );
+    }
+
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void export_all_players( bool_t require_local )
+egoboo_rv export_all_players( bool_t require_local )
 {
     /// @details ZZ@> This function saves all the local players in the
     ///    PLAYERS directory
 
+    egoboo_rv export_chr_rv;
+    egoboo_rv retval;
     bool_t is_local;
     PLA_REF ipla;
     int number;
     CHR_REF character;
 
     // Don't export if the module isn't running
-    if ( !process_running( PROC_PBASE( GProc ) ) ) return;
+    if ( !process_running( PROC_PBASE( GProc ) ) ) return rv_fail;
 
     // Stop if export isnt valid
-    if ( !PMod->exportvalid ) return;
+    if ( !PMod->exportvalid ) return rv_fail;
+
+    // assume the best
+    retval = rv_success;
 
     // Check each player
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF item;
+        player_t * ppla;
+        chr_t    * pchr;
 
-        is_local = ( 0 != PlaStack.lst[ipla].device.bits );
+        if ( !VALID_PLA( ipla ) ) continue;
+        ppla = PlaStack.lst + ipla;
+
+        is_local = ( 0 != ppla->device.bits );
         if ( require_local && !is_local ) continue;
-        if ( !PlaStack.lst[ipla].valid ) continue;
 
         // Is it alive?
-        character = PlaStack.lst[ipla].index;
-        if ( !INGAME_CHR( character ) || !ChrList.lst[character].alive ) continue;
+        if ( !INGAME_CHR( ppla->index ) ) continue;
+        character = ppla->index;
+        pchr      = ChrList.lst + character;
+
+        // don't export dead characters
+        if ( !pchr->alive ) continue;
 
         // Export the character
-        export_one_character( character, character, 0, is_local );
+        export_chr_rv = export_one_character( character, character, -1, is_local );
+        if ( rv_error == export_chr_rv )
+        {
+            retval = rv_error;
+        }
 
         // Export the left hand item
-        item = ChrList.lst[character].holdingwhich[SLOT_LEFT];
-        if ( INGAME_CHR( item ) && ChrList.lst[item].isitem )
+        item = pchr->holdingwhich[SLOT_LEFT];
+        if ( INGAME_CHR( item ) )
         {
-            export_one_character( item, character, SLOT_LEFT, is_local );
+            export_chr_rv = export_one_character( item, character, SLOT_LEFT, is_local );
+            if ( rv_error == export_chr_rv )
+            {
+                retval = rv_error;
+            }
         }
 
         // Export the right hand item
-        item = ChrList.lst[character].holdingwhich[SLOT_RIGHT];
-        if ( INGAME_CHR( item ) && ChrList.lst[item].isitem )
+        item = pchr->holdingwhich[SLOT_RIGHT];
+        if ( INGAME_CHR( item ) )
         {
-            export_one_character( item, character, SLOT_RIGHT, is_local );
+            export_chr_rv = export_one_character( item, character, SLOT_RIGHT, is_local );
+            if ( rv_error == export_chr_rv )
+            {
+                retval = rv_error;
+            }
         }
 
         // Export the inventory
         number = 0;
-        PACK_BEGIN_LOOP( ipacked, ChrList.lst[character].pack.next )
+        PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
         {
             if ( number >= MAXINVENTORY ) break;
 
-            if ( ChrList.lst[ipacked].isitem )
+            export_chr_rv = export_one_character( ipacked, character, number + SLOT_COUNT, is_local );
+            if ( rv_error == export_chr_rv )
             {
-                export_one_character( ipacked, character, number + 2, is_local );
+                retval = rv_error;
+            }
+            else if ( rv_success == export_chr_rv )
+            {
                 number++;
             }
         }
         PACK_END_LOOP( ipacked );
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2651,7 +2649,7 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
         // Wielded character
         grip_offset_t grip_off = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
 
-        if( rv_success == attach_character_to_mount( ichr, pinfo->parent, grip_off ) )
+        if ( rv_success == attach_character_to_mount( ichr, pinfo->parent, grip_off ) )
         {
             // Handle the "grabbed" messages
             scr_run_chr_script( ichr );
@@ -2733,7 +2731,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     //If it is a reference to a random treasure table then get a random object from that table
     if ( '%' == psp_info->spawn_coment[0] )
     {
-        get_random_treasure( psp_info->spawn_coment, SDL_arraysize(psp_info->spawn_coment) );
+        get_random_treasure( psp_info->spawn_coment, SDL_arraysize( psp_info->spawn_coment ) );
     }
 
     if ( NULL == strstr( psp_info->spawn_coment, ".obj" ) )
@@ -2821,20 +2819,20 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 pobject->nameknown = btrue;
             }
         }
-        else if ( PlaStack.count < PMod->importamount && PlaStack.count < PMod->playeramount && PlaStack.count < local_import_count )
+        else if ( PlaStack.count < PMod->importamount && PlaStack.count < PMod->playeramount && PlaStack.count < ImportList.count )
         {
             // A multiplayer module
 
             bool_t player_added;
 
             local_index = -1;
-            for ( tnc = 0; tnc < local_import_count; tnc++ )
+            for ( tnc = 0; tnc < ImportList.count; tnc++ )
             {
                 if ( pobject->profile_ref <= import_data.max_slot && pobject->profile_ref < MAX_PROFILE )
                 {
                     int islot = REF_TO_INT( pobject->profile_ref );
 
-                    if ( import_data.slot_lst[islot] == local_import_slot[tnc] )
+                    if ( import_data.slot_lst[islot] == ImportList.lst[tnc].slot )
                     {
                         local_index = tnc;
                         break;
@@ -2846,7 +2844,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, local_import_control[local_index] );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, ImportList.lst[local_index].bits );
             }
             else
             {
@@ -3420,83 +3418,21 @@ bool_t game_update_imports()
     /// @details BB@> This function saves all the players to the players dir
     ///    and also copies them into the imports dir to prepare for the next module
 
-    bool_t is_local;
-    int tnc, j;
-    CHR_REF character;
-    PLA_REF player, ipla;
-    STRING srcPlayer, srcDir, destDir;
-
-    // do the normal export to save all the player settings
+    // save the players and their inventories to their original directory
     if ( PMod->exportvalid )
     {
-        export_all_players( btrue );
+        // export the players
+        export_all_players( bfalse );
+
+        // update the import list
+        Import_list_from_players( &ImportList );
     }
 
-    // reload all of the available players
-    mnu_player_check_import( "mp_players", btrue );
-    mnu_player_check_import( "mp_remote",  bfalse );
+    // erase the data in the import folder
+    vfs_removeDirectoryAndContents( "import", VFS_TRUE );
 
-    // build the import directory using the player info
-    vfs_empty_import_directory();
-    vfs_mkdir( "/import" );
-
-    // export all of the players directly from memory straight to the "import" dir
-    for ( player = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
-    {
-        size_t player_idx;
-
-        if ( !PlaStack.lst[ipla].valid ) continue;
-
-        // Is it alive?
-        character = PlaStack.lst[ipla].index;
-        if ( !INGAME_CHR( character ) ) continue;
-
-        is_local = ( INPUT_BITS_NONE != PlaStack.lst[ipla].device.bits );
-
-        // find the saved copy of the players that are in memory right now
-        for ( tnc = 0; tnc < loadplayer_count; tnc++ )
-        {
-            if ( 0 == strcmp( loadplayer_ary[tnc].name, ChrList.lst[character].Name ) )
-            {
-                break;
-            }
-        }
-
-        if ( tnc == loadplayer_count )
-        {
-            log_warning( "game_update_imports() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList.lst[character].obj_base._name, str_encode_path( ChrList.lst[character].Name ) ) ;
-            continue;
-        }
-
-        // grab the controls from the currently loaded players
-        // calculate the slot from the current player count
-        player_idx = REF_TO_INT( player );
-        local_import_control[player_idx] = PlaStack.lst[ipla].device.bits;
-        local_import_slot[player_idx]    = REF_TO_INT( player ) * MAXIMPORTPERPLAYER;
-        player++;
-
-        // Copy the character to the import directory
-        if ( is_local )
-        {
-            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "%s", loadplayer_ary[tnc].dir );
-        }
-        else
-        {
-            snprintf( srcPlayer, SDL_arraysize( srcPlayer ), "mp_remote/%s", str_encode_path( loadplayer_ary[tnc].name ) );
-        }
-
-        snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[tnc] );
-        vfs_copyDirectory( srcPlayer, destDir );
-
-        // Copy all of the character's items to the import directory
-        for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
-        {
-            snprintf( srcDir, SDL_arraysize( srcDir ), "%s/%d.obj", srcPlayer, j );
-            snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[tnc] + j + 1 );
-
-            vfs_copyDirectory( srcDir, destDir );
-        }
-    }
+    // copy the import data back into the import folder
+    game_copy_imports( &ImportList );
 
     return btrue;
 }
@@ -5568,3 +5504,155 @@ bool_t detach_particle_from_platform( prt_t * pprt )
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t Import_element_init( Import_element_t * ptr )
+{
+    if ( NULL == ptr ) return bfalse;
+
+    memset( ptr, 0, sizeof( *ptr ) );
+
+    // all non-zero, non-null values
+    ptr->player = MAX_PLAYER;
+    ptr->slot   = -1;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+egoboo_rv game_copy_imports( Import_list_t * imp_lst )
+{
+    int       tnc;
+    egoboo_rv retval;
+    STRING    tmp_src_dir, tmp_dst_dir;
+
+    int                import_idx = 0;
+    Import_element_t * import_ptr = NULL;
+
+    if ( NULL == imp_lst ) return rv_error;
+
+    if ( 0 == imp_lst->count ) return rv_success;
+
+    // assume the best
+    retval = rv_success;
+
+    // delete the data in the directory
+    vfs_removeDirectoryAndContents( "import", VFS_TRUE );
+
+    // make sure the directory exists
+    if ( !vfs_mkdir( "/import" ) )
+    {
+        log_warning( "mnu_copy_local_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
+        return rv_error;
+    }
+
+    // copy all of the imports over
+    for ( import_idx = 0; import_idx < imp_lst->count; import_idx++ )
+    {
+        // grab the loadplayer info
+        import_ptr = imp_lst->lst + import_idx;
+
+        snprintf( import_ptr->dstDir, SDL_arraysize( import_ptr->dstDir ), "/import/temp%04d.obj", import_ptr->slot );
+
+        if ( !vfs_copyDirectory( import_ptr->srcDir, import_ptr->dstDir ) )
+        {
+            retval = rv_error;
+            log_warning( "mnu_copy_local_imports() - Failed to copy an import character \"%s\" to \"%s\" (%s)\n", import_ptr->srcDir, import_ptr->dstDir, vfs_getError() );
+        }
+
+        // Copy all of the character's items to the import directory
+        for ( tnc = 0; tnc < MAXIMPORTOBJECTS; tnc++ )
+        {
+            snprintf( tmp_src_dir, SDL_arraysize( tmp_src_dir ), "%s/%d.obj", import_ptr->srcDir, tnc );
+
+            // make sure the source directory exists
+            if ( vfs_isDirectory( tmp_src_dir ) )
+            {
+                snprintf( tmp_dst_dir, SDL_arraysize( tmp_dst_dir ), "/import/temp%04d.obj", import_ptr->slot + tnc + 1 );
+                if ( !vfs_copyDirectory( tmp_src_dir, tmp_dst_dir ) )
+                {
+                    retval = rv_error;
+                    log_warning( "mnu_copy_local_imports() - Failed to copy an import inventory item \"%s\" to \"%s\" (%s)\n", tmp_src_dir, tmp_dst_dir, vfs_getError() );
+                }
+            }
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t Import_list_init( Import_list_t * imp_lst )
+{
+    int cnt;
+
+    if ( NULL == imp_lst ) return bfalse;
+
+    for ( cnt = 0; cnt < MAX_IMPORTS; cnt++ )
+    {
+        Import_element_init( imp_lst->lst + cnt );
+    }
+    imp_lst->count = 0;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
+{
+    bool_t is_local;
+    PLA_REF player;
+
+    PLA_REF                 player_idx;
+    player_t              * player_ptr = NULL;
+
+    Import_element_t      * import_ptr = NULL;
+
+    CHR_REF                 ichr;
+    chr_t                 * pchr;
+
+    if ( NULL == imp_lst ) return rv_error;
+
+    // blank out the ImportList list
+    Import_list_init( &ImportList );
+
+    // generate the ImportList list from the player info
+    for ( player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++ )
+    {
+        if ( !VALID_PLA( player_idx ) ) continue;
+        player_ptr = PlaStack.lst + player_idx;
+
+        ichr = player_ptr->index;
+        if ( !DEFINED_CHR( ichr ) ) continue;
+        pchr = ChrList.lst + ichr;
+
+        is_local = ( INPUT_BITS_NONE != player_ptr->device.bits );
+
+        // grab a pointer
+        import_ptr = imp_lst->lst + imp_lst->count;
+        imp_lst->count++;
+
+        import_ptr->player    = player_idx;
+        import_ptr->bits      = player_ptr->device.bits;
+        import_ptr->slot      = REF_TO_INT( player ) * MAXIMPORTPERPLAYER;
+        import_ptr->srcDir[0] = CSTR_END;
+        import_ptr->dstDir[0] = CSTR_END;
+        strncpy( import_ptr->name, pchr->Name, SDL_arraysize( import_ptr->name ) );
+
+        // only copy the "source" directory if the player is local
+        if ( is_local )
+        {
+            snprintf( import_ptr->srcDir, SDL_arraysize( import_ptr->srcDir ), "mp_players/%s", str_encode_path( pchr->Name ) );
+        }
+        else
+        {
+            snprintf( import_ptr->srcDir, SDL_arraysize( import_ptr->srcDir ), "mp_remote/%s", str_encode_path( pchr->Name ) );
+        }
+
+        player++;
+    }
+
+    return ( imp_lst->count > 0 ) ? rv_success : rv_fail;
+}

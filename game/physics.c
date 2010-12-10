@@ -774,8 +774,9 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
     oct_bb_add_ovec( src2_orig, opos2, &src2 );
 
     found = bfalse;
-    *tmin = *tmax = -1.0f;
-    if ( 0 == fvec3_dist_abs( vel1, vel2 ) )
+    *tmin = +1.0e6;
+    *tmax = -1.0e6;
+    if ( fvec3_dist_abs( vel1, vel2 ) < 1.0e-6 )
     {
         // no relative motion, so avoid the loop to save time
         failure_count = OCT_COUNT;
@@ -787,7 +788,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
         {
             egoboo_rv retval;
 
-            if ( ovel1[index] == ovel2[index] )
+            if ( ABS( ovel1[index] - ovel2[index] ) < 1.0e-6 )
             {
                 failure[index] = btrue;
                 failure_count++;
@@ -795,6 +796,13 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
             else
             {
                 retval = oct_bb_intersect_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
+
+                // check for overflow
+                if ( ieee32_infinite( tmp_min ) || ieee32_infinite( tmp_max ) )
+                {
+                    retval = rv_fail;
+                }
+
                 if ( rv_fail == retval )
                 {
                     // This case will only occur if the objects are not moving relative to each other.

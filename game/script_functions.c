@@ -2409,15 +2409,15 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     // Proceed only if the character scored a hit
 //    if ( !INGAME_CHR( pchr->attachedto ) || ChrList.lst[pchr->attachedto].ismount )
 //    {
-        returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SCOREDAHIT );
+    returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SCOREDAHIT );
 //    }
 
     // Proceed only if the holder scored a hit with the character
-/*    else if ( ChrList.lst[pchr->attachedto].ai.lastitemused == pself->index )
-    {
-        returncode = HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_SCOREDAHIT );
-    }
-    else returncode = bfalse;*/
+    /*    else if ( ChrList.lst[pchr->attachedto].ai.lastitemused == pself->index )
+        {
+            returncode = HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_SCOREDAHIT );
+        }
+        else returncode = bfalse;*/
 
     SCRIPT_FUNCTION_END();
 }
@@ -7245,7 +7245,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
                 // Wielded character
                 grip_offset_t grip_off = ( ATTACH_LEFT == grip ) ? GRIP_LEFT : GRIP_RIGHT;
 
-                if( rv_success == attach_character_to_mount( ichr, pself->target, grip_off ) )
+                if ( rv_success == attach_character_to_mount( ichr, pself->target, grip_off ) )
                 {
                     // Handle the "grabbed" messages
                     scr_run_chr_script( ichr );

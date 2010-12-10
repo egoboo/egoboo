@@ -148,11 +148,6 @@ EXTERN STRING          pickedmodule_write_path;         ///< The picked module's
 EXTERN bool_t                   local_allpladead EQ( bfalse );  ///< Has everyone died?
 EXTERN int                      revivetimer EQ( 0 );
 
-/// Imports
-EXTERN int                     local_import_count;                     ///< Number of imports from this machine
-EXTERN BIT_FIELD               local_import_control[16];             ///< Input bits for each imported player
-EXTERN int                     local_import_slot[16];                ///< For local imports
-
 /// Setup values
 EXTERN Uint8                   messageon      EQ( btrue );         ///< Messages?
 EXTERN int                     maxmessage     EQ( MAX_MESSAGE );

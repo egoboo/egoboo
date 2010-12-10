@@ -368,17 +368,19 @@ bool_t release_one_profile_textures( const PRO_REF iobj )
     {
         TX_REF itex;
 
-        itex = pobj->tex_ref[tnc] ;
+        itex = pobj->tex_ref[tnc];
         if ( itex > TX_LAST )
         {
             TxTexture_free_one( itex );
         }
+        pobj->tex_ref[tnc] = INVALID_TX_TEXTURE;
 
         itex = pobj->ico_ref[tnc] ;
         if ( itex > TX_LAST )
         {
             TxTexture_free_one( itex );
         }
+        pobj->ico_ref[tnc] = INVALID_TX_TEXTURE;
     }
 
     // reset the bookicon stuff if this object is a book

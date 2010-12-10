@@ -69,3 +69,40 @@ void make_randie()
     // All done
     randindex = 0;
 }
+
+Uint32 float32_to_uint32( float f )
+{
+    union { Uint32 i; float f; } val;
+
+    val.f = f;
+
+    return val.i;
+}
+
+float  uint32_to_float32( Uint32 i )
+{
+    union { Uint32 i; float f; } val;
+
+    val.i = i;
+
+    return val.f;
+
+}
+
+#define IEEE32_FRACTION 0x007FFFFFL
+#define IEEE32_EXPONENT 0x7F800000L
+#define IEEE32_SIGN     0x80000000L
+
+bool_t ieee32_infinite( float f )
+{
+    Uint32 u = float32_to_uint32( f );
+
+    return ( 0 == ( u & IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) );
+}
+
+bool_t ieee32_nan( float f )
+{
+    Uint32 u = float32_to_uint32( f );
+
+    return ( 0 != ( u&IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u&IEEE32_EXPONENT ) );
+}

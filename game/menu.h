@@ -86,22 +86,47 @@ enum e_menu_retvals
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Input player control
-#define MAXLOADPLAYER     100
+#define MAX_LOADPLAYER     100
 
 /// data for caching the which players may be loaded
-struct s_load_player_info
+struct s_LoadPlayer_element
 {
     STRING name;              ///< the object's name
     STRING dir;               ///< the object's full path
-    TX_REF tx_ref;            ///< the index of the texture
-    IDSZ_node_t quest_log[MAX_IDSZ_MAP_SIZE];    ///< all the quests this player has
 
-    chop_definition_t chop;   ///< put this here so we can generate a name without loading an entire profile
+    CAP_REF cap_ref;          ///< the character profile index
+    int     skin_ref;         ///< the index of the object's skin
+    TX_REF  tx_ref;           ///< the index of the texture
+
+    IDSZ_node_t       quest_log[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has
+    chop_definition_t chop;                         ///< put this here so we can generate a name without loading an entire profile
 };
-typedef struct s_load_player_info LOAD_PLAYER_INFO;
+typedef struct s_LoadPlayer_element LoadPlayer_element_t;
 
-extern int              loadplayer_count;
-extern LOAD_PLAYER_INFO loadplayer_ary[MAXLOADPLAYER];
+LoadPlayer_element_t * LoadPlayer_element_ctor( LoadPlayer_element_t * );
+LoadPlayer_element_t * LoadPlayer_element_dtor( LoadPlayer_element_t * );
+
+bool_t LoadPlayer_element_dealloc( LoadPlayer_element_t * );
+bool_t LoadPlayer_element_init( LoadPlayer_element_t * );
+
+//--------------------------------------------------------------------------------------------
+struct s_LoadPlayer_list
+{
+    int                  count;
+    LoadPlayer_element_t lst[MAX_LOADPLAYER];
+};
+typedef struct s_LoadPlayer_list LoadPlayer_list_t;
+
+egoboo_rv              LoadPlayer_list_init( LoadPlayer_list_t * lst );
+egoboo_rv              LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile );
+LoadPlayer_element_t * LoadPlayer_list_get_ptr( LoadPlayer_list_t * lst, int idx );
+egoboo_rv              LoadPlayer_list_dealloc( LoadPlayer_list_t * lst );
+int                    LoadPlayer_list_get_free( LoadPlayer_list_t * lst );
+egoboo_rv              LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize );
+egoboo_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
+
+#define LOADPLAYER_LIST_INIT { 0 }
+#define VALID_LOADPLAYER_IDX(LST, IDX) ( ((IDX) > 0) && ((IDX)<(LST).count) && ((IDX)<MAX_LOADPLAYER) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -126,8 +151,6 @@ bool_t mnu_begin_menu( which_menu_t which );
 void   mnu_end_menu();
 int    mnu_get_menu_depth();
 
-void  mnu_player_check_import( const char *dirname, bool_t initialize );
-
 // "public" implmentation of the TxTitleImage array
 void   TxTitleImage_reload_all();
 TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
@@ -142,8 +165,8 @@ const char *        mnu_ModList_get_name( int imod );
 
 // "public" module utilities
 int    mnu_get_mod_number( const char *szModName );
-bool_t mnu_test_by_name( const char *szModName );
-bool_t mnu_test_by_index( const MOD_REF modnumber, size_t buffer_len, char * buffer );
+bool_t mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName );
+bool_t mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer );
 
 // "public" menu process hooks
 int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );

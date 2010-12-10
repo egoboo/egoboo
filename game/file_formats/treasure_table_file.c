@@ -131,7 +131,7 @@ egoboo_rv get_random_treasure( char * buffer, size_t buffer_length )
     if ( 0 == buffer_length || INVALID_CSTR( buffer ) ) return rv_error;
 
     // make a local copy of the string
-    strncpy( tmp_buffer, buffer, SDL_arraysize(tmp_buffer) );
+    strncpy( tmp_buffer, buffer, SDL_arraysize( tmp_buffer ) );
 
     // Iterate through every treasure table until we find the one we want
     found = bfalse;
@@ -147,13 +147,13 @@ egoboo_rv get_random_treasure( char * buffer, size_t buffer_length )
         strncpy( tmp_buffer, treasureTableList[i].object_list[treasure_index], buffer_length );
 
         //See if it is an actual random object or a reference to a different random table
-        if ( '%' != tmp_buffer[0] ) 
+        if ( '%' != tmp_buffer[0] )
         {
             found = btrue;
         }
         else
         {
-            if( rv_success == get_random_treasure( tmp_buffer, buffer_length ) )
+            if ( rv_success == get_random_treasure( tmp_buffer, buffer_length ) )
             {
                 found = btrue;
             }
@@ -161,10 +161,11 @@ egoboo_rv get_random_treasure( char * buffer, size_t buffer_length )
     }
 
     //Could not find anything
-    if( found )
+    if ( found )
     {
         // copy the local string to the output
         strncpy( buffer, tmp_buffer, buffer_length );
+        printf( "Random treasure: %s\n", buffer );
     }
     else
     {

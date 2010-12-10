@@ -806,7 +806,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
     mi = &( PMesh->info );
 
     // allocate a BSP_aabb_t once, to be shared for all collision tests
-    BSP_aabb_ctor( &tmp_aabb, 3 );
+    BSP_aabb_ctor( &tmp_aabb, 2 );
 
     // renew the CoNode_t hash table.
     hash_list_renew( pchlst );
@@ -983,24 +983,18 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
     PRT_BEGIN_LOOP_ACTIVE( iprt, bdl )
     {
         oct_bb_t   tmp_oct;
-        int        max_damage;
-        bool_t     does_damage, reaffirms, needs_bump;
+        bool_t     can_reaffirm, needs_bump;
 
         // if the particle is in the BSP, then it has already had it's chance to collide
         if ( bdl.prt_ptr->bsp_leaf.inserted ) continue;
 
-        max_damage = ABS( bdl.prt_ptr->damage.base ) + ABS( bdl.prt_ptr->damage.rand );
-
-        // does the particle do damage?
-        does_damage = max_damage > 0;
-
         // does the particle potentially reaffirm a character?
-        reaffirms = ( bdl.prt_ptr->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[bdl.prt_ptr->damagetype] );
+        can_reaffirm = ( bdl.prt_ptr->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[bdl.prt_ptr->damagetype] );
 
         // does the particle end_bump or end_ground?
         needs_bump = bdl.pip_ptr->end_bump || bdl.pip_ptr->end_ground;
 
-        if ( !reaffirms && !needs_bump ) continue;
+        if ( !can_reaffirm && !needs_bump ) continue;
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
@@ -1009,7 +1003,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
         // convert the oct_bb_t to a correct BSP_aabb_t
         BSP_aabb_from_oct_bb( &tmp_aabb, &tmp_oct );
 
-        // find all collisions with other characters and particles
+        // find all collisions with characters
         _coll_leaf_lst.top = 0;
         obj_BSP_collide( &( chr_BSP_root ), &tmp_aabb, &_coll_leaf_lst );
 
@@ -1017,55 +1011,108 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
         // and sort them by their initial times
         if ( _coll_leaf_lst.top > 0 )
         {
-            int j;
-            CoNode_t    tmp_codata;
-            BIT_FIELD   test_platform;
+            int          j;
+            CoNode_t     tmp_codata;
+            BIT_FIELD    test_platform;
+            CHR_REF      ichr_b = MAX_CHR;
+            PRT_REF      iprt_b = MAX_PRT;
+            BSP_leaf_t * pleaf = NULL;
+            bool_t       do_insert = bfalse;
 
             for ( j = 0; j < _coll_leaf_lst.top; j++ )
             {
-                BSP_leaf_t * pleaf;
-                bool_t      do_insert;
-
                 pleaf = _coll_leaf_lst.ary[j];
                 if ( NULL == pleaf ) continue;
 
+                ichr_b = ( CHR_REF )( pleaf->index );
+                iprt_b = ( PRT_REF )( pleaf->index );
+
                 do_insert = bfalse;
 
-                if ( BSP_LEAF_CHR == pleaf->data_type )
+                if ( BSP_LEAF_CHR == pleaf->data_type && VALID_CHR_RANGE( ichr_b ) )
                 {
                     // collided with a character
-                    CHR_REF ichr_b = ( CHR_REF )( pleaf->index );
+                    bool_t loc_reaffirms     = can_reaffirm;
+                    bool_t loc_needs_bump    = needs_bump;
+                    bool_t interaction_valid = bfalse;
 
-                    // do some logic on this to determine whether the collision is valid
-                    if ( detect_chr_prt_interaction_valid( ichr_b, bdl.prt_ref ) )
+                    chr_t * pchr_b = ChrList.lst + ichr_b;
+
+                    // can this particle affect the character through reaffirmation
+                    if ( loc_reaffirms )
                     {
-                        chr_t * pchr_b = ChrList.lst + ichr_b;
-
-                        // only interested in certain interactions
-                        if (( pchr_b->reaffirm_damagetype < DAMAGE_COUNT && bdl.prt_ptr->damagetype == pchr_b->reaffirm_damagetype ) ||
-                            ( 0 != pchr_b->bump_stt.size && needs_bump ) )
+                        // does this interaction support affirmation?
+                        if ( bdl.prt_ptr->damagetype != pchr_b->reaffirm_damagetype )
                         {
-                            CoNode_ctor( &tmp_codata );
+                            loc_reaffirms = bfalse;
+                        }
 
-                            // do a simple test, since I do not want to resolve the cap_t for these objects here
-                            test_platform = EMPTY_BIT_FIELD;
-                            if ( pchr_b->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+                        // if it is already attached to this character, no more reaffirmation
+                        if ( bdl.prt_ptr->attachedto_ref == ichr_b )
+                        {
+                            loc_reaffirms = bfalse;
+                        }
+                    }
 
-                            // detect a when the possible collision occurred
-                            if ( phys_intersect_oct_bb( &( pchr_b->chr_min_cv ), chr_get_pos_v( pchr_b ), pchr_b->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
-                            {
 
-                                tmp_codata.chra = ichr_b;
-                                tmp_codata.prtb = bdl.prt_ref;
+                    // you can't be bumped by items that you are attached to
+                    if ( loc_needs_bump && bdl.prt_ptr->attachedto_ref == ichr_b )
+                    {
+                        loc_needs_bump = bfalse;
+                    }
 
-                                do_insert = btrue;
-                            }
+                    // can this character affect this particle through bumping?
+                    if ( loc_needs_bump )
+                    {
+                        // the valid bump interactions
+                        bool_t end_money  = ( bdl.pip_ptr->bump_money > 0 ) && pchr_b->cangrabmoney;
+                        bool_t end_bump   = ( bdl.pip_ptr->end_bump ) && ( 0 != pchr_b->bump_stt.size );
+                        bool_t end_ground = ( bdl.pip_ptr->end_ground ) && (( 0 != pchr_b->bump_stt.size ) || pchr_b->platform );
+
+                        if ( !end_money && !end_bump && !end_ground )
+                        {
+                            loc_needs_bump = bfalse;
+                        }
+                    }
+
+                    // do a little more logic on this to determine whether the collision is valid
+                    interaction_valid = bfalse;
+                    if ( loc_reaffirms || loc_needs_bump )
+                    {
+                        if ( detect_chr_prt_interaction_valid( ichr_b, bdl.prt_ref ) )
+                        {
+                            interaction_valid = btrue;
+                        }
+                        else
+                        {
+                            interaction_valid = bfalse;
+                        }
+                    }
+
+                    // only do the more expensive calculation if the
+                    // particle can interact with the object
+                    if ( interaction_valid )
+                    {
+                        CoNode_ctor( &tmp_codata );
+
+                        // do a simple test, since I do not want to resolve the cap_t for these objects here
+                        test_platform = EMPTY_BIT_FIELD;
+                        if ( pchr_b->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+
+                        // detect a when the possible collision occurred
+                        if ( phys_intersect_oct_bb( &( pchr_b->chr_min_cv ), chr_get_pos_v( pchr_b ), pchr_b->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        {
+
+                            tmp_codata.chra = ichr_b;
+                            tmp_codata.prtb = bdl.prt_ref;
+
+                            do_insert = btrue;
                         }
                     }
                 }
                 else if ( BSP_LEAF_PRT == pleaf->data_type )
                 {
-                    // ignore particle-particle interactions
+                    // this should never happen
                 }
 
                 if ( do_insert )
@@ -1892,7 +1939,7 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
                 // even if the object is doesn't actually mount
                 handled = btrue;
 
-                if( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
+                if ( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
                 {
                     mounted = INGAME_CHR( pchr_a->attachedto );
                 }
@@ -1929,7 +1976,7 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
                 // even if the object is doesn't actually mount
                 handled = btrue;
 
-                if( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
+                if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
                 {
                     mounted = INGAME_CHR( pchr_b->attachedto );
                 }
@@ -3179,14 +3226,14 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 if ( INGAME_CHR( item ) )
                 {
                     ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pdata->pchr );
-                    if( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
                 }
 
                 item = powner->holdingwhich[SLOT_RIGHT];
                 if ( INGAME_CHR( item ) )
                 {
                     ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pdata->pchr );
-                    if( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
                 }
             }
 

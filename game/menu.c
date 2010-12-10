@@ -92,21 +92,30 @@ typedef struct s_SlidyButtonState mnu_SlidyButtonState_t;
 /// the data to display a chosen player in the load player menu
 struct s_ChoosePlayer_element
 {
-    CAP_REF cap_ref;          ///< the index of the cap_t
-    TX_REF  tx_ref;           ///< the index of the icon texture
-    chop_definition_t chop;   ///< put this here so we can generate a name without loading an entire profile
+    CAP_REF           cap_ref;  ///< the character profile reference from "data.txt"
+    TX_REF            tx_ref;   ///< the index of the icon texture
+    int               skin_ref; ///< the index of the object skin from "skin.txt"
+    chop_definition_t chop;     ///< the chop data from "naming.txt". put this here so we can generate a name without loading an entire profile
 };
 typedef struct s_ChoosePlayer_element ChoosePlayer_element_t;
+
+ChoosePlayer_element_t * ChoosePlayer_ctor( ChoosePlayer_element_t * ptr );
+ChoosePlayer_element_t * ChoosePlayer_dtor( ChoosePlayer_element_t * ptr );
+
+bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr );
+bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 
 /// The data that menu.c uses to store the users' choice of players
-struct s_ChoosePlayer_profiles
+struct s_ChoosePlayer_list
 {
-    int count;                                                 ///< the profiles that have been loaded
-    ChoosePlayer_element_t pro_data[MAXIMPORTPERPLAYER + 1];   ///< the profile data
+    int                    count;                         ///< the profiles that have been loaded
+    ChoosePlayer_element_t lst[MAXIMPORTPERPLAYER + 1];   ///< the profile data
 };
-typedef struct s_ChoosePlayer_profiles ChoosePlayer_profiles_t;
+typedef struct s_ChoosePlayer_list ChoosePlayer_list_t;
+
+ChoosePlayer_list_t * ChoosePlayer_list_dealloc( ChoosePlayer_list_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -149,6 +158,36 @@ struct s_GameTips
 typedef struct s_GameTips GameTips_t;
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_SelectedPlayer_element
+{
+    Uint32  input;
+    int     player;
+};
+typedef struct s_SelectedPlayer_element SelectedPlayer_element_t;
+
+egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr );
+
+//--------------------------------------------------------------------------------------------
+struct s_SelectedPlayer_list
+{
+    int count;
+    SelectedPlayer_element_t lst[MAX_PLAYER];
+};
+typedef struct s_SelectedPlayer_list SelectedPlayer_list_t;
+
+#define SELECTED_PLAYER_LIST_INIT { 0 }
+
+// implementation of the SelectedPlayer_list_t
+static egoboo_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst );
+static bool_t    SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
+static bool_t    SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
+static bool_t    SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
+static bool_t    SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
+static bool_t    SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
+static int       SelectedPlayer_list_index_from_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
+
+//--------------------------------------------------------------------------------------------
 // declaration of "private" variables
 //--------------------------------------------------------------------------------------------
 
@@ -177,17 +216,13 @@ static int tipTextTop  = 0;
 static int buttonLeft = 0;
 static int buttonTop = 0;
 
-static int selectedPlayer = 0;           // Which player is currently selected to play
-
 static menu_process_t    _mproc;
-
-static int     mnu_selectedPlayerCount = 0;
-static Uint32  mnu_selectedInput[MAX_PLAYER] = {0};
-static int     mnu_selectedPlayer[MAX_PLAYER] = {0};
 
 static GameTips_t mnu_GameTip = { 0 };
 
 static mnu_SlidyButtonState_t mnu_SlidyButtonState = { NULL };
+
+static SelectedPlayer_list_t mnu_SelectedList = SELECTED_PLAYER_LIST_INIT;
 
 //--------------------------------------------------------------------------------------------
 // declaration of public variables
@@ -207,8 +242,7 @@ Font *menuFont = NULL;
 
 bool_t mnu_draw_background = btrue;
 
-int              loadplayer_count = 0;
-LOAD_PLAYER_INFO loadplayer_ary[MAXLOADPLAYER];
+LoadPlayer_list_t mnu_loadplayer     = LOADPLAYER_LIST_INIT;
 
 //--------------------------------------------------------------------------------------------
 // "private" function prototypes
@@ -224,14 +258,6 @@ static void         mnu_stack_clear();
 static void mnu_SlidyButton_init( float lerp, const char *button_text[] );
 static void mnu_SlidyButton_update_all( float deltaTime );
 static void mnu_SlidyButton_draw_all();
-
-// implementation of the mnu_Selected* arrays
-static bool_t  mnu_Selected_check_loadplayer( int loadplayer_idx );
-static bool_t  mnu_Selected_add( int loadplayer_idx );
-static bool_t  mnu_Selected_remove( int loadplayer_idx );
-static bool_t  mnu_Selected_add_input( int loadplayer_idx, Uint32 input_bits );
-static bool_t  mnu_Selected_remove_input( int loadplayer_idx, Uint32 input_bits );
-static int     mnu_Selected_index_from_loadplayer( int loadplayer_idx );
 
 // implementation of "private" TxTitleImage functions
 static void             TxTitleImage_clear_data();
@@ -272,8 +298,12 @@ static void autoformat_init_tip_text();
 static void autoformat_init_copyright_text();
 
 // misc other stuff
-static void mnu_release_one_module( const MOD_REF imod );
-static void mnu_load_all_module_images_vfs();
+static void      mnu_release_one_module( const MOD_REF imod );
+static void      mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst );
+static egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst );
+static egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
+static egoboo_rv mnu_copy_local_imports( Import_list_t * imp_lst );
+
 
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
@@ -539,6 +569,9 @@ void menu_system_end()
     // Loads resources for the menus, and figures out where things should
     // be positioned.  If we ever allow changing resolution on the fly, this
     // function will have to be updated/called more than once.
+
+    // if this has not been done before yet, do it now
+    LoadPlayer_list_dealloc( &mnu_loadplayer );
 
     if ( NULL != menuFont )
     {
@@ -934,6 +967,9 @@ int doChooseModule( float deltaTime )
     static int int_module = -1;
     static int ext_module = -1;
 
+    // keep a local list of the currently selected players
+    static LoadPlayer_list_t loc_selectedplayer = LOADPLAYER_LIST_INIT;
+
     int result = 0;
     int i, x, y;
     MOD_REF imod;
@@ -942,13 +978,17 @@ int doChooseModule( float deltaTime )
     {
         case MM_Begin:
 
+            // copy over the selected players from mnu_SelectedList to loc_selectedplayer
+            mnu_set_selected_list( &loc_selectedplayer, &mnu_loadplayer, &mnu_SelectedList );
+
+            // reload the module data, if necessary
             if ( !module_list_valid )
             {
                 mnu_load_all_module_info();
             }
 
             // Reload all modules, something might be unlocked
-            mnu_load_all_module_images_vfs();
+            mnu_load_all_module_images_vfs( &loc_selectedplayer );
 
             // Reset which module we are selecting
             startIndex = 0;
@@ -981,7 +1021,7 @@ int doChooseModule( float deltaTime )
             if ( !module_list_valid )
             {
                 mnu_load_all_module_info();
-                mnu_load_all_module_images_vfs();
+                mnu_load_all_module_images_vfs( &loc_selectedplayer );
             }
 
             // Find the modules that we want to allow loading for.  If start_new_player
@@ -992,7 +1032,7 @@ int doChooseModule( float deltaTime )
             {
                 // if this module is not valid given the game options and the
                 // selected players, skip it
-                if ( !mnu_test_by_index( imod, 0, NULL ) ) continue;
+                if ( !mnu_test_module_by_index( &loc_selectedplayer, imod, 0, NULL ) ) continue;
 
                 if ( start_new_player && 0 == mnu_ModList.lst[imod].base.importamount )
                 {
@@ -1003,9 +1043,9 @@ int doChooseModule( float deltaTime )
                 else
                 {
                     if ( FILTER_OFF != mnu_moduleFilter && mnu_ModList.lst[imod].base.moduletype != mnu_moduleFilter ) continue;
-                    if ( mnu_selectedPlayerCount > mnu_ModList.lst[imod].base.importamount ) continue;
-                    if ( mnu_selectedPlayerCount < mnu_ModList.lst[imod].base.minplayers ) continue;
-                    if ( mnu_selectedPlayerCount > mnu_ModList.lst[imod].base.maxplayers ) continue;
+                    if ( mnu_SelectedList.count > mnu_ModList.lst[imod].base.importamount ) continue;
+                    if ( mnu_SelectedList.count < mnu_ModList.lst[imod].base.minplayers ) continue;
+                    if ( mnu_SelectedList.count > mnu_ModList.lst[imod].base.maxplayers ) continue;
 
                     // regular module
                     validModules[validModules_count] = REF_TO_INT( imod );
@@ -1058,7 +1098,7 @@ int doChooseModule( float deltaTime )
                 if ( !module_list_valid )
                 {
                     mnu_load_all_module_info();
-                    mnu_load_all_module_images_vfs();
+                    mnu_load_all_module_images_vfs( &loc_selectedplayer );
                 }
 
                 // Draw the background
@@ -1312,6 +1352,9 @@ int doChooseModule( float deltaTime )
                 }
             }
 
+            // just blank out the data since we do not own it
+            LoadPlayer_list_init( &loc_selectedplayer );
+
             // post the selected module
             selectedModule = ext_module;
 
@@ -1324,79 +1367,87 @@ int doChooseModule( float deltaTime )
     return result;
 }
 
+
 //--------------------------------------------------------------------------------------------
-bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_list )
+bool_t doChoosePlayer_load_profiles( LoadPlayer_element_t * loadplayer_ptr, ChoosePlayer_list_t * chooseplayer )
 {
     int    i;
-    CAP_REF ref_temp;
     STRING  szFilename;
-    ChoosePlayer_element_t * pdata;
 
-    // release all of the temporary profiles
-    release_all_profiles();
-    overrideslots = btrue;
+    CAP_REF   cap_ref;
+    cap_t   * cap_ptr = NULL;
 
+    ChoosePlayer_element_t * chooseplayer_ptr;
+
+    // free any allocated data
+    ChoosePlayer_list_dealloc( chooseplayer );
+
+    if ( NULL == loadplayer_ptr ) return bfalse;
+
+    // grab the loadplayer_idx data
+    if ( !LOADED_CAP( loadplayer_ptr->cap_ref ) )
+    {
+        return bfalse;
+    }
+    cap_ptr = CapStack.lst + loadplayer_ptr->cap_ref;
+
+    // go to the next element in the list
+    chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
+    chooseplayer->count++;
+
+    // blank out the data
+    ChoosePlayer_ctor( chooseplayer_ptr );
+
+    // set the index of this object
+    chooseplayer_ptr->cap_ref = loadplayer_ptr->cap_ref;
+
+    // copy the skin
+    chooseplayer_ptr->skin_ref = loadplayer_ptr->skin_ref;
+    chooseplayer_ptr->skin_ref = CLIP( chooseplayer_ptr->skin_ref, 0, MAX_SKIN - 1 );
+
+    // copy the texture reference over
+    chooseplayer_ptr->tx_ref = loadplayer_ptr->tx_ref;
+
+    // copy the chop info
+    memmove( &( chooseplayer_ptr->chop ), &( loadplayer_ptr->chop ), sizeof( chooseplayer_ptr->chop ) );
+
+    // make sure the book data is loaded
     if ( 0 == bookicon_count )
     {
         load_one_profile_vfs( "mp_data/globalobjects/book.obj", SPELLBOOK );
     }
-
-    // release any data that we have accumulated
-    for ( i = 0; i < pro_list->count; i++ )
-    {
-        pdata = pro_list->pro_data + i;
-
-        TxTexture_free_one( pdata->tx_ref );
-
-        // initialize the data
-        pdata->cap_ref = MAX_CAP;
-        pdata->tx_ref  = INVALID_TX_TEXTURE;
-        chop_definition_init( &( pdata->chop ) );
-    }
-    pro_list->count = 0;
-
-    if ( player < 0 || player >= MAXLOADPLAYER || player >= loadplayer_count ) return bfalse;
-
-    // grab the player data
-    ref_temp = load_one_character_profile_vfs( loadplayer_ary[player].dir, 0, bfalse );
-    if ( !LOADED_CAP( ref_temp ) )
-    {
-        return bfalse;
-    }
-
-    // go to the next element in the list
-    pdata = pro_list->pro_data + pro_list->count;
-    pro_list->count++;
-
-    // set the index of this object
-    pdata->cap_ref = ref_temp;
 
     // grab the inventory data
     for ( i = 0; i < MAXIMPORTOBJECTS; i++ )
     {
         int slot = i + 1;
 
-        snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer_ary[player].dir, i );
+        snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer_ptr->dir, i );
 
         // load the profile
-        ref_temp = load_one_character_profile_vfs( szFilename, slot, bfalse );
-        if ( LOADED_CAP( ref_temp ) )
+        cap_ref = load_one_character_profile_vfs( szFilename, slot, bfalse );
+        if ( LOADED_CAP( cap_ref ) )
         {
-            cap_t * pcap = CapStack.lst + ref_temp;
+            cap_ptr = CapStack.lst + cap_ref;
 
             // go to the next element in the list
-            pdata = pro_list->pro_data + pro_list->count;
-            pro_list->count++;
+            chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
+            chooseplayer->count++;
 
-            pdata->cap_ref = ref_temp;
+            // sace the cap reference
+            chooseplayer_ptr->cap_ref = cap_ref;
 
-            // load the icon
-            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ary[player].dir, i, MAX( 0, pcap->skin_override ) );
-            pdata->tx_ref = TxTexture_load_one_vfs( szFilename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+            // get the skin info
+            chooseplayer_ptr->skin_ref = cap_ptr->skin_override % MAX_SKIN;
+            chooseplayer_ptr->skin_ref = CLIP( chooseplayer_ptr->skin_ref, 0, MAX_SKIN - 1 );
 
-            // load the naming
-            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/naming.txt", loadplayer_ary[player].dir, i );
-            chop_load_vfs( &chop_mem, szFilename, &( pdata->chop ) );
+            // load the icon of the skin
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ptr->dir, i, chooseplayer_ptr->skin_ref );
+            chooseplayer_ptr->tx_ref = TxTexture_load_one_vfs( szFilename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+
+            // load the chop info from "naming.txt"
+            snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/naming.txt", loadplayer_ptr->dir, i );
+            chop_load_vfs( &chop_mem, szFilename, &( chooseplayer_ptr->chop ) );
         }
     }
 
@@ -1404,32 +1455,31 @@ bool_t doChoosePlayer_load_profiles( int player, ChoosePlayer_profiles_t * pro_l
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t doChoosePlayer_show_stats( int player, int mode, const int x, const int y, const int width, const int height )
+bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height )
 {
     int i, x1, y1;
 
-    static ChoosePlayer_profiles_t objects = { 0 };
+    static ChoosePlayer_list_t objects = { 0 };
 
-    if ( player < 0 ) mode = 1;
+    if ( NULL == loadplayer_ptr ) mode = 1;
 
     // handle the profile data
     switch ( mode )
     {
-        case 0: // load new player data
+        case 0: // load new loadplayer data
 
-            if ( !doChoosePlayer_load_profiles( player, &objects ) )
+            if ( !doChoosePlayer_load_profiles( loadplayer_ptr, &objects ) )
             {
-                player = -1;
+                loadplayer_ptr = NULL;
             }
             break;
 
-        case 1: // unload player data
-
-            player = -1;
-            objects.count = 0;
+        case 1: // unload loadplayer data
 
             // release all of the temporary profiles
-            release_all_profiles();
+            ChoosePlayer_list_dealloc( &objects );
+
+            loadplayer_ptr = NULL;
 
             break;
     }
@@ -1437,15 +1487,15 @@ bool_t doChoosePlayer_show_stats( int player, int mode, const int x, const int y
     // do the actual display
     x1 = x + 25;
     y1 = y + 10;
-    if ( player >= 0 && objects.count > 0 )
+    if ( NULL != loadplayer_ptr && objects.count > 0 )
     {
-        CAP_REF icap = objects.pro_data[0].cap_ref;
+        CAP_REF icap = objects.lst[0].cap_ref;
 
         if ( LOADED_CAP( icap ) )
         {
             STRING temp_string;
             cap_t * pcap = CapStack.lst + icap;
-            Uint8 skin = MAX( 0, pcap->skin_override );
+            Uint8 skin = MAX( pcap->skin_override, 0 );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
@@ -1513,26 +1563,26 @@ bool_t doChoosePlayer_show_stats( int player, int mode, const int x, const int y
             //Inventory
             if ( objects.count > 1 )
             {
-                ChoosePlayer_element_t * pdata;
+                ChoosePlayer_element_t * chooseplayer_ptr;
 
                 ui_drawTextBox( menuFont, "Inventory", x1, y1, 0, 0, 20 ); y1 += 20;
 
                 for ( i = 1; i < objects.count; i++ )
                 {
-                    pdata = objects.pro_data + i;
+                    chooseplayer_ptr = objects.lst + i;
 
-                    icap = pdata->cap_ref;
+                    icap = chooseplayer_ptr->cap_ref;
                     if ( LOADED_CAP( icap ) )
                     {
                         TX_REF  icon_ref;
                         cap_t * pcap = CapStack.lst + icap;
 
                         STRING itemname;
-                        if ( pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( pdata->chop ) ), SDL_arraysize( itemname ) );
+                        if ( pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( chooseplayer_ptr->chop ) ), SDL_arraysize( itemname ) );
                         else                   strncpy( itemname, pcap->classname,   SDL_arraysize( itemname ) );
 
                         //draw the icon for this item
-                        icon_ref = mnu_get_icon_ref( icap, pdata->tx_ref );
+                        icon_ref = mnu_get_icon_ref( icap, chooseplayer_ptr->tx_ref );
                         ui_drawImage( 0, TxTexture_get_ptr( icon_ref ), x1, y1, 32, 32, NULL );
 
                         if ( icap == SLOT_LEFT + 1 )
@@ -1576,15 +1626,13 @@ int doChoosePlayer( float deltaTime )
 
     int result = 0;
     int i, j, x, y;
-    STRING srcDir, destDir;
 
     switch ( menuState )
     {
         case MM_Begin:
             TxTexture_free_one(( TX_REF )TX_BARS );
 
-            mnu_selectedPlayerCount = 0;
-            mnu_selectedPlayer[0] = 0;
+            SelectedPlayer_list_init( &mnu_SelectedList );
 
             TxTexture_load_one_vfs( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
 
@@ -1609,7 +1657,7 @@ int doChoosePlayer( float deltaTime )
             TxTexture_load_one_vfs( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
 
             // load information for all the players that could be imported
-            mnu_player_check_import( "mp_players", btrue );
+            LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
 
             // reset button 0, or it will mess up the menu.
             // must do it before mnu_SlidyButton_init()
@@ -1638,7 +1686,7 @@ int doChoosePlayer( float deltaTime )
                 y += button_repeat;
             };
 
-            if ( loadplayer_count < 10 )
+            if ( mnu_loadplayer.count < 10 )
             {
                 tipText_set_position( menuFont, "Choose an input device to select your player(s)", 20 );
             }
@@ -1668,11 +1716,11 @@ int doChoosePlayer( float deltaTime )
         case MM_Running:
             // Figure out how many players we can show without scrolling
 
-            if ( 0 == mnu_selectedPlayerCount )
+            if ( 0 == mnu_SelectedList.count )
             {
                 button_text[0] = "";
             }
-            else if ( 1 == mnu_selectedPlayerCount )
+            else if ( 1 == mnu_SelectedList.count )
             {
                 button_text[0] = "Select Player";
             }
@@ -1695,7 +1743,7 @@ int doChoosePlayer( float deltaTime )
             {
                 if ( cursor.z > 0 )
                 {
-                    if ( startIndex + numVertical < loadplayer_count )
+                    if ( startIndex + numVertical < mnu_loadplayer.count )
                     {
                         startIndex++;
                     }
@@ -1718,16 +1766,18 @@ int doChoosePlayer( float deltaTime )
             {
                 int lplayer;
                 int splayer;
+                LoadPlayer_element_t * loadplayer_ptr = NULL;
                 int m = i * 5;
 
                 lplayer = i + startIndex;
+                if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, lplayer ) ) continue;
 
-                if ( lplayer >= loadplayer_count ) continue;
-                splayer = mnu_Selected_index_from_loadplayer( lplayer );
+                loadplayer_ptr = mnu_loadplayer.lst + lplayer;
+                splayer        = SelectedPlayer_list_index_from_loadplayer( &mnu_SelectedList,  lplayer );
 
                 // do the character button
-                mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer_ary[lplayer].tx_ref );
-                mnu_widgetList[m].text = loadplayer_ary[lplayer].name;
+                mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer_ptr->tx_ref );
+                mnu_widgetList[m].text = loadplayer_ptr->name;
                 if ( INVALID_PLAYER != splayer )
                 {
                     SET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
@@ -1739,17 +1789,17 @@ int doChoosePlayer( float deltaTime )
 
                 if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
                 {
-                    if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !mnu_Selected_check_loadplayer( lplayer ) )
+                    if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !SelectedPlayer_list_check_loadplayer( &mnu_SelectedList,  lplayer ) )
                     {
                         // button has become cursor_clicked
-                        // mnu_Selected_add(lplayer);
+                        // SelectedPlayer_list_add( &mnu_SelectedList, lplayer);
                         last_player = lplayer;
                         new_player  = btrue;
                     }
-                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && mnu_Selected_check_loadplayer( lplayer ) )
+                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && SelectedPlayer_list_check_loadplayer( &mnu_SelectedList,  lplayer ) )
                     {
                         // button has become unclicked
-                        if ( mnu_Selected_remove( lplayer ) )
+                        if ( SelectedPlayer_list_remove( &mnu_SelectedList,  lplayer ) )
                         {
                             last_player = -1;
                         }
@@ -1783,11 +1833,11 @@ int doChoosePlayer( float deltaTime )
                     }
 
                     // make the button states reflect the chosen input devices
-                    if ( INVALID_PLAYER == splayer || HAS_NO_BITS( mnu_selectedInput[ splayer ], BitsInput[j] ) )
+                    if ( INVALID_PLAYER == splayer || HAS_NO_BITS( mnu_SelectedList.lst[ splayer ].input, BitsInput[j] ) )
                     {
                         UNSET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
                     }
-                    else if ( HAS_SOME_BITS( mnu_selectedInput[splayer], BitsInput[j] ) )
+                    else if ( HAS_SOME_BITS( mnu_SelectedList.lst[splayer].input, BitsInput[j] ) )
                     {
                         SET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
                     }
@@ -1799,13 +1849,13 @@ int doChoosePlayer( float deltaTime )
                             // button has become cursor_clicked
                             if ( INVALID_PLAYER == splayer )
                             {
-                                if ( mnu_Selected_add( lplayer ) )
+                                if ( SelectedPlayer_list_add( &mnu_SelectedList,  lplayer ) )
                                 {
                                     last_player = lplayer;
                                     new_player  = btrue;
                                 }
                             }
-                            if ( mnu_Selected_add_input( lplayer, BitsInput[j] ) )
+                            if ( SelectedPlayer_list_add_input( &mnu_SelectedList,  lplayer, BitsInput[j] ) )
                             {
                                 last_player = lplayer;
                                 new_player  = btrue;
@@ -1814,7 +1864,7 @@ int doChoosePlayer( float deltaTime )
                         else if ( INVALID_PLAYER != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                         {
                             // button has become unclicked
-                            if ( mnu_Selected_remove_input( lplayer, BitsInput[j] ) )
+                            if ( SelectedPlayer_list_remove_input( &mnu_SelectedList,  lplayer, BitsInput[j] ) )
                             {
                                 last_player = -1;
                             }
@@ -1826,7 +1876,7 @@ int doChoosePlayer( float deltaTime )
             // Buttons for going ahead
 
             // Continue
-            if ( mnu_selectedPlayerCount != 0 )
+            if ( 0 != mnu_SelectedList.count )
             {
                 if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
                 {
@@ -1837,28 +1887,29 @@ int doChoosePlayer( float deltaTime )
             // Back
             if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
             {
-                mnu_selectedPlayerCount = 0;
+                SelectedPlayer_list_init( &mnu_SelectedList );
                 menuState = MM_Leaving;
             }
 
             // show the stats
-            if ( -1 != last_player )
+            if ( VALID_LOADPLAYER_IDX( mnu_loadplayer, last_player ) )
             {
+                LoadPlayer_element_t * loadplayer_ptr = mnu_loadplayer.lst + last_player;
                 if ( new_player )
                 {
                     // load and display the new lplayer data
                     new_player = bfalse;
-                    doChoosePlayer_show_stats( last_player, 0, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
+                    doChoosePlayer_show_stats( loadplayer_ptr, 0, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
                 }
                 else
                 {
                     // just display the new lplayer data
-                    doChoosePlayer_show_stats( last_player, 2, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
+                    doChoosePlayer_show_stats( loadplayer_ptr, 2, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
                 }
             }
             else
             {
-                doChoosePlayer_show_stats( last_player, 1, GFX_WIDTH - 100, 10, 100, GFX_HEIGHT - 60 );
+                doChoosePlayer_show_stats( NULL, 1, GFX_WIDTH - 100, 10, 100, GFX_HEIGHT - 60 );
             }
 
             // tool-tip text
@@ -1887,54 +1938,33 @@ int doChoosePlayer( float deltaTime )
         case MM_Finish:
 
             // release all of the temporary profiles
-            doChoosePlayer_show_stats( -1, 1, 0, 0, 0, 0 );
+            doChoosePlayer_show_stats( NULL, 1, 0, 0, 0, 0 );
 
             oglx_texture_Release( &background );
             TxTexture_free_one(( TX_REF )TX_BARS );
 
             menuState = MM_Begin;
-            if ( 0 == mnu_selectedPlayerCount )
+            if ( 0 == mnu_SelectedList.count )
             {
                 result = -1;
             }
             else
             {
-                // Build the import directory
-                vfs_empty_import_directory();
-                if ( !vfs_mkdir( "import" ) )
+                // set up the slots and the import stuff for the selected players
+                if ( rv_success == mnu_set_local_import_list( &ImportList, &mnu_SelectedList ) )
                 {
-                    log_warning( "game_update_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
+                    game_copy_imports( &ImportList );
+                }
+                else
+                {
+                    // erase the data in the import folder
+                    vfs_removeDirectoryAndContents( "import", VFS_TRUE );
                 }
 
-                // set up the slots and the import stuff for the selected players
-                local_import_count = mnu_selectedPlayerCount;
-                for ( i = 0; i < local_import_count; i++ )
+                // if there are no selected players, there is no reason to keep this data
+                if ( 0 == mnu_SelectedList.count )
                 {
-                    selectedPlayer = mnu_selectedPlayer[i];
-
-                    local_import_control[i] = mnu_selectedInput[i];
-                    local_import_slot[i]    = i * MAXIMPORTPERPLAYER;
-
-                    // Copy the character to the import directory
-                    strncpy( srcDir, loadplayer_ary[selectedPlayer].dir, SDL_arraysize( srcDir ) );
-                    snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[i] );
-                    if ( !vfs_copyDirectory( srcDir, destDir ) )
-                    {
-                        log_warning( "game_initialize_imports() - Failed to copy a import character \"%s\" to \"%s\" (%s)\n", srcDir, destDir, vfs_getError() );
-                    }
-
-                    // Copy all of the character's items to the import directory
-                    for ( j = 0; j < MAXIMPORTOBJECTS; j++ )
-                    {
-                        snprintf( srcDir, SDL_arraysize( srcDir ), "%s/%d.obj", loadplayer_ary[selectedPlayer].dir, j );
-
-                        // make sure the source directory exists
-                        if ( vfs_isDirectory( srcDir ) )
-                        {
-                            snprintf( destDir, SDL_arraysize( destDir ), "/import/temp%04d.obj", local_import_slot[i] + j + 1 );
-                            vfs_copyDirectory( srcDir, destDir );
-                        }
-                    }
+                    LoadPlayer_list_dealloc( &mnu_loadplayer );
                 }
 
                 result = 1;
@@ -4487,7 +4517,7 @@ void copyrightText_set_position( Font * font, const char * text, int spacing )
 //--------------------------------------------------------------------------------------------
 // Asset management
 //--------------------------------------------------------------------------------------------
-void mnu_load_all_module_images_vfs()
+void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst )
 {
     /// @details ZZ@> This function loads the title image for each module.  Modules without a
     ///     title are marked as invalid
@@ -4515,7 +4545,7 @@ void mnu_load_all_module_images_vfs()
         {
             vfs_printf( filesave, "**.  %s\n", mnu_ModList.lst[imod].vfs_path );
         }
-        else if ( mnu_test_by_index( imod, 0, NULL ) )
+        else if ( mnu_test_module_by_index( lp_lst, imod, 0, NULL ) )
         {
             // @note just because we can't load the title image DOES NOT mean that we ignore the module
             snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", mnu_ModList.lst[imod].vfs_path );
@@ -4567,11 +4597,11 @@ TX_REF mnu_get_icon_ref( const CAP_REF icap, const TX_REF default_ref )
     {
         int iskin = 0;
 
-        if ( 0 != pitem_cap->spelleffect_type )
+        if ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type )
         {
             iskin = pitem_cap->spelleffect_type;
         }
-        else if ( 0 != pitem_cap->skin_override )
+        else if ( NO_SKIN_OVERRIDE != pitem_cap->skin_override )
         {
             iskin = pitem_cap->skin_override;
         }
@@ -4608,7 +4638,7 @@ int mnu_get_mod_number( const char *szModName )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_test_by_index( const MOD_REF modnumber, size_t buffer_len, char * buffer )
+bool_t mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer )
 {
     int            cnt;
     mnu_module_t * pmod;
@@ -4619,24 +4649,34 @@ bool_t mnu_test_by_index( const MOD_REF modnumber, size_t buffer_len, char * buf
 
     // First check if we are in developers mode or that the right module has been beaten before
     allowed = bfalse;
-    if ( cfg.dev_mode || module_has_idsz_vfs( pmod->base.reference, pmod->base.unlockquest.id, buffer_len, buffer ) )
+
+    if ( cfg.dev_mode )
     {
         allowed = btrue;
     }
-    else if ( pmod->base.importamount > 0 )
+
+    if ( !allowed )
+    {
+        if ( module_has_idsz_vfs( pmod->base.reference, pmod->base.unlockquest.id, buffer_len, buffer ) )
+        {
+            allowed = btrue;
+        }
+    }
+
+    if ( !allowed && pmod->base.importamount > 0 )
     {
         int player_count = 0;
         int player_allowed = 0;
 
         // If that did not work, then check all selected players directories, but only if it isn't a starter module
-        for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
+        for ( cnt = 0; cnt < lp_lst->count; cnt++ )
         {
-            int                quest_level = QUEST_NONE;
-            LOAD_PLAYER_INFO * ploadplayer = loadplayer_ary + mnu_selectedPlayer[cnt];
+            int                    quest_level = QUEST_NONE;
+            LoadPlayer_element_t * ptr         = lp_lst->lst + cnt;
 
             player_count++;
 
-            quest_level = quest_get_level( ploadplayer->quest_log, SDL_arraysize( ploadplayer->quest_log ), pmod->base.unlockquest.id );
+            quest_level = quest_get_level( ptr->quest_log, SDL_arraysize( ptr->quest_log ), pmod->base.unlockquest.id );
 
             // find beaten quests or quests with proper level
             if ( quest_level <= QUEST_BEATEN || pmod->base.unlockquest.level <= quest_level )
@@ -4652,7 +4692,7 @@ bool_t mnu_test_by_index( const MOD_REF modnumber, size_t buffer_len, char * buf
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_test_by_name( const char *szModName )
+bool_t mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName )
 {
     /// @details ZZ@> This function tests to see if a module can be entered by
     ///    the players
@@ -4665,7 +4705,7 @@ bool_t mnu_test_by_name( const char *szModName )
     retval = bfalse;
     if ( modnumber >= 0 )
     {
-        retval = mnu_test_by_index(( MOD_REF )modnumber, 0, NULL );
+        retval = mnu_test_module_by_index( lp_lst, ( MOD_REF )modnumber, 0, NULL );
     }
 
     return retval;
@@ -5055,32 +5095,518 @@ void mnu_SlidyButton_draw_all()
 }
 
 //--------------------------------------------------------------------------------------------
-// implementation of the mnu_Selected* arrays
 //--------------------------------------------------------------------------------------------
-bool_t mnu_Selected_check_loadplayer( int loadplayer_idx )
+ChoosePlayer_element_t * ChoosePlayer_ctor( ChoosePlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ChoosePlayer_init( ptr );
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+ChoosePlayer_element_t * ChoosePlayer_dtor( ChoosePlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ChoosePlayer_dealloc( ptr );
+
+    ChoosePlayer_init( ptr );
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return bfalse;
+
+    memset( ptr, 0, sizeof( *ptr ) );
+
+    ptr->cap_ref  = MAX_CAP;
+    ptr->tx_ref   = INVALID_TX_TEXTURE;
+    ptr->skin_ref = NO_SKIN_OVERRIDE;
+
+    chop_definition_init( &( ptr->chop ) );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
+{
+    // release all allocated resources
+
+    if ( MAX_CAP != ptr->cap_ref )
+    {
+        release_one_cap( ptr->cap_ref );
+    }
+    ptr->cap_ref = MAX_CAP;
+
+    if ( INVALID_TX_TEXTURE != ptr->tx_ref )
+    {
+        TxTexture_free_one( ptr->tx_ref );
+    }
+    ptr->tx_ref = INVALID_TX_TEXTURE;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+ChoosePlayer_list_t * ChoosePlayer_list_dealloc( ChoosePlayer_list_t * chooseplayer )
 {
     int i;
-    if ( loadplayer_idx > loadplayer_count ) return bfalse;
+    ChoosePlayer_element_t * chooseplayer_ptr;
 
-    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+    if ( NULL == chooseplayer ) return chooseplayer;
+
+    // release any data that we have accumulated
+    for ( i = 0; i < chooseplayer->count; i++ )
     {
-        if ( mnu_selectedPlayer[i] == loadplayer_idx ) return btrue;
+        chooseplayer_ptr = chooseplayer->lst + i;
+
+        // don't release the first index, since we don't own that one
+        if ( 0 == i )
+        {
+            ChoosePlayer_init( chooseplayer_ptr );
+        }
+        else
+        {
+            ChoosePlayer_dtor( chooseplayer_ptr );
+        }
+    }
+    chooseplayer->count = 0;
+
+    return chooseplayer;
+}
+
+//--------------------------------------------------------------------------------------------
+// Implementation of the mnu_loadplayer array
+//--------------------------------------------------------------------------------------------
+egoboo_rv LoadPlayer_list_init( LoadPlayer_list_t * lst )
+{
+    if ( NULL == lst ) return rv_error;
+
+    // restart from nothing
+    LoadPlayer_list_dealloc( lst );
+
+    chop_data_init( &chop_mem );
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile )
+{
+    STRING  filename;
+    int     slot;
+
+    CAP_REF  icap = MAX_CAP;
+    cap_t  * pcap = NULL;
+
+    LoadPlayer_element_t * ptr = NULL;
+    int                    idx = MAX_LOADPLAYER;
+
+    // valid mnu_loadplayer list?
+    if ( NULL == lst ) return rv_error;
+
+    // is it a valid filename?
+    if ( !VALID_CSTR( foundfile ) ) return rv_error;
+
+    // does the directory exist?
+    if ( lst->count >= MAX_LOADPLAYER ) return rv_fail;
+
+    // does the directory exist?
+    if ( !vfs_exists( foundfile ) ) return rv_fail;
+
+    // offset the slots so that ChoosePlayer will have space to load the inventory objects
+    slot = ( MAXIMPORTOBJECTS + 2 ) + lst->count;
+
+    // try to load the character profile
+    icap = load_one_character_profile_vfs( foundfile, slot, bfalse );
+    if ( !LOADED_CAP( icap ) ) return rv_fail;
+    pcap = CapStack.lst + icap;
+
+    // get the next index
+    idx = LoadPlayer_list_get_free( lst );
+    if ( idx < 0 ) return rv_fail;
+
+    // grab a valid mnu_loadplayer pointer
+    ptr = lst->lst + idx;
+
+    // set the player directory
+    snprintf( ptr->dir, SDL_arraysize( ptr->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
+
+    // set the loaded character profile for this object
+    ptr->cap_ref = icap;
+
+    // read in the skin from "skin.txt"
+    // We are no longer supporting skin.txt. Use the [SKIN] expansion, instead
+    //snprintf( filename, SDL_arraysize( filename ), "%s/skin.txt", foundfile );
+    //ptr->skin_ref = read_skin_vfs( filename );
+
+    // get the skin from the [SKIN] expansion in the character profile
+    ptr->skin_ref = pcap->skin_override % MAX_SKIN;
+    ptr->skin_ref = CLIP( ptr->skin_ref, 0, MAX_SKIN - 1 );
+
+    // don't load in the md2 at this time
+    //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
+    //md2_load_one( vfs_resolveReadFilename(filename), &(MadStack.lst[idx].md2_data) );
+
+    // load in just the one icon
+    snprintf( filename, SDL_arraysize( filename ), "%s/icon%d", foundfile, ptr->skin_ref );
+    ptr->tx_ref = TxTexture_load_one_vfs( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+
+    // load the quest info from "quest.txt" so we can determine the valid modules
+    snprintf( ptr->dir, SDL_arraysize( ptr->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
+    quest_log_download_vfs( ptr->quest_log, SDL_arraysize( ptr->quest_log ), ptr->dir );
+
+    // load the chop data from "naming.txt" to generate the character name
+    snprintf( filename, SDL_arraysize( filename ), "%s/naming.txt", foundfile );
+    chop_load_vfs( &chop_mem, filename, &( ptr->chop ) );
+
+    // generate the name from the chop
+    snprintf( ptr->name, SDL_arraysize( ptr->name ), "%s", chop_create( &chop_mem, &( ptr->chop ) ) );
+
+    return rv_success;
+}
+
+
+//--------------------------------------------------------------------------------------------
+int LoadPlayer_list_get_free( LoadPlayer_list_t * lst )
+{
+    int idx = -1;
+
+    if ( NULL == lst ) return -1;
+
+    // are there any loadplayers left?
+    if ( lst->count >= MAX_LOADPLAYER ) return -1;
+
+    // grab the next one
+    idx = lst->count;
+    lst->count++;
+
+
+    return idx;
+}
+
+//--------------------------------------------------------------------------------------------
+LoadPlayer_element_t * LoadPlayer_list_get_ptr( LoadPlayer_list_t * lst, int idx )
+{
+
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, idx ) ) return NULL;
+
+    return lst->lst + idx;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
+{
+    int i;
+
+    if ( NULL == lst ) return rv_error;
+
+    if ( 0 == lst->count ) return rv_success;
+
+    lst->count = MIN( lst->count, MAX_LOADPLAYER );
+    for ( i = 0; i < lst->count; i++ )
+    {
+        LoadPlayer_element_dtor( lst->lst + i );
+    }
+    lst->count = 0;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize )
+{
+    /// @details ZZ@> This function figures out which players may be imported, and loads basic
+    ///     data for each
+
+    vfs_search_context_t * ctxt;
+    const char *foundfile;
+
+    if ( NULL == lst ) return rv_error;
+
+    if ( initialize )
+    {
+        LoadPlayer_list_init( lst );
+    };
+
+    // Search for all objects
+    ctxt = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
+    foundfile = vfs_search_context_get_current( ctxt );
+
+    while ( NULL != ctxt && VALID_CSTR( foundfile ) && lst->count < MAX_LOADPLAYER )
+    {
+        LoadPlayer_list_import_one( lst, foundfile );
+
+        ctxt = vfs_findNext( &ctxt );
+        foundfile = vfs_search_context_get_current( ctxt );
+    }
+    vfs_findClose( &ctxt );
+
+    return rv_success;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
+{
+    int ipla;
+    chr_t * pchr;
+    pro_t * ppro;
+    player_t * ppla;
+
+    int                    lp_idx;
+    LoadPlayer_element_t * lp_ptr;
+
+    if ( NULL == lst || 0 != lst->count ) return rv_error;
+
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    {
+        ppla = PlaStack.lst + ipla;
+        if ( !ppla->valid ) continue;
+
+        if ( !INGAME_CHR( ppla->index ) ) continue;
+        pchr = ChrList.lst + ppla->index;
+
+        if ( !LOADED_PRO( pchr->profile_ref ) )continue;
+        ppro = ProList.lst + pchr->profile_ref;
+
+        // grab a free LoadPlayer_element_t
+        lp_idx = LoadPlayer_list_get_free( lst );
+        if ( lp_idx < 0 ) break;
+
+        lp_ptr = lst->lst + lp_idx;
+
+        // fill up the data from the player's info
+        strncpy( lp_ptr->name, pchr->Name, SDL_arraysize( lp_ptr->name ) );
+        strncpy( lp_ptr->dir, pchr->obj_base._name, SDL_arraysize( lp_ptr->name ) );
+
+        lp_ptr->cap_ref  = pro_get_icap( pchr->profile_ref );
+        lp_ptr->skin_ref = pchr->skin;
+        lp_ptr->tx_ref   = pchr->inst.texture;
+
+        memmove( lp_ptr->quest_log, ppla->quest_log, sizeof( lp_ptr->quest_log ) );
+        memmove( &( lp_ptr->chop ), &( ppro->chop ), sizeof( lp_ptr->chop ) );
+    }
+
+    return ( lst->count > 0 ) ? rv_success : rv_fail;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+LoadPlayer_element_t * LoadPlayer_element_ctor( LoadPlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    LoadPlayer_element_init( ptr );
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+LoadPlayer_element_t * LoadPlayer_element_dtor( LoadPlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    LoadPlayer_element_dealloc( ptr );
+    LoadPlayer_element_init( ptr );
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return bfalse;
+
+    // release the cap
+    if ( MAX_CAP != ptr->cap_ref )
+    {
+        release_one_cap( ptr->cap_ref );
+    }
+    ptr->cap_ref = MAX_CAP;
+
+    // release the texture
+    if ( INVALID_TX_TEXTURE != ptr->tx_ref )
+    {
+        TxTexture_free_one( ptr->tx_ref );
+    }
+    ptr->tx_ref = INVALID_TX_TEXTURE;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t LoadPlayer_element_init( LoadPlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return bfalse;
+
+    memset( ptr, 0, sizeof( *ptr ) );
+
+    // set the non-zero, non-null values
+    ptr->cap_ref = MAX_CAP;
+    ptr->tx_ref = INVALID_TX_TEXTURE;
+
+    idsz_map_init( ptr->quest_log, MAX_IDSZ_MAP_SIZE );
+    chop_definition_init( &( ptr->chop ) );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst )
+{
+    int                        src_idx = -1;
+    LoadPlayer_element_t     * src_ptr = NULL;
+    LoadPlayer_element_t     * dst_ptr = NULL;
+
+    int                        selectedplayer_idx;
+    SelectedPlayer_element_t * selectedplayer_ptr = NULL;
+
+    if ( NULL == src || NULL == dst || NULL == sp_lst ) return rv_error;
+
+    // blank out any existing data
+    LoadPlayer_list_init( dst );
+
+    if ( 0 == src->count || 0 == sp_lst->count ) return rv_success;
+
+    // loop through the selected players and store all the valid data in the list of imported players
+    for ( selectedplayer_idx = 0; selectedplayer_idx < sp_lst->count; selectedplayer_idx++ )
+    {
+        // grab a pointer to the selectedplayer data
+        selectedplayer_ptr = sp_lst->lst + selectedplayer_idx;
+
+        // does the loadplayer exist?
+        src_idx = selectedplayer_ptr->player;
+        if ( !VALID_LOADPLAYER_IDX( *src, src_idx ) ) continue;
+
+        // grab the loadplayer info
+        src_ptr = src->lst + src_idx;
+
+        // get a new import data pointer
+        dst_ptr = dst->lst + dst->count;
+        dst->count++;
+
+        // copy the data over
+        memcpy( dst_ptr, src_ptr, sizeof( *dst_ptr ) );
+    }
+
+    return ( dst->count > 0 ) ? rv_success : rv_fail;
+}
+
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst )
+{
+    int                import_idx;
+    Import_element_t * import_ptr = NULL;
+
+    int                        loadplayer_idx = -1;
+    LoadPlayer_element_t     * loadplayer_ptr = NULL;
+
+    int                        selectedplayer_idx;
+    SelectedPlayer_element_t * selectedplayer_ptr = NULL;
+
+    if ( NULL == imp_lst || NULL == sp_lst ) return rv_error;
+
+    // blank out any existing data
+    Import_list_init( imp_lst );
+
+    // loop through the selected players and store all the valid data in the list of imported players
+    for ( selectedplayer_idx = 0; selectedplayer_idx < sp_lst->count; selectedplayer_idx++ )
+    {
+        // grab a pointer to the selectedplayer data
+        selectedplayer_ptr = sp_lst->lst + selectedplayer_idx;
+
+        // does the loadplayer exist?
+        loadplayer_idx = selectedplayer_ptr->player;
+        if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) ) continue;
+
+        // grab the loadplayer info
+        loadplayer_ptr = mnu_loadplayer.lst + loadplayer_idx;
+
+        // get a new import data pointer
+        import_idx = imp_lst->count;
+        import_ptr = imp_lst->lst + imp_lst->count;
+        imp_lst->count++;
+
+        // set the import info
+        import_ptr->bits   = selectedplayer_ptr->input;
+        import_ptr->slot   = selectedplayer_idx * MAXIMPORTPERPLAYER;
+        import_ptr->player = selectedplayer_idx;
+
+        strncpy( import_ptr->srcDir, loadplayer_ptr->dir, SDL_arraysize( import_ptr->srcDir ) );
+        import_ptr->dstDir[0] = CSTR_END;
+    }
+
+    return ( imp_lst->count > 0 ) ? rv_success : rv_fail;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr )
+{
+    if ( NULL == ptr ) return rv_error;
+
+    memset( ptr, 0, sizeof( *ptr ) );
+
+    // the non-zero, non-null values
+    ptr->player = MAX_PLAYER;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+// implementation of SelectedPlayer_list_t
+//--------------------------------------------------------------------------------------------
+egoboo_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst )
+{
+    int cnt;
+
+    if ( NULL == sp_lst ) return rv_error;
+
+    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    {
+        SelectedPlayer_element_init( sp_lst->lst + cnt );
+    }
+    sp_lst->count = 0;
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
+{
+    int i;
+
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) ) return bfalse;
+
+    for ( i = 0; i < MAX_PLAYER && i < sp_lst->count; i++ )
+    {
+        if ( sp_lst->lst[i].player == loadplayer_idx ) return btrue;
     }
 
     return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-int mnu_Selected_index_from_loadplayer( int loadplayer_idx )
+int SelectedPlayer_list_index_from_loadplayer( SelectedPlayer_list_t * sp_lst,  int loadplayer_idx )
 {
     int cnt, selected_index;
 
-    if ( loadplayer_idx > loadplayer_count ) return INVALID_PLAYER;
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) ) return INVALID_PLAYER;
 
     selected_index = INVALID_PLAYER;
-    for ( cnt = 0; cnt < MAX_PLAYER && cnt < mnu_selectedPlayerCount; cnt++ )
+    for ( cnt = 0; cnt < MAX_PLAYER && cnt < sp_lst->count; cnt++ )
     {
-        if ( mnu_selectedPlayer[ cnt ] == loadplayer_idx )
+        if ( sp_lst->lst[ cnt ].player == loadplayer_idx )
         {
             selected_index = cnt;
             break;
@@ -5091,38 +5617,38 @@ int mnu_Selected_index_from_loadplayer( int loadplayer_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_Selected_add( int loadplayer_idx )
+bool_t SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
 {
-    if ( loadplayer_idx > loadplayer_count || mnu_selectedPlayerCount >= MAX_PLAYER ) return bfalse;
-    if ( mnu_Selected_check_loadplayer( loadplayer_idx ) ) return bfalse;
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) || sp_lst->count >= MAX_PLAYER ) return bfalse;
+    if ( SelectedPlayer_list_check_loadplayer( sp_lst,  loadplayer_idx ) ) return bfalse;
 
-    mnu_selectedPlayer[mnu_selectedPlayerCount] = loadplayer_idx;
-    mnu_selectedInput[mnu_selectedPlayerCount]  = INPUT_BITS_NONE;
-    mnu_selectedPlayerCount++;
+    sp_lst->lst[sp_lst->count].player = loadplayer_idx;
+    sp_lst->lst[sp_lst->count].input  = INPUT_BITS_NONE;
+    sp_lst->count++;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_Selected_remove( int loadplayer_idx )
+bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
 {
     int i;
     bool_t found = bfalse;
 
-    if ( loadplayer_idx > loadplayer_count || mnu_selectedPlayerCount <= 0 ) return bfalse;
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) || sp_lst->count <= 0 ) return bfalse;
 
-    if ( 1 == mnu_selectedPlayerCount )
+    if ( 1 == sp_lst->count )
     {
-        if ( mnu_selectedPlayer[0] == loadplayer_idx )
+        if ( sp_lst->lst[0].player == loadplayer_idx )
         {
-            mnu_selectedPlayerCount = 0;
-        };
+            sp_lst->count = 0;
+        }
     }
     else
     {
-        for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+        for ( i = 0; i < MAX_PLAYER && i < sp_lst->count; i++ )
         {
-            if ( mnu_selectedPlayer[i] == loadplayer_idx )
+            if ( sp_lst->lst[i].player == loadplayer_idx )
             {
                 found = btrue;
                 break;
@@ -5132,13 +5658,13 @@ bool_t mnu_Selected_remove( int loadplayer_idx )
         if ( found )
         {
             i++;
-            for ( /* nothing */; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+            for ( /* nothing */; i < MAX_PLAYER && i < sp_lst->count; i++ )
             {
-                mnu_selectedPlayer[i-1] = mnu_selectedPlayer[i];
-                mnu_selectedInput[i-1]  = mnu_selectedInput[i];
+                sp_lst->lst[i-1].player = sp_lst->lst[i].player;
+                sp_lst->lst[i-1].input  = sp_lst->lst[i].input;
             }
 
-            mnu_selectedPlayerCount--;
+            sp_lst->count--;
         }
     };
 
@@ -5146,16 +5672,16 @@ bool_t mnu_Selected_remove( int loadplayer_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_Selected_add_input( int loadplayer_idx, BIT_FIELD input_bits )
+bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, BIT_FIELD input_bits )
 {
     int i;
     bool_t done, retval = bfalse;
 
     int selected_index = -1;
 
-    for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+    for ( i = 0; i < sp_lst->count; i++ )
     {
-        if ( mnu_selectedPlayer[i] == loadplayer_idx )
+        if ( sp_lst->lst[i].player == loadplayer_idx )
         {
             selected_index = i;
             break;
@@ -5164,43 +5690,43 @@ bool_t mnu_Selected_add_input( int loadplayer_idx, BIT_FIELD input_bits )
 
     if ( -1 == selected_index )
     {
-        mnu_Selected_add( loadplayer_idx );
+        SelectedPlayer_list_add( sp_lst,  loadplayer_idx );
     }
 
-    if ( selected_index >= 0 && selected_index < mnu_selectedPlayerCount )
+    if ( selected_index >= 0 && selected_index < sp_lst->count )
     {
-        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+        for ( i = 0; i < sp_lst->count; i++ )
         {
             if ( i == selected_index )
             {
                 // add in the selected bits for the selected loadplayer_idx
-                SET_BIT( mnu_selectedInput[i], input_bits );
+                SET_BIT( sp_lst->lst[i].input, input_bits );
                 retval = btrue;
             }
             else
             {
                 // remove the selectd bits from all other players
-                UNSET_BIT( mnu_selectedInput[i], input_bits );
+                UNSET_BIT( sp_lst->lst[i].input, input_bits );
             }
         }
     }
 
     // Do the tricky part of removing all players with invalid inputs from the list
     // It is tricky because removing a loadplayer_idx changes the value of the loop control
-    // value mnu_selectedPlayerCount within the loop.
+    // value sp_lst->count within the loop.
     done = bfalse;
     while ( !done )
     {
         // assume the best
         done = btrue;
 
-        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+        for ( i = 0; i < sp_lst->count; i++ )
         {
-            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
+            if ( INPUT_BITS_NONE == sp_lst->lst[i].input )
             {
                 // we found one
                 done = bfalse;
-                mnu_Selected_remove( mnu_selectedPlayer[i] );
+                SelectedPlayer_list_remove( sp_lst,  sp_lst->lst[i].player );
             }
         }
     }
@@ -5209,25 +5735,25 @@ bool_t mnu_Selected_add_input( int loadplayer_idx, BIT_FIELD input_bits )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_Selected_remove_input( int loadplayer_idx, Uint32 input_bits )
+bool_t SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits )
 {
     int i;
     bool_t retval = bfalse;
 
-    for ( i = 0; i < MAX_PLAYER && i < mnu_selectedPlayerCount; i++ )
+    for ( i = 0; i < MAX_PLAYER && i < sp_lst->count; i++ )
     {
-        if ( mnu_selectedPlayer[i] == loadplayer_idx )
+        if ( sp_lst->lst[i].player == loadplayer_idx )
         {
-            UNSET_BIT( mnu_selectedInput[i], input_bits );
+            UNSET_BIT( sp_lst->lst[i].input, input_bits );
 
-            // This part is not so tricky as in mnu_Selected_add_input.
+            // This part is not so tricky as in SelectedPlayer_list_add_input.
             // Even though we are modding the loop control variable, it is never
             // tested in the loop because we are using the break command to
             // break out of the loop immediately
 
-            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
+            if ( INPUT_BITS_NONE == sp_lst->lst[i].input )
             {
-                mnu_Selected_remove( loadplayer_idx );
+                SelectedPlayer_list_remove( sp_lst,  loadplayer_idx );
             }
 
             retval = btrue;
@@ -5237,86 +5763,4 @@ bool_t mnu_Selected_remove_input( int loadplayer_idx, Uint32 input_bits )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-// Implementation of the loadplayer array
-//--------------------------------------------------------------------------------------------
-void loadplayer_init()
-{
-    // restart from nothing
-    loadplayer_count = 0;
-    release_all_profile_textures();
-
-    chop_data_init( &chop_mem );
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t loadplayer_import_one( const char * foundfile )
-{
-    STRING filename;
-    LOAD_PLAYER_INFO * pinfo;
-    int skin = 0;
-
-    if ( !VALID_CSTR( foundfile ) || !vfs_exists( foundfile ) ) return bfalse;
-
-    if ( loadplayer_count >= MAXLOADPLAYER ) return bfalse;
-
-    pinfo = loadplayer_ary + loadplayer_count;
-
-    snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
-
-    snprintf( filename, SDL_arraysize( filename ), "%s/skin.txt", foundfile );
-    skin = read_skin_vfs( filename );
-
-    //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
-    //md2_load_one( vfs_resolveReadFilename(filename), &(MadStack.lst[loadplayer_count].md2_data) );
-
-    snprintf( filename, SDL_arraysize( filename ), "%s/icon%d", foundfile, skin );
-    pinfo->tx_ref = TxTexture_load_one_vfs( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
-
-    // quest info
-    snprintf( pinfo->dir, SDL_arraysize( pinfo->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
-    quest_log_download_vfs( pinfo->quest_log, SDL_arraysize( pinfo->quest_log ), pinfo->dir );
-
-    // load the chop data
-    snprintf( filename, SDL_arraysize( filename ), "%s/naming.txt", foundfile );
-    chop_load_vfs( &chop_mem, filename, &( pinfo->chop ) );
-
-    // generate the name from the chop
-    snprintf( pinfo->name, SDL_arraysize( pinfo->name ), "%s", chop_create( &chop_mem, &( pinfo->chop ) ) );
-
-    loadplayer_count++;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-// Player utilities
-//--------------------------------------------------------------------------------------------
-void mnu_player_check_import( const char *dirname, bool_t initialize )
-{
-    /// @details ZZ@> This function figures out which players may be imported, and loads basic
-    ///     data for each
-
-    vfs_search_context_t * ctxt;
-    const char *foundfile;
-
-    if ( initialize )
-    {
-        loadplayer_init();
-    };
-
-    // Search for all objects
-    ctxt = vfs_findFirst( dirname, "obj", VFS_SEARCH_DIR );
-    foundfile = vfs_search_context_get_current( ctxt );
-
-    while ( NULL != ctxt && VALID_CSTR( foundfile ) && loadplayer_count < MAXLOADPLAYER )
-    {
-        loadplayer_import_one( foundfile );
-
-        ctxt = vfs_findNext( &ctxt );
-        foundfile = vfs_search_context_get_current( ctxt );
-    }
-    vfs_findClose( &ctxt );
 }

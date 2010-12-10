@@ -322,7 +322,7 @@ int chr_count_used()
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
-                             Uint8 valuehigh, Sint16 high )
+                                  Uint8 valuehigh, Sint16 high )
 {
     /// @details ZZ@> This function sets a character's lighting depending on vertex height...
     ///    Can make feet dark and head light...
@@ -345,26 +345,26 @@ egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
 
         if ( z < low )
         {
-            pinst->vrt_lst[cnt].col[RR] = 
-            pinst->vrt_lst[cnt].col[GG] = 
-            pinst->vrt_lst[cnt].col[BB] = valuelow;
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuelow;
         }
         else
         {
             if ( z > high )
             {
-                pinst->vrt_lst[cnt].col[RR] = 
-                pinst->vrt_lst[cnt].col[GG] = 
-                pinst->vrt_lst[cnt].col[BB] = valuehigh;
+                pinst->vrt_lst[cnt].col[RR] =
+                    pinst->vrt_lst[cnt].col[GG] =
+                        pinst->vrt_lst[cnt].col[BB] = valuehigh;
             }
             else
             {
                 Uint8 valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
                                  ( valuelow * ( high - z ) / ( high - low ) );
 
-                pinst->vrt_lst[cnt].col[RR] = 
-                pinst->vrt_lst[cnt].col[GG] = 
-                pinst->vrt_lst[cnt].col[BB] =  valuemid;
+                pinst->vrt_lst[cnt].col[RR] =
+                    pinst->vrt_lst[cnt].col[GG] =
+                        pinst->vrt_lst[cnt].col[BB] =  valuemid;
             }
         }
     }
@@ -1312,15 +1312,15 @@ egoboo_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     cap_t *pmount_cap;
 
     // Make sure the character/item is valid
-    if( !DEFINED_CHR( irider ) ) return rv_error;
+    if ( !DEFINED_CHR( irider ) ) return rv_error;
     prider = ChrList.lst + irider;
 
     // Make sure the holder/mount is valid
-    if( !DEFINED_CHR( imount ) ) return rv_error;
+    if ( !DEFINED_CHR( imount ) ) return rv_error;
     pmount = ChrList.lst + imount;
 
     pmount_cap = chr_get_pcap( imount );
-    if( NULL == pmount_cap ) return rv_error;
+    if ( NULL == pmount_cap ) return rv_error;
 
     // do not deal with packed items at this time
     // this would have to be changed to allow for pickpocketing
@@ -1856,7 +1856,7 @@ CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool
         // Attach the found_item to the character's hand
         // (1) if the mounting doesn't succees, I guess it will drop it at the character's feet,
         // or will it drop the item at 0,0... I think the keep_weapons_with_holders() function
-        // works 
+        // works
         // (2) if it fails, do we need to treat it as if it was dropped? Or just not take it out?
         attach_character_to_mount( found_item, character, grip_off );
 
@@ -2175,7 +2175,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
              pchr_b->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
 
         // do not notice completely broken items?
-        if( pchr_b->isitem && !pchr_b->alive ) continue;
+        if ( pchr_b->isitem && !pchr_b->alive ) continue;
 
         // reasonable carrying capacity
         if ( pchr_b->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
@@ -2306,7 +2306,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             if ( can_grab )
             {
                 // Stick 'em together and quit
-                if( rv_success == attach_character_to_mount( ichr_b, ichr_a, grip_off ) )
+                if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, grip_off ) )
                 {
                     if ( grab_people )
                     {
@@ -3134,11 +3134,11 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Skin
     pchr->skin = 0;
-    if ( pcap->spelleffect_type != NO_SKIN_OVERRIDE )
+    if ( NO_SKIN_OVERRIDE != pcap->spelleffect_type )
     {
         pchr->skin = pcap->spelleffect_type % MAX_SKIN;
     }
-    else if ( pcap->skin_override != NO_SKIN_OVERRIDE )
+    else if ( NO_SKIN_OVERRIDE != pcap->skin_override )
     {
         pchr->skin = pcap->skin_override % MAX_SKIN;
     }
@@ -4026,7 +4026,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // Skin
-    if ( pcap->skin_override != NO_SKIN_OVERRIDE )
+    if ( NO_SKIN_OVERRIDE != pcap->skin_override )
     {
         // override the value passed into the function from spawn.txt
         // with the value from the expansion in data.txt
@@ -8436,11 +8436,11 @@ TX_REF chr_get_icon_ref( const CHR_REF item )
     {
         iskin = 0;
 
-        if ( pitem_cap->spelleffect_type > 0 )
+        if ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type )
         {
             iskin = pitem_cap->spelleffect_type;
         }
-        else if ( pitem_cap->skin_override > 0 )
+        else if ( NO_SKIN_OVERRIDE != pitem_cap->skin_override )
         {
             iskin = pitem_cap->skin_override;
         }

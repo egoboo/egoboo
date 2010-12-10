@@ -140,8 +140,7 @@ IDSZ_node_t* idsz_map_iterate( const IDSZ_node_t idsz_map[], const size_t idsz_m
     /// @details ZF> This function iterates through a map containing any number of IDSZ_node_t
     ///              Returns NULL if there are no more elements to iterate.
 
-    int          step = 0;
-    IDSZ_node_t *node = NULL;
+    int step = 0;
 
     if ( NULL == idsz_map || NULL == iterator_ptr ) return NULL;
 
@@ -176,20 +175,4 @@ egoboo_rv idsz_map_copy( const IDSZ_node_t map_src[], const size_t src_len, IDSZ
     memmove( map_dst, map_src, sizeof( IDSZ_node_t ) * src_len );
 
     return rv_success;
-
-    /*
-    int iterator = 0;
-    IDSZ_node_t *pidsz;
-
-    //First clear the array we are copying to
-    idsz_map_init( map_dst );
-
-    //Iterate and copy each element exact
-    pidsz = idsz_map_iterate( map_src, &iterator );
-    while( pidsz != NULL )
-    {
-        idsz_map_add( map_dst, pidsz->id, pidsz->level );
-        pidsz = idsz_map_iterate( map_src, &iterator );
-    }
-    */
 }

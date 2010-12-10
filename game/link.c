@@ -44,7 +44,9 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 static bool_t link_push_module();
+static bool_t link_test_module( const char * modname );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -87,7 +89,8 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
 
     if ( !VALID_CSTR( modname ) ) return bfalse;
 
-    if ( !mnu_test_by_name( modname ) ) return bfalse;
+    // can this module be loaded?
+    if ( !link_test_module( modname ) ) return bfalse;
 
     // push the link BEFORE you change the module data
     // otherwise you won't save the correct data!
@@ -298,4 +301,25 @@ bool_t link_load_parent( const char * modname, fvec3_t   pos )
 
     // now pop this "fake" module reference off the stack
     return link_pop_module();
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t link_test_module( const char * modname )
+{
+    bool_t retval = bfalse;
+
+    LoadPlayer_list_t tmp_loadplayer = LOADPLAYER_LIST_INIT;
+
+    if ( !VALID_CSTR( modname ) ) return bfalse;
+
+    // generate a temporary list of loadplayers
+    LoadPlayer_list_from_players( &tmp_loadplayer );
+
+    // test the given module
+    retval = mnu_test_module_by_name( &tmp_loadplayer, modname );
+
+    // blank out the list (not necessary since the list is local, but just in case)
+    LoadPlayer_list_init( &tmp_loadplayer );
+
+    return retval;
 }

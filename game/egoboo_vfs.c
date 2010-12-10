@@ -40,9 +40,6 @@
 //--------------------------------------------------------------------------------------------
 #define VFS_MAX_PATH 1024
 
-#define VFS_TRUE  (1==1)
-#define VFS_FALSE (!VFS_TRUE)
-
 #define BAIL_MACRO(TEST,STR)    if( !(TEST) ) log_error( "egoboo vfs system encountered a fatal error - %s", STR );
 
 #if defined(__FUNCSIG__)
@@ -2108,7 +2105,7 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_empty_import_directory()
+void vfs_empty_temp_directories()
 {
     BAIL_IF_NOT_INIT();
 

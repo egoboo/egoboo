@@ -157,8 +157,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     ui_begin( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 24 );
     font_bmp_load_vfs( "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
 
-    // clear out the import directory
-    vfs_empty_import_directory();
+    // clear out the import and remote directories
+    vfs_empty_temp_directories();
 
     // register the memory_cleanUp function to automatically run whenever the program exits
     atexit( memory_cleanUp );
@@ -638,7 +638,8 @@ void _quit_game( ego_process_t * pgame )
     // tell the game to kill itself
     process_kill( PROC_PBASE( pgame ) );
 
-    vfs_empty_import_directory();
+    // clear out the import and remote directories
+    vfs_empty_temp_directories();
 }
 
 //--------------------------------------------------------------------------------------------

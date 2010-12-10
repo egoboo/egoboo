@@ -59,11 +59,13 @@ cap_t * cap_init( cap_t * pcap )
         pcap->sound_index[cnt] = -1;
     }
 
-    // Clear expansions...
-    pcap->reflect = btrue;
-    pcap->hidestate = NOHIDE;
-    pcap->skin_override = NO_SKIN_OVERRIDE;
-    pcap->isvaluable = -1;
+    // Clear non-zero, non-false expansions...
+    pcap->reflect          = btrue;
+    pcap->hidestate        = NOHIDE;
+    pcap->spelleffect_type = NO_SKIN_OVERRIDE;
+    pcap->skin_override    = NO_SKIN_OVERRIDE;
+    pcap->isvaluable       = -1;
+    pcap->draw_icon        = btrue;
 
     // either these will be overridden by data in the data.txt, or
     // they will be limited by the spawning character's max stats
@@ -74,8 +76,9 @@ cap_t * cap_init( cap_t * pcap )
     pcap->stoppedby  = MPDFX_IMPASS;
 
     // Skills
-    pcap->spelleffect_type = NO_SKIN_OVERRIDE;
     idsz_map_init( pcap->skills, SDL_arraysize( pcap->skills ) );
+
+
 
     return pcap;
 }
@@ -384,7 +387,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'S', 'Q', 'U', 'A' ) ) pcap->bump_sizebig = pcap->bump_size * 2;
         else if ( idsz == MAKE_IDSZ( 'I', 'C', 'O', 'N' ) ) pcap->draw_icon = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = ( 0 != fget_int( fileread ) );
-        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) pcap->skin_override = fget_int( fileread ) & 3;
+        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) pcap->skin_override = fget_int( fileread ) % MAX_SKIN;
         else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->content_override = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->state_override = fget_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'L', 'E', 'V', 'L' ) ) pcap->level_override = fget_int( fileread );

@@ -2810,7 +2810,7 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdolist )
         for ( cnt = 0; cnt < pdolist->count; cnt++ )
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
-            if( !VALID_CHR_RANGE(ichr) ) continue;
+            if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
             if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
@@ -2824,7 +2824,7 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdolist )
         for ( cnt = 0; cnt < pdolist->count; cnt++ )
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
-            if( !VALID_CHR_RANGE(ichr) ) continue;
+            if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
             if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
 
@@ -2981,14 +2981,14 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );             // GL_COLOR_BUFFER_BIT
 
-            if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE(pdolist->lst[cnt].ichr) )
+            if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
             {
                 if ( gfx_error == render_one_mad_solid( pdolist->lst[cnt].ichr ) )
                 {
                     retval = gfx_error;
                 }
             }
-            else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE(pdolist->lst[cnt].iprt) )
+            else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
             {
                 // draw draw front and back faces of polygons
                 GL_DEBUG( glDisable )( GL_CULL_FACE );
@@ -4780,11 +4780,11 @@ gfx_rv dolist_make( dolist_t * pdolist, ego_mpd_t * pmesh )
     // Remove everyone from the dolist
     for ( cnt = 0; cnt < pdolist->count; cnt++ )
     {
-        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE(pdolist->lst[cnt].ichr) )
+        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
         {
             ChrList.lst[ pdolist->lst[cnt].ichr ].inst.indolist = bfalse;
         }
-        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE(pdolist->lst[cnt].iprt) )
+        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
         {
             PrtList.lst[ pdolist->lst[cnt].iprt ].inst.indolist = bfalse;
         }
@@ -4862,7 +4862,7 @@ gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect )
         fvec3_t   vtmp;
         float dist;
 
-        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE(pdolist->lst[cnt].ichr) )
+        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;
@@ -4880,7 +4880,7 @@ gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect )
 
             vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
         }
-        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE(pdolist->lst[cnt].iprt) )
+        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
         {
             PRT_REF iprt = pdolist->lst[cnt].iprt;
 
@@ -5612,7 +5612,7 @@ gfx_rv do_chr_flashing( dolist_t * pdolist )
         if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && ( local_seekurse_level > 0.0f ) && ChrList.lst[ichr].iskursed )
         {
             float tmp_seekurse_level = MIN( local_seekurse_level, 1.0f );
-            if( gfx_error == flash_character( ichr, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
+            if ( gfx_error == flash_character( ichr, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
             {
                 retval = gfx_error;
             }
@@ -5632,14 +5632,14 @@ gfx_rv flash_character( const CHR_REF character, Uint8 value )
     GLvertex * pv;
 
     chr_instance_t * pinst = chr_get_pinstance( character );
-    if( NULL == pinst ) return rv_error;
+    if ( NULL == pinst ) return rv_error;
 
     // flash the ambient color
     pinst->color_amb = flash_val;
 
     // flash the directional lighting
     pinst->color_amb = flash_val;
-    for( cnt = 0; cnt < pinst->vrt_count; cnt++ )
+    for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
     {
         pv = pinst->vrt_lst + cnt;
 

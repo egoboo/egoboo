@@ -35,6 +35,13 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
+// MACROS
+//--------------------------------------------------------------------------------------------
+
+#   define VFS_TRUE  (1==1)
+#   define VFS_FALSE (!VFS_TRUE)
+
+//--------------------------------------------------------------------------------------------
 // TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
@@ -130,7 +137,7 @@ extern "C"
     int          vfs_getc( vfs_FILE * pfile );
     int          vfs_ungetc( int c, vfs_FILE * pfile );
 
-    void         vfs_empty_import_directory();
+    void         vfs_empty_temp_directories();
 
     int          vfs_copyFile( const char *source, const char *dest );
     int          vfs_copyDirectory( const char *sourceDir, const char *destDir );

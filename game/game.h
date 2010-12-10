@@ -42,6 +42,8 @@ struct s_chr;
 struct s_prt;
 struct s_prt_bundle;
 
+struct s_Import_list;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -274,6 +276,39 @@ extern CHR_REF StatusList[MAXSTAT];
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
 
+
+//--------------------------------------------------------------------------------------------
+// Imports
+
+struct s_Import_element
+{
+    STRING    srcDir;
+    STRING    dstDir;
+    STRING    name;
+
+    size_t    player;           ///< Which player is this?
+    BIT_FIELD bits;             ///< Input bits for this player
+    int       slot;             ///< which slot it it to be loaded into
+};
+typedef struct s_Import_element Import_element_t;
+
+bool_t Import_element_init( Import_element_t * );
+
+//--------------------------------------------------------------------------------------------
+#define MAX_IMPORTS 16
+
+struct s_Import_list
+{
+    size_t                count;              ///< Number of imports
+    Import_element_t lst[MAX_IMPORTS];
+};
+typedef struct s_Import_list Import_list_t;
+
+#define IMPORT_LIST_INIT {0}
+
+bool_t    Import_list_init( Import_list_t * );
+egoboo_rv Import_list_from_players( Import_list_t * imp_lst );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -302,6 +337,8 @@ extern IDSZ     local_senseenemiesID;
 
 extern bool_t activate_spawn_file_active;
 
+extern Import_list_t ImportList;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -314,8 +351,8 @@ void   game_finish_module();
 bool_t game_begin_module( const char * modname, Uint32 seed );
 
 /// Exporting stuff
-void export_one_character( const CHR_REF character, const CHR_REF owner, int number, bool_t is_local );
-void export_all_players( bool_t require_local );
+egoboo_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local );
+egoboo_rv export_all_players( bool_t require_local );
 
 /// Messages
 void show_stat( int statindex );
@@ -417,3 +454,5 @@ bool_t attach_prt_to_platform( struct s_prt * pprt, struct s_chr * pplat );
 
 bool_t detach_character_from_platform( struct s_chr * pchr );
 bool_t detach_particle_from_platform( struct s_prt * pprt );
+
+egoboo_rv game_copy_imports( struct s_Import_list * imp_lst );

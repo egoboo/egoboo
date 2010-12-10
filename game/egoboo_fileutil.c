@@ -1041,15 +1041,17 @@ int read_skin_vfs( const char *filename )
 {
     /// @details ZZ@> This function reads the skin.txt file...
     vfs_FILE*   fileread;
-    int skin = 0;
+    int skin = NO_SKIN_OVERRIDE;
 
     fileread = vfs_openRead( filename );
-    if ( !fileread ) return skin;
+    if ( NULL != fileread )
+    {
+        //Read the contents
+        skin = fget_next_int( fileread );
+        skin %= MAX_SKIN;
 
-    //Read the contents
-    skin = fget_next_int( fileread );
-    skin %= MAX_SKIN;
+        vfs_close( fileread );
+    }
 
-    vfs_close( fileread );
     return skin;
 }
