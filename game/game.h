@@ -276,7 +276,6 @@ extern CHR_REF StatusList[MAXSTAT];
 extern char   endtext[MAXENDTEXT];     ///< The end-module text
 extern size_t endtext_carat;
 
-
 //--------------------------------------------------------------------------------------------
 // Imports
 

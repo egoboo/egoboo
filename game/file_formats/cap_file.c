@@ -78,8 +78,6 @@ cap_t * cap_init( cap_t * pcap )
     // Skills
     idsz_map_init( pcap->skills, SDL_arraysize( pcap->skills ) );
 
-
-
     return pcap;
 }
 

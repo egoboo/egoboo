@@ -191,8 +191,11 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF objec
 int    action_which( char cTmp );
 void   load_action_names_vfs( const char* loadname );
 
-void   mad_make_equally_lit( const MAD_REF imad );
+int    mad_get_action_ref( const MAD_REF imad, int action );
+Uint32 mad_get_madfx_ref( const MAD_REF imad, int action );
+void   mad_make_equally_lit_ref( const MAD_REF imad );
 
-int    mad_get_action( const MAD_REF imad, int action );
-Uint32 mad_get_madfx( const MAD_REF imad, int action );
+int    mad_get_action( mad_t * pmad, int action );
+Uint32 mad_get_madfx( mad_t * pmad, int action );
+
 int    randomize_action( int action, int slot );

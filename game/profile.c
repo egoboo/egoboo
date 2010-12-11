@@ -862,7 +862,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     // Fix lighting if need be
     if ( CapStack.lst[pobj->icap].uniformlit )
     {
-        mad_make_equally_lit( pobj->imad );
+        mad_make_equally_lit_ref( pobj->imad );
     }
 
     // mark the profile as loaded

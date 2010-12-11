@@ -1054,7 +1054,7 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = mad_get_action( pchr->inst.imad, pstate->argument );
+    action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
 
     returncode = bfalse;
     if ( rv_success == chr_start_anim( pchr, action, bfalse, bfalse ) )
@@ -1160,7 +1160,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
 
         if ( pself_target->alive )
         {
-            int action = mad_get_action( pself_target->inst.imad, pstate->argument );
+            int action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
 
             if ( rv_success == chr_start_anim( pself_target, action, bfalse, bfalse ) )
             {
@@ -1316,7 +1316,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    action = mad_get_action( pchr->inst.imad, pstate->argument );
+    action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
 
     returncode = bfalse;
     if ( rv_success == chr_start_anim( pchr, action, bfalse, btrue ) )
@@ -2383,7 +2383,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     if ( NULL != pmad )
     {
         // Do dropped animation
-        int tmp_action = mad_get_action( pchr->inst.imad, ACTION_JB );
+        int tmp_action = mad_get_action_ref( pchr->inst.imad, ACTION_JB );
 
         if ( rv_success == chr_start_anim( pchr, tmp_action, bfalse, btrue ) )
         {
@@ -4322,7 +4322,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
         chr_t * pchild = ChrList.lst + pself->child;
 
-        action = mad_get_action( pchild->inst.imad, pstate->argument );
+        action = mad_get_action_ref( pchild->inst.imad, pstate->argument );
 
         if ( rv_success == chr_start_anim( pchild, action, bfalse, btrue ) )
         {
@@ -5570,7 +5570,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
         int action;
         chr_t * pself_target = ChrList.lst + pself->target;
 
-        action = mad_get_action( pself_target->inst.imad, pstate->argument );
+        action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
 
         if ( rv_success == chr_start_anim( pself_target, action, bfalse, btrue ) )
         {

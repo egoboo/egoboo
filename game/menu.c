@@ -304,7 +304,6 @@ static egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPla
 static egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
 static egoboo_rv mnu_copy_local_imports( Import_list_t * imp_lst );
 
-
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
 //--------------------------------------------------------------------------------------------
@@ -1366,7 +1365,6 @@ int doChooseModule( float deltaTime )
 
     return result;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t doChoosePlayer_load_profiles( LoadPlayer_element_t * loadplayer_ptr, ChoosePlayer_list_t * chooseplayer )
@@ -5273,7 +5271,6 @@ egoboo_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     return rv_success;
 }
 
-
 //--------------------------------------------------------------------------------------------
 int LoadPlayer_list_get_free( LoadPlayer_list_t * lst )
 {
@@ -5287,7 +5284,6 @@ int LoadPlayer_list_get_free( LoadPlayer_list_t * lst )
     // grab the next one
     idx = lst->count;
     lst->count++;
-
 
     return idx;
 }
@@ -5351,8 +5347,6 @@ egoboo_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirna
 
     return rv_success;
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
@@ -5501,7 +5495,6 @@ egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * sr
 
     return ( dst->count > 0 ) ? rv_success : rv_fail;
 }
-
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst )

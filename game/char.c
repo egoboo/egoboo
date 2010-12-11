@@ -6214,7 +6214,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     hand_action = randomize_action( base_action, which_slot );
 
     // see if the character can play this action
-    action       = mad_get_action( imad, hand_action );
+    action       = mad_get_action_ref( imad, hand_action );
     action_valid = ( ACTION_COUNT != action );
 
     // Can it do it?
@@ -6324,10 +6324,10 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                 action = randomize_action( action, which_slot );
 
                 // make sure it is valid
-                action = mad_get_action( imad, action );
+                action = mad_get_action_ref( imad, action );
 
                 // grab the MADFX_* flags for this action
-                action_madfx = mad_get_action( imad, action );
+                action_madfx = mad_get_action_ref( imad, action );
 
                 if ( ACTION_IS_TYPE( action, P ) )
                 {
@@ -7563,7 +7563,7 @@ float set_character_animation_rate( chr_t * pchr )
 
             // set the action to "bored", which is ACTION_DB, ACTION_DC, or ACTION_DD
             rand_val   = RANDIE;
-            tmp_action = mad_get_action( pinst->imad, ACTION_DB + ( rand_val % 3 ) );
+            tmp_action = mad_get_action_ref( pinst->imad, ACTION_DB + ( rand_val % 3 ) );
             chr_start_anim( pchr, tmp_action, btrue, btrue );
         }
         else
@@ -7572,7 +7572,7 @@ float set_character_animation_rate( chr_t * pchr )
             if ( !ACTION_IS_TYPE( pinst->action_which, D ) )
             {
                 // get an appropriate version of the boredom action
-                int tmp_action = mad_get_action( pinst->imad, ACTION_DA );
+                int tmp_action = mad_get_action_ref( pinst->imad, ACTION_DA );
 
                 // start the animation
                 chr_start_anim( pchr, tmp_action, btrue, btrue );
@@ -7581,7 +7581,7 @@ float set_character_animation_rate( chr_t * pchr )
     }
     else
     {
-        int tmp_action = mad_get_action( pinst->imad, action );
+        int tmp_action = mad_get_action_ref( pinst->imad, action );
         if ( ACTION_COUNT != tmp_action )
         {
             if ( pinst->action_which != tmp_action )
@@ -9789,7 +9789,7 @@ bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
-    action_mi = mad_get_action( chr_get_imad( ichr_a ), ACTION_MI );
+    action_mi = mad_get_action_ref( chr_get_imad( ichr_a ), ACTION_MI );
     has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
 
     is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && ( 0 == pchr_a->flyheight ) &&
@@ -9936,7 +9936,7 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
             // if the character is holding anything, make the animation
             // ACTION_MH == "sitting" so that it does not look so silly
 
-            mount_action = mad_get_action( pchr->inst.imad, ACTION_MH );
+            mount_action = mad_get_action_ref( pchr->inst.imad, ACTION_MH );
             if ( ACTION_MH != mount_action )
             {
                 // no real sitting animation. set the animation to keep
@@ -9946,7 +9946,7 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
         else
         {
             // if it is not holding anything, go for the riding animation
-            mount_action = mad_get_action( pchr->inst.imad, ACTION_MI );
+            mount_action = mad_get_action_ref( pchr->inst.imad, ACTION_MI );
             if ( ACTION_MI != mount_action )
             {
                 // no real riding animation. set the animation to keep

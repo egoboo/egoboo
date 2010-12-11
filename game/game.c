@@ -545,7 +545,7 @@ egoboo_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     if ( !LOADED_MAD( imad ) ) return rv_fail;
 
     // resolve the requested action to a action that is valid for this model (if possible)
-    action = mad_get_action( imad, req_action );
+    action = mad_get_action_ref( imad, req_action );
 
     // set the action
     retval = chr_set_action( pchr, action, btrue, btrue );

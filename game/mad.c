@@ -47,17 +47,18 @@ static STRING  szModelName     = EMPTY_CSTR;      ///< MD2 Model name
 static char    cActionName[ACTION_COUNT][2];      ///< Two letter name code
 static STRING  cActionComent[ACTION_COUNT];       ///< Strings explaining the action codes
 
-static int    action_number( const char * cFrameName );
-static void   action_check_copy_vfs( const char* loadname, const MAD_REF imad );
-static void   action_copy_correct( const MAD_REF imad, int actiona, int actionb );
+static int     action_number( const char * cFrameName );
+static mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname );
+static mad_t * action_copy_correct( mad_t * pmad, int actiona, int actionb );
 
-static void   mad_get_framefx( const char * cFrameName, const MAD_REF model, int frame );
-static void   mad_get_walk_frame( const MAD_REF imad, int lip, int action );
-static void   mad_make_framelip( const MAD_REF imad, int action );
-static void   mad_rip_actions( const MAD_REF imad );
+static mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame );
+static mad_t * mad_get_walk_frame( mad_t * pmad, int lip, int action );
+static mad_t * mad_make_framelip( mad_t * pmad, int action );
+static mad_t * mad_rip_actions( mad_t * pmad );
 
-static void mad_finalize( const MAD_REF imad );
-static void mad_heal_actions( const MAD_REF imad, const char * loadname );
+static mad_t * mad_finalize( mad_t * pmad );
+static mad_t * mad_heal_actions( mad_t * pmad, const char * loadname );
+static mad_t * mad_make_equally_lit( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -127,20 +128,17 @@ int action_number( const char * cFrameName )
 }
 
 //--------------------------------------------------------------------------------------------
-void action_copy_correct( const MAD_REF imad, int actiona, int actionb )
+mad_t * action_copy_correct( mad_t * pmad, int actiona, int actionb )
 {
     /// @details ZZ@> This function makes sure both actions are valid if either of them
     ///    are valid.  It will copy start and ends to mirror the valid action.
 
-    mad_t * pmad;
+    if( NULL == pmad ) return pmad;
 
-    if ( actiona < 0 || actiona >= ACTION_COUNT ) return;
-    if ( actionb < 0 || actionb >= ACTION_COUNT ) return;
+    if ( actiona < 0 || actiona >= ACTION_COUNT ) return pmad;
+    if ( actionb < 0 || actionb >= ACTION_COUNT ) return pmad;
 
-    if ( !LOADED_MAD( imad ) ) return;
-    pmad = MadStack.lst + imad;
-
-    // With the new system using the action_map, this is all that is really necessary
+     // With the new system using the action_map, this is all that is really necessary
     if ( ACTION_COUNT == pmad->action_map[actiona] )
     {
         if ( pmad->action_valid[actionb] )
@@ -164,43 +162,19 @@ void action_copy_correct( const MAD_REF imad, int actiona, int actionb )
         }
     }
 
-    //if ( pmad->action_valid[actiona] == pmad->action_valid[actionb] )
-    //{
-    //    // They are either both valid or both invalid, in either case we can't help
-    //    return;
-    //}
-    //else
-    //{
-    //    // Fix the invalid one
-    //    if ( !pmad->action_valid[actiona] )
-    //    {
-    //        // Fix actiona
-    //        pmad->action_valid[actiona] = btrue;
-    //        pmad->action_stt[actiona] = pmad->action_stt[actionb];
-    //        pmad->action_end[actiona]   = pmad->action_end[actionb];
-    //    }
-    //    else
-    //    {
-    //        // Fix actionb
-    //        pmad->action_valid[actionb] = btrue;
-    //        pmad->action_stt[actionb] = pmad->action_stt[actiona];
-    //        pmad->action_end[actionb]   = pmad->action_end[actiona];
-    //    }
-    //}
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
-int mad_get_action( const MAD_REF imad, int action )
+int mad_get_action( mad_t * pmad, int action )
 {
     /// @detaills BB@> translate the action that was given into a valid action for the model
     ///
     /// returns ACTION_COUNT on a complete failure, or the default ACTION_DA if it exists
 
     int     retval;
-    mad_t * pmad;
 
-    if ( !LOADED_MAD( imad ) ) return ACTION_COUNT;
-    pmad = MadStack.lst + imad;
+    if ( NULL == pmad ) return ACTION_COUNT;
 
     // you are pretty much guaranteed that ACTION_DA will be valid for a model,
     // I guess it could be invalid if the model had no frames or something
@@ -245,18 +219,17 @@ int mad_get_action( const MAD_REF imad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mad_get_madfx( const MAD_REF imad, int action )
+Uint32 mad_get_madfx( mad_t * pmad, int action )
 {
     BIT_FIELD retval = EMPTY_BIT_FIELD;
     int cnt;
-    mad_t * pmad;
+
     MD2_Model_t * md2;
     MD2_Frame_t * frame_lst, * pframe;
 
-    if ( !LOADED_MAD( imad ) ) return 0;
-    pmad = MadStack.lst + imad;
+    if ( NULL == pmad ) return 0;
 
-    md2 = MadStack.lst[imad].md2_ptr;
+    md2 = pmad->md2_ptr;
     if ( NULL == md2 ) return 0;
 
     if ( action < 0 || action >= ACTION_COUNT ) return 0;
@@ -275,7 +248,7 @@ Uint32 mad_get_madfx( const MAD_REF imad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-void action_check_copy_vfs( const char* loadname, const MAD_REF imad )
+ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
 {
     /// @details ZZ@> This function copies a model's actions
 
@@ -284,10 +257,10 @@ void action_check_copy_vfs( const char* loadname, const MAD_REF imad )
     char szOne[16] = EMPTY_CSTR;
     char szTwo[16] = EMPTY_CSTR;
 
-    if ( !LOADED_MAD( imad ) ) return;
+    if ( NULL == pmad ) return pmad;
 
     fileread = vfs_openRead( loadname );
-    if ( NULL == fileread ) return;
+    if ( NULL == fileread ) return pmad;
 
     while ( goto_colon( NULL, fileread, btrue ) )
     {
@@ -297,13 +270,15 @@ void action_check_copy_vfs( const char* loadname, const MAD_REF imad )
         fget_string( fileread, szTwo, SDL_arraysize( szTwo ) );
         actionb = action_which( szTwo[0] );
 
-        action_copy_correct( imad, actiona + 0, actionb + 0 );
-        action_copy_correct( imad, actiona + 1, actionb + 1 );
-        action_copy_correct( imad, actiona + 2, actionb + 2 );
-        action_copy_correct( imad, actiona + 3, actionb + 3 );
+        action_copy_correct( pmad, actiona + 0, actionb + 0 );
+        action_copy_correct( pmad, actiona + 1, actionb + 1 );
+        action_copy_correct( pmad, actiona + 2, actionb + 2 );
+        action_copy_correct( pmad, actiona + 3, actionb + 3 );
     }
 
     vfs_close( fileread );
+
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -335,17 +310,15 @@ int action_which( char cTmp )
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_get_walk_frame( const MAD_REF imad, int lip, int action )
+mad_t *  mad_get_walk_frame( mad_t * pmad, int lip, int action )
 {
     /// @details ZZ@> This helps make walking look right
     int frame = 0;
     int framesinaction, action_stt;
-    mad_t * pmad;
 
-    if ( !LOADED_MAD( imad ) ) return;
-    pmad = MadStack.lst + imad;
+    if ( NULL == pmad ) return pmad;
 
-    action = mad_get_action( imad, action );
+    action = mad_get_action( pmad, action );
     if ( ACTION_COUNT == action )
     {
         framesinaction = 1;
@@ -353,7 +326,7 @@ void mad_get_walk_frame( const MAD_REF imad, int lip, int action )
     }
     else
     {
-        framesinaction = pmad->action_end[action] - pmad->action_stt[action];
+        framesinaction = 1 + (pmad->action_end[action] - pmad->action_stt[action]);
         action_stt     = pmad->action_stt[action];
     }
 
@@ -368,10 +341,12 @@ void mad_get_walk_frame( const MAD_REF imad, int lip, int action )
 
         pmad->frameliptowalkframe[lip][frame] = action_stt + framealong;
     }
+
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_get_framefx( const char * cFrameName, const MAD_REF imad, int frame )
+mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
 {
     /// @details ZZ@> This function figures out the IFrame invulnerability, and Attack, Grab, and
     ///               Drop timings
@@ -399,13 +374,13 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF imad, int frame )
     MD2_Model_t * md2;
     MD2_Frame_t * pframe;
 
-    if ( !VALID_MAD_RANGE( imad ) ) return;
+    if ( NULL == pmad ) return pmad;
 
-    md2 = MadStack.lst[imad].md2_ptr;
-    if ( NULL == md2 ) return;
+    md2 = pmad->md2_ptr;
+    if ( NULL == md2 ) return pmad;
 
     // check for a valid frame number
-    if ( frame >= md2_get_numFrames( md2 ) ) return;
+    if ( frame >= md2_get_numFrames( md2 ) ) return pmad;
     pframe = ( MD2_Frame_t * )md2_get_Frames( md2 );
     pframe = pframe + frame;
 
@@ -421,7 +396,7 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF imad, int frame )
     pframe->framefx = fx;
 
     // check for a non-trivial frame name
-    if ( !VALID_CSTR( cFrameName ) ) return;
+    if ( !VALID_CSTR( cFrameName ) ) return pmad;
 
     // skip over whitespace
     ptmp     = cFrameName;
@@ -444,7 +419,7 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF imad, int frame )
     name_fx[15] = CSTR_END;
 
     // check for a non-trivial fx command
-    if ( !VALID_CSTR( name_fx ) ) return;
+    if ( !VALID_CSTR( name_fx ) ) return pmad;
 
     // scan the fx string for valid commands
     ptmp     = name_fx;
@@ -579,29 +554,29 @@ void mad_get_framefx( const char * cFrameName, const MAD_REF imad, int frame )
     }
 
     pframe->framefx = fx;
+
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_make_framelip( const MAD_REF imad, int action )
+mad_t * mad_make_framelip( mad_t * pmad, int action )
 {
     /// @details ZZ@> This helps make walking look right
 
     int frame_count, frame, framesinaction;
 
-    mad_t       * pmad;
     MD2_Model_t * md2;
     MD2_Frame_t * frame_list, * pframe;
 
-    if ( !LOADED_MAD( imad ) ) return;
-    pmad = MadStack.lst + imad;
+    if ( NULL == pmad ) return pmad;
 
-    if ( NULL == pmad->md2_ptr ) return;
+    if ( NULL == pmad->md2_ptr ) return pmad;
     md2 = pmad->md2_ptr;
 
-    action = mad_get_action( imad, action );
-    if ( ACTION_COUNT == action || ACTION_DA == action ) return;
+    action = mad_get_action( pmad, action );
+    if ( ACTION_COUNT == action || ACTION_DA == action ) return pmad;
 
-    if ( !pmad->action_valid[action] ) return;
+    if ( !pmad->action_valid[action] ) return pmad;
 
     frame_count = md2_get_numFrames( md2 );
     frame_list  = ( MD2_Frame_t * )md2_get_Frames( md2 );
@@ -616,10 +591,12 @@ void mad_make_framelip( const MAD_REF imad, int action )
         pframe->framelip = ( frame - pmad->action_stt[action] ) * 15 / framesinaction;
         pframe->framelip = ( pframe->framelip ) & 15;
     }
+
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_make_equally_lit( const MAD_REF imad )
+mad_t * mad_make_equally_lit( mad_t * pmad )
 {
     /// @details ZZ@> This function makes ultra low poly models look better
 
@@ -627,9 +604,11 @@ void mad_make_equally_lit( const MAD_REF imad )
     MD2_Model_t * md2;
     int frame_count, vert_count;
 
-    if ( !LOADED_MAD( imad ) ) return;
+    if ( NULL == pmad ) return pmad;
 
-    md2         = MadStack.lst[imad].md2_ptr;
+    md2 = pmad->md2_ptr;
+    if( NULL == md2 ) return pmad;
+
     frame_count = md2_get_numFrames( md2 );
     vert_count  = md2_get_numVertices( md2 );
 
@@ -641,6 +620,8 @@ void mad_make_equally_lit( const MAD_REF imad )
             pframe->vertex_lst[vert].normal = EGO_AMBIENT_INDEX;
         }
     }
+
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -736,91 +717,91 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     }
 
     // Create the actions table for this imad
-    mad_rip_actions( imad );
-    mad_heal_actions( imad, tmploadname );
-    mad_finalize( imad );
+    mad_rip_actions( pmad );
+    mad_heal_actions( pmad, tmploadname );
+    mad_finalize( pmad );
 
     return imad;
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_heal_actions( const MAD_REF imad, const char * tmploadname )
+mad_t * mad_heal_actions( mad_t * pmad, const char * tmploadname )
 {
     STRING newloadname;
 
-    if ( !LOADED_MAD( imad ) ) return;
+    if ( NULL == pmad ) return pmad;
 
     // Make sure actions are made valid if a similar one exists
-    action_copy_correct( imad, ACTION_DA, ACTION_DB );  // All dances should be safe
-    action_copy_correct( imad, ACTION_DB, ACTION_DC );
-    action_copy_correct( imad, ACTION_DC, ACTION_DD );
-    action_copy_correct( imad, ACTION_DB, ACTION_DC );
-    action_copy_correct( imad, ACTION_DA, ACTION_DB );
-    action_copy_correct( imad, ACTION_UA, ACTION_UB );
-    action_copy_correct( imad, ACTION_UB, ACTION_UC );
-    action_copy_correct( imad, ACTION_UC, ACTION_UD );
-    action_copy_correct( imad, ACTION_TA, ACTION_TB );
-    action_copy_correct( imad, ACTION_TC, ACTION_TD );
-    action_copy_correct( imad, ACTION_CA, ACTION_CB );
-    action_copy_correct( imad, ACTION_CC, ACTION_CD );
-    action_copy_correct( imad, ACTION_SA, ACTION_SB );
-    action_copy_correct( imad, ACTION_SC, ACTION_SD );
-    action_copy_correct( imad, ACTION_BA, ACTION_BB );
-    action_copy_correct( imad, ACTION_BC, ACTION_BD );
-    action_copy_correct( imad, ACTION_LA, ACTION_LB );
-    action_copy_correct( imad, ACTION_LC, ACTION_LD );
-    action_copy_correct( imad, ACTION_XA, ACTION_XB );
-    action_copy_correct( imad, ACTION_XC, ACTION_XD );
-    action_copy_correct( imad, ACTION_FA, ACTION_FB );
-    action_copy_correct( imad, ACTION_FC, ACTION_FD );
-    action_copy_correct( imad, ACTION_PA, ACTION_PB );
-    action_copy_correct( imad, ACTION_PC, ACTION_PD );
-    action_copy_correct( imad, ACTION_ZA, ACTION_ZB );
-    action_copy_correct( imad, ACTION_ZC, ACTION_ZD );
-    action_copy_correct( imad, ACTION_WA, ACTION_WB );
-    action_copy_correct( imad, ACTION_WB, ACTION_WC );
-    action_copy_correct( imad, ACTION_WC, ACTION_WD );
-    action_copy_correct( imad, ACTION_DA, ACTION_WD );  // All walks should be safe
-    action_copy_correct( imad, ACTION_WC, ACTION_WD );
-    action_copy_correct( imad, ACTION_WB, ACTION_WC );
-    action_copy_correct( imad, ACTION_WA, ACTION_WB );
-    action_copy_correct( imad, ACTION_JA, ACTION_JB );
-    action_copy_correct( imad, ACTION_JB, ACTION_JC );
-    action_copy_correct( imad, ACTION_DA, ACTION_JC );  // All jumps should be safe
-    action_copy_correct( imad, ACTION_JB, ACTION_JC );
-    action_copy_correct( imad, ACTION_JA, ACTION_JB );
-    action_copy_correct( imad, ACTION_HA, ACTION_HB );
-    action_copy_correct( imad, ACTION_HB, ACTION_HC );
-    action_copy_correct( imad, ACTION_HC, ACTION_HD );
-    action_copy_correct( imad, ACTION_HB, ACTION_HC );
-    action_copy_correct( imad, ACTION_HA, ACTION_HB );
-    action_copy_correct( imad, ACTION_KA, ACTION_KB );
-    action_copy_correct( imad, ACTION_KB, ACTION_KC );
-    action_copy_correct( imad, ACTION_KC, ACTION_KD );
-    action_copy_correct( imad, ACTION_KB, ACTION_KC );
-    action_copy_correct( imad, ACTION_KA, ACTION_KB );
-    action_copy_correct( imad, ACTION_MH, ACTION_MI );
-    action_copy_correct( imad, ACTION_DA, ACTION_MM );
-    action_copy_correct( imad, ACTION_MM, ACTION_MN );
+    action_copy_correct( pmad, ACTION_DA, ACTION_DB );  // All dances should be safe
+    action_copy_correct( pmad, ACTION_DB, ACTION_DC );
+    action_copy_correct( pmad, ACTION_DC, ACTION_DD );
+    action_copy_correct( pmad, ACTION_DB, ACTION_DC );
+    action_copy_correct( pmad, ACTION_DA, ACTION_DB );
+    action_copy_correct( pmad, ACTION_UA, ACTION_UB );
+    action_copy_correct( pmad, ACTION_UB, ACTION_UC );
+    action_copy_correct( pmad, ACTION_UC, ACTION_UD );
+    action_copy_correct( pmad, ACTION_TA, ACTION_TB );
+    action_copy_correct( pmad, ACTION_TC, ACTION_TD );
+    action_copy_correct( pmad, ACTION_CA, ACTION_CB );
+    action_copy_correct( pmad, ACTION_CC, ACTION_CD );
+    action_copy_correct( pmad, ACTION_SA, ACTION_SB );
+    action_copy_correct( pmad, ACTION_SC, ACTION_SD );
+    action_copy_correct( pmad, ACTION_BA, ACTION_BB );
+    action_copy_correct( pmad, ACTION_BC, ACTION_BD );
+    action_copy_correct( pmad, ACTION_LA, ACTION_LB );
+    action_copy_correct( pmad, ACTION_LC, ACTION_LD );
+    action_copy_correct( pmad, ACTION_XA, ACTION_XB );
+    action_copy_correct( pmad, ACTION_XC, ACTION_XD );
+    action_copy_correct( pmad, ACTION_FA, ACTION_FB );
+    action_copy_correct( pmad, ACTION_FC, ACTION_FD );
+    action_copy_correct( pmad, ACTION_PA, ACTION_PB );
+    action_copy_correct( pmad, ACTION_PC, ACTION_PD );
+    action_copy_correct( pmad, ACTION_ZA, ACTION_ZB );
+    action_copy_correct( pmad, ACTION_ZC, ACTION_ZD );
+    action_copy_correct( pmad, ACTION_WA, ACTION_WB );
+    action_copy_correct( pmad, ACTION_WB, ACTION_WC );
+    action_copy_correct( pmad, ACTION_WC, ACTION_WD );
+    action_copy_correct( pmad, ACTION_DA, ACTION_WD );  // All walks should be safe
+    action_copy_correct( pmad, ACTION_WC, ACTION_WD );
+    action_copy_correct( pmad, ACTION_WB, ACTION_WC );
+    action_copy_correct( pmad, ACTION_WA, ACTION_WB );
+    action_copy_correct( pmad, ACTION_JA, ACTION_JB );
+    action_copy_correct( pmad, ACTION_JB, ACTION_JC );
+    action_copy_correct( pmad, ACTION_DA, ACTION_JC );  // All jumps should be safe
+    action_copy_correct( pmad, ACTION_JB, ACTION_JC );
+    action_copy_correct( pmad, ACTION_JA, ACTION_JB );
+    action_copy_correct( pmad, ACTION_HA, ACTION_HB );
+    action_copy_correct( pmad, ACTION_HB, ACTION_HC );
+    action_copy_correct( pmad, ACTION_HC, ACTION_HD );
+    action_copy_correct( pmad, ACTION_HB, ACTION_HC );
+    action_copy_correct( pmad, ACTION_HA, ACTION_HB );
+    action_copy_correct( pmad, ACTION_KA, ACTION_KB );
+    action_copy_correct( pmad, ACTION_KB, ACTION_KC );
+    action_copy_correct( pmad, ACTION_KC, ACTION_KD );
+    action_copy_correct( pmad, ACTION_KB, ACTION_KC );
+    action_copy_correct( pmad, ACTION_KA, ACTION_KB );
+    action_copy_correct( pmad, ACTION_MH, ACTION_MI );
+    action_copy_correct( pmad, ACTION_DA, ACTION_MM );
+    action_copy_correct( pmad, ACTION_MM, ACTION_MN );
 
     // Copy entire actions to save frame space COPY.TXT
     make_newloadname( tmploadname, "/copy.txt", newloadname );
-    action_check_copy_vfs( newloadname, imad );
+    action_check_copy_vfs( pmad, newloadname );
+
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_finalize( const MAD_REF imad )
+mad_t * mad_finalize( mad_t * pmad )
 {
     int frame, frame_count;
 
-    mad_t       * pmad;
     MD2_Model_t * pmd2;
     MD2_Frame_t * frame_list;
 
-    if ( !LOADED_MAD( imad ) ) return;
-    pmad = MadStack.lst + imad;
+    if ( NULL == pmad ) return pmad;
 
-    if ( NULL == pmad->md2_ptr ) return;
+    if ( NULL == pmad->md2_ptr ) return pmad;
     pmd2 = pmad->md2_ptr;
 
     frame_count = md2_get_numFrames( pmd2 );
@@ -834,91 +815,87 @@ void mad_finalize( const MAD_REF imad )
     }
 
     // Need to figure out how far into action each frame is
-    mad_make_framelip( imad, ACTION_WA );
-    mad_make_framelip( imad, ACTION_WB );
-    mad_make_framelip( imad, ACTION_WC );
+    mad_make_framelip( pmad, ACTION_WA );
+    mad_make_framelip( pmad, ACTION_WB );
+    mad_make_framelip( pmad, ACTION_WC );
 
     // Now do the same, in reverse, for walking animations
-    mad_get_walk_frame( imad, LIPDA, ACTION_DA );
-    mad_get_walk_frame( imad, LIPWA, ACTION_WA );
-    mad_get_walk_frame( imad, LIPWB, ACTION_WB );
-    mad_get_walk_frame( imad, LIPWC, ACTION_WC );
+    mad_get_walk_frame( pmad, LIPDA, ACTION_DA );
+    mad_get_walk_frame( pmad, LIPWA, ACTION_WA );
+    mad_get_walk_frame( pmad, LIPWB, ACTION_WB );
+    mad_get_walk_frame( pmad, LIPWC, ACTION_WC );
+
+    return pmad;
 }
 
 //--------------------------------------------------------------------------------------------
-void mad_rip_actions( const MAD_REF imad )
+mad_t * mad_rip_actions( mad_t * pmad )
 {
-    /// @details ZZ@> This function creates the iframe lists for each action based on the
+    /// \author ZZ
+    /// \details  This function creates the iframe lists for each action_now based on the
     ///    name of each md2 iframe in the model
 
-    int frame_count, iframe, framesinaction;
-    int action, lastaction;
+    int frame_count, iframe;
+    int action_now, last_action;
 
-    mad_t          * pmad;
-    MD2_Model_t    * pmd2;
-    MD2_Frame_t    * frame_list;
+    MD2_Model_t * pmd2;
+    MD2_Frame_t * frame_list;
 
-    if ( !LOADED_MAD( imad ) ) return;
-    pmad = MadStack.lst + imad;
+    if ( NULL == pmad ) return pmad;
 
-    if ( NULL == pmad->md2_ptr ) return;
     pmd2 = pmad->md2_ptr;
+    if ( NULL == pmd2 ) return pmad;
 
     // Clear out all actions and reset to invalid
-    for ( action = 0; action < ACTION_COUNT; action++ )
+    for ( action_now = 0; action_now < ACTION_COUNT; action_now++ )
     {
-        pmad->action_map[action]   = ACTION_COUNT;
-        pmad->action_valid[action] = bfalse;
+        pmad->action_map[action_now]   = ACTION_COUNT;
+        pmad->action_stt[action_now]   = -1;
+        pmad->action_end[action_now]   = -1;
+        pmad->action_valid[action_now] = bfalse;
     }
 
-    // Set the primary dance action to be the first iframe, just as a default
-    pmad->action_map[ACTION_DA]   = ACTION_DA;
-    pmad->action_valid[ACTION_DA] = btrue;
-    pmad->action_stt[ACTION_DA]   = 0;
-    pmad->action_end[ACTION_DA]   = 1;
-
+    // grab the frame info from the md2
     frame_count = md2_get_numFrames( pmd2 );
     frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
 
-    // Now go huntin' to see what each iframe is, look for runs of same action
-    lastaction     = action_number( frame_list[0].name );
-    framesinaction = 0;
+    // is there anything to do?
+    if ( 0 == frame_count ) return pmad;
+
+    // Make a default dance action (ACTION_DA) to be the 1st frame of the animation
+    pmad->action_map[ACTION_DA]   = ACTION_DA;
+    pmad->action_valid[ACTION_DA] = btrue;
+    pmad->action_stt[ACTION_DA]   = 0;
+    pmad->action_end[ACTION_DA]   = 0;
+
+    // Now go huntin' to see what each iframe is, look for runs of same action_now
+    last_action = ACTION_COUNT;
     for ( iframe = 0; iframe < frame_count; iframe++ )
     {
-        action = action_number( frame_list[iframe].name );
-        pmad->action_map[action] = action;
+        action_now = action_number( frame_list[iframe].name );
 
-        if ( lastaction == action )
+        if ( last_action != action_now )
         {
-            framesinaction++;
+            // start a new action
+            pmad->action_map[action_now]   = action_now;
+            pmad->action_stt[action_now]   = iframe;
+            pmad->action_end[action_now]   = iframe;
+            pmad->action_valid[action_now] = btrue;
+
+            last_action = action_now;
         }
         else
         {
-            // Write the old action
-            if ( lastaction < ACTION_COUNT )
-            {
-                pmad->action_valid[lastaction] = btrue;
-                pmad->action_stt[lastaction]   = iframe - framesinaction;
-                pmad->action_end[lastaction]   = iframe;
-            }
-
-            framesinaction = 1;
-            lastaction = action;
+            // keep expanding the action_end until the end of the action
+            pmad->action_end[action_now] = iframe;
         }
 
-        mad_get_framefx( frame_list[iframe].name, imad, iframe );
+        mad_get_framefx( pmad, frame_list[iframe].name, iframe );
     }
 
-    // Write the old action
-    if ( lastaction < ACTION_COUNT )
-    {
-        pmad->action_valid[lastaction] = btrue;
-        pmad->action_stt[lastaction]   = iframe - framesinaction;
-        pmad->action_end[lastaction]   = iframe;
-    }
+    return pmad;
 }
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t mad_free( mad_t * pmad )
@@ -1093,6 +1070,37 @@ int randomize_action( int action, int slot )
     return action;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int mad_get_action_ref( const MAD_REF imad, int action )
+{
+    /// @detaills BB@> translate the action that was given into a valid action for the model
+    ///
+    /// returns ACTION_COUNT on a complete failure, or the default ACTION_DA if it exists
+
+    if ( !LOADED_MAD( imad ) ) return ACTION_COUNT;
+
+    return mad_get_action( MadStack.lst + imad, action );
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 mad_get_madfx_ref( const MAD_REF imad, int action )
+{
+    if ( !LOADED_MAD( imad ) ) return 0;
+
+    return mad_get_madfx( MadStack.lst + imad, action );
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_make_equally_lit_ref( const MAD_REF imad )
+{
+    if ( LOADED_MAD( imad ) )
+    {
+        mad_make_equally_lit( MadStack.lst + imad );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 ////--------------------------------------------------------------------------------------------
 //Uint16 test_frame_name( char letter )
 //{

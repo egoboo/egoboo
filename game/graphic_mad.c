@@ -1720,8 +1720,8 @@ gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
     if ( !pmad->action_valid[ pinst->action_which ] ) return gfx_fail;
 
     // is the frame within the valid range for this action?
-    if ( frame <  pmad->action_stt[ pinst->action_which ] ) return gfx_fail;
-    if ( frame >= pmad->action_end[ pinst->action_which ] ) return gfx_fail;
+    if ( frame < pmad->action_stt[ pinst->action_which ] ) return gfx_fail;
+    if ( frame > pmad->action_end[ pinst->action_which ] ) return gfx_fail;
 
     // jump to the next frame
     pinst->flip      = 0.0f;
@@ -1806,7 +1806,7 @@ gfx_rv chr_instance_increment_action( chr_instance_t * pinst )
     }
 
     // get the correct action
-    action = mad_get_action( pinst->imad, pinst->action_next );
+    action = mad_get_action_ref( pinst->imad, pinst->action_next );
 
     // determine if the action is one of the types that can be broken at any time
     // D == "dance" and "W" == walk
@@ -1843,7 +1843,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
     pinst->frame_nxt++;
 
     // detect the end of the animation and handle special end conditions
-    if ( pinst->frame_nxt >= pmad->action_end[pinst->action_which] )
+    if ( pinst->frame_nxt > pmad->action_end[pinst->action_which] )
     {
         if ( pinst->action_keep )
         {
@@ -1870,7 +1870,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
         else
         {
             // make sure that the frame_nxt points to a valid frame in this action
-            pinst->frame_nxt = pmad->action_end[pinst->action_which] - 1;
+            pinst->frame_nxt = pmad->action_end[pinst->action_which];
 
             // Go on to the next action. don't let just anything interrupt it?
             chr_instance_increment_action( pinst );
@@ -1901,7 +1901,7 @@ gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t acti
     }
     pmad = MadStack.lst + pinst->imad;
 
-    action = mad_get_action( pinst->imad, action );
+    action = mad_get_action_ref( pinst->imad, action );
 
     return chr_instance_start_anim( pinst, action, action_ready, btrue );
 }
@@ -2244,7 +2244,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
     // get some frame info
     frame_stt   = pmad->action_stt[pinst->action_which];
     frame_end   = pmad->action_end[pinst->action_which];
-    frame_count = frame_end - frame_stt;
+    frame_count = 1 + (frame_end - frame_stt);
 
     // try to heal an out of range value
     frame_along %= frame_count;

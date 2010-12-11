@@ -1054,7 +1054,6 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         }
                     }
 
-
                     // you can't be bumped by items that you are attached to
                     if ( loc_needs_bump && bdl.prt_ptr->attachedto_ref == ichr_b )
                     {

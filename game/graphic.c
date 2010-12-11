@@ -282,7 +282,6 @@ static void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, con
 static gfx_rv update_one_chr_instance( struct s_chr * pchr );
 static gfx_rv update_all_chr_instance();
 
-
 static gfx_rv do_chr_flashing( dolist_t * pdolist );
 
 //--------------------------------------------------------------------------------------------

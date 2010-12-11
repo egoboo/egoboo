@@ -895,7 +895,7 @@ enc_t * enc_config_do_init( enc_t * penc )
             chr_set_ai_state( povl, peve->spawn_overlay );  // ??? WHY DO THIS ???
 
             // Start out with ActionMJ...  Object activated
-            action = mad_get_action( chr_get_imad( overlay ), ACTION_MJ );
+            action = mad_get_action_ref( chr_get_imad( overlay ), ACTION_MJ );
             if ( !ACTION_IS_TYPE( action, D ) )
             {
                 chr_start_anim( povl, action, bfalse, btrue );
