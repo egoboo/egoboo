@@ -788,6 +788,12 @@ void load_all_music_sounds_vfs()
     }
     musicinmemory = btrue;
 
+    //Special xmas theme at december 16th until newyear, override the default menu theme song
+    if( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16) {
+        snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/xmas.ogg" ), songname );
+        musictracksloaded[MENU_SONG] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
+    }
+
     // A small helper for us developers
     if ( cnt == MAXPLAYLISTLENGTH )
     {

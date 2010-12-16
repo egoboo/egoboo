@@ -257,10 +257,8 @@ int quest_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz )
     ///                 It will return QUEST_NONE if the quest was not found or if the quest was beaten.
 
     IDSZ_node_t *pquest;
-
     pquest = idsz_map_get( quest_log, quest_log_len, idsz );
     if ( pquest == NULL ) return QUEST_NONE;
-
     return pquest->level;
 }
 

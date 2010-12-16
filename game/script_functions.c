@@ -6964,7 +6964,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     // AddQuest( tmpargument = "quest idsz" )
     /// @details ZF@> This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
 
-    int quest_level = QUEST_NONE;
+    egoboo_rv result = rv_fail;
     chr_t * pself_target;
     PLA_REF ipla;
 
@@ -6977,10 +6977,10 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     {
         player_t * ppla = PlaStack.lst + ipla;
 
-        quest_level = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, 0 );
+        result = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
     }
 
-    returncode = ( 0 == quest_level );
+    returncode = ( rv_success == result );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7032,7 +7032,8 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    ipla = pchr->is_which_player;
+    
+    ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) )
     {
         player_t * ppla = PlaStack.lst + ipla;

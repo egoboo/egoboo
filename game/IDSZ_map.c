@@ -68,8 +68,8 @@ egoboo_rv idsz_map_add( IDSZ_node_t idsz_map[], const size_t idsz_map_len, const
         if ( idsz == idsz_map[key].id )
         {
             // But only if the new idsz level is "better" than the previous one
-            if (( level > 0 && idsz_map[key].level >= level ) ||
-                ( level < 0 && idsz_map[key].level <= level ) )
+            if (( level > 0 && idsz_map[key].level > level ) ||
+                ( level < 0 && idsz_map[key].level < level ) )
             {
                 rv = rv_fail;
             }

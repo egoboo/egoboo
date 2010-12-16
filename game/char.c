@@ -3288,7 +3288,7 @@ CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_overr
         // The data file wasn't found
         if ( required )
         {
-            log_warning( "load_one_character_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
+            log_debug( "load_one_character_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
         }
         else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {

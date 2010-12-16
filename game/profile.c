@@ -769,11 +769,11 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
         // The data file wasn't found
         if ( required )
         {
-            log_warning( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
+            log_debug( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
         }
         else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
         {
-            log_warning( "load_one_profile_vfs() - Not able to open file \"%s\"\n", tmploadname );
+            log_debug( "load_one_profile_vfs() - Not able to open file \"%s\"\n", tmploadname );
         }
 
         return MAX_PROFILE;
