@@ -53,7 +53,7 @@ extern "C"
 
 /// @todo ZF> This should probably be moved into a game.c data structure or something like that, we should also implement
 ///    so that any local module can override the default randomtreasure.txt found in basicdat folder
-    treasure_table_t treasureTableList[MAX_TABLES];
+    extern treasure_table_t treasureTableList[MAX_TABLES];
 
 //--------------------------------------------------------------------------------------------
 // PUBLIC FUNCTION PROTOTYPES

@@ -279,7 +279,7 @@ SDL_bool IMG_test_alpha( SDL_Surface * psurf )
     h = psurf->h;
     pitch = psurf->pitch;
 
-    row_ptr = psurf->pixels;
+    row_ptr = ( const char * )psurf->pixels;
     for ( iy = 0; iy < h; iy++ )
     {
         char_ptr = row_ptr;
@@ -360,7 +360,7 @@ SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
     h = psurf->h;
     pitch = psurf->pitch;
 
-    row_ptr = psurf->pixels;
+    row_ptr = ( const char * )psurf->pixels;
     for ( iy = 0; iy < h; iy++ )
     {
         char_ptr = row_ptr;
@@ -413,7 +413,7 @@ GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key
     if ( NULL == image ) return INVALID_GL_ID;
 
     // test to see if the image requires alpha blanding
-    ptex->has_alpha = bfalse;
+    ptex->has_alpha = SDL_FALSE;
     if ( INVALID_KEY == key )
     {
         ptex->has_alpha = IMG_test_alpha( image );

@@ -192,9 +192,9 @@ gfx_rv render_fan( ego_mpd_t * pmesh, Uint32 itile )
         {
             GL_DEBUG( glVertex3fv )( ptmem->plst[entry] );
             GL_DEBUG( glVertex3f )(
-                ptmem->plst[entry][XX] + GRID_SIZE*ptmem->ncache[itile][cnt][XX],
-                ptmem->plst[entry][YY] + GRID_SIZE*ptmem->ncache[itile][cnt][YY],
-                ptmem->plst[entry][ZZ] + GRID_SIZE*ptmem->ncache[itile][cnt][ZZ] );
+                ptmem->plst[entry][XX] + GRID_FSIZE*ptmem->ncache[itile][cnt][XX],
+                ptmem->plst[entry][YY] + GRID_FSIZE*ptmem->ncache[itile][cnt][YY],
+                ptmem->plst[entry][ZZ] + GRID_FSIZE*ptmem->ncache[itile][cnt][ZZ] );
 
         }
         GL_DEBUG_END();
@@ -261,8 +261,8 @@ gfx_rv  render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         float tmp;
-        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * GRID_SIZE;
-        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * GRID_SIZE;
+        v[cnt].pos[XX] = ( ix + ix_off[cnt] ) * GRID_FSIZE;
+        v[cnt].pos[YY] = ( iy + iy_off[cnt] ) * GRID_FSIZE;
         v[cnt].pos[ZZ] = ptmem->plst[badvertex][ZZ];
 
         tmp = map_twist_nrm[twist].z;
@@ -405,8 +405,8 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
             jx = ix + ix_off[cnt];
             jy = iy + iy_off[cnt];
 
-            v[cnt].pos[XX] = jx * GRID_SIZE;
-            v[cnt].pos[YY] = jy * GRID_SIZE;
+            v[cnt].pos[XX] = jx * GRID_FSIZE;
+            v[cnt].pos[YY] = jy * GRID_FSIZE;
             v[cnt].pos[ZZ] = water.layer_z_add[layer][frame][tnc] + water.layer[layer].z;
 
             v[cnt].tex[SS] = fx_off[cnt] + offu;

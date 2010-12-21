@@ -554,7 +554,6 @@ void reset_character_accel( const CHR_REF character );
 bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
 
 egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
-egoboo_rv flash_character( const CHR_REF character, Uint8 value );
 
 void free_one_character_in_game( const CHR_REF character );
 void update_all_character_matrices();

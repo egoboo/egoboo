@@ -97,9 +97,9 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
 
         pinfo->slot = fget_int( fileread );
 
-        pinfo->pos.x = fget_float( fileread ) * GRID_SIZE;
-        pinfo->pos.y = fget_float( fileread ) * GRID_SIZE;
-        pinfo->pos.z = fget_float( fileread ) * GRID_SIZE;
+        pinfo->pos.x = fget_float( fileread ) * GRID_FSIZE;
+        pinfo->pos.y = fget_float( fileread ) * GRID_FSIZE;
+        pinfo->pos.z = fget_float( fileread ) * GRID_FSIZE;
 
         pinfo->facing = FACE_NORTH;
         pinfo->attach = ATTACH_NONE;

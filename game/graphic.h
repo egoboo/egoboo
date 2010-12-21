@@ -465,3 +465,5 @@ bool_t load_all_global_icons();
 void   load_basic_textures( );
 
 float  get_ambient_level();
+
+gfx_rv flash_character( const CHR_REF character, Uint8 value );

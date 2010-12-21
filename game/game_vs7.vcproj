@@ -105,7 +105,7 @@
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
-				CompileAs="0"
+				CompileAs="2"
 				ShowIncludes="FALSE"
 				UndefinePreprocessorDefinitions="_DEBUG"/>
 			<Tool

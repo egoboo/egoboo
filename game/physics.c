@@ -1074,8 +1074,8 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
 
     bc->bits   = pchr->stoppedby;
     bc->radius = pchr->bump_1.size;
-    bc->pos.x  = ( FLOOR( pchr->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
-    bc->pos.y  = ( FLOOR( pchr->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.x  = ( FLOOR( pchr->pos.x / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
+    bc->pos.y  = ( FLOOR( pchr->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
     bc->pos.z  = pchr->pos.z;
 
     bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
@@ -1109,8 +1109,8 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->radius = pprt->bump_real.size;
 
     bc->pos = prt_get_pos( pprt );
-    bc->pos.x  = ( FLOOR( bc->pos.x / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
-    bc->pos.y  = ( FLOOR( bc->pos.y / GRID_SIZE ) + 0.5f ) * GRID_SIZE;
+    bc->pos.x  = ( FLOOR( bc->pos.x / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
+    bc->pos.y  = ( FLOOR( bc->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
 
     bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
     bc->valid  = ( 0 == mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
@@ -1442,7 +1442,7 @@ bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
             if ( INVALID_TILE == ptmp->grid )
             {
                 // both are off the map, so determine the difference in distance
-                if ( ABS( ptmp->pos.x - pnew->pos.x ) < GRID_SIZE && ABS( ptmp->pos.y - pnew->pos.y ) < GRID_SIZE )
+                if ( ABS( ptmp->pos.x - pnew->pos.x ) < GRID_FSIZE && ABS( ptmp->pos.y - pnew->pos.y ) < GRID_FSIZE )
                 {
                     // not far enough apart
                     pold = ptmp;

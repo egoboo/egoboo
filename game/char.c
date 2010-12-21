@@ -2097,8 +2097,8 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
     // 1 a grid is fine. anything more than that and it gets crazy
-    const float const_info2_hrz = SQR( 3.0f * GRID_SIZE );
-    const float const_grab2_hrz = SQR( 1.0f * GRID_SIZE );
+    const float const_info2_hrz = SQR( 3.0f * GRID_FSIZE );
+    const float const_grab2_hrz = SQR( 1.0f * GRID_FSIZE );
     const float const_grab2_vrt = SQR( GRABSIZE );
 
     int       cnt;
@@ -6718,8 +6718,8 @@ bool_t chr_update_safe( chr_t * pchr, bool_t force )
 
         if ( INVALID_TILE == new_grid )
         {
-            if ( ABS( pchr->pos.x - pchr->safe_pos.x ) > GRID_SIZE ||
-                 ABS( pchr->pos.y - pchr->safe_pos.y ) > GRID_SIZE )
+            if ( ABS( pchr->pos.x - pchr->safe_pos.x ) > GRID_FSIZE ||
+                 ABS( pchr->pos.y - pchr->safe_pos.y ) > GRID_FSIZE )
             {
                 needs_update = btrue;
             }
@@ -6835,8 +6835,8 @@ bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force )
 
         if ( INVALID_TILE == new_grid )
         {
-            if ( ABS( pchr->pos.x - bc_ptr->pos.x ) > GRID_SIZE ||
-                 ABS( pchr->pos.y - bc_ptr->pos.y ) > GRID_SIZE )
+            if ( ABS( pchr->pos.x - bc_ptr->pos.x ) > GRID_FSIZE ||
+                 ABS( pchr->pos.y - bc_ptr->pos.y ) > GRID_FSIZE )
             {
                 needs_update = btrue;
             }
@@ -7137,8 +7137,8 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                     ftmp = MAX( ABS( diff_perp.x ), ABS( diff_perp.y ) );
                     if ( 0 == ftmp ) ftmp = 1.00f;                    //EGOBOO_ASSERT(ftmp > 0.0f);
 
-                    diff_perp.x *= tile_fraction * GRID_SIZE / ftmp;
-                    diff_perp.y *= tile_fraction * GRID_SIZE / ftmp;
+                    diff_perp.x *= tile_fraction * GRID_FSIZE / ftmp;
+                    diff_perp.y *= tile_fraction * GRID_FSIZE / ftmp;
 
                     // try moving the character
                     tmp_pos.x += diff_perp.x * pressure;
@@ -8011,17 +8011,17 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_pos ) )
         {
             // make a random offset from the character
-            pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-            pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
-            pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_SIZE / 5.0f;
+            pbb->offset[XX] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_FSIZE / 5.0f;
+            pbb->offset[YY] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_FSIZE / 5.0f;
+            pbb->offset[ZZ] = ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * GRID_FSIZE / 5.0f;
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_randomize_vel ) )
         {
             // make the text fly away in a random direction
-            pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
-            pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
-            pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_SIZE / lifetime_secs / TARGET_UPS;
+            pbb->offset_add[XX] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / TARGET_UPS;
+            pbb->offset_add[YY] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / TARGET_UPS;
+            pbb->offset_add[ZZ] += ((( rand() << 1 ) - RAND_MAX ) / ( float )RAND_MAX ) * 2.0f * GRID_FSIZE / lifetime_secs / TARGET_UPS;
         }
 
         if ( HAS_SOME_BITS( opt_bits, bb_opt_fade ) )
@@ -9252,7 +9252,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
         chr_t   * ptarget = ChrList.lst + mc_tmp.grip_chr;
 
         // has that character changes its animation?
-        grip_retval = chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
+        grip_retval = ( egoboo_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
 
         if ( rv_error   == grip_retval ) return rv_error;
         if ( rv_success == grip_retval ) needs_update = btrue;
@@ -9836,7 +9836,7 @@ egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t 
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = chr_instance_set_action( &( pchr->inst ), action, action_ready, override_action );
+    retval = ( egoboo_rv )chr_instance_set_action( &( pchr->inst ), action, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9855,7 +9855,7 @@ egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t 
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = chr_instance_start_anim( &( pchr->inst ), action, action_ready, override_action );
+    retval = ( egoboo_rv )chr_instance_start_anim( &( pchr->inst ), action, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9874,7 +9874,7 @@ egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = chr_instance_set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
+    retval = ( egoboo_rv )chr_instance_set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9893,7 +9893,7 @@ egoboo_rv chr_increment_action( chr_t * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = chr_instance_increment_action( &( pchr->inst ) );
+    retval = ( egoboo_rv )chr_instance_increment_action( &( pchr->inst ) );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9955,7 +9955,7 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
         }
     }
 
-    retval = chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
+    retval = ( egoboo_rv )chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
     // BB@> this did not work as expected...
@@ -9981,7 +9981,7 @@ egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready )
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = chr_instance_play_action( &( pchr->inst ), action, action_ready );
+    retval = ( egoboo_rv )chr_instance_play_action( &( pchr->inst ), action, action_ready );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object

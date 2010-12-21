@@ -29,10 +29,10 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define TILE_BITS     7
-#define GRID_ISIZE     (1<<(TILE_BITS))
-#define GRID_SIZE     ((float)GRID_ISIZE)
-#define TILE_MASK     (GRID_ISIZE - 1)
+#define GRID_BITS       7
+#define GRID_ISIZE     (1<<(GRID_BITS))
+#define GRID_FSIZE     ((float)GRID_ISIZE)
+#define GRID_MASK      (GRID_ISIZE - 1)
 
 #define MAPID                     0x4470614d                   ///< The string... MapD
 #define MESH_MAXTOTALVERTRICES    1024*100

@@ -3325,8 +3325,8 @@ bool_t prt_update_safe( prt_t * pprt, bool_t force )
 
         if ( INVALID_TILE == new_grid )
         {
-            if ( ABS( pprt->pos.x - pprt->safe_pos.x ) > GRID_SIZE ||
-                 ABS( pprt->pos.y - pprt->safe_pos.y ) > GRID_SIZE )
+            if ( ABS( pprt->pos.x - pprt->safe_pos.x ) > GRID_FSIZE ||
+                 ABS( pprt->pos.y - pprt->safe_pos.y ) > GRID_FSIZE )
             {
                 needs_update = btrue;
             }

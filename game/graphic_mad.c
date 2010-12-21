@@ -127,7 +127,7 @@ gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 
 
     if ( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
     {
-        return rv_fail;
+        return gfx_fail;
     }
 
     if ( NULL == ptex )
@@ -651,35 +651,6 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT )
     {
-        if ( 255 == pinst->alpha && 255 == pinst->light && pinst->skin_has_transparency )
-        {
-            // allow the dont_cull_backfaces to keep solid objects from culling backfaces
-            if ( pinst->dont_cull_backfaces )
-            {
-                GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
-            }
-            else
-            {
-                GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
-                GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
-            }
-
-            // enable only the partially transparent portion of the skin
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_LESS, 1.0f );                             // GL_COLOR_BUFFER_BIT
-
-            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
-
-            // get the tint for the solid
-            chr_instance_get_tint( pinst, tint, CHR_SOLID );
-
-            if ( render_one_mad( ichr, tint, CHR_ALPHA ) )
-            {
-                rendered = btrue;
-            }
-        }
-
         if ( pinst->alpha < 255 && 255 == pinst->light )
         {
             // most alpha effects will be messed up by
@@ -743,7 +714,7 @@ gfx_rv render_one_mad_solid( const CHR_REF ichr )
 {
     chr_t * pchr;
     chr_instance_t * pinst;
-    gfx_rv retval = rv_error;
+    gfx_rv retval = gfx_error;
 
     if ( !INGAME_CHR( ichr ) )
     {
@@ -756,7 +727,7 @@ gfx_rv render_one_mad_solid( const CHR_REF ichr )
     if ( pchr->is_hidden ) return gfx_fail;
 
     // assume the best
-    retval = rv_success;
+    retval = gfx_success;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT );
     {
@@ -2244,7 +2215,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
     // get some frame info
     frame_stt   = pmad->action_stt[pinst->action_which];
     frame_end   = pmad->action_end[pinst->action_which];
-    frame_count = 1 + (frame_end - frame_stt);
+    frame_count = 1 + ( frame_end - frame_stt );
 
     // try to heal an out of range value
     frame_along %= frame_count;
@@ -2546,7 +2517,7 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, TX_REF itex )
     pinst->skin_has_transparency = bfalse;
     if ( NULL != ptex )
     {
-        pinst->skin_has_transparency = ptex->has_alpha;
+        pinst->skin_has_transparency = ( bool_t )ptex->has_alpha;
     }
 
     // set the texture index

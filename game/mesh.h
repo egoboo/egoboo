@@ -36,7 +36,7 @@ typedef struct s_ego_mpd ego_mpd_t;
 #define BLOCK_BITS    9
 #define BLOCK_SIZE    ((float)(1<<(BLOCK_BITS)))
 
-#define MAXMESHBLOCKY             (( MAXMESHTILEY >> (BLOCK_BITS-TILE_BITS) )+1)  ///< max blocks in the y direction
+#define MAXMESHBLOCKY             (( MAXMESHTILEY >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
 
 /// mesh physics
 #define SLIDE                           0.04f         ///< Acceleration for steep hills

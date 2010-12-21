@@ -28,10 +28,18 @@
 
 #include "egoboo_math.inl"      //For randomization
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+treasure_table_t treasureTableList[MAX_TABLES];
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 //Private functions
 static void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_table );
 static void add_object_to_table( treasure_table_t table[], const char *name );
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void add_object_to_table( treasure_table_t table[], const char *name )
 {
     //ZF> Adds a new treasure object to the specified treasure table
@@ -51,6 +59,7 @@ void add_object_to_table( treasure_table_t table[], const char *name )
     table->size++;
 }
 
+//--------------------------------------------------------------------------------------------
 void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_table )
 {
     //ZF> Creates and loads a treasure table from the specified file until a :END is encountered
@@ -73,6 +82,7 @@ void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_tabl
     }
 }
 
+//--------------------------------------------------------------------------------------------
 egoboo_rv init_random_treasure_tables_vfs( const char* filepath )
 {
     //ZF> This loads all the treasure tables from randomtreasure.txt
@@ -115,6 +125,7 @@ egoboo_rv init_random_treasure_tables_vfs( const char* filepath )
     return rv_success;
 }
 
+//--------------------------------------------------------------------------------------------
 egoboo_rv get_random_treasure( char * buffer, size_t buffer_length )
 {
     //ZF> Gets the name for a treasure randomly selected from the specified treasure table

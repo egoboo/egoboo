@@ -513,9 +513,9 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
                          "\tPressure %f\n",
                          GET_REF_PCHR( pchr ), pchr->Name, pcap->name,
                          pself->wp_lst.head,
-                         pos.x / GRID_SIZE, pos.y / GRID_SIZE,
+                         pos.x / GRID_FSIZE, pos.y / GRID_FSIZE,
                          nrm.x, nrm.y,
-                         SQRT( pressure ) / GRID_SIZE );
+                         SQRT( pressure ) / GRID_FSIZE );
         }
     }
 #else
@@ -7032,7 +7032,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     returncode = bfalse;
-    
+
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) )
     {
@@ -7990,8 +7990,8 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
     ppass = PassageStack.lst + passage;
 
     // Do the first row
-    x = x0 >> TILE_BITS;
-    y = y0 >> TILE_BITS;
+    x = x0 >> GRID_BITS;
+    y = y0 >> GRID_BITS;
 
     if ( x < ppass->area.left )  x = ppass->area.left;
     if ( y < ppass->area.top )  y = ppass->area.top;
@@ -8006,8 +8006,8 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
             {
                 if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
                 {
-                    *px1 = ( x << TILE_BITS ) + 64;
-                    *py1 = ( y << TILE_BITS ) + 64;
+                    *px1 = ( x << GRID_BITS ) + 64;
+                    *py1 = ( y << GRID_BITS ) + 64;
                     return btrue;
                 }
 
@@ -8028,8 +8028,8 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 
                 if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
                 {
-                    *px1 = ( x << TILE_BITS ) + 64;
-                    *py1 = ( y << TILE_BITS ) + 64;
+                    *px1 = ( x << GRID_BITS ) + 64;
+                    *py1 = ( y << GRID_BITS ) + 64;
                     return btrue;
                 }
             }

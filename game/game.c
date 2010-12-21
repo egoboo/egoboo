@@ -554,7 +554,7 @@ egoboo_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
         // the action is set. now set the frame info.
         // pass along the imad in case the pchr->inst is not using this same mad
         // (corrupted data?)
-        retval = chr_instance_set_frame_full( &( pchr->inst ), frame_along, ilip, imad );
+        retval = ( egoboo_rv )chr_instance_set_frame_full( &( pchr->inst ), frame_along, ilip, imad );
     }
 
     return retval;
@@ -4177,11 +4177,11 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 
     if ( 0 == plos->stopped_by ) return bfalse;
 
-    ix_stt = FLOOR( plos->x0 / GRID_SIZE );
-    ix_end = FLOOR( plos->x1 / GRID_SIZE );
+    ix_stt = FLOOR( plos->x0 / GRID_FSIZE );
+    ix_end = FLOOR( plos->x1 / GRID_FSIZE );
 
-    iy_stt = FLOOR( plos->y0 / GRID_SIZE );
-    iy_end = FLOOR( plos->y1 / GRID_SIZE );
+    iy_stt = FLOOR( plos->y0 / GRID_FSIZE );
+    iy_end = FLOOR( plos->y1 / GRID_FSIZE );
 
     Dx = plos->x1 - plos->x0;
     Dy = plos->y1 - plos->y0;
@@ -4307,8 +4307,8 @@ bool_t do_line_of_sight( line_of_sight_info_t * plos )
 
     /*if ( mesh_hit )
     {
-        plos->x1 = (plos->collide_x + 0.5f) * GRID_SIZE;
-        plos->y1 = (plos->collide_y + 0.5f) * GRID_SIZE;
+        plos->x1 = (plos->collide_x + 0.5f) * GRID_FSIZE;
+        plos->y1 = (plos->collide_y + 0.5f) * GRID_FSIZE;
     }
 
     chr_hit = collide_ray_with_characters( plos );
@@ -4763,16 +4763,16 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
 
         windspeed_count++;
 
-        windspeed.x += -ilayer->tx_add.x * GRID_SIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.x ) / cam_height;
-        windspeed.y += -ilayer->tx_add.y * GRID_SIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.y ) / cam_height;
+        windspeed.x += -ilayer->tx_add.x * GRID_FSIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.x ) / cam_height;
+        windspeed.y += -ilayer->tx_add.y * GRID_FSIZE / ( wawalite_data.water.backgroundrepeat / default_bg_repeat ) * ( cam_height + 1.0f / ilayer->dist.y ) / cam_height;
         windspeed.z += -0;
     }
     else
     {
         waterspeed_count++;
 
-        waterspeed.x += -ilayer->tx_add.x * GRID_SIZE;
-        waterspeed.y += -ilayer->tx_add.y * GRID_SIZE;
+        waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
+        waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
         waterspeed.z += -0;
     }
 
@@ -4781,16 +4781,16 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     {
         windspeed_count++;
 
-        windspeed.x += -600 * ilayer->tx_add.x * GRID_SIZE / wawalite_data.water.foregroundrepeat * 0.04f;
-        windspeed.y += -600 * ilayer->tx_add.y * GRID_SIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        windspeed.x += -600 * ilayer->tx_add.x * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
+        windspeed.y += -600 * ilayer->tx_add.y * GRID_FSIZE / wawalite_data.water.foregroundrepeat * 0.04f;
         windspeed.z += -0;
     }
     else
     {
         waterspeed_count++;
 
-        waterspeed.x += -ilayer->tx_add.x * GRID_SIZE;
-        waterspeed.y += -ilayer->tx_add.y * GRID_SIZE;
+        waterspeed.x += -ilayer->tx_add.x * GRID_FSIZE;
+        waterspeed.y += -ilayer->tx_add.y * GRID_FSIZE;
         waterspeed.z += -0;
     }
 
@@ -4902,8 +4902,8 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        int ix = FLOOR( pitem->pos.x / GRID_SIZE );
-        int iy = FLOOR( pitem->pos.y / GRID_SIZE );
+        int ix = FLOOR( pitem->pos.x / GRID_FSIZE );
+        int iy = FLOOR( pitem->pos.y / GRID_FSIZE );
 
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )
@@ -4958,8 +4958,8 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        int ix = FLOOR( pitem->pos.x / GRID_SIZE );
-        int iy = FLOOR( pitem->pos.y / GRID_SIZE );
+        int ix = FLOOR( pitem->pos.x / GRID_FSIZE );
+        int iy = FLOOR( pitem->pos.y / GRID_FSIZE );
 
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )
@@ -5037,8 +5037,8 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        int ix = FLOOR( pitem->pos.x / GRID_SIZE );
-        int iy = FLOOR( pitem->pos.y / GRID_SIZE );
+        int ix = FLOOR( pitem->pos.x / GRID_FSIZE );
+        int iy = FLOOR( pitem->pos.y / GRID_FSIZE );
 
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )
@@ -5076,8 +5076,8 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 
     if ( !INGAME_CHR( iitem ) ) return bfalse;
     pitem = ChrList.lst + iitem;
-    ix = pitem->pos.x / GRID_SIZE;
-    iy = pitem->pos.y / GRID_SIZE;
+    ix = pitem->pos.x / GRID_FSIZE;
+    iy = pitem->pos.y / GRID_FSIZE;
 
     // assume that there is no shop so that the character can grab anything
     can_grab = btrue;
@@ -5206,11 +5206,11 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
     oct_bb_add_fvec3( &( pchr->chr_min_cv ), pchr->pos.v, &bump );
 
     // determine the size of this object in tiles
-    ixmin = bump.mins[OCT_X] / GRID_SIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
-    ixmax = bump.maxs[OCT_X] / GRID_SIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
+    ixmin = bump.mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
+    ixmax = bump.maxs[OCT_X] / GRID_FSIZE; ixmax = CLIP( ixmax, 0, pmesh->info.tiles_x - 1 );
 
-    iymin = bump.mins[OCT_Y] / GRID_SIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
-    iymax = bump.maxs[OCT_Y] / GRID_SIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
+    iymin = bump.mins[OCT_Y] / GRID_FSIZE; iymin = CLIP( iymin, 0, pmesh->info.tiles_y - 1 );
+    iymax = bump.maxs[OCT_Y] / GRID_FSIZE; iymax = CLIP( iymax, 0, pmesh->info.tiles_y - 1 );
 
     // do the simplest thing if the object is just on one tile
     if ( ixmax == ixmin && iymax == iymin )

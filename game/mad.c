@@ -133,12 +133,12 @@ mad_t * action_copy_correct( mad_t * pmad, int actiona, int actionb )
     /// @details ZZ@> This function makes sure both actions are valid if either of them
     ///    are valid.  It will copy start and ends to mirror the valid action.
 
-    if( NULL == pmad ) return pmad;
+    if ( NULL == pmad ) return pmad;
 
     if ( actiona < 0 || actiona >= ACTION_COUNT ) return pmad;
     if ( actionb < 0 || actionb >= ACTION_COUNT ) return pmad;
 
-     // With the new system using the action_map, this is all that is really necessary
+    // With the new system using the action_map, this is all that is really necessary
     if ( ACTION_COUNT == pmad->action_map[actiona] )
     {
         if ( pmad->action_valid[actionb] )
@@ -248,7 +248,7 @@ Uint32 mad_get_madfx( mad_t * pmad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
- mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
+mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
 {
     /// @details ZZ@> This function copies a model's actions
 
@@ -326,7 +326,7 @@ mad_t *  mad_get_walk_frame( mad_t * pmad, int lip, int action )
     }
     else
     {
-        framesinaction = 1 + (pmad->action_end[action] - pmad->action_stt[action]);
+        framesinaction = 1 + ( pmad->action_end[action] - pmad->action_stt[action] );
         action_stt     = pmad->action_stt[action];
     }
 
@@ -607,7 +607,7 @@ mad_t * mad_make_equally_lit( mad_t * pmad )
     if ( NULL == pmad ) return pmad;
 
     md2 = pmad->md2_ptr;
-    if( NULL == md2 ) return pmad;
+    if ( NULL == md2 ) return pmad;
 
     frame_count = md2_get_numFrames( md2 );
     vert_count  = md2_get_numVertices( md2 );

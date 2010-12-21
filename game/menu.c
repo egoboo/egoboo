@@ -638,7 +638,7 @@ int doMainMenu( float deltaTime )
             menuState = MM_Entering;
 
             //Special xmas theme at december 16th until newyear
-            if( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 ) 
+            if ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 )
             {
                 // load the menu image
                 ego_texture_load_vfs( &background, "mp_data/menu/menu_xmas", INVALID_KEY );

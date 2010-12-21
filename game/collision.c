@@ -1014,8 +1014,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
             int          j;
             CoNode_t     tmp_codata;
             BIT_FIELD    test_platform;
-            CHR_REF      ichr_b = MAX_CHR;
-            PRT_REF      iprt_b = MAX_PRT;
+            CHR_REF      ichr_a = MAX_CHR;
             BSP_leaf_t * pleaf = NULL;
             bool_t       do_insert = bfalse;
 
@@ -1024,38 +1023,37 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                 pleaf = _coll_leaf_lst.ary[j];
                 if ( NULL == pleaf ) continue;
 
-                ichr_b = ( CHR_REF )( pleaf->index );
-                iprt_b = ( PRT_REF )( pleaf->index );
+                ichr_a = ( CHR_REF )( pleaf->index );
 
                 do_insert = bfalse;
 
-                if ( BSP_LEAF_CHR == pleaf->data_type && VALID_CHR_RANGE( ichr_b ) )
+                if ( BSP_LEAF_CHR == pleaf->data_type && VALID_CHR_RANGE( ichr_a ) )
                 {
                     // collided with a character
                     bool_t loc_reaffirms     = can_reaffirm;
                     bool_t loc_needs_bump    = needs_bump;
                     bool_t interaction_valid = bfalse;
 
-                    chr_t * pchr_b = ChrList.lst + ichr_b;
+                    chr_t * pchr_a = ChrList.lst + ichr_a;
 
                     // can this particle affect the character through reaffirmation
                     if ( loc_reaffirms )
                     {
                         // does this interaction support affirmation?
-                        if ( bdl.prt_ptr->damagetype != pchr_b->reaffirm_damagetype )
+                        if ( bdl.prt_ptr->damagetype != pchr_a->reaffirm_damagetype )
                         {
                             loc_reaffirms = bfalse;
                         }
 
                         // if it is already attached to this character, no more reaffirmation
-                        if ( bdl.prt_ptr->attachedto_ref == ichr_b )
+                        if ( bdl.prt_ptr->attachedto_ref == ichr_a )
                         {
                             loc_reaffirms = bfalse;
                         }
                     }
 
                     // you can't be bumped by items that you are attached to
-                    if ( loc_needs_bump && bdl.prt_ptr->attachedto_ref == ichr_b )
+                    if ( loc_needs_bump && bdl.prt_ptr->attachedto_ref == ichr_a )
                     {
                         loc_needs_bump = bfalse;
                     }
@@ -1064,9 +1062,9 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                     if ( loc_needs_bump )
                     {
                         // the valid bump interactions
-                        bool_t end_money  = ( bdl.pip_ptr->bump_money > 0 ) && pchr_b->cangrabmoney;
-                        bool_t end_bump   = ( bdl.pip_ptr->end_bump ) && ( 0 != pchr_b->bump_stt.size );
-                        bool_t end_ground = ( bdl.pip_ptr->end_ground ) && (( 0 != pchr_b->bump_stt.size ) || pchr_b->platform );
+                        bool_t end_money  = ( bdl.pip_ptr->bump_money > 0 ) && pchr_a->cangrabmoney;
+                        bool_t end_bump   = ( bdl.pip_ptr->end_bump ) && ( 0 != pchr_a->bump_stt.size );
+                        bool_t end_ground = ( bdl.pip_ptr->end_ground ) && (( 0 != pchr_a->bump_stt.size ) || pchr_a->platform );
 
                         if ( !end_money && !end_bump && !end_ground )
                         {
@@ -1078,7 +1076,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                     interaction_valid = bfalse;
                     if ( loc_reaffirms || loc_needs_bump )
                     {
-                        if ( detect_chr_prt_interaction_valid( ichr_b, bdl.prt_ref ) )
+                        if ( detect_chr_prt_interaction_valid( ichr_a, bdl.prt_ref ) )
                         {
                             interaction_valid = btrue;
                         }
@@ -1096,13 +1094,13 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
 
                         // do a simple test, since I do not want to resolve the cap_t for these objects here
                         test_platform = EMPTY_BIT_FIELD;
-                        if ( pchr_b->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
+                        if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_b->chr_min_cv ), chr_get_pos_v( pchr_b ), pchr_b->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
 
-                            tmp_codata.chra = ichr_b;
+                            tmp_codata.chra = ichr_a;
                             tmp_codata.prtb = bdl.prt_ref;
 
                             do_insert = btrue;
@@ -1682,9 +1680,9 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         position_updated = bfalse;
 
         max_apos = fvec3_add( pchr->phys.apos_plat.v, pchr->phys.apos_coll.v );
-        max_apos.x = CLIP( max_apos.x, -GRID_SIZE, GRID_SIZE );
-        max_apos.y = CLIP( max_apos.y, -GRID_SIZE, GRID_SIZE );
-        max_apos.z = CLIP( max_apos.z, -GRID_SIZE, GRID_SIZE );
+        max_apos.x = CLIP( max_apos.x, -GRID_FSIZE, GRID_FSIZE );
+        max_apos.y = CLIP( max_apos.y, -GRID_FSIZE, GRID_FSIZE );
+        max_apos.z = CLIP( max_apos.z, -GRID_FSIZE, GRID_FSIZE );
 
         // do the "integration" on the position
         if ( ABS( max_apos.x ) > 0.0f )
@@ -1773,9 +1771,9 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         position_updated = bfalse;
 
         max_apos = fvec3_add( bdl.prt_ptr->phys.apos_plat.v, bdl.prt_ptr->phys.apos_coll.v );
-        max_apos.x = CLIP( max_apos.x, -GRID_SIZE, GRID_SIZE );
-        max_apos.y = CLIP( max_apos.y, -GRID_SIZE, GRID_SIZE );
-        max_apos.z = CLIP( max_apos.z, -GRID_SIZE, GRID_SIZE );
+        max_apos.x = CLIP( max_apos.x, -GRID_FSIZE, GRID_FSIZE );
+        max_apos.y = CLIP( max_apos.y, -GRID_FSIZE, GRID_FSIZE );
+        max_apos.z = CLIP( max_apos.z, -GRID_FSIZE, GRID_FSIZE );
 
         // do the "integration" on the position
         if ( ABS( max_apos.x ) > 0.0f )
@@ -3278,8 +3276,15 @@ bool_t do_chr_prt_collision_impulse( chr_prt_collsion_data_t * pdata )
             left_over_damage = ABS( pdata->max_damage ) - ABS( pdata->actual_damage );
         }
 
-        pdata->block_factor = ( float )left_over_damage / ( float )ABS( pdata->max_damage );
-        pdata->block_factor = pdata->block_factor / ( 1.0f + pdata->block_factor );
+        if ( 0 == pdata->max_damage )
+        {
+            pdata->block_factor = 0.0f;
+        }
+        else
+        {
+            pdata->block_factor = ( float )left_over_damage / ( float )ABS( pdata->max_damage );
+            pdata->block_factor = pdata->block_factor / ( 1.0f + pdata->block_factor );
+        }
 
         if ( 0.0f == pdata->block_factor )
         {

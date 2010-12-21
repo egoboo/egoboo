@@ -163,10 +163,10 @@ bool_t point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
     ppass = PassageStack.lst + passage;
 
     // Passage area
-    tmp_rect.left   = ppass->area.left * GRID_SIZE;
-    tmp_rect.top    = ppass->area.top * GRID_SIZE;
-    tmp_rect.right  = ( ppass->area.right + 1 ) * GRID_SIZE;
-    tmp_rect.bottom = ( ppass->area.bottom + 1 ) * GRID_SIZE;
+    tmp_rect.left   = ppass->area.left * GRID_FSIZE;
+    tmp_rect.top    = ppass->area.top * GRID_FSIZE;
+    tmp_rect.right  = ( ppass->area.right + 1 ) * GRID_FSIZE;
+    tmp_rect.bottom = ( ppass->area.bottom + 1 ) * GRID_FSIZE;
 
     return frect_point_inside( &tmp_rect, xpos, ypos );
 }
@@ -185,10 +185,10 @@ bool_t object_is_in_passage( const PASS_REF passage, float xpos, float ypos, flo
 
     // Passage area
     radius += CLOSETOLERANCE;
-    tmp_rect.left   = ( ppass->area.left          * GRID_SIZE ) - radius;
-    tmp_rect.top    = ( ppass->area.top           * GRID_SIZE ) - radius;
-    tmp_rect.right  = (( ppass->area.right + 1 )  * GRID_SIZE ) + radius;
-    tmp_rect.bottom = (( ppass->area.bottom + 1 ) * GRID_SIZE ) + radius;
+    tmp_rect.left   = ( ppass->area.left          * GRID_FSIZE ) - radius;
+    tmp_rect.top    = ( ppass->area.top           * GRID_FSIZE ) - radius;
+    tmp_rect.right  = (( ppass->area.right + 1 )  * GRID_FSIZE ) + radius;
+    tmp_rect.bottom = (( ppass->area.bottom + 1 ) * GRID_FSIZE ) + radius;
 
     return frect_point_inside( &tmp_rect, xpos, ypos );
 }

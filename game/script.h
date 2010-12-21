@@ -41,8 +41,8 @@
 #define EDGE                128
 
 /// AI targeting
-#define NEARBY      3*GRID_SIZE    ///< 3 tiles away
-#define WIDE        6*GRID_SIZE    ///< 6 tiles away
+#define NEARBY      3*GRID_FSIZE    ///< 3 tiles away
+#define WIDE        6*GRID_FSIZE    ///< 6 tiles away
 #define NEAREST     0              ///< unlimited range
 
 //--------------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ enum chr_alert_bits
 //--------------------------------------------------------------------------------------------
 
 #define MAXWAY              8                       ///< Waypoints
-#define WAYTHRESH           (GRID_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_SIZE/2)
+#define WAYTHRESH           (GRID_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_FSIZE/2)
 
 // swig chokes on the definition below
 #if defined(SWIG)

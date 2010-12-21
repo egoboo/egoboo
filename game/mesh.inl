@@ -80,17 +80,17 @@ static INLINE float mesh_get_level( const ego_mpd_t * pmesh, float x, float y )
     ix = x;
     iy = y;
 
-    ix &= TILE_MASK;
-    iy &= TILE_MASK;
+    ix &= GRID_MASK;
+    iy &= GRID_MASK;
 
     z0 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 0 ][ZZ];
     z1 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 1 ][ZZ];
     z2 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 2 ][ZZ];
     z3 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 3 ][ZZ];
 
-    zleft  = ( z0 * ( GRID_SIZE - iy ) + z3 * iy ) / GRID_SIZE;
-    zright = ( z1 * ( GRID_SIZE - iy ) + z2 * iy ) / GRID_SIZE;
-    zdone  = ( zleft * ( GRID_SIZE - ix ) + zright * ix ) / GRID_SIZE;
+    zleft  = ( z0 * ( GRID_FSIZE - iy ) + z3 * iy ) / GRID_FSIZE;
+    zright = ( z1 * ( GRID_FSIZE - iy ) + z2 * iy ) / GRID_FSIZE;
+    zdone  = ( zleft * ( GRID_FSIZE - ix ) + zright * ix ) / GRID_FSIZE;
 
     return zdone;
 }
@@ -128,8 +128,8 @@ static INLINE Uint32 mesh_get_grid( const ego_mpd_t * pmesh, float pos_x, float 
         ix = pos_x;
         iy = pos_y;
 
-        ix >>= TILE_BITS;
-        iy >>= TILE_BITS;
+        ix >>= GRID_BITS;
+        iy >>= GRID_BITS;
 
         tile = mesh_get_tile_int( pmesh, ix, iy );
     }

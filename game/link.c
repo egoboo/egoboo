@@ -280,9 +280,9 @@ bool_t link_load_parent( const char * modname, fvec3_t   pos )
     pentry = link_stack + ( link_stack_count - 1 );
 
     // determine how you would have to shift the heroes so that they fall on top of the spawn point
-    pos_diff.x = pos.x * GRID_SIZE - pentry->hero[0].pos_stt.x;
-    pos_diff.y = pos.y * GRID_SIZE - pentry->hero[0].pos_stt.y;
-    pos_diff.z = pos.z * GRID_SIZE - pentry->hero[0].pos_stt.z;
+    pos_diff.x = pos.x * GRID_FSIZE - pentry->hero[0].pos_stt.x;
+    pos_diff.y = pos.y * GRID_FSIZE - pentry->hero[0].pos_stt.y;
+    pos_diff.z = pos.z * GRID_FSIZE - pentry->hero[0].pos_stt.z;
 
     // adjust all the hero spawn points
     for ( i = 0; i < pentry->hero_count; i++ )

@@ -511,7 +511,7 @@ int _calculate_volume( fvec3_t diff, renderlist_t * prlist )
     float render_size;
 
     // approximate the radius of the area that the camera sees
-    render_size = prlist->all_count * ( GRID_SIZE / 2 * GRID_SIZE / 2 ) / 4;
+    render_size = prlist->all_count * ( GRID_FSIZE / 2 * GRID_FSIZE / 2 ) / 4;
 
     dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
@@ -789,7 +789,8 @@ void load_all_music_sounds_vfs()
     musicinmemory = btrue;
 
     //Special xmas theme at december 16th until newyear, override the default menu theme song
-    if( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16) {
+    if ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 )
+    {
         snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/xmas.ogg" ), songname );
         musictracksloaded[MENU_SONG] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
     }

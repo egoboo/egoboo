@@ -533,8 +533,8 @@ bool_t grid_mem_alloc( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     pgmem->grid_count = pgmem->grids_x * pgmem->grids_y;
 
     // set the mesh edge info
-    pgmem->edge_x = ( pgmem->grids_x + 1 ) << TILE_BITS;
-    pgmem->edge_y = ( pgmem->grids_y + 1 ) << TILE_BITS;
+    pgmem->edge_x = ( pgmem->grids_x + 1 ) << GRID_BITS;
+    pgmem->edge_y = ( pgmem->grids_y + 1 ) << GRID_BITS;
 
     // set the desired blocknumber of blocks
     pgmem->blocks_x = ( pinfo->tiles_x >> 2 );
@@ -1394,7 +1394,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
     // set a minimum radius
     if ( 0.0f == loc_radius )
     {
-        loc_radius = GRID_SIZE * 0.5f;
+        loc_radius = GRID_FSIZE * 0.5f;
     }
 
     // make sure it is positive
@@ -1415,10 +1415,10 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 
     // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
-    bound.xmin = FLOOR( pdata->fx_min / GRID_SIZE );
-    bound.xmax = FLOOR( pdata->fx_max / GRID_SIZE );
-    bound.ymin = FLOOR( pdata->fy_min / GRID_SIZE );
-    bound.ymax = FLOOR( pdata->fy_max / GRID_SIZE );
+    bound.xmin = FLOOR( pdata->fx_min / GRID_FSIZE );
+    bound.xmax = FLOOR( pdata->fx_max / GRID_FSIZE );
+    bound.ymin = FLOOR( pdata->fy_min / GRID_FSIZE );
+    bound.ymax = FLOOR( pdata->fy_max / GRID_FSIZE );
 
     // limit the test values to be in-bounds
     pdata->fx_min = MAX( pdata->fx_min, 0.0f );
@@ -1476,7 +1476,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 //--------------------------------------------------------------------------------------------
 float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, BIT_FIELD bits )
 {
-    const float tile_area = GRID_SIZE * GRID_SIZE;
+    const float tile_area = GRID_FSIZE * GRID_FSIZE;
 
     Uint32 itile;
     int   ix_min, ix_max, iy_min, iy_max;
@@ -1505,7 +1505,7 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
     // set a minimum radius
     if ( 0.0f == loc_radius )
     {
-        loc_radius = GRID_SIZE * 0.5f;
+        loc_radius = GRID_FSIZE * 0.5f;
     }
 
     // make sure it is positive
@@ -1519,11 +1519,11 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
 
     obj_area = ( fx_max - fx_min ) * ( fy_max - fy_min );
 
-    ix_min = FLOOR( fx_min / GRID_SIZE );
-    ix_max = FLOOR( fx_max / GRID_SIZE );
+    ix_min = FLOOR( fx_min / GRID_FSIZE );
+    ix_max = FLOOR( fx_max / GRID_FSIZE );
 
-    iy_min = FLOOR( fy_min / GRID_SIZE );
-    iy_max = FLOOR( fy_max / GRID_SIZE );
+    iy_min = FLOOR( fy_min / GRID_FSIZE );
+    iy_max = FLOOR( fy_max / GRID_FSIZE );
 
     for ( iy = iy_min; iy <= iy_max; iy++ )
     {
@@ -1531,8 +1531,8 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
 
         bool_t tile_valid = btrue;
 
-        ty_min = ( iy + 0 ) * GRID_SIZE;
-        ty_max = ( iy + 1 ) * GRID_SIZE;
+        ty_min = ( iy + 0 ) * GRID_FSIZE;
+        ty_max = ( iy + 1 ) * GRID_FSIZE;
 
         if ( iy < 0 || iy >= pinfo->tiles_y )
         {
@@ -1548,8 +1548,8 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
             float ovl_x_min, ovl_x_max;
             float ovl_y_min, ovl_y_max;
 
-            tx_min = ( ix + 0 ) * GRID_SIZE;
-            tx_max = ( ix + 1 ) * GRID_SIZE;
+            tx_min = ( ix + 0 ) * GRID_FSIZE;
+            tx_max = ( ix + 1 ) * GRID_FSIZE;
 
             if ( ix < 0 || ix >= pinfo->tiles_x )
             {
@@ -1620,7 +1620,7 @@ fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius,
     /// with each element representing the pressure when the object is moved in different directions
     /// by 1/2 a tile.
 
-    const float jitter_size = GRID_SIZE * 0.5f;
+    const float jitter_size = GRID_FSIZE * 0.5f;
     float pressure_ary[9];
     float fx, fy;
     fvec2_t diff = ZERO_VECT2;
@@ -1735,8 +1735,8 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
 
         invalid = bfalse;
 
-        ty_min = ( iy + 0 ) * GRID_SIZE;
-        ty_max = ( iy + 1 ) * GRID_SIZE;
+        ty_min = ( iy + 0 ) * GRID_FSIZE;
+        ty_max = ( iy + 1 ) * GRID_FSIZE;
 
         if ( iy < 0 || iy >= pdata->pinfo->tiles_y )
         {
@@ -1755,8 +1755,8 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
         {
             float tx_min, tx_max;
 
-            tx_min = ( ix + 0 ) * GRID_SIZE;
-            tx_max = ( ix + 1 ) * GRID_SIZE;
+            tx_min = ( ix + 0 ) * GRID_FSIZE;
+            tx_max = ( ix + 1 ) * GRID_FSIZE;
 
             if ( ix < 0 || ix >= pdata->pinfo->tiles_x )
             {
@@ -1897,8 +1897,8 @@ float mesh_get_max_vertex_1( const ego_mpd_t * pmesh, int grid_x, int grid_y, fl
         GLXvector3f * pvert = pmesh->tmem.plst + ivrt;
 
         // we are evaluating the height based on the grid, not the actual vertex positions
-        fx = ( grid_x + ix_off[cnt] ) * GRID_SIZE;
-        fy = ( grid_y + iy_off[cnt] ) * GRID_SIZE;
+        fx = ( grid_x + ix_off[cnt] ) * GRID_FSIZE;
+        fy = ( grid_y + iy_off[cnt] ) * GRID_FSIZE;
 
         if ( fx >= xmin && fx <= xmax && fy >= ymin && fy <= ymax )
         {
