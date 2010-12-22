@@ -807,7 +807,7 @@ void free_all_chraracters()
     // free_all_players
     PlaStack.count = 0;
     local_numlpla = 0;
-    local_noplayers = btrue;
+    local_stats.noplayers = btrue;
 
     // free_all_stats
     StatusList_count = 0;
@@ -3558,7 +3558,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_inv
     cleanup_one_character( pchr );
 
     // If it's a player, let it die properly before enabling respawn
-    if ( VALID_PLA( pchr->is_which_player ) ) revivetimer = ONESECOND; // 1 second
+    if ( VALID_PLA( pchr->is_which_player ) ) local_stats.revivetimer = ONESECOND; // 1 second
 
     // Let it's AI script run one last time
     pchr->ai.timer = update_wld + 1;            // Prevent IfTimeOut in scr_run_chr_script()
@@ -9652,8 +9652,8 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bi
     }
 
     // modify these values based on local character abilities
-    local_alpha = get_alpha( local_alpha, local_seeinvis_mag );
-    local_light = get_light( local_light, local_seedark_mag );
+    local_alpha = get_alpha( local_alpha, local_stats.seeinvis_mag );
+    local_light = get_light( local_light, local_stats.seedark_mag );
 
     // clear out the tint
     weight_sum = 0;

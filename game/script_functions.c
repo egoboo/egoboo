@@ -6782,7 +6782,8 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    local_listening_level = btrue;
+    log_warning( "Depacrated script function used: EnableListenSkill! (%s)\n", chr_get_pmad(pself->index)->name );
+    returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7122,13 +7123,13 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 
     if ( INGAME_CHR( pself->target ) )
     {
-        local_senseenemiesTeam = chr_get_iteam( pself->target );
-        local_senseenemiesID   = pstate->argument;
+        local_stats.sense_enemies_team = chr_get_iteam( pself->target );
+        local_stats.sense_enemies_idsz = pstate->argument;
     }
     else
     {
-        local_senseenemiesTeam = ( TEAM_REF )TEAM_MAX;
-        local_senseenemiesID   = IDSZ_NONE;
+        local_stats.sense_enemies_team = ( TEAM_REF )TEAM_MAX;
+        local_stats.sense_enemies_idsz = IDSZ_NONE;
     }
 
     SCRIPT_FUNCTION_END();

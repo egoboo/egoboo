@@ -28,20 +28,6 @@
 
 /* Typedefs for various platforms */
 #include "egoboo_typedef.h"
-//#include "egoboo_math.h"  /* vector and matrix math */
-//#include "egoboo_config.h"
-
-//#include <stdlib.h>
-//#include <stdarg.h>
-//#include "file_common.h"
-//#include <string.h>
-//#include <fcntl.h>
-//#include <ctype.h>
-//#include <time.h>
-//#include <math.h>
-
-//#include <SDL.h>
-//#include <SDL_opengl.h>
 
 /// The following magic allows this include to work in multiple files
 #if defined(DECLARE_GLOBALS)
@@ -144,10 +130,6 @@ EXTERN STRING          pickedmodule_path;               ///< The picked module's
 EXTERN STRING          pickedmodule_name;               ///< The picked module's short name
 EXTERN STRING          pickedmodule_write_path;         ///< The picked module's path name relative to the userdata directory
 
-/// Respawning
-EXTERN bool_t                   local_allpladead EQ( bfalse );  ///< Has everyone died?
-EXTERN int                      revivetimer EQ( 0 );
-
 /// Setup values
 EXTERN Uint8                   messageon      EQ( btrue );         ///< Messages?
 EXTERN int                     maxmessage     EQ( MAX_MESSAGE );
@@ -163,18 +145,31 @@ EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from 
 
 #define INVISIBLE           20                      ///< The character can't be detected
 
-EXTERN float                     local_grog_level         EQ( 0.0f );
-EXTERN float                     local_daze_level         EQ( 0.0f );
-EXTERN float                     local_seeinvis_level    EQ( 0.0f );
-EXTERN float                     local_seeinvis_mag      EQ( 1.0f );
-EXTERN float                     local_seedark_level     EQ( 0.0f );
-EXTERN float                     local_seedark_mag       EQ( 1.0f );
-EXTERN float                     local_seekurse_level    EQ( 0.0f );
-EXTERN float                     local_listening_level   EQ( 0.0f );  ///< Players with listen skill?
-EXTERN bool_t                    local_noplayers         EQ( btrue ); ///< Are there any local players?
+struct s_local_stats 
+{
+    bool_t  noplayers;          ///< Are there any local players?
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+    float   grog_level;
+    float   daze_level;
+    float   seeinvis_level;
+    float   seeinvis_mag;
+    float   seedark_level;
+    float   seedark_mag;
+    float   seekurse_level;
+    float   listening_level;    ///< Players with listen skill?
+
+    bool_t  allpladead;         ///< Have players died?
+    int     revivetimer;        ///< Cooldown to respawn
+
+    //ESP
+    TEAM_REF sense_enemies_team;
+    IDSZ     sense_enemies_idsz;
+};
+typedef struct s_local_stats local_stats_t;
+
+EXTERN local_stats_t local_stats;
+
+//---------------------------------------------------------------------------------------------------------------------
 
 #include "egoboo_process.h"
 

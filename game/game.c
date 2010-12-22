@@ -161,9 +161,6 @@ weather_instance_t    weather;
 water_instance_t      water;
 fog_instance_t        fog;
 
-TEAM_REF local_senseenemiesTeam = ( TEAM_REF )TEAM_GOOD; // TEAM_MAX;
-IDSZ     local_senseenemiesID   = IDSZ_NONE;
-
 bool_t activate_spawn_file_active = bfalse;
 
 Import_list_t ImportList  = IMPORT_LIST_INIT;
@@ -665,13 +662,13 @@ int update_game()
     PLA_REF ipla;
 
     // Check for all local players being dead
-    local_allpladead     = bfalse;
-    local_seeinvis_level = 0.0f;
-    local_seekurse_level = 0.0f;
-    local_seedark_level  = 0.0f;
-    local_grog_level      = 0.0f;
-    local_daze_level      = 0.0f;
-
+    local_stats.allpladead      = bfalse;
+    local_stats.seeinvis_level  = 0.0f;
+    local_stats.seekurse_level  = 0.0f;
+    local_stats.seedark_level   = 0.0f;
+    local_stats.grog_level      = 0.0f;
+    local_stats.daze_level      = 0.0f;
+ 
     numplayer = 0;
     numdead = numalive = 0;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -701,11 +698,11 @@ int update_game()
         {
             numalive++;
 
-            local_seeinvis_level += pchr->see_invisible_level;
-            local_seekurse_level += pchr->see_kurse_level;
-            local_seedark_level  += pchr->darkvision_level;
-            local_grog_level     += pchr->grog_timer;
-            local_daze_level     += pchr->daze_timer;
+            local_stats.seeinvis_level += pchr->see_invisible_level;
+            local_stats.seekurse_level += pchr->see_kurse_level;
+            local_stats.seedark_level  += pchr->darkvision_level;
+            local_stats.grog_level     += pchr->grog_timer;
+            local_stats.daze_level     += pchr->daze_timer;
         }
         else
         {
@@ -715,21 +712,21 @@ int update_game()
 
     if ( numalive > 0 )
     {
-        local_seeinvis_level /= ( float )numalive;
-        local_seekurse_level /= ( float )numalive;
-        local_seedark_level  /= ( float )numalive;
-        local_grog_level     /= ( float )numalive;
-        local_daze_level     /= ( float )numalive;
+        local_stats.seeinvis_level /= ( float )numalive;
+        local_stats.seekurse_level /= ( float )numalive;
+        local_stats.seedark_level  /= ( float )numalive;
+        local_stats.grog_level     /= ( float )numalive;
+        local_stats.daze_level     /= ( float )numalive;
     }
 
     // this allows for kurses, which might make negative values to do something reasonable
-    local_seeinvis_mag = exp( 0.32f * local_seeinvis_level );
-    local_seedark_mag  = exp( 0.32f * local_seedark_level );
+    local_stats.seeinvis_mag = exp( 0.32f * local_stats.seeinvis_level );
+    local_stats.seedark_mag  = exp( 0.32f * local_stats.seedark_level );
 
     // Did everyone die?
     if ( numdead >= local_numlpla )
     {
-        local_allpladead = btrue;
+        local_stats.allpladead = btrue;
     }
 
     // check for autorespawn
@@ -746,7 +743,7 @@ int update_game()
 
         if ( !pchr->alive )
         {
-            if ( cfg.difficulty < GAME_HARD && local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && PMod->respawnvalid && 0 == revivetimer )
+            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDLKEYDOWN( SDLK_SPACE ) && PMod->respawnvalid && 0 == local_stats.revivetimer )
             {
                 respawn_character( ichr );
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
@@ -841,7 +838,7 @@ int update_game()
                 clock_chr_stat++;
 
                 // Reset the respawn timer
-                if ( revivetimer > 0 ) revivetimer--;
+                if ( local_stats.revivetimer > 0 ) local_stats.revivetimer--;
 
                 update_wld++;
                 ups_loops++;
@@ -3445,8 +3442,8 @@ void game_release_module_data()
     ego_mpd_t * ptmp;
 
     // Disable ESP
-    local_senseenemiesID = IDSZ_NONE;
-    local_senseenemiesTeam = TEAM_MAX;
+    local_stats.sense_enemies_idsz = IDSZ_NONE;
+    local_stats.sense_enemies_team = ( TEAM_REF ) TEAM_MAX;
 
     // make sure that the object lists are cleared out
     free_all_objects();
@@ -3546,7 +3543,7 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, Uint32 device_
 
     if ( device_bits != EMPTY_BIT_FIELD )
     {
-        local_noplayers = bfalse;
+        local_stats.noplayers = bfalse;
         pchr->islocalplayer = btrue;
         local_numlpla++;
 
@@ -4323,15 +4320,17 @@ void game_reset_players()
     /// @details ZZ@> This function clears the player list data
 
     // Reset the local data stuff
-    local_allpladead       = bfalse;
+    local_stats.allpladead = bfalse;
 
-    local_seeinvis_level = 0.0f;
-    local_seekurse_level = 0.0f;
-    local_seedark_level  = 0.0f;
-    local_grog_level      = 0.0f;
-    local_daze_level      = 0.0f;
+    local_stats.seeinvis_level = 0.0f;
+    local_stats.seeinvis_level = 0.0f;
+    local_stats.seekurse_level = 0.0f;
+    local_stats.seedark_level  = 0.0f;
+    local_stats.grog_level     = 0.0f;
+    local_stats.daze_level     = 0.0f;
 
-    local_senseenemiesTeam = TEAM_MAX;
+    local_stats.sense_enemies_team = ( TEAM_REF ) TEAM_MAX;
+    local_stats.sense_enemies_idsz = IDSZ_NONE;
 
     net_reset_players();
 }
@@ -5655,4 +5654,29 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
     }
 
     return ( imp_lst->count > 0 ) ? rv_success : rv_fail;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t check_time( Uint32 check )
+{
+    //ZF> Returns btrue if and only if all time and date specifications determined by the e_time parameter is true. This
+    //    could indicate time of the day, a specific holiday season etc.
+    switch( check )
+    {
+        //Halloween between 31th october and the 1st of november
+        case SEASON_HALLOWEEN: return ( 10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31 ||
+                                        11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1 );
+
+        //Xmas from december 16th until newyear
+        case SEASON_CHRISTMAS: return (12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 );
+
+        //From 0:00 to 6:00 (spooky time!)
+        case TIME_NIGHT: return getCurrentTime()->tm_hour <= 6;
+
+        //Its day whenever it's not night
+        case TIME_DAY: return !check_time( TIME_NIGHT );
+
+        //Unhandled check
+        default: log_warning("Unhandled time enum in check_time()\n"); return bfalse;
+    }
 }

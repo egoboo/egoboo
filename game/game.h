@@ -78,6 +78,16 @@ enum e_targeting_bits
 };
 
 //--------------------------------------------------------------------------------------------
+// Enums used with the check_time() function to determine if something time or date related is true
+enum e_time {
+    SEASON_HALLOWEEN,       //Is it halloween?
+    SEASON_CHRISTMAS,       //Is it christmas time?
+    TIME_NIGHT,             //Is it night?
+    TIME_DAY                //Is it day?
+};
+
+
+//--------------------------------------------------------------------------------------------
 
 /// a process that controls a single game
 struct s_game_process
@@ -330,10 +340,6 @@ extern pit_info_t pits;
 
 extern FACING_T  glouseangle;                                        ///< actually still used
 
-/// Sense enemies
-extern TEAM_REF local_senseenemiesTeam;
-extern IDSZ     local_senseenemiesID;
-
 extern bool_t activate_spawn_file_active;
 
 extern Import_list_t ImportList;
@@ -455,3 +461,5 @@ bool_t detach_character_from_platform( struct s_chr * pchr );
 bool_t detach_particle_from_platform( struct s_prt * pprt );
 
 egoboo_rv game_copy_imports( struct s_Import_list * imp_lst );
+
+bool_t check_time( Uint32 check );

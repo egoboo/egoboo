@@ -515,8 +515,8 @@ int _calculate_volume( fvec3_t diff, renderlist_t * prlist )
 
     dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
-    // adjust for the local_listening_level skill
-    if ( local_listening_level ) dist2 *= 0.66f * 0.66f;
+    // adjust for the listen skill
+    if ( local_stats.listening_level ) dist2 *= 0.66f * 0.66f;
 
     volume  = 255 * render_size / ( render_size + dist2 );
     volume  = ( volume * snd.soundvolume ) / 100;
@@ -788,10 +788,15 @@ void load_all_music_sounds_vfs()
     }
     musicinmemory = btrue;
 
-    //Special xmas theme at december 16th until newyear, override the default menu theme song
-    if ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 )
+    //Special xmas theme, override the default menu theme song
+    if ( check_time( SEASON_CHRISTMAS ) )
     {
         snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/xmas.ogg" ), songname );
+        musictracksloaded[MENU_SONG] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
+    }
+    else if ( check_time( SEASON_HALLOWEEN ) )
+    {
+        snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/halloween.ogg" ), songname );
         musictracksloaded[MENU_SONG] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
     }
 

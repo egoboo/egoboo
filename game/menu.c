@@ -637,14 +637,24 @@ int doMainMenu( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-            //Special xmas theme at december 16th until newyear
-            if ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 )
+            //Special xmas theme
+            if ( check_time( SEASON_CHRISTMAS ) )
             {
                 // load the menu image
                 ego_texture_load_vfs( &background, "mp_data/menu/menu_xmas", INVALID_KEY );
 
                 // load the logo image
                 ego_texture_load_vfs( &logo,       "mp_data/menu/snowy_logo", INVALID_KEY );
+            }
+
+            //Special Halloween theme
+            else if ( check_time( SEASON_HALLOWEEN ) )
+            {
+                // load the menu image
+                ego_texture_load_vfs( &background, "mp_data/menu/menu_halloween", INVALID_KEY );
+
+                // load the logo image
+                ego_texture_load_vfs( &logo,       "mp_data/menu/creepy_logo", INVALID_KEY );
             }
 
             //Default egoboo theme
@@ -4007,8 +4017,8 @@ int doGamePaused( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-            if ( PMod->exportvalid && !local_allpladead ) buttons[0] = "Save and Exit";
-            else                                          buttons[0] = "Quit Module";
+            if ( PMod->exportvalid && !local_stats.allpladead ) buttons[0] = "Save and Exit";
+            else                                                buttons[0] = "Quit Module";
 
             mnu_SlidyButton_init( 1.0f, buttons );
 

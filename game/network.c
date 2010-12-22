@@ -903,7 +903,7 @@ void cl_talkToHost()
 
     // Let the players respawn
     if ( SDLKEYDOWN( SDLK_SPACE )
-         && ( local_allpladead || PMod->respawnanytime )
+         && ( local_stats.allpladead || PMod->respawnanytime )
          && PMod->respawnvalid
          && cfg.difficulty < GAME_HARD
          && !console_mode )
@@ -1693,7 +1693,7 @@ void unbuffer_player_latches()
 
         if ( cfg.difficulty < GAME_HARD && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
         {
-            if ( !pchr->alive && 0 == revivetimer )
+            if ( !pchr->alive && 0 == local_stats.revivetimer )
             {
                 respawn_character( character );
                 TeamStack.lst[pchr->team].leader = character;

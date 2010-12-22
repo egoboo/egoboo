@@ -1505,8 +1505,8 @@ void draw_map()
 
         GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-        // If one of the players can sense enemies via EMP, draw them as blips on the map
-        if ( TEAM_MAX != local_senseenemiesTeam )
+        // If one of the players can sense enemies via ESP, draw them as blips on the map
+        if ( TEAM_MAX != local_stats.sense_enemies_team )
         {
             CHR_REF ichr;
 
@@ -1522,12 +1522,12 @@ void draw_map()
                 if ( NULL == pcap ) continue;
 
                 // Show only teams that will attack the player
-                if ( team_hates_team( pchr->team, local_senseenemiesTeam ) )
+                if ( team_hates_team( pchr->team, local_stats.sense_enemies_team ) )
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
-                    if ( local_senseenemiesID == IDSZ_NONE ||
-                         local_senseenemiesID == pcap->idsz[IDSZ_PARENT] ||
-                         local_senseenemiesID == pcap->idsz[IDSZ_TYPE  ] )
+                    if ( local_stats.sense_enemies_idsz == IDSZ_NONE ||
+                         local_stats.sense_enemies_idsz == pcap->idsz[IDSZ_PARENT] ||
+                         local_stats.sense_enemies_idsz == pcap->idsz[IDSZ_TYPE  ] )
                     {
                         // Inside the map?
                         if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
@@ -1777,7 +1777,7 @@ float draw_game_status( float y )
 
     if ( numplayer > 0 )
     {
-        if ( local_allpladead || PMod->respawnanytime )
+        if ( local_stats.allpladead || PMod->respawnanytime )
         {
             if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
             {
@@ -5601,9 +5601,9 @@ gfx_rv do_chr_flashing( dolist_t * pdolist )
         // Do blacking
         // having one holy player in your party will cause the effect, BUT
         // having some non-holy players will dilute it
-        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && ( local_seekurse_level > 0.0f ) && ChrList.lst[ichr].iskursed )
+        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && ( local_stats.seekurse_level > 0.0f ) && ChrList.lst[ichr].iskursed )
         {
-            float tmp_seekurse_level = MIN( local_seekurse_level, 1.0f );
+            float tmp_seekurse_level = MIN( local_stats.seekurse_level, 1.0f );
             if ( gfx_error == flash_character( ichr, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
             {
                 retval = gfx_error;
@@ -6083,18 +6083,18 @@ float get_ambient_level()
 
     // determine the minimum ambient, based on darkvision
     min_amb = INVISIBLE / 4;
-    if ( local_seedark_mag != 1.0f )
+    if ( local_stats.seedark_mag != 1.0f )
     {
         // start with the global light
         min_amb  = glob_amb;
 
         // give a iny boost in the case of no light_a
-        if ( local_seedark_mag > 0.0f ) min_amb += 1.0f;
+        if ( local_stats.seedark_mag > 0.0f ) min_amb += 1.0f;
 
         // light_a can be quite dark, so we need a large magnification
-        min_amb *= local_seedark_mag * local_seedark_mag;
-        min_amb *= local_seedark_mag * local_seedark_mag;
-        min_amb *= local_seedark_mag;
+        min_amb *= local_stats.seedark_mag * local_stats.seedark_mag;
+        min_amb *= local_stats.seedark_mag * local_stats.seedark_mag;
+        min_amb *= local_stats.seedark_mag;
     }
 
     return MAX( glob_amb, min_amb );
