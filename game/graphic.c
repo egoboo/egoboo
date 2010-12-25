@@ -5103,7 +5103,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
             stepx = (( corner_x[to] - corner_x[from] ) << GRID_BITS ) / divx;
         }
 
-        x -= 256;
+        x -= 128;
         run = corner_y[to] >> GRID_BITS;
         while ( grid_y < run )
         {

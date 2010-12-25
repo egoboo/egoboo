@@ -221,7 +221,6 @@ typedef Uint32 IDSZ;
 #endif
 
 #define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       ///< [NONE]
-#define IDSZ_BOOK            MAKE_IDSZ('B','O','O','K')       ///< [BOOK]
 
 const char * undo_idsz( IDSZ idsz );
 

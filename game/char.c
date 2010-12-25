@@ -3999,12 +3999,12 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // Set up model stuff
     pchr->profile_ref   = pchr->spawn_data.profile;
     pchr->basemodel_ref = pchr->spawn_data.profile;
-
+    
     // Kurse state
     if ( pcap->isitem )
     {
         IPair loc_rand = {1, 100};
-
+        
         kursechance = pcap->kursechance;
         if ( cfg.difficulty >= GAME_HARD )                        kursechance *= 2.0f;  // Hard mode doubles chance for Kurses
         if ( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;  // Easy mode halves chance for Kurses

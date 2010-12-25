@@ -2222,7 +2222,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
 
     //get the next frames
     new_nxt = frame_stt + frame_along;
-    new_nxt = MIN( new_nxt, frame_end - 1 );
+    new_nxt = MAX( new_nxt, frame_end );
 
     pinst->frame_nxt  = new_nxt;
     pinst->ilip       = ilip;

@@ -1548,7 +1548,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
 
     max_dist2 = max_dist * max_dist;
 
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) )
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         PLA_REF ipla;
 
@@ -4816,7 +4816,6 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
     /// @details BB@> Prepare and write the wawalite file
 
     int cnt;
-//    STRING filename;
 
     if ( !VALID_CSTR( modname ) || NULL == pdata ) return bfalse;
 

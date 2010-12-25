@@ -4220,6 +4220,9 @@ int doShowEndgame( float deltaTime )
                     game_finish_module();
                     pickedmodule_index = -1;
                     process_kill( PROC_PBASE( GProc ) );
+
+                    //ZF> Reload all players since their quest logs may have changed and new modules unlocked
+                    LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
                 }
 
                 menuState = MM_Begin;
