@@ -1508,7 +1508,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
         // The clean verrices should be the union of the sets of the vertices updated this time
         // and the oned updated last time.
         //
-        //If these ranges are disjoint, then only one of them can be saved. Choose the larger set
+        // If these ranges are disjoint, then only one of them can be saved. Choose the larger set
 
         if ( vmax >= psave->vmin && vmin <= psave->vmax )
         {
@@ -1793,6 +1793,8 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
 {
     /// @details BB@> all the code necessary to move on to the next frame of the animation
 
+    int frame_lst, frame_nxt;
+
     if ( NULL == pmad )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mad" );
@@ -1810,16 +1812,16 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
     pinst->flip = fmod( pinst->flip, 1.0f );
 
     // Change frames
-    pinst->frame_lst = pinst->frame_nxt;
-    pinst->frame_nxt++;
+    frame_lst = pinst->frame_nxt;
+    frame_nxt = pinst->frame_nxt + 1;
 
     // detect the end of the animation and handle special end conditions
-    if ( pinst->frame_nxt > pmad->action_end[pinst->action_which] )
+    if ( frame_nxt > pmad->action_end[pinst->action_which] )
     {
         if ( pinst->action_keep )
         {
             // Freeze that animation at the last frame
-            pinst->frame_nxt = pinst->frame_lst;
+            frame_nxt = frame_lst;
 
             // Break a kept action at any time
             pinst->action_ready = btrue;
@@ -1833,7 +1835,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
             }
 
             // set the frame to the beginning of the action
-            pinst->frame_nxt = pmad->action_stt[pinst->action_which];
+            frame_nxt = pmad->action_stt[pinst->action_which];
 
             // Break a looped action at any time
             pinst->action_ready = btrue;
@@ -1841,12 +1843,18 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
         else
         {
             // make sure that the frame_nxt points to a valid frame in this action
-            pinst->frame_nxt = pmad->action_end[pinst->action_which];
+            frame_nxt = pmad->action_end[pinst->action_which];
 
             // Go on to the next action. don't let just anything interrupt it?
             chr_instance_increment_action( pinst );
+
+            // chr_instance_increment_action() actually sets this value properly. just grab the new value.
+            frame_nxt = pinst->frame_nxt;
         }
     }
+
+    pinst->frame_lst = frame_lst;
+    pinst->frame_nxt = frame_nxt;
 
     vlst_cache_test( &( pinst->save ), pinst );
 
@@ -1941,7 +1949,8 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
     pinst->rate         = 1.0f;
     pinst->action_next  = ACTION_DA;
     pinst->action_ready = btrue;                     // argh! this must be set at the beginning, script's spawn animations do not work!
-    pinst->frame_nxt    = pinst->frame_lst = 0;
+    pinst->frame_lst    = 0;
+    pinst->frame_nxt    = 0;
 
     // the vlst_cache parameters are not valid
     pinst->save.valid = bfalse;
@@ -2030,8 +2039,9 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     // set the frames to frame 0 of this object's data
     if ( 0 != pinst->frame_nxt || 0 != pinst->frame_lst )
     {
-        updated = btrue;
-        pinst->frame_nxt = pinst->frame_lst = 0;
+        updated          = btrue;
+        pinst->frame_lst = 0;
+        pinst->frame_nxt = 0;
 
         // the vlst_cache parameters are not valid
         pinst->save.valid = bfalse;
@@ -2220,9 +2230,9 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
     // try to heal an out of range value
     frame_along %= frame_count;
 
-    //get the next frames
+    // get the next frames
     new_nxt = frame_stt + frame_along;
-    new_nxt = MAX( new_nxt, frame_end );
+    new_nxt = MIN( new_nxt, frame_end );
 
     pinst->frame_nxt  = new_nxt;
     pinst->ilip       = ilip;

@@ -668,7 +668,7 @@ int update_game()
     local_stats.seedark_level   = 0.0f;
     local_stats.grog_level      = 0.0f;
     local_stats.daze_level      = 0.0f;
- 
+
     numplayer = 0;
     numdead = numalive = 0;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -5660,22 +5660,22 @@ bool_t check_time( Uint32 check )
 {
     //ZF> Returns btrue if and only if all time and date specifications determined by the e_time parameter is true. This
     //    could indicate time of the day, a specific holiday season etc.
-    switch( check )
+    switch ( check )
     {
-        //Halloween between 31th october and the 1st of november
+            //Halloween between 31th october and the 1st of november
         case SEASON_HALLOWEEN: return ( 10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31 ||
-                                        11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1 );
+                                            11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1 );
 
-        //Xmas from december 16th until newyear
-        case SEASON_CHRISTMAS: return (12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 );
+            //Xmas from december 16th until newyear
+        case SEASON_CHRISTMAS: return ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 );
 
-        //From 0:00 to 6:00 (spooky time!)
+            //From 0:00 to 6:00 (spooky time!)
         case TIME_NIGHT: return getCurrentTime()->tm_hour <= 6;
 
-        //Its day whenever it's not night
+            //Its day whenever it's not night
         case TIME_DAY: return !check_time( TIME_NIGHT );
 
-        //Unhandled check
-        default: log_warning("Unhandled time enum in check_time()\n"); return bfalse;
+            //Unhandled check
+        default: log_warning( "Unhandled time enum in check_time()\n" ); return bfalse;
     }
 }

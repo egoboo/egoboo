@@ -6782,7 +6782,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    log_warning( "Depacrated script function used: EnableListenSkill! (%s)\n", chr_get_pmad(pself->index)->name );
+    log_warning( "Depacrated script function used: EnableListenSkill! (%s)\n", chr_get_pmad( pself->index )->name );
     returncode = bfalse;
 
     SCRIPT_FUNCTION_END();

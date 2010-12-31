@@ -79,13 +79,13 @@ enum e_targeting_bits
 
 //--------------------------------------------------------------------------------------------
 // Enums used with the check_time() function to determine if something time or date related is true
-enum e_time {
+enum e_time
+{
     SEASON_HALLOWEEN,       //Is it halloween?
     SEASON_CHRISTMAS,       //Is it christmas time?
     TIME_NIGHT,             //Is it night?
     TIME_DAY                //Is it day?
 };
-
 
 //--------------------------------------------------------------------------------------------
 

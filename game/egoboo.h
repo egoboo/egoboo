@@ -145,7 +145,7 @@ EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from 
 
 #define INVISIBLE           20                      ///< The character can't be detected
 
-struct s_local_stats 
+struct s_local_stats
 {
     bool_t  noplayers;          ///< Are there any local players?
 

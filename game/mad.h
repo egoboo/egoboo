@@ -153,17 +153,19 @@ enum e_action
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#define FRAMELIP_COUNT 16
+
 /// The definition of the Egoboo model type
 struct s_mad
 {
     EGO_PROFILE_STUFF
 
-    Uint16  frameliptowalkframe[4][16];        ///< For walk animations
+    Uint16  framelip_to_walkframe[4][FRAMELIP_COUNT];        ///< For walk animations
 
     int     action_map[ACTION_COUNT];          ///< actual action = action_map[requested action]
     bool_t  action_valid[ACTION_COUNT];        ///< bfalse if not valid
     int     action_stt[ACTION_COUNT];          ///< First frame of anim
-    int     action_end[ACTION_COUNT];          ///< One past last frame
+    int     action_end[ACTION_COUNT];          ///< The last frame
 
     //---- per-object data ----
 

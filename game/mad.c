@@ -314,32 +314,42 @@ mad_t *  mad_get_walk_frame( mad_t * pmad, int lip, int action )
 {
     /// @details ZZ@> This helps make walking look right
     int frame = 0;
-    int framesinaction, action_stt;
+    int action_count;
+    int action_stt, action_end;
 
     if ( NULL == pmad ) return pmad;
 
     action = mad_get_action( pmad, action );
-    if ( ACTION_COUNT == action )
+    if ( action >= ACTION_COUNT || !pmad->action_valid[action] )
     {
-        framesinaction = 1;
-        action_stt     = pmad->action_stt[ACTION_DA];
+        // make a fake action
+        action_stt = pmad->action_stt[ACTION_DA];
+        action_end = pmad->action_stt[ACTION_DA];
     }
     else
     {
-        framesinaction = 1 + ( pmad->action_end[action] - pmad->action_stt[action] );
-        action_stt     = pmad->action_stt[action];
+        action_stt = pmad->action_stt[action];
+        action_end = pmad->action_end[action];
     }
 
-    for ( frame = 0; frame < 16; frame++ )
+    // count the number of frames
+    action_count = 1 + ( action_end - action_stt );
+
+    // scan through all the frames of the framelip
+    for ( frame = 0; frame < FRAMELIP_COUNT; frame++ )
     {
         int framealong = 0;
 
-        if ( framesinaction > 0 )
+        if ( action_count > 0 )
         {
-            framealong = (( frame * framesinaction / 16 ) + 2 ) % framesinaction;
+            // this SHOULD produce a number between 0 and (action_count - 1),
+            // but there could be rounding error
+            framealong = ( frame * action_count ) / FRAMELIP_COUNT;
+
+            framealong = MIN( framealong, action_count - 1 );
         }
 
-        pmad->frameliptowalkframe[lip][frame] = action_stt + framealong;
+        pmad->framelip_to_walkframe[lip][frame] = action_stt + framealong;
     }
 
     return pmad;
@@ -563,33 +573,46 @@ mad_t * mad_make_framelip( mad_t * pmad, int action )
 {
     /// @details ZZ@> This helps make walking look right
 
-    int frame_count, frame, framesinaction;
+    int action_stt, action_end, action_count;
+    int framelip, frame;
 
-    MD2_Model_t * md2;
-    MD2_Frame_t * frame_list, * pframe;
+    MD2_Model_t * md2_ptr;
+    int           md2_frame_count;
+    MD2_Frame_t * md2_frame_list, * md2_frame_ptr;
 
     if ( NULL == pmad ) return pmad;
 
     if ( NULL == pmad->md2_ptr ) return pmad;
-    md2 = pmad->md2_ptr;
+    md2_ptr = pmad->md2_ptr;
 
     action = mad_get_action( pmad, action );
-    if ( ACTION_COUNT == action || ACTION_DA == action ) return pmad;
+    if ( ACTION_COUNT == action ) return pmad;
 
     if ( !pmad->action_valid[action] ) return pmad;
 
-    frame_count = md2_get_numFrames( md2 );
-    frame_list  = ( MD2_Frame_t * )md2_get_Frames( md2 );
+    // grab the md2 info
+    md2_frame_count = md2_get_numFrames( md2_ptr );
+    md2_frame_list  = ( MD2_Frame_t * )md2_get_Frames( md2_ptr );
 
-    framesinaction = pmad->action_end[action] - pmad->action_stt[action];
+    // grab the animation info
+    action_stt = pmad->action_stt[action];
+    action_end = pmad->action_end[action];
+    action_count = 1 + ( action_end - action_stt );
 
-    for ( frame = pmad->action_stt[action]; frame < pmad->action_end[action]; frame++ )
+    // scan through all the frames of the action
+    for ( frame = action_stt; frame <= action_end; frame++ )
     {
-        if ( frame > frame_count ) continue;
-        pframe = frame_list + frame;
+        // grab a valid frame
+        if ( frame > md2_frame_count ) break;
+        md2_frame_ptr = md2_frame_list + frame;
 
-        pframe->framelip = ( frame - pmad->action_stt[action] ) * 15 / framesinaction;
-        pframe->framelip = ( pframe->framelip ) & 15;
+        // calculate the framelip.
+        // this should produce a number between 0 and FRAMELIP_COUNT-1, but
+        // watch out for possible rounding errors
+        framelip = (( frame - action_stt ) * FRAMELIP_COUNT ) / action_count;
+
+        // limit the framelip to the valid range
+        md2_frame_ptr->framelip = MIN( framelip, FRAMELIP_COUNT - 1 );
     }
 
     return pmad;

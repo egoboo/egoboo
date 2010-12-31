@@ -1902,7 +1902,7 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
     if ( !mount_a && !mount_b ) return bfalse;
 
-    //Ready for position calulations
+    // Ready for position calulations
     oct_vec_ctor( apos, chr_get_pos_v( pchr_a ) );
     oct_vec_ctor( bpos, chr_get_pos_v( pchr_b ) );
 
@@ -2159,7 +2159,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
 
-    //skip objects that are inside inventories
+    // skip objects that are inside inventories
     if ( pchr_a->pack.is_packed || pchr_b->pack.is_packed ) return bfalse;
 
     // skip all objects that are mounted or attached to something
@@ -2821,7 +2821,7 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
     pdata->mana_paid = bfalse;
     if ( chr_is_invictus || ( prt_wants_deflection && chr_can_deflect ) )
     {
-        //Initialize for the billboard
+        // Initialize for the billboard
         const float lifetime = 3;
         SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
         GLXvector4f tint  = { 0.0f, 0.75f, 1.00f, 1.00f };
@@ -2863,11 +2863,11 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                 pdata->pprt->owner_ref  = GET_REF_PCHR( pdata->pchr );
             }
 
-            //Blocked!
+            // Blocked!
             spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
             chr_make_text_billboard( GET_REF_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, bb_opt_all );
 
-            //If the attack was blocked by a shield, then check if the block caused a knockback
+            // If the attack was blocked by a shield, then check if the block caused a knockback
             if ( chr_is_invictus && ACTION_IS_TYPE( pdata->pchr->inst.action_which, P ) )
             {
                 bool_t using_shield;
@@ -2906,7 +2906,7 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                     chr_t *pshield   = ChrList.lst + item;
                     chr_t *pattacker = ChrList.lst + pdata->pprt->owner_ref;
 
-                    //use the character block skill plus the base block rating of the shield and adjust for strength
+                    // use the character block skill plus the base block rating of the shield and adjust for strength
                     total_block_rating = chr_get_skill( pdata->pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
                     total_block_rating += chr_get_skill( pshield, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
 
@@ -2916,7 +2916,7 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                     // +2% per defender strength
                     total_block_rating += 2 * SFP8_TO_SINT( pdata->pchr->strength );
 
-                    //Now determine the result of the block
+                    // Now determine the result of the block
                     rand_pair.base = 0;
                     rand_pair.rand = 100;
                     if ( generate_irand_pair( rand_pair ) <= total_block_rating )
@@ -3189,7 +3189,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
             direction = vec_to_facing( pdata->pprt->vel.x , pdata->pprt->vel.y );
             direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
-            //These things only apply if the particle has an owner
+            // These things only apply if the particle has an owner
             if ( NULL != powner )
             {
                 CHR_REF item;
@@ -3218,7 +3218,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 SET_BIT( powner->ai.alert, ALERTIF_SCOREDAHIT );
                 powner->ai.hitlast = GET_REF_PCHR( pdata->pchr );
 
-                //Tell the weapons who the attacker hit last
+                // Tell the weapons who the attacker hit last
                 item = powner->holdingwhich[SLOT_LEFT];
                 if ( INGAME_CHR( item ) )
                 {
@@ -3237,7 +3237,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
             // handle vulnerabilities, double the damage
             if ( chr_has_vulnie( GET_REF_PCHR( pdata->pchr ), pdata->pprt->profile_ref ) )
             {
-                //Double the damage
+                // Double the damage
                 loc_damage.base = ( loc_damage.base << 1 );
                 loc_damage.rand = ( loc_damage.rand << 1 ) | 1;
 
@@ -3392,7 +3392,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
     // Catch on fire
     spawn_bump_particles( GET_REF_PCHR( pdata->pchr ), GET_REF_PPRT( pdata->pprt ) );
 
-    //handle some special particle interactions
+    // handle some special particle interactions
     if ( pdata->ppip->end_bump )
     {
         if ( pdata->ppip->bump_money )

@@ -108,7 +108,7 @@ void log_debug( const char *format, ... )
 {
     va_list args;
 
-    //Only if developer mode is enabled
+    // Only if developer mode is enabled
     if ( !cfg.dev_mode ) return;
 
     va_start( args, format );
@@ -151,7 +151,7 @@ void log_error( const char *format, ... )
     va_start( args, format );
     writeLogMessage( "FATAL ERROR: ", format, args );
 
-    //Windows users get a proper error message popup box
+    // Windows users get a proper error message popup box
     sys_popup( "Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n", format, args );
 
     va_end( args );
