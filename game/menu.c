@@ -1197,28 +1197,32 @@ int doChooseModule( float deltaTime )
 
                     GLfloat * img_tint = normal_tint;
 
-                    if ( mnu_ModList.lst[imod].base.beaten )
+                    //only do modules that are valid
+                    if( i >= 0 && i <= validModules_count )
                     {
-                        img_tint = beat_tint;
-                    }
+                        if ( mnu_ModList.lst[imod].base.beaten )
+                        {
+                            img_tint = beat_tint;
+                        }
 
-                    if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138, img_tint ) )
-                    {
-                        int_module = i;
-                        ext_module = (( int_module < 0 ) || ( int_module > validModules_count ) ) ? -1 : validModules[int_module];
-                    }
+                        if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138, img_tint ) )
+                        {
+                            int_module = i;
+                            ext_module = /*(( int_module < 0 ) || ( int_module > validModules_count ) ) ? -1 :*/ validModules[int_module];
+                        }
 
-                    //Draw a text over the image explaining what it means
-                    if ( mnu_ModList.lst[imod].base.beaten )
-                    {
-                        ui_drawTextBox( NULL, "BEATEN", moduleMenuOffsetX + x + 32, moduleMenuOffsetY + y + 64, 64, 30, 20 );
+                        //Draw a text over the image explaining what it means
+                        if ( mnu_ModList.lst[imod].base.beaten )
+                        {
+                            ui_drawTextBox( NULL, "BEATEN", moduleMenuOffsetX + x + 32, moduleMenuOffsetY + y + 64, 64, 30, 20 );
+                        }
                     }
 
                     x += 138 + 20;  // Width of the button, and the spacing between buttons
                 }
 
                 // Draw an empty button as the backdrop for the module text
-                ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 250, NULL );
+                ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 330, 250, NULL );
 
                 // Draw the text description of the selected module
                 if ( ext_module > -1 && ext_module < mnu_ModList.count )
@@ -1281,14 +1285,14 @@ int doChooseModule( float deltaTime )
                 // And draw the next & back buttons
                 if ( ext_module > -1 )
                 {
-                    if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
+                    if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 377, moduleMenuOffsetY + 173, 200, 30 ) )
                     {
                         // go to the next menu with this module selected
                         menuState = MM_Leaving;
                     }
                 }
 
-                if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
+                if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 377, moduleMenuOffsetY + 208, 200, 30 ) )
                 {
                     // Signal doMenu to go back to the previous menu
                     int_module = -1;
@@ -1301,16 +1305,26 @@ int doChooseModule( float deltaTime )
                 {
                     bool_t click_button;
 
+                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                    ui_drawTextBox( menuFont, "Module Filter:", moduleMenuOffsetX + 257, moduleMenuOffsetY - 27, 0, 0, 20 );
+
                     // unly display the filter name
-                    ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 327, moduleMenuOffsetY + 390, 200, 30 );
+                    ui_doButton( 55, filterText, NULL, moduleMenuOffsetX + 377, moduleMenuOffsetY - 27 , 200, 30 );
 
                     // use the ">" button to change since we are already using arrows to indicate "spin control"-like widgets
-                    click_button = ( BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 532, moduleMenuOffsetY + 390, 30, 30 ) );
+                    click_button = ( BUTTON_UP == ui_doButton( 56, ">", NULL, moduleMenuOffsetX + 580, moduleMenuOffsetY - 27, 30, 30 ) );
 
                     if ( click_button )
                     {
                         //Reload the modules with the new filter
                         menuState = MM_Entering;
+
+                        // Reset which module we are selecting
+                        startIndex = 0;
+                        ext_module = int_module = -1;
+
+                        // reset the global module selection index
+                        selectedModule = -1;
 
                         //Swap to the next filter
                         mnu_moduleFilter = CLIP( mnu_moduleFilter, FILTER_NORMAL_BEGIN, FILTER_NORMAL_END );
@@ -1321,12 +1335,12 @@ int doChooseModule( float deltaTime )
 
                         switch ( mnu_moduleFilter )
                         {
-                            case FILTER_MAIN:    filterText = "Main Quest";       break;
-                            case FILTER_SIDE:    filterText = "Sidequests";       break;
-                            case FILTER_TOWN:    filterText = "Towns and Cities"; break;
-                            case FILTER_FUN:     filterText = "Fun Modules";      break;
-                            case FILTER_STARTER: filterText = "Starter Modules";  break;
-                        default: case FILTER_OFF:     filterText = "All Modules";      break;
+                            case FILTER_MAIN:      filterText = "Main Quest";       break;
+                            case FILTER_SIDE:      filterText = "Sidequests";       break;
+                            case FILTER_TOWN:      filterText = "Towns and Cities"; break;
+                            case FILTER_FUN:       filterText = "Fun Modules";      break;
+                            case FILTER_STARTER:   filterText = "Starter Modules";  break;
+                        default: case FILTER_OFF:  filterText = "All Modules";      break;
                         }
                     }
                 }
