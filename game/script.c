@@ -780,7 +780,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
                 case FDISABLERESPAWN: returncode = scr_DisableRespawn( pstate, pself ); break;
                 case FDISPELTARGETENCHANTID: returncode = scr_DispelTargetEnchantID( pstate, pself ); break;
                 case FIFHOLDERBLOCKED: returncode = scr_HolderBlocked( pstate, pself ); break;
-                    // case FGETSKILLLEVEL: returncode = scr_get_SkillLevel( pstate, pself ); break;
+
                 case FIFTARGETHASNOTFULLMANA: returncode = scr_TargetHasNotFullMana( pstate, pself ); break;
                 case FENABLELISTENSKILL: returncode = scr_EnableListenSkill( pstate, pself ); break;
                 case FSETTARGETTOLASTITEMUSED: returncode = scr_set_TargetToLastItemUsed( pstate, pself ); break;

@@ -1597,11 +1597,15 @@ float draw_fps( float y )
     {
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_ups, update_lag );
 
+        //Extra debug info
+        if( cfg.dev_mode )
+        {
+
 #    if defined(DEBUG_BSP)
-        y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - chr_count_free(), prt_BSP_root.count, maxparticles - prt_count_free() );
-        y = _draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite.count + prt_BSP_root.tree.infinite.count );
-        y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
-        //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
+            y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - chr_count_free(), prt_BSP_root.count, maxparticles - prt_count_free() );
+            y = _draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite.count + prt_BSP_root.tree.infinite.count );
+            y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
+            //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
 
 #if defined(DEBUG_RENDERLIST)
@@ -1637,8 +1641,8 @@ float draw_fps( float y )
 #        endif
 
 #    endif
-
 #endif
+        }
     }
 
     return y;
@@ -3900,13 +3904,14 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
     pbb->ichr    = ( CHR_REF )MAX_CHR;
 
     pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
-    pbb->tint_add[AA] -= 1.0f / 100.0f;
-
     pbb->size = 1.0f;
-    pbb->size_add -= 1.0f / 200.0f;
+
+/*    pbb->tint_add[AA] -= 1.0f / 400.0f;
+
+    pbb->size_add -= 1.0f / 400.0f;
 
     pbb->offset_add[ZZ] += 127 / 50.0f * 2.0f;
-
+*/
     return pbb;
 }
 
@@ -3960,7 +3965,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     pbb->offset[XX] += pbb->offset_add[XX];
     pbb->offset[YY] += pbb->offset_add[YY];
     pbb->offset[ZZ] += pbb->offset_add[ZZ];
-
+    
     // automatically kill a billboard that is no longer useful
     if ( pbb->tint[AA] == 0.0f || pbb->size == 0.0f )
     {

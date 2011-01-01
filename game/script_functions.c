@@ -5201,6 +5201,11 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
+    if( pchr->StatusList_on )
+    {
+        int x = 0;
+    }
+
     ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
@@ -7777,7 +7782,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
         message_index  = MessageOffset.ary[message_number];
         ptext = message_buffer + message_index;
 
-        returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_none );
+        returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_fade );
     }
 
     SCRIPT_FUNCTION_END();

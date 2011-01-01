@@ -2283,7 +2283,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         // NOTE: this is not corerect since it could alert a player to an invisible object
 
         // 5 seconds and blue
-        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 5, bb_opt_none );
+        chr_make_text_billboard( ichr_a, "I can't feel anything...", color_blu, default_tint, 5, bb_opt_fade );
 
         retval = btrue;
     }
@@ -2342,12 +2342,12 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
                 if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis )
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_none );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
                 }
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, default_tint, 5, bb_opt_none );
+                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, default_tint, 5, bb_opt_fade );
                 }
             }
 
@@ -2359,12 +2359,12 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
                 if ( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis )
                 {
                     // (5 secs and blue)
-                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_none );
+                    chr_make_text_billboard( ichr_b, "Something...", color_blu, default_tint, 5, bb_opt_fade );
                 }
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, default_tint, 5, bb_opt_none );
+                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, default_tint, 5, bb_opt_fade );
                 }
             }
         }
