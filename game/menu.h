@@ -126,7 +126,7 @@ egoboo_rv              LoadPlayer_list_import_all( LoadPlayer_list_t * lst, cons
 egoboo_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 
 #define LOADPLAYER_LIST_INIT { 0 }
-#define VALID_LOADPLAYER_IDX(LST, IDX) ( ((IDX) > 0) && ((IDX)<(LST).count) && ((IDX)<MAX_LOADPLAYER) )
+#define VALID_LOADPLAYER_IDX(LST, IDX) ( ((IDX) >= 0) && ((IDX)<(LST).count) && ((IDX)<MAX_LOADPLAYER) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
