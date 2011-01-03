@@ -1198,7 +1198,7 @@ int doChooseModule( float deltaTime )
                     GLfloat * img_tint = normal_tint;
 
                     //only do modules that are valid
-                    if( i >= 0 && i <= validModules_count )
+                    if ( i >= 0 && i <= validModules_count )
                     {
                         if ( mnu_ModList.lst[imod].base.beaten )
                         {

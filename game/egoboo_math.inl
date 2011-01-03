@@ -38,7 +38,6 @@
 #define IEEE32_EXPONENT 0x7F800000L
 #define IEEE32_SIGN     0x80000000L
 
-
 #if defined(TEST_NAN_RESULT)
 #    define LOG_NAN(XX)      if( ieee32_bad(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
 #else
@@ -141,7 +140,6 @@ static INLINE bool_t   mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t 
 static INLINE bool_t   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
 static INLINE bool_t   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
 static INLINE float *  mat_getTranslate_v( const fmat_4x4_base_t mat );
-
 
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOSTING POINT NUMBER FUNCTIONS
@@ -347,11 +345,11 @@ static INLINE bool_t fvec2_valid( const fvec2_base_t A )
 {
     int cnt;
 
-    if( NULL == A ) return bfalse;
+    if ( NULL == A ) return bfalse;
 
-    for( cnt = 0; cnt< 2; cnt++ )
+    for ( cnt = 0; cnt < 2; cnt++ )
     {
-        if( ieee32_bad(A[cnt]) ) return bfalse;
+        if ( ieee32_bad( A[cnt] ) ) return bfalse;
     }
 
     return btrue;
@@ -402,7 +400,6 @@ static INLINE bool_t fvec2_self_scale( fvec2_base_t A, const float B )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B )
 {
@@ -411,11 +408,10 @@ static INLINE bool_t fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B )
     A[kX] += B[kX];
     A[kY] += B[kY];
 
-    LOG_NAN_FVEC2(A);
+    LOG_NAN_FVEC2( A );
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec2_length_abs( const fvec2_base_t A )
@@ -537,11 +533,11 @@ static INLINE bool_t fvec3_valid( const fvec3_base_t A )
 {
     int cnt;
 
-    if( NULL == A ) return bfalse;
+    if ( NULL == A ) return bfalse;
 
-    for( cnt = 0; cnt< 3; cnt++ )
+    for ( cnt = 0; cnt < 3; cnt++ )
     {
-        if( ieee32_bad(A[cnt]) ) return bfalse;
+        if ( ieee32_bad( A[cnt] ) ) return bfalse;
     }
 
     return btrue;
@@ -568,7 +564,7 @@ static INLINE bool_t fvec3_base_copy( fvec3_base_t A, const fvec3_base_t B )
     A[kY] = B[kY];
     A[kZ] = B[kZ];
 
-    LOG_NAN_FVEC3(A);
+    LOG_NAN_FVEC3( A );
 
     return btrue;
 }
@@ -582,7 +578,7 @@ static INLINE bool_t  fvec3_base_assign( fvec3_base_t A, const fvec3_t B )
     A[kY] = B.v[kY];
     A[kZ] = B.v[kZ];
 
-    LOG_NAN_FVEC3(A);
+    LOG_NAN_FVEC3( A );
 
     return btrue;
 }
@@ -596,7 +592,7 @@ static INLINE bool_t fvec3_self_scale( fvec3_base_t A, const float B )
     A[kY] *= B;
     A[kZ] *= B;
 
-    LOG_NAN_FVEC3(A);
+    LOG_NAN_FVEC3( A );
 
     return btrue;
 }
@@ -610,7 +606,7 @@ static INLINE bool_t fvec3_self_sum( fvec3_base_t A, const fvec3_base_t B )
     A[kY] += B[kY];
     A[kZ] += B[kZ];
 
-    LOG_NAN_FVEC3(A);
+    LOG_NAN_FVEC3( A );
 
     return btrue;
 }
@@ -883,8 +879,8 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
 static INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B )
 {
     float retval;
-    
-    if( NULL == A || NULL == B ) return 0.0f;
+
+    if ( NULL == A || NULL == B ) return 0.0f;
 
     retval = ABS( A[kX] - B[kX] ) + ABS( A[kY] - B[kY] ) + ABS( A[kZ] - B[kZ] );
 
@@ -898,9 +894,9 @@ static INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_
 {
     float retval;
 
-    if( NULL == A || NULL == B ) return 0.0f;
+    if ( NULL == A || NULL == B ) return 0.0f;
 
-    retval = A[kX]*B[kX] + A[kY]*B[kY] + A[kZ]*B[kZ];
+    retval = A[kX] * B[kX] + A[kY] * B[kY] + A[kZ] * B[kZ];
 
     LOG_NAN( retval );
 

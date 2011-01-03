@@ -1480,7 +1480,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
         int quest_level = QUEST_NONE;
         player_t * ppla = PlaStack.lst + ptst->is_which_player;
 
-        quest_level= quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
+        quest_level = quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version

@@ -349,9 +349,9 @@ static INLINE bool_t get_depth_2( const oct_bb_t * cv_a, const fvec3_base_t pos_
 //--------------------------------------------------------------------------------------------
 static INLINE apos_t * apos_self_clear( apos_t * val )
 {
-    if( NULL == val ) return val;
+    if ( NULL == val ) return val;
 
-    memset( val, 0, sizeof(*val) );
+    memset( val, 0, sizeof( *val ) );
 
     return val;
 }

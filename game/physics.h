@@ -82,15 +82,15 @@ struct s_phys_data
 typedef struct s_phys_data phys_data_t;
 
 phys_data_t * phys_data_clear( phys_data_t * pphys );
-phys_data_t * phys_data_ctor ( phys_data_t * pphys );
+phys_data_t * phys_data_ctor( phys_data_t * pphys );
 
 phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_base_t vec );
 phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_base_t vec );
-phys_data_t * phys_data_sum_avel ( phys_data_t * pphys, const fvec3_base_t vec );
+phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_base_t vec );
 
 phys_data_t * phys_data_sum_aplat_index( phys_data_t * pphys, const float val, const int index );
 phys_data_t * phys_data_sum_acoll_index( phys_data_t * pphys, const float val, const int index );
-phys_data_t * phys_data_sum_avel_index ( phys_data_t * pphys, const float val, const int index );
+phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, const int index );
 
 //--------------------------------------------------------------------------------------------
 struct s_breadcrumb

@@ -1728,7 +1728,7 @@ void net_initialize()
     memset( net_transferStates, 0, sizeof( net_transferStates ) );
     memset( &net_receiveState, 0, sizeof( net_receiveState ) );
 
-    sv_last_frame = ( Uint32 )(~0);
+    sv_last_frame = ( Uint32 )( ~0 );
 
     if ( gnet.on )
     {

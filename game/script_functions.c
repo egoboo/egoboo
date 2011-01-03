@@ -5201,7 +5201,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( pchr->StatusList_on )
+    if ( pchr->StatusList_on )
     {
         int x = 0;
     }

@@ -1598,7 +1598,7 @@ float draw_fps( float y )
         y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_ups, update_lag );
 
         //Extra debug info
-        if( cfg.dev_mode )
+        if ( cfg.dev_mode )
         {
 
 #    if defined(DEBUG_BSP)
@@ -1609,7 +1609,7 @@ float draw_fps( float y )
 #    endif
 
 #if defined(DEBUG_RENDERLIST)
-        y = _draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count );
+            y = _draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count );
 #endif
 
 #if defined(_DEBUG)
@@ -1617,27 +1617,27 @@ float draw_fps( float y )
 #    if defined(DEBUG_PROFILE_DISPLAY) && defined(_DEBUG)
 
 #        if defined(DEBUG_PROFILE_RENDER) && defined(_DEBUG)
-        y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
-        y = _draw_string_raw( 0, y, "gfx:total %2.4f, render:total %2.4f", est_render_time, time_draw_scene );
-        y = _draw_string_raw( 0, y, "render:init %2.4f,  render:mesh %2.4f", time_render_scene_init, time_render_scene_mesh );
-        y = _draw_string_raw( 0, y, "render:solid %2.4f, render:water %2.4f", time_render_scene_solid, time_render_scene_water );
-        y = _draw_string_raw( 0, y, "render:trans %2.4f", time_render_scene_trans );
+            y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
+            y = _draw_string_raw( 0, y, "gfx:total %2.4f, render:total %2.4f", est_render_time, time_draw_scene );
+            y = _draw_string_raw( 0, y, "render:init %2.4f,  render:mesh %2.4f", time_render_scene_init, time_render_scene_mesh );
+            y = _draw_string_raw( 0, y, "render:solid %2.4f, render:water %2.4f", time_render_scene_solid, time_render_scene_water );
+            y = _draw_string_raw( 0, y, "render:trans %2.4f", time_render_scene_trans );
 #        endif
 
 #        if defined(DEBUG_PROFILE_MESH) && defined(_DEBUG)
-        y = _draw_string_raw( 0, y, "mesh:total %2.4f", time_render_scene_mesh );
-        y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
-        y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
-        y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
-        y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
+            y = _draw_string_raw( 0, y, "mesh:total %2.4f", time_render_scene_mesh );
+            y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
+            y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
+            y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
+            y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
 #        endif
 
 #        if defined(DEBUG_PROFILE_INIT) && defined(_DEBUG)
-        y = _draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
-        y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
-        y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
-        y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
-        y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
+            y = _draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
+            y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
+            y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
+            y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
+            y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
 #        endif
 
 #    endif
@@ -3906,12 +3906,12 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
     pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
     pbb->size = 1.0f;
 
-/*    pbb->tint_add[AA] -= 1.0f / 400.0f;
+    /*    pbb->tint_add[AA] -= 1.0f / 400.0f;
 
-    pbb->size_add -= 1.0f / 400.0f;
+        pbb->size_add -= 1.0f / 400.0f;
 
-    pbb->offset_add[ZZ] += 127 / 50.0f * 2.0f;
-*/
+        pbb->offset_add[ZZ] += 127 / 50.0f * 2.0f;
+    */
     return pbb;
 }
 
@@ -3965,7 +3965,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     pbb->offset[XX] += pbb->offset_add[XX];
     pbb->offset[YY] += pbb->offset_add[YY];
     pbb->offset[ZZ] += pbb->offset_add[ZZ];
-    
+
     // automatically kill a billboard that is no longer useful
     if ( pbb->tint[AA] == 0.0f || pbb->size == 0.0f )
     {

@@ -1626,13 +1626,13 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
     // blank the accumulators
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
-        phys_data_clear( &(pchr->phys) );
+        phys_data_clear( &( pchr->phys ) );
     }
     CHR_END_LOOP();
 
     PRT_BEGIN_LOOP_ACTIVE( cnt, prt_bdl )
     {
-        phys_data_clear( &(prt_bdl.prt_ptr->phys) );
+        phys_data_clear( &( prt_bdl.prt_ptr->phys ) );
     }
     PRT_END_LOOP();
 
@@ -1681,10 +1681,10 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             apos_t  apos_tmp;
 
             // copy 1/2 of the data over
-            memmove( &apos_tmp, &(pchr->phys.aplat), sizeof(apos_tmp) );
+            memmove( &apos_tmp, &( pchr->phys.aplat ), sizeof( apos_tmp ) );
 
             // get the resultant apos_t
-            apos_self_union( &apos_tmp, &(pchr->phys.acoll) );
+            apos_self_union( &apos_tmp, &( pchr->phys.acoll ) );
 
             // turn this into a vector
             apos_evaluate( &apos_tmp, max_apos.v );
@@ -1787,10 +1787,10 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
             apos_t  apos_tmp;
 
             // copy 1/2 of the data over
-            memmove( &apos_tmp, &(bdl.prt_ptr->phys.aplat), sizeof(apos_tmp) );
+            memmove( &apos_tmp, &( bdl.prt_ptr->phys.aplat ), sizeof( apos_tmp ) );
 
             // get the resultant apos_t
-            apos_self_union( &apos_tmp, &(bdl.prt_ptr->phys.acoll) );
+            apos_self_union( &apos_tmp, &( bdl.prt_ptr->phys.acoll ) );
 
             // turn this into a vector
             apos_evaluate( &apos_tmp, max_apos.v );
@@ -1879,13 +1879,13 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
     // blank the accumulators
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
-        phys_data_clear( &(pchr->phys) );
+        phys_data_clear( &( pchr->phys ) );
     }
     CHR_END_LOOP();
 
     PRT_BEGIN_LOOP_ACTIVE( cnt, prt_bdl )
     {
-        phys_data_clear( &(prt_bdl.prt_ptr->phys) );
+        phys_data_clear( &( prt_bdl.prt_ptr->phys ) );
     }
     PRT_END_LOOP();
 
@@ -2033,14 +2033,14 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
 
     if ( lerp_z == 1.0f )
     {
-        phys_data_sum_aplat_index( &(pitem->phys), ( pitem->enviro.level - pitem->pos.z ) * 0.125f, kZ );
-        phys_data_sum_avel_index( &(pitem->phys), ( pplat->vel.z  - pitem->vel.z ) * 0.25f, kZ );
+        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->pos.z ) * 0.125f, kZ );
+        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f, kZ );
         pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick;
     }
     else
     {
-        phys_data_sum_aplat_index( &(pitem->phys), ( pitem->enviro.level - pitem->pos.z ) * 0.125f * lerp_z * vlerp_z, kZ );
-        phys_data_sum_avel_index( &(pitem->phys), ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z, kZ );
+        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->pos.z ) * 0.125f * lerp_z * vlerp_z, kZ );
+        phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z, kZ );
         pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick * lerp_z * vlerp_z;
     };
 
@@ -2054,13 +2054,13 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     float dot;
 
     collision_size.x = MAX( pchr->chr_max_cv.maxs[OCT_X] - pchr->chr_max_cv.mins[OCT_X], 2.0f * pprt->bump_padded.size );
-    if( 0.0f == collision_size.x ) return -1.0f;
+    if ( 0.0f == collision_size.x ) return -1.0f;
 
     collision_size.y = MAX( pchr->chr_max_cv.maxs[OCT_Y] - pchr->chr_max_cv.mins[OCT_Y], 2.0f * pprt->bump_padded.size );
-    if( 0.0f == collision_size.y ) return -1.0f;
+    if ( 0.0f == collision_size.y ) return -1.0f;
 
     collision_size.z = MAX( pchr->chr_max_cv.maxs[OCT_Z] - pchr->chr_max_cv.mins[OCT_Z], 2.0f * pprt->bump_padded.height );
-    if( 0.0f == collision_size.z ) return -1.0f;
+    if ( 0.0f == collision_size.z ) return -1.0f;
 
     // estimate the "normal" for the collision, using the center-of-mass difference
     nrm[kX] = pprt->pos.x - pchr->pos.x;
@@ -2409,7 +2409,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
                     vimp_a = fvec3_scale( vdiff_perp_a.v, recoil_a * ( 1.0f + cr ) * interaction_strength );
 
-                    phys_data_sum_avel( &(pchr_a->phys), vimp_a.v );
+                    phys_data_sum_avel( &( pchr_a->phys ), vimp_a.v );
                 }
 
                 if ( recoil_b > 0.0f )
@@ -2418,7 +2418,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
                     vimp_b = fvec3_scale( vdiff_perp_a.v, -recoil_b * ( 1.0f + cr ) * interaction_strength );
 
-                    phys_data_sum_avel( &(pchr_b->phys), vimp_b.v );
+                    phys_data_sum_avel( &( pchr_b->phys ), vimp_b.v );
                 }
 
                 // this was definitely a bump
@@ -2451,7 +2451,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
                         vimp_a = fvec3_scale( vdiff_a.v, recoil_a * pressure_strength );
 
-                        phys_data_sum_avel( &(pchr_a->phys), vimp_a.v );
+                        phys_data_sum_avel( &( pchr_a->phys ), vimp_a.v );
                     }
 
                     if ( recoil_b > 0.0f )
@@ -2460,7 +2460,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
                         vimp_b = fvec3_scale( vdiff_a.v, -recoil_b * pressure_strength );
 
-                        phys_data_sum_avel( &(pchr_b->phys), vimp_b.v );
+                        phys_data_sum_avel( &( pchr_b->phys ), vimp_b.v );
                     }
                 }
 
@@ -2480,7 +2480,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
                 pimp_a = fvec3_scale( pdiff_a.v, recoil_a * pressure_strength );
 
-                phys_data_sum_acoll( &(pchr_a->phys), pimp_a.v );
+                phys_data_sum_acoll( &( pchr_a->phys ), pimp_a.v );
             }
 
             if ( recoil_b > 0.0f )
@@ -2489,7 +2489,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
                 pimp_b = fvec3_scale( pdiff_a.v,  -recoil_b * pressure_strength );
 
-                phys_data_sum_acoll( &(pchr_b->phys), pimp_b.v );
+                phys_data_sum_acoll( &( pchr_b->phys ), pimp_b.v );
             }
         }
 
@@ -2766,8 +2766,8 @@ bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     if ( z_collide && !was_z_collide )
     {
         // Particle is falling onto the platform
-        phys_data_sum_aplat_index( &(pdata->pprt->phys), pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
-        phys_data_sum_avel_index( &(pdata->pprt->phys), ( pdata->pchr->pos.z - pdata->pprt->vel.z ) * ( 1.0f + pdata->ppip->dampen ), kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->pos.z - pdata->pprt->vel.z ) *( 1.0f + pdata->ppip->dampen ), kZ );
 
         // This should prevent raindrops from stacking up on the top of trees and other
         // objects
@@ -2781,18 +2781,18 @@ bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     else if ( z_collide && was_z_collide )
     {
         // colliding this time and last time. particle is *embedded* in the platform
-        phys_data_sum_aplat_index( &(pdata->pprt->phys), pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
 
         if ( pdata->pprt->vel.z - pdata->pchr->vel.z < 0 )
         {
-            phys_data_sum_avel_index( &(pdata->pprt->phys), pdata->pchr->vel.z * pdata->ppip->dampen + platstick * pdata->pchr->vel.z - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel.z * pdata->ppip->dampen + platstick * pdata->pchr->vel.z - pdata->pprt->vel.z, kZ );
         }
         else
         {
-            phys_data_sum_avel_index( &(pdata->pprt->phys), pdata->pprt->vel.z * ( 1.0f - platstick ) + pdata->pchr->vel.z * platstick - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.z *( 1.0f - platstick ) + pdata->pchr->vel.z * platstick - pdata->pprt->vel.z, kZ );
         }
-        phys_data_sum_avel_index( &(pdata->pprt->phys), pdata->pprt->vel.x * ( 1.0f - platstick ) + pdata->pchr->vel.x * platstick - pdata->pprt->vel.x, kX );
-        phys_data_sum_avel_index( &(pdata->pprt->phys), pdata->pprt->vel.y * ( 1.0f - platstick ) + pdata->pchr->vel.y * platstick - pdata->pprt->vel.y, kY );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.x *( 1.0f - platstick ) + pdata->pchr->vel.x * platstick - pdata->pprt->vel.x, kX );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.y *( 1.0f - platstick ) + pdata->pchr->vel.y * platstick - pdata->pprt->vel.y, kY );
 
         plat_collision = btrue;
     }
@@ -2804,9 +2804,9 @@ bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 
         if ( lerp_z > 0.0f )
         {
-            phys_data_sum_avel_index( &(pdata->pprt->phys), ( pdata->pchr->vel.x - pdata->pprt->vel.x ) * platstick * lerp_z, kX );
-            phys_data_sum_avel_index( &(pdata->pprt->phys), ( pdata->pchr->vel.y - pdata->pprt->vel.y ) * platstick * lerp_z, kY );
-            phys_data_sum_avel_index( &(pdata->pprt->phys), ( pdata->pchr->vel.z - pdata->pprt->vel.z ) * platstick * lerp_z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.x - pdata->pprt->vel.x ) * platstick * lerp_z, kX );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.y - pdata->pprt->vel.y ) * platstick * lerp_z, kY );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.z - pdata->pprt->vel.z ) * platstick * lerp_z, kZ );
 
             plat_collision = btrue;
         }
@@ -3022,11 +3022,11 @@ bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 
         // calculate the "impulse" to the character
         tmp_impulse = fvec3_scale( pdata->vimpulse.v, -chr_recoil * attack_factor * pdata->block_factor );
-        phys_data_sum_avel( &(pdata->pchr->phys), tmp_impulse.v );
+        phys_data_sum_avel( &( pdata->pchr->phys ), tmp_impulse.v );
 
         tmp_impulse = fvec3_scale( pdata->pimpulse.v, -chr_recoil * attack_factor * pdata->block_factor );
 
-        phys_data_sum_acoll( &(pdata->pchr->phys), tmp_impulse.v );
+        phys_data_sum_acoll( &( pdata->pchr->phys ), tmp_impulse.v );
     }
 
     // if the particle is attached to a weapon, the particle can force the
@@ -3086,10 +3086,10 @@ bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 
             // in the SAME direction as the particle
             tmp_impulse = fvec3_scale( pdata->vimpulse.v, holder_recoil );
-            phys_data_sum_avel( &(pholder->phys), tmp_impulse.v );
+            phys_data_sum_avel( &( pholder->phys ), tmp_impulse.v );
 
             tmp_impulse = fvec3_scale( pdata->pimpulse.v, holder_recoil );
-            phys_data_sum_acoll( &(pholder->phys), tmp_impulse.v );
+            phys_data_sum_acoll( &( pholder->phys ), tmp_impulse.v );
         }
     }
 
@@ -3099,10 +3099,10 @@ bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
         fvec3_t tmp_impulse;
 
         tmp_impulse = fvec3_scale( pdata->vimpulse.v, prt_recoil );
-        phys_data_sum_avel( &(pdata->pprt->phys), tmp_impulse.v );
+        phys_data_sum_avel( &( pdata->pprt->phys ), tmp_impulse.v );
 
         tmp_impulse = fvec3_scale( pdata->pimpulse.v, prt_recoil );
-        phys_data_sum_acoll( &(pdata->pprt->phys), tmp_impulse.v );
+        phys_data_sum_acoll( &( pdata->pprt->phys ), tmp_impulse.v );
     }
 
     return btrue;

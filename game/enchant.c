@@ -261,7 +261,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
     target_ref = MAX_CHR;
     target_ptr = NULL;
-    if( DEFINED_CHR(penc->target_ref) )
+    if ( DEFINED_CHR( penc->target_ref ) )
     {
         target_ref = penc->target_ref;
         target_ptr = ChrList.lst + penc->target_ref;
@@ -269,7 +269,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
     spawner_ref = MAX_CHR;
     spawner_ptr = NULL;
-    if( DEFINED_CHR(penc->spawner_ref) )
+    if ( DEFINED_CHR( penc->spawner_ref ) )
     {
         spawner_ref = penc->spawner_ref;
         spawner_ptr = ChrList.lst + penc->spawner_ref;
@@ -277,7 +277,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
     overlay_ref = MAX_CHR;
     overlay_ptr = NULL;
-    if( DEFINED_CHR(penc->overlay_ref) )
+    if ( DEFINED_CHR( penc->overlay_ref ) )
     {
         overlay_ref = penc->overlay_ref;
         overlay_ptr = ChrList.lst + penc->overlay_ref;
@@ -320,7 +320,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     unlink_enchant( ienc, enc_parent );
 
     // Kill overlay too...
-    if( MAX_CHR != overlay_ref )
+    if ( MAX_CHR != overlay_ref )
     {
         if ( NULL != overlay_ptr )
         {
@@ -329,7 +329,6 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
         kill_character( overlay_ref, ( CHR_REF )MAX_CHR, btrue );
     }
-
 
     // nothing above this demends on having a valid enchant profile
     if ( NULL != peve )
@@ -389,7 +388,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // values of target_ref and penc to kill the target (if necessary)
     if ( NULL != peve && peve->killtargetonend && MAX_CHR != target_ref )
     {
-        if ( NULL != target_ptr )  
+        if ( NULL != target_ptr )
         {
             switch_team( target_ref, target_ptr->team_base );
         }

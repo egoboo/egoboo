@@ -358,7 +358,7 @@ egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
         else if ( high != low )
         {
             Uint8 valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
-                                ( valuelow * ( high - z ) / ( high - low ) );
+                             ( valuelow * ( high - z ) / ( high - low ) );
 
             pinst->vrt_lst[cnt].col[RR] =
                 pinst->vrt_lst[cnt].col[GG] =
@@ -2489,7 +2489,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
             // deterimine the throw velocity
             velocity = MINTHROWVELOCITY;
-            if( 0 == pthrown->phys.weight )
+            if ( 0 == pthrown->phys.weight )
             {
                 velocity += MAXTHROWVELOCITY;
             }
@@ -3130,7 +3130,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Gender
     pchr->gender = pcap->gender;
-    if ( pchr->gender == GENDER_RANDOM )  
+    if ( pchr->gender == GENDER_RANDOM )
     {
         pchr->gender = generate_randmask( 0, 1 );
     }
@@ -5445,7 +5445,7 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
     can_have_team = !pchr->isitem && pchr->alive && !pchr->invictus;
 
     // take the character off of its old team
-    if( VALID_TEAM_RANGE(pchr->team) )
+    if ( VALID_TEAM_RANGE( pchr->team ) )
     {
         // get the old team index
         TEAM_REF team_old = pchr->team;
@@ -5463,16 +5463,16 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
     }
 
     // make sure we have a valid value
-    loc_team_new = VALID_TEAM_RANGE(team_new) ? team_new : TEAM_NULL;
+    loc_team_new = VALID_TEAM_RANGE( team_new ) ? team_new : TEAM_NULL;
 
     // place the character onto its new team
-    if( VALID_TEAM_RANGE(loc_team_new) ) 
+    if ( VALID_TEAM_RANGE( loc_team_new ) )
     {
         // switch the team
         pchr->team = loc_team_new;
 
         // switch the base team only if required
-        if( permanent )
+        if ( permanent )
         {
             pchr->team_base = loc_team_new;
         }
@@ -5508,20 +5508,20 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 
     // change our mount team as well
     tmp_ref = pchr->attachedto;
-    if ( VALID_CHR_RANGE(tmp_ref) )
+    if ( VALID_CHR_RANGE( tmp_ref ) )
     {
         switch_team_base( tmp_ref, team, bfalse );
     }
 
     // update the team of anything we are holding as well
     tmp_ref = pchr->holdingwhich[SLOT_LEFT];
-    if ( VALID_CHR_RANGE(tmp_ref) )
+    if ( VALID_CHR_RANGE( tmp_ref ) )
     {
         switch_team_base( tmp_ref, team, bfalse );
     }
 
     tmp_ref = pchr->holdingwhich[SLOT_RIGHT];
-    if ( VALID_CHR_RANGE(tmp_ref) )
+    if ( VALID_CHR_RANGE( tmp_ref ) )
     {
         switch_team_base( tmp_ref, team, bfalse );
     }
@@ -5673,7 +5673,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
 
     if ( life_regen < 0 )
     {
-        int tmp_level  = (0 == pchr->lifemax) ? 0 : ( 10 * -life_regen ) / pchr->lifemax;                        // Darkvision gained by poison
+        int tmp_level  = ( 0 == pchr->lifemax ) ? 0 : ( 10 * -life_regen ) / pchr->lifemax;                      // Darkvision gained by poison
         int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );     // Natural darkvision
 
         //Use the better of the two darkvision abilities
@@ -7173,7 +7173,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
                     // find the part of the diff that is parallel to the normal
                     diff_perp.x = diff_perp.y = 0.0f;
-                    if( nrm2 > 0.0f )
+                    if ( nrm2 > 0.0f )
                     {
                         diff_perp.x = nrm.x * dot / nrm2;
                         diff_perp.y = nrm.y * dot / nrm2;
@@ -7181,7 +7181,10 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
 
                     // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
                     ftmp = MAX( ABS( diff_perp.x ), ABS( diff_perp.y ) );
-                    if ( 0.0f == ftmp ) ftmp = 1.00f;
+
+                    // protect us from a virtual divide by zero
+                    if ( ftmp < 1e-6 ) ftmp = 1.00f;
+
                     fvec2_self_scale( diff_perp.v, tile_fraction * GRID_FSIZE / ftmp );
 
                     // scale the diff_perp by the pressure
@@ -7218,7 +7221,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                         }
 
                         v_perp.x = v_perp.y = 0.0f;
-                        if( 0.0f != nrm2 )
+                        if ( 0.0f != nrm2 )
                         {
                             v_perp.x = nrm.x * dot / nrm2;
                             v_perp.y = nrm.y * dot / nrm2;
@@ -10121,7 +10124,7 @@ bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
 
     LOG_NAN_FVEC3( pos );
 
-    if ( ( pos[kX] != pchr->pos.v[kX] ) || ( pos[kY] != pchr->pos.v[kY] ) || ( pos[kZ] != pchr->pos.v[kZ] ) )
+    if (( pos[kX] != pchr->pos.v[kX] ) || ( pos[kY] != pchr->pos.v[kY] ) || ( pos[kZ] != pchr->pos.v[kZ] ) )
     {
         memmove( pchr->pos.v, pos, sizeof( fvec3_base_t ) );
 
@@ -10139,7 +10142,7 @@ bool_t chr_set_maxaccel( chr_t * pchr, float new_val )
 
     if ( !ALLOCATED_PCHR( pchr ) ) return retval;
 
-    if( 0.0f == pchr->maxaccel_reset )
+    if ( 0.0f == pchr->maxaccel_reset )
     {
         pchr->maxaccel_reset = new_val;
         pchr->maxaccel       = new_val;

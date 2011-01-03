@@ -1494,8 +1494,8 @@ phys_data_t * phys_data_clear( phys_data_t * pphys )
 {
     if ( NULL == pphys ) return pphys;
 
-    apos_self_clear( &(pphys->aplat) );
-    apos_self_clear( &(pphys->acoll) );
+    apos_self_clear( &( pphys->aplat ) );
+    apos_self_clear( &( pphys->acoll ) );
     fvec3_self_clear( pphys->avel.v );
 
     return pphys;
@@ -1521,11 +1521,11 @@ bool_t apos_self_union( apos_t * lhs, apos_t * rhs )
 {
     int cnt;
 
-    if( NULL == lhs || NULL == rhs ) return bfalse;
+    if ( NULL == lhs || NULL == rhs ) return bfalse;
 
-    // scan through the components of the vector and find the 
+    // scan through the components of the vector and find the
     // maximum displacement
-    for( cnt = 0; cnt < 3; cnt ++ )
+    for ( cnt = 0; cnt < 3; cnt ++ )
     {
         lhs->mins.v[cnt] = MIN( lhs->mins.v[cnt], rhs->mins.v[cnt] );
         lhs->maxs.v[cnt] = MAX( lhs->maxs.v[cnt], rhs->maxs.v[cnt] );
@@ -1540,21 +1540,21 @@ bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
 {
     int cnt;
 
-    if( NULL == lhs ) return bfalse;
-    if( NULL == rhs ) return btrue;
+    if ( NULL == lhs ) return bfalse;
+    if ( NULL == rhs ) return btrue;
 
     LOG_NAN_FVEC3( rhs );
 
-    // scan through the components of the vector and find the 
+    // scan through the components of the vector and find the
     // maximum displacement
-    for( cnt = 0; cnt < 3; cnt ++ )
+    for ( cnt = 0; cnt < 3; cnt ++ )
     {
         // find the extrema of the displacement
-        if( rhs[cnt] > 0.0f )
+        if ( rhs[cnt] > 0.0f )
         {
             lhs->maxs.v[cnt] = MAX( lhs->maxs.v[cnt], rhs[cnt] );
         }
-        else if( rhs[cnt] < 0.0f )
+        else if ( rhs[cnt] < 0.0f )
         {
             lhs->mins.v[cnt] = MIN( lhs->mins.v[cnt], rhs[cnt] );
         }
@@ -1569,20 +1569,20 @@ bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
 //--------------------------------------------------------------------------------------------
 bool_t apos_self_union_index( apos_t * lhs, const float val, int index )
 {
-    // find the maximum displacement at the given index 
+    // find the maximum displacement at the given index
 
-    if( NULL == lhs ) return bfalse;
+    if ( NULL == lhs ) return bfalse;
 
-    if( index < 0 || index > 2 ) return bfalse;
+    if ( index < 0 || index > 2 ) return bfalse;
 
     LOG_NAN( val );
 
     // find the extrema of the displacement
-    if( val > 0.0f )
+    if ( val > 0.0f )
     {
         lhs->maxs.v[index] = MAX( lhs->maxs.v[index], val );
     }
-    else if( val < 0.0f )
+    else if ( val < 0.0f )
     {
         lhs->mins.v[index] = MIN( lhs->mins.v[index], val );
     }
@@ -1593,20 +1593,19 @@ bool_t apos_self_union_index( apos_t * lhs, const float val, int index )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t apos_evaluate( const apos_t * src, fvec3_base_t dst )
 {
     int cnt;
 
-    if( NULL == dst ) return bfalse;
+    if ( NULL == dst ) return bfalse;
 
-    if( NULL == src ) 
+    if ( NULL == src )
     {
         return fvec3_self_clear( dst );
     }
 
-    for( cnt = 0; cnt < 3; cnt ++ )
+    for ( cnt = 0; cnt < 3; cnt ++ )
     {
         dst[cnt] = src->maxs.v[cnt] + src->mins.v[cnt];
     }
@@ -1618,36 +1617,36 @@ bool_t apos_evaluate( const apos_t * src, fvec3_base_t dst )
 //--------------------------------------------------------------------------------------------
 phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_base_t vec )
 {
-    if( NULL == pphys ) return pphys;
+    if ( NULL == pphys ) return pphys;
 
     LOG_NAN_FVEC3( vec );
 
-    apos_self_union_fvec3( &(pphys->aplat), vec );
-    
+    apos_self_union_fvec3( &( pphys->aplat ), vec );
+
     return pphys;
 }
 
 //--------------------------------------------------------------------------------------------
 phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_base_t vec )
 {
-    if( NULL == pphys ) return pphys;
+    if ( NULL == pphys ) return pphys;
 
     LOG_NAN_FVEC3( vec );
 
-    apos_self_union_fvec3( &(pphys->acoll), vec );
-    
+    apos_self_union_fvec3( &( pphys->acoll ), vec );
+
     return pphys;
 }
 
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_avel ( phys_data_t * pphys, const fvec3_base_t vec )
+phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_base_t vec )
 {
-    if( NULL == pphys ) return pphys;
+    if ( NULL == pphys ) return pphys;
 
     LOG_NAN_FVEC3( vec );
 
     fvec3_self_sum( pphys->avel.v, vec );
-    
+
     return pphys;
 }
 
@@ -1655,37 +1654,37 @@ phys_data_t * phys_data_sum_avel ( phys_data_t * pphys, const fvec3_base_t vec )
 //--------------------------------------------------------------------------------------------
 phys_data_t * phys_data_sum_aplat_index( phys_data_t * pphys, const float val, const int index )
 {
-    if( NULL == pphys ) return pphys;
+    if ( NULL == pphys ) return pphys;
 
     LOG_NAN( val );
 
-    apos_self_union_index( &(pphys->aplat), val, index );
-    
+    apos_self_union_index( &( pphys->aplat ), val, index );
+
     return pphys;
 }
 
 //--------------------------------------------------------------------------------------------
 phys_data_t * phys_data_sum_acoll_index( phys_data_t * pphys, const float val, const int index )
 {
-    if( NULL == pphys ) return pphys;
+    if ( NULL == pphys ) return pphys;
 
     LOG_NAN( val );
 
-    apos_self_union_index( &(pphys->acoll), val, index );
-    
+    apos_self_union_index( &( pphys->acoll ), val, index );
+
     return pphys;
 }
 
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_avel_index ( phys_data_t * pphys, const float val, const int index )
+phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, const int index )
 {
-    if( NULL == pphys ) return pphys;
+    if ( NULL == pphys ) return pphys;
 
-    if( index < 0 || index > 2 ) return pphys;
+    if ( index < 0 || index > 2 ) return pphys;
 
     LOG_NAN( val );
 
     pphys->avel.v[index] += val;
-    
+
     return pphys;
 }
