@@ -1136,7 +1136,7 @@ int do_game_proc_running( game_process_t * gproc )
     if (( !single_frame_mode && gproc->ups_ticks_now > gproc->ups_ticks_next ) || ( single_frame_mode && single_update_requested ) )
     {
         // UPS limit
-        gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP / 4;
+        gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP * 0.25f;
 
         PROFILE_BEGIN( game_update_loop );
         {
@@ -3683,10 +3683,10 @@ camera_t * set_PCamera( camera_t * pcam )
     PCamera = pcam;
 
     // Matrix init stuff (from remove.c)
-    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
-    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
-    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
-    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
+    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / 1.33333f;
+    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / 1.33333f;
+    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / 1.33333f;
+    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / 1.33333f;
 
     return pcam_old;
 }

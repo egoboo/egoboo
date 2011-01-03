@@ -245,7 +245,7 @@ static INLINE TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return ( TEAM_REF )TEAM_MAX;
     pchr = ChrList.lst + ichr;
 
-    iteam = REF_TO_INT( pchr->baseteam );
+    iteam = REF_TO_INT( pchr->team_base );
     iteam = CLIP( iteam, 0, TEAM_MAX );
 
     return ( TEAM_REF )iteam;
@@ -337,9 +337,9 @@ static INLINE team_t * chr_get_pteam_base( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList.lst + ichr;
 
-    if ( pchr->baseteam < 0 || pchr->baseteam >= TEAM_MAX ) return NULL;
+    if ( pchr->team_base < 0 || pchr->team_base >= TEAM_MAX ) return NULL;
 
-    return TeamStack.lst + pchr->baseteam;
+    return TeamStack.lst + pchr->team_base;
 }
 
 //--------------------------------------------------------------------------------------------

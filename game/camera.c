@@ -49,10 +49,10 @@ camera_t gCamera;
 void camera_rotmesh__init()
 {
     // Matrix init stuff (from remove.c)
-    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / ( 1.33333f );
-    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / ( 1.33333f );
-    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / ( 1.33333f );
-    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / ( 1.33333f );
+    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / 1.33333f;
+    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / 1.33333f;
+    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / 1.33333f;
+    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / 1.33333f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -79,17 +79,17 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->zadd         =  800;
     pcam->zaddgoto     =  800;
     pcam->zgoto        =  800;
-    pcam->turn_z_rad   = -PI / 4.0f;
+    pcam->turn_z_rad   = -PI * 0.25f;
     pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
     pcam->ori.facing_z = CLIP_TO_16BITS(( int )( pcam->turn_z_one * ( float )0x00010000 ) ) ;
     pcam->turnadd      =  0;
     pcam->sustain      =  0.60f;
-    pcam->turnupdown   = ( float )( PI / 4 );
+    pcam->turnupdown   = ( float )( PI * 0.25f );
     pcam->roll         =  0;
     pcam->motion_blur  =  0;
 
     pcam->mView       = pcam->mViewSave = ViewMatrix( t1.v, t2.v, t3.v, 0 );
-    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( CAM_FOV * PI / 180 ) ); // 60 degree CAM_FOV
+    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( CAM_FOV * PI / 180.0f ) ); // 60 degree CAM_FOV
     pcam->mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), pcam->mProjection ); // Fix Z value...
     pcam->mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), pcam->mProjection );  // HUK // ...'cause it needs it
 
@@ -389,7 +389,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
             }
 
             // if any of the characters is doing anything
-            if ( sum_wt > 0 )
+            if ( sum_wt > 0.0f )
             {
                 x = sum_pos.x / sum_wt;
                 y = sum_pos.y / sum_wt;
@@ -586,8 +586,8 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
     camera_make_matrix( pcam );
 
-    pcam->turn_z_one = ( pcam->turn_z_rad ) / ( TWO_PI );
-    pcam->ori.facing_z     = CLIP_TO_16BITS( FLOAT_TO_FP16( pcam->turn_z_one ) );
+    pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
+    pcam->ori.facing_z = CLIP_TO_16BITS( FLOAT_TO_FP16( pcam->turn_z_one ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -596,8 +596,8 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     /// @details ZZ@> This function makes sure the camera starts in a suitable position
 
     pcam->swing        = 0;
-    pcam->pos.x        = pmesh->gmem.edge_x / 2;
-    pcam->pos.y        = pmesh->gmem.edge_y / 2;
+    pcam->pos.x        = pmesh->gmem.edge_x * 0.5f;
+    pcam->pos.y        = pmesh->gmem.edge_y * 0.5f;
     pcam->pos.z        = 1500;
     pcam->zoom         = 1000;
     pcam->center.x     = pcam->pos.x;
@@ -610,10 +610,10 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->zadd         = 1500;
     pcam->zaddgoto     = CAM_ZADD_MAX;
     pcam->zgoto        = 1500;
-    pcam->turn_z_rad   = -PI / 4.0f;
+    pcam->turn_z_rad   = -PI * 0.25f;
     pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
     pcam->ori.facing_z = CLIP_TO_16BITS(( int )( pcam->turn_z_one * ( float )0x00010000 ) ) ;
-    pcam->turnupdown   = PI / 4.0f;
+    pcam->turnupdown   = PI * 0.25f;
     pcam->roll         = 0;
 
     // make sure you are looking at the players

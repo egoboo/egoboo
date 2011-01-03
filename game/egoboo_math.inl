@@ -31,8 +31,38 @@
 #include <float.h>
 
 //--------------------------------------------------------------------------------------------
+// MACROS
+//--------------------------------------------------------------------------------------------
+
+#define IEEE32_FRACTION 0x007FFFFFL
+#define IEEE32_EXPONENT 0x7F800000L
+#define IEEE32_SIGN     0x80000000L
+
+
+#if defined(TEST_NAN_RESULT)
+#    define LOG_NAN(XX)      if( ieee32_bad(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
+#else
+#    define LOG_NAN(XX)
+#endif
+
+#if defined(TEST_NAN_RESULT)
+#    define LOG_NAN_FVEC2(XX)      if( !fvec2_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
+#    define LOG_NAN_FVEC3(XX)      if( !fvec3_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
+#else
+#    define LOG_NAN_FVEC2(XX)
+#    define LOG_NAN_FVEC3(XX)
+#endif
+
+//--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS
 //--------------------------------------------------------------------------------------------
+
+// ieee 32-bit floating point number functions
+static INLINE Uint32 float32_to_uint32( float f );
+static INLINE float  uint32_to_float32( Uint32 i );
+static INLINE bool_t ieee32_infinite( float f );
+static INLINE bool_t ieee32_nan( float f );
+static INLINE bool_t ieee32_bad( float f );
 
 // conversion functions
 static INLINE FACING_T vec_to_facing( const float dx, const float dy );
@@ -51,6 +81,7 @@ static INLINE int generate_irand_range( const FRange num );
 static INLINE int generate_randmask( const int base, const int mask );
 
 // vector functions
+static INLINE bool_t  fvec2_valid( const fvec2_base_t A );
 static INLINE bool_t  fvec2_self_clear( fvec2_base_t A );
 static INLINE bool_t  fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B );
 static INLINE bool_t  fvec2_base_assign( fvec2_base_t A, const fvec2_t B );
@@ -58,6 +89,7 @@ static INLINE float   fvec2_length( const fvec2_base_t A );
 static INLINE float   fvec2_length_abs( const fvec2_base_t A );
 static INLINE float   fvec2_length_2( const fvec2_base_t A );
 static INLINE bool_t  fvec2_self_scale( fvec2_base_t A, const float B );
+static INLINE bool_t  fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B );
 static INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec );
 static INLINE bool_t  fvec2_self_normalize( fvec2_base_t A );
@@ -65,6 +97,7 @@ static INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_bas
 static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE float   fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B );
 
+static INLINE bool_t  fvec3_valid( const fvec3_base_t A );
 static INLINE bool_t  fvec3_self_clear( fvec3_base_t A );
 static INLINE bool_t  fvec3_base_copy( fvec3_base_t A, const fvec3_base_t B );
 static INLINE bool_t  fvec3_base_assign( fvec3_base_t A, const fvec3_t B );
@@ -109,9 +142,58 @@ static INLINE bool_t   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_
 static INLINE bool_t   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
 static INLINE float *  mat_getTranslate_v( const fmat_4x4_base_t mat );
 
+
+//--------------------------------------------------------------------------------------------
+// IEEE 32-BIT FLOSTING POINT NUMBER FUNCTIONS
+//--------------------------------------------------------------------------------------------
+static INLINE Uint32 float32_to_uint32( float f )
+{
+    union { Uint32 i; float f; } val;
+
+    val.f = f;
+
+    return val.i;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float uint32_to_float32( Uint32 i )
+{
+    union { Uint32 i; float f; } val;
+
+    val.i = i;
+
+    return val.f;
+
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t ieee32_infinite( float f )
+{
+    Uint32 u = float32_to_uint32( f );
+
+    return ( 0 == ( u & IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) );
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t ieee32_nan( float f )
+{
+    Uint32 u = float32_to_uint32( f );
+
+    return ( 0 != ( u&IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) );
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t ieee32_bad( float f )
+{
+    Uint32 u = float32_to_uint32( f );
+
+    return ( IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) );
+}
+
 //--------------------------------------------------------------------------------------------
 // CONVERSION FUNCTIONS
 //--------------------------------------------------------------------------------------------
+
 static INLINE FACING_T vec_to_facing( const float dx, const float dy )
 {
     return ( FACING_T )(( ATAN2( dy, dx ) + PI ) * RAD_TO_TURN );
@@ -217,10 +299,12 @@ static INLINE int generate_irand_pair( const IPair num )
 {
     /// @details ZZ@> This function generates a random number
 
-    int tmp = num.base;
+    int tmp;
+    int irand = RANDIE;
+
+    tmp = num.base;
     if ( num.rand > 1 )
     {
-        int irand = RANDIE;
         tmp += irand % num.rand;
     }
 
@@ -257,6 +341,22 @@ static INLINE int generate_randmask( const int base, const int mask )
 
 //--------------------------------------------------------------------------------------------
 // VECTOR FUNCTIONS
+//--------------------------------------------------------------------------------------------
+
+static INLINE bool_t fvec2_valid( const fvec2_base_t A )
+{
+    int cnt;
+
+    if( NULL == A ) return bfalse;
+
+    for( cnt = 0; cnt< 2; cnt++ )
+    {
+        if( ieee32_bad(A[cnt]) ) return bfalse;
+    }
+
+    return btrue;
+}
+
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t fvec2_self_clear( fvec2_base_t A )
 {
@@ -301,6 +401,21 @@ static INLINE bool_t fvec2_self_scale( fvec2_base_t A, const float B )
 
     return btrue;
 }
+
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B )
+{
+    if ( NULL == A || NULL == B ) return bfalse;
+
+    A[kX] += B[kX];
+    A[kY] += B[kY];
+
+    LOG_NAN_FVEC2(A);
+
+    return btrue;
+}
+
 
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec2_length_abs( const fvec2_base_t A )
@@ -418,6 +533,21 @@ static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static INLINE bool_t fvec3_valid( const fvec3_base_t A )
+{
+    int cnt;
+
+    if( NULL == A ) return bfalse;
+
+    for( cnt = 0; cnt< 3; cnt++ )
+    {
+        if( ieee32_bad(A[cnt]) ) return bfalse;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 static INLINE bool_t fvec3_self_clear( fvec3_base_t A )
 {
     if ( NULL == A ) return bfalse;
@@ -438,6 +568,8 @@ static INLINE bool_t fvec3_base_copy( fvec3_base_t A, const fvec3_base_t B )
     A[kY] = B[kY];
     A[kZ] = B[kZ];
 
+    LOG_NAN_FVEC3(A);
+
     return btrue;
 }
 
@@ -449,6 +581,8 @@ static INLINE bool_t  fvec3_base_assign( fvec3_base_t A, const fvec3_t B )
     A[kX] = B.v[kX];
     A[kY] = B.v[kY];
     A[kZ] = B.v[kZ];
+
+    LOG_NAN_FVEC3(A);
 
     return btrue;
 }
@@ -462,6 +596,8 @@ static INLINE bool_t fvec3_self_scale( fvec3_base_t A, const float B )
     A[kY] *= B;
     A[kZ] *= B;
 
+    LOG_NAN_FVEC3(A);
+
     return btrue;
 }
 
@@ -474,15 +610,23 @@ static INLINE bool_t fvec3_self_sum( fvec3_base_t A, const fvec3_base_t B )
     A[kY] += B[kY];
     A[kZ] += B[kZ];
 
+    LOG_NAN_FVEC3(A);
+
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_length_abs( const fvec3_base_t A )
 {
+    float retval;
+
     if ( NULL == A ) return 0.0f;
 
-    return ABS( A[kX] ) + ABS( A[kY] ) + ABS( A[kZ] );
+    retval = ABS( A[kX] ) + ABS( A[kY] ) + ABS( A[kZ] );
+
+    LOG_NAN( retval );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -493,6 +637,8 @@ static INLINE float fvec3_length_2( const fvec3_base_t A )
     if ( NULL == A ) return 0.0f;
 
     A2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
+
+    LOG_NAN( A2 );
 
     return A2;
 }
@@ -506,6 +652,8 @@ static INLINE float fvec3_length( const fvec3_base_t A )
 
     A2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
 
+    LOG_NAN( A2 );
+
     return SQRT( A2 );
 }
 
@@ -517,6 +665,8 @@ static INLINE fvec3_t fvec3_add( const fvec3_base_t A, const fvec3_base_t B )
     tmp.x = A[kX] + B[kX];
     tmp.y = A[kY] + B[kY];
     tmp.z = A[kZ] + B[kZ];
+
+    LOG_NAN_FVEC3( tmp.v );
 
     return tmp;
 }
@@ -530,6 +680,8 @@ static INLINE fvec3_t fvec3_sub( const fvec3_base_t A, const fvec3_base_t B )
     tmp.y = A[kY] - B[kY];
     tmp.z = A[kZ] - B[kZ];
 
+    LOG_NAN_FVEC3( tmp.v );
+
     return tmp;
 }
 
@@ -540,9 +692,11 @@ static INLINE fvec3_t fvec3_scale( const fvec3_base_t A, const float B )
 
     if ( NULL == A || 0.0f == B ) return tmp;
 
-    tmp.v[kX] = A[kX] * B;
-    tmp.v[kY] = A[kY] * B;
-    tmp.v[kZ] = A[kZ] * B;
+    tmp.x = A[kX] * B;
+    tmp.y = A[kY] * B;
+    tmp.z = A[kZ] * B;
+
+    LOG_NAN_FVEC3( tmp.v );
 
     return tmp;
 }
@@ -555,15 +709,17 @@ static INLINE fvec3_t fvec3_normalize( const fvec3_base_t vec )
 
     if ( NULL == vec ) return tmp;
 
-    if ( 0.0f == fvec3_length_abs( vec ) ) return tmp;
-
     len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
+    if ( 0.0f == len2 ) return tmp;
+
     inv_len = 1.0f / SQRT( len2 );
     LOG_NAN( inv_len );
 
     tmp.x = vec[kX] * inv_len;
     tmp.y = vec[kY] * inv_len;
     tmp.z = vec[kZ] * inv_len;
+
+    LOG_NAN_FVEC3( tmp.v );
 
     return tmp;
 }
@@ -583,6 +739,8 @@ static INLINE bool_t  fvec3_self_normalize( fvec3_base_t A )
         A[kY] *= inv_len;
         A[kZ] *= inv_len;
     }
+
+    LOG_NAN_FVEC3( A );
 
     return btrue;
 }
@@ -609,6 +767,8 @@ static INLINE bool_t fvec3_self_normalize_to( fvec3_base_t vec, const float B )
         vec[kZ] *= inv_len;
     }
 
+    LOG_NAN_FVEC3( vec );
+
     return btrue;
 }
 
@@ -620,6 +780,8 @@ static INLINE fvec3_t fvec3_cross_product( const fvec3_base_t A, const fvec3_bas
     tmp.x = A[kY] * B[kZ] - A[kZ] * B[kY];
     tmp.y = A[kZ] * B[kX] - A[kX] * B[kZ];
     tmp.z = A[kX] * B[kY] - A[kY] * B[kX];
+
+    LOG_NAN_FVEC3( tmp.v );
 
     return tmp;
 }
@@ -650,12 +812,16 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
             vperp[kX] = A[kX];
             vperp[kY] = A[kY];
             vperp[kZ] = A[kZ];
+
+            LOG_NAN_FVEC3( vperp );
         }
         else if ( NULL == vperp )
         {
             vpara[kX] = 0.0f;
             vpara[kY] = 0.0f;
             vpara[kZ] = 0.0f;
+
+            LOG_NAN_FVEC3( vpara );
         }
         else
         {
@@ -666,6 +832,8 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
             vperp[kX] = A[kX];
             vperp[kY] = A[kY];
             vperp[kZ] = A[kZ];
+
+            LOG_NAN_FVEC3( vperp );
         }
     }
     else
@@ -681,12 +849,16 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
             vperp[kX] = A[kX] - dot * vnrm[kX];
             vperp[kY] = A[kY] - dot * vnrm[kY];
             vperp[kZ] = A[kZ] - dot * vnrm[kZ];
+
+            LOG_NAN_FVEC3( vperp );
         }
         else if ( NULL == vperp )
         {
             vpara[kX] = dot * vnrm[kX];
             vpara[kY] = dot * vnrm[kY];
             vpara[kZ] = dot * vnrm[kZ];
+
+            LOG_NAN_FVEC3( vpara );
         }
         else
         {
@@ -694,9 +866,13 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
             vpara[kY] = dot * vnrm[kY];
             vpara[kZ] = dot * vnrm[kZ];
 
+            LOG_NAN_FVEC3( vpara );
+
             vperp[kX] = A[kX] - vpara[kX];
             vperp[kY] = A[kY] - vpara[kY];
             vperp[kZ] = A[kZ] - vpara[kZ];
+
+            LOG_NAN_FVEC3( vperp );
         }
     }
 
@@ -706,13 +882,29 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B )
 {
-    return ABS( A[kX] - B[kX] ) + ABS( A[kY] - B[kY] ) + ABS( A[kZ] - B[kZ] );
+    float retval;
+    
+    if( NULL == A || NULL == B ) return 0.0f;
+
+    retval = ABS( A[kX] - B[kX] ) + ABS( A[kY] - B[kY] ) + ABS( A[kZ] - B[kZ] );
+
+    LOG_NAN( retval );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 static INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B )
 {
-    return A[kX]*B[kX] + A[kY]*B[kY] + A[kZ]*B[kZ];
+    float retval;
+
+    if( NULL == A || NULL == B ) return 0.0f;
+
+    retval = A[kX]*B[kX] + A[kY]*B[kY] + A[kZ]*B[kZ];
+
+    LOG_NAN( retval );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

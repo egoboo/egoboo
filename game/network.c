@@ -1722,13 +1722,13 @@ void net_initialize()
     net_instance_init( &gnet );
 
     // Clear all the state variables to 0 to start.
-    memset( net_playerPeers, 0, sizeof( ENetPeer* ) * MAX_PLAYER );
-    memset( net_playerInfo, 0, sizeof( NetPlayerInfo ) * MAX_PLAYER );
-    memset( packetbuffer, 0, MAXSENDSIZE * sizeof( Uint8 ) );
-    memset( net_transferStates, 0, sizeof( NetFileTransfer ) * NET_MAX_FILE_TRANSFERS );
-    memset( &net_receiveState, 0, sizeof( NetFileTransfer ) );
+    memset( net_playerPeers, 0, sizeof( net_playerPeers ) );
+    memset( net_playerInfo, 0, sizeof( net_playerInfo ) );
+    memset( packetbuffer, 0, sizeof( packetbuffer ) );
+    memset( net_transferStates, 0, sizeof( net_transferStates ) );
+    memset( &net_receiveState, 0, sizeof( net_receiveState ) );
 
-    sv_last_frame = ( Uint32 )~0;
+    sv_last_frame = ( Uint32 )(~0);
 
     if ( gnet.on )
     {
@@ -2088,7 +2088,7 @@ void net_reset_players()
     // Reset the initial player data and latches
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
-        memset( PlaStack.lst + cnt, 0, sizeof( player_t ) );
+        memset( PlaStack.lst + cnt, 0, sizeof( PlaStack.lst[cnt] ) );
 
         // reset the device
         input_device_init( &( PlaStack.lst[cnt].device ) );

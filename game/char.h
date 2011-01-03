@@ -335,7 +335,7 @@ struct s_chr
 
     // team stuff
     TEAM_REF       team;            ///< Character's team
-    TEAM_REF       baseteam;        ///< Character's starting team
+    TEAM_REF       team_base;        ///< Character's starting team
 
     // enchant data
     ENC_REF        firstenchant;                  ///< Linked list for enchants

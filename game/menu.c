@@ -1024,7 +1024,7 @@ int doChooseModule( float deltaTime )
             validModules_count = 0;
             for ( i = 0; i < MAX_MODULE; i++ )
             {
-                memset( validModules + i, 0, sizeof( MOD_REF ) );
+                memset( validModules + i, 0, sizeof( validModules[i] ) );
             }
 
             // Figure out at what offset we want to draw the module menu.
@@ -4871,7 +4871,7 @@ void mnu_ModList_release_all()
             mnu_release_one_module( cnt );
         }
 
-        memset( mnu_ModList.lst + cnt, 0, sizeof( mnu_module_t ) );
+        memset( mnu_ModList.lst + cnt, 0, sizeof( mnu_ModList.lst[cnt] ) );
     }
 
     mnu_ModList.count = 0;

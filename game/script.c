@@ -986,7 +986,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFMORALE:
                 varname = "SELFMORALE";
-                iTmp = TeamStack.lst[pchr->baseteam].morale;
+                iTmp = TeamStack.lst[pchr->team_base].morale;
                 break;
 
             case VARSELFLIFE:

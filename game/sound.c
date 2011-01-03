@@ -885,7 +885,7 @@ void   LoopedList_init()
     for ( cnt = 0; cnt < LOOPED_COUNT; cnt++ )
     {
         // clear out all of the data
-        memset( LoopedList.lst + cnt, 0, sizeof( looped_sound_data_t ) );
+        memset( LoopedList.lst + cnt, 0, sizeof( LoopedList.lst[cnt] ) );
 
         LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
         LoopedList.lst[cnt].chunk   = NULL;
@@ -1137,7 +1137,7 @@ bool_t looped_stop_object_sounds( const CHR_REF  ichr )
 
             ref = ( LOOP_REF )index;
 
-            if ( LoopedList.lst[ref].object == ichr )
+            if ( ichr == LoopedList.lst[ref].object )
             {
                 int channel = LoopedList.lst[ref].channel;
 

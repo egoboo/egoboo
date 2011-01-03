@@ -6368,7 +6368,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
 
             if ( pdyna->falloff <= 0.0f || 0.0f == pdyna->level ) continue;
 
-            radius = SQRT( pdyna->falloff * 765.0f / 2.0f );
+            radius = SQRT( pdyna->falloff * 765.0f * 0.5f );
 
             // find the intersection with the frustum boundary
             ftmp.xmin = MAX( pdyna->pos.x - radius, mesh_bound.xmin );
@@ -6440,7 +6440,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
             fake_dynalight.pos.y    = fake_dynalight.pos.y / dyna_weight_sum + pcam->center.y;
             fake_dynalight.pos.z    = fake_dynalight.pos.z / dyna_weight_sum + pcam->center.z;
 
-            radius = SQRT( fake_dynalight.falloff * 765.0f / 2.0f );
+            radius = SQRT( fake_dynalight.falloff * 765.0f * 0.5f );
 
             // find the intersection with the frustum boundary
             ftmp.xmin = MAX( fake_dynalight.pos.x - radius, mesh_bound.xmin );

@@ -349,23 +349,29 @@ egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
                 pinst->vrt_lst[cnt].col[GG] =
                     pinst->vrt_lst[cnt].col[BB] = valuelow;
         }
+        else if ( z > high )
+        {
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] = valuehigh;
+        }
+        else if ( high != low )
+        {
+            Uint8 valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
+                                ( valuelow * ( high - z ) / ( high - low ) );
+
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
+        }
         else
         {
-            if ( z > high )
-            {
-                pinst->vrt_lst[cnt].col[RR] =
-                    pinst->vrt_lst[cnt].col[GG] =
-                        pinst->vrt_lst[cnt].col[BB] = valuehigh;
-            }
-            else
-            {
-                Uint8 valuemid = ( valuehigh * ( z - low ) / ( high - low ) ) +
-                                 ( valuelow * ( high - z ) / ( high - low ) );
+            // z == high == low
+            Uint8 valuemid = ( valuehigh + valuelow ) * 0.5f;
 
-                pinst->vrt_lst[cnt].col[RR] =
-                    pinst->vrt_lst[cnt].col[GG] =
-                        pinst->vrt_lst[cnt].col[BB] =  valuemid;
-            }
+            pinst->vrt_lst[cnt].col[RR] =
+                pinst->vrt_lst[cnt].col[GG] =
+                    pinst->vrt_lst[cnt].col[BB] =  valuemid;
         }
     }
 
@@ -659,9 +665,9 @@ void free_one_character_in_game( const CHR_REF character )
     CHR_END_LOOP();
 
     // Handle the team
-    if ( pchr->alive && !pcap->invictus && TeamStack.lst[pchr->baseteam].morale > 0 )
+    if ( pchr->alive && !pcap->invictus && TeamStack.lst[pchr->team_base].morale > 0 )
     {
-        TeamStack.lst[pchr->baseteam].morale--;
+        TeamStack.lst[pchr->team_base].morale--;
     }
 
     if ( TeamStack.lst[pchr->team].leader == character )
@@ -1092,7 +1098,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     else if ( pchr->inst.action_which < ACTION_KA || pchr->inst.action_which > ACTION_KD )
     {
         // play the "killed" animation...
-        chr_play_action( pchr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
+        chr_play_action( pchr, generate_randmask( ACTION_KA, 3 ), bfalse );
         chr_instance_set_action_keep( &( pchr->inst ), btrue );
     }
 
@@ -1149,11 +1155,11 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     // Reset the team if it is a mount
     if ( pmount->ismount )
     {
-        pmount->team = pmount->baseteam;
+        pmount->team = pmount->team_base;
         SET_BIT( pmount->ai.alert, ALERTIF_DROPPED );
     }
 
-    pchr->team = pchr->baseteam;
+    pchr->team = pchr->team_base;
     SET_BIT( pchr->ai.alert, ALERTIF_DROPPED );
 
     // Reset transparency
@@ -1214,7 +1220,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     if ( pchr->life <= 0 )
     {
         // the object is dead. play the killed animation and make it freeze there
-        chr_play_action( pchr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
+        chr_play_action( pchr, generate_randmask( ACTION_KA, 3 ), bfalse );
         chr_instance_set_action_keep( &( pchr->inst ), btrue );
     }
     else
@@ -1964,7 +1970,7 @@ void drop_keys( const CHR_REF character )
         pkey->pack.is_packed         = bfalse;
         pkey->isequipped             = bfalse;
         pkey->ori.facing_z           = direction + ATK_BEHIND;
-        pkey->team                   = pkey->baseteam;
+        pkey->team                   = pkey->team_base;
 
         // fix the current velocity
         pkey->vel.x                  += turntocos[ turn ] * DROPXYVEL;
@@ -2019,7 +2025,7 @@ bool_t drop_all_items( const CHR_REF character )
                 // fix some flags
                 pitem->hitready               = btrue;
                 pitem->ori.facing_z           = direction + ATK_BEHIND;
-                pitem->team                   = pitem->baseteam;
+                pitem->team                   = pitem->team_base;
 
                 // fix the current velocity
                 pitem->vel.x                  += turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
@@ -2480,9 +2486,18 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             pthrown->iskursed = bfalse;
             pthrown->ammo = 1;
             SET_BIT( pthrown->ai.alert, ALERTIF_THROWN );
-            velocity = pchr->strength / ( pthrown->phys.weight * THROWFIX );
-            velocity += MINTHROWVELOCITY;
-            velocity = MIN( velocity, MAXTHROWVELOCITY );
+
+            // deterimine the throw velocity
+            velocity = MINTHROWVELOCITY;
+            if( 0 == pthrown->phys.weight )
+            {
+                velocity += MAXTHROWVELOCITY;
+            }
+            else
+            {
+                velocity += pchr->strength / ( pthrown->phys.weight * THROWFIX );
+            }
+            velocity = CLIP( velocity, MINTHROWVELOCITY, MAXTHROWVELOCITY );
 
             turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
             pthrown->vel.x += turntocos[ turn ] * velocity;
@@ -2986,7 +3001,7 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     // weight and size
     pcap->size       = pchr->fat_goto;
     pcap->bumpdampen = pchr->phys.bumpdampen;
-    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight )
+    if ( CHR_INFINITE_WEIGHT == pchr->phys.weight || 0.0f == pchr->fat )
     {
         pcap->weight = CAP_INFINITE_WEIGHT;
     }
@@ -3097,7 +3112,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     // calculate a base kurse state. this may be overridden later
     if ( pcap->isitem )
     {
-        IPair loc_rand = {1, 100};
+        IPair loc_rand = {0, 100};
         pchr->iskursed = ( generate_irand_pair( loc_rand ) <= pcap->kursechance );
     }
 
@@ -3115,7 +3130,10 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Gender
     pchr->gender = pcap->gender;
-    if ( pchr->gender == GENDER_RANDOM )  pchr->gender = generate_randmask( GENDER_FEMALE, GENDER_MALE );
+    if ( pchr->gender == GENDER_RANDOM )  
+    {
+        pchr->gender = generate_randmask( 0, 1 );
+    }
 
     // Life and Mana
     pchr->lifecolor = pcap->lifecolor;
@@ -3389,7 +3407,7 @@ void cleanup_one_character( chr_t * pchr )
     pchr->sparkle = NOSPARKLE;
 
     // Remove it from the team
-    pchr->team = pchr->baseteam;
+    pchr->team = pchr->team_base;
     if ( TeamStack.lst[pchr->team].morale > 0 ) TeamStack.lst[pchr->team].morale--;
 
     if ( TeamStack.lst[pchr->team].leader == ichr )
@@ -3493,10 +3511,10 @@ void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_inv
     pchr->life            = -1;
     pchr->platform        = btrue;
     pchr->canuseplatforms = btrue;
-    pchr->phys.bumpdampen = pchr->phys.bumpdampen / 2.0f;
+    pchr->phys.bumpdampen = pchr->phys.bumpdampen * 0.5f;
 
     // Play the death animation
-    action = ACTION_KA + generate_randmask( 0, 3 );
+    action = generate_randmask( ACTION_KA, 3 );
     chr_play_action( pchr, action, bfalse );
     chr_instance_set_action_keep( &( pchr->inst ), btrue );
 
@@ -3565,7 +3583,6 @@ void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_inv
     scr_run_chr_script( ichr );
 
     // Stop any looped sounds
-    if ( pchr->loopedsound_channel != INVALID_SOUND ) sound_stop_channel( pchr->loopedsound_channel );
     looped_stop_object_sounds( ichr );
     pchr->loopedsound_channel = INVALID_SOUND;
 }
@@ -4016,7 +4033,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
 
     // Team stuff
     pchr->team     = loc_team;
-    pchr->baseteam = loc_team;
+    pchr->team_base = loc_team;
     if ( !pchr->invictus )  TeamStack.lst[loc_team].morale++;
 
     // Firstborn becomes the leader
@@ -4771,12 +4788,12 @@ void respawn_character( const CHR_REF character )
     pchr->vel.x = 0;
     pchr->vel.y = 0;
     pchr->vel.z = 0;
-    pchr->team = pchr->baseteam;
+    pchr->team = pchr->team_base;
     pchr->canbecrushed = bfalse;
     pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     pchr->ori.map_facing_x = MAP_TURN_OFFSET;
     if ( NOLEADER == TeamStack.lst[pchr->team].leader )  TeamStack.lst[pchr->team].leader = character;
-    if ( !pchr->invictus )  TeamStack.lst[pchr->baseteam].morale++;
+    if ( !pchr->invictus )  TeamStack.lst[pchr->team_base].morale++;
 
     // start the character out in the "dance" animation
     chr_start_anim( pchr, ACTION_DA, btrue, btrue );
@@ -5312,7 +5329,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     }
     else
     {
-        chr_play_action( pchr, ACTION_KA + generate_randmask( 0, 3 ), bfalse );
+        chr_play_action( pchr, generate_randmask( ACTION_KA, 3 ), bfalse );
         chr_instance_set_action_keep( &( pchr->inst ), btrue );
     }
 
@@ -5415,73 +5432,98 @@ bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 }
 
 //--------------------------------------------------------------------------------------------
+void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool_t permanent )
+{
+    chr_t * pchr;
+    bool_t  can_have_team;
+    int     loc_team_new;
+
+    if ( !INGAME_CHR( character ) ) return;
+    pchr = ChrList.lst + character;
+
+    // do we count this character as being on a team?
+    can_have_team = !pchr->isitem && pchr->alive && !pchr->invictus;
+
+    // take the character off of its old team
+    if( VALID_TEAM_RANGE(pchr->team) )
+    {
+        // get the old team index
+        TEAM_REF team_old = pchr->team;
+
+        // remove the character from the old team
+        if ( can_have_team )
+        {
+            if ( TeamStack.lst[team_old].morale > 0 ) TeamStack.lst[team_old].morale--;
+        }
+
+        if ( character == TeamStack.lst[team_old].leader )
+        {
+            TeamStack.lst[team_old].leader = NOLEADER;
+        }
+    }
+
+    // make sure we have a valid value
+    loc_team_new = VALID_TEAM_RANGE(team_new) ? team_new : TEAM_NULL;
+
+    // place the character onto its new team
+    if( VALID_TEAM_RANGE(loc_team_new) ) 
+    {
+        // switch the team
+        pchr->team = loc_team_new;
+
+        // switch the base team only if required
+        if( permanent )
+        {
+            pchr->team_base = loc_team_new;
+        }
+
+        // add the character to the new team
+        if ( can_have_team )
+        {
+            TeamStack.lst[loc_team_new].morale++;
+        }
+
+        // we are the new leader if there isn't one already
+        if ( can_have_team && !INGAME_CHR( TeamStack.lst[loc_team_new].leader ) )
+        {
+            TeamStack.lst[loc_team_new].leader = character;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void switch_team( const CHR_REF character, const TEAM_REF team )
 {
     /// @details ZZ@> This function makes a character join another team...
-    chr_t *pchr;
 
-    if ( !INGAME_CHR( character ) || team >= TEAM_MAX || team < 0 ) return;
+    CHR_REF tmp_ref;
+    chr_t * pchr;
+
+    // change the base object
+    switch_team_base( character, team, btrue );
+
+    // grab a pointer to the character
+    if ( !DEFINED_CHR( character ) ) return;
     pchr = ChrList.lst + character;
 
-    // keep track of how many live ones we have on any team
-    if ( !pchr->invictus )
+    // change our mount team as well
+    tmp_ref = pchr->attachedto;
+    if ( VALID_CHR_RANGE(tmp_ref) )
     {
-        if ( chr_get_pteam_base( character )->morale > 0 ) chr_get_pteam_base( character )->morale--;
-        TeamStack.lst[team].morale++;
-    }
-
-    /*
-    // change our current team if we are not a item or a mount
-
-    /*
-    // change our current team if we are not a item or a mount
-    if (( !pchr->ismount || !INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) ) &&
-        ( !pchr->isitem  || !INGAME_CHR( pchr->attachedto ) ) )
-    {
-        pchr->team = team;
-    }
-    */
-
-    // actually change our team
-    pchr->baseteam = team;
-    pchr->team = team;
-
-    //change our mount team as well
-    if ( INGAME_CHR( pchr->attachedto ) )
-    {
-        chr_t *pmount = ChrList.lst + pchr->attachedto;
-        if ( pmount->ismount ) pmount->team = team;
-    }
-    //change our mount team as well
-    if ( INGAME_CHR( pchr->attachedto ) )
-    {
-        chr_t *pmount = ChrList.lst + pchr->attachedto;
-        if ( pmount->ismount ) pmount->team = team;
+        switch_team_base( tmp_ref, team, bfalse );
     }
 
     // update the team of anything we are holding as well
-    if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+    tmp_ref = pchr->holdingwhich[SLOT_LEFT];
+    if ( VALID_CHR_RANGE(tmp_ref) )
     {
-        ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
-    }
-    if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
-    {
-        ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
-    }
-    // update the team of anything we are holding as well
-    if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
-    {
-        ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].team = team;
-    }
-    if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
-    {
-        ChrList.lst[pchr->holdingwhich[SLOT_RIGHT]].team = team;
+        switch_team_base( tmp_ref, team, bfalse );
     }
 
-    // we are the new leader if there isn't one already
-    if ( TeamStack.lst[team].leader == NOLEADER )
+    tmp_ref = pchr->holdingwhich[SLOT_RIGHT];
+    if ( VALID_CHR_RANGE(tmp_ref) )
     {
-        TeamStack.lst[team].leader = character;
+        switch_team_base( tmp_ref, team, bfalse );
     }
 }
 
@@ -5631,8 +5673,8 @@ bool_t update_chr_darkvision( const CHR_REF character )
 
     if ( life_regen < 0 )
     {
-        int tmp_level = ( 10 * -life_regen ) / pchr->lifemax;                        //Darkvision gained by poison
-        int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );    //Natural darkvision
+        int tmp_level  = (0 == pchr->lifemax) ? 0 : ( 10 * -life_regen ) / pchr->lifemax;                        // Darkvision gained by poison
+        int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );     // Natural darkvision
 
         //Use the better of the two darkvision abilities
         pchr->darkvision_level = MAX( base_level, tmp_level );
@@ -6354,8 +6396,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                     }
 
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.rate = 0.25f;                       //base attack speed
-                    pchr->inst.rate += chr_dex / 20;                    //+0.25f for every 5 dexterity
+                    pchr->inst.rate  = 0.25f;                       //base attack speed
+                    pchr->inst.rate += chr_dex / 20.0f;                    //+0.25f for every 5 dexterity
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
@@ -6910,7 +6952,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
     ichr = pai->index;
 
     bumpdampen = CLIP( pchr->phys.bumpdampen, 0.0f, 1.0f );
-    bumpdampen = ( bumpdampen + 1.0f ) / 2.0f;
+    bumpdampen = ( bumpdampen + 1.0f ) * 0.5f;
 
     // interaction with the mesh
     //if ( ABS( pchr->vel.z ) > 0.0f )
@@ -7130,19 +7172,23 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                     }
 
                     // find the part of the diff that is parallel to the normal
-                    diff_perp.x = nrm.x * dot / nrm2;
-                    diff_perp.y = nrm.y * dot / nrm2;
+                    diff_perp.x = diff_perp.y = 0.0f;
+                    if( nrm2 > 0.0f )
+                    {
+                        diff_perp.x = nrm.x * dot / nrm2;
+                        diff_perp.y = nrm.y * dot / nrm2;
+                    }
 
                     // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
                     ftmp = MAX( ABS( diff_perp.x ), ABS( diff_perp.y ) );
-                    if ( 0 == ftmp ) ftmp = 1.00f;                    //EGOBOO_ASSERT(ftmp > 0.0f);
+                    if ( 0.0f == ftmp ) ftmp = 1.00f;
+                    fvec2_self_scale( diff_perp.v, tile_fraction * GRID_FSIZE / ftmp );
 
-                    diff_perp.x *= tile_fraction * GRID_FSIZE / ftmp;
-                    diff_perp.y *= tile_fraction * GRID_FSIZE / ftmp;
+                    // scale the diff_perp by the pressure
+                    fvec2_self_scale( diff_perp.v, pressure );
 
                     // try moving the character
-                    tmp_pos.x += diff_perp.x * pressure;
-                    tmp_pos.y += diff_perp.y * pressure;
+                    fvec2_self_sum( tmp_pos.v, diff_perp.v );
 
                     // determine whether the pressure is less at this location
                     pressure_old = chr_get_mesh_pressure( pchr, save_pos.v );
@@ -7170,8 +7216,13 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                         {
                             bumpdampen = pcap->bumpdampen;
                         }
-                        v_perp.x = nrm.x * dot / nrm2;
-                        v_perp.y = nrm.y * dot / nrm2;
+
+                        v_perp.x = v_perp.y = 0.0f;
+                        if( 0.0f != nrm2 )
+                        {
+                            v_perp.x = nrm.x * dot / nrm2;
+                            v_perp.y = nrm.y * dot / nrm2;
+                        }
 
                         pchr->vel.x += - ( 1.0f + bumpdampen ) * v_perp.x * pressure;
                         pchr->vel.y += - ( 1.0f + bumpdampen ) * v_perp.y * pressure;
@@ -9531,7 +9582,7 @@ int chr_get_price( const CHR_REF ichr )
     }
     else if ( pcap->isranged && pchr->ammo < pchr->ammomax )
     {
-        if ( 0 != pchr->ammo )
+        if ( 0 != pchr->ammomax )
         {
             price *= ( float ) pchr->ammo / ( float ) pchr->ammomax;
         }
@@ -10068,7 +10119,9 @@ bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
 
     retval = btrue;
 
-    if (( pos[kX] != pchr->pos.v[kX] ) || ( pos[kY] != pchr->pos.v[kY] ) || ( pos[kZ] != pchr->pos.v[kZ] ) )
+    LOG_NAN_FVEC3( pos );
+
+    if ( ( pos[kX] != pchr->pos.v[kX] ) || ( pos[kY] != pchr->pos.v[kY] ) || ( pos[kZ] != pchr->pos.v[kZ] ) )
     {
         memmove( pchr->pos.v, pos, sizeof( fvec3_base_t ) );
 
@@ -10086,9 +10139,17 @@ bool_t chr_set_maxaccel( chr_t * pchr, float new_val )
 
     if ( !ALLOCATED_PCHR( pchr ) ) return retval;
 
-    ftmp = pchr->maxaccel / pchr->maxaccel_reset;
-    pchr->maxaccel_reset = new_val;
-    pchr->maxaccel = ftmp * pchr->maxaccel_reset;
+    if( 0.0f == pchr->maxaccel_reset )
+    {
+        pchr->maxaccel_reset = new_val;
+        pchr->maxaccel       = new_val;
+    }
+    else
+    {
+        ftmp = pchr->maxaccel / pchr->maxaccel_reset;
+        pchr->maxaccel_reset = new_val;
+        pchr->maxaccel = ftmp * pchr->maxaccel_reset;
+    }
 
     return btrue;
 }

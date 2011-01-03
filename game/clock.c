@@ -190,7 +190,7 @@ void clk_setFrameHistoryWindow( ClockState_t * cs, int size )
     history = EGOBOO_NEW_ARY( double, newSize );
     if ( NULL != history )
     {
-        memset( history, 0, sizeof( double ) * newSize );
+        memset( history, 0, sizeof( *history ) * newSize );
     }
 
     if ( NULL != cs->frameHistory )

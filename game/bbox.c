@@ -524,7 +524,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     }
 
     // determine the volume center
-    if ( NULL != pcenter && ABS( area ) > 0 )
+    if ( NULL != pcenter && ABS( area ) > 0.0f )
     {
         ( *pcenter ).x = centroid.x / area;
         ( *pcenter ).y = centroid.y / area;

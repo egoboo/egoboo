@@ -51,12 +51,28 @@ typedef struct s_orientation orientation_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_apos
+{
+    fvec3_t mins;
+    fvec3_t maxs;
+    fvec3_t sum;
+};
+
+typedef struct s_apos apos_t;
+
+bool_t apos_self_union( apos_t * lhs, apos_t * rhs );
+bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs );
+bool_t apos_self_union_index( apos_t * lhs, const fvec3_base_t rhs, const int index );
+bool_t apos_evaluate( const apos_t * src, fvec3_base_t dst );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /// Data for doing the physics in bump_all_objects()
 /// @details should prevent you from being bumped into a wall
 struct s_phys_data
 {
-    fvec3_t        apos_plat, apos_coll;
+    apos_t         aplat, acoll;
     fvec3_t        avel;
 
     float          bumpdampen;                    ///< "Mass" = weight / bumpdampen
@@ -65,7 +81,16 @@ struct s_phys_data
 };
 typedef struct s_phys_data phys_data_t;
 
-phys_data_t * phys_data_ctor( phys_data_t * pphys );
+phys_data_t * phys_data_clear( phys_data_t * pphys );
+phys_data_t * phys_data_ctor ( phys_data_t * pphys );
+
+phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_base_t vec );
+phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_base_t vec );
+phys_data_t * phys_data_sum_avel ( phys_data_t * pphys, const fvec3_base_t vec );
+
+phys_data_t * phys_data_sum_aplat_index( phys_data_t * pphys, const float val, const int index );
+phys_data_t * phys_data_sum_acoll_index( phys_data_t * pphys, const float val, const int index );
+phys_data_t * phys_data_sum_avel_index ( phys_data_t * pphys, const float val, const int index );
 
 //--------------------------------------------------------------------------------------------
 struct s_breadcrumb

@@ -150,18 +150,6 @@ extern "C"
 #define CNV(I,J)     v[MAT_IDX(I,J)]
 #define CopyMatrix( pMatrixDest, pMatrixSource ) memmove( pMatrixDest, pMatrixSource, sizeof( *pMatrixDest ) )
 
-    Uint32 float32_to_uint32( float );
-    float  uint32_to_float32( Uint32 );
-
-    bool_t ieee32_infinite( float );
-    bool_t ieee32_nan( float );
-
-#if defined(TEST_NAN_RESULT)
-#    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
-#else
-#    define LOG_NAN(XX)
-#endif
-
 //--------------------------------------------------------------------------------------------
 // FAST CONVERSIONS
 

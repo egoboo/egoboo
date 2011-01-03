@@ -247,32 +247,51 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
 
-    int     iwave;
-    CHR_REF overlay_ref;
+    int iwave;
     int add_type, set_type;
 
     enc_t * penc;
     eve_t * peve;
-    CHR_REF itarget, ispawner;
+    CHR_REF target_ref, spawner_ref, overlay_ref;
+    chr_t * target_ptr, *spawner_ptr, *overlay_ptr;
 
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
     penc = EncList.lst + ienc;
+    peve = enc_get_peve( ienc );
 
-    itarget  = penc->target_ref;
-    ispawner = penc->spawner_ref;
-    peve     = enc_get_peve( ienc );
+    target_ref = MAX_CHR;
+    target_ptr = NULL;
+    if( DEFINED_CHR(penc->target_ref) )
+    {
+        target_ref = penc->target_ref;
+        target_ptr = ChrList.lst + penc->target_ref;
+    }
+
+    spawner_ref = MAX_CHR;
+    spawner_ptr = NULL;
+    if( DEFINED_CHR(penc->spawner_ref) )
+    {
+        spawner_ref = penc->spawner_ref;
+        spawner_ptr = ChrList.lst + penc->spawner_ref;
+    }
+
+    overlay_ref = MAX_CHR;
+    overlay_ptr = NULL;
+    if( DEFINED_CHR(penc->overlay_ref) )
+    {
+        overlay_ref = penc->overlay_ref;
+        overlay_ptr = ChrList.lst + penc->overlay_ref;
+    }
 
     // Unsparkle the spellbook
-    if ( INGAME_CHR( ispawner ) )
+    if ( NULL != spawner_ptr )
     {
-        chr_t * pspawner = ChrList.lst + ispawner;
-
-        pspawner->sparkle = NOSPARKLE;
+        spawner_ptr->sparkle = NOSPARKLE;
 
         // Make the spawner unable to undo the enchantment
-        if ( pspawner->undoenchant == ienc )
+        if ( spawner_ptr->undoenchant == ienc )
         {
-            pspawner->undoenchant = ( ENC_REF ) MAX_ENC;
+            spawner_ptr->undoenchant = ( ENC_REF ) MAX_ENC;
         }
     }
 
@@ -291,29 +310,26 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     }
 
     // Now fix dem weapons
-    if ( INGAME_CHR( itarget ) )
+    if ( NULL != target_ptr )
     {
-        chr_t * ptarget = ChrList.lst + itarget;
-        reset_character_alpha( ptarget->holdingwhich[SLOT_LEFT] );
-        reset_character_alpha( ptarget->holdingwhich[SLOT_RIGHT] );
+        reset_character_alpha( target_ptr->holdingwhich[SLOT_LEFT] );
+        reset_character_alpha( target_ptr->holdingwhich[SLOT_RIGHT] );
     }
 
     // unlink this enchant from its parent
     unlink_enchant( ienc, enc_parent );
 
     // Kill overlay too...
-    overlay_ref = penc->overlay_ref;
-    if ( INGAME_CHR( overlay_ref ) )
+    if( MAX_CHR != overlay_ref )
     {
-        chr_t * povl = ChrList.lst + overlay_ref;
-
-        if ( povl->invictus )
+        if ( NULL != overlay_ptr )
         {
-            chr_get_pteam_base( overlay_ref )->morale++;
+            switch_team( overlay_ref, overlay_ptr->team_base );
         }
 
         kill_character( overlay_ref, ( CHR_REF )MAX_CHR, btrue );
     }
+
 
     // nothing above this demends on having a valid enchant profile
     if ( NULL != peve )
@@ -325,9 +341,9 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             PRO_REF imodel = penc->spawnermodel_ref;
             if ( LOADED_PRO( imodel ) )
             {
-                if ( INGAME_CHR( itarget ) )
+                if ( NULL != target_ptr )
                 {
-                    sound_play_chunk( ChrList.lst[itarget].pos_old, pro_get_chunk( imodel, iwave ) );
+                    sound_play_chunk( target_ptr->pos_old, pro_get_chunk( imodel, iwave ) );
                 }
                 else
                 {
@@ -339,30 +355,28 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         // See if we spit out an end message
         if ( peve->endmessage >= 0 )
         {
-            _display_message( penc->target_ref, penc->profile_ref, peve->endmessage, NULL );
+            _display_message( target_ref, penc->profile_ref, peve->endmessage, NULL );
         }
 
         // Check to see if we spawn a poof
         if ( peve->poofonend )
         {
-            spawn_poof( penc->target_ref, penc->profile_ref );
+            spawn_poof( target_ref, penc->profile_ref );
         }
 
         //Remove special skills gained by the enchant
-        if ( INGAME_CHR( itarget ) )
+        if ( NULL != target_ptr )
         {
-            chr_t * ptarget = ChrList.lst + penc->target_ref;
-
             //Reset see kurses
             if ( 0 != peve->seekurse )
             {
-                ptarget->see_kurse_level = chr_get_skill( ptarget, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
+                target_ptr->see_kurse_level = chr_get_skill( target_ptr, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) );
             }
 
             //Reset darkvision
             if ( 0 != peve->darkvision )
             {
-                ptarget->darkvision_level = chr_get_skill( ptarget, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
+                target_ptr->darkvision_level = chr_get_skill( target_ptr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );
             }
         }
     }
@@ -372,13 +386,15 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // save this until the enchant is completely dead, since kill character can generate a
     // recursive call to this function through cleanup_one_character()
     // @note all of the values in the penc are now invalid. we have to use previously evaluated
-    // values of itarget and penc to kill the target (if necessary)
-    if ( INGAME_CHR( itarget ) && NULL != peve && peve->killtargetonend )
+    // values of target_ref and penc to kill the target (if necessary)
+    if ( NULL != peve && peve->killtargetonend && MAX_CHR != target_ref )
     {
-        chr_t * ptarget = ChrList.lst + itarget;
-        if ( ptarget->invictus )  chr_get_pteam_base( itarget )->morale++;
+        if ( NULL != target_ptr )  
+        {
+            switch_team( target_ref, target_ptr->team_base );
+        }
 
-        kill_character( itarget, ( CHR_REF )MAX_CHR, btrue );
+        kill_character( target_ref, ( CHR_REF )MAX_CHR, btrue );
     }
 
     return btrue;

@@ -574,7 +574,7 @@ void console_begin()
     ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
     ///     have no area...
 
-    SDL_Rect blah = {0, 0, sdl_scr.x, sdl_scr.y / 4};
+    SDL_Rect blah = {0, 0, sdl_scr.x, sdl_scr.y * 0.25f };
 
 #if defined(USE_LUA_CONSOLE)
     _top_con = lua_console_create( NULL, blah );

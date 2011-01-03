@@ -104,7 +104,7 @@ void input_init_joysticks()
 
     for ( i = 0; i < MAXJOYSTICK; i++ )
     {
-        memset( joy + i, 0, sizeof( device_joystick_t ) );
+        memset( joy + i, 0, sizeof( joy[i] ) );
 
         if ( i < SDL_NumJoysticks() )
         {
@@ -171,6 +171,7 @@ void input_read_joystick( int which )
     int dead_zone = 0x8000 / 10;
     int i, button_count, x, y;
     device_joystick_t * pjoy;
+
     if ( which + INPUT_DEVICE_JOY > input_device_count ) return;
     if ( !joy[which].on ) return;
 

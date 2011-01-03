@@ -341,9 +341,9 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // Targeting...
     vel.z = 0;
 
-    pprt->offset.z = generate_randmask( ppip->spacing_vrt_pair.base, ppip->spacing_vrt_pair.rand ) - ( ppip->spacing_vrt_pair.rand >> 1 );
+    pprt->offset.z = generate_irand_pair( ppip->spacing_vrt_pair ) - ( ppip->spacing_vrt_pair.rand / 2 );
     tmp_pos.z += pprt->offset.z;
-    velocity = generate_randmask( ppip->vel_hrz_pair.base, ppip->vel_hrz_pair.rand );
+    velocity = generate_irand_pair( ppip->vel_hrz_pair );
     pprt->target_ref = pdata->oldtarget;
     if ( ppip->newtargetonspawn )
     {
@@ -369,7 +369,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
             if ( ChrList.lst[loc_chr_origin].dexterity < PERFECTSTAT )
             {
                 // Correct loc_facing for randomness
-                offsetfacing  = generate_randmask( 0, ppip->facing_pair.rand ) - ( ppip->facing_pair.rand >> 1 );
+                offsetfacing  = generate_irand_pair( ppip->facing_pair ) - ( ppip->facing_pair.base + ppip->facing_pair.rand / 2 );
                 offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECTSTAT;
             }
 
@@ -416,7 +416,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     else
     {
         // Correct loc_facing for randomness
-        offsetfacing = generate_randmask( 0,  ppip->facing_pair.rand ) - ( ppip->facing_pair.rand >> 1 );
+        offsetfacing = generate_irand_pair( ppip->facing_pair ) - ( ppip->facing_pair.base + ppip->facing_pair.rand / 2 );
     }
     loc_facing += offsetfacing;
     pprt->facing = loc_facing;
@@ -425,7 +425,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     turn = TO_TURN( loc_facing );
 
     // Location data from arguments
-    newrand = generate_randmask( ppip->spacing_hrz_pair.base, ppip->spacing_hrz_pair.rand );
+    newrand = generate_irand_pair( ppip->spacing_hrz_pair );
     pprt->offset.x = -turntocos[ turn ] * newrand;
     pprt->offset.y = -turntosin[ turn ] * newrand;
 
@@ -442,7 +442,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // Velocity data
     vel.x = -turntocos[ turn ] * velocity;
     vel.y = -turntosin[ turn ] * velocity;
-    vel.z += generate_randmask( ppip->vel_vrt_pair.base, ppip->vel_vrt_pair.rand ) - ( ppip->vel_vrt_pair.rand >> 1 );
+    vel.z += generate_irand_pair( ppip->vel_vrt_pair ) - ( ppip->vel_vrt_pair.rand / 2 );
     pprt->vel = pprt->vel_old = pprt->vel_stt = vel;
 
     // Template values
@@ -3371,6 +3371,8 @@ bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos )
     if ( !ALLOCATED_PPRT( pprt ) ) return retval;
 
     retval = btrue;
+
+    LOG_NAN_FVEC3( pos );
 
     if (( pos[kX] != pprt->pos.v[kX] ) || ( pos[kY] != pprt->pos.v[kY] ) || ( pos[kZ] != pprt->pos.v[kZ] ) )
     {

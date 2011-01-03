@@ -46,6 +46,8 @@
 // FORWARD DECLARATIONS
 //--------------------------------------------------------------------------------------------
 
+static INLINE apos_t * apos_self_clear( apos_t * val );
+
 static INLINE bool_t test_interaction_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform );
 static INLINE bool_t test_interaction_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform );
 static INLINE bool_t test_interaction_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, int test_platform );
@@ -344,3 +346,12 @@ static INLINE bool_t get_depth_2( const oct_bb_t * cv_a, const fvec3_base_t pos_
     return valid;
 }
 
+//--------------------------------------------------------------------------------------------
+static INLINE apos_t * apos_self_clear( apos_t * val )
+{
+    if( NULL == val ) return val;
+
+    memset( val, 0, sizeof(*val) );
+
+    return val;
+}
