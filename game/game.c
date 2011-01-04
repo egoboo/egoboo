@@ -2639,7 +2639,6 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
         scr_run_chr_script( ichr );  // Empty the grabbed messages
 
         pchr->attachedto = ( CHR_REF )MAX_CHR;  // Fix grab
-
     }
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
     {
@@ -2708,19 +2707,10 @@ int strlwr( char * str )
 }
 #endif
 
-//--------------------------------------------------------------------------------------------
-bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
+void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
 {
-    /// @details BB@> Try to load a global object named int psp_info->spawn_coment into
-    ///               slot psp_info->slot
-
-    STRING filename;
-    PRO_REF ipro;
-
-    if ( NULL == psp_info || psp_info->slot < 0 ) return bfalse;
-
-    ipro = psp_info->slot;
-    if ( LOADED_PRO( ipro ) ) return bfalse;
+    //ZF> This turns a spawn comment line into an actual folder name we can use to load something with
+    if ( NULL == psp_info || psp_info->slot < 0 ) return;
 
     // trim any excess spaces off the psp_info->spawn_coment
     str_trim( psp_info->spawn_coment );
@@ -2737,6 +2727,25 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     }
 
     strlwr( psp_info->spawn_coment );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
+{
+    /// @details BB@> Try to load a global object named int psp_info->spawn_coment into
+    ///               slot psp_info->slot
+
+    STRING filename;
+    PRO_REF ipro;
+
+    if ( NULL == psp_info || psp_info->slot < 0 ) return bfalse;
+
+    //Is it already loaded?
+    ipro = psp_info->slot;
+    if ( LOADED_PRO( ipro ) ) return bfalse;
+
+    //Convert the spawn comment to a nice format
+    convert_spawn_file_load_name( psp_info );
 
     // do the loading
     if ( CSTR_END != psp_info->spawn_coment[0] )
@@ -2876,6 +2885,151 @@ void activate_spawn_file_vfs()
 
     const char       *newloadname;
     vfs_FILE         *fileread;
+
+    // tell everyone we are spawning a module
+    activate_spawn_file_active = btrue;
+
+    // Turn some back on
+    newloadname = "mp_data/spawn.txt";
+    fileread = vfs_openRead( newloadname );
+
+    PlaStack.count = 0;
+    if ( NULL == fileread )
+    {
+        log_error( "Cannot read file: %s\n", newloadname );
+    }
+    else
+    {
+        spawn_file_info_t spawn_list[MAX_CHR];        //The full list of objects to be spawned
+        STRING reserved_slot[MAX_PROFILE];             //Keep track of which slot numbers are reserved by their load name
+        int dynamic_list[MAX_CHR];                     //references to slots that need to be dynamically loaded later
+        size_t spawn_count = 0, dynamic_count = 0;
+        size_t i;
+        CHR_REF parent = ( CHR_REF )MAX_CHR;
+
+        //Mark each slot as free with the string termination character, @TODO: should use memset here
+        for( i = 0; i < MAX_PROFILE; i++ ) reserved_slot[i][0] = CSTR_END;
+
+        //First load spawn data of every object
+        while ( spawn_file_scan( fileread, &spawn_list[spawn_count] ) )
+        {
+            spawn_file_info_t * pspawn;
+
+            //Spit out a warning if they break the limit
+            if( spawn_count >= MAX_CHR )
+            {
+                log_warning("Too many objects in spawn.txt! Maximum number of objects is %i\n", MAX_CHR);
+                break;
+            }
+            pspawn = spawn_list + spawn_count;
+
+            // check to see if the slot is valid
+            if ( pspawn->slot >= MAX_PROFILE )
+            {
+                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", pspawn->slot, pspawn->spawn_coment, newloadname );
+                continue;
+            }
+
+            //convert the spawn name into a format we like
+            convert_spawn_file_load_name( pspawn );
+
+            // If it is a dynamic slot, remember to dynamically allocate it for later
+            if ( pspawn->slot <= -1 )
+            {
+                dynamic_list[dynamic_count] = spawn_count;
+                dynamic_count++;
+            }
+
+            //its a static slot number, mark it as reserved if it isnt already
+            else if( reserved_slot[pspawn->slot][0] == CSTR_END )
+            {
+                strncpy( reserved_slot[pspawn->slot],pspawn->spawn_coment, SDL_arraysize( reserved_slot[pspawn->slot] ) );
+            }
+
+            //Finished with this object for now
+            spawn_count++;
+        }
+
+        //Next we dynamically find slot numbers for each of the objects in the dynamic list
+        for( i = 0; i < dynamic_count; i++ )
+        {
+            spawn_file_info_t * sp_dynamic = spawn_list + dynamic_list[i];
+
+            //Find first free slot that is not the spellbook slot
+            for( sp_dynamic->slot = MAXIMPORTPERPLAYER * 4; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
+            {
+                //dont try to grab the spellbook slot
+                if( sp_dynamic->slot == SPELLBOOK ) continue;
+
+                //the slot already dynamically loaded by a different spawn object
+                if ( 0 == strcmp( reserved_slot[sp_dynamic->slot], sp_dynamic->spawn_coment ) ) break;
+
+                //found a completely free slot
+                if( reserved_slot[sp_dynamic->slot][0] == CSTR_END )
+                {
+                    //Reserve this one for us
+                    strncpy( reserved_slot[sp_dynamic->slot], sp_dynamic->spawn_coment, SDL_arraysize( reserved_slot[sp_dynamic->slot] ) );
+                    break;
+                }
+            }
+
+            //If all slots are reserved, spit out a warning
+            if( sp_dynamic->slot == MAX_PROFILE ) log_warning( "Could not allocate free dynamic slot for object (%s). All slots in use?\n", sp_dynamic->spawn_coment );
+        }
+
+        //Now spawn each object in order
+        for( i = 0; i < spawn_count; i++ )
+        {
+            spawn_file_info_t *sp_info = spawn_list + i;
+
+            //Do we have a parent?
+            if( sp_info->attach != ATTACH_NONE ) sp_info->parent = parent;
+
+            // If nothing is already in that slot, try to load it.
+            if ( !LOADED_PRO(( PRO_REF ) sp_info->slot ) )
+            {
+                bool_t import_object = sp_info->slot > PMod->importamount * MAXIMPORTPERPLAYER;
+
+                if ( !activate_spawn_file_load_object( sp_info ) )
+                {
+                    // no, give a warning if it is useful
+                    if ( import_object  )
+                    {
+                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info->spawn_coment, sp_info->slot, newloadname );
+                    }
+                    continue;
+                }
+            }
+
+            // we only reach this if everything was loaded properly
+            activate_spawn_file_spawn( sp_info );
+
+            //We might become the new parent
+            if( sp_info->attach == ATTACH_NONE ) parent = sp_info->parent;
+        }
+
+        vfs_close( fileread );
+    }
+
+    clear_messages();
+
+    // Make sure local players are displayed first
+    statlist_sort();
+
+    // Fix tilting trees problem
+    tilt_characters_to_terrain();
+
+    // done spawning
+    activate_spawn_file_active = bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+/*void activate_spawn_file_vfs()
+{
+    /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
+
+    const char       *newloadname;
+    vfs_FILE         *fileread;
     spawn_file_info_t sp_info;
 
     // tell everyone we are spawning a module
@@ -2897,14 +3051,18 @@ void activate_spawn_file_vfs()
         STRING loaded_objects[MAX_PROFILE];                 //This is a list of all objects already loaded
         size_t i, dynamic_count = 0;                        //The length of dynamic_list
 
+        //Was the parent loaded dynamically? If so we need to force load children dynamically as well to prevent errors
+        bool_t parent_is_dynamic = bfalse;                  
+
         //Empty the list of loaded objects
         memset( loaded_objects, CSTR_END, SDL_arraysize( loaded_objects ) );
-
+        
         sp_info.parent = ( CHR_REF )MAX_CHR;
         while ( spawn_file_scan( fileread, &sp_info ) )
         {
+            bool_t object_is_attached; 
             int save_slot = sp_info.slot;
-
+            
             // check to see if the slot is valid
             if ( sp_info.slot >= MAX_PROFILE )
             {
@@ -2912,9 +3070,16 @@ void activate_spawn_file_vfs()
                 continue;
             }
 
+            // see if object is attached to another
+            object_is_attached = sp_info.attach == ATTACH_LEFT || sp_info.attach == ATTACH_RIGHT || sp_info.attach == ATTACH_INVENTORY;
+
             // If it is a dynamic slot, then wait with loading it until we have load all the static slot numbers
-            if ( sp_info.slot == -1 )
+            if ( sp_info.slot == -1 || (object_is_attached && parent_is_dynamic) )
             {
+                // if it is a parent, then mark it as dynamically loaded
+                if( !object_is_attached ) parent_is_dynamic = btrue;
+
+                //add it to the dynamic list and continue with the others
                 dynamic_list[dynamic_count] = sp_info;
                 dynamic_count++;
                 continue;
@@ -2927,6 +3092,9 @@ void activate_spawn_file_vfs()
                 {
                     // successfully loaded the object
                     strncpy( loaded_objects[sp_info.slot], sp_info.spawn_coment, SDL_arraysize( loaded_objects[sp_info.slot] ) );
+
+                    // if it is a parent, then mark it as not dynamically loaded
+                    if( !object_is_attached ) parent_is_dynamic = btrue;
                 }
                 else
                 {
@@ -2954,6 +3122,8 @@ void activate_spawn_file_vfs()
             //First check if this object is already loaded before, no need to reload it then
             for ( sp_info.slot = MAXIMPORTPERPLAYER * 4; sp_info.slot < MAX_PROFILE; sp_info.slot++ )
             {
+                convert_spawn_file_load_name( &sp_info );
+
                 if ( 0 == strcmp( loaded_objects[sp_info.slot], sp_info.spawn_coment ) )
                 {
                     already_loaded = btrue;
@@ -2968,6 +3138,7 @@ void activate_spawn_file_vfs()
                 sp_info.slot = MAXIMPORTPERPLAYER * 4;
                 while ( LOADED_PRO(( PRO_REF ) sp_info.slot ) ) sp_info.slot++;
 
+                //Now load it
                 if ( activate_spawn_file_load_object( &sp_info ) )
                 {
                     // successfully loaded the object into a dynamic slot number
@@ -2998,7 +3169,7 @@ void activate_spawn_file_vfs()
 
     // done spawning
     activate_spawn_file_active = btrue;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 void load_all_global_objects()
