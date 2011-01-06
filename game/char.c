@@ -6396,8 +6396,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                     }
 
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.rate  = 0.25f;                       //base attack speed
-                    pchr->inst.rate += chr_dex / 20.0f;                    //+0.25f for every 5 dexterity
+                    pchr->inst.rate  = 0.30f;                       //base attack speed
+                    pchr->inst.rate += chr_dex * 0.04f;             //every 7.5 dex increases base attack speed by 100%
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
@@ -6406,13 +6406,13 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                     {
                         int base_reload_time = -chr_dex;
                         if ( ACTION_IS_TYPE( action, U ) ) base_reload_time += 50;          //Unarmed  (Fists)
-                        else if ( ACTION_IS_TYPE( action, T ) ) base_reload_time += 45;     //Thrust   (Spear)
-                        else if ( ACTION_IS_TYPE( action, C ) ) base_reload_time += 75;     //Chop     (Axe)
-                        else if ( ACTION_IS_TYPE( action, S ) ) base_reload_time += 55;     //Slice    (Sword)
-                        else if ( ACTION_IS_TYPE( action, B ) ) base_reload_time += 60;     //Bash     (Mace)
-                        else if ( ACTION_IS_TYPE( action, L ) ) base_reload_time += 50;     //Longbow  (Longbow)
-                        else if ( ACTION_IS_TYPE( action, X ) ) base_reload_time += 100;    //Xbow     (Crossbow)
-                        else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 50;     //Flinged  (Unused)
+                        else if ( ACTION_IS_TYPE( action, T ) ) base_reload_time += 55;     //Thrust   (Spear)
+                        else if ( ACTION_IS_TYPE( action, C ) ) base_reload_time += 85;     //Chop     (Axe)
+                        else if ( ACTION_IS_TYPE( action, S ) ) base_reload_time += 65;     //Slice    (Sword)
+                        else if ( ACTION_IS_TYPE( action, B ) ) base_reload_time += 70;     //Bash     (Mace)
+                        else if ( ACTION_IS_TYPE( action, L ) ) base_reload_time += 60;     //Longbow  (Longbow)
+                        else if ( ACTION_IS_TYPE( action, X ) ) base_reload_time += 110;    //Xbow     (Crossbow)
+                        else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 60;     //Flinged  (Unused)
 
                         //it is possible to have so high dex to eliminate all reload time
                         if ( base_reload_time > 0 ) pweapon->reload_timer += base_reload_time;
@@ -6791,7 +6791,7 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // DO NOT require objects that are spawning in a module to have a
     // valid position at spawn-time. For instance, if a suit of armor is
     // spawned in a closed hallway, don't complain.
-    if ( activate_spawn_file_active )
+    //if ( activate_spawn_file_active )                 //ZF> I fixed a bug that caused this boolean variable always to be true. by fixing it it broke other stuff like specific objects spawning after parsing spawn.txt
     {
         fvec3_base_copy( pos_v, chr_get_pos_v( pchr ) );
         return btrue;

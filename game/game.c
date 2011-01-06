@@ -2883,8 +2883,14 @@ void activate_spawn_file_vfs()
 {
     /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
 
-    const char       *newloadname;
-    vfs_FILE         *fileread;
+    const char          *newloadname;
+    vfs_FILE            *fileread;
+
+    spawn_file_info_t   spawn_list[MAX_CHR];                //The full list of objects to be spawned
+    STRING              reserved_slot[MAX_PROFILE];         //Keep track of which slot numbers are reserved by their load name
+    int                 dynamic_list[MAX_CHR];              //references to slots that need to be dynamically loaded later
+    size_t              spawn_count = 0;
+    size_t              dynamic_count = 0;
 
     // tell everyone we are spawning a module
     activate_spawn_file_active = btrue;
@@ -2900,12 +2906,8 @@ void activate_spawn_file_vfs()
     }
     else
     {
-        spawn_file_info_t spawn_list[MAX_CHR];        //The full list of objects to be spawned
-        STRING reserved_slot[MAX_PROFILE];             //Keep track of which slot numbers are reserved by their load name
-        int dynamic_list[MAX_CHR];                     //references to slots that need to be dynamically loaded later
-        size_t spawn_count = 0, dynamic_count = 0;
-        size_t i;
         CHR_REF parent = ( CHR_REF )MAX_CHR;
+        size_t i;
 
         //Mark each slot as free with the string termination character, @TODO: should use memset here
         for( i = 0; i < MAX_PROFILE; i++ ) reserved_slot[i][0] = CSTR_END;
@@ -2961,7 +2963,7 @@ void activate_spawn_file_vfs()
                 //dont try to grab the spellbook slot
                 if( sp_dynamic->slot == SPELLBOOK ) continue;
 
-                //the slot already dynamically loaded by a different spawn object
+                //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
                 if ( 0 == strcmp( reserved_slot[sp_dynamic->slot], sp_dynamic->spawn_coment ) ) break;
 
                 //found a completely free slot

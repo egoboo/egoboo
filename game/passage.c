@@ -348,7 +348,7 @@ bool_t close_passage( const PASS_REF passage )
             {
                 if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
                 {
-                    if ( !pchr->canbecrushed && pchr->openstuff )
+                    if ( !pchr->canbecrushed || ( pchr->alive && pchr->openstuff ) )
                     {
                         // Someone is blocking who can open stuff, stop here
                         return bfalse;
