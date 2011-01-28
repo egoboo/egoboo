@@ -763,9 +763,9 @@ void load_all_music_sounds_vfs()
     STRING songname;
     vfs_FILE *playlist;
     Uint8 cnt;
-
+    
     if ( musicinmemory || !snd.musicvalid ) return;
-
+    
     // Open the playlist listing all music files
     snprintf( loadpath, SDL_arraysize( loadpath ), "mp_data/music/playlist.txt" );
     playlist = vfs_openRead( loadpath );

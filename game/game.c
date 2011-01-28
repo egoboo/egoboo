@@ -2710,7 +2710,7 @@ int strlwr( char * str )
 void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
 {
     //ZF> This turns a spawn comment line into an actual folder name we can use to load something with
-    if ( NULL == psp_info || psp_info->slot < 0 ) return;
+    if ( NULL == psp_info ) return;
 
     // trim any excess spaces off the psp_info->spawn_coment
     str_trim( psp_info->spawn_coment );
@@ -2721,11 +2721,13 @@ void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
         get_random_treasure( psp_info->spawn_coment, SDL_arraysize( psp_info->spawn_coment ) );
     }
 
+    // make sure it ends with a .obj extension
     if ( NULL == strstr( psp_info->spawn_coment, ".obj" ) )
     {
         strcat( psp_info->spawn_coment, ".obj" );
     }
 
+    // no capital letters
     strlwr( psp_info->spawn_coment );
 }
 
@@ -2743,9 +2745,6 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     //Is it already loaded?
     ipro = psp_info->slot;
     if ( LOADED_PRO( ipro ) ) return bfalse;
-
-    //Convert the spawn comment to a nice format
-    convert_spawn_file_load_name( psp_info );
 
     // do the loading
     if ( CSTR_END != psp_info->spawn_coment[0] )

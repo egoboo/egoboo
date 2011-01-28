@@ -6138,8 +6138,8 @@ void move_one_character_do_voluntary( chr_t * pchr )
     {
         chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
 
-        new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - pchr->vel.x );
-        new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - pchr->vel.y );
+        new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - (pchr->vel.x) );
+        new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - (pchr->vel.y) );
     }
     else
     {
@@ -6396,8 +6396,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                     }
 
                     //Determine the attack speed (how fast we play the animation)
-                    pchr->inst.rate  = 0.30f;                       //base attack speed
-                    pchr->inst.rate += chr_dex * 0.04f;             //every 7.5 dex increases base attack speed by 100%
+                    pchr->inst.rate  = 0.35f;                                 //base attack speed
+                    pchr->inst.rate += MIN( 2.00f, chr_dex * 0.035f );         //every 10 dex increases base attack speed by 100%
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
@@ -6791,7 +6791,7 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // DO NOT require objects that are spawning in a module to have a
     // valid position at spawn-time. For instance, if a suit of armor is
     // spawned in a closed hallway, don't complain.
-    //if ( activate_spawn_file_active )                 //ZF> I fixed a bug that caused this boolean variable always to be true. by fixing it it broke other stuff like specific objects spawning after parsing spawn.txt
+    //if ( activate_spawn_file_active )                 //ZF> I fixed a bug that caused this boolean variable always to be true. by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt
     {
         fvec3_base_copy( pos_v, chr_get_pos_v( pchr ) );
         return btrue;
