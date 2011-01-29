@@ -2109,6 +2109,12 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->attachedto;
     }
 
+    //If we are a mount, our rider is the owner of this particle
+    if( pchr->ismount && INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+    {
+        ichr = pchr->holdingwhich[SLOT_LEFT];
+    }
+
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = DEFINED_PRT( iprt );
@@ -3888,6 +3894,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    //If we are a weapon, our holder is the owner of this particle
     ichr    = pself->index;
     iholder = chr_get_lowest_attachment( ichr, btrue );
     if ( INGAME_CHR( iholder ) )
@@ -5548,12 +5555,14 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function respawns the target at its current location
 
     chr_t * pself_target;
+    fvec3_t save_pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
-
+    save_pos = pself_target->pos;
     respawn_character( pself->target );
+    pself_target->pos = save_pos;
 
     SCRIPT_FUNCTION_END();
 }

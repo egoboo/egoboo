@@ -2530,7 +2530,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iweapon, spawn_vrt_offset, chr_get_iteam( iholder ), iholder, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
@@ -3702,18 +3702,22 @@ int damage_character( const CHR_REF character, FACING_T direction,
 
     // Check for characters who are immune to this damage, no need to continue if they have
     immune_to_damage = ( actual_damage > 0 && actual_damage <= pchr->damage_threshold ) || HAS_SOME_BITS( damage_modifier, DAMAGEINVICTUS );
-    if ( immune_to_damage )
+    if ( immune_to_damage)
     {
-        //Dark green text
-        const float lifetime = 3;
-        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-        GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
-
         actual_damage = 0;
-        spawn_defense_ping( pchr, attacker );
 
-        //Character is simply immune to the damage
-        chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
+        //Tell that the character is simply immune to the damage
+        //but don't do message and ping for mounts, it's just irritating
+        if( !pchr->ismount )
+        {
+            //Dark green text
+            const float lifetime = 3;
+            SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+            GLXvector4f tint  = { 0.0f, 0.5f, 0.00f, 1.00f };
+
+            spawn_defense_ping( pchr, attacker );
+            chr_make_text_billboard( character, "Immune!", text_color, tint, lifetime, bb_opt_all );
+        }
     }
 
     // Do it already

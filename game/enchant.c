@@ -1499,11 +1499,10 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     // Check peve->required_damagetype
     if ( peve->required_damagetype < DAMAGE_COUNT )
     {
-        if (
-            GET_DAMAGE_RESIST( ptarget->damage_modifier[peve->required_damagetype] ) >= 3 ||
-            HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGECHARGE ) )
+        if( GET_DAMAGE_RESIST( ptarget->damage_modifier[peve->required_damagetype] ) >= 3 ||
+            HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGEINVICTUS ) )
         {
-            log_warning( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
+            log_debug( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
             return ( ENC_REF )MAX_ENC;
         }
     }
