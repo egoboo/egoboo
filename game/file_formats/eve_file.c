@@ -99,27 +99,35 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
 
     peve->setyesno[SETSLASHMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETSLASHMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDSLASHRESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETCRUSHMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETCRUSHMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDCRUSHRESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETPOKEMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETPOKEMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDPOKERESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETHOLYMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETHOLYMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDHOLYRESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETEVILMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETEVILMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDEVILRESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETFIREMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETFIREMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDFIRERESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETICEMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETICEMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDICERESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETZAPMODIFIER] = fget_next_bool( fileread );
     peve->setvalue[SETZAPMODIFIER] = fget_damage_modifier( fileread );
+    peve->addvalue[ADDZAPRESIST]   = fget_damage_resist( fileread );
 
     peve->setyesno[SETFLASHINGAND] = fget_next_bool( fileread );
     peve->setvalue[SETFLASHINGAND] = fget_int( fileread );
@@ -144,7 +152,7 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
 
     peve->setyesno[SETMISSILETREATMENT] = fget_next_bool( fileread );
     cTmp = fget_first_letter( fileread );
-    if ( 'R' == toupper( cTmp ) )  peve->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
+    if ( 'R' == toupper( cTmp ) )       peve->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
     else if ( 'D' == toupper( cTmp ) )  peve->setvalue[SETMISSILETREATMENT] = MISSILE_DEFLECT;
     else                                peve->setvalue[SETMISSILETREATMENT] = MISSILE_NORMAL;
 
@@ -152,7 +160,7 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     peve->setvalue[SETCOSTFOREACHMISSILE] = fget_float( fileread );
 
     peve->setyesno[SETMORPH] = fget_next_bool( fileread );
-    peve->setvalue[SETMORPH] = btrue;  // fget_bool( fileread );
+    peve->setvalue[SETMORPH] = btrue;  // fget_bool( fileread );        //ZF> huh? why always channel and morph?
 
     peve->setyesno[SETCHANNEL] = fget_next_bool( fileread );
     peve->setvalue[SETCHANNEL] = btrue;  // fget_bool( fileread );
@@ -272,27 +280,35 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETSLASHMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETSLASHMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDSLASHRESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETCRUSHMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETCRUSHMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDCRUSHRESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETPOKEMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETPOKEMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDPOKERESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETHOLYMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETHOLYMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDHOLYRESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETEVILMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETEVILMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDEVILRESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETFIREMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETFIREMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDFIRERESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETICEMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETICEMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDICERESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETZAPMODIFIER] );
     template_put_damage_modifier( filetemp, filewrite, peve->setvalue[SETZAPMODIFIER] );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDZAPRESIST] * 100.0f );
 
     template_put_bool( filetemp, filewrite, peve->setyesno[SETFLASHINGAND] );
     template_put_int( filetemp, filewrite, peve->setvalue[SETFLASHINGAND] );

@@ -238,6 +238,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'D', 'R', 'A', 'D' ) )  ppip->dynalight.falloff_add = fget_int( fileread ) / 1000.0f;
         else if ( idsz == MAKE_IDSZ( 'I', 'D', 'A', 'M' ) )  ppip->intdamagebonus = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'W', 'D', 'A', 'M' ) )  ppip->wisdamagebonus = ( 0 != fget_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'G', 'R', 'A', 'V' ) )  ppip->ignore_gravity = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'O', 'R', 'N', 'T' ) )
         {
             char cTmp = fget_first_letter( fileread );

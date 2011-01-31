@@ -62,7 +62,7 @@ typedef struct s_apos apos_t;
 
 bool_t apos_self_union( apos_t * lhs, apos_t * rhs );
 bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs );
-bool_t apos_self_union_index( apos_t * lhs, const fvec3_base_t rhs, const int index );
+bool_t apos_self_union_index( apos_t * lhs, const float val, const int index );
 bool_t apos_evaluate( const apos_t * src, fvec3_base_t dst );
 
 //--------------------------------------------------------------------------------------------

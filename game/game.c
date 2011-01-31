@@ -824,7 +824,7 @@ int update_game()
                 initialize_all_objects();
                 {
                     move_all_objects();                   // clears some latches
-                    bump_all_objects();    // do the actual object interaction
+                    bump_all_objects();                   // do the actual object interaction
                 }
                 finalize_all_objects();
                 //---- end the code for updating in-game objects
@@ -2326,17 +2326,17 @@ void show_armor( int statindex )
     debug_printf( "=%s=", pcap->skinname[skinlevel] );
 
     // Armor Stats
-    debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - pcap->defense[skinlevel],
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_SLASH][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_CRUSH][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_POKE ][skinlevel] ) );
+    debug_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
+                  pcap->damage_resistance[DAMAGE_SLASH][skinlevel]*100,
+                  pcap->damage_resistance[DAMAGE_CRUSH][skinlevel]*100,
+                  pcap->damage_resistance[DAMAGE_POKE ][skinlevel]*100 );
 
-    debug_printf( "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_HOLY][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_EVIL][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_FIRE][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_ICE ][skinlevel] ),
-                  GET_DAMAGE_RESIST( pcap->damage_modifier[DAMAGE_ZAP ][skinlevel] ) );
+    debug_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
+                  pcap->damage_resistance[DAMAGE_HOLY][skinlevel]*100,
+                  pcap->damage_resistance[DAMAGE_EVIL][skinlevel]*100,
+                  pcap->damage_resistance[DAMAGE_FIRE][skinlevel]*100,
+                  pcap->damage_resistance[DAMAGE_ICE ][skinlevel]*100,
+                  pcap->damage_resistance[DAMAGE_ZAP ][skinlevel]*100 );
 
     debug_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
@@ -2399,13 +2399,20 @@ void show_full_status( int statindex )
 
     CHR_REF character;
     int manaregen, liferegen;
+    cap_t * pcap;
     chr_t * pchr;
+    Uint8  skinlevel;
 
     if ( statindex >= StatusList_count ) return;
-
     character = StatusList[statindex];
+    
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
+    skinlevel = pchr->skin;
+
+    pcap = chr_get_pcap( character );
+    if ( NULL == pcap ) return;
+
 
     // clean up the enchant list
     cleanup_character_enchants( pchr );
@@ -2414,18 +2421,17 @@ void show_full_status( int statindex )
     debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
-    debug_printf( "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
-                  255 - pchr->defense,
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_SLASH] ),
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_CRUSH] ),
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_POKE ] ) );
+    debug_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
+                  pchr->damage_resistance[DAMAGE_SLASH]*100,
+                  pchr->damage_resistance[DAMAGE_CRUSH]*100,
+                  pchr->damage_resistance[DAMAGE_POKE ]*100 );
 
-    debug_printf( "~HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_HOLY] ),
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_EVIL] ),
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_FIRE] ),
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_ICE ] ),
-                  GET_DAMAGE_RESIST( pchr->damage_modifier[DAMAGE_ZAP ] ) );
+    debug_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
+                  pchr->damage_resistance[DAMAGE_HOLY]*100,
+                  pchr->damage_resistance[DAMAGE_EVIL]*100,
+                  pchr->damage_resistance[DAMAGE_FIRE]*100,
+                  pchr->damage_resistance[DAMAGE_ICE ]*100,
+                  pchr->damage_resistance[DAMAGE_ZAP ]*100 );
 
     get_chr_regeneration( pchr, &liferegen, &manaregen );
 
@@ -2667,7 +2673,7 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     {
         chr_t *pitem;
         pchr->nameknown = btrue;
-
+        
         //Unkurse both inhand items
         if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {

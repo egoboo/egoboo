@@ -1567,7 +1567,7 @@ bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t apos_self_union_index( apos_t * lhs, const float val, int index )
+bool_t apos_self_union_index( apos_t * lhs, const float val, const int index )
 {
     // find the maximum displacement at the given index
 

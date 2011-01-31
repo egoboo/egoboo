@@ -193,6 +193,7 @@ struct s_pair
 };
 typedef struct s_pair IPair;
 
+
 // Specifies a value from "from" to "to"
 struct s_range
 {

@@ -369,7 +369,8 @@ struct s_chr
     // combat stuff
     Uint8          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
     Uint8          reaffirm_damagetype;           ///< For relighting torches
-    Uint8          damage_modifier[DAMAGE_COUNT]; ///< Resistances and inversion
+    Uint8          damage_modifier[DAMAGE_COUNT]; ///< Damage inversion
+    float          damage_resistance[DAMAGE_COUNT]; ///< Damage Resistances
     Uint8          defense;                       ///< Base defense rating
     SFP8_T         damage_boost;                  ///< Add to swipe damage
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored

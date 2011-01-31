@@ -140,6 +140,7 @@ extern "C"
     int    fget_next_damage_type( vfs_FILE * fileread );
     bool_t fget_bool( vfs_FILE * fileread );
     Uint8  fget_damage_modifier( vfs_FILE * fileread );
+    float  fget_damage_resist( vfs_FILE * fileread );
     bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len );
     bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len );
     bool_t fget_range( vfs_FILE* fileread, FRange * prange );

@@ -382,7 +382,7 @@ bool_t chr_BSP_fill()
         pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_level = -1e32;
-
+        
         // try to insert the character
         if ( chr_BSP_insert( pchr ) )
         {

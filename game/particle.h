@@ -172,7 +172,8 @@ struct s_prt
 
     int               spawncharacterstate;   ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
-    bool_t            is_homing;                 ///< Is the particle in control of its motion?
+    bool_t            is_homing;              ///< Is the particle in control of its motion?
+    bool_t            no_gravity;            ///< does the particle ignore gravity?
 
     // some data that needs to be copied from the particle profile
     Uint8             endspawn_amount;        ///< The number of particles to be spawned at the end

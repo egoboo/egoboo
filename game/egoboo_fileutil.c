@@ -1017,7 +1017,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 //--------------------------------------------------------------------------------------------
 Uint8 fget_damage_modifier( vfs_FILE * fileread )
 {
-    int  iTmp, tTmp;
+    int  iTmp;
     char cTmp;
 
     cTmp = fget_first_letter( fileread );
@@ -1031,9 +1031,20 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
         default:  iTmp = 0;                 break;
     };
 
-    tTmp = fget_int( fileread );
+    return iTmp;
+}
 
-    return iTmp | tTmp;
+//--------------------------------------------------------------------------------------------
+float fget_damage_resist( vfs_FILE * fileread )
+{
+    //ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts
+    float resistance = fget_float( fileread );
+    if      (resistance == 1)   resistance = 0.50f;     //50% reduction, same as shift 1
+    else if (resistance == 2)   resistance = 0.75f;     //75% reduction, same as shift 2
+    else if (resistance == 3)   resistance = 0.90f;     //90% reduction, same as shift 3
+    else                        resistance = resistance / 100.0f;
+
+    return resistance;
 }
 
 //--------------------------------------------------------------------------------------------

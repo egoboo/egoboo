@@ -1699,18 +1699,17 @@ float draw_debug( float y )
         // Debug information
         y = _draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
         y = _draw_string_raw( 0, y, "~~CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
-
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
-        y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_SLASH] & 3,
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_CRUSH] & 3,
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_POKE ] & 3,
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_HOLY ] & 3,
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_EVIL ] & 3,
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_FIRE ] & 3,
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_ICE  ] & 3,
-                              ChrList.lst[ichr].damage_modifier[DAMAGE_ZAP  ] & 3 );
+        y = _draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_SLASH],
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_CRUSH],
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_POKE ],
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_HOLY ],
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_EVIL ],
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_FIRE ],
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_ICE  ],
+                              ChrList.lst[ichr].damage_resistance[DAMAGE_ZAP  ] );
 
         ichr = PlaStack.lst[ipla].index;
         y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );

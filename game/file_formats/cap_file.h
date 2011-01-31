@@ -71,6 +71,8 @@ extern "C"
         DAMAGE_NONE      = 255
     };
 
+#define DAMAGE_IS_PHYSICAL( TYPE )  (TYPE < DAMAGE_HOLY)    //Damage types slash, crush or poke are physical
+
 /// A list of the possible special experience types
     enum e_xp_type
     {
@@ -160,9 +162,6 @@ extern "C"
 #define DAMAGEMANA          (1 << 4)                      ///< 000x0000 Deals damage to mana
 #define DAMAGECHARGE        (1 << 3)                       ///< 0000x000 Converts damage to mana
 #define DAMAGEINVERT        (1 << 2)                       ///< 00000x00 Makes damage heal
-#define DAMAGESHIFT         3                       ///< 000000xx Resistance ( 1 is common )
-
-#define GET_DAMAGE_RESIST(BITS) ( (BITS) & DAMAGESHIFT )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -282,6 +281,7 @@ extern "C"
         bool_t       resistbumpspawn;                        ///< Don't catch fire
         Uint8        defense[MAX_SKIN];                      ///< Defense for each skin
         Uint8        damage_modifier[DAMAGE_COUNT][MAX_SKIN];
+        float        damage_resistance[DAMAGE_COUNT][MAX_SKIN];
 
         // xp
         Uint32       experience_forlevel[MAXLEVEL];  ///< Experience needed for next level

@@ -6947,8 +6947,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
             if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
             {
                 //Finally we require it to be physical damage!
-                Uint16 sTmp = sTmp = pself->damagetypelast;
-                if ( sTmp == DAMAGE_CRUSH || sTmp == DAMAGE_POKE || sTmp == DAMAGE_SLASH ) returncode = btrue;
+                if ( DAMAGE_IS_PHYSICAL( pself->damagetypelast ) ) returncode = btrue;
             }
         }
     }

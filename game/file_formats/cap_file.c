@@ -224,7 +224,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         goto_colon( NULL, fileread, bfalse );
         for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            pcap->damage_modifier[damagetype][cnt] = fget_int( fileread );
+            pcap->damage_resistance[damagetype][cnt] = fget_damage_resist( fileread );
         }
     }
 
@@ -559,10 +559,10 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][0] ) );
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][1] ) );
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][2] ) );
-        template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( pcap->damage_modifier[damagetype][3] ) );
+        template_put_float( filetemp, filewrite, pcap->damage_resistance[damagetype][0] );
+        template_put_float( filetemp, filewrite, pcap->damage_resistance[damagetype][1] );
+        template_put_float( filetemp, filewrite, pcap->damage_resistance[damagetype][2] );
+        template_put_float( filetemp, filewrite, pcap->damage_resistance[damagetype][3] );
     }
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )

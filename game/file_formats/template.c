@@ -355,12 +355,13 @@ void template_put_damage_modifier( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint
         {
             vfs_putc( 'M', filewrite );
         }
+        else if ( HAS_SOME_BITS( mod, DAMAGEINVICTUS ) )
+        {
+            vfs_putc( 'I', filewrite );
+        }
         else
         {
             vfs_putc( 'F', filewrite );
         }
     }
-
-    // now put the damage shift
-    template_put_int( filetemp, filewrite, GET_DAMAGE_RESIST( mod ) );
 }

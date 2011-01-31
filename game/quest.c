@@ -19,8 +19,6 @@
 
 /// @file quest.c
 /// @brief Handles functions that modify quest.txt files and the players quest log
-/// @details ZF@> This could be done more optimal with a proper HashMap allowing O(1) speed instead of O(n)
-///              I think we should also implement a similar system for skill IDSZ.
 
 #include "IDSZ_map.h"
 #include "quest.h"

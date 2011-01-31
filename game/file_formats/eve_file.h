@@ -82,7 +82,7 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 
-/// A list of all the variables that can be affested by rnchant add
+/// A list of all the variables that can be affested by enchant add
     enum e_enchant_add
     {
         ADDJUMPPOWER = 0,
@@ -91,20 +91,35 @@ extern "C"
         ADDDAMAGE,
         ADDSIZE,
         ADDACCEL,
+
         ADDRED,                        ///< Red shift
         ADDGRN,                        ///< Green shift
         ADDBLU,                        ///< Blue shift
+
         ADDDEFENSE,                    ///< Defence adjustments
+
         ADDMANA,
         ADDLIFE,
+
         ADDSTRENGTH,
         ADDWISDOM,
         ADDINTELLIGENCE,
         ADDDEXTERITY,
+
+        ADDSLASHRESIST,
+        ADDCRUSHRESIST,
+        ADDPOKERESIST,
+        ADDEVILRESIST,
+        ADDHOLYRESIST,
+        ADDFIRERESIST,
+        ADDICERESIST,
+        ADDZAPRESIST,
+
         MAX_ENCHANT_ADD,
 
+        //these are only for parsing the enchant file
         ENC_ADD_FIRST = ADDJUMPPOWER,
-        ENC_ADD_LAST  = ADDDEXTERITY
+        ENC_ADD_LAST  = ADDZAPRESIST
 
     };
 

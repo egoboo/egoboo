@@ -784,6 +784,54 @@ void enchant_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             ptarget->dexterity += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
+
+        case ADDSLASHRESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_SLASH];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_SLASH] += fvaluetoadd;
+            break;
+
+        case ADDCRUSHRESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_CRUSH];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_CRUSH] += fvaluetoadd;
+            break;
+
+        case ADDPOKERESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_POKE];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_POKE] += fvaluetoadd;
+            break;
+
+        case ADDHOLYRESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_HOLY];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_HOLY] += fvaluetoadd;
+            break;
+
+        case ADDEVILRESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_EVIL];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_EVIL] += fvaluetoadd;
+            break;
+
+        case ADDFIRERESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_FIRE];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_FIRE] += fvaluetoadd;
+            break;
+
+        case ADDICERESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_ICE];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_ICE] += fvaluetoadd;
+            break;
+
+        case ADDZAPRESIST:
+            fnewvalue = ptarget->damage_resistance[DAMAGE_ZAP];
+            fvaluetoadd = peve->addvalue[value_idx];
+            ptarget->damage_resistance[DAMAGE_ZAP] += fvaluetoadd;
+            break;
     }
 
     // save whether there was any change in the value
@@ -800,6 +848,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     enc_spawn_data_t * pdata;
     ENC_REF ienc;
     CHR_REF overlay;
+    float lifetime;
 
     eve_t * peve;
     chr_t * ptarget;
@@ -868,9 +917,15 @@ enc_t * enc_config_do_init( enc_t * penc )
         ChrList.lst[penc->spawner_ref].undoenchant = ienc;
     }
 
-    // set some other spawning parameters
-    penc->lifetime       = peve->lifetime;
+    //recuce enchant duration with damage resistance
     penc->spawn_timer    = 1;
+    lifetime             = peve->lifetime;
+    if( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT )
+    {
+        lifetime -= MAX( 1, CEIL( (ptarget->damage_resistance[peve->required_damagetype]) * peve->lifetime) );
+        printf("Damage resistance reduced duration from %i to %3.0f\n", peve->lifetime, lifetime);
+    }
+    penc->lifetime       = lifetime;
 
     // Now set all of the specific values, morph first
     for ( set_type = ENC_SET_FIRST; set_type <= ENC_SET_LAST; set_type++ )
@@ -1496,10 +1551,10 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     }
     ptarget = ChrList.lst + loc_target;
 
-    // Check peve->required_damagetype
+    // Check peve->required_damagetype, 90% damage resistance is enough to resist the enchant
     if ( peve->required_damagetype < DAMAGE_COUNT )
     {
-        if( GET_DAMAGE_RESIST( ptarget->damage_modifier[peve->required_damagetype] ) >= 3 ||
+        if( ptarget->damage_resistance[peve->required_damagetype] >= 0.90f ||
             HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGEINVICTUS ) )
         {
             log_debug( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
@@ -1797,6 +1852,38 @@ void enchant_remove_add( const ENC_REF ienc, int value_idx )
             case ADDDEXTERITY:
                 valuetoadd = penc->addsave[value_idx];
                 ptarget->dexterity -= valuetoadd;
+                break;
+
+            case ADDSLASHRESIST:
+                ptarget->damage_resistance[DAMAGE_SLASH] -= penc->addsave[value_idx];
+                break;
+
+            case ADDCRUSHRESIST:
+                ptarget->damage_resistance[DAMAGE_CRUSH] -= penc->addsave[value_idx];
+                break;
+
+            case ADDPOKERESIST:
+                ptarget->damage_resistance[DAMAGE_POKE]  -= penc->addsave[value_idx];
+                break;
+
+            case ADDHOLYRESIST:
+                ptarget->damage_resistance[DAMAGE_HOLY] -= penc->addsave[value_idx];
+                break;
+
+            case ADDEVILRESIST:
+                ptarget->damage_resistance[DAMAGE_EVIL] -= penc->addsave[value_idx];
+                break;
+
+            case ADDFIRERESIST:
+                ptarget->damage_resistance[DAMAGE_FIRE] -= penc->addsave[value_idx];
+                break;
+
+            case ADDICERESIST:
+                ptarget->damage_resistance[DAMAGE_ICE] -= penc->addsave[value_idx];
+                break;
+
+            case ADDZAPRESIST:
+                ptarget->damage_resistance[DAMAGE_ZAP] -= penc->addsave[value_idx];
                 break;
         }
 

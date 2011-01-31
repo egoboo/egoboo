@@ -216,6 +216,7 @@ extern "C"
         float   spdlimit;                     ///< Speed limit
         float   dampen;                       ///< Bounciness
         bool_t  allowpush;                    ///< Allow particle to push characters around
+        bool_t  ignore_gravity;               ///< Ignores gravity
 
         dynalight_info_t dynalight;           ///< Dynamic lighting info
 

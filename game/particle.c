@@ -541,6 +541,9 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // get an initial value for the is_homing variable
     pprt->is_homing = ppip->homing && !DEFINED_CHR( pprt->attachedto_ref );
 
+    //enable or disable gravity
+    pprt->no_gravity = ppip->ignore_gravity;
+
     // estimate some parameters for buoyancy and air resistance
     loc_spdlimit = ppip->spdlimit;
 
@@ -1636,7 +1639,8 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     ///            to move forward in a straight line without being dragged down into the dust!
     /// @note BB@> however, the fireball particle is light, and without gravity it will never bounce on the
     ///            ground as it is supposed to
-    if ( /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
+    //  @note ZF@> I will try to fix this by adding a new  no_gravity expansion for particles
+    if ( loc_pprt->no_gravity || /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
@@ -2225,7 +2229,8 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     // Check that direction
     if ( !is_invictus_direction( direction, character, ppip->damfx ) )
     {
-        Uint8 damage_modifier;
+        IPair loc_rand = {0, 100};
+        int damage_resistance;
 
         // Spawn new enchantments
         if ( ppip->spawnenchant )
@@ -2241,9 +2246,14 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
         // however, it seems that the bump particles in game rarely attach more than
         // one bump particle
 
-        damage_modifier = ( pprt->damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_modifier[pprt->damagetype];
+        //check if we resisted the attack, we could resist some of the particles or none
+        damage_resistance = ( pprt->damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_resistance[pprt->damagetype]*100;
+        for( cnt = 0; cnt < amount; cnt++ )
+        {
+            if( generate_irand_pair( loc_rand ) <= damage_resistance ) amount--;
+        }
 
-        if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && 0 != GET_DAMAGE_RESIST( damage_modifier ) )
+        if ( amount > 0 && !pcap->resistbumpspawn && !pchr->invictus )
         {
             int grip_verts, vertices;
             int slot_count;
@@ -2798,7 +2808,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     is_immolated_by = ( loc_pprt->damagetype < DAMAGE_COUNT && loc_pchr->reaffirm_damagetype == loc_pprt->damagetype );
 
     // 4) the character has no protection to the particle
-    no_protection_from = ( 0 != max_damage ) && ( loc_pprt->damagetype < DAMAGE_COUNT ) && ( 0 == loc_pchr->damage_modifier[loc_pprt->damagetype] );
+    no_protection_from = ( 0 != max_damage ) && ( loc_pprt->damagetype < DAMAGE_COUNT ) && ( 0 == loc_pchr->damage_resistance[loc_pprt->damagetype] );
 
     if ( !skewered_by_arrow && !has_vulnie && !is_immolated_by && !no_protection_from )
     {

@@ -110,6 +110,8 @@ static float   chr_get_mesh_pressure( chr_t * pchr, float test_pos[] );
 
 static egoboo_rv chr_invalidate_child_instances( chr_t * pchr );
 
+static void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void character_system_begin()
@@ -833,7 +835,6 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
 
     // calculate the radius based on whether the character is on camera
-    // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
@@ -872,7 +873,6 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
 
     // calculate the radius based on whether the character is on camera
-    // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
@@ -914,7 +914,6 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     if ( NULL == test_pos ) test_pos = pchr->pos.v;
 
     // calculate the radius based on whether the character is on camera
-    // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
@@ -953,7 +952,6 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return EMPTY_BIT_FIELD;
 
     // calculate the radius based on whether the character is on camera
-    // ZF> this may be the cause of the bug allowing AI to move through walls when the camera is not looking at them?
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
@@ -3168,6 +3166,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
     {
         pchr->damage_modifier[tnc] = pcap->damage_modifier[tnc][pchr->skin];
+        pchr->damage_resistance[tnc] = pcap->damage_resistance[tnc][pchr->skin];
     }
 
     // Flags
@@ -3384,10 +3383,9 @@ bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount
     pchr->life = CLIP( pchr->life, pchr->life + ABS( amount ), pchr->lifemax );
 
     // Set alerts, but don't alert that we healed ourselves
-    if ( healer != character && pchr_h->attachedto != character && ABS( amount ) > HURTDAMAGE )
+    if ( pchr_h->attachedto != character && ABS( amount ) > HURTDAMAGE )
     {
-        SET_BIT( pchr->ai.alert, ALERTIF_HEALED );
-        pchr->ai.attacklast = healer;
+        chr_update_attacker( pchr, healer, btrue );
     }
 
     return btrue;
@@ -3484,7 +3482,7 @@ void cleanup_one_character( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_invictus )
+void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool_t ignore_invictus )
 {
     /// @details BB@> Handle a character death. Set various states, disconnect it from the world, etc.
 
@@ -3493,6 +3491,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_inv
     int action;
     Uint16 experience;
     TEAM_REF killer_team;
+    CHR_REF actual_killer;
 
     if ( !DEFINED_CHR( ichr ) ) return;
     pchr = ChrList.lst + ichr;
@@ -3503,7 +3502,26 @@ void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_inv
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
-    killer_team = chr_get_iteam( killer );
+    //Fix who is actually the killer if needed
+    actual_killer = original_killer;
+    if ( INGAME_CHR( actual_killer ) )
+    {
+        chr_t *pkiller = ChrList.lst + actual_killer;
+
+        //If we are a held item, try to figure out who the actual killer is
+        if( DEFINED_CHR( pkiller->attachedto ) && !ChrList.lst[pkiller->attachedto].ismount )
+        {
+            actual_killer = pkiller->attachedto;
+        }
+        
+        //If the killer is a mount, try to award the kill to the rider
+        else if( pkiller->ismount && pkiller->holdingwhich[SLOT_LEFT] )
+        {
+            actual_killer = pkiller->holdingwhich[SLOT_LEFT];
+        }
+    }
+
+    killer_team = chr_get_iteam( actual_killer );
 
     pchr->alive = bfalse;
     pchr->waskilled = btrue;
@@ -3522,24 +3540,24 @@ void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_inv
     experience = pcap->experience_worth + ( pchr->experience * pcap->experience_exchange );
 
     // distribute experience to the attacker
-    if ( INGAME_CHR( killer ) )
+    if ( INGAME_CHR( actual_killer ) )
     {
         // Set target
-        pchr->ai.target = killer;
+        pchr->ai.target = actual_killer;
         if ( killer_team == TEAM_DAMAGE || killer_team == TEAM_NULL )  pchr->ai.target = ichr;
 
         // Award experience for kill?
         if ( team_hates_team( killer_team, pchr->team ) )
         {
             //Check for special hatred
-            if ( chr_get_idsz( killer, IDSZ_HATE ) == chr_get_idsz( ichr, IDSZ_PARENT ) ||
-                 chr_get_idsz( killer, IDSZ_HATE ) == chr_get_idsz( ichr, IDSZ_TYPE ) )
+            if ( chr_get_idsz( actual_killer, IDSZ_HATE ) == chr_get_idsz( ichr, IDSZ_PARENT ) ||
+                 chr_get_idsz( actual_killer, IDSZ_HATE ) == chr_get_idsz( ichr, IDSZ_TYPE ) )
             {
-                give_experience( killer, experience, XP_KILLHATED, bfalse );
+                give_experience( actual_killer, experience, XP_KILLHATED, bfalse );
             }
 
             // Nope, award direct kill experience instead
-            else give_experience( killer, experience, XP_KILLENEMY, bfalse );
+            else give_experience( actual_killer, experience, XP_KILLENEMY, bfalse );
         }
     }
 
@@ -3552,7 +3570,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF killer, bool_t ignore_inv
         if ( !plistener->alive ) continue;
 
         // All allies get team experience, but only if they also hate the dead guy's team
-        if ( tnc != killer && !team_hates_team( plistener->team, killer_team ) && team_hates_team( plistener->team, pchr->team ) )
+        if ( tnc != actual_killer && !team_hates_team( plistener->team, killer_team ) && team_hates_team( plistener->team, pchr->team ) )
         {
             give_experience( tnc, experience, XP_TEAMKILL, bfalse );
         }
@@ -3653,11 +3671,11 @@ int damage_character( const CHR_REF character, FACING_T direction,
         }
     }
 
-    // Lessen actual_damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
+    // Lessen actual_damage for resistance, resistance is done in percentages where 0.70f means 30% damage reduction from that damage type
     // This can also be used to lessen effectiveness of healing
     actual_damage = generate_irand_pair( damage );
     base_damage   = actual_damage;
-    actual_damage = actual_damage >> GET_DAMAGE_RESIST( damage_modifier );
+    actual_damage *= MAX( 0.00f, (damagetype >= DAMAGE_COUNT) ? 1.00f : 1.00f-pchr->damage_resistance[damagetype] );
 
     // Increase electric damage when in water
     if ( damagetype == DAMAGE_ZAP && chr_is_over_water( pchr ) )
@@ -3674,11 +3692,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
         manadamage = MAX( pchr->mana - actual_damage, 0 );
         pchr->mana = manadamage;
         actual_damage -= manadamage;
-        if ( pchr->ai.index != attacker )
-        {
-            SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
-            pchr->ai.attacklast = attacker;
-        }
+        chr_update_attacker( pchr, attacker, bfalse );
     }
 
     // Allow charging (Invert actual_damage to mana)
@@ -3748,7 +3762,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
                 // Spawn blud particles
                 if ( pcap->blud_valid )
                 {
-                    if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && damagetype < DAMAGE_HOLY ) )
+                    if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
                     {
                         spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_lpip,
                                             ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
@@ -3764,17 +3778,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
                     }
                     else
                     {
-                        // Don't alert the character too much if under constant fire
-                        if ( 0 == pchr->careful_timer )
-                        {
-                            // Don't let characters chase themselves...  That would be silly
-                            if ( attacker != character )
-                            {
-                                SET_BIT( pchr->ai.alert, ALERTIF_ATTACKED );
-                                pchr->ai.attacklast = attacker;
-                                pchr->careful_timer = CAREFULTIME;
-                            }
-                        }
+                        chr_update_attacker( pchr, attacker, bfalse );
                     }
                 }
 
@@ -3880,6 +3884,47 @@ int damage_character( const CHR_REF character, FACING_T direction,
     }
 
     return actual_damage;
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing )
+{
+    //@details ZF@> This function should be used whenever a character gets attacked or healed. The function
+    // handles if the attacker is a held item (so that the holder becomes the attacker). The function also 
+    // updates alerts, timers, etc. This function can trigger character cries like "That tickles!" or "Be careful!"
+    CHR_REF actual_attacker = attacker;
+
+    // Don't let characters chase themselves...  That would be silly
+    if( pchr->ai.index == attacker ) return;
+
+    // Don't alert the character too much if under constant fire
+    if ( 0 != pchr->careful_timer ) return;
+
+    // Figure out who is the real attacker, in case we are a held item or a controlled mount
+    if( INGAME_CHR( attacker ) )
+    {
+        chr_t *pattacker = ChrList.lst + attacker;
+
+        //Do not alert items damaging (or healing) their holders, healing potions for example
+        if( pattacker->attachedto == pchr->ai.index ) return;
+
+        //If we are held, the holder is the real attacker... unless the holder is a mount
+        if( INGAME_CHR( pattacker->attachedto ) && !ChrList.lst[pattacker->attachedto].ismount )
+        {
+            actual_attacker = pattacker->attachedto;
+        }
+
+        //If the attacker is a mount, try to blame the rider
+        else if ( pattacker->ismount && INGAME_CHR( pattacker->holdingwhich[SLOT_LEFT] ) )
+        {
+            actual_attacker = pattacker->holdingwhich[SLOT_LEFT];
+        }
+    }
+
+    //Update alerts and timers
+    pchr->ai.attacklast = actual_attacker;
+    SET_BIT( pchr->ai.alert, healing ? ALERTIF_HEALED : ALERTIF_ATTACKED );
+    pchr->careful_timer = CAREFULTIME;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4068,7 +4113,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
     pchr->skin = pchr->spawn_data.skin;
 
-    // fix the pchr->spawn_data.skin-related parameters, in case there was some funy business with overriding
+    // fix the pchr->spawn_data.skin-related parameters, in case there was some funny business with overriding
     // the pchr->spawn_data.skin from the data.txt file
     if ( pchr->spawn_data.skin != pchr->skin )
     {
@@ -4078,6 +4123,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
         for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
         {
             pchr->damage_modifier[tnc] = pcap->damage_modifier[tnc][pchr->skin];
+            pchr->damage_resistance[tnc] = pcap->damage_resistance[tnc][pchr->skin];
         }
 
         chr_set_maxaccel( pchr, pcap->maxaccel[pchr->skin] );
@@ -4968,6 +5014,7 @@ int change_armor( const CHR_REF character, int skin )
     for ( iTmp = 0; iTmp < DAMAGE_COUNT; iTmp++ )
     {
         pchr->damage_modifier[iTmp] = pcap->damage_modifier[iTmp][skin];
+        pchr->damage_resistance[iTmp] = pcap->damage_resistance[iTmp][skin];
     }
 
     // set the character's maximum acceleration
@@ -5002,6 +5049,14 @@ int change_armor( const CHR_REF character, int skin )
 
             enchant_apply_add( ienc_now, ADDACCEL,         ieve );
             enchant_apply_add( ienc_now, ADDDEFENSE,       ieve );
+            enchant_apply_add( ienc_now, ADDSLASHRESIST,   ieve );
+            enchant_apply_add( ienc_now, ADDCRUSHRESIST,   ieve );
+            enchant_apply_add( ienc_now, ADDPOKERESIST,    ieve );
+            enchant_apply_add( ienc_now, ADDHOLYRESIST,    ieve );
+            enchant_apply_add( ienc_now, ADDEVILRESIST,    ieve );
+            enchant_apply_add( ienc_now, ADDFIRERESIST,    ieve );
+            enchant_apply_add( ienc_now, ADDICERESIST,     ieve );
+            enchant_apply_add( ienc_now, ADDZAPRESIST,     ieve );
         }
 
         ienc_now = ienc_nxt;
@@ -6425,7 +6480,9 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 
                 // let everyone know what we did
                 pchr->ai.lastitemused = iweapon;
-                if ( iweapon == ichr || HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
+
+                //ZF> why should there any reason the weapon should NOT be alerted when it is used?
+//                if ( iweapon == ichr || HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
                 {
                     SET_BIT( pweapon->ai.alert, ALERTIF_USED );
                 }
@@ -6691,9 +6748,10 @@ void move_one_character_do_z_motion( chr_t * pchr )
     {
         pchr->vel.z += ( pchr->enviro.fly_level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
     }
+
     else if (
         pchr->enviro.is_slippy && ( pchr->enviro.grid_twist != TWIST_FLAT ) &&
-        ( CHR_INFINITE_WEIGHT != pchr->phys.weight )  && ( pchr->enviro.grid_lerp <= pchr->enviro.zlerp ) )
+        ( CHR_INFINITE_WEIGHT != pchr->phys.weight ) && ( pchr->enviro.grid_lerp <= pchr->enviro.zlerp ) )
     {
         // Slippy hills make characters slide
 
