@@ -34,33 +34,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// All the possible game actions that can be triggered from an input device
-    enum e_input_controls
-    {
-        CONTROL_JUMP = 0,
-        CONTROL_LEFT_USE,
-        CONTROL_LEFT_GET,
-        CONTROL_LEFT_PACK,
-        CONTROL_RIGHT_USE,
-        CONTROL_RIGHT_GET,
-        CONTROL_RIGHT_PACK,
-        CONTROL_MESSAGE,
-        CONTROL_CAMERA_LEFT,
-        CONTROL_CAMERA_RIGHT,
-        CONTROL_CAMERA_IN,
-        CONTROL_CAMERA_OUT,
-        CONTROL_UP,
-        CONTROL_DOWN,
-        CONTROL_LEFT,
-        CONTROL_RIGHT,
-        CONTROL_COMMAND_COUNT,
-
-        // Aliases
-        CONTROL_CAMERA = CONTROL_MESSAGE,
-        CONTROL_BEGIN  = CONTROL_JUMP,
-        CONTROL_END    = CONTROL_RIGHT
-    };
-
 /// All the possible game actions that be assiciated with the keyboard
     enum e_keyboard_controls
     {
@@ -119,34 +92,6 @@ extern "C"
         JOY_CONTROL_BEGIN = JOY_JUMP,
         JOY_CONTROL_END   = JOY_CAMERA
     };
-
-//--------------------------------------------------------------------------------------------
-
-/// the basic definition of a single control
-    struct s_control
-    {
-        Uint32 tag;
-        bool_t is_key;
-    };
-    typedef struct s_control control_t;
-
-//--------------------------------------------------------------------------------------------
-
-/// The mapping between the inputs detected by SDL and the device's in-game function
-    struct s_device_controls
-    {
-        size_t    count;
-        Uint32    device;
-        control_t control[CONTROL_COMMAND_COUNT];
-    };
-    typedef struct s_device_controls device_controls_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    extern device_controls_t controls[INPUT_DEVICE_END + MAXJOYSTICK];
-
-    extern Uint32 input_device_count;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

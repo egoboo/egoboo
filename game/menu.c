@@ -161,8 +161,8 @@ typedef struct s_GameTips GameTips_t;
 //--------------------------------------------------------------------------------------------
 struct s_SelectedPlayer_element
 {
-    Uint32  input;
-    int     player;
+    int  input_device;
+    int  player;
 };
 typedef struct s_SelectedPlayer_element SelectedPlayer_element_t;
 
@@ -172,7 +172,7 @@ egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr );
 struct s_SelectedPlayer_list
 {
     int count;
-    SelectedPlayer_element_t lst[MAX_PLAYER];
+    SelectedPlayer_element_t lst[MAX_LOCAL_PLAYERS];
 };
 typedef struct s_SelectedPlayer_list SelectedPlayer_list_t;
 
@@ -201,6 +201,8 @@ static module_filter_t mnu_moduleFilter = FILTER_OFF;
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
 
 static int selectedModule = -1;
+static int currentSelectingPlayer;
+static int selectedPlayers[MAX_LOCAL_PLAYERS];
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
 static const char * copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
@@ -1648,56 +1650,187 @@ bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mod
 //--------------------------------------------------------------------------------------------
 int doChoosePlayer( float deltaTime )
 {
+    static int menuState = MM_Begin;
+    static oglx_texture_t background;
+    static const char * button_text[] = { "Continue", "Back", ""};
+    static int sparkle_delta = 0;
+
+    int result = 0;
+    int i, x, y;
+
+    //This makes sparkles move
+    sparkle_delta++;
+
+    switch ( menuState )
+    {
+        case MM_Begin:
+
+            //SelectedPlayer_list_init( &mnu_SelectedList );
+
+            ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
+
+            // load information for all the players that could be imported
+            LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
+
+            // no players selected by default
+            if( mnu_SelectedList.count == 0 )
+            {
+                for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
+                {
+                    selectedPlayers[i] = -1;
+                }
+            }
+            mnu_SlidyButton_init( 1.0f, button_text );
+
+            menuState = MM_Entering;
+            // fall through
+
+        case MM_Entering:
+            tipText_set_position( menuFont, "Select characters for each player that is going to play.", 20 );
+
+            menuState = MM_Running;
+            break;
+
+        case MM_Running:
+
+            // Draw the background
+            if ( mnu_draw_background )
+            {
+                x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
+                y = GFX_HEIGHT - background.imgH;
+                ui_drawImage( 0, &background, x, y, 0, 0, NULL );
+            }
+
+            y = GFX_HEIGHT / (MAX_LOCAL_PLAYERS*2);
+
+            ui_drawTextBox( menuFont, "PLAYER", 50, 10, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "CHARACTER", 250, 10, 0, 0, 20 );
+
+            // Draw the lplayer selection buttons
+            for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
+            {
+                STRING text;
+                LoadPlayer_element_t *pchar = NULL;
+
+                //Figure out if there is a valid player selected
+                if( selectedPlayers[i] != -1 )
+                {
+                    pchar = mnu_loadplayer.lst + selectedPlayers[i];
+                }
+
+                snprintf( text, SDL_arraysize(text), "Player %i:", i+1);
+                ui_drawTextBox( menuFont, text, 50, y*(i+1), 0, 0, 20 );
+
+                // character button
+                if ( BUTTON_UP == ui_doButton( 10+i, pchar == NULL ? "Not playing" : pchar->name, NULL, buttonLeft + 200, y*(i+1), 200, 30 ) )
+                {
+                    currentSelectingPlayer = i;
+                    menuState = MM_Entering;
+                    result = 1;
+                }
+
+                //character icon
+                if( pchar != NULL ) draw_one_icon( pchar->tx_ref, buttonLeft+200, y*(i+1), i, sparkle_delta );
+
+            }
+
+            // Continue
+            if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
+            {
+                menuState = MM_Leaving;
+            }
+
+            // Back
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
+            {
+                SelectedPlayer_list_init( &mnu_SelectedList );
+                menuState = MM_Leaving;
+            }
+
+            // tool-tip text
+            ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
+
+            break;
+
+        case MM_Leaving:
+                
+            //Figure out which players have been selected
+/*            for( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
+            {
+                if( selectedPlayers[i] == -1 ) continue;
+                SelectedPlayer_list_add( &mnu_SelectedList,  i );
+            }*/
+                
+            //fall through
+
+        case MM_Finish:
+
+            oglx_texture_Release( &background );
+
+            menuState = MM_Begin;
+
+            if ( 0 == mnu_SelectedList.count )
+            {
+                result = -1;
+            }
+            else
+            {
+                // set up the slots and the import stuff for the selected players
+                if ( rv_success == mnu_set_local_import_list( &ImportList, &mnu_SelectedList ) )
+                {
+                    game_copy_imports( &ImportList );
+                }
+                else
+                {
+                    // erase the data in the import folder
+                    vfs_removeDirectoryAndContents( "import", VFS_TRUE );
+                }
+
+                // if there are no selected players, there is no reason to keep this data
+                if ( 0 == mnu_SelectedList.count )
+                {
+                    LoadPlayer_list_dealloc( &mnu_loadplayer );
+                }
+
+                result = 2;
+            }
+
+            // reset the ui
+            ui_Reset();
+
+            break;
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
+int doChoosePlayerCharacter( float deltaTime )
+{
     const int x0 = 20, y0 = 20, icon_size = 42, text_width = 175, button_repeat = 47;
 
     static int menuState = MM_Begin;
     static oglx_texture_t background;
     static int    startIndex = 0;
-    static int    last_player = -1;
+    static int    last_player = 0;
     static bool_t new_player = bfalse;
     static int numVertical, numHorizontal;
     static Uint32 BitsInput[4];
     static bool_t device_on[4];
-    static const char * button_text[] = { "N/A", "Back", ""};
+    static const char * button_text[] = { "Select Character", "None", "" };
 
     int result = 0;
-    int i, j, x, y;
+    int i, x, y;
 
     switch ( menuState )
     {
         case MM_Begin:
             TxTexture_free_one(( TX_REF )TX_BARS );
-
-            SelectedPlayer_list_init( &mnu_SelectedList );
-
-            TxTexture_load_one_vfs( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
-
-            TxTexture_load_one_vfs( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
-            BitsInput[0] = INPUT_BITS_KEYBOARD;
-            device_on[0] = keyb.on;
-
-            TxTexture_load_one_vfs( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
-            BitsInput[1] = INPUT_BITS_MOUSE;
-            device_on[1] = mous.on;
-
-            TxTexture_load_one_vfs( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
-            BitsInput[2] = INPUT_BITS_JOYA;
-            device_on[2] = joy[0].on;
-
-            TxTexture_load_one_vfs( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
-            BitsInput[3] = INPUT_BITS_JOYB;
-            device_on[3] = joy[1].on;
+            last_player = selectedPlayers[currentSelectingPlayer];
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
             TxTexture_load_one_vfs( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
-
-            // load information for all the players that could be imported
-            LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
-
-            // reset button 0, or it will mess up the menu.
-            // must do it before mnu_SlidyButton_init()
-            button_text[0] = "N/A";
 
             mnu_SlidyButton_init( 1.0f, button_text );
 
@@ -1713,57 +1846,27 @@ int doChoosePlayer( float deltaTime )
                 ui_initWidget( mnu_widgetList + m, m, NULL, NULL, NULL, x, y, text_width, icon_size );
                 ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
 
-                for ( j = 0, m++; j < 4; j++, m++ )
-                {
-                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxTexture_get_ptr(( TX_REF )( ICON_KEYB + j ) ), x + text_width + j*icon_size, y, icon_size, icon_size );
-                    ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
-                };
-
                 y += button_repeat;
             };
 
             if ( mnu_loadplayer.count < 10 )
             {
-                tipText_set_position( menuFont, "Choose an input device to select your player(s)", 20 );
+                tipText_set_position( menuFont, "Select your character", 20 );
             }
             else
             {
-                tipText_set_position( menuFont, "Choose an input device to select your player(s)\nUse the mouse wheel to scroll.", 20 );
+                tipText_set_position( menuFont, "Select your character\nUse the mouse wheel to scroll.", 20 );
             }
 
             menuState = MM_Entering;
             // fall through
 
         case MM_Entering:
-
-            /*GL_DEBUG(glColor4f)(1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
-            mnu_SlidyButton_draw_all();
-            mnu_SlidyButton_update_all( -deltaTime );
-            // Let lerp wind down relative to the time elapsed
-            if ( mnu_SlidyButtonState.lerp <= 0.0f )
-            {
-                menuState = MM_Running;
-            }*/
-
+            menuState = MM_Running;
             // Simply fall through
-            // menuState = MM_Running;
-            // break;
 
         case MM_Running:
             // Figure out how many players we can show without scrolling
-
-            if ( 0 == mnu_SelectedList.count )
-            {
-                button_text[0] = "";
-            }
-            else if ( 1 == mnu_SelectedList.count )
-            {
-                button_text[0] = "Select Player";
-            }
-            else
-            {
-                button_text[0] = "Select Players";
-            }
 
             // Draw the background
             x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
@@ -1828,102 +1931,46 @@ int doChoosePlayer( float deltaTime )
                     if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && !SelectedPlayer_list_check_loadplayer( &mnu_SelectedList,  lplayer ) )
                     {
                         // button has become cursor_clicked
-                        // SelectedPlayer_list_add( &mnu_SelectedList, lplayer);
                         last_player = lplayer;
                         new_player  = btrue;
-                    }
-                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) && SelectedPlayer_list_check_loadplayer( &mnu_SelectedList,  lplayer ) )
-                    {
-                        // button has become unclicked
-                        if ( SelectedPlayer_list_remove( &mnu_SelectedList,  lplayer ) )
-                        {
-                            last_player = -1;
-                        }
-                    }
-                }
-
-                // do each of the input buttons
-                for ( j = 0, m++; j < 4; j++, m++ )
-                {
-                    /// @note check for devices being turned on and off each time
-                    /// technically we COULD recognize joysticks being inserted and removed while the
-                    /// game is running but we don't. I will set this up to handle such future behavior
-                    /// anyway :)
-                    switch ( j )
-                    {
-                        case INPUT_DEVICE_KEYBOARD: device_on[j] = keyb.on; break;
-                        case INPUT_DEVICE_MOUSE:    device_on[j] = mous.on; break;
-                        case INPUT_DEVICE_JOY_A:  device_on[j] = joy[0].on; break;
-                        case INPUT_DEVICE_JOY_B:  device_on[j] = joy[1].on; break;
-                        default: device_on[j] = bfalse;
-                    }
-
-                    // replace any not on device with a null icon
-                    if ( !device_on[j] )
-                    {
-                        mnu_widgetList[m].img = TxTexture_get_ptr(( TX_REF )ICON_NULL );
-
-                        // draw the widget, even though it will not do anything
-                        // the menu would looks funny if odd columns missing
-                        ui_doWidget( mnu_widgetList + m );
-                    }
-
-                    // make the button states reflect the chosen input devices
-                    if ( INVALID_PLAYER == splayer || HAS_NO_BITS( mnu_SelectedList.lst[ splayer ].input, BitsInput[j] ) )
-                    {
-                        UNSET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
-                    }
-                    else if ( HAS_SOME_BITS( mnu_SelectedList.lst[splayer].input, BitsInput[j] ) )
-                    {
                         SET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
                     }
-
-                    if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
+                    else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
                     {
-                        if ( HAS_SOME_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
-                        {
-                            // button has become cursor_clicked
-                            if ( INVALID_PLAYER == splayer )
-                            {
-                                if ( SelectedPlayer_list_add( &mnu_SelectedList,  lplayer ) )
-                                {
-                                    last_player = lplayer;
-                                    new_player  = btrue;
-                                }
-                            }
-                            if ( SelectedPlayer_list_add_input( &mnu_SelectedList,  lplayer, BitsInput[j] ) )
-                            {
-                                last_player = lplayer;
-                                new_player  = btrue;
-                            }
-                        }
-                        else if ( INVALID_PLAYER != splayer && HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
-                        {
-                            // button has become unclicked
-                            if ( SelectedPlayer_list_remove_input( &mnu_SelectedList,  lplayer, BitsInput[j] ) )
-                            {
-                                last_player = -1;
-                            }
-                        }
+                        // button has become unclicked
+                        last_player = -1;
+                        UNSET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
                     }
                 }
             }
 
             // Buttons for going ahead
 
-            // Continue
-            if ( 0 != mnu_SelectedList.count )
+            // Select character
+            if( last_player != -1 )
             {
                 if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
                 {
+                    //Remove previous selected from the selected list
+                    if( selectedPlayers[currentSelectingPlayer] != -1 ) 
+                        SelectedPlayer_list_remove( &mnu_SelectedList, selectedPlayers[currentSelectingPlayer] );
+
+                    //Add the new one
+                    SelectedPlayer_list_add( &mnu_SelectedList, last_player );
+                    selectedPlayers[currentSelectingPlayer] = last_player;
                     menuState = MM_Leaving;
                 }
             }
 
-            // Back
+            // I am not playing!
             if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
             {
-                SelectedPlayer_list_init( &mnu_SelectedList );
+                //Unselect any player that might have been selected
+                if( selectedPlayers[currentSelectingPlayer] != -1 )
+                {
+                    SelectedPlayer_list_remove( &mnu_SelectedList, selectedPlayers[currentSelectingPlayer] );
+                    selectedPlayers[currentSelectingPlayer] = -1;
+                }
                 menuState = MM_Leaving;
             }
 
@@ -1954,22 +2001,7 @@ int doChoosePlayer( float deltaTime )
             break;
 
         case MM_Leaving:
-            /*
-            // Do buttons sliding out and background fading
-            // Do the same stuff as in MM_Entering, but backwards
-            GL_DEBUG(glColor4f)(1, 1, 1, 1 - mnu_SlidyButtonState.lerp );
-            // Buttons
-            mnu_SlidyButton_draw_all();
-            mnu_SlidyButton_update_all( deltaTime );
-            if ( mnu_SlidyButtonState.lerp >= 1.0f )
-            {
-                menuState = MM_Finish;
-            }
-            */
-
             // Simply fall through
-            //  menuState = MM_Finish;
-            //  break;
 
         case MM_Finish:
 
@@ -1980,31 +2012,7 @@ int doChoosePlayer( float deltaTime )
             TxTexture_free_one(( TX_REF )TX_BARS );
 
             menuState = MM_Begin;
-            if ( 0 == mnu_SelectedList.count )
-            {
-                result = -1;
-            }
-            else
-            {
-                // set up the slots and the import stuff for the selected players
-                if ( rv_success == mnu_set_local_import_list( &ImportList, &mnu_SelectedList ) )
-                {
-                    game_copy_imports( &ImportList );
-                }
-                else
-                {
-                    // erase the data in the import folder
-                    vfs_removeDirectoryAndContents( "import", VFS_TRUE );
-                }
-
-                // if there are no selected players, there is no reason to keep this data
-                if ( 0 == mnu_SelectedList.count )
-                {
-                    LoadPlayer_list_dealloc( &mnu_loadplayer );
-                }
-
-                result = 1;
-            }
+            result = -1;
 
             // reset the ui
             ui_Reset();
@@ -2156,32 +2164,19 @@ int doInputOptions( float deltaTime )
     static int menuChoice = 0;
     static int waitingforinput = -1;
 
-    static STRING inputOptionsButtons[CONTROL_COMMAND_COUNT + 2];
+    static STRING inputOptionsButtons[CONTROL_COMMAND_COUNT + 3];
 
     Sint8  result = 0;
-    static Sint32 player = 0;
+    static Uint8 player = 0;
 
     Uint32              i;
-    Sint32              idevice, iicon;
-    device_controls_t * pdevice;
+    input_device_t      * pdevice;
 
     pdevice = NULL;
-    if ( player >= 0 && player < input_device_count )
+    if ( player < MAX_LOCAL_PLAYERS )
     {
         pdevice = controls + player;
     };
-
-    idevice = player;
-    if ( NULL == pdevice )
-    {
-        idevice = -1;
-    }
-
-    iicon = MIN( 4, idevice );
-    if ( idevice < 0 )
-    {
-        iicon = -1;
-    }
 
     switch ( menuState )
     {
@@ -2192,11 +2187,17 @@ int doInputOptions( float deltaTime )
             // let this fall through into MM_Entering
 
             waitingforinput = -1;
+            player = 0;
 
+            //Clip to valid value
+            if( controls[player].device_type == INPUT_DEVICE_NONE ) controls[player].device_type = INPUT_DEVICE_BEGIN;
+
+            //Prepare all buttons
             for ( i = 0; i < CONTROL_COMMAND_COUNT; i++ )
             {
                 inputOptionsButtons[i][0] = CSTR_END;
             }
+            strncpy( inputOptionsButtons[i++], translate_input_type_to_string(controls[player].device_type), sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof( STRING ) );
 
@@ -2218,113 +2219,106 @@ int doInputOptions( float deltaTime )
             // Do normal run
             // Background
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-            ui_drawTextBox( menuFont, "ATK_LEFT HAND", buttonLeft, GFX_HEIGHT - 470, 0, 0, 20 );
+
+            // Someone pressed abort
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  
 
             // Are we waiting for input?
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  // Someone pressed abort
-
-            // Grab the key/button input from the selected device
             if ( -1 != waitingforinput )
             {
-                if ( NULL == pdevice || idevice < 0 || idevice >= input_device_count )
+                // Grab the key/button input from the selected device
+                if ( NULL == pdevice )
                 {
                     waitingforinput = -1;
                 }
                 else
                 {
-                    if ( waitingforinput >= pdevice->count )
+                    control_t * pcontrol;
+                    int         tag;
+
+                    // make sure to update the input
+                    input_read();
+
+                    pcontrol = pdevice->control + waitingforinput;
+                    if ( pdevice->device_type == INPUT_DEVICE_JOY_A || pdevice->device_type == INPUT_DEVICE_JOY_B )
                     {
-                        // invalid input range for this device
-                        waitingforinput = -1;
+                        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY_A;
+                        if ( ijoy < MAXJOYSTICK )
+                        {
+                            for ( tag = 0; tag < scantag_count; tag++ )
+                            {
+                                if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == joy[ijoy].b )
+                                {
+                                    pcontrol->tag    = scantag[tag].value;
+                                    pcontrol->is_key = bfalse;
+                                    waitingforinput = -1;
+                                }
+                            }
+
+                            for ( tag = 0; tag < scantag_count; tag++ )
+                            {
+                                if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
+                                {
+                                    pcontrol->tag    = scantag[tag].value;
+                                    pcontrol->is_key = btrue;
+                                    waitingforinput = -1;
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        control_t * pcontrol;
-                        int         tag;
-
-                        // make sure to update the input
-                        input_read();
-
-                        pcontrol = pdevice->control + waitingforinput;
-                        if ( idevice >= INPUT_DEVICE_JOY )
+                        switch ( pdevice->device_type )
                         {
-                            int ijoy = idevice - INPUT_DEVICE_JOY;
-                            if ( ijoy < MAXJOYSTICK )
-                            {
-                                for ( tag = 0; tag < scantag_count; tag++ )
+                            case INPUT_DEVICE_KEYBOARD:
                                 {
-                                    if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == joy[ijoy].b )
+                                    for ( tag = 0; tag < scantag_count; tag++ )
                                     {
-                                        pcontrol->tag    = scantag[tag].value;
-                                        pcontrol->is_key = bfalse;
-                                        waitingforinput = -1;
+                                        if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
+                                        {
+                                            pcontrol->tag    = scantag[tag].value;
+                                            pcontrol->is_key = btrue;
+                                            waitingforinput = -1;
+                                        }
                                     }
                                 }
+                                break;
 
-                                for ( tag = 0; tag < scantag_count; tag++ )
+                            case INPUT_DEVICE_MOUSE:
                                 {
-                                    if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
+                                    for ( tag = 0; tag < scantag_count; tag++ )
                                     {
-                                        pcontrol->tag    = scantag[tag].value;
-                                        pcontrol->is_key = btrue;
-                                        waitingforinput = -1;
+                                        if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == mous.b )
+                                        {
+                                            pcontrol->tag    = scantag[tag].value;
+                                            pcontrol->is_key = bfalse;
+                                            waitingforinput = -1;
+                                        }
+                                    }
+
+                                    for ( tag = 0; tag < scantag_count; tag++ )
+                                    {
+                                        if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
+                                        {
+                                            pcontrol->tag    = scantag[tag].value;
+                                            pcontrol->is_key = btrue;
+                                            waitingforinput = -1;
+                                        }
                                     }
                                 }
-                            }
+                                break;
                         }
-                        else
-                        {
-                            switch ( idevice )
-                            {
-                                case INPUT_DEVICE_KEYBOARD:
-                                    {
-                                        for ( tag = 0; tag < scantag_count; tag++ )
-                                        {
-                                            if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
-                                            {
-                                                pcontrol->tag    = scantag[tag].value;
-                                                pcontrol->is_key = btrue;
-                                                waitingforinput = -1;
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case INPUT_DEVICE_MOUSE:
-                                    {
-                                        for ( tag = 0; tag < scantag_count; tag++ )
-                                        {
-                                            if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == mous.b )
-                                            {
-                                                pcontrol->tag    = scantag[tag].value;
-                                                pcontrol->is_key = bfalse;
-                                                waitingforinput = -1;
-                                            }
-                                        }
-
-                                        for ( tag = 0; tag < scantag_count; tag++ )
-                                        {
-                                            if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
-                                            {
-                                                pcontrol->tag    = scantag[tag].value;
-                                                pcontrol->is_key = btrue;
-                                                waitingforinput = -1;
-                                            }
-                                        }
-                                    }
-                                    break;
-                            }
-                        }
-
                     }
                 }
             }
+
+            //Draw the buttons
             if ( NULL != pdevice && -1 == waitingforinput )
             {
                 // update the control names
-                for ( i = CONTROL_BEGIN; i <= CONTROL_END && i < pdevice->count; i++ )
+                for ( i = CONTROL_BEGIN; i <= CONTROL_END; i++ )
                 {
-                    const char * tag = scantag_get_string( pdevice->device, pdevice->control[i].tag, pdevice->control[i].is_key );
+                    const char * tag = scantag_get_string( pdevice->device_type, pdevice->control[i].tag, pdevice->control[i].is_key );
 
                     strncpy( inputOptionsButtons[i], tag, sizeof( STRING ) );
                 }
@@ -2335,6 +2329,7 @@ int doInputOptions( float deltaTime )
             }
 
             // Left hand
+            ui_drawTextBox( menuFont, "LEFT HAND", buttonLeft, GFX_HEIGHT - 470, 0, 0, 20 );
             if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_USE][0] )
             {
                 ui_drawTextBox( menuFont, "Use:", buttonLeft, GFX_HEIGHT - 440, 0, 0, 20 );
@@ -2364,7 +2359,7 @@ int doInputOptions( float deltaTime )
             }
 
             // Right hand
-            ui_drawTextBox( menuFont, "ATK_RIGHT HAND", buttonLeft + 300, GFX_HEIGHT - 470, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, GFX_HEIGHT - 470, 0, 0, 20 );
             if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
             {
                 ui_drawTextBox( menuFont, "Use:", buttonLeft + 300, GFX_HEIGHT - 440, 0, 0, 20 );
@@ -2404,55 +2399,61 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof( STRING ) );
                 }
             }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_UP][0] )
+
+            if ( CSTR_END != inputOptionsButtons[CONTROL_SNEAK][0] )
             {
-                ui_drawTextBox( menuFont, "Up:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
+                ui_drawTextBox( menuFont, "Sneak:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_SNEAK], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
                 {
-                    waitingforinput = CONTROL_UP;
-                    strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof( STRING ) );
-                }
-            }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_DOWN][0] )
-            {
-                ui_drawTextBox( menuFont, "Down:", buttonLeft, GFX_HEIGHT - 230, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
-                {
-                    waitingforinput = CONTROL_DOWN;
-                    strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof( STRING ) );
-                }
-            }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT][0] )
-            {
-                ui_drawTextBox( menuFont, "Left:", buttonLeft, GFX_HEIGHT - 200, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
-                {
-                    waitingforinput = CONTROL_LEFT;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof( STRING ) );
-                }
-            }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT][0] )
-            {
-                ui_drawTextBox( menuFont, "Right:", buttonLeft, GFX_HEIGHT - 170, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
-                {
-                    waitingforinput = CONTROL_RIGHT;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof( STRING ) );
+                    waitingforinput = CONTROL_SNEAK;
+                    strncpy( inputOptionsButtons[CONTROL_SNEAK], "...", sizeof( STRING ) );
                 }
             }
 
-            // Controls
-            ui_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, GFX_HEIGHT - 320, 0, 0, 20 );
-            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_IN][0] )
+            //Only keyboard has the UP, DOWN, LEFT and RIGHT buttons
+            if( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
             {
-                ui_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
+                if ( CSTR_END != inputOptionsButtons[CONTROL_UP][0] )
                 {
-                    waitingforinput = CONTROL_CAMERA_IN;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof( STRING ) );
+                    ui_drawTextBox( menuFont, "Up:", buttonLeft, GFX_HEIGHT - 230, 0, 0, 20 );
+                    if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
+                    {
+                        waitingforinput = CONTROL_UP;
+                        strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof( STRING ) );
+                    }
+                }
+                if ( CSTR_END != inputOptionsButtons[CONTROL_DOWN][0] )
+                {
+                    ui_drawTextBox( menuFont, "Down:", buttonLeft, GFX_HEIGHT - 200, 0, 0, 20 );
+                    if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
+                    {
+                        waitingforinput = CONTROL_DOWN;
+                        strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof( STRING ) );
+                    }
+                }
+                if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT][0] )
+                {
+                    ui_drawTextBox( menuFont, "Left:", buttonLeft, GFX_HEIGHT - 170, 0, 0, 20 );
+                    if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
+                    {
+                        waitingforinput = CONTROL_LEFT;
+                        strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof( STRING ) );
+                    }
+                }
+                if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT][0] )
+                {
+                    ui_drawTextBox( menuFont, "Right:", buttonLeft, GFX_HEIGHT - 140, 0, 0, 20 );
+                    if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 140, 140, 30 ) )
+                    {
+                        waitingforinput = CONTROL_RIGHT;
+                        strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof( STRING ) );
+                    }
                 }
             }
-            else
+            
+            // Camera
+            ui_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, GFX_HEIGHT - 320, 0, 0, 20 );
+            if( pdevice->device_type != INPUT_DEVICE_KEYBOARD )
             {
                 // single button camera control
                 ui_drawTextBox( menuFont, "Camera:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
@@ -2462,55 +2463,68 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof( STRING ) );
                 }
             }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_OUT][0] )
+
+            else
             {
+                ui_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
+                {
+                    waitingforinput = CONTROL_CAMERA_IN;
+                    strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof( STRING ) );
+                }
+
                 ui_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, GFX_HEIGHT - 260, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], menuFont, buttonLeft + 450, GFX_HEIGHT - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_OUT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof( STRING ) );
                 }
-            }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_LEFT][0] )
-            {
+
                 ui_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, GFX_HEIGHT - 230, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], menuFont, buttonLeft + 450, GFX_HEIGHT - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_LEFT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof( STRING ) );
                 }
-            }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_CAMERA_RIGHT][0] )
-            {
+                
                 ui_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, GFX_HEIGHT - 200, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_RIGHT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof( STRING ) );
-                }
+                }                
             }
+
+            // The select controller button
+            ui_drawTextBox( menuFont, "INPUT DEVICE:", buttonLeft + 300, 55, 0, 0, 20 );
+            if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxTexture_get_ptr(( TX_REF )( ICON_KEYB + pdevice->device_type ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 450, 50, 200, 40 ) )
+            {
+                //switch to next controller type
+                switch( pdevice->device_type )
+                {
+                    default:
+                    case INPUT_DEVICE_KEYBOARD: pdevice->device_type = INPUT_DEVICE_MOUSE; break;
+                    case INPUT_DEVICE_MOUSE:    pdevice->device_type = INPUT_DEVICE_JOY_A; break;
+                    case INPUT_DEVICE_JOY_A:    pdevice->device_type = INPUT_DEVICE_JOY_B; break;
+                    case INPUT_DEVICE_JOY_B:    pdevice->device_type = INPUT_DEVICE_KEYBOARD; break;
+                }
+
+                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
+            }
+
 
             // The select player button
-            if ( iicon < 0 )
+            ui_drawTextBox( menuFont, "SELECT PLAYER:", buttonLeft, 55, 0, 0, 20 );
+            if ( BUTTON_UP ==  ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], menuFont, buttonLeft+150, 50, 100, 30 ) )
             {
-                if ( BUTTON_UP == ui_doButton( 16, "Select Player...", NULL, buttonLeft + 300, GFX_HEIGHT - 90, 140, 50 ) )
-                {
-                    player = 0;
-                }
-            }
-            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxTexture_get_ptr(( TX_REF )( ICON_KEYB + iicon ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 300, GFX_HEIGHT - 90, 140, 50 ) )
-            {
-                if ( input_device_count > 0 )
-                {
-                    player++;
-                    player %= input_device_count;
-                }
+                player++;
+                player %= MAX_LOCAL_PLAYERS;
 
-                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "Player %i", player + 1 );
+                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+1], sizeof( STRING ), "Player %i", player + 1 );
             }
 
             // Save settings button
-            if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 18, inputOptionsButtons[CONTROL_COMMAND_COUNT+2], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // save settings and go back
                 player = 0;
@@ -4317,8 +4331,16 @@ int doMenu( float deltaTime )
             result = doChoosePlayer( deltaTime );
 
             if ( -1 == result )     { mnu_end_menu(); retval = MENU_END; }
-            else if ( 1 == result ) mnu_begin_menu( emnu_ChooseModule );
+            else if ( 1 == result ) mnu_begin_menu( emnu_ChoosePlayerCharacter );
+            else if ( 2 == result ) mnu_begin_menu( emnu_ChooseModule );
 
+            break;
+
+        case emnu_ChoosePlayerCharacter:
+            result = doChoosePlayerCharacter( deltaTime );
+
+            if ( -1 == result )     { mnu_end_menu(); retval = MENU_END; }
+            
             break;
 
         case emnu_Options:
@@ -5573,9 +5595,9 @@ egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_lis
         imp_lst->count++;
 
         // set the import info
-        import_ptr->bits   = selectedplayer_ptr->input;
-        import_ptr->slot   = selectedplayer_idx * MAXIMPORTPERPLAYER;
-        import_ptr->player = selectedplayer_idx;
+        //import_ptr->input_device    = selectedplayer_ptr->input_device;
+        import_ptr->slot            = selectedplayer_idx * MAXIMPORTPERPLAYER;
+        import_ptr->player          = selectedplayer_idx;
 
         strncpy( import_ptr->srcDir, loadplayer_ptr->dir, SDL_arraysize( import_ptr->srcDir ) );
         import_ptr->dstDir[0] = CSTR_END;
@@ -5657,7 +5679,7 @@ bool_t SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_i
     if ( SelectedPlayer_list_check_loadplayer( sp_lst,  loadplayer_idx ) ) return bfalse;
 
     sp_lst->lst[sp_lst->count].player = loadplayer_idx;
-    sp_lst->lst[sp_lst->count].input  = INPUT_BITS_NONE;
+    sp_lst->lst[sp_lst->count].input_device  = INPUT_DEVICE_NONE;
     sp_lst->count++;
 
     return btrue;
@@ -5695,7 +5717,7 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
             for ( /* nothing */; i < MAX_PLAYER && i < sp_lst->count; i++ )
             {
                 sp_lst->lst[i-1].player = sp_lst->lst[i].player;
-                sp_lst->lst[i-1].input  = sp_lst->lst[i].input;
+                sp_lst->lst[i-1].input_device  = sp_lst->lst[i].input_device;
             }
 
             sp_lst->count--;
@@ -5734,13 +5756,13 @@ bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadpl
             if ( i == selected_index )
             {
                 // add in the selected bits for the selected loadplayer_idx
-                SET_BIT( sp_lst->lst[i].input, input_bits );
+                SET_BIT( sp_lst->lst[i].input_device, input_bits );
                 retval = btrue;
             }
             else
             {
                 // remove the selectd bits from all other players
-                UNSET_BIT( sp_lst->lst[i].input, input_bits );
+                UNSET_BIT( sp_lst->lst[i].input_device, input_bits );
             }
         }
     }
@@ -5756,7 +5778,7 @@ bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadpl
 
         for ( i = 0; i < sp_lst->count; i++ )
         {
-            if ( INPUT_BITS_NONE == sp_lst->lst[i].input )
+            if ( INPUT_DEVICE_NONE == sp_lst->lst[i].input_device )
             {
                 // we found one
                 done = bfalse;
@@ -5778,14 +5800,14 @@ bool_t SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loa
     {
         if ( sp_lst->lst[i].player == loadplayer_idx )
         {
-            UNSET_BIT( sp_lst->lst[i].input, input_bits );
+            //UNSET_BIT( sp_lst->lst[i].input, input_bits );
 
             // This part is not so tricky as in SelectedPlayer_list_add_input.
             // Even though we are modding the loop control variable, it is never
             // tested in the loop because we are using the break command to
             // break out of the loop immediately
 
-            if ( INPUT_BITS_NONE == sp_lst->lst[i].input )
+            if ( INPUT_DEVICE_NONE == sp_lst->lst[i].input_device )
             {
                 SelectedPlayer_list_remove( sp_lst,  loadplayer_idx );
             }

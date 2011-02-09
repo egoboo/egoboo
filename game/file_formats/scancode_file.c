@@ -102,7 +102,7 @@ void scantag_read_all_vfs( const char *szFilename )
 int scantag_get_value( const char *string )
 {
     /// @details ZZ@> This function matches the string with its tag, and returns the value...
-    ///    It will return 255 if there are no matches.
+    ///    It will return -1 if there are no matches.
 
     int cnt;
 
@@ -120,13 +120,12 @@ int scantag_get_value( const char *string )
 }
 
 //--------------------------------------------------------------------------------------------
-const char* scantag_get_string( Sint32 device, Uint32 tag, bool_t is_key )
+const char* scantag_get_string( INPUT_DEVICE device, Uint32 tag, bool_t is_key )
 {
     /// @details ZF@> This translates a input tag value to a string
 
     int cnt;
 
-    if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
     if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
 
     for ( cnt = 0; cnt < scantag_count; cnt++ )
@@ -144,7 +143,8 @@ const char* scantag_get_string( Sint32 device, Uint32 tag, bool_t is_key )
                     if ( 'M' != scantag[cnt].name[0] ) continue;
                     break;
 
-                case INPUT_DEVICE_JOY:
+                case INPUT_DEVICE_JOY_A:
+                case INPUT_DEVICE_JOY_B:
                     if ( 'J' != scantag[cnt].name[0] ) continue;
                     break;
             }

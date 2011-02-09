@@ -354,6 +354,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
         }
         else
         {
+            const int PERFECT_AIM = 45*256;     //45 dex is perfect aim
+
             // Find a target
             pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
             if ( DEFINED_CHR( pprt->target_ref ) && !ppip->homing )
@@ -366,11 +368,11 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
             // Correct loc_facing for dexterity...
             offsetfacing = 0;
-            if ( ChrList.lst[loc_chr_origin].dexterity < PERFECTSTAT )
+            if ( ChrList.lst[loc_chr_origin].dexterity < PERFECT_AIM )
             {
                 // Correct loc_facing for randomness
                 offsetfacing  = generate_irand_pair( ppip->facing_pair ) - ( ppip->facing_pair.base + ppip->facing_pair.rand / 2 );
-                offsetfacing  = ( offsetfacing * ( PERFECTSTAT - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECTSTAT;
+                offsetfacing  = ( offsetfacing * ( PERFECT_AIM - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECT_AIM;
             }
 
             if ( 0.0f != ppip->zaimspd )
@@ -394,9 +396,9 @@ prt_t * prt_config_do_init( prt_t * pprt )
                 {
                     vel.z = 0.5f * ppip->zaimspd;
                 }
-            }
 
-            vel.z = CLIP( vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd );
+                vel.z = CLIP( vel.z, -0.5f * ppip->zaimspd, ppip->zaimspd );
+            }
         }
 
         // Does it go away?

@@ -32,13 +32,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-Uint32            input_device_count = 0;
-device_controls_t controls[INPUT_DEVICE_END + MAXJOYSTICK];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static void export_control( vfs_FILE * filewrite, const char * text, Sint32 device, control_t * pcontrol )
+static void export_control( vfs_FILE * filewrite, const char * text, INPUT_DEVICE device, control_t * pcontrol )
 {
     STRING write;
 
@@ -52,7 +46,9 @@ bool_t input_settings_load_vfs( const char *szFilename )
     /// @details ZZ@> This function reads the controls.txt file
     vfs_FILE* fileread;
     char currenttag[TAGSIZE] = EMPTY_CSTR;
-    int i, cnt;
+    int idevice, icontrol;
+    input_device_t * pdevice;
+
 
     fileread = vfs_openRead( szFilename );
     if ( NULL == fileread )
@@ -61,43 +57,26 @@ bool_t input_settings_load_vfs( const char *szFilename )
         return bfalse;
     }
 
-    // set the number of valid controls to be 0
-    input_device_count = 0;
-
-    // read the keyboard controls
-    for ( i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++ )
+    //Read input for each player
+    for( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
+        pdevice = controls + idevice;
+
+        //initialize input control
+        input_device_init( pdevice );
+
+        //figure out how we move
         fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
-        controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = scantag_get_value( currenttag );
-        controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( 'K' == currenttag[0] );
-    };
-    controls[INPUT_DEVICE_KEYBOARD].device = INPUT_DEVICE_KEYBOARD;
-    controls[INPUT_DEVICE_KEYBOARD].count = i;
-    input_device_count++;
+        pdevice->device_type = translate_string_to_input_type( currenttag );
 
-    // read the mouse controls
-    for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
-    {
-        fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
-        controls[INPUT_DEVICE_MOUSE].control[i].tag    = scantag_get_value( currenttag );
-        controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( 'K' == currenttag[0] );
-    };
-    controls[INPUT_DEVICE_MOUSE].device = INPUT_DEVICE_MOUSE;
-    controls[INPUT_DEVICE_MOUSE].count = i;
-    input_device_count++;
-
-    // read in however many joysticks there are...
-    for ( cnt = 0; !vfs_eof( fileread ) && cnt < MAXJOYSTICK; cnt++ )
-    {
-        for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
+        //Read each input control button
+        for( icontrol = CONTROL_BEGIN; icontrol < CONTROL_COMMAND_COUNT; icontrol++ )
         {
             fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
-            controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
-            controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( 'K' == currenttag[0] );
-        };
-        controls[INPUT_DEVICE_JOY + cnt].device = INPUT_DEVICE_JOY + cnt;
-        controls[INPUT_DEVICE_JOY + cnt].count = i;
-        input_device_count++;
+            pdevice->control[icontrol].tag = scantag_get_value( currenttag );
+            pdevice->control[icontrol].is_key = ( 'K' == currenttag[0] );
+        }
+
     }
 
     vfs_close( fileread );
@@ -109,8 +88,7 @@ bool_t input_settings_load_vfs( const char *szFilename )
 bool_t input_settings_save_vfs( const char* szFilename )
 {
     /// @details ZF@> This function saves all current game settings to "controls.txt"
-
-    device_controls_t * pdevice;
+    input_device_t * pdevice;
     vfs_FILE* filewrite;
     STRING write;
     Uint32 i;
@@ -133,64 +111,51 @@ bool_t input_settings_save_vfs( const char* szFilename )
     vfs_puts( "General Controls\n", filewrite );
     vfs_puts( "========\n", filewrite );
     vfs_puts( "These are general controls and cannot be changed\n", filewrite );
-    vfs_puts( "ESC                   - End module\n", filewrite );
-    vfs_puts( "SPACE                 - Respawn character (if dead and possible)\n", filewrite );
-    vfs_puts( "1 to 7                - Show character detailed stats\n", filewrite );
-    vfs_puts( "ATK_LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
-    vfs_puts( "ATK_LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
-    vfs_puts( "ATK_LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
-    vfs_puts( "F11                   - Take screenshot\n", filewrite );
+    vfs_puts( "ESC                       - Open ingame menu\n", filewrite );
+    vfs_puts( "SPACE                     - Respawn character (if dead and possible)\n", filewrite );
+    vfs_puts( "1 to 7                    - Show character detailed stats\n", filewrite );
+    vfs_puts( "LEFT SHIFT   + 1 to 8     - Show selected character armor without magic enchants\n", filewrite );
+    vfs_puts( "LEFT CONTROL + 1 to 8     - Show armor stats with magic enchants included\n", filewrite );
+    vfs_puts( "LEFT ALT     + 1 to 8     - Show character magic enchants\n", filewrite );
+    vfs_puts( "F11                       - Take screenshot\n", filewrite );
     vfs_puts( "\n", filewrite );
 
     // The actual settings
-    pdevice = controls + INPUT_DEVICE_KEYBOARD;
-    vfs_puts( "Keyboard\n", filewrite );
-    vfs_puts( "========\n", filewrite );
-    export_control( filewrite, "Jump                ", pdevice->device, pdevice->control + CONTROL_JUMP );
-    export_control( filewrite, "Left Hand Use        ", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
-    export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
-    export_control( filewrite, "Left Hand Inventory ", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
-    export_control( filewrite, "Right Hand Use        ", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
-    export_control( filewrite, "Right Hand Get/Drop ", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
-    export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
-    export_control( filewrite, "Send Message        ", pdevice->device, pdevice->control + CONTROL_MESSAGE );
-    export_control( filewrite, "Camera Rotate Left    ", pdevice->device, pdevice->control + CONTROL_CAMERA_LEFT );
-    export_control( filewrite, "Camera Rotate Right ", pdevice->device, pdevice->control + CONTROL_CAMERA_RIGHT );
-    export_control( filewrite, "Camera Zoom In        ", pdevice->device, pdevice->control + CONTROL_CAMERA_IN );
-    export_control( filewrite, "Camera Zoom Out    ", pdevice->device, pdevice->control + CONTROL_CAMERA_OUT );
-    export_control( filewrite, "Up                    ", pdevice->device, pdevice->control + CONTROL_UP );
-    export_control( filewrite, "Down                ", pdevice->device, pdevice->control + CONTROL_DOWN );
-    export_control( filewrite, "Left                ", pdevice->device, pdevice->control + CONTROL_LEFT );
-    export_control( filewrite, "Right                ", pdevice->device, pdevice->control + CONTROL_RIGHT );
-
-    pdevice = controls + INPUT_DEVICE_MOUSE;
-    vfs_puts( "\n\nMouse\n", filewrite );
-    vfs_puts( "========\n", filewrite );
-    export_control( filewrite, "Jump                ", pdevice->device, pdevice->control + CONTROL_JUMP );
-    export_control( filewrite, "Left Hand Use        ", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
-    export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
-    export_control( filewrite, "Left Hand Inventory    ", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
-    export_control( filewrite, "Right Hand Use        ", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
-    export_control( filewrite, "Right Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
-    export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
-    export_control( filewrite, "Camera Control Mode    ", pdevice->device, pdevice->control + CONTROL_CAMERA );
-
-    // export all known joysticks
-    for ( i = INPUT_DEVICE_JOY; i < input_device_count; i++ )
+    for( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
     {
         pdevice = controls + i;
-
-        snprintf( write, SDL_arraysize( write ), "\n\nJoystick %d\n", i - INPUT_DEVICE_JOY );
+        snprintf( write, SDL_arraysize(write), "\nPLAYER %i\n", i+1 );
+        
+        //which player
         vfs_puts( write, filewrite );
         vfs_puts( "========\n", filewrite );
-        export_control( filewrite, "Jump                ", pdevice->device, pdevice->control + CONTROL_JUMP );
-        export_control( filewrite, "Left Hand Use        ", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
-        export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
-        export_control( filewrite, "Left Hand Inventory    ", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
-        export_control( filewrite, "Right Hand Use        ", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
-        export_control( filewrite, "Right Hand Get/Drop    ", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
-        export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
-        export_control( filewrite, "Camera Control Mode    ", pdevice->device, pdevice->control + CONTROL_CAMERA );
+
+        //controller type
+        snprintf( write, SDL_arraysize(write), "CONTROLLER:         %s\n", translate_input_type_to_string( pdevice->device_type ) );
+        vfs_puts( write, filewrite );
+
+        //Default input controls
+        export_control( filewrite, "Jump                ", pdevice->device_type, pdevice->control + CONTROL_JUMP );
+        export_control( filewrite, "Left Hand Use        ", pdevice->device_type, pdevice->control + CONTROL_LEFT_USE );
+        export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device_type, pdevice->control + CONTROL_LEFT_GET );
+        export_control( filewrite, "Left Hand Inventory ", pdevice->device_type, pdevice->control + CONTROL_LEFT_PACK );
+        export_control( filewrite, "Right Hand Use        ", pdevice->device_type, pdevice->control + CONTROL_RIGHT_USE );
+        export_control( filewrite, "Right Hand Get/Drop ", pdevice->device_type, pdevice->control + CONTROL_RIGHT_GET );
+        export_control( filewrite, "Right Hand Inventory", pdevice->device_type, pdevice->control + CONTROL_RIGHT_PACK );
+        export_control( filewrite, "Sneak                ", pdevice->device_type, pdevice->control + CONTROL_SNEAK );
+
+        //these could be global?
+        export_control( filewrite, "Send Message        ", pdevice->device_type, pdevice->control + CONTROL_MESSAGE );
+        export_control( filewrite, "Camera Rotate Left    ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_LEFT );
+        export_control( filewrite, "Camera Rotate Right ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_RIGHT );
+        export_control( filewrite, "Camera Zoom In        ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_IN );
+        export_control( filewrite, "Camera Zoom Out    ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_OUT );
+
+        //this is only needed for keyboard
+        export_control( filewrite, "Up                    ", pdevice->device_type, pdevice->control + CONTROL_UP );
+        export_control( filewrite, "Down                ", pdevice->device_type, pdevice->control + CONTROL_DOWN );
+        export_control( filewrite, "Left                ", pdevice->device_type, pdevice->control + CONTROL_LEFT );
+        export_control( filewrite, "Right                ", pdevice->device_type, pdevice->control + CONTROL_RIGHT );
     }
 
     // All done
@@ -198,4 +163,3 @@ bool_t input_settings_save_vfs( const char* szFilename )
 
     return btrue;
 }
-

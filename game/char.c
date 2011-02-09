@@ -5831,7 +5831,7 @@ void move_one_character_get_environment( chr_t * pchr )
     penviro->zlerp = ( pchr->pos.z - penviro->level ) / PLATTOLERANCE;
     penviro->zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
-    penviro->grounded = ( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f );
+    penviro->grounded = ( ( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
     penviro->grid_twist = TWIST_FLAT;
@@ -6130,12 +6130,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     {
         // determine whether the user is hitting the "sneak button"
         player_t * ppla = PlaStack.lst + pchr->is_which_player;
-
-        if ( HAS_SOME_BITS( ppla->device.bits, INPUT_BITS_KEYBOARD ) )
-        {
-            // use the shift keys to enter sneak mode
-            sneak_mode_active = SDLKEYDOWN( SDLK_LSHIFT ) || SDLKEYDOWN( SDLK_RSHIFT );
-        }
+        sneak_mode_active = control_is_pressed( ppla->pdevice, CONTROL_SNEAK );
     }
 
     pchr->enviro.new_v.x = pchr->enviro.new_v.y = 0.0f;
@@ -6155,10 +6150,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
             ppla = PlaStack.lst + ipla;
 
             // determine whether the character is sneaking
-            if ( !HAS_SOME_BITS( ppla->device.bits, INPUT_BITS_KEYBOARD ) )
-            {
-                sneak_mode_active = ( dv2 < 1.0f / 9.0f );
-            }
+            sneak_mode_active = ( dv2 < 1.0f / 9.0f );
 
             pchr->enviro.new_v.x = maxspeed * dvx / dv;
             pchr->enviro.new_v.y = maxspeed * dvy / dv;
@@ -6853,7 +6845,9 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // DO NOT require objects that are spawning in a module to have a
     // valid position at spawn-time. For instance, if a suit of armor is
     // spawned in a closed hallway, don't complain.
-    //if ( activate_spawn_file_active )                 //ZF> I fixed a bug that caused this boolean variable always to be true. by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt
+    
+     //ZF> I fixed a bug that caused this boolean variable always to be true. by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt
+    if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )                
     {
         fvec3_base_copy( pos_v, chr_get_pos_v( pchr ) );
         return btrue;

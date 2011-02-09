@@ -49,6 +49,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+input_device_t    controls[MAX_LOCAL_PLAYERS];                  //Up to 4 local players
+
 mouse_t           mous;
 keyboard_t        keyb;
 device_joystick_t joy[MAXJOYSTICK];
@@ -68,9 +70,8 @@ static void input_read_joystick( int which );
 void input_device_init( input_device_t * pdevice )
 {
     if ( NULL == pdevice ) return;
-
-    memset( pdevice, 0, sizeof( *pdevice ) );
-
+    
+    //memset( pdevice, 0, sizeof( *pdevice ) );
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;
 }
@@ -172,7 +173,7 @@ void input_read_joystick( int which )
     int i, button_count, x, y;
     device_joystick_t * pjoy;
 
-    if ( which + INPUT_DEVICE_JOY > input_device_count ) return;
+//    if ( which + INPUT_DEVICE_JOY > input_device_count ) return;
     if ( !joy[which].on ) return;
 
     pjoy = joy + which;
@@ -380,55 +381,43 @@ void input_read()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 input_get_buttonmask( Uint32 idevice )
+BIT_FIELD input_get_buttonmask( input_device_t *pdevice )
 {
-    Uint32 buttonmask = 0;
-    Uint32 which_device;
+    BIT_FIELD buttonmask = EMPTY_BIT_FIELD;
 
     // make sure the idevice is valid
-    if ( idevice > input_device_count || idevice > INPUT_DEVICE_END + MAXJOYSTICK ) return 0;
-    which_device = controls[idevice].device;
-    if ( which_device >= INPUT_DEVICE_JOY )
+    if ( NULL == pdevice ) return EMPTY_BIT_FIELD;
+
+    switch ( pdevice->device_type )
     {
-        // joysticks
-        buttonmask = joy[which_device - INPUT_DEVICE_JOY].b;
-    }
-    else
-    {
-        switch ( controls[idevice].device )
-        {
-            case INPUT_DEVICE_KEYBOARD: buttonmask = 0; break;
-            case INPUT_DEVICE_MOUSE:    buttonmask = mous.b; break;
-        }
+        case INPUT_DEVICE_KEYBOARD: buttonmask = EMPTY_BIT_FIELD; break;
+        case INPUT_DEVICE_MOUSE:    buttonmask = mous.b;   break;
+        case INPUT_DEVICE_JOY_A:    buttonmask = joy[0].b; break;
+        case INPUT_DEVICE_JOY_B:    buttonmask = joy[1].b; break;
     }
 
     return buttonmask;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
+bool_t control_is_pressed( input_device_t *pdevice, CONTROL_BUTTON icontrol )
 {
-    /// @details ZZ@> This function returns btrue if the given icontrol is cursor_pressed...
+    /// @details ZZ@> This function returns btrue if the given icontrol is pressed...
 
-    bool_t retval = bfalse;
-
-    device_controls_t * pdevice;
-    control_t         * pcontrol;
+    bool_t      retval = bfalse;
+    control_t   * pcontrol;
 
     // make sure the idevice is valid
-    if ( idevice > input_device_count || idevice > INPUT_DEVICE_END + MAXJOYSTICK ) return bfalse;
-    pdevice = controls + idevice;
-
-    // make sure the icontrol is within range
-    if ( pdevice->count < icontrol ) return retval;
+    if ( NULL == pdevice ) return bfalse;
     pcontrol = pdevice->control + icontrol;
-    if ( INPUT_DEVICE_KEYBOARD == idevice || pcontrol->is_key )
+    
+    if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type || pcontrol->is_key )
     {
         retval = SDLKEYDOWN( pcontrol->tag );
     }
     else
     {
-        retval = ( input_get_buttonmask( idevice ) == pcontrol->tag );
+        retval = ( input_get_buttonmask( pdevice ) == pcontrol->tag );
     }
 
     return retval;
@@ -461,4 +450,33 @@ bool_t cursor_wheel_event_pending()
     }
 
     return cursor.wheel_event;
+}
+
+//--------------------------------------------------------------------------------------------
+INPUT_DEVICE translate_string_to_input_type( const char *string )
+{
+    /// @details ZF@> This function turns a string into a input type (mouse, keyboard, joystick, etc.)
+
+    if      ( 0 == strcmp( string, "KEYBOARD" ) )   return INPUT_DEVICE_KEYBOARD;
+    else if ( 0 == strcmp( string, "MOUSE" ) )      return INPUT_DEVICE_MOUSE;
+    else if ( 0 == strcmp( string, "JOYSTICK_A" ) ) return INPUT_DEVICE_JOY_A;
+    else if ( 0 == strcmp( string, "JOYSTICK_B" ) ) return INPUT_DEVICE_JOY_B;
+
+    // No matches
+    log_warning("Unknown device controller parsed (%s) - defaulted to Keyboard\n", string);
+    return INPUT_DEVICE_KEYBOARD;
+}
+
+//--------------------------------------------------------------------------------------------
+const char* translate_input_type_to_string( const INPUT_DEVICE type )
+{
+    /// @details ZF@> This function turns a input type into a string
+
+    if( type == INPUT_DEVICE_KEYBOARD )   return "KEYBOARD";
+    else if( type == INPUT_DEVICE_MOUSE ) return "MOUSE";
+    else if( type == INPUT_DEVICE_JOY_A ) return "JOYSTICK_A";
+    else if( type == INPUT_DEVICE_JOY_B ) return "JOYSTICK_B";
+
+    // No matches
+    return "UNKNOWN";
 }

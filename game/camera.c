@@ -423,7 +423,8 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->zadd    = 0.9f * pcam->zadd  + 0.1f * pcam->zaddgoto;
     pcam->pos.z   = 0.9f * pcam->pos.z + 0.1f * pcam->zgoto;
 
-    // Camera controls
+    // Camera controls TODO: doesnt work at the moment
+    /*
     if ( CAM_TURN_GOOD == pcam->turn_mode && 1 == local_numlpla )
     {
         if ( mous.on )
@@ -498,23 +499,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
             }
         }
     }
-
-    // Keyboard camera controls
-    if ( keyb.on )
-    {
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) )
-        {
-            pcam->turnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAM_TURN_KEY;
-            pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
-        }
-
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) )
-        {
-            pcam->zaddgoto += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAM_TURN_KEY;
-            if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
-            if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
-        }
-    }
+    */
 
     pcam->pos.x -= ( float )( pcam->mView.CNV( 0, 0 ) ) * pcam->turnadd; // xgg
     pcam->pos.y += ( float )( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;

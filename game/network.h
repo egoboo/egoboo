@@ -24,6 +24,7 @@
 
 #include "egoboo_typedef.h"
 #include "IDSZ_map.h"
+#include "input.h"
 
 //--------------------------------------------------------------------------------------------
 // Network stuff
@@ -79,20 +80,6 @@ struct s_time_latch
 typedef struct s_time_latch time_latch_t;
 
 //--------------------------------------------------------------------------------------------
-struct s_input_device
-{
-    bool_t                  on;              ///< Is it alive?
-    BIT_FIELD               bits;
-
-    float                   sustain;         ///< Falloff rate for old movement
-    float                   cover;           ///< For falloff
-
-    latch_t                 latch;
-    latch_t                 latch_old;       ///< For sustain
-};
-typedef struct s_input_device input_device_t;
-
-void input_device_init( input_device_t * pdevice );
 void input_device_add_latch( input_device_t * pdevice, float newx, float newy );
 
 //--------------------------------------------------------------------------------------------
@@ -104,7 +91,7 @@ struct s_player
     CHR_REF                 index;                    ///< Which character?
 
     /// the buffered input from the local input devices
-    input_device_t          device;
+    input_device_t          *pdevice;
 
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t                 local_latch;
@@ -122,7 +109,7 @@ struct s_player
 
 typedef struct s_player player_t;
 
-extern int                     local_numlpla;                                   ///< Number of local players
+extern int   local_numlpla;                                   ///< Number of local players
 
 #define INVALID_PLAYER MAX_PLAYER
 
@@ -132,7 +119,7 @@ DECLARE_STACK_EXTERN( player_t, PlaStack, MAX_PLAYER );                         
 #define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaStack.count) && PlaStack.lst[IPLA].valid )
 #define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaStack.count)|| !PlaStack.lst[IPLA].valid )
 
-void           player_init( player_t * ppla );
+//void           player_init( player_t * ppla );
 void           pla_reinit( player_t * ppla );
 CHR_REF        pla_get_ichr( const PLA_REF iplayer );
 struct s_chr * pla_get_pchr( const PLA_REF iplayer );

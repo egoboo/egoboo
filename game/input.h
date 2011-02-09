@@ -28,24 +28,85 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 #define MAXJOYSTICK          2     ///<the maximum number of supported joysticks
+#define MAX_LOCAL_PLAYERS    4
 
 /// Which input control
 /// @details Used by the controls[] structure and the control_is_pressed() function to query the state of various controls.
 enum e_input_device
 {
+    INPUT_DEVICE_NONE = -1,
     INPUT_DEVICE_KEYBOARD = 0,
     INPUT_DEVICE_MOUSE,
-    INPUT_DEVICE_JOY,
+    INPUT_DEVICE_JOY_A,
+    INPUT_DEVICE_JOY_B,
 
     // aliases
     INPUT_DEVICE_BEGIN = INPUT_DEVICE_KEYBOARD,
-    INPUT_DEVICE_END   = INPUT_DEVICE_JOY,
-    INPUT_DEVICE_JOY_A = INPUT_DEVICE_JOY + 0,
-    INPUT_DEVICE_JOY_B = INPUT_DEVICE_JOY + 1
+    INPUT_DEVICE_END   = INPUT_DEVICE_JOY_B,
+
 };
-typedef enum  e_input_device INPUT_DEVICE;
+
+
+
+//--------------------------------------------------------------------------------------------
+/// All the possible game actions that can be triggered from an input device
+enum e_input_controls
+{
+    CONTROL_JUMP = 0,
+    CONTROL_LEFT_USE,
+    CONTROL_LEFT_GET,
+    CONTROL_LEFT_PACK,
+    CONTROL_RIGHT_USE,
+    CONTROL_RIGHT_GET,
+    CONTROL_RIGHT_PACK,
+    CONTROL_SNEAK,
+    
+    CONTROL_MESSAGE,
+    CONTROL_CAMERA_LEFT,
+    CONTROL_CAMERA_RIGHT,
+    CONTROL_CAMERA_IN,
+    CONTROL_CAMERA_OUT,
+
+    CONTROL_UP,
+    CONTROL_DOWN,
+    CONTROL_LEFT,
+    CONTROL_RIGHT,
+    CONTROL_COMMAND_COUNT,
+
+    // Aliases
+    CONTROL_CAMERA = CONTROL_MESSAGE,
+    CONTROL_BEGIN  = CONTROL_JUMP,
+    CONTROL_END    = CONTROL_RIGHT
+};
+typedef enum e_input_controls CONTROL_BUTTON;
+
+
+//--------------------------------------------------------------------------------------------
+/// the basic definition of a single control
+struct s_control
+{
+    Uint32 tag;
+    bool_t is_key;
+};
+typedef struct s_control control_t;
+
+
+//--------------------------------------------------------------------------------------------
+/// The mapping between the inputs detected by SDL and the device's in-game function
+struct s_input_device
+{
+    float                   sustain;                            ///< Falloff rate for old movement
+    float                   cover;                              ///< For falloff
+
+    latch_t                 latch;
+    latch_t                 latch_old;                          ///< For sustain
+
+//    size_t                  count;
+    INPUT_DEVICE            device_type;                        ///< Device type - mouse, keyboard, etc.
+    control_t               control[CONTROL_COMMAND_COUNT];     ///< Key mappings
+};
+typedef struct s_input_device input_device_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -122,19 +183,8 @@ struct s_device_joystick
 };
 typedef struct s_device_joystick device_joystick_t;
 
+extern input_device_t controls[MAX_LOCAL_PLAYERS];      //up to 4 local players (input controllers)
 extern device_joystick_t joy[MAXJOYSTICK];
-
-//--------------------------------------------------------------------------------------------
-
-/// The bits representing the possible input devices
-enum e_input_bits
-{
-    INPUT_BITS_NONE      = 0,
-    INPUT_BITS_MOUSE     = ( 1 << INPUT_DEVICE_MOUSE ),         ///< Input devices
-    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_DEVICE_KEYBOARD ),
-    INPUT_BITS_JOYA      = ( 1 << ( INPUT_DEVICE_JOY_A ) ),
-    INPUT_BITS_JOYB      = ( 1 << ( INPUT_DEVICE_JOY_B ) )
-};
 
 //--------------------------------------------------------------------------------------------
 // Function prototypes
@@ -142,10 +192,14 @@ enum e_input_bits
 void   input_init();
 void   input_read();
 
-Uint32 input_get_buttonmask( Uint32 idevice );
+BIT_FIELD input_get_buttonmask( input_device_t *pdevice );
+void input_device_init( input_device_t * pdevice );
 
-bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
+bool_t control_is_pressed( input_device_t *pdevice, CONTROL_BUTTON icontrol );
 
 void   cursor_reset();
 void   cursor_finish_wheel_event();
 bool_t cursor_wheel_event_pending();
+
+INPUT_DEVICE    translate_string_to_input_type( const char *string );
+const char*     translate_input_type_to_string( const INPUT_DEVICE type );

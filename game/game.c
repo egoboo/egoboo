@@ -361,7 +361,7 @@ egoboo_rv export_all_players( bool_t require_local )
         if ( !VALID_PLA( ipla ) ) continue;
         ppla = PlaStack.lst + ipla;
 
-        is_local = ( 0 != ppla->device.bits );
+        is_local = ( NULL != ppla->pdevice );
         if ( require_local && !is_local ) continue;
 
         // Is it alive?
@@ -517,7 +517,7 @@ void statlist_sort()
 
     for ( ipla = 0; ipla < PlaStack.count; ipla++ )
     {
-        if ( PlaStack.lst[ipla].valid && PlaStack.lst[ipla].device.bits != INPUT_BITS_NONE )
+        if ( PlaStack.lst[ipla].valid && PlaStack.lst[ipla].pdevice != NULL )
         {
             statlist_move_to_top( PlaStack.lst[ipla].index );
         }
@@ -692,7 +692,7 @@ int update_game()
         numplayer++;
 
         // only interested in local players
-        if ( INPUT_BITS_NONE == PlaStack.lst[ipla].device.bits ) continue;
+        if ( NULL == PlaStack.lst[ipla].pdevice ) continue;
 
         if ( pchr->alive )
         {
@@ -1151,7 +1151,7 @@ int do_game_proc_running( game_process_t * gproc )
             else
             {
                 // start the console mode?
-                if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
+                if ( SDLKEYDOWN( SDLK_m ) )
                 {
                     // reset the keyboard buffer
                     SDL_EnableKeyRepeat( 20, SDL_DEFAULT_REPEAT_DELAY );
@@ -1857,6 +1857,9 @@ void do_weather_spawn_particles()
     PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 0x3FFF;
 }
 
+
+
+
 //--------------------------------------------------------------------------------------------
 void set_one_player_latch( const PLA_REF player )
 {
@@ -1867,6 +1870,7 @@ void set_one_player_latch( const PLA_REF player )
     float dist, scale;
     float fsin, fcos;
     latch_t sum;
+    bool_t fast_camera_turn;
 
     chr_t          * pchr;
     player_t       * ppla;
@@ -1875,13 +1879,16 @@ void set_one_player_latch( const PLA_REF player )
     if ( INVALID_PLA( player ) ) return;
     ppla = PlaStack.lst + player;
 
-    pdevice = &( ppla->device );
+    pdevice = ppla->pdevice;
 
     if ( !INGAME_CHR( ppla->index ) ) return;
     pchr = ChrList.lst + ppla->index;
 
     // is the device a local device or an internet device?
-    if ( pdevice->bits == EMPTY_BIT_FIELD ) return;
+    if ( pdevice == NULL) return;
+
+    // fast camera turn if it is enabled and there is only 1 local player
+    fast_camera_turn = ( 1 == local_numlpla ) && CAM_TURN_GOOD == PCamera->turn_mode;
 
     // Clear the player's latch buffers
     latch_init( &( sum ) );
@@ -1892,14 +1899,13 @@ void set_one_player_latch( const PLA_REF player )
     fcos    = turntocos[ turnsin ];
 
     // Mouse routines
-    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_MOUSE ) && mous.on )
+    if ( pdevice->device_type == INPUT_DEVICE_MOUSE && mous.on )
     {
         fvec2_t joy_pos, joy_new;
 
         fvec2_self_clear( joy_new.v );
 
-        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
-            !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+        if ( fast_camera_turn || !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
         {
             dist = SQRT( mous.x * mous.x + mous.y * mous.y );
             if ( dist > 0 )
@@ -1914,9 +1920,7 @@ void set_one_player_latch( const PLA_REF player )
                 joy_pos.x = mous.x * scale;
                 joy_pos.y = mous.y * scale;
 
-                if ( CAM_TURN_GOOD == PCamera->turn_mode &&
-                     1 == local_numlpla &&
-                     0 == control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  joy_pos.x = 0;
+                if ( fast_camera_turn && 0 == control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
 
                 joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
                 joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
@@ -1925,33 +1929,16 @@ void set_one_player_latch( const PLA_REF player )
 
         sum.x += joy_new.x;
         sum.y += joy_new.y;
-
-        // Read buttons
-        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
-            SET_BIT( sum.b, LATCHBUTTON_JUMP );
-        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_LEFT );
-        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
-        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_PACK ) )
-            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
-        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
-        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
-        if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_PACK ) )
-            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
     }
 
     // Joystick A routines
-    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_JOYA ) && joy[0].on )
+    else if ( pdevice->device_type == INPUT_DEVICE_JOY_A && joy[0].on )
     {
         fvec2_t joy_pos, joy_new;
 
         fvec2_self_clear( joy_new.v );
 
-        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
-            !control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_CAMERA ) )
+        if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
         {
             joy_pos.x = joy[0].x;
             joy_pos.y = joy[0].y;
@@ -1964,9 +1951,7 @@ void set_one_player_latch( const PLA_REF player )
                 joy_pos.y *= scale;
             }
 
-            if ( CAM_TURN_GOOD == PCamera->turn_mode &&
-                 1 == local_numlpla &&
-                 !control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_CAMERA ) )  joy_pos.x = 0;
+            if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
 
             joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
             joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
@@ -1974,33 +1959,16 @@ void set_one_player_latch( const PLA_REF player )
 
         sum.x += joy_new.x;
         sum.y += joy_new.y;
-
-        // Read buttons
-        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_JUMP ) )
-            SET_BIT( sum.b, LATCHBUTTON_JUMP );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_LEFT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_LEFT_PACK ) )
-            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_A, CONTROL_RIGHT_PACK ) )
-            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
     }
 
     // Joystick B routines
-    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_JOYB ) && joy[1].on )
+    else if ( pdevice->device_type == INPUT_DEVICE_JOY_B && joy[1].on )
     {
         fvec2_t joy_pos, joy_new;
 
         fvec2_self_clear( joy_new.v );
 
-        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
-            !control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_CAMERA ) )
+        if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
         {
             joy_pos.x = joy[1].x;
             joy_pos.y = joy[1].y;
@@ -2013,9 +1981,7 @@ void set_one_player_latch( const PLA_REF player )
                 joy_pos.y *= scale;
             }
 
-            if ( CAM_TURN_GOOD == PCamera->turn_mode &&
-                 1 == local_numlpla &&
-                 !control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_CAMERA ) )  joy_pos.x = 0;
+            if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
 
             joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
             joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
@@ -2023,40 +1989,22 @@ void set_one_player_latch( const PLA_REF player )
 
         sum.x += joy_new.x;
         sum.y += joy_new.y;
-
-        // Read buttons
-        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_JUMP ) )
-            SET_BIT( sum.b, LATCHBUTTON_JUMP );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_LEFT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_LEFT_PACK ) )
-            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_USE ) )
-            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_GET ) )
-            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
-        if ( control_is_pressed( INPUT_DEVICE_JOY_B, CONTROL_RIGHT_PACK ) )
-            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
     }
 
     // Keyboard routines
-    if ( HAS_SOME_BITS( pdevice->bits, INPUT_BITS_KEYBOARD ) && keyb.on )
+    else if ( pdevice->device_type == INPUT_DEVICE_KEYBOARD && keyb.on )
     {
         fvec2_t joy_pos, joy_new;
 
         fvec2_self_clear( joy_new.v );
         fvec2_self_clear( joy_pos.v );
 
-        if (( CAM_TURN_GOOD == PCamera->turn_mode && 1 == local_numlpla ) ||
-            !control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_CAMERA ) )
+        if ( fast_camera_turn || !control_is_pressed(pdevice, CONTROL_CAMERA ) )
         {
-            joy_pos.x = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) );
-            joy_pos.y = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
+            joy_pos.x = ( control_is_pressed( pdevice,  CONTROL_RIGHT ) - control_is_pressed( pdevice,  CONTROL_LEFT ) );
+            joy_pos.y = ( control_is_pressed( pdevice,  CONTROL_DOWN ) - control_is_pressed( pdevice,  CONTROL_UP ) );
 
-            if ( CAM_TURN_GOOD == PCamera->turn_mode &&
-                 1 == local_numlpla )  joy_pos.x = 0;
+            if ( fast_camera_turn )  joy_pos.x = 0;
 
             joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
             joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
@@ -2064,24 +2012,25 @@ void set_one_player_latch( const PLA_REF player )
 
         sum.x += joy_new.x;
         sum.y += joy_new.y;
-
-        // Read buttons
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_JUMP ) )
-            sum.b |= LATCHBUTTON_JUMP;
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_USE ) )
-            sum.b |= LATCHBUTTON_LEFT;
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_GET ) )
-            sum.b |= LATCHBUTTON_ALTLEFT;
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKLEFT;
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_USE ) )
-            sum.b |= LATCHBUTTON_RIGHT;
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_GET ) )
-            sum.b |= LATCHBUTTON_ALTRIGHT;
-        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_PACK ) )
-            sum.b |= LATCHBUTTON_PACKRIGHT;
     }
 
+    // Read buttons
+    if ( control_is_pressed( pdevice, CONTROL_JUMP ) )
+        SET_BIT( sum.b, LATCHBUTTON_JUMP );
+    if ( control_is_pressed( pdevice, CONTROL_LEFT_USE ) )
+        SET_BIT( sum.b, LATCHBUTTON_LEFT );
+    if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
+        SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
+    if ( control_is_pressed( pdevice, CONTROL_LEFT_PACK ) )
+        SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
+    if ( control_is_pressed( pdevice, CONTROL_RIGHT_USE ) )
+        SET_BIT( sum.b, LATCHBUTTON_RIGHT );
+    if ( control_is_pressed( pdevice, CONTROL_RIGHT_GET ) )
+        SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
+    if ( control_is_pressed( pdevice, CONTROL_RIGHT_PACK ) )
+        SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
+
+    // Now update the input
     input_device_add_latch( pdevice, sum.x, sum.y );
 
     ppla->local_latch.x = pdevice->latch.x;
@@ -2092,8 +2041,6 @@ void set_one_player_latch( const PLA_REF player )
 //--------------------------------------------------------------------------------------------
 void set_local_latches( void )
 {
-    /// @details ZZ@> This function emulates AI thinkin' by setting latches from input devices
-
     PLA_REF cnt;
 
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
@@ -2803,26 +2750,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             bool_t player_added;
 
-            player_added = bfalse;
-            if ( 0 == local_numlpla )
-            {
-                // the first player gets everything
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, ( Uint32 )( ~0 ) );
-            }
-            else
-            {
-                PLA_REF ipla;
-                BIT_FIELD bits;
-
-                // each new player steals an input device from the 1st player
-                bits = 1 << local_numlpla;
-                for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
-                {
-                    UNSET_BIT( PlaStack.lst[ipla].device.bits, bits );
-                }
-
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, bits );
-            }
+            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + local_numlpla );
 
             if ( start_new_player && player_added )
             {
@@ -2855,24 +2783,12 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, ImportList.lst[local_index].bits );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + local_numlpla );
             }
             else
             {
                 // It's a remote PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, INPUT_BITS_NONE );
-            }
-
-            // if for SOME REASON your player is not identified, give him
-            // about a 50% chance to get identified every time you enter a module
-            if ( player_added && !pobject->nameknown )
-            {
-                float frand = rand() / ( float )RAND_MAX;
-
-                if ( frand > 0.5f )
-                {
-                    pobject->nameknown = btrue;
-                }
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + local_numlpla );    //ZF> todo: BAD! dont allow local to control multiplayer
             }
         }
 
@@ -3687,7 +3603,7 @@ void attach_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_player( const CHR_REF character, const PLA_REF player, Uint32 device_bits )
+bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice )
 {
     /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
 
@@ -3715,11 +3631,11 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, Uint32 device_
     //---- skeleton for using a ConfigFile to save quests
     // ppla->quest_file = quest_file_open( chr_get_dir_name(character) );
 
-    ppla->index       = character;
-    ppla->valid       = btrue;
-    ppla->device.bits = device_bits;
+    ppla->index              = character;
+    ppla->valid              = btrue;
+    ppla->pdevice            = pdevice;
 
-    if ( device_bits != EMPTY_BIT_FIELD )
+    if ( pdevice != NULL )
     {
         local_stats.noplayers = bfalse;
         pchr->islocalplayer = btrue;
@@ -5804,17 +5720,17 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
         if ( !DEFINED_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
-        is_local = ( INPUT_BITS_NONE != player_ptr->device.bits );
+        is_local = ( NULL != player_ptr->pdevice );
 
         // grab a pointer
         import_ptr = imp_lst->lst + imp_lst->count;
         imp_lst->count++;
 
-        import_ptr->player    = player_idx;
-        import_ptr->bits      = player_ptr->device.bits;
-        import_ptr->slot      = REF_TO_INT( player ) * MAXIMPORTPERPLAYER;
-        import_ptr->srcDir[0] = CSTR_END;
-        import_ptr->dstDir[0] = CSTR_END;
+        import_ptr->player          = player_idx;
+        import_ptr->input_device    = is_local ? player_ptr->pdevice->device_type : INPUT_DEVICE_NONE;
+        import_ptr->slot            = REF_TO_INT( player ) * MAXIMPORTPERPLAYER;
+        import_ptr->srcDir[0]       = CSTR_END;
+        import_ptr->dstDir[0]       = CSTR_END;
         strncpy( import_ptr->name, pchr->Name, SDL_arraysize( import_ptr->name ) );
 
         // only copy the "source" directory if the player is local

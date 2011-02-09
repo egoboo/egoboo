@@ -912,7 +912,7 @@ void cl_talkToHost()
 
         while ( player < MAX_PLAYER )
         {
-            if ( PlaStack.lst[player].valid && PlaStack.lst[player].device.bits != INPUT_BITS_NONE )
+            if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != NULL )
             {
                 SET_BIT( PlaStack.lst[player].local_latch.b, LATCHBUTTON_RESPAWN );  // Press the respawn button...
             }
@@ -922,7 +922,7 @@ void cl_talkToHost()
     }
 
     // Start talkin'
-    if ( gnet.on && !gnet.hostactive /*&& !PMod->rtscontrol*/ )
+    if ( gnet.on && !gnet.hostactive )
     {
         net_startNewPacket();
         packet_addUnsignedShort( TO_HOST_LATCH );        // The message header
@@ -930,9 +930,9 @@ void cl_talkToHost()
         for ( player = 0; player < MAX_PLAYER; player++ )
         {
             // Find the local players
-            if ( PlaStack.lst[player].valid && PlaStack.lst[player].device.bits != INPUT_BITS_NONE )
+            if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != NULL  )
             {
-                packet_addUnsignedByte( REF_TO_INT( player ) );                      // The player index
+                packet_addUnsignedByte( REF_TO_INT( player ) );                         // The player index
                 packet_addUnsignedInt( PlaStack.lst[player].local_latch.b );             // Player button states
                 packet_addSignedShort( PlaStack.lst[player].local_latch.x*SHORTLATCH );  // Player motion
                 packet_addSignedShort( PlaStack.lst[player].local_latch.y*SHORTLATCH );  // Player motion
@@ -1501,7 +1501,7 @@ void listen_for_packets()
 {
     /// @details ZZ@> This function reads any new messages and sets the player latch and matrix needed
     ///    lists...
-
+    
     ENetEvent event;
     if ( gnet.on )
     {
@@ -2088,10 +2088,10 @@ void net_reset_players()
     // Reset the initial player data and latches
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
-        memset( PlaStack.lst + cnt, 0, sizeof( PlaStack.lst[cnt] ) );
+        pla_reinit( PlaStack.lst + cnt );
 
         // reset the device
-        input_device_init( &( PlaStack.lst[cnt].device ) );
+        //input_device_init( PlaStack.lst[cnt].pdevice );
     }
     PlaStack.count        = 0;
 
@@ -2120,13 +2120,12 @@ void pla_reinit( player_t * ppla )
 {
     if ( NULL == ppla ) return;
 
-    ppla->valid       = bfalse;
-    ppla->index       = ( CHR_REF )MAX_CHR;
-    ppla->device.bits = INPUT_BITS_NONE;
+    ppla->valid              = bfalse;
+    ppla->index              = ( CHR_REF )MAX_CHR;
 }
 
 //--------------------------------------------------------------------------------------------
-void player_init( player_t * ppla )
+/*void player_init( player_t * ppla )
 {
     if ( NULL == ppla ) return;
 
@@ -2143,7 +2142,7 @@ void player_init( player_t * ppla )
 
     // initialize the tlatch array
     tlatch_ary_init( ppla->tlatch, MAXLAG );
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 // Sustain old movements to ease mouse play

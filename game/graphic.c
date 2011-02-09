@@ -847,7 +847,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle )
+void draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update )
 {
     /// @details ZZ@> This function draws an icon
     int     position, blip_x, blip_y;
@@ -871,7 +871,7 @@ void draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle )
 
     if ( sparkle != NOSPARKLE )
     {
-        position = update_wld & 0x1F;
+        position = delta_update & 0x1F;
         position = ( SPARKLESIZE * position >> 5 );
 
         blip_x = x + SPARKLEADD + position;
@@ -1337,7 +1337,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
 
     // draw the icon
     draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
-    draw_one_icon( icon_ref, x, y, draw_sparkle );
+    draw_one_icon( icon_ref, x, y, draw_sparkle, update_wld);
 
     // draw the ammo, if requested
     if ( draw_ammo && ( NULL != pitem ) )
@@ -1558,7 +1558,7 @@ void draw_map()
             {
                 if ( !PlaStack.lst[iplayer].valid ) continue;
 
-                if ( INPUT_BITS_NONE != PlaStack.lst[iplayer].device.bits )
+                if ( NULL == PlaStack.lst[iplayer].pdevice )
                 {
                     CHR_REF ichr = PlaStack.lst[iplayer].index;
                     if ( INGAME_CHR( ichr ) && ChrList.lst[ichr].alive )

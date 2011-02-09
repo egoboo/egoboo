@@ -59,6 +59,7 @@ enum e_which_menu
     emnu_MultiPlayer,
     emnu_ChooseModule,
     emnu_ChoosePlayer,
+    emnu_ChoosePlayerCharacter,
     emnu_ShowMenuResults,
     emnu_Options,
     emnu_GameOptions,

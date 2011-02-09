@@ -22,6 +22,7 @@
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 #include "egoboo_process.h"
+#include "input.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -288,16 +289,15 @@ extern size_t endtext_carat;
 
 //--------------------------------------------------------------------------------------------
 // Imports
-
 struct s_Import_element
 {
-    STRING    srcDir;
-    STRING    dstDir;
-    STRING    name;
+    STRING          srcDir;
+    STRING          dstDir;
+    STRING          name;
 
-    size_t    player;           ///< Which player is this?
-    BIT_FIELD bits;             ///< Input bits for this player
-    int       slot;             ///< which slot it it to be loaded into
+    size_t          player;           ///< Which player is this?
+    INPUT_DEVICE    input_device;     ///< Input device for this player
+    int             slot;             ///< which slot it it to be loaded into
 };
 typedef struct s_Import_element Import_element_t;
 
@@ -382,7 +382,7 @@ void statlist_sort();
 
 /// Player
 void   set_one_player_latch( const PLA_REF player );
-bool_t add_player( const CHR_REF character, const PLA_REF player, Uint32 device );
+bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice );
 
 /// AI targeting
 CHR_REF chr_find_target( struct s_chr * psrc, float max_dist, IDSZ idsz, BIT_FIELD targeting_bits );
