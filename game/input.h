@@ -96,13 +96,15 @@ typedef struct s_control control_t;
 /// The mapping between the inputs detected by SDL and the device's in-game function
 struct s_input_device
 {
+//    bool_t                  on;                               ///< TODO: ZF> need to implement this, use value from keyb.on if
+                                                                //         device_type == INPUT_DEVICE_KEYBOARD for example
+
     float                   sustain;                            ///< Falloff rate for old movement
     float                   cover;                              ///< For falloff
 
     latch_t                 latch;
     latch_t                 latch_old;                          ///< For sustain
 
-//    size_t                  count;
     INPUT_DEVICE            device_type;                        ///< Device type - mouse, keyboard, etc.
     control_t               control[CONTROL_COMMAND_COUNT];     ///< Key mappings
 };

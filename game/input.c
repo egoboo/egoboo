@@ -93,7 +93,7 @@ void input_init_mouse()
     /// @details BB@> set up the mouse
     memset( &mous, 0, sizeof( mous ) );
     mous.on      = btrue;
-    mous.sense   = 24;
+    mous.sense   = 12; //24;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -147,10 +147,13 @@ void input_read_mouse()
     else
     {
         b = SDL_GetRelativeMouseState( &x, &y );
+
+        //Move mouse to the center of the screen since SDL does not detect motion outside the window
+        SDL_WarpMouse( GFX_WIDTH>>1, GFX_HEIGHT>>1 );
     }
 
-    mous.x = x; // mous.x and mous.y are the wrong type to use in above call
-    mous.y = y;
+    mous.x = -x; // mous.x and mous.y are the wrong type to use in above call
+    mous.y = -y;
     mous.button[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
     mous.button[1] = ( b & SDL_BUTTON( 3 ) ) ? 1 : 0;
     mous.button[2] = ( b & SDL_BUTTON( 2 ) ) ? 1 : 0; // Middle is 2 on SDL
@@ -173,7 +176,6 @@ void input_read_joystick( int which )
     int i, button_count, x, y;
     device_joystick_t * pjoy;
 
-//    if ( which + INPUT_DEVICE_JOY > input_device_count ) return;
     if ( !joy[which].on ) return;
 
     pjoy = joy + which;
@@ -307,6 +309,11 @@ void input_read()
             case SDL_MOUSEMOTION:
                 cursor.x = evt.motion.x;
                 cursor.y = evt.motion.y;
+                break;
+
+            case SDL_QUIT:
+                //Someone pressed the little X in the corner while running windowed mode
+                exit(0);
                 break;
 
                 // use this loop to grab any console-mode entry from the keyboard

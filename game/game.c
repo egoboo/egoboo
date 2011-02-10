@@ -1916,8 +1916,7 @@ void set_one_player_latch( const PLA_REF ipla )
                         scale = dist / mous.sense;
                     }
 
-                    scale = scale / mous.sense;
-                    scale = 1;
+                    scale /= mous.sense;
                     joy_pos.x = mous.x * scale;
                     joy_pos.y = mous.y * scale;
 
