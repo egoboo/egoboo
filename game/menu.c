@@ -183,8 +183,8 @@ static egoboo_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst );
 static bool_t    SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 static bool_t    SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 static bool_t    SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
-static bool_t    SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
-static bool_t    SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
+//static bool_t    SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
+//static bool_t    SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
 static int       SelectedPlayer_list_index_from_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 
 //--------------------------------------------------------------------------------------------
@@ -1539,6 +1539,10 @@ bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mod
 
             // fix class name capitalization
             pcap->classname[0] = toupper( pcap->classname[0] );
+            
+            //Character level and class
+            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            ui_drawTextBox( NULL, loadplayer_ptr->name , x1, y1, 0, 0, 20 ); y1 += 25;
 
             //Character level and class
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
@@ -1735,9 +1739,12 @@ int doChoosePlayer( float deltaTime )
             }
 
             // Continue
-            if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
+            if( mnu_SelectedList.count > 0 )
             {
-                menuState = MM_Leaving;
+                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
+                {
+                    menuState = MM_Leaving;
+                }
             }
 
             // Back
@@ -1753,14 +1760,6 @@ int doChoosePlayer( float deltaTime )
             break;
 
         case MM_Leaving:
-                
-            //Figure out which players have been selected
-/*            for( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
-            {
-                if( selectedPlayers[i] == -1 ) continue;
-                SelectedPlayer_list_add( &mnu_SelectedList,  i );
-            }*/
-                
             //fall through
 
         case MM_Finish:
@@ -1827,6 +1826,7 @@ int doChoosePlayerCharacter( float deltaTime )
         case MM_Begin:
             TxTexture_free_one(( TX_REF )TX_BARS );
             last_player = selectedPlayers[currentSelectingPlayer];
+            new_player = btrue;
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
@@ -1982,17 +1982,17 @@ int doChoosePlayerCharacter( float deltaTime )
                 {
                     // load and display the new lplayer data
                     new_player = bfalse;
-                    doChoosePlayer_show_stats( loadplayer_ptr, 0, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
+                    doChoosePlayer_show_stats( loadplayer_ptr, 0, GFX_WIDTH - 400, 5, 350, GFX_HEIGHT - 50 );
                 }
                 else
                 {
                     // just display the new lplayer data
-                    doChoosePlayer_show_stats( loadplayer_ptr, 2, GFX_WIDTH - 400, 10, 350, GFX_HEIGHT - 60 );
+                    doChoosePlayer_show_stats( loadplayer_ptr, 2, GFX_WIDTH - 400, 5, 350, GFX_HEIGHT - 50 );
                 }
             }
             else
             {
-                doChoosePlayer_show_stats( NULL, 1, GFX_WIDTH - 100, 10, 100, GFX_HEIGHT - 60 );
+                doChoosePlayer_show_stats( NULL, 1, GFX_WIDTH - 100, 5, 100, GFX_HEIGHT - 50 );
             }
 
             // tool-tip text
@@ -2163,6 +2163,8 @@ int doInputOptions( float deltaTime )
     static int menuState = MM_Begin;
     static int menuChoice = 0;
     static int waitingforinput = -1;
+    static bool_t device_found = btrue;
+    static bool_t update_input_type;
 
     static STRING inputOptionsButtons[CONTROL_COMMAND_COUNT + 3];
 
@@ -2188,6 +2190,7 @@ int doInputOptions( float deltaTime )
 
             waitingforinput = -1;
             player = 0;
+            update_input_type = btrue;
 
             //Clip to valid value
             if( controls[player].device_type == INPUT_DEVICE_NONE ) controls[player].device_type = INPUT_DEVICE_BEGIN;
@@ -2219,6 +2222,30 @@ int doInputOptions( float deltaTime )
             // Do normal run
             // Background
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+
+            //Detect if input is availible and update the input type button accordingly
+            if( update_input_type )
+            {
+                update_input_type = bfalse;
+                switch( pdevice->device_type )
+                {
+                    default:
+                    case INPUT_DEVICE_KEYBOARD: 
+                        device_found = keyb.on;
+                        break;
+                    case INPUT_DEVICE_MOUSE:    
+                        device_found = mous.on;
+                        break;
+                    case INPUT_DEVICE_JOY_A:    
+                        device_found = joy[0].on;
+                        break;
+                    case INPUT_DEVICE_JOY_B:    
+                        device_found = joy[1].on;
+                        break;
+                }
+
+                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
+            }
 
             // Someone pressed abort
             if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  
@@ -2508,10 +2535,11 @@ int doInputOptions( float deltaTime )
                     case INPUT_DEVICE_JOY_A:    pdevice->device_type = INPUT_DEVICE_JOY_B; break;
                     case INPUT_DEVICE_JOY_B:    pdevice->device_type = INPUT_DEVICE_KEYBOARD; break;
                 }
-
-                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
+                update_input_type = btrue;
             }
 
+            //Display warning if input device was not found
+            if( !device_found) ui_drawTextBox( menuFont, "WARNING: Input device not found!", buttonLeft + 300, 95, 0, 0, 20 );
 
             // The select player button
             ui_drawTextBox( menuFont, "SELECT PLAYER:", buttonLeft, 55, 0, 0, 20 );
@@ -2521,6 +2549,7 @@ int doInputOptions( float deltaTime )
                 player %= MAX_LOCAL_PLAYERS;
 
                 snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+1], sizeof( STRING ), "Player %i", player + 1 );
+                update_input_type = btrue;
             }
 
             // Save settings button
@@ -5562,7 +5591,7 @@ egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * sr
 //--------------------------------------------------------------------------------------------
 egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst )
 {
-    int                import_idx;
+    int                import_idx, i;
     Import_element_t * import_ptr = NULL;
 
     int                        loadplayer_idx = -1;
@@ -5594,8 +5623,13 @@ egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_lis
         import_ptr = imp_lst->lst + imp_lst->count;
         imp_lst->count++;
 
+        //TODO: this could be done a lot better... figure out which player we are (1, 2, 3 or 4)
+        for( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
+        {
+            if( selectedplayer_ptr->player == selectedPlayers[i] ) import_ptr->local_player_num = i;
+        }
+
         // set the import info
-        //import_ptr->input_device    = selectedplayer_ptr->input_device;
         import_ptr->slot            = selectedplayer_idx * MAXIMPORTPERPLAYER;
         import_ptr->player          = selectedplayer_idx;
 
@@ -5728,7 +5762,7 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, BIT_FIELD input_bits )
+/*bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, BIT_FIELD input_bits )
 {
     int i;
     bool_t done, retval = bfalse;
@@ -5788,10 +5822,10 @@ bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadpl
     }
 
     return retval;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
-bool_t SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits )
+/*bool_t SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits )
 {
     int i;
     bool_t retval = bfalse;
@@ -5800,7 +5834,7 @@ bool_t SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loa
     {
         if ( sp_lst->lst[i].player == loadplayer_idx )
         {
-            //UNSET_BIT( sp_lst->lst[i].input, input_bits );
+            UNSET_BIT( sp_lst->lst[i].input, input_bits );
 
             // This part is not so tricky as in SelectedPlayer_list_add_input.
             // Even though we are modding the loop control variable, it is never
@@ -5819,4 +5853,4 @@ bool_t SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loa
     }
 
     return retval;
-}
+}*/

@@ -1861,7 +1861,7 @@ void do_weather_spawn_particles()
 
 
 //--------------------------------------------------------------------------------------------
-void set_one_player_latch( const PLA_REF player )
+void set_one_player_latch( const PLA_REF ipla )
 {
     /// @details ZZ@> This function converts input readings to latch settings, so players can
     ///    move around
@@ -1871,18 +1871,15 @@ void set_one_player_latch( const PLA_REF player )
     float fsin, fcos;
     latch_t sum;
     bool_t fast_camera_turn;
+    fvec2_t joy_pos, joy_new;
 
-    chr_t          * pchr;
     player_t       * ppla;
     input_device_t * pdevice;
 
-    if ( INVALID_PLA( player ) ) return;
-    ppla = PlaStack.lst + player;
-
+    // skip invalid players
+    if ( INVALID_PLA( ipla ) ) return;
+    ppla = PlaStack.lst + ipla;
     pdevice = ppla->pdevice;
-
-    if ( !INGAME_CHR( ppla->index ) ) return;
-    pchr = ChrList.lst + ppla->index;
 
     // is the device a local device or an internet device?
     if ( pdevice == NULL) return;
@@ -1892,129 +1889,109 @@ void set_one_player_latch( const PLA_REF player )
 
     // Clear the player's latch buffers
     latch_init( &( sum ) );
+    fvec2_self_clear( joy_new.v );
 
     // generate the transforms relative to the camera
     turnsin = TO_TURN( PCamera->ori.facing_z );
     fsin    = turntosin[ turnsin ];
     fcos    = turntocos[ turnsin ];
 
-    // Mouse routines
-    if ( pdevice->device_type == INPUT_DEVICE_MOUSE && mous.on )
+    switch( pdevice->device_type )
     {
-        fvec2_t joy_pos, joy_new;
 
-        fvec2_self_clear( joy_new.v );
-
-        if ( fast_camera_turn || !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+        // Mouse routines
+        case INPUT_DEVICE_MOUSE:
         {
-            dist = SQRT( mous.x * mous.x + mous.y * mous.y );
-            if ( dist > 0 )
+            //No need to continue if device is not enabled
+            if( !mous.on ) break;
+
+            if ( fast_camera_turn || !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
             {
-                scale = mous.sense / dist;
-                if ( dist < mous.sense )
+                dist = SQRT( mous.x * mous.x + mous.y * mous.y );
+                if ( dist > 0 )
                 {
-                    scale = dist / mous.sense;
+                    scale = mous.sense / dist;
+                    if ( dist < mous.sense )
+                    {
+                        scale = dist / mous.sense;
+                    }
+
+                    scale = scale / mous.sense;
+                    scale = 1;
+                    joy_pos.x = mous.x * scale;
+                    joy_pos.y = mous.y * scale;
+
+                    //if ( fast_camera_turn && 0 == control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
+
+                    joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+                    joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+                }
+            }
+
+            break;
+        }
+
+        // Joystick routines
+        case INPUT_DEVICE_JOY_A:
+        case INPUT_DEVICE_JOY_B:
+        {
+            //Figure out which joystick we are using
+            device_joystick_t *joystick;
+            joystick = joy + (pdevice->device_type - MAXJOYSTICK);
+
+            //No need to continue if device is not enabled
+            if( !joystick->on ) break;
+
+            if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
+            {
+                joy_pos.x = joystick->x;
+                joy_pos.y = joystick->y;
+
+                dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
+                if ( dist > 1.0f )
+                {
+                    scale = 1.0f / SQRT( dist );
+                    joy_pos.x *= scale;
+                    joy_pos.y *= scale;
                 }
 
-                scale = scale / mous.sense;
-                joy_pos.x = mous.x * scale;
-                joy_pos.y = mous.y * scale;
-
-                if ( fast_camera_turn && 0 == control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
+                if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
 
                 joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
                 joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
             }
+
+            break;
         }
 
-        sum.x += joy_new.x;
-        sum.y += joy_new.y;
-    }
-
-    // Joystick A routines
-    else if ( pdevice->device_type == INPUT_DEVICE_JOY_A && joy[0].on )
-    {
-        fvec2_t joy_pos, joy_new;
-
-        fvec2_self_clear( joy_new.v );
-
-        if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
+        // Keyboard routines
+        case INPUT_DEVICE_KEYBOARD:
         {
-            joy_pos.x = joy[0].x;
-            joy_pos.y = joy[0].y;
+            //No need to continue if device is not enabled
+            if( !keyb.on ) break;
 
-            dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
-            if ( dist > 1.0f )
+            fvec2_self_clear( joy_pos.v );
+
+            if ( fast_camera_turn || !control_is_pressed(pdevice, CONTROL_CAMERA ) )
             {
-                scale = 1.0f / SQRT( dist );
-                joy_pos.x *= scale;
-                joy_pos.y *= scale;
+                joy_pos.x = ( control_is_pressed( pdevice,  CONTROL_RIGHT ) - control_is_pressed( pdevice,  CONTROL_LEFT ) );
+                joy_pos.y = ( control_is_pressed( pdevice,  CONTROL_DOWN ) - control_is_pressed( pdevice,  CONTROL_UP ) );
+
+                if ( fast_camera_turn )  joy_pos.x = 0;
+
+                joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+                joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
             }
 
-            if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
-
-            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+            break;
         }
-
-        sum.x += joy_new.x;
-        sum.y += joy_new.y;
     }
 
-    // Joystick B routines
-    else if ( pdevice->device_type == INPUT_DEVICE_JOY_B && joy[1].on )
-    {
-        fvec2_t joy_pos, joy_new;
+    // Update movement (if any)
+    sum.x += joy_new.x;
+    sum.y += joy_new.y;
 
-        fvec2_self_clear( joy_new.v );
-
-        if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
-        {
-            joy_pos.x = joy[1].x;
-            joy_pos.y = joy[1].y;
-
-            dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
-            if ( dist > 1.0f )
-            {
-                scale = 1.0f / SQRT( dist );
-                joy_pos.x *= scale;
-                joy_pos.y *= scale;
-            }
-
-            if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
-
-            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
-        }
-
-        sum.x += joy_new.x;
-        sum.y += joy_new.y;
-    }
-
-    // Keyboard routines
-    else if ( pdevice->device_type == INPUT_DEVICE_KEYBOARD && keyb.on )
-    {
-        fvec2_t joy_pos, joy_new;
-
-        fvec2_self_clear( joy_new.v );
-        fvec2_self_clear( joy_pos.v );
-
-        if ( fast_camera_turn || !control_is_pressed(pdevice, CONTROL_CAMERA ) )
-        {
-            joy_pos.x = ( control_is_pressed( pdevice,  CONTROL_RIGHT ) - control_is_pressed( pdevice,  CONTROL_LEFT ) );
-            joy_pos.y = ( control_is_pressed( pdevice,  CONTROL_DOWN ) - control_is_pressed( pdevice,  CONTROL_UP ) );
-
-            if ( fast_camera_turn )  joy_pos.x = 0;
-
-            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
-        }
-
-        sum.x += joy_new.x;
-        sum.y += joy_new.y;
-    }
-
-    // Read buttons
+    // Read control buttons
     if ( control_is_pressed( pdevice, CONTROL_JUMP ) )
         SET_BIT( sum.b, LATCHBUTTON_JUMP );
     if ( control_is_pressed( pdevice, CONTROL_LEFT_USE ) )
@@ -2783,12 +2760,12 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + local_numlpla );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + ImportList.lst[local_index].local_player_num);
             }
             else
             {
                 // It's a remote PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + local_numlpla );    //ZF> todo: BAD! dont allow local to control multiplayer
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, NULL );
             }
         }
 
@@ -5709,7 +5686,7 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
 
     // blank out the ImportList list
     Import_list_init( &ImportList );
-
+    
     // generate the ImportList list from the player info
     for ( player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++ )
     {
@@ -5727,7 +5704,6 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
         imp_lst->count++;
 
         import_ptr->player          = player_idx;
-        import_ptr->input_device    = is_local ? player_ptr->pdevice->device_type : INPUT_DEVICE_NONE;
         import_ptr->slot            = REF_TO_INT( player ) * MAXIMPORTPERPLAYER;
         import_ptr->srcDir[0]       = CSTR_END;
         import_ptr->dstDir[0]       = CSTR_END;

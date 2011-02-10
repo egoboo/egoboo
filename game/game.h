@@ -295,9 +295,9 @@ struct s_Import_element
     STRING          dstDir;
     STRING          name;
 
-    size_t          player;           ///< Which player is this?
-    INPUT_DEVICE    input_device;     ///< Input device for this player
-    int             slot;             ///< which slot it it to be loaded into
+    size_t          local_player_num;   ///< Local player number (player 1, 2, 3 or 4)
+    size_t          player;             ///< Which player is this?
+    int             slot;               ///< which slot it it to be loaded into
 };
 typedef struct s_Import_element Import_element_t;
 

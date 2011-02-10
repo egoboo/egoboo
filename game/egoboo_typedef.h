@@ -233,10 +233,10 @@ typedef char STRING[256];
 
 /// the "base class" of Egoboo profiles
 #define  EGO_PROFILE_STUFF \
-    bool_t loaded;      /** Was the data read in? */ \
-    STRING name;        /** Usually the source filename */ \
-    int    request_count;          /** the number of attempted spawnx */ \
-    int    create_count;           /** the number of successful spawns */
+    bool_t loaded;                  /** Was the data read in? */ \
+    STRING name;                    /** Usually the source filename */ \
+    int    request_count;           /** the number of attempted spawnx */ \
+    int    create_count;            /** the number of successful spawns */
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

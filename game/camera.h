@@ -67,7 +67,7 @@ enum e_camera_turn_mode
 #    define CAM_ZOOM_MIN                         800         ///< Camera distance
 #    define CAM_ZOOM_MAX                         700
 #    define CAM_ZADD_MIN                         800         ///< Camera height
-#    define CAM_ZADD_MAX                         2500
+#    define CAM_ZADD_MAX                         2750
 #    define CAM_UPDOWN_MIN                       (0.24f*PI)    ///< Camera updown angle
 #    define CAM_UPDOWN_MAX                       (0.10f*PI)
 #else

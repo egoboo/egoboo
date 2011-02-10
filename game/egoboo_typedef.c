@@ -96,7 +96,7 @@ void latch_init( latch_t * platch )
 
     platch->x = 0.0f;
     platch->y = 0.0f;
-    platch->b = 0;
+    platch->b = EMPTY_BIT_FIELD;
 }
 
 //--------------------------------------------------------------------------------------------
