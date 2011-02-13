@@ -2227,23 +2227,7 @@ int doInputOptions( float deltaTime )
             if( update_input_type )
             {
                 update_input_type = bfalse;
-                switch( pdevice->device_type )
-                {
-                    default:
-                    case INPUT_DEVICE_KEYBOARD: 
-                        device_found = keyb.on;
-                        break;
-                    case INPUT_DEVICE_MOUSE:    
-                        device_found = mous.on;
-                        break;
-                    case INPUT_DEVICE_JOY_A:    
-                        device_found = joy[0].on;
-                        break;
-                    case INPUT_DEVICE_JOY_B:    
-                        device_found = joy[1].on;
-                        break;
-                }
-
+                device_found = input_is_enabled( pdevice );
                 snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
             }
 

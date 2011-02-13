@@ -72,7 +72,6 @@ extern "C"
         Uint8   maxplayers;
         bool_t  monstersonly;                           ///< Only allow monsters
         Uint8   respawnvalid;                           ///< Allow respawn
-        Uint8   rtscontrol;                             ///< !! keep this in the file, even though it is not used in the game !!
         int     numlines;                               ///< Lines in summary
         char    summary[SUMMARYLINES][SUMMARYSIZE];     ///< Quest description
 

@@ -60,6 +60,7 @@ bool_t input_settings_load_vfs( const char *szFilename )
     //Read input for each player
     for( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
+        size_t count;
         pdevice = controls + idevice;
 
         //initialize input control
@@ -68,6 +69,10 @@ bool_t input_settings_load_vfs( const char *szFilename )
         //figure out how we move
         fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
         pdevice->device_type = translate_string_to_input_type( currenttag );
+
+        //Find out how many fields we are to read
+        if( pdevice->device_type == INPUT_DEVICE_KEYBOARD ) count = CONTROL_COMMAND_COUNT;
+        else                                                count = CONTROL_CAMERA;
 
         //Read each input control button
         for( icontrol = CONTROL_BEGIN; icontrol < CONTROL_COMMAND_COUNT; icontrol++ )
@@ -144,18 +149,30 @@ bool_t input_settings_save_vfs( const char* szFilename )
         export_control( filewrite, "Right Hand Inventory", pdevice->device_type, pdevice->control + CONTROL_RIGHT_PACK );
         export_control( filewrite, "Sneak                ", pdevice->device_type, pdevice->control + CONTROL_SNEAK );
 
-        //these could be global?
-        export_control( filewrite, "Send Message        ", pdevice->device_type, pdevice->control + CONTROL_MESSAGE );
-        export_control( filewrite, "Camera Rotate Left    ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_LEFT );
-        export_control( filewrite, "Camera Rotate Right ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_RIGHT );
-        export_control( filewrite, "Camera Zoom In        ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_IN );
-        export_control( filewrite, "Camera Zoom Out    ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_OUT );
-
         //this is only needed for keyboard
-        export_control( filewrite, "Up                    ", pdevice->device_type, pdevice->control + CONTROL_UP );
-        export_control( filewrite, "Down                ", pdevice->device_type, pdevice->control + CONTROL_DOWN );
-        export_control( filewrite, "Left                ", pdevice->device_type, pdevice->control + CONTROL_LEFT );
-        export_control( filewrite, "Right                ", pdevice->device_type, pdevice->control + CONTROL_RIGHT );
+        if( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
+        {
+            //Could be a global key?
+            export_control( filewrite, "Send Message", pdevice->device_type, pdevice->control + CONTROL_MESSAGE );
+
+            export_control( filewrite, "Camera Rotate Left    ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_LEFT );
+            export_control( filewrite, "Camera Rotate Right ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_RIGHT );
+            export_control( filewrite, "Camera Zoom In        ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_IN );
+            export_control( filewrite, "Camera Zoom Out    ", pdevice->device_type, pdevice->control + CONTROL_CAMERA_OUT );
+
+            export_control( filewrite, "Up                    ", pdevice->device_type, pdevice->control + CONTROL_UP );
+            export_control( filewrite, "Down                ", pdevice->device_type, pdevice->control + CONTROL_DOWN );
+            export_control( filewrite, "Left                ", pdevice->device_type, pdevice->control + CONTROL_LEFT );
+            export_control( filewrite, "Right                ", pdevice->device_type, pdevice->control + CONTROL_RIGHT );
+        }
+
+        //Mouse and Joystick specific
+        else
+        {
+            export_control( filewrite, "Camera Control Mode	 ", pdevice->device_type, pdevice->control + CONTROL_MESSAGE );
+        }
+
+
     }
 
     // All done

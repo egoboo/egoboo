@@ -1884,6 +1884,9 @@ void set_one_player_latch( const PLA_REF ipla )
     // is the device a local device or an internet device?
     if ( pdevice == NULL) return;
 
+    //No need to continue if device is not enabled
+    if ( !input_is_enabled(pdevice) ) return;
+
     // fast camera turn if it is enabled and there is only 1 local player
     fast_camera_turn = ( 1 == local_numlpla ) && CAM_TURN_GOOD == PCamera->turn_mode;
 
@@ -1902,8 +1905,6 @@ void set_one_player_latch( const PLA_REF ipla )
         // Mouse routines
         case INPUT_DEVICE_MOUSE:
         {
-            //No need to continue if device is not enabled
-            if( !mous.on ) break;
 
             if ( fast_camera_turn || !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
             {
@@ -1916,7 +1917,11 @@ void set_one_player_latch( const PLA_REF ipla )
                         scale = dist / mous.sense;
                     }
 
-                    scale /= mous.sense;
+                    if( mous.sense != 0 )
+                    {
+                        scale /= mous.sense;
+                    }
+
                     joy_pos.x = mous.x * scale;
                     joy_pos.y = mous.y * scale;
 
@@ -1937,9 +1942,6 @@ void set_one_player_latch( const PLA_REF ipla )
             //Figure out which joystick we are using
             device_joystick_t *joystick;
             joystick = joy + (pdevice->device_type - MAXJOYSTICK);
-
-            //No need to continue if device is not enabled
-            if( !joystick->on ) break;
 
             if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
             {
@@ -1966,9 +1968,6 @@ void set_one_player_latch( const PLA_REF ipla )
         // Keyboard routines
         case INPUT_DEVICE_KEYBOARD:
         {
-            //No need to continue if device is not enabled
-            if( !keyb.on ) break;
-
             fvec2_self_clear( joy_pos.v );
 
             if ( fast_camera_turn || !control_is_pressed(pdevice, CONTROL_CAMERA ) )

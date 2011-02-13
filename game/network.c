@@ -1555,8 +1555,6 @@ void unbuffer_player_latches()
     PLA_REF ipla;
     CHR_REF character;
 
-    // if ( PMod->rtscontrol ) { numplatimes--; return; }
-
     // get the "network" latch for each valid player
     numplatimes = 0;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -2091,7 +2089,7 @@ void net_reset_players()
         pla_reinit( PlaStack.lst + cnt );
 
         // reset the device
-        //input_device_init( PlaStack.lst[cnt].pdevice );
+        input_device_init( PlaStack.lst[cnt].pdevice );
     }
     PlaStack.count        = 0;
 

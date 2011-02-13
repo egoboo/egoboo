@@ -75,7 +75,6 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     if ( 'A' == toupper( cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
     fget_next_char( fileread );
-    pmod->rtscontrol = bfalse;        //< depecrated, not in use
 
     fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     str_trim( pmod->rank );

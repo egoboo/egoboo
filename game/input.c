@@ -69,11 +69,16 @@ static void input_read_joystick( int which );
 //--------------------------------------------------------------------------------------------
 void input_device_init( input_device_t * pdevice )
 {
+    INPUT_DEVICE type;
+
     if ( NULL == pdevice ) return;
+
+    type = pdevice->device_type;
     
-    //memset( pdevice, 0, sizeof( *pdevice ) );
+    memset( pdevice, 0, sizeof( *pdevice ) );
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;
+    pdevice->device_type = type;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -405,6 +410,26 @@ BIT_FIELD input_get_buttonmask( input_device_t *pdevice )
 
     return buttonmask;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t input_is_enabled( input_device_t *pdevice )
+{
+    //@details ZF@> This determines if the specified input device is enabled or not
+
+    // make sure the idevice is valid
+    if ( NULL == pdevice ) return bfalse;
+
+    switch ( pdevice->device_type )
+    {
+        case INPUT_DEVICE_KEYBOARD: return keyb.on;
+        case INPUT_DEVICE_MOUSE:    return mous.on;
+        case INPUT_DEVICE_JOY_A:    return joy[0].on;
+        case INPUT_DEVICE_JOY_B:    return joy[1].on;
+    }
+
+    return bfalse;
+}
+
 
 //--------------------------------------------------------------------------------------------
 bool_t control_is_pressed( input_device_t *pdevice, CONTROL_BUTTON icontrol )

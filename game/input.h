@@ -96,9 +96,6 @@ typedef struct s_control control_t;
 /// The mapping between the inputs detected by SDL and the device's in-game function
 struct s_input_device
 {
-//    bool_t                  on;                               ///< TODO: ZF> need to implement this, use value from keyb.on if
-                                                                //         device_type == INPUT_DEVICE_KEYBOARD for example
-
     float                   sustain;                            ///< Falloff rate for old movement
     float                   cover;                              ///< For falloff
 
@@ -196,6 +193,7 @@ void   input_read();
 
 BIT_FIELD input_get_buttonmask( input_device_t *pdevice );
 void input_device_init( input_device_t * pdevice );
+bool_t input_is_enabled( input_device_t *pdevice );
 
 bool_t control_is_pressed( input_device_t *pdevice, CONTROL_BUTTON icontrol );
 

@@ -522,6 +522,9 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     if( pdevice == NULL ) return;
     type = pdevice->device_type;
 
+    //If the device isn't enabled there is no point in continuing
+    if( !input_is_enabled(pdevice) ) return;
+
     //Autoturn camera only works in single player and when it is enabled
     autoturn_camera = CAM_TURN_GOOD == pcam->turn_mode && 1 == local_numlpla;
     
@@ -531,9 +534,6 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
         //Mouse control
         case INPUT_DEVICE_MOUSE:
         {
-            //If the device isn't enabled there is no point in continuing
-            if ( !mous.on ) break;
-            
             //Auto camera
             if( autoturn_camera )
             {
@@ -563,9 +563,6 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
             //figure out which joystick this is
             device_joystick_t *joystick = joy + (type - MAXJOYSTICK);
 
-            //If the device isn't enabled there is no point in continuing
-            if( !joy->on ) break;
-
             //Autocamera
             if( autoturn_camera )
             {
@@ -591,9 +588,6 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
         // Keyboard camera controls
         case INPUT_DEVICE_KEYBOARD:
         {
-            //If the device isn't enabled there is no point in continuing
-            if( !keyb.on ) break;
-
             //Auto camera
             if(autoturn_camera) 
             {

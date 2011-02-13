@@ -259,7 +259,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     {
         screenshot_keyready = btrue;
     }
-    else if ( screenshot_keyready && SDLKEYDOWN( SDLK_F11 ) && keyb.on )
+    else if ( screenshot_keyready && SDLKEYDOWN( SDLK_F11 ) )
     {
         screenshot_keyready = bfalse;
         screenshot_requested = btrue;
