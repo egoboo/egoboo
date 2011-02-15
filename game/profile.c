@@ -52,14 +52,11 @@ size_t bookicon_count   = 0;
 TX_REF bookicon_ref[MAX_SKIN];                      // The first book icon
 
 INSTANTIATE_LIST( ACCESS_TYPE_NONE, pro_t, ProList, MAX_PROFILE );
-INSTANTIATE_STATIC_ARY( MessageOffsetAry, MessageOffset );
-
-Uint32  message_buffer_carat = 0;                           // Where to put letter
-char    message_buffer[MESSAGEBUFFERSIZE] = EMPTY_CSTR;     // The text buffer
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void get_message( vfs_FILE* fileread );
+static void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject );
+static void profile_add_one_message( pro_t *pobject, const STRING message );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -169,6 +166,9 @@ bool_t pro_init( pro_t * pobj )
     {
         log_warning( "pro_init() - trying to init an object in use" );
     }
+
+    //Free any dynamically allocated memory
+    if( pobj->message ) free( pobj->message );
 
     //---- reset everything to safe values
     memset( pobj, 0, sizeof( *pobj ) );
@@ -569,7 +569,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
 }
 
 //--------------------------------------------------------------------------------------------
-void get_message( vfs_FILE* fileread )
+/*void get_message( vfs_FILE* fileread )
 {
     /// @details ZZ@> This function loads a string into the message buffer, making sure it
     ///    is null terminated.
@@ -609,10 +609,10 @@ void get_message( vfs_FILE* fileread )
     message_buffer[message_buffer_carat] = CSTR_END;
     message_buffer_carat++;
     MessageOffset.count++;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages_vfs( const char *loadname, const PRO_REF object )
+/*void load_all_messages_vfs( const char *loadname, const PRO_REF object )
 {
     /// @details ZZ@> This function loads all of an objects messages
     vfs_FILE *fileread;
@@ -630,7 +630,66 @@ void load_all_messages_vfs( const char *loadname, const PRO_REF object )
 
         vfs_close( fileread );
     }
+}*/
+
+void profile_add_one_message( pro_t *pobject, const STRING add_message )
+{
+    //@details ZF@> This adds one string to the list of messages associated with a profile. The function will
+    //              dynamically allocate more memory if there are more messages than array size
+    size_t cnt, length;
+
+    if( !pobject->message ) log_error("Trying to add a message to a non-allocated message list (%s)\n", pobject->name);
+
+    //Do we need to increase the size of the array?
+    if( pobject->message_count + 1 >= pobject->message_length )
+    {
+        pobject->message_length += 10;
+        pobject->message = (STRING *) realloc( pobject->message, pobject->message_length * sizeof(STRING) );
+    }
+
+    //replace underscore with whitespace
+    length = strlen(add_message);
+    for( cnt = 0; cnt < length; cnt++ )
+    {
+        pobject->message[pobject->message_count][cnt] = (add_message[cnt] == '_') ? ' ' : add_message[cnt];
+    }
+
+    //Make sure it is null terminated
+    pobject->message[pobject->message_count][length] = CSTR_END;
+
+    //Keep track of number of messages in array
+    pobject->message_count++;
 }
+
+//--------------------------------------------------------------------------------------------
+void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
+{
+    /// @details ZF@> This function loads all messages for an object
+    vfs_FILE *fileread;
+
+    //Reset message count
+    pobject->message_count = 0;
+
+    fileread = vfs_openRead( loadname );
+    if ( fileread )
+    {
+        STRING line;
+
+        //Only allocate this memory if there is actually something to load
+        pobject->message_length = 10;
+        pobject->message = (STRING *) malloc( pobject->message_length * sizeof(STRING) );
+
+        while ( goto_colon( NULL, fileread, btrue ) )
+        {
+            //Load one line
+            fget_string( fileread, line, SDL_arraysize(line) );
+            profile_add_one_message( pobject, line );
+        }
+
+        vfs_close( fileread );
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------
 bool_t release_one_local_pips( const PRO_REF iobj )
@@ -832,7 +891,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 
     // Load the messages for this iobj
     make_newloadname( tmploadname, "/message.txt", newloadname );
-    load_all_messages_vfs( newloadname, iobj );
+    profile_load_all_messages_vfs( newloadname, pobj );
 
     // Load the particles for this iobj
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
@@ -878,8 +937,6 @@ void reset_messages()
     /// @details ZZ@> This makes messages safe to use
     int cnt;
 
-    MessageOffset.count = 0;
-    message_buffer_carat = 0;
     msgtimechange = 0;
     DisplayMsg.count = 0;
 
@@ -887,13 +944,6 @@ void reset_messages()
     {
         DisplayMsg.ary[cnt].time = 0;
     }
-
-    for ( cnt = 0; cnt < MAXTOTALMESSAGE; cnt++ )
-    {
-        MessageOffset.ary[cnt] = 0;
-    }
-
-    message_buffer[0] = CSTR_END;
 }
 
 //--------------------------------------------------------------------------------------------

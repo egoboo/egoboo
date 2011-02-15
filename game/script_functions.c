@@ -6828,17 +6828,12 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
     // FollowLink( tmpargument = "index of next module name" )
     /// @details BB@> Skips to the next module!
 
-    int message_number, message_index;
-    char * ptext;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    message_number = ppro->message_start + pstate->argument;
-    message_index  = MessageOffset.ary[message_number];
+    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
 
-    ptext = message_buffer + message_index;
-
-    returncode = link_follow_modname( ptext, btrue );
+    returncode = link_follow_modname( ppro->message[pstate->argument], btrue );
     if ( !returncode )
     {
         debug_printf( "That's too scary for %s", pchr->Name );
@@ -7477,17 +7472,12 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     /// @details ZF@> Proceeds if the specified module has the required IDSZ specified in tmpdistance
     /// The module folder name to be checked is a string from message.txt
 
-    int message_number, message_index;
-    char *ptext;
-
     SCRIPT_FUNCTION_BEGIN();
 
     ///use message.txt to send the module name
-    message_number = ppro->message_start + pstate->argument;
-    message_index  = MessageOffset.ary[message_number];
-    ptext = message_buffer + message_index;
+    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
 
-    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ptext );
+    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ppro->message[pstate->argument] );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7756,42 +7746,35 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
     // DrawBillboard( tmpargument = "message", tmpdistance = "duration", tmpturn = "color" )
     /// @details ZF@> This function draws one of those billboards above the character
 
+    SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
+    GLfloat *do_tint;
+
+    //List of avalible colours
+    GLXvector4f tint_red  = { 1.00f, 0.25f, 0.25f, 1.00f };
+    GLXvector4f tint_purple = { 0.88f, 0.75f, 1.00f, 1.00f };
+    GLXvector4f tint_white = { 1.00f, 1.00f, 1.00f, 1.00f };
+    GLXvector4f tint_yellow = { 1.00f, 1.00f, 0.75f, 1.00f };
+    GLXvector4f tint_green = { 0.25f, 1.00f, 0.25f, 1.00f };
+    GLXvector4f tint_blue = { 0.25f, 0.25f, 1.00f, 1.00f };
+
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
-    if ( LOADED_PRO( pchr->profile_ref ) )
+    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
+
+    //Figure out which color to use
+    switch ( pstate->turn )
     {
-        SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
-        int message_number, message_index;
-        char *ptext;
-
-        //List of avalible colours
-        GLXvector4f tint_red  = { 1.00f, 0.25f, 0.25f, 1.00f };
-        GLXvector4f tint_purple = { 0.88f, 0.75f, 1.00f, 1.00f };
-        GLXvector4f tint_white = { 1.00f, 1.00f, 1.00f, 1.00f };
-        GLXvector4f tint_yellow = { 1.00f, 1.00f, 0.75f, 1.00f };
-        GLXvector4f tint_green = { 0.25f, 1.00f, 0.25f, 1.00f };
-        GLXvector4f tint_blue = { 0.25f, 0.25f, 1.00f, 1.00f };
-
-        //Figure out which color to use
-        GLfloat *do_tint;
-        switch ( pstate->turn )
-        {
-            default:
-            case COLOR_WHITE:   do_tint = tint_white;   break;
-            case COLOR_RED:     do_tint = tint_red;     break;
-            case COLOR_PURPLE:  do_tint = tint_purple;  break;
-            case COLOR_YELLOW:  do_tint = tint_yellow;  break;
-            case COLOR_GREEN:   do_tint = tint_green;   break;
-            case COLOR_BLUE:    do_tint = tint_blue;    break;
-        }
-
-        message_number = ppro->message_start + pstate->argument;
-        message_index  = MessageOffset.ary[message_number];
-        ptext = message_buffer + message_index;
-
-        returncode = NULL != chr_make_text_billboard( pself->index, ptext, text_color, do_tint, pstate->distance, bb_opt_fade );
+        default:
+        case COLOR_WHITE:   do_tint = tint_white;   break;
+        case COLOR_RED:     do_tint = tint_red;     break;
+        case COLOR_PURPLE:  do_tint = tint_purple;  break;
+        case COLOR_YELLOW:  do_tint = tint_yellow;  break;
+        case COLOR_GREEN:   do_tint = tint_green;   break;
+        case COLOR_BLUE:    do_tint = tint_blue;    break;
     }
+
+    returncode = NULL != chr_make_text_billboard( pself->index, ppro->message[pstate->argument], text_color, do_tint, pstate->distance, bb_opt_fade );
+
 
     SCRIPT_FUNCTION_END();
 }
@@ -7951,38 +7934,28 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _append_end_text( chr_t * pchr, const int message, script_state_t * pstate )
+Uint8 _append_end_text( chr_t * pchr, const int message_index, script_state_t * pstate )
 {
     /// @details ZZ@> This function appends a message to the end-module text
 
-    int read, message_offset;
+    size_t length;
     CHR_REF ichr;
+    pro_t *ppro;
+    char * dst, * dst_end;
 
     FUNCTION_BEGIN();
 
-    if ( !LOADED_PRO( pchr->profile_ref ) ) return bfalse;
+    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return bfalse;
+    ppro = ProList.lst + pchr->profile_ref;
 
-    message_offset = ProList.lst[pchr->profile_ref].message_start + message;
     ichr           = GET_REF_PCHR( pchr );
+    length = strlen(ppro->message[message_index]);
 
-    if ( message_offset < MessageOffset.count )
-    {
-        char * src, * src_end;
-        char * dst, * dst_end;
+    dst     = endtext + endtext_carat;
+    dst_end = endtext + MAXENDTEXT - 1;
 
-        // Copy the message_offset
-        read = MessageOffset.ary[message_offset];
-
-        src     = message_buffer + read;
-        src_end = message_buffer + MESSAGEBUFFERSIZE;
-
-        dst     = endtext + endtext_carat;
-        dst_end = endtext + MAXENDTEXT - 1;
-
-        expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
-
-        endtext_carat = strlen( endtext );
-    }
+    expand_escape_codes( ichr, pstate, ppro->message[message_index], ppro->message[message_index]+length, dst, dst_end );
+    endtext_carat = strlen( endtext );
 
     str_add_linebreaks( endtext, strlen( endtext ), 30 );
 
@@ -8054,50 +8027,29 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, int message, script_state_t * pstate )
+Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, script_state_t * pstate )
 {
     /// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
 
-    int slot, read;
-    int message_offset;
-    Uint8 retval;
+    int slot;
+    char * dst, * dst_end;
+    size_t length;
+    pro_t *ppro;
 
-    message_offset = ProList.lst[iprofile].message_start + message;
+    if( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return bfalse;
+    ppro = ProList.lst + iprofile;
 
-    retval = 0;
-    if ( message_offset < MessageOffset.count )
-    {
-        char * src, * src_end;
-        char * dst, * dst_end;
+    slot = DisplayMsg_get_free();
+    DisplayMsg.ary[slot].time = cfg.message_duration;
 
-        slot = DisplayMsg_get_free();
-        DisplayMsg.ary[slot].time = cfg.message_duration;
+    length = strlen(ppro->message[message]);
 
-        // Copy the message_offset
-        read = MessageOffset.ary[message_offset];
+    dst     = DisplayMsg.ary[slot].textdisplay;
+    dst_end = DisplayMsg.ary[slot].textdisplay + MESSAGESIZE - 1;
 
-        src     = message_buffer + read;
-        src_end = message_buffer + MESSAGEBUFFERSIZE;
+    expand_escape_codes( ichr, pstate, ppro->message[message], ppro->message[message]+length, dst, dst_end );
 
-        dst     = DisplayMsg.ary[slot].textdisplay;
-        dst_end = DisplayMsg.ary[slot].textdisplay + MESSAGESIZE - 1;
+    *dst_end = CSTR_END;
 
-        expand_escape_codes( ichr, pstate, src, src_end, dst, dst_end );
-
-        *dst_end = CSTR_END;
-
-        retval = 1;
-    }
-
-    return retval;
+    return btrue;
 }
-
-//--------------------------------------------------------------------------------------------
-// Uint8 scr_get_SkillLevel( script_state_t * pstate, ai_state_t * pself )
-// {
-//    // tmpargument = GetSkillLevel()
-//    /// @details ZZ@> This function sets tmpargument to the shield profiency level of the Target
-//   SCRIPT_FUNCTION_BEGIN();
-//   pstate->argument = CapStack.lst[pchr->attachedto].shieldprofiency;
-//   SCRIPT_FUNCTION_END();
-// }

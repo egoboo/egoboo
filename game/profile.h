@@ -116,7 +116,9 @@ struct s_object_profile
     TX_REF  ico_ref[MAX_SKIN];                ///< references to the skin textures
 
     // the profile message info
-    int     message_start;                    ///< The first message
+    STRING  *message;                          //< Dynamic array of messages
+    size_t  message_count;                      //< Actual number of messages in the array
+    size_t  message_length;                     //< Length of the dynamic array
 
     /// the random naming info
     chop_definition_t chop;
@@ -139,12 +141,12 @@ const char * pro_create_chop( const PRO_REF profile_ref );
 bool_t       pro_load_chop_vfs( const PRO_REF profile_ref, const char *szLoadname );
 
 void    ProList_init();
-//void    ProList_free_all();
 size_t  ProList_get_free( const PRO_REF override_ref );
 bool_t  ProList_free_one( const PRO_REF object_ref );
 
 #define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
 #define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
+#define IS_VALID_MESSAGE_PRO( ICAP, MESSAGE ) ( LOADED_PRO(ICAP) && MESSAGE > 0 && MESSAGE < ProList.lst[ICAP].message_count )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -154,12 +156,6 @@ extern TX_REF  bookicon_ref[MAX_SKIN];                      ///< The first book 
 extern pro_import_t import_data;
 extern chop_data_t chop_mem;
 
-DECLARE_STATIC_ARY_TYPE( MessageOffsetAry, int, MAXTOTALMESSAGE );
-DECLARE_EXTERN_STATIC_ARY( MessageOffsetAry, MessageOffset );
-
-extern Uint32          message_buffer_carat;                                  ///< Where to put letter
-extern char            message_buffer[MESSAGEBUFFERSIZE];                     ///< The text buffer
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -168,7 +164,6 @@ void profile_system_end();
 
 void   init_all_profiles();
 int    load_profile_skins_vfs( const char * tmploadname, const PRO_REF object_ref );
-void   load_all_messages_vfs( const char *loadname, const PRO_REF object_ref );
 void   release_all_pro_data();
 void   release_all_profiles();
 void   release_all_pro();
