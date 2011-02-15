@@ -40,9 +40,9 @@ struct s_token
 {
     int    iLine;
     int    iIndex;
-    int    iValue;
-    char   cType;
-    char   cWord[MAXCODENAMESIZE];
+    int    iValue;                      ///< Integer value
+    char   cType;                       ///< Constant, Variable, Function, String, etc.
+    char   cWord[MAXCODENAMESIZE];      ///< The text representation
 };
 typedef struct s_token token_t;
 
@@ -799,12 +799,21 @@ int parse_token( int read )
         cTmp = cLineBuffer[read];
     }
     Token.cWord[wordsize] = CSTR_END;
-
+    
     // Check for numeric constant
     if ( 0 != isdigit( Token.cWord[0] ) )
     {
         sscanf( Token.cWord, "%d", &Token.iValue );
         Token.cType  = 'C';
+        Token.iIndex = MAX_OPCODE;
+        { print_token();  return read; }
+    }
+
+     // Check for string        TODO: not implemented yet
+    if ( '"' == Token.cWord[0] )
+    {
+        Token.cWord[wordsize] = CSTR_END;
+        Token.cType = 'S';
         Token.iIndex = MAX_OPCODE;
         { print_token();  return read; }
     }
@@ -820,6 +829,7 @@ int parse_token( int read )
 
         { print_token();  return read; }
     }
+
 
     for ( cnt = 0; cnt < OpList.count; cnt++ )
     {

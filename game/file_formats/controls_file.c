@@ -86,10 +86,10 @@ bool_t input_settings_load_vfs( const char *szFilename )
 
         //Find out how many fields we are to read
         if( pdevice->device_type == INPUT_DEVICE_KEYBOARD ) count = CONTROL_COMMAND_COUNT;
-        else                                                count = CONTROL_CAMERA;
+        else                                                count = CONTROL_CAMERA + 1;
 
         //Read each input control button
-        for( icontrol = CONTROL_BEGIN; icontrol < CONTROL_COMMAND_COUNT; icontrol++ )
+        for( icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
             fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
             pdevice->control[icontrol].tag = scantag_get_value( currenttag );

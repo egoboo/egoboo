@@ -2411,14 +2411,11 @@ int doInputOptions( float deltaTime )
                 }
             }
 
-            if ( CSTR_END != inputOptionsButtons[CONTROL_SNEAK][0] )
+            ui_drawTextBox( menuFont, "Sneak:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_SNEAK], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
             {
-                ui_drawTextBox( menuFont, "Sneak:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_SNEAK], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
-                {
-                    waitingforinput = CONTROL_SNEAK;
-                    strncpy( inputOptionsButtons[CONTROL_SNEAK], "...", sizeof( STRING ) );
-                }
+                waitingforinput = CONTROL_SNEAK;
+                strncpy( inputOptionsButtons[CONTROL_SNEAK], "...", sizeof( STRING ) );
             }
 
             //Only keyboard has the UP, DOWN, LEFT and RIGHT buttons
@@ -2427,7 +2424,7 @@ int doInputOptions( float deltaTime )
                 if ( CSTR_END != inputOptionsButtons[CONTROL_UP][0] )
                 {
                     ui_drawTextBox( menuFont, "Up:", buttonLeft, GFX_HEIGHT - 230, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_UP;
                         strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof( STRING ) );
@@ -2436,7 +2433,7 @@ int doInputOptions( float deltaTime )
                 if ( CSTR_END != inputOptionsButtons[CONTROL_DOWN][0] )
                 {
                     ui_drawTextBox( menuFont, "Down:", buttonLeft, GFX_HEIGHT - 200, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_DOWN;
                         strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof( STRING ) );
@@ -2445,7 +2442,7 @@ int doInputOptions( float deltaTime )
                 if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT][0] )
                 {
                     ui_drawTextBox( menuFont, "Left:", buttonLeft, GFX_HEIGHT - 170, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_LEFT;
                         strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof( STRING ) );
@@ -2454,7 +2451,7 @@ int doInputOptions( float deltaTime )
                 if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT][0] )
                 {
                     ui_drawTextBox( menuFont, "Right:", buttonLeft, GFX_HEIGHT - 140, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 140, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 140, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_RIGHT;
                         strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof( STRING ) );
@@ -2468,7 +2465,7 @@ int doInputOptions( float deltaTime )
             {
                 // single button camera control
                 ui_drawTextBox( menuFont, "Camera:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof( STRING ) );
@@ -2478,28 +2475,28 @@ int doInputOptions( float deltaTime )
             else
             {
                 ui_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_IN;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof( STRING ) );
                 }
 
                 ui_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, GFX_HEIGHT - 260, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], menuFont, buttonLeft + 450, GFX_HEIGHT - 260, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_OUT], menuFont, buttonLeft + 450, GFX_HEIGHT - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_OUT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof( STRING ) );
                 }
 
                 ui_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, GFX_HEIGHT - 230, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], menuFont, buttonLeft + 450, GFX_HEIGHT - 230, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 16, inputOptionsButtons[CONTROL_CAMERA_LEFT], menuFont, buttonLeft + 450, GFX_HEIGHT - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_LEFT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof( STRING ) );
                 }
                 
                 ui_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, GFX_HEIGHT - 200, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_RIGHT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof( STRING ) );
@@ -2508,7 +2505,7 @@ int doInputOptions( float deltaTime )
 
             // The select controller button
             ui_drawTextBox( menuFont, "INPUT DEVICE:", buttonLeft + 300, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxTexture_get_ptr(( TX_REF )( ICON_KEYB + pdevice->device_type ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 450, 50, 200, 40 ) )
+            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, TxTexture_get_ptr(( TX_REF )( ICON_KEYB + pdevice->device_type ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 450, 50, 200, 40 ) )
             {
                 //switch to next controller type
                 switch( pdevice->device_type )
@@ -2527,7 +2524,7 @@ int doInputOptions( float deltaTime )
 
             // The select player button
             ui_drawTextBox( menuFont, "SELECT PLAYER:", buttonLeft, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], menuFont, buttonLeft+150, 50, 100, 30 ) )
+            if ( BUTTON_UP ==  ui_doButton( 19, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], menuFont, buttonLeft+150, 50, 100, 30 ) )
             {
                 player++;
                 player %= MAX_LOCAL_PLAYERS;
@@ -2537,7 +2534,7 @@ int doInputOptions( float deltaTime )
             }
 
             // Save settings button
-            if ( BUTTON_UP == ui_doButton( 18, inputOptionsButtons[CONTROL_COMMAND_COUNT+2], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 20, inputOptionsButtons[CONTROL_COMMAND_COUNT+2], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // save settings and go back
                 player = 0;
