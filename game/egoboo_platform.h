@@ -53,7 +53,8 @@
 #    endif
 
 /// Speeds up compile times a bit.  We don't need everything in windows.h
-#    undef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
 
 /// special win32 macro that lets windows know that you are going to be
 /// starting from a console.  This is useful because you can get real-time
@@ -178,6 +179,7 @@
 #    define stricmp  _stricmp
 #    define isnan    _isnan
 #    define strlwr   _strlwr
+#    define strupr   _strupr
 
 /// This isn't needed in MSVC 2008 and causes errors
 #    if _MSC_VER < 1500

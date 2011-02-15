@@ -65,6 +65,9 @@ static bool_t write_wawalite_graphics( vfs_FILE * filewrite, wawalite_graphics_t
 static bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera );
 static bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata );
 
+
+static const int WAWALITE_FILE_VERSION = 2;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * wawalite_data_init( wawalite_data_t * pdata )
@@ -215,15 +218,46 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
 
     if ( NULL == fileread ) return pweather;
 
+    pweather->part_gpip = PIP_WEATHER;
+
     // weather data
-    if ( pdata->version >= 2 )
+    if ( pdata->version >= WAWALITE_FILE_VERSION )
     {
-        pweather->part_gpip = fget_next_int( fileread );          //@todo: allow text to be read here
+        STRING line;
+        fget_next_string( fileread, line, SDL_arraysize(line) );
+
+        //Convert to upper case
+        strncpy( pweather->weather_name, strupr( line ), SDL_arraysize(pweather->weather_name) );
+            
+        //Rainy weather
+        if( strcmp( pweather->weather_name, "RAIN" ) == 0 )
+        {
+            load_one_particle_profile_vfs( "mp_data/weather_rain.txt", ( PIP_REF )PIP_WEATHER );
+            load_one_particle_profile_vfs( "mp_data/weather_rain_finish.txt", ( PIP_REF )PIP_WEATHER_FINISH );
+        }
+
+        //Snowy weather
+        else if( strcmp( pweather->weather_name, "SNOW" ) == 0 )
+        {
+            load_one_particle_profile_vfs( "mp_data/weather_snow.txt", ( PIP_REF )PIP_WEATHER );
+            load_one_particle_profile_vfs( "mp_data/weather_snow_finish.txt", ( PIP_REF )PIP_WEATHER );
+        }
+
+        //No weather
+        else if( strcmp( pweather->weather_name, "NONE" ) == 0 )
+        {
+            pweather->part_gpip = -1;
+        }
+
+        //Unknown weather parsed
+        else
+        {
+            log_warning("Unknown weather type parsed in wawalite.txt: %s\n", line);
+            pweather->part_gpip = -1;
+            strncpy( pweather->weather_name, "NONE", SDL_arraysize(pweather->weather_name) );
+        }
     }
-    else
-    {
-        pweather->part_gpip = PIP_WEATHER4;           //Default if we use a older versioned wawalite.txt
-    }
+
     pweather->over_water  = fget_next_bool( fileread );
     pweather->timer_reset = fget_next_int( fileread );
 
@@ -447,9 +481,9 @@ bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweath
     if ( NULL == filewrite || NULL == pweather ) return bfalse;
 
     // weather data
-    fput_int( filewrite, "Weather particle effect ( 0 to 10, RAIN or SNOW )  :", pweather->part_gpip );
+    vfs_printf( filewrite, "Weather particle effect ( NONE, RAIN or SNOW )      : %s", pweather->weather_name );
     fput_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water );
-    fput_int( filewrite, "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
+    fput_int( filewrite,  "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
 
     return btrue;
 }
@@ -485,7 +519,7 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
 
     // write optional data...  Only read if it exists...
     if ( !pdata->fog.found ) return btrue;
-
+    
     vfs_printf( filewrite, "\n\n// Fog Expansion...  Leave this out for no fog...\n" );
     fput_float( filewrite, "Fog top z ( 0 to 100 )                            :", pdata->fog.top );
     fput_float( filewrite, "Fog bottom z ( 0 )                                :", pdata->fog.bottom );
@@ -518,6 +552,9 @@ bool_t write_wawalite_file_vfs( wawalite_data_t * pdata )
         log_warning( "Could not write file! (\"%s\")\n", newloadname );
         return bfalse;
     }
+
+    // Add file verison number
+    fput_version( filewrite, WAWALITE_FILE_VERSION );
 
     // file header
     vfs_printf( filewrite, "//   This file tells the game how to model lighting and water...\n" );

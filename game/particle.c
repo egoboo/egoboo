@@ -2451,7 +2451,7 @@ PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_particles( /* const char* modname */ )
+void reset_particles()
 {
     /// @details ZZ@> This resets all particle data and reads in the coin and water particles
 
@@ -2511,16 +2511,10 @@ void reset_particles( /* const char* modname */ )
 
     // Load module specific information
     loadpath = "mp_data/weather4.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER4 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
+    load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER );              //It's okay if weather particles fail
 
     loadpath = "mp_data/weather5.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER5 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
+    load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER_FINISH );
 
     loadpath = "mp_data/splash.txt";
     if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_SPLASH ) )

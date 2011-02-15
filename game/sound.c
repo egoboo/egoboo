@@ -734,12 +734,6 @@ void load_global_waves()
     snprintf( wavename, SDL_arraysize( wavename ), "mp_data/%s", wavenames[GSND_SHIELDBLOCK] );
     g_wavelist[GSND_SHIELDBLOCK] = sound_load_chunk_vfs( wavename );
 
-    /*
-    // These new values todo should determine global sound and particle effects
-    Weather Type: DROPS, RAIN, SNOW
-    Water Type: LAVA, WATER, DARK
-    */
-
     for ( cnt = 0; cnt < GSND_COUNT; cnt++ )
     {
         Mix_Chunk * ptmp;

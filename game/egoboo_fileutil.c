@@ -630,6 +630,36 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 //--------------------------------------------------------------------------------------------
 int fget_version( vfs_FILE* fileread )
 {
+    //@details ZF@> This gets the version number of the file which is preceeded by a $ symbol
+    //              and must be in the first line of the file.
+    long filepos;
+    int result;
+    char read;
+
+    //Stop here if file can't be read
+    if ( vfs_error( fileread ) ) return 0;
+
+    //Remember where we were
+    filepos = vfs_tell( fileread );
+
+    //Begin at the beginning
+    vfs_seek( fileread, 0 );
+
+    //Make sure the first line is actually the version tag
+    if( vfs_getc( fileread ) != '$' ) return 0;
+    while( (read = vfs_getc(fileread) ) != ' ' );
+
+    //Get the version number
+    result = fget_int( fileread );
+
+    // reset the file pointer
+    vfs_seek( fileread, filepos );
+    
+    return result;
+}
+
+/*int fget_version( vfs_FILE* fileread )
+{
     /// @details BB@> scanr the file for a "// file_version blah" flag
     long filepos;
     int  ch;
@@ -701,17 +731,17 @@ int fget_version( vfs_FILE* fileread )
     vfs_seek( fileread, filepos );
 
     // flear any error we may have generated
-    /* clearerr( fileread ); */
+    // clearerr( fileread );
 
     return file_version;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
-bool_t fput_version( vfs_FILE* filewrite, int file_version )
+bool_t fput_version( vfs_FILE* filewrite, const int version )
 {
     if ( vfs_error( filewrite ) ) return bfalse;
 
-    return 0 != vfs_printf( filewrite, "\n// version %d\n", file_version );
+    return 0 != vfs_printf( filewrite, "$FILE_VERSION %i\n\n", version );
 }
 
 //--------------------------------------------------------------------------------------------

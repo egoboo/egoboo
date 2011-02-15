@@ -2805,8 +2805,8 @@ void activate_spawn_file_vfs()
         CHR_REF parent = ( CHR_REF )MAX_CHR;
         size_t i;
 
-        //Mark each slot as free with the string termination character, @TODO: should use memset here
-        for( i = 0; i < MAX_PROFILE; i++ ) reserved_slot[i][0] = CSTR_END;
+        //Mark each slot as free with the string termination character
+        memset(reserved_slot, CSTR_END, sizeof(reserved_slot[0][0]) * MAX_PROFILE * 256);
 
         //First load spawn data of every object
         while ( spawn_file_scan( fileread, &spawn_list[spawn_count] ) )

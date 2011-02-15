@@ -129,10 +129,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // read all the scantags
     scantag_read_all_vfs( "mp_data/scancode.txt" );
 
-    if ( fs_ensureUserFile( "controls.txt", btrue ) )
-    {
-        input_settings_load_vfs( "/controls.txt" );
-    }
+    // load input
+    input_settings_load_vfs( "/controls.txt" );
 
     // synchronoze the config values with the various game subsystems
     // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped

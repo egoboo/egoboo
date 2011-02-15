@@ -42,8 +42,8 @@ extern "C"
         PIP_COIN5,
         PIP_COIN25,
         PIP_COIN100,
-        PIP_WEATHER4,                                  ///< Weather particles
-        PIP_WEATHER5,                                  ///< Weather particle finish
+        PIP_WEATHER,                                  ///< Weather particles
+        PIP_WEATHER_FINISH,                                  ///< Weather particle finish
         PIP_SPLASH,                                    ///< Water effects are next
         PIP_RIPPLE,
         PIP_DEFEND,                                     ///< Defend particle

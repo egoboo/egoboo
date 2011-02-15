@@ -30,12 +30,14 @@
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 
+static const int CONTROLS_FILE_VERSION = 2;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void export_control( vfs_FILE * filewrite, const char * text, INPUT_DEVICE device, control_t * pcontrol )
 {
     STRING write;
-
+    
     snprintf( write, SDL_arraysize( write ), "%s : %s\n", text, scantag_get_string( device, pcontrol->tag, pcontrol->is_key ) );
     vfs_puts( write, filewrite );
 }
@@ -46,14 +48,26 @@ bool_t input_settings_load_vfs( const char *szFilename )
     /// @details ZZ@> This function reads the controls.txt file
     vfs_FILE* fileread;
     char currenttag[TAGSIZE] = EMPTY_CSTR;
-    int idevice, icontrol;
+    int idevice, icontrol, file_version;
     input_device_t * pdevice;
 
+    //Make sure the file exists, if not copy it from the default folder
+    if ( !fs_ensureUserFile( "controls.txt", btrue ) ) return bfalse;
 
+    //Try opening the file
     fileread = vfs_openRead( szFilename );
     if ( NULL == fileread )
     {
-        log_error( "Could not load input settings (%s)!\n", szFilename );
+        log_warning( "Could not load input settings (%s)!\n", szFilename );
+        return bfalse;
+    }
+
+    //Make sure file versions match
+    file_version = fget_version( fileread );
+    if( file_version < CONTROLS_FILE_VERSION )
+    {
+        log_warning( "File \"%s\" is from an older version: \"%i\", while version required is: \"%i\"\n", szFilename, file_version, CONTROLS_FILE_VERSION );
+        vfs_close( fileread );
         return bfalse;
     }
 
@@ -104,6 +118,9 @@ bool_t input_settings_save_vfs( const char* szFilename )
         log_warning( "Could not save input settings (%s)!\n", szFilename );
         return bfalse;
     }
+
+    //Add version number
+    fput_version( filewrite, CONTROLS_FILE_VERSION );
 
     // Just some information
     vfs_puts( "Controls\n", filewrite );

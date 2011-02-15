@@ -122,6 +122,7 @@ extern "C"
         bool_t  over_water;
         int     timer_reset;
         int     part_gpip;           ///< Which particle to spawn?
+        STRING  weather_name;
     };
     typedef struct s_wawalite_weather wawalite_weather_t;
 
