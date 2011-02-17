@@ -647,8 +647,10 @@ void profile_add_one_message( pro_t *pobject, const STRING add_message )
         pobject->message = (STRING *) realloc( pobject->message, pobject->message_length * sizeof(STRING) );
     }
 
-    //replace underscore with whitespace
     length = strlen(add_message);
+    if( length >= MESSAGESIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\"\n", pobject->name, add_message);    //TODO this shouldnt happen, I should use char[MAXMESSAGE] instead of STRING
+
+    //replace underscore with whitespace
     for( cnt = 0; cnt < length; cnt++ )
     {
         pobject->message[pobject->message_count][cnt] = (add_message[cnt] == '_') ? ' ' : add_message[cnt];
@@ -887,7 +889,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 
     // Load the AI script for this iobj
     make_newloadname( tmploadname, "/script.txt", newloadname );
-    pobj->iai = load_ai_script_vfs( newloadname );
+    pobj->iai = load_ai_script_vfs( newloadname, &pobj->ai );
 
     // Load the messages for this iobj
     make_newloadname( tmploadname, "/message.txt", newloadname );

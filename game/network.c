@@ -2089,7 +2089,7 @@ void net_reset_players()
         pla_reinit( PlaStack.lst + cnt );
 
         // reset the device
-        input_device_init( PlaStack.lst[cnt].pdevice );
+        //input_device_init( PlaStack.lst[cnt].pdevice );
     }
     PlaStack.count        = 0;
 

@@ -988,8 +988,8 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function fails if the last function was more indented
 
     SCRIPT_FUNCTION_BEGIN();
-
-    returncode = ( pself->indent >= pself->indent_last );
+    
+    returncode = ( ppro->ai.indent >= ppro->ai.indent_last );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7504,7 +7504,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
     pchr->fat_goto_time = SIZETIME;
 
     // change back to our original AI
-    pself->type      = ProList.lst[pchr->basemodel_ref].iai;
+//    pself->type      = ProList.lst[pchr->basemodel_ref].iai;      //TODO: this no longer works (is it even needed?)
 
     SCRIPT_FUNCTION_END();
 }

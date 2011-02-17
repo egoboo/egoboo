@@ -69,16 +69,11 @@ static void input_read_joystick( int which );
 //--------------------------------------------------------------------------------------------
 void input_device_init( input_device_t * pdevice )
 {
-    INPUT_DEVICE type;
-
     if ( NULL == pdevice ) return;
-
-    type = pdevice->device_type;
     
     memset( pdevice, 0, sizeof( *pdevice ) );
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;
-    pdevice->device_type = type;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -20,6 +20,7 @@
 //********************************************************************************************
 
 #include "egoboo.h"
+#include "script.h"     //for ai_script_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,10 +104,12 @@ struct s_object_profile
     EGO_PROFILE_STUFF
 
     // the sub-profiles
-    REF_T   iai;                              ///< the AI  for this profile
+    REF_T   iai;                              ///< the AI  for this profile     TODO: remove
     CAP_REF icap;                             ///< the cap for this profile
     MAD_REF imad;                             ///< the mad for this profile
     EVE_REF ieve;                             ///< the eve for this profile
+
+    ai_script_t ai;                           ///< the AI  for this profile
 
     PIP_REF prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 
@@ -116,7 +119,7 @@ struct s_object_profile
     TX_REF  ico_ref[MAX_SKIN];                ///< references to the skin textures
 
     // the profile message info
-    STRING  *message;                          //< Dynamic array of messages
+    STRING* message;                          //< Dynamic array of messages
     size_t  message_count;                      //< Actual number of messages in the array
     size_t  message_length;                     //< Length of the dynamic array
 

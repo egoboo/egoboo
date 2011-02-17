@@ -20,6 +20,7 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
+#include "script.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -28,7 +29,7 @@
 #define AISMAXLOADSIZE      (1024*1024)            ///< For parsing AI scripts
 #define AISMAXCOMPILESIZE   (MAX_AI*4096/4)        ///< For parsing AI scripts
 #define MAXLINESIZE         1024
-#define MAX_OPCODE             1024                ///< Number of lines in AICODES.TXT
+#define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
 #define MAXCODENAMESIZE     64
 
 #define FUNCTION_BIT 0x80000000
@@ -41,23 +42,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-/// The data describing where a script is in AisCompiled_buffer
-struct s_script_storage_info
-{
-    STRING szName;
-    Uint32 iStartPosition;
-    Uint32 iEndPosition;
-};
-typedef struct s_script_storage_info script_storage_info_t;
-
-DECLARE_STATIC_ARY_TYPE( AisStorageAry, script_storage_info_t, MAX_AI );
-DECLARE_EXTERN_STATIC_ARY( AisStorageAry, AisStorage );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-extern int    AisCompiled_offset;
-extern Uint32 AisCompiled_buffer[AISMAXCOMPILESIZE];
 
 extern bool_t debug_scripts;
 extern FILE * debug_script_file;
@@ -620,7 +604,7 @@ extern bool_t parseerror;
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
-int  load_ai_script_vfs( const char *loadname );
+egoboo_rv load_ai_script_vfs( const char *loadname, ai_script_t *pai );
 
 void init_all_ai_scripts();
 void release_all_ai_scripts();

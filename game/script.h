@@ -126,6 +126,24 @@ bool_t waypoint_list_empty( waypoint_list_t * plst );
 bool_t waypoint_list_finished( waypoint_list_t * plst );
 bool_t waypoint_list_advance( waypoint_list_t * plst );
 
+
+//--------------------------------------------------------------------------------------------
+// struct s_ai_script
+//--------------------------------------------------------------------------------------------
+struct s_ai_script
+{
+    STRING          name;                            //Name of the script file
+    
+    Uint32          indent;
+    Uint32          indent_last;
+
+    Uint32          length;                          //Actual length of the compiled ai buffer
+    size_t          position;                        //Our current position in the script
+
+    Uint32          data[4096];                      //Compiled script data
+};
+typedef struct s_ai_script ai_script_t;
+
 //--------------------------------------------------------------------------------------------
 // struct s_ai_state
 //--------------------------------------------------------------------------------------------
@@ -133,21 +151,10 @@ bool_t waypoint_list_advance( waypoint_list_t * plst );
 /// the state variables for a script / AI
 struct s_ai_state
 {
-    // which script to run
-    REF_T          type;
-
-    // the execution pointer(s)
-    size_t         exe_stt;
-    size_t         exe_end;
-    size_t         exe_pos;
-    Uint32         opcode;
-
     // some script states
     Sint32         poof_time;
     bool_t         changed;
     bool_t         terminate;
-    Uint32         indent;
-    Uint32         indent_last;
 
     // who are we related to?
     CHR_REF        index;         ///< what is the index value of this character

@@ -45,11 +45,9 @@
 
 /// Messaging stuff
 #define MAX_MESSAGE         8                       ///< Number of messages
-#define MAXTOTALMESSAGE     4096
 #define MESSAGESIZE         80
-#define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
 
-#define DAMAGERAISE         25                  ///< Tolerance for damage tiles
+#define DAMAGERAISE         25                      ///< Tolerance for damage tiles
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000.0f
@@ -66,10 +64,6 @@
 //------------------------------------
 // Timers
 //------------------------------------
-// Display
-EXTERN Uint8           timeron     EQ( bfalse );          ///< Game timer displayed?
-EXTERN Uint32          timervalue  EQ( 0 );           ///< Timer time ( 50ths of a second )
-
 // fps stuff
 EXTERN Sint32          game_fps_clock             EQ( 0 );             ///< The number of ticks this second
 EXTERN float           stabilized_menu_fps        EQ( TARGET_FPS );
@@ -122,7 +116,6 @@ EXTERN Uint32          outofsync   EQ( 0 );
 EXTERN Uint32          true_update EQ( 0 );
 EXTERN Uint32          true_frame  EQ( 0 );
 EXTERN int             update_lag  EQ( 0 );
-EXTERN bool_t          soundon  EQ( btrue );              ///< Is the sound alive?
 
 EXTERN bool_t          pickedmodule_ready EQ( bfalse ); ///< Is there a new picked module?
 EXTERN int             pickedmodule_index EQ( -1 );     ///< The module index number
@@ -130,18 +123,20 @@ EXTERN STRING          pickedmodule_path;               ///< The picked module's
 EXTERN STRING          pickedmodule_name;               ///< The picked module's short name
 EXTERN STRING          pickedmodule_write_path;         ///< The picked module's path name relative to the userdata directory
 
-/// Setup values
-EXTERN Uint8                   messageon      EQ( btrue );         ///< Messages?
-EXTERN int                     maxmessage     EQ( MAX_MESSAGE );
-EXTERN int                     wraptolerance  EQ( 80 );            ///< Status bar
-EXTERN bool_t                  wateron        EQ( btrue );         ///< Water overlays?
-EXTERN bool_t                  fpson          EQ( btrue );         ///< Show FPS?
+
+//HUD
+EXTERN Uint8           timeron        EQ( bfalse );        ///< Game timer displayed?
+EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )
+EXTERN Uint8           messageon      EQ( btrue );         ///< Messages?
+EXTERN int             maxmessage     EQ( MAX_MESSAGE );
+EXTERN int             wraptolerance  EQ( 80 );            ///< Status bar
+EXTERN bool_t          fpson          EQ( btrue );         ///< Show FPS?
+
+EXTERN bool_t console_mode EQ( bfalse );                   ///< Input text from keyboard?
+EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from keyboard finished?
 
 /// EWWWW. GLOBALS ARE EVIL.
 
-/// KEYBOARD
-EXTERN bool_t console_mode EQ( bfalse );                   ///< Input text from keyboard?
-EXTERN bool_t console_done EQ( bfalse );                   ///< Input text from keyboard finished?
 
 #define INVISIBLE           20                      ///< The character can't be detected
 

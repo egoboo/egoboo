@@ -32,6 +32,9 @@
 #include "egoboo_math.h"
 #include "egoboo.h"
 
+#include "profile.h"
+#include "script.h"
+
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
@@ -59,16 +62,12 @@ static Uint8   cLoadBuffer[AISMAXLOADSIZE] = EMPTY_CSTR;
 
 static token_t Token;
 
-static const char * globalparsename = NULL;
+static ai_script_t default_ai_script;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 INSTANTIATE_STATIC_ARY( OpListAry, OpList );
-INSTANTIATE_STATIC_ARY( AisStorageAry, AisStorage );
-
-int    AisCompiled_offset = 0;
-Uint32 AisCompiled_buffer[AISMAXCOMPILESIZE];
 
 bool_t debug_scripts     = bfalse;
 FILE * debug_script_file = NULL;
@@ -496,18 +495,20 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void   insert_space( int position );
-static int    load_one_line( int read );
-static void   surround_space( int position );
-static int    get_indentation();
-static void   fix_operators();
-static int    parse_token( int read );
-static void   emit_opcode( BIT_FIELD highbits );
-static void   parse_line_by_line();
-static Uint32 jump_goto( int index, int index_end );
-static void   parse_jumps( int ainumber );
-static int    ai_goto_colon( int read );
-static void   get_code( int read );
+//Private functions
+static void         insert_space( int position );
+static int          load_one_line( int read, ai_script_t *pscript );
+static void         surround_space( int position );
+static int          get_indentation( ai_script_t *pscript );
+static void         fix_operators();
+static int          parse_token( int read, ai_script_t *pscript );
+static void         emit_opcode( BIT_FIELD highbits, ai_script_t *pscript );
+static void         parse_line_by_line( ai_script_t *pscript );
+static Uint32       jump_goto( int index, int index_end, ai_script_t *pscript );
+static void         parse_jumps( ai_script_t *pscript );
+static int          ai_goto_colon( int read );
+static void         get_code( int read );
+static egoboo_rv    ai_script_upload_default( ai_script_t *pscript );
 
 static void load_ai_codes_vfs( const char* loadname );
 
@@ -562,7 +563,7 @@ void insert_space( int position )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_line( int read )
+int load_one_line( int read, ai_script_t *pscript )
 {
     /// @details ZZ@> This function loads a line into the line buffer
 
@@ -661,7 +662,7 @@ int load_one_line( int read )
 
     if ( iLineSize > 0  && tabs_warning_needed )
     {
-        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
+        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
     }
 
     // Parse to end of line
@@ -703,7 +704,7 @@ void surround_space( int position )
 }
 
 //--------------------------------------------------------------------------------------------
-int get_indentation()
+int get_indentation( ai_script_t *pscript )
 {
     /// @details ZZ@> This function returns the number of starting spaces in a line
 
@@ -719,14 +720,14 @@ int get_indentation()
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-        log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
+        log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
         parseerror = btrue;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-        log_warning( "Too many levels of indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
+        log_warning( "Too many levels of indentation \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
         parseerror = btrue;
         cnt = 15;
     }
@@ -761,7 +762,7 @@ void fix_operators()
 }
 
 //--------------------------------------------------------------------------------------------
-int parse_token( int read )
+int parse_token( int read, ai_script_t *pscript )
 {
     /// @details ZZ@> This function tells what code is being indexed by read, it
     ///    will return the next spot to read from and stick the code number
@@ -853,7 +854,7 @@ int parse_token( int read )
     else
     {
         // Throw out an error code if we're loggin' 'em
-        log_message( "SCRIPT ERROR: \"%s\"(%d) - unknown opcode \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
+        log_message( "SCRIPT ERROR: \"%s\"(%d) - unknown opcode \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
 
         Token.iValue = -1;
         Token.cType  = '?';
@@ -866,17 +867,17 @@ int parse_token( int read )
 }
 
 //--------------------------------------------------------------------------------------------
-void emit_opcode( BIT_FIELD highbits )
+void emit_opcode( BIT_FIELD highbits, ai_script_t *pscript )
 {
     // detect a constant value
     if ( 'C' == Token.cType || 'F' == Token.cType )
     {
         SET_BIT( highbits, FUNCTION_BIT );
     }
-    if ( AisCompiled_offset < AISMAXCOMPILESIZE )
+    if ( pscript->length < 4096 )
     {
-        AisCompiled_buffer[AisCompiled_offset] = highbits | Token.iValue;
-        AisCompiled_offset++;
+        pscript->data[pscript->length] = highbits | Token.iValue;
+        pscript->length++;
     }
     else
     {
@@ -885,7 +886,7 @@ void emit_opcode( BIT_FIELD highbits )
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_line_by_line()
+void parse_line_by_line( ai_script_t *pscript )
 {
     /// @details ZZ@> This function removes comments and endline codes, replacing
     ///    them with a 0
@@ -897,7 +898,7 @@ void parse_line_by_line()
     read = 0;
     for ( Token.iLine = 0; read < iLoadSize; Token.iLine++ )
     {
-        read = load_one_line( read );
+        read = load_one_line( read, pscript );
         if ( 0 == iLineSize ) continue;
 
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
@@ -910,8 +911,8 @@ void parse_line_by_line()
         //------------------------------
         // grab the first opcode
 
-        highbits = SET_DATA_BITS( get_indentation() );
-        parseposition = parse_token( parseposition );
+        highbits = SET_DATA_BITS( get_indentation( pscript ) );
+        parseposition = parse_token( parseposition, pscript );
         if ( 'F' == Token.cType )
         {
             if ( FEND == Token.iValue && 0 == highbits )
@@ -924,11 +925,11 @@ void parse_line_by_line()
             // the code type is a function
 
             // save the opcode
-            emit_opcode( highbits );
+            emit_opcode( highbits, pscript );
 
             // leave a space for the control code
             Token.iValue = 0;
-            emit_opcode( 0 );
+            emit_opcode( 0, pscript );
 
         }
         else if ( 'V' == Token.cType )
@@ -940,42 +941,42 @@ void parse_line_by_line()
             int operands = 0;
 
             // save in the value's opcode
-            emit_opcode( highbits );
+            emit_opcode( highbits, pscript );
 
             // save a position for the operand count
             Token.iValue = 0;
-            operand_index = AisCompiled_offset;
-            emit_opcode( 0 );
+            operand_index = pscript->length;    //AisCompiled_offset;
+            emit_opcode( 0, pscript );
 
             // handle the "="
             highbits = 0;
-            parseposition = parse_token( parseposition );  // EQUALS
+            parseposition = parse_token( parseposition, pscript );  // EQUALS
             if ( 'O' != Token.cType || 0 != strcmp( Token.cWord, "=" ) )
             {
-                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
+                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
             }
 
             //------------------------------
             // grab the next opcode
 
-            parseposition = parse_token( parseposition );
+            parseposition = parse_token( parseposition, pscript );
             if ( 'V' == Token.cType || 'C' == Token.cType )
             {
                 // this is a value or a constant
-                emit_opcode( 0 );
+                emit_opcode( 0, pscript );
                 operands++;
 
-                parseposition = parse_token( parseposition );
+                parseposition = parse_token( parseposition, pscript );
             }
             else if ( 'O' != Token.cType )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
+                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
 
-                emit_opcode( 0 );
+                emit_opcode( 0, pscript );
                 operands++;
 
-                parseposition = parse_token( parseposition );
+                parseposition = parse_token( parseposition, pscript );
             }
 
             // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
@@ -985,7 +986,7 @@ void parse_line_by_line()
                 if ( 'O' != Token.cType )
                 {
                     // problem with the loop
-                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, cLineBuffer );
+                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
                     break;
                 }
 
@@ -993,48 +994,47 @@ void parse_line_by_line()
                 highbits = SET_DATA_BITS( Token.iValue );
 
                 // VALUE
-                parseposition = parse_token( parseposition );
+                parseposition = parse_token( parseposition, pscript );
                 if ( 'C' != Token.cType && 'V' != Token.cType )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
+                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
                     break;
                 }
 
-                emit_opcode( highbits );
+                emit_opcode( highbits, pscript );
                 operands++;
 
                 // OPERATOR
-                parseposition = parse_token( parseposition );
+                parseposition = parse_token( parseposition, pscript );
             }
-
-            AisCompiled_buffer[operand_index] = operands;  // Number of operands
+            pscript->data[operand_index] = operands;
         }
         else if ( 'C' == Token.cType )
         {
-            log_warning( "Invalid constant \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
+            log_warning( "Invalid constant \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
         }
         else if ( '?' == Token.cType )
         {
             // unknown opcode, do not process this line
-            log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
+            log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
         }
         else
         {
-            log_warning( "Compiler is broken \"%s\"(%d) - \"%s\"\n", globalparsename, Token.iLine, Token.cWord );
+            log_warning( "Compiler is broken \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
             break;
         }
     }
 
     Token.iValue = FEND;
     Token.cType  = 'F';
-    emit_opcode( 0 );
-    Token.iValue = AisCompiled_offset + 1;
-    emit_opcode( 0 );
+    emit_opcode( 0, pscript );
+    Token.iValue = pscript->length + 1;
+    emit_opcode( 0, pscript );
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 jump_goto( int index, int index_end )
+Uint32 jump_goto( int index, int index_end, ai_script_t *pscript )
 {
     /// @details ZZ@> This function figures out where to jump to on a fail based on the
     ///    starting location and the following code.  The starting location
@@ -1043,13 +1043,13 @@ Uint32 jump_goto( int index, int index_end )
     Uint32 value;
     int targetindent, indent;
 
-    value = AisCompiled_buffer[index];  index += 2;
+    value = pscript->data[index]; /*AisCompiled_buffer[index];*/  index += 2;
     targetindent = GET_DATA_BITS( value );
     indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
-        value = AisCompiled_buffer[index];
+        value = pscript->data[index]; //AisCompiled_buffer[index];
         indent = GET_DATA_BITS( value );
         if ( indent > targetindent )
         {
@@ -1064,7 +1064,7 @@ Uint32 jump_goto( int index, int index_end )
             {
                 // Operations cover each operand
                 index++;
-                value = AisCompiled_buffer[index];
+                value = pscript->data[index]; //AisCompiled_buffer[index];
                 index++;
                 index += ( value & 255 );
             }
@@ -1075,35 +1075,35 @@ Uint32 jump_goto( int index, int index_end )
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_jumps( int ainumber )
+void parse_jumps( ai_script_t *pscript )
 {
     /// @details ZZ@> This function sets up the fail jumps for the down and dirty code
 
-    int index, index_end;
+    Uint32 index, index_end;
     Uint32 value, iTmp;
 
-    index     = AisStorage.ary[ainumber].iStartPosition;
-    index_end = AisStorage.ary[ainumber].iEndPosition;
+    index     = 0;                    //AisStorage.ary[ainumber].iStartPosition;
+    index_end = pscript->length;   //AisStorage.ary[ainumber].iEndPosition;
 
-    value = AisCompiled_buffer[index];
+    value = pscript->data[index];             //AisCompiled_buffer[index];
     while ( index < index_end )
     {
-        value = AisCompiled_buffer[index];
+        value = pscript->data[index];         //AisCompiled_buffer[index];
 
         // Was it a function
         if ( HAS_SOME_BITS( value, FUNCTION_BIT ) )
         {
             // Each function needs a jump
-            iTmp = jump_goto( index, index_end );
+            iTmp = jump_goto( index, index_end, pscript );
             index++;
-            AisCompiled_buffer[index] = iTmp;
+            pscript->data[index] = iTmp;              //AisCompiled_buffer[index] = iTmp;
             index++;
         }
         else
         {
             // Operations cover each operand
             index++;
-            iTmp = AisCompiled_buffer[index];
+            iTmp = pscript->data[index];              //AisCompiled_buffer[index];
             index++;
             index += CLIP_TO_08BITS( iTmp );
         }
@@ -1171,14 +1171,33 @@ void load_ai_codes_vfs( const char* loadname )
     }
 }
 
+egoboo_rv ai_script_upload_default( ai_script_t *pscript )
+{
+    //@details ZF@> This loads the default AI script into a character profile ai
+    //              It's not optimal since it duplicates the AI script data with memcpy
+    if( pscript == NULL ) return rv_error;
+
+    strncpy( pscript->name, default_ai_script.name, sizeof( STRING ) );
+    memcpy(pscript->data, default_ai_script.data, sizeof(pscript->data)); 
+
+    pscript->indent = 0;
+    pscript->indent_last = 0;
+
+    pscript->length = default_ai_script.length;
+    pscript->position = 0;
+}
+
 //--------------------------------------------------------------------------------------------
-int load_ai_script_vfs( const char *loadname )
+egoboo_rv load_ai_script_vfs( const char *loadname, ai_script_t *pscript )
 {
     /// @details ZZ@> This function loads a script to memory and
     ///    returns the index of the script, returns -1 if it fails
 
     vfs_FILE* fileread;
-    int retval = -1;
+    size_t file_size;
+
+    //Handle default AI
+    if( pscript == NULL ) pscript = &( default_ai_script );
 
     iNumLine = 0;
     fileread = vfs_openRead( loadname );
@@ -1188,50 +1207,37 @@ int load_ai_script_vfs( const char *loadname )
     {
         log_debug( "I am missing a AI script (%s)\n", loadname );
         log_message( "       Using the default AI script instead (\"mp_data/script.txt\")\n" );
-        return 0;           //0 == default AI script
-    }
-    if ( AisStorage.count >= MAX_AI )
-    {
-        log_warning( "Too many script files. Cannot load file \"%s\"\n", loadname );
-        return retval;
+
+        pscript = &default_ai_script;   //TODO: dangerous to repoint the pointer?
+        return rv_fail;
     }
 
     // load the file
-    iLoadSize = ( int )vfs_read( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
+    file_size = vfs_fileLength( fileread );
+    iLoadSize = ( int )vfs_read( cLoadBuffer, 1, file_size, fileread );
     vfs_close( fileread );
 
     // if the file is empty, use the default script
     if ( 0 == iLoadSize )
     {
         log_warning( "Script file is empty. \"%s\"\n", loadname );
-        return retval;
+        pscript = &default_ai_script;   //TODO: dangerous to repoint the pointer?
+        return rv_fail;
     }
 
     // save the filename for error logging
-    strncpy( AisStorage.ary[AisStorage.count].szName, loadname, sizeof( STRING ) );
-    globalparsename = loadname;
+    strncpy( pscript->name, loadname, sizeof( STRING ) );
 
-    // initialize the start and end position
-    AisStorage.ary[AisStorage.count].iStartPosition = AisCompiled_offset;
-    AisStorage.ary[AisStorage.count].iEndPosition   = AisCompiled_offset;
+    // we have parsed nothing yet
+    pscript->length = 0;
 
     // parse/compile the scripts
-    // parse_null_terminate_comments();
-    parse_line_by_line();
-
-    // set the end position of the script
-    AisStorage.ary[AisStorage.count].iEndPosition = AisCompiled_offset;
+    parse_line_by_line( pscript );
 
     // determine the correct jumps
-    parse_jumps( AisStorage.count );
+    parse_jumps( pscript );
 
-    // get the ai script index
-    retval = AisStorage.count;
-
-    // increase the ai script index
-    AisStorage.count++;
-
-    return retval;
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1239,8 +1245,8 @@ void release_all_ai_scripts()
 {
     /// @details ZZ@> This function resets the ai script "pointers"
 
-    AisCompiled_offset = 0;
-    AisStorage.count = 0;
+//    AisCompiled_offset = 0;
+//    AisStorage.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1248,8 +1254,8 @@ void init_all_ai_scripts()
 {
     /// @details ZZ@> This function initializes the ai script "pointers"
 
-    AisCompiled_offset = 0;
-    AisStorage.count = 0;
+//    AisCompiled_offset = 0;
+//    AisStorage.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------

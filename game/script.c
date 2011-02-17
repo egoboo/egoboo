@@ -50,16 +50,16 @@ static PRO_REF       script_error_model     = ( PRO_REF )MAX_PROFILE;
 static const char *  script_error_name      = "UNKNOWN";
 static REF_T         script_error_index     = ( Uint16 )( ~0 );
 
-static bool_t scr_increment_exe( ai_state_t * pself );
-static bool_t scr_set_exe( ai_state_t * pself, size_t offset );
+static bool_t scr_increment_pos( ai_script_t * pself );
+static bool_t scr_set_pos( ai_script_t * pself, size_t position );
 
 // static Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself );
-static Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself );
+static Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself, ai_script_t *pscript );
 static void  scr_set_operand( script_state_t * pstate, Uint8 variable );
-static void  scr_run_operand( script_state_t * pstate, ai_state_t * pself );
+static void  scr_run_operand( script_state_t * pstate, ai_state_t * pself, ai_script_t * pscript );
 
-static bool_t scr_run_operation( script_state_t * pstate, ai_state_t * pself );
-static bool_t scr_run_function_call( script_state_t * pstate, ai_state_t * pself );
+static bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, ai_script_t *pscript );
+static bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, ai_script_t *pscript );
 
 PROFILE_DECLARE( script_function )
 
@@ -131,6 +131,7 @@ void scr_run_chr_script( const CHR_REF character )
     script_state_t   my_state;
     chr_t          * pchr;
     ai_state_t     * pself;
+    ai_script_t    * pscript;
 
     // make sure that this module is initialized
     scripting_system_begin();
@@ -138,6 +139,7 @@ void scr_run_chr_script( const CHR_REF character )
     if ( !INGAME_CHR( character ) )  return;
     pchr  = ChrList.lst + character;
     pself = &( pchr->ai );
+    pscript   = &( chr_get_ppro( character )->ai );
 
     // has the time for this character to die come and gone?
     if ( pself->poof_time >= 0 && pself->poof_time <= ( Sint32 )update_wld ) return;
@@ -171,7 +173,7 @@ void scr_run_chr_script( const CHR_REF character )
         script_error_index = ProList.lst[script_error_model].iai;
         if ( script_error_index < MAX_AI )
         {
-            script_error_name = AisStorage.ary[script_error_index].szName;
+            script_error_name = pscript->name; //AisStorage.ary[script_error_index].szName;
         }
     }
 
@@ -230,30 +232,28 @@ void scr_run_chr_script( const CHR_REF character )
 
     // reset the ai
     pself->terminate = bfalse;
-    pself->indent    = 0;
-    pself->exe_stt   = AisStorage.ary[pself->type].iStartPosition;
-    pself->exe_end   = AisStorage.ary[pself->type].iEndPosition;
+    pscript->indent    = 0;
 
     // Run the AI Script
-    scr_set_exe( pself, pself->exe_stt );
-    while ( !pself->terminate && pself->exe_pos < pself->exe_end )
+    scr_set_pos( pscript, 0 );
+    while ( !pself->terminate && pscript->position < pscript->length)
     {
         // This is used by the Else function
         // it only keeps track of functions
-        pself->indent_last = pself->indent;
-        pself->indent = GET_DATA_BITS( pself->opcode );
+        pscript->indent_last = pscript->indent;
+        pscript->indent = GET_DATA_BITS( pscript->data[pscript->position] );
 
         // Was it a function
-        if ( HAS_SOME_BITS( pself->opcode, FUNCTION_BIT ) )
+        if ( HAS_SOME_BITS( pscript->data[pscript->position], FUNCTION_BIT ) )
         {
-            if ( !scr_run_function_call( &my_state, pself ) )
+            if ( !scr_run_function_call( &my_state, pself, pscript ) )
             {
                 break;
             }
         }
         else
         {
-            if ( !scr_run_operation( &my_state, pself ) )
+            if ( !scr_run_operation( &my_state, pself, pscript ) )
             {
                 break;
             }
@@ -302,54 +302,55 @@ void scr_run_chr_script( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scr_run_function_call( script_state_t * pstate, ai_state_t * pself )
+bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, ai_script_t *pscript )
 {
     Uint8  functionreturn;
-
+    
     // check for valid pointers
     if ( NULL == pstate || NULL == pself ) return bfalse;
 
+
     // check for valid execution pointer
-    if ( pself->exe_pos < pself->exe_stt || pself->exe_pos >= pself->exe_end ) return bfalse;
+    if ( pscript->position >= pscript->length ) return bfalse;
 
     // Run the function
-    functionreturn = scr_run_function( pstate, pself );
+    functionreturn = scr_run_function( pstate, pself, pscript );
 
     // move the execution pointer to the jump code
-    scr_increment_exe( pself );
+    scr_increment_pos( pscript );
     if ( functionreturn )
     {
         // move the execution pointer to the next opcode
-        scr_increment_exe( pself );
+        scr_increment_pos( pscript );
     }
     else
     {
         // use the jump code to jump to the right location
-        size_t new_index = pself->opcode;
+        size_t new_index = pscript->data[pscript->position];
 
         // make sure the value is valid
-        EGOBOO_ASSERT( new_index < AISMAXCOMPILESIZE && new_index >= pself->exe_stt && new_index <= pself->exe_end );
+        EGOBOO_ASSERT( new_index <= pscript->length );
 
         // actually do the jump
-        scr_set_exe( pself, new_index );
+        scr_set_pos( pscript, new_index );
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scr_run_operation( script_state_t * pstate, ai_state_t * pself )
+bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, ai_script_t * pscript )
 {
     const char * variable;
     Uint32 var_value, operand_count, i;
 
     // check for valid pointers
-    if ( NULL == pstate || NULL == pself ) return bfalse;
+    if ( NULL == pstate || NULL == pscript ) return bfalse;
 
     // check for valid execution pointer
-    if ( pself->exe_pos < pself->exe_stt || pself->exe_pos >= pself->exe_end ) return bfalse;
+    if ( pscript->position >= pscript->length ) return bfalse;
 
-    var_value = pself->opcode & VALUE_BITS;
+    var_value = pscript->data[pscript->position] & VALUE_BITS;
 
     // debug stuff
     variable = "UNKNOWN";
@@ -357,7 +358,7 @@ bool_t scr_run_operation( script_state_t * pstate, ai_state_t * pself )
     {
         FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        for ( i = 0; i < pself->indent; i++ ) { fprintf( scr_file, "  " ); }
+        for ( i = 0; i < pscript->indent; i++ ) { fprintf( scr_file, "  " ); }
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
@@ -372,15 +373,15 @@ bool_t scr_run_operation( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Get the number of operands
-    scr_increment_exe( pself );
-    operand_count = pself->opcode;
+    scr_increment_pos( pscript );
+    operand_count = pscript->data[pscript->position];
 
     // Now run the operation
     pstate->operationsum = 0;
-    for ( i = 0; i < operand_count && pself->exe_pos < pself->exe_end; i++ )
+    for ( i = 0; i < operand_count && pscript->position < pscript->length; i++ )
     {
-        scr_increment_exe( pself );
-        scr_run_operand( pstate, pself );
+        scr_increment_pos( pscript );
+        scr_run_operand( pstate, pself, pscript );
     }
     if ( debug_scripts )
     {
@@ -392,18 +393,18 @@ bool_t scr_run_operation( script_state_t * pstate, ai_state_t * pself )
     scr_set_operand( pstate, var_value );
 
     // go to the next opcode
-    scr_increment_exe( pself );
+    scr_increment_pos( pscript );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, ai_script_t * pscript )
 {
     /// @details BB@> This is about half-way to what is needed for Lua integration
 
     // Mask out the indentation
-    Uint32 valuecode = pself->opcode & VALUE_BITS;
+    Uint32 valuecode = pscript->data[pscript->position] & VALUE_BITS;
 
     // Assume that the function will pass, as most do
     Uint8 returncode = btrue;
@@ -419,7 +420,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
         Uint32 i;
         FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        for ( i = 0; i < pself->indent; i++ ) { fprintf( scr_file,  "  " ); }
+        for ( i = 0; i < pscript->indent; i++ ) { fprintf( scr_file,  "  " ); }
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
@@ -837,7 +838,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself )
 
                     // if none of the above, skip the line and log an error
                 default:
-                    log_message( "SCRIPT ERROR: scr_run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
+                    log_message( "SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", pscript->name, valuecode );
                     returncode = bfalse;
                     break;
             }
@@ -885,9 +886,9 @@ void scr_set_operand( script_state_t * pstate, Uint8 variable )
 }
 
 //--------------------------------------------------------------------------------------------
-void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
+void scr_run_operand( script_state_t * pstate, ai_state_t * pself, ai_script_t * pscript )
 {
-    /// @details ZZ@> This function does the scripted arithmetic in OPERATOR, OPERAND pairs
+    /// @details ZZ@> This function does the scripted arithmetic in OPERATOR, OPERAND pscriptrs
 
     const char * varname, * op;
 
@@ -915,17 +916,17 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
     // get the operator
     iTmp      = 0;
     varname   = buffer;
-    operation = GET_DATA_BITS( pself->opcode );
-    if ( HAS_SOME_BITS( pself->opcode, FUNCTION_BIT ) )
+    operation = GET_DATA_BITS( pscript->data[pscript->position] );
+    if ( HAS_SOME_BITS( pscript->data[pscript->position], FUNCTION_BIT ) )
     {
         // Get the working opcode from a constant, constants are all but high 5 bits
-        iTmp = pself->opcode & VALUE_BITS;
+        iTmp = pscript->data[pscript->position] & VALUE_BITS;
         if ( debug_scripts ) snprintf( buffer, SDL_arraysize( buffer ), "%d", iTmp );
     }
     else
     {
         // Get the variable opcode from a register
-        variable = pself->opcode & VALUE_BITS;
+        variable = pscript->data[pscript->position] & VALUE_BITS;
 
         switch ( variable )
         {
@@ -1524,25 +1525,24 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself )
     }
 }
 
-bool_t scr_increment_exe( ai_state_t * pself )
+//--------------------------------------------------------------------------------------------
+bool_t scr_increment_pos( ai_script_t * pscript )
 {
-    if ( NULL == pself ) return bfalse;
-    if ( pself->exe_pos < pself->exe_stt || pself->exe_pos >= pself->exe_end ) return bfalse;
-
-    pself->exe_pos++;
-    pself->opcode = AisCompiled_buffer[pself->exe_pos];
+    if ( NULL == pscript ) return bfalse;
+    if ( pscript->position >= pscript->length ) return bfalse;
+    
+    pscript->position++;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scr_set_exe( ai_state_t * pself, size_t offset )
+bool_t scr_set_pos( ai_script_t * pscript, size_t position )
 {
-    if ( NULL == pself ) return bfalse;
-    if ( offset < pself->exe_stt || offset >= pself->exe_end ) return bfalse;
+    if ( NULL == pscript ) return bfalse;
+    if ( position >= pscript->length ) return bfalse;
 
-    pself->exe_pos = offset;
-    pself->opcode  = AisCompiled_buffer[pself->exe_pos];
+    pscript->position = position;
 
     return btrue;
 }
@@ -1704,15 +1704,15 @@ void set_alerts( const CHR_REF character )
     /// @details ZZ@> This function polls some alert conditions
 
     chr_t      * pchr;
-    ai_state_t * pai;
+    ai_state_t * pscript;
     bool_t at_waypoint;
 
     // invalid characters do not think
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
-    pai  = chr_get_pai( character );
+    pscript  = chr_get_pai( character );
 
-    if ( waypoint_list_empty( &( pai->wp_lst ) ) ) return;
+    if ( waypoint_list_empty( &( pscript->wp_lst ) ) ) return;
 
     // let's let mounts get alert updates...
     // imagine a mount, like a racecar, that needs to make sure that it follows X
@@ -1722,20 +1722,20 @@ void set_alerts( const CHR_REF character )
     // if ( INGAME_CHR(pchr->attachedto) ) return;
 
     // is the current waypoint is not valid, try to load up the top waypoint
-    ai_state_ensure_wp( pai );
+    ai_state_ensure_wp( pscript );
 
     at_waypoint = bfalse;
-    if ( pai->wp_valid )
+    if ( pscript->wp_valid )
     {
-        at_waypoint = ( ABS( pchr->pos.x - pai->wp[kX] ) < WAYTHRESH ) &&
-                      ( ABS( pchr->pos.y - pai->wp[kY] ) < WAYTHRESH );
+        at_waypoint = ( ABS( pchr->pos.x - pscript->wp[kX] ) < WAYTHRESH ) &&
+                      ( ABS( pchr->pos.y - pscript->wp[kY] ) < WAYTHRESH );
     }
 
     if ( at_waypoint )
     {
-        SET_BIT( pai->alert, ALERTIF_ATWAYPOINT );
+        SET_BIT( pscript->alert, ALERTIF_ATWAYPOINT );
 
-        if ( waypoint_list_finished( &( pai->wp_lst ) ) )
+        if ( waypoint_list_finished( &( pscript->wp_lst ) ) )
         {
             // we are now at the last waypoint
             // if the object can be alerted to last waypoint, do it
@@ -1743,19 +1743,19 @@ void set_alerts( const CHR_REF character )
             // doubles for "at last waypoint" and "not put away"
             if ( !chr_get_pcap( character )->isequipment )
             {
-                SET_BIT( pai->alert, ALERTIF_ATLASTWAYPOINT );
+                SET_BIT( pscript->alert, ALERTIF_ATLASTWAYPOINT );
             }
 
             // !!!!restart the waypoint list, do not clear them!!!!
-            waypoint_list_reset( &( pai->wp_lst ) );
+            waypoint_list_reset( &( pscript->wp_lst ) );
 
             // load the top waypoint
-            ai_state_get_wp( pai );
+            ai_state_get_wp( pscript );
         }
-        else if ( waypoint_list_advance( &( pai->wp_lst ) ) )
+        else if ( waypoint_list_advance( &( pscript->wp_lst ) ) )
         {
             // load the top waypoint
-            ai_state_get_wp( pai );
+            ai_state_get_wp( pscript );
         }
     }
 }
