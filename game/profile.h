@@ -119,9 +119,9 @@ struct s_object_profile
     TX_REF  ico_ref[MAX_SKIN];                ///< references to the skin textures
 
     // the profile message info
-    STRING* message;                          //< Dynamic array of messages
-    size_t  message_count;                      //< Actual number of messages in the array
-    size_t  message_length;                     //< Length of the dynamic array
+    EGO_MESSAGE*    message;                  ///< Dynamic array of messages
+    size_t          message_count;            ///< Actual number of messages in the array
+    size_t          message_length;           ///< Length of the dynamic array
 
     /// the random naming info
     chop_definition_t chop;
@@ -175,6 +175,7 @@ bool_t release_one_pro( const PRO_REF object_ref );
 bool_t release_one_local_pips( const PRO_REF object_ref );
 
 int load_one_profile_vfs( const char* tmploadname, int slot_override );
+void profile_add_one_message( pro_t *pobject, const STRING add_message );
 
 void reset_messages();
 

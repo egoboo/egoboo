@@ -56,7 +56,6 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, pro_t, ProList, MAX_PROFILE );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject );
-static void profile_add_one_message( pro_t *pobject, const STRING message );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -71,7 +70,6 @@ void init_all_profiles()
     init_all_eve();
     init_all_cap();
     init_all_mad();
-    init_all_ai_scripts();
 
     // initialize the profile list
     ProList_init();
@@ -97,7 +95,6 @@ void release_all_profiles()
     release_all_eve();
     release_all_cap();
     release_all_mad();
-    release_all_ai_scripts();
 
     // re-initialize the profile list
     ProList_init();
@@ -638,17 +635,23 @@ void profile_add_one_message( pro_t *pobject, const STRING add_message )
     //              dynamically allocate more memory if there are more messages than array size
     size_t cnt, length;
 
-    if( !pobject->message ) log_error("Trying to add a message to a non-allocated message list (%s)\n", pobject->name);
+    //Is this the first message that is added? Then we need to allocate an dynamic array!
+    if( !pobject->message )
+    {
+        pobject->message_count = 0;
+        pobject->message_length = 10;
+        pobject->message = (EGO_MESSAGE *) malloc( pobject->message_length * sizeof(EGO_MESSAGE) );
+    }
 
     //Do we need to increase the size of the array?
     if( pobject->message_count + 1 >= pobject->message_length )
     {
         pobject->message_length += 10;
-        pobject->message = (STRING *) realloc( pobject->message, pobject->message_length * sizeof(STRING) );
+        pobject->message = (EGO_MESSAGE*) realloc( pobject->message, pobject->message_length * sizeof(EGO_MESSAGE) );
     }
 
     length = strlen(add_message);
-    if( length >= MESSAGESIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\"\n", pobject->name, add_message);    //TODO this shouldnt happen, I should use char[MAXMESSAGE] instead of STRING
+    if( length >= MESSAGESIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\", length is %d while max is %d\n", pobject->name, add_message, length, MESSAGESIZE);
 
     //replace underscore with whitespace
     for( cnt = 0; cnt < length; cnt++ )
@@ -669,17 +672,10 @@ void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
     /// @details ZF@> This function loads all messages for an object
     vfs_FILE *fileread;
 
-    //Reset message count
-    pobject->message_count = 0;
-
     fileread = vfs_openRead( loadname );
     if ( fileread )
     {
         STRING line;
-
-        //Only allocate this memory if there is actually something to load
-        pobject->message_length = 10;
-        pobject->message = (STRING *) malloc( pobject->message_length * sizeof(STRING) );
 
         while ( goto_colon( NULL, fileread, btrue ) )
         {
@@ -887,13 +883,13 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     make_newloadname( tmploadname, "/enchant.txt", newloadname );
     pobj->ieve = load_one_enchant_profile_vfs( newloadname, ( EVE_REF )islot );
 
-    // Load the AI script for this iobj
-    make_newloadname( tmploadname, "/script.txt", newloadname );
-    pobj->iai = load_ai_script_vfs( newloadname, &pobj->ai );
-
-    // Load the messages for this iobj
+    // Load the messages for this iobj, do this before loading the AI script
     make_newloadname( tmploadname, "/message.txt", newloadname );
     profile_load_all_messages_vfs( newloadname, pobj );
+
+    // Load the AI script for this iobj
+    make_newloadname( tmploadname, "/script.txt", newloadname );
+    pobj->iai = load_ai_script_vfs( newloadname, pobj, &pobj->ai );
 
     // Load the particles for this iobj
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )

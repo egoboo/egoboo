@@ -3184,7 +3184,7 @@ bool_t game_load_module_data( const char *smallname )
 
     log_info( "Loading module \"%s\"\n", smallname );
 
-    if ( load_ai_script_vfs( "mp_data/script.txt", NULL ) < 0 )
+    if ( load_ai_script_vfs( "mp_data/script.txt", NULL, NULL ) != rv_success )
     {
         log_warning( "game_load_module_data() - cannot load the default script\n" );
         goto game_load_module_data_fail;
@@ -3520,7 +3520,6 @@ void game_release_module_data()
     // deal with dynamically allocated game assets
     release_all_graphics();
     release_all_profiles();
-    release_all_ai_scripts();
 
     // deal with the mesh
     clear_all_passages();

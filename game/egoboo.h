@@ -45,7 +45,6 @@
 
 /// Messaging stuff
 #define MAX_MESSAGE         8                       ///< Number of messages
-#define MESSAGESIZE         80
 
 #define DAMAGERAISE         25                      ///< Tolerance for damage tiles
 

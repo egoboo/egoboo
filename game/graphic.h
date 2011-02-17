@@ -230,7 +230,7 @@ extern int    msgtimechange;
 struct s_msg
 {
     int             time;                            ///< The time for this message
-    char            textdisplay[MESSAGESIZE];        ///< The displayed text
+    EGO_MESSAGE     textdisplay;                     ///< The displayed text
 };
 typedef struct s_msg msg_t;
 

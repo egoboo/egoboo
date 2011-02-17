@@ -21,6 +21,7 @@
 
 #include "egoboo_typedef.h"
 #include "script.h"
+#include "profile.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -604,9 +605,6 @@ extern bool_t parseerror;
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
-egoboo_rv load_ai_script_vfs( const char *loadname, ai_script_t *pai );
-
-void init_all_ai_scripts();
-void release_all_ai_scripts();
+egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, ai_script_t *pscript );
 
 void script_compiler_init();

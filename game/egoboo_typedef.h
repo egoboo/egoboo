@@ -229,6 +229,12 @@ const char * undo_idsz( IDSZ idsz );
 // STRING
 typedef char STRING[256];
 
+
+//--------------------------------------------------------------------------------------------
+// EGO_MESSAGE
+#define MESSAGESIZE      80
+typedef char EGO_MESSAGE[MESSAGESIZE];
+
 //--------------------------------------------------------------------------------------------
 
 /// the "base class" of Egoboo profiles
