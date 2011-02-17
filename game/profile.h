@@ -175,7 +175,7 @@ bool_t release_one_pro( const PRO_REF object_ref );
 bool_t release_one_local_pips( const PRO_REF object_ref );
 
 int load_one_profile_vfs( const char* tmploadname, int slot_override );
-void profile_add_one_message( pro_t *pobject, const STRING add_message );
+void profile_add_one_message( pro_t *pobject, const EGO_MESSAGE add_message );
 
 void reset_messages();
 

@@ -1979,7 +1979,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     }
 
     // handle the collision
-    if ( touch_a_wall && ( loc_ppip->end_wall /*|| loc_ppip->end_bump*/ ) )
+    if ( touch_a_wall && loc_ppip->end_wall )
     {
         end_one_particle_in_game( pbdl_prt->prt_ref );
         return NULL;
@@ -2416,7 +2416,7 @@ PIP_REF PipStack_get_free()
 //--------------------------------------------------------------------------------------------
 PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip_override )
 {
-    /// @details ZZ@> This function loads a particle template, returning bfalse if the file wasn't
+    /// @details ZZ@> This function loads a particle template, returning MAX_PIP if the file wasn't
     ///    found
 
     PIP_REF ipip;

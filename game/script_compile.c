@@ -569,6 +569,7 @@ int load_one_line( int read, ai_script_t *pscript )
 
     // Parse to start to maintain indentation
     cLineBuffer[0] = CSTR_END;
+    stringBuffer[0] = CSTR_END;
     iLineSize = 0;
     stillgoing = btrue;
     line_contains_string = bfalse;
@@ -644,14 +645,15 @@ int load_one_line( int read, ai_script_t *pscript )
         }
 
         //Double apostrophe indicates where the string begins and ends
-        if( cTmp == '"' ) line_contains_string = !line_contains_string;
-
+        if( cTmp == '"' )
+        {
+            line_contains_string = !line_contains_string;
+        }
         else if( line_contains_string )
         {
             if( cnt < MESSAGESIZE )
             {
                 stringBuffer[cnt] = cTmp;
-                stringBuffer[cnt+1] = CSTR_END;
             }
             else
             {
@@ -662,12 +664,11 @@ int load_one_line( int read, ai_script_t *pscript )
             cnt++;
         }
 
-        if ( !isspace( cTmp ) )
+        if ( !isspace( cTmp ) || line_contains_string )
         {
             foundtext = btrue;
 
-            cLineBuffer[iLineSize]   = cTmp;
-            cLineBuffer[iLineSize+1] = CSTR_END;
+            cLineBuffer[iLineSize]   = (cTmp == ' ') ? '_' : cTmp;
             iLineSize++;
         }
     }
@@ -678,6 +679,7 @@ int load_one_line( int read, ai_script_t *pscript )
 
     // terminate the line buffer properly
     cLineBuffer[iLineSize] = CSTR_END;
+    stringBuffer[cnt]    = CSTR_END;
 
     if ( iLineSize > 0  && tabs_warning_needed )
     {
@@ -762,18 +764,25 @@ void fix_operators()
 
     int cnt;
     char cTmp;
+    bool_t parse_string = bfalse;
 
     cnt = 0;
 
     while ( cnt < iLineSize )
     {
         cTmp = cLineBuffer[cnt];
-        if ( '+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
-             '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
-             '=' == cTmp )
+        if( cTmp == '"' ) parse_string = !parse_string;
+
+        //Don't fix operator symbols inside a string
+        if( !parse_string )
         {
-            surround_space( cnt );
-            cnt++;
+            if ( '+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
+                 '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
+                 '=' == cTmp )
+            {
+                surround_space( cnt );
+                cnt++;
+            }
         }
 
         cnt++;
@@ -829,20 +838,23 @@ int parse_token( pro_t *ppro, ai_script_t *pscript, int read )
         { print_token();  return read; }
     }
 
-     // Check for string
-    if ( '"' == Token.cWord[0] )
+         // Check for string
+    if ( Token.cWord[0] == '"' && CSTR_END != stringBuffer[0] )
     {
         int cnt;
         bool_t message_found = bfalse;
 
         //see if this message is already loaded, no need to load it twice into memory
-        for( cnt = ppro->message_count; cnt--; )
+        if( ppro->message )
         {
-            if( 0 == strcmp( ppro->message[cnt], stringBuffer ) )
+            for( cnt = ppro->message_count; cnt--; )
             {
-                Token.iValue = cnt;
-                message_found = btrue;
-                break;
+                if( 0 == strcmp( ppro->message[cnt], stringBuffer ) )
+                {
+                    Token.iValue = cnt;
+                    message_found = btrue;
+                    break;
+                }
             }
         }
 

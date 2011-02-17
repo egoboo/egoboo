@@ -565,75 +565,14 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     return max_tex + 1;
 }
 
-//--------------------------------------------------------------------------------------------
-/*void get_message( vfs_FILE* fileread )
-{
-    /// @details ZZ@> This function loads a string into the message buffer, making sure it
-    ///    is null terminated.
 
-    int cnt;
-    char cTmp;
-    STRING szTmp;
-
-    if ( message_buffer_carat >= MESSAGEBUFFERSIZE )
-    {
-        message_buffer_carat = MESSAGEBUFFERSIZE - 1;
-        message_buffer[message_buffer_carat] = CSTR_END;
-        return;
-    }
-
-    if ( MessageOffset.count >= MAXTOTALMESSAGE )
-    {
-        return;
-    }
-
-    MessageOffset.ary[MessageOffset.count] = message_buffer_carat;
-    fget_string( fileread, szTmp, SDL_arraysize( szTmp ) );
-    szTmp[255] = CSTR_END;
-
-    cTmp = szTmp[0];
-    cnt = 1;
-    while ( CSTR_END != cTmp && message_buffer_carat < MESSAGEBUFFERSIZE - 1 )
-    {
-        if ( '_' == cTmp )  cTmp = ' ';
-
-        message_buffer[message_buffer_carat] = cTmp;
-        message_buffer_carat++;
-        cTmp = szTmp[cnt];
-        cnt++;
-    }
-
-    message_buffer[message_buffer_carat] = CSTR_END;
-    message_buffer_carat++;
-    MessageOffset.count++;
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*void load_all_messages_vfs( const char *loadname, const PRO_REF object )
-{
-    /// @details ZZ@> This function loads all of an objects messages
-    vfs_FILE *fileread;
-
-    ProList.lst[object].message_start = 0;
-    fileread = vfs_openRead( loadname );
-    if ( fileread )
-    {
-        ProList.lst[object].message_start = MessageOffset.count;
-
-        while ( goto_colon( NULL, fileread, btrue ) )
-        {
-            get_message( fileread );
-        }
-
-        vfs_close( fileread );
-    }
-}*/
-
-void profile_add_one_message( pro_t *pobject, const STRING add_message )
+void profile_add_one_message( pro_t *pobject, const EGO_MESSAGE add_message )
 {
     //@details ZF@> This adds one string to the list of messages associated with a profile. The function will
     //              dynamically allocate more memory if there are more messages than array size
     size_t cnt, length;
+
+    if( pobject == NULL ) return;
 
     //Is this the first message that is added? Then we need to allocate an dynamic array!
     if( !pobject->message )
@@ -651,7 +590,7 @@ void profile_add_one_message( pro_t *pobject, const STRING add_message )
     }
 
     length = strlen(add_message);
-    if( length >= MESSAGESIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\", length is %d while max is %d\n", pobject->name, add_message, length, MESSAGESIZE);
+    //if( length >= MESSAGESIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\", length is %d while max is %d\n", pobject->name, add_message, length, MESSAGESIZE);
 
     //replace underscore with whitespace
     for( cnt = 0; cnt < length; cnt++ )

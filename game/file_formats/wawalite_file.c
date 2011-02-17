@@ -218,43 +218,42 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
 
     if ( NULL == fileread ) return pweather;
 
-    pweather->part_gpip = PIP_WEATHER;
-
     // weather data
+    pweather->part_gpip = PIP_WEATHER;
     if ( pdata->version >= WAWALITE_FILE_VERSION )
     {
         STRING line;
+
+        //Parse the weather type line
         fget_next_string( fileread, line, SDL_arraysize(line) );
+        strncpy( pweather->weather_name, strupr(line), SDL_arraysize(pweather->weather_name) );
 
-        //Convert to upper case
-        strncpy( pweather->weather_name, strupr( line ), SDL_arraysize(pweather->weather_name) );
-            
-        //Rainy weather
-        if( strcmp( pweather->weather_name, "RAIN" ) == 0 )
-        {
-            load_one_particle_profile_vfs( "mp_data/weather_rain.txt", ( PIP_REF )PIP_WEATHER );
-            load_one_particle_profile_vfs( "mp_data/weather_rain_finish.txt", ( PIP_REF )PIP_WEATHER_FINISH );
-        }
-
-        //Snowy weather
-        else if( strcmp( pweather->weather_name, "SNOW" ) == 0 )
-        {
-            load_one_particle_profile_vfs( "mp_data/weather_snow.txt", ( PIP_REF )PIP_WEATHER );
-            load_one_particle_profile_vfs( "mp_data/weather_snow_finish.txt", ( PIP_REF )PIP_WEATHER );
-        }
-
-        //No weather
-        else if( strcmp( pweather->weather_name, "NONE" ) == 0 )
+        //No weather?
+        if( strcmp( pweather->weather_name, "NONE" ) == 0 )
         {
             pweather->part_gpip = -1;
         }
 
-        //Unknown weather parsed
         else
         {
-            log_warning("Unknown weather type parsed in wawalite.txt: %s\n", line);
-            pweather->part_gpip = -1;
-            strncpy( pweather->weather_name, "NONE", SDL_arraysize(pweather->weather_name) );
+            STRING prt_file, prt_end_file;
+            bool_t success;
+
+            //prepeare the load paths
+            snprintf( prt_file, SDL_arraysize(prt_file), "mp_data/weather_%s.txt", strlwr( line ) );
+            snprintf( prt_end_file, SDL_arraysize(prt_end_file), "mp_data/weather_%s_finish.txt", strlwr( line ) );
+
+            //try to load the particle files, we need at least the first particle for weather to work
+            success = load_one_particle_profile_vfs( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
+            load_one_particle_profile_vfs( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
+
+            //Unknown weather parsed
+            if( !success )
+            {
+                log_warning("Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file);
+                pweather->part_gpip = -1;
+                strncpy( pweather->weather_name, "NONE", SDL_arraysize(pweather->weather_name) );
+            }
         }
     }
 
@@ -481,7 +480,7 @@ bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweath
     if ( NULL == filewrite || NULL == pweather ) return bfalse;
 
     // weather data
-    vfs_printf( filewrite, "Weather particle effect ( NONE, RAIN or SNOW )      : %s", pweather->weather_name );
+    vfs_printf( filewrite, "Weather particle effect ( NONE, LAVA, RAIN or SNOW ): %s", pweather->weather_name );
     fput_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water );
     fput_int( filewrite,  "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
 

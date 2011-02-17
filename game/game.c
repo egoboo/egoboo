@@ -1548,6 +1548,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
 
     max_dist2 = max_dist * max_dist;
 
+    //Only loop through the players
     if ( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         PLA_REF ipla;
@@ -1560,6 +1561,8 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
             search_list_size++;
         }
     }
+
+    //Loop through every active object
     else
     {
         CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
@@ -1787,7 +1790,7 @@ void do_weather_spawn_particles()
     int    cnt;
     bool_t foundone;
 
-    if ( weather.time > 0 )
+    if ( weather.time > 0 && weather.part_gpip != -1 )
     {
         weather.time--;
         if ( 0 == weather.time )
