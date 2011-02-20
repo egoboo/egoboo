@@ -132,6 +132,9 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // load input
     input_settings_load_vfs( "/controls.txt" );
 
+    //Ready the mouse cursor
+    init_mouse_cursor();
+
     // synchronoze the config values with the various game subsystems
     // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped
     // to valid values
@@ -197,7 +200,6 @@ int do_ego_proc_running( ego_process_t * eproc )
     {
         // menu settings
         SDL_WM_GrabInput( SDL_GRAB_OFF );
-        SDL_ShowCursor( SDL_ENABLE );
     }
     else
     {

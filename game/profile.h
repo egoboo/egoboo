@@ -104,12 +104,11 @@ struct s_object_profile
     EGO_PROFILE_STUFF
 
     // the sub-profiles
-    REF_T   iai;                              ///< the AI  for this profile     TODO: remove
     CAP_REF icap;                             ///< the cap for this profile
     MAD_REF imad;                             ///< the mad for this profile
     EVE_REF ieve;                             ///< the eve for this profile
 
-    ai_script_t ai;                           ///< the AI  for this profile
+    ai_script_t ai_script;                    ///< the AI script for this profile
 
     PIP_REF prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 

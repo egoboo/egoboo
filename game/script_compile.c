@@ -925,7 +925,7 @@ void emit_opcode( BIT_FIELD highbits, ai_script_t *pscript )
     {
         SET_BIT( highbits, FUNCTION_BIT );
     }
-    if ( pscript->length < 4096 )
+    if ( pscript->length < MAXAICOMPILESIZE )
     {
         pscript->data[pscript->length] = highbits | Token.iValue;
         pscript->length++;
@@ -939,8 +939,7 @@ void emit_opcode( BIT_FIELD highbits, ai_script_t *pscript )
 //--------------------------------------------------------------------------------------------
 void parse_line_by_line( pro_t *ppro, ai_script_t *pscript )
 {
-    /// @details ZZ@> This function removes comments and endline codes, replacing
-    ///    them with a 0
+    //@details ZF@> This parses an AI script line by line
 
     int read;
     Uint32 highbits;
@@ -1243,8 +1242,7 @@ egoboo_rv ai_script_upload_default( ai_script_t *pscript )
 //--------------------------------------------------------------------------------------------
 egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, ai_script_t *pscript )
 {
-    /// @details ZZ@> This function loads a script to memory and
-    ///    returns the index of the script, returns -1 if it fails
+    /// @details ZZ@> This function loads a script to memory
 
     vfs_FILE* fileread;
     size_t file_size;

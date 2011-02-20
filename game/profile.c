@@ -437,7 +437,6 @@ bool_t release_one_pro( const PRO_REF iobj )
     pobj = ProList.lst + iobj;
 
     // release all of the sub-profiles
-    //release_one_ai ( pobj->iai  );
     release_one_cap( pobj->icap );
     release_one_mad( pobj->imad );
     //release_one_eve( pobj->ieve );
@@ -828,7 +827,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 
     // Load the AI script for this iobj
     make_newloadname( tmploadname, "/script.txt", newloadname );
-    pobj->iai = load_ai_script_vfs( newloadname, pobj, &pobj->ai );
+    load_ai_script_vfs( newloadname, pobj, &pobj->ai_script );
 
     // Load the particles for this iobj
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )

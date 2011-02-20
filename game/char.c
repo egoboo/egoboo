@@ -3990,7 +3990,6 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
     if ( NULL == pcap ) return;
 
     pself->index      = index;
-//    pself->type       = ppro->iai;
     pself->alert      = ALERTIF_SPAWNED;
     pself->state      = pcap->state_override;
     pself->content    = pcap->content_override;
@@ -5284,7 +5283,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
 
     // AI stuff
     chr_set_ai_state( pchr, 0 );
-//    pchr->ai.type           = pobj_new->iai;
     pchr->ai.timer          = 0;
     pchr->turnmode          = TURNMODE_VELOCITY;
 
@@ -6096,7 +6094,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
     ichr = GET_REF_PCHR( pchr );
 
-    if ( !pchr->alive ) return;
+    if ( !pchr->alive || pchr->maxaccel == 0.00f ) return;
 
     fvec2_base_copy( pchr->enviro.new_v.v, pchr->vel.v );
 
@@ -6201,6 +6199,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     new_ax *= pchr->enviro.traction;
     new_ay *= pchr->enviro.traction;
 
+    //Limit movement to the max acceleration
     new_ax = CLIP( new_ax, -pchr->maxaccel, pchr->maxaccel );
     new_ay = CLIP( new_ay, -pchr->maxaccel, pchr->maxaccel );
 

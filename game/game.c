@@ -1025,6 +1025,7 @@ int game_do_menu( menu_process_t * mproc )
         ui_beginFrame( mproc->base.dtime );
         {
             menuResult = doMenu( mproc->base.dtime );
+            draw_mouse_cursor();
             request_flip_pages();
         }
         ui_endFrame();

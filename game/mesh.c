@@ -1377,13 +1377,13 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
     if ( NULL == pdata ) pdata = &loc_data;
 
     // if there is no interaction with the mesh, return 0
-    if ( 0 == bits ) return 0;
+    if ( EMPTY_BIT_FIELD == bits ) return EMPTY_BIT_FIELD;
 
     // require a valid position
-    if ( NULL == pos ) return 0;
-
+    if ( NULL == pos ) return EMPTY_BIT_FIELD;
+    
     // if the mesh is empty, return 0
-    if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return 0;
+    if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return EMPTY_BIT_FIELD;
     pdata->pinfo = ( ego_mpd_info_t* ) & ( pmesh->info );
     pdata->tlist = pmesh->tmem.tile_list;
     pdata->glist = pmesh->gmem.grid_list;
@@ -1440,7 +1440,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
         pass = ( MPDFX_IMPASS | MPDFX_WALL ) & bits;
         mesh_bound_tests++;
     }
-    if ( 0 != pass ) return pass;
+    if ( EMPTY_BIT_FIELD != pass ) return pass;
 
     // detect out of bounds in the x-direction
     if ( bound.xmin < 0 || bound.xmax >= pdata->pinfo->tiles_x )
@@ -1448,7 +1448,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
         pass = ( MPDFX_IMPASS | MPDFX_WALL ) & bits;
         mesh_bound_tests++;
     }
-    if ( 0 != pass ) return pass;
+    if ( EMPTY_BIT_FIELD != pass ) return pass;
 
     for ( iy = pdata->iy_min; iy <= pdata->iy_max; iy++ )
     {

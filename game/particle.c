@@ -1106,9 +1106,9 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     BIT_FIELD  stoppedby;
     pip_t      * ppip;
 
-    if ( !DEFINED_PPRT( pprt ) ) return 0;
+    if ( !DEFINED_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return 0;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
@@ -1116,7 +1116,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = prt_get_pos_v( pprt );
-    if ( NULL == test_pos ) return 0;
+    if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
@@ -1142,7 +1142,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
 
     if ( !ACTIVE_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
     ppip = PipStack.lst + pprt->pip_ref;
 
     stoppedby = MPDFX_IMPASS;
@@ -1713,7 +1713,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     ///               Collisions with the mesh are included in this step.
 
     float loc_level;
-    bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
+    bool_t hit_a_floor, hit_a_wall, needs_test;
     fvec3_t nrm_total;
     fvec3_t tmp_pos;
 
@@ -1764,7 +1764,6 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
 
     // interaction with the mesh walls
     hit_a_wall = bfalse;
-    updated_2d = bfalse;
     needs_test = bfalse;
     if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 0.0f )
     {
@@ -1812,7 +1811,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     ///               Collisions with the mesh are included in this step.
 
     float ftmp, loc_level;
-    bool_t hit_a_floor, hit_a_wall, needs_test, updated_2d;
+    bool_t hit_a_floor, hit_a_wall, needs_test;
     bool_t touch_a_floor, touch_a_wall;
     fvec3_t nrm_total;
     fvec3_t tmp_pos;
@@ -1926,7 +1925,6 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 
     // interaction with the mesh walls
     hit_a_wall = bfalse;
-    updated_2d = bfalse;
     needs_test = bfalse;
     if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 0.0f )
     {
@@ -1943,25 +1941,16 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         tmp_pos.x = new_x;
         tmp_pos.y = new_y;
 
-        if ( EMPTY_BIT_FIELD == prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
+        //Hitting a wall?
+        if ( EMPTY_BIT_FIELD != prt_test_wall( loc_pprt, tmp_pos.v, &wdata ) )
         {
-            updated_2d = btrue;
-        }
-        else
-        {
-            BIT_FIELD  hit_bits;
             fvec2_t nrm;
             float   pressure;
 
             // how is the character hitting the wall?
-            hit_bits = prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata );
-
-            if ( 0 != hit_bits )
+            if ( EMPTY_BIT_FIELD != prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata ) )
             {
                 touch_a_wall = btrue;
-
-                tmp_pos.x = old_x;
-                tmp_pos.y = old_y;
 
                 nrm_total.x += nrm.x;
                 nrm_total.y += nrm.y;
@@ -1986,8 +1975,9 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     }
 
     // do the reflections off the walls and floors
-    if ( !INGAME_CHR( loc_pprt->attachedto_ref ) && ( hit_a_wall || hit_a_floor ) )
+    if ( hit_a_wall || hit_a_floor )
     {
+
         if (( hit_a_wall && ( loc_pprt->vel.x * nrm_total.x + loc_pprt->vel.y * nrm_total.y ) < 0.0f ) ||
             ( hit_a_floor && ( loc_pprt->vel.z * nrm_total.z ) < 0.0f ) )
         {
@@ -2066,11 +2056,10 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
     }
 
-    if ( loc_pprt->is_homing && tmp_pos.z < 0 )
-    {
-        tmp_pos.z = 0;  // Don't fall in pits...
-    }
+    //Don't fall in pits...
+    if ( loc_pprt->is_homing ) tmp_pos.z = MAX( tmp_pos.z, 0 );
 
+    //Rotate particle to the direction we are moving
     if ( loc_ppip->rotatetoface )
     {
         if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 1e-6 )

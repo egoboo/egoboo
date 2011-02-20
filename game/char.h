@@ -486,8 +486,8 @@ struct s_chr
     float          anim_speed_sneak;              ///< Movement rate of the sneak animation
     float          anim_speed_walk;               ///< Walking if above this speed
     float          anim_speed_run;                ///< Running if above this speed
-    float          maxaccel;                      ///< The current maxaccel_reset
-    float          maxaccel_reset;                ///< The actual maximum acelleration
+    float          maxaccel;                      ///< The actual maximum acelleration
+    float          maxaccel_reset;                ///< The current maxaccel_reset
     Uint8          flyheight;                     ///< Height to stabilize at
 
     // data for doing the physics in bump_all_objects()

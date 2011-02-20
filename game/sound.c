@@ -466,7 +466,7 @@ int sound_play_mix( fvec3_t   pos, mix_ptr_t * pptr )
 //--------------------------------------------------------------------------------------------
 void sound_restart()
 {
-    if ( mixeron )
+    //if ( mixeron )
     {
         Mix_CloseAudio();
         mixeron = bfalse;
@@ -475,7 +475,7 @@ void sound_restart()
     // loose the info on the currently playing song
     if ( snd.musicvalid || snd.soundvalid )
     {
-        if ( 0 != Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) )
+        if ( -1 != Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) )
         {
             mixeron = btrue;
             Mix_AllocateChannels( snd.maxsoundchannel );

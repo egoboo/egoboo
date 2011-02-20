@@ -46,6 +46,8 @@
 #include "spawn_file.h"
 #include "quest.h"
 
+#include "AStar.h"
+
 #include "egoboo_math.h"
 #include "egoboo_strutil.h"
 #include "egoboo_setup.h"
@@ -536,59 +538,60 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 {
     // FindPath
-    /// @details ZF@> This modifies the eay the character moves relative to its target. There is no pth finding at this time.
-    /// @todo scr_FindPath doesn't really work yet
+    /// @details ZF@> Ported the A* path finding algorithm by birdsey and heavily modified it
+    // This function adds enough waypoints to get from one point to another
+    // @todo: It's rather buggy and unoptimized at the moment
+
+
+    int src_ix, src_iy;
+    int dst_ix, dst_iy;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // Yep this is it
-    if ( INGAME_CHR( pself->target ) && pself->target != pself->index )
+    //Too soon since last try?
+    if( pself->astar_timer > update_wld ) return bfalse;
+    
+    //Our current position
+    src_ix = (int)pchr->pos.x >> 7;
+    src_iy = (int)pchr->pos.y >> 7;
+
+    //Destination position
+    dst_ix = pstate->x >> 7;
+    dst_iy = pstate->y >> 7;
+
+    //Always clear any old waypoints
+    waypoint_list_clear( &pself->wp_lst );
+
+    //Don't do need to do anything if there is no need to move
+    if( src_ix == dst_ix && src_iy == dst_iy ) return bfalse;
+
+    //Try to find a path with the AStar algorithm
+    returncode = bfalse;
+    
+#ifdef DEBUG_ASTAR  
+    printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
+#endif
+
+    if( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
     {
-        float fx, fy;
+        returncode = AStar_get_path( src_ix, src_iy, pstate->x, pstate->y, &pself->wp_lst );
 
-        chr_t * pself_target = ChrList.lst + pself->target;
-
-        if ( pstate->distance != MOVE_FOLLOW )
-        {
-            fx = pself_target->pos.x;
-            fy = pself_target->pos.y;
-        }
-        else
-        {
-            fx = generate_randmask( -512, 1023 ) + pself_target->pos.x;
-            fy = generate_randmask( -512, 1023 ) + pself_target->pos.y;
-        }
-
-        pstate->turn = vec_to_facing( fx - pchr->pos.x , fy - pchr->pos.y );
-
-        if ( pstate->distance == MOVE_RETREAT )
-        {
-            // flip around to the other direction and add in some randomness
-            pstate->turn += ATK_BEHIND + generate_randmask( -8192, 16383 );
-        }
-        pstate->turn = CLIP_TO_16BITS( pstate->turn );
-
-        if ( pstate->distance == MOVE_CHARGE || pstate->distance == MOVE_RETREAT )
-        {
-            reset_character_accel( pself->index ); // Force 100% speed
-        }
-
-        // Then add the waypoint
-        returncode = waypoint_list_push( &( pself->wp_lst ), fx, fy );
-
-        if ( returncode )
-        {
-            // return the new position
-            pstate->x = fx;
-            pstate->y = fy;
-
-            if ( returncode )
-            {
-                // make sure we update the waypoint, since the list changed
-                ai_state_get_wp( pself );
-            }
-        }
+        // limit the rate of AStar calculations to be once every second.
+        pself->astar_timer = update_wld + ONESECOND;
     }
+        
+    //failed to find a path
+    if( !returncode )
+    {
+        // just use a straight line path
+#ifdef DEBUG_ASTAR  
+        printf( "Failed!\n" );
+#endif DEBUG_ASTAR  
+        waypoint_list_push( &pself->wp_lst, pstate->x, pstate->y );
+    }
+
+    //Make sure the waypoint list is updated
+    ai_state_get_wp( pself );
 
     SCRIPT_FUNCTION_END();
 }
@@ -989,7 +992,7 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
     
-    returncode = ( ppro->ai.indent >= ppro->ai.indent_last );
+    returncode = ( ppro->ai_script.indent >= ppro->ai_script.indent_last );
 
     SCRIPT_FUNCTION_END();
 }

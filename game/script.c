@@ -43,16 +43,9 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-static const char *  script_error_classname = "UNKNOWN";
-static PRO_REF       script_error_model     = ( PRO_REF )MAX_PROFILE;
-static const char *  script_error_name      = "UNKNOWN";
-static REF_T         script_error_index     = ( Uint16 )( ~0 );
-
 static bool_t scr_increment_pos( ai_script_t * pself );
 static bool_t scr_set_pos( ai_script_t * pself, size_t position );
 
-// static Uint8 run_function_obsolete( script_state_t * pstate, ai_state_t * pself );
 static Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself, ai_script_t *pscript );
 static void  scr_set_operand( script_state_t * pstate, Uint8 variable );
 static void  scr_run_operand( script_state_t * pstate, ai_state_t * pself, ai_script_t * pscript );
@@ -64,6 +57,9 @@ PROFILE_DECLARE( script_function )
 
 static int    _script_function_calls[SCRIPT_FUNCTIONS_COUNT];
 static double _script_function_times[SCRIPT_FUNCTIONS_COUNT];
+
+static PRO_REF script_error_model = ( PRO_REF ) MAX_PROFILE;
+static char*   script_error_classname = "UNKNOWN";
 
 static bool_t _scripting_system_initialized = bfalse;
 
@@ -138,7 +134,7 @@ void scr_run_chr_script( const CHR_REF character )
     if ( !INGAME_CHR( character ) )  return;
     pchr  = ChrList.lst + character;
     pself = &( pchr->ai );
-    pscript   = &( chr_get_ppro( character )->ai );
+    pscript = &( chr_get_ppro( character )->ai_script );
 
     // has the time for this character to die come and gone?
     if ( pself->poof_time >= 0 && pself->poof_time <= ( Sint32 )update_wld ) return;
@@ -161,26 +157,18 @@ void scr_run_chr_script( const CHR_REF character )
     // Make life easier
     script_error_classname = "UNKNOWN";
     script_error_model     = pchr->profile_ref;
-    script_error_index     = ( Uint16 )( ~0 );
-    script_error_name      = "UNKNOWN";
     if ( script_error_model < MAX_PROFILE )
     {
         CAP_REF icap = pro_get_icap( script_error_model );
 
         script_error_classname = CapStack.lst[ icap ].classname;
-
-        script_error_index = ProList.lst[script_error_model].iai;
-        if ( script_error_index < MAX_AI )
-        {
-            script_error_name = pscript->name; //AisStorage.ary[script_error_index].szName;
-        }
     }
 
     if ( debug_scripts )
     {
         FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        fprintf( scr_file,  "\n\n--------\n%d - %s\n", script_error_index, script_error_name );
+        fprintf( scr_file,  "\n\n--------\n%s\n", pscript->name );
         fprintf( scr_file,  "%d - %s\n", REF_TO_INT( script_error_model ), script_error_classname );
 
         // who are we related to?
@@ -1746,7 +1734,8 @@ void set_alerts( const CHR_REF character )
             }
 
             // !!!!restart the waypoint list, do not clear them!!!!
-            waypoint_list_reset( &( pscript->wp_lst ) );
+            //waypoint_list_reset( &( pscript->wp_lst ) );
+            waypoint_list_clear( &( pscript->wp_lst ) );
 
             // load the top waypoint
             ai_state_get_wp( pscript );

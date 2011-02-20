@@ -466,4 +466,7 @@ void   load_basic_textures( );
 
 float  get_ambient_level();
 
+bool_t init_mouse_cursor();
+void   draw_mouse_cursor();
+
 gfx_rv flash_character( const CHR_REF character, Uint8 value );

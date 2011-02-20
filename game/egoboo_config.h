@@ -20,8 +20,7 @@
 //********************************************************************************************
 
 /// @file egoboo_config.h
-/// @brief System-dependent global parameters.
-///   @todo  some of this stuff is compiler dependent, rather than system dependent.
+/// @brief Compile switches
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -40,7 +39,6 @@
 
 /// profile pre-allocations
 #define MAX_PROFILE        256          ///< Maximum number of object profiles
-#define MAX_AI             MAX_PROFILE  ///< Maximum number of scripts
 
 /// per-object pre-allocations
 #define MAX_WAVE             30        ///< Maximum number of *.wav/*.ogg per object
@@ -58,9 +56,9 @@
 #undef  DEBUG_MESH_NORMALS    ///< render the mesh normals
 #define LOG_TO_CONSOLE        ///< dump all log info to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt
 
-#define  DEBUG_BSP             ///< Print debugging info about the BSP/octree state
+#undef  DEBUG_BSP             ///< Print debugging info about the BSP/octree state
 
-#define  DEBUG_RENDERLIST      ///< Print debugging info for the currently rendered mesh
+#undef  DEBUG_RENDERLIST      ///< Print debugging info for the currently rendered mesh
 
 #undef  DEBUG_PROFILE         ///< Switch the profiling functions on and off
 #undef  DEBUG_PROFILE_DISPLAY ///< Display the results for the performance profiling
@@ -79,6 +77,8 @@
 
 #undef  DEBUG_WAYPOINTS      ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
 
+#undef DEBUG_ASTAR          ///< Debug AStar pathfinding
+
 /// How much script debugging.
 ///    0 -- debugging off ( requires defined(_DEBUG) )
 /// >= 1 -- Log the amount of script time that every object uses (requires defined(_DEBUG) and DEBUG_PROFILE)
@@ -86,8 +86,8 @@
 /// >= 3 -- decompile every script (requires defined(_DEBUG))
 #define DEBUG_SCRIPT_LEVEL 0
 
-//#undef DRAW_CHR_BBOX        ///< display selected character bounding boxes
-#define DRAW_PRT_BBOX        ///< display selected particle bounding boxes
+#undef DRAW_CHR_BBOX        ///< display selected character bounding boxes
+#undef DRAW_PRT_BBOX        ///< display selected particle bounding boxes
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

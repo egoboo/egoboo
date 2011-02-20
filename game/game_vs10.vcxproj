@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AStar.c" />
     <ClCompile Include="bbox.c" />
     <ClCompile Include="bsp.c" />
     <ClCompile Include="camera.c" />
@@ -115,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\res\resource.h" />
+    <ClInclude Include="AStar.h" />
     <ClInclude Include="bbox.h" />
     <ClInclude Include="bsp.h" />
     <ClInclude Include="camera.h" />

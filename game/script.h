@@ -45,6 +45,9 @@
 #define WIDE        6*GRID_FSIZE    ///< 6 tiles away
 #define NEAREST     0              ///< unlimited range
 
+//Max size of an compiled AI script
+#define MAXAICOMPILESIZE    2048
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -140,7 +143,7 @@ struct s_ai_script
     Uint32          length;                          //Actual length of the compiled ai buffer
     size_t          position;                        //Our current position in the script
 
-    Uint32          data[4096];                      //Compiled script data
+    Uint32          data[MAXAICOMPILESIZE];          //Compiled script data
 };
 typedef struct s_ai_script ai_script_t;
 
@@ -190,6 +193,7 @@ struct s_ai_state
     bool_t          wp_valid;            ///< is the current waypoint valid?
     waypoint_t      wp;                  ///< current waypoint
     waypoint_list_t wp_lst;              ///< Stored waypoints
+    Uint32          astar_timer;         ///< Throttle on astar pathfinding
 
     // performance monitoring
     PROFILE_DECLARE_STRUCT;

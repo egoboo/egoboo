@@ -242,6 +242,7 @@ static bool_t  gfx_page_flip_requested  = bfalse;
 static bool_t  gfx_page_clear_requested = btrue;
 
 static float dynalight_keep = 0.9f;
+static oglx_texture_t tx_cursor;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -5376,6 +5377,54 @@ void delete_all_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t init_mouse_cursor()
+{
+    /// @details ZF@> Load the mouse cursor
+    bool_t success;
+
+    success = INVALID_GL_ID != ego_texture_load_vfs( &tx_cursor, "mp_data/cursor", TRANSCOLOR );
+
+    if( !success )
+    {
+        log_warning("Could not load mouse cursor (basicdat/cursor.png)\n");
+        tx_cursor.valid = bfalse;
+    }
+
+    return success;
+}
+
+void draw_mouse_cursor()
+{
+    int     x, y;
+    ego_frect_t tx_rect, sc_rect;
+
+    //Invalid texture?
+    if( !tx_cursor.valid )
+    {
+        SDL_ShowCursor( SDL_ENABLE );
+        return;
+    }
+
+    //Hide the SDL mouse
+    SDL_ShowCursor( SDL_DISABLE );
+
+    x = ABS( mous.x );
+    y = ABS( mous.y );
+
+    tx_rect.xmin = 0;
+    tx_rect.xmax = tx_cursor.imgW / 32.0f;
+    tx_rect.ymin = 0;
+    tx_rect.ymax = tx_cursor.imgH / 32.0f;
+
+    sc_rect.xmin = x;
+    sc_rect.xmax = x + tx_cursor.imgW;
+    sc_rect.ymin = y;
+    sc_rect.ymax = y + tx_cursor.imgH;
+
+    draw_quad_2d( &tx_cursor, sc_rect, tx_rect, btrue );
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t load_all_global_icons()
 {
     /// @details ZF@> Load all the global icons used in all modules
@@ -5415,7 +5464,7 @@ void load_basic_textures()
     TxTexture_load_one_vfs( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
     TxTexture_load_one_vfs( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
 
-    // Texture 7 is the phong map
+    // The phong map
     TxTexture_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
 
     PROFILE_RESET( render_scene_init );
