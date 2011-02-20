@@ -1,8 +1,10 @@
+#include "AStar.h"
 #include "mesh.h"
 #include "script.h"
-#include "AStar.h"
 
 #include "mesh.inl"
+
+#include "log.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -75,11 +77,10 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
     bool_t done;
     int deadend_count;
     AStar_Node_t * popen;
-    fvec3_t tmp_pos;
     float weight;
 
     // do not start if the initial point is off the mesh
-    if( !mesh_tile_is_valid( PMesh, src_ix<<7, src_iy<<7 ) )
+    if(  mesh_get_tile_int( PMesh, src_ix, src_iy ) == INVALID_TILE )
     {
 #ifdef DEBUG_ASTAR
         printf("AStar failed because source position is off the mesh.\n");
@@ -88,7 +89,7 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
     }
 
     //Cannot find path to somewhere inside a wall
-    if ( mesh_tile_has_bits( PMesh, dst_ix, dst_iy, MPDFX_IMPASS | MPDFX_WALL ) )
+    if ( mesh_tile_has_bits( PMesh, dst_ix, dst_iy, stoppedby ) )
     {
 #ifdef DEBUG_ASTAR
         printf("AStar failed because target position is inside a wall.\n");
@@ -139,12 +140,8 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
                     continue;
                 }
 
-                //Shift back to real position
-                tmp_pos.x = tmp_x << 7;
-                tmp_pos.y = tmp_y << 7;
-
                 // is the test node on the mesh?
-                if( !mesh_tile_is_valid( PMesh, tmp_pos.x, tmp_pos.y ) )
+                if( INVALID_TILE == mesh_get_tile_int( PMesh, tmp_x, tmp_y ) )
                 {
                     deadend_count++;
                     continue;
@@ -164,8 +161,7 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
                 /// @todo  I need to check for collisions with static objects, like trees
 
                 // is this a valid tile?
-                if ( mesh_tile_has_bits( PMesh, tmp_x, tmp_y, MPDFX_IMPASS | MPDFX_WALL ) )
-                //if ( EMPTY_BIT_FIELD != mesh_test_wall( PMesh, tmp_pos.v, 1, stoppedby, NULL ) ) 
+                if ( mesh_tile_has_bits( PMesh, tmp_x, tmp_y, stoppedby ) )
                 {
                     // add the invalid tile to the list as a closed tile
                     AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, btrue );
@@ -182,12 +178,12 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
           }
 
 
-          if ( deadend_count == 8 )
-          {
-            // this node is no longer active.
-            // move it to the closed list so that we do not get any loops
-            popen->closed = btrue;
-          }
+            if ( deadend_count == 8 )
+            {
+                // this node is no longer active.
+                // move it to the closed list so that we do not get any loops
+                popen->closed = btrue;
+            }
         }
 
         //Found no open nodes
@@ -204,7 +200,7 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
 }
 
 //------------------------------------------------------------------------------
-bool_t AStar_get_path( const int src_ix, const int src_iy, const int dst_ix, const int dst_iy, waypoint_list_t *plst )
+bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
 {
     //@details ZF@> Fills a waypoint list with sensible waypoints. It will return bfalse if it failed to add at least one waypoint.
     //              The function goes through all the AStar_nodes and finds out which one are critical. A critical node is one that
@@ -276,19 +272,19 @@ bool_t AStar_get_path( const int src_ix, const int src_iy, const int dst_ix, con
             //Special exception for final waypoint, use raw integer (not bit shifted)
             if( i == 0 )
             {
-                way_x = dst_ix;
-                way_y = dst_iy;
+                way_x = dst_x;
+                way_y = dst_y;
             }
             else
             {
                 //Translate to raw coordinates
-                way_x = current_node->ix << 7;
-                way_y = current_node->iy << 7;
+                way_x = current_node->ix << GRID_BITS;
+                way_y = current_node->iy << GRID_BITS;
             }
 
             // add the node to the waypoint list
 #ifdef DEBUG_ASTAR  
-            printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, way_x>>7, way_y>>7 );
+            printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, way_x>>GRID_BITS, way_y>>GRID_BITS );
 #endif
             waypoint_list_push( plst, way_x, way_y );
             waypoint_num++;

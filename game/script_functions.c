@@ -574,10 +574,10 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 
     if( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
     {
-        returncode = AStar_get_path( src_ix, src_iy, pstate->x, pstate->y, &pself->wp_lst );
+        returncode = AStar_get_path( pstate->x, pstate->y, &pself->wp_lst );
 
         // limit the rate of AStar calculations to be once every second.
-        pself->astar_timer = update_wld + ONESECOND;
+        pself->astar_timer = update_wld + (ONESECOND/2);
     }
         
     //failed to find a path

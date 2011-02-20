@@ -425,7 +425,7 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_mix( fvec3_t   pos, mix_ptr_t * pptr )
+int sound_play_mix( fvec3_t pos, mix_ptr_t * pptr )
 {
     int retval = INVALID_SOUND_CHANNEL;
     if ( !snd.soundvalid || !mixeron )

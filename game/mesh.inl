@@ -42,7 +42,6 @@ static INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, BIT_FIELD fla
 static INLINE Uint32 mesh_has_some_mpdfx( BIT_FIELD mpdfx, BIT_FIELD test );
 static INLINE bool_t mesh_grid_is_valid( const ego_mpd_t * pmpd, Uint32 id );
 
-static INLINE bool_t mesh_tile_is_valid( const ego_mpd_t * pmesh, const float x, const float y );
 static INLINE bool_t mesh_tile_has_bits( const ego_mpd_t * pmesh, const int ix, const int iy, BIT_FIELD bits );
 
 //--------------------------------------------------------------------------------------------
@@ -50,21 +49,17 @@ static INLINE bool_t mesh_tile_has_bits( const ego_mpd_t * pmesh, const int ix, 
 //--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t mesh_tile_is_valid( const ego_mpd_t * pmesh, const float x, const float y )
-{
-    return !( x <= 0.0f || x >= pmesh->gmem.edge_x || y <= 0.0f || y >= pmesh->gmem.edge_y );
-}
-
-//--------------------------------------------------------------------------------------------
 static INLINE bool_t mesh_tile_has_bits( const ego_mpd_t * pmesh, const int ix, const int iy, BIT_FIELD bits )
 {
     int itile;
 
-    //everything outside the map bounds is wall and impassable
-    if( !mesh_tile_is_valid( pmesh, ix, iy ) ) return HAS_SOME_BITS( (MPDFX_IMPASS | MPDFX_WALL), bits );
-
     //figure out which tile we are on
-    itile = ix + pmesh->gmem.tilestart[iy];
+    itile = mesh_get_tile_int( pmesh, ix, iy );
+
+    //everything outside the map bounds is wall and impassable
+    if( !mesh_grid_is_valid( pmesh, itile ) ) return HAS_SOME_BITS( (MPDFX_IMPASS | MPDFX_WALL), bits );
+
+//    if( !mesh_tile_is_valid( pmesh, ix, iy ) ) return HAS_SOME_BITS( (MPDFX_IMPASS | MPDFX_WALL), bits );
 
     // since we KNOW that this is in range, allow raw access to the data strucutre
     return HAS_SOME_BITS( pmesh->gmem.grid_list[itile].fx, bits );
@@ -107,7 +102,7 @@ static INLINE float mesh_get_level( const ego_mpd_t * pmesh, float x, float y )
 
     ix &= GRID_MASK;
     iy &= GRID_MASK;
-
+    
     z0 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 0 ][ZZ];
     z1 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 1 ][ZZ];
     z2 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 2 ][ZZ];

@@ -263,8 +263,8 @@ void scr_run_chr_script( const CHR_REF character )
         else if ( pself->wp_valid )
         {
             // Normal AI
-            pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( GRID_ISIZE << 2 );
-            pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( GRID_ISIZE << 2 );
+            pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( GRID_ISIZE << 1 );
+            pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( GRID_ISIZE << 1 );
         }
         else
         {
@@ -1691,15 +1691,15 @@ void set_alerts( const CHR_REF character )
     /// @details ZZ@> This function polls some alert conditions
 
     chr_t      * pchr;
-    ai_state_t * pscript;
+    ai_state_t * pai;
     bool_t at_waypoint;
 
     // invalid characters do not think
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
-    pscript  = chr_get_pai( character );
+    pai  = chr_get_pai( character );
 
-    if ( waypoint_list_empty( &( pscript->wp_lst ) ) ) return;
+    if ( waypoint_list_empty( &( pai->wp_lst ) ) ) return;
 
     // let's let mounts get alert updates...
     // imagine a mount, like a racecar, that needs to make sure that it follows X
@@ -1709,20 +1709,20 @@ void set_alerts( const CHR_REF character )
     // if ( INGAME_CHR(pchr->attachedto) ) return;
 
     // is the current waypoint is not valid, try to load up the top waypoint
-    ai_state_ensure_wp( pscript );
+    ai_state_ensure_wp( pai );
 
     at_waypoint = bfalse;
-    if ( pscript->wp_valid )
+    if ( pai->wp_valid )
     {
-        at_waypoint = ( ABS( pchr->pos.x - pscript->wp[kX] ) < WAYTHRESH ) &&
-                      ( ABS( pchr->pos.y - pscript->wp[kY] ) < WAYTHRESH );
+        at_waypoint = ( ABS( pchr->pos.x - pai->wp[kX] ) < WAYTHRESH ) &&
+                      ( ABS( pchr->pos.y - pai->wp[kY] ) < WAYTHRESH );
     }
 
     if ( at_waypoint )
     {
-        SET_BIT( pscript->alert, ALERTIF_ATWAYPOINT );
+        SET_BIT( pai->alert, ALERTIF_ATWAYPOINT );
 
-        if ( waypoint_list_finished( &( pscript->wp_lst ) ) )
+        if ( waypoint_list_finished( &( pai->wp_lst ) ) )
         {
             // we are now at the last waypoint
             // if the object can be alerted to last waypoint, do it
@@ -1730,20 +1730,20 @@ void set_alerts( const CHR_REF character )
             // doubles for "at last waypoint" and "not put away"
             if ( !chr_get_pcap( character )->isequipment )
             {
-                SET_BIT( pscript->alert, ALERTIF_ATLASTWAYPOINT );
+                SET_BIT( pai->alert, ALERTIF_ATLASTWAYPOINT );
             }
 
             // !!!!restart the waypoint list, do not clear them!!!!
             //waypoint_list_reset( &( pscript->wp_lst ) );
-            waypoint_list_clear( &( pscript->wp_lst ) );
+            waypoint_list_clear( &( pai->wp_lst ) );
 
             // load the top waypoint
-            ai_state_get_wp( pscript );
+            ai_state_get_wp( pai );
         }
-        else if ( waypoint_list_advance( &( pscript->wp_lst ) ) )
+        else if ( waypoint_list_advance( &( pai->wp_lst ) ) )
         {
             // load the top waypoint
-            ai_state_get_wp( pscript );
+            ai_state_get_wp( pai );
         }
     }
 }
