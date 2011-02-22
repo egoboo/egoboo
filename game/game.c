@@ -1897,6 +1897,7 @@ void set_one_player_latch( const PLA_REF ipla )
     // Clear the player's latch buffers
     latch_init( &( sum ) );
     fvec2_self_clear( joy_new.v );
+    fvec2_self_clear( joy_pos.v );
 
     // generate the transforms relative to the camera
     turnsin = TO_TURN( PCamera->ori.facing_z );
@@ -1929,7 +1930,7 @@ void set_one_player_latch( const PLA_REF ipla )
                     joy_pos.x = mous.x * scale;
                     joy_pos.y = mous.y * scale;
 
-                    //if ( fast_camera_turn && 0 == control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
+                    //if ( fast_camera_turn && !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
 
                     joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
                     joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
@@ -1972,12 +1973,16 @@ void set_one_player_latch( const PLA_REF ipla )
         // Keyboard routines
         case INPUT_DEVICE_KEYBOARD:
         {
-            fvec2_self_clear( joy_pos.v );
 
             if ( fast_camera_turn || !control_is_pressed(pdevice, CONTROL_CAMERA ) )
             {
-                joy_pos.x = ( control_is_pressed( pdevice,  CONTROL_RIGHT ) - control_is_pressed( pdevice,  CONTROL_LEFT ) );
-                joy_pos.y = ( control_is_pressed( pdevice,  CONTROL_DOWN ) - control_is_pressed( pdevice,  CONTROL_UP ) );
+                if( control_is_pressed( pdevice,  CONTROL_RIGHT ) ) joy_pos.x++;
+                if( control_is_pressed( pdevice,  CONTROL_LEFT )  ) joy_pos.x--;
+                if( control_is_pressed( pdevice,  CONTROL_DOWN )  ) joy_pos.y++;
+                if( control_is_pressed( pdevice,  CONTROL_UP )    ) joy_pos.y--;  
+
+                //joy_pos.x = ( control_is_pressed( pdevice,  CONTROL_RIGHT ) - control_is_pressed( pdevice,  CONTROL_LEFT ) );
+                //joy_pos.y = ( control_is_pressed( pdevice,  CONTROL_DOWN ) - control_is_pressed( pdevice,  CONTROL_UP ) );
 
                 if ( fast_camera_turn )  joy_pos.x = 0;
 
@@ -2620,23 +2625,38 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-// gcc does not define this function on linux (at least not Ubuntu),
+// gcc does not define these functions on linux (at least not Ubuntu),
 // but it is defined under MinGW, which is yucky.
 // I actually had to spend like 45 minutes looking up the compiler flags
 // to catch this... good documentation, guys!
 #if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
-int strlwr( char * str )
-{
-    if ( NULL == str ) return -1;
+char* strupr( char * str ) 
+{ 
+    char *ret = str; 
+    if ( NULL != str ) 
+    { 
+      while ( CSTR_END != *str ) 
+      { 
+          *str = toupper( *str ); 
+          str++; 
+      } 
+    } 
+    return ret; 
+} 
 
-    while ( CSTR_END != *str )
-    {
-        *str = tolower( *str );
-        str++;
-    }
-
-    return 0;
-}
+char* strlwr( char * str ) 
+{ 
+    char *ret = str; 
+    if ( NULL != str ) 
+    { 
+      while ( CSTR_END != *str ) 
+      { 
+          *str = tolower( *str ); 
+          str++; 
+      } 
+    } 
+    return ret; 
+} 
 #endif
 
 void convert_spawn_file_load_name( spawn_file_info_t * psp_info )

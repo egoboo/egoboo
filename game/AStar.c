@@ -8,8 +8,8 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#define MAX_ASTAR_NODES 512     //Maximum number of nodes to explore
-#define MAX_ASTAR_PATH  128     //Maximum length of the final path (before pruning)
+#define MAX_ASTAR_NODES 1024    //Maximum number of nodes to explore
+#define MAX_ASTAR_PATH  256     //Maximum length of the final path (before pruning)
 
 //------------------------------------------------------------------------------
 //Local private variables

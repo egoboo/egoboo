@@ -173,7 +173,7 @@
 #endif
 
 //------------
-// fix the naming of some linux-flovored functions in MSVC
+// fix the naming of some linux-flavored functions in MSVC
 #if defined(_MSC_VER)
 #    define snprintf _snprintf
 #    define stricmp  _stricmp

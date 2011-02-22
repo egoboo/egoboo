@@ -77,7 +77,7 @@
 
 #undef  DEBUG_WAYPOINTS      ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
 
-#define DEBUG_ASTAR          ///< Debug AStar pathfinding
+#undef  DEBUG_ASTAR          ///< Debug AStar pathfinding
 
 /// How much script debugging.
 ///    0 -- debugging off ( requires defined(_DEBUG) )
