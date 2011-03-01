@@ -1122,11 +1122,11 @@ void net_handlePacket( ENetEvent *event )
             }
             break;
 
-        case TO_HOST_RTS:
+        /*case TO_HOST_RTS:
             log_info( "TO_HOST_RTS\n" );
             if ( gnet.hostactive )
             {
-                /*whichorder = get_empty_order();
+                whichorder = get_empty_order();
                 if(whichorder < MAXORDER)
                   {
                   // Add the order on the host machine
@@ -1154,9 +1154,9 @@ void net_handlePacket( ENetEvent *event )
                   packet_addUnsignedInt(what);
                   packet_addUnsignedInt(when);
                   net_sendPacketToAllPlayersGuaranteed();
-                  }*/
+                  }
             }
-            break;
+            break;*/
 
         case NET_TRANSFER_FILE:
             packet_readString( filename, 256 );
@@ -1356,11 +1356,11 @@ void net_handlePacket( ENetEvent *event )
             }
             break;
 
-        case TO_REMOTE_RTS:
+        /*case TO_REMOTE_RTS:
             log_info( "TO_REMOTE_RTS\n" );
             if ( !gnet.hostactive )
             {
-                /*    whichorder = get_empty_order();
+                    whichorder = get_empty_order();
                     if(whichorder < MAXORDER)
                     {
                       // Add the order on the remote machine
@@ -1375,9 +1375,9 @@ void net_handlePacket( ENetEvent *event )
                       when = packet_readUnsignedInt();
                       orderwhat[whichorder] = what;
                       orderwhen[whichorder] = when;
-                    }*/
+                    }
             }
-            break;
+            break;*/
 
         case TO_REMOTE_FILE:
             log_info( "TO_REMOTE_FILE\n" );
@@ -2087,9 +2087,6 @@ void net_reset_players()
     for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         pla_reinit( PlaStack.lst + cnt );
-
-        // reset the device
-        //input_device_init( PlaStack.lst[cnt].pdevice );
     }
     PlaStack.count        = 0;
 
@@ -2120,6 +2117,7 @@ void pla_reinit( player_t * ppla )
 
     ppla->valid              = bfalse;
     ppla->index              = ( CHR_REF )MAX_CHR;
+    ppla->pdevice            = NULL;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -1981,9 +1981,6 @@ void set_one_player_latch( const PLA_REF ipla )
                 if( control_is_pressed( pdevice,  CONTROL_DOWN )  ) joy_pos.y++;
                 if( control_is_pressed( pdevice,  CONTROL_UP )    ) joy_pos.y--;  
 
-                //joy_pos.x = ( control_is_pressed( pdevice,  CONTROL_RIGHT ) - control_is_pressed( pdevice,  CONTROL_LEFT ) );
-                //joy_pos.y = ( control_is_pressed( pdevice,  CONTROL_DOWN ) - control_is_pressed( pdevice,  CONTROL_UP ) );
-
                 if ( fast_camera_turn )  joy_pos.x = 0;
 
                 joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );

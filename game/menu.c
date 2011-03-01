@@ -276,8 +276,7 @@ static void tipText_set_position( Font * font, const char * text, int spacing );
 static void copyrightText_set_position( Font * font, const char * text, int spacing );
 
 // implementation of "private" ModList functions
-static void mnu_ModList_release_images();
-void        mnu_ModList_release_all();
+static void mnu_ModList_release_all();
 
 // "process" management
 static int do_menu_proc_begin( menu_process_t * mproc );
@@ -1668,8 +1667,6 @@ int doChoosePlayer( float deltaTime )
     switch ( menuState )
     {
         case MM_Begin:
-
-            //SelectedPlayer_list_init( &mnu_SelectedList );
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
@@ -4593,12 +4590,8 @@ void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst )
     /// @details ZZ@> This function loads the title image for each module.  Modules without a
     ///     title are marked as invalid
 
-    STRING loadname;
     MOD_REF imod;
     vfs_FILE* filesave;
-
-    // release all allocated data from the mnu_ModList and empty the list
-    mnu_ModList_release_images();
 
     // Log a directory list
     filesave = vfs_openWrite( "/debug/modules.txt" );
@@ -4618,11 +4611,6 @@ void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst )
         }
         else if ( mnu_test_module_by_index( lp_lst, imod, 0, NULL ) )
         {
-            // @note just because we can't load the title image DOES NOT mean that we ignore the module
-            snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", mnu_ModList.lst[imod].vfs_path );
-
-            mnu_ModList.lst[imod].tex_index = TxTitleImage_load_one_vfs( loadname );
-
             vfs_printf( filesave, "%02d.  %s\n", REF_TO_INT( imod ), mnu_ModList.lst[imod].vfs_path );
         }
         else
@@ -4827,6 +4815,11 @@ void mnu_load_all_module_info()
             // save the module path
             strncpy( pmod->vfs_path, vfs_ModPath, SDL_arraysize( pmod->vfs_path ) );
 
+            // load title image
+            // @note just because we can't load the title image DOES NOT mean that we ignore the module
+            snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", pmod->vfs_path );
+            pmod->tex_index = TxTitleImage_load_one_vfs( loadname );
+
             // Save the user data directory version of the module path.
             // @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
             // If that changes, this line must be changed as well.
@@ -5004,7 +4997,7 @@ TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
     if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
 
     itex  = ( TX_REF )TxTitleImage.count;
-    if ( INVALID_GL_ID != ego_texture_load_vfs( TxTitleImage.lst + itex, szLoadName, INVALID_KEY ) )
+    if ( INVALID_GL_ID != ego_texture_load_vfs( (TxTitleImage.lst + itex), szLoadName, INVALID_KEY ) )
     {
         TxTitleImage.count++;
     }
@@ -5643,7 +5636,7 @@ egoboo_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst )
 
     if ( NULL == sp_lst ) return rv_error;
 
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
     {
         SelectedPlayer_element_init( sp_lst->lst + cnt );
     }

@@ -24,9 +24,20 @@
 #include "log.h"
 #include "system.h"
 
-//    #include <unistd.h>
+#include <unistd.h>      //For message box in linux
 #include "file_common.h" /* for NULL */
 #include <sys/time.h>
+
+//--------------------------------------------------------------------------------------------
+//Different methods of displaying messages in Linux
+typedef enum
+{
+    ZENITY = 0,
+    KDIALOG,
+    XMESSAGE,
+    DIALOG_PROGRAM_END,
+    DIALOG_PROGRAM_BEGIN = ZENITY
+} dialog_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -71,20 +82,46 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
     //ZF> Basic untested implementation of error messaging in Linux
     // @TODO: It has been reported that this doesn't work (22.02.2011)
 
-/*
     STRING message, buffer;
+    bool_t tried[DIALOG_PROGRAM_END] = { bfalse };
+    int i, type = DIALOG_PROGRAM_BEGIN;
+    const char *session = getenv( "DESKTOP_SESSION" );
+
+    //Ready the message
     snprintf( message, SDL_arraysize( message ), warning );
     vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
     strcat( message, buffer );
     strcat( message, "\n Press OK to exit." );
 
-    sprintf(buffer, "xmessage -center \"%s\"", message);
+    //Figure out if there is a method we prefer
+    if  ( 0 == strcmp( session, "gnome" ) ) type = ZENITY;
+    else if( 0 == strcmp session, "kde" ) ) type = KDIALOG;
 
-    if( 0 == fork() )
+    while( btrue )
     {
-        close(1); close(2);
-        system(cmd);
+        //Ready the command
+        switch( type )
+        {
+            case ZENITY:   sprintf( buffer, "zenity --error --text=\"%s\" --title=\"%s\"", message, popup_title ); break;
+            case KDIALOG:  sprintf( buffer, "kdialog %s \"--error\" --title \"%s\"", message, popup_title ); break;
+            case XMESSAGE: sprintf( buffer, "xmessage -center \"%s\"", message ); break;
+        }
+
+        //Did we succeed?
+        if( 0 <= system(cmd) ) break;
+
+        //Nope, try the next solution
+        tried[type] = btrue;
+
+        for( i = DIALOG_PROGRAM_BEGIN; i < DIALOG_PROGRAM_END; i++ )
+        {
+            if( tried[type] ) continue;
+            type = i;
+        }
+
+        //Did everything fail? If so we just give up
+        if( i == DIALOG_PROGRAM_END ) break;
     }
-*/
+
 }
 
