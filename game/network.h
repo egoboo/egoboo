@@ -41,7 +41,6 @@
 #define TO_HOST_MODULEOK    14951
 #define TO_HOST_MODULEBAD   14952
 #define TO_HOST_LATCH       33911
-//#define TO_HOST_RTS         30376
 #define TO_HOST_IM_LOADED   40192
 #define TO_HOST_FILE        20482
 #define TO_HOST_DIR         49230
@@ -54,11 +53,10 @@
 #define TO_REMOTE_FILESENT  19903
 
 #define SHORTLATCH 1024.0f
-#define CHARVEL 5.0f
 #define MAXSENDSIZE 8192
 #define COPYSIZE    4096
 #define TOTALSIZE   2097152
-#define MAX_PLAYER   MAX_LOCAL_PLAYERS
+#define MAX_PLAYER   MAX_LOCAL_PLAYERS      //ZF> used to be 8, but caused some memset issues if MAX_PLAYER > MAX_LOCAL_PLAYERS
 #define MAXLAG      64
 #define LAGAND      63
 #define STARTTALK   10

@@ -129,7 +129,6 @@ struct s_object_profile
     struct Mix_Chunk *  wavelist[MAX_WAVE];             ///< sounds in a object
 };
 
-typedef struct s_object_profile object_profile_t;
 typedef struct s_object_profile pro_t;
 
 //--------------------------------------------------------------------------------------------

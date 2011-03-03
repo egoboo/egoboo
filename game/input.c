@@ -51,11 +51,11 @@
 
 input_device_t    controls[MAX_LOCAL_PLAYERS];                  //Up to 4 local players
 
+//Raw input devices
 mouse_t           mous;
 keyboard_t        keyb;
 device_joystick_t joy[MAXJOYSTICK];
-
-cursor_t cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
+cursor_t          cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,11 +69,15 @@ static void input_read_joystick( int which );
 //--------------------------------------------------------------------------------------------
 void input_device_init( input_device_t * pdevice )
 {
+    INPUT_DEVICE type;
     if ( NULL == pdevice ) return;
+
+    type = pdevice->device_type;
     
     memset( pdevice, 0, sizeof( *pdevice ) );
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;
+    pdevice->device_type = type;
 }
 
 //--------------------------------------------------------------------------------------------

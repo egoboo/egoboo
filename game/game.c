@@ -185,10 +185,10 @@ static void let_all_characters_think();
 static bool_t game_load_module_data( const char *smallname );
 static void   game_release_module_data();
 static void   game_load_all_profiles( const char *modname );
+static void   game_load_profile_ai();
 
 static void   activate_spawn_file_vfs();
 static void   activate_alliance_file_vfs();
-static void   load_all_global_objects();
 
 static bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo );
 
@@ -890,7 +890,7 @@ void game_update_timers()
 
     ticks_last = ticks_now;
     ticks_now  = egoboo_get_ticks();
-
+    
     // check to make sure that the game is running
     if ( !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused )
     {
@@ -2490,9 +2490,30 @@ void load_all_profiles_import()
 }
 
 //--------------------------------------------------------------------------------------------
+void game_load_profile_ai()
+{
+    /// @details ZF@> load the AI for each profile, done last so that all reserved slot numbers are already set
+    /// since AI scripts can dynamically load new objects if they require it
+    PRO_REF ipro;
+    STRING loadname;
+
+    for( ipro = 0; ipro < MAX_PROFILE; ipro++ )
+    {
+        pro_t *ppro;
+
+        if( !LOADED_PRO( ipro ) ) continue;
+        ppro = ProList.lst + ipro;
+
+        // Load the AI script for this iobj
+        make_newloadname(ppro->name, "/script.txt", loadname );
+        load_ai_script_vfs( loadname, ppro, &ppro->ai_script );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void game_load_module_profiles( const char *modname )
 {
-    /// @details BB@> Search for .obj directories int the module directory and load them
+    /// @details BB@> Search for .obj directories in the module directory and load them
 
     vfs_search_context_t * ctxt;
     const char *filehandle;
@@ -2875,7 +2896,7 @@ void activate_spawn_file_vfs()
             spawn_file_info_t * sp_dynamic = spawn_list + dynamic_list[i];
 
             //Find first free slot that is not the spellbook slot
-            for( sp_dynamic->slot = MAXIMPORTPERPLAYER * 4; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
+            for( sp_dynamic->slot = MAXIMPORTPERPLAYER * MAX_PLAYER; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
             {
                 //dont try to grab the spellbook slot
                 if( sp_dynamic->slot == SPELLBOOK ) continue;
@@ -2940,180 +2961,6 @@ void activate_spawn_file_vfs()
 
     // done spawning
     activate_spawn_file_active = bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-/*void activate_spawn_file_vfs()
-{
-    /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
-
-    const char       *newloadname;
-    vfs_FILE         *fileread;
-    spawn_file_info_t sp_info;
-
-    // tell everyone we are spawning a module
-    activate_spawn_file_active = btrue;
-
-    // Turn some back on
-    newloadname = "mp_data/spawn.txt";
-    fileread = vfs_openRead( newloadname );
-
-    PlaStack.count = 0;
-    sp_info.parent = ( CHR_REF )MAX_CHR;
-    if ( NULL == fileread )
-    {
-        log_error( "Cannot read file: %s\n", newloadname );
-    }
-    else
-    {
-        spawn_file_info_t dynamic_list[MAX_PROFILE];        //These need to be dynamically loaded later
-        STRING loaded_objects[MAX_PROFILE];                 //This is a list of all objects already loaded
-        size_t i, dynamic_count = 0;                        //The length of dynamic_list
-
-        //Was the parent loaded dynamically? If so we need to force load children dynamically as well to prevent errors
-        bool_t parent_is_dynamic = bfalse;                  
-
-        //Empty the list of loaded objects
-        memset( loaded_objects, CSTR_END, SDL_arraysize( loaded_objects ) );
-        
-        sp_info.parent = ( CHR_REF )MAX_CHR;
-        while ( spawn_file_scan( fileread, &sp_info ) )
-        {
-            bool_t object_is_attached; 
-            int save_slot = sp_info.slot;
-            
-            // check to see if the slot is valid
-            if ( sp_info.slot >= MAX_PROFILE )
-            {
-                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", sp_info.slot, sp_info.spawn_coment, newloadname );
-                continue;
-            }
-
-            // see if object is attached to another
-            object_is_attached = sp_info.attach == ATTACH_LEFT || sp_info.attach == ATTACH_RIGHT || sp_info.attach == ATTACH_INVENTORY;
-
-            // If it is a dynamic slot, then wait with loading it until we have load all the static slot numbers
-            if ( sp_info.slot == -1 || (object_is_attached && parent_is_dynamic) )
-            {
-                // if it is a parent, then mark it as dynamically loaded
-                if( !object_is_attached ) parent_is_dynamic = btrue;
-
-                //add it to the dynamic list and continue with the others
-                dynamic_list[dynamic_count] = sp_info;
-                dynamic_count++;
-                continue;
-            }
-
-            // If nothing is already in that slot, try to load it.
-            if ( !LOADED_PRO(( PRO_REF ) sp_info.slot ) )
-            {
-                if ( activate_spawn_file_load_object( &sp_info ) )
-                {
-                    // successfully loaded the object
-                    strncpy( loaded_objects[sp_info.slot], sp_info.spawn_coment, SDL_arraysize( loaded_objects[sp_info.slot] ) );
-
-                    // if it is a parent, then mark it as not dynamically loaded
-                    if( !object_is_attached ) parent_is_dynamic = btrue;
-                }
-                else
-                {
-                    // no, give a warning if it is useful
-                    if ( save_slot > PMod->importamount * MAXIMPORTPERPLAYER )
-                    {
-                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info.spawn_coment, save_slot, newloadname );
-                    }
-                    continue;
-                }
-            }
-
-            if ( !LOADED_PRO(( PRO_REF ) sp_info.slot ) ) log_error( "This should not happen %s uses slot %i\n", sp_info.spawn_coment, sp_info.slot );
-
-            // we only reach this if everything was loaded properly
-            activate_spawn_file_spawn( &sp_info );
-        }
-
-        //Now finally do dynamic slot numbers
-        for ( i = 0; i < dynamic_count; i++ )
-        {
-            bool_t already_loaded = bfalse;
-            sp_info = dynamic_list[i];
-
-            //First check if this object is already loaded before, no need to reload it then
-            for ( sp_info.slot = MAXIMPORTPERPLAYER * 4; sp_info.slot < MAX_PROFILE; sp_info.slot++ )
-            {
-                convert_spawn_file_load_name( &sp_info );
-
-                if ( 0 == strcmp( loaded_objects[sp_info.slot], sp_info.spawn_coment ) )
-                {
-                    already_loaded = btrue;
-                    break;
-                }
-            }
-
-            // It wasn't loaded yet so we need to do it here for the first time
-            if ( !already_loaded )
-            {
-                //Find first free slot and load the object in there
-                sp_info.slot = MAXIMPORTPERPLAYER * 4;
-                while ( LOADED_PRO(( PRO_REF ) sp_info.slot ) ) sp_info.slot++;
-
-                //Now load it
-                if ( activate_spawn_file_load_object( &sp_info ) )
-                {
-                    // successfully loaded the object into a dynamic slot number
-                    strncpy( loaded_objects[sp_info.slot], sp_info.spawn_coment, SDL_arraysize( loaded_objects[sp_info.slot] ) );
-                }
-                else
-                {
-                    //something went wrong
-                    log_warning( "Could not load object (%s) into dynamic slot number %i\n", sp_info.spawn_coment, sp_info.slot );
-                    continue;
-                }
-            }
-
-            // we only reach this if everything was loaded properly
-            activate_spawn_file_spawn( &sp_info );
-        }
-
-        vfs_close( fileread );
-    }
-
-    clear_messages();
-
-    // Make sure local players are displayed first
-    statlist_sort();
-
-    // Fix tilting trees problem
-    tilt_characters_to_terrain();
-
-    // done spawning
-    activate_spawn_file_active = btrue;
-}*/
-
-//--------------------------------------------------------------------------------------------
-void load_all_global_objects()
-{
-    /// @details ZF@> This function loads all global objects found on the mp_data mount point
-
-    vfs_search_context_t * ctxt;
-    const char *filehandle;
-
-    // Warn the user for any duplicate slots
-    overrideslots = bfalse;
-
-    // Search for .obj directories and load them
-    ctxt = vfs_findFirst( "mp_data/globalobjects", "obj", VFS_SEARCH_DIR );
-    filehandle = vfs_search_context_get_current( ctxt );
-
-    while ( NULL != ctxt && VALID_CSTR( filehandle ) )
-    {
-        load_one_profile_vfs( filehandle, MAX_PROFILE );
-
-        ctxt = vfs_findNext( &ctxt );
-        filehandle = vfs_search_context_get_current( ctxt );
-    }
-
-    vfs_findClose( &ctxt );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3189,10 +3036,13 @@ void game_setup_module( const char *smallname )
     strncpy( modname, smallname, SDL_arraysize( modname ) );
     str_append_slash_net( modname, SDL_arraysize( modname ) );
 
-    // ust the information in these files to load the module
+    // just the information in these files to load the module
     activate_passages_file_vfs();        // read and implement the "passage script" passages.txt
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
     activate_alliance_file_vfs();        // set up the non-default team interactions
+
+    // now load the profile AI, do last so that all reserved slot numbers are initialized
+    game_load_profile_ai();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3730,9 +3580,6 @@ void game_finish_module()
 
     // restart the menu song
     sound_play_song( MENU_SONG, 0, -1 );
-
-    // quit the old module
-//    game_quit_module();       //@note: ZF> uncommented, but might cause a texture allocation bug?
 }
 
 //--------------------------------------------------------------------------------------------

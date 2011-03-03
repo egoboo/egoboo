@@ -4443,7 +4443,9 @@ int doMenu( float deltaTime )
 
                     //Simply quit the current module and begin it again
                     game_quit_module();
-                    game_begin_module( PMod->loadname, ( Uint32 )~0 );
+
+                    process_terminate( PROC_PBASE( GProc ) );
+                    process_start( PROC_PBASE( GProc ) );
 
                     retval = MENU_END;
                 }

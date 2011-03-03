@@ -825,10 +825,6 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     make_newloadname( tmploadname, "/message.txt", newloadname );
     profile_load_all_messages_vfs( newloadname, pobj );
 
-    // Load the AI script for this iobj
-    make_newloadname( tmploadname, "/script.txt", newloadname );
-    load_ai_script_vfs( newloadname, pobj, &pobj->ai_script );
-
     // Load the particles for this iobj
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {

@@ -32,6 +32,8 @@
 #include "egoboo_math.h"
 #include "egoboo.h"
 
+#include "game.h"
+
 
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ struct s_token
     int    iLine;                       ///< Line number
     int    iIndex;
     int    iValue;                      ///< Integer value
-    char   cType;                       ///< Constant, Variable, Function, String, etc.
+    char   cType;                       ///< Constant, Variable, Function, etc.
     char   cWord[MAXCODENAMESIZE];      ///< The text representation
 };
 typedef struct s_token token_t;
@@ -838,7 +840,75 @@ int parse_token( pro_t *ppro, ai_script_t *pscript, int read )
         { print_token();  return read; }
     }
 
-         // Check for string
+    // Check for IDSZ constant
+    if ( '[' == Token.cWord[0] )
+    {
+        idsz = MAKE_IDSZ( Token.cWord[1], Token.cWord[2], Token.cWord[3], Token.cWord[4] );
+
+        Token.iValue = idsz;
+        Token.cType  = 'C';
+        Token.iIndex = MAX_OPCODE;
+
+        { print_token();  return read; }
+    }
+
+    // Check for object reference
+    if ( Token.cWord[0] == '"' && '#' == stringBuffer[0] )
+    {
+        PRO_REF ipro = 0;
+        STRING obj_name;
+
+        //remove the reference symbol to figure out the actual folder name we are looking for
+        strncpy( obj_name, stringBuffer+1, SDL_arraysize( obj_name ) );
+
+        //Invalid profile as default
+        Token.iValue = MAX_PROFILE;
+
+        //Convert reference to slot number
+        for( ipro = 0; ipro < MAX_PROFILE; ipro++ )
+        {
+            pro_t *ppro;
+
+            if( !LOADED_PRO( ipro ) ) continue;
+            ppro = ProList.lst + ipro;
+            
+            //is this the object we are looking for?
+            if( 0 == strcmp( obj_name, strrchr(ppro->name, '/') + 1 ) )
+            {
+                Token.iValue = REF_TO_INT( ppro->icap );
+                break;
+            }
+        }
+        
+        //Do we need to load the object?
+        if( !LOADED_PRO( (PRO_REF) Token.iValue ) )
+        {
+            STRING loadname;
+            snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
+            
+            //find first free slot number
+            for( ipro = MAXIMPORTPERPLAYER * 4; ipro < MAX_PROFILE; ipro++ )
+            {
+                //skip loaded profiles
+                if( LOADED_PRO( ipro ) ) continue;
+
+                //found a free slot
+                Token.iValue = load_one_profile_vfs( loadname, REF_TO_INT(ipro) );
+            }
+        }
+
+        //Failed to load object!
+        if( !LOADED_PRO(( PRO_REF ) Token.iValue  ) )
+        {
+            log_message("SCRIPT ERROR: Failed to load object: %s through an AI script. %s (line %d)\n", Token.cWord, pscript->name, Token.iLine);
+        }
+
+        Token.cType = 'C';
+        Token.iIndex = MAX_OPCODE;
+        { print_token();  return read; }
+    }
+
+    // Check for string
     if ( Token.cWord[0] == '"' && CSTR_END != stringBuffer[0] )
     {
         int cnt;
@@ -870,19 +940,8 @@ int parse_token( pro_t *ppro, ai_script_t *pscript, int read )
         { print_token();  return read; }
     }
 
-    // Check for IDSZ constant
-    if ( '[' == Token.cWord[0] )
-    {
-        idsz = MAKE_IDSZ( Token.cWord[1], Token.cWord[2], Token.cWord[3], Token.cWord[4] );
 
-        Token.iValue = idsz;
-        Token.cType  = 'C';
-        Token.iIndex = MAX_OPCODE;
-
-        { print_token();  return read; }
-    }
-
-
+    //is it a constant?
     for ( cnt = 0; cnt < OpList.count; cnt++ )
     {
         if ( 0 == strncmp( Token.cWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
@@ -896,15 +955,17 @@ int parse_token( pro_t *ppro, ai_script_t *pscript, int read )
         Token.cType  = OpList.ary[cnt].cType;
         Token.iIndex = cnt;
     }
+
     else if ( 0 == strcmp( Token.cWord, "=" ) )
     {
         Token.iValue = -1;
         Token.cType  = 'O';
         Token.iIndex = MAX_OPCODE;
     }
+
+    // We couldn't figure out what this is, throw out an error code
     else
     {
-        // Throw out an error code if we're loggin' 'em
         log_message( "SCRIPT ERROR: \"%s\"(%d) - unknown opcode \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
 
         Token.iValue = -1;
