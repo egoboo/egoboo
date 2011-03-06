@@ -604,6 +604,6 @@ extern bool_t parseerror;
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
-egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, ai_script_t *pscript );
+egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *pscript );
 
 void script_compiler_init();

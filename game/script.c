@@ -43,15 +43,15 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t scr_increment_pos( ai_script_t * pself );
-static bool_t scr_set_pos( ai_script_t * pself, size_t position );
+static bool_t scr_increment_pos( script_info_t * pself );
+static bool_t scr_set_pos( script_info_t * pself, size_t position );
 
-static Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself, ai_script_t *pscript );
+static Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself, script_info_t *pscript );
 static void  scr_set_operand( script_state_t * pstate, Uint8 variable );
-static void  scr_run_operand( script_state_t * pstate, ai_state_t * pself, ai_script_t * pscript );
+static void  scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t * pscript );
 
-static bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, ai_script_t *pscript );
-static bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, ai_script_t *pscript );
+static bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
+static bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
 
 PROFILE_DECLARE( script_function )
 
@@ -126,7 +126,7 @@ void scr_run_chr_script( const CHR_REF character )
     script_state_t   my_state;
     chr_t          * pchr;
     ai_state_t     * pself;
-    ai_script_t    * pscript;
+    script_info_t    * pscript;
 
     // make sure that this module is initialized
     scripting_system_begin();
@@ -289,7 +289,7 @@ void scr_run_chr_script( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, ai_script_t *pscript )
+bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript )
 {
     Uint8  functionreturn;
     
@@ -326,7 +326,7 @@ bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, ai_scr
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, ai_script_t * pscript )
+bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_t * pscript )
 {
     const char * variable;
     Uint32 var_value, operand_count, i;
@@ -386,7 +386,7 @@ bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, ai_script_
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, ai_script_t * pscript )
+Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_t * pscript )
 {
     /// @details BB@> This is about half-way to what is needed for Lua integration
 
@@ -873,7 +873,7 @@ void scr_set_operand( script_state_t * pstate, Uint8 variable )
 }
 
 //--------------------------------------------------------------------------------------------
-void scr_run_operand( script_state_t * pstate, ai_state_t * pself, ai_script_t * pscript )
+void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t * pscript )
 {
     /// @details ZZ@> This function does the scripted arithmetic in OPERATOR, OPERAND pscriptrs
 
@@ -1513,7 +1513,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, ai_script_t *
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scr_increment_pos( ai_script_t * pscript )
+bool_t scr_increment_pos( script_info_t * pscript )
 {
     if ( NULL == pscript ) return bfalse;
     if ( pscript->position >= pscript->length ) return bfalse;
@@ -1524,7 +1524,7 @@ bool_t scr_increment_pos( ai_script_t * pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scr_set_pos( ai_script_t * pscript, size_t position )
+bool_t scr_set_pos( script_info_t * pscript, size_t position )
 {
     if ( NULL == pscript ) return bfalse;
     if ( position >= pscript->length ) return bfalse;

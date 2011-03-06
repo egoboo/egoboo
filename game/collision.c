@@ -891,7 +891,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( pchr_b->chr_min_cv ), chr_get_pos_v( pchr_b ), pchr_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( pchr_b->chr_max_cv ), chr_get_pos_v( pchr_b ), pchr_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.chrb = ichr_b;

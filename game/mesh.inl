@@ -148,6 +148,7 @@ static INLINE Uint32 mesh_get_grid( const ego_mpd_t * pmesh, float pos_x, float 
         ix = pos_x;
         iy = pos_y;
 
+        // these are known to be positive, so >> is not a problem
         ix >>= GRID_BITS;
         iy >>= GRID_BITS;
 
@@ -237,7 +238,7 @@ static INLINE Uint32 mesh_test_fx( const ego_mpd_t * pmesh, Uint32 itile, BIT_FI
     }
 
     // if the tile is actually labelled as FANOFF, ignore it completely
-    if ( FANOFF == pmesh->tmem.tile_list[itile].img )
+    if ( TILE_IS_FANOFF( pmesh->tmem.tile_list[itile] ) )
     {
         return 0;
     }

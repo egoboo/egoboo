@@ -278,13 +278,15 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
             else
             {
                 //Translate to raw coordinates
-                way_x = current_node->ix << GRID_BITS;
-                way_y = current_node->iy << GRID_BITS;
+                way_x = current_node->ix * GRID_ISIZE;
+                way_y = current_node->iy * GRID_ISIZE;
             }
 
             // add the node to the waypoint list
 #ifdef DEBUG_ASTAR  
-            printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, way_x>>GRID_BITS, way_y>>GRID_BITS );
+            // using >> for division only works if you know for certainty that the value
+            // you are shifting is not intended to be neative
+            printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, way_x / GRID_ISIZE, way_y / GRID_ISIZE );
 #endif
             waypoint_list_push( plst, way_x, way_y );
             waypoint_num++;

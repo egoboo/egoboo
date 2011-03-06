@@ -131,21 +131,21 @@ bool_t waypoint_list_advance( waypoint_list_t * plst );
 
 
 //--------------------------------------------------------------------------------------------
-// struct s_ai_script
+// struct s_script_info
 //--------------------------------------------------------------------------------------------
-struct s_ai_script
+struct s_script_info
 {
-    STRING          name;                            //Name of the script file
+    STRING          name;                            // Name of the script file
     
     Uint32          indent;
     Uint32          indent_last;
 
-    Uint32          length;                          //Actual length of the compiled ai buffer
-    size_t          position;                        //Our current position in the script
+    Uint32          length;                          // Actual length of the compiled ai buffer
+    size_t          position;                        // Our current position in the script
 
-    Uint32          data[MAXAICOMPILESIZE];          //Compiled script data
+    Uint32          data[MAXAICOMPILESIZE];          // Compiled script data
 };
-typedef struct s_ai_script ai_script_t;
+typedef struct s_script_info script_info_t;
 
 //--------------------------------------------------------------------------------------------
 // struct s_ai_state

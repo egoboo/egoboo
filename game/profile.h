@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 #include "egoboo.h"
-#include "script.h"     //for ai_script_t
+#include "script.h"     //for script_info_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ struct s_object_profile
     MAD_REF imad;                             ///< the mad for this profile
     EVE_REF ieve;                             ///< the eve for this profile
 
-    ai_script_t ai_script;                    ///< the AI script for this profile
+    script_info_t ai_script;                    ///< the AI script for this profile
 
     PIP_REF prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 

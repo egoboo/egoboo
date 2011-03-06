@@ -51,7 +51,7 @@ static bool_t ChrList_remove_used( const CHR_REF ichr );
 static bool_t ChrList_remove_used_index( int index );
 static bool_t ChrList_add_free( const CHR_REF ichr );
 static bool_t ChrList_remove_free( const CHR_REF ichr );
-static bool_t ChrList_remove_free_index( int index );
+static bool_t ChrList_remove_free_index( const int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -341,7 +341,7 @@ bool_t ChrList_add_free( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_free_index( int index )
+bool_t ChrList_remove_free_index( const int index )
 {
     CHR_REF ichr;
 

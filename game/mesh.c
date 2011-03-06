@@ -533,8 +533,8 @@ bool_t grid_mem_alloc( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     pgmem->grid_count = pgmem->grids_x * pgmem->grids_y;
 
     // set the mesh edge info
-    pgmem->edge_x = ( pgmem->grids_x + 1 ) << GRID_BITS;
-    pgmem->edge_y = ( pgmem->grids_y + 1 ) << GRID_BITS;
+    pgmem->edge_x = ( pgmem->grids_x + 1 ) * GRID_ISIZE;
+    pgmem->edge_y = ( pgmem->grids_y + 1 ) * GRID_ISIZE;
 
     // set the desired blocknumber of blocks
     pgmem->blocks_x = ( pinfo->tiles_x >> 2 );
@@ -777,7 +777,7 @@ Uint8 cartman_get_fan_twist( const ego_mpd_t * pmesh, Uint32 tile )
     if ( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
 
     // if the tile is actually labelled as FANOFF, ignore it completely
-    if ( FANOFF == pmesh->tmem.tile_list[tile].img ) return TWIST_FLAT;
+    if ( TILE_IS_FANOFF( pmesh->tmem.tile_list[tile] ) ) return TWIST_FLAT;
 
     vrtstart = pmesh->tmem.tile_list[tile].vrtstart;
 

@@ -55,7 +55,7 @@ static bool_t PrtList_remove_used( const PRT_REF iprt );
 static bool_t PrtList_remove_used_index( int index );
 static bool_t PrtList_add_free( const PRT_REF iprt );
 static bool_t PrtList_remove_free( const PRT_REF iprt );
-static bool_t PrtList_remove_free_index( int index );
+static bool_t PrtList_remove_free_index( const int index );
 
 static size_t  PrtList_get_free();
 
@@ -493,7 +493,7 @@ bool_t PrtList_add_free( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_free_index( int index )
+bool_t PrtList_remove_free_index( const int index )
 {
     PRT_REF iprt;
 

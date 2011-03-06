@@ -361,6 +361,7 @@ billboard_data_t * BillboardList_get_ptr( const BBOARD_REF  ibb );
 // some lines to be drawn in the display
 
 #define LINE_COUNT 100
+
 struct s_line_data
 {
     fvec3_t   dst;
@@ -368,6 +369,19 @@ struct s_line_data
     int time;
 };
 typedef struct s_line_data line_data_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// some points to be drawn in the display
+
+#define POINT_COUNT 100
+
+struct s_point_data
+{
+    fvec4_t   src, color;
+    int time;
+};
+typedef struct s_point_data point_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -424,7 +438,6 @@ void  draw_text();
 void  draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo );
 void  draw_cursor();
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map );
-void  draw_all_lines( struct s_camera * pcam );
 
 void      render_world( struct s_camera * pcam );
 void      render_shadow( const CHR_REF character );
@@ -449,7 +462,11 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, struct s_camer
 bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, float fx, float fy );
 float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
-int  get_free_line();
+void line_list_init();
+int  line_list_get_free();
+
+void point_list_init();
+int  point_list_get_free();
 
 void init_all_graphics();
 void release_all_graphics();

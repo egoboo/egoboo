@@ -207,7 +207,9 @@ INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
 
-static line_data_t line_list[LINE_COUNT];
+static line_data_t  line_list[LINE_COUNT];
+static point_data_t point_list[POINT_COUNT];
+
 static dolist_t    _dolist = DOLIST_INIT;
 
 static SDLX_video_parameters_t sdl_vparam;
@@ -284,6 +286,9 @@ static gfx_rv update_one_chr_instance( struct s_chr * pchr );
 static gfx_rv update_all_chr_instance();
 
 static gfx_rv do_chr_flashing( dolist_t * pdolist );
+
+static void line_list_draw_all( struct s_camera * pcam );
+static void point_list_draw_all( struct s_camera * pcam );
 
 //--------------------------------------------------------------------------------------------
 // MODULE "PRIVATE" FUNCTIONS
@@ -3160,9 +3165,12 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 
 #if defined(_DEBUG)
     render_all_prt_attachment();
+#endif
 
-    // daw some debugging lines
-    draw_all_lines( PCamera );
+#if defined(DRAW_LISTS)
+    // draw some debugging lines
+    line_list_draw_all( PCamera );
+    point_list_draw_all( PCamera );
 #endif
 
 #if defined(DRAW_PRT_BBOX)
@@ -4327,8 +4335,23 @@ gfx_rv render_all_billboards( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 // LINE IMPLENTATION
 //--------------------------------------------------------------------------------------------
-int get_free_line()
+void line_list_init()
 {
+    /// @details  BB@> initialize the list so that no lines are valid
+
+    int cnt;
+
+    for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
+    {
+        line_list[cnt].time = -1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+int line_list_get_free()
+{
+    /// @details  BB@> get the 1st free line
+
     int cnt;
 
     for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
@@ -4343,11 +4366,21 @@ int get_free_line()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_all_lines( camera_t * pcam )
+void line_list_draw_all( camera_t * pcam )
 {
     /// @details BB@> draw some lines for debugging purposes
 
     int cnt, ticks;
+
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
+    // disable the texturing so all the points will be white,
+    // not the texture color of the last vertex we drawn
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
 
     gfx_begin_3d( pcam );
     {
@@ -4395,6 +4428,122 @@ void draw_all_lines( camera_t * pcam )
         ATTRIB_POP( __FUNCTION__ );
     }
     gfx_end_3d();
+
+    // fix the texture enabling
+    if ( texture_1d_enabled )
+    {
+        GL_DEBUG( glEnable )( GL_TEXTURE_1D );
+    }
+    else if ( texture_2d_enabled )
+    {
+        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+// POINT IMPLENTATION
+//--------------------------------------------------------------------------------------------
+void point_list_init()
+{
+    /// @details  BB@> initialize the list so that no points are valid
+
+    int cnt;
+
+    for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
+    {
+        point_list[cnt].time = -1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+int point_list_get_free()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
+    {
+        if ( point_list[cnt].time < 0 )
+        {
+            break;
+        }
+    }
+
+    return cnt < POINT_COUNT ? cnt : -1;
+}
+
+//--------------------------------------------------------------------------------------------
+void point_list_draw_all( camera_t * pcam )
+{
+    /// @details BB@> draw some points for debugging purposes
+
+    int cnt, ticks;
+
+    GLboolean texture_1d_enabled, texture_2d_enabled;
+
+    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
+    // disable the texturing so all the points will be white,
+    // not the texture color of the last vertex we drawn
+    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
+    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
+
+    gfx_begin_3d( pcam );
+    {
+        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
+        {
+            // flat shading
+            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT
+
+            // don't write into the depth buffer (disable glDepthMask for transparent objects)
+            GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+
+            // do not draw hidden surfaces
+            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
+            GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
+
+            // draw draw front and back faces of polygons
+            GL_DEBUG( glDisable )( GL_CULL_FACE );   // GL_ENABLE_BIT
+
+            GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
+
+            // we do not want texture mapped points
+            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
+
+            ticks = egoboo_get_ticks();
+
+            for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
+            {
+                if ( point_list[cnt].time < 0 ) continue;
+
+                if ( point_list[cnt].time < ticks )
+                {
+                    point_list[cnt].time = -1;
+                    continue;
+                }
+
+                GL_DEBUG( glColor4fv )( point_list[cnt].color.v );       // GL_CURRENT_BIT
+                GL_DEBUG( glBegin )( GL_POINTS );
+                {
+                    GL_DEBUG( glVertex3fv )( point_list[cnt].src.v );
+                }
+                GL_DEBUG_END();
+            }
+        }
+        ATTRIB_POP( __FUNCTION__ );
+    }
+    gfx_end_3d();
+
+    // fix the texture enabling
+    if ( texture_1d_enabled )
+    {
+        GL_DEBUG( glEnable )( GL_TEXTURE_1D );
+    }
+    else if ( texture_2d_enabled )
+    {
+        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5094,7 +5243,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
     rightlist[rightnum] = 3;  rightnum++;
 
     // Make the left edge ( rowstt )
-    grid_y = corner_y[0] >> GRID_BITS;
+    grid_y = corner_y[0] / GRID_ISIZE;
     row = 0;
     cnt = 1;
     while ( cnt < leftnum )
@@ -5105,16 +5254,16 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
         stepx = 0;
         if ( divx > 0 )
         {
-            stepx = (( corner_x[to] - corner_x[from] ) << GRID_BITS ) / divx;
+            stepx = (( corner_x[to] - corner_x[from] ) * GRID_ISIZE ) / divx;
         }
 
         x -= 128;
-        run = corner_y[to] >> GRID_BITS;
+        run = corner_y[to] / GRID_ISIZE;
         while ( grid_y < run )
         {
             if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
             {
-                grid_x = x >> GRID_BITS;
+                grid_x = x / GRID_ISIZE;
                 if ( grid_x < 0 )  grid_x = 0;
                 if ( grid_x >= pmesh->info.tiles_x )  grid_x = pmesh->info.tiles_x - 1;
 
@@ -5131,7 +5280,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
     numrow = row;
 
     // Make the right edge ( rowrun )
-    grid_y = corner_y[0] >> GRID_BITS;
+    grid_y = corner_y[0] / GRID_ISIZE;
     row = 0;
     cnt = 1;
     while ( cnt < rightnum )
@@ -5143,16 +5292,16 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
         stepx = 0;
         if ( divx > 0 )
         {
-            stepx = (( corner_x[to] - corner_x[from] ) << GRID_BITS ) / divx;
+            stepx = (( corner_x[to] - corner_x[from] ) * GRID_ISIZE ) / divx;
         }
 
-        run = corner_y[to] >> GRID_BITS;
+        run = corner_y[to] / GRID_ISIZE;
 
         while ( grid_y < run )
         {
             if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
             {
-                grid_x = x >> GRID_BITS;
+                grid_x = x / GRID_ISIZE;
                 if ( grid_x < 0 )  grid_x = 0;
                 if ( grid_x >= pmesh->info.tiles_x - 1 )  grid_x = pmesh->info.tiles_x - 1;// -2
 
@@ -6732,4 +6881,3 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
     }
     ATTRIB_POP( __FUNCTION__ );
 }
-

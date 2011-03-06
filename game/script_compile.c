@@ -63,7 +63,7 @@ static Uint8   cLoadBuffer[AISMAXLOADSIZE] = EMPTY_CSTR;
 
 static token_t Token;
 
-static ai_script_t default_ai_script;
+static script_info_t default_ai_script;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -498,18 +498,18 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 //--------------------------------------------------------------------------------------------
 //Private functions
 static void         insert_space( int position );
-static int          load_one_line( int read, ai_script_t *pscript );
+static int          load_one_line( int read, script_info_t *pscript );
 static void         surround_space( int position );
-static int          get_indentation( ai_script_t *pscript );
+static int          get_indentation( script_info_t *pscript );
 static void         fix_operators();
-static int          parse_token( pro_t *ppro, ai_script_t *pscript, int read );
-static void         emit_opcode( BIT_FIELD highbits, ai_script_t *pscript );
-static void         parse_line_by_line( pro_t *ppro, ai_script_t *pscript );
-static Uint32       jump_goto( int index, int index_end, ai_script_t *pscript );
-static void         parse_jumps( ai_script_t *pscript );
+static int          parse_token( pro_t *ppro, script_info_t *pscript, int read );
+static void         emit_opcode( BIT_FIELD highbits, script_info_t *pscript );
+static void         parse_line_by_line( pro_t *ppro, script_info_t *pscript );
+static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
+static void         parse_jumps( script_info_t *pscript );
 static int          ai_goto_colon( int read );
 static void         get_code( int read );
-static egoboo_rv    ai_script_upload_default( ai_script_t *pscript );
+static egoboo_rv    ai_script_upload_default( script_info_t *pscript );
 
 static void load_ai_codes_vfs( const char* loadname );
 
@@ -561,7 +561,7 @@ void insert_space( int position )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_line( int read, ai_script_t *pscript )
+int load_one_line( int read, script_info_t *pscript )
 {
     /// @details ZZ@> This function loads a line into the line buffer
 
@@ -727,7 +727,7 @@ void surround_space( int position )
 }
 
 //--------------------------------------------------------------------------------------------
-int get_indentation( ai_script_t *pscript )
+int get_indentation( script_info_t *pscript )
 {
     /// @details ZZ@> This function returns the number of starting spaces in a line
 
@@ -792,7 +792,7 @@ void fix_operators()
 }
 
 //--------------------------------------------------------------------------------------------
-int parse_token( pro_t *ppro, ai_script_t *pscript, int read )
+int parse_token( pro_t *ppro, script_info_t *pscript, int read )
 {
     /// @details ZZ@> This function tells what code is being indexed by read, it
     ///    will return the next spot to read from and stick the code number
@@ -979,7 +979,7 @@ int parse_token( pro_t *ppro, ai_script_t *pscript, int read )
 }
 
 //--------------------------------------------------------------------------------------------
-void emit_opcode( BIT_FIELD highbits, ai_script_t *pscript )
+void emit_opcode( BIT_FIELD highbits, script_info_t *pscript )
 {
     // detect a constant value
     if ( 'C' == Token.cType || 'F' == Token.cType )
@@ -998,7 +998,7 @@ void emit_opcode( BIT_FIELD highbits, ai_script_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_line_by_line( pro_t *ppro, ai_script_t *pscript )
+void parse_line_by_line( pro_t *ppro, script_info_t *pscript )
 {
     //@details ZF@> This parses an AI script line by line
 
@@ -1145,7 +1145,7 @@ void parse_line_by_line( pro_t *ppro, ai_script_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 jump_goto( int index, int index_end, ai_script_t *pscript )
+Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
 {
     /// @details ZZ@> This function figures out where to jump to on a fail based on the
     ///    starting location and the following code.  The starting location
@@ -1186,7 +1186,7 @@ Uint32 jump_goto( int index, int index_end, ai_script_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_jumps( ai_script_t *pscript )
+void parse_jumps( script_info_t *pscript )
 {
     /// @details ZZ@> This function sets up the fail jumps for the down and dirty code
 
@@ -1282,7 +1282,7 @@ void load_ai_codes_vfs( const char* loadname )
     }
 }
 
-egoboo_rv ai_script_upload_default( ai_script_t *pscript )
+egoboo_rv ai_script_upload_default( script_info_t *pscript )
 {
     //@details ZF@> This loads the default AI script into a character profile ai
     //              It's not optimal since it duplicates the AI script data with memcpy
@@ -1301,7 +1301,7 @@ egoboo_rv ai_script_upload_default( ai_script_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, ai_script_t *pscript )
+egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *pscript )
 {
     /// @details ZZ@> This function loads a script to memory
 

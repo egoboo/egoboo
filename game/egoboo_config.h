@@ -86,8 +86,9 @@
 /// >= 3 -- decompile every script (requires defined(_DEBUG))
 #define DEBUG_SCRIPT_LEVEL 0
 
-#undef DRAW_CHR_BBOX        ///< display selected character bounding boxes
-#undef DRAW_PRT_BBOX        ///< display selected particle bounding boxes
+#undef  DRAW_CHR_BBOX        ///< display selected character bounding boxes
+#undef  DRAW_PRT_BBOX        ///< display selected particle bounding boxes
+#define DRAW_LISTS          ///< display any lines or points that have been added to various lists
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -5139,7 +5139,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     if ( mesh_grid_is_valid( PMesh, iTmp ) )
     {
         returncode = btrue;
-        pstate->argument = CLIP_TO_08BITS( PMesh->tmem.tile_list[iTmp].img );
+        pstate->argument = PMesh->tmem.tile_list[iTmp].img & TILE_LOWER_MASK;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7897,8 +7897,8 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
         fan = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
         if ( mesh_grid_is_valid( PMesh, fan ) )
         {
-            Uint16 img      = PMesh->tmem.tile_list[fan].img & 0x00FF;
-            int highbits = PMesh->tmem.tile_list[fan].img & 0xFF00;
+            Uint16 img      = PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK;
+            Uint16 highbits = PMesh->tmem.tile_list[fan].img & TILE_UPPER_MASK;
 
             if ( img >= starttile && img < endtile )
             {
@@ -7980,11 +7980,11 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
     ppass = PassageStack.lst + passage;
 
     // Do the first row
-    x = x0 >> GRID_BITS;
-    y = y0 >> GRID_BITS;
+    x = x0 / GRID_ISIZE;
+    y = y0 / GRID_ISIZE;
 
     if ( x < ppass->area.left )  x = ppass->area.left;
-    if ( y < ppass->area.top )  y = ppass->area.top;
+    if ( y < ppass->area.top  )  y = ppass->area.top;
 
     if ( y < ppass->area.bottom )
     {
@@ -7994,10 +7994,10 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 
             if ( mesh_grid_is_valid( PMesh, fan ) )
             {
-                if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
+                if ( tiletype == (PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK) )
                 {
-                    *px1 = ( x << GRID_BITS ) + 64;
-                    *py1 = ( y << GRID_BITS ) + 64;
+                    *px1 = ( x * GRID_ISIZE ) + 64;
+                    *py1 = ( y * GRID_ISIZE ) + 64;
                     return btrue;
                 }
 
@@ -8015,11 +8015,10 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 
             if ( mesh_grid_is_valid( PMesh, fan ) )
             {
-
-                if ( CLIP_TO_08BITS( PMesh->tmem.tile_list[fan].img ) == tiletype )
+                if ( tiletype == (PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK) )
                 {
-                    *px1 = ( x << GRID_BITS ) + 64;
-                    *py1 = ( y << GRID_BITS ) + 64;
+                    *px1 = x * GRID_ISIZE + 64;
+                    *py1 = y * GRID_ISIZE + 64;
                     return btrue;
                 }
             }

@@ -44,8 +44,8 @@ static int breadcrumb_guid = 0;
 const float air_friction = 0.9868f;
 const float ice_friction = 0.9738f;  // the square of air_friction
 
-static egoboo_rv oct_bb_intersect_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
-static egoboo_rv oct_bb_intersect_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
+static egoboo_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
+static egoboo_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -407,7 +407,7 @@ bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv oct_bb_intersect_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t * src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
+egoboo_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t * src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
 {
     float vdiff;
     float src1_min, src1_max;
@@ -452,7 +452,7 @@ egoboo_rv oct_bb_intersect_index( int index, const oct_bb_t * src1, const oct_ve
         }
         else
         {
-            return oct_bb_intersect_close_index( index, src1, ovel1, src2, ovel2, test_platform, tmin, tmax );
+            return phys_intersect_oct_bb_close_index( index, src1, ovel1, src2, ovel2, test_platform, tmin, tmax );
         }
     }
     else /* OCT_Z == index */
@@ -561,7 +561,149 @@ egoboo_rv oct_bb_intersect_index( int index, const oct_bb_t * src1, const oct_ve
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv oct_bb_intersect_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
+bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+{
+    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
+    ///               Designed to determine whether a bullet particle will interact with character.
+
+    oct_bb_t src1, src2;
+    oct_bb_t exp1, exp2;
+
+    oct_vec_t opos1, opos2;
+    oct_vec_t ovel1, ovel2;
+
+    int    index;
+    bool_t found;
+    float  local_tmin, local_tmax;
+
+    int    failure_count = 0;
+    bool_t failure[OCT_COUNT];
+
+    // handle optional parameters
+    if ( NULL == tmin ) tmin = &local_tmin;
+    if ( NULL == tmax ) tmax = &local_tmax;
+
+    // convert the position and velocity vectors to octagonal format
+    oct_vec_ctor( ovel1, vel1 );
+    oct_vec_ctor( opos1, pos1 );
+
+    oct_vec_ctor( ovel2, vel2 );
+    oct_vec_ctor( opos2, pos2 );
+
+    // shift the bounding boxes to their starting positions
+    oct_bb_add_ovec( src1_orig, opos1, &src1 );
+    oct_bb_add_ovec( src2_orig, opos2, &src2 );
+
+    found = bfalse;
+    *tmin = +1.0e6;
+    *tmax = -1.0e6;
+    if ( fvec3_dist_abs( vel1, vel2 ) < 1.0e-6 )
+    {
+        // no relative motion, so avoid the loop to save time
+        failure_count = OCT_COUNT;
+    }
+    else
+    {
+        // cycle through the coordinates to see when the two volumes might coincide
+        for ( index = 0; index < OCT_COUNT; index++ )
+        {
+            egoboo_rv retval;
+
+            if ( ABS( ovel1[index] - ovel2[index] ) < 1.0e-6 )
+            {
+                failure[index] = btrue;
+                failure_count++;
+            }
+            else
+            {
+                float tmp_min, tmp_max;
+
+                retval = phys_intersect_oct_bb_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
+
+                // check for overflow
+                if ( ieee32_bad( tmp_min ) || ieee32_bad( tmp_max ) )
+                {
+                    retval = rv_fail;
+                }
+
+                if ( rv_fail == retval )
+                {
+                    // This case will only occur if the objects are not moving relative to each other.
+
+                    failure[index] = btrue;
+                    failure_count++;
+                }
+                else if ( rv_success == retval )
+                {
+                    failure[index] = bfalse;
+
+                    if ( !found )
+                    {
+                        *tmin = tmp_min;
+                        *tmax = tmp_max;
+                        found = btrue;
+                    }
+                    else
+                    {
+                        *tmin = MAX( *tmin, tmp_min );
+                        *tmax = MIN( *tmax, tmp_max );
+                    }
+
+                    // check the values vs. reasonable bounds
+                    if ( *tmax <= *tmin ) return bfalse;
+                    if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
+                }
+            }
+        }
+    }
+
+    if ( OCT_COUNT == failure_count )
+    {
+        // No relative motion on any axis.
+        // Just say that they are interacting for the whole frame
+
+        *tmin = 0.0f;
+        *tmax = 1.0f;
+
+        // determine the intersection of these two expanded volumes (for this frame)
+        oct_bb_intersection( &src1, &src2, pdst );
+    }
+    else
+    {
+        float tmp_min, tmp_max;
+
+        // check to see if there the intersection times make any sense
+        if ( *tmax <= *tmin ) return bfalse;
+
+        // check whether there is any overlap this frame
+        if ( *tmin >= 1.0f || *tmax <= 0.0f ) return bfalse;
+
+        // clip the interaction time to just one frame
+        tmp_min = CLIP( *tmin, 0.0f, 1.0f );
+        tmp_max = CLIP( *tmax, 0.0f, 1.0f );
+
+        // determine the expanded collision volumes for both objects (for this frame)
+        phys_expand_oct_bb( &src1, vel1, tmp_min, tmp_max, &exp1 );
+        phys_expand_oct_bb( &src2, vel2, tmp_min, tmp_max, &exp2 );
+
+        // determine the intersection of these two expanded volumes (for this frame)
+        oct_bb_intersection( &exp1, &exp2, pdst );
+    }
+
+    if ( 0 != test_platform )
+    {
+        pdst->maxs[OCT_Z] += PLATTOLERANCE;
+        oct_bb_validate( pdst );
+    }
+
+    if ( pdst->empty ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+egoboo_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t * src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
 {
     float vdiff;
     float opos1, opos2;
@@ -594,7 +736,7 @@ egoboo_rv oct_bb_intersect_close_index( int index, const oct_bb_t * src1, const 
         if ( !platform_1 && !platform_2 )
         {
             // NEITHER ia a platform
-            // use the eqn. from oct_bb_intersect_index()
+            // use the eqn. from phys_intersect_oct_bb_index()
 
             float time[4];
 
@@ -658,7 +800,7 @@ egoboo_rv oct_bb_intersect_close_index( int index, const oct_bb_t * src1, const 
         if ( 0.0f == tolerance_1 && 0.0f == tolerance_2 )
         {
             // NEITHER ia a platform
-            // use the eqn. from oct_bb_intersect_index()
+            // use the eqn. from phys_intersect_oct_bb_index()
 
             float time[4];
 
@@ -739,139 +881,6 @@ egoboo_rv oct_bb_intersect_close_index( int index, const oct_bb_t * src1, const 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
-{
-    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
-    ///               Designed to determine whether a bullet particle will interact with character.
-
-    oct_bb_t src1, src2;
-    oct_bb_t exp1, exp2;
-
-    oct_vec_t opos1, opos2;
-    oct_vec_t ovel1, ovel2;
-
-    int    index;
-    bool_t found;
-    float  local_tmin, local_tmax;
-    float  tmp_min, tmp_max;
-
-    int    failure_count = 0;
-    bool_t failure[OCT_COUNT];
-
-    // handle optional parameters
-    if ( NULL == tmin ) tmin = &local_tmin;
-    if ( NULL == tmax ) tmax = &local_tmax;
-
-    // convert the position and velocity vectors to octagonal format
-    oct_vec_ctor( ovel1, vel1 );
-    oct_vec_ctor( opos1, pos1 );
-
-    oct_vec_ctor( ovel2, vel2 );
-    oct_vec_ctor( opos2, pos2 );
-
-    // shift the bounding boxes to their starting positions
-    oct_bb_add_ovec( src1_orig, opos1, &src1 );
-    oct_bb_add_ovec( src2_orig, opos2, &src2 );
-
-    found = bfalse;
-    *tmin = +1.0e6;
-    *tmax = -1.0e6;
-    if ( fvec3_dist_abs( vel1, vel2 ) < 1.0e-6 )
-    {
-        // no relative motion, so avoid the loop to save time
-        failure_count = OCT_COUNT;
-    }
-    else
-    {
-        // cycle through the coordinates to see when the two volumes might coincide
-        for ( index = 0; index < OCT_COUNT; index++ )
-        {
-            egoboo_rv retval;
-
-            if ( ABS( ovel1[index] - ovel2[index] ) < 1.0e-6 )
-            {
-                failure[index] = btrue;
-                failure_count++;
-            }
-            else
-            {
-                retval = oct_bb_intersect_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
-
-                // check for overflow
-                if ( ieee32_bad( tmp_min ) || ieee32_bad( tmp_max ) )
-                {
-                    retval = rv_fail;
-                }
-
-                if ( rv_fail == retval )
-                {
-                    // This case will only occur if the objects are not moving relative to each other.
-
-                    failure[index] = btrue;
-                    failure_count++;
-                }
-                else if ( rv_success == retval )
-                {
-                    failure[index] = bfalse;
-
-                    if ( !found )
-                    {
-                        *tmin = tmp_min;
-                        *tmax = tmp_max;
-                        found = btrue;
-                    }
-                    else
-                    {
-                        *tmin = MAX( *tmin, tmp_min );
-                        *tmax = MIN( *tmax, tmp_max );
-                    }
-
-                    // check the values vs. reasonable bounds
-                    if ( *tmax <= *tmin ) return bfalse;
-                    if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
-                }
-            }
-        }
-    }
-
-    if ( OCT_COUNT == failure_count )
-    {
-        // No relative motion on any axis.
-        // Just say that they are interacting for the whole frame
-
-        *tmin = 0.0f;
-        *tmax = 1.0f;
-    }
-
-    // check to see if there the intersection times make any sense
-    if ( *tmax <= *tmin ) return bfalse;
-
-    // check whether there is any overlap this frame
-    if ( *tmin >= 1.0f || *tmax <= 0.0f ) return bfalse;
-
-    // clip the interaction time to just one frame
-    tmp_min = CLIP( *tmin, 0.0f, 1.0f );
-    tmp_max = CLIP( *tmax, 0.0f, 1.0f );
-
-    // determine the expanded collision volumes for both objects (for this frame)
-    phys_expand_oct_bb( &src1, vel1, tmp_min, tmp_max, &exp1 );
-    phys_expand_oct_bb( &src2, vel2, tmp_min, tmp_max, &exp2 );
-
-    // determine the intersection of these two volumes (for this frame)
-    oct_bb_intersection( &exp1, &exp2, pdst );
-
-    if ( 0 != test_platform )
-    {
-        pdst->maxs[OCT_Z] += PLATTOLERANCE;
-        oct_bb_validate( pdst );
-    }
-
-    if ( pdst->empty ) return bfalse;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
     /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
@@ -923,7 +932,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
         egoboo_rv retval;
         float tmp_min, tmp_max;
 
-        retval = oct_bb_intersect_close_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
+        retval = phys_intersect_oct_bb_close_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
         if ( rv_fail == retval ) return bfalse;
 
         if ( rv_success == retval )
