@@ -1,12 +1,9 @@
 #include "AStar.h"
 #include "mesh.h"
-#include "script.h"
-
 #include "mesh.inl"
 
-#include "log.h"
-
 #include "graphic.h" //for point debugging
+#include "script.h"  //for waypoint list control
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -122,7 +119,7 @@ flexible_destination:
     // initialize the starting node
     weight = SQRT( ( src_ix-dst_ix )*( src_ix-dst_ix ) + ( src_iy-dst_iy )*( src_iy-dst_iy ) );
     start_node = AStar_add_node( src_ix, src_iy, NULL, weight, bfalse );
-  
+
     // do the algorithm
     while ( !done )
     {
@@ -147,6 +144,7 @@ flexible_destination:
                     // do not recompute the open node!
                     if ( j == 0 && k == 0 ) continue;
 
+                    // do not check diagonals
                     if( j != 0 && k != 0 ) continue;
 
                     tmp_y = popen->iy + k;
@@ -201,7 +199,7 @@ flexible_destination:
             }
 
 
-            if ( deadend_count == 4 /*8*/ )
+            if ( deadend_count == 4 )
             {
                 // this node is no longer active.
                 // move it to the closed list so that we do not get any loops
@@ -212,9 +210,6 @@ flexible_destination:
         //Found no open nodes
         else
         {
-#ifdef DEBUG_ASTAR  
-            printf("AStar failed: Could not find a path! (no open nodes left)\n"); 
-#endif
             break;
         }
     }
@@ -235,7 +230,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
     //              the destination coordinates.
     int i;
     size_t path_length, waypoint_num;
-    bool_t diagonal_movement = bfalse;
+    //bool_t diagonal_movement = bfalse;
     
     AStar_Node_t *current_node, *last_waypoint, *safe_waypoint;
     AStar_Node_t *node_path[MAX_ASTAR_PATH];
@@ -272,7 +267,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
         change_direction = (last_waypoint->ix != current_node->ix && last_waypoint->iy != current_node->iy);
 
         //are we moving diagonally? if so, then don't fill the waypoint list with unessecary waypoints
-        if( i != 0 )
+        /*if( i != 0 )
         {
             if( diagonal_movement ) diagonal_movement = (ABS(current_node->ix - safe_waypoint->ix) == 1)  && (ABS(current_node->iy - safe_waypoint->iy) == 1);
             else                    diagonal_movement = (ABS(current_node->ix - last_waypoint->ix) == 1)  && (ABS(current_node->iy - last_waypoint->iy) == 1);
@@ -282,7 +277,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
                 safe_waypoint = current_node;
                 continue;
             }
-        }
+        }*/
 
         //If we have a change in direction, we need to add it as a waypoint, always add the last waypoint
         if( i == 0 || change_direction )
@@ -328,8 +323,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
     }
 
 #ifdef DEBUG_ASTAR  
-    if( waypoint_num == 0 ) printf( "AStar found a path, but AStar_get_path() did not add any waypoints. Path tree length was %d\n", path_length );
-    else                    point_list_add( start_node->ix*GRID_FSIZE+(GRID_ISIZE/2), start_node->iy*GRID_FSIZE+(GRID_ISIZE/2), 200, 80 );
+    if( waypoint_num > 0 ) point_list_add( start_node->ix*GRID_FSIZE+(GRID_ISIZE/2), start_node->iy*GRID_FSIZE+(GRID_ISIZE/2), 200, 80 );
 #endif
 
     return waypoint_num > 0;

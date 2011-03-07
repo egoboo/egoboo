@@ -88,32 +88,6 @@
 #include <string.h>
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// Data needed to specify a line-of-sight test
-struct s_line_of_sight_info
-{
-    float x0, y0, z0;
-    float x1, y1, z1;
-    Uint32 stopped_by;
-
-    CHR_REF collide_chr;
-    Uint32  collide_fx;
-    int     collide_x;
-    int     collide_y;
-};
-
-typedef struct s_line_of_sight_info line_of_sight_info_t;
-
-static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
-static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
-static bool_t do_line_of_sight( line_of_sight_info_t * plos );
-
-//--------------------------------------------------------------------------------------------
-void do_weather_spawn_particles();
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 static ego_mpd_t         _mesh[2];
 static camera_t          _camera[2];
@@ -180,6 +154,7 @@ static void game_update_timers();
 static void do_damage_tiles( void );
 static void set_local_latches( void );
 static void let_all_characters_think();
+static void do_weather_spawn_particles();
 
 // module initialization / deinitialization - not accessible by scripts
 static bool_t game_load_module_data( const char *smallname );
@@ -213,6 +188,10 @@ static void   game_clear_vfs_paths();
 
 // place the object lists in the initial state
 void reset_all_object_lists( void );
+
+//line of sight calculations
+static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
+static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -1606,7 +1585,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
                 los_info.x1 = ptst->pos.x;
                 los_info.y1 = ptst->pos.y;
                 los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
-
+                
                 if ( do_line_of_sight( &los_info ) ) continue;
             }
 
@@ -4108,7 +4087,8 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
 
     if ( NULL == plos ) return bfalse;
 
-    if ( 0 == plos->stopped_by ) return bfalse;
+    //is there any point of these calculations?
+    if ( EMPTY_BIT_FIELD == plos->stopped_by ) return bfalse;
 
     ix_stt = FLOOR( plos->x0 / GRID_FSIZE );
     ix_end = FLOOR( plos->x1 / GRID_FSIZE );
@@ -4190,7 +4170,7 @@ bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
             Uint32 collide_fx = mesh_test_fx( PMesh, fan, plos->stopped_by );
             // collide the ray with the mesh
 
-            if ( 0 != collide_fx )
+            if ( EMPTY_BIT_FIELD != collide_fx )
             {
                 plos->collide_x  = ix;
                 plos->collide_y  = iy;

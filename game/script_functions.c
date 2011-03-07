@@ -540,11 +540,11 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     // FindPath
     /// @details ZF@> Ported the A* path finding algorithm by birdsey and heavily modified it
     // This function adds enough waypoints to get from one point to another
-    // @todo: It's rather buggy and unoptimized at the moment
-
 
     int src_ix, src_iy;
     int dst_ix, dst_iy;
+    line_of_sight_info_t los_info;
+    bool_t straight_line;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -565,16 +565,32 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     //Don't do need to do anything if there is no need to move
     if( src_ix == dst_ix && src_iy == dst_iy ) return bfalse;
 
-    //Try to find a path with the AStar algorithm
     returncode = bfalse;
-    
-#ifdef DEBUG_ASTAR  
-    printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
-#endif
 
-    if( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
+    //setup line of sight data for source
+    los_info.stopped_by = pchr->stoppedby;
+    los_info.x0 = pchr->pos.x;
+    los_info.y0 = pchr->pos.y;
+    los_info.z0 = 0;
+
+    //setup line of sight to target
+    los_info.x1 = pstate->x;
+    los_info.y1 = pstate->y;
+    los_info.z1 = 0;
+
+    // test for the simple case... a straight line
+    straight_line = !do_line_of_sight( &los_info );
+
+    if( !straight_line )
     {
-        returncode = AStar_get_path( pstate->x, pstate->y, &pself->wp_lst );
+#ifdef DEBUG_ASTAR  
+        printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
+#endif
+        //Try to find a path with the AStar algorithm
+        if( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
+        {
+            returncode = AStar_get_path( pstate->x, pstate->y, &pself->wp_lst );
+        }
 
         // limit the rate of AStar calculations to be once every half second.
         pself->astar_timer = update_wld + (ONESECOND/2);
@@ -584,9 +600,6 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     if( !returncode )
     {
         // just use a straight line path
-#ifdef DEBUG_ASTAR  
-        printf( "Failed!\n" );
-#endif DEBUG_ASTAR  
         waypoint_list_push( &pself->wp_lst, pstate->x, pstate->y );
     }
 

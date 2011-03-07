@@ -96,20 +96,17 @@ bool_t open_passage( const PASS_REF passage )
 
     int x, y;
     Uint32 fan;
-    bool_t useful = bfalse;
     passage_t * ppass;
 
-    if ( INVALID_PASSAGE( passage ) ) return useful;
+    if ( INVALID_PASSAGE( passage ) ) return bfalse;
     ppass = PassageStack.lst + passage;
 
-    useful = !ppass->open;
-    ppass->open = btrue;
+    //no need to do this if it already is open
+    if( ppass->open ) return btrue;
 
     if ( ppass->area.top <= ppass->area.bottom )
     {
-        useful = ( !ppass->open );
         ppass->open = btrue;
-
         for ( y = ppass->area.top; y <= ppass->area.bottom; y++ )
         {
             for ( x = ppass->area.left; x <= ppass->area.right; x++ )
@@ -120,7 +117,7 @@ bool_t open_passage( const PASS_REF passage )
         }
     }
 
-    return useful;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -323,9 +320,12 @@ bool_t close_passage( const PASS_REF passage )
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
     ppass = PassageStack.lst + passage;
+    
+    //is it already closed?
+    if( !ppass->open ) return btrue;
 
     // don't compute all of this for nothing
-    if ( 0 == ppass->mask ) return btrue;
+    if ( EMPTY_BIT_FIELD == ppass->mask ) return btrue;
 
     // check to see if a wall can close
     if ( 0 != HAS_SOME_BITS( ppass->mask, MPDFX_IMPASS | MPDFX_WALL ) )

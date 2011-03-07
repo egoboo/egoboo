@@ -415,8 +415,8 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
         pgrid_dst->fx    = ptile_src->fx;
         pgrid_dst->twist = ptile_src->twist;
 
-        // lcache is set in a hepler function
-        // nlst is set in a hepler function
+        // lcache is set in a helper function
+        // nlst is set in a helper function
     }
 
     // copy all the per-vertex info
