@@ -280,7 +280,6 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
             if( diagonal_movement )
             {
                 safe_waypoint = current_node;
-//                if( change_direction ) last_waypoint = current_node;
                 continue;
             }
         }
@@ -300,8 +299,8 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
             else
             {
                 //Translate to raw coordinates
-                way_x = safe_waypoint->ix * GRID_ISIZE;
-                way_y = safe_waypoint->iy * GRID_ISIZE;
+                way_x = safe_waypoint->ix * GRID_ISIZE + (GRID_ISIZE/2);
+                way_y = safe_waypoint->iy * GRID_ISIZE + (GRID_ISIZE/2);
             }
 
 #ifdef DEBUG_ASTAR  
@@ -309,7 +308,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
             // you are shifting is not intended to be neative
             printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, way_x / GRID_ISIZE, way_y / GRID_ISIZE );
             point_list_add( way_x, way_y, 200, 800 );
-            line_list_add( last_waypoint->ix*GRID_FSIZE, last_waypoint->iy*GRID_FSIZE, 200, way_x, way_y, 200, 800 );
+            line_list_add( last_waypoint->ix*GRID_FSIZE+(GRID_ISIZE/2), last_waypoint->iy*GRID_FSIZE+(GRID_ISIZE/2), 200, way_x, way_y, 200, 800 );
 #endif
 
             // add the node to the waypoint list
@@ -330,7 +329,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
 
 #ifdef DEBUG_ASTAR  
     if( waypoint_num == 0 ) printf( "AStar found a path, but AStar_get_path() did not add any waypoints. Path tree length was %d\n", path_length );
-    else                    point_list_add( start_node->ix*GRID_FSIZE, start_node->iy*GRID_FSIZE, 200, 80 );
+    else                    point_list_add( start_node->ix*GRID_FSIZE+(GRID_ISIZE/2), start_node->iy*GRID_FSIZE+(GRID_ISIZE/2), 200, 80 );
 #endif
 
     return waypoint_num > 0;
