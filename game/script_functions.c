@@ -552,12 +552,12 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     if( pself->astar_timer > update_wld ) return bfalse;
     
     //Our current position
-    src_ix = (int)pchr->pos.x >> 7;
-    src_iy = (int)pchr->pos.y >> 7;
+    src_ix = (int)pchr->pos.x / GRID_ISIZE;
+    src_iy = (int)pchr->pos.y / GRID_ISIZE;
 
     //Destination position
-    dst_ix = pstate->x >> 7;
-    dst_iy = pstate->y >> 7;
+    dst_ix = pstate->x / GRID_ISIZE;
+    dst_iy = pstate->y / GRID_ISIZE;
 
     //Always clear any old waypoints
     waypoint_list_clear( &pself->wp_lst );
@@ -576,7 +576,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     {
         returncode = AStar_get_path( pstate->x, pstate->y, &pself->wp_lst );
 
-        // limit the rate of AStar calculations to be once every second.
+        // limit the rate of AStar calculations to be once every half second.
         pself->astar_timer = update_wld + (ONESECOND/2);
     }
         

@@ -4443,7 +4443,6 @@ int doMenu( float deltaTime )
 
                     //Simply quit the current module and begin it again
                     game_quit_module();
-
                     process_terminate( PROC_PBASE( GProc ) );
                     process_start( PROC_PBASE( GProc ) );
 

@@ -69,7 +69,7 @@ void AStar_reset()
 }
 
 //------------------------------------------------------------------------------
-bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, const int dst_ix, const int dst_iy )
+bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy )
 {
     //@details ZF@> Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
     //              The result is stored in a node list and can be accessed through AStar_get_path(). Returns bfalse if no path was found.
@@ -88,14 +88,30 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
         return bfalse;
     }
 
-    //Cannot find path to somewhere inside a wall
+    //be a bit flexible if the destination is inside a wall
     if ( mesh_tile_has_bits( PMesh, dst_ix, dst_iy, stoppedby ) )
     {
+        //check all tiles edging to this one, including corners
+        for( j = -1; j <= 1; j++ )
+            for( k = -1; k <= 1; k++ )
+            {
+                //we already checked this one
+                if( j == 0 && k == 0 ) continue;
+
+                //Did we find a free tile?
+                if ( !mesh_tile_has_bits( PMesh, dst_ix+j, dst_iy+k, stoppedby ) )
+                {
+                    dst_ix = dst_ix+j;
+                    dst_iy = dst_iy+k;
+                    goto flexible_destination;
+                }
+            }
 #ifdef DEBUG_ASTAR
-        printf("AStar failed because target position is inside a wall.\n");
+            printf("AStar failed because goal position is impassable (and no nearby non-impassable tile found).\n");
 #endif
-        return bfalse;
-    }
+            return bfalse;
+    }        
+flexible_destination:
 
     // restart the algorithm
     done = bfalse;
@@ -109,6 +125,7 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
     while ( !done )
     {
         int tmp_x, tmp_y;
+        bool_t stop;
 
         // list is completely full... we failed
         if( node_list_length == MAX_ASTAR_NODES ) break;
@@ -117,11 +134,11 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
         popen = AStar_get_next_node();
         if( popen != NULL )
         {
-          // find some child nodes
-          deadend_count = 0;
-          for ( j = -1; j <= 1; j++ )
-          {
-              tmp_x = popen->ix + j;
+            // find some child nodes
+            deadend_count = 0;
+            for ( j = -1; j <= 1; j++ )
+            {
+                tmp_x = popen->ix + j;
 
             for ( k = -1; k <= 1; k++ )
             {
@@ -148,14 +165,16 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
                 }
 
                 // is this already in the list?
+                stop = bfalse;
                 for( cnt = 0; cnt < node_list_length; cnt++ )
                 {
                     if( node_list[cnt].ix == tmp_x && node_list[cnt].iy == tmp_y )
                     {
                         deadend_count++;
-                        continue;
+                        stop = btrue;
                     }
                 }
+                if(stop) continue;
 
                 ///
                 /// @todo  I need to check for collisions with static objects, like trees
@@ -175,7 +194,7 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
                 weight  = sqrt( weight );
                 AStar_add_node( tmp_x, tmp_y, popen, weight, bfalse );
             }
-          }
+        }
 
 
             if ( deadend_count == 8 )
@@ -190,11 +209,15 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
         else
         {
 #ifdef DEBUG_ASTAR  
-            printf("AStar failed: Could not find a path!\n"); 
+            printf("AStar failed: Could not find a path! (no open nodes left)\n"); 
 #endif
             break;
         }
     }
+
+#ifdef DEBUG_ASTAR
+        if( !done && node_list_length == MAX_ASTAR_NODES ) printf("AStar failed because maximum number of nodes were explored (%d)\n", MAX_ASTAR_NODES);
+#endif
 
     return done;
 }
