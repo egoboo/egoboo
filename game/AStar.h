@@ -30,4 +30,4 @@ struct sAStar_Node
 //------------------------------------------------------------------------------
 //Public functions
 bool_t AStar_find_path( struct s_ego_mpd *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
-bool_t AStar_get_path( const int dst_ix, const int dst_iy, struct s_waypoint_list *plst );
+bool_t AStar_get_path( const int dst_x, const int dst_y, struct s_waypoint_list *plst );

@@ -6,10 +6,12 @@
 
 #include "log.h"
 
+#include "graphic.h" //for point debugging
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#define MAX_ASTAR_NODES 1024    //Maximum number of nodes to explore
-#define MAX_ASTAR_PATH  256     //Maximum length of the final path (before pruning)
+#define MAX_ASTAR_NODES 512    //Maximum number of nodes to explore
+#define MAX_ASTAR_PATH  128    //Maximum length of the final path (before pruning)
 
 //------------------------------------------------------------------------------
 //Local private variables
@@ -232,23 +234,15 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
     int i;
     size_t path_length, waypoint_num;
     
-    AStar_Node_t *current_node, *last_waypoint;
+    AStar_Node_t *current_node, *last_waypoint, *safe_waypoint;
     AStar_Node_t *node_path[MAX_ASTAR_PATH];
-
-    if( start_node == NULL || final_node == NULL )
-    {
-#ifdef DEBUG_ASTAR  
-        printf("ASTAR ERROR: Null pointer exception.\n");
-#endif
-        return bfalse;
-    }
 
     //Fill the waypoint list as much as we can, the final waypoint will always be the destination waypoint
     waypoint_num = 0;
-    last_waypoint = NULL;
 
     //find the final destination node
     current_node = final_node;
+    last_waypoint = start_node;
 
     //Build the local node path tree
     path_length = 0;
@@ -259,40 +253,30 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
 
         // get next node
         current_node = current_node->parent;
-
-        if( current_node == NULL )
-        {
-#ifdef DEBUG_ASTAR  
-            printf("ASTAR ERROR: Null pointer exception.\n");
-#endif
-            return bfalse;
-        }
     }
 
-
     //Begin at the end of the list, which contains the starting node
+    safe_waypoint = NULL;
     for( i = path_length-1; i >= 0 && waypoint_num < MAXWAY; i-- )
     {
+        bool_t change_direction;
+
         //get current node
         current_node = node_path[i];
 
-        if( current_node == NULL )
-        {
-#ifdef DEBUG_ASTAR  
-            printf("ASTAR ERROR: Null pointer exception.\n");
-#endif
-            return bfalse;
-        }
+        //the first node should be safe
+        if( safe_waypoint == NULL ) safe_waypoint = current_node;
+
+        //is there a change in direction?
+        change_direction = (safe_waypoint->ix != current_node->ix && safe_waypoint->iy != current_node->iy);
 
         //If we have a change in direction, we need to add it as a waypoint, always add the last waypoint
-        if( last_waypoint == NULL || i == 0 || (last_waypoint->ix != current_node->ix && last_waypoint->iy != current_node->iy) )
+        if( i == 0 || change_direction )
         {
             int way_x;
             int way_y;
 
-            last_waypoint = current_node;
-
-            //Special exception for final waypoint, use raw integer (not bit shifted)
+            //Special exception for final waypoint, use raw integer
             if( i == 0 )
             {
                 way_x = dst_x;
@@ -301,23 +285,38 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
             else
             {
                 //Translate to raw coordinates
-                way_x = current_node->ix * GRID_ISIZE;
-                way_y = current_node->iy * GRID_ISIZE;
+                way_x = safe_waypoint->ix * GRID_ISIZE;
+                way_y = safe_waypoint->iy * GRID_ISIZE;
             }
 
-            // add the node to the waypoint list
 #ifdef DEBUG_ASTAR  
             // using >> for division only works if you know for certainty that the value
             // you are shifting is not intended to be neative
             printf( "Waypoint %d: X: %d, Y: %d \n", waypoint_num, way_x / GRID_ISIZE, way_y / GRID_ISIZE );
+            point_list_add( way_x, way_y, 200, 800 );
+            line_list_add( last_waypoint->ix*GRID_FSIZE, last_waypoint->iy*GRID_FSIZE, 200, way_x, way_y, 200, 800 );
 #endif
+
+            // add the node to the waypoint list
+            last_waypoint = safe_waypoint;
             waypoint_list_push( plst, way_x, way_y );
             waypoint_num++;
+
+            //This one is now safe
+            safe_waypoint = current_node;
         }
+
+        //keep track of the last safe node from our previous waypoint
+        else
+        {
+            safe_waypoint = current_node;
+        }
+
     }
 
 #ifdef DEBUG_ASTAR  
     if( waypoint_num == 0 ) printf( "AStar found a path, but AStar_get_path() did not add any waypoints. Path tree length was %d\n", path_length );
+    else                    point_list_add( start_node->ix*GRID_FSIZE, start_node->iy*GRID_FSIZE, 200, 80 );
 #endif
 
     return waypoint_num > 0;

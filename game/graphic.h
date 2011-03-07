@@ -463,10 +463,12 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
 float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
 void line_list_init();
-int  line_list_get_free();
+//int  line_list_get_free();
+bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration );
 
 void point_list_init();
-int  point_list_get_free();
+//int  point_list_get_free();
+bool_t point_list_add( const float x, const float y, const float z, const int duration );
 
 void init_all_graphics();
 void release_all_graphics();

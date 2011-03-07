@@ -59,8 +59,6 @@ static INLINE bool_t mesh_tile_has_bits( const ego_mpd_t * pmesh, const int ix, 
     //everything outside the map bounds is wall and impassable
     if( !mesh_grid_is_valid( pmesh, itile ) ) return HAS_SOME_BITS( (MPDFX_IMPASS | MPDFX_WALL), bits );
 
-//    if( !mesh_tile_is_valid( pmesh, ix, iy ) ) return HAS_SOME_BITS( (MPDFX_IMPASS | MPDFX_WALL), bits );
-
     // since we KNOW that this is in range, allow raw access to the data strucutre
     return HAS_SOME_BITS( pmesh->gmem.grid_list[itile].fx, bits );
 }
@@ -127,6 +125,7 @@ static INLINE Uint32 mesh_get_block( const ego_mpd_t * pmesh, float pos_x, float
         ix = pos_x;
         iy = pos_y;
 
+        // these are known to be positive, so >> is not a problem
         ix >>= BLOCK_BITS;
         iy >>= BLOCK_BITS;
 

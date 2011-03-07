@@ -288,7 +288,9 @@ static gfx_rv update_all_chr_instance();
 static gfx_rv do_chr_flashing( dolist_t * pdolist );
 
 static void line_list_draw_all( struct s_camera * pcam );
+static int line_list_get_free();
 static void point_list_draw_all( struct s_camera * pcam );
+static int point_list_get_free();
 
 //--------------------------------------------------------------------------------------------
 // MODULE "PRIVATE" FUNCTIONS
@@ -4366,6 +4368,34 @@ int line_list_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration )
+{
+    int iline = line_list_get_free();
+
+    if( iline == LINE_COUNT ) return bfalse;
+
+    //Source
+    line_list[iline].src.x = src_x;
+    line_list[iline].src.y = src_y;
+    line_list[iline].src.z = src_z;
+    
+    //Destination
+    line_list[iline].dst.x = dst_x;
+    line_list[iline].dst.y = dst_y;
+    line_list[iline].dst.z = dst_z;
+
+    //White color
+    line_list[iline].color.r = 1.00f;
+    line_list[iline].color.g = 1.00f;
+    line_list[iline].color.b = 1.00f;
+    line_list[iline].color.a = 0.50f;
+
+    line_list[iline].time = egoboo_get_ticks() + duration;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 void line_list_draw_all( camera_t * pcam )
 {
     /// @details BB@> draw some lines for debugging purposes
@@ -4405,7 +4435,7 @@ void line_list_draw_all( camera_t * pcam )
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
 
             ticks = egoboo_get_ticks();
-
+            
             for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
             {
                 if ( line_list[cnt].time < 0 ) continue;
@@ -4454,6 +4484,29 @@ void point_list_init()
     {
         point_list[cnt].time = -1;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t point_list_add( const float x, const float y, const float z, const int duration )
+{
+    int ipoint = point_list_get_free();
+
+    if( ipoint == POINT_COUNT ) return bfalse;
+
+    //position
+    point_list[ipoint].src.x = x;
+    point_list[ipoint].src.y = y;
+    point_list[ipoint].src.z = z;
+ 
+    //Red color
+    point_list[ipoint].color.r = 1.00f;
+    point_list[ipoint].color.g = 0.00f;
+    point_list[ipoint].color.b = 0.00f;
+    point_list[ipoint].color.a = 0.50f;
+
+    point_list[ipoint].time = egoboo_get_ticks() + duration;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4522,7 +4575,7 @@ void point_list_draw_all( camera_t * pcam )
                     point_list[cnt].time = -1;
                     continue;
                 }
-
+                
                 GL_DEBUG( glColor4fv )( point_list[cnt].color.v );       // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_POINTS );
                 {
