@@ -142,64 +142,66 @@ flexible_destination:
             {
                 tmp_x = popen->ix + j;
 
-            for ( k = -1; k <= 1; k++ )
-            {
-                // do not recompute the open node!
-                if ( j == 0 && k == 0 ) continue;
-
-                tmp_y = popen->iy + k;
-
-                // check for the simplest case, is this the destination node?
-                if ( tmp_x == dst_ix && tmp_y == dst_iy )
+                for ( k = -1; k <= 1; k++ )
                 {
-                    weight = ( tmp_x-popen->ix )*( tmp_x-popen->ix ) + ( tmp_y-popen->iy )*( tmp_y-popen->iy );
-                    weight = sqrt( weight );
-                    final_node = AStar_add_node( tmp_x, tmp_y, popen, weight, bfalse );
-                    done = btrue;
-                    continue;
-                }
+                    // do not recompute the open node!
+                    if ( j == 0 && k == 0 ) continue;
 
-                // is the test node on the mesh?
-                if( INVALID_TILE == mesh_get_tile_int( PMesh, tmp_x, tmp_y ) )
-                {
-                    deadend_count++;
-                    continue;
-                }
+                    if( j != 0 && k != 0 ) continue;
 
-                // is this already in the list?
-                stop = bfalse;
-                for( cnt = 0; cnt < node_list_length; cnt++ )
-                {
-                    if( node_list[cnt].ix == tmp_x && node_list[cnt].iy == tmp_y )
+                    tmp_y = popen->iy + k;
+
+                    // check for the simplest case, is this the destination node?
+                    if ( tmp_x == dst_ix && tmp_y == dst_iy )
+                    {
+                        weight = ( tmp_x-popen->ix )*( tmp_x-popen->ix ) + ( tmp_y-popen->iy )*( tmp_y-popen->iy );
+                        weight = sqrt( weight );
+                        final_node = AStar_add_node( tmp_x, tmp_y, popen, weight, bfalse );
+                        done = btrue;
+                        continue;
+                    }
+
+                    // is the test node on the mesh?
+                    if( INVALID_TILE == mesh_get_tile_int( PMesh, tmp_x, tmp_y ) )
                     {
                         deadend_count++;
-                        stop = btrue;
+                        continue;
                     }
+
+                    // is this already in the list?
+                    stop = bfalse;
+                    for( cnt = 0; cnt < node_list_length; cnt++ )
+                    {
+                        if( node_list[cnt].ix == tmp_x && node_list[cnt].iy == tmp_y )
+                        {
+                            deadend_count++;
+                            stop = btrue;
+                        }
+                    }
+                    if(stop) continue;
+
+                    ///
+                    /// @todo  I need to check for collisions with static objects, like trees
+
+                    // is this a valid tile?
+                    if ( mesh_tile_has_bits( PMesh, tmp_x, tmp_y, stoppedby ) )
+                    {
+                        // add the invalid tile to the list as a closed tile
+                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, btrue );
+                        deadend_count++;
+                        continue;
+                    }
+
+                    // OK. determine the weight (F + H)
+                    weight  = ( tmp_x-popen->ix )*( tmp_x-popen->ix ) + ( tmp_y-popen->iy )*( tmp_y-popen->iy );
+                    weight += ( tmp_x-dst_ix )*( tmp_x-dst_ix ) + ( tmp_y-dst_iy )*( tmp_y-dst_iy );
+                    weight  = sqrt( weight );
+                    AStar_add_node( tmp_x, tmp_y, popen, weight, bfalse );
                 }
-                if(stop) continue;
-
-                ///
-                /// @todo  I need to check for collisions with static objects, like trees
-
-                // is this a valid tile?
-                if ( mesh_tile_has_bits( PMesh, tmp_x, tmp_y, stoppedby ) )
-                {
-                    // add the invalid tile to the list as a closed tile
-                    AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, btrue );
-                    deadend_count++;
-                    continue;
-                }
-
-                // OK. determine the weight (F + H)
-                weight  = ( tmp_x-popen->ix )*( tmp_x-popen->ix ) + ( tmp_y-popen->iy )*( tmp_y-popen->iy );
-                weight += ( tmp_x-dst_ix )*( tmp_x-dst_ix ) + ( tmp_y-dst_iy )*( tmp_y-dst_iy );
-                weight  = sqrt( weight );
-                AStar_add_node( tmp_x, tmp_y, popen, weight, bfalse );
             }
-        }
 
 
-            if ( deadend_count == 8 )
+            if ( deadend_count == 4 /*8*/ )
             {
                 // this node is no longer active.
                 // move it to the closed list so that we do not get any loops
@@ -233,14 +235,13 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
     //              the destination coordinates.
     int i;
     size_t path_length, waypoint_num;
+    bool_t diagonal_movement = bfalse;
     
     AStar_Node_t *current_node, *last_waypoint, *safe_waypoint;
     AStar_Node_t *node_path[MAX_ASTAR_PATH];
 
     //Fill the waypoint list as much as we can, the final waypoint will always be the destination waypoint
     waypoint_num = 0;
-
-    //find the final destination node
     current_node = final_node;
     last_waypoint = start_node;
 
@@ -268,7 +269,21 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
         if( safe_waypoint == NULL ) safe_waypoint = current_node;
 
         //is there a change in direction?
-        change_direction = (safe_waypoint->ix != current_node->ix && safe_waypoint->iy != current_node->iy);
+        change_direction = (last_waypoint->ix != current_node->ix && last_waypoint->iy != current_node->iy);
+
+        //are we moving diagonally? if so, then don't fill the waypoint list with unessecary waypoints
+        if( i != 0 )
+        {
+            if( diagonal_movement ) diagonal_movement = (ABS(current_node->ix - safe_waypoint->ix) == 1)  && (ABS(current_node->iy - safe_waypoint->iy) == 1);
+            else                    diagonal_movement = (ABS(current_node->ix - last_waypoint->ix) == 1)  && (ABS(current_node->iy - last_waypoint->iy) == 1);
+
+            if( diagonal_movement )
+            {
+                safe_waypoint = current_node;
+//                if( change_direction ) last_waypoint = current_node;
+                continue;
+            }
+        }
 
         //If we have a change in direction, we need to add it as a waypoint, always add the last waypoint
         if( i == 0 || change_direction )
@@ -311,7 +326,6 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
         {
             safe_waypoint = current_node;
         }
-
     }
 
 #ifdef DEBUG_ASTAR  
