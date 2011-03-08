@@ -817,11 +817,12 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
                 case FTARGETDAMAGESELF:      returncode = scr_TargetDamageSelf( pstate, pself ); break;
                 case FSETTARGETSIZE:         returncode = scr_SetTargetSize( pstate, pself ); break;
                 case FIFTARGETISFACINGSELF:  returncode = scr_TargetIsFacingSelf( pstate, pself ); break;
-                case FDRAWBILLBOARD:         returncode = scr_DrawBillboard( pstate, pself ); break;
-                case FSETTARGETTOFIRSTBLAHINPASSAGE: returncode = scr_set_TargetToBlahInPassage( pstate, pself ); break;
 
-                case FIFLEVELUP:            returncode = scr_LevelUp( pstate, pself ); break;
-                case FGIVESKILLTOTARGET:    returncode = scr_GiveSkillToTarget( pstate, pself ); break;
+                case FDRAWBILLBOARD:                 returncode = scr_DrawBillboard( pstate, pself ); break;
+                case FSETTARGETTOFIRSTBLAHINPASSAGE: returncode = scr_set_TargetToBlahInPassage( pstate, pself ); break;
+                case FIFLEVELUP:                     returncode = scr_LevelUp( pstate, pself ); break;
+                case FGIVESKILLTOTARGET:             returncode = scr_GiveSkillToTarget( pstate, pself ); break;
+                case FSETTARGETTONEARBYMELEEWEAPON:  returncode = scr_SetTargetToNearbyMeleeWeapon( pstate, pself ); break;
 
                     // if none of the above, skip the line and log an error
                 default:

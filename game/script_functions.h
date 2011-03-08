@@ -443,3 +443,4 @@ Uint8 scr_set_TargetToBlahInPassage( struct s_script_state * pstate, struct s_ai
 Uint8 scr_TargetIsFacingSelf( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_LevelUp( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_GiveSkillToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_SetTargetToNearbyMeleeWeapon( struct s_script_state * pstate, struct s_ai_state * pself );

@@ -620,6 +620,13 @@ static INLINE float fvec3_length_abs( const fvec3_base_t A )
 
     retval = ABS( A[kX] ) + ABS( A[kY] ) + ABS( A[kZ] );
 
+    //DEBUG
+    if( ieee32_bad(XX) )
+    {
+        printf("Reported NAN crash...\n");
+    }
+    //DEBUG END
+
     LOG_NAN( retval );
 
     return retval;

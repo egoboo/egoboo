@@ -141,6 +141,8 @@ flexible_destination:
 
                 for ( k = -1; k <= 1; k++ )
                 {
+                    Uint32 itile;
+
                     // do not recompute the open node!
                     if ( j == 0 && k == 0 ) continue;
 
@@ -160,13 +162,14 @@ flexible_destination:
                     }
 
                     // is the test node on the mesh?
-                    if( INVALID_TILE == mesh_get_tile_int( PMesh, tmp_x, tmp_y ) )
+                    itile = mesh_get_tile_int( PMesh, tmp_x, tmp_y );
+                    if( INVALID_TILE == itile )
                     {
                         deadend_count++;
                         continue;
                     }
 
-                    // is this already in the list?
+                    // is this already in the list? (must be checked before wall or fanoff)
                     stop = bfalse;
                     for( cnt = 0; cnt < node_list_length; cnt++ )
                     {
@@ -174,14 +177,22 @@ flexible_destination:
                         {
                             deadend_count++;
                             stop = btrue;
+                            break;
                         }
                     }
-                    if(stop) continue;
+                    if( stop ) continue;
 
-                    ///
-                    /// @todo  I need to check for collisions with static objects, like trees
+                    //Dont walk into pits
+                    //@todo: might need to check tile Z level here instead
+                    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[itile] ) )
+                    {
+                        // add the invalid tile to the list as a closed tile
+                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, btrue );
+                        deadend_count++;
+                        continue;
+                    }
 
-                    // is this a valid tile?
+                    // is this a wall or impassable?
                     if ( mesh_tile_has_bits( PMesh, tmp_x, tmp_y, stoppedby ) )
                     {
                         // add the invalid tile to the list as a closed tile
@@ -189,6 +200,9 @@ flexible_destination:
                         deadend_count++;
                         continue;
                     }
+
+                    ///
+                    /// @todo  I need to check for collisions with static objects, like trees
 
                     // OK. determine the weight (F + H)
                     weight  = ( tmp_x-popen->ix )*( tmp_x-popen->ix ) + ( tmp_y-popen->iy )*( tmp_y-popen->iy );

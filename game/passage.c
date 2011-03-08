@@ -455,13 +455,10 @@ void add_passage( passage_t * pdata )
 
     ppass->mask          = pdata->mask;
     ppass->music         = pdata->music;
+    ppass->open          = btrue;
 
-    // Is it open or closed?
-    if ( pdata->open )
-    {
-        ppass->open = btrue;
-    }
-    else
+    // Is it closed? (default is open)
+    if ( !pdata->open )
     {
         close_passage( ipass );
     }

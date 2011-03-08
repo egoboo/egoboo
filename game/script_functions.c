@@ -7871,6 +7871,82 @@ Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
+Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
+{
+    // FindWideWeapon()
+    /// @details ZF@> This function searches the nearby vincinity for a melee weapon the character can use
+    MAD_REF imad;
+    CHR_REF best_target = (CHR_REF) MAX_CHR;
+    float best_dist = WIDE*WIDE;
+    line_of_sight_info_t los;
+
+    SCRIPT_FUNCTION_BEGIN();
+
+    returncode = bfalse;
+
+    //get the model for this character
+    imad = chr_get_imad( pself->index );
+
+    //setup line of sight data
+    los.x0 = pchr->pos.x;
+    los.y0 = pchr->pos.y;
+    los.z0 = pchr->pos.z;
+    los.stopped_by = pchr->stoppedby;
+
+    CHR_BEGIN_LOOP_ACTIVE( iweapon, pweapon )
+    {
+        cap_t *pweapon_cap;
+        float dist;
+        fvec3_t diff;
+
+        //only do items on the ground
+        if( INGAME_CHR( pweapon->attachedto ) || !pweapon->isitem ) continue;
+        pweapon_cap = chr_get_pcap( iweapon );
+
+        // only target those with a [XWEP] IDSZ
+        if( !chr_has_idsz( iweapon, MAKE_IDSZ( 'X', 'W', 'E', 'P' ) ) ) continue;
+
+        //ignore ranged weapons
+        if ( pweapon_cap->isranged ) continue;
+
+        // see if the character can use this weapon (we assume everyone has a left grip here)
+        if( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( pweapon_cap->weaponaction, SLOT_LEFT) ) ) continue;
+
+        // then check if a skill is needed
+        if ( pweapon_cap->needskillidtouse )
+        {
+            if ( !chr_get_skill( pchr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) ) continue;
+        }
+
+        //check distance
+        diff  = fvec3_sub( pchr->pos.v, pweapon->pos.v );
+        dist = fvec3_dot_product( diff.v, diff.v );
+        if( dist < best_dist )
+        {
+            //finally, check line of sight. we only care for weapons we can see
+            los.x1 = pweapon->pos.x;
+            los.y1 = pweapon->pos.y;
+            los.z1 = pweapon->pos.z;
+            if( do_line_of_sight( &los ) ) continue;
+
+            //found a valid weapon!
+            best_target = iweapon;
+            best_dist = dist;
+        }
+    }
+    CHR_END_LOOP();
+
+    //Did we find anything?
+    if( INGAME_CHR( best_target ) )
+    {
+        pself->target = best_target;
+        returncode = btrue;
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
