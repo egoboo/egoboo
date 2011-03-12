@@ -2003,6 +2003,13 @@ void set_one_player_latch( const PLA_REF ipla )
         int new_selected = ppla->selected_item;
         chr_t *pchr = ChrList.lst + ppla->index;
 
+        //dirty hack here... mouse seems to be inverted in inventory mode?
+        if( pdevice->device_type == INPUT_DEVICE_MOUSE ) 
+        { 
+            joy_pos.x = - joy_pos.x; 
+            joy_pos.y = - joy_pos.y; 
+        }
+
         //handle inventory movement
         if( joy_pos.x < 0 )       new_selected--;
         else if( joy_pos.x > 0 )  new_selected++;

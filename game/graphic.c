@@ -265,6 +265,7 @@ static void init_blip_data();
 static void init_map_data();
 
 static bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
+static void render_inventory();
 
 static void gfx_update_timers();
 
@@ -3467,35 +3468,62 @@ void render_world_overlay( const TX_REF texture )
 //--------------------------------------------------------------------------------------------
 void render_inventory()
 {
+    //ZF> This renders the open inventories of all local players
     PLA_REF ipla;
-    float sttx, stty, x, y, edgex;
+    player_t * ppla;
+    PLA_REF draw_list[MAX_LOCAL_PLAYERS];
+    size_t cnt, draw_list_length = 0;
+
+    float sttx, stty;
     int width, height;
 
+    //figure out what we have to draw
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        CHR_REF ichr;
-        size_t i;
-        player_t * ppla = PlaStack.lst + ipla;
-        chr_t *pchr;
-        STRING buffer;
-        int icon_count, item_count, weight_sum, max_weight;
-
         //valid player?
+        ppla = PlaStack.lst + ipla;
         if ( !ppla->valid ) continue;
-        ichr = ppla->index;
 
         //draw inventory?
         if( !ppla->draw_inventory ) continue;
+        
+        draw_list[draw_list_length++] = ipla;
+    }
+
+    //figure out size and position of the inventory
+    width = 175;
+    height = 120;
+
+    sttx = 0;
+    stty = GFX_HEIGHT/2 - height/2;
+    stty -= height * (draw_list_length-1);
+    stty = MAX( 0, stty );
+
+    //now draw each inventory
+    for ( cnt = 0; cnt < draw_list_length; cnt++ )
+    {
+        CHR_REF ichr;
+        size_t i;
+        chr_t *pchr;
+        STRING buffer;
+        int icon_count, item_count, weight_sum, max_weight;
+        float x, y, edgex;
+
+        //Figure out who this is
+        ipla = draw_list[cnt];
+        ppla = PlaStack.lst + ipla;
+        ichr = ppla->index;
 
         //valid character?
         if ( !INGAME_CHR( ichr ) ) continue;
         pchr = ChrList.lst + ichr;
 
-        //setup position and size
-        width = 175;
-        height = 150;
-        sttx = x = GFX_WIDTH/2 - width/2;
-        stty = y = GFX_HEIGHT/2 - height/2;
+        //don't draw inventories of network players
+        if( !pchr->islocalplayer ) continue;
+
+        //set initial positions
+        x = sttx;
+        y = stty;
 
         //threshold to start a new row
         edgex = sttx + width + 5 - 32;
@@ -3541,8 +3569,11 @@ void render_inventory()
         }
 
         //Draw weight
-        snprintf( buffer, SDL_arraysize(buffer), "Weight: %d/%d", weight_sum, max_weight );
-        draw_wrap_string( buffer, sttx + 5, stty + height - 32 - 5, x + width );
+       // snprintf( buffer, SDL_arraysize(buffer), "Weight: %d/%d", weight_sum, max_weight );
+       // draw_wrap_string( buffer, sttx + 5, stty + height - 32 - 5, x + width );
+
+        //prepare drawing the next inventory
+        stty += height + 10;
     }
 
 }
