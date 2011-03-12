@@ -827,8 +827,8 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
         oct_bb_t   tmp_oct;
 
         // ignore in-accessible objects
-        if ( pchr_a->pack.is_packed || pchr_a->is_hidden ) continue;
-
+        if ( INGAME_CHR( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
+        
         // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
         if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
         {
@@ -2186,7 +2186,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     if ( NULL == pcap_b ) return bfalse;
 
     // skip objects that are inside inventories
-    if ( pchr_a->pack.is_packed || pchr_b->pack.is_packed ) return bfalse;
+    if ( INGAME_CHR( pchr_a->inwhich_inventory ) || INGAME_CHR( pchr_b->inwhich_inventory ) ) return bfalse;
 
     // skip all objects that are mounted or attached to something
     if ( INGAME_CHR( pchr_a->attachedto ) || INGAME_CHR( pchr_b->attachedto ) ) return bfalse;
@@ -3535,7 +3535,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     if ( !cn_data.pchr->alive ) return bfalse;
 
     // skip objects that are inside inventories
-    if ( cn_data.pchr->pack.is_packed ) return bfalse;
+    if ( INGAME_CHR( cn_data.pchr->inwhich_inventory ) ) return bfalse;
 
     // if the particle is attached to this character, ignore a "collision"
     if ( MAX_CHR != cn_data.pprt->attachedto_ref && cn_data.ichr == cn_data.pprt->attachedto_ref )

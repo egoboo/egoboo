@@ -90,6 +90,11 @@ struct s_player
     /// the buffered input from the local input devices
     input_device_t          *pdevice;
 
+    // inventory stuff
+    CHR_REF                 selected_item;
+    bool_t                  draw_inventory;
+    Uint32                  inventory_cooldown;
+
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t                 local_latch;
 

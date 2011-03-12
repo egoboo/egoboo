@@ -252,15 +252,15 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
                 }
 
                 // III: Check the pack
-                PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
+                PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
                 {
-                    if ( chr_is_type_idsz( ipacked, require_item ) )
+                    if ( chr_is_type_idsz( item, require_item ) )
                     {
                         // It has the ipacked in inventory...
                         return character;
                     }
                 }
-                PACK_END_LOOP( ipacked );
+                PACK_END_LOOP();
             }
         }
     }
@@ -296,7 +296,10 @@ void check_passage_music()
             if ( !INGAME_CHR( character ) ) continue;
             pchr = ChrList.lst + character;
 
-            if ( pchr->pack.is_packed || !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
+            //dont do items in hands or inventory
+            if( IS_ATTACHED_CHR( character ) ) continue;
+
+            if ( !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
 
             // Is it in the passage?
             if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
@@ -342,7 +345,7 @@ bool_t close_passage( const PASS_REF passage )
             pchr = ChrList.lst + character;
 
             //Don't do held items
-            if ( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
+            if ( IS_ATTACHED_CHR( character ) ) continue;
 
             if ( 0.0f != pchr->bump_stt.size )
             {

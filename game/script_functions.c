@@ -954,7 +954,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, bfalse, NULL );
+    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, bfalse );
 
     returncode = INGAME_CHR( item );
 
@@ -1266,46 +1266,57 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     /// that item.
     /// For one use keys and such
 
-    CHR_REF item, pack_last, ichr;
+    CHR_REF item, ichr;
+    chr_t *pitem, *ptarget;
+    size_t cnt = MAX_CHR;
+    IDSZ idsz;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = pself->target;
-    item = chr_has_item_idsz( ichr, ( IDSZ ) pstate->argument, bfalse, &pack_last );
+    SCRIPT_REQUIRE_TARGET( ptarget );
+
+    //first check both hands
+    idsz = ( IDSZ ) pstate->argument;
+    item = chr_holding_idsz( pself->target, idsz );
+    
+    //need to search inventory as well?
+    if( !INGAME_CHR( item ) )
+    {
+        for( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+        {
+            item = ptarget->inventory[cnt];
+
+            //only valid items
+            if( !INGAME_CHR( item ) ) continue;
+            pitem = ChrList.lst + item;
+
+            //matching idsz?
+            if ( chr_is_type_idsz( item, idsz ) ) break;
+        }
+
+        //did we fail?
+        if( cnt == MAXINVENTORY) item = MAX_CHR;
+    }
 
     returncode = bfalse;
     if ( INGAME_CHR( item ) )
     {
+        pitem = ChrList.lst + item;
         returncode = btrue;
 
-        if ( ChrList.lst[item].ammo > 1 )
+        // Cost one ammo
+        if ( pitem->ammo > 1 )
         {
-            // Cost one ammo
-            ChrList.lst[item].ammo--;
+            pitem->ammo--;
         }
+        
+        // Poof the item
         else
         {
-            // Poof the item
-            if ( INGAME_CHR( pack_last ) && ChrList.lst[item].pack.is_packed )
+            if ( INGAME_CHR( pitem->inwhich_inventory ) && cnt < MAXINVENTORY )
             {
                 // Remove from the pack
-                ChrList.lst[pack_last].pack.next = ChrList.lst[item].pack.next;
-                ChrList.lst[ichr].pack.count--;
-
-                ChrList.lst[item].pack.was_packed = ChrList.lst[item].pack.is_packed;
-                ChrList.lst[item].pack.is_packed  = bfalse;
-                ChrList.lst[item].pack.next       = ( CHR_REF )MAX_CHR;
-            }
-            else if ( INGAME_CHR( pack_last ) && !ChrList.lst[item].pack.is_packed )
-            {
-                // this is corrupt data == trouble
-                // treat it as the normal case. if it causes errors, we'll fix them later
-                ChrList.lst[pack_last].pack.next = ChrList.lst[item].pack.next;
-                ChrList.lst[ichr].pack.count--;
-
-                ChrList.lst[item].pack.was_packed = ChrList.lst[item].pack.is_packed;
-                ChrList.lst[item].pack.is_packed  = bfalse;
-                ChrList.lst[item].pack.next       = ( CHR_REF )MAX_CHR;
+                inventory_remove_item( pchr->ai.index, cnt, btrue );
             }
             else
             {
@@ -2904,11 +2915,11 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     iTmp += restock_ammo( ichr, pstate->argument );
 
-    PACK_BEGIN_LOOP( ipacked, pself_target->pack.next )
+    PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
-        iTmp += restock_ammo( ipacked, pstate->argument );
+        iTmp += restock_ammo( item, pstate->argument );
     }
-    PACK_END_LOOP( ipacked );
+    PACK_END_LOOP();
 
     pstate->argument = iTmp;
     returncode = ( iTmp != 0 );
@@ -2932,25 +2943,12 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
 
     iTmp = 0;  // Amount of ammo given
 
-    if ( 0 == iTmp )
+    PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
     {
-        PACK_BEGIN_LOOP( ipacked, pself_target->holdingwhich[SLOT_LEFT] )
-        {
-            iTmp += restock_ammo( ipacked, pstate->argument );
-            if ( 0 != iTmp ) break;
-        }
-        PACK_END_LOOP( ipacked )
+        iTmp += restock_ammo( item, pstate->argument );
+        if ( 0 != iTmp ) break;
     }
-
-    if ( 0 == iTmp )
-    {
-        PACK_BEGIN_LOOP( ipacked, pself_target->holdingwhich[SLOT_RIGHT] )
-        {
-            iTmp += restock_ammo( ipacked, pstate->argument );
-            if ( 0 != iTmp ) break;
-        }
-        PACK_END_LOOP( ipacked )
-    }
+    PACK_END_LOOP()
 
     pstate->argument = iTmp;
     returncode = ( iTmp != 0 );
@@ -4173,7 +4171,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_has_inventory_idsz( pself->target, pstate->argument, btrue, NULL );
+    item = chr_has_inventory_idsz( pself->target, pstate->argument, btrue );
 
     returncode = INGAME_CHR( item );
 
@@ -5522,14 +5520,11 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
         ChrList.lst[ichr].iskursed = bfalse;
     }
 
-    PACK_BEGIN_LOOP( ipacked, pself_target->pack.next )
+    PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
     {
-        if ( INGAME_CHR( ipacked ) )
-        {
-            ChrList.lst[ipacked].iskursed = bfalse;
-        }
+        pitem->iskursed = bfalse;
     }
-    PACK_END_LOOP( ipacked );
+    PACK_END_LOOP();
 
     SCRIPT_FUNCTION_END();
 }
@@ -7243,7 +7238,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( inventory_add_item( ichr, pself->target ) )
+            if ( inventory_add_item( pself->target, ichr, MAXINVENTORY, btrue ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
@@ -7973,7 +7968,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
         float lerp_z;
 
         // nothing in packs
-        if ( pchr->pack.is_packed || INGAME_CHR( pchr->attachedto ) ) continue;
+        if ( IS_ATTACHED_CHR( pchr->ai.index ) ) continue;
 
         // nothing flying
         if ( 0 != pchr->flyheight ) continue;

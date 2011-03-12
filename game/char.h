@@ -153,7 +153,7 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define PLATASCEND          0.10f                     ///< Ascension rate
 #define PLATKEEP            0.90f                     ///< Retention rate
 #define MOUNTTOLERANCE      (PLATTOLERANCE)
-#define STOPBOUNCING        2.00f //0.1f // 1.0f                ///< To make objects stop bouncing
+#define STOPBOUNCING        2.00f                     ///< To make objects stop bouncing
 #define DROPZVEL            7
 #define DROPXYVEL           12
 
@@ -259,17 +259,9 @@ struct s_chr_environment
 typedef struct s_chr_environment chr_environment_t;
 
 //--------------------------------------------------------------------------------------------
-struct s_pack
-{
-    bool_t         is_packed;    ///< Is it in the inventory?
-    bool_t         was_packed;   ///< Temporary thing...
-    CHR_REF        next;        ///< Link to the next item
-    int            count;       ///< How many
-};
-typedef struct s_pack pack_t;
 
-#define PACK_BEGIN_LOOP(IT,INIT) { size_t IT_count; CHR_REF IT = INIT; IT_count = 0; while( (MAX_CHR != IT) && (IT_count < MAXNUMINPACK) ) { CHR_REF IT##_nxt = ChrList.lst[IT].pack.next;
-#define PACK_END_LOOP(IT) IT = IT##_nxt; } if(IT_count >= MAXNUMINPACK ) log_error( "%s - bad pack loop\n", __FUNCTION__ ); }
+#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<MAXNUMINPACK;IT##_internal++) { CHR_REF IT; chr_t * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PITEM =  ChrList.lst + IT;
+#define PACK_END_LOOP() } }
 
 //--------------------------------------------------------------------------------------------
 
@@ -325,13 +317,14 @@ struct s_chr
     Uint32         experience;                    ///< Experience
     Uint8          experiencelevel;               ///< Experience Level
 
-    pack_t         pack;             ///< what the character is holding
-
     Sint16         money;            ///< Money
     Uint8          ammomax;          ///< Ammo stuff
     Uint16         ammo;
+
+    // equipment and inventory
     CHR_REF        holdingwhich[SLOT_COUNT]; ///< !=MAX_CHR if character is holding something
-    CHR_REF        inventory[INVEN_COUNT];   ///< !=MAX_CHR if character is storing something
+    CHR_REF        equipment[INVEN_COUNT];   ///< !=MAX_CHR if character has equipped something
+    CHR_REF        inventory[MAXNUMINPACK];  ///< !=MAX_CHR if character has something in the inventory
 
     // team stuff
     TEAM_REF       team;            ///< Character's team
@@ -356,6 +349,7 @@ struct s_chr
     // attachments
     CHR_REF        attachedto;                    ///< !=MAX_CHR if character is a held weapon
     slot_t         inwhich_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
+    CHR_REF        inwhich_inventory;             ///< !=MAX_CHR if character is inside an inventory 
 
     // platform stuff
     bool_t         platform;                      ///< Can it be stood on
@@ -521,7 +515,7 @@ DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_PROFILE );
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
 #define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapStack.lst[ICAP].loaded )
 
-#define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList.lst[ICHR].attachedto) || ChrList.lst[ICHR].pack.is_packed) )
+#define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList.lst[ICHR].attachedto) || DEFINED_CHR(ChrList.lst[ICHR].inwhich_inventory)) )
 #define IS_ATTACHED_CHR(ICHR) ( !DEFINED_CHR(ICHR) ? bfalse : IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
@@ -589,8 +583,11 @@ void    switch_team( const CHR_REF character, const TEAM_REF team );
 void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egoboo_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
-bool_t  inventory_add_item( const CHR_REF item, const CHR_REF character );
-CHR_REF inventory_get_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
+
+bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, bool_t ignorekurse );
+bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, bool_t ignorekurse );
+bool_t inventory_swap_item( const CHR_REF ichr, const Uint8 inventory_slot, slot_t grip_off, bool_t ignorekurse );
+
 void    drop_keys( const CHR_REF character );
 bool_t  drop_all_items( const CHR_REF character );
 bool_t  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool_t people );
@@ -640,9 +637,9 @@ bool_t chr_matrix_valid( chr_t * pchr );
 
 egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
 
-CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last );
+CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
-CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last );
+CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
 
 bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
@@ -706,6 +703,7 @@ bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
 
 bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
 bool_t character_is_attacking( chr_t *pchr );
+
 
 // this function is needed because the "hidden" state of an ai is determined by
 // whether  ai.state == cap.hidestate

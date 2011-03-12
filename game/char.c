@@ -68,8 +68,8 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 
 static CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character );
-static bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
-static CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
+bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
+CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
 
 static bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off );
 
@@ -227,11 +227,15 @@ chr_t * chr_ctor( chr_t * pchr )
     }
 
     // pack/inventory info
-    pchr->pack.next = ( CHR_REF )MAX_CHR;
     for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
+    {
+        pchr->equipment[cnt] = ( CHR_REF )MAX_CHR;
+    }
+    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
         pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
     }
+
 
     // Set up position
     pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
@@ -255,8 +259,13 @@ chr_t * chr_ctor( chr_t * pchr )
         pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
     }
 
-    pchr->pack.next = ( CHR_REF )MAX_CHR;
+    //clear inventory
+    pchr->inwhich_inventory = ( CHR_REF )MAX_CHR;
     for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
+    {
+        pchr->equipment[cnt] = ( CHR_REF )MAX_CHR;
+    }
+    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
         pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
     }
@@ -489,16 +498,17 @@ void keep_weapons_with_holders()
             pchr->attachedto = ( CHR_REF )MAX_CHR;
 
             // Keep inventory with iattached
-            if ( !pchr->pack.is_packed )
+            if ( !INGAME_CHR( pchr->inwhich_inventory ) )
             {
-                PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
+                PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
                 {
-                    chr_set_pos( ChrList.lst + ipacked, chr_get_pos_v( pchr ) );
+                    
+                    chr_set_pos( pitem, chr_get_pos_v( pchr ) );
 
                     // Copy olds to make SendMessageNear work
-                    ChrList.lst[ipacked].pos_old = pchr->pos_old;
+                    pitem->pos_old = pchr->pos_old;
                 }
-                PACK_END_LOOP( ipacked );
+                PACK_END_LOOP();
             }
         }
     }
@@ -690,18 +700,21 @@ void free_inventory_in_game( const CHR_REF character )
     /// @details ZZ@> This function frees every item in the character's inventory
     ///
     /// @note this should only be called by cleanup_all_characters()
+    int i;
 
     if ( !DEFINED_CHR( character ) ) return;
 
-    PACK_BEGIN_LOOP( ipacked, ChrList.lst[character].pack.next )
+    PACK_BEGIN_LOOP( ChrList.lst[character].inventory, pitem, iitem )
     {
-        free_one_character_in_game( ipacked );
+        free_one_character_in_game( iitem);
     }
-    PACK_END_LOOP( ipacked );
+    PACK_END_LOOP();
 
     // set the inventory to the "empty" state
-    ChrList.lst[character].pack.count = 0;
-    ChrList.lst[character].pack.next  = ( CHR_REF )MAX_CHR;
+    for( i = 0; i < MAXINVENTORY; i++ )
+    {
+        ChrList.lst[character].inventory[i] = ( CHR_REF )MAX_CHR;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -724,7 +737,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
     pchr = ChrList.lst + character;
 
     // Check validity of attachment
-    if ( pchr->pack.is_packed )
+    if ( INGAME_CHR( pchr->inwhich_inventory ) )
     {
         goto place_particle_at_vertex_fail;
     }
@@ -1328,7 +1341,7 @@ egoboo_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 
     // do not deal with packed items at this time
     // this would have to be changed to allow for pickpocketing
-    if ( prider->pack.is_packed || pmount->pack.is_packed ) return rv_fail;
+    if ( INGAME_CHR( prider->inwhich_inventory ) || INGAME_CHR( pmount->inwhich_inventory ) ) return rv_fail;
 
     // make a reasonable time for the character to remount something
     // for characters jumping out of pots, etc
@@ -1426,159 +1439,213 @@ egoboo_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t inventory_add_item( const CHR_REF item, const CHR_REF character )
+bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, bool_t ignorekurse )
 {
-    chr_t * pchr, * pitem;
-    cap_t * pitem_cap;
-    bool_t  slot_found, pack_added;
-    int     slot_count;
-    int     cnt;
+    CHR_REF stack;
+    chr_t *pchr, *pitem;
+    cap_t *pitem_cap;
+    int newammo;
 
-    if ( !INGAME_CHR( item ) ) return bfalse;
-    pitem = ChrList.lst + item;
-
-    // don't allow sub-inventories
-    if ( pitem->pack.is_packed || pitem->isequipped ) return bfalse;
-
-    pitem_cap = pro_get_pcap( pitem->profile_ref );
-    if ( NULL == pitem_cap ) return bfalse;
-
-    if ( !INGAME_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
-
-    // don't allow sub-inventories
-    if ( pchr->pack.is_packed || pchr->isequipped ) return bfalse;
-
-    slot_found = bfalse;
-    slot_count = 0;
-    for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
-    {
-        if ( IDSZ_NONE == inventory_idsz[cnt] ) continue;
-
-        if ( inventory_idsz[cnt] == pitem_cap->idsz[IDSZ_PARENT] )
-        {
-            slot_count = cnt;
-            slot_found = btrue;
-        }
-    }
-
-    if ( slot_found )
-    {
-        if ( INGAME_CHR( pchr->holdingwhich[slot_count] ) )
-        {
-            pchr->inventory[slot_count] = ( CHR_REF )MAX_CHR;
-        }
-    }
-
-    pack_added = chr_add_pack_item( item, character );
-
-    if ( slot_found && pack_added )
-    {
-        pchr->inventory[slot_count] = item;
-    }
-
-    return pack_added;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF inventory_get_item( const CHR_REF ichr, grip_offset_t grip_off, bool_t ignorekurse )
-{
-    chr_t * pchr;
-    CHR_REF iitem;
-    int     cnt;
-
-    if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
+    //valid character?
+    if( !INGAME_CHR( ichr ) || !INGAME_CHR( item ) ) return bfalse;
     pchr = ChrList.lst + ichr;
-
-    if ( pchr->pack.is_packed || pchr->isitem || MAX_CHR == pchr->pack.next )
-        return ( CHR_REF )MAX_CHR;
-
-    if ( 0 == pchr->pack.count ) return ( CHR_REF )MAX_CHR;
-
-    iitem = chr_get_pack_item( ichr, grip_off, ignorekurse );
-
-    // remove it from the "equipped" slots
-    if ( INGAME_CHR( iitem ) )
+    pitem = ChrList.lst + item;
+    pitem_cap = chr_get_pcap( item );
+    
+    //try get the first free slot found?
+    if( inventory_slot >= MAXINVENTORY ) 
     {
-        for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
+        int i;
+        for( i = 0; i < MAXINVENTORY; i++ )
         {
-            if ( pchr->inventory[cnt] == iitem )
+            if( !INGAME_CHR(pchr->inventory[inventory_slot]) )
             {
-                pchr->inventory[cnt] = iitem;
-                ChrList.lst[iitem].isequipped = bfalse;
+                //found a free slot
+                inventory_slot = i;
                 break;
             }
         }
+
+        //did we find one?
+        if( i == MAXINVENTORY ) return bfalse;
     }
 
-    return iitem;
-}
+    //don't override existing items
+    if( INGAME_CHR( pchr->inventory[inventory_slot] ) ) return bfalse;
 
-//--------------------------------------------------------------------------------------------
-bool_t pack_add_item( pack_t * ppack, CHR_REF item )
-{
-    CHR_REF oldfirstitem;
-    chr_t  * pitem;
-    cap_t  * pitem_cap;
-    pack_t * pitem_pack;
+    // don't allow sub-inventories
+    if ( INGAME_CHR( pitem->inwhich_inventory ) ) return bfalse;
 
-    if ( NULL == ppack || !INGAME_CHR( item ) ) return bfalse;
+    //kursed?
+    if( pitem->iskursed && !ignorekurse )
+    {
+        // Flag the item as not put away
+        SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
+        if( pchr->islocalplayer ) debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        return bfalse;
+    }
 
-    if ( !INGAME_CHR( item ) ) return bfalse;
-    pitem      = ChrList.lst + item;
-    pitem_pack = &( pitem->pack );
-    pitem_cap  = chr_get_pcap( item );
+    //too big item?
+    if ( pitem_cap->istoobig )
+    {
+        SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
+        if( pchr->islocalplayer ) debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        return bfalse;
+    }
 
-    oldfirstitem     = ppack->next;
-    ppack->next      = item;
-    pitem_pack->next = oldfirstitem;
-    ppack->count++;
+    //put away inhand item
+    stack = chr_pack_has_a_stack( item, ichr );
+    if ( INGAME_CHR( stack ) )
+    {
+        // We found a similar, stackable item in the pack
+        chr_t  * pstack      = ChrList.lst + stack;
+        cap_t  * pstack_cap  = chr_get_pcap( stack );
+
+        // reveal the name of the item or the stack
+        if ( pitem->nameknown || pstack->nameknown )
+        {
+            pitem->nameknown  = btrue;
+            pstack->nameknown = btrue;
+        }
+
+        // reveal the usage of the item or the stack
+        if ( pitem_cap->usageknown || pstack_cap->usageknown )
+        {
+            pitem_cap->usageknown  = btrue;
+            pstack_cap->usageknown = btrue;
+        }
+
+        // add the item ammo to the stack
+        newammo = pitem->ammo + pstack->ammo;
+        if ( newammo <= pstack->ammomax )
+        {
+            // All transfered, so kill the in hand item
+            pstack->ammo = newammo;
+            detach_character_from_mount( item, btrue, bfalse );
+            chr_request_terminate( item );
+        }
+        else
+        {
+            // Only some were transfered,
+            pitem->ammo     = pitem->ammo + pstack->ammo - pstack->ammomax;
+            pstack->ammo    = pstack->ammomax;
+            SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
+        }
+    }
+    else
+    {
+        //@todo: implement weight check here
+        // Make sure we have room for another item
+        //if ( pchr_pack->count >= MAXNUMINPACK )
+        // {
+        //    SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
+        //    return bfalse;
+        //}
+
+        // Take the item out of hand
+        detach_character_from_mount( item, btrue, bfalse );
+
+        // clear the dropped flag
+        UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
+
+        //now put the item into the inventory
+        pitem->attachedto = (CHR_REF)MAX_CHR;
+        pitem->inwhich_inventory = ichr;
+        pchr->inventory[inventory_slot] = item;
+
+        // fix the flags
+        if ( pitem_cap->isequipment )
+        {
+            SET_BIT( pitem->ai.alert, ALERTIF_PUTAWAY );  // same as ALERTIF_ATLASTWAYPOINT;
+        }
+    }
+
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t pack_remove_item( pack_t * ppack, CHR_REF iparent, CHR_REF iitem )
+bool_t inventory_swap_item( const CHR_REF ichr, const Uint8 inventory_slot, slot_t grip_off, bool_t ignorekurse )
 {
-    CHR_REF old_next;
-    chr_t * pitem, * pparent;
+    CHR_REF item, inventory_item;
+    chr_t *pchr;
+    bool_t success = bfalse;
 
-    // convert the iitem it to a pointer
-    old_next = ( CHR_REF )MAX_CHR;
-    pitem    = NULL;
-    if ( DEFINED_CHR( iitem ) )
+    //ignore invalid inventory slots
+    if( inventory_slot >= MAXINVENTORY ) return bfalse;
+
+    //valid character?
+    if( !INGAME_CHR( ichr ) ) return bfalse;
+    pchr = ChrList.lst + ichr;
+
+    inventory_item = pchr->inventory[inventory_slot];
+    item           = pchr->holdingwhich[grip_off];
+
+    // Make sure everything is hunkydori
+    if ( pchr->isitem || INGAME_CHR( pchr->inwhich_inventory ) ) return bfalse;
+
+    //remove existing item
+    if( INGAME_CHR( inventory_item ) )
     {
-        pitem    = ChrList.lst + iitem;
-        old_next = pitem->pack.next;
+        success |= inventory_remove_item( ichr, inventory_slot, ignorekurse );
     }
 
-    // convert the pparent it to a pointer
-    pparent = NULL;
-    if ( DEFINED_CHR( iparent ) )
+    //put in the new item
+    if( INGAME_CHR( item ) )
     {
-        pparent = ChrList.lst + iparent;
+        success |= inventory_add_item( ichr, item, inventory_slot, ignorekurse );
+        //@todo: add in the equipment code here
     }
 
-    // Remove the iitem from the pack
-    if ( NULL != pitem )
+    //now put the inventory item into the character's hand
+    if( INGAME_CHR( inventory_item ) && success )
     {
-        pitem->pack.was_packed = pitem->pack.is_packed;
-        pitem->pack.is_packed  = bfalse;
+        chr_t *pitem = ChrList.lst + inventory_item;
+        attach_character_to_mount( inventory_item, ichr, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT  );
+
+        //fix flags
+        UNSET_BIT( pitem->ai.alert, ALERTIF_GRABBED );
+        SET_BIT( pitem->ai.alert, ALERTIF_TAKENOUT );
     }
 
-    // adjust the iparent's next
-    if ( NULL != pparent )
+    return success;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, bool_t ignorekurse )
+{
+    CHR_REF item;
+    chr_t *pitem;
+    chr_t *pholder;
+
+    //ignore invalid inventory slots
+    if( inventory_slot >= MAXINVENTORY ) return bfalse;
+
+    //valid char?
+    if( !INGAME_CHR( ichr ) ) return bfalse;
+    pholder = ChrList.lst + ichr;
+    item = pholder->inventory[inventory_slot];
+
+    //valid item?
+    if( !INGAME_CHR( item ) ) return bfalse;
+    pitem = ChrList.lst + item;
+
+    //is it kursed?
+    if( pitem->iskursed && !ignorekurse )
     {
-        pparent->pack.next = old_next;
+        // Flag the last found_item as not removed
+        SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
+        if( pholder->islocalplayer ) debug_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        return bfalse;
     }
 
-    if ( NULL != ppack )
-    {
-        ppack->count--;
-    }
+    //no longer in an inventory
+    pitem->inwhich_inventory = (CHR_REF) MAX_CHR;
+    pholder->inventory[inventory_slot] = (CHR_REF) MAX_CHR;
 
     return btrue;
 }
+
 
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
@@ -1603,278 +1670,40 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 
     if ( pitem_cap->isstackable )
     {
-        PACK_BEGIN_LOOP( ipacked, ChrList.lst[character].pack.next )
+        PACK_BEGIN_LOOP( ChrList.lst[character].inventory, pitem, iitem )
         {
-            if ( INGAME_CHR( ipacked ) )
+            cap_t * pstack_cap = chr_get_pcap( iitem );
+
+            found = pstack_cap->isstackable;
+
+            if ( pitem->ammo >= pitem->ammomax )
             {
-                chr_t * pstack     = ChrList.lst + ipacked;
-                cap_t * pstack_cap = chr_get_pcap( ipacked );
+                found = bfalse;
+            }
 
-                found = pstack_cap->isstackable;
-
-                if ( pstack->ammo >= pstack->ammomax )
+            // you can still stack something even if the profiles don't match exactly,
+            // but they have to have all the same IDSZ properties
+            if ( found && ( pitem->profile_ref != pitem->profile_ref ) )
+            {
+                for ( id = 0; id < IDSZ_COUNT && found; id++ )
                 {
-                    found = bfalse;
-                }
-
-                // you can still stack something even if the profiles don't match exactly,
-                // but they have to have all the same IDSZ properties
-                if ( found && ( pstack->profile_ref != pitem->profile_ref ) )
-                {
-                    for ( id = 0; id < IDSZ_COUNT && found; id++ )
+                    if ( chr_get_idsz( iitem, id ) != chr_get_idsz( item, id ) )
                     {
-                        if ( chr_get_idsz( ipacked, id ) != chr_get_idsz( item, id ) )
-                        {
-                            found = bfalse;
-                        }
+                        found = bfalse;
                     }
                 }
             }
 
             if ( found )
             {
-                istack = ipacked;
+                istack = iitem;
                 break;
             }
         }
-        PACK_END_LOOP( ipacked );
+        PACK_END_LOOP();
     }
 
     return istack;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_add_pack_item( const CHR_REF item, const CHR_REF character )
-{
-    /// @details ZZ@> This function puts one character inside the other's pack
-
-    CHR_REF stack;
-    int     newammo;
-
-    chr_t  * pchr, * pitem;
-    cap_t  * pchr_cap,  * pitem_cap;
-    pack_t * pchr_pack, * pitem_pack;
-
-    if ( !INGAME_CHR( character ) ) return bfalse;
-    pchr      = ChrList.lst + character;
-    pchr_pack = &( pchr->pack );
-    pchr_cap  = chr_get_pcap( character );
-
-    if ( !INGAME_CHR( item ) ) return bfalse;
-    pitem      = ChrList.lst + item;
-    pitem_pack = &( pitem->pack );
-    pitem_cap  = chr_get_pcap( item );
-
-    // Make sure everything is hunkydori
-    if ( pitem_pack->is_packed || pchr_pack->is_packed || pchr->isitem )
-        return bfalse;
-
-    stack = chr_pack_has_a_stack( item, character );
-    if ( INGAME_CHR( stack ) )
-    {
-        // We found a similar, stackable item in the pack
-
-        chr_t  * pstack      = ChrList.lst + stack;
-        cap_t  * pstack_cap  = chr_get_pcap( stack );
-
-        // reveal the name of the item or the stack
-        if ( pitem->nameknown || pstack->nameknown )
-        {
-            pitem->nameknown  = btrue;
-            pstack->nameknown = btrue;
-        }
-
-        // reveal the usage of the item or the stack
-        if ( pitem_cap->usageknown || pstack_cap->usageknown )
-        {
-            pitem_cap->usageknown  = btrue;
-            pstack_cap->usageknown = btrue;
-        }
-
-        // add the item ammo to the stack
-        newammo = pitem->ammo + pstack->ammo;
-        if ( newammo <= pstack->ammomax )
-        {
-            // All transfered, so kill the in hand item
-            pstack->ammo = newammo;
-            if ( INGAME_CHR( pitem->attachedto ) )
-            {
-                detach_character_from_mount( item, btrue, bfalse );
-            }
-
-            chr_request_terminate( item );
-        }
-        else
-        {
-            // Only some were transfered,
-            pitem->ammo     = pitem->ammo + pstack->ammo - pstack->ammomax;
-            pstack->ammo    = pstack->ammomax;
-            SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
-        }
-    }
-    else
-    {
-        // Make sure we have room for another item
-        if ( pchr_pack->count >= MAXNUMINPACK )
-        {
-            SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
-            return bfalse;
-        }
-
-        // Take the item out of hand
-        if ( INGAME_CHR( pitem->attachedto ) )
-        {
-            detach_character_from_mount( item, btrue, bfalse );
-
-            // clear the dropped flag
-            UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-        }
-
-        // Remove the item from play
-        pitem->hitready        = bfalse;
-        pitem_pack->was_packed = pitem_pack->is_packed;
-        pitem_pack->is_packed  = btrue;
-
-        // Insert the item into the pack as the first one
-        pack_add_item( pchr_pack, item );
-
-        // fix the flags
-        if ( pitem_cap->isequipment )
-        {
-            SET_BIT( pitem->ai.alert, ALERTIF_PUTAWAY );  // same as ALERTIF_ATLASTWAYPOINT;
-        }
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t chr_remove_pack_item( CHR_REF ichr, CHR_REF iparent, CHR_REF iitem )
-{
-    chr_t  * pchr;
-    pack_t * pchr_pack;
-
-    bool_t removed;
-
-    if ( !DEFINED_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
-    pchr_pack = &( pchr->pack );
-
-    // remove it from the pack
-    removed = pack_remove_item( pchr_pack, iparent, iitem );
-
-    // unequip the item
-    if ( removed && DEFINED_CHR( iitem ) )
-    {
-        ChrList.lst[iitem].isequipped = bfalse;
-        ChrList.lst[iitem].team       = chr_get_iteam( ichr );
-    }
-
-    return removed;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse )
-{
-    /// @details ZZ@> This function takes the last item in the character's pack and puts
-    ///    it into the designated hand.  It returns the item number or MAX_CHR.
-
-    CHR_REF found_item, found_item_parent;
-
-    chr_t  * pchr, * pfound_item, *pfound_item_parent;
-    pack_t * pchr_pack, * pfound_item_pack, *pfound_item_parent_pack;
-
-    // does the character exist?
-    if ( !DEFINED_CHR( character ) ) return bfalse;
-    pchr      = ChrList.lst + character;
-    pchr_pack = &( pchr->pack );
-
-    // Can the character have a pack?
-    if ( pchr_pack->is_packed || pchr->isitem ) return ( CHR_REF )MAX_CHR;
-
-    // is the pack empty?
-    if ( MAX_CHR == pchr_pack->next || 0 == pchr_pack->count ) return ( CHR_REF )MAX_CHR;
-
-    // Find the last item in the pack
-    found_item_parent = character;
-    found_item        = character;
-    PACK_BEGIN_LOOP( ipacked, pchr_pack->next )
-    {
-        found_item_parent = found_item;
-        found_item        = ipacked;
-    }
-    PACK_END_LOOP( ipacked );
-
-    // did we find anything?
-    if ( character == found_item || MAX_CHR == found_item ) return bfalse;
-
-    // convert the found_item it to a pointer
-    pfound_item      = NULL;
-    pfound_item_pack = NULL;
-    if ( DEFINED_CHR( found_item ) )
-    {
-        pfound_item = ChrList.lst + found_item;
-        pfound_item_pack = &( pfound_item->pack );
-    }
-
-    // convert the pfound_item_parent it to a pointer
-    pfound_item_parent      = NULL;
-    pfound_item_parent_pack = NULL;
-    if ( DEFINED_CHR( found_item_parent ) )
-    {
-        pfound_item_parent      = ChrList.lst + found_item_parent;
-        pfound_item_parent_pack = &( pfound_item_parent->pack );
-    }
-
-    // did we find a valid object?
-    if ( !INGAME_CHR( found_item ) )
-    {
-        chr_remove_pack_item( character, found_item_parent, found_item );
-
-        return bfalse;
-    }
-
-    // Figure out what to do with it
-    if ( pfound_item->iskursed && pfound_item->isequipped && !ignorekurse )
-    {
-        // Flag the last found_item as not removed
-        SET_BIT( pfound_item->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-
-        // Cycle it to the front
-        pfound_item_pack->next        = pchr_pack->next;
-        pfound_item_parent_pack->next = ( CHR_REF )MAX_CHR;
-        pchr_pack->next               = found_item;
-
-        if ( character == found_item_parent )
-        {
-            pfound_item_pack->next = ( CHR_REF )MAX_CHR;
-        }
-
-        found_item = ( CHR_REF )MAX_CHR;
-    }
-    else
-    {
-        // Remove the last found_item from the pack
-        chr_remove_pack_item( character, found_item_parent, found_item );
-
-        // Attach the found_item to the character's hand
-        // (1) if the mounting doesn't succees, I guess it will drop it at the character's feet,
-        // or will it drop the item at 0,0... I think the keep_weapons_with_holders() function
-        // works
-        // (2) if it fails, do we need to treat it as if it was dropped? Or just not take it out?
-        attach_character_to_mount( found_item, character, grip_off );
-
-        // fix the flags
-        UNSET_BIT( pfound_item->ai.alert, ALERTIF_GRABBED );
-        SET_BIT( pfound_item->ai.alert, ALERTIF_TAKENOUT );
-    }
-
-    if ( MAX_CHR == pchr_pack->next )
-    {
-        pchr_pack->count = 0;
-    }
-
-    return found_item;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1887,13 +1716,7 @@ void drop_keys( const CHR_REF character )
 
     FACING_T direction;
     IDSZ     testa, testz;
-
-    CHR_REF   key_lst[MAXNUMINPACK];
-    CHR_REF * key_parent[MAXNUMINPACK];
-    size_t    key_count;
-
     size_t    cnt;
-    CHR_REF * pparent;
 
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
@@ -1905,58 +1728,34 @@ void drop_keys( const CHR_REF character )
     testa = MAKE_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
     testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
 
-    key_count = 0;
-    pparent = &( pchr->pack.next );
-    PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
+    //check each inventory item
+    for( cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
-        if ( INGAME_CHR( ipacked ) && ipacked != character )  // Should never happen...
-        {
-            IDSZ idsz_parent;
-            IDSZ idsz_type;
-
-            chr_t * pitem = ChrList.lst + ipacked;
-
-            idsz_parent = chr_get_idsz( ipacked, IDSZ_PARENT );
-            idsz_type   = chr_get_idsz( ipacked, IDSZ_TYPE );
-
-            if (( idsz_parent >= testa && idsz_parent <= testz ) ||
-                ( idsz_type >= testa && idsz_type <= testz ) )
-            {
-                key_lst[key_count]    = ipacked;
-                key_parent[key_count] = pparent;
-                key_count++;
-            }
-            else
-            {
-                // only save non-keys as parents
-                pparent = &( pitem->pack.next );
-            }
-        }
-    }
-    PACK_END_LOOP( ipacked );
-
-    // We found some keys?
-    // since we are MODIFYING the pack list, do not change the list
-    // while inside the PACK_BEGIN_LOOP() ... PACK_END_LOOP()
-    for ( cnt = 0; cnt < key_count; cnt++ )
-    {
-        CHR_REF ikey     = key_lst[cnt];
-        CHR_REF *pparent = key_parent[cnt];
-
-        chr_t * pkey = ChrList.lst + ikey;
-
+        IDSZ idsz_parent;
+        IDSZ idsz_type;
         TURN_T turn;
+
+        chr_t *pkey;
+        CHR_REF ikey = pchr->inventory[cnt];
+        
+        //only valid items
+        if( !INGAME_CHR( ikey ) ) continue;
+        pkey = ChrList.lst + ikey;
+
+        idsz_parent = chr_get_idsz( ikey, IDSZ_PARENT );
+        idsz_type   = chr_get_idsz( ikey, IDSZ_TYPE );
+
+        //is it really a key?
+        if (( idsz_parent < testa && idsz_parent > testz ) &&
+            ( idsz_type < testa && idsz_type > testz ) ) continue;
 
         direction = RANDIE;
         turn      = TO_TURN( direction );
 
-        // unpack the ikey
-        *pparent = pkey->pack.next;
-        pkey->pack.next = ( CHR_REF )MAX_CHR;
-        pchr->pack.count--;
+        //remove it from inventory
+        inventory_remove_item( character, cnt, btrue );
 
         // fix the attachments
-        pkey->attachedto             = ( CHR_REF )MAX_CHR;
         pkey->dismount_timer         = PHYS_DISMOUNT_TIME;
         pkey->dismount_object        = GET_REF_PCHR( pchr );
         pkey->onwhichplatform_ref    = pchr->onwhichplatform_ref;
@@ -1964,8 +1763,6 @@ void drop_keys( const CHR_REF character )
 
         // fix some flags
         pkey->hitready               = btrue;
-        pkey->pack.was_packed        = pkey->pack.is_packed;
-        pkey->pack.is_packed         = bfalse;
         pkey->isequipped             = bfalse;
         pkey->ori.facing_z           = direction + ATK_BEHIND;
         pkey->team                   = pkey->team_base;
@@ -1988,57 +1785,68 @@ bool_t drop_all_items( const CHR_REF character )
 {
     /// @details ZZ@> This function drops all of a character's items
 
-    CHR_REF  item;
     FACING_T direction;
     Sint16   diradd;
     chr_t  * pchr;
+    Uint8    pack_count;
+    size_t   cnt;
 
     if ( !INGAME_CHR( character ) ) return bfalse;
     pchr = ChrList.lst + character;
 
     detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], btrue, bfalse );
     detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], btrue, bfalse );
-    if ( pchr->pack.count > 0 )
+
+    //simply count the number of items in inventory
+    pack_count = 0;
+    diradd    = 0x00010000;
+    PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
-        direction = pchr->ori.facing_z + ATK_BEHIND;
-        diradd    = 0x00010000 / pchr->pack.count;
+        diradd -= 0x00010000 / MAXINVENTORY;
+    }
+    PACK_END_LOOP();
 
-        while ( pchr->pack.count > 0 )
-        {
-            item = inventory_get_item( character, GRIP_LEFT, bfalse );
+    //now drop each item in turn
+    direction = pchr->ori.facing_z + ATK_BEHIND;
+    for( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+    {
+        CHR_REF item = pchr->inventory[cnt];
+        chr_t *pitem;
 
-            if ( INGAME_CHR( item ) )
-            {
-                chr_t * pitem = ChrList.lst + item;
+        //only valid items
+        if( !INGAME_CHR( item ) ) continue;
+        pitem = ChrList.lst + item;
 
-                // detach the item
-                detach_character_from_mount( item, btrue, btrue );
+        //remove it from inventory
+        inventory_remove_item( character, cnt, btrue );
 
-                // fix the attachments
-                pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
-                pitem->dismount_object        = GET_REF_PCHR( pchr );
-                pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
-                pitem->onwhichplatform_update = pchr->onwhichplatform_update;
+        // detach the item
+        detach_character_from_mount( item, btrue, btrue );
 
-                // fix some flags
-                pitem->hitready               = btrue;
-                pitem->ori.facing_z           = direction + ATK_BEHIND;
-                pitem->team                   = pitem->team_base;
+        // fix the attachments
+        pitem->dismount_timer         = PHYS_DISMOUNT_TIME;
+        pitem->dismount_object        = GET_REF_PCHR( pchr );
+        pitem->onwhichplatform_ref    = pchr->onwhichplatform_ref;
+        pitem->onwhichplatform_update = pchr->onwhichplatform_update;
 
-                // fix the current velocity
-                pitem->vel.x                  += turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.y                  += turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-                pitem->vel.z                  += DROPZVEL;
+        // fix some flags
+        pitem->hitready               = btrue;
+        pitem->ori.facing_z           = direction + ATK_BEHIND;
+        pitem->team                   = pitem->team_base;
 
-                // do some more complicated things
-                SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-                chr_set_pos( pitem, chr_get_pos_v( pchr ) );
-                move_one_character_get_environment( pitem );
-                chr_set_floor_level( pitem, pchr->enviro.floor_level );
-            }
+        // fix the current velocity
+        pitem->vel.x                  += turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+        pitem->vel.y                  += turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+        pitem->vel.z                  += DROPZVEL;
 
-            direction += diradd;
-        }
+        // do some more complicated things
+        SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
+        chr_set_pos( pitem, chr_get_pos_v( pchr ) );
+        move_one_character_get_environment( pitem );
+        chr_set_floor_level( pitem, pchr->enviro.floor_level );
+
+        //drop out evenly in all directions
+        direction += diradd;
     }
 
     return btrue;
@@ -2169,7 +1977,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         if ( pchr_b->is_hidden ) continue;
 
         // pickpocket not allowed yet
-        if ( pchr_b->pack.is_packed ) continue;
+        if ( INGAME_CHR( pchr_b->inwhich_inventory ) ) continue;
 
         // disarm not allowed yet
         if ( MAX_CHR != pchr_b->attachedto ) continue;
@@ -2455,6 +2263,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     // find the 1st non-item that is holding the weapon
     iholder = chr_get_lowest_attachment( iweapon, btrue );
 
+/*
     if ( iweapon != iholder && iweapon != ichr )
     {
         // This seems to be the "proper" place to activate the held object.
@@ -2471,6 +2280,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
         SET_BIT( pweapon->ai.alert, ALERTIF_USED );
     }
+*/
 
     // What kind of attack are we going to do?
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
@@ -4241,7 +4051,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
     chr_update_hide( pchr );
 
     //Don't do items that are in inventory
-    if ( pchr->pack.is_packed ) return pchr;
+    if ( INGAME_CHR( pchr->inwhich_inventory ) ) return pchr;
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return pchr;
@@ -4867,15 +4677,15 @@ void respawn_character( const CHR_REF character )
     pchr->daze_timer = 0;
 
     // Let worn items come back
-    PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
+    PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
-        if ( INGAME_CHR( ipacked ) && ChrList.lst[ipacked].isequipped )
+        if ( ChrList.lst[item].isequipped )
         {
-            ChrList.lst[ipacked].isequipped = bfalse;
-            SET_BIT( chr_get_pai( ipacked )->alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
+            ChrList.lst[item].isequipped = bfalse;
+            SET_BIT( pchr->ai.alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
         }
     }
-    PACK_END_LOOP( ipacked );
+    PACK_END_LOOP();
 
     // re-initialize the instance
     chr_instance_spawn( &( pchr->inst ), pchr->profile_ref, pchr->skin );
@@ -5298,9 +5108,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     pchr->invictus        = pcap_new->invictus;
     pchr->ismount         = pcap_new->ismount;
     pchr->cangrabmoney    = pcap_new->cangrabmoney;
-    pchr->jump_timer        = JUMPDELAY;
-    pchr->alpha_base       = pcap_new->alpha;
-    pchr->light_base       = pcap_new->light;
+    pchr->jump_timer      = JUMPDELAY;
+    pchr->alpha_base      = pcap_new->alpha;
+    pchr->light_base      = pcap_new->light;
 
     // change the skillz, too, jack!
     idsz_map_copy( pcap_new->skills, SDL_arraysize( pcap_new->skills ), pchr->skills );
@@ -6345,7 +6155,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     if ( !allowedtoattack )
     {
         // This character can't use this iweapon
-        pweapon->reload_timer = 50;
+        pweapon->reload_timer = ONESECOND;
         if ( pchr->StatusList_on || cfg.dev_mode )
         {
             // Tell the player that they can't use this iweapon
@@ -6500,7 +6310,6 @@ bool_t chr_do_latch_button( chr_t * pchr )
     CHR_REF ichr;
     ai_state_t * pai;
 
-    CHR_REF item;
     bool_t attack_handled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
@@ -6627,6 +6436,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             chr_play_action( pchr, ACTION_MB, bfalse );
         }
     }
+    /*
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_PACKLEFT;
@@ -6669,6 +6479,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         // Make it take a little time
         chr_play_action( pchr, ACTION_MG, bfalse );
     }
+  
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_PACKRIGHT;
@@ -6711,6 +6522,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
         // Make it take a little time
         chr_play_action( pchr, ACTION_MG, bfalse );
     }
+*/
 
     // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
     attack_handled = bfalse;
@@ -6845,7 +6657,8 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // valid position at spawn-time. For instance, if a suit of armor is
     // spawned in a closed hallway, don't complain.
     
-     //ZF> I fixed a bug that caused this boolean variable always to be true. by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt
+     //ZF> I fixed a bug that caused this boolean variable always to be true. 
+    // by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
     if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )                
     {
         fvec3_base_copy( pos_v, chr_get_pos_v( pchr ) );
@@ -7801,7 +7614,7 @@ void move_one_character( chr_t * pchr )
 {
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    if ( pchr->pack.is_packed ) return;
+    if ( INGAME_CHR( pchr->inwhich_inventory ) ) return;
 
     // save the velocity and acceleration from the last time-step
     pchr->enviro.vel = fvec3_sub( pchr->pos.v, pchr->pos_old.v );
@@ -9409,39 +9222,32 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last )
+CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
 {
     /// @details BB@> check the pack a matching item
 
     bool_t matches_equipped;
-    CHR_REF item, tmp_var;
+    CHR_REF result;
     chr_t * pchr;
 
     if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
     pchr = ChrList.lst + ichr;
 
-    // make sure that pack_last points to something
-    if ( NULL == pack_last ) pack_last = &tmp_var;
+    result = ( CHR_REF )MAX_CHR;
 
-    item = ( CHR_REF )MAX_CHR;
-
-    *pack_last = GET_REF_PCHR( pchr );
-
-    PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
+    PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
-        matches_equipped = ( !equipped || ( INGAME_CHR( ipacked ) && ChrList.lst[ipacked].isequipped ) );
+        matches_equipped = ( !equipped || pitem->isequipped );
 
-        if ( chr_is_type_idsz( ipacked, idsz ) && matches_equipped )
+        if ( chr_is_type_idsz( item, idsz ) && matches_equipped )
         {
-            item = ipacked;
+            result = item;
             break;
         }
-
-        *pack_last = ipacked;
     }
-    PACK_END_LOOP( ipacked );
+    PACK_END_LOOP();
 
-    return item;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9487,24 +9293,20 @@ CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_REF * pack_last )
+CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
 {
     /// @detalis BB@> is ichr holding an item matching idsz, or is such an item in his pack?
     ///               return the index of the found item, or MAX_CHR if not found. Also return
     ///               the previous pack item in *pack_last, or MAX_CHR if it was not in a pack.
 
     bool_t found;
-    CHR_REF item, tmp_var;
+    CHR_REF item;
     chr_t * pchr;
 
     if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
     pchr = ChrList.lst + ichr;
 
-    // make sure that pack_last points to something
-    if ( NULL == pack_last ) pack_last = &tmp_var;
-
     // Check the pack
-    *pack_last = ( CHR_REF )MAX_CHR;
     item       = ( CHR_REF )MAX_CHR;
     found      = bfalse;
 
@@ -9516,7 +9318,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped, CHR_R
 
     if ( !found )
     {
-        item = chr_has_inventory_idsz( ichr, idsz, equipped, pack_last );
+        item = chr_has_inventory_idsz( ichr, idsz, equipped );
         found = INGAME_CHR( item );
     }
 

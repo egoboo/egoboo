@@ -238,7 +238,7 @@ void input_read()
 
     SDL_Event evt;
 
-    if ( 0 == SDL_WasInit( SDL_INIT_EVERYTHING ) ) return;
+    if ( EMPTY_BIT_FIELD == SDL_WasInit( SDL_INIT_EVERYTHING ) ) return;
 
     // Run through SDL's event loop to get info in the way that we want
     // it for the Gui code

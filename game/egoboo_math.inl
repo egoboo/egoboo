@@ -623,7 +623,8 @@ static INLINE float fvec3_length_abs( const fvec3_base_t A )
     //DEBUG
     if( ieee32_bad(XX) )
     {
-        printf("Reported NAN crash...\n");
+        log_debug("Game decided to crash, but I refuse! (%s - %d)\n" __FILE__, __LINE__);
+        return 0.00f;
     }
     //DEBUG END
 

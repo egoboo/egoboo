@@ -2118,6 +2118,7 @@ void pla_reinit( player_t * ppla )
     ppla->valid              = bfalse;
     ppla->index              = ( CHR_REF )MAX_CHR;
     ppla->pdevice            = NULL;
+    latch_init( &( ppla->local_latch ) );
 }
 
 //--------------------------------------------------------------------------------------------

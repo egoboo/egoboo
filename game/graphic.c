@@ -1330,13 +1330,13 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo )
+void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo, Uint8 draw_sparkle )
 {
     /// @details BB@> Draw an icon for the given item at the position <x,y>.
     ///     If the object is invalid, draw the null icon instead of failing
+    ///     If NOSPARKLE is specified the default item sparkle will be used (default behaviour)
 
     TX_REF icon_ref;
-    Uint8  draw_sparkle;
 
     chr_t * pitem = !INGAME_CHR( item ) ? NULL : ChrList.lst + item;
 
@@ -1344,8 +1344,8 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
     icon_ref = chr_get_icon_ref( item );
 
     // draw the icon
-    draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
-    draw_one_icon( icon_ref, x, y, draw_sparkle, update_wld);
+    if( draw_sparkle == NOSPARKLE ) draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
+    draw_one_icon( icon_ref, x, y, draw_sparkle, update_wld );
 
     // draw the ammo, if requested
     if ( draw_ammo && ( NULL != pitem ) )
@@ -1445,13 +1445,13 @@ float draw_status( const CHR_REF character, float x, float y )
     y = _draw_string_raw( x + 8, y, "$%4d", pchr->money ) + 8;
 
     // draw the character's main icon
-    draw_one_character_icon( character, x + 40, y, bfalse );
+    draw_one_character_icon( character, x + 40, y, bfalse, NOSPARKLE );
 
     // draw the left hand item icon
-    draw_one_character_icon( pchr->holdingwhich[SLOT_LEFT], x + 8, y, btrue );
+    draw_one_character_icon( pchr->holdingwhich[SLOT_LEFT], x + 8, y, btrue, NOSPARKLE );
 
     // draw the right hand item icon
-    draw_one_character_icon( pchr->holdingwhich[SLOT_RIGHT], x + 72, y, btrue );
+    draw_one_character_icon( pchr->holdingwhich[SLOT_RIGHT], x + 72, y, btrue, NOSPARKLE );
 
     // skip to the next row
     y += 32;
@@ -3465,6 +3465,89 @@ void render_world_overlay( const TX_REF texture )
 }
 
 //--------------------------------------------------------------------------------------------
+void render_inventory()
+{
+    PLA_REF ipla;
+    float sttx, stty, x, y, edgex;
+    int width, height;
+
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    {
+        CHR_REF ichr;
+        size_t i;
+        player_t * ppla = PlaStack.lst + ipla;
+        chr_t *pchr;
+        STRING buffer;
+        int icon_count, item_count, weight_sum, max_weight;
+
+        //valid player?
+        if ( !ppla->valid ) continue;
+        ichr = ppla->index;
+
+        //draw inventory?
+        if( !ppla->draw_inventory ) continue;
+
+        //valid character?
+        if ( !INGAME_CHR( ichr ) ) continue;
+        pchr = ChrList.lst + ichr;
+
+        //setup position and size
+        width = 175;
+        height = 150;
+        sttx = x = GFX_WIDTH/2 - width/2;
+        stty = y = GFX_HEIGHT/2 - height/2;
+
+        //threshold to start a new row
+        edgex = sttx + width + 5 - 32;
+
+        //calculate max carry weight
+        max_weight = 200 + FP8_TO_INT(pchr->strength)* FP8_TO_INT(pchr->strength);
+
+        //draw the backdrop
+        ui_drawButton( 0, x, y, width, height, NULL );
+        x += 5;
+
+        //draw title
+        snprintf( buffer, SDL_arraysize(buffer), "%s's", chr_get_name( ichr, CHRNAME_CAPITAL ) );
+        draw_wrap_string( buffer, x, y, x + width );
+        y += 16;
+        draw_wrap_string( "Inventory", x, y, x + width );
+        y += 32;
+
+        //draw each inventory icon
+        weight_sum = 0;
+        icon_count = 0;
+        item_count = 0;
+        for( i = 0; i < MAXINVENTORY; i++ )
+        {
+            CHR_REF item = pchr->inventory[i];
+
+             //calculate the sum of the weight of all items in inventory
+            if( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
+            
+            //draw icon
+            draw_one_character_icon( item, x, y, btrue, item_count == ppla->selected_item ? COLOR_WHITE : NOSPARKLE );
+            icon_count++;
+            item_count++;
+            x += 32 + 5;
+
+            //new row?
+            if( x >= edgex || icon_count >= MAXINVENTORY/2 )
+            {
+                x = sttx + 5;
+                y += 32 + 5;
+                icon_count = 0;
+            }
+        }
+
+        //Draw weight
+        snprintf( buffer, SDL_arraysize(buffer), "Weight: %d/%d", weight_sum, max_weight );
+        draw_wrap_string( buffer, sttx + 5, stty + height - 32 - 5, x + width );
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
 void render_world( camera_t * pcam )
 {
     gfx_error_state_t * err_tmp;
@@ -3499,6 +3582,9 @@ void render_world( camera_t * pcam )
 
     // Render the billboards
     render_all_billboards( pcam );
+
+    //render inventory
+    render_inventory();
 
     err_tmp = gfx_error_pop();
     if ( NULL != err_tmp )
@@ -4205,7 +4291,7 @@ bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_ba
     pchr = ChrList.lst + pbb->ichr;
 
     // do not display for objects that are mounted or being held
-    if ( pchr->pack.is_packed || DEFINED_CHR( pchr->attachedto ) ) return bfalse;
+    if ( IS_ATTACHED_CHR( pbb->ichr ) ) return bfalse;
 
     ptex = TxTexture_get_ptr( pbb->tex_ref );
 
@@ -4996,7 +5082,7 @@ gfx_rv dolist_make( dolist_t * pdolist, ego_mpd_t * pmesh )
     // Now fill it up again
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        if ( INGAME_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
+        if ( INGAME_CHR( ichr ) && INGAME_CHR( !ChrList.lst[ichr].inwhich_inventory ) )
         {
             // Add the character
             if ( gfx_error == dolist_add_chr( pdolist, pmesh, ichr ) )
@@ -5250,6 +5336,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
 
     // It works better this way...
     cornery[cornerlistlowtohighy[3]] += 256;
+    cornery[cornerlistlowtohighy[0]] -= 256;
 
     // Make life simpler
     for ( cnt = 0; cnt < 4; cnt++ )
@@ -5356,7 +5443,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
             {
                 grid_x = x / GRID_ISIZE;
                 if ( grid_x < 0 )  grid_x = 0;
-                if ( grid_x >= pmesh->info.tiles_x - 1 )  grid_x = pmesh->info.tiles_x - 1;// -2
+                if ( grid_x >= pmesh->info.tiles_x - 1 )  grid_x = pmesh->info.tiles_x - 1;
 
                 rowend[row] = grid_x;
                 row++;
@@ -5371,7 +5458,7 @@ gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pca
 
     if ( numrow != row )
     {
-        log_error( "ROW error (%i, %i)\n", numrow, row );
+        log_warning( "ROW error (%i, %i)\n", numrow, row );
         return gfx_fail;
     }
 

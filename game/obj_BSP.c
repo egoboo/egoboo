@@ -205,8 +205,7 @@ bool_t chr_BSP_insert( chr_t * pchr )
         return bfalse;
 
     // no interactions with packed objects
-    if ( pchr->pack.is_packed )
-        return bfalse;
+    if ( INGAME_CHR( pchr->inwhich_inventory ) ) return bfalse;
 
     // generic flags for character interaction
     can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );

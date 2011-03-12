@@ -54,6 +54,7 @@
 #include "quest.h"
 #include "obj_BSP.h"
 #include "mpd_BSP.h"
+#include "char.h"
 
 #include "script_compile.h"
 #include "script.h"
@@ -382,11 +383,11 @@ egoboo_rv export_all_players( bool_t require_local )
 
         // Export the inventory
         number = 0;
-        PACK_BEGIN_LOOP( ipacked, pchr->pack.next )
+        PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
         {
             if ( number >= MAXINVENTORY ) break;
 
-            export_chr_rv = export_one_character( ipacked, character, number + SLOT_COUNT, is_local );
+            export_chr_rv = export_one_character( iitem, character, number + SLOT_COUNT, is_local );
             if ( rv_error == export_chr_rv )
             {
                 retval = rv_error;
@@ -396,7 +397,7 @@ egoboo_rv export_all_players( bool_t require_local )
                 number++;
             }
         }
-        PACK_END_LOOP( ipacked );
+        PACK_END_LOOP();
     }
 
     return retval;
@@ -1369,7 +1370,7 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
     {
         bool_t target_friend, target_enemy;
 
-        if ( !pchr->alive || pchr->isitem || pchr->pack.is_packed ) continue;
+        if ( !pchr->alive || pchr->isitem || INGAME_CHR( pchr->inwhich_inventory ) ) continue;
 
         // prefer targeting riders over the mount itself
         if ( pchr->ismount && ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) || INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
@@ -1437,7 +1438,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return bfalse;
 
     // Skip held objects
-    if ( INGAME_CHR( ptst->attachedto ) || ptst->pack.is_packed ) return bfalse;
+    if ( INGAME_CHR( ptst->attachedto ) || INGAME_CHR( ptst->inwhich_inventory ) ) return bfalse;
 
     // Allow to target ourselves?
     if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return bfalse;
@@ -1621,7 +1622,7 @@ void do_damage_tiles()
         if ( pchr->is_hidden || !pchr->alive ) continue;
 
         // if you are being held by something, you are protected
-        if ( pchr->pack.is_packed ) continue;
+        if ( INGAME_CHR( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
         if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
@@ -1707,7 +1708,7 @@ void update_pits()
             {
                 // Is it a valid character?
                 if ( pchr->invictus || !pchr->alive ) continue;
-                if ( INGAME_CHR( pchr->attachedto ) || pchr->pack.is_packed ) continue;
+                if ( INGAME_CHR( pchr->attachedto ) || INGAME_CHR( pchr->inwhich_inventory ) ) continue;
 
                 // Do we kill it?
                 if ( pits.kill && pchr->pos.z < PITDEPTH )
@@ -1794,7 +1795,7 @@ void do_weather_spawn_particles()
             {
                 // Yes, but is the character valid?
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
-                if ( INGAME_CHR( ichr ) && !ChrList.lst[ichr].pack.is_packed )
+                if ( INGAME_CHR( ichr ) && !INGAME_CHR( ChrList.lst[ichr].inwhich_inventory ) )
                 {
                     chr_t * pchr = ChrList.lst + ichr;
 
@@ -1975,27 +1976,87 @@ void set_one_player_latch( const PLA_REF ipla )
     sum.y += joy_new.y;
 
     // Read control buttons
-    if ( control_is_pressed( pdevice, CONTROL_JUMP ) )
-        SET_BIT( sum.b, LATCHBUTTON_JUMP );
-    if ( control_is_pressed( pdevice, CONTROL_LEFT_USE ) )
-        SET_BIT( sum.b, LATCHBUTTON_LEFT );
-    if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
-        SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
-    if ( control_is_pressed( pdevice, CONTROL_LEFT_PACK ) )
-        SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
-    if ( control_is_pressed( pdevice, CONTROL_RIGHT_USE ) )
-        SET_BIT( sum.b, LATCHBUTTON_RIGHT );
-    if ( control_is_pressed( pdevice, CONTROL_RIGHT_GET ) )
-        SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
-    if ( control_is_pressed( pdevice, CONTROL_RIGHT_PACK ) )
-        SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
+    if( !ppla->draw_inventory ) 
+    {
+        if ( control_is_pressed( pdevice, CONTROL_JUMP ) )
+            SET_BIT( sum.b, LATCHBUTTON_JUMP );
+        if ( control_is_pressed( pdevice, CONTROL_LEFT_USE ) )
+            SET_BIT( sum.b, LATCHBUTTON_LEFT );
+        if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
+            SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
+//        if ( control_is_pressed( pdevice, CONTROL_LEFT_PACK ) )
+//            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
+        if ( control_is_pressed( pdevice, CONTROL_RIGHT_USE ) )
+            SET_BIT( sum.b, LATCHBUTTON_RIGHT );
+        if ( control_is_pressed( pdevice, CONTROL_RIGHT_GET ) )
+            SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
+//        if ( control_is_pressed( pdevice, CONTROL_RIGHT_PACK ) )
+//            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
 
-    // Now update the input
-    input_device_add_latch( pdevice, sum.x, sum.y );
+        // Now update movement and input
+        input_device_add_latch( pdevice, sum.x, sum.y );
 
-    ppla->local_latch.x = pdevice->latch.x;
-    ppla->local_latch.y = pdevice->latch.y;
-    ppla->local_latch.b = sum.b;
+        ppla->local_latch.x = pdevice->latch.x;
+        ppla->local_latch.y = pdevice->latch.y;    
+        ppla->local_latch.b = sum.b;
+    }
+
+    //inventory mode
+    else if( ppla->inventory_cooldown < update_wld )
+    {
+        int new_selected = ppla->selected_item;
+        chr_t *pchr = ChrList.lst + ppla->index;
+
+        //handle inventory movement
+        if( joy_pos.x < 0 )       new_selected--;
+        else if( joy_pos.x > 0 )  new_selected++;
+        if( joy_pos.y < 0 )       new_selected -= MAXINVENTORY/2;
+        else if( joy_pos.y > 0 )  new_selected += MAXINVENTORY/2;
+
+        //clip to a valid value
+        if( ppla->selected_item != new_selected )
+        {
+            ppla->inventory_cooldown = update_wld + 10;
+            ppla->selected_item = CLIP( new_selected, 0, MAXINVENTORY-1 );
+        }
+
+        //handle item control
+        if( pchr->inst.action_ready && 0 == pchr->reload_timer )
+        {
+            //handle LEFT hand control
+            if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
+            {
+                //put it away and swap with any existing item
+                inventory_swap_item( ppla->index, ppla->selected_item, SLOT_LEFT, bfalse );
+
+                // Make it take a little time
+                chr_play_action( pchr, ACTION_MG, bfalse );
+                pchr->reload_timer = PACKDELAY;
+            }
+
+            //handle RIGHT hand control
+            if ( control_is_pressed( pdevice, CONTROL_RIGHT_GET ) )
+            {
+                //put it away and swap with any existing item
+                inventory_swap_item( ppla->index, ppla->selected_item, SLOT_RIGHT, bfalse );
+
+                // Make it take a little time
+                chr_play_action( pchr, ACTION_MG, bfalse );
+                pchr->reload_timer = PACKDELAY;
+            }
+        }
+
+        //empty any movement
+        ppla->local_latch.x = 0;
+        ppla->local_latch.y = 0;
+    }
+
+    //enable inventory mode?
+    if ( update_wld > ppla->inventory_cooldown && control_is_pressed( pdevice, CONTROL_LEFT_PACK ) )
+    {
+        ppla->draw_inventory = !ppla->draw_inventory;
+        ppla->inventory_cooldown = update_wld + (ONESECOND/4);
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2546,12 +2607,14 @@ void game_load_all_profiles( const char *modname )
 bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 {
     chr_t * pchr, *pparent;
+    cap_t *pcap;
 
     // trap bad pointers
     if ( NULL == pinfo ) return bfalse;
 
     if ( !INGAME_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
+    pcap = chr_get_pcap( ichr );
 
     pparent = NULL;
     if ( INGAME_CHR( pinfo->parent ) ) pparent = ChrList.lst + pinfo->parent;
@@ -2566,13 +2629,9 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        inventory_add_item( ichr, pinfo->parent );
+        inventory_add_item( pinfo->parent, ichr, MAXINVENTORY, btrue );
 
-        SET_BIT( pchr->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
-        pchr->attachedto = pinfo->parent;  // Make grab work
-        scr_run_chr_script( ichr );  // Empty the grabbed messages
-
-        pchr->attachedto = ( CHR_REF )MAX_CHR;  // Fix grab
+        SET_BIT( pchr->ai.alert, ALERTIF_GRABBED );     // Make spellbooks change
     }
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
     {
@@ -2582,16 +2641,16 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
         if ( rv_success == attach_character_to_mount( ichr, pinfo->parent, grip_off ) )
         {
             // Handle the "grabbed" messages
-            scr_run_chr_script( ichr );
+            //scr_run_chr_script( ichr );
         }
     }
 
     // Set the starting pinfo->level
     if ( pinfo->level > 0 )
     {
-        while ( pchr->experiencelevel < pinfo->level && pchr->experience < MAXXP )
+        if ( pchr->experiencelevel < pinfo->level )
         {
-            give_experience( ichr, 25, XP_DIRECT, btrue );
+            pchr->experience = pcap->experience_forlevel[pinfo->level];
             do_level_up( ichr );
         }
     }
@@ -2615,8 +2674,6 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
         }
 
     }
-
-    // adjust the price of items that are spawned in a shop
 
     return btrue;
 }
@@ -2837,7 +2894,7 @@ void activate_spawn_file_vfs()
             //Spit out a warning if they break the limit
             if( spawn_count >= MAX_CHR )
             {
-                log_warning("Too many objects in spawn.txt! Maximum number of objects is %i\n", MAX_CHR);
+                log_warning("Too many objects in spawn.txt! Maximum number of objects is %d\n", MAX_CHR);
                 break;
             }
             pspawn = spawn_list + spawn_count;
@@ -2893,7 +2950,7 @@ void activate_spawn_file_vfs()
             }
 
             //If all slots are reserved, spit out a warning
-            if( sp_dynamic->slot == MAX_PROFILE ) log_warning( "Could not allocate free dynamic slot for object (%s). All slots in use?\n", sp_dynamic->spawn_coment );
+            if( sp_dynamic->slot == MAX_PROFILE ) log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", sp_dynamic->spawn_coment, MAX_PROFILE );
         }
 
         //Now spawn each object in order
@@ -3501,7 +3558,7 @@ void let_all_characters_think()
         is_crushed   = HAS_SOME_BITS( pchr->ai.alert, ALERTIF_CRUSHED );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !pchr->pack.is_packed || pcap->isequipment;
+        can_think = !INGAME_CHR( pchr->inwhich_inventory ) || pcap->isequipment;
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
         if (( pchr->alive && can_think ) || is_crushed || is_cleanedup )

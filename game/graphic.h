@@ -435,7 +435,7 @@ float draw_string( float x, float y, const char *format, ... );
 float draw_wrap_string( const char *szText, float x, float y, int maxx );
 float draw_status( const CHR_REF character, float x, float y );
 void  draw_text();
-void  draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo );
+void  draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo, Uint8 sparkle_override );
 void  draw_cursor();
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map );
 
