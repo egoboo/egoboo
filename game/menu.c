@@ -183,8 +183,6 @@ static egoboo_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst );
 static bool_t    SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 static bool_t    SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 static bool_t    SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
-//static bool_t    SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
-//static bool_t    SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits );
 static int       SelectedPlayer_list_index_from_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 
 //--------------------------------------------------------------------------------------------
@@ -2356,15 +2354,6 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_LEFT_GET], "...", sizeof( STRING ) );
                 }
             }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_PACK][0] )
-            {
-                ui_drawTextBox( menuFont, "Inventory:", buttonLeft, GFX_HEIGHT - 380, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_LEFT_PACK], menuFont, buttonLeft + 100, GFX_HEIGHT - 380, 140, 30 ) )
-                {
-                    waitingforinput = CONTROL_LEFT_PACK;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT_PACK], "...", sizeof( STRING ) );
-                }
-            }
 
             // Right hand
             ui_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, GFX_HEIGHT - 470, 0, 0, 20 );
@@ -2386,33 +2375,31 @@ int doInputOptions( float deltaTime )
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_GET], "...", sizeof( STRING ) );
                 }
             }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_PACK][0] )
-            {
-                ui_drawTextBox( menuFont, "Inventory:", buttonLeft + 300, GFX_HEIGHT - 380, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 6, inputOptionsButtons[CONTROL_RIGHT_PACK], menuFont, buttonLeft + 400, GFX_HEIGHT - 380, 140, 30 ) )
-                {
-                    waitingforinput = CONTROL_RIGHT_PACK;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT_PACK], "...", sizeof( STRING ) );
-                }
-            }
 
             // Controls
-            ui_drawTextBox( menuFont, "CONTROLS", buttonLeft, GFX_HEIGHT - 320, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "CONTROLS", buttonLeft, GFX_HEIGHT - 350, 0, 0, 20 );
             if ( CSTR_END != inputOptionsButtons[CONTROL_JUMP][0] )
             {
-                ui_drawTextBox( menuFont, "Jump:", buttonLeft, GFX_HEIGHT - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], menuFont, buttonLeft + 100, GFX_HEIGHT - 290, 140, 30 ) )
+                ui_drawTextBox( menuFont, "Jump:", buttonLeft, GFX_HEIGHT - 320, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], menuFont, buttonLeft + 100, GFX_HEIGHT - 320, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_JUMP;
                     strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof( STRING ) );
                 }
             }
 
-            ui_drawTextBox( menuFont, "Sneak:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_SNEAK], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
+            ui_drawTextBox( menuFont, "Sneak:", buttonLeft, GFX_HEIGHT - 290, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_SNEAK], menuFont, buttonLeft + 100, GFX_HEIGHT - 290, 140, 30 ) )
             {
                 waitingforinput = CONTROL_SNEAK;
                 strncpy( inputOptionsButtons[CONTROL_SNEAK], "...", sizeof( STRING ) );
+            }
+
+            ui_drawTextBox( menuFont, "Inventory:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_INVENTORY], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
+            {
+                waitingforinput = CONTROL_INVENTORY;
+                strncpy( inputOptionsButtons[CONTROL_INVENTORY], "...", sizeof( STRING ) );
             }
 
             //Only keyboard has the UP, DOWN, LEFT and RIGHT buttons

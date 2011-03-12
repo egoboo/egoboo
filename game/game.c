@@ -1984,14 +1984,10 @@ void set_one_player_latch( const PLA_REF ipla )
             SET_BIT( sum.b, LATCHBUTTON_LEFT );
         if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
             SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
-//        if ( control_is_pressed( pdevice, CONTROL_LEFT_PACK ) )
-//            SET_BIT( sum.b, LATCHBUTTON_PACKLEFT );
         if ( control_is_pressed( pdevice, CONTROL_RIGHT_USE ) )
             SET_BIT( sum.b, LATCHBUTTON_RIGHT );
         if ( control_is_pressed( pdevice, CONTROL_RIGHT_GET ) )
             SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
-//        if ( control_is_pressed( pdevice, CONTROL_RIGHT_PACK ) )
-//            SET_BIT( sum.b, LATCHBUTTON_PACKRIGHT );
 
         // Now update movement and input
         input_device_add_latch( pdevice, sum.x, sum.y );
@@ -2052,7 +2048,7 @@ void set_one_player_latch( const PLA_REF ipla )
     }
 
     //enable inventory mode?
-    if ( update_wld > ppla->inventory_cooldown && control_is_pressed( pdevice, CONTROL_LEFT_PACK ) )
+    if ( update_wld > ppla->inventory_cooldown && control_is_pressed( pdevice, CONTROL_INVENTORY ) )
     {
         ppla->draw_inventory = !ppla->draw_inventory;
         ppla->inventory_cooldown = update_wld + (ONESECOND/4);

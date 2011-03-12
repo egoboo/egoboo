@@ -30,7 +30,7 @@
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 
-static const int CONTROLS_FILE_VERSION = 2;
+static const int CONTROLS_FILE_VERSION = 3;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -160,11 +160,10 @@ bool_t input_settings_save_vfs( const char* szFilename )
         export_control( filewrite, "Jump                ", pdevice->device_type, pdevice->control + CONTROL_JUMP );
         export_control( filewrite, "Left Hand Use        ", pdevice->device_type, pdevice->control + CONTROL_LEFT_USE );
         export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device_type, pdevice->control + CONTROL_LEFT_GET );
-        export_control( filewrite, "Left Hand Inventory ", pdevice->device_type, pdevice->control + CONTROL_LEFT_PACK );
         export_control( filewrite, "Right Hand Use        ", pdevice->device_type, pdevice->control + CONTROL_RIGHT_USE );
         export_control( filewrite, "Right Hand Get/Drop ", pdevice->device_type, pdevice->control + CONTROL_RIGHT_GET );
-        export_control( filewrite, "Right Hand Inventory", pdevice->device_type, pdevice->control + CONTROL_RIGHT_PACK );
         export_control( filewrite, "Sneak                ", pdevice->device_type, pdevice->control + CONTROL_SNEAK );
+        export_control( filewrite, "Open Inventory       ", pdevice->device_type, pdevice->control + CONTROL_INVENTORY );
 
         //this is only needed for keyboard
         if( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
