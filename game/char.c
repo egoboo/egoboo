@@ -1228,7 +1228,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     pchr->ori.map_facing_x = MAP_TURN_OFFSET;
 
     // turn off keeping, unless the object is dead
-    if ( pchr->life <= 0 )
+    if ( !pchr->alive )
     {
         // the object is dead. play the killed animation and make it freeze there
         chr_play_action( pchr, generate_randmask( ACTION_KA, 3 ), bfalse );
@@ -1439,8 +1439,11 @@ egoboo_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, bool_t ignorekurse )
+bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool_t ignorekurse )
 {
+    /// @details ZF@> This adds a new item into the specified inventory slot. Fails if there already is an item there.
+    ///               If the specified inventory slot is MAXINVENTORY, it will find the first free inventory slot.
+
     CHR_REF stack;
     chr_t *pchr, *pitem;
     cap_t *pitem_cap;
@@ -1558,25 +1561,42 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
         {
             SET_BIT( pitem->ai.alert, ALERTIF_PUTAWAY );  // same as ALERTIF_ATLASTWAYPOINT;
         }
-    }
 
+        //@todo: add in the equipment code here
+    }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t inventory_swap_item( const CHR_REF ichr, const Uint8 inventory_slot, slot_t grip_off, bool_t ignorekurse )
+bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool_t ignorekurse )
 {
+    /// @details ZF@> This function swaps items between the specified inventory slot and the specified grip
+    ///               If MAXINVENTORY is specified by inventory_slot, the function will swap with the first item found
+    ///               in the inventory
+
     CHR_REF item, inventory_item;
     chr_t *pchr;
     bool_t success = bfalse;
 
-    //ignore invalid inventory slots
-    if( inventory_slot >= MAXINVENTORY ) return bfalse;
-
     //valid character?
     if( !INGAME_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
+
+    //try get the first used slot found?
+    if( inventory_slot >= MAXINVENTORY ) 
+    {
+        int i;
+        for( i = 0; i < MAXINVENTORY; i++ )
+        {
+            if( INGAME_CHR(pchr->inventory[inventory_slot]) )
+            {
+                //found a free slot
+                inventory_slot = i;
+                break;
+            }
+        }
+    }
 
     inventory_item = pchr->inventory[inventory_slot];
     item           = pchr->holdingwhich[grip_off];
@@ -1594,7 +1614,6 @@ bool_t inventory_swap_item( const CHR_REF ichr, const Uint8 inventory_slot, slot
     if( INGAME_CHR( item ) )
     {
         success |= inventory_add_item( ichr, item, inventory_slot, ignorekurse );
-        //@todo: add in the equipment code here
     }
 
     //now put the inventory item into the character's hand
@@ -1612,14 +1631,17 @@ bool_t inventory_swap_item( const CHR_REF ichr, const Uint8 inventory_slot, slot
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, bool_t ignorekurse )
+bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, const bool_t ignorekurse )
 {
+    /// @details ZF@> This function removes the item specified in the inventory slot from the
+    ///               character's inventory. Note that you still have to handle it falling out
+
     CHR_REF item;
     chr_t *pitem;
     chr_t *pholder;
 
-    //ignore invalid inventory slots
-    if( inventory_slot >= MAXINVENTORY ) return bfalse;
+    //ignore invalid slots
+    if( inventory_slot >= MAXINVENTORY )  return bfalse;
 
     //valid char?
     if( !INGAME_CHR( ichr ) ) return bfalse;
@@ -6404,10 +6426,19 @@ bool_t chr_do_latch_button( chr_t * pchr )
         }
 
     }
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    {
+        pchr->reload_timer = PACKDELAY;
+        inventory_swap_item( ichr, MAXINVENTORY, SLOT_LEFT, bfalse );
+    }
+    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    {
+        pchr->reload_timer = PACKDELAY;
+        inventory_swap_item( ichr, MAXINVENTORY, SLOT_RIGHT, bfalse );
+    }
+
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
-        //pchr->latch.b &= ~LATCHBUTTON_ALTLEFT;
-
         pchr->reload_timer = GRABDELAY;
         if ( !INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {

@@ -1438,7 +1438,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
     if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return bfalse;
 
     // Skip held objects
-    if ( INGAME_CHR( ptst->attachedto ) || INGAME_CHR( ptst->inwhich_inventory ) ) return bfalse;
+    if ( IS_ATTACHED_CHR( ichr_test ) ) return bfalse;
 
     // Allow to target ourselves?
     if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return bfalse;
@@ -1708,7 +1708,7 @@ void update_pits()
             {
                 // Is it a valid character?
                 if ( pchr->invictus || !pchr->alive ) continue;
-                if ( INGAME_CHR( pchr->attachedto ) || INGAME_CHR( pchr->inwhich_inventory ) ) continue;
+                if ( IS_ATTACHED_CHR( ichr ) ) continue;
 
                 // Do we kill it?
                 if ( pits.kill && pchr->pos.z < PITDEPTH )
@@ -2059,6 +2059,7 @@ void set_one_player_latch( const PLA_REF ipla )
     {
         ppla->draw_inventory = !ppla->draw_inventory;
         ppla->inventory_cooldown = update_wld + (ONESECOND/4);
+        ppla->inventory_lerp = 0xFFFF;
     }
 }
 

@@ -2115,10 +2115,19 @@ void pla_reinit( player_t * ppla )
 {
     if ( NULL == ppla ) return;
 
-    ppla->valid              = bfalse;
-    ppla->index              = ( CHR_REF )MAX_CHR;
-    ppla->pdevice            = NULL;
+    //clear input pointer
+    ppla->pdevice = NULL;
+
+    //reset data
+    memset( ppla, 0, sizeof( *ppla ) );
+    ppla->index  = ( CHR_REF )MAX_CHR;
+
+    // initialize the latches
     latch_init( &( ppla->local_latch ) );
+    latch_init( &( ppla->net_latch ) );
+
+    // initialize the tlatch array
+    tlatch_ary_init( ppla->tlatch, MAXLAG );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -509,7 +509,7 @@ gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits
     }
     pchr = ChrList.lst + character;
 
-    if ( pchr->is_hidden ) return gfx_fail;
+    if ( pchr->is_hidden || INGAME_CHR( pchr->inwhich_inventory ) ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
     {

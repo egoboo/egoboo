@@ -94,6 +94,7 @@ struct s_player
     CHR_REF                 selected_item;
     bool_t                  draw_inventory;
     Uint32                  inventory_cooldown;
+    int                     inventory_lerp;
 
     /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
     latch_t                 local_latch;

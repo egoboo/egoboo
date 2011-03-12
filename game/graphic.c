@@ -265,7 +265,8 @@ static void init_blip_data();
 static void init_map_data();
 
 static bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
-static void render_inventory();
+static void   render_hud();
+static void   draw_inventory();
 
 static void gfx_update_timers();
 
@@ -1845,7 +1846,7 @@ float draw_messages( float y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_text()
+void render_hud()
 {
     /// @details ZZ@> draw in-game heads up display
 
@@ -1854,6 +1855,8 @@ void draw_text()
     gfx_begin_2d();
     {
         draw_map();
+
+        draw_inventory();
 
         y = draw_all_status( 0 );
 
@@ -3466,16 +3469,26 @@ void render_world_overlay( const TX_REF texture )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_inventory()
+void draw_inventory()
 {
     //ZF> This renders the open inventories of all local players
     PLA_REF ipla;
     player_t * ppla;
+    GLXvector4f background_color = { 0.66f, 0.0f, 0.0f, 0.95f };
+    
+    CHR_REF ichr;
+    chr_t *pchr;
+
     PLA_REF draw_list[MAX_LOCAL_PLAYERS];
     size_t cnt, draw_list_length = 0;
-
+    
     float sttx, stty;
     int width, height;
+
+    static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
+    
+    //don't draw inventories while menu is open
+    if ( GProc->mod_paused ) return;
 
     //figure out what we have to draw
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -3486,13 +3499,21 @@ void render_inventory()
 
         //draw inventory?
         if( !ppla->draw_inventory ) continue;
+        ichr = ppla->index;
+
+        //valid character?
+        if ( !INGAME_CHR( ichr ) ) continue;
+        pchr = ChrList.lst + ichr;
+
+        //don't draw inventories of network players
+        if( !pchr->islocalplayer ) continue;
         
         draw_list[draw_list_length++] = ipla;
     }
 
     //figure out size and position of the inventory
-    width = 175;
-    height = 120;
+    width = 180;
+    height = 140;
 
     sttx = 0;
     stty = GFX_HEIGHT/2 - height/2;
@@ -3502,9 +3523,7 @@ void render_inventory()
     //now draw each inventory
     for ( cnt = 0; cnt < draw_list_length; cnt++ )
     {
-        CHR_REF ichr;
         size_t i;
-        chr_t *pchr;
         STRING buffer;
         int icon_count, item_count, weight_sum, max_weight;
         float x, y, edgex;
@@ -3512,17 +3531,20 @@ void render_inventory()
         //Figure out who this is
         ipla = draw_list[cnt];
         ppla = PlaStack.lst + ipla;
-        ichr = ppla->index;
 
-        //valid character?
-        if ( !INGAME_CHR( ichr ) ) continue;
+        ichr = ppla->index;
         pchr = ChrList.lst + ichr;
 
-        //don't draw inventories of network players
-        if( !pchr->islocalplayer ) continue;
+        //handle inventories sliding into view
+        ppla->inventory_lerp = MIN( ppla->inventory_lerp, width );
+        if( ppla->inventory_lerp > 0 && lerp_time[cnt] < SDL_GetTicks() )
+        {
+            lerp_time[cnt] = SDL_GetTicks() + 1; 
+            ppla->inventory_lerp = MAX( 0, ppla->inventory_lerp - 16 );
+        }
 
         //set initial positions
-        x = sttx;
+        x = sttx - ppla->inventory_lerp;
         y = stty;
 
         //threshold to start a new row
@@ -3532,14 +3554,11 @@ void render_inventory()
         max_weight = 200 + FP8_TO_INT(pchr->strength)* FP8_TO_INT(pchr->strength);
 
         //draw the backdrop
-        ui_drawButton( 0, x, y, width, height, NULL );
+        ui_drawButton( 0, x, y, width, height, background_color );
         x += 5;
 
         //draw title
-        snprintf( buffer, SDL_arraysize(buffer), "%s's", chr_get_name( ichr, CHRNAME_CAPITAL ) );
-        draw_wrap_string( buffer, x, y, x + width );
-        y += 16;
-        draw_wrap_string( "Inventory", x, y, x + width );
+        draw_wrap_string( chr_get_name( ichr, CHRNAME_CAPITAL ), x, y, x + width );
         y += 32;
 
         //draw each inventory icon
@@ -3562,15 +3581,17 @@ void render_inventory()
             //new row?
             if( x >= edgex || icon_count >= MAXINVENTORY/2 )
             {
-                x = sttx + 5;
+                x = sttx + 5 - ppla->inventory_lerp;
                 y += 32 + 5;
                 icon_count = 0;
             }
         }
 
         //Draw weight
-       // snprintf( buffer, SDL_arraysize(buffer), "Weight: %d/%d", weight_sum, max_weight );
-       // draw_wrap_string( buffer, sttx + 5, stty + height - 32 - 5, x + width );
+        x = sttx + 5 - ppla->inventory_lerp;
+        y = stty + height - 42;
+        snprintf( buffer, SDL_arraysize(buffer), "Weight: %d/%d", weight_sum, max_weight );
+        draw_wrap_string( buffer, x, y, sttx + width + 5 );
 
         //prepare drawing the next inventory
         stty += height + 10;
@@ -3614,9 +3635,6 @@ void render_world( camera_t * pcam )
     // Render the billboards
     render_all_billboards( pcam );
 
-    //render inventory
-    render_inventory();
-
     err_tmp = gfx_error_pop();
     if ( NULL != err_tmp )
     {
@@ -3645,7 +3663,7 @@ void gfx_main()
     /// @details ZZ@> This function does all the drawing stuff
 
     render_world( PCamera );
-    draw_text();
+    render_hud();
 
     request_flip_pages();
 }

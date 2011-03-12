@@ -584,9 +584,9 @@ void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egoboo_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
-bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, bool_t ignorekurse );
-bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, bool_t ignorekurse );
-bool_t inventory_swap_item( const CHR_REF ichr, const Uint8 inventory_slot, slot_t grip_off, bool_t ignorekurse );
+bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, const bool_t ignorekurse );
+bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool_t ignorekurse );
+bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool_t ignorekurse );
 
 void    drop_keys( const CHR_REF character );
 bool_t  drop_all_items( const CHR_REF character );
