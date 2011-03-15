@@ -6997,7 +6997,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     {
         player_t * ppla = PlaStack.lst + ipla;
 
-        result = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        result = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
     }
 
     returncode = ( rv_success == result );
@@ -7027,7 +7027,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         ichr = ppla->index;
         if ( !INGAME_CHR( ichr ) ) continue;
 
-        if ( QUEST_BEATEN == quest_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )pstate->argument, QUEST_MAXVAL ) )
+        if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )pstate->argument, QUEST_MAXVAL ) )
         {
             returncode = btrue;
         }
@@ -7058,7 +7058,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     {
         player_t * ppla = PlaStack.lst + ipla;
 
-        quest_level = quest_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument );
+        quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument );
     }
 
     // only find active quests
@@ -7092,7 +7092,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
         int        quest_level = QUEST_NONE;
         player_t * ppla        = PlaStack.lst + ipla;
 
-        quest_level = quest_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
 
         returncode = QUEST_NONE != quest_level;
     }
@@ -7122,7 +7122,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
         player_count++;
 
         // Try to add it or replace it if this one is higher
-        quest_level = quest_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
+        quest_level = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
         if ( QUEST_NONE != quest_level ) success_count++;
     }
 

@@ -4723,7 +4723,7 @@ bool_t mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnu
 
             player_count++;
 
-            quest_level = quest_get_level( ptr->quest_log, SDL_arraysize( ptr->quest_log ), pmod->base.unlockquest.id );
+            quest_level = quest_log_get_level( ptr->quest_log, SDL_arraysize( ptr->quest_log ), pmod->base.unlockquest.id );
 
             // find beaten quests or quests with proper level
             if ( quest_level <= QUEST_BEATEN || pmod->base.unlockquest.level <= quest_level )

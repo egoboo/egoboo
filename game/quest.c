@@ -26,6 +26,7 @@
 
 #include "egoboo_fileutil.h"
 #include "egoboo_vfs.h"
+#include "egoboo_strutil.h"
 #include "egoboo.h"
 
 #include "egoboo_math.inl"
@@ -42,7 +43,7 @@ ConfigFilePtr_t quest_file_open( const char *player_directory )
     // Figure out the file path
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
 
-    retval = LoadConfigFile( newloadname, bfalse );
+    retval = ConfigFile_Load( newloadname, bfalse );
     if ( NULL == retval )
     {
         retval = ConfigFile_create();
@@ -59,7 +60,7 @@ egoboo_rv quest_file_export( ConfigFilePtr_t pfile )
 
     if ( NULL == pfile ) return rv_error;
 
-    save_rv = SaveConfigFile( pfile );
+    save_rv = ConfigFile_Save( pfile );
 
     rv = ( ConfigFile_succeed == save_rv ) ? rv_success : rv_fail;
 
@@ -190,7 +191,7 @@ egoboo_rv quest_log_upload_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, c
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_set_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
+int quest_log_set_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
 {
     ///@details    ZF@> This function will set the quest level for the specified quest
     ///            and return the new quest_level. It will return QUEST_NONE if the quest was
@@ -209,7 +210,7 @@ int quest_set_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, i
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_adjust_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int adjustment )
+int quest_log_adjust_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int adjustment )
 {
     ///@details    ZF@> This function will modify the quest level for the specified quest with adjustment
     ///            and return the new quest_level total. It will return QUEST_NONE if the quest was
@@ -249,7 +250,7 @@ int quest_adjust_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz )
+int quest_log_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz )
 {
     ///@details ZF@> Returns the quest level for the specified quest IDSZ.
     ///                 It will return QUEST_NONE if the quest was not found or if the quest was beaten.
@@ -261,7 +262,7 @@ int quest_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv quest_add( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
+egoboo_rv quest_log_add( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
 {
     ///@details ZF@> This adds a new quest to the quest log. If the quest is already in there, the higher quest
     ///                 level of either the old and new one will be kept.

@@ -22,12 +22,32 @@
 /// @file file_formats/configfile.h
 /// @details Configuration file loading code.
 
-#include "egoboo_typedef.h"
 
-#include "file_common.h"
+#include <stdio.h>
 #include <stdlib.h>
 
-#include "egoboo_strutil.h"
+//#include "egoboo_typedef.h"
+//#include "file_common.h"
+//#include "egoboo_strutil.h"
+
+//--------------------------------------------------------------------------------------------
+// BOOLEAN
+
+#if defined(__cplusplus)
+    typedef bool config_bool_t;
+    #define config_true true
+    #define config_false false
+#else
+    enum e_config_bool
+    {
+        config_true  = ( 1 == 1 ),
+        config_false = ( !config_true )
+    };
+    typedef enum e_config_bool config_bool_t;
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)
 extern "C"
@@ -48,66 +68,96 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    /// the ConfigFile return value type
     typedef int ConfigFile_retval;
 
 //--------------------------------------------------------------------------------------------
 // struct s_ConfigFileValue
 //--------------------------------------------------------------------------------------------
 
-/// A single value in the congiguration file, specified by ["TAG"] = "VALUE"
+    struct s_ConfigFileValue;
     typedef struct s_ConfigFileValue ConfigFileValue_t;
-    typedef struct s_ConfigFileValue
+    typedef struct s_ConfigFileValue *ConfigFileValuePtr_t;
+
+/// A single value in the congiguration file, specified by ["TAG"] = "VALUE"
+    struct s_ConfigFileValue
     {
+        ConfigFileValuePtr_t NextValue;
+
         char KeyName[MAX_CONFIG_KEY_LENGTH];
         char *Value;
         char *Commentary;
-        ConfigFileValue_t *NextValue;
-    } *ConfigFileValuePtr_t;
+    };
 
 //--------------------------------------------------------------------------------------------
 // struct s_ConfigFileSection
 //--------------------------------------------------------------------------------------------
 
-/// One section of the congiguration file, delimited by {"BLAH"}
+    struct s_ConfigFileSection;
     typedef struct s_ConfigFileSection ConfigFileSection_t;
-    typedef struct s_ConfigFileSection
+    typedef struct s_ConfigFileSection *ConfigFileSectionPtr_t;
+
+    /// One section of the congiguration file, delimited by {"BLAH"}
+    struct s_ConfigFileSection
     {
+        ConfigFileSectionPtr_t NextSection;
+
         char SectionName[MAX_CONFIG_SECTION_LENGTH];
-        ConfigFileSection_t  *NextSection;
-        ConfigFileValuePtr_t  FirstValue;
-    } *ConfigFileSectionPtr_t;
+
+        ConfigFileValuePtr_t   FirstValuePtr;
+    };
+
+//--------------------------------------------------------------------------------------------
+// struct s_ConfigFileCarat
+//--------------------------------------------------------------------------------------------
+
+    struct s_ConfigFileCarat;
+    typedef struct s_ConfigFileCarat ConfigFileCarat_t;
+    typedef struct s_ConfigFileCarat *ConfigFileCaratPtr_t;
+
+    struct s_ConfigFileCarat
+    {
+        ConfigFileSectionPtr_t  SectionPtr;
+        ConfigFileValuePtr_t    ValuePtr;
+    };
 
 //--------------------------------------------------------------------------------------------
 // struct s_ConfigFile
 //--------------------------------------------------------------------------------------------
 
-/// The congiguration file
+    struct s_ConfigFile;
     typedef struct s_ConfigFile ConfigFile_t;
-    typedef struct s_ConfigFile
+    typedef struct s_ConfigFile *ConfigFilePtr_t;
+
+    /// The congiguration file
+    struct s_ConfigFile
     {
         FILE  *f;
         char   filename[256];
 
-        ConfigFileSectionPtr_t  ConfigSectionList;
-        ConfigFileSectionPtr_t  CurrentSection;
-        ConfigFileValuePtr_t    CurrentValue;
-    } *ConfigFilePtr_t;
+        ConfigFileSectionPtr_t  SectionList;
+        ConfigFileCarat_t       Current;
+    };
+
+//--------------------------------------------------------------------------------------------
+// External module functions
+//--------------------------------------------------------------------------------------------
 
     extern ConfigFilePtr_t   ConfigFile_create();
     extern ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ptmp );
 
-    extern ConfigFilePtr_t   LoadConfigFile( const char *szFileName, bool_t force );
-    extern ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile );
-    extern ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szFileName );
+    extern ConfigFilePtr_t   ConfigFile_Load( const char *szFileName, config_bool_t force );
+    extern ConfigFile_retval ConfigFile_Save( ConfigFilePtr_t pConfigFile );
+    extern ConfigFile_retval ConfigFile_SaveAs( ConfigFilePtr_t pConfigFile, const char *szFileName );
 
-    extern ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, char *pValue, Sint32 pValueBufferLength );
-    extern ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, bool_t *pBool );
-    extern ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, Sint32 *pInt );
+    extern ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, char *pValue, size_t pValueBufferLength );
+    extern ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, config_bool_t *pBool );
+    extern ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, int *pInt );
 
-    extern ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, const char *pValue );
-    extern ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, bool_t pBool );
-    extern ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, int pInt );
-    extern ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const char *pSection, const char *pKey, float pFloat );
+    extern ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, const char *szValue );
+    extern ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, config_bool_t Bool );
+    extern ConfigFile_retval ConfigFile_SetValue_Int( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, int Int );
+    extern ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, float Float );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

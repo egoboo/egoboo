@@ -2527,7 +2527,7 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, TX_REF itex )
     pinst->skin_has_transparency = bfalse;
     if ( NULL != ptex )
     {
-        pinst->skin_has_transparency = ( bool_t )ptex->has_alpha;
+        pinst->skin_has_transparency = (SDL_FALSE != ptex->has_alpha);
     }
 
     // set the texture index

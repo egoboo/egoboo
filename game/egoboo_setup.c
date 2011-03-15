@@ -171,7 +171,7 @@ bool_t setup_read_vfs()
 
     // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
     // linux if the directory is read-only
-    lConfigSetup = LoadConfigFile( _config_filename, bfalse );
+    lConfigSetup = ConfigFile_Load( _config_filename, bfalse );
 
     //Did something go wrong?
     if ( NULL == lConfigSetup )
@@ -192,7 +192,7 @@ bool_t setup_write()
 
     if ( INVALID_CSTR( _config_filename ) ) return bfalse;
 
-    success = ConfigFile_succeed == SaveConfigFileAs( lConfigSetup, _config_filename );
+    success = ConfigFile_succeed == ConfigFile_SaveAs( lConfigSetup, _config_filename );
     if ( !success ) log_warning( "Failed to save setup.txt!\n" );
 
     return success;
