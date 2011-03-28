@@ -61,6 +61,32 @@ static size_t  PrtList_get_free();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+bool_t VALID_PRT_RANGE( PRT_REF IPRT ) { return _VALID_PRT_RANGE( IPRT ); }
+bool_t DEFINED_PRT( PRT_REF IPRT )     { return _DEFINED_PRT( IPRT );     }
+bool_t ALLOCATED_PRT( PRT_REF IPRT )   { return _ALLOCATED_PRT( IPRT );   }
+bool_t ACTIVE_PRT( PRT_REF IPRT )      { return _ACTIVE_PRT( IPRT );      }
+bool_t WAITING_PRT( PRT_REF IPRT )     { return _WAITING_PRT( IPRT );     }
+bool_t TERMINATED_PRT( PRT_REF IPRT )  { return _TERMINATED_PRT( IPRT );  }
+
+REF_T   GET_INDEX_PPRT( prt_t * PPRT )  { return _GET_INDEX_PPRT( PPRT );  }
+PRT_REF GET_REF_PPRT( prt_t * PPRT )    { return _GET_REF_PPRT( PPRT );    }
+bool_t  DEFINED_PPRT( prt_t * PPRT )    { return _DEFINED_PPRT( PPRT );    }
+bool_t  VALID_PRT_PTR( prt_t * PPRT )   { return _VALID_PRT_PTR( PPRT );   }
+bool_t  ALLOCATED_PPRT( prt_t * PPRT )  { return _ALLOCATED_PPRT( PPRT );  }
+bool_t  ACTIVE_PPRT( prt_t * PPRT )     { return _ACTIVE_PPRT( PPRT );     }
+bool_t  TERMINATED_PPRT( prt_t * PPRT ) { return _TERMINATED_PPRT( PPRT ); }
+
+bool_t INGAME_PRT_BASE(PRT_REF IPRT)  { return _INGAME_PRT_BASE(IPRT);  }       
+bool_t INGAME_PPRT_BASE(prt_t * PPRT) { return _INGAME_PPRT_BASE(PPRT); }      
+
+bool_t INGAME_PRT(PRT_REF IPRT)       { return _INGAME_PRT(IPRT);  }           
+bool_t INGAME_PPRT(prt_t * PPRT)      { return _INGAME_PPRT(PPRT); }  
+
+bool_t DISPLAY_PRT(PRT_REF IPRT)     { return _DISPLAY_PRT(IPRT) ; }
+bool_t DISPLAY_PPRT(prt_t * PPRT)    { return _DISPLAY_PPRT(PPRT); }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void PrtList_init()
 {
     int cnt;

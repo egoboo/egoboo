@@ -282,7 +282,7 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
 
     // is the particle in-game?
-    if ( !INGAME_PRT_PBASE( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
+    if ( !INGAME_PPRT_BASE( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
     has_enchant = bfalse;

@@ -386,6 +386,9 @@
 				RelativePath=".\rpc.c">
 			</File>
 			<File
+				RelativePath=".\script_implementation.c">
+			</File>
+			<File
 				RelativePath=".\server.c">
 			</File>
 			<File
@@ -510,6 +513,9 @@
 			Filter="">
 			<File
 				RelativePath=".\char.inl">
+			</File>
+			<File
+				RelativePath=".\ChrList.inl">
 			</File>
 			<File
 				RelativePath=".\enchant.inl">

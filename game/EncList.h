@@ -27,31 +27,56 @@
 #include "enchant.h"
 
 //--------------------------------------------------------------------------------------------
+// testing functions
+//--------------------------------------------------------------------------------------------
+
+bool_t VALID_ENC_RANGE( ENC_REF IENC );
+bool_t DEFINED_ENC( ENC_REF IENC );
+bool_t ALLOCATED_ENC( ENC_REF IENC );
+bool_t ACTIVE_ENC( ENC_REF IENC );
+bool_t WAITING_ENC( ENC_REF IENC );
+bool_t TERMINATED_ENC( ENC_REF IENC );
+
+REF_T   GET_INDEX_PENC( enc_t * PENC );
+ENC_REF GET_REF_PENC( enc_t * PENC );
+bool_t  DEFINED_PENC( enc_t * PENC );
+bool_t  VALID_ENC_PTR( enc_t * PENC );
+bool_t  ALLOCATED_PENC( enc_t * PENC );
+bool_t  ACTIVE_PENC( enc_t * PENC );
+bool_t  TERMINATED_PENC( enc_t * PENC );
+
+bool_t INGAME_ENC_BASE(ENC_REF IENC);
+bool_t INGAME_PENC_BASE(enc_t * PENC);
+
+bool_t INGAME_ENC(ENC_REF IENC);
+bool_t INGAME_PENC(enc_t * PENC);
+
+//--------------------------------------------------------------------------------------------
 // testing macros
 //--------------------------------------------------------------------------------------------
 
-#define VALID_ENC_RANGE( IENC )    ( ((IENC) < MAX_ENC) && ((IENC) >= 0) )
-#define DEFINED_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define ALLOCATED_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define ACTIVE_ENC( IENC )         ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define WAITING_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define TERMINATED_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define _VALID_ENC_RANGE( IENC )    ( ((IENC) < MAX_ENC) && ((IENC) >= 0) )
+#define _DEFINED_ENC( IENC )        ( _VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define _ALLOCATED_ENC( IENC )      ( _VALID_ENC_RANGE( IENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define _ACTIVE_ENC( IENC )         ( _VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define _WAITING_ENC( IENC )        ( _VALID_ENC_RANGE( IENC ) && WAITING_PBASE   ( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define _TERMINATED_ENC( IENC )     ( _VALID_ENC_RANGE( IENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
 
-#define GET_INDEX_PENC( PENC )      ((NULL == (PENC)) ? MAX_ENC : (size_t)GET_INDEX_POBJ( PENC, MAX_ENC ))
-#define GET_REF_PENC( PENC )        ((ENC_REF)GET_INDEX_PENC( PENC ))
-#define DEFINED_PENC( PENC )        ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PENC) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PENC) ) )
-#define VALID_ENC_PTR( PENC )       ( (NULL != (PENC)) && VALID_ENC_RANGE( GET_REF_POBJ( PENC, MAX_ENC) ) )
-#define ALLOCATED_PENC( PENC )      ( VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PENC) ) )
-#define ACTIVE_PENC( PENC )         ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) )
-#define TERMINATED_PENC( PENC )     ( VALID_ENC_PTR( PENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(PENC) ) )
+#define _GET_INDEX_PENC( PENC )      ((NULL == (PENC)) ? MAX_ENC : (size_t)GET_INDEX_POBJ( PENC, MAX_ENC ))
+#define _GET_REF_PENC( PENC )        ((ENC_REF)_GET_INDEX_PENC( PENC ))
+#define _DEFINED_PENC( PENC )        ( _VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PENC) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PENC) ) )
+#define _VALID_ENC_PTR( PENC )       ( (NULL != (PENC)) && _VALID_ENC_RANGE( GET_REF_POBJ( PENC, MAX_ENC) ) )
+#define _ALLOCATED_PENC( PENC )      ( _VALID_ENC_PTR( PENC ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PENC) ) )
+#define _ACTIVE_PENC( PENC )         ( _VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) )
+#define _TERMINATED_PENC( PENC )     ( _VALID_ENC_PTR( PENC ) && TERMINATED_PBASE( POBJ_GET_PBASE(PENC) ) )
 
 // Macros to determine whether the enchant is in the game or not.
 // If objects are being spawned, then any object that is just "defined" is treated as "in game"
-#define INGAME_ENC_BASE(IENC)       ( VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && ON_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
-#define INGAME_PENC_BASE(PENC)      ( VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) && ON_PBASE( POBJ_GET_PBASE(PENC) ) )
+#define _INGAME_ENC_BASE(IENC)       ( _VALID_ENC_RANGE( IENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) && ON_PBASE( POBJ_GET_PBASE(EncList.lst + (IENC)) ) )
+#define _INGAME_PENC_BASE(PENC)      ( _VALID_ENC_PTR( PENC ) && ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) && ON_PBASE( POBJ_GET_PBASE(PENC) ) )
 
-#define INGAME_ENC(IENC)            ( (ego_object_spawn_depth) > 0 ? DEFINED_ENC(IENC) : INGAME_ENC_BASE(IENC) )
-#define INGAME_PENC(PENC)           ( (ego_object_spawn_depth) > 0 ? DEFINED_PENC(PENC) : INGAME_PENC_BASE(PENC) )
+#define _INGAME_ENC(IENC)            ( (ego_object_spawn_depth) > 0 ? _DEFINED_ENC(IENC) : _INGAME_ENC_BASE(IENC) )
+#define _INGAME_PENC(PENC)           ( (ego_object_spawn_depth) > 0 ? _DEFINED_PENC(PENC) : _INGAME_PENC_BASE(PENC) )
 
 //--------------------------------------------------------------------------------------------
 // looping macros

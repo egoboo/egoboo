@@ -27,36 +27,64 @@
 #include "particle.h"
 
 //--------------------------------------------------------------------------------------------
+// testing functions
+//--------------------------------------------------------------------------------------------
+
+bool_t VALID_PRT_RANGE( PRT_REF IPRT );
+bool_t DEFINED_PRT( PRT_REF IPRT );
+bool_t ALLOCATED_PRT( PRT_REF IPRT );
+bool_t ACTIVE_PRT( PRT_REF IPRT );
+bool_t WAITING_PRT( PRT_REF IPRT );
+bool_t TERMINATED_PRT( PRT_REF IPRT );
+
+REF_T   GET_INDEX_PPRT( prt_t * PPRT );
+PRT_REF GET_REF_PPRT( prt_t * PPRT );
+bool_t  DEFINED_PPRT( prt_t * PPRT );
+bool_t  VALID_PRT_PTR( prt_t * PPRT );
+bool_t  ALLOCATED_PPRT( prt_t * PPRT );
+bool_t  ACTIVE_PPRT( prt_t * PPRT );
+bool_t  TERMINATED_PPRT( prt_t * PPRT );
+
+bool_t INGAME_PRT_BASE(PRT_REF IPRT);
+bool_t INGAME_PPRT_BASE(prt_t * PPRT);
+
+bool_t INGAME_PRT(PRT_REF IPRT);
+bool_t INGAME_PPRT(prt_t * PPRT);
+
+bool_t DISPLAY_PRT(PRT_REF IPRT);
+bool_t DISPLAY_PPRT(prt_t * PPRT);
+
+//--------------------------------------------------------------------------------------------
 // testing macros
 //--------------------------------------------------------------------------------------------
 
-#define VALID_PRT_RANGE( IPRT )    ( ((IPRT) < maxparticles) && ((IPRT) >= 0) && ((IPRT) < MAX_PRT) )
-#define DEFINED_PRT( IPRT )        ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define ALLOCATED_PRT( IPRT )      ( VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define ACTIVE_PRT( IPRT )         ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define WAITING_PRT( IPRT )        ( VALID_PRT_RANGE( IPRT ) && WAITING_PBASE   ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define TERMINATED_PRT( IPRT )     ( VALID_PRT_RANGE( IPRT ) && TERMINATED_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define _VALID_PRT_RANGE( IPRT )    ( ((IPRT) < maxparticles) && ((IPRT) >= 0) && ((IPRT) < MAX_PRT) )
+#define _DEFINED_PRT( IPRT )        ( _VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define _ALLOCATED_PRT( IPRT )      ( _VALID_PRT_RANGE( IPRT ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define _ACTIVE_PRT( IPRT )         ( _VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define _WAITING_PRT( IPRT )        ( _VALID_PRT_RANGE( IPRT ) && WAITING_PBASE   ( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define _TERMINATED_PRT( IPRT )     ( _VALID_PRT_RANGE( IPRT ) && TERMINATED_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
 
-#define GET_INDEX_PPRT( PPRT )      ((NULL == (PPRT)) ? MAX_PRT : (size_t)GET_INDEX_POBJ( PPRT, MAX_PRT ))
-#define GET_REF_PPRT( PPRT )        ((PRT_REF)GET_INDEX_PPRT( PPRT ))
-#define DEFINED_PPRT( PPRT )        ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
-#define VALID_PRT_PTR( PPRT )       ( (NULL != (PPRT)) && VALID_PRT_RANGE( GET_REF_POBJ( PPRT, MAX_PRT) ) )
-#define ALLOCATED_PPRT( PPRT )      ( VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PPRT) ) )
-#define ACTIVE_PPRT( PPRT )         ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) )
-#define TERMINATED_PPRT( PPRT )     ( VALID_PRT_PTR( PPRT ) && TERMINATED_PBASE( POBJ_GET_PBASE(PPRT) ) )
+#define _GET_INDEX_PPRT( PPRT )      ((NULL == (PPRT)) ? MAX_PRT : (size_t)GET_INDEX_POBJ( PPRT, MAX_PRT ))
+#define _GET_REF_PPRT( PPRT )        ((PRT_REF)_GET_INDEX_PPRT( PPRT ))
+#define _DEFINED_PPRT( PPRT )        ( _VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PPRT) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PPRT) ) )
+#define _VALID_PRT_PTR( PPRT )       ( (NULL != (PPRT)) && _VALID_PRT_RANGE( GET_REF_POBJ( PPRT, MAX_PRT) ) )
+#define _ALLOCATED_PPRT( PPRT )      ( _VALID_PRT_PTR( PPRT ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PPRT) ) )
+#define _ACTIVE_PPRT( PPRT )         ( _VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) )
+#define _TERMINATED_PPRT( PPRT )     ( _VALID_PRT_PTR( PPRT ) && TERMINATED_PBASE( POBJ_GET_PBASE(PPRT) ) )
 
 // Macros to determine whether the particle is in the game or not.
 // If objects are being spawned, then any object that is just "defined" is treated as "in game"
 
 // all particles that are ON are displayed
-#define INGAME_PRT_BASE(IPRT)       ( VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && ON_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
-#define INGAME_PRT_PBASE(PPRT)      ( VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) && ON_PBASE( POBJ_GET_PBASE(PPRT) ) )
+#define _INGAME_PRT_BASE(IPRT)       ( _VALID_PRT_RANGE( IPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) && ON_PBASE( POBJ_GET_PBASE(PrtList.lst + (IPRT)) ) )
+#define _INGAME_PPRT_BASE(PPRT)      ( _VALID_PRT_PTR( PPRT ) && ACTIVE_PBASE( POBJ_GET_PBASE(PPRT) ) && ON_PBASE( POBJ_GET_PBASE(PPRT) ) )
 
-#define INGAME_PRT(IPRT)            ( ( (ego_object_spawn_depth) > 0 ? DEFINED_PRT(IPRT) : INGAME_PRT_BASE(IPRT) ) && (!PrtList.lst[IPRT].is_ghost) )
-#define INGAME_PPRT(PPRT)           ( ( (ego_object_spawn_depth) > 0 ? INGAME_PRT_PBASE(PPRT) : DISPLAY_PPRT(PPRT) ) && ( !(PPRT)->is_ghost ) )
+#define _INGAME_PRT(IPRT)            ( ( (ego_object_spawn_depth) > 0 ? _DEFINED_PRT(IPRT) : _INGAME_PRT_BASE(IPRT) ) && (!PrtList.lst[IPRT].is_ghost) )
+#define _INGAME_PPRT(PPRT)           ( ( (ego_object_spawn_depth) > 0 ? _INGAME_PPRT_BASE(PPRT) : _DISPLAY_PPRT(PPRT) ) && ( !(PPRT)->is_ghost ) )
 
-#define DISPLAY_PRT(IPRT)           INGAME_PRT_BASE(IPRT)
-#define DISPLAY_PPRT(PPRT)          INGAME_PRT_PBASE(PPRT)
+#define _DISPLAY_PRT(IPRT)           _INGAME_PRT_BASE(IPRT)
+#define _DISPLAY_PPRT(PPRT)          _INGAME_PPRT_BASE(PPRT)
 
 //--------------------------------------------------------------------------------------------
 // looping macros

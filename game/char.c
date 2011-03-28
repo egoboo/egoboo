@@ -4491,7 +4491,7 @@ chr_t * chr_config_init( chr_t * pchr )
     }
     else
     {
-        ChrList_add_activation( GET_INDEX_PPRT( pchr ) );
+        ChrList_add_activation( GET_INDEX_PCHR( pchr ) );
     }
 
     pbase->state = ego_object_active;

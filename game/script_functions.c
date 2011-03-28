@@ -479,6 +479,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function tells the character where to move next
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
+    cap_t * pcap;
     fvec2_t pos;
     fvec3_t nrm;
     float   pressure;
@@ -492,32 +493,30 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // is this a safe position?
     returncode = bfalse;
 
-    if ( 255 == chr_get_pcap( pself->index )->weight || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
+    pcap = chr_get_pcap( pself->index );
+    if( NULL != pcap )
     {
-        // yes it is safe. add it.
-        returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
-    }
-    else
-    {
-        cap_t * pcap;
-        // no it is not safe. what to do? nothing, or add the current position?
-        //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
-
-        pcap = chr_get_pcap( GET_REF_PCHR( pchr ) );
-
-        if ( NULL != pcap )
+        if ( CAP_INFINITE_WEIGHT == pcap->weight || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
         {
+            // yes it is safe. add it.
+            returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
+        }
+        else
+        {
+            // no it is not safe. what to do? nothing, or add the current position?
+            //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
+
             log_warning( "scr_AddWaypoint() - failed to add a waypoint because object was \"inside\" a wall.\n"
-                         "\tcharacter %d (\"%s\", \"%s\")\n"
-                         "\tWaypoint index %d\n"
-                         "\tWaypoint location (in tiles) <%f,%f>\n"
-                         "\tWall normal <%1.4f,%1.4f>\n"
-                         "\tPressure %f\n",
-                         GET_REF_PCHR( pchr ), pchr->Name, pcap->name,
-                         pself->wp_lst.head,
-                         pos.x / GRID_FSIZE, pos.y / GRID_FSIZE,
-                         nrm.x, nrm.y,
-                         SQRT( pressure ) / GRID_FSIZE );
+                "\tcharacter %d (\"%s\", \"%s\")\n"
+                "\tWaypoint index %d\n"
+                "\tWaypoint location (in tiles) <%f,%f>\n"
+                "\tWall normal <%1.4f,%1.4f>\n"
+                "\tPressure %f\n",
+                pself->index, pchr->Name, pcap->name,
+                pself->wp_lst.head,
+                pos.x / GRID_FSIZE, pos.y / GRID_FSIZE,
+                nrm.x, nrm.y,
+                SQRT( pressure ) / GRID_FSIZE );
         }
     }
 #else
@@ -1266,7 +1265,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     /// that item.
     /// For one use keys and such
 
-    CHR_REF item, ichr;
+    CHR_REF item;
     chr_t *pitem, *ptarget;
     size_t cnt = MAX_CHR;
     IDSZ idsz;

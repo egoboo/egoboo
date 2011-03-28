@@ -55,6 +55,29 @@ static bool_t ChrList_remove_free_index( const int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+bool_t VALID_CHR_RANGE( CHR_REF ICHR ) { return _VALID_CHR_RANGE( ICHR ); }
+bool_t DEFINED_CHR( CHR_REF ICHR )     { return _DEFINED_CHR( ICHR );     }
+bool_t ALLOCATED_CHR( CHR_REF ICHR )   { return _ALLOCATED_CHR( ICHR );   }
+bool_t ACTIVE_CHR( CHR_REF ICHR )      { return _ACTIVE_CHR( ICHR );      }
+bool_t WAITING_CHR( CHR_REF ICHR )     { return _WAITING_CHR( ICHR );     }
+bool_t TERMINATED_CHR( CHR_REF ICHR )  { return _TERMINATED_CHR( ICHR );  }
+
+REF_T   GET_INDEX_PCHR( chr_t * PCHR )  { return _GET_INDEX_PCHR( PCHR );  }
+CHR_REF GET_REF_PCHR( chr_t * PCHR )    { return _GET_REF_PCHR( PCHR );    }
+bool_t  DEFINED_PCHR( chr_t * PCHR )    { return _DEFINED_PCHR( PCHR );    }
+bool_t  VALID_CHR_PTR( chr_t * PCHR )   { return _VALID_CHR_PTR( PCHR );   }
+bool_t  ALLOCATED_PCHR( chr_t * PCHR )  { return _ALLOCATED_PCHR( PCHR );  }
+bool_t  ACTIVE_PCHR( chr_t * PCHR )     { return _ACTIVE_PCHR( PCHR );     }
+bool_t  TERMINATED_PCHR( chr_t * PCHR ) { return _TERMINATED_PCHR( PCHR ); }
+
+bool_t INGAME_CHR_BASE(CHR_REF ICHR)  { return _INGAME_CHR_BASE(ICHR);  }       
+bool_t INGAME_PCHR_BASE(chr_t * PCHR) { return _INGAME_PCHR_BASE(PCHR); }      
+
+bool_t INGAME_CHR(CHR_REF ICHR)       { return _INGAME_CHR(ICHR);  }           
+bool_t INGAME_PCHR(chr_t * PCHR)      { return _INGAME_PCHR(PCHR); }  
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ChrList_init()
 {
     int cnt;

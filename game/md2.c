@@ -466,8 +466,11 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     //Load up the pre-computed OpenGL optimizations
     if ( md2_header.size_glcmds > 0 )
     {
-        Uint32            cmd_cnt = 0, cmd_size;
-        MD2_GLCommand_t * cmd     = NULL;
+        Uint32            cmd_cnt  = 0;
+        Sint32            cmd_size = 0;
+        MD2_GLCommand_t * cmd      = NULL;
+
+        // seek to the ogl command offset
         fseek( f, md2_header.offset_glcmds, SEEK_SET );
 
         //count the commands

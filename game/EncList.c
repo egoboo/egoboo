@@ -55,6 +55,29 @@ static bool_t EncList_remove_free_index( const int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+bool_t VALID_ENC_RANGE( ENC_REF IENC ) { return _VALID_ENC_RANGE( IENC ); }
+bool_t DEFINED_ENC( ENC_REF IENC )     { return _DEFINED_ENC( IENC );     }
+bool_t ALLOCATED_ENC( ENC_REF IENC )   { return _ALLOCATED_ENC( IENC );   }
+bool_t ACTIVE_ENC( ENC_REF IENC )      { return _ACTIVE_ENC( IENC );      }
+bool_t WAITING_ENC( ENC_REF IENC )     { return _WAITING_ENC( IENC );     }
+bool_t TERMINATED_ENC( ENC_REF IENC )  { return _TERMINATED_ENC( IENC );  }
+
+REF_T   GET_INDEX_PENC( enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
+ENC_REF GET_REF_PENC( enc_t * PENC )    { return _GET_REF_PENC( PENC );    }
+bool_t  DEFINED_PENC( enc_t * PENC )    { return _DEFINED_PENC( PENC );    }
+bool_t  VALID_ENC_PTR( enc_t * PENC )   { return _VALID_ENC_PTR( PENC );   }
+bool_t  ALLOCATED_PENC( enc_t * PENC )  { return _ALLOCATED_PENC( PENC );  }
+bool_t  ACTIVE_PENC( enc_t * PENC )     { return _ACTIVE_PENC( PENC );     }
+bool_t  TERMINATED_PENC( enc_t * PENC ) { return _TERMINATED_PENC( PENC ); }
+
+bool_t INGAME_ENC_BASE(ENC_REF IENC)  { return _INGAME_ENC_BASE(IENC);  }       
+bool_t INGAME_PENC_BASE(enc_t * PENC) { return _INGAME_PENC_BASE(PENC); }      
+
+bool_t INGAME_ENC(ENC_REF IENC)       { return _INGAME_ENC(IENC);  }           
+bool_t INGAME_PENC(enc_t * PENC)      { return _INGAME_PENC(PENC); } 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void EncList_init()
 {
     int cnt;
