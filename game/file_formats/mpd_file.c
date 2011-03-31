@@ -47,12 +47,10 @@ static bool_t       mpd_mem_alloc( mpd_mem_t * pmem, mpd_info_t * pinfo );
 fvec3_t   map_twist_nrm[256];
 Uint32    map_twist_y[256];            // For surface normal of mesh
 Uint32    map_twist_x[256];
-float     map_twistvel_x[256];            // For sliding down steep hills
-float     map_twistvel_y[256];
-float     map_twistvel_z[256];
+fvec3_t   map_twist_vel[256];            // For sliding down steep hills
 Uint8     map_twist_flat[256];
 
-tile_definition_t tile_dict[MAXMESHTYPE];
+tile_definition_t tile_dict[MPD_FAN_TYPE_MAX];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -215,7 +213,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     }
 
     fread( &itmp, 4, 1, fileread );
-    if ( MAPID != ( Uint32 )ENDIAN_INT32( itmp ) )
+    if ( MPD_ID != ( Uint32 )ENDIAN_INT32( itmp ) )
     {
         log_warning( "mpd_load() - this is not a valid level.mpd!!\n" );
         fclose( fileread );
@@ -227,7 +225,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
 
     // grab the tiles in x and y
     fread( &itmp, 4, 1, fileread );  pinfo->tiles_x = ( int )ENDIAN_INT32( itmp );
-    if ( pinfo->tiles_x >= MAXMESHTILEY )
+    if ( pinfo->tiles_x >= MPD_TILEY_MAX )
     {
         mpd_dtor( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in x direction.\n" );
@@ -236,7 +234,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     }
 
     fread( &itmp, 4, 1, fileread );  pinfo->tiles_y = ( int )ENDIAN_INT32( itmp );
-    if ( pinfo->tiles_y >= MAXMESHTILEY )
+    if ( pinfo->tiles_y >= MPD_TILEY_MAX )
     {
         mpd_dtor( pmesh );
         log_warning( "mpd_load() - invalid mpd size. Mesh too large in y direction.\n" );
@@ -357,9 +355,9 @@ bool_t mpd_mem_alloc( mpd_mem_t * pmem, mpd_info_t * pinfo )
     // free any memory already allocated
     if ( !mpd_mem_free( pmem ) ) return bfalse;
 
-    if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
+    if ( pinfo->vertcount > MPD_VERTICES_MAX )
     {
-        log_warning( "mpd_mem_alloc() - mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MESH_MAXTOTALVERTRICES );
+        log_warning( "mpd_mem_alloc() - mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MPD_VERTICES_MAX );
         return bfalse;
     }
 
@@ -368,7 +366,7 @@ bool_t mpd_mem_alloc( mpd_mem_t * pmem, mpd_info_t * pinfo )
     if ( NULL == pmem->vlst )
     {
         mpd_mem_free( pmem );
-        log_error( "mpd_mem_alloc() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+        log_error( "mpd_mem_alloc() - reduce the maximum number of vertices! (Check MPD_VERTICES_MAX)\n" );
         return bfalse;
     }
     pmem->vcount = pinfo->vertcount;
@@ -397,66 +395,6 @@ bool_t mpd_mem_free( mpd_mem_t * pmem )
 
     EGOBOO_DELETE_ARY( pmem->tile_list );
     pmem->tile_count = 0;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-Uint8 cartman_get_twist( int x, int y )
-{
-    Uint8 twist;
-
-    // x and y should be from -7 to 8
-    if ( x < -7 ) x = -7;
-    if ( x > 8 ) x = 8;
-    if ( y < -7 ) y = -7;
-    if ( y > 8 ) y = 8;
-
-    // Now between 0 and 15
-    x = x + 7;
-    y = y + 7;
-    twist = ( y << 4 ) + x;
-
-    return twist;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t twist_to_normal( Uint8 twist, float v[], float slide )
-{
-    int ix, iy;
-    float dx, dy;
-    float nx, ny, nz, nz2;
-    float diff_xy;
-
-    if ( NULL == v ) return bfalse;
-
-    diff_xy = 128.0f / slide;
-
-    ix = ( twist >> 0 ) & 0x0f;
-    iy = ( twist >> 4 ) & 0x0f;
-    ix -= 7;
-    iy -= 7;
-
-    dx = -ix / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
-    dy = iy / ( float )CARTMAN_FIXNUM * ( float )CARTMAN_SLOPE;
-
-    // determine the square of the z normal
-    nz2 =  diff_xy * diff_xy / ( dx * dx + dy * dy + diff_xy * diff_xy );
-
-    // determine the z normal
-    nz = 0.0f;
-    if ( nz2 > 0.0f )
-    {
-        nz = SQRT( nz2 );
-    }
-
-    nx = - dx * nz / diff_xy;
-    ny = - dy * nz / diff_xy;
-
-    v[0] = nx;
-    v[1] = ny;
-    v[2] = nz;
 
     return btrue;
 }

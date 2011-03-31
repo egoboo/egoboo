@@ -356,6 +356,9 @@
 				RelativePath=".\mpd_BSP.c">
 			</File>
 			<File
+				RelativePath=".\mpd_functions.c">
+			</File>
+			<File
 				RelativePath=".\network.c">
 			</File>
 			<File
@@ -470,6 +473,9 @@
 			</File>
 			<File
 				RelativePath=".\mpd_BSP.h">
+			</File>
+			<File
+				RelativePath=".\mpd_functions.h">
 			</File>
 			<File
 				RelativePath=".\network.h">

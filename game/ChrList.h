@@ -37,7 +37,7 @@ bool_t ACTIVE_CHR( CHR_REF ICHR );
 bool_t WAITING_CHR( CHR_REF ICHR );
 bool_t TERMINATED_CHR( CHR_REF ICHR );
 
-REF_T   GET_INDEX_PCHR( chr_t * PCHR );
+size_t  GET_INDEX_PCHR( chr_t * PCHR );
 CHR_REF GET_REF_PCHR( chr_t * PCHR );
 bool_t  DEFINED_PCHR( chr_t * PCHR );
 bool_t  VALID_CHR_PTR( chr_t * PCHR );

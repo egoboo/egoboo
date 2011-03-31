@@ -62,7 +62,7 @@ bool_t ACTIVE_ENC( ENC_REF IENC )      { return _ACTIVE_ENC( IENC );      }
 bool_t WAITING_ENC( ENC_REF IENC )     { return _WAITING_ENC( IENC );     }
 bool_t TERMINATED_ENC( ENC_REF IENC )  { return _TERMINATED_ENC( IENC );  }
 
-REF_T   GET_INDEX_PENC( enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
+size_t  GET_INDEX_PENC( enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
 ENC_REF GET_REF_PENC( enc_t * PENC )    { return _GET_REF_PENC( PENC );    }
 bool_t  DEFINED_PENC( enc_t * PENC )    { return _DEFINED_PENC( PENC );    }
 bool_t  VALID_ENC_PTR( enc_t * PENC )   { return _VALID_ENC_PTR( PENC );   }

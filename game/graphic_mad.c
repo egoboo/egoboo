@@ -2179,7 +2179,7 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override )
+gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override )
 {
     MAD_REF imad;
     mad_t * pmad;
@@ -2510,7 +2510,7 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_texture( chr_instance_t * pinst, TX_REF itex )
+gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
 {
     oglx_texture_t * ptex;
 

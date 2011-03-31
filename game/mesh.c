@@ -25,6 +25,7 @@
 
 #include "log.h"
 #include "graphic.h"
+#include "mpd_functions.h"
 
 #include "egoboo_math.inl"
 #include "egoboo_endian.h"
@@ -90,10 +91,10 @@ void mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t
     pinfo->tiles_y = tiles_y;
     pinfo->tiles_count = pinfo->tiles_x * pinfo->tiles_y;
 
-    // set the desired number of fertices
+    // set the desired number of vertices
     if ( numvert < 0 )
     {
-        numvert = MAXMESHVERTICES * pinfo->tiles_count;
+        numvert = MPD_FAN_VERTICES_MAX * pinfo->tiles_count;
     };
     pinfo->vertcount = numvert;
 }
@@ -222,7 +223,7 @@ void mesh_init_tile_offset( ego_mpd_t * pmesh )
     int cnt;
 
     // Fix the tile offsets for the mesh textures
-    for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
+    for ( cnt = 0; cnt < MPD_TILE_TYPE_MAX; cnt++ )
     {
         pmesh->tileoff[cnt].x = (( cnt >> 0 ) & 7 ) / 8.0f;
         pmesh->tileoff[cnt].y = (( cnt >> 3 ) & 7 ) / 8.0f;
@@ -470,7 +471,7 @@ ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh )
 
         // load a raw mpd
         mpd_ctor( &local_mpd );
-        tile_dictionary_load_vfs( "mp_data/fans.txt" , tile_dict, MAXMESHTYPE );
+        tile_dictionary_load_vfs( "mp_data/fans.txt" , tile_dict, MPD_FAN_TYPE_MAX );
         pmpd = mpd_load( vfs_resolveReadFilename( "mp_data/level.mpd" ), &local_mpd );
 
         // convert it into a convenient version for Egoboo
@@ -521,9 +522,9 @@ bool_t grid_mem_alloc( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     // free any memory already allocated
     if ( !grid_mem_free( pgmem ) ) return bfalse;
 
-    if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
+    if ( pinfo->vertcount > MPD_VERTICES_MAX )
     {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MESH_MAXTOTALVERTRICES );
+        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MPD_VERTICES_MAX );
         return bfalse;
     }
 
@@ -564,7 +565,7 @@ bool_t grid_mem_alloc( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 grid_mem_alloc_fail:
 
     grid_mem_free( pgmem );
-    log_error( "grid_mem_alloc() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+    log_error( "grid_mem_alloc() - reduce the maximum number of vertices! (Check MPD_VERTICES_MAX)\n" );
     return bfalse;
 }
 
@@ -593,9 +594,9 @@ bool_t tile_mem_alloc( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
     // free any memory already allocated
     if ( !tile_mem_free( pmem ) ) return bfalse;
 
-    if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
+    if ( pinfo->vertcount > MPD_VERTICES_MAX )
     {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MESH_MAXTOTALVERTRICES );
+        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MPD_VERTICES_MAX );
         return bfalse;
     }
 
@@ -624,7 +625,7 @@ bool_t tile_mem_alloc( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
 mesh_mem_alloc_fail:
 
     tile_mem_free( pmem );
-    log_error( "tile_mem_alloc() - reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+    log_error( "tile_mem_alloc() - reduce the maximum number of vertices! (Check MPD_VERTICES_MAX)\n" );
     return bfalse;
 }
 
@@ -666,14 +667,14 @@ void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
     }
 
     // calculate some of the block info
-    if ( pgmem->blocks_x >= MAXMESHBLOCKY )
+    if ( pgmem->blocks_x >= GRID_BLOCKY_MAX )
     {
-        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", pgmem->blocks_x, MAXMESHBLOCKY );
+        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", pgmem->blocks_x, GRID_BLOCKY_MAX );
     }
 
-    if ( pgmem->blocks_y >= MAXMESHBLOCKY )
+    if ( pgmem->blocks_y >= GRID_BLOCKY_MAX )
     {
-        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", pgmem->blocks_y, MAXMESHBLOCKY );
+        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", pgmem->blocks_y, GRID_BLOCKY_MAX );
     }
 
     // do the blockstart
@@ -760,36 +761,8 @@ void mesh_make_twist()
         gpara.y = grav.y - gperp.y;
         gpara.z = grav.z - gperp.z;
 
-        map_twistvel_x[cnt] = gpara.x;
-        map_twistvel_y[cnt] = gpara.y;
-        map_twistvel_z[cnt] = gpara.z;
+        map_twist_vel[cnt] = gpara;
     }
-}
-
-//--------------------------------------------------------------------------------------------
-Uint8 cartman_get_fan_twist( const ego_mpd_t * pmesh, Uint32 tile )
-{
-    size_t vrtstart;
-    float z0, z1, z2, z3;
-    float zx, zy;
-
-    // check for a valid tile
-    if ( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
-
-    // if the tile is actually labelled as FANOFF, ignore it completely
-    if ( TILE_IS_FANOFF( pmesh->tmem.tile_list[tile] ) ) return TWIST_FLAT;
-
-    vrtstart = pmesh->tmem.tile_list[tile].vrtstart;
-
-    z0 = pmesh->tmem.plst[vrtstart + 0][ZZ];
-    z1 = pmesh->tmem.plst[vrtstart + 1][ZZ];
-    z2 = pmesh->tmem.plst[vrtstart + 2][ZZ];
-    z3 = pmesh->tmem.plst[vrtstart + 3][ZZ];
-
-    zx = CARTMAN_FIXNUM * ( z0 + z3 - z1 - z2 ) / CARTMAN_SLOPE;
-    zy = CARTMAN_FIXNUM * ( z2 + z3 - z0 - z1 ) / CARTMAN_SLOPE;
-
-    return cartman_get_twist( zx, zy );
 }
 
 //--------------------------------------------------------------------------------------------

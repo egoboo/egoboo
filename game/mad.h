@@ -179,6 +179,8 @@ DECLARE_STACK_EXTERN( mad_t, MadStack, MAX_MAD );
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
 #define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadStack.lst[IMAD].loaded )
 
+#define LOADED_PMAD( PMAD )      ( (NULL != (PMAD)) && (PMAD)->loaded )
+
 void MadList_init();
 void MadList_dtor();
 

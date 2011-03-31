@@ -37,7 +37,7 @@ bool_t ACTIVE_ENC( ENC_REF IENC );
 bool_t WAITING_ENC( ENC_REF IENC );
 bool_t TERMINATED_ENC( ENC_REF IENC );
 
-REF_T   GET_INDEX_PENC( enc_t * PENC );
+size_t  GET_INDEX_PENC( enc_t * PENC );
 ENC_REF GET_REF_PENC( enc_t * PENC );
 bool_t  DEFINED_PENC( enc_t * PENC );
 bool_t  VALID_ENC_PTR( enc_t * PENC );

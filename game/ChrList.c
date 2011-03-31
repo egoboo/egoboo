@@ -62,7 +62,7 @@ bool_t ACTIVE_CHR( CHR_REF ICHR )      { return _ACTIVE_CHR( ICHR );      }
 bool_t WAITING_CHR( CHR_REF ICHR )     { return _WAITING_CHR( ICHR );     }
 bool_t TERMINATED_CHR( CHR_REF ICHR )  { return _TERMINATED_CHR( ICHR );  }
 
-REF_T   GET_INDEX_PCHR( chr_t * PCHR )  { return _GET_INDEX_PCHR( PCHR );  }
+size_t  GET_INDEX_PCHR( chr_t * PCHR )  { return _GET_INDEX_PCHR( PCHR );  }
 CHR_REF GET_REF_PCHR( chr_t * PCHR )    { return _GET_REF_PCHR( PCHR );    }
 bool_t  DEFINED_PCHR( chr_t * PCHR )    { return _DEFINED_PCHR( PCHR );    }
 bool_t  VALID_CHR_PTR( chr_t * PCHR )   { return _VALID_CHR_PTR( PCHR );   }

@@ -31,6 +31,7 @@
 #include "game.h"
 #include "mesh.h"
 #include "obj_BSP.h"
+#include "mpd_functions.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -1682,9 +1683,7 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
         fvec3_t   gperp;    // gravity perpendicular to the mesh
         fvec3_t   gpara;    // gravity parallel      to the mesh (what pushes you)
 
-        gpara.x = map_twistvel_x[penviro->twist];
-        gpara.y = map_twistvel_y[penviro->twist];
-        gpara.z = map_twistvel_z[penviro->twist];
+        gpara = map_twist_vel[penviro->twist];
 
         gperp.x = 0       - gpara.x;
         gperp.y = 0       - gpara.y;

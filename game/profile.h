@@ -145,9 +145,9 @@ void    ProList_init();
 size_t  ProList_get_free( const PRO_REF override_ref );
 bool_t  ProList_free_one( const PRO_REF object_ref );
 
-#define VALID_PRO_RANGE( IOBJ ) ( ((IOBJ) >= 0) && ((IOBJ) < MAX_PROFILE) )
-#define LOADED_PRO( IOBJ )       ( VALID_PRO_RANGE( IOBJ ) && ProList.lst[IOBJ].loaded )
-#define IS_VALID_MESSAGE_PRO( ICAP, MESSAGE ) ( LOADED_PRO(ICAP) && MESSAGE > 0 && MESSAGE < ProList.lst[ICAP].message_count )
+#define VALID_PRO_RANGE( IPRO ) ( ((IPRO) >= 0) && ((IPRO) < MAX_PROFILE) )
+#define LOADED_PRO( IPRO )       ( VALID_PRO_RANGE( IPRO ) && ProList.lst[IPRO].loaded )
+#define IS_VALID_MESSAGE_PRO( IPRO, MESSAGE ) ( LOADED_PRO(IPRO) && MESSAGE > 0 && MESSAGE < ProList.lst[IPRO].message_count )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

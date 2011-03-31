@@ -222,14 +222,14 @@ gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t acti
 gfx_rv    chr_instance_remove_interpolation( chr_instance_t * pinst );
 BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
 
-gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, MAD_REF mad_override );
+gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override );
 
 gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val );
 gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val );
 gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val );
 gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
 
-gfx_rv chr_instance_set_texture( chr_instance_t * pinst, TX_REF itex );
+gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex );
 
 MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst );
 MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst );

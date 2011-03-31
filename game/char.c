@@ -2805,9 +2805,7 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
 
     int tnc;
 
-    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
-
-    if ( NULL == pcap || !pcap->loaded ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) || !LOADED_PCAP( pcap ) ) return bfalse;
 
     // export values that override spawn.txt values
     pcap->content_override   = pchr->ai.content;
@@ -2921,9 +2919,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     int iTmp, tnc;
 
-    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
-
-    if ( NULL == pcap || !pcap->loaded ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) || !LOADED_PCAP( pcap ) ) return bfalse;
 
     // sound stuff...  copy from the cap
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
@@ -6508,9 +6504,7 @@ void move_one_character_do_z_motion( chr_t * pchr )
         // RELATIVE TO THE GRID, since you might be riding a platform!
         float     loc_zlerp = pchr->enviro.grid_lerp;
 
-        gpara.x = map_twistvel_x[pchr->enviro.grid_twist];
-        gpara.y = map_twistvel_y[pchr->enviro.grid_twist];
-        gpara.z = map_twistvel_z[pchr->enviro.grid_twist];
+        gpara = map_twist_vel[pchr->enviro.grid_twist];
 
         gperp.x = 0       - gpara.x;
         gperp.y = 0       - gpara.y;

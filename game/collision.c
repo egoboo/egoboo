@@ -135,7 +135,7 @@ static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
 static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
 static bool_t do_chr_chr_collision( CoNode_t * d );
 
-static bool_t do_chr_prt_collision_init( CHR_REF ichr, PRT_REF iprt, chr_prt_collsion_data_t * pdata );
+static bool_t do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata );
@@ -149,7 +149,7 @@ IMPLEMENT_DYNAMIC_ARY( HashNode_ary, hash_node_t );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//static bumplist_t bumplist[MAXMESHFAN/16];
+//static bumplist_t bumplist[MPD_TILE_MAX/16];
 
 static CHashList_t   * _CHashList_ptr = NULL;
 static HashNode_ary_t  _hn_ary;                 ///< the available hash_node_t collision nodes for the CHashList_t
@@ -232,7 +232,7 @@ CoNode_t * CoNode_ctor( CoNode_t * n )
     // the "collided with" objects
     n->chrb  = ( CHR_REF )MAX_CHR;
     n->prtb  = MAX_PRT;
-    n->tileb = FANOFF;
+    n->tileb = MPD_FANOFF;
 
     // intialize the time
     n->tmin = n->tmax = -1.0f;
@@ -264,7 +264,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
     {
         BB = REF_TO_INT( coll->prtb );
     }
-    else if ( FANOFF != coll->tileb )
+    else if ( MPD_FANOFF != coll->tileb )
     {
         BB = coll->tileb;
     }
@@ -3458,7 +3458,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_prt_collision_init( CHR_REF ichr, PRT_REF iprt, chr_prt_collsion_data_t * pdata )
+bool_t do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 

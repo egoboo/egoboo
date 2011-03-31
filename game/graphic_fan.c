@@ -85,7 +85,7 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
     if ( 0 == mesh_test_fx( pmesh, itile, MPDFX_ANIM ) ) return btrue;
 
     // Animate the tiles
-    if ( type >= ( MAXMESHTYPE >> 1 ) )
+    if ( type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
     {
         // Big tiles
         base_and  = animtile[1].base_and;            // Animation set

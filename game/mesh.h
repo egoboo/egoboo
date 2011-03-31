@@ -33,10 +33,23 @@ typedef struct s_ego_mpd ego_mpd_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define BLOCK_BITS    9
-#define BLOCK_SIZE    ((float)(1<<(BLOCK_BITS)))
 
-#define MAXMESHBLOCKY             (( MAXMESHTILEY >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
+#define GRID_BITS       7
+#define GRID_ISIZE     (1<<(GRID_BITS))
+#define GRID_FSIZE     ((float)GRID_ISIZE)
+#define GRID_MASK      (GRID_ISIZE - 1)
+
+#define BLOCK_BITS    9
+#define BLOCK_ISIZE     (1<<(BLOCK_BITS))
+#define BLOCK_FSIZE     ((float)BLOCK_ISIZE)
+#define BLOCK_MASK      (BLOCK_ISIZE - 1)
+
+#define GRID_BLOCKY_MAX             (( MPD_TILEY_MAX >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
+
+#define INVALID_BLOCK ((Uint32)(~0))
+#define INVALID_TILE  ((Uint32)(~0))
+
+#define VALID_GRID(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
 
 /// mesh physics
 #define SLIDE                           0.04f         ///< Acceleration for steep hills
@@ -52,7 +65,7 @@ typedef struct s_ego_mpd ego_mpd_t;
 #define TILE_GET_UPPER_BITS(XX)         (( TILE_UPPER_MASK & (XX) ) >> TILE_UPPER_SHIFT )
 #define TILE_SET_UPPER_BITS(XX)         (( (XX) << TILE_UPPER_SHIFT ) & TILE_UPPER_MASK )
 
-#define TILE_IS_FANOFF(XX)              ( FANOFF == (XX).img )
+#define TILE_IS_FANOFF(XX)              ( MPD_FANOFF == (XX).img )
 
 #define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
 
@@ -97,6 +110,7 @@ ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count );
 /// The data describing an Egoboo grid
 struct s_ego_grid_info
 {
+    // MODIFY THESE FLAGS
     Uint8           fx;                        ///< Special effects flags
     Uint8           twist;                     ///< The orientation of the tile
 
@@ -172,7 +186,7 @@ struct s_ego_mpd
     tile_mem_t      tmem;
     grid_mem_t      gmem;
 
-    fvec2_t         tileoff[MAXTILETYPE];     ///< Tile texture offset
+    fvec2_t         tileoff[MPD_TILE_TYPE_MAX];     ///< Tile texture offset
 };
 
 //--------------------------------------------------------------------------------------------
@@ -193,11 +207,9 @@ typedef struct s_mesh_wall_data mesh_wall_data_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern fvec3_t   map_twist_nrm[256];
-extern Uint32    map_twist_y[256];            ///< For surface normal of mesh
+extern Uint32    map_twist_y[256];              ///< For surface normal of mesh
 extern Uint32    map_twist_x[256];
-extern float     map_twistvel_x[256];            ///< For sliding down steep hills
-extern float     map_twistvel_y[256];
-extern float     map_twistvel_z[256];
+extern fvec3_t   map_twist_vel[256];            ///< For sliding down steep hills
 extern Uint8     map_twist_flat[256];
 
 extern int mesh_mpdfx_tests;
@@ -235,5 +247,3 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile );
 
 fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, BIT_FIELD bits );
 float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, BIT_FIELD bits );
-
-Uint8 cartman_get_fan_twist( const ego_mpd_t * pmesh, Uint32 tile );

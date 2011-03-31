@@ -37,7 +37,7 @@ bool_t ACTIVE_PRT( PRT_REF IPRT );
 bool_t WAITING_PRT( PRT_REF IPRT );
 bool_t TERMINATED_PRT( PRT_REF IPRT );
 
-REF_T   GET_INDEX_PPRT( prt_t * PPRT );
+size_t  GET_INDEX_PPRT( prt_t * PPRT );
 PRT_REF GET_REF_PPRT( prt_t * PPRT );
 bool_t  DEFINED_PPRT( prt_t * PPRT );
 bool_t  VALID_PRT_PTR( prt_t * PPRT );

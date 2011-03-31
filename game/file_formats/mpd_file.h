@@ -29,30 +29,25 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define GRID_BITS       7
-#define GRID_ISIZE     (1<<(GRID_BITS))
-#define GRID_FSIZE     ((float)GRID_ISIZE)
-#define GRID_MASK      (GRID_ISIZE - 1)
 
-#define MAPID                     0x4470614d                   ///< The string... MapD
-#define MESH_MAXTOTALVERTRICES    1024*100
-#define MAXMESHFAN                (512*512)                  ///< Terrain mesh size
-#define MAXMESHTILEY              1024                       ///< Max tiles in y direction
-#define MAXMESHVERTICES           16                         ///< Fansquare vertices
-#define MAXMESHTYPE               64                         ///< Number of fansquare command types
-#define MAXMESHCOMMAND            4                          ///< Draw up to 4 fans
-#define MAXMESHCOMMANDENTRIES     32                         ///< Fansquare command list size
-#define MAXMESHCOMMANDSIZE        32                         ///< Max trigs in each command
-#define MAXTILETYPE               256                        ///< Max number of tile images
-#define FANOFF                    0xFFFF                     ///< Don't draw the fansquare if tile = this
+// mesh constants
+#define MPD_ID                    0x4470614d                   ///< The string... MapD
+#define MPD_VERTICES_MAX          (1024*100)
+#define MPD_TILEY_MAX             1024                       ///< Max tiles in y direction
+#define MPD_TILE_MAX              (512*512)                  ///< Terrain mesh size
 
-#define CARTMAN_FIXNUM            4.125f ///< 4.150f             ///< Magic number
-#define CARTMAN_SLOPE             50                        ///< increments for terrain slope
+// fan constants
+#define MPD_FAN_VERTICES_MAX      16                         ///< Fansquare vertices
+#define MPD_FAN_TYPE_MAX          64                         ///< Number of fansquare command types
+#define MPD_FAN_MAX               4                          ///< Draw up to 4 fans
+#define MPD_FAN_ENTRIES_MAX       32                         ///< Fansquare command list size
+#define MPD_FAN_SIZE_MAX          32                         ///< Max trigs in each command
 
-#define INVALID_BLOCK ((Uint32)(~0))
-#define INVALID_TILE  ((Uint32)(~0))
+// tile constants
+#define MPD_TILE_TYPE_MAX         256                        ///< Max number of tile images
 
-#define VALID_GRID(PMPD, ID) ( (INVALID_TILE!=(ID)) && (NULL != (PMPD)) && (ID < (PMPD)->info.tiles_count) )
+// special values
+#define MPD_FANOFF                0xFFFF                     ///< Don't draw the fansquare if tile = this
 
 /// The bit flags for mesh tiles
     enum e_mpd_fx
@@ -149,19 +144,19 @@ extern "C"
 /// A description of a tile type that allows some compression in the way vertices are stored in the mpd file
     struct s_tile_definition
     {
-        Uint8           numvertices;                ///< Number of vertices
-        float           u[MAXMESHVERTICES];         ///< Vertex texture posi
-        float           v[MAXMESHVERTICES];
+        Uint8           numvertices;                        ///< Number of vertices
+        float           u[MPD_FAN_VERTICES_MAX];            ///< Vertex texture posi
+        float           v[MPD_FAN_VERTICES_MAX];
 
-        Uint8           command_count;                        ///< Number of commands
-        Uint8           command_entries[MAXMESHCOMMAND];      ///< Entries in each command
-        Uint16          command_verts[MAXMESHCOMMANDENTRIES]; ///< Fansquare vertex list
+        Uint8           command_count;                      ///< Number of commands
+        Uint8           command_entries[MPD_FAN_MAX];       ///< Entries in each command
+        Uint16          command_verts[MPD_FAN_ENTRIES_MAX]; ///< Fansquare vertex list
     };
     typedef struct s_tile_definition tile_definition_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    extern tile_definition_t tile_dict[MAXMESHTYPE];
+    extern tile_definition_t tile_dict[MPD_FAN_TYPE_MAX];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -172,9 +167,6 @@ extern "C"
     mpd_t *      mpd_ctor( mpd_t * pmesh );
     mpd_t *      mpd_dtor( mpd_t * pmesh );
     bool_t       mpd_free( mpd_t * pmesh );
-
-    bool_t twist_to_normal( Uint8 twist, float v[], float slide );
-    Uint8  cartman_get_twist( int x, int y );
 
     void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], size_t dict_size );
 

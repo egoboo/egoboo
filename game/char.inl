@@ -567,9 +567,7 @@ static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 {
     /// @details BB@> initalize the character size info
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return;
-
-    if ( NULL == pcap || !pcap->loaded ) return;
+    if ( !ALLOCATED_PCHR( pchr ) || !LOADED_PCAP( pcap ) ) return;
 
     pchr->fat_stt           = pcap->size;
     pchr->shadow_size_stt   = pcap->shadow_size;

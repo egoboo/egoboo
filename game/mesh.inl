@@ -125,9 +125,8 @@ static INLINE Uint32 mesh_get_block( const ego_mpd_t * pmesh, float pos_x, float
         ix = pos_x;
         iy = pos_y;
 
-        // these are known to be positive, so >> is not a problem
-        ix >>= BLOCK_BITS;
-        iy >>= BLOCK_BITS;
+        ix /= BLOCK_ISIZE;
+        iy /= BLOCK_ISIZE;
 
         block = mesh_get_block_int( pmesh, ix, iy );
     }
@@ -236,7 +235,7 @@ static INLINE Uint32 mesh_test_fx( const ego_mpd_t * pmesh, Uint32 itile, BIT_FI
         return flags & ( MPDFX_WALL | MPDFX_IMPASS );
     }
 
-    // if the tile is actually labelled as FANOFF, ignore it completely
+    // if the tile is actually labelled as MPD_FANOFF, ignore it completely
     if ( TILE_IS_FANOFF( pmesh->tmem.tile_list[itile] ) )
     {
         return 0;
