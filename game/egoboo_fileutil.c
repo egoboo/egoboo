@@ -646,15 +646,15 @@ int fget_version( vfs_FILE* fileread )
     vfs_seek( fileread, 0 );
 
     //Make sure the first line is actually the version tag
-    if( vfs_getc( fileread ) != '$' ) return 0;
-    while( (read = vfs_getc(fileread) ) != ' ' );
+    if ( vfs_getc( fileread ) != '$' ) return 0;
+    while (( read = vfs_getc( fileread ) ) != ' ' );
 
     //Get the version number
     result = fget_int( fileread );
 
     // reset the file pointer
     vfs_seek( fileread, filepos );
-    
+
     return result;
 }
 
@@ -1069,9 +1069,9 @@ float fget_damage_resist( vfs_FILE * fileread )
 {
     //ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts
     float resistance = fget_float( fileread );
-    if      (resistance == 1)   resistance = 0.50f;     //50% reduction, same as shift 1
-    else if (resistance == 2)   resistance = 0.75f;     //75% reduction, same as shift 2
-    else if (resistance == 3)   resistance = 0.90f;     //90% reduction, same as shift 3
+    if ( resistance == 1 )   resistance = 0.50f;        //50% reduction, same as shift 1
+    else if ( resistance == 2 )   resistance = 0.75f;   //75% reduction, same as shift 2
+    else if ( resistance == 3 )   resistance = 0.90f;   //90% reduction, same as shift 3
     else                        resistance = resistance / 100.0f;
 
     return resistance;

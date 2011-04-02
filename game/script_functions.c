@@ -494,7 +494,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
 
     pcap = chr_get_pcap( pself->index );
-    if( NULL != pcap )
+    if ( NULL != pcap )
     {
         if ( CAP_INFINITE_WEIGHT == pcap->weight || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
         {
@@ -507,16 +507,16 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
             //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
 
             log_warning( "scr_AddWaypoint() - failed to add a waypoint because object was \"inside\" a wall.\n"
-                "\tcharacter %d (\"%s\", \"%s\")\n"
-                "\tWaypoint index %d\n"
-                "\tWaypoint location (in tiles) <%f,%f>\n"
-                "\tWall normal <%1.4f,%1.4f>\n"
-                "\tPressure %f\n",
-                pself->index, pchr->Name, pcap->name,
-                pself->wp_lst.head,
-                pos.x / GRID_FSIZE, pos.y / GRID_FSIZE,
-                nrm.x, nrm.y,
-                SQRT( pressure ) / GRID_FSIZE );
+                         "\tcharacter %d (\"%s\", \"%s\")\n"
+                         "\tWaypoint index %d\n"
+                         "\tWaypoint location (in tiles) <%f,%f>\n"
+                         "\tWall normal <%1.4f,%1.4f>\n"
+                         "\tPressure %f\n",
+                         pself->index, pchr->Name, pcap->name,
+                         pself->wp_lst.head,
+                         pos.x / GRID_FSIZE, pos.y / GRID_FSIZE,
+                         nrm.x, nrm.y,
+                         SQRT( pressure ) / GRID_FSIZE );
         }
     }
 #else
@@ -548,11 +548,11 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     //Too soon since last try?
-    if( pself->astar_timer > update_wld ) return bfalse;
-    
+    if ( pself->astar_timer > update_wld ) return bfalse;
+
     //Our current position
-    src_ix = (int)pchr->pos.x / GRID_ISIZE;
-    src_iy = (int)pchr->pos.y / GRID_ISIZE;
+    src_ix = ( int )pchr->pos.x / GRID_ISIZE;
+    src_iy = ( int )pchr->pos.y / GRID_ISIZE;
 
     //Destination position
     dst_ix = pstate->x / GRID_ISIZE;
@@ -562,7 +562,7 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     waypoint_list_clear( &pself->wp_lst );
 
     //Don't do need to do anything if there is no need to move
-    if( src_ix == dst_ix && src_iy == dst_iy ) return bfalse;
+    if ( src_ix == dst_ix && src_iy == dst_iy ) return bfalse;
 
     returncode = bfalse;
 
@@ -580,23 +580,23 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     // test for the simple case... a straight line
     straight_line = !do_line_of_sight( &los_info );
 
-    if( !straight_line )
+    if ( !straight_line )
     {
-#ifdef DEBUG_ASTAR  
+#ifdef DEBUG_ASTAR
         printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
 #endif
         //Try to find a path with the AStar algorithm
-        if( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
+        if ( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
         {
             returncode = AStar_get_path( pstate->x, pstate->y, &pself->wp_lst );
         }
 
         // limit the rate of AStar calculations to be once every half second.
-        pself->astar_timer = update_wld + (ONESECOND/2);
+        pself->astar_timer = update_wld + ( ONESECOND / 2 );
     }
-        
+
     //failed to find a path
-    if( !returncode )
+    if ( !returncode )
     {
         // just use a straight line path
         waypoint_list_push( &pself->wp_lst, pstate->x, pstate->y );
@@ -1003,7 +1003,7 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function fails if the last function was more indented
 
     SCRIPT_FUNCTION_BEGIN();
-    
+
     returncode = ( ppro->ai_script.indent >= ppro->ai_script.indent_last );
 
     SCRIPT_FUNCTION_END();
@@ -1277,16 +1277,16 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     //first check both hands
     idsz = ( IDSZ ) pstate->argument;
     item = chr_holding_idsz( pself->target, idsz );
-    
+
     //need to search inventory as well?
-    if( !INGAME_CHR( item ) )
+    if ( !INGAME_CHR( item ) )
     {
-        for( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+        for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
         {
             item = ptarget->inventory[cnt];
 
             //only valid items
-            if( !INGAME_CHR( item ) ) continue;
+            if ( !INGAME_CHR( item ) ) continue;
             pitem = ChrList.lst + item;
 
             //matching idsz?
@@ -1294,7 +1294,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         }
 
         //did we fail?
-        if( cnt == MAXINVENTORY) item = MAX_CHR;
+        if ( cnt == MAXINVENTORY ) item = MAX_CHR;
     }
 
     returncode = bfalse;
@@ -1308,7 +1308,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         {
             pitem->ammo--;
         }
-        
+
         // Poof the item
         else
         {
@@ -2136,7 +2136,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     //If we are a mount, our rider is the owner of this particle
-    if( pchr->ismount && INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+    if ( pchr->ismount && INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
     {
         ichr = pchr->holdingwhich[SLOT_LEFT];
     }
@@ -6841,7 +6841,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
 
     returncode = link_follow_modname( ppro->message[pstate->argument], btrue );
     if ( !returncode )
@@ -7485,7 +7485,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ///use message.txt to send the module name
-    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
 
     returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ppro->message[pstate->argument] );
 
@@ -7769,7 +7769,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
 
     //Figure out which color to use
     switch ( pstate->turn )
@@ -7870,8 +7870,8 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
     // FindWideWeapon()
     /// @details ZF@> This function searches the nearby vincinity for a melee weapon the character can use
     MAD_REF imad;
-    CHR_REF best_target = (CHR_REF) MAX_CHR;
-    float best_dist = WIDE*WIDE;
+    CHR_REF best_target = ( CHR_REF ) MAX_CHR;
+    float best_dist = WIDE * WIDE;
     line_of_sight_info_t los;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7894,17 +7894,17 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
         fvec3_t diff;
 
         //only do items on the ground
-        if( INGAME_CHR( pweapon->attachedto ) || !pweapon->isitem ) continue;
+        if ( INGAME_CHR( pweapon->attachedto ) || !pweapon->isitem ) continue;
         pweapon_cap = chr_get_pcap( iweapon );
 
         // only target those with a [XWEP] IDSZ
-        if( !chr_has_idsz( iweapon, MAKE_IDSZ( 'X', 'W', 'E', 'P' ) ) ) continue;
+        if ( !chr_has_idsz( iweapon, MAKE_IDSZ( 'X', 'W', 'E', 'P' ) ) ) continue;
 
         //ignore ranged weapons
         if ( pweapon_cap->isranged ) continue;
 
         // see if the character can use this weapon (we assume everyone has a left grip here)
-        if( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( pweapon_cap->weaponaction, SLOT_LEFT) ) ) continue;
+        if ( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( pweapon_cap->weaponaction, SLOT_LEFT ) ) ) continue;
 
         // then check if a skill is needed
         if ( pweapon_cap->needskillidtouse )
@@ -7915,13 +7915,13 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
         //check distance
         diff  = fvec3_sub( pchr->pos.v, pweapon->pos.v );
         dist = fvec3_dot_product( diff.v, diff.v );
-        if( dist < best_dist )
+        if ( dist < best_dist )
         {
             //finally, check line of sight. we only care for weapons we can see
             los.x1 = pweapon->pos.x;
             los.y1 = pweapon->pos.y;
             los.z1 = pweapon->pos.z;
-            if( do_line_of_sight( &los ) ) continue;
+            if ( do_line_of_sight( &los ) ) continue;
 
             //found a valid weapon!
             best_target = iweapon;
@@ -7931,7 +7931,7 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
     CHR_END_LOOP();
 
     //Did we find anything?
-    if( INGAME_CHR( best_target ) )
+    if ( INGAME_CHR( best_target ) )
     {
         pself->target = best_target;
         returncode = btrue;
@@ -8031,16 +8031,16 @@ Uint8 _append_end_text( chr_t * pchr, const int message_index, script_state_t * 
 
     FUNCTION_BEGIN();
 
-    if( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return bfalse;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return bfalse;
     ppro = ProList.lst + pchr->profile_ref;
 
     ichr           = GET_REF_PCHR( pchr );
-    length = strlen(ppro->message[message_index]);
+    length = strlen( ppro->message[message_index] );
 
     dst     = endtext + endtext_carat;
     dst_end = endtext + MAXENDTEXT - 1;
 
-    expand_escape_codes( ichr, pstate, ppro->message[message_index], ppro->message[message_index]+length, dst, dst_end );
+    expand_escape_codes( ichr, pstate, ppro->message[message_index], ppro->message[message_index] + length, dst, dst_end );
     endtext_carat = strlen( endtext );
 
     str_add_linebreaks( endtext, strlen( endtext ), 30 );
@@ -8067,7 +8067,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
     y = y0 / GRID_ISIZE;
 
     if ( x < ppass->area.left )  x = ppass->area.left;
-    if ( y < ppass->area.top  )  y = ppass->area.top;
+    if ( y < ppass->area.top )  y = ppass->area.top;
 
     if ( y < ppass->area.bottom )
     {
@@ -8077,7 +8077,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 
             if ( mesh_grid_is_valid( PMesh, fan ) )
             {
-                if ( tiletype == (PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK) )
+                if ( tiletype == ( PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK ) )
                 {
                     *px1 = ( x * GRID_ISIZE ) + 64;
                     *py1 = ( y * GRID_ISIZE ) + 64;
@@ -8098,7 +8098,7 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 
             if ( mesh_grid_is_valid( PMesh, fan ) )
             {
-                if ( tiletype == (PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK) )
+                if ( tiletype == ( PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK ) )
                 {
                     *px1 = x * GRID_ISIZE + 64;
                     *py1 = y * GRID_ISIZE + 64;
@@ -8121,18 +8121,18 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     size_t length;
     pro_t *ppro;
 
-    if( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return bfalse;
+    if ( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return bfalse;
     ppro = ProList.lst + iprofile;
 
     slot = DisplayMsg_get_free();
     DisplayMsg.ary[slot].time = cfg.message_duration;
 
-    length = strlen(ppro->message[message]);
+    length = strlen( ppro->message[message] );
 
     dst     = DisplayMsg.ary[slot].textdisplay;
     dst_end = DisplayMsg.ary[slot].textdisplay + MESSAGESIZE - 1;
 
-    expand_escape_codes( ichr, pstate, ppro->message[message], ppro->message[message]+length, dst, dst_end );
+    expand_escape_codes( ichr, pstate, ppro->message[message], ppro->message[message] + length, dst, dst_end );
 
     *dst_end = CSTR_END;
 

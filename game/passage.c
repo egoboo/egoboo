@@ -102,7 +102,7 @@ bool_t open_passage( const PASS_REF passage )
     ppass = PassageStack.lst + passage;
 
     //no need to do this if it already is open
-    if( ppass->open ) return btrue;
+    if ( ppass->open ) return btrue;
 
     if ( ppass->area.top <= ppass->area.bottom )
     {
@@ -297,7 +297,7 @@ void check_passage_music()
             pchr = ChrList.lst + character;
 
             //dont do items in hands or inventory
-            if( IS_ATTACHED_CHR( character ) ) continue;
+            if ( IS_ATTACHED_CHR( character ) ) continue;
 
             if ( !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
 
@@ -323,9 +323,9 @@ bool_t close_passage( const PASS_REF passage )
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
     ppass = PassageStack.lst + passage;
-    
+
     //is it already closed?
-    if( !ppass->open ) return btrue;
+    if ( !ppass->open ) return btrue;
 
     // don't compute all of this for nothing
     if ( EMPTY_BIT_FIELD == ppass->mask ) return btrue;

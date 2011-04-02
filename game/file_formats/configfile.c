@@ -132,7 +132,7 @@ ConfigFilePtr_t ConfigFile_create()
 
     // allocate the data
     ptmp = CONFIG_NEW( ConfigFile_t );
-    if ( NULL_PTR(ptmp) ) return ptmp;
+    if ( NULL_PTR( ptmp ) ) return ptmp;
 
     // set the file
     ptmp->f           = NULL;
@@ -145,7 +145,7 @@ ConfigFilePtr_t ConfigFile_create()
 ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ppConfigFile )
 {
     ConfigFileSectionPtr_t lTempSection, lDoomedSection;
-    if ( NULL_PTR(ppConfigFile) || NULL_PTR(*ppConfigFile) ) return ConfigFile_fail;
+    if ( NULL_PTR( ppConfigFile ) || NULL_PTR( *ppConfigFile ) ) return ConfigFile_fail;
 
     ConfigFile_close( *ppConfigFile );
     ( *ppConfigFile )->filename[0] = CSTR_END;
@@ -533,7 +533,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
     int  lState = 0;
     int  lLengthName = 0;
 
-    if ( NULL_PTR(pValue) ) 
+    if ( NULL_PTR( pValue ) )
     {
         return ConfigFile_PassOverCommentary( pConfigFile );
     }
@@ -778,15 +778,15 @@ long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *szSe
     long lFound = 0;
     ConfigFileCaratPtr_t pCarat;
 
-    if ( INVALID_CSTR(szSection) ) return ConfigFile_fail;
+    if ( INVALID_CSTR( szSection ) ) return ConfigFile_fail;
 
     pCarat = NULL;
-    if( !NULL_PTR( pConfigFile ) )
+    if ( !NULL_PTR( pConfigFile ) )
     {
-        pCarat = &(pConfigFile->Current);
+        pCarat = &( pConfigFile->Current );
     }
 
-    if( NULL_PTR( pCarat ) ) return ConfigFile_fail;
+    if ( NULL_PTR( pCarat ) ) return ConfigFile_fail;
 
     if ( NULL_PTR( pCarat->SectionPtr ) )
     {
@@ -843,12 +843,12 @@ ConfigFile_retval SetConfigCurrentValueFromCurrentSection( ConfigFilePtr_t pConf
     ConfigFileCaratPtr_t pCarat;
     int lFound = 0;
 
-    if ( INVALID_CSTR(szKey) ) return ConfigFile_fail;
+    if ( INVALID_CSTR( szKey ) ) return ConfigFile_fail;
 
     pCarat = NULL;
-    if( !NULL_PTR( pConfigFile ) )
+    if ( !NULL_PTR( pConfigFile ) )
     {
-        pCarat = &(pConfigFile->Current);
+        pCarat = &( pConfigFile->Current );
     }
 
     if ( NULL_PTR( pCarat )  || NULL_PTR( pCarat->SectionPtr ) )
@@ -907,23 +907,23 @@ ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const
 
     ConfigFileCaratPtr_t pCarat;
 
-    if ( INVALID_CSTR(szSection)  || INVALID_CSTR(szKey) )
+    if ( INVALID_CSTR( szSection )  || INVALID_CSTR( szKey ) )
     {
         return ConfigFile_fail;
     }
-        
-    if( INVALID_CSTR(szValue) || 0 == szValueLength )
+
+    if ( INVALID_CSTR( szValue ) || 0 == szValueLength )
     {
         return ConfigFile_fail;
     }
 
     pCarat = NULL;
-    if( !NULL_PTR( pConfigFile ) )
+    if ( !NULL_PTR( pConfigFile ) )
     {
-        pCarat = &(pConfigFile->Current);
+        pCarat = &( pConfigFile->Current );
     }
 
-    if( NULL_PTR( pCarat ) ) return ConfigFile_fail;
+    if ( NULL_PTR( pCarat ) ) return ConfigFile_fail;
 
     if ( 0 == ConfigFile_FindKey( pConfigFile, szSection, szKey ) )
     {
@@ -1008,7 +1008,7 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     {
         return ConfigFile_fail;
     }
-    if ( INVALID_CSTR(szValue)  || INVALID_CSTR(szSection)  || INVALID_CSTR(szKey) )
+    if ( INVALID_CSTR( szValue )  || INVALID_CSTR( szSection )  || INVALID_CSTR( szKey ) )
     {
         return ConfigFile_fail;
     }
@@ -1135,7 +1135,7 @@ ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
 
     if ( NULL_PTR( pFile ) )  return ConfigFile_fail;
 
-    if ( NULL_PTR(pValue) || INVALID_CSTR( pValue->Value ) ) return ConfigFile_fail;
+    if ( NULL_PTR( pValue ) || INVALID_CSTR( pValue->Value ) ) return ConfigFile_fail;
 
     fputc( DOUBLE_QUOTE_CHAR, pFile );
 

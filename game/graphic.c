@@ -1346,7 +1346,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
     icon_ref = chr_get_icon_ref( item );
 
     // draw the icon
-    if( draw_sparkle == NOSPARKLE ) draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
+    if ( draw_sparkle == NOSPARKLE ) draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
     draw_one_icon( icon_ref, x, y, draw_sparkle, update_wld );
 
     // draw the ammo, if requested
@@ -3475,18 +3475,18 @@ void draw_inventory()
     PLA_REF ipla;
     player_t * ppla;
     GLXvector4f background_color = { 0.66f, 0.0f, 0.0f, 0.95f };
-    
+
     CHR_REF ichr;
     chr_t *pchr;
 
     PLA_REF draw_list[MAX_LOCAL_PLAYERS];
     size_t cnt, draw_list_length = 0;
-    
+
     float sttx, stty;
     int width, height;
 
     static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
-    
+
     //don't draw inventories while menu is open
     if ( GProc->mod_paused ) return;
 
@@ -3498,7 +3498,7 @@ void draw_inventory()
         if ( !ppla->valid ) continue;
 
         //draw inventory?
-        if( !ppla->draw_inventory ) continue;
+        if ( !ppla->draw_inventory ) continue;
         ichr = ppla->index;
 
         //valid character?
@@ -3506,8 +3506,8 @@ void draw_inventory()
         pchr = ChrList.lst + ichr;
 
         //don't draw inventories of network players
-        if( !pchr->islocalplayer ) continue;
-        
+        if ( !pchr->islocalplayer ) continue;
+
         draw_list[draw_list_length++] = ipla;
     }
 
@@ -3516,8 +3516,8 @@ void draw_inventory()
     height = 140;
 
     sttx = 0;
-    stty = GFX_HEIGHT/2 - height/2;
-    stty -= height * (draw_list_length-1);
+    stty = GFX_HEIGHT / 2 - height / 2;
+    stty -= height * ( draw_list_length - 1 );
     stty = MAX( 0, stty );
 
     //now draw each inventory
@@ -3537,9 +3537,9 @@ void draw_inventory()
 
         //handle inventories sliding into view
         ppla->inventory_lerp = MIN( ppla->inventory_lerp, width );
-        if( ppla->inventory_lerp > 0 && lerp_time[cnt] < SDL_GetTicks() )
+        if ( ppla->inventory_lerp > 0 && lerp_time[cnt] < SDL_GetTicks() )
         {
-            lerp_time[cnt] = SDL_GetTicks() + 1; 
+            lerp_time[cnt] = SDL_GetTicks() + 1;
             ppla->inventory_lerp = MAX( 0, ppla->inventory_lerp - 16 );
         }
 
@@ -3551,7 +3551,7 @@ void draw_inventory()
         edgex = sttx + width + 5 - 32;
 
         //calculate max carry weight
-        max_weight = 200 + FP8_TO_INT(pchr->strength)* FP8_TO_INT(pchr->strength);
+        max_weight = 200 + FP8_TO_INT( pchr->strength ) * FP8_TO_INT( pchr->strength );
 
         //draw the backdrop
         ui_drawButton( 0, x, y, width, height, background_color );
@@ -3565,13 +3565,13 @@ void draw_inventory()
         weight_sum = 0;
         icon_count = 0;
         item_count = 0;
-        for( i = 0; i < MAXINVENTORY; i++ )
+        for ( i = 0; i < MAXINVENTORY; i++ )
         {
             CHR_REF item = pchr->inventory[i];
 
-             //calculate the sum of the weight of all items in inventory
-            if( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
-            
+            //calculate the sum of the weight of all items in inventory
+            if ( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
+
             //draw icon
             draw_one_character_icon( item, x, y, btrue, item_count == ppla->selected_item ? COLOR_WHITE : NOSPARKLE );
             icon_count++;
@@ -3579,7 +3579,7 @@ void draw_inventory()
             x += 32 + 5;
 
             //new row?
-            if( x >= edgex || icon_count >= MAXINVENTORY/2 )
+            if ( x >= edgex || icon_count >= MAXINVENTORY / 2 )
             {
                 x = sttx + 5 - ppla->inventory_lerp;
                 y += 32 + 5;
@@ -3590,7 +3590,7 @@ void draw_inventory()
         //Draw weight
         x = sttx + 5 - ppla->inventory_lerp;
         y = stty + height - 42;
-        snprintf( buffer, SDL_arraysize(buffer), "Weight: %d/%d", weight_sum, max_weight );
+        snprintf( buffer, SDL_arraysize( buffer ), "Weight: %d/%d", weight_sum, max_weight );
         draw_wrap_string( buffer, x, y, sttx + width + 5 );
 
         //prepare drawing the next inventory
@@ -4507,13 +4507,13 @@ bool_t line_list_add( const float src_x, const float src_y, const float src_z, c
 {
     int iline = line_list_get_free();
 
-    if( iline == LINE_COUNT ) return bfalse;
+    if ( iline == LINE_COUNT ) return bfalse;
 
     //Source
     line_list[iline].src.x = src_x;
     line_list[iline].src.y = src_y;
     line_list[iline].src.z = src_z;
-    
+
     //Destination
     line_list[iline].dst.x = dst_x;
     line_list[iline].dst.y = dst_y;
@@ -4570,7 +4570,7 @@ void line_list_draw_all( camera_t * pcam )
             GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
 
             ticks = egoboo_get_ticks();
-            
+
             for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
             {
                 if ( line_list[cnt].time < 0 ) continue;
@@ -4626,13 +4626,13 @@ bool_t point_list_add( const float x, const float y, const float z, const int du
 {
     int ipoint = point_list_get_free();
 
-    if( ipoint == POINT_COUNT ) return bfalse;
+    if ( ipoint == POINT_COUNT ) return bfalse;
 
     //position
     point_list[ipoint].src.x = x;
     point_list[ipoint].src.y = y;
     point_list[ipoint].src.z = z;
- 
+
     //Red color
     point_list[ipoint].color.r = 1.00f;
     point_list[ipoint].color.g = 0.00f;
@@ -4710,7 +4710,7 @@ void point_list_draw_all( camera_t * pcam )
                     point_list[cnt].time = -1;
                     continue;
                 }
-                
+
                 GL_DEBUG( glColor4fv )( point_list[cnt].color.v );       // GL_CURRENT_BIT
                 GL_DEBUG( glBegin )( GL_POINTS );
                 {
@@ -5722,9 +5722,9 @@ bool_t init_mouse_cursor()
 
     success = INVALID_GL_ID != ego_texture_load_vfs( &tx_cursor, "mp_data/cursor", TRANSCOLOR );
 
-    if( !success )
+    if ( !success )
     {
-        log_warning("Could not load mouse cursor (basicdat/cursor.png)\n");
+        log_warning( "Could not load mouse cursor (basicdat/cursor.png)\n" );
         tx_cursor.valid = bfalse;
     }
 
@@ -5737,7 +5737,7 @@ void draw_mouse_cursor()
     ego_frect_t tx_rect, sc_rect;
 
     //Invalid texture?
-    if( !tx_cursor.valid )
+    if ( !tx_cursor.valid )
     {
         SDL_ShowCursor( SDL_ENABLE );
         return;

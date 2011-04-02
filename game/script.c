@@ -223,7 +223,7 @@ void scr_run_chr_script( const CHR_REF character )
 
     // Run the AI Script
     scr_set_pos( pscript, 0 );
-    while ( !pself->terminate && pscript->position < pscript->length)
+    while ( !pself->terminate && pscript->position < pscript->length )
     {
         // This is used by the Else function
         // it only keeps track of functions
@@ -292,7 +292,7 @@ void scr_run_chr_script( const CHR_REF character )
 bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript )
 {
     Uint8  functionreturn;
-    
+
     // check for valid pointers
     if ( NULL == pstate || NULL == pself ) return bfalse;
 
@@ -1518,7 +1518,7 @@ bool_t scr_increment_pos( script_info_t * pscript )
 {
     if ( NULL == pscript ) return bfalse;
     if ( pscript->position >= pscript->length ) return bfalse;
-    
+
     pscript->position++;
 
     return btrue;

@@ -136,7 +136,7 @@ bool_t waypoint_list_advance( waypoint_list_t * plst );
 struct s_script_info
 {
     STRING          name;                            // Name of the script file
-    
+
     Uint32          indent;
     Uint32          indent_last;
 

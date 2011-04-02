@@ -45,14 +45,14 @@ bool_t  ALLOCATED_PPRT( prt_t * PPRT );
 bool_t  ACTIVE_PPRT( prt_t * PPRT );
 bool_t  TERMINATED_PPRT( prt_t * PPRT );
 
-bool_t INGAME_PRT_BASE(PRT_REF IPRT);
-bool_t INGAME_PPRT_BASE(prt_t * PPRT);
+bool_t INGAME_PRT_BASE( PRT_REF IPRT );
+bool_t INGAME_PPRT_BASE( prt_t * PPRT );
 
-bool_t INGAME_PRT(PRT_REF IPRT);
-bool_t INGAME_PPRT(prt_t * PPRT);
+bool_t INGAME_PRT( PRT_REF IPRT );
+bool_t INGAME_PPRT( prt_t * PPRT );
 
-bool_t DISPLAY_PRT(PRT_REF IPRT);
-bool_t DISPLAY_PPRT(prt_t * PPRT);
+bool_t DISPLAY_PRT( PRT_REF IPRT );
+bool_t DISPLAY_PPRT( prt_t * PPRT );
 
 //--------------------------------------------------------------------------------------------
 // testing macros

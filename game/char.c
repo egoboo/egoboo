@@ -502,7 +502,7 @@ void keep_weapons_with_holders()
             {
                 PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
                 {
-                    
+
                     chr_set_pos( pitem, chr_get_pos_v( pchr ) );
 
                     // Copy olds to make SendMessageNear work
@@ -706,12 +706,12 @@ void free_inventory_in_game( const CHR_REF character )
 
     PACK_BEGIN_LOOP( ChrList.lst[character].inventory, pitem, iitem )
     {
-        free_one_character_in_game( iitem);
+        free_one_character_in_game( iitem );
     }
     PACK_END_LOOP();
 
     // set the inventory to the "empty" state
-    for( i = 0; i < MAXINVENTORY; i++ )
+    for ( i = 0; i < MAXINVENTORY; i++ )
     {
         ChrList.lst[character].inventory[i] = ( CHR_REF )MAX_CHR;
     }
@@ -1450,18 +1450,18 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     int newammo;
 
     //valid character?
-    if( !INGAME_CHR( ichr ) || !INGAME_CHR( item ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) || !INGAME_CHR( item ) ) return bfalse;
     pchr = ChrList.lst + ichr;
     pitem = ChrList.lst + item;
     pitem_cap = chr_get_pcap( item );
-    
+
     //try get the first free slot found?
-    if( inventory_slot >= MAXINVENTORY ) 
+    if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for( i = 0; i < MAXINVENTORY; i++ )
+        for ( i = 0; i < MAXINVENTORY; i++ )
         {
-            if( !INGAME_CHR(pchr->inventory[inventory_slot]) )
+            if ( !INGAME_CHR( pchr->inventory[inventory_slot] ) )
             {
                 //found a free slot
                 inventory_slot = i;
@@ -1470,21 +1470,21 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
         }
 
         //did we find one?
-        if( i == MAXINVENTORY ) return bfalse;
+        if ( i == MAXINVENTORY ) return bfalse;
     }
 
     //don't override existing items
-    if( INGAME_CHR( pchr->inventory[inventory_slot] ) ) return bfalse;
+    if ( INGAME_CHR( pchr->inventory[inventory_slot] ) ) return bfalse;
 
     // don't allow sub-inventories
     if ( INGAME_CHR( pitem->inwhich_inventory ) ) return bfalse;
 
     //kursed?
-    if( pitem->iskursed && !ignorekurse )
+    if ( pitem->iskursed && !ignorekurse )
     {
         // Flag the item as not put away
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if( pchr->islocalplayer ) debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        if ( pchr->islocalplayer ) debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
         return bfalse;
     }
 
@@ -1492,7 +1492,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     if ( pitem_cap->istoobig )
     {
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if( pchr->islocalplayer ) debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        if ( pchr->islocalplayer ) debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
         return bfalse;
     }
 
@@ -1552,7 +1552,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
         UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
 
         //now put the item into the inventory
-        pitem->attachedto = (CHR_REF)MAX_CHR;
+        pitem->attachedto = ( CHR_REF )MAX_CHR;
         pitem->inwhich_inventory = ichr;
         pchr->inventory[inventory_slot] = item;
 
@@ -1580,16 +1580,16 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
     bool_t success = bfalse;
 
     //valid character?
-    if( !INGAME_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
     pchr = ChrList.lst + ichr;
 
     //try get the first used slot found?
-    if( inventory_slot >= MAXINVENTORY ) 
+    if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for( i = 0; i < MAXINVENTORY; i++ )
+        for ( i = 0; i < MAXINVENTORY; i++ )
         {
-            if( INGAME_CHR(pchr->inventory[inventory_slot]) )
+            if ( INGAME_CHR( pchr->inventory[inventory_slot] ) )
             {
                 //found a free slot
                 inventory_slot = i;
@@ -1605,22 +1605,22 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
     if ( pchr->isitem || INGAME_CHR( pchr->inwhich_inventory ) ) return bfalse;
 
     //remove existing item
-    if( INGAME_CHR( inventory_item ) )
+    if ( INGAME_CHR( inventory_item ) )
     {
         success |= inventory_remove_item( ichr, inventory_slot, ignorekurse );
     }
 
     //put in the new item
-    if( INGAME_CHR( item ) )
+    if ( INGAME_CHR( item ) )
     {
         success |= inventory_add_item( ichr, item, inventory_slot, ignorekurse );
     }
 
     //now put the inventory item into the character's hand
-    if( INGAME_CHR( inventory_item ) && success )
+    if ( INGAME_CHR( inventory_item ) && success )
     {
         chr_t *pitem = ChrList.lst + inventory_item;
-        attach_character_to_mount( inventory_item, ichr, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT  );
+        attach_character_to_mount( inventory_item, ichr, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
 
         //fix flags
         UNSET_BIT( pitem->ai.alert, ALERTIF_GRABBED );
@@ -1641,29 +1641,29 @@ bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, co
     chr_t *pholder;
 
     //ignore invalid slots
-    if( inventory_slot >= MAXINVENTORY )  return bfalse;
+    if ( inventory_slot >= MAXINVENTORY )  return bfalse;
 
     //valid char?
-    if( !INGAME_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
     pholder = ChrList.lst + ichr;
     item = pholder->inventory[inventory_slot];
 
     //valid item?
-    if( !INGAME_CHR( item ) ) return bfalse;
+    if ( !INGAME_CHR( item ) ) return bfalse;
     pitem = ChrList.lst + item;
 
     //is it kursed?
-    if( pitem->iskursed && !ignorekurse )
+    if ( pitem->iskursed && !ignorekurse )
     {
         // Flag the last found_item as not removed
         SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-        if( pholder->islocalplayer ) debug_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        if ( pholder->islocalplayer ) debug_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
         return bfalse;
     }
 
     //no longer in an inventory
-    pitem->inwhich_inventory = (CHR_REF) MAX_CHR;
-    pholder->inventory[inventory_slot] = (CHR_REF) MAX_CHR;
+    pitem->inwhich_inventory = ( CHR_REF ) MAX_CHR;
+    pholder->inventory[inventory_slot] = ( CHR_REF ) MAX_CHR;
 
     return btrue;
 }
@@ -1751,7 +1751,7 @@ void drop_keys( const CHR_REF character )
     testz = MAKE_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
 
     //check each inventory item
-    for( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
         IDSZ idsz_parent;
         IDSZ idsz_type;
@@ -1759,9 +1759,9 @@ void drop_keys( const CHR_REF character )
 
         chr_t *pkey;
         CHR_REF ikey = pchr->inventory[cnt];
-        
+
         //only valid items
-        if( !INGAME_CHR( ikey ) ) continue;
+        if ( !INGAME_CHR( ikey ) ) continue;
         pkey = ChrList.lst + ikey;
 
         idsz_parent = chr_get_idsz( ikey, IDSZ_PARENT );
@@ -1830,13 +1830,13 @@ bool_t drop_all_items( const CHR_REF character )
 
     //now drop each item in turn
     direction = pchr->ori.facing_z + ATK_BEHIND;
-    for( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
         CHR_REF item = pchr->inventory[cnt];
         chr_t *pitem;
 
         //only valid items
-        if( !INGAME_CHR( item ) ) continue;
+        if ( !INGAME_CHR( item ) ) continue;
         pitem = ChrList.lst + item;
 
         //remove it from inventory
@@ -2285,24 +2285,24 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     // find the 1st non-item that is holding the weapon
     iholder = chr_get_lowest_attachment( iweapon, btrue );
 
-/*
-    if ( iweapon != iholder && iweapon != ichr )
-    {
-        // This seems to be the "proper" place to activate the held object.
-        // If the attack action  of the character holding the weapon does not have
-        // MADFX_ACTLEFT or MADFX_ACTRIGHT bits (and so character_swipe function is never called)
-        // then the action is played and the ALERTIF_USED bit is set in the chr_do_latch_attack()
-        // function.
-        //
-        // It would be better to move all of this to the character_swipe() function, but we cannot be assured
-        // that all models have the proper bits set.
+    /*
+        if ( iweapon != iholder && iweapon != ichr )
+        {
+            // This seems to be the "proper" place to activate the held object.
+            // If the attack action  of the character holding the weapon does not have
+            // MADFX_ACTLEFT or MADFX_ACTRIGHT bits (and so character_swipe function is never called)
+            // then the action is played and the ALERTIF_USED bit is set in the chr_do_latch_attack()
+            // function.
+            //
+            // It would be better to move all of this to the character_swipe() function, but we cannot be assured
+            // that all models have the proper bits set.
 
-        // Make the iweapon attack too
-        chr_play_action( pweapon, ACTION_MJ, bfalse );
+            // Make the iweapon attack too
+            chr_play_action( pweapon, ACTION_MJ, bfalse );
 
-        SET_BIT( pweapon->ai.alert, ALERTIF_USED );
-    }
-*/
+            SET_BIT( pweapon->ai.alert, ALERTIF_USED );
+        }
+    */
 
     // What kind of attack are we going to do?
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
@@ -3337,13 +3337,13 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool_t i
         chr_t *pkiller = ChrList.lst + actual_killer;
 
         //If we are a held item, try to figure out who the actual killer is
-        if( DEFINED_CHR( pkiller->attachedto ) && !ChrList.lst[pkiller->attachedto].ismount )
+        if ( DEFINED_CHR( pkiller->attachedto ) && !ChrList.lst[pkiller->attachedto].ismount )
         {
             actual_killer = pkiller->attachedto;
         }
-        
+
         //If the killer is a mount, try to award the kill to the rider
-        else if( pkiller->ismount && pkiller->holdingwhich[SLOT_LEFT] )
+        else if ( pkiller->ismount && pkiller->holdingwhich[SLOT_LEFT] )
         {
             actual_killer = pkiller->holdingwhich[SLOT_LEFT];
         }
@@ -3503,7 +3503,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
     // This can also be used to lessen effectiveness of healing
     actual_damage = generate_irand_pair( damage );
     base_damage   = actual_damage;
-    actual_damage *= MAX( 0.00f, (damagetype >= DAMAGE_COUNT) ? 1.00f : 1.00f-pchr->damage_resistance[damagetype] );
+    actual_damage *= MAX( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - pchr->damage_resistance[damagetype] );
 
     // Increase electric damage when in water
     if ( damagetype == DAMAGE_ZAP && chr_is_over_water( pchr ) )
@@ -3544,13 +3544,13 @@ int damage_character( const CHR_REF character, FACING_T direction,
 
     // Check for characters who are immune to this damage, no need to continue if they have
     immune_to_damage = ( actual_damage > 0 && actual_damage <= pchr->damage_threshold ) || HAS_SOME_BITS( damage_modifier, DAMAGEINVICTUS );
-    if ( immune_to_damage)
+    if ( immune_to_damage )
     {
         actual_damage = 0;
 
         //Tell that the character is simply immune to the damage
         //but don't do message and ping for mounts, it's just irritating
-        if( !pchr->ismount )
+        if ( !pchr->ismount )
         {
             //Dark green text
             const float lifetime = 3;
@@ -3718,26 +3718,26 @@ int damage_character( const CHR_REF character, FACING_T direction,
 void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing )
 {
     //@details ZF@> This function should be used whenever a character gets attacked or healed. The function
-    // handles if the attacker is a held item (so that the holder becomes the attacker). The function also 
+    // handles if the attacker is a held item (so that the holder becomes the attacker). The function also
     // updates alerts, timers, etc. This function can trigger character cries like "That tickles!" or "Be careful!"
     CHR_REF actual_attacker = attacker;
 
     // Don't let characters chase themselves...  That would be silly
-    if( pchr->ai.index == attacker ) return;
+    if ( pchr->ai.index == attacker ) return;
 
     // Don't alert the character too much if under constant fire
     if ( 0 != pchr->careful_timer ) return;
 
     // Figure out who is the real attacker, in case we are a held item or a controlled mount
-    if( INGAME_CHR( attacker ) )
+    if ( INGAME_CHR( attacker ) )
     {
         chr_t *pattacker = ChrList.lst + attacker;
 
         //Do not alert items damaging (or healing) their holders, healing potions for example
-        if( pattacker->attachedto == pchr->ai.index ) return;
+        if ( pattacker->attachedto == pchr->ai.index ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
-        if( INGAME_CHR( pattacker->attachedto ) && !ChrList.lst[pattacker->attachedto].ismount )
+        if ( INGAME_CHR( pattacker->attachedto ) && !ChrList.lst[pattacker->attachedto].ismount )
         {
             actual_attacker = pattacker->attachedto;
         }
@@ -5657,7 +5657,7 @@ void move_one_character_get_environment( chr_t * pchr )
     penviro->zlerp = ( pchr->pos.z - penviro->level ) / PLATTOLERANCE;
     penviro->zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
 
-    penviro->grounded = ( ( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
+    penviro->grounded = (( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
     penviro->grid_twist = TWIST_FLAT;
@@ -6015,8 +6015,8 @@ void move_one_character_do_voluntary( chr_t * pchr )
     {
         chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
 
-        new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - (pchr->vel.x) );
-        new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - (pchr->vel.y) );
+        new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - ( pchr->vel.x ) );
+        new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - ( pchr->vel.y ) );
     }
     else
     {
@@ -6594,10 +6594,10 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // DO NOT require objects that are spawning in a module to have a
     // valid position at spawn-time. For instance, if a suit of armor is
     // spawned in a closed hallway, don't complain.
-    
-     //ZF> I fixed a bug that caused this boolean variable always to be true. 
+
+    //ZF> I fixed a bug that caused this boolean variable always to be true.
     // by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
-    if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )                
+    if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )
     {
         fvec3_base_copy( pos_v, chr_get_pos_v( pchr ) );
         return btrue;

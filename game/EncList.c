@@ -70,11 +70,11 @@ bool_t  ALLOCATED_PENC( enc_t * PENC )  { return _ALLOCATED_PENC( PENC );  }
 bool_t  ACTIVE_PENC( enc_t * PENC )     { return _ACTIVE_PENC( PENC );     }
 bool_t  TERMINATED_PENC( enc_t * PENC ) { return _TERMINATED_PENC( PENC ); }
 
-bool_t INGAME_ENC_BASE(ENC_REF IENC)  { return _INGAME_ENC_BASE(IENC);  }       
-bool_t INGAME_PENC_BASE(enc_t * PENC) { return _INGAME_PENC_BASE(PENC); }      
+bool_t INGAME_ENC_BASE( ENC_REF IENC )  { return _INGAME_ENC_BASE( IENC );  }
+bool_t INGAME_PENC_BASE( enc_t * PENC ) { return _INGAME_PENC_BASE( PENC ); }
 
-bool_t INGAME_ENC(ENC_REF IENC)       { return _INGAME_ENC(IENC);  }           
-bool_t INGAME_PENC(enc_t * PENC)      { return _INGAME_PENC(PENC); } 
+bool_t INGAME_ENC( ENC_REF IENC )       { return _INGAME_ENC( IENC );  }
+bool_t INGAME_PENC( enc_t * PENC )      { return _INGAME_PENC( PENC ); }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -45,11 +45,11 @@ bool_t  ALLOCATED_PCHR( chr_t * PCHR );
 bool_t  ACTIVE_PCHR( chr_t * PCHR );
 bool_t  TERMINATED_PCHR( chr_t * PCHR );
 
-bool_t INGAME_CHR_BASE(CHR_REF ICHR);
-bool_t INGAME_PCHR_BASE(chr_t * PCHR);
+bool_t INGAME_CHR_BASE( CHR_REF ICHR );
+bool_t INGAME_PCHR_BASE( chr_t * PCHR );
 
-bool_t INGAME_CHR(CHR_REF ICHR);
-bool_t INGAME_PCHR(chr_t * PCHR);
+bool_t INGAME_CHR( CHR_REF ICHR );
+bool_t INGAME_PCHR( chr_t * PCHR );
 
 //--------------------------------------------------------------------------------------------
 // testing macros

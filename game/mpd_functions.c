@@ -19,7 +19,7 @@
 
 /// @file mpd_functions.c
 /// @brief mpd functionality ported from cartman and EgoMap
-/// @details 
+/// @details
 
 #include "mpd_functions.h"
 

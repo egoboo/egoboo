@@ -413,8 +413,13 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
         ptile_dst->img          = ptile_src->img;
 
         memset( pgrid_dst, 0, sizeof( *pgrid_dst ) );
-        pgrid_dst->fx    = ptile_src->fx;
-        pgrid_dst->twist = ptile_src->twist;
+        pgrid_dst->base_fx = ptile_src->fx;
+        pgrid_dst->twist   = ptile_src->twist;
+
+        // do some conversion
+        pgrid_dst->wall_fx = pgrid_dst->base_fx;
+        pgrid_dst->pass_fx = 0;
+
 
         // lcache is set in a helper function
         // nlst is set in a helper function
@@ -1354,7 +1359,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 
     // require a valid position
     if ( NULL == pos ) return EMPTY_BIT_FIELD;
-    
+
     // if the mesh is empty, return 0
     if ( NULL == pmesh || 0 == pmesh->info.tiles_count || 0 == pmesh->tmem.tile_count ) return EMPTY_BIT_FIELD;
     pdata->pinfo = ( ego_mpd_info_t* ) & ( pmesh->info );
@@ -1433,7 +1438,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
             int itile = ix + irow;
 
             // since we KNOW that this is in range, allow raw access to the data strucutre
-            pass = pdata->glist[itile].fx & bits;
+            pass = ego_grid_info_test_fx( pdata->glist + itile, bits );
             if ( 0 != pass )
             {
                 return pass;
@@ -1539,7 +1544,7 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
                 }
                 else
                 {
-                    is_blocked = ( 0 != mesh_has_some_mpdfx( glist[itile].fx, bits ) );
+                    is_blocked = ( 0 != ego_grid_info_test_fx( glist + itile, bits ) );
                 }
             }
 
@@ -1749,8 +1754,8 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
-                    BIT_FIELD mpdfx   = pdata->glist[itile].fx;
-                    bool_t is_blocked = ( 0 != mesh_has_some_mpdfx( mpdfx, bits ) );
+                    BIT_FIELD mpdfx   = ego_grid_info_get_fx( pdata->glist + itile );
+                    bool_t is_blocked = HAS_SOME_BITS( mpdfx, bits );
 
                     if ( is_blocked )
                     {

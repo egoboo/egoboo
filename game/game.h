@@ -134,7 +134,7 @@ enum e_latchbutton_bits
     LATCHBUTTON_ALTLEFT   = ( 1 << 3 ),                      ///< ( Alts are for grab/drop )
     LATCHBUTTON_ALTRIGHT  = ( 1 << 4 ),
     LATCHBUTTON_PACKLEFT  = ( 1 << 5 ),                      ///< ( Used by AI script for inventory cycle )
-    LATCHBUTTON_PACKRIGHT = ( 1 << 6 ),                      ///< ( Used by AI script for inventory cycle ) 
+    LATCHBUTTON_PACKRIGHT = ( 1 << 6 ),                      ///< ( Used by AI script for inventory cycle )
     LATCHBUTTON_RESPAWN   = ( 1 << 7 )
 };
 

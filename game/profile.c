@@ -165,7 +165,7 @@ bool_t pro_init( pro_t * pobj )
     }
 
     //Free any dynamically allocated memory
-    if( pobj->message ) free( pobj->message );
+    if ( pobj->message ) free( pobj->message );
 
     //---- reset everything to safe values
     memset( pobj, 0, sizeof( *pobj ) );
@@ -571,30 +571,30 @@ void profile_add_one_message( pro_t *pobject, const EGO_MESSAGE add_message )
     //              dynamically allocate more memory if there are more messages than array size
     size_t cnt, length;
 
-    if( pobject == NULL ) return;
+    if ( pobject == NULL ) return;
 
     //Is this the first message that is added? Then we need to allocate an dynamic array!
-    if( !pobject->message )
+    if ( !pobject->message )
     {
         pobject->message_count = 0;
         pobject->message_length = 10;
-        pobject->message = (EGO_MESSAGE *) malloc( pobject->message_length * sizeof(EGO_MESSAGE) );
+        pobject->message = ( EGO_MESSAGE * ) malloc( pobject->message_length * sizeof( EGO_MESSAGE ) );
     }
 
     //Do we need to increase the size of the array?
-    if( pobject->message_count + 1 >= pobject->message_length )
+    if ( pobject->message_count + 1 >= pobject->message_length )
     {
         pobject->message_length += 10;
-        pobject->message = (EGO_MESSAGE*) realloc( pobject->message, pobject->message_length * sizeof(EGO_MESSAGE) );
+        pobject->message = ( EGO_MESSAGE* ) realloc( pobject->message, pobject->message_length * sizeof( EGO_MESSAGE ) );
     }
 
-    length = strlen(add_message);
+    length = strlen( add_message );
     //if( length >= MESSAGESIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\", length is %d while max is %d\n", pobject->name, add_message, length, MESSAGESIZE);
 
     //replace underscore with whitespace
-    for( cnt = 0; cnt < length; cnt++ )
+    for ( cnt = 0; cnt < length; cnt++ )
     {
-        pobject->message[pobject->message_count][cnt] = (add_message[cnt] == '_') ? ' ' : add_message[cnt];
+        pobject->message[pobject->message_count][cnt] = ( add_message[cnt] == '_' ) ? ' ' : add_message[cnt];
     }
 
     //Make sure it is null terminated
@@ -618,7 +618,7 @@ void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
         while ( goto_colon( NULL, fileread, btrue ) )
         {
             //Load one line
-            fget_string( fileread, line, SDL_arraysize(line) );
+            fget_string( fileread, line, SDL_arraysize( line ) );
             profile_add_one_message( pobject, line );
         }
 

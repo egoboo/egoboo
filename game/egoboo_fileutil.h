@@ -115,7 +115,7 @@ extern "C"
     bool_t goto_colon( char * buffer, vfs_FILE* fileread, bool_t optional );
 
     bool_t fcopy_line( vfs_FILE * fileread, vfs_FILE * filewrite );
-    
+
     int fget_version( vfs_FILE* fileread );
     bool_t fput_version( vfs_FILE* filewrite, const int version );
 

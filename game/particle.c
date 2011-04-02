@@ -355,7 +355,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         }
         else
         {
-            const int PERFECT_AIM = 45*256;     //45 dex is perfect aim
+            const int PERFECT_AIM = 45 * 256;   //45 dex is perfect aim
 
             // Find a target
             pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
@@ -2237,10 +2237,10 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
         // one bump particle
 
         //check if we resisted the attack, we could resist some of the particles or none
-        damage_resistance = ( pprt->damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_resistance[pprt->damagetype]*100;
-        for( cnt = 0; cnt < amount; cnt++ )
+        damage_resistance = ( pprt->damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_resistance[pprt->damagetype] * 100;
+        for ( cnt = 0; cnt < amount; cnt++ )
         {
-            if( generate_irand_pair( loc_rand ) <= damage_resistance ) amount--;
+            if ( generate_irand_pair( loc_rand ) <= damage_resistance ) amount--;
         }
 
         if ( amount > 0 && !pcap->resistbumpspawn && !pchr->invictus )

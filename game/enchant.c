@@ -920,10 +920,10 @@ enc_t * enc_config_do_init( enc_t * penc )
     //recuce enchant duration with damage resistance
     penc->spawn_timer    = 1;
     lifetime             = peve->lifetime;
-    if( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT )
+    if ( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT )
     {
-        lifetime -= MAX( 1, CEIL( (ptarget->damage_resistance[peve->required_damagetype]) * peve->lifetime) );
-        printf("Damage resistance reduced duration from %i to %3.0f\n", peve->lifetime, lifetime);
+        lifetime -= MAX( 1, CEIL(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
+        printf( "Damage resistance reduced duration from %i to %3.0f\n", peve->lifetime, lifetime );
     }
     penc->lifetime       = lifetime;
 
@@ -1554,8 +1554,8 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     // Check peve->required_damagetype, 90% damage resistance is enough to resist the enchant
     if ( peve->required_damagetype < DAMAGE_COUNT )
     {
-        if( ptarget->damage_resistance[peve->required_damagetype] >= 0.90f ||
-            HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGEINVICTUS ) )
+        if ( ptarget->damage_resistance[peve->required_damagetype] >= 0.90f ||
+             HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGEINVICTUS ) )
         {
             log_debug( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
             return ( ENC_REF )MAX_ENC;

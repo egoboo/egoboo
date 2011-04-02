@@ -828,7 +828,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
 
         // ignore in-accessible objects
         if ( INGAME_CHR( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
-        
+
         // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
         if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
         {

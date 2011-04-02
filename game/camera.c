@@ -225,7 +225,7 @@ void camera_adjust_angle( camera_t * pcam, float height )
 void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 {
     /// @details ZZ@> This function moves the camera
-    
+
     PLA_REF ipla;
     Uint16 cnt;
     float x, y, z, level, newx, newy, movex, movey;
@@ -426,12 +426,12 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     pcam->pos.z   = 0.9f * pcam->pos.z + 0.1f * pcam->zgoto;
 
     // Camera controls
-    for( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         player_t *ppla;
 
         //Don't do invalid players
-        if( INVALID_PLA(ipla) ) continue;
+        if ( INVALID_PLA( ipla ) ) continue;
         ppla = PlaStack.lst + ipla;
 
         //Handle camera control from this player
@@ -519,101 +519,101 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     bool_t autoturn_camera;
 
     //Don't do network players
-    if( pdevice == NULL ) return;
+    if ( pdevice == NULL ) return;
     type = pdevice->device_type;
 
     //If the device isn't enabled there is no point in continuing
-    if( !input_is_enabled(pdevice) ) return;
+    if ( !input_is_enabled( pdevice ) ) return;
 
     //Autoturn camera only works in single player and when it is enabled
     autoturn_camera = CAM_TURN_GOOD == pcam->turn_mode && 1 == local_numlpla;
-    
+
     //No auto camera
     switch ( type )
     {
-        //Mouse control
+            //Mouse control
         case INPUT_DEVICE_MOUSE:
-        {
-            //Auto camera
-            if( autoturn_camera )
             {
-                if( !control_is_pressed( pdevice,  CONTROL_CAMERA ) )
+                //Auto camera
+                if ( autoturn_camera )
                 {
-                    pcam->turnadd -= ( mous.x * 0.5f );
-                }
-            }
-
-            //Normal camera
-            else if( control_is_pressed( pdevice,  CONTROL_CAMERA ) )
-            {
-                pcam->turnadd += ( mous.x / 3.0f );
-                pcam->zaddgoto += ( float ) mous.y / 3.0f;
-                if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
-                if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
-
-                pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
-            }
-            break;
-        }
-
-        // Joystick camera controls
-        case INPUT_DEVICE_JOY_A:
-        case INPUT_DEVICE_JOY_B:
-        {
-            //figure out which joystick this is
-            device_joystick_t *joystick = joy + (type - MAXJOYSTICK);
-
-            //Autocamera
-            if( autoturn_camera )
-            {
-                if ( !control_is_pressed( pdevice, CONTROL_CAMERA ) )
-                {
-                    pcam->turnadd -= joy[1].x * CAM_TURN_JOY;
-                }
-            }
-
-            //Normal camera
-            else if( control_is_pressed( pdevice, CONTROL_CAMERA ) )
-            {
-                pcam->turnadd += joystick->x * CAM_TURN_JOY;
-                pcam->zaddgoto += joystick->y * CAM_TURN_JOY;
-                if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
-                if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
-
-                pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
-            }
-            break;
-        }
-
-        // Keyboard camera controls
-        case INPUT_DEVICE_KEYBOARD:
-        {
-            //Auto camera
-            if(autoturn_camera) 
-            {
-                pcam->turnadd += ( control_is_pressed( pdevice,  CONTROL_LEFT ) - control_is_pressed( pdevice,  CONTROL_RIGHT ) ) * CAM_TURN_KEY;
-            }
-
-            //Normal camera
-            else
-            {
-                //rotation
-                if ( control_is_pressed( pdevice,  CONTROL_CAMERA_LEFT ) || control_is_pressed( pdevice,  CONTROL_CAMERA_RIGHT ) )
-                {
-                    pcam->turnadd += ( control_is_pressed( pdevice,  CONTROL_CAMERA_LEFT ) - control_is_pressed( pdevice,  CONTROL_CAMERA_RIGHT ) ) * CAM_TURN_KEY;
-                    pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
+                    if ( !control_is_pressed( pdevice,  CONTROL_CAMERA ) )
+                    {
+                        pcam->turnadd -= ( mous.x * 0.5f );
+                    }
                 }
 
-                //zoom
-                if ( control_is_pressed( pdevice,  CONTROL_CAMERA_IN ) || control_is_pressed( pdevice,  CONTROL_CAMERA_OUT ) )
+                //Normal camera
+                else if ( control_is_pressed( pdevice,  CONTROL_CAMERA ) )
                 {
-                    pcam->zaddgoto += ( control_is_pressed( pdevice,  CONTROL_CAMERA_OUT ) - control_is_pressed( pdevice,  CONTROL_CAMERA_IN ) ) * CAM_TURN_KEY;
+                    pcam->turnadd += ( mous.x / 3.0f );
+                    pcam->zaddgoto += ( float ) mous.y / 3.0f;
                     if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
                     if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
+
+                    pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
                 }
+                break;
             }
-            break;
-        }
+
+            // Joystick camera controls
+        case INPUT_DEVICE_JOY_A:
+        case INPUT_DEVICE_JOY_B:
+            {
+                //figure out which joystick this is
+                device_joystick_t *joystick = joy + ( type - MAXJOYSTICK );
+
+                //Autocamera
+                if ( autoturn_camera )
+                {
+                    if ( !control_is_pressed( pdevice, CONTROL_CAMERA ) )
+                    {
+                        pcam->turnadd -= joy[1].x * CAM_TURN_JOY;
+                    }
+                }
+
+                //Normal camera
+                else if ( control_is_pressed( pdevice, CONTROL_CAMERA ) )
+                {
+                    pcam->turnadd += joystick->x * CAM_TURN_JOY;
+                    pcam->zaddgoto += joystick->y * CAM_TURN_JOY;
+                    if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
+                    if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
+
+                    pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
+                }
+                break;
+            }
+
+            // Keyboard camera controls
+        case INPUT_DEVICE_KEYBOARD:
+            {
+                //Auto camera
+                if ( autoturn_camera )
+                {
+                    pcam->turnadd += ( control_is_pressed( pdevice,  CONTROL_LEFT ) - control_is_pressed( pdevice,  CONTROL_RIGHT ) ) * CAM_TURN_KEY;
+                }
+
+                //Normal camera
+                else
+                {
+                    //rotation
+                    if ( control_is_pressed( pdevice,  CONTROL_CAMERA_LEFT ) || control_is_pressed( pdevice,  CONTROL_CAMERA_RIGHT ) )
+                    {
+                        pcam->turnadd += ( control_is_pressed( pdevice,  CONTROL_CAMERA_LEFT ) - control_is_pressed( pdevice,  CONTROL_CAMERA_RIGHT ) ) * CAM_TURN_KEY;
+                        pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
+                    }
+
+                    //zoom
+                    if ( control_is_pressed( pdevice,  CONTROL_CAMERA_IN ) || control_is_pressed( pdevice,  CONTROL_CAMERA_OUT ) )
+                    {
+                        pcam->zaddgoto += ( control_is_pressed( pdevice,  CONTROL_CAMERA_OUT ) - control_is_pressed( pdevice,  CONTROL_CAMERA_IN ) ) * CAM_TURN_KEY;
+                        if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
+                        if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
+                    }
+                }
+                break;
+            }
     }
 }
 

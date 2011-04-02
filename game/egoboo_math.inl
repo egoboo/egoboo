@@ -621,9 +621,9 @@ static INLINE float fvec3_length_abs( const fvec3_base_t A )
     retval = ABS( A[kX] ) + ABS( A[kY] ) + ABS( A[kZ] );
 
     //DEBUG
-    if( ieee32_bad(XX) )
+    if ( ieee32_bad( XX ) )
     {
-        log_debug("Game decided to crash, but I refuse! (%s - %d)\n" __FILE__, __LINE__);
+        log_debug( "Game decided to crash, but I refuse! (%s - %d)\n" __FILE__, __LINE__ );
         return 0.00f;
     }
     //DEBUG END

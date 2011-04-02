@@ -22,7 +22,7 @@
 /// @file mpd_functions.h
 /// @brief Definitions for mpd functionality ported from cartman and EgoMap
 ///
-/// @details 
+/// @details
 
 #include "egoboo_typedef.h"
 

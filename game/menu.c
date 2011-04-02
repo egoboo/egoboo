@@ -1536,7 +1536,7 @@ bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mod
 
             // fix class name capitalization
             pcap->classname[0] = toupper( pcap->classname[0] );
-            
+
             //Character level and class
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             ui_drawTextBox( NULL, loadplayer_ptr->name , x1, y1, 0, 0, 20 ); y1 += 25;
@@ -1672,7 +1672,7 @@ int doChoosePlayer( float deltaTime )
             LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
 
             // no players selected by default
-            if( mnu_SelectedList.count == 0 )
+            if ( mnu_SelectedList.count == 0 )
             {
                 for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
                 {
@@ -1700,7 +1700,7 @@ int doChoosePlayer( float deltaTime )
                 ui_drawImage( 0, &background, x, y, 0, 0, NULL );
             }
 
-            y = GFX_HEIGHT / (MAX_LOCAL_PLAYERS*2);
+            y = GFX_HEIGHT / ( MAX_LOCAL_PLAYERS * 2 );
 
             ui_drawTextBox( menuFont, "PLAYER", 50, 10, 0, 0, 20 );
             ui_drawTextBox( menuFont, "CHARACTER", 250, 10, 0, 0, 20 );
@@ -1712,16 +1712,16 @@ int doChoosePlayer( float deltaTime )
                 LoadPlayer_element_t *pchar = NULL;
 
                 //Figure out if there is a valid player selected
-                if( selectedPlayers[i] != -1 )
+                if ( selectedPlayers[i] != -1 )
                 {
                     pchar = mnu_loadplayer.lst + selectedPlayers[i];
                 }
 
-                snprintf( text, SDL_arraysize(text), "Player %i:", i+1);
-                ui_drawTextBox( menuFont, text, 50, y*(i+1), 0, 0, 20 );
+                snprintf( text, SDL_arraysize( text ), "Player %i:", i + 1 );
+                ui_drawTextBox( menuFont, text, 50, y*( i + 1 ), 0, 0, 20 );
 
                 // character button
-                if ( BUTTON_UP == ui_doButton( 10+i, pchar == NULL ? "Not playing" : pchar->name, NULL, buttonLeft + 200, y*(i+1), 200, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 10 + i, pchar == NULL ? "Not playing" : pchar->name, NULL, buttonLeft + 200, y*( i + 1 ), 200, 30 ) )
                 {
                     currentSelectingPlayer = i;
                     menuState = MM_Entering;
@@ -1729,12 +1729,12 @@ int doChoosePlayer( float deltaTime )
                 }
 
                 //character icon
-                if( pchar != NULL ) draw_one_icon( pchar->tx_ref, buttonLeft+200, y*(i+1), i, sparkle_delta );
+                if ( pchar != NULL ) draw_one_icon( pchar->tx_ref, buttonLeft + 200, y*( i + 1 ), i, sparkle_delta );
 
             }
 
             // Continue
-            if( mnu_SelectedList.count > 0 )
+            if ( mnu_SelectedList.count > 0 )
             {
                 if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
                 {
@@ -1942,12 +1942,12 @@ int doChoosePlayerCharacter( float deltaTime )
             // Buttons for going ahead
 
             // Select character
-            if( last_player != -1 )
+            if ( last_player != -1 )
             {
                 if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
                 {
                     //Remove previous selected from the selected list
-                    if( selectedPlayers[currentSelectingPlayer] != -1 ) 
+                    if ( selectedPlayers[currentSelectingPlayer] != -1 )
                         SelectedPlayer_list_remove( &mnu_SelectedList, selectedPlayers[currentSelectingPlayer] );
 
                     //Add the new one
@@ -1961,7 +1961,7 @@ int doChoosePlayerCharacter( float deltaTime )
             if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 //Unselect any player that might have been selected
-                if( selectedPlayers[currentSelectingPlayer] != -1 )
+                if ( selectedPlayers[currentSelectingPlayer] != -1 )
                 {
                     SelectedPlayer_list_remove( &mnu_SelectedList, selectedPlayers[currentSelectingPlayer] );
                     selectedPlayers[currentSelectingPlayer] = -1;
@@ -2188,14 +2188,14 @@ int doInputOptions( float deltaTime )
             update_input_type = btrue;
 
             //Clip to valid value
-            if( controls[player].device_type == INPUT_DEVICE_NONE ) controls[player].device_type = INPUT_DEVICE_BEGIN;
+            if ( controls[player].device_type == INPUT_DEVICE_NONE ) controls[player].device_type = INPUT_DEVICE_BEGIN;
 
             //Prepare all buttons
             for ( i = 0; i < CONTROL_COMMAND_COUNT; i++ )
             {
                 inputOptionsButtons[i][0] = CSTR_END;
             }
-            strncpy( inputOptionsButtons[i++], translate_input_type_to_string(controls[player].device_type), sizeof( STRING ) );
+            strncpy( inputOptionsButtons[i++], translate_input_type_to_string( controls[player].device_type ), sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof( STRING ) );
 
@@ -2219,7 +2219,7 @@ int doInputOptions( float deltaTime )
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
 
             //Detect if input is availible and update the input type button accordingly
-            if( update_input_type )
+            if ( update_input_type )
             {
                 update_input_type = bfalse;
                 device_found = input_is_enabled( pdevice );
@@ -2227,7 +2227,7 @@ int doInputOptions( float deltaTime )
             }
 
             // Someone pressed abort
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;  
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;
 
             // Are we waiting for input?
             if ( -1 != waitingforinput )
@@ -2403,7 +2403,7 @@ int doInputOptions( float deltaTime )
             }
 
             //Only keyboard has the UP, DOWN, LEFT and RIGHT buttons
-            if( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
+            if ( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
             {
                 if ( CSTR_END != inputOptionsButtons[CONTROL_UP][0] )
                 {
@@ -2442,10 +2442,10 @@ int doInputOptions( float deltaTime )
                     }
                 }
             }
-            
+
             // Camera
             ui_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, GFX_HEIGHT - 320, 0, 0, 20 );
-            if( pdevice->device_type != INPUT_DEVICE_KEYBOARD )
+            if ( pdevice->device_type != INPUT_DEVICE_KEYBOARD )
             {
                 // single button camera control
                 ui_drawTextBox( menuFont, "Camera:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
@@ -2478,13 +2478,13 @@ int doInputOptions( float deltaTime )
                     waitingforinput = CONTROL_CAMERA_LEFT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof( STRING ) );
                 }
-                
+
                 ui_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, GFX_HEIGHT - 200, 0, 0, 20 );
                 if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_RIGHT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof( STRING ) );
-                }                
+                }
             }
 
             // The select controller button
@@ -2492,7 +2492,7 @@ int doInputOptions( float deltaTime )
             if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, TxTexture_get_ptr(( TX_REF )( ICON_KEYB + pdevice->device_type ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 450, 50, 200, 40 ) )
             {
                 //switch to next controller type
-                switch( pdevice->device_type )
+                switch ( pdevice->device_type )
                 {
                     default:
                     case INPUT_DEVICE_KEYBOARD: pdevice->device_type = INPUT_DEVICE_MOUSE; break;
@@ -2504,11 +2504,11 @@ int doInputOptions( float deltaTime )
             }
 
             //Display warning if input device was not found
-            if( !device_found) ui_drawTextBox( menuFont, "WARNING: Input device not found!", buttonLeft + 300, 95, 0, 0, 20 );
+            if ( !device_found ) ui_drawTextBox( menuFont, "WARNING: Input device not found!", buttonLeft + 300, 95, 0, 0, 20 );
 
             // The select player button
             ui_drawTextBox( menuFont, "SELECT PLAYER:", buttonLeft, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doButton( 19, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], menuFont, buttonLeft+150, 50, 100, 30 ) )
+            if ( BUTTON_UP ==  ui_doButton( 19, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], menuFont, buttonLeft + 150, 50, 100, 30 ) )
             {
                 player++;
                 player %= MAX_LOCAL_PLAYERS;
@@ -4334,7 +4334,7 @@ int doMenu( float deltaTime )
             result = doChoosePlayerCharacter( deltaTime );
 
             if ( -1 == result )     { mnu_end_menu(); retval = MENU_END; }
-            
+
             break;
 
         case emnu_Options:
@@ -4985,7 +4985,7 @@ TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
     if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
 
     itex  = ( TX_REF )TxTitleImage.count;
-    if ( INVALID_GL_ID != ego_texture_load_vfs( (TxTitleImage.lst + itex), szLoadName, INVALID_KEY ) )
+    if ( INVALID_GL_ID != ego_texture_load_vfs(( TxTitleImage.lst + itex ), szLoadName, INVALID_KEY ) )
     {
         TxTitleImage.count++;
     }
@@ -5586,9 +5586,9 @@ egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_lis
         imp_lst->count++;
 
         //TODO: this could be done a lot better... figure out which player we are (1, 2, 3 or 4)
-        for( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
+        for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
         {
-            if( selectedplayer_ptr->player == selectedPlayers[i] ) import_ptr->local_player_num = i;
+            if ( selectedplayer_ptr->player == selectedPlayers[i] ) import_ptr->local_player_num = i;
         }
 
         // set the import info

@@ -45,11 +45,11 @@ bool_t  ALLOCATED_PENC( enc_t * PENC );
 bool_t  ACTIVE_PENC( enc_t * PENC );
 bool_t  TERMINATED_PENC( enc_t * PENC );
 
-bool_t INGAME_ENC_BASE(ENC_REF IENC);
-bool_t INGAME_PENC_BASE(enc_t * PENC);
+bool_t INGAME_ENC_BASE( ENC_REF IENC );
+bool_t INGAME_PENC_BASE( enc_t * PENC );
 
-bool_t INGAME_ENC(ENC_REF IENC);
-bool_t INGAME_PENC(enc_t * PENC);
+bool_t INGAME_ENC( ENC_REF IENC );
+bool_t INGAME_PENC( enc_t * PENC );
 
 //--------------------------------------------------------------------------------------------
 // testing macros

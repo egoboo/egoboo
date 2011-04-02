@@ -70,11 +70,11 @@ bool_t  ALLOCATED_PCHR( chr_t * PCHR )  { return _ALLOCATED_PCHR( PCHR );  }
 bool_t  ACTIVE_PCHR( chr_t * PCHR )     { return _ACTIVE_PCHR( PCHR );     }
 bool_t  TERMINATED_PCHR( chr_t * PCHR ) { return _TERMINATED_PCHR( PCHR ); }
 
-bool_t INGAME_CHR_BASE(CHR_REF ICHR)  { return _INGAME_CHR_BASE(ICHR);  }       
-bool_t INGAME_PCHR_BASE(chr_t * PCHR) { return _INGAME_PCHR_BASE(PCHR); }      
+bool_t INGAME_CHR_BASE( CHR_REF ICHR )  { return _INGAME_CHR_BASE( ICHR );  }
+bool_t INGAME_PCHR_BASE( chr_t * PCHR ) { return _INGAME_PCHR_BASE( PCHR ); }
 
-bool_t INGAME_CHR(CHR_REF ICHR)       { return _INGAME_CHR(ICHR);  }           
-bool_t INGAME_PCHR(chr_t * PCHR)      { return _INGAME_PCHR(PCHR); }  
+bool_t INGAME_CHR( CHR_REF ICHR )       { return _INGAME_CHR( ICHR );  }
+bool_t INGAME_PCHR( chr_t * PCHR )      { return _INGAME_PCHR( PCHR ); }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

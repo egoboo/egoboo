@@ -61,7 +61,7 @@ enum e_input_controls
 
     CONTROL_SNEAK,
     CONTROL_INVENTORY,
-    
+
     CONTROL_MESSAGE,
     CONTROL_CAMERA_LEFT,
     CONTROL_CAMERA_RIGHT,

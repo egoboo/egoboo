@@ -34,16 +34,16 @@
 // BOOLEAN
 
 #if defined(__cplusplus)
-    typedef bool config_bool_t;
-    #define config_true true
-    #define config_false false
+typedef bool config_bool_t;
+#define config_true true
+#define config_false false
 #else
-    enum e_config_bool
-    {
-        config_true  = ( 1 == 1 ),
-        config_false = ( !config_true )
-    };
-    typedef enum e_config_bool config_bool_t;
+enum e_config_bool
+{
+    config_true  = ( 1 == 1 ),
+    config_false = ( !config_true )
+};
+typedef enum e_config_bool config_bool_t;
 #endif
 
 //--------------------------------------------------------------------------------------------

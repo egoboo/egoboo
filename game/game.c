@@ -870,7 +870,7 @@ void game_update_timers()
 
     ticks_last = ticks_now;
     ticks_now  = egoboo_get_ticks();
-    
+
     // check to make sure that the game is running
     if ( !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused )
     {
@@ -1586,7 +1586,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targ
                 los_info.x1 = ptst->pos.x;
                 los_info.y1 = ptst->pos.y;
                 los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
-                
+
                 if ( do_line_of_sight( &los_info ) ) continue;
             }
 
@@ -1866,10 +1866,10 @@ void set_one_player_latch( const PLA_REF ipla )
     pdevice = ppla->pdevice;
 
     // is the device a local device or an internet device?
-    if ( pdevice == NULL) return;
+    if ( pdevice == NULL ) return;
 
     //No need to continue if device is not enabled
-    if ( !input_is_enabled(pdevice) ) return;
+    if ( !input_is_enabled( pdevice ) ) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
     fast_camera_turn = ( 1 == local_numlpla ) && CAM_TURN_GOOD == PCamera->turn_mode;
@@ -1884,91 +1884,91 @@ void set_one_player_latch( const PLA_REF ipla )
     fsin    = turntosin[ turnsin ];
     fcos    = turntocos[ turnsin ];
 
-    switch( pdevice->device_type )
+    switch ( pdevice->device_type )
     {
 
-        // Mouse routines
+            // Mouse routines
         case INPUT_DEVICE_MOUSE:
-        {
-
-            if ( fast_camera_turn || !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
             {
-                dist = SQRT( mous.x * mous.x + mous.y * mous.y );
-                if ( dist > 0 )
+
+                if ( fast_camera_turn || !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
                 {
-                    scale = mous.sense / dist;
-                    if ( dist < mous.sense )
+                    dist = SQRT( mous.x * mous.x + mous.y * mous.y );
+                    if ( dist > 0 )
                     {
-                        scale = dist / mous.sense;
+                        scale = mous.sense / dist;
+                        if ( dist < mous.sense )
+                        {
+                            scale = dist / mous.sense;
+                        }
+
+                        if ( mous.sense != 0 )
+                        {
+                            scale /= mous.sense;
+                        }
+
+                        joy_pos.x = mous.x * scale;
+                        joy_pos.y = mous.y * scale;
+
+                        //if ( fast_camera_turn && !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
+
+                        joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+                        joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+                    }
+                }
+
+                break;
+            }
+
+            // Joystick routines
+        case INPUT_DEVICE_JOY_A:
+        case INPUT_DEVICE_JOY_B:
+            {
+                //Figure out which joystick we are using
+                device_joystick_t *joystick;
+                joystick = joy + ( pdevice->device_type - MAXJOYSTICK );
+
+                if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
+                {
+                    joy_pos.x = joystick->x;
+                    joy_pos.y = joystick->y;
+
+                    dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
+                    if ( dist > 1.0f )
+                    {
+                        scale = 1.0f / SQRT( dist );
+                        joy_pos.x *= scale;
+                        joy_pos.y *= scale;
                     }
 
-                    if( mous.sense != 0 )
-                    {
-                        scale /= mous.sense;
-                    }
-
-                    joy_pos.x = mous.x * scale;
-                    joy_pos.y = mous.y * scale;
-
-                    //if ( fast_camera_turn && !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
+                    if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
 
                     joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
                     joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
                 }
+
+                break;
             }
 
-            break;
-        }
-
-        // Joystick routines
-        case INPUT_DEVICE_JOY_A:
-        case INPUT_DEVICE_JOY_B:
-        {
-            //Figure out which joystick we are using
-            device_joystick_t *joystick;
-            joystick = joy + (pdevice->device_type - MAXJOYSTICK);
-
-            if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
+            // Keyboard routines
+        case INPUT_DEVICE_KEYBOARD:
             {
-                joy_pos.x = joystick->x;
-                joy_pos.y = joystick->y;
 
-                dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
-                if ( dist > 1.0f )
+                if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
                 {
-                    scale = 1.0f / SQRT( dist );
-                    joy_pos.x *= scale;
-                    joy_pos.y *= scale;
+                    if ( control_is_pressed( pdevice,  CONTROL_RIGHT ) ) joy_pos.x++;
+                    if ( control_is_pressed( pdevice,  CONTROL_LEFT ) ) joy_pos.x--;
+                    if ( control_is_pressed( pdevice,  CONTROL_DOWN ) ) joy_pos.y++;
+                    if ( control_is_pressed( pdevice,  CONTROL_UP ) ) joy_pos.y--;
+
+                    if ( fast_camera_turn )  joy_pos.x = 0;
+
+                    joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+                    joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
                 }
 
-                if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
-
-                joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-                joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+                break;
             }
-
-            break;
-        }
-
-        // Keyboard routines
-        case INPUT_DEVICE_KEYBOARD:
-        {
-
-            if ( fast_camera_turn || !control_is_pressed(pdevice, CONTROL_CAMERA ) )
-            {
-                if( control_is_pressed( pdevice,  CONTROL_RIGHT ) ) joy_pos.x++;
-                if( control_is_pressed( pdevice,  CONTROL_LEFT )  ) joy_pos.x--;
-                if( control_is_pressed( pdevice,  CONTROL_DOWN )  ) joy_pos.y++;
-                if( control_is_pressed( pdevice,  CONTROL_UP )    ) joy_pos.y--;  
-
-                if ( fast_camera_turn )  joy_pos.x = 0;
-
-                joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-                joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
-            }
-
-            break;
-        }
     }
 
     // Update movement (if any)
@@ -1976,7 +1976,7 @@ void set_one_player_latch( const PLA_REF ipla )
     sum.y += joy_new.y;
 
     // Read control buttons
-    if( !ppla->draw_inventory ) 
+    if ( !ppla->draw_inventory )
     {
         if ( control_is_pressed( pdevice, CONTROL_JUMP ) )
             SET_BIT( sum.b, LATCHBUTTON_JUMP );
@@ -1993,38 +1993,38 @@ void set_one_player_latch( const PLA_REF ipla )
         input_device_add_latch( pdevice, sum.x, sum.y );
 
         ppla->local_latch.x = pdevice->latch.x;
-        ppla->local_latch.y = pdevice->latch.y;    
+        ppla->local_latch.y = pdevice->latch.y;
         ppla->local_latch.b = sum.b;
     }
 
     //inventory mode
-    else if( ppla->inventory_cooldown < update_wld )
+    else if ( ppla->inventory_cooldown < update_wld )
     {
         int new_selected = ppla->selected_item;
         chr_t *pchr = ChrList.lst + ppla->index;
 
         //dirty hack here... mouse seems to be inverted in inventory mode?
-        if( pdevice->device_type == INPUT_DEVICE_MOUSE ) 
-        { 
-            joy_pos.x = - joy_pos.x; 
-            joy_pos.y = - joy_pos.y; 
+        if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
+        {
+            joy_pos.x = - joy_pos.x;
+            joy_pos.y = - joy_pos.y;
         }
 
         //handle inventory movement
-        if( joy_pos.x < 0 )       new_selected--;
-        else if( joy_pos.x > 0 )  new_selected++;
-        if( joy_pos.y < 0 )       new_selected -= MAXINVENTORY/2;
-        else if( joy_pos.y > 0 )  new_selected += MAXINVENTORY/2;
+        if ( joy_pos.x < 0 )       new_selected--;
+        else if ( joy_pos.x > 0 )  new_selected++;
+        if ( joy_pos.y < 0 )       new_selected -= MAXINVENTORY / 2;
+        else if ( joy_pos.y > 0 )  new_selected += MAXINVENTORY / 2;
 
         //clip to a valid value
-        if( ppla->selected_item != new_selected )
+        if ( ppla->selected_item != new_selected )
         {
             ppla->inventory_cooldown = update_wld + 10;
-            ppla->selected_item = CLIP( new_selected, 0, MAXINVENTORY-1 );
+            ppla->selected_item = CLIP( new_selected, 0, MAXINVENTORY - 1 );
         }
 
         //handle item control
-        if( pchr->inst.action_ready && 0 == pchr->reload_timer )
+        if ( pchr->inst.action_ready && 0 == pchr->reload_timer )
         {
             //handle LEFT hand control
             if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
@@ -2058,7 +2058,7 @@ void set_one_player_latch( const PLA_REF ipla )
     if ( update_wld > ppla->inventory_cooldown && control_is_pressed( pdevice, CONTROL_INVENTORY ) )
     {
         ppla->draw_inventory = !ppla->draw_inventory;
-        ppla->inventory_cooldown = update_wld + (ONESECOND/4);
+        ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
         ppla->inventory_lerp = 0xFFFF;
     }
 }
@@ -2377,7 +2377,7 @@ void show_full_status( int statindex )
 
     if ( statindex >= StatusList_count ) return;
     character = StatusList[statindex];
-    
+
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList.lst + character;
     skinlevel = pchr->skin;
@@ -2541,15 +2541,15 @@ void game_load_profile_ai()
     PRO_REF ipro;
     STRING loadname;
 
-    for( ipro = 0; ipro < MAX_PROFILE; ipro++ )
+    for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
     {
         pro_t *ppro;
 
-        if( !LOADED_PRO( ipro ) ) continue;
+        if ( !LOADED_PRO( ipro ) ) continue;
         ppro = ProList.lst + ipro;
 
         // Load the AI script for this iobj
-        make_newloadname(ppro->name, "/script.txt", loadname );
+        make_newloadname( ppro->name, "/script.txt", loadname );
         load_ai_script_vfs( loadname, ppro, &ppro->ai_script );
     }
 }
@@ -2664,7 +2664,7 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     {
         chr_t *pitem;
         pchr->nameknown = btrue;
-        
+
         //Unkurse both inhand items
         if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
@@ -2688,33 +2688,33 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 // I actually had to spend like 45 minutes looking up the compiler flags
 // to catch this... good documentation, guys!
 #if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
-char* strupr( char * str ) 
-{ 
-    char *ret = str; 
-    if ( NULL != str ) 
-    { 
-      while ( CSTR_END != *str ) 
-      { 
-          *str = toupper( *str ); 
-          str++; 
-      } 
-    } 
-    return ret; 
-} 
+char* strupr( char * str )
+{
+    char *ret = str;
+    if ( NULL != str )
+    {
+        while ( CSTR_END != *str )
+        {
+            *str = toupper( *str );
+            str++;
+        }
+    }
+    return ret;
+}
 
-char* strlwr( char * str ) 
-{ 
-    char *ret = str; 
-    if ( NULL != str ) 
-    { 
-      while ( CSTR_END != *str ) 
-      { 
-          *str = tolower( *str ); 
-          str++; 
-      } 
-    } 
-    return ret; 
-} 
+char* strlwr( char * str )
+{
+    char *ret = str;
+    if ( NULL != str )
+    {
+        while ( CSTR_END != *str )
+        {
+            *str = tolower( *str );
+            str++;
+        }
+    }
+    return ret;
+}
 #endif
 
 void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
@@ -2840,7 +2840,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + ImportList.lst[local_index].local_player_num);
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + ImportList.lst[local_index].local_player_num );
             }
             else
             {
@@ -2888,7 +2888,7 @@ void activate_spawn_file_vfs()
         size_t i;
 
         //Mark each slot as free with the string termination character
-        memset(reserved_slot, CSTR_END, sizeof(reserved_slot[0][0]) * MAX_PROFILE * 256);
+        memset( reserved_slot, CSTR_END, sizeof( reserved_slot[0][0] ) * MAX_PROFILE * 256 );
 
         //First load spawn data of every object
         while ( spawn_file_scan( fileread, &spawn_list[spawn_count] ) )
@@ -2896,9 +2896,9 @@ void activate_spawn_file_vfs()
             spawn_file_info_t * pspawn;
 
             //Spit out a warning if they break the limit
-            if( spawn_count >= MAX_CHR )
+            if ( spawn_count >= MAX_CHR )
             {
-                log_warning("Too many objects in spawn.txt! Maximum number of objects is %d\n", MAX_CHR);
+                log_warning( "Too many objects in spawn.txt! Maximum number of objects is %d\n", MAX_CHR );
                 break;
             }
             pspawn = spawn_list + spawn_count;
@@ -2921,9 +2921,9 @@ void activate_spawn_file_vfs()
             }
 
             //its a static slot number, mark it as reserved if it isnt already
-            else if( reserved_slot[pspawn->slot][0] == CSTR_END )
+            else if ( reserved_slot[pspawn->slot][0] == CSTR_END )
             {
-                strncpy( reserved_slot[pspawn->slot],pspawn->spawn_coment, SDL_arraysize( reserved_slot[pspawn->slot] ) );
+                strncpy( reserved_slot[pspawn->slot], pspawn->spawn_coment, SDL_arraysize( reserved_slot[pspawn->slot] ) );
             }
 
             //Finished with this object for now
@@ -2931,21 +2931,21 @@ void activate_spawn_file_vfs()
         }
 
         //Next we dynamically find slot numbers for each of the objects in the dynamic list
-        for( i = 0; i < dynamic_count; i++ )
+        for ( i = 0; i < dynamic_count; i++ )
         {
             spawn_file_info_t * sp_dynamic = spawn_list + dynamic_list[i];
 
             //Find first free slot that is not the spellbook slot
-            for( sp_dynamic->slot = MAXIMPORTPERPLAYER * MAX_PLAYER; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
+            for ( sp_dynamic->slot = MAXIMPORTPERPLAYER * MAX_PLAYER; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
             {
                 //dont try to grab the spellbook slot
-                if( sp_dynamic->slot == SPELLBOOK ) continue;
+                if ( sp_dynamic->slot == SPELLBOOK ) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
                 if ( 0 == strcmp( reserved_slot[sp_dynamic->slot], sp_dynamic->spawn_coment ) ) break;
 
                 //found a completely free slot
-                if( reserved_slot[sp_dynamic->slot][0] == CSTR_END )
+                if ( reserved_slot[sp_dynamic->slot][0] == CSTR_END )
                 {
                     //Reserve this one for us
                     strncpy( reserved_slot[sp_dynamic->slot], sp_dynamic->spawn_coment, SDL_arraysize( reserved_slot[sp_dynamic->slot] ) );
@@ -2954,16 +2954,16 @@ void activate_spawn_file_vfs()
             }
 
             //If all slots are reserved, spit out a warning
-            if( sp_dynamic->slot == MAX_PROFILE ) log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", sp_dynamic->spawn_coment, MAX_PROFILE );
+            if ( sp_dynamic->slot == MAX_PROFILE ) log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", sp_dynamic->spawn_coment, MAX_PROFILE );
         }
 
         //Now spawn each object in order
-        for( i = 0; i < spawn_count; i++ )
+        for ( i = 0; i < spawn_count; i++ )
         {
             spawn_file_info_t *sp_info = spawn_list + i;
 
             //Do we have a parent?
-            if( sp_info->attach != ATTACH_NONE ) sp_info->parent = parent;
+            if ( sp_info->attach != ATTACH_NONE ) sp_info->parent = parent;
 
             // If nothing is already in that slot, try to load it.
             if ( !LOADED_PRO(( PRO_REF ) sp_info->slot ) )
@@ -2973,7 +2973,7 @@ void activate_spawn_file_vfs()
                 if ( !activate_spawn_file_load_object( sp_info ) )
                 {
                     // no, give a warning if it is useful
-                    if ( import_object  )
+                    if ( import_object )
                     {
                         log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info->spawn_coment, sp_info->slot, newloadname );
                     }
@@ -2985,7 +2985,7 @@ void activate_spawn_file_vfs()
             activate_spawn_file_spawn( sp_info );
 
             //We might become the new parent
-            if( sp_info->attach == ATTACH_NONE ) parent = sp_info->parent;
+            if ( sp_info->attach == ATTACH_NONE ) parent = sp_info->parent;
         }
 
         vfs_close( fileread );
@@ -5592,7 +5592,7 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
 
     // blank out the ImportList list
     Import_list_init( &ImportList );
-    
+
     // generate the ImportList list from the player info
     for ( player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++ )
     {

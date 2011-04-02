@@ -925,7 +925,7 @@ bool_t mad_free( mad_t * pmad )
 {
     /// Free all allocated memory
 
-    if ( !LOADED_PMAD(pmad) ) return bfalse;
+    if ( !LOADED_PMAD( pmad ) ) return bfalse;
 
     MD2_Model_destroy( &( pmad->md2_ptr ) );
 
@@ -973,7 +973,7 @@ mad_t * mad_dtor( mad_t * pmad )
 {
     /// @details BB@> deinitialize the character data
 
-    if ( !LOADED_PMAD(pmad) ) return NULL;
+    if ( !LOADED_PMAD( pmad ) ) return NULL;
 
     // deinitialize the object
     mad_reconstruct( pmad );

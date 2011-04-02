@@ -22,7 +22,7 @@ struct sAStar_Node
     float  weight;
     bool_t closed;
 
-    int    ix, iy;    
+    int    ix, iy;
     AStar_Node_t *parent;
 };
 

@@ -225,11 +225,11 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
         STRING line;
 
         //Parse the weather type line
-        fget_next_string( fileread, line, SDL_arraysize(line) );
-        strncpy( pweather->weather_name, strupr(line), SDL_arraysize(pweather->weather_name) );
+        fget_next_string( fileread, line, SDL_arraysize( line ) );
+        strncpy( pweather->weather_name, strupr( line ), SDL_arraysize( pweather->weather_name ) );
 
         //No weather?
-        if( strcmp( pweather->weather_name, "NONE" ) == 0 )
+        if ( strcmp( pweather->weather_name, "NONE" ) == 0 )
         {
             pweather->part_gpip = -1;
         }
@@ -240,19 +240,19 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
             bool_t success;
 
             //prepeare the load paths
-            snprintf( prt_file, SDL_arraysize(prt_file), "mp_data/weather_%s.txt", strlwr( line ) );
-            snprintf( prt_end_file, SDL_arraysize(prt_end_file), "mp_data/weather_%s_finish.txt", strlwr( line ) );
+            snprintf( prt_file, SDL_arraysize( prt_file ), "mp_data/weather_%s.txt", strlwr( line ) );
+            snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
 
             //try to load the particle files, we need at least the first particle for weather to work
             success = load_one_particle_profile_vfs( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
             load_one_particle_profile_vfs( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
 
             //Unknown weather parsed
-            if( !success )
+            if ( !success )
             {
-                log_warning("Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file);
+                log_warning( "Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file );
                 pweather->part_gpip = -1;
-                strncpy( pweather->weather_name, "NONE", SDL_arraysize(pweather->weather_name) );
+                strncpy( pweather->weather_name, "NONE", SDL_arraysize( pweather->weather_name ) );
             }
         }
     }
@@ -518,7 +518,7 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
 
     // write optional data...  Only read if it exists...
     if ( !pdata->fog.found ) return btrue;
-    
+
     vfs_printf( filewrite, "\n\n// Fog Expansion...  Leave this out for no fog...\n" );
     fput_float( filewrite, "Fog top z ( 0 to 100 )                            :", pdata->fog.top );
     fput_float( filewrite, "Fog bottom z ( 0 )                                :", pdata->fog.bottom );

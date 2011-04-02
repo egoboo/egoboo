@@ -349,7 +349,7 @@ struct s_chr
     // attachments
     CHR_REF        attachedto;                    ///< !=MAX_CHR if character is a held weapon
     slot_t         inwhich_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
-    CHR_REF        inwhich_inventory;             ///< !=MAX_CHR if character is inside an inventory 
+    CHR_REF        inwhich_inventory;             ///< !=MAX_CHR if character is inside an inventory
 
     // platform stuff
     bool_t         platform;                      ///< Can it be stood on

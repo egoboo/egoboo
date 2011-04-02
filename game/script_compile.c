@@ -647,13 +647,13 @@ int load_one_line( int read, script_info_t *pscript )
         }
 
         //Double apostrophe indicates where the string begins and ends
-        if( cTmp == '"' )
+        if ( cTmp == '"' )
         {
             line_contains_string = !line_contains_string;
         }
-        else if( line_contains_string )
+        else if ( line_contains_string )
         {
-            if( cnt < MESSAGESIZE )
+            if ( cnt < MESSAGESIZE )
             {
                 stringBuffer[cnt] = cTmp;
             }
@@ -661,7 +661,7 @@ int load_one_line( int read, script_info_t *pscript )
             {
                 //warn if message is too big
                 line_contains_string = bfalse;
-                log_warning("Text string is to long! \"%s\" (%d) - \"%s\" \n", pscript->name, Token.iLine, stringBuffer );
+                log_warning( "Text string is to long! \"%s\" (%d) - \"%s\" \n", pscript->name, Token.iLine, stringBuffer );
             }
             cnt++;
         }
@@ -670,7 +670,7 @@ int load_one_line( int read, script_info_t *pscript )
         {
             foundtext = btrue;
 
-            cLineBuffer[iLineSize]   = (cTmp == ' ') ? '_' : cTmp;
+            cLineBuffer[iLineSize]   = ( cTmp == ' ' ) ? '_' : cTmp;
             iLineSize++;
         }
     }
@@ -773,10 +773,10 @@ void fix_operators()
     while ( cnt < iLineSize )
     {
         cTmp = cLineBuffer[cnt];
-        if( cTmp == '"' ) parse_string = !parse_string;
+        if ( cTmp == '"' ) parse_string = !parse_string;
 
         //Don't fix operator symbols inside a string
-        if( !parse_string )
+        if ( !parse_string )
         {
             if ( '+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
                  '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
@@ -830,7 +830,7 @@ int parse_token( pro_t *ppro, script_info_t *pscript, int read )
         cTmp = cLineBuffer[read];
     }
     Token.cWord[wordsize] = CSTR_END;
-    
+
     // Check for numeric constant
     if ( 0 != isdigit( Token.cWord[0] ) )
     {
@@ -859,48 +859,48 @@ int parse_token( pro_t *ppro, script_info_t *pscript, int read )
         STRING obj_name;
 
         //remove the reference symbol to figure out the actual folder name we are looking for
-        strncpy( obj_name, stringBuffer+1, SDL_arraysize( obj_name ) );
+        strncpy( obj_name, stringBuffer + 1, SDL_arraysize( obj_name ) );
 
         //Invalid profile as default
         Token.iValue = MAX_PROFILE;
 
         //Convert reference to slot number
-        for( ipro = 0; ipro < MAX_PROFILE; ipro++ )
+        for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
         {
             pro_t *ppro;
 
-            if( !LOADED_PRO( ipro ) ) continue;
+            if ( !LOADED_PRO( ipro ) ) continue;
             ppro = ProList.lst + ipro;
-            
+
             //is this the object we are looking for?
-            if( 0 == strcmp( obj_name, strrchr(ppro->name, '/') + 1 ) )
+            if ( 0 == strcmp( obj_name, strrchr( ppro->name, '/' ) + 1 ) )
             {
                 Token.iValue = REF_TO_INT( ppro->icap );
                 break;
             }
         }
-        
+
         //Do we need to load the object?
-        if( !LOADED_PRO( (PRO_REF) Token.iValue ) )
+        if ( !LOADED_PRO(( PRO_REF ) Token.iValue ) )
         {
             STRING loadname;
             snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
-            
+
             //find first free slot number
-            for( ipro = MAXIMPORTPERPLAYER * 4; ipro < MAX_PROFILE; ipro++ )
+            for ( ipro = MAXIMPORTPERPLAYER * 4; ipro < MAX_PROFILE; ipro++ )
             {
                 //skip loaded profiles
-                if( LOADED_PRO( ipro ) ) continue;
+                if ( LOADED_PRO( ipro ) ) continue;
 
                 //found a free slot
-                Token.iValue = load_one_profile_vfs( loadname, REF_TO_INT(ipro) );
+                Token.iValue = load_one_profile_vfs( loadname, REF_TO_INT( ipro ) );
             }
         }
 
         //Failed to load object!
-        if( !LOADED_PRO(( PRO_REF ) Token.iValue  ) )
+        if ( !LOADED_PRO(( PRO_REF ) Token.iValue ) )
         {
-            log_message("SCRIPT ERROR: Failed to load object: %s through an AI script. %s (line %d)\n", Token.cWord, pscript->name, Token.iLine);
+            log_message( "SCRIPT ERROR: Failed to load object: %s through an AI script. %s (line %d)\n", Token.cWord, pscript->name, Token.iLine );
         }
 
         Token.cType = 'C';
@@ -915,11 +915,11 @@ int parse_token( pro_t *ppro, script_info_t *pscript, int read )
         bool_t message_found = bfalse;
 
         //see if this message is already loaded, no need to load it twice into memory
-        if( ppro->message )
+        if ( ppro->message )
         {
-            for( cnt = ppro->message_count; cnt--; )
+            for ( cnt = ppro->message_count; cnt--; )
             {
-                if( 0 == strcmp( ppro->message[cnt], stringBuffer ) )
+                if ( 0 == strcmp( ppro->message[cnt], stringBuffer ) )
                 {
                     Token.iValue = cnt;
                     message_found = btrue;
@@ -929,12 +929,12 @@ int parse_token( pro_t *ppro, script_info_t *pscript, int read )
         }
 
         //this is a new string, so add this message to the avalible messages of the object
-        if( !message_found )
+        if ( !message_found )
         {
             Token.iValue = ppro->message_count;
             profile_add_one_message( ppro, stringBuffer );
         }
-        
+
         Token.cType = 'C';
         Token.iIndex = MAX_OPCODE;
         { print_token();  return read; }
@@ -1286,10 +1286,10 @@ egoboo_rv ai_script_upload_default( script_info_t *pscript )
 {
     //@details ZF@> This loads the default AI script into a character profile ai
     //              It's not optimal since it duplicates the AI script data with memcpy
-    if( pscript == NULL ) return rv_error;
+    if ( pscript == NULL ) return rv_error;
 
     strncpy( pscript->name, default_ai_script.name, sizeof( STRING ) );
-    memcpy(pscript->data, default_ai_script.data, sizeof(pscript->data)); 
+    memcpy( pscript->data, default_ai_script.data, sizeof( pscript->data ) );
 
     pscript->indent = 0;
     pscript->indent_last = 0;
@@ -1309,7 +1309,7 @@ egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *
     size_t file_size;
 
     //Handle default AI
-    if( pscript == NULL ) pscript = &( default_ai_script );
+    if ( pscript == NULL ) pscript = &( default_ai_script );
 
     iNumLine = 0;
     fileread = vfs_openRead( loadname );

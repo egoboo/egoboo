@@ -73,7 +73,7 @@ void input_device_init( input_device_t * pdevice )
     if ( NULL == pdevice ) return;
 
     type = pdevice->device_type;
-    
+
     memset( pdevice, 0, sizeof( *pdevice ) );
     pdevice->sustain = 0.58f;
     pdevice->cover   = 1.0f - pdevice->sustain;
@@ -153,7 +153,7 @@ void input_read_mouse()
         b = SDL_GetRelativeMouseState( &x, &y );
 
         //Move mouse to the center of the screen since SDL does not detect motion outside the window
-        if( !cfg.dev_mode ) SDL_WarpMouse( GFX_WIDTH>>1, GFX_HEIGHT>>1 );
+        if ( !cfg.dev_mode ) SDL_WarpMouse( GFX_WIDTH >> 1, GFX_HEIGHT >> 1 );
     }
 
     mous.x = -x; // mous.x and mous.y are the wrong type to use in above call
@@ -317,7 +317,7 @@ void input_read()
 
             case SDL_QUIT:
                 //Someone pressed the little X in the corner while running windowed mode
-                exit(0);
+                exit( 0 );
                 break;
 
                 // use this loop to grab any console-mode entry from the keyboard
@@ -441,7 +441,7 @@ bool_t control_is_pressed( input_device_t *pdevice, CONTROL_BUTTON icontrol )
     // make sure the idevice is valid
     if ( NULL == pdevice ) return bfalse;
     pcontrol = pdevice->control + icontrol;
-    
+
     if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type || pcontrol->is_key )
     {
         retval = SDLKEYDOWN( pcontrol->tag );
@@ -488,13 +488,13 @@ INPUT_DEVICE translate_string_to_input_type( const char *string )
 {
     /// @details ZF@> This function turns a string into a input type (mouse, keyboard, joystick, etc.)
 
-    if      ( 0 == strcmp( string, "KEYBOARD" ) )   return INPUT_DEVICE_KEYBOARD;
+    if ( 0 == strcmp( string, "KEYBOARD" ) )   return INPUT_DEVICE_KEYBOARD;
     else if ( 0 == strcmp( string, "MOUSE" ) )      return INPUT_DEVICE_MOUSE;
     else if ( 0 == strcmp( string, "JOYSTICK_A" ) ) return INPUT_DEVICE_JOY_A;
     else if ( 0 == strcmp( string, "JOYSTICK_B" ) ) return INPUT_DEVICE_JOY_B;
 
     // No matches
-    log_warning("Unknown device controller parsed (%s) - defaulted to Keyboard\n", string);
+    log_warning( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );
     return INPUT_DEVICE_KEYBOARD;
 }
 
@@ -503,10 +503,10 @@ const char* translate_input_type_to_string( const INPUT_DEVICE type )
 {
     /// @details ZF@> This function turns a input type into a string
 
-    if( type == INPUT_DEVICE_KEYBOARD )   return "KEYBOARD";
-    else if( type == INPUT_DEVICE_MOUSE ) return "MOUSE";
-    else if( type == INPUT_DEVICE_JOY_A ) return "JOYSTICK_A";
-    else if( type == INPUT_DEVICE_JOY_B ) return "JOYSTICK_B";
+    if ( type == INPUT_DEVICE_KEYBOARD )   return "KEYBOARD";
+    else if ( type == INPUT_DEVICE_MOUSE ) return "MOUSE";
+    else if ( type == INPUT_DEVICE_JOY_A ) return "JOYSTICK_A";
+    else if ( type == INPUT_DEVICE_JOY_B ) return "JOYSTICK_B";
 
     // No matches
     return "UNKNOWN";

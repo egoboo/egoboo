@@ -107,11 +107,15 @@ ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+typedef Uint8 GRID_FX_BITS;
+
 /// The data describing an Egoboo grid
 struct s_ego_grid_info
 {
     // MODIFY THESE FLAGS
-    Uint8           fx;                        ///< Special effects flags
+    GRID_FX_BITS    base_fx;                   ///< the special effects flags in the mpd
+    GRID_FX_BITS    wall_fx;                   ///< the working copy of base_fx, which might be modified by digging
+    GRID_FX_BITS    pass_fx;                   ///< fx added by passages. used this way, passages cannot remove the wall flags.
     Uint8           twist;                     ///< The orientation of the tile
 
     // the lighting info in the upper left hand corner of a grid

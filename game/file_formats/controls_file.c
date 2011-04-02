@@ -37,7 +37,7 @@ static const int CONTROLS_FILE_VERSION = 3;
 static void export_control( vfs_FILE * filewrite, const char * text, INPUT_DEVICE device, control_t * pcontrol )
 {
     STRING write;
-    
+
     snprintf( write, SDL_arraysize( write ), "%s : %s\n", text, scantag_get_string( device, pcontrol->tag, pcontrol->is_key ) );
     vfs_puts( write, filewrite );
 }
@@ -64,7 +64,7 @@ bool_t input_settings_load_vfs( const char *szFilename )
 
     //Make sure file versions match
     file_version = fget_version( fileread );
-    if( file_version < CONTROLS_FILE_VERSION )
+    if ( file_version < CONTROLS_FILE_VERSION )
     {
         log_warning( "File \"%s\" is from an older version: \"%i\", while version required is: \"%i\"\n", szFilename, file_version, CONTROLS_FILE_VERSION );
         vfs_close( fileread );
@@ -72,7 +72,7 @@ bool_t input_settings_load_vfs( const char *szFilename )
     }
 
     //Read input for each player
-    for( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
+    for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
         size_t count;
         pdevice = controls + idevice;
@@ -85,11 +85,11 @@ bool_t input_settings_load_vfs( const char *szFilename )
         pdevice->device_type = translate_string_to_input_type( currenttag );
 
         //Find out how many fields we are to read
-        if( pdevice->device_type == INPUT_DEVICE_KEYBOARD ) count = CONTROL_COMMAND_COUNT;
+        if ( pdevice->device_type == INPUT_DEVICE_KEYBOARD ) count = CONTROL_COMMAND_COUNT;
         else                                                count = CONTROL_CAMERA + 1;
 
         //Read each input control button
-        for( icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
+        for ( icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
             fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
             pdevice->control[icontrol].tag = scantag_get_value( currenttag );
@@ -143,17 +143,17 @@ bool_t input_settings_save_vfs( const char* szFilename )
     vfs_puts( "\n", filewrite );
 
     // The actual settings
-    for( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
+    for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
     {
         pdevice = controls + i;
-        snprintf( write, SDL_arraysize(write), "\nPLAYER %i\n", i+1 );
-        
+        snprintf( write, SDL_arraysize( write ), "\nPLAYER %i\n", i + 1 );
+
         //which player
         vfs_puts( write, filewrite );
         vfs_puts( "========\n", filewrite );
 
         //controller type
-        snprintf( write, SDL_arraysize(write), "CONTROLLER:         %s\n", translate_input_type_to_string( pdevice->device_type ) );
+        snprintf( write, SDL_arraysize( write ), "CONTROLLER:         %s\n", translate_input_type_to_string( pdevice->device_type ) );
         vfs_puts( write, filewrite );
 
         //Default input controls
@@ -166,7 +166,7 @@ bool_t input_settings_save_vfs( const char* szFilename )
         export_control( filewrite, "Open Inventory       ", pdevice->device_type, pdevice->control + CONTROL_INVENTORY );
 
         //this is only needed for keyboard
-        if( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
+        if ( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
         {
             //Could be a global key?
             export_control( filewrite, "Send Message", pdevice->device_type, pdevice->control + CONTROL_MESSAGE );

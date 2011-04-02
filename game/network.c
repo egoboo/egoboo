@@ -930,7 +930,7 @@ void cl_talkToHost()
         for ( player = 0; player < MAX_PLAYER; player++ )
         {
             // Find the local players
-            if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != NULL  )
+            if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != NULL )
             {
                 packet_addUnsignedByte( REF_TO_INT( player ) );                         // The player index
                 packet_addUnsignedInt( PlaStack.lst[player].local_latch.b );             // Player button states
@@ -1122,41 +1122,41 @@ void net_handlePacket( ENetEvent *event )
             }
             break;
 
-        /*case TO_HOST_RTS:
-            log_info( "TO_HOST_RTS\n" );
-            if ( gnet.hostactive )
-            {
-                whichorder = get_empty_order();
-                if(whichorder < MAXORDER)
-                  {
-                  // Add the order on the host machine
-                  cnt = 0;
-                  while(cnt < MAXSELECT)
-                  {
-                    who = packet_readUnsignedByte();
-                    orderwho[whichorder][cnt] = who;
-                    cnt++;
-                  }
-                  what = packet_readUnsignedInt();
-                  when = update_wld + orderlag;
-                  orderwhat[whichorder] = what;
-                  orderwhen[whichorder] = when;
+            /*case TO_HOST_RTS:
+                log_info( "TO_HOST_RTS\n" );
+                if ( gnet.hostactive )
+                {
+                    whichorder = get_empty_order();
+                    if(whichorder < MAXORDER)
+                      {
+                      // Add the order on the host machine
+                      cnt = 0;
+                      while(cnt < MAXSELECT)
+                      {
+                        who = packet_readUnsignedByte();
+                        orderwho[whichorder][cnt] = who;
+                        cnt++;
+                      }
+                      what = packet_readUnsignedInt();
+                      when = update_wld + orderlag;
+                      orderwhat[whichorder] = what;
+                      orderwhen[whichorder] = when;
 
-                  // Send the order off to everyone else
-                  net_startNewPacket();
-                  packet_addUnsignedShort(TO_REMOTE_RTS);
-                  cnt = 0;
-                  while(cnt < MAXSELECT)
-                  {
-                    packet_addUnsignedByte(orderwho[whichorder][cnt]);
-                    cnt++;
-                  }
-                  packet_addUnsignedInt(what);
-                  packet_addUnsignedInt(when);
-                  net_sendPacketToAllPlayersGuaranteed();
-                  }
-            }
-            break;*/
+                      // Send the order off to everyone else
+                      net_startNewPacket();
+                      packet_addUnsignedShort(TO_REMOTE_RTS);
+                      cnt = 0;
+                      while(cnt < MAXSELECT)
+                      {
+                        packet_addUnsignedByte(orderwho[whichorder][cnt]);
+                        cnt++;
+                      }
+                      packet_addUnsignedInt(what);
+                      packet_addUnsignedInt(when);
+                      net_sendPacketToAllPlayersGuaranteed();
+                      }
+                }
+                break;*/
 
         case NET_TRANSFER_FILE:
             packet_readString( filename, 256 );
@@ -1356,28 +1356,28 @@ void net_handlePacket( ENetEvent *event )
             }
             break;
 
-        /*case TO_REMOTE_RTS:
-            log_info( "TO_REMOTE_RTS\n" );
-            if ( !gnet.hostactive )
-            {
-                    whichorder = get_empty_order();
-                    if(whichorder < MAXORDER)
-                    {
-                      // Add the order on the remote machine
-                      cnt = 0;
-                      while(cnt < MAXSELECT)
-                      {
-                        who = packet_readUnsignedByte();
-                        orderwho[whichorder][cnt] = who;
-                        cnt++;
-                      }
-                      what = packet_readUnsignedInt();
-                      when = packet_readUnsignedInt();
-                      orderwhat[whichorder] = what;
-                      orderwhen[whichorder] = when;
-                    }
-            }
-            break;*/
+            /*case TO_REMOTE_RTS:
+                log_info( "TO_REMOTE_RTS\n" );
+                if ( !gnet.hostactive )
+                {
+                        whichorder = get_empty_order();
+                        if(whichorder < MAXORDER)
+                        {
+                          // Add the order on the remote machine
+                          cnt = 0;
+                          while(cnt < MAXSELECT)
+                          {
+                            who = packet_readUnsignedByte();
+                            orderwho[whichorder][cnt] = who;
+                            cnt++;
+                          }
+                          what = packet_readUnsignedInt();
+                          when = packet_readUnsignedInt();
+                          orderwhat[whichorder] = what;
+                          orderwhen[whichorder] = when;
+                        }
+                }
+                break;*/
 
         case TO_REMOTE_FILE:
             log_info( "TO_REMOTE_FILE\n" );
@@ -1501,7 +1501,7 @@ void listen_for_packets()
 {
     /// @details ZZ@> This function reads any new messages and sets the player latch and matrix needed
     ///    lists...
-    
+
     ENetEvent event;
     if ( gnet.on )
     {
