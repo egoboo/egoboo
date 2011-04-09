@@ -1688,8 +1688,16 @@ int doChoosePlayer( float deltaTime )
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
-            // we have to have the blip bitmap loaded
-            load_blips();
+            // make sure we have the proper resources loaded
+            if ( !load_blips() ) 
+            {
+                log_warning( "Could not load blips!\n" );
+            }
+
+            if ( !load_all_global_icons() ) 
+            {
+                log_warning( "Could not load all global icons!\n" );
+            }
 
             // load information for all the players that could be imported
             LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
@@ -1759,9 +1767,37 @@ int doChoosePlayer( float deltaTime )
                 //character icon
                 if ( pchar != NULL ) 
                 {
-                    // use same id as above for the button so they blink the same
-                    ui_drawButton( 10 + i, buttonLeft + 2 * (butt_wid + butt_spc), y1, butt_hgt, butt_hgt, NULL );
+                    TX_REF device_icon = ICON_NULL;
+
+                    ui_drawButton( UI_Nothing, buttonLeft + 2 * (butt_wid + butt_spc), y1, butt_hgt, butt_hgt, NULL );
                     ui_drawIcon( pchar->tx_ref, buttonLeft + 2 * (butt_wid + butt_spc) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter );
+
+                    if( i < MAX_LOCAL_PLAYERS )
+                    {
+                        INPUT_DEVICE device_type = DeviceList[i].device_type;
+
+                        if( INPUT_DEVICE_KEYBOARD == device_type )
+                        {
+                            device_icon = ICON_KEYB;
+                        }
+                        else if ( INPUT_DEVICE_MOUSE == device_type )
+                        {
+                            device_icon = ICON_MOUS;
+                        }
+                        else if( device_type >= INPUT_DEVICE_JOY_A )
+                        {
+                            // alternate the joystick icons in case we have a lot of them
+                            device_icon = ICON_JOYA + (( (int)device_type - (int)INPUT_DEVICE_JOY_A ) & 1);
+                        }
+                        else
+                        {
+                            // out of range value
+                            device_icon = ICON_NULL;
+                        }
+
+                        ui_drawButton( UI_Nothing, buttonLeft + 2 * (butt_wid + butt_spc) + butt_spc, y1, butt_hgt, butt_hgt, NULL );
+                        ui_drawIcon( device_icon, buttonLeft + 2 * (butt_wid + butt_spc) + butt_spc + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter );
+                    }
                 }
             }
 
@@ -2204,7 +2240,7 @@ int doInputOptions( float deltaTime )
     pdevice = NULL;
     if ( player < MAX_LOCAL_PLAYERS )
     {
-        pdevice = controls + player;
+        pdevice = DeviceList + player;
     };
 
     switch ( menuState )
@@ -2220,21 +2256,27 @@ int doInputOptions( float deltaTime )
             update_input_type = btrue;
 
             //Clip to valid value
-            if ( controls[player].device_type == INPUT_DEVICE_NONE ) controls[player].device_type = INPUT_DEVICE_BEGIN;
+            if ( INPUT_DEVICE_NONE == DeviceList[player].device_type ) 
+            {
+                DeviceList[player].device_type = INPUT_DEVICE_BEGIN;
+            }
 
             //Prepare all buttons
             for ( i = 0; i < CONTROL_COMMAND_COUNT; i++ )
             {
                 inputOptionsButtons[i][0] = CSTR_END;
             }
-            strncpy( inputOptionsButtons[i++], translate_input_type_to_string( controls[player].device_type ), sizeof( STRING ) );
+            strncpy( inputOptionsButtons[i++], translate_input_type_to_string( DeviceList[player].device_type ), sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof( STRING ) );
 
             tipText_set_position( menuFont, "Change input settings here.", 20 );
 
             // Load the global icons (keyboard, mouse, etc.)
-            if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
+            if ( !load_all_global_icons() ) 
+            {
+                log_warning( "Could not load all global icons!\n" );
+            }
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
@@ -2285,7 +2327,7 @@ int doInputOptions( float deltaTime )
                         {
                             for ( tag = 0; tag < scantag_count; tag++ )
                             {
-                                if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == joy[ijoy].b )
+                                if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == JoyList[ijoy].b )
                                 {
                                     pcontrol->tag    = scantag[tag].value;
                                     pcontrol->is_key = bfalse;

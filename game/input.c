@@ -49,12 +49,12 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-input_device_t    controls[MAX_LOCAL_PLAYERS];                  //Up to 4 local players
+input_device_t    DeviceList[MAX_LOCAL_PLAYERS];                  //Up to 4 local players
 
 //Raw input devices
 mouse_t           mous;
 keyboard_t        keyb;
-device_joystick_t joy[MAXJOYSTICK];
+device_joystick_t JoyList[MAXJOYSTICK];
 cursor_t          cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
 
 //--------------------------------------------------------------------------------------------
@@ -109,12 +109,12 @@ void input_init_joysticks()
 
     for ( i = 0; i < MAXJOYSTICK; i++ )
     {
-        memset( joy + i, 0, sizeof( joy[i] ) );
+        memset( JoyList + i, 0, sizeof( JoyList[i] ) );
 
         if ( i < SDL_NumJoysticks() )
         {
-            joy[i].sdl_ptr = SDL_JoystickOpen( i );
-            joy[i].on      = ( NULL != joy[i].sdl_ptr );
+            JoyList[i].sdl_ptr = SDL_JoystickOpen( i );
+            JoyList[i].on      = ( NULL != JoyList[i].sdl_ptr );
         }
     }
 }
@@ -180,9 +180,9 @@ void input_read_joystick( int which )
     int i, button_count, x, y;
     device_joystick_t * pjoy;
 
-    if ( !joy[which].on ) return;
+    if ( !JoyList[which].on ) return;
 
-    pjoy = joy + which;
+    pjoy = JoyList + which;
 
     // get the raw values
     x = SDL_JoystickGetAxis( pjoy->sdl_ptr, 0 );
@@ -403,8 +403,8 @@ BIT_FIELD input_get_buttonmask( input_device_t *pdevice )
     {
         case INPUT_DEVICE_KEYBOARD: buttonmask = EMPTY_BIT_FIELD; break;
         case INPUT_DEVICE_MOUSE:    buttonmask = mous.b;   break;
-        case INPUT_DEVICE_JOY_A:    buttonmask = joy[0].b; break;
-        case INPUT_DEVICE_JOY_B:    buttonmask = joy[1].b; break;
+        case INPUT_DEVICE_JOY_A:    buttonmask = JoyList[0].b; break;
+        case INPUT_DEVICE_JOY_B:    buttonmask = JoyList[1].b; break;
     }
 
     return buttonmask;
@@ -422,8 +422,8 @@ bool_t input_is_enabled( input_device_t *pdevice )
     {
         case INPUT_DEVICE_KEYBOARD: return keyb.on;
         case INPUT_DEVICE_MOUSE:    return mous.on;
-        case INPUT_DEVICE_JOY_A:    return joy[0].on;
-        case INPUT_DEVICE_JOY_B:    return joy[1].on;
+        case INPUT_DEVICE_JOY_A:    return JoyList[0].on;
+        case INPUT_DEVICE_JOY_B:    return JoyList[1].on;
     }
 
     return bfalse;

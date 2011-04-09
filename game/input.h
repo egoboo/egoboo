@@ -32,7 +32,7 @@
 #define MAX_LOCAL_PLAYERS    4
 
 /// Which input control
-/// @details Used by the controls[] structure and the control_is_pressed() function to query the state of various controls.
+/// @details Used by the DeviceList[] structure and the control_is_pressed() function to query the state of various controls.
 enum e_input_device
 {
     INPUT_DEVICE_NONE = -1,
@@ -182,8 +182,8 @@ struct s_device_joystick
 };
 typedef struct s_device_joystick device_joystick_t;
 
-extern input_device_t controls[MAX_LOCAL_PLAYERS];      //up to 4 local players (input controllers)
-extern device_joystick_t joy[MAXJOYSTICK];
+extern input_device_t    DeviceList[MAX_LOCAL_PLAYERS];      //up to 4 local players (input controllers)
+extern device_joystick_t JoyList[MAXJOYSTICK];
 
 //--------------------------------------------------------------------------------------------
 // Function prototypes

@@ -244,7 +244,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
     if ( CAM_FREE == pcam->move_mode )
     {
-        // the keypad controls the camera
+        // the keypad control the camera
         if ( SDLKEYDOWN( SDLK_KP8 ) )
         {
             pcam->track_pos.x -= pcam->mView.CNV( 0, 1 ) * 50;
@@ -561,14 +561,14 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
         case INPUT_DEVICE_JOY_B:
             {
                 //figure out which joystick this is
-                device_joystick_t *joystick = joy + ( type - MAXJOYSTICK );
+                device_joystick_t *joystick = JoyList + ( type - MAXJOYSTICK );
 
                 //Autocamera
                 if ( autoturn_camera )
                 {
                     if ( !control_is_pressed( pdevice, CONTROL_CAMERA ) )
                     {
-                        pcam->turnadd -= joy[1].x * CAM_TURN_JOY;
+                        pcam->turnadd -= JoyList[1].x * CAM_TURN_JOY;
                     }
                 }
 

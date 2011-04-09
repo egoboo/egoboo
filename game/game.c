@@ -1926,7 +1926,7 @@ void set_one_player_latch( const PLA_REF ipla )
             {
                 //Figure out which joystick we are using
                 device_joystick_t *joystick;
-                joystick = joy + ( pdevice->device_type - MAXJOYSTICK );
+                joystick = JoyList + ( pdevice->device_type - MAXJOYSTICK );
 
                 if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
                 {
@@ -2814,7 +2814,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             bool_t player_added;
 
-            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + local_numlpla );
+            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, DeviceList + local_numlpla );
 
             if ( start_new_player && player_added )
             {
@@ -2847,7 +2847,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, controls + ImportList.lst[local_index].local_player_num );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, DeviceList + ImportList.lst[local_index].local_player_num );
             }
             else
             {

@@ -75,7 +75,7 @@ bool_t input_settings_load_vfs( const char *szFilename )
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
         size_t count;
-        pdevice = controls + idevice;
+        pdevice = DeviceList + idevice;
 
         //initialize input control
         input_device_init( pdevice );
@@ -132,7 +132,7 @@ bool_t input_settings_save_vfs( const char* szFilename )
 
     vfs_puts( "General Controls\n", filewrite );
     vfs_puts( "========\n", filewrite );
-    vfs_puts( "These are general controls and cannot be changed\n", filewrite );
+    vfs_puts( "These are general DeviceList and cannot be changed\n", filewrite );
     vfs_puts( "ESC                       - Open ingame menu\n", filewrite );
     vfs_puts( "SPACE                     - Respawn character (if dead and possible)\n", filewrite );
     vfs_puts( "1 to 7                    - Show character detailed stats\n", filewrite );
@@ -145,7 +145,7 @@ bool_t input_settings_save_vfs( const char* szFilename )
     // The actual settings
     for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
     {
-        pdevice = controls + i;
+        pdevice = DeviceList + i;
         snprintf( write, SDL_arraysize( write ), "\nPLAYER %i\n", i + 1 );
 
         //which player
@@ -156,7 +156,7 @@ bool_t input_settings_save_vfs( const char* szFilename )
         snprintf( write, SDL_arraysize( write ), "CONTROLLER:         %s\n", translate_input_type_to_string( pdevice->device_type ) );
         vfs_puts( write, filewrite );
 
-        //Default input controls
+        //Default input DeviceList
         export_control( filewrite, "Jump                ", pdevice->device_type, pdevice->control + CONTROL_JUMP );
         export_control( filewrite, "Left Hand Use        ", pdevice->device_type, pdevice->control + CONTROL_LEFT_USE );
         export_control( filewrite, "Left Hand Get/Drop    ", pdevice->device_type, pdevice->control + CONTROL_LEFT_GET );
