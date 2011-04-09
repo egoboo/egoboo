@@ -131,19 +131,19 @@ bool_t input_settings_load_vfs( const char *szFilename )
     //Make sure file versions match
     file_version = vfs_get_version( fileread );
 
-    switch( file_version )
+    switch ( file_version )
     {
-        case 0: 
-        case 1: 
-        case 2: 
-            retval = input_settings_load_vfs_2( fileread ); 
+        case 0:
+        case 1:
+        case 2:
+            retval = input_settings_load_vfs_2( fileread );
             break;
 
-        case 3: 
-            retval = input_settings_load_vfs_3( fileread ); 
+        case 3:
+            retval = input_settings_load_vfs_3( fileread );
             break;
 
-        default: 
+        default:
             log_warning( "Cannot load the given setting.txt file because version %d is not supported.\n", file_version );
             retval = bfalse;
             break;
@@ -162,7 +162,7 @@ bool_t input_settings_load_vfs_2( vfs_FILE * fileread )
     char currenttag[TAGSIZE] = EMPTY_CSTR;
     int i, cnt;
 
-    if( NULL == fileread ) return bfalse;
+    if ( NULL == fileread ) return bfalse;
 
     // read the keyboard DeviceList
     for ( i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++ )
@@ -191,7 +191,7 @@ bool_t input_settings_load_vfs_2( vfs_FILE * fileread )
             DeviceList[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
             DeviceList[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( 'K' == currenttag[0] );
         };
-        DeviceList[INPUT_DEVICE_JOY + cnt].device_type = (INPUT_DEVICE)(INPUT_DEVICE_JOY + cnt);
+        DeviceList[INPUT_DEVICE_JOY + cnt].device_type = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + cnt );
     }
 
     return btrue;
@@ -206,7 +206,7 @@ bool_t input_settings_load_vfs_3( vfs_FILE * fileread )
     int idevice, icontrol, iactual;
     input_device_t * pdevice;
 
-    if( NULL == fileread ) return bfalse;
+    if ( NULL == fileread ) return bfalse;
 
     // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
@@ -229,7 +229,7 @@ bool_t input_settings_load_vfs_3( vfs_FILE * fileread )
         for ( icontrol = CONTROL_BEGIN, iactual = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
             // version 3 does not have this control
-            if( icontrol == CONTROL_RIGHT_PACK ) continue;
+            if ( icontrol == CONTROL_RIGHT_PACK ) continue;
 
             vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
             pdevice->control[iactual].tag = scantag_get_value( currenttag );

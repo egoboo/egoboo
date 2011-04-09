@@ -104,7 +104,7 @@ void TxTexture_reload_all()
     {
         oglx_texture_t * ptex = TxTexture.lst + cnt;
 
-        if ( oglx_texture_Valid(ptex) )
+        if ( oglx_texture_Valid( ptex ) )
         {
             oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
         }

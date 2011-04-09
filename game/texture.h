@@ -55,10 +55,10 @@ enum e_global_tx_type
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// Color index of the transparent color in an 8-bit image, 
+/// Color index of the transparent color in an 8-bit image,
 /// or the rgb components of the transparent color in a 24-bit image.
 /// Ignored in a 32 bit image.
-#define TRANSCOLOR                      0           
+#define TRANSCOLOR                      0
 
 #define TX_TEXTURE_COUNT   (2*(MAX_TEXTURE + MAX_ICON))
 #define INVALID_TX_TEXTURE TX_TEXTURE_COUNT

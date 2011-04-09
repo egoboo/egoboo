@@ -197,7 +197,7 @@ bool_t setup_write()
     retval = ConfigFile_SaveAs( lConfigSetup, _config_filename );
 
     success = bfalse;
-    if( ConfigFile_succeed != retval )
+    if ( ConfigFile_succeed != retval )
     {
         success = bfalse;
         log_warning( "Failed to save setup.txt!\n" );

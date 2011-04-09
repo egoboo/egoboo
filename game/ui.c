@@ -537,7 +537,7 @@ float ui_drawWidgetImage( ui_Widget_t * pw )
 {
     float retval = 0.0f;
 
-    if ( NULL != pw  )
+    if ( NULL != pw )
     {
         retval = pw->vy;
     }
@@ -577,7 +577,7 @@ float ui_drawTextBox( Font * font, const char *text, float vx, float vy, float v
     // draw using screen coordinates
     fnt_drawTextBox( font, NULL, x1, y1, x2 - x1, y2 - y1, spacing, text );
 
-    return MAX(vy + vheight, vy + vspacing);
+    return MAX( vy + vheight, vy + vspacing );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -923,7 +923,7 @@ float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uin
     ui_virtual_to_screen( vx + icon_size, vy + icon_size, &x2, &y2 );
 
     //Draw the icon
-    y1 = draw_one_icon( icontype, x1, y1, sparkle, delta_update, MIN(x2-x1, y2-y1) );
+    y1 = draw_one_icon( icontype, x1, y1, sparkle, delta_update, MIN( x2 - x1, y2 - y1 ) );
 
     // convert back to virtual
     ui_screen_to_virtual( x1, y1, &vx, &vy );

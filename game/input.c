@@ -490,8 +490,8 @@ INPUT_DEVICE translate_string_to_input_type( const char *string )
 
     if ( 0 == strcmp( string, "KEYBOARD" ) )   return INPUT_DEVICE_KEYBOARD;
     else if ( 0 == strcmp( string, "MOUSE" ) )      return INPUT_DEVICE_MOUSE;
-    else if ( 0 == strcmp( string, "JOYSTICK_A" ) ) return (INPUT_DEVICE)(INPUT_DEVICE_JOY + 0);
-    else if ( 0 == strcmp( string, "JOYSTICK_B" ) ) return (INPUT_DEVICE)(INPUT_DEVICE_JOY + 1);
+    else if ( 0 == strcmp( string, "JOYSTICK_A" ) ) return ( INPUT_DEVICE )( INPUT_DEVICE_JOY + 0 );
+    else if ( 0 == strcmp( string, "JOYSTICK_B" ) ) return ( INPUT_DEVICE )( INPUT_DEVICE_JOY + 1 );
 
     // No matches
     log_warning( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );

@@ -865,7 +865,7 @@ float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_colo
 
     ptex = TxTexture_get_ptr( icontype );
 
-    if( NULL == ptex )
+    if ( NULL == ptex )
     {
         // defaults
         tx_rect.xmin = 0.0f;
@@ -885,11 +885,11 @@ float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_colo
     height = ICON_SIZE;
 
     // handle non-default behavior
-    if( size >= 0.0f )
+    if ( size >= 0.0f )
     {
-        float factor_wid = (float)size / width;
-        float factor_hgt = (float)size / height;
-        float factor = MIN(factor_wid, factor_hgt);
+        float factor_wid = ( float )size / width;
+        float factor_hgt = ( float )size / height;
+        float factor = MIN( factor_wid, factor_hgt );
 
         width *= factor;
         height *= factor;

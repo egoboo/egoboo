@@ -52,10 +52,10 @@ typedef struct s_token token_t;
 
 token_t * token_ctor( token_t * pt )
 {
-    if( NULL == pt ) return NULL;
+    if ( NULL == pt ) return NULL;
 
     // blank every thing
-    memset( pt, 0, sizeof(*pt) );
+    memset( pt, 0, sizeof( *pt ) );
 
     // to be explicit
     pt->iIndex   = MAX_OPCODE;
@@ -85,12 +85,12 @@ struct s_parser_state
 
 parser_state_t *  parser_state_ctor( parser_state_t * ps )
 {
-    if( NULL == ps ) return NULL;
+    if ( NULL == ps ) return NULL;
 
-    memset( ps, 0, sizeof(*ps) );
+    memset( ps, 0, sizeof( *ps ) );
 
     // construct any sub-objects
-    token_ctor( &(ps->token) );
+    token_ctor( &( ps->token ) );
 
     // just to be explicit
     ps->error = bfalse;
@@ -593,7 +593,7 @@ parser_state_t * script_compiler_get_state()
 {
     // get a valid singleton
 
-    if( NULL == _parser_state_ptr )
+    if ( NULL == _parser_state_ptr )
     {
         _parser_state_ptr = &_parser_state;
 
@@ -606,7 +606,7 @@ parser_state_t * script_compiler_get_state()
 //--------------------------------------------------------------------------------------------
 bool_t script_compiler_error( parser_state_t * ps )
 {
-    if( NULL == ps ) return btrue;
+    if ( NULL == ps ) return btrue;
 
     return ps->error;
 }
@@ -614,7 +614,7 @@ bool_t script_compiler_error( parser_state_t * ps )
 //--------------------------------------------------------------------------------------------
 bool_t script_compiler_clear_error( parser_state_t * ps )
 {
-    if( NULL == ps ) return btrue;
+    if ( NULL == ps ) return btrue;
 
     ps->error = bfalse;
 
@@ -630,11 +630,11 @@ size_t insert_space( int position, char buffer[], size_t buffer_length, const si
     char cTmp, cSwap;
 
     // fail if the new length will be too long
-    if( buffer_length >= buffer_max )
+    if ( buffer_length >= buffer_max )
     {
-        return MIN(buffer_length, buffer_max);
+        return MIN( buffer_length, buffer_max );
     }
- 
+
     if ( !isspace( buffer[position] ) )
     {
         // we are definitely going to add one character to the length
@@ -749,19 +749,19 @@ int load_one_line( parser_state_t * ps, int read, script_info_t *pscript )
         }
 
         // Double apostrophe indicates where the string begins and ends
-        if ( C_DOUBLE_QUOTE_CHAR == cTmp  )
+        if ( C_DOUBLE_QUOTE_CHAR == cTmp )
         {
             inside_string = !inside_string;
         }
 
-        if( inside_string )
+        if ( inside_string )
         {
-            if( '\t' == cTmp )
+            if ( '\t' == cTmp )
             {
                 // convert tab characters to the '~' symbol
                 cTmp = '~';
             }
-            else if ( isspace(cTmp) || iscntrl(cTmp) )
+            else if ( isspace( cTmp ) || iscntrl( cTmp ) )
             {
                 // all whitespace and control characters are converted to '_'
                 cTmp = '_';
@@ -773,7 +773,7 @@ int load_one_line( parser_state_t * ps, int read, script_info_t *pscript )
             cTmp = ' ';
         }
 
-        // convert whitespace characters to 
+        // convert whitespace characters to
         if ( !isspace( cTmp ) || inside_string )
         {
             foundtext = btrue;
@@ -881,7 +881,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
     while ( cnt < buffer_size )
     {
         cTmp = buffer[cnt];
-        if ( C_DOUBLE_QUOTE_CHAR == cTmp ) 
+        if ( C_DOUBLE_QUOTE_CHAR == cTmp )
         {
             inside_string = !inside_string;
         }
@@ -919,10 +919,10 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     size_t       szWord_length_max = 0;
 
     // check for bad pointers
-    if( NULL == ps || NULL == ptok || NULL == pscript ) return AISMAXLOADSIZE;
+    if ( NULL == ps || NULL == ptok || NULL == pscript ) return AISMAXLOADSIZE;
 
     // figure out what the max word length actually is
-    szWord_length_max = SDL_arraysize(ptok->szWord);
+    szWord_length_max = SDL_arraysize( ptok->szWord );
 
     // Reset the token
     token_ctor( ptok );
@@ -945,8 +945,8 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     }
 
     // break if there was nothing here
-    if ( read >= ps->line_buffer_count )  
-    { 
+    if ( read >= ps->line_buffer_count )
+    {
         goto parse_token_end;
     }
 
@@ -955,7 +955,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     ptok->szWord[0] = CSTR_END;
 
     // handle the special case of a string constant
-    if( C_DOUBLE_QUOTE_CHAR == cTmp )
+    if ( C_DOUBLE_QUOTE_CHAR == cTmp )
     {
         do
         {
@@ -971,7 +971,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
         }
         while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count );
 
-        if( C_DOUBLE_QUOTE_CHAR == cTmp )
+        if ( C_DOUBLE_QUOTE_CHAR == cTmp )
         {
             // skip the ending qoutation mark
             read++;
@@ -993,14 +993,14 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
 
         while ( !isspace( cTmp ) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count )
         {
-            ptok->szWord[ptok->szWord_length] = cTmp;  
+            ptok->szWord[ptok->szWord_length] = cTmp;
             ptok->szWord_length++;
 
             read++;
             cTmp = ps->line_buffer[read];
         }
 
-        if( ptok->szWord_length < szWord_length_max )
+        if ( ptok->szWord_length < szWord_length_max )
         {
             ptok->szWord[ptok->szWord_length] = CSTR_END;
         }
@@ -1010,7 +1010,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     ptok->szWord[szWord_length_max-1] = CSTR_END;
 
     // Check for numeric constant
-    if( !parsed && (0 != isdigit( ptok->szWord[0] )) )
+    if ( !parsed && ( 0 != isdigit( ptok->szWord[0] ) ) )
     {
         sscanf( ptok->szWord, "%d", &ptok->iValue );
         ptok->cType  = 'C';
@@ -1021,7 +1021,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     }
 
     // Check for IDSZ constant
-    if( !parsed && ('[' == ptok->szWord[0]) )
+    if ( !parsed && ( '[' == ptok->szWord[0] ) )
     {
         idsz = MAKE_IDSZ( ptok->szWord[1], ptok->szWord[2], ptok->szWord[3], ptok->szWord[4] );
 
@@ -1033,7 +1033,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
         parsed = btrue;
     }
 
-    if( !parsed && (0 == strcmp( ptok->szWord, "=" )) )
+    if ( !parsed && ( 0 == strcmp( ptok->szWord, "=" ) ) )
     {
         ptok->iValue = -1;
         ptok->cType  = 'O';
@@ -1044,11 +1044,11 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     }
 
     // convert the string token to a new token type
-    if( !parsed && (C_DOUBLE_QUOTE_CHAR == ptok->szWord[0])  )
+    if ( !parsed && ( C_DOUBLE_QUOTE_CHAR == ptok->szWord[0] ) )
     {
         char * str = ptok->szWord + 1;
 
-        if( CSTR_END == ptok->szWord[1] || C_DOUBLE_QUOTE_CHAR == ptok->szWord[1] )
+        if ( CSTR_END == ptok->szWord[1] || C_DOUBLE_QUOTE_CHAR == ptok->szWord[1] )
         {
             // some kind of empty string
 
@@ -1124,7 +1124,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
             // see if this message is already loaded, no need to load it twice into memory
             if ( ppro->message )
             {
-                for ( cnt = ppro->message_count; cnt >=0; cnt-- )
+                for ( cnt = ppro->message_count; cnt >= 0; cnt-- )
                 {
                     if ( 0 == strcmp( ppro->message[cnt], str ) )
                     {
@@ -1150,7 +1150,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     }
 
     // is it a constant, opcode, or value?
-    if( !parsed )
+    if ( !parsed )
     {
         for ( cnt = 0; cnt < OpList.count; cnt++ )
         {
@@ -1169,7 +1169,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
     }
 
     // We couldn't figure out what this is, throw out an error code
-    if( !parsed )
+    if ( !parsed )
     {
         log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->name, ptok->iLine, ptok->szWord );
 
@@ -1183,7 +1183,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
 
 parse_token_end:
 
-    print_token();  
+    print_token();
     return read;
 }
 
@@ -1192,7 +1192,7 @@ void emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscri
 {
     BIT_FIELD loc_highbits = highbits;
 
-    if( NULL == ptok )
+    if ( NULL == ptok )
     {
         log_message( "SCRIPT ERROR: %s() - emit_opcode() - Invalid token.\n", __FUNCTION__ );
         return;
@@ -1236,14 +1236,14 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
         print_line();
 #endif
 
-        ps->line_buffer_count = fix_operators( ps->line_buffer, ps->line_buffer_count, SDL_arraysize(ps->line_buffer) );
+        ps->line_buffer_count = fix_operators( ps->line_buffer, ps->line_buffer_count, SDL_arraysize( ps->line_buffer ) );
         parseposition = 0;
 
         //------------------------------
         // grab the first opcode
 
         highbits = SET_DATA_BITS( get_indentation( ps, pscript ) );
-        parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+        parseposition = parse_token( ps, &( ps->token ), ppro, pscript, parseposition );
         if ( 'F' == ps->token.cType )
         {
             if ( FEND == ps->token.iValue && 0 == highbits )
@@ -1256,11 +1256,11 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
             // the code type is a function
 
             // save the opcode
-            emit_opcode( &(ps->token), highbits, pscript );
+            emit_opcode( &( ps->token ), highbits, pscript );
 
             // leave a space for the control code
             ps->token.iValue = 0;
-            emit_opcode( &(ps->token), 0, pscript );
+            emit_opcode( &( ps->token ), 0, pscript );
 
         }
         else if ( 'V' == ps->token.cType )
@@ -1272,16 +1272,16 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
             int operands = 0;
 
             // save in the value's opcode
-            emit_opcode( &(ps->token), highbits, pscript );
+            emit_opcode( &( ps->token ), highbits, pscript );
 
             // save a position for the operand count
             ps->token.iValue = 0;
             operand_index = pscript->length;    //AisCompiled_offset;
-            emit_opcode( &(ps->token), 0, pscript );
+            emit_opcode( &( ps->token ), 0, pscript );
 
             // handle the "="
             highbits = 0;
-            parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );  // EQUALS
+            parseposition = parse_token( ps, &( ps->token ), ppro, pscript, parseposition );  // EQUALS
             if ( 'O' != ps->token.cType || 0 != strcmp( ps->token.szWord, "=" ) )
             {
                 log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
@@ -1290,24 +1290,24 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
             //------------------------------
             // grab the next opcode
 
-            parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+            parseposition = parse_token( ps, &( ps->token ), ppro, pscript, parseposition );
             if ( 'V' == ps->token.cType || 'C' == ps->token.cType )
             {
                 // this is a value or a constant
-                emit_opcode( &(ps->token), 0, pscript );
+                emit_opcode( &( ps->token ), 0, pscript );
                 operands++;
 
-                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+                parseposition = parse_token( ps, &( ps->token ), ppro, pscript, parseposition );
             }
             else if ( 'O' != ps->token.cType )
             {
                 // this is a function or an unknown value. do not break the script.
                 log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->token.szWord );
 
-                emit_opcode( &(ps->token), 0, pscript );
+                emit_opcode( &( ps->token ), 0, pscript );
                 operands++;
 
-                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+                parseposition = parse_token( ps, &( ps->token ), ppro, pscript, parseposition );
             }
 
             // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
@@ -1325,7 +1325,7 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
                 highbits = SET_DATA_BITS( ps->token.iValue );
 
                 // VALUE
-                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+                parseposition = parse_token( ps, &( ps->token ), ppro, pscript, parseposition );
                 if ( 'C' != ps->token.cType && 'V' != ps->token.cType )
                 {
                     // not having a constant or a value here breaks the function. stop processing
@@ -1333,11 +1333,11 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
                     break;
                 }
 
-                emit_opcode( &(ps->token), highbits, pscript );
+                emit_opcode( &( ps->token ), highbits, pscript );
                 operands++;
 
                 // OPERATOR
-                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+                parseposition = parse_token( ps, &( ps->token ), ppro, pscript, parseposition );
             }
             pscript->data[operand_index] = operands;
         }
@@ -1359,9 +1359,9 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
 
     ps->token.iValue = FEND;
     ps->token.cType  = 'F';
-    emit_opcode( &(ps->token), 0, pscript );
+    emit_opcode( &( ps->token ), 0, pscript );
     ps->token.iValue = pscript->length + 1;
-    emit_opcode( &(ps->token), 0, pscript );
+    emit_opcode( &( ps->token ), 0, pscript );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1452,7 +1452,7 @@ int ai_goto_colon( int read, Uint8 buffer[], const size_t buffer_size )
 
     while ( ':' != cTmp && read < buffer_size )
     {
-        read++;  
+        read++;
         cTmp = buffer[read];
     }
 
@@ -1474,14 +1474,14 @@ egoboo_rv get_code( int read, Uint8 buffer[], const size_t buffer_size )
     STRING sTmp;
     egoboo_rv retval;
 
-    if( NULL == buffer || 0 == buffer_size || read >= buffer_size ) 
+    if ( NULL == buffer || 0 == buffer_size || read >= buffer_size )
     {
         // use rv_error to break out of the loop
         return rv_error;
     }
 
     fields = sscanf(( char* )( buffer + read ), "%c%d%255s", &cTmp, &iTmp, sTmp );
-    if( 3 == fields )
+    if ( 3 == fields )
     {
         strncpy( OpList.ary[OpList.count].cName, sTmp, SDL_arraysize( OpList.ary[OpList.count].cName ) );
         OpList.ary[OpList.count].cType  = toupper( cTmp );
@@ -1490,7 +1490,7 @@ egoboo_rv get_code( int read, Uint8 buffer[], const size_t buffer_size )
         // use rv_success to signal a correct opcode
         retval = rv_success;
     }
-    else if ( 0 == strncmp( (char * )(buffer + read), "END", 3 ) )
+    else if ( 0 == strncmp(( char * )( buffer + read ), "END", 3 ) )
     {
         // use rv_error to break out of the loop
         retval = rv_error;
@@ -1518,8 +1518,8 @@ void load_ai_codes_vfs( const char* loadname )
     Uint8       * tmp_buffer      = NULL;
 
     tmp_buffer = EGOBOO_NEW_ARY( Uint8, AISMAXLOADSIZE );
-    if( NULL == tmp_buffer ) return;
-    tmp_buffer_size = sizeof(Uint8) * AISMAXLOADSIZE;
+    if ( NULL == tmp_buffer ) return;
+    tmp_buffer_size = sizeof( Uint8 ) * AISMAXLOADSIZE;
 
     OpList.count = 0;
     fileread = vfs_openRead( loadname );
@@ -1618,7 +1618,7 @@ egoboo_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 void print_token( token_t * ptok )
 {
-    if( NULL != ptok )
+    if ( NULL != ptok )
     {
         printf( "------------\n", globalparsename, ptok->iLine );
         printf( "\tToken.iIndex == %d\n", ptok->iIndex );
