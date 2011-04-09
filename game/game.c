@@ -1417,7 +1417,7 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD targeting_bits )
+bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     bool_t retval = bfalse;
 
@@ -1511,7 +1511,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, BIT_FIELD targeting_bits )
+CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
     ///     If max_dist is 0 then it searches without a max limit.
@@ -2541,6 +2541,9 @@ void game_load_profile_ai()
     PRO_REF ipro;
     STRING loadname;
 
+    // ensure that the script parser exists
+    parser_state_t * ps = script_compiler_get_state();
+
     for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
     {
         pro_t *ppro;
@@ -2550,7 +2553,8 @@ void game_load_profile_ai()
 
         // Load the AI script for this iobj
         make_newloadname( ppro->name, "/script.txt", loadname );
-        load_ai_script_vfs( loadname, ppro, &ppro->ai_script );
+
+        load_ai_script_vfs( ps, loadname, ppro, &ppro->ai_script );
     }
 }
 
@@ -2594,8 +2598,11 @@ void game_load_all_profiles( const char *modname )
 {
     /// @details ZZ@> This function loads a module's local objects and overrides the global ones already loaded
 
+    // ensure that the script parser exists
+    parser_state_t * ps = script_compiler_get_state();
+
     // Log all of the script errors
-    parseerror = bfalse;
+    script_compiler_clear_error( ps );
 
     // clear out any old object definitions
     release_all_pro();
@@ -3093,9 +3100,12 @@ bool_t game_load_module_data( const char *smallname )
     STRING modname;
     ego_mpd_t * pmesh_rv;
 
+    // ensure that the script parser exists
+    parser_state_t * ps = script_compiler_get_state();
+
     log_info( "Loading module \"%s\"\n", smallname );
 
-    if ( load_ai_script_vfs( "mp_data/script.txt", NULL, NULL ) != rv_success )
+    if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
     {
         log_warning( "game_load_module_data() - cannot load the default script\n" );
         goto game_load_module_data_fail;

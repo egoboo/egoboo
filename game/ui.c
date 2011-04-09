@@ -788,7 +788,7 @@ bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *te
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetAddMask( ui_Widget_t * pw, BIT_FIELD mbits )
+bool_t ui_widgetAddMask( ui_Widget_t * pw, const BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 
@@ -799,7 +799,7 @@ bool_t ui_widgetAddMask( ui_Widget_t * pw, BIT_FIELD mbits )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetRemoveMask( ui_Widget_t * pw, BIT_FIELD mbits )
+bool_t ui_widgetRemoveMask( ui_Widget_t * pw, const BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 
@@ -810,7 +810,7 @@ bool_t ui_widgetRemoveMask( ui_Widget_t * pw, BIT_FIELD mbits )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetSetMask( ui_Widget_t * pw, BIT_FIELD mbits )
+bool_t ui_widgetSetMask( ui_Widget_t * pw, const BIT_FIELD mbits )
 {
     if ( NULL == pw ) return bfalse;
 

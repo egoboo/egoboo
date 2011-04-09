@@ -5724,7 +5724,7 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
 }
 
 //--------------------------------------------------------------------------------------------
-/*bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, BIT_FIELD input_bits )
+/*bool_t SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, const BIT_FIELD input_bits )
 {
     int i;
     bool_t done, retval = bfalse;

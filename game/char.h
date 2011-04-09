@@ -540,7 +540,7 @@ void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_
 void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype );
 int  damage_character( const CHR_REF character, FACING_T direction,
                        IPair damage, Uint8 damagetype, TEAM_REF team,
-                       CHR_REF attacker, BIT_FIELD effects, bool_t ignore_invictus );
+                       CHR_REF attacker, const BIT_FIELD effects, bool_t ignore_invictus );
 void kill_character( const CHR_REF character, const CHR_REF killer, bool_t ignore_invictus );
 bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount, bool_t ignore_invictus );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
@@ -608,8 +608,8 @@ void   init_slot_idsz();
 
 bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 
-struct s_billboard_data * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits );
-const char * chr_get_name( const CHR_REF ichr, Uint32 bits );
+struct s_billboard_data * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits );
+const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits );
 const char * chr_get_dir_name( const CHR_REF ichr );
 int chr_get_skill( chr_t *pchr, IDSZ whichskill );
 
@@ -660,7 +660,7 @@ void chr_set_sheen( chr_t * pchr, int sheen );
 void chr_set_alpha( chr_t * pchr, int alpha );
 void chr_set_light( chr_t * pchr, int light );
 
-void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, Uint32 bits );
+void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
 
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item );
 

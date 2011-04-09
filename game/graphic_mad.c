@@ -59,8 +59,8 @@ static void draw_chr_attached_grip( chr_t * pchr );
 static void draw_chr_bbox( chr_t * pchr );
 
 // these functions are only called by render_one_mad()
-static gfx_rv render_one_mad_enviro( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
-static gfx_rv render_one_mad_tex( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
+static gfx_rv render_one_mad_enviro( const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+static gfx_rv render_one_mad_tex( const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 
 // private chr_instance_t methods
 static gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
@@ -82,7 +82,7 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, Uint32 bits )
+gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
@@ -288,7 +288,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bits )
+gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @details ZZ@> This function draws a model
 
@@ -495,7 +495,7 @@ gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, Uint32 bit
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, BIT_FIELD bits )
+gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @details ZZ@> This function picks the actual function to use
 

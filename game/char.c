@@ -3436,7 +3436,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool_t i
 //--------------------------------------------------------------------------------------------
 int damage_character( const CHR_REF character, FACING_T direction,
                       IPair  damage, Uint8 damagetype, TEAM_REF team,
-                      CHR_REF attacker, BIT_FIELD effects, bool_t ignore_invictus )
+                      CHR_REF attacker, const BIT_FIELD effects, bool_t ignore_invictus )
 {
     /// @details ZZ@> This function calculates and applies damage to a character.  It also
     ///    sets alerts and begins actions.  Blocking and frame invincibility
@@ -7837,7 +7837,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, BIT_FIELD opt_bits )
+billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits )
 {
     chr_t            * pchr;
     billboard_data_t * pbb;
@@ -7918,7 +7918,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 }
 
 //--------------------------------------------------------------------------------------------
-const char * chr_get_name( const CHR_REF ichr, Uint32 bits )
+const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits )
 {
     static STRING szName;
 
@@ -9464,7 +9464,7 @@ void chr_set_light( chr_t * pchr, int light )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, BIT_FIELD bits )
+void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits )
 {
     int i;
     float weight_sum;

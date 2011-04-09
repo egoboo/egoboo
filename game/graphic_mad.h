@@ -241,7 +241,7 @@ void   chr_instance_update_lighting_base( chr_instance_t * pinst, struct s_chr *
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( const CHR_REF ichr, GLXvector4f tint, Uint32 bits );
+gfx_rv render_one_mad( const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 gfx_rv render_one_mad_ref( const CHR_REF ichr );
 gfx_rv render_one_mad_trans( const CHR_REF ichr );
 gfx_rv render_one_mad_solid( const CHR_REF ichr );

@@ -26,7 +26,13 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// AI stuff
+struct s_parser_state;
+typedef struct s_parser_state parser_state_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// AI stuff
 #define AISMAXLOADSIZE      (1024*1024)            ///< For parsing AI scripts
 #define MAXLINESIZE         1024
 #define MAX_OPCODE          1024                ///< Number of lines in AICODES.TXT
@@ -600,12 +606,11 @@ enum e_script_variables
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern bool_t parseerror;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // function prototypes
 
-egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *pscript );
+parser_state_t * script_compiler_init();
+parser_state_t * script_compiler_get_state();
+bool_t           script_compiler_error( parser_state_t * );
+bool_t           script_compiler_clear_error( parser_state_t * );
 
-void script_compiler_init();
+egoboo_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript );

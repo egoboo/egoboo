@@ -404,7 +404,7 @@ void   set_one_player_latch( const PLA_REF player );
 bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice );
 
 /// AI targeting
-CHR_REF chr_find_target( struct s_chr * psrc, float max_dist, IDSZ idsz, BIT_FIELD targeting_bits );
+CHR_REF chr_find_target( struct s_chr * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
 CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
                          const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
 
@@ -440,7 +440,7 @@ bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
 bool_t game_module_start( game_module_t * pinst );
 bool_t game_module_stop( game_module_t * pinst );
 
-bool_t check_target( struct s_chr * psrc, const CHR_REF ichr_test, IDSZ idsz, BIT_FIELD targeting_bits );
+bool_t check_target( struct s_chr * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits );
 
 void attach_all_particles();
 

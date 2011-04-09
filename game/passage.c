@@ -191,7 +191,7 @@ bool_t object_is_in_passage( const PASS_REF passage, float xpos, float ypos, flo
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDSZ idsz, BIT_FIELD targeting_bits, IDSZ require_item )
+CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item )
 {
     /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
     ///    otherwise the index of the first character found is returned...

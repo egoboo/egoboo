@@ -244,7 +244,6 @@ static bool_t  gfx_page_flip_requested  = bfalse;
 static bool_t  gfx_page_clear_requested = btrue;
 
 static float dynalight_keep = 0.9f;
-static oglx_texture_t tx_cursor;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1593,12 +1592,14 @@ float draw_fps( float y )
 {
     // FPS text
 
+    parser_state_t * ps = script_compiler_get_state();
+
     if ( outofsync )
     {
         y = _draw_string_raw( 0, y, "OUT OF SYNC" );
     }
 
-    if ( parseerror )
+    if ( script_compiler_error( ps ) )
     {
         y = _draw_string_raw( 0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )" );
     }
@@ -5664,6 +5665,9 @@ void init_all_graphics()
     BillboardList_free_all();
     TxTexture_init_all();
 
+    // the mouse cursor was just erased. reload it.
+    init_mouse_cursor();
+
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
     PROFILE_RESET( render_scene_solid );
@@ -5718,14 +5722,17 @@ void delete_all_graphics()
 bool_t init_mouse_cursor()
 {
     /// @details ZF@> Load the mouse cursor
+    TX_REF retval;
     bool_t success;
 
-    success = INVALID_GL_ID != ego_texture_load_vfs( &tx_cursor, "mp_data/cursor", TRANSCOLOR );
+    retval = TxTexture_load_one_vfs( "mp_data/cursor", ( TX_REF )TX_CURSOR, TRANSCOLOR );
 
-    if ( !success )
+    // is the texture valid?
+    success = btrue;
+    if ( INVALID_GL_ID == retval )
     {
-        log_warning( "Could not load mouse cursor (basicdat/cursor.png)\n" );
-        tx_cursor.valid = bfalse;
+        log_warning( "Could not load mouse cursor (basicdat" SLASH_STR "cursor.png)\n" );
+        success = bfalse;
     }
 
     return success;
@@ -5736,30 +5743,35 @@ void draw_mouse_cursor()
     int     x, y;
     ego_frect_t tx_rect, sc_rect;
 
-    //Invalid texture?
-    if ( !tx_cursor.valid )
+    oglx_texture_t * tex_ptr;
+
+    tex_ptr = TxTexture_get_ptr(( TX_REF )TX_CURSOR );
+
+    // Invalid texture?
+    if ( NULL == tex_ptr || !tex_ptr->valid )
     {
         SDL_ShowCursor( SDL_ENABLE );
-        return;
     }
+    else
+    {
+        // Hide the SDL mouse
+        SDL_ShowCursor( SDL_DISABLE );
 
-    //Hide the SDL mouse
-    SDL_ShowCursor( SDL_DISABLE );
+        x = ABS( mous.x );
+        y = ABS( mous.y );
 
-    x = ABS( mous.x );
-    y = ABS( mous.y );
+        tx_rect.xmin = 0;
+        tx_rect.xmax = tex_ptr->imgW / 32.0f;
+        tx_rect.ymin = 0;
+        tx_rect.ymax = tex_ptr->imgH / 32.0f;
 
-    tx_rect.xmin = 0;
-    tx_rect.xmax = tx_cursor.imgW / 32.0f;
-    tx_rect.ymin = 0;
-    tx_rect.ymax = tx_cursor.imgH / 32.0f;
+        sc_rect.xmin = x;
+        sc_rect.xmax = x + tex_ptr->imgW;
+        sc_rect.ymin = y;
+        sc_rect.ymax = y + tex_ptr->imgH;
 
-    sc_rect.xmin = x;
-    sc_rect.xmax = x + tx_cursor.imgW;
-    sc_rect.ymin = y;
-    sc_rect.ymax = y + tx_cursor.imgH;
-
-    draw_quad_2d( &tx_cursor, sc_rect, tx_rect, btrue );
+        draw_quad_2d( tex_ptr, sc_rect, tx_rect, btrue );
+    }
 }
 
 //--------------------------------------------------------------------------------------------

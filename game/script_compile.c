@@ -34,7 +34,6 @@
 
 #include "game.h"
 
-
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
@@ -43,25 +42,71 @@ struct s_token
 {
     int    iLine;                       ///< Line number
     int    iIndex;
-    int    iValue;                      ///< Integer value
     char   cType;                       ///< Constant, Variable, Function, etc.
-    char   cWord[MAXCODENAMESIZE];      ///< The text representation
+    int    iValue;                      ///< Integer value
+
+    size_t szWord_length;
+    STRING szWord;                      ///< The text representation
 };
 typedef struct s_token token_t;
 
+token_t * token_ctor( token_t * pt )
+{
+    if( NULL == pt ) return NULL;
+
+    // blank every thing
+    memset( pt, 0, sizeof(*pt) );
+
+    // to be explicit
+    pt->iIndex   = MAX_OPCODE;
+    pt->iValue   = 0;
+    pt->cType    = '?';
+    pt->szWord[0] = CSTR_END;
+
+    return pt;
+}
+
+//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+
+// the current state of the parser
+struct s_parser_state
+{
+    bool_t       error;
+    token_t      token;
+    int          line_count;
+
+    int          line_buffer_count;
+    char         line_buffer[MAXLINESIZE];
+
+    int          load_buffer_count;
+    Uint8        load_buffer[AISMAXLOADSIZE];
+};
+
+parser_state_t *  parser_state_ctor( parser_state_t * ps )
+{
+    if( NULL == ps ) return NULL;
+
+    memset( ps, 0, sizeof(*ps) );
+
+    // construct any sub-objects
+    token_ctor( &(ps->token) );
+
+    // just to be explicit
+    ps->error = bfalse;
+
+    return ps;
+}
+
+
+/// the parser singleton
+static parser_state_t _parser_state;
+
+/// the pointer to the singleton
+static parser_state_t * _parser_state_ptr = NULL;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-static int     iNumLine;
-
-static int          iLineSize;
-static char         cLineBuffer[MAXLINESIZE] = EMPTY_CSTR;
-static EGO_MESSAGE  stringBuffer = EMPTY_CSTR;
-
-static int     iLoadSize;
-static Uint8   cLoadBuffer[AISMAXLOADSIZE] = EMPTY_CSTR;
-
-static token_t Token;
 
 static script_info_t default_ai_script;
 
@@ -72,8 +117,6 @@ INSTANTIATE_STATIC_ARY( OpListAry, OpList );
 
 bool_t debug_scripts     = bfalse;
 FILE * debug_script_file = NULL;
-
-bool_t parseerror  = bfalse;
 
 const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 {
@@ -496,19 +539,22 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 //Private functions
-static void         insert_space( int position );
-static int          load_one_line( int read, script_info_t *pscript );
-static void         surround_space( int position );
-static int          get_indentation( script_info_t *pscript );
-static void         fix_operators();
-static int          parse_token( pro_t *ppro, script_info_t *pscript, int read );
-static void         emit_opcode( BIT_FIELD highbits, script_info_t *pscript );
-static void         parse_line_by_line( pro_t *ppro, script_info_t *pscript );
+
+static size_t       surround_space( int position, char buffer[], size_t buffer_size, const size_t buffer_max );
+static size_t       insert_space( int position, char buffer[], size_t buffer_length, const size_t buffer_max );
+static int          ai_goto_colon( int read, Uint8 buffer[], const size_t buffer_size );
+static egoboo_rv    get_code( int read, Uint8 buffer[], const size_t buffer_size );
+static size_t       fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max );
+
+static int          load_one_line( parser_state_t * ps, int read, script_info_t *pscript );
+static int          get_indentation( parser_state_t * ps, script_info_t *pscript );
+static int          parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, int read );
+static void         emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscript );
+static void         parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript );
 static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
 static void         parse_jumps( script_info_t *pscript );
-static int          ai_goto_colon( int read );
-static void         get_code( int read );
 static egoboo_rv    ai_script_upload_default( script_info_t *pscript );
 
 static void load_ai_codes_vfs( const char* loadname );
@@ -524,82 +570,144 @@ static void print_line();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void script_compiler_init()
+parser_state_t *  script_compiler_init()
 {
     /// @details BB@> initalize the sctipt compiling module
 
     load_ai_codes_vfs( "mp_data/aicodes.txt" );
 
     debug_script_file = fopen( vfs_resolveWriteFilename( "/debug/script_debug.txt" ), "wt" );
+
+    // find the singleton
+    _parser_state_ptr = script_compiler_get_state();
+
+    // initialize the singleton
+    _parser_state_ptr = parser_state_ctor( _parser_state_ptr );
+
+    // return a pointer to the singleton
+    return _parser_state_ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+parser_state_t * script_compiler_get_state()
+{
+    // get a valid singleton
+
+    if( NULL == _parser_state_ptr )
+    {
+        _parser_state_ptr = &_parser_state;
+
+        _parser_state_ptr = parser_state_ctor( _parser_state_ptr );
+    }
+
+    return _parser_state_ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t script_compiler_error( parser_state_t * ps )
+{
+    if( NULL == ps ) return btrue;
+
+    return ps->error;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t script_compiler_clear_error( parser_state_t * ps )
+{
+    if( NULL == ps ) return btrue;
+
+    ps->error = bfalse;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void insert_space( int position )
+size_t insert_space( int position, char buffer[], size_t buffer_length, const size_t buffer_max )
 {
-    /// @details ZZ@> This function adds a space into the load line if there isn't one
-    ///    there already
+    /// @details ZZ@> This function adds a space into the load line if there isn't one there already
 
     char cTmp, cSwap;
-    if ( !isspace( cLineBuffer[position] ) )
-    {
-        cTmp = cLineBuffer[position];
-        cLineBuffer[position] = ' ';
-        position++;
-        iLineSize++;
 
-        while ( position < iLineSize )
+    // fail if the new length will be too long
+    if( buffer_length >= buffer_max )
+    {
+        return MIN(buffer_length, buffer_max);
+    }
+ 
+    if ( !isspace( buffer[position] ) )
+    {
+        // we are definitely going to add one character to the length
+        buffer_length++;
+
+        // save the old value
+        cTmp = buffer[position];
+
+        // insert a space
+        buffer[position] = ' ';
+        position++;
+
+        // bubble the values up
+        while ( position < buffer_length )
         {
-            cSwap = cLineBuffer[position];
-            cLineBuffer[position] = cTmp;
+            // save the old one
+            cSwap = buffer[position];
+
+            // insert the saves one
+            buffer[position] = cTmp;
+
+            // save the new one
             cTmp = cSwap;
+
             position++;
         }
 
-        cLineBuffer[position] = CSTR_END; // or cTmp as cTmp == CSTR_END
+        buffer[buffer_length] = CSTR_END;
     }
+
+    return buffer_length;
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_line( int read, script_info_t *pscript )
+int load_one_line( parser_state_t * ps, int read, script_info_t *pscript )
 {
     /// @details ZZ@> This function loads a line into the line buffer
 
-    int stillgoing, foundtext, cnt = 0;
+    int stillgoing, foundtext;
     char cTmp;
-    bool_t tabs_warning_needed, line_contains_string;
+    bool_t tabs_warning_needed, inside_string;
 
     // Parse to start to maintain indentation
-    cLineBuffer[0] = CSTR_END;
-    stringBuffer[0] = CSTR_END;
-    iLineSize = 0;
+    ps->line_buffer[0] = CSTR_END;
+    ps->line_buffer_count = 0;
+
     stillgoing = btrue;
-    line_contains_string = bfalse;
+    inside_string = bfalse;
 
     // try to trap all end of line conditions so we can properly count the lines
     tabs_warning_needed = bfalse;
-    while ( read < iLoadSize )
+    while ( read < ps->load_buffer_count )
     {
-        cTmp = cLoadBuffer[read];
+        cTmp = ps->load_buffer[read];
 
-        if ( ASCII_LINEFEED_CHAR == cTmp && C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read+1] )
+        if ( ASCII_LINEFEED_CHAR == cTmp && C_CARRIAGE_RETURN_CHAR == ps->load_buffer[read+1] )
         {
-            iLineSize = 0;
-            cLineBuffer[0] = CSTR_END;
+            ps->line_buffer_count = 0;
+            ps->line_buffer[0] = CSTR_END;
             return read + 2;
         }
 
-        if ( C_CARRIAGE_RETURN_CHAR == cTmp && ASCII_LINEFEED_CHAR == cLoadBuffer[read+1] )
+        if ( C_CARRIAGE_RETURN_CHAR == cTmp && ASCII_LINEFEED_CHAR == ps->load_buffer[read+1] )
         {
-            iLineSize = 0;
-            cLineBuffer[0] = CSTR_END;
+            ps->line_buffer_count = 0;
+            ps->line_buffer[0] = CSTR_END;
             return read + 2;
         }
 
         if ( ASCII_LINEFEED_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp )
         {
-            iLineSize = 0;
-            cLineBuffer[0] = CSTR_END;
+            ps->line_buffer_count = 0;
+            ps->line_buffer[0] = CSTR_END;
             return read + 1;
         }
 
@@ -614,94 +722,96 @@ int load_one_line( int read, script_info_t *pscript )
             break;
         }
 
-        cLineBuffer[iLineSize] = ' ';
-        cLineBuffer[iLineSize+1] = CSTR_END;
+        ps->line_buffer[ps->line_buffer_count] = ' ';
+        ps->line_buffer[ps->line_buffer_count+1] = CSTR_END;
 
         read++;
-        iLineSize++;
+        ps->line_buffer_count++;
     }
 
     // Parse to comment or end of line
     foundtext = bfalse;
-    while ( read < iLoadSize )
+    inside_string = bfalse;
+    while ( read < ps->load_buffer_count )
     {
-        cTmp = cLoadBuffer[read];
+        cTmp = ps->load_buffer[read];
 
-        //we reached endline
+        // we reached endline
         if ( C_CARRIAGE_RETURN_CHAR == cTmp || ASCII_LINEFEED_CHAR == cTmp )
         {
             break;
         }
 
-        //we reached a comment
-        if ( '/' == cTmp && '/' == cLoadBuffer[read + 1] )
+        // we reached a comment
+        if ( '/' == cTmp && '/' == ps->load_buffer[read + 1] )
         {
             break;
         }
 
-        read++;
-
-        if ( iscntrl( cTmp ) )
+        // Double apostrophe indicates where the string begins and ends
+        if ( C_DOUBLE_QUOTE_CHAR == cTmp  )
         {
+            inside_string = !inside_string;
+        }
+
+        if( inside_string )
+        {
+            if( '\t' == cTmp )
+            {
+                // convert tab characters to the '~' symbol
+                cTmp = '~';
+            }
+            else if ( isspace(cTmp) || iscntrl(cTmp) )
+            {
+                // all whitespace and control characters are converted to '_'
+                cTmp = '_';
+            }
+        }
+        else if ( iscntrl( cTmp ) )
+        {
+            // Convert control characters to whitespace
             cTmp = ' ';
         }
 
-        //Double apostrophe indicates where the string begins and ends
-        if ( cTmp == '"' )
-        {
-            line_contains_string = !line_contains_string;
-        }
-        else if ( line_contains_string )
-        {
-            if ( cnt < MESSAGESIZE )
-            {
-                stringBuffer[cnt] = cTmp;
-            }
-            else
-            {
-                //warn if message is too big
-                line_contains_string = bfalse;
-                log_warning( "Text string is to long! \"%s\" (%d) - \"%s\" \n", pscript->name, Token.iLine, stringBuffer );
-            }
-            cnt++;
-        }
-
-        if ( !isspace( cTmp ) || line_contains_string )
+        // convert whitespace characters to 
+        if ( !isspace( cTmp ) || inside_string )
         {
             foundtext = btrue;
 
-            cLineBuffer[iLineSize]   = ( cTmp == ' ' ) ? '_' : cTmp;
-            iLineSize++;
+            ps->line_buffer[ps->line_buffer_count] = cTmp;
+            ps->line_buffer_count++;
         }
+
+        read++;
     }
+
     if ( !foundtext )
     {
-        iLineSize = 0;
+        ps->line_buffer_count = 0;
     }
 
     // terminate the line buffer properly
-    cLineBuffer[iLineSize] = CSTR_END;
-    stringBuffer[cnt]    = CSTR_END;
+    ps->line_buffer[ps->line_buffer_count] = CSTR_END;
 
-    if ( iLineSize > 0  && tabs_warning_needed )
+    if ( ps->line_buffer_count > 0  && tabs_warning_needed )
     {
-        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
+        log_message( "SCRIPT ERROR: %s() - Tab character used to define spacing will cause an error \"%s\"(%d) - \n    \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
     }
 
-    // Parse to end of line
-    while ( read < iLoadSize )
+    // scan to the beginning of the next line
+    while ( read < ps->load_buffer_count )
     {
-        if ( ASCII_LINEFEED_CHAR == cLoadBuffer[read] && C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read+1] )
+        if ( ASCII_LINEFEED_CHAR == ps->load_buffer[read] && C_CARRIAGE_RETURN_CHAR == ps->load_buffer[read+1] )
         {
             read += 2;
             break;
         }
-        else if ( C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read] && ASCII_LINEFEED_CHAR == cLoadBuffer[read+1] )
+        else if ( C_CARRIAGE_RETURN_CHAR == ps->load_buffer[read] && ASCII_LINEFEED_CHAR == ps->load_buffer[read+1] )
         {
             read += 2;
             break;
         }
-        else if ( CSTR_END == cLoadBuffer[read] || ASCII_LINEFEED_CHAR == cLoadBuffer[read] || C_CARRIAGE_RETURN_CHAR == cLoadBuffer[read] )
+        else if ( CSTR_END == ps->load_buffer[read] || ASCII_LINEFEED_CHAR == ps->load_buffer[read] || C_CARRIAGE_RETURN_CHAR == ps->load_buffer[read] )
         {
             read += 1;
             break;
@@ -714,20 +824,20 @@ int load_one_line( int read, script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-void surround_space( int position )
+size_t surround_space( int position, char buffer[], size_t buffer_size, const size_t buffer_max )
 {
-    insert_space( position + 1 );
-    if ( position > 0 )
+    buffer_size = insert_space( position + 1, buffer, buffer_size, buffer_max );
+
+    if ( position >= 0 )
     {
-        if ( !isspace( cLineBuffer[position-1] ) )
-        {
-            insert_space( position );
-        }
+        buffer_size = insert_space( position, buffer, buffer_size, buffer_max );
     }
+
+    return buffer_size;
 }
 
 //--------------------------------------------------------------------------------------------
-int get_indentation( script_info_t *pscript )
+int get_indentation( parser_state_t * ps, script_info_t *pscript )
 {
     /// @details ZZ@> This function returns the number of starting spaces in a line
 
@@ -735,23 +845,23 @@ int get_indentation( script_info_t *pscript )
     char cTmp;
 
     cnt = 0;
-    cTmp = cLineBuffer[cnt];
+    cTmp = ps->line_buffer[cnt];
     while ( isspace( cTmp ) )
     {
         cnt++;
-        cTmp = cLineBuffer[cnt];
+        cTmp = ps->line_buffer[cnt];
     }
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
-        log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
-        parseerror = btrue;
+        log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
+        ps->error = btrue;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
-        log_warning( "Too many levels of indentation \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
-        parseerror = btrue;
+        log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
+        ps->error = btrue;
         cnt = 15;
     }
 
@@ -759,246 +869,356 @@ int get_indentation( script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-void fix_operators()
+size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max )
 {
-    /// @details ZZ@> This function puts spaces around operators to seperate words
-    ///    better
+    /// @details ZZ@> This function puts spaces around operators to seperate words better
 
     int cnt;
     char cTmp;
-    bool_t parse_string = bfalse;
+    bool_t inside_string = bfalse;
 
     cnt = 0;
-
-    while ( cnt < iLineSize )
+    while ( cnt < buffer_size )
     {
-        cTmp = cLineBuffer[cnt];
-        if ( cTmp == '"' ) parse_string = !parse_string;
+        cTmp = buffer[cnt];
+        if ( C_DOUBLE_QUOTE_CHAR == cTmp ) 
+        {
+            inside_string = !inside_string;
+        }
 
         //Don't fix operator symbols inside a string
-        if ( !parse_string )
+        if ( !inside_string )
         {
             if ( '+' == cTmp || '-' == cTmp || '/' == cTmp || '*' == cTmp ||
                  '%' == cTmp || '>' == cTmp || '<' == cTmp || '&' == cTmp ||
                  '=' == cTmp )
             {
-                surround_space( cnt );
+                buffer_size = surround_space( cnt, buffer, buffer_size, buffer_max );
                 cnt++;
             }
         }
 
         cnt++;
     }
+
+    return buffer_size;
 }
 
 //--------------------------------------------------------------------------------------------
-int parse_token( pro_t *ppro, script_info_t *pscript, int read )
+int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, int read )
 {
     /// @details ZZ@> This function tells what code is being indexed by read, it
     ///    will return the next spot to read from and stick the code number
-    ///    in Token.iIndex
+    ///    in ptok->iIndex
 
-    int cnt, wordsize;
+    int cnt;
     char cTmp;
     IDSZ idsz;
+    bool_t parsed = bfalse;
+
+    size_t       szWord_length_max = 0;
+
+    // check for bad pointers
+    if( NULL == ps || NULL == ptok || NULL == pscript ) return AISMAXLOADSIZE;
+
+    // figure out what the max word length actually is
+    szWord_length_max = SDL_arraysize(ptok->szWord);
 
     // Reset the token
-    Token.iIndex   = MAX_OPCODE;
-    Token.iValue   = 0;
-    Token.cType    = '?';
-    Token.cWord[0] = CSTR_END;
+    token_ctor( ptok );
 
     // Check bounds
-    if ( read >= iLineSize )
-        return iLineSize;
+    if ( read >= ps->line_buffer_count )
+    {
+        return ps->line_buffer_count;
+    }
 
-    // Skip spaces
-    cTmp = cLineBuffer[read];
-    while ( isspace( cTmp ) && read < iLineSize )
+    // nothing is parsed yet
+    parsed = bfalse;
+
+    // Skip any initial spaces
+    cTmp = ps->line_buffer[read];
+    while ( isspace( cTmp ) && read < ps->line_buffer_count )
     {
         read++;
-        cTmp = cLineBuffer[read];
+        cTmp = ps->line_buffer[read];
     }
-    if ( read >= iLineSize )  { print_token(); return read; }
 
-    // Load the word into the other buffer
-    wordsize = 0;
-    while ( !isspace( cTmp ) && CSTR_END != cTmp )
-    {
-        Token.cWord[wordsize] = cTmp;  wordsize++;
-        read++;
-        cTmp = cLineBuffer[read];
+    // break if there was nothing here
+    if ( read >= ps->line_buffer_count )  
+    { 
+        goto parse_token_end;
     }
-    Token.cWord[wordsize] = CSTR_END;
+
+    // initialize the word
+    ptok->szWord_length = 0;
+    ptok->szWord[0] = CSTR_END;
+
+    // handle the special case of a string constant
+    if( C_DOUBLE_QUOTE_CHAR == cTmp )
+    {
+        do
+        {
+            // begin the copy
+            ptok->szWord[ptok->szWord_length] = cTmp;
+            ptok->szWord_length++;
+
+            read++;
+            cTmp = ps->line_buffer[read];
+
+            // Break out if we find the end of the string
+            // Strings of the form "Here lies \"The Sandwich King\"" are not supported
+        }
+        while ( CSTR_END != cTmp && C_DOUBLE_QUOTE_CHAR != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count );
+
+        if( C_DOUBLE_QUOTE_CHAR == cTmp )
+        {
+            // skip the ending qoutation mark
+            read++;
+            cTmp = ps->line_buffer[read];
+
+            ptok->szWord[ptok->szWord_length] = CSTR_END;
+            ptok->szWord_length++;
+        }
+        else
+        {
+            log_message( "SCRIPT ERROR: %s() - The string in line %d is too long\n.", __FUNCTION__, ptok->iLine );
+        }
+    }
+    else
+    {
+        // Load the the word into the ptok->szWord buffer
+        ptok->szWord_length = 0;
+        ptok->szWord[0] = CSTR_END;
+
+        while ( !isspace( cTmp ) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count )
+        {
+            ptok->szWord[ptok->szWord_length] = cTmp;  
+            ptok->szWord_length++;
+
+            read++;
+            cTmp = ps->line_buffer[read];
+        }
+
+        if( ptok->szWord_length < szWord_length_max )
+        {
+            ptok->szWord[ptok->szWord_length] = CSTR_END;
+        }
+    }
+
+    // ensure that the string is terminated
+    ptok->szWord[szWord_length_max-1] = CSTR_END;
 
     // Check for numeric constant
-    if ( 0 != isdigit( Token.cWord[0] ) )
+    if( !parsed && (0 != isdigit( ptok->szWord[0] )) )
     {
-        sscanf( Token.cWord, "%d", &Token.iValue );
-        Token.cType  = 'C';
-        Token.iIndex = MAX_OPCODE;
-        { print_token();  return read; }
+        sscanf( ptok->szWord, "%d", &ptok->iValue );
+        ptok->cType  = 'C';
+        ptok->iIndex = MAX_OPCODE;
+
+        // move on to the next thing
+        parsed = btrue;
     }
 
     // Check for IDSZ constant
-    if ( '[' == Token.cWord[0] )
+    if( !parsed && ('[' == ptok->szWord[0]) )
     {
-        idsz = MAKE_IDSZ( Token.cWord[1], Token.cWord[2], Token.cWord[3], Token.cWord[4] );
+        idsz = MAKE_IDSZ( ptok->szWord[1], ptok->szWord[2], ptok->szWord[3], ptok->szWord[4] );
 
-        Token.iValue = idsz;
-        Token.cType  = 'C';
-        Token.iIndex = MAX_OPCODE;
+        ptok->iValue = idsz;
+        ptok->cType  = 'C';
+        ptok->iIndex = MAX_OPCODE;
 
-        { print_token();  return read; }
+        // move on to the next thing
+        parsed = btrue;
     }
 
-    // Check for object reference
-    if ( Token.cWord[0] == '"' && '#' == stringBuffer[0] )
+    if( !parsed && (0 == strcmp( ptok->szWord, "=" )) )
     {
-        PRO_REF ipro = 0;
-        STRING obj_name;
+        ptok->iValue = -1;
+        ptok->cType  = 'O';
+        ptok->iIndex = MAX_OPCODE;
 
-        //remove the reference symbol to figure out the actual folder name we are looking for
-        strncpy( obj_name, stringBuffer + 1, SDL_arraysize( obj_name ) );
-
-        //Invalid profile as default
-        Token.iValue = MAX_PROFILE;
-
-        //Convert reference to slot number
-        for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
-        {
-            pro_t *ppro;
-
-            if ( !LOADED_PRO( ipro ) ) continue;
-            ppro = ProList.lst + ipro;
-
-            //is this the object we are looking for?
-            if ( 0 == strcmp( obj_name, strrchr( ppro->name, '/' ) + 1 ) )
-            {
-                Token.iValue = REF_TO_INT( ppro->icap );
-                break;
-            }
-        }
-
-        //Do we need to load the object?
-        if ( !LOADED_PRO(( PRO_REF ) Token.iValue ) )
-        {
-            STRING loadname;
-            snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
-
-            //find first free slot number
-            for ( ipro = MAXIMPORTPERPLAYER * 4; ipro < MAX_PROFILE; ipro++ )
-            {
-                //skip loaded profiles
-                if ( LOADED_PRO( ipro ) ) continue;
-
-                //found a free slot
-                Token.iValue = load_one_profile_vfs( loadname, REF_TO_INT( ipro ) );
-            }
-        }
-
-        //Failed to load object!
-        if ( !LOADED_PRO(( PRO_REF ) Token.iValue ) )
-        {
-            log_message( "SCRIPT ERROR: Failed to load object: %s through an AI script. %s (line %d)\n", Token.cWord, pscript->name, Token.iLine );
-        }
-
-        Token.cType = 'C';
-        Token.iIndex = MAX_OPCODE;
-        { print_token();  return read; }
+        // move on to the next thing
+        parsed = btrue;
     }
 
-    // Check for string
-    if ( Token.cWord[0] == '"' && CSTR_END != stringBuffer[0] )
+    // convert the string token to a new token type
+    if( !parsed && (C_DOUBLE_QUOTE_CHAR == ptok->szWord[0])  )
     {
-        int cnt;
-        bool_t message_found = bfalse;
+        char * str = ptok->szWord + 1;
 
-        //see if this message is already loaded, no need to load it twice into memory
-        if ( ppro->message )
+        if( CSTR_END == ptok->szWord[1] || C_DOUBLE_QUOTE_CHAR == ptok->szWord[1] )
         {
-            for ( cnt = ppro->message_count; cnt--; )
+            // some kind of empty string
+
+            log_message( "SCRIPT ERROR: %s() - The string in line %d is empty\n.", __FUNCTION__, ptok->iLine );
+
+            // some kind of error
+            parsed = btrue;
+        }
+        else if ( '#' == str[0] )
+        {
+            // an object reference
+
+            PRO_REF ipro = 0;
+            STRING obj_name;
+
+            //remove the reference symbol to figure out the actual folder name we are looking for
+            strncpy( obj_name, str + 1, SDL_arraysize( obj_name ) );
+
+            // Invalid profile as default
+            ptok->iValue = MAX_PROFILE;
+
+            // Convert reference to slot number
+            for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
             {
-                if ( 0 == strcmp( ppro->message[cnt], stringBuffer ) )
+                pro_t *ppro;
+
+                if ( !LOADED_PRO( ipro ) ) continue;
+                ppro = ProList.lst + ipro;
+
+                //is this the object we are looking for?
+                if ( 0 == strcmp( obj_name, strrchr( ppro->name, '/' ) + 1 ) )
                 {
-                    Token.iValue = cnt;
-                    message_found = btrue;
+                    ptok->iValue = REF_TO_INT( ppro->icap );
                     break;
                 }
             }
-        }
 
-        //this is a new string, so add this message to the avalible messages of the object
-        if ( !message_found )
+            // Do we need to load the object?
+            if ( !LOADED_PRO(( PRO_REF ) ptok->iValue ) )
+            {
+                STRING loadname;
+                snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
+
+                //find first free slot number
+                for ( ipro = MAXIMPORTPERPLAYER * 4; ipro < MAX_PROFILE; ipro++ )
+                {
+                    //skip loaded profiles
+                    if ( LOADED_PRO( ipro ) ) continue;
+
+                    //found a free slot
+                    ptok->iValue = load_one_profile_vfs( loadname, REF_TO_INT( ipro ) );
+                }
+            }
+
+            // Failed to load object!
+            if ( !LOADED_PRO(( PRO_REF ) ptok->iValue ) )
+            {
+                log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, ptok->szWord, pscript->name, ptok->iLine );
+            }
+
+            ptok->cType = 'C';
+            ptok->iIndex = MAX_OPCODE;
+
+            parsed = btrue;
+        }
+        else
         {
-            Token.iValue = ppro->message_count;
-            profile_add_one_message( ppro, stringBuffer );
-        }
+            // a normal string
 
-        Token.cType = 'C';
-        Token.iIndex = MAX_OPCODE;
-        { print_token();  return read; }
+            int cnt;
+            bool_t message_found = bfalse;
+
+            // see if this message is already loaded, no need to load it twice into memory
+            if ( ppro->message )
+            {
+                for ( cnt = ppro->message_count; cnt >=0; cnt-- )
+                {
+                    if ( 0 == strcmp( ppro->message[cnt], str ) )
+                    {
+                        ptok->iValue = cnt;
+                        message_found = btrue;
+                        break;
+                    }
+                }
+            }
+
+            // this is a new string, so add this message to the avalible messages of the object
+            if ( !message_found )
+            {
+                ptok->iValue = ppro->message_count;
+                profile_add_one_message( ppro, str );
+            }
+
+            ptok->cType = 'C';
+            ptok->iIndex = MAX_OPCODE;
+
+            parsed = btrue;
+        }
     }
 
-
-    //is it a constant?
-    for ( cnt = 0; cnt < OpList.count; cnt++ )
+    // is it a constant, opcode, or value?
+    if( !parsed )
     {
-        if ( 0 == strncmp( Token.cWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
+        for ( cnt = 0; cnt < OpList.count; cnt++ )
         {
-            break;
-        }
-    }
-    if ( cnt < OpList.count )
-    {
-        Token.iValue = OpList.ary[cnt].iValue;
-        Token.cType  = OpList.ary[cnt].cType;
-        Token.iIndex = cnt;
-    }
+            if ( 0 == strncmp( ptok->szWord, OpList.ary[cnt].cName, MAXCODENAMESIZE ) )
+            {
+                ptok->iValue = OpList.ary[cnt].iValue;
+                ptok->cType  = OpList.ary[cnt].cType;
+                ptok->iIndex = cnt;
 
-    else if ( 0 == strcmp( Token.cWord, "=" ) )
-    {
-        Token.iValue = -1;
-        Token.cType  = 'O';
-        Token.iIndex = MAX_OPCODE;
+                // move on to the next thing
+                parsed = btrue;
+
+                break;
+            }
+        }
     }
 
     // We couldn't figure out what this is, throw out an error code
-    else
+    if( !parsed )
     {
-        log_message( "SCRIPT ERROR: \"%s\"(%d) - unknown opcode \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
+        log_message( "SCRIPT ERROR: %s() - \"%s\"(%d) - unknown opcode \"%s\"\n", __FUNCTION__, pscript->name, ptok->iLine, ptok->szWord );
 
-        Token.iValue = -1;
-        Token.cType  = '?';
-        Token.iIndex = MAX_OPCODE;
+        // put the token in an error state
+        ptok->iValue = -1;
+        ptok->cType  = '?';
+        ptok->iIndex = MAX_OPCODE;
 
-        parseerror = btrue;
+        ps->error = btrue;
     }
 
-    { print_token();  return read; }
+parse_token_end:
+
+    print_token();  
+    return read;
 }
 
 //--------------------------------------------------------------------------------------------
-void emit_opcode( BIT_FIELD highbits, script_info_t *pscript )
+void emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscript )
 {
-    // detect a constant value
-    if ( 'C' == Token.cType || 'F' == Token.cType )
+    BIT_FIELD loc_highbits = highbits;
+
+    if( NULL == ptok )
     {
-        SET_BIT( highbits, FUNCTION_BIT );
+        log_message( "SCRIPT ERROR: %s() - emit_opcode() - Invalid token.\n", __FUNCTION__ );
+        return;
     }
+
+    // detect a constant value
+    if ( 'C' == ptok->cType || 'F' == ptok->cType )
+    {
+        SET_BIT( loc_highbits, FUNCTION_BIT );
+    }
+
+    // emit the opcode
     if ( pscript->length < MAXAICOMPILESIZE )
     {
-        pscript->data[pscript->length] = highbits | Token.iValue;
+        pscript->data[pscript->length] = loc_highbits | ptok->iValue;
         pscript->length++;
     }
     else
     {
-        log_warning( "Script index larger than array\n" );
+        log_message( "SCRIPT ERROR: %s() - emit_opcode() - Script index larger than array\n", __FUNCTION__ );
     }
+
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_line_by_line( pro_t *ppro, script_info_t *pscript )
+void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript )
 {
     //@details ZF@> This parses an AI script line by line
 
@@ -1007,26 +1227,26 @@ void parse_line_by_line( pro_t *ppro, script_info_t *pscript )
     int parseposition;
 
     read = 0;
-    for ( Token.iLine = 0; read < iLoadSize; Token.iLine++ )
+    for ( ps->token.iLine = 0; read < ps->load_buffer_count; ps->token.iLine++ )
     {
-        read = load_one_line( read, pscript );
-        if ( 0 == iLineSize ) continue;
+        read = load_one_line( ps, read, pscript );
+        if ( 0 == ps->line_buffer_count ) continue;
 
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
         print_line();
 #endif
 
-        fix_operators();
+        ps->line_buffer_count = fix_operators( ps->line_buffer, ps->line_buffer_count, SDL_arraysize(ps->line_buffer) );
         parseposition = 0;
 
         //------------------------------
         // grab the first opcode
 
-        highbits = SET_DATA_BITS( get_indentation( pscript ) );
-        parseposition = parse_token( ppro, pscript, parseposition );
-        if ( 'F' == Token.cType )
+        highbits = SET_DATA_BITS( get_indentation( ps, pscript ) );
+        parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+        if ( 'F' == ps->token.cType )
         {
-            if ( FEND == Token.iValue && 0 == highbits )
+            if ( FEND == ps->token.iValue && 0 == highbits )
             {
                 // stop processing the lines, since we're finished
                 break;
@@ -1036,14 +1256,14 @@ void parse_line_by_line( pro_t *ppro, script_info_t *pscript )
             // the code type is a function
 
             // save the opcode
-            emit_opcode( highbits, pscript );
+            emit_opcode( &(ps->token), highbits, pscript );
 
             // leave a space for the control code
-            Token.iValue = 0;
-            emit_opcode( 0, pscript );
+            ps->token.iValue = 0;
+            emit_opcode( &(ps->token), 0, pscript );
 
         }
-        else if ( 'V' == Token.cType )
+        else if ( 'V' == ps->token.cType )
         {
             //------------------------------
             // the code type is a math operation
@@ -1052,96 +1272,96 @@ void parse_line_by_line( pro_t *ppro, script_info_t *pscript )
             int operands = 0;
 
             // save in the value's opcode
-            emit_opcode( highbits, pscript );
+            emit_opcode( &(ps->token), highbits, pscript );
 
             // save a position for the operand count
-            Token.iValue = 0;
+            ps->token.iValue = 0;
             operand_index = pscript->length;    //AisCompiled_offset;
-            emit_opcode( 0, pscript );
+            emit_opcode( &(ps->token), 0, pscript );
 
             // handle the "="
             highbits = 0;
-            parseposition = parse_token( ppro, pscript, parseposition );  // EQUALS
-            if ( 'O' != Token.cType || 0 != strcmp( Token.cWord, "=" ) )
+            parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );  // EQUALS
+            if ( 'O' != ps->token.cType || 0 != strcmp( ps->token.szWord, "=" ) )
             {
-                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
+                log_message( "SCRIPT ERROR: %s() - Invalid equation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
             }
 
             //------------------------------
             // grab the next opcode
 
-            parseposition = parse_token( ppro, pscript, parseposition );
-            if ( 'V' == Token.cType || 'C' == Token.cType )
+            parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+            if ( 'V' == ps->token.cType || 'C' == ps->token.cType )
             {
                 // this is a value or a constant
-                emit_opcode( 0, pscript );
+                emit_opcode( &(ps->token), 0, pscript );
                 operands++;
 
-                parseposition = parse_token( ppro, pscript, parseposition );
+                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
             }
-            else if ( 'O' != Token.cType )
+            else if ( 'O' != ps->token.cType )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
+                log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->token.szWord );
 
-                emit_opcode( 0, pscript );
+                emit_opcode( &(ps->token), 0, pscript );
                 operands++;
 
-                parseposition = parse_token( ppro, pscript, parseposition );
+                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
             }
 
             // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
-            while ( parseposition < iLineSize )
+            while ( parseposition < ps->line_buffer_count )
             {
                 // the current token should be an operator
-                if ( 'O' != Token.cType )
+                if ( 'O' != ps->token.cType )
                 {
                     // problem with the loop
-                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, cLineBuffer );
+                    log_message( "SCRIPT ERROR: %s() - Expected an operator \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
                     break;
                 }
 
                 // the highbits are the operator's value
-                highbits = SET_DATA_BITS( Token.iValue );
+                highbits = SET_DATA_BITS( ps->token.iValue );
 
                 // VALUE
-                parseposition = parse_token( ppro, pscript, parseposition );
-                if ( 'C' != Token.cType && 'V' != Token.cType )
+                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
+                if ( 'C' != ps->token.cType && 'V' != ps->token.cType )
                 {
                     // not having a constant or a value here breaks the function. stop processing
-                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
+                    log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->token.szWord );
                     break;
                 }
 
-                emit_opcode( highbits, pscript );
+                emit_opcode( &(ps->token), highbits, pscript );
                 operands++;
 
                 // OPERATOR
-                parseposition = parse_token( ppro, pscript, parseposition );
+                parseposition = parse_token( ps, &(ps->token), ppro, pscript, parseposition );
             }
             pscript->data[operand_index] = operands;
         }
-        else if ( 'C' == Token.cType )
+        else if ( 'C' == ps->token.cType )
         {
-            log_warning( "Invalid constant \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid constant \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->token.szWord );
         }
-        else if ( '?' == Token.cType )
+        else if ( '?' == ps->token.cType )
         {
             // unknown opcode, do not process this line
-            log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
+            log_message( "SCRIPT ERROR: %s() - Invalid operand \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->token.szWord );
         }
         else
         {
-            log_warning( "Compiler is broken \"%s\"(%d) - \"%s\"\n", pscript->name, Token.iLine, Token.cWord );
+            log_message( "SCRIPT ERROR: %s() - Compiler is broken \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->token.szWord );
             break;
         }
     }
 
-    Token.iValue = FEND;
-    Token.cType  = 'F';
-    emit_opcode( 0, pscript );
-    Token.iValue = pscript->length + 1;
-    emit_opcode( 0, pscript );
+    ps->token.iValue = FEND;
+    ps->token.cType  = 'F';
+    emit_opcode( &(ps->token), 0, pscript );
+    ps->token.iValue = pscript->length + 1;
+    emit_opcode( &(ps->token), 0, pscript );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1222,37 +1442,67 @@ void parse_jumps( script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-int ai_goto_colon( int read )
+int ai_goto_colon( int read, Uint8 buffer[], const size_t buffer_size )
 {
     /// @details ZZ@> This function goes to spot after the next colon
 
     char cTmp;
 
-    cTmp = cLoadBuffer[read];
+    cTmp = buffer[read];
 
-    while ( ':' != cTmp && read < iLoadSize )
+    while ( ':' != cTmp && read < buffer_size )
     {
-        read++;  cTmp = cLoadBuffer[read];
+        read++;  
+        cTmp = buffer[read];
     }
-    if ( read < iLoadSize )  read++;
+
+    if ( read < buffer_size )
+    {
+        read++;
+    }
 
     return read;
 }
 
 //--------------------------------------------------------------------------------------------
-void get_code( int read )
+egoboo_rv get_code( int read, Uint8 buffer[], const size_t buffer_size )
 {
     /// @details ZZ@> This function gets code names and other goodies
 
     char cTmp;
-    int iTmp;
+    int iTmp, fields;
     STRING sTmp;
+    egoboo_rv retval;
 
-    sscanf(( char* )( cLoadBuffer + read ), "%c%d%255s", &cTmp, &iTmp, sTmp );
+    if( NULL == buffer || 0 == buffer_size || read >= buffer_size ) 
+    {
+        // use rv_error to break out of the loop
+        return rv_error;
+    }
 
-    strncpy( OpList.ary[OpList.count].cName, sTmp, SDL_arraysize( OpList.ary[OpList.count].cName ) );
-    OpList.ary[OpList.count].cType  = toupper( cTmp );
-    OpList.ary[OpList.count].iValue = iTmp;
+    fields = sscanf(( char* )( buffer + read ), "%c%d%255s", &cTmp, &iTmp, sTmp );
+    if( 3 == fields )
+    {
+        strncpy( OpList.ary[OpList.count].cName, sTmp, SDL_arraysize( OpList.ary[OpList.count].cName ) );
+        OpList.ary[OpList.count].cType  = toupper( cTmp );
+        OpList.ary[OpList.count].iValue = iTmp;
+
+        // use rv_success to signal a correct opcode
+        retval = rv_success;
+    }
+    else if ( 0 == strncmp( (char * )(buffer + read), "END", 3 ) )
+    {
+        // use rv_error to break out of the loop
+        retval = rv_error;
+    }
+    else
+    {
+        // use rv_fail to indicate a bad opcode, but do not terminate the scanning
+        log_message( "SCRIPT ERROR: %s() - error loading an opcode definition.\n", __FUNCTION__ );
+        retval = rv_fail;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1263,26 +1513,37 @@ void load_ai_codes_vfs( const char* loadname )
     vfs_FILE* fileread;
     int read;
 
+    // make a stack-local buffer for reading in the file
+    int           tmp_buffer_size = 0;
+    Uint8       * tmp_buffer      = NULL;
+
+    tmp_buffer = EGOBOO_NEW_ARY( Uint8, AISMAXLOADSIZE );
+    if( NULL == tmp_buffer ) return;
+    tmp_buffer_size = sizeof(Uint8) * AISMAXLOADSIZE;
+
     OpList.count = 0;
     fileread = vfs_openRead( loadname );
     if ( fileread )
     {
-        iLoadSize = ( int )vfs_read( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
+        tmp_buffer_size = ( int )vfs_read( tmp_buffer, 1, AISMAXLOADSIZE, fileread );
         read = 0;
-        read = ai_goto_colon( read );
+        read = ai_goto_colon( read, tmp_buffer, tmp_buffer_size );
 
-        while ( read != iLoadSize )
+        while ( rv_error != get_code( read, tmp_buffer, tmp_buffer_size ) )
         {
-            get_code( read );
             OpList.count++;
-            read = ai_goto_colon( read );
+            read = ai_goto_colon( read, tmp_buffer, tmp_buffer_size );
         }
 
         vfs_close( fileread );
     }
+
+    EGOBOO_DELETE_ARY( tmp_buffer );
+    tmp_buffer_size = 0;
 }
 
-egoboo_rv ai_script_upload_default( script_info_t *pscript )
+//--------------------------------------------------------------------------------------------
+egoboo_rv ai_script_upload_default( script_info_t * pscript )
 {
     //@details ZF@> This loads the default AI script into a character profile ai
     //              It's not optimal since it duplicates the AI script data with memcpy
@@ -1301,7 +1562,7 @@ egoboo_rv ai_script_upload_default( script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *pscript )
+egoboo_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript )
 {
     /// @details ZZ@> This function loads a script to memory
 
@@ -1311,14 +1572,14 @@ egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *
     //Handle default AI
     if ( pscript == NULL ) pscript = &( default_ai_script );
 
-    iNumLine = 0;
+    ps->line_count = 0;
     fileread = vfs_openRead( loadname );
 
     // No such file
     if ( NULL == fileread )
     {
-        log_debug( "I am missing a AI script (%s)\n", loadname );
-        log_message( "       Using the default AI script instead (\"mp_data/script.txt\")\n" );
+        log_message( "SCRIPT ERROR: %s() - I am missing a AI script (%s)\n", __FUNCTION__, loadname );
+        log_message( "              Using the default AI script instead (\"mp_data/script.txt\")\n" );
 
         ai_script_upload_default( pscript );
         return rv_fail;
@@ -1326,13 +1587,13 @@ egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *
 
     // load the file
     file_size = vfs_fileLength( fileread );
-    iLoadSize = ( int )vfs_read( cLoadBuffer, 1, file_size, fileread );
+    ps->load_buffer_count = ( int )vfs_read( ps->load_buffer, 1, file_size, fileread );
     vfs_close( fileread );
 
     // if the file is empty, use the default script
-    if ( 0 == iLoadSize )
+    if ( 0 == ps->load_buffer_count )
     {
-        log_warning( "Script file is empty. \"%s\"\n", loadname );
+        log_message( "SCRIPT ERROR: %s() - Script file is empty. \"%s\"\n", __FUNCTION__, loadname );
 
         ai_script_upload_default( pscript );
         return rv_fail;
@@ -1345,7 +1606,7 @@ egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *
     pscript->length = 0;
 
     // parse/compile the scripts
-    parse_line_by_line( ppro, pscript );
+    parse_line_by_line( ps, ppro, pscript );
 
     // determine the correct jumps
     parse_jumps( pscript );
@@ -1355,30 +1616,33 @@ egoboo_rv load_ai_script_vfs( const char *loadname, pro_t *ppro, script_info_t *
 
 //--------------------------------------------------------------------------------------------
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
-void print_token()
+void print_token( token_t * ptok )
 {
-    printf( "------------\n", globalparsename, Token.iLine );
-    printf( "\tToken.iIndex == %d\n", Token.iIndex );
-    printf( "\tToken.iValue == %d\n", Token.iValue );
-    printf( "\tToken.cType  == \'%c\'\n", Token.cType );
-    printf( "\tToken.cWord  == \"%s\"\n", Token.cWord );
+    if( NULL != ptok )
+    {
+        printf( "------------\n", globalparsename, ptok->iLine );
+        printf( "\tToken.iIndex == %d\n", ptok->iIndex );
+        printf( "\tToken.iValue == %d\n", ptok->iValue );
+        printf( "\tToken.cType  == \'%c\'\n", ptok->cType );
+        printf( "\tToken.szWord  == \"%s\"\n", szWord );
+    }
 }
 #endif
 
 //--------------------------------------------------------------------------------------------
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
-void print_line()
+void print_line( parser_state_t * ps )
 {
     int i;
     char cTmp;
 
-    printf( "\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token.iLine );
+    printf( "\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, ps->token.iLine );
 
     printf( "\tline == \"" );
 
-    for ( i = 0; i < iLineSize; i++ )
+    for ( i = 0; i < ps->line_buffer_count; i++ )
     {
-        cTmp = cLineBuffer[i];
+        cTmp = ps->line_buffer[i];
         if ( isprint( cTmp ) )
         {
             printf( "%c", cTmp );
@@ -1389,7 +1653,7 @@ void print_line()
         }
     };
 
-    printf( "\", length == %d\n", iLineSize );
+    printf( "\", length == %d\n", ps->line_buffer_count );
 }
 #endif
 
@@ -2073,23 +2337,23 @@ DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
 */
 
 //--------------------------------------------------------------------------------------------
-// int load_parsed_line( int read )
+// int load_parsed_line( parser_state_t * ps, int read )
 // {
 //   /// @details ZZ@> This function loads a line into the line buffer
 //
 //   char cTmp;
 
 //   // Parse to start to maintain indentation
-//   iLineSize = 0;
-//   cTmp = cLoadBuffer[read];
+//   ps->line_buffer_count = 0;
+//   cTmp = ps->load_buffer[read];
 
 //   while ( CSTR_END != cTmp )
 //   {
-//       cLineBuffer[iLineSize] = cTmp;  iLineSize++;
-//       read++;  cTmp = cLoadBuffer[read];
+//       ps->line_buffer[ps->line_buffer_count] = cTmp;  ps->line_buffer_count++;
+//       read++;  cTmp = ps->load_buffer[read];
 //   }
 
-//   cLineBuffer[iLineSize] = CSTR_END;
+//   ps->line_buffer[ps->line_buffer_count] = CSTR_END;
 //   read++; // skip terminating zero for next call of load_parsed_line()
 //   return read;
 // }
@@ -2105,14 +2369,14 @@ DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
 //   read = 0;
 //   write = 0;
 
-//   while ( read < iLoadSize )
+//   while ( read < ps->load_buffer_count )
 //   {
 //       read = load_one_line( read );
 
-//       if ( iLineSize > 2 )
+//       if ( ps->line_buffer_count > 2 )
 //       {
 //           copy_one_line( write );
-//           write += iLineSize;
+//           write += ps->line_buffer_count;
 //       }
 //   }
 // }

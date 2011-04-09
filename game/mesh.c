@@ -1438,7 +1438,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
             int itile = ix + irow;
 
             // since we KNOW that this is in range, allow raw access to the data strucutre
-            pass = ego_grid_info_test_fx( pdata->glist + itile, bits );
+            pass = ego_grid_info_test_all_fx( pdata->glist + itile, bits );
             if ( 0 != pass )
             {
                 return pass;
@@ -1452,7 +1452,7 @@ BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const floa
 }
 
 //--------------------------------------------------------------------------------------------
-float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, BIT_FIELD bits )
+float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, const BIT_FIELD bits )
 {
     const float tile_area = GRID_FSIZE * GRID_FSIZE;
 
@@ -1544,7 +1544,7 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
                 }
                 else
                 {
-                    is_blocked = ( 0 != ego_grid_info_test_fx( glist + itile, bits ) );
+                    is_blocked = ( 0 != ego_grid_info_test_all_fx( glist + itile, bits ) );
                 }
             }
 
@@ -1592,7 +1592,7 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
 }
 
 //--------------------------------------------------------------------------------------------
-fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, Uint32 bits )
+fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits )
 {
     /// @details BB@> determine the shortest "way out", but creating an array of "pressures"
     /// with each element representing the pressure when the object is moved in different directions
@@ -1754,7 +1754,7 @@ BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float
                 itile = mesh_get_tile_int( pmesh, ix, iy );
                 if ( mesh_grid_is_valid( pmesh, itile ) )
                 {
-                    BIT_FIELD mpdfx   = ego_grid_info_get_fx( pdata->glist + itile );
+                    BIT_FIELD mpdfx   = ego_grid_info_get_all_fx( pdata->glist + itile );
                     bool_t is_blocked = HAS_SOME_BITS( mpdfx, bits );
 
                     if ( is_blocked )
