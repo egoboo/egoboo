@@ -444,31 +444,31 @@ GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key
 //--------------------------------------------------------------------------------------------
 GLuint  oglx_texture_GetTextureID( oglx_texture_t *texture )
 {
-    return ( NULL == texture ) ? INVALID_GL_ID : texture->base.binding;
+    return !VALID_TEXTURE( texture ) ? INVALID_GL_ID : texture->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageHeight( oglx_texture_t *texture )
 {
-    return ( NULL == texture ) ? 0 : texture->imgH;
+    return !VALID_TEXTURE( texture ) ? 0 : texture->imgH;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetImageWidth( oglx_texture_t *texture )
 {
-    return ( NULL == texture ) ? 0 : texture->imgW;
+    return !VALID_TEXTURE( texture ) ? 0 : texture->imgW;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureWidth( oglx_texture_t *texture )
 {
-    return ( NULL == texture ) ? 0 : texture->base.width;
+    return !VALID_TEXTURE( texture ) ? 0 : texture->base.width;
 }
 
 //--------------------------------------------------------------------------------------------
 GLsizei  oglx_texture_GetTextureHeight( oglx_texture_t *texture )
 {
-    return ( NULL == texture ) ? 0 : texture->base.height;
+    return !VALID_TEXTURE( texture ) ? 0 : texture->base.height;
 }
 
 //--------------------------------------------------------------------------------------------

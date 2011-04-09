@@ -75,8 +75,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define SPARKLESIZE 28
-#define SPARKLEADD 2
+#define SPARKLE_SIZE ICON_SIZE
+#define SPARKLE_AND  (SPARKLE_SIZE - 1)
+
 #define BLIPSIZE 6
 
 //--------------------------------------------------------------------------------------------
@@ -233,8 +234,6 @@ static float                   cornerhighy;
 static dynalist_t dynalist = DYNALIST_INIT;
 
 // Interface stuff
-static irect_t iconrect;                   // The 32x32 icon rectangle
-
 static irect_t tabrect[NUMBAR];            // The tab rectangles
 static irect_t barrect[NUMBAR];            // The bar rectangles
 static irect_t bliprect[COLOR_MAX];        // The blip rectangles
@@ -856,49 +855,78 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update )
+float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
 {
     /// @details ZZ@> This function draws an icon
-    int     position, blip_x, blip_y;
-    int     width, height;
+
+    float       width, height;
     ego_frect_t tx_rect, sc_rect;
+    oglx_texture_t * ptex = NULL;
 
-    tx_rect.xmin = (( float )iconrect.left ) / 32.0f;
-    tx_rect.xmax = (( float )iconrect.right ) / 32.0f;
-    tx_rect.ymin = (( float )iconrect.top ) / 32.0f;
-    tx_rect.ymax = (( float )iconrect.bottom ) / 32.0f;
+    ptex = TxTexture_get_ptr( icontype );
 
-    width  = iconrect.right  - iconrect.left;
-    height = iconrect.bottom - iconrect.top;
+    if( NULL == ptex )
+    {
+        // defaults
+        tx_rect.xmin = 0.0f;
+        tx_rect.xmax = 1.0f;
+        tx_rect.ymin = 0.0f;
+        tx_rect.ymax = 1.0f;
+    }
+    else
+    {
+        tx_rect.xmin = 0.0f;
+        tx_rect.xmax = ( float )ptex->imgW / ( float )ptex->base.width;
+        tx_rect.ymin = 0.0f;
+        tx_rect.ymax = ( float )ptex->imgW / ( float )ptex->base.width;
+    }
+
+    width  = ICON_SIZE;
+    height = ICON_SIZE;
+
+    // handle non-default behavior
+    if( size >= 0.0f )
+    {
+        float factor_wid = (float)size / width;
+        float factor_hgt = (float)size / height;
+        float factor = MIN(factor_wid, factor_hgt);
+
+        width *= factor;
+        height *= factor;
+    }
 
     sc_rect.xmin = x;
     sc_rect.xmax = x + width;
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( TxTexture_get_ptr( icontype ), sc_rect, tx_rect, bfalse );
+    draw_quad_2d( ptex, sc_rect, tx_rect, bfalse );
 
-    if ( sparkle != NOSPARKLE )
+    if ( NOSPARKLE != sparkle_color )
     {
-        position = delta_update & 0x1F;
-        position = ( SPARKLESIZE * position >> 5 );
+        int         position;
+        float       blip_x, blip_y;
 
-        blip_x = x + SPARKLEADD + position;
-        blip_y = y + SPARKLEADD;
-        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
+        position = sparkle_timer & SPARKLE_AND;
 
-        blip_x = x + SPARKLEADD + SPARKLESIZE;
-        blip_y = y + SPARKLEADD + position;
-        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
+        blip_x = x + position * ( width / SPARKLE_SIZE );
+        blip_y = y;
+        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
 
-        blip_x = blip_x - position;
-        blip_y = y + SPARKLEADD + SPARKLESIZE;
-        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
+        blip_x = x + width;
+        blip_y = y + position * ( height / SPARKLE_SIZE );
+        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
 
-        blip_x = x + SPARKLEADD;
-        blip_y = blip_y - position;
-        draw_blip( 0.5f, sparkle, blip_x, blip_y, bfalse );
+        blip_x = blip_x - position  * ( width / SPARKLE_SIZE );
+        blip_y = y + height;
+        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
+
+        blip_x = x;
+        blip_y = blip_y - position * ( height / SPARKLE_SIZE );
+        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
     }
+
+    return y + height;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -950,9 +978,9 @@ void draw_map_texture( float x, float y )
     sc_rect.ymax = y + MAPSIZE;
 
     tx_rect.xmin = 0;
-    tx_rect.xmax = ptex->imgW / ptex->base.width;
+    tx_rect.xmax = ( float )ptex->imgW / ( float )ptex->base.width;
     tx_rect.ymin = 0;
-    tx_rect.ymax = ptex->imgH / ptex->base.height;
+    tx_rect.ymax = ( float )ptex->imgH / ( float )ptex->base.height;
 
     draw_quad_2d( ptex, sc_rect, tx_rect, bfalse );
 }
@@ -1346,7 +1374,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
 
     // draw the icon
     if ( draw_sparkle == NOSPARKLE ) draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
-    draw_one_icon( icon_ref, x, y, draw_sparkle, update_wld );
+    draw_one_icon( icon_ref, x, y, draw_sparkle, update_wld, -1 );
 
     // draw the ammo, if requested
     if ( draw_ammo && ( NULL != pitem ) )
@@ -5589,17 +5617,7 @@ int DisplayMsg_get_free()
 //--------------------------------------------------------------------------------------------
 // ASSET INITIALIZATION
 //--------------------------------------------------------------------------------------------
-void init_icon_data()
-{
-    /// @details ZZ@> This function sets the icon pointers to NULL
 
-    iconrect.left = 0;
-    iconrect.right = 32;
-    iconrect.top = 0;
-    iconrect.bottom = 32;
-}
-
-//--------------------------------------------------------------------------------------------
 void init_bar_data()
 {
     Uint8 cnt;
@@ -5656,7 +5674,6 @@ void init_map_data()
 //--------------------------------------------------------------------------------------------
 void init_all_graphics()
 {
-    init_icon_data();
     init_bar_data();
     init_blip_data();
     init_map_data();
@@ -5697,7 +5714,6 @@ void init_all_graphics()
 //--------------------------------------------------------------------------------------------
 void release_all_graphics()
 {
-    init_icon_data();
     init_bar_data();
     init_blip_data();
     init_map_data();
@@ -5709,7 +5725,6 @@ void release_all_graphics()
 //--------------------------------------------------------------------------------------------
 void delete_all_graphics()
 {
-    init_icon_data();
     init_bar_data();
     init_blip_data();
     init_map_data();
@@ -5748,7 +5763,7 @@ void draw_mouse_cursor()
     tex_ptr = TxTexture_get_ptr(( TX_REF )TX_CURSOR );
 
     // Invalid texture?
-    if ( NULL == tex_ptr || !tex_ptr->valid )
+    if ( !oglx_texture_Valid( tex_ptr ) )
     {
         SDL_ShowCursor( SDL_ENABLE );
     }
@@ -5761,9 +5776,9 @@ void draw_mouse_cursor()
         y = ABS( mous.y );
 
         tx_rect.xmin = 0;
-        tx_rect.xmax = tex_ptr->imgW / 32.0f;
+        tx_rect.xmax = ( float )tex_ptr->imgW / ( float )tex_ptr->base.width;
         tx_rect.ymin = 0;
-        tx_rect.ymax = tex_ptr->imgH / 32.0f;
+        tx_rect.ymax = ( float )tex_ptr->imgH / ( float )tex_ptr->base.height;
 
         sc_rect.xmin = x;
         sc_rect.xmax = x + tex_ptr->imgW;

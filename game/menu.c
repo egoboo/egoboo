@@ -1404,7 +1404,7 @@ int doChooseModule( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t doChoosePlayer_load_profiles( LoadPlayer_element_t * loadplayer_ptr, ChoosePlayer_list_t * chooseplayer )
+bool_t doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, ChoosePlayer_list_t * chooseplayer )
 {
     int    i;
     STRING  szFilename;
@@ -1490,9 +1490,10 @@ bool_t doChoosePlayer_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Choo
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height )
+bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height )
 {
-    int i, x1, y1;
+    int   i;
+    float x1, y1;
 
     static ChoosePlayer_list_t objects = { 0 };
 
@@ -1503,7 +1504,7 @@ bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mod
     {
         case 0: // load new loadplayer data
 
-            if ( !doChoosePlayer_load_profiles( loadplayer_ptr, &objects ) )
+            if ( !doChooseCharacter_load_profiles( loadplayer_ptr, &objects ) )
             {
                 loadplayer_ptr = NULL;
             }
@@ -1524,6 +1525,11 @@ bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mod
     y1 = y + 10;
     if ( NULL != loadplayer_ptr && objects.count > 0 )
     {
+        const int icon_hgt = 32;
+        const int text_hgt = 20;
+        const int text_vert_centering = (icon_hgt - text_hgt)/2;
+        const int section_spacing = 10;
+
         CAP_REF icap = objects.lst[0].cap_ref;
 
         if ( LOADED_CAP( icap ) )
@@ -1539,72 +1545,73 @@ bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mod
 
             //Character level and class
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
-            ui_drawTextBox( NULL, loadplayer_ptr->name , x1, y1, 0, 0, 20 ); y1 += 25;
+            y1 = ui_drawTextBox( NULL, loadplayer_ptr->name, x1, y1, 0, 0, text_hgt ); 
+            y1 += section_spacing;
 
             //Character level and class
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             snprintf( temp_string, SDL_arraysize( temp_string ), "A level %d %s", pcap->level_override + 1, pcap->classname );
-            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
 
             // Armor
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
             snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
-            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 30;
+            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
+            y1 += section_spacing;
 
             // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
                 snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
-                ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+                y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
 
-                y1 = ui_drawBar( 0, x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->lifecolor );
+                y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->lifecolor );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
                     snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
-                    ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+                    y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
 
-                    y1 = ui_drawBar( 0, x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->manacolor );
+                    y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->manacolor );
                 }
             }
             else
             {
                 snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d", ( int )pcap->life_stat.val.from );
-                ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
-
-                y1 = ui_drawBar( 0, x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from, pcap->lifecolor );
+                y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
+                y1 = ui_drawBar( x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from, pcap->lifecolor );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
                     snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d", ( int )pcap->mana_stat.val.from );
-                    ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
-
-                    y1 = ui_drawBar( 0, x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->manacolor );
+                    y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
+                    y1 = ui_drawBar( x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->manacolor );
                 }
             }
-            y1 += 10;
+            y1 += section_spacing;
 
             //SWID
-            ui_drawTextBox( menuFont, "Stats", x1, y1, 0, 0, 20 ); y1 += 20;
+            y1 = ui_drawTextBox( menuFont, "Stats", x1, y1, 0, 0, text_hgt ); 
 
             snprintf( temp_string, SDL_arraysize( temp_string ), "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), ( int )pcap->strength_stat.val.from );
-            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
 
             snprintf( temp_string, SDL_arraysize( temp_string ), "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), ( int )pcap->wisdom_stat.val.from );
-            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
 
             snprintf( temp_string, SDL_arraysize( temp_string ), "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), ( int )pcap->intelligence_stat.val.from );
-            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 20;
+            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
 
             snprintf( temp_string, SDL_arraysize( temp_string ), "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), ( int )pcap->dexterity_stat.val.from );
-            ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, 20 ); y1 += 30;
+            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt ); 
+            y1 += section_spacing;
 
             //Inventory
             if ( objects.count > 1 )
             {
                 ChoosePlayer_element_t * chooseplayer_ptr;
 
-                ui_drawTextBox( menuFont, "Inventory", x1, y1, 0, 0, 20 ); y1 += 20;
+                y1 = ui_drawTextBox( menuFont, "Inventory", x1, y1, 0, 0, text_hgt ); 
 
                 for ( i = 1; i < objects.count; i++ )
                 {
@@ -1622,22 +1629,25 @@ bool_t doChoosePlayer_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mod
 
                         //draw the icon for this item
                         icon_ref = mnu_get_icon_ref( icap, chooseplayer_ptr->tx_ref );
-                        ui_drawImage( 0, TxTexture_get_ptr( icon_ref ), x1, y1, 32, 32, NULL );
+                        ui_drawImage( 0, TxTexture_get_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
 
                         if ( icap == SLOT_LEFT + 1 )
                         {
                             snprintf( temp_string, SDL_arraysize( temp_string ), "  Left: %s", itemname );
-                            ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
+                            ui_drawTextBox( menuFont, temp_string, x1 + icon_hgt, y1 + text_vert_centering, 0, 0, text_hgt ); 
+                            y1 += icon_hgt;
                         }
                         else if ( icap == SLOT_RIGHT + 1 )
                         {
                             snprintf( temp_string, SDL_arraysize( temp_string ), "  Right: %s", itemname );
-                            ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
+                            ui_drawTextBox( menuFont, temp_string, x1 + icon_hgt, y1 + text_vert_centering, 0, 0, text_hgt ); 
+                            y1 += icon_hgt;
                         }
                         else
                         {
                             snprintf( temp_string, SDL_arraysize( temp_string ), "  Item: %s", itemname );
-                            ui_drawTextBox( menuFont, temp_string, x1 + 32, y1 + 6, 0, 0, 20 ); y1 += 32;
+                            ui_drawTextBox( menuFont, temp_string, x1 + icon_hgt, y1 + text_vert_centering, 0, 0, text_hgt ); 
+                            y1 += icon_hgt;
                         }
                     }
                 }
@@ -1654,19 +1664,32 @@ int doChoosePlayer( float deltaTime )
     static int menuState = MM_Begin;
     static oglx_texture_t background;
     static const char * button_text[] = { "Continue", "Back", ""};
-    static int sparkle_delta = 0;
+    static int sparkle_counter = 0;
 
     int result = 0;
     int i, x, y;
 
+    static const int text_hgt = 20;
+    static const int icon_hgt = 32;
+
+    static const int butt_wid = 200;
+    static const int butt_hgt = icon_hgt + 10;
+    static const int butt_spc = 50;
+
+    static const int icon_vert_centering = (butt_hgt - icon_hgt)/2;
+    static const int text_vert_centering = (butt_hgt - text_hgt)/2;
+
     //This makes sparkles move
-    sparkle_delta++;
+    sparkle_counter++;
 
     switch ( menuState )
     {
         case MM_Begin:
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
+
+            // we have to have the blip bitmap loaded
+            load_blips();
 
             // load information for all the players that could be imported
             LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
@@ -1702,26 +1725,31 @@ int doChoosePlayer( float deltaTime )
 
             y = GFX_HEIGHT / ( MAX_LOCAL_PLAYERS * 2 );
 
-            ui_drawTextBox( menuFont, "PLAYER", 50, 10, 0, 0, 20 );
-            ui_drawTextBox( menuFont, "CHARACTER", 250, 10, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "PLAYER",    buttonLeft, 10, 0, 0, 20 );
+            ui_drawTextBox( menuFont, "CHARACTER", buttonLeft + butt_wid + butt_spc, 10, 0, 0, 20 );
 
-            // Draw the lplayer selection buttons
+            // Draw the player selection buttons
             for ( i = 0; i < MAX_LOCAL_PLAYERS; i++ )
             {
                 STRING text;
                 LoadPlayer_element_t *pchar = NULL;
 
+                float y1 = y + i * butt_spc;
+
                 //Figure out if there is a valid player selected
-                if ( selectedPlayers[i] != -1 )
+                if ( -1 != selectedPlayers[i] )
                 {
                     pchar = mnu_loadplayer.lst + selectedPlayers[i];
                 }
 
-                snprintf( text, SDL_arraysize( text ), "Player %i:", i + 1 );
-                ui_drawTextBox( menuFont, text, 50, y*( i + 1 ), 0, 0, 20 );
+                // reset the base color each time
+                GL_DEBUG(glColor4f) ( 1, 1, 1, 1);
+
+                snprintf( text, SDL_arraysize( text ), "Player %i", i + 1 );
+                ui_drawTextBox( menuFont, text, buttonLeft + butt_spc, y1 + text_vert_centering, 0, 0, icon_hgt );
 
                 // character button
-                if ( BUTTON_UP == ui_doButton( 10 + i, pchar == NULL ? "Not playing" : pchar->name, NULL, buttonLeft + 200, y*( i + 1 ), 200, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 10 + i, pchar == NULL ? "Click to select" : pchar->name, NULL, buttonLeft + butt_wid + butt_spc, y1, butt_wid, butt_hgt ) )
                 {
                     currentSelectingPlayer = i;
                     menuState = MM_Entering;
@@ -1729,8 +1757,12 @@ int doChoosePlayer( float deltaTime )
                 }
 
                 //character icon
-                if ( pchar != NULL ) draw_one_icon( pchar->tx_ref, buttonLeft + 200, y*( i + 1 ), i, sparkle_delta );
-
+                if ( pchar != NULL ) 
+                {
+                    // use same id as above for the button so they blink the same
+                    ui_drawButton( 10 + i, buttonLeft + 2 * (butt_wid + butt_spc), y1, butt_hgt, butt_hgt, NULL );
+                    ui_drawIcon( pchar->tx_ref, buttonLeft + 2 * (butt_wid + butt_spc) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter );
+                }
             }
 
             // Continue
@@ -1799,9 +1831,9 @@ int doChoosePlayer( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-int doChoosePlayerCharacter( float deltaTime )
+int doChooseCharacter( float deltaTime )
 {
-    const int x0 = 20, y0 = 20, icon_size = 42, text_width = 175, button_repeat = 47;
+    const int x0 = 20, y0 = 20, icon_hgt = 42, text_width = 175, button_repeat = 47;
 
     static int menuState = MM_Begin;
     static oglx_texture_t background;
@@ -1838,7 +1870,7 @@ int doChoosePlayerCharacter( float deltaTime )
             {
                 int m = i * 5;
 
-                ui_initWidget( mnu_widgetList + m, m, NULL, NULL, NULL, x, y, text_width, icon_size );
+                ui_initWidget( mnu_widgetList + m, m, NULL, NULL, NULL, x, y, text_width, icon_hgt );
                 ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
 
                 y += button_repeat;
@@ -1893,7 +1925,7 @@ int doChoosePlayerCharacter( float deltaTime )
                 cursor_finish_wheel_event();
             }
 
-            // Draw the lplayer selection buttons
+            // Draw the player selection buttons
             x = x0;
             y = y0;
             for ( i = 0; i < numVertical; i++ )
@@ -1977,17 +2009,17 @@ int doChoosePlayerCharacter( float deltaTime )
                 {
                     // load and display the new lplayer data
                     new_player = bfalse;
-                    doChoosePlayer_show_stats( loadplayer_ptr, 0, GFX_WIDTH - 400, 5, 350, GFX_HEIGHT - 50 );
+                    doChooseCharacter_show_stats( loadplayer_ptr, 0, GFX_WIDTH - 400, 5, 350, GFX_HEIGHT - 50 );
                 }
                 else
                 {
                     // just display the new lplayer data
-                    doChoosePlayer_show_stats( loadplayer_ptr, 2, GFX_WIDTH - 400, 5, 350, GFX_HEIGHT - 50 );
+                    doChooseCharacter_show_stats( loadplayer_ptr, 2, GFX_WIDTH - 400, 5, 350, GFX_HEIGHT - 50 );
                 }
             }
             else
             {
-                doChoosePlayer_show_stats( NULL, 1, GFX_WIDTH - 100, 5, 100, GFX_HEIGHT - 50 );
+                doChooseCharacter_show_stats( NULL, 1, GFX_WIDTH - 100, 5, 100, GFX_HEIGHT - 50 );
             }
 
             // tool-tip text
@@ -2001,7 +2033,7 @@ int doChoosePlayerCharacter( float deltaTime )
         case MM_Finish:
 
             // release all of the temporary profiles
-            doChoosePlayer_show_stats( NULL, 1, 0, 0, 0, 0 );
+            doChooseCharacter_show_stats( NULL, 1, 0, 0, 0, 0 );
 
             oglx_texture_Release( &background );
             TxTexture_free_one(( TX_REF )TX_BARS );
@@ -4331,7 +4363,7 @@ int doMenu( float deltaTime )
             break;
 
         case emnu_ChoosePlayerCharacter:
-            result = doChoosePlayerCharacter( deltaTime );
+            result = doChooseCharacter( deltaTime );
 
             if ( -1 == result )     { mnu_end_menu(); retval = MENU_END; }
 
@@ -5017,7 +5049,7 @@ void TxTitleImage_reload_all()
     {
         oglx_texture_t * ptex = TxTitleImage.lst + cnt;
 
-        if ( ptex->valid )
+        if ( oglx_texture_Valid(ptex) )
         {
             oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
         }

@@ -49,38 +49,38 @@ static STRING _config_filename = EMPTY_CSTR;
 //  - Must have a string named lCurSectionName to define the section
 //  - Must have temporary variables defined of the correct type (lTempBool, lTempInt, and lTempStr)
 
-#define GetKey_bool(label, var, default) \
+#define GetKey_bool(LABEL, VAR, DEFAULT) \
     { \
-        if ( 0 == ConfigFile_GetValue_Boolean( lConfigSetup, lCurSectionName, (label), &lTempBool ) ) \
+        if ( 0 == ConfigFile_GetValue_Boolean( lConfigSetup, lCurSectionName, LABEL, &lTempBool ) ) \
         { \
-            lTempBool = (default); \
+            lTempBool = DEFAULT; \
         } \
-        (var) = lTempBool; \
+        VAR = lTempBool; \
     }
 
-#define GetKey_int(label, var, default) \
+#define GetKey_int(LABEL, VAR, DEFAULT) \
     { \
-        if ( 0 == ConfigFile_GetValue_Int( lConfigSetup, lCurSectionName, (label), &lTempInt ) ) \
+        if ( 0 == ConfigFile_GetValue_Int( lConfigSetup, lCurSectionName, LABEL, &lTempInt ) ) \
         { \
-            lTempInt = (default); \
+            lTempInt = DEFAULT; \
         } \
-        (var) = lTempInt; \
+        VAR = lTempInt; \
     }
 
-// Don't make len larger than 64
-#define GetKey_string(label, var, len, default) \
+// Don't make LEN larger than 64
+#define GetKey_string(LABEL, VAR, LEN, DEFAULT) \
     { \
-        if ( 0 == ConfigFile_GetValue_String( lConfigSetup, lCurSectionName, (label), lTempStr, SDL_arraysize( lTempStr ) ) ) \
+        if ( 0 == ConfigFile_GetValue_String( lConfigSetup, lCurSectionName, LABEL, lTempStr, SDL_arraysize( lTempStr ) ) ) \
         { \
-            strncpy( lTempStr, (default), SDL_arraysize( lTempStr ) ); \
+            strncpy( lTempStr, DEFAULT, SDL_arraysize( lTempStr ) ); \
         } \
-        strncpy( (var), lTempStr, (len) ); \
-        (var)[(len) - 1] = CSTR_END; \
+        strncpy( VAR, lTempStr, LEN ); \
+        VAR[(LEN) - 1] = CSTR_END; \
     }
 
-#define SetKey_bool(label, var)     ConfigFile_SetValue_Boolean( lConfigSetup, lCurSectionName, (label), (var) )
-#define SetKey_int(label, var)      ConfigFile_SetValue_Int( lConfigSetup, lCurSectionName, (label), (var) )
-#define SetKey_string( label, var ) ConfigFile_SetValue_String( lConfigSetup, lCurSectionName, (label), (var) )
+#define SetKey_bool(LABEL, VAR)     ConfigFile_SetValue_Boolean( lConfigSetup, lCurSectionName, LABEL, VAR )
+#define SetKey_int(LABEL, VAR)      ConfigFile_SetValue_Int( lConfigSetup, lCurSectionName, LABEL, VAR )
+#define SetKey_string( LABEL, VAR ) ConfigFile_SetValue_String( lConfigSetup, lCurSectionName, LABEL, VAR )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -188,12 +188,24 @@ bool_t setup_read_vfs()
 bool_t setup_write()
 {
     /// @details BB@> save the current setup file
-    bool_t success = bfalse;
+
+    ConfigFile_retval retval  = ConfigFile_fail;
+    bool_t            success = bfalse;
 
     if ( INVALID_CSTR( _config_filename ) ) return bfalse;
 
-    success = ConfigFile_succeed == ConfigFile_SaveAs( lConfigSetup, _config_filename );
-    if ( !success ) log_warning( "Failed to save setup.txt!\n" );
+    retval = ConfigFile_SaveAs( lConfigSetup, _config_filename );
+
+    success = bfalse;
+    if( ConfigFile_succeed != retval )
+    {
+        success = bfalse;
+        log_warning( "Failed to save setup.txt!\n" );
+    }
+    else
+    {
+        success = btrue;
+    }
 
     return success;
 }

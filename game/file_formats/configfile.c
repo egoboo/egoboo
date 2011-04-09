@@ -912,7 +912,7 @@ ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const
         return ConfigFile_fail;
     }
 
-    if ( INVALID_CSTR( szValue ) || 0 == szValueLength )
+    if ( NULL == szValue || 0 == szValueLength )
     {
         return ConfigFile_fail;
     }
@@ -953,7 +953,7 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
 
     memset( lBoolStr, 0, sizeof( lBoolStr ) );
 
-    lRet = ConfigFile_GetValue_String( pConfigFile, szSection, szKey, lBoolStr, 16 );
+    lRet = ConfigFile_GetValue_String( pConfigFile, szSection, szKey, lBoolStr, sizeof( lBoolStr ) );
     if ( lRet != 0 )
     {
         // check for config_true
@@ -981,7 +981,7 @@ ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const ch
 
     memset( lIntStr, 0, sizeof( lIntStr ) );
 
-    lRet = ConfigFile_GetValue_String( pConfigFile, szSection, szKey, lIntStr, 24 );
+    lRet = ConfigFile_GetValue_String( pConfigFile, szSection, szKey, lIntStr, sizeof( lIntStr ) );
     if ( lRet != 0 )
     {
         // convert value
@@ -1077,14 +1077,18 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
 
 ConfigFile_retval ConfigFile_SetValue_Boolean( ConfigFilePtr_t pConfigFile, const char *szSection, const char *szKey, config_bool_t Bool )
 {
+    ConfigFile_retval retval = ConfigFile_fail;
+
     if ( Bool )
     {
-        // save the value with config_true
-        return ConfigFile_SetValue_String( pConfigFile, szSection, szKey, "TRUE" );
+        retval = ConfigFile_SetValue_String( pConfigFile, szSection, szKey, "TRUE" );
+    }
+    else
+    {
+        retval = ConfigFile_SetValue_String( pConfigFile, szSection, szKey, "FALSE" );
     }
 
-    // since it's config_false
-    return ConfigFile_SetValue_String( pConfigFile, szSection, szKey, "FALSE" );
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

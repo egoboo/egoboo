@@ -390,7 +390,7 @@ ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
 
 //--------------------------------------------------------------------------------------------
 // Drawing
-void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight, GLXvector4f pcolor )
+float ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight, GLXvector4f pcolor )
 {
     float x1, x2, y1, y2;
 
@@ -432,10 +432,12 @@ void ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight,
     GL_DEBUG_END();
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+
+    return vy + vheight;
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector4f image_tint )
+float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector4f image_tint )
 {
     GLXvector4f tmp_tint = {1, 1, 1, 1};
 
@@ -480,24 +482,13 @@ void ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vw
         }
         GL_DEBUG_END();
     }
+
+    return vy + vheight;
 }
 
-//--------------------------------------------------------------------------------------------
-int ui_drawBar( ui_id_t id, float vx, float vy, int current, int max, Uint8 bar_type )
-{
-    float x1, y1;
-
-    // convert the virtual coordinates to screen coordinates
-    ui_virtual_to_screen( vx, vy, &x1, &y1 );
-
-    //Draw the bar
-    y1 = draw_one_bar( bar_type, x1, y1, current, max );
-    ui_virtual_to_screen( vx, y1, &x1, &y1 );
-    return y1;
-}
 
 //--------------------------------------------------------------------------------------------
-void ui_drawWidgetButton( ui_Widget_t * pw )
+float ui_drawWidgetButton( ui_Widget_t * pw )
 {
     GLfloat * pcolor = NULL;
     bool_t bactive, bhot;
@@ -538,16 +529,25 @@ void ui_drawWidgetButton( ui_Widget_t * pw )
         }
     }
 
-    ui_drawButton( pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, pcolor );
+    return ui_drawButton( pw->id, pw->vx, pw->vy, pw->vwidth, pw->vheight, pcolor );
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawWidgetImage( ui_Widget_t * pw )
+float ui_drawWidgetImage( ui_Widget_t * pw )
 {
+    float retval = 0.0f;
+
+    if ( NULL != pw  )
+    {
+        retval = pw->vy;
+    }
+
     if ( NULL != pw && NULL != pw->img )
     {
-        ui_drawImage( pw->id, pw->img, pw->vx, pw->vy, pw->vwidth, pw->vheight, NULL );
+        retval = ui_drawImage( pw->id, pw->img, pw->vx, pw->vy, pw->vwidth, pw->vheight, NULL );
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -562,7 +562,7 @@ void ui_drawWidgetImage( ui_Widget_t * pw )
  * height  - Maximum height of the box (not implemented)
  * spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void ui_drawTextBox( Font * font, const char *text, float vx, float vy, float vwidth, float vheight, float vspacing )
+float ui_drawTextBox( Font * font, const char *text, float vx, float vy, float vwidth, float vheight, float vspacing )
 {
     float x1, x2, y1, y2;
     float spacing;
@@ -576,6 +576,8 @@ void ui_drawTextBox( Font * font, const char *text, float vx, float vy, float vw
 
     // draw using screen coordinates
     fnt_drawTextBox( font, NULL, x1, y1, x2 - x1, y2 - y1, spacing, text );
+
+    return MAX(vy + vheight, vy + vspacing);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -888,4 +890,43 @@ Font * ui_loadFont( const char * font_name, float vpointSize )
     pointSize = vpointSize * ui_context.aw;
 
     return fnt_loadFont( font_name, pointSize );
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+float ui_drawBar( float vx, float vy, int current, int max, Uint8 bar_type )
+{
+    float x1, y1;
+
+    // convert the virtual coordinates to screen coordinates
+    ui_virtual_to_screen( vx, vy, &x1, &y1 );
+
+    //Draw the bar
+    y1 = draw_one_bar( bar_type, x1, y1, current, max );
+
+    // convert back to virtual
+    ui_screen_to_virtual( x1, y1, &vx, &vy );
+
+    return vy;
+}
+
+//--------------------------------------------------------------------------------------------
+float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uint32 delta_update )
+{
+    const int icon_size = 32;
+    float x1, y1;
+    float x2, y2;
+
+    // convert the virtual coordinates to screen coordinates
+    ui_virtual_to_screen( vx, vy, &x1, &y1 );
+    ui_virtual_to_screen( vx + icon_size, vy + icon_size, &x2, &y2 );
+
+    //Draw the icon
+    y1 = draw_one_icon( icontype, x1, y1, sparkle, delta_update, MIN(x2-x1, y2-y1) );
+
+    // convert back to virtual
+    ui_screen_to_virtual( x1, y1, &vx, &vy );
+
+    return vy;
 }

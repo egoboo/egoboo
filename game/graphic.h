@@ -42,6 +42,11 @@ struct Font;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#define ICON_SIZE 32
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// special return values
 enum e_gfx_rv
 {
@@ -427,7 +432,7 @@ bool_t flip_pages_requested();
 void   request_flip_pages();
 void   do_flip_pages();
 
-void  draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update );
+float  draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
 void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
 void  draw_map_texture( float x, float y );
 float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
