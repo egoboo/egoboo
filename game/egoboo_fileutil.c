@@ -628,7 +628,7 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int fget_version( vfs_FILE* fileread )
+int vfs_get_version( vfs_FILE* fileread )
 {
     //@details ZF@> This gets the version number of the file which is preceeded by a $ symbol
     //              and must be in the first line of the file.
@@ -658,7 +658,7 @@ int fget_version( vfs_FILE* fileread )
     return result;
 }
 
-/*int fget_version( vfs_FILE* fileread )
+/*int vfs_get_version( vfs_FILE* fileread )
 {
     /// @details BB@> scanr the file for a "// file_version blah" flag
     long filepos;
@@ -848,7 +848,7 @@ bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_string( vfs_FILE * fileread, char * str, size_t str_len )
+bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len )
 {
     goto_colon( NULL, fileread, bfalse );
 

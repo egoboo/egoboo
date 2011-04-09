@@ -143,8 +143,8 @@ const char* scantag_get_string( INPUT_DEVICE device, Uint32 tag, bool_t is_key )
                     if ( 'M' != scantag[cnt].name[0] ) continue;
                     break;
 
-                case INPUT_DEVICE_JOY_A:
-                case INPUT_DEVICE_JOY_B:
+                case INPUT_DEVICE_JOY + 0:
+                case INPUT_DEVICE_JOY + 1:
                     if ( 'J' != scantag[cnt].name[0] ) continue;
                     break;
             }

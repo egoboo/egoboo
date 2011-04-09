@@ -116,14 +116,14 @@ extern "C"
 
     bool_t fcopy_line( vfs_FILE * fileread, vfs_FILE * filewrite );
 
-    int fget_version( vfs_FILE* fileread );
+    int vfs_get_version( vfs_FILE* fileread );
     bool_t fput_version( vfs_FILE* filewrite, const int version );
 
     bool_t copy_file_to_delimiter( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
 
     char   fget_next_char( vfs_FILE * fileread );
     int    fget_next_int( vfs_FILE * fileread );
-    bool_t fget_next_string( vfs_FILE * fileread, char * str, size_t str_len );
+    bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len );
     float  fget_next_float( vfs_FILE * fileread );
     bool_t fget_next_name( vfs_FILE * fileread, char * name, size_t name_len );
     bool_t fget_next_range( vfs_FILE* fileread, FRange * prange );

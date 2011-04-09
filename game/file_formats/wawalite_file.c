@@ -225,7 +225,7 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
         STRING line;
 
         //Parse the weather type line
-        fget_next_string( fileread, line, SDL_arraysize( line ) );
+        vfs_get_next_string( fileread, line, SDL_arraysize( line ) );
         strncpy( pweather->weather_name, strupr( line ), SDL_arraysize( pweather->weather_name ) );
 
         //No weather?
@@ -346,7 +346,7 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
 
     //First figure out what version of wawalite this is, so that we know what data we
     //should expect to load
-    pdata->version = fget_version( fileread );
+    pdata->version = vfs_get_version( fileread );
 
     //  Random map...
     //  If someone else wants to handle this, here are some thoughts for approaching

@@ -61,7 +61,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 
     // Read basic data
     fget_next_name( fileread, pmod->longname, sizeof( pmod->longname ) );
-    fget_next_string( fileread, pmod->reference, SDL_arraysize( pmod->reference ) );
+    vfs_get_next_string( fileread, pmod->reference, SDL_arraysize( pmod->reference ) );
     pmod->unlockquest.id    = fget_next_idsz( fileread );
     pmod->unlockquest.level = fget_int( fileread );
 
@@ -76,7 +76,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 
     fget_next_char( fileread );
 
-    fget_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
+    vfs_get_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     str_trim( pmod->rank );
 
     // convert the special ranks of "unranked" or "-" ("rank 0") to an empty string
@@ -94,7 +94,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
         // load the string
-        fget_next_string( fileread,  pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ) );
+        vfs_get_next_string( fileread,  pmod->summary[cnt], SDL_arraysize( pmod->summary[cnt] ) );
         pmod->summary[cnt][SUMMARYSIZE-1] = CSTR_END;
 
         // remove the '_' characters

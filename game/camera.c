@@ -557,8 +557,8 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
             }
 
             // Joystick camera controls
-        case INPUT_DEVICE_JOY_A:
-        case INPUT_DEVICE_JOY_B:
+        case INPUT_DEVICE_JOY + 0:
+        case INPUT_DEVICE_JOY + 1:
             {
                 //figure out which joystick this is
                 device_joystick_t *joystick = JoyList + ( type - MAXJOYSTICK );

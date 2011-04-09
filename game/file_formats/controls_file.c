@@ -32,6 +32,73 @@
 
 static const int CONTROLS_FILE_VERSION = 3;
 
+
+/// All the possible game actions that be assiciated with the keyboard
+enum e_keyboard_controls
+{
+    KEY_JUMP = 0,
+    KEY_LEFT_USE,
+    KEY_LEFT_GET,
+    KEY_LEFT_PACK,
+    KEY_RIGHT_USE,
+    KEY_RIGHT_GET,
+    KEY_RIGHT_PACK,
+    KEY_MESSAGE,
+    KEY_CAMERA_LEFT,
+    KEY_CAMERA_RIGHT,
+    KEY_CAMERA_IN,
+    KEY_CAMERA_OUT,
+    KEY_UP,
+    KEY_DOWN,
+    KEY_LEFT,
+    KEY_RIGHT,
+
+    // Aliases
+    KEY_CONTROL_BEGIN = KEY_JUMP,
+    KEY_CONTROL_END   = KEY_RIGHT
+};
+
+/// All the possible game actions that be assiciated with the mouse
+enum e_mouse_controls
+{
+    MOS_JUMP = 0,
+    MOS_LEFT_USE,
+    MOS_LEFT_GET,
+    MOS_LEFT_PACK,
+    MOS_RIGHT_USE,
+    MOS_RIGHT_GET,
+    MOS_RIGHT_PACK,
+    MOS_CAMERA,
+
+    // Aliases
+    MOS_CONTROL_BEGIN = MOS_JUMP,
+    MOS_CONTROL_END   = MOS_CAMERA
+};
+
+/// All the possible game actions that be assiciated a joystick
+enum e_joystick_controls
+{
+    JOY_JUMP = 0,
+    JOY_LEFT_USE,
+    JOY_LEFT_GET,
+    JOY_LEFT_PACK,
+    JOY_RIGHT_USE,
+    JOY_RIGHT_GET,
+    JOY_RIGHT_PACK,
+    JOY_CAMERA,
+
+    // Aliases
+    JOY_CONTROL_BEGIN = JOY_JUMP,
+    JOY_CONTROL_END   = JOY_CAMERA
+};
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t input_settings_load_vfs_0( vfs_FILE * fileread );
+bool_t input_settings_load_vfs_1( vfs_FILE * fileread );
+bool_t input_settings_load_vfs_2( vfs_FILE * fileread );
+bool_t input_settings_load_vfs_3( vfs_FILE * fileread );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void export_control( vfs_FILE * filewrite, const char * text, INPUT_DEVICE device, control_t * pcontrol )
@@ -47,9 +114,8 @@ bool_t input_settings_load_vfs( const char *szFilename )
 {
     /// @details ZZ@> This function reads the controls.txt file
     vfs_FILE* fileread;
-    char currenttag[TAGSIZE] = EMPTY_CSTR;
-    int idevice, icontrol, file_version;
-    input_device_t * pdevice;
+    int file_version;
+    bool_t retval = bfalse;
 
     //Make sure the file exists, if not copy it from the default folder
     if ( !fs_ensureUserFile( "controls.txt", btrue ) ) return bfalse;
@@ -63,15 +129,86 @@ bool_t input_settings_load_vfs( const char *szFilename )
     }
 
     //Make sure file versions match
-    file_version = fget_version( fileread );
-    if ( file_version < CONTROLS_FILE_VERSION )
+    file_version = vfs_get_version( fileread );
+
+    switch( file_version )
     {
-        log_warning( "File \"%s\" is from an older version: \"%i\", while version required is: \"%i\"\n", szFilename, file_version, CONTROLS_FILE_VERSION );
-        vfs_close( fileread );
-        return bfalse;
+        case 0: 
+        case 1: 
+        case 2: 
+            retval = input_settings_load_vfs_2( fileread ); 
+            break;
+
+        case 3: 
+            retval = input_settings_load_vfs_3( fileread ); 
+            break;
+
+        default: 
+            log_warning( "Cannot load the given setting.txt file because version %d is not supported.\n", file_version );
+            retval = bfalse;
+            break;
     }
 
-    //Read input for each player
+    vfs_close( fileread );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t input_settings_load_vfs_2( vfs_FILE * fileread )
+{
+    /// @details ZZ@> This function reads the DeviceList.txt file, version 3
+
+    char currenttag[TAGSIZE] = EMPTY_CSTR;
+    int i, cnt;
+
+    if( NULL == fileread ) return bfalse;
+
+    // read the keyboard DeviceList
+    for ( i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++ )
+    {
+        vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
+        DeviceList[INPUT_DEVICE_KEYBOARD].control[i].tag    = scantag_get_value( currenttag );
+        DeviceList[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( 'K' == currenttag[0] );
+    };
+    DeviceList[INPUT_DEVICE_KEYBOARD].device_type = INPUT_DEVICE_KEYBOARD;
+
+    // read the mouse DeviceList
+    for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
+    {
+        vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
+        DeviceList[INPUT_DEVICE_MOUSE].control[i].tag    = scantag_get_value( currenttag );
+        DeviceList[INPUT_DEVICE_MOUSE].control[i].is_key = ( 'K' == currenttag[0] );
+    };
+    DeviceList[INPUT_DEVICE_MOUSE].device_type = INPUT_DEVICE_MOUSE;
+
+    // read in however many joysticks there are...
+    for ( cnt = 0; !vfs_eof( fileread ) && cnt < MAXJOYSTICK; cnt++ )
+    {
+        for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
+        {
+            vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
+            DeviceList[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
+            DeviceList[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( 'K' == currenttag[0] );
+        };
+        DeviceList[INPUT_DEVICE_JOY + cnt].device_type = (INPUT_DEVICE)(INPUT_DEVICE_JOY + cnt);
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t input_settings_load_vfs_3( vfs_FILE * fileread )
+{
+    /// @details ZZ@> This function reads the controls.txt file, version 3
+
+    char currenttag[TAGSIZE] = EMPTY_CSTR;
+    int idevice, icontrol, iactual;
+    input_device_t * pdevice;
+
+    if( NULL == fileread ) return bfalse;
+
+    // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
         size_t count;
@@ -80,25 +217,26 @@ bool_t input_settings_load_vfs( const char *szFilename )
         //initialize input control
         input_device_init( pdevice );
 
-        //figure out how we move
-        fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
+        // figure out how we move
+        vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
         pdevice->device_type = translate_string_to_input_type( currenttag );
 
         //Find out how many fields we are to read
-        if ( pdevice->device_type == INPUT_DEVICE_KEYBOARD ) count = CONTROL_COMMAND_COUNT;
-        else                                                count = CONTROL_CAMERA + 1;
+        if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type ) count = CONTROL_COMMAND_COUNT;
+        else                                                 count = CONTROL_CAMERA + 1;
 
         //Read each input control button
-        for ( icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
+        for ( icontrol = CONTROL_BEGIN, iactual = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
-            fget_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
-            pdevice->control[icontrol].tag = scantag_get_value( currenttag );
-            pdevice->control[icontrol].is_key = ( 'K' == currenttag[0] );
+            // version 3 does not have this control
+            if( icontrol == CONTROL_RIGHT_PACK ) continue;
+
+            vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) );
+            pdevice->control[iactual].tag = scantag_get_value( currenttag );
+            pdevice->control[iactual].is_key = ( 'K' == currenttag[0] );
+            iactual++;
         }
-
     }
-
-    vfs_close( fileread );
 
     return btrue;
 }

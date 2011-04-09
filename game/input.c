@@ -403,8 +403,8 @@ BIT_FIELD input_get_buttonmask( input_device_t *pdevice )
     {
         case INPUT_DEVICE_KEYBOARD: buttonmask = EMPTY_BIT_FIELD; break;
         case INPUT_DEVICE_MOUSE:    buttonmask = mous.b;   break;
-        case INPUT_DEVICE_JOY_A:    buttonmask = JoyList[0].b; break;
-        case INPUT_DEVICE_JOY_B:    buttonmask = JoyList[1].b; break;
+        case INPUT_DEVICE_JOY + 0:    buttonmask = JoyList[0].b; break;
+        case INPUT_DEVICE_JOY + 1:    buttonmask = JoyList[1].b; break;
     }
 
     return buttonmask;
@@ -422,8 +422,8 @@ bool_t input_is_enabled( input_device_t *pdevice )
     {
         case INPUT_DEVICE_KEYBOARD: return keyb.on;
         case INPUT_DEVICE_MOUSE:    return mous.on;
-        case INPUT_DEVICE_JOY_A:    return JoyList[0].on;
-        case INPUT_DEVICE_JOY_B:    return JoyList[1].on;
+        case INPUT_DEVICE_JOY + 0:    return JoyList[0].on;
+        case INPUT_DEVICE_JOY + 1:    return JoyList[1].on;
     }
 
     return bfalse;
@@ -490,8 +490,8 @@ INPUT_DEVICE translate_string_to_input_type( const char *string )
 
     if ( 0 == strcmp( string, "KEYBOARD" ) )   return INPUT_DEVICE_KEYBOARD;
     else if ( 0 == strcmp( string, "MOUSE" ) )      return INPUT_DEVICE_MOUSE;
-    else if ( 0 == strcmp( string, "JOYSTICK_A" ) ) return INPUT_DEVICE_JOY_A;
-    else if ( 0 == strcmp( string, "JOYSTICK_B" ) ) return INPUT_DEVICE_JOY_B;
+    else if ( 0 == strcmp( string, "JOYSTICK_A" ) ) return (INPUT_DEVICE)(INPUT_DEVICE_JOY + 0);
+    else if ( 0 == strcmp( string, "JOYSTICK_B" ) ) return (INPUT_DEVICE)(INPUT_DEVICE_JOY + 1);
 
     // No matches
     log_warning( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );
@@ -505,8 +505,8 @@ const char* translate_input_type_to_string( const INPUT_DEVICE type )
 
     if ( type == INPUT_DEVICE_KEYBOARD )   return "KEYBOARD";
     else if ( type == INPUT_DEVICE_MOUSE ) return "MOUSE";
-    else if ( type == INPUT_DEVICE_JOY_A ) return "JOYSTICK_A";
-    else if ( type == INPUT_DEVICE_JOY_B ) return "JOYSTICK_B";
+    else if ( type == INPUT_DEVICE_JOY + 0 ) return "JOYSTICK_A";
+    else if ( type == INPUT_DEVICE_JOY + 1 ) return "JOYSTICK_B";
 
     // No matches
     return "UNKNOWN";

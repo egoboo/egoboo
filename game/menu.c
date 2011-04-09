@@ -1784,10 +1784,10 @@ int doChoosePlayer( float deltaTime )
                         {
                             device_icon = ICON_MOUS;
                         }
-                        else if( device_type >= INPUT_DEVICE_JOY_A )
+                        else if( device_type >= INPUT_DEVICE_JOY + 0 )
                         {
                             // alternate the joystick icons in case we have a lot of them
-                            device_icon = ICON_JOYA + (( (int)device_type - (int)INPUT_DEVICE_JOY_A ) & 1);
+                            device_icon = ICON_JOYA + (( (int)device_type - (int)INPUT_DEVICE_JOY + 0 ) & 1);
                         }
                         else
                         {
@@ -2320,9 +2320,9 @@ int doInputOptions( float deltaTime )
                     input_read();
 
                     pcontrol = pdevice->control + waitingforinput;
-                    if ( pdevice->device_type == INPUT_DEVICE_JOY_A || pdevice->device_type == INPUT_DEVICE_JOY_B )
+                    if ( pdevice->device_type == INPUT_DEVICE_JOY + 0 || pdevice->device_type == INPUT_DEVICE_JOY + 1 )
                     {
-                        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY_A;
+                        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY + 0;
                         if ( ijoy < MAXJOYSTICK )
                         {
                             for ( tag = 0; tag < scantag_count; tag++ )
@@ -2570,9 +2570,9 @@ int doInputOptions( float deltaTime )
                 {
                     default:
                     case INPUT_DEVICE_KEYBOARD: pdevice->device_type = INPUT_DEVICE_MOUSE; break;
-                    case INPUT_DEVICE_MOUSE:    pdevice->device_type = INPUT_DEVICE_JOY_A; break;
-                    case INPUT_DEVICE_JOY_A:    pdevice->device_type = INPUT_DEVICE_JOY_B; break;
-                    case INPUT_DEVICE_JOY_B:    pdevice->device_type = INPUT_DEVICE_KEYBOARD; break;
+                    case INPUT_DEVICE_MOUSE:    pdevice->device_type = (INPUT_DEVICE)(INPUT_DEVICE_JOY + 0); break;
+                    case INPUT_DEVICE_JOY + 0:  pdevice->device_type = (INPUT_DEVICE)(INPUT_DEVICE_JOY + 1); break;
+                    case INPUT_DEVICE_JOY + 1:  pdevice->device_type = INPUT_DEVICE_KEYBOARD; break;
                 }
                 update_input_type = btrue;
             }

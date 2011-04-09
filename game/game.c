@@ -1921,8 +1921,8 @@ void set_one_player_latch( const PLA_REF ipla )
             }
 
             // Joystick routines
-        case INPUT_DEVICE_JOY_A:
-        case INPUT_DEVICE_JOY_B:
+        case INPUT_DEVICE_JOY + 0:
+        case INPUT_DEVICE_JOY + 1:
             {
                 //Figure out which joystick we are using
                 device_joystick_t *joystick;
