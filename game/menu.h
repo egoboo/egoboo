@@ -24,6 +24,7 @@
 
 #include "network.h"
 #include "profile.h"
+#include "font_ttf.h"
 
 #include "egoboo_process.h"
 #include "egoboo.h"
@@ -131,7 +132,6 @@ egoboo_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-typedef struct Font Font;
 
 extern bool_t mnu_draw_background;
 

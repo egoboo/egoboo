@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------
 float kMd2Normals[EGO_NORMAL_COUNT][3] =
 {
-#include "id_normals.inl"
+#include "file_formats/id_normals.inl"
     , {0, 0, 0}                     ///< the "equal light" normal
 };
 
@@ -514,7 +514,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
                 int i;
                 for ( i = 0; i < cmd->command_count; i++ )
                 {
-                    cmd->data[i].index = SDL_swap32( cmd->data[i].s );
+                    cmd->data[i].index = ENDIAN_INT32( cmd->data[i].s );
                     cmd->data[i].s     = ENDIAN_FLOAT( cmd->data[i].s );
                     cmd->data[i].t     = ENDIAN_FLOAT( cmd->data[i].t );
                 };

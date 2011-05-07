@@ -1669,15 +1669,15 @@ int doChoosePlayer( float deltaTime )
     int result = 0;
     int i, x, y;
 
-    static const int text_hgt = 20;
-    static const int icon_hgt = 32;
+    int text_hgt = 20;
+    int icon_hgt = 32;
 
-    static const int butt_wid = 200;
-    static const int butt_hgt = icon_hgt + 10;
-    static const int butt_spc = 50;
+    int butt_wid = 200;
+    int butt_hgt = icon_hgt + 10;
+    int butt_spc = 50;
 
-    static const int icon_vert_centering = ( butt_hgt - icon_hgt ) / 2;
-    static const int text_vert_centering = ( butt_hgt - text_hgt ) / 2;
+    int icon_vert_centering = ( butt_hgt - icon_hgt ) / 2;
+    int text_vert_centering = ( butt_hgt - text_hgt ) / 2;
 
     //This makes sparkles move
     sparkle_counter++;

@@ -5,6 +5,7 @@
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSBundle.h>
+#import "NSFileManager+DirectoryLocations.h"
 #include <string.h>
 #include <SDL.h>
 #include <SDL_endian.h>
@@ -17,68 +18,48 @@ NSString *fs_dirEnumExtension = nil;
 NSString *fs_dirEnumPath = nil;
 
 #define MAX_PATH 260
-char fs_tempPath[MAX_PATH];
-char fs_importPath[MAX_PATH];
-char fs_savePath[MAX_PATH];
-char fs_gamePath[MAX_PATH];
-NSString *fs_workingDir = nil;
+static NSString *binaryPath = nil;
+static NSString *dataPath = nil;
+static NSString *userPath = nil;
+//static NSString *configPath = nil;
 
 //---------------------------------------------------------------------------------------------
 //File Routines-------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
-void fs_init()
+void sys_fs_init()
 {
 	// JF> This function determines the temporary, import,
 	// game data and save paths
-	NSString *tempDir, *homeDir, *gameDir, *workingDir;
-	const char *str;
+	
+	binaryPath = [[NSBundle mainBundle] bundlePath];
+	dataPath = [binaryPath stringByAppendingString:@"/Contents/Resources"];
+	userPath = [[NSFileManager defaultManager] documentsDirectory];
+//	configPath = [[NSFileManager defaultManager] applicationSupportDirectory];
 
-	tempDir = NSTemporaryDirectory();
-	homeDir = NSHomeDirectory();
-	gameDir = [[NSBundle mainBundle] bundlePath];
-	workingDir = [[NSFileManager defaultManager] currentDirectoryPath];
-	fs_workingDir = workingDir;
-
-	NSLog(@"fs_init: Temporary directory is %@", tempDir);
-	NSLog(@"fs_init: Home directory is %@", homeDir);
-	NSLog(@"fs_init: Game directory is %@", gameDir);
-
-	str = [tempDir cString];
-	strcpy(fs_tempPath, str);
-	strcpy(fs_importPath, str);
-	strcat(fs_importPath, "import/");
-
-	str = [homeDir cString];
-	strcpy(fs_savePath, str);
-	strcat(fs_savePath, "Documents/Egoboo/");
-
-	str = [gameDir cString];
-	strcpy(fs_gamePath, str);
-
-	[tempDir release];
-	[homeDir release];
-	[gameDir release];
-	// Don't release the working directory; it's kept as a global.
+	NSLog(@"sys_fs_init: Game directory is %@", binaryPath);
+	NSLog(@"sys_fs_init: Data directory is %@", dataPath);
+	NSLog(@"sys_fs_init: User directory is %@", userPath);
+	NSLog(@"sys_fs_init: Config directory is %@", dataPath);
 }
 
-const char *fs_getTempDirectory()
+const char *fs_getBinaryDirectory()
 {
-	return fs_tempPath;
+	return [binaryPath cString];
 }
 
-const char *fs_getImportDirectory()
+const char *fs_getDataDirectory()
 {
-	return fs_importPath;
+	return [dataPath cString];
 }
 
-const char *fs_getSaveDirectory()
+const char *fs_getUserDirectory()
 {
-	return fs_savePath;
+	return [userPath cString];
 }
 
-const char *fs_getGameDirectory()
+const char *fs_getConfigDirectory()
 {
-	return fs_gamePath;
+	return [dataPath cString];
 }
 
 int fs_createDirectory(const char *dirName)
@@ -118,7 +99,11 @@ void fs_copyFile(const char *source, const char *dest)
 	srcPath = [[NSString alloc] initWithCString:source];
 	destPath = [[NSString alloc] initWithCString:dest];
 
-	[[NSFileManager defaultManager] copyPath:srcPath toPath:destPath handler:nil];
+	NSLog(@"Copying file\n%@\nto\n%@\n", srcPath, destPath);
+	if ([[NSFileManager defaultManager] copyPath:srcPath toPath:destPath handler:nil] != YES)
+	{
+		NSLog(@"Failed to copy!");
+	}
 
 	[srcPath release];
 	[destPath release];
@@ -221,7 +206,7 @@ const char *fs_findFirstFile(const char *path, const char *extension)
 	// for it by appending the current working directory
 	if(path[0] != '/')
 	{
-		searchPath = [NSString stringWithFormat: @"%@/%s", fs_workingDir, path];
+		searchPath = [NSString stringWithFormat: @"%@/%s", dataPath, path];
 	} else
 	{
 		searchPath = [NSString stringWithCString: path];
