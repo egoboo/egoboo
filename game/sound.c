@@ -1160,14 +1160,14 @@ int _calculate_volume( const fvec3_base_t diff, float const fov_rad )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _update_channel_volume( int channel, int volume, const float pan )
+bool_t _update_channel_volume( int channel, const int volume, const float pan )
 {
-    float loc_pan = pan;
+    float loc_pan = pan, loc_volume = volume;
     float cosval;
     int leftvol, rightvol;
 
     // determine the angle away from "forward"
-    volume *= ( 2.0f + cos( loc_pan ) ) / 3.0f;
+    loc_volume *= ( 2.0f + cos( loc_pan ) ) / 3.0f;
 
     // determine the angle from the left ear
     loc_pan += 1.5f * PI;

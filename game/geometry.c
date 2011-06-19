@@ -42,9 +42,11 @@ bool_t plane_base_normalize( plane_base_t * plane )
     // the vector < (*plane)[kX], (*plane)[kY], (*plane)[kZ] > is the normal to the plane.
     // Convert it to a unit normal vector, which makes (*plane)[kW] the distance to the origin.
 
+    float magnitude2;
+
     if ( NULL == plane ) return bfalse;
 
-    float magnitude2 = fvec3_length_2(( *plane ) );
+    magnitude2 = fvec3_length_2(( *plane ) );
 
     if ( 0.0f == magnitude2 )
     {
@@ -152,7 +154,6 @@ geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs )
             }
         }
     }
-
 
     return retval;
 }

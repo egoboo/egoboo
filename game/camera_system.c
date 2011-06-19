@@ -1023,6 +1023,8 @@ egoboo_rv _camera_system_autoset_targets()
         // put all the valid players into camera 0
         for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
         {
+            player_t * ppla;
+
             // in case the camera has looped around
             if ( pcam >= pcam_end )
             {
@@ -1049,7 +1051,7 @@ egoboo_rv _camera_system_autoset_targets()
             }
 
             // only look at valid players
-            player_t * ppla = PlaStack_get_ptr( cnt );
+            ppla = PlaStack_get_ptr( cnt );
             if ( !ppla->valid || !VALID_CHR_RANGE( ppla->index ) ) continue;
 
             // only look at local players

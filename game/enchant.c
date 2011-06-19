@@ -1958,7 +1958,7 @@ void update_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF enchant_list_cleanup( const ENC_REF ienc, ENC_REF * enc_parent )
+ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     /// @details BB@> remove all the dead enchants from the enchant list
     ///     and report back the first non-dead enchant in the list.

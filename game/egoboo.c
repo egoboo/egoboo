@@ -454,7 +454,6 @@ int SDL_main( int argc, char **argv )
     // turn on all basic services
     do_ego_proc_begin( EProc );
 
-    
 #if defined(EGOBOO_THROTTLED)
     // update the game at the user-defined rate
     EProc->loop_timer.free_running = bfalse;

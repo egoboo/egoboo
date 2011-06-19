@@ -4889,7 +4889,7 @@ bool_t fix_wawalite( wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_vfs( /* const char *modname, */ wawalite_data_t * pdata )
+bool_t write_wawalite_vfs( /* const char *modname, */ const wawalite_data_t * pdata )
 {
     /// @details BB@> Prepare and write the wawalite file
 
@@ -5366,7 +5366,7 @@ void cleanup_character_enchants( chr_t * pchr )
     if ( NULL == pchr ) return;
 
     // clean up the enchant list
-    pchr->firstenchant = enchant_list_cleanup( pchr->firstenchant, &( pchr->firstenchant ) );
+    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &( pchr->firstenchant ) );
 }
 
 //--------------------------------------------------------------------------------------------

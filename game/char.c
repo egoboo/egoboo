@@ -9042,7 +9042,6 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     return applied ? rv_success : rv_fail;
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )

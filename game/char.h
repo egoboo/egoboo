@@ -164,7 +164,6 @@ typedef struct s_chr chr_t;
 // team constants
 #define TEAM_NOLEADER       0xFFFF                        ///< If the team has no leader...
 
-
 #define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<MAXNUMINPACK;IT##_internal++) { CHR_REF IT; chr_t * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PITEM = ChrList_get_ptr( IT );
 #define PACK_END_LOOP() } }
 
@@ -608,7 +607,6 @@ void character_system_end( void );
 
 void update_all_character_matrices( void );
 
-
 void reset_teams( void );
 void update_all_characters( void );
 void move_all_characters( void );
@@ -640,7 +638,6 @@ bool_t  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF 
 bool_t  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
 CAP_REF CapStack_load_one( const char *szLoadName, int slot_override, bool_t required );
 
-
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
 bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
@@ -652,7 +649,6 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
 bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 
 bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_ary, fvec3_base_t grip_up_ary, bool_t shift_origin );
-
 
 // CapStack functions
 void CapStack_init_all( void );

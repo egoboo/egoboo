@@ -34,7 +34,6 @@
 struct s_object_profile;
 struct s_chr;
 
-
 //--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
@@ -136,7 +135,7 @@ void    bump_all_enchants_update_counters( void );
 // enchant list management
 bool_t  remove_enchant( const ENC_REF  enchant_idx, ENC_REF * enchant_parent );
 bool_t  remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz );
-ENC_REF enchant_list_cleanup( const ENC_REF ienc, ENC_REF * enc_parent );
+ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent );
 
 // enc functions
 ENC_REF enc_value_filled( const ENC_REF enchant_idx, int value_idx );

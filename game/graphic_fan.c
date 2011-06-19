@@ -517,7 +517,6 @@ void animate_tiles()
 {
     /// ZZ@> This function changes the animated tile frame
 
-
     int cnt, tnc;
     animtile_instance_t * patile;
 

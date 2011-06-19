@@ -1072,7 +1072,6 @@ bool_t BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_
     return ( BSP_leaf_pary_get_top( colst ) < colst_size );
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
@@ -1107,8 +1106,6 @@ bool_t BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * p
 
     return ( BSP_leaf_pary_get_top( colst ) < colst_size );
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_empty( const BSP_branch_t * pbranch )

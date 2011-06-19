@@ -207,7 +207,6 @@ bool_t       ai_state_ensure_wp( ai_state_t * pself );
 bool_t       ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 bool_t       ai_state_set_changed( ai_state_t * pai );
 
-
 //--------------------------------------------------------------------------------------------
 // struct s_script_state
 //--------------------------------------------------------------------------------------------

@@ -203,9 +203,9 @@ static dolist_t * dolist_init( dolist_t * pdolist, const int index );
 static gfx_rv     dolist_reset( dolist_t * pdolist, const int index );
 static gfx_rv     dolist_sort( dolist_t * pdolist, const camera_t * pcam, const bool_t do_reflect );
 static gfx_rv     dolist_test_chr( dolist_t * pdolist, const chr_t * pchr );
-static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, const chr_t * pchr );
+static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, chr_t * pchr );
 static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
-static gfx_rv     dolist_add_prt_raw( dolist_t * pdolist, const chr_t * pprt );
+static gfx_rv     dolist_add_prt_raw( dolist_t * pdolist, prt_t * pprt );
 
 //--------------------------------------------------------------------------------------------
 // the dolist manager
@@ -6037,7 +6037,6 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
     int    entry;
     float  local_mesh_lighting_keep;
 
-
     /// @note we are measuring the change in the intensity at the corner of a tile (the "delta") as
     /// a fraction of the current intensity. This is because your eye is much more sensitive to
     /// intensity differences when the intensity is low.
@@ -7453,7 +7452,7 @@ gfx_rv dolist_reset( dolist_t * plist, const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_test_chr( dolist_t * pdlist, chr_t * pchr )
+bool_t dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
 {
     if ( NULL == pdlist )
     {
@@ -7523,7 +7522,7 @@ gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_test_prt( dolist_t * pdlist, prt_t * pprt )
+bool_t dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
 {
     if ( NULL == pdlist )
     {

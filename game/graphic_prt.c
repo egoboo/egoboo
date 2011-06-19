@@ -1291,7 +1291,7 @@ static size_t render_all_prt_ref_begin( const camera_t * pcam,  prt_registry_ent
 static void   render_prt_ref( const camera_t * pcam );
 
 //--------------------------------------------------------------------------------------------
-void render_prt_ref( camera_t * pcam )
+void render_prt_ref( const camera_t * pcam )
 {
     /// @details ZZ@> This function draws sprites reflected in the floor
 

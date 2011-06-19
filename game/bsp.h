@@ -108,7 +108,7 @@ bool_t       BSP_aabb_validate( BSP_aabb_t * pbb );
 bool_t       BSP_aabb_invalidate( BSP_aabb_t * pbb );
 bool_t       BSP_aabb_copy( BSP_aabb_t * pdst, const BSP_aabb_t * psrc );
 
-bool_t       BSP_aabb_self_union( BSP_aabb_t * pdst, BSP_aabb_t * psrc );
+bool_t       BSP_aabb_self_union( BSP_aabb_t * pdst, const BSP_aabb_t * psrc );
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_leaf

@@ -590,7 +590,7 @@ void ChrList_cleanup()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_add_activation( CHR_REF ichr )
+bool_t ChrList_add_activation( const CHR_REF ichr )
 {
     // put this character into the activation list so that it can be activated right after
     // the ChrList loop is completed
@@ -613,7 +613,7 @@ bool_t ChrList_add_activation( CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_add_termination( CHR_REF ichr )
+bool_t ChrList_add_termination( const CHR_REF ichr )
 {
     bool_t retval = bfalse;
 

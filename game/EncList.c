@@ -559,7 +559,7 @@ ENC_REF EncList_allocate( const ENC_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_list_cleanup()
+void EncList_cleanup()
 {
     int     cnt;
     enc_t * penc;
@@ -590,7 +590,7 @@ void enchant_list_cleanup()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_add_activation( ENC_REF ienc )
+bool_t EncList_add_activation( const ENC_REF ienc )
 {
     // put this enchant into the activation list so that it can be activated right after
     // the EncList loop is completed
@@ -613,7 +613,7 @@ bool_t EncList_add_activation( ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_add_termination( ENC_REF ienc )
+bool_t EncList_add_termination( const ENC_REF ienc )
 {
     bool_t retval = bfalse;
 

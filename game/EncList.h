@@ -85,7 +85,7 @@ bool_t INGAME_PENC( const enc_t * PENC );
 // Macros automate looping through the EncList. This hides code which defers the creation and deletion of
 // objects until the loop terminates, so tha the length of the list will not change during the loop.
 #define ENC_BEGIN_LOOP_ACTIVE(IT, PENC)  {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC (IT)) continue; PENC =  EncList_get_ptr( IT );
-#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); enchant_list_cleanup(); }
+#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); EncList_cleanup(); }
 
 //--------------------------------------------------------------------------------------------
 // external variables
@@ -111,7 +111,7 @@ bool_t  EncList_add_used( const ENC_REF ienc );
 
 void    EncList_update_used( void );
 
-void    enchant_list_cleanup( void );
+void   EncList_cleanup( void );
 
 bool_t EncList_add_activation( const ENC_REF ienc );
 bool_t EncList_add_termination( const ENC_REF ienc );

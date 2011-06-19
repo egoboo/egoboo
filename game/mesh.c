@@ -2106,7 +2106,7 @@ ego_grid_info_t * ego_grid_info_dtor( ego_grid_info_t * ptr )
 //--------------------------------------------------------------------------------------------
 ego_grid_info_t * ego_grid_info_free( ego_grid_info_t * ptr )
 {
-    if ( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return NULL;
 
     // deallocate any dynamically allocated data
     // nothing to do yet

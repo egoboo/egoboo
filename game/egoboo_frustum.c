@@ -35,7 +35,7 @@
 static INLINE bool_t ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, const GLXmatrix modl );
 
 /// Call this every time the camera moves to update the frustum
-static void frustum_calculate( frustum_base_t * pf, const float proj[], const float modl[] );
+static void frustum_calculate( frustum_base_t pf, const float proj[], const float modl[] );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
