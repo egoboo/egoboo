@@ -22,7 +22,6 @@
 /// @file file_formats/configfile.h
 /// @details Configuration file loading code.
 
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -143,7 +142,7 @@ extern "C"
 // External module functions
 //--------------------------------------------------------------------------------------------
 
-    extern ConfigFilePtr_t   ConfigFile_create();
+    extern ConfigFilePtr_t   ConfigFile_create( void );
     extern ConfigFile_retval ConfigFile_destroy( ConfigFilePtr_t * ptmp );
 
     extern ConfigFilePtr_t   ConfigFile_Load( const char *szFileName, config_bool_t force );

@@ -36,7 +36,7 @@ eve_t * eve_init( eve_t * peve )
 {
     if ( NULL == peve ) return peve;
 
-    memset( peve, 0, sizeof( *peve ) );
+    BLANK_STRUCT_PTR( peve )
 
     peve->endsound_index = INVALID_SOUND;
 

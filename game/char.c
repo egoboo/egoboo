@@ -25,12 +25,12 @@
 #include "ChrList.h"
 
 #include "mad.h"
-
+#include "player.h"
 #include "log.h"
 #include "script.h"
 #include "menu.h"
 #include "sound.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "input.h"
 #include "passage.h"
 #include "graphic.h"
@@ -38,7 +38,6 @@
 #include "texture.h"
 #include "ui.h"
 #include "collision.h"                  //Only or detach_character_from_platform()
-#include "quest.h"
 #include "obj_BSP.h"
 
 #include "egoboo_vfs.h"
@@ -47,9 +46,12 @@
 #include "egoboo_strutil.h"
 #include "egoboo.h"
 
+#include "file_formats/quest_file.h"
+
 #include "egoboo_math.inl"
 #include "mesh.inl"
 
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -68,15 +70,15 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 
 static CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character );
-bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
-CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
+static bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
+static CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
 
 static bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off );
 
 static BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs );
 
 static chr_t * resize_one_character( chr_t * pchr );
-//static void    resize_all_characters();
+//static void    resize_all_characters( void );
 
 static bool_t  chr_free( chr_t * pchr );
 
@@ -88,18 +90,18 @@ static chr_t * chr_config_dtor( chr_t * pchr );
 
 static int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset );
 
-bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
-bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mcache );
+static bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mcache );
+static bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mcache );
 
-int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
-int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
+static int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
+static int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] );
 
 // definition that is consistent with using it as a callback in qsort() or some similar function
 static int  cmp_matrix_cache( const void * vlhs, const void * vrhs );
 
 static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 
-void cleanup_one_character( chr_t * pchr );
+static void cleanup_one_character( chr_t * pchr );
 
 static void chr_log_script_time( const CHR_REF ichr );
 
@@ -114,16 +116,22 @@ static void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t hea
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+IMPLEMENT_STACK( cap_t, CapStack, MAX_PROFILE );
+IMPLEMENT_STACK( team_t, TeamStack, TEAM_MAX );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void character_system_begin()
 {
     ChrList_init();
-    init_all_cap();
+    CapStack_init_all();
 }
 
 //--------------------------------------------------------------------------------------------
 void character_system_end()
 {
-    release_all_cap();
+    CapStack_release_all();
     ChrList_dtor();
 }
 
@@ -160,8 +168,6 @@ bool_t chr_free( chr_t * pchr )
 chr_t * chr_ctor( chr_t * pchr )
 {
     /// @details BB@> initialize the character data to safe values
-    ///     since we use memset(..., 0, ...), everything == 0 == false == 0.0f
-    ///     statements are redundant
 
     int cnt;
     obj_data_t save_base;
@@ -187,7 +193,8 @@ chr_t * chr_ctor( chr_t * pchr )
     }
 
     // clear out all data
-    memset( pchr, 0, sizeof( *pchr ) );
+    // all = 0, = false, and = 0.0f statements are redundant
+    BLANK_STRUCT_PTR( pchr )
 
     // restore the base object data
     memcpy( pbase, &save_base, sizeof( obj_data_t ) );
@@ -236,7 +243,6 @@ chr_t * chr_ctor( chr_t * pchr )
         pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
     }
 
-
     // Set up position
     pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     pchr->ori.map_facing_x = MAP_TURN_OFFSET;
@@ -280,11 +286,6 @@ chr_t * chr_ctor( chr_t * pchr )
     // not a player
     pchr->is_which_player = MAX_PLAYER;
 
-    // initialize the bsp node for this character
-    pchr->bsp_leaf.data      = pchr;
-    pchr->bsp_leaf.data_type = BSP_LEAF_CHR;
-    pchr->bsp_leaf.index     = GET_INDEX_PCHR( pchr );
-
     //---- call the constructors of the "has a" classes
 
     // set the insance values to safe values
@@ -294,8 +295,7 @@ chr_t * chr_ctor( chr_t * pchr )
     ai_state_ctor( &( pchr->ai ) );
 
     // initialize the bsp node for this character
-    BSP_leaf_ctor( &( pchr->bsp_leaf ), 3, pchr, BSP_LEAF_CHR );
-    pchr->bsp_leaf.index = GET_INDEX_PCHR( pchr );
+    BSP_leaf_ctor( &( pchr->bsp_leaf ), pchr, BSP_LEAF_CHR, GET_INDEX_PCHR( pchr ) );
 
     // initialize the physics
     phys_data_ctor( &( pchr->phys ) );
@@ -319,18 +319,6 @@ chr_t * chr_dtor( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int chr_count_free()
-{
-    return ChrList.free_count;
-}
-
-//--------------------------------------------------------------------------------------------
-int chr_count_used()
-{
-    return ChrList.used_count; // MAX_CHR - ChrList.free_count;
-}
-
 //--------------------------------------------------------------------------------------------
 egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
                                   Uint8 valuehigh, Sint16 high )
@@ -398,7 +386,7 @@ void chr_set_enviro_grid_level( chr_t * pchr, float level )
     {
         pchr->enviro.grid_level = level;
 
-        apply_reflection_matrix( &( pchr->inst ), level );
+        chr_instance_apply_reflection_matrix( &( pchr->inst ), level );
     }
 }
 
@@ -438,7 +426,7 @@ void keep_weapons_with_holders()
 
         if ( INGAME_CHR( iattached ) )
         {
-            chr_t * pattached = ChrList.lst + iattached;
+            chr_t * pattached = ChrList_get_ptr( iattached );
 
             // Keep in hand weapons with iattached
             if ( chr_matrix_valid( pchr ) )
@@ -524,7 +512,7 @@ void make_one_character_matrix( const CHR_REF ichr )
     chr_instance_t * pinst;
 
     if ( !INGAME_CHR( ichr ) ) return;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
     pinst = &( pchr->inst );
 
     // invalidate this matrix
@@ -536,7 +524,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         // Overlays are kept with their target...
         if ( INGAME_CHR( pchr->ai.target ) )
         {
-            chr_t * ptarget = ChrList.lst + pchr->ai.target;
+            chr_t * ptarget = ChrList_get_ptr( pchr->ai.target );
 
             chr_set_pos( pchr, chr_get_pos_v( ptarget ) );
 
@@ -551,19 +539,23 @@ void make_one_character_matrix( const CHR_REF ichr )
     {
         if ( pchr->stickybutt )
         {
-            pinst->matrix = ScaleXYZRotateXYZTranslate_SpaceFixed( pchr->fat, pchr->fat, pchr->fat,
-                            TO_TURN( pchr->ori.facing_z ),
-                            TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
-                            TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
-                            pchr->pos.x, pchr->pos.y, pchr->pos.z );
+            mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
+                pinst->matrix.v,
+                pchr->fat, pchr->fat, pchr->fat,
+                TO_TURN( pchr->ori.facing_z ),
+                TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
+                pchr->pos.x, pchr->pos.y, pchr->pos.z );
         }
         else
         {
-            pinst->matrix = ScaleXYZRotateXYZTranslate_BodyFixed( pchr->fat, pchr->fat, pchr->fat,
-                            TO_TURN( pchr->ori.facing_z ),
-                            TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
-                            TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
-                            pchr->pos.x, pchr->pos.y, pchr->pos.z );
+            mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
+                pinst->matrix.v,
+                pchr->fat, pchr->fat, pchr->fat,
+                TO_TURN( pchr->ori.facing_z ),
+                TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
+                pchr->pos.x, pchr->pos.y, pchr->pos.z );
         }
 
         pinst->matrix_cache.valid        = btrue;
@@ -593,7 +585,7 @@ void chr_log_script_time( const CHR_REF ichr )
     FILE * ftmp;
 
     if ( !DEFINED_CHR( ichr ) ) return;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( pchr->ai._clkcount <= 0 ) return;
 
@@ -623,22 +615,22 @@ void free_one_character_in_game( const CHR_REF character )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
     // Remove from stat list
-    if ( pchr->StatusList_on )
+    if ( pchr->show_stats )
     {
         bool_t stat_found;
 
-        pchr->StatusList_on = bfalse;
+        pchr->show_stats = bfalse;
 
         stat_found = bfalse;
-        for ( cnt = 0; cnt < StatusList_count; cnt++ )
+        for ( cnt = 0; cnt < StatusList.count; cnt++ )
         {
-            if ( StatusList[cnt] == character )
+            if ( StatusList.lst[cnt].who == character )
             {
                 stat_found = btrue;
                 break;
@@ -647,11 +639,11 @@ void free_one_character_in_game( const CHR_REF character )
 
         if ( stat_found )
         {
-            for ( cnt++; cnt < StatusList_count; cnt++ )
+            for ( cnt++; cnt < StatusList.count; cnt++ )
             {
-                SWAP( CHR_REF, StatusList[cnt-1], StatusList[cnt] );
+                SWAP( status_list_element_t, StatusList.lst[cnt-1], StatusList.lst[cnt] );
             }
-            StatusList_count--;
+            StatusList.count--;
         }
     }
 
@@ -684,7 +676,7 @@ void free_one_character_in_game( const CHR_REF character )
 
     if ( TeamStack.lst[pchr->team].leader == character )
     {
-        TeamStack.lst[pchr->team].leader = NOLEADER;
+        TeamStack.lst[pchr->team].leader = TEAM_NOLEADER;
     }
 
     // remove any attached particles
@@ -734,7 +726,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
     {
         goto place_particle_at_vertex_fail;
     }
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // Check validity of attachment
     if ( INGAME_CHR( pchr->inwhich_inventory ) )
@@ -785,7 +777,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
         }
 
         // Do the transform
-        TransformVertices( &( pchr->inst.matrix ), point, nupoint, 1 );
+        mat_TransformVertices( pchr->inst.matrix.v, point, nupoint, 1 );
 
         prt_set_pos( pprt, nupoint[0].v );
     }
@@ -799,7 +791,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
 
 place_particle_at_vertex_fail:
 
-    prt_request_terminate( GET_REF_PPRT( pprt ) );
+    prt_request_terminate( pprt );
 
     return NULL;
 }
@@ -827,11 +819,11 @@ void free_all_chraracters()
 
     // free_all_players
     PlaStack.count = 0;
-    local_numlpla = 0;
+    local_stats.player_count = 0;
     local_stats.noplayers = btrue;
 
     // free_all_stats
-    StatusList_count = 0;
+    StatusList.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -851,12 +843,11 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+
+        if ( NULL != ptile && ptile->inrenderlist )
         {
-            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
-            {
-                radius = pchr->bump_1.size;
-            }
+            radius = pchr->bump_1.size;
         }
     }
 
@@ -889,12 +880,11 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+
+        if ( NULL != ptile && ptile->inrenderlist )
         {
-            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
-            {
-                radius = pchr->bump_1.size;
-            }
+            radius = pchr->bump_1.size;
         }
     }
 
@@ -930,12 +920,11 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+
+        if ( NULL != ptile && ptile->inrenderlist )
         {
-            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
-            {
-                radius = pchr->bump_1.size;
-            }
+            radius = pchr->bump_1.size;
         }
     }
 
@@ -968,12 +957,11 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+
+        if ( NULL != ptile && ptile->inrenderlist )
         {
-            if ( PMesh->tmem.tile_list[ pchr->onwhichgrid ].inrenderlist )
-            {
-                radius = pchr->bump_1.size;
-            }
+            radius = pchr->bump_1.size;
         }
     }
 
@@ -1015,7 +1003,7 @@ void reset_character_accel( const CHR_REF character )
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -1027,7 +1015,7 @@ void reset_character_accel( const CHR_REF character )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-        enchant_remove_add( ienc_now, ADDACCEL );
+        enc_remove_add( ienc_now, ADDACCEL );
 
         ienc_now = ienc_nxt;
         ienc_count++;
@@ -1052,7 +1040,7 @@ void reset_character_accel( const CHR_REF character )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-        enchant_apply_add( ienc_now, ADDACCEL, enc_get_ieve( ienc_now ) );
+        enc_apply_add( ienc_now, ADDACCEL, enc_get_ieve( ienc_now ) );
 
         ienc_now = ienc_nxt;
         ienc_count++;
@@ -1072,12 +1060,12 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
 
     // Make sure the character is valid
     if ( !INGAME_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // Make sure the character is mounted
     mount = ChrList.lst[character].attachedto;
     if ( !INGAME_CHR( mount ) ) return bfalse;
-    pmount = ChrList.lst + mount;
+    pmount = ChrList_get_ptr( mount );
 
     // Don't allow living characters to drop kursed weapons
     if ( !ignorekurse && pchr->iskursed && pmount->alive && pchr->isitem )
@@ -1189,8 +1177,8 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-            enchant_remove_set( ienc_now, SETALPHABLEND );
-            enchant_remove_set( ienc_now, SETLIGHTBLEND );
+            enc_remove_set( ienc_now, SETALPHABLEND );
+            enc_remove_set( ienc_now, SETLIGHTBLEND );
 
             ienc_now = ienc_nxt;
             ienc_count++;
@@ -1213,8 +1201,8 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
 
             if ( LOADED_PRO( ipro ) )
             {
-                enchant_apply_set( ienc_now, SETALPHABLEND, ipro );
-                enchant_apply_set( ienc_now, SETLIGHTBLEND, ipro );
+                enc_apply_set( ienc_now, SETALPHABLEND, ipro );
+                enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
             }
 
             ienc_now = ienc_nxt;
@@ -1256,12 +1244,12 @@ void reset_character_alpha( const CHR_REF character )
 
     // Make sure the character is valid
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // Make sure the character is mounted
     mount = ChrList.lst[character].attachedto;
     if ( !INGAME_CHR( mount ) ) return;
-    pmount = ChrList.lst + mount;
+    pmount = ChrList_get_ptr( mount );
 
     if ( pchr->isitem && pmount->transferblend )
     {
@@ -1278,8 +1266,8 @@ void reset_character_alpha( const CHR_REF character )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-            enchant_remove_set( ienc_now, SETALPHABLEND );
-            enchant_remove_set( ienc_now, SETLIGHTBLEND );
+            enc_remove_set( ienc_now, SETALPHABLEND );
+            enc_remove_set( ienc_now, SETLIGHTBLEND );
 
             ienc_now = ienc_nxt;
             ienc_count++;
@@ -1302,8 +1290,8 @@ void reset_character_alpha( const CHR_REF character )
 
             if ( LOADED_PRO( ipro ) )
             {
-                enchant_apply_set( ienc_now, SETALPHABLEND, ipro );
-                enchant_apply_set( ienc_now, SETLIGHTBLEND, ipro );
+                enc_apply_set( ienc_now, SETALPHABLEND, ipro );
+                enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
             }
 
             ienc_now = ienc_nxt;
@@ -1330,11 +1318,11 @@ egoboo_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 
     // Make sure the character/item is valid
     if ( !DEFINED_CHR( irider ) ) return rv_error;
-    prider = ChrList.lst + irider;
+    prider = ChrList_get_ptr( irider );
 
     // Make sure the holder/mount is valid
     if ( !DEFINED_CHR( imount ) ) return rv_error;
-    pmount = ChrList.lst + imount;
+    pmount = ChrList_get_ptr( imount );
 
     pmount_cap = chr_get_pcap( imount );
     if ( NULL == pmount_cap ) return rv_error;
@@ -1451,8 +1439,8 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
 
     //valid character?
     if ( !INGAME_CHR( ichr ) || !INGAME_CHR( item ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
-    pitem = ChrList.lst + item;
+    pchr = ChrList_get_ptr( ichr );
+    pitem = ChrList_get_ptr( item );
     pitem_cap = chr_get_pcap( item );
 
     //try get the first free slot found?
@@ -1501,7 +1489,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     if ( INGAME_CHR( stack ) )
     {
         // We found a similar, stackable item in the pack
-        chr_t  * pstack      = ChrList.lst + stack;
+        chr_t  * pstack      = ChrList_get_ptr( stack );
         cap_t  * pstack_cap  = chr_get_pcap( stack );
 
         // reveal the name of the item or the stack
@@ -1525,7 +1513,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
             // All transfered, so kill the in hand item
             pstack->ammo = newammo;
             detach_character_from_mount( item, btrue, bfalse );
-            chr_request_terminate( item );
+            ChrList_request_terminate( item );
         }
         else
         {
@@ -1581,7 +1569,7 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
 
     //valid character?
     if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     //try get the first used slot found?
     if ( inventory_slot >= MAXINVENTORY )
@@ -1619,7 +1607,7 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
     //now put the inventory item into the character's hand
     if ( INGAME_CHR( inventory_item ) && success )
     {
-        chr_t *pitem = ChrList.lst + inventory_item;
+        chr_t *pitem = ChrList_get_ptr( inventory_item );
         attach_character_to_mount( inventory_item, ichr, grip_off == SLOT_RIGHT ? GRIP_RIGHT : GRIP_LEFT );
 
         //fix flags
@@ -1645,12 +1633,12 @@ bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, co
 
     //valid char?
     if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pholder = ChrList.lst + ichr;
+    pholder = ChrList_get_ptr( ichr );
     item = pholder->inventory[inventory_slot];
 
     //valid item?
     if ( !INGAME_CHR( item ) ) return bfalse;
-    pitem = ChrList.lst + item;
+    pitem = ChrList_get_ptr( item );
 
     //is it kursed?
     if ( pitem->iskursed && !ignorekurse )
@@ -1667,7 +1655,6 @@ bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, co
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
@@ -1687,7 +1674,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
     istack = ( CHR_REF )MAX_CHR;
 
     if ( !INGAME_CHR( item ) ) return istack;
-    pitem = ChrList.lst + item;
+    pitem = ChrList_get_ptr( item );
     pitem_cap = chr_get_pcap( item );
 
     if ( pitem_cap->isstackable )
@@ -1741,7 +1728,7 @@ void drop_keys( const CHR_REF character )
     size_t    cnt;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // Don't lose keys in pits...
     if ( pchr->pos.z <= ( PITDEPTH >> 1 ) ) return;
@@ -1762,7 +1749,7 @@ void drop_keys( const CHR_REF character )
 
         //only valid items
         if ( !INGAME_CHR( ikey ) ) continue;
-        pkey = ChrList.lst + ikey;
+        pkey = ChrList_get_ptr( ikey );
 
         idsz_parent = chr_get_idsz( ikey, IDSZ_PARENT );
         idsz_type   = chr_get_idsz( ikey, IDSZ_TYPE );
@@ -1808,27 +1795,28 @@ bool_t drop_all_items( const CHR_REF character )
     /// @details ZZ@> This function drops all of a character's items
 
     FACING_T direction;
-    Sint16   diradd;
+    TURN_T   turn;
+    int      diradd;
     chr_t  * pchr;
     Uint8    pack_count;
     size_t   cnt;
 
     if ( !INGAME_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], btrue, bfalse );
     detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], btrue, bfalse );
 
     //simply count the number of items in inventory
     pack_count = 0;
-    diradd    = 0x00010000;
+    diradd     = 0x00010000;
     PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
         diradd -= 0x00010000 / MAXINVENTORY;
     }
     PACK_END_LOOP();
 
-    //now drop each item in turn
+    // now drop each item in turn
     direction = pchr->ori.facing_z + ATK_BEHIND;
     for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
@@ -1837,7 +1825,7 @@ bool_t drop_all_items( const CHR_REF character )
 
         //only valid items
         if ( !INGAME_CHR( item ) ) continue;
-        pitem = ChrList.lst + item;
+        pitem = ChrList_get_ptr( item );
 
         //remove it from inventory
         inventory_remove_item( character, cnt, btrue );
@@ -1857,8 +1845,9 @@ bool_t drop_all_items( const CHR_REF character )
         pitem->team                   = pitem->team_base;
 
         // fix the current velocity
-        pitem->vel.x                  += turntocos[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
-        pitem->vel.y                  += turntosin[( direction>>2 ) & TRIG_TABLE_MASK ] * DROPXYVEL;
+        turn                           = TO_TURN( direction );
+        pitem->vel.x                  += turntocos[ turn ] * DROPXYVEL;
+        pitem->vel.y                  += turntosin[ turn ] * DROPXYVEL;
         pitem->vel.z                  += DROPZVEL;
 
         // do some more complicated things
@@ -1958,7 +1947,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     grab_data_t ungrab_list[MAX_CHR];
 
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
-    pchr_a = ChrList.lst + ichr_a;
+    pchr_a = ChrList_get_ptr( ichr_a );
 
     pcap_a = pro_get_pcap( pchr_a->profile_ref );
     if ( NULL == pcap_a ) return bfalse;
@@ -2029,7 +2018,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         too_invis = !chr_can_see_invis( pchr_a, pchr_b );
 
         // calculate the distance
-        diff = fvec3_sub( chr_get_pos_v( pchr_b ), slot_pos.v );
+        fvec3_sub( diff.v, chr_get_pos_v( pchr_b ), slot_pos.v );
         diff.z += pchr_b->bump.height * 0.5f;
 
         // find the squared difference horizontal and vertical
@@ -2133,7 +2122,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
             if ( grab_list[cnt].too_dark || grab_list[cnt].too_invis ) continue;
 
             ichr_b = grab_list[cnt].ichr;
-            pchr_b = ChrList.lst + ichr_b;
+            pchr_b = ChrList_get_ptr( ichr_b );
 
             can_grab = can_grab_item_in_shop( ichr_a, ichr_b );
 
@@ -2222,7 +2211,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
                 // only do visible objects
                 if ( ungrab_list[cnt].too_dark || ungrab_list[cnt].too_invis ) continue;
 
-                pchr_b = ChrList.lst + ungrab_list[cnt].ichr;
+                pchr_b = ChrList_get_ptr( ungrab_list[cnt].ichr );
 
                 // only bump the closest character that is in front of the character
                 // (ignore vertical displacement)
@@ -2252,13 +2241,13 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
     int   spawn_vrt_offset;
     Uint8 action;
-    Uint16 turn;
+    TURN_T turn;
     float velocity;
 
     bool_t unarmed_attack;
 
     if ( !INGAME_CHR( ichr ) ) return;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     iweapon = pchr->holdingwhich[slot];
 
@@ -2277,7 +2266,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     }
 
     if ( !INGAME_CHR( iweapon ) ) return;
-    pweapon = ChrList.lst + iweapon;
+    pweapon = ChrList_get_ptr( iweapon );
 
     pweapon_cap = chr_get_pcap( iweapon );
     if ( NULL == pweapon_cap ) return;
@@ -2311,7 +2300,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
         ithrown = spawn_one_character( pchr->pos, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
         if ( DEFINED_CHR( ithrown ) )
         {
-            chr_t * pthrown = ChrList.lst + ithrown;
+            chr_t * pthrown = ChrList_get_ptr( ithrown );
 
             pthrown->iskursed = bfalse;
             pthrown->ammo = 1;
@@ -2337,7 +2326,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // Poof the item
                 detach_character_from_mount( iweapon, btrue, bfalse );
-                chr_request_terminate( GET_REF_PCHR( pweapon ) );
+                chr_request_terminate( pweapon );
             }
             else
             {
@@ -2365,7 +2354,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 if ( DEFINED_PRT( iparticle ) )
                 {
                     fvec3_t tmp_pos;
-                    prt_t * pprt = PrtList.lst + iparticle;
+                    prt_t * pprt = PrtList_get_ptr( iparticle );
 
                     tmp_pos = prt_get_pos( pprt );
 
@@ -2446,7 +2435,7 @@ void drop_money( const CHR_REF character, int money )
     fvec3_t loc_pos;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     fvec3_base_copy( loc_pos.v, chr_get_pos_v( pchr ) );
 
@@ -2516,7 +2505,7 @@ bool_t setup_xp_table( const CAP_REF icap )
     cap_t * pcap;
 
     if ( !LOADED_CAP( icap ) ) return bfalse;
-    pcap = CapStack.lst + icap;
+    pcap = CapStack_get_ptr( icap );
 
     // Calculate xp needed
     for ( level = MAXBASELEVEL; level < MAXLEVEL; level++ )
@@ -2540,7 +2529,7 @@ void do_level_up( const CHR_REF character )
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
@@ -2597,29 +2586,29 @@ void do_level_up( const CHR_REF character )
 
             // Life
             number = generate_irand_range( pcap->life_stat.perlevel );
-            number += pchr->lifemax;
+            number += pchr->life_max;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
-            pchr->life += ( number - pchr->lifemax );
-            pchr->lifemax = number;
+            pchr->life += ( number - pchr->life_max );
+            pchr->life_max = number;
 
             // Mana
             number = generate_irand_range( pcap->mana_stat.perlevel );
-            number += pchr->manamax;
+            number += pchr->mana_max;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
-            pchr->mana += ( number - pchr->manamax );
-            pchr->manamax = number;
+            pchr->mana += ( number - pchr->mana_max );
+            pchr->mana_max = number;
 
             // Mana Return
             number = generate_irand_range( pcap->manareturn_stat.perlevel );
-            number += pchr->manareturn;
+            number += pchr->mana_return;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            pchr->manareturn = number;
+            pchr->mana_return = number;
 
             // Mana Flow
             number = generate_irand_range( pcap->manaflow_stat.perlevel );
-            number += pchr->manaflow;
+            number += pchr->mana_flow;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
-            pchr->manaflow = number;
+            pchr->mana_flow = number;
         }
     }
 }
@@ -2635,7 +2624,7 @@ void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
@@ -2818,8 +2807,8 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     ints_to_range( pchr->experience, 0, &( pcap->experience ) );
 
     // export the current mana and life
-    pcap->life_spawn         = CLIP( pchr->life, 0, pchr->lifemax );
-    pcap->mana_spawn         = CLIP( pchr->mana, 0, pchr->manamax );
+    pcap->life_spawn         = CLIP( pchr->life, 0, pchr->life_max );
+    pcap->mana_spawn         = CLIP( pchr->mana, 0, pchr->mana_max );
 
     // Movement
     pcap->anim_speed_sneak = pchr->anim_speed_sneak;
@@ -2873,12 +2862,12 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
     ints_to_range( pchr->dexterity   , 0, &( pcap->dexterity_stat.val ) );
 
     // Life and Mana
-    pcap->lifecolor = pchr->lifecolor;
-    pcap->manacolor = pchr->manacolor;
-    ints_to_range( pchr->lifemax     , 0, &( pcap->life_stat.val ) );
-    ints_to_range( pchr->manamax     , 0, &( pcap->mana_stat.val ) );
-    ints_to_range( pchr->manareturn  , 0, &( pcap->manareturn_stat.val ) );
-    ints_to_range( pchr->manaflow    , 0, &( pcap->manaflow_stat.val ) );
+    pcap->life_color = pchr->life_color;
+    pcap->mana_color = pchr->mana_color;
+    ints_to_range( pchr->life_max     , 0, &( pcap->life_stat.val ) );
+    ints_to_range( pchr->mana_max     , 0, &( pcap->mana_stat.val ) );
+    ints_to_range( pchr->mana_return  , 0, &( pcap->manareturn_stat.val ) );
+    ints_to_range( pchr->mana_flow    , 0, &( pcap->manaflow_stat.val ) );
 
     // Gender
     pcap->gender  = pchr->gender;
@@ -2962,13 +2951,13 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     }
 
     // Life and Mana
-    pchr->lifecolor = pcap->lifecolor;
-    pchr->manacolor = pcap->manacolor;
-    pchr->lifemax = generate_irand_range( pcap->life_stat.val );
+    pchr->life_color = pcap->life_color;
+    pchr->mana_color = pcap->mana_color;
+    pchr->life_max = generate_irand_range( pcap->life_stat.val );
     pchr->life_return = pcap->life_return;
-    pchr->manamax = generate_irand_range( pcap->mana_stat.val );
-    pchr->manaflow = generate_irand_range( pcap->manaflow_stat.val );
-    pchr->manareturn = generate_irand_range( pcap->manareturn_stat.val );
+    pchr->mana_max = generate_irand_range( pcap->mana_stat.val );
+    pchr->mana_flow = generate_irand_range( pcap->manaflow_stat.val );
+    pchr->mana_return = generate_irand_range( pcap->manareturn_stat.val );
 
     // SWID
     pchr->strength = generate_irand_range( pcap->strength_stat.val );
@@ -3022,8 +3011,8 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->phys.dampen = pcap->dampen;
 
     // Load current life and mana. this may be overridden later
-    pchr->life = CLIP( pcap->life_spawn, LOWSTAT, pchr->lifemax );
-    pchr->mana = CLIP( pcap->mana_spawn,       0, pchr->manamax );
+    pchr->life = CLIP( pcap->life_spawn, LOWSTAT, pchr->life_max );
+    pchr->mana = CLIP( pcap->mana_spawn,       0, pchr->mana_max );
 
     pchr->phys.bumpdampen = pcap->bumpdampen;
     if ( CAP_INFINITE_WEIGHT == pcap->weight )
@@ -3075,7 +3064,7 @@ bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF c
     cap_t cap_tmp;
 
     if ( INVALID_CSTR( szSaveName ) && !DEFINED_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return bfalse;
@@ -3109,7 +3098,7 @@ bool_t export_one_character_skin_vfs( const char *szSaveName, const CHR_REF char
 }
 
 //--------------------------------------------------------------------------------------------
-CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_override, bool_t required )
+CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t required )
 {
     /// @details ZZ@> This function fills a character profile with data from data.txt, returning
     /// the icap slot that the profile was stuck into.  It may cause the program
@@ -3133,17 +3122,17 @@ CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_overr
         // The data file wasn't found
         if ( required )
         {
-            log_debug( "load_one_character_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
+            log_debug( "CapStack_load_one() - \"%s\" was not found. Overriding a global object?\n", szLoadName );
         }
-        else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
+        else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            log_debug( "load_one_character_profile_vfs() - Not able to open file \"%s\"\n", szLoadName );
+            log_debug( "CapStack_load_one() - Not able to open file \"%s\"\n", szLoadName );
         }
 
         return ( CAP_REF )MAX_CAP;
     }
 
-    pcap = CapStack.lst + icap;
+    pcap = CapStack_get_ptr( icap );
 
     // if there is data in this profile, release it
     if ( pcap->loaded )
@@ -3164,7 +3153,7 @@ CAP_REF load_one_character_profile_vfs( const char * tmploadname, int slot_overr
         }
 
         // If loading over an existing model is allowed (?how?) then make sure to release the old one
-        release_one_cap( icap );
+        CapStack_release_one( icap );
     }
 
     if ( NULL == load_one_cap_file_vfs( tmploadname, pcap ) )
@@ -3198,17 +3187,17 @@ bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount
 
     //Setup the healed character
     if ( !INGAME_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     //Setup the healer
     if ( !INGAME_CHR( healer ) ) return bfalse;
-    pchr_h = ChrList.lst + healer;
+    pchr_h = ChrList_get_ptr( healer );
 
     //Don't heal dead and invincible stuff
     if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return bfalse;
 
     //This actually heals the character
-    pchr->life = CLIP( pchr->life, pchr->life + ABS( amount ), pchr->lifemax );
+    pchr->life = CLIP( pchr->life, pchr->life + ABS( amount ), pchr->life_max );
 
     // Set alerts, but don't alert that we healed ourselves
     if ( pchr_h->attachedto != character && ABS( amount ) > HURTDAMAGE )
@@ -3239,7 +3228,7 @@ void cleanup_one_character( chr_t * pchr )
     if ( TeamStack.lst[pchr->team].leader == ichr )
     {
         // The team now has no leader if the character is the leader
-        TeamStack.lst[pchr->team].leader = NOLEADER;
+        TeamStack.lst[pchr->team].leader = TEAM_NOLEADER;
     }
 
     // Clear all shop passages that it owned...
@@ -3322,7 +3311,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool_t i
     CHR_REF actual_killer;
 
     if ( !DEFINED_CHR( ichr ) ) return;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     //No need to continue is there?
     if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return;
@@ -3334,7 +3323,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool_t i
     actual_killer = original_killer;
     if ( INGAME_CHR( actual_killer ) )
     {
-        chr_t *pkiller = ChrList.lst + actual_killer;
+        chr_t *pkiller = ChrList_get_ptr( actual_killer );
 
         //If we are a held item, try to figure out who the actual killer is
         if ( DEFINED_CHR( pkiller->attachedto ) && !ChrList.lst[pkiller->attachedto].ismount )
@@ -3455,7 +3444,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
     // what to do is damagetype == NONE?
 
     if ( !INGAME_CHR( character ) ) return 0;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
@@ -3487,13 +3476,13 @@ int damage_character( const CHR_REF character, FACING_T direction,
         }
 
         // don't show feedback from random objects hitting each other
-        if ( !ChrList.lst[attacker].StatusList_on )
+        if ( !ChrList.lst[attacker].show_stats )
         {
             do_feedback = bfalse;
         }
 
         // don't show damage to players since they get feedback from the status bars
-        if ( pchr->StatusList_on || VALID_PLA( pchr->is_which_player ) )
+        if ( pchr->show_stats || VALID_PLA( pchr->is_which_player ) )
         {
             do_feedback = bfalse;
         }
@@ -3527,9 +3516,9 @@ int damage_character( const CHR_REF character, FACING_T direction,
     if ( HAS_SOME_BITS( damage_modifier, DAMAGECHARGE ) )
     {
         pchr->mana += actual_damage;
-        if ( pchr->mana > pchr->manamax )
+        if ( pchr->mana > pchr->mana_max )
         {
-            pchr->mana = pchr->manamax;
+            pchr->mana = pchr->mana_max;
         }
         return 0;
     }
@@ -3638,7 +3627,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
                 const char * tmpstr;
                 int rank;
 
-                //tmpstr = describe_wounds( pchr->lifemax, pchr->life );
+                //tmpstr = describe_wounds( pchr->life_max, pchr->life );
 
                 tmpstr = describe_value( actual_damage, INT_TO_FP8( 10 ), &rank );
                 if ( rank < 4 )
@@ -3650,10 +3639,10 @@ int damage_character( const CHR_REF character, FACING_T direction,
                     }
                     else
                     {
-                        tmpstr = describe_damage( actual_damage, pchr->lifemax, &rank );
+                        tmpstr = describe_damage( actual_damage, pchr->life_max, &rank );
                         if ( rank >= -1 && rank <= 1 )
                         {
-                            tmpstr = describe_wounds( pchr->lifemax, pchr->life );
+                            tmpstr = describe_wounds( pchr->life_max, pchr->life );
                         }
                     }
                 }
@@ -3731,7 +3720,7 @@ void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing )
     // Figure out who is the real attacker, in case we are a held item or a controlled mount
     if ( INGAME_CHR( attacker ) )
     {
-        chr_t *pattacker = ChrList.lst + attacker;
+        chr_t *pattacker = ChrList_get_ptr( attacker );
 
         //Do not alert items damaging (or healing) their holders, healing potions for example
         if ( pattacker->attachedto == pchr->ai.index ) return;
@@ -3781,7 +3770,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = pro_get_pcap( profile );
     if ( NULL == pcap ) return;
@@ -3807,11 +3796,11 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
     pself = ai_state_ctor( pself );
 
     if ( NULL == pself || !DEFINED_CHR( index ) ) return;
-    pchr = ChrList.lst + index;
+    pchr = ChrList_get_ptr( index );
 
     // a character cannot be spawned without a valid profile
     if ( !LOADED_PRO( iobj ) ) return;
-    ppro = ProList.lst + iobj;
+    ppro = ProList_get_ptr( iobj );
 
     // a character cannot be spawned without a valid cap
     pcap = pro_get_pcap( iobj );
@@ -3913,7 +3902,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     if ( !pchr->invictus )  TeamStack.lst[loc_team].morale++;
 
     // Firstborn becomes the leader
-    if ( TeamStack.lst[loc_team].leader == NOLEADER )
+    if ( TeamStack.lst[loc_team].leader == TEAM_NOLEADER )
     {
         TeamStack.lst[loc_team].leader = ichr;
     }
@@ -3959,8 +3948,8 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // override the default behavior for an "easy" game
     if ( cfg.difficulty < GAME_NORMAL )
     {
-        pchr->life = pchr->lifemax;
-        pchr->mana = pchr->manamax;
+        pchr->life = pchr->life_max;
+        pchr->mana = pchr->mana_max;
     }
 
     // Character size and bumping
@@ -4074,16 +4063,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return pchr;
 
-    water_level = water.layer[0].z + water.layer[0].amp;
-    if ( cfg.twolayerwater_allowed )
-    {
-        int cnt;
-
-        for ( cnt = 1; cnt < MAXWATERLAYER; cnt++ )
-        {
-            water_level = MAX( water_level, water.layer[cnt].z + water.layer[cnt].amp );
-        }
-    }
+    water_level = water_instance_get_water_level( &water );
 
     // do the character interaction with water
     if ( !pchr->is_hidden && pchr->pos.z < water_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
@@ -4187,10 +4167,10 @@ chr_t * chr_config_do_active( chr_t * pchr )
             get_chr_regeneration( pchr, &liferegen, &manaregen );
 
             pchr->mana += manaregen;
-            pchr->mana = MAX( 0, MIN( pchr->mana, pchr->manamax ) );
+            pchr->mana = MAX( 0, MIN( pchr->mana, pchr->mana_max ) );
 
             pchr->life += liferegen;
-            pchr->life = MAX( 1, MIN( pchr->life, pchr->lifemax ) );
+            pchr->life = MAX( 1, MIN( pchr->life, pchr->life_max ) );
         }
 
         // countdown confuse effects
@@ -4447,8 +4427,6 @@ chr_t * chr_run_config( chr_t * pchr )
 chr_t * chr_config_ctor( chr_t * pchr )
 {
     /// @details BB@> initialize the character data to safe values
-    ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
-    ///     statements are redundant
 
     obj_data_t * pbase;
 
@@ -4577,20 +4555,20 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF 
 
     if ( !LOADED_PRO( profile ) )
     {
-        if ( profile > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( profile > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "spawn_one_character() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
         }
         return ( CHR_REF )MAX_CHR;
     }
-    ppro = ProList.lst + profile;
+    ppro = ProList_get_ptr( profile );
 
     if ( !LOADED_CAP( ppro->icap ) )
     {
         log_debug( "spawn_one_character() - invalid character profile %d\n", ppro->icap );
         return ( CHR_REF )MAX_CHR;
     }
-    pcap = CapStack.lst + ppro->icap;
+    pcap = CapStack_get_ptr( ppro->icap );
 
     // count all the requests for this character type
     pcap->request_count++;
@@ -4602,7 +4580,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF 
         log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( ichr ) );
         return ( CHR_REF )MAX_CHR;
     }
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     POBJ_BEGIN_SPAWN( pchr );
 
@@ -4646,7 +4624,7 @@ void respawn_character( const CHR_REF character )
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) || ChrList.lst[character].alive ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
@@ -4659,8 +4637,8 @@ void respawn_character( const CHR_REF character )
     pchr->alive = btrue;
     pchr->bore_timer = BORETIME;
     pchr->careful_timer = CAREFULTIME;
-    pchr->life = pchr->lifemax;
-    pchr->mana = pchr->manamax;
+    pchr->life = pchr->life_max;
+    pchr->mana = pchr->mana_max;
     chr_set_pos( pchr, pchr->pos_stt.v );
     pchr->vel.x = 0;
     pchr->vel.y = 0;
@@ -4669,7 +4647,7 @@ void respawn_character( const CHR_REF character )
     pchr->canbecrushed = bfalse;
     pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
     pchr->ori.map_facing_x = MAP_TURN_OFFSET;
-    if ( NOLEADER == TeamStack.lst[pchr->team].leader )  TeamStack.lst[pchr->team].leader = character;
+    if ( TEAM_NOLEADER == TeamStack.lst[pchr->team].leader )  TeamStack.lst[pchr->team].leader = character;
     if ( !pchr->invictus )  TeamStack.lst[pchr->team_base].morale++;
 
     // start the character out in the "dance" animation
@@ -4731,7 +4709,7 @@ int chr_change_skin( const CHR_REF character, int skin )
     TX_REF new_texture = TX_WATER_TOP;
 
     if ( !INGAME_CHR( character ) ) return 0;
-    pchr  = ChrList.lst + character;
+    pchr  = ChrList_get_ptr( character );
     pinst = &( pchr->inst );
 
     ppro = chr_get_ppro( character );
@@ -4783,12 +4761,6 @@ int chr_change_skin( const CHR_REF character, int skin )
 
     chr_instance_set_texture( pinst, new_texture );
 
-    // If the we are respawning a player, then the camera needs to be reset
-    // if ( VALID_PLA( pchr->is_which_player ) )
-    // {
-    //     camera_reset_target( PCamera, PMesh );
-    // }
-
     return pchr->skin;
 }
 
@@ -4805,7 +4777,7 @@ int change_armor( const CHR_REF character, int skin )
     chr_t * pchr;
 
     if ( !INGAME_CHR( character ) ) return 0;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -4817,14 +4789,14 @@ int change_armor( const CHR_REF character, int skin )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-        enchant_remove_set( ienc_now, SETSLASHMODIFIER );
-        enchant_remove_set( ienc_now, SETCRUSHMODIFIER );
-        enchant_remove_set( ienc_now, SETPOKEMODIFIER );
-        enchant_remove_set( ienc_now, SETHOLYMODIFIER );
-        enchant_remove_set( ienc_now, SETEVILMODIFIER );
-        enchant_remove_set( ienc_now, SETFIREMODIFIER );
-        enchant_remove_set( ienc_now, SETICEMODIFIER );
-        enchant_remove_set( ienc_now, SETZAPMODIFIER );
+        enc_remove_set( ienc_now, SETSLASHMODIFIER );
+        enc_remove_set( ienc_now, SETCRUSHMODIFIER );
+        enc_remove_set( ienc_now, SETPOKEMODIFIER );
+        enc_remove_set( ienc_now, SETHOLYMODIFIER );
+        enc_remove_set( ienc_now, SETEVILMODIFIER );
+        enc_remove_set( ienc_now, SETFIREMODIFIER );
+        enc_remove_set( ienc_now, SETICEMODIFIER );
+        enc_remove_set( ienc_now, SETZAPMODIFIER );
 
         ienc_now = ienc_nxt;
         ienc_count++;
@@ -4865,25 +4837,25 @@ int change_armor( const CHR_REF character, int skin )
         {
             EVE_REF ieve = pro_get_ieve( ipro );
 
-            enchant_apply_set( ienc_now, SETSLASHMODIFIER, ipro );
-            enchant_apply_set( ienc_now, SETCRUSHMODIFIER, ipro );
-            enchant_apply_set( ienc_now, SETPOKEMODIFIER,  ipro );
-            enchant_apply_set( ienc_now, SETHOLYMODIFIER,  ipro );
-            enchant_apply_set( ienc_now, SETEVILMODIFIER,  ipro );
-            enchant_apply_set( ienc_now, SETFIREMODIFIER,  ipro );
-            enchant_apply_set( ienc_now, SETICEMODIFIER,   ipro );
-            enchant_apply_set( ienc_now, SETZAPMODIFIER,   ipro );
+            enc_apply_set( ienc_now, SETSLASHMODIFIER, ipro );
+            enc_apply_set( ienc_now, SETCRUSHMODIFIER, ipro );
+            enc_apply_set( ienc_now, SETPOKEMODIFIER,  ipro );
+            enc_apply_set( ienc_now, SETHOLYMODIFIER,  ipro );
+            enc_apply_set( ienc_now, SETEVILMODIFIER,  ipro );
+            enc_apply_set( ienc_now, SETFIREMODIFIER,  ipro );
+            enc_apply_set( ienc_now, SETICEMODIFIER,   ipro );
+            enc_apply_set( ienc_now, SETZAPMODIFIER,   ipro );
 
-            enchant_apply_add( ienc_now, ADDACCEL,         ieve );
-            enchant_apply_add( ienc_now, ADDDEFENSE,       ieve );
-            enchant_apply_add( ienc_now, ADDSLASHRESIST,   ieve );
-            enchant_apply_add( ienc_now, ADDCRUSHRESIST,   ieve );
-            enchant_apply_add( ienc_now, ADDPOKERESIST,    ieve );
-            enchant_apply_add( ienc_now, ADDHOLYRESIST,    ieve );
-            enchant_apply_add( ienc_now, ADDEVILRESIST,    ieve );
-            enchant_apply_add( ienc_now, ADDFIRERESIST,    ieve );
-            enchant_apply_add( ienc_now, ADDICERESIST,     ieve );
-            enchant_apply_add( ienc_now, ADDZAPRESIST,     ieve );
+            enc_apply_add( ienc_now, ADDACCEL,         ieve );
+            enc_apply_add( ienc_now, ADDDEFENSE,       ieve );
+            enc_apply_add( ienc_now, ADDSLASHRESIST,   ieve );
+            enc_apply_add( ienc_now, ADDCRUSHRESIST,   ieve );
+            enc_apply_add( ienc_now, ADDPOKERESIST,    ieve );
+            enc_apply_add( ienc_now, ADDHOLYRESIST,    ieve );
+            enc_apply_add( ienc_now, ADDEVILRESIST,    ieve );
+            enc_apply_add( ienc_now, ADDFIRERESIST,    ieve );
+            enc_apply_add( ienc_now, ADDICERESIST,     ieve );
+            enc_apply_add( ienc_now, ADDZAPRESIST,     ieve );
         }
 
         ienc_now = ienc_nxt;
@@ -4934,7 +4906,7 @@ bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_of
     needs_update = bfalse;
 
     if ( !INGAME_CHR( iitem ) ) return bfalse;
-    pitem = ChrList.lst + iitem;
+    pitem = ChrList_get_ptr( iitem );
     mcache = &( pitem->inst.matrix_cache );
 
     // is the item attached to this valid holder?
@@ -5002,12 +4974,12 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     int old_attached_prt_count, new_attached_prt_count;
 
     if ( !LOADED_PRO( profile_new ) || !INGAME_CHR( ichr ) ) return;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     old_attached_prt_count = number_of_attached_particles( ichr );
 
     if ( !LOADED_PRO( profile_new ) ) return;
-    pobj_new = ProList.lst + profile_new;
+    pobj_new = ProList_get_ptr( profile_new );
 
     pcap_new = pro_get_pcap( profile_new );
     pmad_new = pro_get_pmad( profile_new );
@@ -5017,7 +4989,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     if ( INGAME_CHR( item_ref ) && ( !pcap_new->slotvalid[SLOT_LEFT] || pcap_new->ismount ) )
     {
         detach_character_from_mount( item_ref, btrue, btrue );
-        detach_character_from_platform( ChrList.lst + item_ref );
+        detach_character_from_platform( ChrList_get_ptr( item_ref ) );
 
         if ( pchr->ismount )
         {
@@ -5026,9 +4998,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
             ChrList.lst[item_ref].jump_timer = JUMPDELAY;
 
-            tmp_pos = chr_get_pos( ChrList.lst + item_ref );
+            tmp_pos = chr_get_pos( ChrList_get_ptr( item_ref ) );
             tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos( ChrList.lst + item_ref, tmp_pos.v );
+            chr_set_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
         }
     }
 
@@ -5037,7 +5009,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     if ( INGAME_CHR( item_ref ) && !pcap_new->slotvalid[SLOT_RIGHT] )
     {
         detach_character_from_mount( item_ref, btrue, btrue );
-        detach_character_from_platform( ChrList.lst + item_ref );
+        detach_character_from_platform( ChrList_get_ptr( item_ref ) );
 
         if ( pchr->ismount )
         {
@@ -5046,9 +5018,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
             ChrList.lst[item_ref].jump_timer = JUMPDELAY;
 
-            tmp_pos = chr_get_pos( ChrList.lst + item_ref );
+            tmp_pos = chr_get_pos( ChrList_get_ptr( item_ref ) );
             tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos( ChrList.lst + item_ref, tmp_pos.v );
+            chr_set_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
         }
     }
 
@@ -5267,7 +5239,7 @@ bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
     chr_t * pchr;
 
     if ( !INGAME_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     mana_paid  = bfalse;
     mana_final = pchr->mana - amount;
@@ -5296,10 +5268,10 @@ bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 
         pchr->mana = mana_final;
 
-        if ( mana_final > pchr->manamax )
+        if ( mana_final > pchr->mana_max )
         {
-            mana_surplus = mana_final - pchr->manamax;
-            pchr->mana   = pchr->manamax;
+            mana_surplus = mana_final - pchr->mana_max;
+            pchr->mana   = pchr->mana_max;
         }
 
         // allow surplus mana to go to health if you can channel?
@@ -5324,7 +5296,7 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
     int     loc_team_new;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // do we count this character as being on a team?
     can_have_team = !pchr->isitem && pchr->alive && !pchr->invictus;
@@ -5343,7 +5315,7 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
 
         if ( character == TeamStack.lst[team_old].leader )
         {
-            TeamStack.lst[team_old].leader = NOLEADER;
+            TeamStack.lst[team_old].leader = TEAM_NOLEADER;
         }
     }
 
@@ -5389,7 +5361,7 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 
     // grab a pointer to the character
     if ( !DEFINED_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // change our mount team as well
     tmp_ref = pchr->attachedto;
@@ -5449,7 +5421,7 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
     chr_t * pchr;
 
     if ( !INGAME_CHR( character ) ) return 0;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     amount = 0;
     if ( chr_is_type_idsz( character, idsz ) )
@@ -5530,7 +5502,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
     chr_t * pchr;
 
     if ( !INGAME_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -5558,7 +5530,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
 
     if ( life_regen < 0 )
     {
-        int tmp_level  = ( 0 == pchr->lifemax ) ? 0 : ( 10 * -life_regen ) / pchr->lifemax;                      // Darkvision gained by poison
+        int tmp_level  = ( 0 == pchr->life_max ) ? 0 : ( 10 * -life_regen ) / pchr->life_max;                      // Darkvision gained by poison
         int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );     // Natural darkvision
 
         //Use the better of the two darkvision abilities
@@ -5577,7 +5549,7 @@ void update_all_characters()
 
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        chr_run_config( ChrList.lst + ichr );
+        chr_run_config( ChrList_get_ptr( ichr ) );
     }
 
     // fix the stat timer
@@ -5606,7 +5578,7 @@ void move_one_character_get_environment( chr_t * pchr )
     pplatform = NULL;
     if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        pplatform = ChrList.lst + pchr->onwhichplatform_ref;
+        pplatform = ChrList_get_ptr( pchr->onwhichplatform_ref );
     }
 
     //---- character "floor" level
@@ -5660,11 +5632,7 @@ void move_one_character_get_environment( chr_t * pchr )
     penviro->grounded = (( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    penviro->grid_twist = TWIST_FLAT;
-    if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
-    {
-        penviro->grid_twist = PMesh->gmem.grid_list[pchr->onwhichgrid].twist;
-    }
+    penviro->grid_twist = mesh_get_twist( PMesh, pchr->onwhichgrid );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water.is_water && penviro->inwater;
@@ -5815,7 +5783,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     // figure out the acceleration due to the current "floor"
     if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
+        chr_t * pplat = ChrList_get_ptr( pchr->onwhichplatform_ref );
 
         temp_friction_xy = platstick;
 
@@ -5841,7 +5809,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         }
     }
 
-    floor_acc = fvec3_sub( penviro->floor_speed.v, pchr->vel.v );
+    fvec3_sub( floor_acc.v, penviro->floor_speed.v, pchr->vel.v );
     fvec3_self_scale( floor_acc.v, ( 1.0f - penviro->zlerp ) );
 
     // reduce the volountary acceleration peopendicular to the direction of motion?
@@ -5858,15 +5826,15 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         fvec3_decompose( floor_acc.v, vfront.v, acc_para.v, acc_perp.v );
 
         // re-compose the acceleration with 1/2 of the perpendicular taken away
-        floor_acc = fvec3_scale( acc_perp.v, 0.5f );
+        fvec3_scale( floor_acc.v, acc_perp.v, 0.5f );
         fvec3_self_sum( floor_acc.v, acc_para.v );
     }
 
     // the first guess about the floor friction
-    fric_floor = fvec3_scale( floor_acc.v, penviro->traction * ( 1.0f - temp_friction_xy ) );
+    fvec3_scale( fric_floor.v, floor_acc.v, penviro->traction *( 1.0f - temp_friction_xy ) );
 
     // the total "friction" with to the floor
-    fric = fvec3_add( fric_floor.v, penviro->acc.v );
+    fvec3_add( fric.v, fric_floor.v, penviro->acc.v );
 
     // limit the friction to whatever is horizontal to the mesh
     if ( 1.0f == ABS( vup.z ) )
@@ -5894,7 +5862,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         temp_friction_xy  = SQRT( temp_friction_xy );
 
         // the first guess about the floor friction
-        fric_floor = fvec3_scale( floor_acc.v, penviro->traction * ( 1.0f - temp_friction_xy ) );
+        fvec3_scale( fric_floor.v, floor_acc.v, penviro->traction *( 1.0f - temp_friction_xy ) );
     }
 
     //apply the floor friction
@@ -5955,8 +5923,8 @@ void move_one_character_do_voluntary( chr_t * pchr )
     if ( VALID_PLA( pchr->is_which_player ) )
     {
         // determine whether the user is hitting the "sneak button"
-        player_t * ppla = PlaStack.lst + pchr->is_which_player;
-        sneak_mode_active = control_is_pressed( ppla->pdevice, CONTROL_SNEAK );
+        player_t * ppla = PlaStack_get_ptr( pchr->is_which_player );
+        sneak_mode_active = input_device_control_active( ppla->pdevice, CONTROL_SNEAK );
     }
 
     pchr->enviro.new_v.x = pchr->enviro.new_v.y = 0.0f;
@@ -5973,7 +5941,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
             float dv = POW( dv2, 0.25f );
 
-            ppla = PlaStack.lst + ipla;
+            ppla = PlaStack_get_ptr( ipla );
 
             // determine whether the character is sneaking
             sneak_mode_active = ( dv2 < 1.0f / 9.0f );
@@ -6013,7 +5981,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     // do platform friction
     if ( INGAME_CHR( pchr->onwhichplatform_ref ) )
     {
-        chr_t * pplat = ChrList.lst + pchr->onwhichplatform_ref;
+        chr_t * pplat = ChrList_get_ptr( pchr->onwhichplatform_ref );
 
         new_ax += ( pplat->vel.x + pchr->enviro.new_v.x - ( pchr->vel.x ) );
         new_ay += ( pplat->vel.y + pchr->enviro.new_v.y - ( pchr->vel.y ) );
@@ -6123,7 +6091,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
         // Unarmed means character itself is the iweapon
         iweapon = ichr;
     }
-    pweapon     = ChrList.lst + iweapon;
+    pweapon     = ChrList_get_ptr( iweapon );
     pweapon_cap = chr_get_pcap( iweapon );
 
     //No need to continue if we have an attack cooldown
@@ -6165,7 +6133,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
         if ( INGAME_CHR( test_weapon ) )
         {
             chr_t * weapon;
-            weapon     = ChrList.lst + test_weapon;
+            weapon     = ChrList_get_ptr( test_weapon );
             if ( weapon->iskursed ) allowedtoattack = bfalse;
         }
     }
@@ -6174,7 +6142,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     {
         // This character can't use this iweapon
         pweapon->reload_timer = ONESECOND;
-        if ( pchr->StatusList_on || cfg.dev_mode )
+        if ( pchr->show_stats || cfg.dev_mode )
         {
             // Tell the player that they can't use this iweapon
             debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
@@ -6199,7 +6167,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 
         if ( INGAME_CHR( mount ) )
         {
-            chr_t * pmount = ChrList.lst + mount;
+            chr_t * pmount = ChrList_get_ptr( mount );
             cap_t * pmount_cap = chr_get_pcap( mount );
 
             // let the mount steal the rider's attack
@@ -6238,7 +6206,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 
                 // Check life healing
                 pchr->life += pweapon->life_heal;
-                if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
+                if ( pchr->life > pchr->life_max )  pchr->life = pchr->life_max;
 
                 // randomize the action
                 action = randomize_action( action, which_slot );
@@ -6348,7 +6316,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
             fvec3_t tmp_pos;
 
             detach_character_from_mount( ichr, btrue, btrue );
-            detach_character_from_platform( ChrList.lst + ichr );
+            detach_character_from_platform( ChrList_get_ptr( ichr ) );
 
             pchr->jump_timer = JUMPDELAY;
             if ( 0 != pchr->flyheight )
@@ -6611,7 +6579,7 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
         if ( !chr_hit_wall( pchr, NULL, NULL, NULL, NULL ) )
         {
             found = btrue;
-            memmove( pos_v, pchr->safe_pos.v, sizeof( fvec3_base_t ) );
+            fvec3_base_copy( pos_v, pchr->safe_pos.v );
         }
     }
 
@@ -6624,7 +6592,7 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
         if ( NULL != bc )
         {
             found = btrue;
-            memmove( pos_v, bc->pos.v, sizeof( fvec3_base_t ) );
+            fvec3_base_copy( pos_v, bc->pos.v );
         }
     }
 
@@ -7555,8 +7523,8 @@ void move_one_character( chr_t * pchr )
     if ( INGAME_CHR( pchr->inwhich_inventory ) ) return;
 
     // save the velocity and acceleration from the last time-step
-    pchr->enviro.vel = fvec3_sub( pchr->pos.v, pchr->pos_old.v );
-    pchr->enviro.acc = fvec3_sub( pchr->vel.v, pchr->vel_old.v );
+    fvec3_sub( pchr->enviro.vel.v, pchr->pos.v, pchr->pos_old.v );
+    fvec3_sub( pchr->enviro.acc.v, pchr->vel.v, pchr->vel_old.v );
 
     // Character's old location
     pchr->pos_old          = chr_get_pos( pchr );
@@ -7630,7 +7598,7 @@ void cleanup_all_characters()
         bool_t time_out;
 
         if ( !ALLOCATED_CHR( cnt ) ) continue;
-        pchr = ChrList.lst + cnt;
+        pchr = ChrList_get_ptr( cnt );
 
         time_out = ( pchr->ai.poof_time >= 0 ) && ( pchr->ai.poof_time <= ( Sint32 )update_wld );
         if ( !WAITING_PBASE( POBJ_GET_PBASE( pchr ) ) && !time_out ) continue;
@@ -7674,7 +7642,7 @@ bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, Uint1
     bool_t  is_invictus;
 
     if ( !INGAME_CHR( character ) ) return btrue;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pmad = chr_get_pmad( character );
     if ( NULL == pmad ) return btrue;
@@ -7786,23 +7754,6 @@ void init_slot_idsz()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
-{
-    bool_t retval;
-
-    if ( NULL == pai ) return bfalse;
-
-    // this function is only truely valid if there is no other order
-    retval = HAS_NO_BITS( pai->alert, ALERTIF_ORDERED );
-
-    SET_BIT( pai->alert, ALERTIF_ORDERED );
-    pai->order_value   = value;
-    pai->order_counter = counter;
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 {
     /// @details BB@> Attach a basic billboard to a character. You set the billboard texture
@@ -7815,7 +7766,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
     chr_t * pchr;
 
     if ( !INGAME_CHR( ichr ) ) return ( BBOARD_REF )INVALID_BILLBOARD;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( INVALID_BILLBOARD != pchr->ibillboard )
     {
@@ -7828,7 +7779,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
     // attachr the billboard to the character
     if ( INVALID_BILLBOARD != pchr->ibillboard )
     {
-        billboard_data_t * pbb = BillboardList.lst + pchr->ibillboard;
+        billboard_data_t * pbb = BillboardList_get_ptr( pchr->ibillboard );
 
         pbb->ichr = ichr;
     }
@@ -7846,7 +7797,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     BBOARD_REF ibb = ( BBOARD_REF )INVALID_BILLBOARD;
 
     if ( !INGAME_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     // create a new billboard or override the old billboard
     ibb = chr_add_billboard( ichr, lifetime_secs );
@@ -7929,7 +7880,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits )
     }
     else
     {
-        chr_t * pchr = ChrList.lst + ichr;
+        chr_t * pchr = ChrList_get_ptr( ichr );
         cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
         if ( pchr->nameknown )
@@ -7993,7 +7944,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     strncpy( buffer, "/debug", SDL_arraysize( buffer ) );
 
     if ( !DEFINED_CHR( ichr ) ) return buffer;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( !LOADED_PRO( pchr->profile_ref ) )
     {
@@ -8012,7 +7963,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     }
     else
     {
-        pro_t * ppro = ProList.lst + pchr->profile_ref;
+        pro_t * ppro = ProList_get_ptr( pchr->profile_ref );
 
         // copy the character's data.txt path
         strncpy( buffer, ppro->name, SDL_arraysize( buffer ) );
@@ -8083,7 +8034,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     vcount = oct_bb_to_points( &bsrc, src, 16 );
 
     // transform the new point cloud
-    TransformVertices( &( pchr->inst.matrix ), src, dst, vcount );
+    mat_TransformVertices( pchr->inst.matrix.v, src, dst, vcount );
 
     // convert the new point cloud into a level 1 bounding box
     points_to_oct_bb( &bdst, dst, vcount );
@@ -8273,10 +8224,10 @@ TX_REF chr_get_icon_ref( const CHR_REF item )
     pro_t * pitem_pro;
 
     if ( !DEFINED_CHR( item ) ) return icon_ref;
-    pitem = ChrList.lst + item;
+    pitem = ChrList_get_ptr( item );
 
     if ( !LOADED_PRO( pitem->profile_ref ) ) return icon_ref;
-    pitem_pro = ProList.lst + pitem->profile_ref;
+    pitem_pro = ProList_get_ptr( pitem->profile_ref );
 
     pitem_cap = pro_get_pcap( pitem->profile_ref );
     if ( NULL == pitem_cap ) return icon_ref;
@@ -8315,7 +8266,7 @@ TX_REF chr_get_icon_ref( const CHR_REF item )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void init_all_cap()
+void CapStack_init_all()
 {
     /// @details BB@> initialize every character profile in the game
 
@@ -8323,12 +8274,12 @@ void init_all_cap()
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        cap_init( CapStack.lst + cnt );
+        cap_init( CapStack_get_ptr( cnt ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_cap()
+void CapStack_release_all()
 {
     /// @details BB@> release every character profile in the game
 
@@ -8336,19 +8287,19 @@ void release_all_cap()
 
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
-        release_one_cap( cnt );
+        CapStack_release_one( cnt );
     };
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_cap( const CAP_REF icap )
+bool_t CapStack_release_one( const CAP_REF icap )
 {
     /// @details BB@> release any allocated data and return all values to safe values
 
     cap_t * pcap;
 
     if ( !VALID_CAP_RANGE( icap ) ) return bfalse;
-    pcap = CapStack.lst + icap;
+    pcap = CapStack_get_ptr( icap );
 
     if ( !pcap->loaded ) return btrue;
 
@@ -8379,7 +8330,7 @@ void reset_teams()
         TeamStack.lst[teama].hatesteam[REF_TO_INT( teama )] = bfalse;
 
         // Set defaults
-        TeamStack.lst[teama].leader = NOLEADER;
+        TeamStack.lst[teama].leader = TEAM_NOLEADER;
         TeamStack.lst[teama].sissy = 0;
         TeamStack.lst[teama].morale = 0;
     }
@@ -8404,7 +8355,7 @@ bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T fac
     bool_t   retval;
 
     if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( x < 0.0f || x > PMesh->gmem.edge_x ) return bfalse;
     if ( y < 0.0f || y > PMesh->gmem.edge_y ) return bfalse;
@@ -8450,13 +8401,16 @@ bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T fac
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_request_terminate( const CHR_REF ichr )
+bool_t chr_request_terminate( chr_t * pchr )
 {
     /// @details BB@> Mark this character for deletion
 
-    if ( !DEFINED_CHR( ichr ) ) return bfalse;
+    if ( NULL == pchr || !ALLOCATED_PCHR( pchr ) || TERMINATED_PCHR( pchr ) )
+    {
+        return bfalse;
+    }
 
-    POBJ_REQUEST_TERMINATE( ChrList.lst + ichr );
+    POBJ_REQUEST_TERMINATE( pchr );
 
     return btrue;
 }
@@ -8486,30 +8440,6 @@ chr_t * chr_update_hide( chr_t * pchr )
     }
 
     return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t ai_state_set_changed( ai_state_t * pai )
-{
-    /// @details BB@> do something tricky here
-
-    bool_t retval = bfalse;
-
-    if ( NULL == pai ) return bfalse;
-
-    if ( HAS_NO_BITS( pai->alert, ALERTIF_CHANGED ) )
-    {
-        SET_BIT( pai->alert, ALERTIF_CHANGED );
-        retval = btrue;
-    }
-
-    if ( !pai->changed )
-    {
-        pai->changed = btrue;
-        retval = btrue;
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8545,7 +8475,7 @@ int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
     }
 
     if ( !INGAME_CHR( imount ) ) return 0;
-    pmount = ChrList.lst + imount;
+    pmount = ChrList_get_ptr( imount );
 
     pmount_mad = chr_get_pmad( imount );
     if ( NULL == pmount_mad ) return 0;
@@ -8605,7 +8535,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     {
         // this will pretty much fail the cmp_matrix_cache() every time...
 
-        chr_t * ptarget = ChrList.lst + pchr->ai.target;
+        chr_t * ptarget = ChrList_get_ptr( pchr->ai.target );
 
         // make sure we have the latst info from the target
         chr_update_matrix( ptarget, btrue );
@@ -8627,7 +8557,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
         //---- update the MAT_WEAPON data
         if ( DEFINED_CHR( pchr->attachedto ) )
         {
-            chr_t * pmount = ChrList.lst + pchr->attachedto;
+            chr_t * pmount = ChrList_get_ptr( pchr->attachedto );
 
             // make sure we have the latst info from the target
             chr_update_matrix( pmount, btrue );
@@ -8650,7 +8580,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
         //---- update the MAT_CHARACTER data
         if ( DEFINED_CHR( itarget ) )
         {
-            chr_t * ptarget = ChrList.lst + itarget;
+            chr_t * ptarget = ChrList_get_ptr( itarget );
 
             mc_tmp->valid   = btrue;
             SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
@@ -8732,7 +8662,7 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
     fvec4_t   src_point[GRIP_VERTS];
 
     if ( !INGAME_CHR( iholder ) ) return 0;
-    pholder = ChrList.lst + iholder;
+    pholder = ChrList_get_ptr( iholder );
 
     // find the grip points in the character's "local" or "body-fixed" coordinates
     point_count = convert_grip_to_local_points( pholder, grip_verts, src_point );
@@ -8740,7 +8670,7 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
     if ( 0 == point_count ) return 0;
 
     // use the math function instead of rolling out own
-    TransformVertices( &( pholder->inst.matrix ), src_point, dst_point, point_count );
+    mat_TransformVertices( pholder->inst.matrix.v, src_point, dst_point, point_count );
 
     return point_count;
 }
@@ -8763,7 +8693,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
     pweap_mcache = &( pweap->inst.matrix_cache );
 
     if ( !INGAME_CHR( mc_tmp->grip_chr ) ) return bfalse;
-    pholder = ChrList.lst + mc_tmp->grip_chr;
+    pholder = ChrList_get_ptr( mc_tmp->grip_chr );
 
     // make sure that the matrix is invalid incase of an error
     pweap_mcache->matrix_valid = bfalse;
@@ -8775,7 +8705,7 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        pweap->inst.matrix = FourPoints( nupoint[0].v, nupoint[1].v, nupoint[2].v, nupoint[3].v, mc_tmp->self_scale.z );
+        mat_FourPoints( pweap->inst.matrix.v, nupoint[0].v, nupoint[1].v, nupoint[2].v, nupoint[3].v, mc_tmp->self_scale.z );
 
         // update the weapon position
         chr_set_pos( pweap, nupoint[3].v );
@@ -8823,15 +8753,19 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     if ( pchr->stickybutt )
     {
-        pchr->inst.matrix = ScaleXYZRotateXYZTranslate_SpaceFixed( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
-                            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
-                            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
+        mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(
+            pchr->inst.matrix.v,
+            mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
+            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
+            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
     }
     else
     {
-        pchr->inst.matrix = ScaleXYZRotateXYZTranslate_BodyFixed( mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
-                            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
-                            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
+        mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(
+            pchr->inst.matrix.v,
+            mc_tmp->self_scale.x, mc_tmp->self_scale.y, mc_tmp->self_scale.z,
+            TO_TURN( mc_tmp->rotate.z ), TO_TURN( mc_tmp->rotate.x ), TO_TURN( mc_tmp->rotate.y ),
+            mc_tmp->pos.x, mc_tmp->pos.y, mc_tmp->pos.z );
     }
 
     memcpy( &( pchr->inst.matrix_cache ), mc_tmp, sizeof( matrix_cache_t ) );
@@ -8839,35 +8773,6 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
     pchr->inst.matrix_cache.matrix_valid = btrue;
 
     return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
-{
-    /// @detalis BB@> Generate the extra data needed to display a reflection for this character
-
-    if ( NULL == pinst ) return bfalse;
-
-    // invalidate the current matrix
-    pinst->ref.matrix_valid = bfalse;
-
-    // actually flip the matrix
-    if ( pinst->matrix_cache.valid )
-    {
-        pinst->ref.matrix = pinst->matrix;
-
-        pinst->ref.matrix.CNV( 0, 2 ) = -pinst->ref.matrix.CNV( 0, 2 );
-        pinst->ref.matrix.CNV( 1, 2 ) = -pinst->ref.matrix.CNV( 1, 2 );
-        pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
-        pinst->ref.matrix.CNV( 3, 2 ) = 2 * grid_level - pinst->ref.matrix.CNV( 3, 2 );
-
-        pinst->ref.matrix_valid = btrue;
-
-        // fix the reflection
-        chr_instance_update_ref( pinst, grid_level, bfalse );
-    }
-
-    return pinst->ref.matrix_valid;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -8924,7 +8829,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
     if ( applied )
     {
-        apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level );
+        chr_instance_apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level );
     }
 
     return applied;
@@ -9083,7 +8988,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     {
         egoboo_rv attached_update = rv_error;
 
-        attached_update = chr_update_matrix( ChrList.lst + pchr->attachedto, btrue );
+        attached_update = chr_update_matrix( ChrList_get_ptr( pchr->attachedto ), btrue );
 
         // if this fails, we should probably do something...
         if ( rv_error == attached_update )
@@ -9109,7 +9014,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && INGAME_CHR( mc_tmp.grip_chr ) )
     {
         egoboo_rv grip_retval;
-        chr_t   * ptarget = ChrList.lst + mc_tmp.grip_chr;
+        chr_t   * ptarget = ChrList_get_ptr( mc_tmp.grip_chr );
 
         // has that character changes its animation?
         grip_retval = ( egoboo_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
@@ -9137,26 +9042,6 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     return applied ? rv_success : rv_fail;
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
-{
-    /// @details BB@> bumping into a chest can initiate whole loads of update messages.
-    ///     Try to throttle the rate that new "bump" messages can be passed to the ai
-
-    if ( NULL == pself ) return bfalse;
-
-    if ( !INGAME_CHR( ichr ) ) return bfalse;
-
-    // 5 bumps per second?
-    if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
-    {
-        pself->bumplast_time = update_wld;
-        SET_BIT( pself->alert, ALERTIF_BUMPED );
-    }
-    pself->bumplast = ichr;
-
-    return btrue;
-}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -9169,7 +9054,7 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
     chr_t * pchr;
 
     if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     result = ( CHR_REF )MAX_CHR;
 
@@ -9198,7 +9083,7 @@ CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
     chr_t * pchr;
 
     if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     item = ( CHR_REF )MAX_CHR;
     found = bfalse;
@@ -9242,7 +9127,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
     chr_t * pchr;
 
     if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     // Check the pack
     item       = ( CHR_REF )MAX_CHR;
@@ -9327,10 +9212,10 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
     bool_t too_dark, too_invis;
 
     if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( !INGAME_CHR( iobj ) ) return bfalse;
-    pobj = ChrList.lst + iobj;
+    pobj = ChrList_get_ptr( iobj );
 
     too_dark  = !chr_can_see_dark( pchr, pobj );
     too_invis = !chr_can_see_invis( pchr, pobj );
@@ -9351,7 +9236,7 @@ int chr_get_price( const CHR_REF ichr )
     cap_t * pcap;
 
     if ( !INGAME_CHR( ichr ) ) return 0;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     // Make sure spell books are priced according to their spell and not the book itself
     if ( pchr->profile_ref == SPELLBOOK )
@@ -9366,7 +9251,7 @@ int chr_get_price( const CHR_REF ichr )
     }
 
     if ( !LOADED_CAP( icap ) ) return 0;
-    pcap = CapStack.lst + icap;
+    pcap = CapStack_get_ptr( icap );
 
     price = ( float ) pcap->skincost[iskin];
 
@@ -9464,120 +9349,6 @@ void chr_set_light( chr_t * pchr, int light )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits )
-{
-    int i;
-    float weight_sum;
-    GLXvector4f local_tint;
-
-    int local_alpha;
-    int local_light;
-    int local_sheen;
-    int local_redshift;
-    int local_grnshift;
-    int local_blushift;
-
-    if ( NULL == tint ) tint = local_tint;
-
-    if ( HAS_SOME_BITS( bits, CHR_REFLECT ) )
-    {
-        // this is a reflection, use the reflected parameters
-        local_alpha    = pinst->ref.alpha;
-        local_light    = pinst->ref.light;
-        local_sheen    = pinst->ref.sheen;
-        local_redshift = pinst->ref.redshift;
-        local_grnshift = pinst->ref.grnshift;
-        local_blushift = pinst->ref.blushift;
-    }
-    else
-    {
-        // this is NOT a reflection, use the normal parameters
-        local_alpha    = pinst->alpha;
-        local_light    = pinst->light;
-        local_sheen    = pinst->sheen;
-        local_redshift = pinst->redshift;
-        local_grnshift = pinst->grnshift;
-        local_blushift = pinst->blushift;
-    }
-
-    // modify these values based on local character abilities
-    local_alpha = get_alpha( local_alpha, local_stats.seeinvis_mag );
-    local_light = get_light( local_light, local_stats.seedark_mag );
-
-    // clear out the tint
-    weight_sum = 0;
-    for ( i = 0; i < 4; i++ ) tint[i] = 0;
-
-    if ( HAS_SOME_BITS( bits, CHR_SOLID ) )
-    {
-        // solid characters are not blended onto the canvas
-        // the alpha channel is not important
-        weight_sum += 1.0f;
-
-        tint[RR] += 1.0f / ( 1 << local_redshift );
-        tint[GG] += 1.0f / ( 1 << local_grnshift );
-        tint[BB] += 1.0f / ( 1 << local_blushift );
-        tint[AA] += 1.0f;
-    }
-
-    if ( HAS_SOME_BITS( bits, CHR_ALPHA ) )
-    {
-        // alpha characters are blended onto the canvas using the alpha channel
-        // the alpha channel is not important
-        weight_sum += 1.0f;
-
-        tint[RR] += 1.0f / ( 1 << local_redshift );
-        tint[GG] += 1.0f / ( 1 << local_grnshift );
-        tint[BB] += 1.0f / ( 1 << local_blushift );
-        tint[AA] += local_alpha * INV_FF;
-    }
-
-    if ( HAS_SOME_BITS( bits, CHR_LIGHT ) )
-    {
-        // alpha characters are blended onto the canvas by adding their color
-        // the more black the colors, the less visible the character
-        // the alpha channel is not important
-
-        weight_sum += 1.0f;
-
-        if ( local_light < 255 )
-        {
-            tint[RR] += local_light * INV_FF / ( 1 << local_redshift );
-            tint[GG] += local_light * INV_FF / ( 1 << local_grnshift );
-            tint[BB] += local_light * INV_FF / ( 1 << local_blushift );
-        }
-
-        tint[AA] += 1.0f;
-    }
-
-    if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
-    {
-        // phong is essentially the same as light, but it is the
-        // sheen that sets the effect
-
-        float amount;
-
-        weight_sum += 1.0f;
-
-        amount = ( CLIP( local_sheen, 0, 15 ) << 4 ) / 240.0f;
-
-        tint[RR] += amount;
-        tint[GG] += amount;
-        tint[BB] += amount;
-        tint[AA] += 1.0f;
-    }
-
-    // average the tint
-    if ( weight_sum != 0.0f && weight_sum != 1.0f )
-    {
-        for ( i = 0; i < 4; i++ )
-        {
-            tint[i] /= weight_sum;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item )
 {
     /// @details BB@> Find the lowest attachment for a given object.
@@ -9594,21 +9365,30 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item )
     if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
 
     original_object = object = ichr;
-    for ( cnt = 0, object = ichr; cnt < MAX_CHR && INGAME_CHR( object ); cnt++ )
+    for ( cnt = 0, object = ichr; cnt < MAX_CHR; cnt++ )
     {
-        object_next = ChrList.lst[object].attachedto;
-
+        // check for one of the ending condiitons
         if ( non_item && !ChrList.lst[object].isitem )
         {
             break;
         }
 
-        // check for a list with a loop. shouldn't happen, but...
-        if ( !INGAME_CHR( object_next ) || object_next == original_object )
+        // grab the next object in the list
+        object_next = ChrList.lst[object].attachedto;
+
+        // check for an end of the list
+        if ( !INGAME_CHR( object_next ) )
         {
             break;
         }
 
+        // check for a list with a loop. shouldn't happen, but...
+        if ( object_next == original_object )
+        {
+            break;
+        }
+
+        // go to the next object
         object = object_next;
     }
 
@@ -9626,14 +9406,14 @@ bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
     // make sure that A is valid
     if ( !INGAME_CHR( ichr_a ) ) return bfalse;
-    pchr_a = ChrList.lst + ichr_a;
+    pchr_a = ChrList_get_ptr( ichr_a );
 
     pcap_a = chr_get_pcap( ichr_a );
     if ( NULL == pcap_a ) return bfalse;
 
     // make sure that B is valid
     if ( !INGAME_CHR( ichr_b ) ) return bfalse;
-    pchr_b = ChrList.lst + ichr_b;
+    pchr_b = ChrList_get_ptr( ichr_b );
 
     pcap_b = chr_get_pcap( ichr_b );
     if ( NULL == pcap_b ) return bfalse;
@@ -9848,7 +9628,7 @@ MAD_REF chr_get_imad( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return ( MAD_REF )MAX_MAD;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     // try to repair a bad model if it exists
     if ( !LOADED_MAD( pchr->inst.imad ) )
@@ -9873,7 +9653,7 @@ mad_t * chr_get_pmad( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     // try to repair a bad model if it exists
     if ( !LOADED_MAD( pchr->inst.imad ) )
@@ -9887,7 +9667,7 @@ mad_t * chr_get_pmad( const CHR_REF ichr )
 
     if ( !LOADED_MAD( pchr->inst.imad ) ) return NULL;
 
-    return MadStack.lst + pchr->inst.imad;
+    return MadStack_get_ptr( pchr->inst.imad );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9921,7 +9701,7 @@ bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
 
     if (( pos[kX] != pchr->pos.v[kX] ) || ( pos[kY] != pchr->pos.v[kY] ) || ( pos[kZ] != pchr->pos.v[kZ] ) )
     {
-        memmove( pchr->pos.v, pos, sizeof( fvec3_base_t ) );
+        fvec3_base_copy( pchr->pos.v, pos );
 
         retval = chr_update_pos( pchr );
     }
@@ -10077,27 +9857,29 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
     if ( NULL == grip_up )
     {
         // we only need one vertex
-        TransformVertices( &( pmount_inst->matrix ), grip_points, grip_nupoints, 1 );
+        mat_TransformVertices( pmount_inst->matrix.v, grip_points, grip_nupoints, 1 );
     }
     else
     {
         // transform all the vertices
-        TransformVertices( &( pmount_inst->matrix ), grip_points, grip_nupoints, GRIP_VERTS );
+        mat_TransformVertices( pmount_inst->matrix.v, grip_points, grip_nupoints, GRIP_VERTS );
     }
 
     // find the up vector, if needed
     if ( NULL != grip_up )
     {
+        fvec3_t vtmp;
         fvec3_t grip_vecs[3];
 
         // determine the grip vectors
         for ( cnt = 0; cnt < 3; cnt++ )
         {
-            grip_vecs[cnt] = fvec3_sub( grip_nupoints[cnt + 1].v, grip_nupoints[0].v );
+            fvec3_sub( grip_vecs[cnt].v, grip_nupoints[cnt + 1].v, grip_nupoints[0].v );
         }
 
         // grab the grip's "up" vector
-        fvec3_base_assign( grip_up, fvec3_normalize( grip_vecs[2].v ) );
+        fvec3_normalize( vtmp.v, grip_vecs[2].v );
+        fvec3_base_copy( grip_up, vtmp.v );
     }
 
     // save the origin, if necessary
@@ -10114,4 +9896,3 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
 
     return btrue;
 }
-

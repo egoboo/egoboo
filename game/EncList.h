@@ -30,26 +30,26 @@
 // testing functions
 //--------------------------------------------------------------------------------------------
 
-bool_t VALID_ENC_RANGE( ENC_REF IENC );
-bool_t DEFINED_ENC( ENC_REF IENC );
-bool_t ALLOCATED_ENC( ENC_REF IENC );
-bool_t ACTIVE_ENC( ENC_REF IENC );
-bool_t WAITING_ENC( ENC_REF IENC );
-bool_t TERMINATED_ENC( ENC_REF IENC );
+bool_t VALID_ENC_RANGE( const ENC_REF IENC );
+bool_t DEFINED_ENC( const ENC_REF IENC );
+bool_t ALLOCATED_ENC( const ENC_REF IENC );
+bool_t ACTIVE_ENC( const ENC_REF IENC );
+bool_t WAITING_ENC( const ENC_REF IENC );
+bool_t TERMINATED_ENC( const ENC_REF IENC );
 
-size_t  GET_INDEX_PENC( enc_t * PENC );
-ENC_REF GET_REF_PENC( enc_t * PENC );
-bool_t  DEFINED_PENC( enc_t * PENC );
-bool_t  VALID_ENC_PTR( enc_t * PENC );
-bool_t  ALLOCATED_PENC( enc_t * PENC );
-bool_t  ACTIVE_PENC( enc_t * PENC );
-bool_t  TERMINATED_PENC( enc_t * PENC );
+size_t  GET_INDEX_PENC( const enc_t * PENC );
+ENC_REF GET_REF_PENC( const enc_t * PENC );
+bool_t  DEFINED_PENC( const enc_t * PENC );
+bool_t  VALID_ENC_PTR( const enc_t * PENC );
+bool_t  ALLOCATED_PENC( const enc_t * PENC );
+bool_t  ACTIVE_PENC( const enc_t * PENC );
+bool_t  TERMINATED_PENC( const enc_t * PENC );
 
-bool_t INGAME_ENC_BASE( ENC_REF IENC );
-bool_t INGAME_PENC_BASE( enc_t * PENC );
+bool_t INGAME_ENC_BASE( const ENC_REF IENC );
+bool_t INGAME_PENC_BASE( const enc_t * PENC );
 
-bool_t INGAME_ENC( ENC_REF IENC );
-bool_t INGAME_PENC( enc_t * PENC );
+bool_t INGAME_ENC( const ENC_REF IENC );
+bool_t INGAME_PENC( const enc_t * PENC );
 
 //--------------------------------------------------------------------------------------------
 // testing macros
@@ -84,8 +84,8 @@ bool_t INGAME_PENC( enc_t * PENC );
 
 // Macros automate looping through the EncList. This hides code which defers the creation and deletion of
 // objects until the loop terminates, so tha the length of the list will not change during the loop.
-#define ENC_BEGIN_LOOP_ACTIVE(IT, PENC)  {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC (IT)) continue; PENC =  EncList.lst + IT;
-#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); EncList_cleanup(); }
+#define ENC_BEGIN_LOOP_ACTIVE(IT, PENC)  {int IT##_internal; int enc_loop_start_depth = enc_loop_depth; enc_loop_depth++; for(IT##_internal=0;IT##_internal<EncList.used_count;IT##_internal++) { ENC_REF IT; enc_t * PENC = NULL; IT = (ENC_REF)EncList.used_ref[IT##_internal]; if(!ACTIVE_ENC (IT)) continue; PENC =  EncList_get_ptr( IT );
+#define ENC_END_LOOP() } enc_loop_depth--; EGOBOO_ASSERT(enc_loop_start_depth == enc_loop_depth); enchant_list_cleanup(); }
 
 //--------------------------------------------------------------------------------------------
 // external variables
@@ -99,19 +99,20 @@ extern int enc_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    EncList_init();
-void    EncList_dtor();
+void    EncList_init( void );
+void    EncList_dtor( void );
 
 ENC_REF EncList_allocate( const ENC_REF override );
 
 bool_t  EncList_free_one( const ENC_REF ienc );
-void    EncList_free_all();
+void    EncList_free_all( void );
 
 bool_t  EncList_add_used( const ENC_REF ienc );
 
-void    EncList_update_used();
+void    EncList_update_used( void );
 
-void    EncList_cleanup();
+void    enchant_list_cleanup( void );
 
-bool_t EncList_add_activation( ENC_REF ienc );
-bool_t EncList_add_termination( ENC_REF ienc );
+bool_t EncList_add_activation( const ENC_REF ienc );
+bool_t EncList_add_termination( const ENC_REF ienc );
+bool_t EncList_request_terminate( const ENC_REF ienc );

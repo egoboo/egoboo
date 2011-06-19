@@ -22,7 +22,8 @@
 /// @file texture.h
 
 #include "egoboo_typedef.h"
-#include "ogl_texture.h"
+
+#include "extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,12 +69,12 @@ DECLARE_LIST_EXTERN( oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void           TxTexture_init_all();
-void           TxTexture_delete_all();
-void           TxTexture_release_all();
-TX_REF         TxTexture_get_free( const TX_REF itex );
-bool_t         TxTexture_free_one( const TX_REF  itex );
-TX_REF         TxTexture_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
-oglx_texture_t * TxTexture_get_ptr( const TX_REF itex );
+void             TxTexture_init_all( void );
+void             TxTexture_delete_all( void );
+void             TxTexture_release_all( void );
+TX_REF           TxTexture_get_free( const TX_REF itex );
+bool_t           TxTexture_free_one( const TX_REF  itex );
+TX_REF           TxTexture_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
+oglx_texture_t * TxTexture_get_valid_ptr( const TX_REF itex );
 
-void           TxTexture_reload_all();
+void             TxTexture_reload_all( void );

@@ -23,8 +23,9 @@
 
 #include "egoboo_typedef.h"
 
-#include "file_formats/id_md2.h"
 #include "md2.h"
+
+#include "file_formats/id_md2.h"
 
 #include <SDL_opengl.h>
 
@@ -174,22 +175,28 @@ struct s_mad
 };
 typedef struct s_mad mad_t;
 
-DECLARE_STACK_EXTERN( mad_t, MadStack, MAX_MAD );
-
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
 #define LOADED_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadStack.lst[IMAD].loaded )
 
 #define LOADED_PMAD( PMAD )      ( (NULL != (PMAD)) && (PMAD)->loaded )
 
-void MadList_init();
-void MadList_dtor();
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void    init_all_mad();
-void    release_all_mad();
-bool_t  release_one_mad( const MAD_REF imad );
+DECLARE_STACK_EXTERN( mad_t, MadStack, MAX_MAD );
+
+void MadStack_ctor( void );
+void MadStack_dtor( void );
+void MadStack_reinit( void );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void model_system_begin( void );
+void model_system_end( void );
+
+void    MadStack_reconstruct_all( void );
+void    MadStack_release_all( void );
+bool_t  MadStack_release_one( const MAD_REF imad );
 MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF object );
 
 int    action_which( char cTmp );
@@ -203,3 +210,4 @@ int    mad_get_action( mad_t * pmad, int action );
 Uint32 mad_get_madfx( mad_t * pmad, int action );
 
 int    randomize_action( int action, int slot );
+

@@ -129,7 +129,6 @@ bool_t waypoint_list_empty( waypoint_list_t * plst );
 bool_t waypoint_list_finished( waypoint_list_t * plst );
 bool_t waypoint_list_advance( waypoint_list_t * plst );
 
-
 //--------------------------------------------------------------------------------------------
 // struct s_script_info
 //--------------------------------------------------------------------------------------------
@@ -205,6 +204,9 @@ ai_state_t * ai_state_dtor( ai_state_t * pself );
 bool_t       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF  ichr );
 bool_t       ai_state_get_wp( ai_state_t * pself );
 bool_t       ai_state_ensure_wp( ai_state_t * pself );
+bool_t       ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
+bool_t       ai_state_set_changed( ai_state_t * pai );
+
 
 //--------------------------------------------------------------------------------------------
 // struct s_script_state
@@ -233,5 +235,5 @@ void issue_order( const CHR_REF character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
 void set_alerts( const CHR_REF character );
 
-void scripting_system_begin();
-void scripting_system_end();
+void scripting_system_begin( void );
+void scripting_system_end( void );

@@ -36,8 +36,8 @@ static bool_t _obj_BSP_system_initialized = bfalse;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-obj_BSP_t chr_BSP_root = { 0, BSP_TREE_INIT_VALS };
-obj_BSP_t prt_BSP_root = { 0, BSP_TREE_INIT_VALS };
+obj_BSP_t chr_BSP_root = OBJ_BSP_INIT_VALS;
+obj_BSP_t prt_BSP_root = OBJ_BSP_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,64 +103,81 @@ bool_t obj_BSP_free( obj_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int dim, mpd_BSP_t * pmesh_bsp )
+bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mpd_BSP_t * pmesh_bsp )
 {
     /// @details BB@> Create a new BSP tree for game objects.
     //     These parameters duplicate the max resolution of the old system.
 
     int          cnt;
+    int          mesh_dim, min_dim;
     float        bsp_size;
-    BSP_tree_t * t;
+    BSP_tree_t * obj_tree;
+    const BSP_tree_t * mesh_tree;
 
-    if ( dim < 2 )
+    if ( bsp_dim < 2 )
     {
         log_error( "obj_BSP_ctor() - cannot construct an object BSP with less than 2 dimensions\n" );
     }
-    else if ( dim > 3 )
+    else if ( bsp_dim > 3 )
     {
         log_error( "obj_BSP_ctor() - cannot construct an object BSP with more than than 3 dimensions\n" );
     }
 
-    if ( NULL == pbsp || NULL == pmesh_bsp ) return bfalse;
+    if ( NULL == pmesh_bsp ) return bfalse;
+    mesh_tree = &( pmesh_bsp->tree );
+    mesh_dim = pmesh_bsp->tree.dimensions;
 
-    memset( pbsp, 0, sizeof( *pbsp ) );
+    if ( NULL == pbsp ) return bfalse;
+    obj_tree = &( pbsp->tree );
+
+    BLANK_STRUCT_PTR( pbsp )
 
     // allocate the data
-    obj_BSP_alloc( pbsp, dim, pmesh_bsp->tree.depth );
+    obj_BSP_alloc( pbsp, bsp_dim, mesh_tree->max_depth );
 
-    t = &( pbsp->tree );
+    // find the maximum extent of the bsp
+    bsp_size = 0.0f;
+    min_dim = MIN( bsp_dim, mesh_dim );
 
-    //---- copy the volume from the mesh
-    if ( dim > 0 )
+    for ( cnt = 0; cnt < min_dim; cnt ++ )
     {
-        t->bbox.mins.ary[kX] = pmesh_bsp->volume.mins[OCT_X];
-        t->bbox.mins.ary[kY] = pmesh_bsp->volume.mins[OCT_Y];
+        float tmp_size = ABS( mesh_tree->bsp_bbox.maxs.ary[cnt] - mesh_tree->bsp_bbox.mins.ary[cnt] );
+        bsp_size = MAX( bsp_size, tmp_size );
     }
 
-    if ( dim > 1 )
+    // copy the volume from the mesh
+    for ( cnt = 0; cnt < min_dim; cnt++ )
     {
-        t->bbox.maxs.ary[kX] = pmesh_bsp->volume.maxs[OCT_X];
-        t->bbox.maxs.ary[kY] = pmesh_bsp->volume.maxs[OCT_Y];
+        // get the size
+        obj_tree->bsp_bbox.mins.ary[cnt] = MIN( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.data.mins[cnt] );
+        obj_tree->bsp_bbox.maxs.ary[cnt] = MAX( mesh_tree->bsp_bbox.maxs.ary[cnt], mesh_tree->bbox.data.maxs[cnt] );
+
+        // make some extra space
+        obj_tree->bsp_bbox.mins.ary[cnt] -= bsp_size * 0.25f;
+        obj_tree->bsp_bbox.maxs.ary[cnt] += bsp_size * 0.25f;
     }
 
-    if ( dim > 2 )
+    // calculate a "reasonable size" for all dimensions that are not in the mesh
+    for ( /* nothing */; cnt < bsp_dim; cnt++ )
     {
-        // make some extra space in the z direction
-        bsp_size = MAX( ABS( t->bbox.mins.ary[OCT_X] ), ABS( t->bbox.maxs.ary[OCT_X] ) );
-        bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Y] ), ABS( t->bbox.maxs.ary[OCT_Y] ) ) );
-        bsp_size = MAX( bsp_size, MAX( ABS( t->bbox.mins.ary[OCT_Z] ), ABS( t->bbox.maxs.ary[OCT_Z] ) ) );
+        obj_tree->bsp_bbox.mins.ary[cnt] = -bsp_size * 0.5f;
+        obj_tree->bsp_bbox.maxs.ary[cnt] =  bsp_size * 0.5f;
+    }
 
-        t->bbox.mins.ary[kZ] = -bsp_size * 2;
-        t->bbox.maxs.ary[kZ] =  bsp_size * 2;
+    if ( bsp_dim > 2 )
+    {
+        // make some extra special space in the z direction
+        obj_tree->bsp_bbox.mins.ary[kZ] = MIN( -bsp_size, obj_tree->bsp_bbox.mins.ary[kZ] );
+        obj_tree->bsp_bbox.maxs.ary[kZ] = MAX( bsp_size, obj_tree->bsp_bbox.maxs.ary[kZ] );
     }
 
     // calculate the mid positions
-    for ( cnt = 0; cnt < dim; cnt++ )
+    for ( cnt = 0; cnt < bsp_dim; cnt++ )
     {
-        t->bbox.mids.ary[cnt] = 0.5f * ( t->bbox.mins.ary[cnt] + t->bbox.maxs.ary[cnt] );
+        obj_tree->bsp_bbox.mids.ary[cnt] = 0.5f * ( obj_tree->bsp_bbox.mins.ary[cnt] + obj_tree->bsp_bbox.maxs.ary[cnt] );
     }
 
-    BSP_aabb_validate( &( t->bbox ) );
+    BSP_aabb_validate( &( obj_tree->bsp_bbox ) );
 
     return btrue;
 }
@@ -188,42 +205,14 @@ bool_t chr_BSP_insert( chr_t * pchr )
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
 
-    bool_t can_be_reaffirmed;
-    bool_t can_grab_money;
-    bool_t can_use_platforms;
-    bool_t can_collide;
-
-    bool_t requires_chr_chr;
-    bool_t requires_chr_prt;
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
 
     ptree = &( chr_BSP_root.tree );
 
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
-
     // no interactions with hidden objects
-    if ( pchr->is_hidden )
-        return bfalse;
+    if ( pchr->is_hidden ) return bfalse;
 
-    // no interactions with packed objects
-    if ( INGAME_CHR( pchr->inwhich_inventory ) ) return bfalse;
-
-    // generic flags for character interaction
-    can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );
-    can_grab_money    = pchr->cangrabmoney;
-    can_use_platforms = pchr->canuseplatforms;
-    can_collide       = ( 0 != pchr->bump_stt.size ) && ( MAX_CHR == pchr->attachedto );
-
-    // conditions for normal chr-chr interaction
-    // platform tests are done elsewhere
-    requires_chr_chr = can_collide /* || can_use_platforms */;
-
-    // conditions for chr-prt interaction
-    requires_chr_prt = can_be_reaffirmed /* || can_grab_money */;
-
-    // even if an object does not interact with other characters,
-    // it must still be inserted if it might interact with a particle
-    if ( !requires_chr_chr && !requires_chr_prt ) return bfalse;
-
+    // heal the leaf if it needs it
     pleaf = &( pchr->bsp_leaf );
     if ( pchr != ( chr_t * )( pleaf->data ) )
     {
@@ -233,6 +222,7 @@ bool_t chr_BSP_insert( chr_t * pchr )
         pleaf->data_type = BSP_LEAF_CHR;
     };
 
+    // do the insert
     retval = bfalse;
     if ( !oct_bb_empty( &( pchr->chr_max_cv ) ) )
     {
@@ -243,10 +233,15 @@ bool_t chr_BSP_insert( chr_t * pchr )
         phys_expand_chr_bb( pchr, 0.0f, 1.0f, &tmp_oct );
 
         // convert the bounding box
-        BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
+        ego_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
 
         // insert the leaf
         retval = BSP_tree_insert_leaf( ptree, pleaf );
+    }
+
+    if ( retval )
+    {
+        chr_BSP_root.count++;
     }
 
     return retval;
@@ -262,55 +257,17 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
     BSP_tree_t * ptree;
 
     prt_t *loc_pprt;
-    pip_t *loc_ppip;
 
     oct_bb_t tmp_oct;
 
-    // Each one of these tests allows one MORE reason to include the particle, not one less.
-    // Removed bump particles. We have another loop that can detect these, and there
-    // is no reason to fill up the BSP with particles like coins.
-    bool_t       has_enchant;
-    bool_t       does_damage;
-    bool_t       does_status_effect;
-    bool_t       does_special_effect;
-    bool_t       can_push;
-
-    ptree = &( prt_BSP_root.tree );
-
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
     loc_pprt = pbdl_prt->prt_ptr;
-    loc_ppip = pbdl_prt->pip_ptr;
+    ptree = &( prt_BSP_root.tree );
 
     // is the particle in-game?
     if ( !INGAME_PPRT_BASE( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
 
-    // Make this optional? Is there any reason to fail if the particle has no profile reference?
-    has_enchant = bfalse;
-    if ( loc_ppip->spawnenchant )
-    {
-        if ( !LOADED_PRO( loc_pprt->profile_ref ) )
-        {
-            pro_t * ppro = ProList.lst + loc_pprt->profile_ref;
-            has_enchant = LOADED_EVE( ppro->ieve );
-        }
-    }
-
-    // any possible damage?
-    does_damage         = ( ABS( loc_pprt->damage.base ) + ABS( loc_pprt->damage.rand ) ) > 0;
-
-    // the other possible status effects
-    // do not require damage
-    does_status_effect  = ( 0 != loc_ppip->grog_time ) || ( 0 != loc_ppip->daze_time ) || ( 0 != loc_ppip->lifedrain ) || ( 0 != loc_ppip->manadrain );
-
-    // these are not implemented yet
-    does_special_effect = loc_ppip->cause_pancake || loc_ppip->cause_roll;
-
-    // according to v1.0, only particles that cause damage can push
-    can_push            = does_damage && loc_ppip->allowpush;
-
-    // particles with no effect
-    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;
-
+    // heal the leaf if necessary
     pleaf = &( loc_pprt->bsp_leaf );
     if ( loc_pprt != ( prt_t * )( pleaf->data ) )
     {
@@ -325,9 +282,13 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
     phys_expand_prt_bb( loc_pprt, 0.0f, 1.0f, &tmp_oct );
 
     // convert the bounding box
-    BSP_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
+    ego_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
 
     retval = BSP_tree_insert_leaf( ptree, pleaf );
+    if ( retval )
+    {
+        prt_BSP_root.count++;
+    }
 
     return retval;
 }
@@ -338,13 +299,13 @@ bool_t chr_BSP_clear()
     CHR_REF ichr;
 
     // unlink all the BSP nodes
-    BSP_tree_clear( &( chr_BSP_root.tree ), btrue );
+    BSP_tree_clear_rec( &( chr_BSP_root.tree ) );
+    chr_BSP_root.count = 0;
 
     // unlink all used character nodes
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        ChrList.lst[ichr].bsp_leaf.next = NULL;
-        ChrList.lst[ichr].bsp_leaf.inserted = bfalse;
+        BSP_leaf_unlink( &( ChrList.lst[ichr].bsp_leaf ) );
     }
 
     return btrue;
@@ -356,14 +317,13 @@ bool_t prt_BSP_clear()
     PRT_REF iprt;
 
     // unlink all the BSP nodes
-    BSP_tree_clear( &( prt_BSP_root.tree ), btrue );
+    BSP_tree_clear_rec( &( prt_BSP_root.tree ) );
+    prt_BSP_root.count = 0;
 
     // unlink all used particle nodes
-    prt_BSP_root.count = 0;
     for ( iprt = 0; iprt < MAX_PRT; iprt++ )
     {
-        PrtList.lst[iprt].bsp_leaf.next = NULL;
-        PrtList.lst[iprt].bsp_leaf.inserted = bfalse;
+        BSP_leaf_unlink( &( PrtList.lst[iprt].bsp_leaf ) );
     }
 
     return btrue;
@@ -378,15 +338,12 @@ bool_t chr_BSP_fill()
     {
         // reset a couple of things here
         pchr->holdingweight        = 0;
-        pchr->onwhichplatform_ref   = ( CHR_REF )MAX_CHR;
+        pchr->onwhichplatform_ref  = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
         pchr->targetplatform_level = -1e32;
 
         // try to insert the character
-        if ( chr_BSP_insert( pchr ) )
-        {
-            chr_BSP_root.count++;
-        }
+        chr_BSP_insert( pchr );
     }
     CHR_END_LOOP()
 
@@ -406,10 +363,7 @@ bool_t prt_BSP_fill()
         prt_bdl.prt_ptr->targetplatform_level = -1e32;
 
         // try to insert the particle
-        if ( prt_BSP_insert( &prt_bdl ) )
-        {
-            prt_BSP_root.count++;
-        }
+        prt_BSP_insert( &prt_bdl );
     }
     PRT_END_LOOP()
 
@@ -417,7 +371,7 @@ bool_t prt_BSP_fill()
 }
 
 //--------------------------------------------------------------------------------------------
-int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst )
+int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
     //      Return the number of collisions found.
@@ -425,8 +379,196 @@ int obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * col
     if ( NULL == pbsp || NULL == paabb || NULL == colst ) return 0;
 
     // infinite nodes
-    return BSP_tree_collide( &( pbsp->tree ), paabb, colst );
+    return BSP_tree_collide_aabb( &( pbsp->tree ), paabb, ptest, colst );
 }
+
+//--------------------------------------------------------------------------------------------
+int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
+    //      Return the number of collisions found.
+
+    if ( NULL == pbsp || NULL == pfrust || NULL == colst ) return 0;
+
+    // infinite nodes
+    return BSP_tree_collide_frustum( &( pbsp->tree ), pfrust, ptest, colst );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
+{
+    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    ///               can be added to a collision list
+
+    chr_t * pchr;
+
+    bool_t can_be_reaffirmed;
+    bool_t can_grab_money;
+    bool_t can_use_platforms;
+    bool_t can_collide;
+
+    bool_t requires_chr_chr;
+    bool_t requires_chr_prt;
+
+    // make sure we have a character leaf
+    if ( NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type )
+    {
+        return bfalse;
+    }
+    pchr = ( chr_t * )( pchr_leaf->data );
+
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+    // no interactions with hidden objects
+    if ( pchr->is_hidden ) return bfalse;
+
+    // no interactions with packed objects
+    if ( VALID_CHR_RANGE( pchr->inwhich_inventory ) ) return bfalse;
+
+    // generic flags for character interaction
+    can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );
+    can_grab_money    = pchr->cangrabmoney;
+    can_use_platforms = pchr->canuseplatforms;
+    can_collide       = ( 0 != pchr->bump_stt.size ) && ( MAX_CHR == pchr->attachedto );
+
+    // conditions for normal chr-chr interaction
+    // platform tests are done elsewhere
+    requires_chr_chr = can_collide /* || can_use_platforms */;
+
+    // conditions for chr-prt interaction
+    requires_chr_prt = can_be_reaffirmed /* || can_grab_money */;
+
+    // even if an object does not interact with other characters,
+    // it must still be inserted if it might interact with a particle
+    if ( !requires_chr_chr && !requires_chr_prt ) return bfalse;
+
+    if ( oct_bb_empty( &( pchr->chr_max_cv ) ) ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
+{
+    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    ///               can be added to a collision list
+
+    prt_t * pprt;
+    pip_t * ppip;
+
+    // Each one of these tests allows one MORE reason to include the particle, not one less.
+    // Removed bump particles. We have another loop that can detect these, and there
+    // is no reason to fill up the BSP with particles like coins.
+    bool_t       has_enchant;
+    bool_t       does_damage;
+    bool_t       does_status_effect;
+    bool_t       does_special_effect;
+    bool_t       can_push;
+
+    // make sure we have a character leaf
+    if ( NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
+    {
+        return bfalse;
+    }
+    pprt = ( prt_t * )( pprt_leaf->data );
+
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
+
+    // is the particle in-game?
+    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return bfalse;
+
+    // Make this optional? Is there any reason to fail if the particle has no profile reference?
+    has_enchant = bfalse;
+    if ( ppip->spawnenchant )
+    {
+        if ( !LOADED_PRO( pprt->profile_ref ) )
+        {
+            pro_t * ppro = ProList_get_ptr( pprt->profile_ref );
+            has_enchant = LOADED_EVE( ppro->ieve );
+        }
+    }
+
+    // any possible damage?
+    does_damage         = ( ABS( pprt->damage.base ) + ABS( pprt->damage.rand ) ) > 0;
+
+    // the other possible status effects
+    // do not require damage
+    does_status_effect  = ( 0 != ppip->grog_time ) || ( 0 != ppip->daze_time ) || ( 0 != ppip->lifedrain ) || ( 0 != ppip->manadrain );
+
+    // these are not implemented yet
+    does_special_effect = ppip->cause_pancake || ppip->cause_roll;
+
+    // according to v1.0, only particles that cause damage can push
+    can_push            = does_damage && ppip->allowpush;
+
+    // particles with no effect
+    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_BSP_is_visible( BSP_leaf_t * pchr_leaf )
+{
+    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    ///               can be added to a collision list
+
+    chr_t * pchr;
+
+    // make sure we have a character leaf
+    if ( NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type )
+    {
+        return bfalse;
+    }
+    pchr = ( chr_t * )( pchr_leaf->data );
+
+    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+
+    // no interactions with hidden objects
+    if ( pchr->is_hidden ) return bfalse;
+
+    // no interactions with packed objects
+    if ( VALID_CHR_RANGE( pchr->inwhich_inventory ) ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
+{
+    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    ///               can be added to a collision list
+
+    prt_t * pprt;
+
+    // make sure we have a character leaf
+    if ( NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
+    {
+        return bfalse;
+    }
+    pprt = ( prt_t * )( pprt_leaf->data );
+
+    // is the particle in-game?
+    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden ) return bfalse;
+
+    // zero sized particles are not visible
+    if ( 0 == pprt->size )
+    {
+        return bfalse;
+    }
+    else if ( pprt->inst.valid && pprt->inst.size <= 0.0f )
+    {
+        return bfalse;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+// OBSOLETE
+//--------------------------------------------------------------------------------------------
 
 ////--------------------------------------------------------------------------------------------
 //bool_t obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pleaf, int depth, int address_x[], int address_y[], int address_z[] )

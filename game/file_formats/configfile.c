@@ -106,10 +106,10 @@ static ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile );
 static ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile );
 static ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile );
 
-static ConfigFileSectionPtr_t ConfigFileSection_create();
+static ConfigFileSectionPtr_t ConfigFileSection_create( void );
 static ConfigFile_retval      ConfigFileSection_destroy( ConfigFileSectionPtr_t * ptmp );
 
-static ConfigFileValuePtr_t   ConfigFileValue_create();
+static ConfigFileValuePtr_t   ConfigFileValue_create( void );
 static ConfigFile_retval      ConfigFileValue_destroy( ConfigFileValuePtr_t * ptmp );
 
 static size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectionPtr_t pSection );

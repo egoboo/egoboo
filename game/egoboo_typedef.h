@@ -25,6 +25,8 @@
 #include "egoboo_config.h"
 
 #include <SDL_types.h>
+
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -32,6 +34,20 @@
 
 #include <assert.h>
 #define C_EGOBOO_ASSERT(X) assert(X)
+
+//--------------------------------------------------------------------------------------------
+// a replacement for memset()
+#if !defined(BLANK_STRUCT)
+#    define BLANK_STRUCT(XX)  memset( &(XX), 0, sizeof(XX) );
+#endif
+
+#if !defined(BLANK_STRUCT_PTR)
+#    define BLANK_STRUCT_PTR(XX)  memset( XX, 0, sizeof( *(XX) ) );
+#endif
+
+#if !defined(BLANK_ARY)
+#    define BLANK_ARY(XX)  memset( XX, 0, sizeof( XX ) );
+#endif
 
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
@@ -79,7 +95,7 @@ typedef Sint32 SFP8_T;
 #define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
 
 //--------------------------------------------------------------------------------------------
-// the type for the 16-bit value used to stor angles
+// the type for the 16-bit value used to store angles
 typedef Uint16   FACING_T;
 typedef FACING_T TURN_T;
 
@@ -193,7 +209,6 @@ struct s_pair
 };
 typedef struct s_pair IPair;
 
-
 // Specifies a value from "from" to "to"
 struct s_range
 {
@@ -228,7 +243,6 @@ const char * undo_idsz( IDSZ idsz );
 //--------------------------------------------------------------------------------------------
 // STRING
 typedef char STRING[256];
-
 
 //--------------------------------------------------------------------------------------------
 // EGO_MESSAGE
@@ -304,14 +318,19 @@ typedef Uint16 REF_T;
     }
 
 #define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
-    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
+    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);         \
+    TYPE * NAME##_get_ptr( size_t );                  \
     extern struct s_c_list__##TYPE__##NAME NAME
 
-#define C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT) \
+#define C_INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
     C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
     static struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
-#define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
+#define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
+    ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
+
+#define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)  \
+    TYPE * NAME##_get_ptr( size_t index )   { return (index >= COUNT) ? NULL : NAME.lst + index; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -327,13 +346,18 @@ typedef Uint16 REF_T;
 
 #define C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT) \
     C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
+    TYPE * NAME##_get_ptr( size_t );                 \
     extern struct s_c_stack__##TYPE__##NAME NAME
 
 #define C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT) \
     C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
     static struct s_c_stack__##TYPE__##NAME NAME = {0}
 
-#define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) ACCESS struct s_c_stack__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0}
+#define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) \
+    ACCESS struct s_c_stack__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0}
+
+#define C_IMPLEMENT_STACK(TYPE, NAME, COUNT)  \
+    TYPE * NAME##_get_ptr( size_t index )   { return (index >= COUNT) ? NULL : NAME.lst + index; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -354,8 +378,8 @@ typedef Uint16 REF_T;
     bool_t      ARY_T##_free( ARY_T##_t * pary ); \
     void        ARY_T##_clear( ARY_T##_t * pary ); \
     bool_t      ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ); \
-    size_t      ARY_T##_get_top( ARY_T##_t * pary ); \
-    size_t      ARY_T##_get_size( ARY_T##_t * pary ); \
+    size_t      ARY_T##_get_top( const ARY_T##_t * pary ); \
+    size_t      ARY_T##_get_size( const ARY_T##_t * pary ); \
     ELEM_T *    ARY_T##_pop_back( ARY_T##_t * pary ); \
     bool_t      ARY_T##_push_back( ARY_T##_t * pary , ELEM_T val );
 
@@ -364,17 +388,19 @@ typedef Uint16 REF_T;
 #define INSTANTIATE_DYNAMIC_ARY(ARY_T, NAME) ARY_T##_t NAME = DYNAMIC_ARY_INIT_VALS;
 
 #define IMPLEMENT_DYNAMIC_ARY(ARY_T, ELEM_T) \
-    bool_t      ARY_T##_alloc( ARY_T##_t * pary, size_t sz )  { if(NULL == pary) return bfalse; ARY_T##_free( pary ); pary->ary = EGOBOO_NEW_ARY( ELEM_T, sz );  pary->alloc = (NULL == pary->ary) ? 0 : sz; return btrue; } \
-    bool_t      ARY_T##_free(ARY_T##_t * pary )               { if(NULL == pary) return bfalse; EGOBOO_DELETE_ARY(pary->ary); pary->alloc = 0; pary->top = 0; return btrue; } \
-    ARY_T##_t * ARY_T##_ctor(ARY_T##_t * pary, size_t sz)     { if(NULL == pary) return NULL;   memset(pary, 0, sizeof(*pary)); if( !ARY_T##_alloc(pary, sz) ) return NULL; return pary; } \
-    ARY_T##_t * ARY_T##_dtor(ARY_T##_t * pary )               { if(NULL == pary) return NULL;   ARY_T##_free(pary); memset(pary, 0, sizeof(*pary)); return pary; } \
+    bool_t      ARY_T##_alloc( ARY_T##_t * pary, size_t sz )   { if(NULL == pary) return bfalse; ARY_T##_free( pary ); pary->ary = EGOBOO_NEW_ARY( ELEM_T, sz );  pary->alloc = (NULL == pary->ary) ? 0 : sz; return btrue; } \
+    bool_t      ARY_T##_free(ARY_T##_t * pary )                { if(NULL == pary) return bfalse; EGOBOO_DELETE_ARY(pary->ary); pary->alloc = 0; pary->top = 0; return btrue; } \
+    ARY_T##_t * ARY_T##_ctor(ARY_T##_t * pary, size_t sz)      { if(NULL == pary) return NULL;   BLANK_STRUCT_PTR( pary ) if( !ARY_T##_alloc(pary, sz) ) return NULL; return pary; } \
+    ARY_T##_t * ARY_T##_dtor(ARY_T##_t * pary )                { if(NULL == pary) return NULL;   ARY_T##_free(pary); BLANK_STRUCT_PTR( pary ) return pary; } \
     \
-    void   ARY_T##_clear( ARY_T##_t * pary )                  { if(NULL != pary) pary->top = 0; } \
-    size_t ARY_T##_get_top( ARY_T##_t * pary )                { return (NULL == pary->ary) ? 0 : pary->top; } \
-    size_t ARY_T##_get_size( ARY_T##_t * pary )               { return (NULL == pary->ary) ? 0 : pary->alloc; } \
+    void   ARY_T##_clear( ARY_T##_t * pary )                   { if(NULL != pary) pary->top = 0; } \
+    size_t ARY_T##_get_top( const ARY_T##_t * pary )           { return (NULL == pary->ary) ? 0 : pary->top; } \
+    size_t ARY_T##_get_size( const ARY_T##_t * pary )          { return (NULL == pary->ary) ? 0 : pary->alloc; } \
     \
     ELEM_T * ARY_T##_pop_back( ARY_T##_t * pary )              { if( NULL == pary || pary->top < 1 ) return NULL; --pary->top; return &(pary->ary[pary->top]); } \
-    bool_t   ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { bool_t retval = bfalse; if( NULL == pary ) return bfalse; if (pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = btrue; } return retval; }
+    bool_t   ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { bool_t retval = bfalse; if( NULL == pary ) return bfalse; if (pary->top >= 0 && (size_t)pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = btrue; } return retval; }
+
+#define DYNAMIC_ARY_INVALID(ARY) ( (NULL == (ARY)) || (0 == (ARY)->alloc) || ((ARY)->top < 0) || ((size_t)(ARY)->top >= (ARY)->alloc) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -387,11 +413,20 @@ typedef Uint16 REF_T;
         int    count;     \
         ELEM_T ary[SIZE]; \
     }; \
+    typedef ELEM_T ARY_T##ELEM_t; \
     typedef struct s_STATIC_ARY_##ARY_T ARY_T##_t
 
-#define DECLARE_EXTERN_STATIC_ARY(ARY_T, NAME) extern ARY_T##_t NAME;
 #define STATIC_ARY_INIT_VALS {0}
-#define INSTANTIATE_STATIC_ARY(ARY_T, NAME) ARY_T##_t NAME = STATIC_ARY_INIT_VALS;
+
+#define DECLARE_EXTERN_STATIC_ARY(ARY_T, NAME)       \
+    ARY_T##ELEM_t * ARY_T##_get_ptr( ARY_T##_t *, size_t ); \
+    extern ARY_T##_t NAME;
+
+#define INSTANTIATE_STATIC_ARY(ARY_T, NAME) \
+    ARY_T##_t NAME = STATIC_ARY_INIT_VALS;
+
+#define IMPLEMENT_STATIC_ARY(ARY_T, SIZE) \
+    ARY_T##ELEM_t * ARY_T##_get_ptr( ARY_T##_t * pary, size_t index ) { if(NULL == pary) return NULL; return ( index >= SIZE ) ? NULL : pary->ary + index; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -409,12 +444,14 @@ typedef Uint16 REF_T;
 #define DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)
 
 #define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)        C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
-#define INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)     C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
-#define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)     C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
+#define INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT)    C_INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT)
+#define INSTANTIATE_LIST(ACCESS, TYPE, NAME, COUNT)   C_INSTANTIATE_LIST(ACCESS, TYPE, NAME, COUNT)
+#define IMPLEMENT_LIST(TYPE, NAME, COUNT)             C_IMPLEMENT_LIST(TYPE, NAME, COUNT)
 
 #define DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
 #define INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
 #define INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+#define IMPLEMENT_STACK(TYPE, NAME, COUNT)           C_IMPLEMENT_STACK(TYPE, NAME, COUNT)
 
 // use an underscore to force the c implementation
 #define _DECLARE_T_ARY(TYPE, NAME, COUNT)              C_DECLARE_T_ARY(TYPE, NAME, COUNT)

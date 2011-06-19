@@ -50,7 +50,7 @@ CHR_REF enc_get_iowner( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return ( CHR_REF )MAX_CHR;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( !INGAME_CHR( penc->owner_ref ) ) return ( CHR_REF )MAX_CHR;
 
@@ -63,11 +63,11 @@ chr_t * enc_get_powner( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return NULL;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( !INGAME_CHR( penc->owner_ref ) ) return NULL;
 
-    return ChrList.lst + penc->owner_ref;
+    return ChrList_get_ptr( penc->owner_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ EVE_REF enc_get_ieve( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return ( EVE_REF )MAX_EVE;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return ( EVE_REF )MAX_EVE;
 
@@ -89,11 +89,11 @@ eve_t * enc_get_peve( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return NULL;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return NULL;
 
-    return EveStack.lst + penc->eve_ref;
+    return EveStack_get_ptr( penc->eve_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ PRO_REF  enc_get_ipro( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return ( PRO_REF )MAX_PROFILE;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( !LOADED_PRO( penc->profile_ref ) ) return ( PRO_REF )MAX_PROFILE;
 
@@ -115,11 +115,11 @@ pro_t * enc_get_ppro( const ENC_REF ienc )
     enc_t * penc;
 
     if ( !DEFINED_ENC( ienc ) ) return NULL;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( !LOADED_PRO( penc->profile_ref ) ) return NULL;
 
-    return ProList.lst + penc->profile_ref;
+    return ProList_get_ptr( penc->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------

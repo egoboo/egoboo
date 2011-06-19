@@ -32,9 +32,9 @@
 #define FNT_LARGE_FONT_SIZE 20
 #define FNT_MAX_FONTS 8
 
-typedef struct Font Font;
+typedef struct s_Font Font;
 
-extern int      fnt_init();
+extern int      fnt_init( void );
 
 extern Font    *fnt_loadFont( const char *fileName, int pointSize );
 extern void    fnt_freeFont( Font *font );

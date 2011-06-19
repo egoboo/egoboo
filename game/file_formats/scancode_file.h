@@ -58,7 +58,7 @@ extern "C"
 
     void        scantag_read_all_vfs( const char *szFilename );
     int         scantag_get_value( const char *string );
-    const char* scantag_get_string( INPUT_DEVICE device, Uint32 tag, bool_t is_key );
+    const char* scantag_get_string( int device, Uint32 tag, bool_t is_key );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

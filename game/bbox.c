@@ -25,6 +25,7 @@
 
 #include "egoboo_math.inl"
 
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -59,128 +60,297 @@ static OVolume_t cv_list[1000];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst )
+
+bool_t aabb_copy( aabb_t * pdst, const aabb_t * psrc )
 {
-    if ( NULL == lst ) return NULL;
+    size_t cnt;
 
-    memset( lst, 0, sizeof( *lst ) );
-
-    return lst;
-}
-
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst )
-{
-    if ( NULL == lst ) return NULL;
-
-    if ( lst->count > 0 )
+    if ( NULL == pdst || NULL == psrc )
     {
-        EGOBOO_DELETE( lst->list );
+        return bfalse;
     }
 
-    lst->count = 0;
-    lst->list  = NULL;
-
-    return lst;
-}
-
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst )
-{
-    if ( NULL == lst ) return NULL;
-
-    aabb_lst_dtor( lst );
-    return aabb_lst_ctor( lst );
-}
-
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count )
-{
-    if ( NULL == lst ) return NULL;
-
-    aabb_lst_dtor( lst );
-
-    if ( count > 0 )
+    for ( cnt = 0; cnt < 3; cnt++ )
     {
-        lst->list = EGOBOO_NEW_ARY( ego_aabb_t, count );
-        if ( NULL != lst->list )
+        pdst->mins[cnt] = psrc->mins[cnt];
+        pdst->maxs[cnt] = psrc->maxs[cnt];
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t aabb_self_clear( aabb_t * psrc )
+{
+    /// @details BB@> Return this bounding box to an empty state.
+
+    Uint32 cnt;
+
+    if ( NULL == psrc ) return bfalse;
+
+    for ( cnt = 0; cnt < 3; cnt++ )
+    {
+        psrc->mins[cnt] = psrc->maxs[cnt] = 0.0f;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t aabb_is_clear( const aabb_t * pdst )
+{
+    int cnt;
+    bool_t retval;
+
+    if ( NULL == pdst ) return btrue;
+
+    // assume the best
+    retval = btrue;
+
+    // scan through the values
+    for ( cnt = 0; cnt < 3; cnt++ )
+    {
+        if ( 0.0f != pdst->mins[cnt] )
         {
-            lst->count = count;
+            retval = bfalse;
+            break;
+        }
+
+        if ( 0.0f != pdst->maxs[cnt] )
+        {
+            retval = bfalse;
+            break;
         }
     }
 
-    return lst;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary )
+bool_t aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
 {
-    if ( NULL == ary ) return NULL;
+    if ( NULL == dst ) return bfalse;
 
-    memset( ary, 0, sizeof( *ary ) );
-
-    return ary;
-}
-
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary )
-{
-    int i;
-
-    if ( NULL == ary ) return NULL;
-
-    if ( NULL != ary->list )
+    if ( NULL == src )
     {
-        for ( i = 0; i < ary->count; i++ )
-        {
-            aabb_lst_dtor( ary->list + i );
-        }
+        BLANK_STRUCT_PTR( dst );
+    }
+    else
+    {
+        // the indices do not match up, so be careful
+        dst->mins[kX] = src->mins[OCT_X];
+        dst->mins[kY] = src->mins[OCT_Y];
+        dst->mins[kZ] = src->mins[OCT_Z];
 
-        EGOBOO_DELETE( ary->list );
+        dst->maxs[kX] = src->maxs[OCT_X];
+        dst->maxs[kY] = src->maxs[OCT_Y];
+        dst->maxs[kZ] = src->maxs[OCT_Z];
     }
 
-    ary->count = 0;
-    ary->list = NULL;
-
-    return ary;
-}
+    return btrue;
+};
 
 //--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary )
+bool_t aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
-    if ( NULL == ary ) return NULL;
-    bbox_ary_dtor( ary );
-    return bbox_ary_ctor( ary );
-}
+    /// @details BB@> Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
+    ///               than lhs_ptr, just check the lowest common dimensions.
 
-//--------------------------------------------------------------------------------------------
-EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count )
-{
-    if ( NULL == ary ) return NULL;
+    size_t cnt;
 
-    bbox_ary_dtor( ary );
+    const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( count > 0 )
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
+
+    // the optomizer is supposed to do this stuff all by itself,
+    // but isn't
+    rhs_mins = rhs_ptr->mins + 0;
+    rhs_maxs = rhs_ptr->maxs + 0;
+    lhs_mins = lhs_ptr->mins + 0;
+    lhs_maxs = lhs_ptr->maxs + 0;
+
+    for ( cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        ary->list = EGOBOO_NEW_ARY( aabb_lst_t, count );
-        if ( NULL != ary->list )
-        {
-            ary->count = count;
-        }
+        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return bfalse;
+        if (( *rhs_mins ) < ( *lhs_mins ) ) return bfalse;
     }
 
-    return ary;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t aabb_self_union( aabb_t * pdst, const aabb_t * psrc )
+{
+    size_t cnt;
+
+    if ( NULL == pdst ) return bfalse;
+
+    if ( NULL == psrc )
+    {
+        return bfalse;
+    }
+
+    for ( cnt = 0; cnt < 3; cnt++ )
+    {
+        pdst->mins[cnt] = MIN( pdst->mins[cnt], psrc->mins[cnt] );
+        pdst->maxs[cnt] = MAX( pdst->maxs[cnt], psrc->maxs[cnt] );
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
+{
+    /// @details BB@> Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
+    ///               than lhs_ptr, just check the lowest common dimensions.
+
+    size_t cnt;
+
+    const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
+
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
+
+    // the optomizer is supposed to do this stuff all by itself,
+    // but isn't
+    rhs_mins = rhs_ptr->mins + 0;
+    rhs_maxs = rhs_ptr->maxs + 0;
+    lhs_mins = lhs_ptr->mins + 0;
+    lhs_maxs = lhs_ptr->maxs + 0;
+
+    for ( cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
+    {
+        if (( *rhs_maxs ) < ( *lhs_mins ) ) return bfalse;
+        if (( *rhs_mins ) > ( *lhs_maxs ) ) return bfalse;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst )
+//{
+//    if ( NULL == lst ) return NULL;
+//
+//    BLANK_STRUCT_PTR( lst )
+//
+//    return lst;
+//}
+//
+////--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst )
+//{
+//    if ( NULL == lst ) return NULL;
+//
+//    if ( lst->count > 0 )
+//    {
+//        EGOBOO_DELETE( lst->list );
+//    }
+//
+//    lst->count = 0;
+//    lst->list  = NULL;
+//
+//    return lst;
+//}
+//
+////--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst )
+//{
+//    if ( NULL == lst ) return NULL;
+//
+//    aabb_lst_dtor( lst );
+//    return aabb_lst_ctor( lst );
+//}
+//
+////--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count )
+//{
+//    if ( NULL == lst ) return NULL;
+//
+//    aabb_lst_dtor( lst );
+//
+//    if ( count > 0 )
+//    {
+//        lst->list = EGOBOO_NEW_ARY( ego_aabb_t, count );
+//        if ( NULL != lst->list )
+//        {
+//            lst->count = count;
+//        }
+//    }
+//
+//    return lst;
+//}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary )
+//{
+//    if ( NULL == ary ) return NULL;
+//
+//    BLANK_STRUCT_PTR( ary )
+//
+//    return ary;
+//}
+//
+////--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary )
+//{
+//    int i;
+//
+//    if ( NULL == ary ) return NULL;
+//
+//    if ( NULL != ary->list )
+//    {
+//        for ( i = 0; i < ary->count; i++ )
+//        {
+//            aabb_lst_dtor( ary->list + i );
+//        }
+//
+//        EGOBOO_DELETE( ary->list );
+//    }
+//
+//    ary->count = 0;
+//    ary->list = NULL;
+//
+//    return ary;
+//}
+//
+////--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary )
+//{
+//    if ( NULL == ary ) return NULL;
+//    bbox_ary_dtor( ary );
+//    return bbox_ary_ctor( ary );
+//}
+//
+////--------------------------------------------------------------------------------------------
+//EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count )
+//{
+//    if ( NULL == ary ) return NULL;
+//
+//    bbox_ary_dtor( ary );
+//
+//    if ( count > 0 )
+//    {
+//        ary->list = EGOBOO_NEW_ARY( aabb_lst_t, count );
+//        if ( NULL != ary->list )
+//        {
+//            ary->count = count;
+//        }
+//    }
+//
+//    return ary;
+//}
+//
+////--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 )
 {
     OVolume_t rv;
 
     // construct the OVolume
-    memset( &rv, 0, sizeof( rv ) );
+    BLANK_STRUCT( rv )
     rv.lod = -1;
 
     if ( NULL == pv1 && NULL == pv2 )
@@ -227,7 +397,7 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
     OVolume_t rv;
 
     // construct the OVolume
-    memset( &rv, 0, sizeof( rv ) );
+    BLANK_STRUCT( rv )
     rv.lod = -1;
 
     if ( NULL == pv1 || NULL == pv2 )

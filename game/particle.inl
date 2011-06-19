@@ -48,7 +48,7 @@ static INLINE PIP_REF prt_get_ipip( const PRT_REF iprt )
     prt_t * pprt;
 
     if ( !DEFINED_PRT( iprt ) ) return ( PIP_REF )MAX_PIP;
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return ( PIP_REF )MAX_PIP;
 
@@ -61,11 +61,11 @@ static INLINE pip_t * prt_get_ppip( const PRT_REF iprt )
     prt_t * pprt;
 
     if ( !DEFINED_PRT( iprt ) ) return NULL;
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return NULL;
 
-    return PipStack.lst + pprt->pip_ref;
+    return PipStack_get_ptr( pprt->pip_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
     if ( !DEFINED_PPRT( pprt ) ) return bfalse;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
-    ppip = PipStack.lst + pprt->pip_ref;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
 
     // set the graphical size
     pprt->size = size;
@@ -90,7 +90,7 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
     }
     else
     {
-        float real_size  =     FP8_TO_FLOAT( size ) * prt_get_scale( pprt );
+        float real_size  = FP8_TO_FLOAT( size ) * prt_get_scale( pprt );
 
         if ( 0.0f == pprt->bump_real.size || 0.0f == size )
         {
@@ -149,7 +149,7 @@ static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
     if ( depth > ( int )maxparticles - ( int )PrtList.free_count ) return ( CHR_REF )MAX_CHR;
 
     if ( !DEFINED_PRT( iprt ) ) return ( CHR_REF )MAX_CHR;
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     if ( DEFINED_CHR( pprt->owner_ref ) )
     {
@@ -236,7 +236,7 @@ static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
 
     if ( ALLOCATED_PRT( pbundle->prt_ref ) )
     {
-        pbundle->prt_ptr = PrtList.lst + pbundle->prt_ref;
+        pbundle->prt_ptr = PrtList_get_ptr( pbundle->prt_ref );
     }
     else if ( NULL != pbundle->prt_ptr )
     {
@@ -255,7 +255,7 @@ static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
 
     if ( LOADED_PIP( pbundle->pip_ref ) )
     {
-        pbundle->pip_ptr = PipStack.lst + pbundle->pip_ref;
+        pbundle->pip_ptr = PipStack_get_ptr( pbundle->pip_ref );
     }
     else
     {

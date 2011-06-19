@@ -26,6 +26,8 @@
 #include "ogl_include.h"
 #include "ogl_debug.h"
 
+#include <math.h>
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define LOCAL_STDERR ((NULL == _ogl_include_stderr) ? stderr : _ogl_include_stderr)
@@ -77,7 +79,7 @@ void oglx_ViewMatrix( GLXmatrix view,
 
         if ( roll > .001 )
         {
-            // GLXmatrix stupid_intermediate_matrix = RotateZ( roll );
+            // GLXmatrix stupid_intermediate_matrix = mat_RotateZ( roll );
             // GL_DEBUG(glMultMatrixf)(stupid_intermediate_matrix );
         }
 
@@ -126,6 +128,55 @@ void oglx_ProjectionMatrix( GLXmatrix proj,
         GL_DEBUG( glMatrixMode )( matrix_mode[0] );
     }
     ATTRIB_POP( __FUNCTION__ );
+}
+
+//--------------------------------------------------------------------------------------------
+GLboolean oglx_ProjectionMatrix_2( GLXmatrix proj, GLfloat frustum_near, GLfloat frustum_far, GLfloat fov_rad, GLfloat screen[] )
+{
+    // check for bad pointers
+    if ( NULL == proj ||  NULL == screen ) return GL_FALSE;
+
+    // check for stupod fov_rad values
+    if ( 0.0f == fov_rad || fov_rad < -1.570796f || fov_rad > 1.570796f ) return GL_FALSE;
+
+    ATTRIB_PUSH( __FUNCTION__, GL_TRANSFORM_BIT );
+    {
+        GLfloat frustum_width, frustum_height;
+        GLfloat aspect_ratio;
+        GLint matrix_mode[1];
+
+        aspect_ratio = ( screen[2] - screen[0] ) / ( screen[3] - screen[1] );
+
+        // set the frustum height based of the given FOV
+        frustum_height = frustum_near * tan( 0.5f * fov_rad );
+
+        // keep the same aspect ratio as the camera's visible area
+        frustum_width  = frustum_height * aspect_ratio;
+
+        // grab the current matrix mode
+        GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+        // switch to the projection mode
+        GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+
+        // save the old projection matrix
+        GL_DEBUG( glPushMatrix )();
+
+        // use glFrustum to set the projection mode
+        // assume an on-axis projection
+        GL_DEBUG( glLoadIdentity )();
+        GL_DEBUG( glFrustum )( -frustum_width, frustum_width, -frustum_height, frustum_height, frustum_near, frustum_far );
+        GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, proj );
+
+        // restore the old matrix
+        GL_DEBUG( glPopMatrix )();
+
+        // restore the old matrix mode
+        GL_DEBUG( glMatrixMode )( matrix_mode[0] );
+    }
+    ATTRIB_POP( __FUNCTION__ );
+
+    return GL_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

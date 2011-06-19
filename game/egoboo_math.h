@@ -40,8 +40,24 @@ extern "C"
 #   define PI                  3.1415926535897932384626433832795f
 #endif
 
+#if !defined(INV_PI)
+#   define INV_PI              0.31830988618379067153776752674503f
+#endif
+
 #if !defined(TWO_PI)
 #   define TWO_PI              6.283185307179586476925286766559f
+#endif
+
+#if !defined(INV_TWO_PI)
+#   define INV_TWO_PI          0.15915494309189533576888376337251f
+#endif
+
+#if !defined(PI_OVER_TWO)
+#   define PI_OVER_TWO         1.5707963267948966192313216916398f
+#endif
+
+#if !defined(PI_OVER_FOUR)
+#   define PI_OVER_FOUR         0.78539816339744830961566084581988f
 #endif
 
 #if !defined(SQRT_TWO)
@@ -52,12 +68,36 @@ extern "C"
 #   define INV_SQRT_TWO        0.70710678118654752440084436210485f
 #endif
 
-#if !defined(RAD_TO_TURN)
-#   define RAD_TO_TURN         10430.378350470452724949566316381f
+#if !defined(RAD_TO_FACING)
+#   define RAD_TO_FACING(XX)     ( (XX) * 10430.378350470452724949566316381f )
 #endif
 
-#if !defined(TURN_TO_RAD)
-#   define TURN_TO_RAD         0.000095873799242852576857380474343257f
+#if !defined(FACING_TO_RAD)
+#   define FACING_TO_RAD(XX)     ( (XX) * 0.000095873799242852576857380474343257f )
+#endif
+
+#if !defined(DEG_TO_RAD)
+#   define DEG_TO_RAD(XX)         ( (XX) * 0.017453292519943295769236907684886f )
+#endif
+
+#if !defined(RAD_TO_DEG)
+#   define RAD_TO_DEG(XX)         ( (XX) * 57.295779513082320876798154814105f )
+#endif
+
+#if !defined(ONE_TO_TURN)
+#   define ONE_TO_TURN(XX)         CLIP_TO_16BITS(( int )( XX * ( float )0x00010000 ) )
+#endif
+
+#if !defined(TURN_TO_ONE)
+#   define TURN_TO_ONE(XX)         ( (float) CLIP_TO_16BITS(XX) / ( float )0x00010000 )
+#endif
+
+#if !defined(RAD_TO_ONE)
+#   define RAD_TO_ONE(XX)         ( (XX) * INV_TWO_PI )
+#endif
+
+#if !defined(ONE_TO_RAD)
+#   define ONE_TO_RAD(XX)         ( (XX) * TWO_PI )
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -122,6 +162,18 @@ extern "C"
 #    define COS(A) ((float)cos((float)(A)))
 #endif
 
+#if !defined(ACOS)
+#    define ACOS(A) ((float)acos((float)(A)))
+#endif
+
+#if !defined(TAN)
+#    define TAN(A) ((float)tan((float)(A)))
+#endif
+
+#if !defined(ATAN)
+#    define ATAN(A) ((float)atan((float)(A)))
+#endif
+
 #if !defined(POW)
 #    define POW(A, B) ((float)pow((float)(A), (float)(B)))
 #endif
@@ -135,7 +187,7 @@ extern "C"
 #endif
 
 #if !defined(SWAP)
-#    define SWAP(TYPE, A, B) { TYPE temp; temp = A; A = B; B = temp; }
+#    define SWAP(TYPE, A, B) { TYPE temp; memmove( &temp, &(A), sizeof(TYPE) ); memmove( &(A), &(B), sizeof(TYPE) ); memmove( &(B), &temp, sizeof(TYPE) ); }
 #endif
 
 #if !defined(CEIL)
@@ -236,7 +288,7 @@ extern "C"
 // prototypes of other math functions
 
     void make_turntosin( void );
-    void make_randie();
+    void make_randie( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -28,13 +28,14 @@
 #include "input.h"
 #include "sound.h"
 #include "network.h"
-#include "camera.h"
-
-#include "file_formats/configfile.h"
+#include "camera_system.h"
+#include "game.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
 #include "egoboo.h"
+
+#include "file_formats/configfile.h"
 
 #include "particle.inl"
 
@@ -94,7 +95,7 @@ egoboo_config_t cfg;
 //--------------------------------------------------------------------------------------------
 void egoboo_config_init( egoboo_config_t * pcfg )
 {
-    memset( &cfg_default, 0, sizeof( cfg_default ) );
+    BLANK_STRUCT( cfg_default )
 
     // {GRAPHIC}
     pcfg->fullscreen_req        = bfalse;        // Start in fullscreen?
@@ -133,11 +134,11 @@ void egoboo_config_init( egoboo_config_t * pcfg )
 
     // {GAME}
     pcfg->message_count_req     = 6;
-    pcfg->message_duration      = 50;                     // Time to keep the message alive
-    pcfg->StatusList_on         = btrue;               // Draw the status bars?
+    pcfg->message_duration      = 50;               // Time to keep the message alive
+    pcfg->show_stats         = btrue;            // Draw the status bars?
     pcfg->feedback              = FEEDBACK_TEXT;    // What feedback does the player want
     pcfg->difficulty            = GAME_NORMAL;      // What is the current game difficulty
-    pcfg->autoturncamera        = 255;              // Type of camera control...
+    pcfg->autoturncamera        = CAM_TURN_GOOD;    // Type of camera control...
 
     // {NETWORK}
     pcfg->network_allowed       = bfalse;            // Try to connect?
@@ -404,7 +405,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
     GetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed, cfg_default.sdl_image_allowed );
 
     // Show status bars? (Life, mana, character icons, etc.)
-    GetKey_bool( "STATUS_BAR", pcfg->StatusList_on, cfg_default.StatusList_on );
+    GetKey_bool( "STATUS_BAR", pcfg->show_stats, cfg_default.show_stats );
 
     return btrue;
 }
@@ -419,11 +420,14 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     // FPS display
     fpson = pcfg->fps_allowed;
 
+    // status display
+    StatusList.on = pcfg->show_stats;
+
     // message display
     messageon  = ( pcfg->message_count_req > 0 );
     maxmessage = CLIP( pcfg->message_count_req, 1, MAX_MESSAGE );
 
-    wraptolerance = pcfg->StatusList_on ? 90 : 32;
+    wraptolerance = pcfg->show_stats ? 90 : 32;
 
     // Get the particle limit
     old_max_particles = maxparticles;
@@ -433,13 +437,16 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     maxparticles_dirty = ( old_max_particles != maxparticles );
 
     // sound options
-    snd_config_synch( &snd, pcfg );
+    sound_system_config_synch( &snd, pcfg );
 
     // renderer options
     gfx_synch_config( &gfx, pcfg );
 
     // texture options
     gfx_synch_oglx_texture_parameters( &tex_params, pcfg );
+
+    // camera options
+    cam_options.turn_mode = pcfg->autoturncamera;
 
     return btrue;
 }
@@ -633,7 +640,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     SetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed );
 
     // Show status bars? (Life, mana, character icons, etc.)
-    SetKey_bool( "STATUS_BAR", pcfg->StatusList_on );
+    SetKey_bool( "STATUS_BAR", pcfg->show_stats );
 
     return btrue;
 }

@@ -26,23 +26,24 @@
 
 #include "log.h"
 #include "sound.h"
-#include "camera.h"
-#include "mesh.inl"
+#include "camera_system.h"
 #include "game.h"
 #include "mesh.h"
 #include "obj_BSP.h"
 #include "mpd_functions.h"
+#include "mad.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
 #include "egoboo.h"
 
-#include "egoboo_mem.h"
-
+#include "mesh.inl"
 #include "enchant.inl"
-#include "mad.h"
 #include "profile.inl"
+
+// this include must be the absolute last include
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -71,17 +72,21 @@ static prt_t * prt_config_do_init( prt_t * pprt );
 static prt_t * prt_config_do_active( prt_t * pprt );
 static prt_t * prt_config_do_deinit( prt_t * pprt );
 
-int prt_do_end_spawn( const PRT_REF iprt );
-int prt_do_contspawn( prt_bundle_t * pbdl_prt );
-prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt );
+static int prt_do_end_spawn( const PRT_REF iprt );
+static int prt_do_contspawn( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt );
 
-prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt );
-prt_bundle_t * prt_update_dynalight( prt_bundle_t * pbdl_prt );
-prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt );
-prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt );
-prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt );
-prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt );
-prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_update_dynalight( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+IMPLEMENT_STACK( pip_t, PipStack, MAX_PIP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -115,7 +120,7 @@ prt_t * prt_ctor( prt_t * pprt )
 
     memcpy( &save_base, base_ptr, sizeof( save_base ) );
 
-    memset( pprt, 0, sizeof( *pprt ) );
+    BLANK_STRUCT_PTR( pprt )
 
     // restore the base object data
     memcpy( base_ptr, &save_base, sizeof( save_base ) );
@@ -143,8 +148,7 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
 
     // initialize the bsp node for this particle
-    BSP_leaf_ctor( &( pprt->bsp_leaf ), 3, pprt, BSP_LEAF_PRT );
-    pprt->bsp_leaf.index = GET_INDEX_PPRT( pprt );
+    BSP_leaf_ctor( &( pprt->bsp_leaf ), pprt, BSP_LEAF_PRT, GET_INDEX_PPRT( pprt ) );
 
     // initialize the physics
     phys_data_ctor( &( pprt->phys ) );
@@ -171,21 +175,14 @@ prt_t * prt_dtor( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int prt_count_free()
-{
-    return PrtList.free_count;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void play_particle_sound( const PRT_REF particle, Sint8 sound )
+void prt_play_sound( const PRT_REF particle, Sint8 sound )
 {
     /// ZZ@> This function plays a sound effect for a particle
 
     prt_t * pprt;
 
     if ( !DEFINED_PRT( particle ) ) return;
-    pprt = PrtList.lst + particle;
+    pprt = PrtList_get_ptr( particle );
 
     if ( !VALID_SND( sound ) ) return;
 
@@ -209,7 +206,7 @@ const PRT_REF end_one_particle_now( const PRT_REF particle )
     if ( !ALLOCATED_PRT( particle ) ) return ( PRT_REF )MAX_PRT;
 
     retval = particle;
-    if ( prt_request_terminate( particle ) )
+    if ( PrtList_request_terminate( particle ) )
     {
         retval = ( PRT_REF )MAX_PRT;
     }
@@ -228,28 +225,28 @@ const PRT_REF end_one_particle_in_game( const PRT_REF particle )
     // does the particle have valid data?
     if ( DEFINED_PRT( particle ) )
     {
-        prt_t * pprt = PrtList.lst + particle;
+        prt_t * pprt = PrtList_get_ptr( particle );
         pip_t * ppip = prt_get_ppip( particle );
 
         // the object is waiting to be killed, so
         // do all of the end of life care for the particle
         prt_do_end_spawn( particle );
 
-        if ( SPAWNNOCHARACTER != pprt->spawncharacterstate )
+        if ( SPAWNNOCHARACTER != pprt->endspawn_characterstate )
         {
             child = spawn_one_character( prt_get_pos( pprt ), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
             if ( DEFINED_CHR( child ) )
             {
-                chr_t * pchild = ChrList.lst + child;
+                chr_t * pchild = ChrList_get_ptr( child );
 
-                chr_set_ai_state( pchild , pprt->spawncharacterstate );
+                chr_set_ai_state( pchild , pprt->endspawn_characterstate );
                 pchild->ai.owner = pprt->owner_ref;
             }
         }
 
         if ( NULL != ppip )
         {
-            play_particle_sound( particle, ppip->end_sound );
+            prt_play_sound( particle, ppip->end_sound );
         }
     }
 
@@ -270,7 +267,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     int     offsetfacing = 0, newrand;
     int     prt_lifetime;
     fvec3_t tmp_pos;
-    Uint16  turn;
+    TURN_T  turn;
     float   loc_spdlimit;
 
     FACING_T loc_facing;
@@ -289,7 +286,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
         return NULL;
     }
-    ppip = PipStack.lst + pdata->ipip;
+    ppip = PipStack_get_ptr( pdata->ipip );
 
     // let the object be activated
     POBJ_ACTIVATE( pprt, ppip->name );
@@ -364,7 +361,6 @@ prt_t * prt_config_do_init( prt_t * pprt )
                 /// @note ZF@> ?What does this do?!
                 /// @note BB@> glouseangle is the angle found in prt_find_target()
                 loc_facing -= glouseangle;
-
             }
 
             // Correct loc_facing for dexterity...
@@ -522,7 +518,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->endspawn_lpip      = ppip->endspawn_lpip;
 
     // Sound effect
-    play_particle_sound( iprt, ppip->soundspawn );
+    prt_play_sound( iprt, ppip->soundspawn );
 
     // set up the particle transparency
     pprt->inst.alpha = 0xFF;
@@ -572,7 +568,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         pprt->air_resistance = CLIP( pprt->air_resistance, 0.0f, 1.0f );
     }
 
-    pprt->spawncharacterstate = SPAWNNOCHARACTER;
+    pprt->endspawn_characterstate = SPAWNNOCHARACTER;
 
     prt_set_size( pprt, ppip->size_base );
 
@@ -977,7 +973,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile
 
         return ( PRT_REF )MAX_PRT;
     }
-    ppip = PipStack.lst + ipip;
+    ppip = PipStack_get_ptr( ipip );
 
     // count all the requests for this particle type
     ppip->request_count++;
@@ -994,7 +990,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile
 
         return ( PRT_REF )MAX_PRT;
     }
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     POBJ_BEGIN_SPAWN( pprt );
 
@@ -1034,7 +1030,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     if ( !DEFINED_PPRT( pprt ) ) return retval;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
-    ppip = PipStack.lst + pprt->pip_ref;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
 
     stoppedby = MPDFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
@@ -1062,11 +1058,12 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     float       radius;
     BIT_FIELD   stoppedby;
     pip_t      * ppip;
+    ego_tile_info_t * ptile = NULL;
 
     if ( !DEFINED_PPRT( pprt ) ) return retval;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
-    ppip = PipStack.lst + pprt->pip_ref;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
 
     stoppedby = MPDFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
@@ -1077,12 +1074,10 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
 
     // calculate the radius based on whether the particle is on camera
     radius = 0.0f;
-    if ( mesh_grid_is_valid( PMesh, pprt->onwhichgrid ) )
+    ptile = mesh_get_ptile( PMesh, pprt->onwhichgrid );
+    if ( NULL != ptile && ptile->inrenderlist )
     {
-        if ( PMesh->tmem.tile_list[ pprt->onwhichgrid ].inrenderlist )
-        {
-            radius = pprt->bump_real.size;
-        }
+        radius = pprt->bump_real.size;
     }
 
     mesh_mpdfx_tests = 0;
@@ -1110,7 +1105,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     if ( !DEFINED_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
-    ppip = PipStack.lst + pprt->pip_ref;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
 
     stoppedby = MPDFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
@@ -1144,7 +1139,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     if ( !ACTIVE_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
-    ppip = PipStack.lst + pprt->pip_ref;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
 
     stoppedby = MPDFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
@@ -1181,7 +1176,7 @@ void update_all_particles()
     {
         if ( !ALLOCATED_PRT( iprt ) ) continue;
 
-        prt_bundle_set( &prt_bdl, PrtList.lst + iprt );
+        prt_bundle_set( &prt_bdl, PrtList_get_ptr( iprt ) );
 
         prt_update( &prt_bdl );
     }
@@ -1254,10 +1249,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
         itile = loc_pprt->onwhichgrid;
     }
 
-    if ( mesh_grid_is_valid( PMesh, itile ) )
-    {
-        penviro->twist = PMesh->gmem.grid_list[itile].twist;
-    }
+    penviro->twist = mesh_get_twist( PMesh, itile );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water.is_water && penviro->inwater;
@@ -1278,8 +1270,8 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
 
         fvec3_t   platform_up;
 
-        chr_getMatUp( ChrList.lst + loc_pprt->onwhichplatform_ref, platform_up.v );
-        platform_up = fvec3_normalize( platform_up.v );
+        chr_getMatUp( ChrList_get_ptr( loc_pprt->onwhichplatform_ref ), platform_up.v );
+        fvec3_self_normalize( platform_up.v );
 
         penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -1361,14 +1353,14 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
     // Light isn't affected by fluid velocity
     loc_fluid_friction = loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance;
 
-    if ( loc_pprt->inwater )
+    if ( loc_pprt->enviro.inwater )
     {
-        fluid_acc = fvec3_sub( waterspeed.v, loc_pprt->vel.v );
+        fvec3_sub( fluid_acc.v, waterspeed.v, loc_pprt->vel.v );
         fvec3_self_scale( fluid_acc.v, 1.0f - loc_fluid_friction );
     }
     else
     {
-        fluid_acc = fvec3_sub( windspeed.v, loc_pprt->vel.v );
+        fvec3_sub( fluid_acc.v, windspeed.v, loc_pprt->vel.v );
         fvec3_self_scale( fluid_acc.v, 1.0f - loc_fluid_friction );
     }
 
@@ -1378,7 +1370,7 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
         float buoyancy_friction = air_friction * loc_pprt->air_resistance;
 
         // this is a buoyant particle, like smoke
-        if ( loc_pprt->inwater )
+        if ( loc_pprt->enviro.inwater )
         {
             float water_friction = POW( buoyancy_friction, 2.0f );
 
@@ -1396,7 +1388,7 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
     else
     {
         // this is a normal particle
-        if ( loc_pprt->inwater )
+        if ( loc_pprt->enviro.inwater )
         {
             fluid_acc.x += ( waterspeed.x - loc_pprt->vel.x ) * ( 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance );
             fluid_acc.y += ( waterspeed.y - loc_pprt->vel.y ) * ( 1.0f - loc_penviro->fluid_friction_hrz * loc_pprt->air_resistance );
@@ -1450,7 +1442,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     temp_friction_xy = 1.0f;
     if ( INGAME_CHR( loc_pprt->onwhichplatform_ref ) )
     {
-        chr_t * pplat = ChrList.lst + loc_pprt->onwhichplatform_ref;
+        chr_t * pplat = ChrList_get_ptr( loc_pprt->onwhichplatform_ref );
 
         temp_friction_xy = platstick;
 
@@ -1563,9 +1555,9 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) || !INGAME_CHR( loc_pprt->target_ref ) ) return pbdl_prt;
 
     // grab a pointer to the target
-    ptarget = ChrList.lst + loc_pprt->target_ref;
+    ptarget = ChrList_get_ptr( loc_pprt->target_ref );
 
-    vdiff = fvec3_sub( ptarget->pos.v, prt_get_pos_v( loc_pprt ) );
+    fvec3_sub( vdiff.v, ptarget->pos.v, prt_get_pos_v( loc_pprt ) );
     vdiff.z += ptarget->bump.height * 0.5f;
 
     min_length = ( 2 * 5 * 256 * ChrList.lst[loc_pprt->owner_ref].wisdom ) / PERFECTBIG;
@@ -1751,7 +1743,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     if ( hit_a_floor )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
+        prt_play_sound( loc_iprt, loc_ppip->end_sound_floor );
     }
 
     // handle the collision
@@ -1788,7 +1780,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     if ( hit_a_wall )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->end_sound_wall );
+        prt_play_sound( loc_iprt, loc_ppip->end_sound_wall );
     }
 
     // handle the collision
@@ -1912,7 +1904,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     if ( hit_a_floor )
     {
         // Play the sound for hitting the floor [FSND]
-        play_particle_sound( loc_iprt, loc_ppip->end_sound_floor );
+        prt_play_sound( loc_iprt, loc_ppip->end_sound_floor );
     }
 
     // handle the collision
@@ -1963,7 +1955,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     if ( hit_a_wall )
     {
         // Play the sound for hitting the wall [WSND]
-        play_particle_sound( loc_iprt, loc_ppip->end_sound_wall );
+        prt_play_sound( loc_iprt, loc_ppip->end_sound_wall );
     }
 
     // handle the collision
@@ -1983,7 +1975,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             float vdot;
             fvec3_t   vpara, vperp;
 
-            nrm_total = fvec3_normalize( nrm_total.v );
+            fvec3_self_normalize( nrm_total.v );
 
             vdot  = fvec3_dot_product( nrm_total.v, loc_pprt->vel.v );
 
@@ -2068,7 +2060,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
         else if ( INGAME_CHR( loc_pprt->target_ref ) )
         {
-            chr_t * ptarget =  ChrList.lst +  loc_pprt->target_ref;
+            chr_t * ptarget =  ChrList_get_ptr( loc_pprt->target_ref );
 
             // face your target
             loc_pprt->facing = vec_to_facing( ptarget->pos.x - tmp_pos.x , ptarget->pos.y - tmp_pos.y );
@@ -2098,12 +2090,12 @@ bool_t move_one_particle( prt_bundle_t * pbdl_prt )
     if ( loc_pprt->is_hidden ) return bfalse;
 
     // save the acceleration from the last time-step
-    penviro->acc = fvec3_sub( loc_pprt->vel.v, loc_pprt->vel_old.v );
+    fvec3_sub( penviro->acc.v, loc_pprt->vel.v, loc_pprt->vel_old.v );
 
     // determine the actual velocity for attached particles
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
     {
-        loc_pprt->vel = fvec3_sub( prt_get_pos_v( loc_pprt ), loc_pprt->pos_old.v );
+        fvec3_sub( loc_pprt->vel.v, prt_get_pos_v( loc_pprt ), loc_pprt->pos_old.v );
     }
 
     // Particle's old location
@@ -2162,13 +2154,13 @@ void particle_system_begin()
     // Reset the allocation table
     PrtList_init();
 
-    init_all_pip();
+    PipStack_init_all();
 }
 
 //--------------------------------------------------------------------------------------------
 void particle_system_end()
 {
-    release_all_pip();
+    PipStack_release_all();
 
     PrtList_dtor();
 }
@@ -2192,17 +2184,17 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     cap_t * pcap;
 
     if ( !INGAME_PRT( particle ) ) return 0;
-    pprt = PrtList.lst + particle;
+    pprt = PrtList_get_ptr( particle );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return 0;
-    ppip = PipStack.lst + pprt->pip_ref;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
 
     // no point in going on, is there?
     if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return 0;
     amount = ppip->bumpspawn_amount;
 
     if ( !INGAME_CHR( character ) ) return 0;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pmad = chr_get_pmad( character );
     if ( NULL == pmad ) return 0;
@@ -2402,7 +2394,7 @@ PIP_REF PipStack_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip_override )
+PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
 {
     /// @details ZZ@> This function loads a particle template, returning MAX_PIP if the file wasn't
     ///    found
@@ -2413,7 +2405,7 @@ PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip
     ipip = ( PIP_REF ) MAX_PIP;
     if ( VALID_PIP_RANGE( pip_override ) )
     {
-        release_one_pip( pip_override );
+        PipStack_release_one( pip_override );
         ipip = pip_override;
     }
     else
@@ -2425,7 +2417,7 @@ PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip
     {
         return ( PIP_REF )MAX_PIP;
     }
-    ppip = PipStack.lst + ipip;
+    ppip = PipStack_get_ptr( ipip );
 
     if ( NULL == load_one_pip_file_vfs( szLoadName, ppip ) )
     {
@@ -2439,102 +2431,14 @@ PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_particles()
-{
-    /// @details ZZ@> This resets all particle data and reads in the coin and water particles
-
-    const char *loadpath;
-
-    release_all_local_pips();
-    release_all_pip();
-
-    // Load in the standard global particles ( the coins for example )
-    loadpath = "mp_data/1money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN1 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/5money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN5 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/25money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN25 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/100money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_COIN100 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/200money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM200 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/500money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM500 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/1000money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM1000 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/2000money.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_GEM2000 ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    // Load module specific information
-    loadpath = "mp_data/weather4.txt";
-    load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER );              //It's okay if weather particles fail
-
-    loadpath = "mp_data/weather5.txt";
-    load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_WEATHER_FINISH );
-
-    loadpath = "mp_data/splash.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_SPLASH ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    loadpath = "mp_data/ripple.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_RIPPLE ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    // This is also global...
-    loadpath = "mp_data/defend.txt";
-    if ( MAX_PIP == load_one_particle_profile_vfs( loadpath, ( PIP_REF )PIP_DEFEND ) )
-    {
-        log_error( "Data file was not found! (\"%s\")\n", loadpath );
-    }
-
-    PipStack.count = GLOBAL_PIP_COUNT;
-}
-
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void init_all_pip()
+void PipStack_init_all()
 {
     PIP_REF cnt;
 
     for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
-        pip_init( PipStack.lst + cnt );
+        pip_init( PipStack_get_ptr( cnt ) );
     }
 
     // Reset the pip stack "pointer"
@@ -2542,7 +2446,7 @@ void init_all_pip()
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_pip()
+void PipStack_release_all()
 {
     PIP_REF cnt;
     int tnc;
@@ -2553,7 +2457,7 @@ void release_all_pip()
     {
         if ( LOADED_PIP( cnt ) )
         {
-            pip_t * ppip = PipStack.lst + cnt;
+            pip_t * ppip = PipStack_get_ptr( cnt );
 
             max_request = MAX( max_request, ppip->request_count );
             tnc++;
@@ -2571,7 +2475,7 @@ void release_all_pip()
             {
                 if ( LOADED_PIP( cnt ) )
                 {
-                    pip_t * ppip = PipStack.lst + cnt;
+                    pip_t * ppip = PipStack_get_ptr( cnt );
                     fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->create_count, ppip->request_count );
                 }
             }
@@ -2582,19 +2486,19 @@ void release_all_pip()
 
             for ( cnt = 0; cnt < MAX_PIP; cnt++ )
             {
-                release_one_pip( cnt );
+                PipStack_release_one( cnt );
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_pip( const PIP_REF ipip )
+bool_t PipStack_release_one( const PIP_REF ipip )
 {
     pip_t * ppip;
 
     if ( !VALID_PIP_RANGE( ipip ) ) return bfalse;
-    ppip = PipStack.lst + ipip;
+    ppip = PipStack_get_ptr( ipip );
 
     if ( !ppip->loaded ) return btrue;
 
@@ -2607,20 +2511,20 @@ bool_t release_one_pip( const PIP_REF ipip )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_request_terminate( const PRT_REF iprt )
+bool_t prt_request_terminate( prt_t * pprt )
 {
     /// @details BB@> Tell the game to get rid of this object and treat it
     ///               as if it was already dead
     ///
-    /// @note prt_request_terminate() will force the game to
+    /// @note PrtList_request_terminate() will force the game to
     ///       (eventually) call end_one_particle_in_game() on this particle
 
-    prt_t * pprt;
     bool_t  is_visible;
 
-    if ( !ALLOCATED_PRT( iprt ) || TERMINATED_PRT( iprt ) ) return bfalse;
-
-    pprt = PrtList.lst + iprt;
+    if ( NULL == pprt || !ALLOCATED_PPRT( pprt ) || TERMINATED_PPRT( pprt ) )
+    {
+        return bfalse;
+    }
 
     is_visible =
         pprt->size > 0 &&
@@ -2636,12 +2540,11 @@ bool_t prt_request_terminate( const PRT_REF iprt )
     {
         // the particle has already been seen or is not visible, so just
         // terminate it, as normal
-        POBJ_REQUEST_TERMINATE( PrtList.lst + iprt );
+        POBJ_REQUEST_TERMINATE( pprt );
     }
 
     return btrue;
 }
-
 //--------------------------------------------------------------------------------------------
 int prt_do_end_spawn( const PRT_REF iprt )
 {
@@ -2650,7 +2553,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
 
     if ( !ALLOCATED_PRT( iprt ) ) return endspawn_count;
 
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     // Spawn new particles if time for old one is up
     if ( pprt->endspawn_amount > 0 && LOADED_PRO( pprt->profile_ref ) && pprt->endspawn_lpip > -1 )
@@ -2696,7 +2599,7 @@ void cleanup_all_particles()
         prt_t * pprt;
         obj_data_t * base_ptr;
 
-        pprt = PrtList.lst + iprt;
+        pprt = PrtList_get_ptr( iprt );
 
         base_ptr = POBJ_GET_PBASE( pprt );
         if ( !FLAG_ALLOCATED_PBASE( base_ptr ) ) continue;
@@ -2725,7 +2628,7 @@ void bump_all_particles_update_counters()
     {
         obj_data_t * base_ptr;
 
-        base_ptr = POBJ_GET_PBASE( PrtList.lst + cnt );
+        base_ptr = POBJ_GET_PBASE( PrtList_get_ptr( cnt ) );
         if ( !ACTIVE_PBASE( base_ptr ) ) continue;
 
         base_ptr->update_count++;
@@ -2771,7 +2674,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
 
     ichr     = loc_pprt->attachedto_ref;
-    loc_pchr = ChrList.lst + loc_pprt->attachedto_ref;
+    loc_pchr = ChrList_get_ptr( loc_pprt->attachedto_ref );
 
     // find out who is holding the owner of this object
     iholder = chr_get_lowest_attachment( ichr, btrue );
@@ -2959,7 +2862,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
         }
         else
         {
-            if ( !pbdl_prt->prt_ptr->inwater )
+            if ( !pbdl_prt->prt_ptr->enviro.inwater )
             {
                 if ( SPRITE_SOLID == pbdl_prt->prt_ptr->type )
                 {
@@ -2996,11 +2899,11 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
             spawn_one_particle_global( vtmp, 0, global_pip_index, 0 );
         }
 
-        pbdl_prt->prt_ptr->inwater  = btrue;
+        pbdl_prt->prt_ptr->enviro.inwater  = btrue;
     }
     else
     {
-        pbdl_prt->prt_ptr->inwater = bfalse;
+        pbdl_prt->prt_ptr->enviro.inwater = bfalse;
     }
 
     return pbdl_prt;
@@ -3194,7 +3097,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
     // are we done?
     if ( !prt_visible || base_ptr->frame_count > 0 )
     {
-        prt_request_terminate( pbdl_prt->prt_ref );
+        prt_request_terminate( pbdl_prt->prt_ptr );
         return NULL;
     }
 
@@ -3370,7 +3273,7 @@ bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos )
 
     if (( pos[kX] != pprt->pos.v[kX] ) || ( pos[kY] != pprt->pos.v[kY] ) || ( pos[kZ] != pprt->pos.v[kZ] ) )
     {
-        memmove( pprt->pos.v, pos, sizeof( fvec3_base_t ) );
+        fvec3_base_copy( pprt->pos.v, pos );
 
         retval = prt_update_pos( pprt );
     }

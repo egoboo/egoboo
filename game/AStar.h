@@ -26,7 +26,6 @@ struct sAStar_Node
     AStar_Node_t *parent;
 };
 
-
 //------------------------------------------------------------------------------
 //Public functions
 bool_t AStar_find_path( struct s_ego_mpd *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy );

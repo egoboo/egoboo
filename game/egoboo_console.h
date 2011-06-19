@@ -64,9 +64,9 @@ extern "C"
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void   init_scancodes();
+    void   init_scancodes( void );
 
-    void egoboo_console_draw_all();
+    void egoboo_console_draw_all( void );
 
     SDL_Event * egoboo_console_handle_events( SDL_Event * evt );
 

@@ -22,13 +22,14 @@
 /// @details
 
 #include "wawalite_file.h"
-#include "char.inl"
 
 #include "log.h"
+#include "pip_file.h"
 
 #include "egoboo_fileutil.h"
+
+#include "char.inl"
 #include "egoboo_math.inl"
-#include "pip_file.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -65,7 +66,6 @@ static bool_t write_wawalite_graphics( vfs_FILE * filewrite, wawalite_graphics_t
 static bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera );
 static bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata );
 
-
 static const int WAWALITE_FILE_VERSION = 2;
 
 //--------------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ wawalite_water_t * read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * 
 {
     if ( NULL == pwater ) return pwater;
 
-    memset( pwater, 0, sizeof( *pwater ) );
+    BLANK_STRUCT_PTR( pwater )
 
     if ( NULL == fileread ) return pwater;
 
@@ -163,7 +163,7 @@ wawalite_physics_t * read_wawalite_physics( vfs_FILE * fileread, wawalite_physic
 {
     if ( NULL == pphys ) return pphys;
 
-    memset( pphys, 0, sizeof( *pphys ) );
+    BLANK_STRUCT_PTR( pphys )
 
     if ( NULL == fileread ) return pphys;
 
@@ -183,7 +183,7 @@ wawalite_animtile_t * read_wawalite_animtile( vfs_FILE * fileread, wawalite_anim
 {
     if ( NULL == panimtile ) return panimtile;
 
-    memset( panimtile, 0, sizeof( *panimtile ) );
+    BLANK_STRUCT_PTR( panimtile )
 
     if ( NULL == fileread ) return panimtile;
 
@@ -214,7 +214,7 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
     wawalite_weather_t * pweather = &( pdata->weather );
     if ( NULL == pweather ) return pweather;
 
-    memset( pweather, 0, sizeof( *pweather ) );
+    BLANK_STRUCT_PTR( pweather )
 
     if ( NULL == fileread ) return pweather;
 
@@ -244,8 +244,8 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
             snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
 
             //try to load the particle files, we need at least the first particle for weather to work
-            success = load_one_particle_profile_vfs( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
-            load_one_particle_profile_vfs( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
+            success = PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
+            PipStack_load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
 
             //Unknown weather parsed
             if ( !success )
@@ -268,7 +268,7 @@ wawalite_graphics_t * read_wawalite_graphics( vfs_FILE * fileread, wawalite_grap
 {
     if ( NULL == pgraphics ) return pgraphics;
 
-    memset( pgraphics, 0, sizeof( *pgraphics ) );
+    BLANK_STRUCT_PTR( pgraphics )
 
     if ( NULL == fileread ) return pgraphics;
 
@@ -284,13 +284,13 @@ wawalite_camera_t * read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t
 {
     if ( NULL == pcamera ) return pcamera;
 
-    memset( pcamera, 0, sizeof( *pcamera ) );
+    BLANK_STRUCT_PTR( pcamera )
 
     if ( NULL == fileread ) return pcamera;
 
     // camera data
-    pcamera->swingrate = fget_next_float( fileread );
-    pcamera->swingamp  = fget_next_float( fileread );
+    pcamera->swing_rate = fget_next_float( fileread );
+    pcamera->swing_amp  = fget_next_float( fileread );
 
     return pcamera;
 }
@@ -505,8 +505,8 @@ bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera 
     if ( NULL == filewrite || NULL == pcamera ) return bfalse;
 
     // camera data
-    fput_float( filewrite, "Camera swing rate ( 0 to 100 )                :", pcamera->swingrate );
-    fput_float( filewrite, "Camera swing amplitude ( 0, or .002 to .100 ) :", pcamera->swingamp );
+    fput_float( filewrite, "Camera swing rate ( 0 to 100 )                :", pcamera->swing_rate );
+    fput_float( filewrite, "Camera swing amplitude ( 0, or .002 to .100 ) :", pcamera->swing_amp );
 
     return btrue;
 }
@@ -586,7 +586,7 @@ bool_t wawalite_water_init( wawalite_water_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    memset( pdata, 0, sizeof( *pdata ) );
+    BLANK_STRUCT_PTR( pdata )
 
     pdata->spek_start =   128;
     pdata->spek_level =   128;
@@ -603,7 +603,7 @@ bool_t wawalite_weather_init( wawalite_weather_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    memset( pdata, 0, sizeof( *pdata ) );
+    BLANK_STRUCT_PTR( pdata )
 
     pdata->timer_reset = 10;
 
@@ -615,8 +615,9 @@ bool_t wawalite_fog_init( wawalite_fog_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    pdata->top           = 100;
-    pdata->bottom        = 0.0f;
+    BLANK_STRUCT_PTR( pdata );
+
+    pdata->bottom        = -100;
     pdata->red           = 255;
     pdata->grn           = 255;
     pdata->blu           = 255;
@@ -630,7 +631,7 @@ bool_t wawalite_animtile_init( wawalite_animtile_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    memset( pdata, 0, sizeof( *pdata ) );
+    BLANK_STRUCT_PTR( pdata )
 
     pdata->update_and    = 7;                        // New tile every 7 frames
     pdata->frame_and     = 3;              // Only 4 frames

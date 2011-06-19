@@ -24,11 +24,21 @@
 #include "bsp.inl"
 #include "log.h"
 
+#include "egoboo_frustum.h"
 #include "egoboo.h"
+
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+#define BRANCH_NODE_THRESHOLD 5
+
+//--------------------------------------------------------------------------------------------
+// special arrays
+//--------------------------------------------------------------------------------------------
+
 IMPLEMENT_DYNAMIC_ARY( BSP_leaf_ary, BSP_leaf_t );
 IMPLEMENT_DYNAMIC_ARY( BSP_leaf_pary, BSP_leaf_t * );
 
@@ -36,23 +46,164 @@ IMPLEMENT_DYNAMIC_ARY( BSP_branch_ary, BSP_branch_t );
 IMPLEMENT_DYNAMIC_ARY( BSP_branch_pary, BSP_branch_t * );
 
 //--------------------------------------------------------------------------------------------
-// private functions
+// special functions
 
-static BSP_branch_t * BSP_tree_alloc_branch( BSP_tree_t * t );
-static bool_t         BSP_tree_free_branch( BSP_tree_t * t, BSP_branch_t * B );
-static bool_t         BSP_tree_remove_used( BSP_tree_t * t, BSP_branch_t * B );
-
-static bool_t         BSP_tree_insert_leaf_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth );
-static bool_t         BSP_tree_free_branches( BSP_tree_t * t );
+static bool_t _generate_BSP_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst );
+static int    _find_child_index( const BSP_aabb_t * pbranch_aabb, const aabb_t * pleaf_aabb );
 
 //--------------------------------------------------------------------------------------------
+// BSP_tree_t private functions
+
+static BSP_branch_t * BSP_tree_alloc_branch( BSP_tree_t * t );
+
+//static bool_t         BSP_tree_free_branch( BSP_tree_t * t, BSP_branch_t * B );
+//static bool_t         BSP_tree_remove_used( BSP_tree_t * t, BSP_branch_t * B );
+//static bool_t         BSP_tree_free_branches( BSP_tree_t * t );
+
+//--------------------------------------------------------------------------------------------
+// BSP_branch_t private functions
+
+static bool_t BSP_branch_insert_leaf_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth );
+static bool_t BSP_branch_insert_branch_list_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int index, int depth );
+static bool_t BSP_branch_insert_leaf_list( BSP_branch_t * B, BSP_leaf_t * n );
+static bool_t BSP_branch_insert_branch( BSP_branch_t * B, int index, BSP_branch_t * B2 );
+
+static bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursive );
+static bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+static bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+
+//--------------------------------------------------------------------------------------------
+// BSP_leaf_t private functions
+
+static bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+static bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+
+//--------------------------------------------------------------------------------------------
+// Generic BSP functions
+//--------------------------------------------------------------------------------------------
+bool_t _generate_BSP_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst )
+{
+    size_t cnt;
+    int    tnc, child_count;
+
+    // valid source?
+    if ( NULL == psrc || psrc->dim <= 0 ) return bfalse;
+
+    // valid destination?
+    if ( NULL == pdst ) return bfalse;
+
+    // valid index?
+    child_count = 2 << ( psrc->dim - 1 );
+    if ( index < 0 || index >= child_count ) return bfalse;
+
+    // make sure that the destination type matches the source type
+    if ( pdst->dim != psrc->dim )
+    {
+        BSP_aabb_dtor( pdst );
+        BSP_aabb_ctor( pdst, psrc->dim );
+    }
+
+    // determine the bounds
+    for ( cnt = 0; cnt < psrc->dim; cnt++ )
+    {
+        float maxval, minval;
+
+        tnc = (( signed )psrc->dim ) - 1 - cnt;
+
+        if ( 0 == ( index & ( 1 << tnc ) ) )
+        {
+            minval = psrc->mins.ary[cnt];
+            maxval = psrc->mids.ary[cnt];
+        }
+        else
+        {
+            minval = psrc->mids.ary[cnt];
+            maxval = psrc->maxs.ary[cnt];
+        }
+
+        pdst->mins.ary[cnt] = minval;
+        pdst->maxs.ary[cnt] = maxval;
+        pdst->mids.ary[cnt] = 0.5f * ( minval + maxval );
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int _find_child_index( const BSP_aabb_t * pbranch_aabb, const aabb_t * pleaf_aabb )
+{
+    //---- determine which child the leaf needs to go under
+
+    /// @note This function is not optimal, since we encode the comparisons
+    /// in the 32-bit integer indices, and then may have to decimate index to construct
+    /// the child  branch's bounding by calling _generate_BSP_aabb_child().
+    /// The reason that it is done this way is that we would have to be dynamically
+    /// allocating and deallocating memory every time this function is called, otherwise. Big waste of time.
+
+    size_t cnt;
+    int    index;
+
+    const float * branch_min_ary, * branch_mid_ary, * branch_max_ary;
+    const float * leaf_min_ary, * leaf_max_ary;
+
+    // get aliases to the leaf aabb data
+    if ( NULL == pleaf_aabb ) return -2;
+    leaf_min_ary = pleaf_aabb->mins;
+    leaf_max_ary = pleaf_aabb->maxs;
+
+    // get aliases to the branch aabb data
+    if ( NULL == pbranch_aabb || 0 == pbranch_aabb->dim || !pbranch_aabb->valid )
+        return -2;
+
+    if ( NULL == pbranch_aabb->mins.ary || 0 == pbranch_aabb->mins.alloc ) return -2;
+    branch_min_ary = pbranch_aabb->mins.ary;
+
+    if ( NULL == pbranch_aabb->mids.ary || 0 == pbranch_aabb->mids.alloc ) return -2;
+    branch_mid_ary = pbranch_aabb->mids.ary;
+
+    if ( NULL == pbranch_aabb->maxs.ary || 0 == pbranch_aabb->maxs.alloc ) return -2;
+    branch_max_ary = pbranch_aabb->maxs.ary;
+
+    index = 0;
+    for ( cnt = 0; cnt < pbranch_aabb->dim; cnt++ )
+    {
+        index <<= 1;
+
+        if ( leaf_min_ary[cnt] >= branch_min_ary[cnt] && leaf_max_ary[cnt] <= branch_mid_ary[cnt] )
+        {
+            // the following code does nothing
+            index |= 0;
+        }
+        else if ( leaf_min_ary[cnt] >= branch_mid_ary[cnt] && leaf_max_ary[cnt] <= branch_max_ary[cnt] )
+        {
+            index |= 1;
+        }
+        else if ( leaf_min_ary[cnt] >= branch_min_ary[cnt] && leaf_max_ary[cnt] <= branch_max_ary[cnt] )
+        {
+            // this leaf belongs at this node
+            index = -1;
+            break;
+        }
+        else
+        {
+            // this leaf is actually bigger than this branch
+            index = -2;
+            break;
+        }
+    }
+
+    return index;
+}
+
+//--------------------------------------------------------------------------------------------
+// BSP_aabb_t
 //--------------------------------------------------------------------------------------------
 BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim )
 {
     if ( NULL == pbb ) return NULL;
 
     // initialize the memory
-    memset( pbb, 0, sizeof( *pbb ) );
+    BLANK_STRUCT_PTR( pbb )
 
     // allocate memory and clear it
     BSP_aabb_alloc( pbb, dim );
@@ -69,7 +220,7 @@ BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb )
     pbb = BSP_aabb_dealloc( pbb );
 
     // wipe it
-    memset( pbb, 0, sizeof( *pbb ) );
+    BLANK_STRUCT_PTR( pbb )
 
     return pbb;
 }
@@ -92,7 +243,7 @@ BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim )
     else
     {
         pbb->dim = dim;
-        BSP_aabb_clear( pbb );
+        BSP_aabb_self_clear( pbb );
     }
 
     BSP_aabb_validate( pbb );
@@ -133,7 +284,7 @@ bool_t BSP_aabb_empty( const BSP_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_clear( BSP_aabb_t * psrc )
+bool_t BSP_aabb_self_clear( BSP_aabb_t * psrc )
 {
     /// @details BB@> Return this bounding box to an empty state.
 
@@ -289,7 +440,7 @@ bool_t BSP_aabb_copy( BSP_aabb_t * pdst, const BSP_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_self_union( BSP_aabb_t * pdst, BSP_aabb_t * psrc )
+bool_t BSP_aabb_self_union( BSP_aabb_t * pdst, const BSP_aabb_t * psrc )
 {
     size_t min_dim, cnt;
 
@@ -314,15 +465,16 @@ bool_t BSP_aabb_self_union( BSP_aabb_t * pdst, BSP_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
+// BSP_leaf_t
 //--------------------------------------------------------------------------------------------
-BSP_leaf_t * BSP_leaf_create( int dim, void * data, int type )
+BSP_leaf_t * BSP_leaf_create( void * data, int type, int index )
 {
     BSP_leaf_t * rv;
 
     rv = EGOBOO_NEW( BSP_leaf_t );
     if ( NULL == rv ) return rv;
 
-    return BSP_leaf_ctor( rv, dim, data, type );
+    return BSP_leaf_ctor( rv, data, type, index );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -338,100 +490,99 @@ bool_t BSP_leaf_destroy( BSP_leaf_t ** ppleaf )
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, int dim, void * data, int type )
+BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, void * data, int type, int index )
 {
     if ( NULL == L ) return L;
 
-    memset( L, 0, sizeof( *L ) );
-
-    BSP_aabb_ctor( &( L->bbox ), dim );
+    BLANK_STRUCT_PTR( L )
 
     if ( NULL == data ) return L;
 
     L->data_type = type;
     L->data      = data;
+    L->index     = index;
+
+    ego_aabb_ctor( &( L->bbox ) );
 
     return L;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_leaf_dtor( BSP_leaf_t * L )
+BSP_leaf_t * BSP_leaf_dtor( BSP_leaf_t * L )
 {
-    if ( NULL == L ) return bfalse;
+    if ( NULL == L ) return L;
 
     L->inserted  = bfalse;
     L->data_type = -1;
     L->data      = NULL;
 
-    BSP_aabb_dtor( &( L->bbox ) );
+    return L;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_leaf_unlink( BSP_leaf_t * L )
+{
+    bool_t retval;
+
+    if ( NULL == L ) return bfalse;
+
+    retval = bfalse;
+
+    if ( L->inserted )
+    {
+        L->inserted = bfalse;
+        retval = btrue;
+    }
+
+    if ( NULL != L->next )
+    {
+        L->next = NULL;
+        retval = btrue;
+    }
+
+    ego_aabb_self_clear( &( L->bbox ) );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_leaf_clear( BSP_leaf_t * L )
+{
+    if ( NULL == L ) return bfalse;
+
+    L->data_type = BSP_LEAF_NONE;
+    L->data      = NULL;
+
+    BSP_leaf_unlink( L );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//BSP_branch_t * BSP_branch_create( size_t dim )
-//{
-//    BSP_branch_t * rv;
-//
-//    rv = EGOBOO_NEW( BSP_branch_t );
-//    if ( NULL == rv ) return rv;
-//
-//    return BSP_branch_ctor( rv, dim );
-//}
-//
-////--------------------------------------------------------------------------------------------
-//bool_t BSP_branch_destroy( BSP_branch_t ** ppbranch )
-//{
-//    if ( NULL == ppbranch || NULL == *ppbranch ) return bfalse;
-//
-//    BSP_branch_dtor( *ppbranch );
-//
-//    EGOBOO_DELETE( *ppbranch );
-//
-//    return btrue;
-//}
-//
-////--------------------------------------------------------------------------------------------
-//BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim )
-//{
-//    size_t         cnt;
-//    BSP_branch_t * lst;
-//
-//    lst = EGOBOO_NEW_ARY( BSP_branch_t, ary_size );
-//    if ( NULL == lst ) return lst;
-//
-//    for ( cnt = 0; cnt < ary_size; cnt++ )
-//    {
-//        BSP_branch_ctor( lst + cnt, dim );
-//    }
-//
-//    return lst;
-//}
-//
-////--------------------------------------------------------------------------------------------
-//bool_t BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** lst )
-//{
-//    size_t cnt;
-//
-//    if ( NULL == lst || NULL == *lst || 0 == ary_size ) return bfalse;
-//
-//    for ( cnt = 0; cnt < ary_size; cnt++ )
-//    {
-//        BSP_branch_dtor(( *lst ) + cnt );
-//    }
-//
-//    EGOBOO_DELETE_ARY( *lst );
-//
-//    return btrue;
-//}
+bool_t BSP_leaf_copy( BSP_leaf_t * dst, const BSP_leaf_t * src )
+{
+    if ( NULL == dst ) return bfalse;
 
+    if ( NULL == src )
+    {
+        BLANK_STRUCT_PTR( dst );
+    }
+    else
+    {
+        memmove( dst, src, sizeof( *dst ) );
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+// BSP_branch_t
 //--------------------------------------------------------------------------------------------
 BSP_branch_t * BSP_branch_ctor( BSP_branch_t * B, size_t dim )
 {
     if ( NULL == B ) return B;
 
-    memset( B, 0, sizeof( *B ) );
+    BLANK_STRUCT_PTR( B )
 
     BSP_branch_alloc( B, dim );
 
@@ -445,7 +596,7 @@ BSP_branch_t * BSP_branch_dtor( BSP_branch_t * B )
 
     BSP_branch_dealloc( B );
 
-    memset( B, 0, sizeof( *B ) );
+    BLANK_STRUCT_PTR( B )
 
     return B;
 }
@@ -453,7 +604,7 @@ BSP_branch_t * BSP_branch_dtor( BSP_branch_t * B )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_alloc( BSP_branch_t * B, size_t dim )
 {
-    bool_t child_rv, nodes_rv;
+    bool_t child_rv, nodes_rv, unsorted_rv;
 
     if ( NULL == B ) return bfalse;
 
@@ -461,12 +612,15 @@ bool_t BSP_branch_alloc( BSP_branch_t * B, size_t dim )
     child_rv = BSP_branch_list_alloc( &( B->children ), dim );
 
     // allocate the branch's nodes
-    nodes_rv = BSP_leaf_list_alloc( &( B->nodes ), dim );
+    nodes_rv = BSP_leaf_list_alloc( &( B->nodes ) );
+
+    // allocate the branch's nodes
+    unsorted_rv = BSP_leaf_list_alloc( &( B->unsorted ) );
 
     // allocate the branch's bounding box
     BSP_aabb_alloc( &( B->bsp_bbox ), dim );
 
-    return child_rv && nodes_rv && ( dim == B->bsp_bbox.dim );
+    return child_rv && nodes_rv && unsorted_rv && ( dim == B->bsp_bbox.dim );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -483,6 +637,12 @@ bool_t BSP_branch_dealloc( BSP_branch_t * B )
     // deallocate the list of nodes
     BSP_leaf_list_dtor( &( B->nodes ) );
 
+    // deallocate the branch's unsorted nodes
+    BSP_leaf_list_dealloc( &( B->unsorted ) );
+
+    // deallocate the list of unsorted nodes
+    BSP_leaf_list_dtor( &( B->unsorted ) );
+
     // deallocate the bounding box
     BSP_aabb_dtor( &( B->bsp_bbox ) );
 
@@ -490,71 +650,206 @@ bool_t BSP_branch_dealloc( BSP_branch_t * B )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_branch_unlink( BSP_branch_t * B )
+bool_t BSP_branch_unlink_all( BSP_branch_t * B )
 {
-    bool_t found_self = bfalse;
-    size_t i;
-
-    // remove any links to other leaves
-    // assume the user knows what they are doing
+    bool_t retval = btrue;
 
     if ( NULL == B ) return bfalse;
 
-    // unlink this branch from its parent
-    if ( NULL != B->parent )
+    if ( !BSP_branch_unlink_parent( B ) ) retval = bfalse;
+
+    if ( !BSP_branch_unlink_children( B ) ) retval = bfalse;
+
+    if ( !BSP_branch_unlink_nodes( B ) ) retval = bfalse;
+
+    return retval;
+}
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_unlink_parent( BSP_branch_t * B )
+{
+    // unlink this branch from its parent_ptr
+
+    size_t i;
+    bool_t found_self = bfalse;
+
+    BSP_branch_t      * parent_ptr;
+    BSP_branch_list_t * children_ptr;
+
+    if ( NULL == B ) return bfalse;
+
+    if ( NULL == B->parent ) return btrue;
+    parent_ptr    = B->parent;
+    children_ptr = &( parent_ptr->children );
+
+    // unlink from the parent_ptr
+    B->parent = NULL;
+
+    // unlink the parent_ptr from us
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
     {
-        for ( i = 0; i < B->parent->children.count; i++ )
+        for ( i = 0; i < children_ptr->lst_size; i++ )
         {
-            if ( B == B->parent->children.lst[i] )
+            if ( B == children_ptr->lst[i] )
             {
-                B->parent->children.lst[i] = NULL;
+                children_ptr->lst[i] = NULL;
                 found_self = btrue;
             }
         }
-
-        B->parent   = NULL;
     }
 
-    // unlink the children
-    for ( i = 0; i < B->children.count; i++ )
+    // re-count the parent_ptr's children_ptr
+    children_ptr->inserted = 0;
+    for ( i = 0; i < children_ptr->lst_size; i++ )
     {
-        if ( NULL != B->children.lst[i] )
-        {
-            B->children.lst[i]->parent = NULL;
-        }
-
-        B->children.lst[i] = NULL;
+        if ( NULL == children_ptr->lst[i] ) continue;
+        children_ptr->inserted++;
     }
-
-    // Remove any nodes (from this branch only, NOT recursively).
-    // This resets the B->nodes list.
-    BSP_branch_free_nodes( B, bfalse );
 
     return found_self;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_branch_insert_leaf( BSP_branch_t * B, BSP_leaf_t * n )
+bool_t BSP_branch_unlink_children( BSP_branch_t * B )
 {
-    return BSP_leaf_list_insert( &( B->nodes ), n );
+    // unlink all children from this branch only, not recursively
+
+    size_t i;
+    BSP_branch_list_t * children_ptr;
+
+    if ( NULL == B ) return bfalse;
+    children_ptr = &( B->children );
+
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
+    {
+        for ( i = 0; i < children_ptr->lst_size; i++ )
+        {
+            if ( NULL != children_ptr->lst[i] )
+            {
+                children_ptr->lst[i]->parent = NULL;
+            }
+
+            children_ptr->lst[i] = NULL;
+        }
+
+    }
+
+    ego_aabb_self_clear( &( children_ptr->bbox ) );
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t  BSP_branch_insert_branch( BSP_branch_t * B, int index, BSP_branch_t * B2 )
+bool_t BSP_branch_unlink_nodes( BSP_branch_t * B )
 {
-    if ( NULL == B || index < 0 || ( size_t )index >= B->children.count ) return bfalse;
+    // Remove any nodes (from this branch only, NOT recursively).
+    // This resets the B->nodes list.
 
-    if ( NULL == B2 ) return bfalse;
+    if ( NULL == B ) return bfalse;
 
-    if ( NULL != B->children.lst[ index ] )
+    return BSP_branch_free_nodes( B, bfalse );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_insert_leaf_list( BSP_branch_t * B, BSP_leaf_t * n )
+{
+    bool_t retval;
+
+    if ( NULL == B || NULL == n ) return bfalse;
+
+    retval = BSP_leaf_list_push_front( &( B->nodes ), n );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_update_depth_rec( BSP_branch_t * B, int depth )
+{
+    size_t cnt;
+    BSP_branch_list_t * children_ptr;
+
+    if ( NULL == B || depth < 0 ) return bfalse;
+    children_ptr = &( B->children );
+
+    B->depth = depth;
+
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
+    {
+        for ( cnt = 0; cnt < children_ptr->lst_size; cnt++ )
+        {
+            if ( NULL == children_ptr->lst[cnt] ) continue;
+
+            BSP_branch_update_depth_rec( children_ptr->lst[cnt], depth + 1 );
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_insert_branch( BSP_branch_t * B, int index, BSP_branch_t * B2 )
+{
+    BSP_branch_t * ptmp;
+    BSP_branch_list_t * children_ptr;
+
+    // B and B2 exist?
+    if ( NULL == B || NULL == B2 ) return bfalse;
+    children_ptr = &( B->children );
+
+    // valid child list for B?
+    if ( INVALID_BSP_BRANCH_LIST( children_ptr ) ) return bfalse;
+
+    // valid index range?
+    if ( index < 0 || ( size_t )index >= children_ptr->lst_size ) return bfalse;
+
+    // we can't merge two branches at this time
+    if ( NULL != children_ptr->lst[ index ] )
     {
         return bfalse;
     }
 
     EGOBOO_ASSERT( B->depth + 1 == B2->depth );
 
-    B->children.lst[ index ] = B2;
-    B2->parent            = B;
+    children_ptr->lst[ index ] = B2;
+    B2->parent                 = B;
+
+    // update the all bboxes above B2
+    for ( ptmp = B2->parent; NULL != ptmp; ptmp = ptmp->parent )
+    {
+        BSP_branch_list_t * tmp_children_ptr = &( ptmp->children );
+
+        // add in the size of B2->children
+        if ( ego_aabb_is_clear( &( tmp_children_ptr->bbox ) ) )
+        {
+            ego_aabb_copy( &( tmp_children_ptr->bbox ), &( B2->children.bbox ) );
+        }
+        else
+        {
+            ego_aabb_self_union( &( tmp_children_ptr->bbox ), &( B2->children.bbox ) );
+        }
+
+        // add in the size of B2->nodes
+        if ( ego_aabb_is_clear( &( tmp_children_ptr->bbox ) ) )
+        {
+            ego_aabb_copy( &( tmp_children_ptr->bbox ), &( B2->nodes.bbox ) );
+        }
+        else
+        {
+            ego_aabb_self_union( &( tmp_children_ptr->bbox ), &( B2->nodes.bbox ) );
+        }
+
+        // add in the size of B2->unsorted
+        if ( ego_aabb_is_clear( &( tmp_children_ptr->bbox ) ) )
+        {
+            ego_aabb_copy( &( tmp_children_ptr->bbox ), &( B2->unsorted.bbox ) );
+        }
+        else
+        {
+            ego_aabb_self_union( &( tmp_children_ptr->bbox ), &( B2->unsorted.bbox ) );
+        }
+    }
+
+    // update the depth B2 and all children
+    BSP_branch_update_depth_rec( B2, B->depth + 1 );
 
     return btrue;
 }
@@ -562,26 +857,24 @@ bool_t  BSP_branch_insert_branch( BSP_branch_t * B, int index, BSP_branch_t * B2
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_clear( BSP_branch_t * B, bool_t recursive )
 {
-    size_t cnt;
 
     if ( NULL == B ) return bfalse;
 
     if ( recursive )
     {
-        // recursively clear out any nodes in the children.lst
-        for ( cnt = 0; cnt < B->children.count; cnt++ )
-        {
-            if ( NULL == B->children.lst[cnt] ) continue;
-
-            BSP_branch_clear( B->children.lst[cnt], btrue );
-        };
+        BSP_branch_list_clear_rec( &( B->children ) );
+    }
+    else
+    {
+        // unlink any child nodes
+        BSP_branch_unlink_children( B );
     }
 
     // clear the node list
     BSP_leaf_list_reset( &( B->nodes ) );
 
-    // reset the number of inserted children
-    B->children.inserted = 0;
+    // clear the unsorted list
+    BSP_leaf_list_reset( &( B->unsorted ) );
 
     return btrue;
 }
@@ -590,22 +883,30 @@ bool_t BSP_branch_clear( BSP_branch_t * B, bool_t recursive )
 bool_t BSP_branch_free_nodes( BSP_branch_t * B, bool_t recursive )
 {
     size_t cnt;
+    BSP_branch_list_t * children_ptr;
 
     if ( NULL == B ) return bfalse;
+    children_ptr = &( B->children );
 
     if ( recursive )
     {
-        // recursively clear out any nodes in the children.lst
-        for ( cnt = 0; cnt < B->children.count; cnt++ )
+        if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
         {
-            if ( NULL == B->children.lst[cnt] ) continue;
+            // recursively clear out any nodes in the children.lst
+            for ( cnt = 0; cnt < children_ptr->lst_size; cnt++ )
+            {
+                if ( NULL == children_ptr->lst[cnt] ) continue;
 
-            BSP_branch_free_nodes( B->children.lst[cnt], btrue );
-        };
+                BSP_branch_free_nodes( children_ptr->lst[cnt], btrue );
+            }
+        }
     }
 
     // free all nodes of this branch
     BSP_leaf_list_reset( &( B->nodes ) );
+
+    // free all unsorted nodes of this branch
+    BSP_leaf_list_reset( &( B->unsorted ) );
 
     return btrue;
 }
@@ -613,25 +914,30 @@ bool_t BSP_branch_free_nodes( BSP_branch_t * B, bool_t recursive )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursive )
 {
-    /// @details BB@> remove all leaves with no children.lst. Do a depth first recursive search for efficiency
+    /// @details BB@> remove all leaves with no children. Do a depth first recursive search for efficiency
 
     size_t i;
     bool_t   retval;
+    BSP_branch_list_t * children_ptr;
 
     if ( NULL == B ) return bfalse;
+    children_ptr = &( B->children );
 
     // prune all of the children 1st
     if ( recursive )
     {
-        // prune all the children
-        for ( i = 0; i < B->children.count; i++ )
+        if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
         {
-            BSP_branch_prune( t, B->children.lst[i], btrue );
+            // prune all the children
+            for ( i = 0; i < children_ptr->lst_size; i++ )
+            {
+                BSP_branch_prune( t, children_ptr->lst[i], btrue );
+            }
         }
     }
 
     // do not remove the root node
-    if ( B == t->root ) return btrue;
+    if ( B == t->finite ) return btrue;
 
     retval = btrue;
     if ( BSP_branch_empty( B ) )
@@ -641,7 +947,7 @@ bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursive )
             bool_t found = bfalse;
 
             // unlink the parent and return the node to the free list
-            for ( i = 0; i < B->parent->children.count; i++ )
+            for ( i = 0; i < B->parent->children.lst_size; i++ )
             {
                 if ( B->parent->children.lst[i] == B )
                 {
@@ -660,167 +966,734 @@ bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursive )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_branch_add_all_nodes( BSP_branch_t * pbranch, BSP_leaf_pary_t * colst )
+bool_t BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     size_t       cnt, colst_size;
     BSP_leaf_t * ptmp;
 
-    if ( NULL == pbranch || NULL == colst ) return bfalse;
+    const BSP_leaf_list_t * nodes_ptr;
+
+    if ( NULL == pbranch ) return bfalse;
+    nodes_ptr = &( pbranch->nodes );
+
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
 
     colst_size = BSP_leaf_pary_get_size( colst );
-    if ( 0 == colst_size || BSP_leaf_pary_get_top( colst ) >= colst_size ) return bfalse;
 
-    // add any nodes in the nodes.lst
-    for ( cnt = 0, ptmp = pbranch->nodes.lst; NULL != ptmp && cnt < pbranch->nodes.count; ptmp = ptmp->next, cnt++ )
+    if ( NULL != ptest )
     {
-        if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+        // add any valid nodes in the nodes.lst
+        for ( cnt = 0, ptmp = nodes_ptr->lst; NULL != ptmp && cnt < nodes_ptr->count; ptmp = ptmp->next, cnt++ )
+        {
+            if (( *ptest )( ptmp ) )
+            {
+                if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+            }
+        }
     }
-
-    // if there is no more room. stop
-    if ( BSP_leaf_pary_get_top( colst ) >= colst_size ) return bfalse;
-
-    // add all nodes from all children
-    for ( cnt = 0; cnt < pbranch->children.count; cnt++ )
+    else
     {
-        BSP_branch_t * pchild = pbranch->children.lst[cnt];
-        if ( NULL == pchild ) continue;
-
-        BSP_branch_add_all_nodes( pchild, colst );
-
-        if ( BSP_leaf_pary_get_top( colst ) >= colst_size ) break;
+        // add any nodes in the nodes.lst
+        for ( cnt = 0, ptmp = nodes_ptr->lst; NULL != ptmp && cnt < nodes_ptr->count; ptmp = ptmp->next, cnt++ )
+        {
+            if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+        }
     }
 
     return ( BSP_leaf_pary_get_top( colst ) < colst_size );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_branch_empty( BSP_branch_t * pbranch )
+bool_t BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    size_t cnt;
-    bool_t empty;
+    size_t       cnt, colst_size;
+    BSP_leaf_t * ptmp;
+    const BSP_leaf_list_t * unsorted_ptr;
 
     if ( NULL == pbranch ) return bfalse;
+    unsorted_ptr = &( pbranch->unsorted );
 
-    // look to see if all children are free
-    empty = btrue;
-    for ( cnt = 0; cnt < pbranch->children.count; cnt++ )
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
+
+    colst_size = BSP_leaf_pary_get_size( colst );
+
+    if ( NULL != ptest )
     {
-        if ( NULL != pbranch->children.lst[cnt] )
+        // add any valid unsorted in the unsorted.lst
+        for ( cnt = 0, ptmp = unsorted_ptr->lst; NULL != ptmp && cnt < unsorted_ptr->count; ptmp = ptmp->next, cnt++ )
         {
-            empty = bfalse;
-            break;
+            if (( *ptest )( ptmp ) )
+            {
+                if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+            }
+        }
+    }
+    else
+    {
+        // add any unsorted in the unsorted.lst
+        for ( cnt = 0, ptmp = unsorted_ptr->lst; NULL != ptmp && cnt < unsorted_ptr->count; ptmp = ptmp->next, cnt++ )
+        {
+            if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
         }
     }
 
+    return ( BSP_leaf_pary_get_top( colst ) < colst_size );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    size_t cnt, colst_size;
+
+    const BSP_branch_list_t * children_ptr;
+
+    if ( NULL == pbranch ) return bfalse;
+    children_ptr = &( pbranch->children );
+
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
+
+    colst_size = BSP_leaf_pary_get_size( colst );
+
+    // add all nodes from all children
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
+    {
+        for ( cnt = 0; cnt < children_ptr->lst_size; cnt++ )
+        {
+            BSP_branch_t * pchild = children_ptr->lst[cnt];
+            if ( NULL == pchild ) continue;
+
+            BSP_branch_add_all_rec( pchild, ptest, colst );
+
+            if ( BSP_leaf_pary_get_top( colst ) >= colst_size ) break;
+        }
+
+    }
+
+    return ( BSP_leaf_pary_get_top( colst ) < colst_size );
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    size_t cnt, colst_size;
+
+    const BSP_branch_list_t * children_ptr;
+
+    if ( NULL == pbranch ) return bfalse;
+    children_ptr = &( pbranch->children );
+
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
+
+    colst_size = BSP_leaf_pary_get_size( colst );
+
+    BSP_branch_add_all_nodes( pbranch, ptest, colst );
+    BSP_branch_add_all_unsorted( pbranch, ptest, colst );
+
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
+    {
+        // add all nodes from all children
+        for ( cnt = 0; cnt < children_ptr->lst_size; cnt++ )
+        {
+            BSP_branch_t * pchild = children_ptr->lst[cnt];
+            if ( NULL == pchild ) continue;
+
+            BSP_branch_add_all_rec( pchild, ptest, colst );
+
+            if ( BSP_leaf_pary_get_top( colst ) >= colst_size ) break;
+        }
+
+    }
+
+    return ( BSP_leaf_pary_get_top( colst ) < colst_size );
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_empty( const BSP_branch_t * pbranch )
+{
+    size_t cnt;
+    bool_t empty;
+    const BSP_branch_list_t * children_ptr;
+    const BSP_leaf_list_t * nodes_ptr, * unsorted_ptr;
+
+    if ( NULL == pbranch ) return bfalse;
+    children_ptr = &( pbranch->children );
+    unsorted_ptr = &( pbranch->unsorted );
+    nodes_ptr    = &( pbranch->nodes );
+
+    // assume the worst
+    empty = btrue;
+
     // check to see if there are any nodes in this branch's nodes.lst
-    if ( NULL != pbranch->nodes.lst )
+    if ( !EMPTY_BSP_LEAF_LIST( nodes_ptr ) )
     {
         empty = bfalse;
+        goto BSP_branch_empty_exit;
     }
+
+    // check to see if there are any nodes in this branch's unsorted.lst
+    if ( !EMPTY_BSP_LEAF_LIST( unsorted_ptr ) )
+    {
+        empty = bfalse;
+        goto BSP_branch_empty_exit;
+    }
+
+    // look to see if all children are free
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
+    {
+        for ( cnt = 0; cnt < children_ptr->lst_size; cnt++ )
+        {
+            if ( NULL != children_ptr->lst[cnt] )
+            {
+                empty = bfalse;
+                goto BSP_branch_empty_exit;
+            }
+        }
+    }
+
+BSP_branch_empty_exit:
 
     return empty;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_branch_collide( BSP_branch_t * pbranch, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst )
+bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @details BB@> Recursively search the BSP tree for collisions with the paabb
     //      Return bfalse if we need to break out of the recursive search for any reason.
 
-    size_t       cnt;
+    geometry_rv geom_children, geom_nodes, geom_unsorted;
+    bool_t retval, BSP_retval;
+
+    const BSP_leaf_list_t * nodes_ptr, * unsorted_ptr;
+    const BSP_branch_list_t * children_ptr;
 
     // if the collision list doesn't exist, stop
-    if ( NULL == colst || 0 == colst->alloc || colst->top >= colst->alloc ) return bfalse;
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
 
     // if the branch doesn't exist, stop
     if ( NULL == pbranch ) return bfalse;
+    children_ptr = &( pbranch->children );
+    nodes_ptr = &( pbranch->nodes );
+    unsorted_ptr = &( pbranch->unsorted );
 
-    // return if the object does not intersect the branch
-    if ( !BSP_aabb_overlap( paabb, &( pbranch->bsp_bbox ) ) )
+    // assume the worst
+    retval = bfalse;
+
+    // check the unsorted nodes
+    geom_unsorted = geometry_error;
+    if ( NULL != unsorted_ptr && NULL != unsorted_ptr->lst )
+    {
+        if ( 0 == unsorted_ptr->count )
+        {
+            geom_unsorted = geometry_outside;
+        }
+        else if ( 1 == unsorted_ptr->count )
+        {
+            // A speedup.
+            // If there is only one entry, then the aabb-aabb collision test is
+            // called twice for 2 bounding boxes of the same size
+            geom_unsorted = geometry_intersect;
+        }
+        else
+        {
+            geom_unsorted = aabb_intersects_aabb( paabb, &( unsorted_ptr->bbox.data ) );
+        }
+    }
+
+    // check the nodes at this level of the tree
+    geom_nodes = geometry_error;
+    if ( NULL != nodes_ptr && NULL != nodes_ptr->lst )
+    {
+        if ( 0 == nodes_ptr->count )
+        {
+            geom_nodes = geometry_outside;
+        }
+        else if ( 1 == nodes_ptr->count )
+        {
+            // A speedup.
+            // If there is only one entry, then the aabb-aabb collision test is
+            // called twice for 2 bounding boxes of the same size
+            geom_nodes = geometry_intersect;
+        }
+        else
+        {
+            geom_nodes = aabb_intersects_aabb( paabb, &( nodes_ptr->bbox.data ) );
+        }
+    }
+
+    // check the nodes at all lower levels
+    geom_children = geometry_error;
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
+    {
+        if ( 0 == children_ptr->inserted )
+        {
+            geom_children = geometry_outside;
+        }
+        else if ( 1 == children_ptr->inserted )
+        {
+            // A speedup.
+            // If there is only one entry, then the aabb-aabb collision test is
+            // called twice for 2 bounding boxes of the same size
+            geom_children = geometry_intersect;
+        }
+        else
+        {
+            geom_children = aabb_intersects_aabb( paabb, &( children_ptr->bbox.data ) );
+        }
+    }
+
+    if ( geom_unsorted <= geometry_outside && geom_nodes <= geometry_outside && geom_children <= geometry_outside )
     {
         // the branch and the object do not overlap at all.
         // do nothing.
         return bfalse;
     }
 
-    // is the branch completely contained by the test aabb?
-    if ( BSP_aabb_lhs_contains_rhs( paabb, &( pbranch->nodes.bbox ) ) )
+    switch ( geom_unsorted )
     {
-        // add every single node under this branch
-        return BSP_branch_add_all_nodes( pbranch, colst );
+        case geometry_intersect:
+            // The aabb and branch partially overlap. Test each item.
+            BSP_retval = BSP_leaf_list_collide_aabb( unsorted_ptr, paabb, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+
+        case geometry_inside:
+            // The branch is completely contained by the test aabb. Add every single node.
+            BSP_retval = BSP_branch_add_all_unsorted( pbranch, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
     }
 
-    // collide with the individual nodes
-    BSP_leaf_list_collide( &( pbranch->nodes ), paabb, colst );
-
-    // only check the children if there is overlap with the stored
-    // bounding box for the children
-    if ( BSP_aabb_overlap( paabb, &( pbranch->children.bbox ) ) )
+    switch ( geom_nodes )
     {
-        // scan the child branches and collide with them recursively
-        for ( cnt = 0; cnt < pbranch->children.count; cnt++ )
-        {
-            BSP_branch_t * pchild = pbranch->children.lst[cnt];
+        case geometry_intersect:
+            // The aabb and branch partially overlap. Test each item.
+            BSP_retval = BSP_leaf_list_collide_aabb( nodes_ptr, paabb, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
 
-            // scan all the children.lst
-            if ( NULL == pchild ) continue;
-
-            BSP_branch_collide( pchild, paabb, colst );
-        }
+        case geometry_inside:
+            // The branch is completely contained by the test aabb. Add every single node.
+            BSP_retval = BSP_branch_add_all_nodes( pbranch, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
     }
 
-    return btrue;
+    switch ( geom_children )
+    {
+        case geometry_intersect:
+            // The aabb and branch partially overlap. Test each item.
+            BSP_retval = BSP_branch_list_collide_aabb( &( pbranch->children ), paabb, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+
+        case geometry_inside:
+            // The branch is completely contained by the test aabb. Add every single node.
+            BSP_retval = BSP_branch_add_all_children( pbranch, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    /// @details BB@> Recursively search the BSP tree for collisions with the paabb
+    //      Return bfalse if we need to break out of the recursive search for any reason.
 
-//bool_t BSP_tree_init_0( BSP_tree_t * t )
-//{
-//    /// @details BB@> reset the tree to the "empty" state. Assume we do not own the nodes.lst or children.lst.
-//
-//    size_t i;
-//    BSP_branch_t * pbranch;
-//
-//    // free any the nodes in the tree
-//    BSP_tree_free_nodes( t, bfalse );
-//
-//    // initialize the leaves.
-//    t->branch_free.top = 0;
-//    t->branch_used.top = 0;
-//    for ( i = 0; i < t->branch_all.alloc; i++ )
-//    {
-//        // grab a branch off of the static list
-//        pbranch = t->branch_all.ary + i;
-//
-//        if ( NULL == pbranch ) continue;
-//
-//        // completely unlink the branch
-//        BSP_branch_unlink( pbranch );
-//
-//        // push it onto the "stack"
-//        BSP_branch_pary_push_back( &( t->branch_free ), pbranch );
-//    };
-//
-//    return btrue;
-//}
+    geometry_rv geom_children, geom_nodes, geom_unsorted;
+    bool_t retval, BSP_retval;
+
+    const BSP_leaf_list_t * nodes_ptr, * unsorted_ptr;
+    const BSP_branch_list_t * children_ptr;
+
+    // if the collision list doesn't exist, stop
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
+
+    // if the branch doesn't exist, stop
+    if ( NULL == pbranch ) return bfalse;
+    children_ptr = &( pbranch->children );
+    nodes_ptr = &( pbranch->nodes );
+    unsorted_ptr = &( pbranch->unsorted );
+
+    // assume the worst
+    retval = bfalse;
+
+    // check the unsorted nodes
+    geom_unsorted = geometry_error;
+    if ( NULL != unsorted_ptr && NULL != unsorted_ptr->lst )
+    {
+        if ( 0 == unsorted_ptr->count )
+        {
+            geom_unsorted = geometry_outside;
+        }
+        else if ( 1 == unsorted_ptr->count )
+        {
+            // A speedup.
+            // If there is only one entry, then the frustum-aabb collision test is
+            // called twice for 2 bounding boxes of the same size
+            geom_unsorted = geometry_intersect;
+        }
+        else
+        {
+            geom_unsorted = ego_frustum_intersects_ego_aabb( pfrust, &( unsorted_ptr->bbox ) );
+        }
+    }
+
+    // check the nodes at this level of the tree
+    geom_nodes = geometry_error;
+    if ( NULL != nodes_ptr && NULL != nodes_ptr->lst )
+    {
+        if ( 0 == nodes_ptr->count )
+        {
+            geom_nodes = geometry_outside;
+        }
+        else if ( 1 == nodes_ptr->count )
+        {
+            // A speedup.
+            // If there is only one entry, then the frustum-aabb collision test is
+            // called twice for 2 bounding boxes of the same size
+            geom_nodes = geometry_intersect;
+        }
+        else
+        {
+            geom_nodes = ego_frustum_intersects_ego_aabb( pfrust, &( nodes_ptr->bbox ) );
+        }
+    }
+
+    // check the nodes at all lower levels
+    geom_children = geometry_error;
+    if ( !INVALID_BSP_BRANCH_LIST( children_ptr ) )
+    {
+        if ( 0 == children_ptr->inserted )
+        {
+            geom_children = geometry_outside;
+        }
+        else if ( 1 == children_ptr->inserted )
+        {
+            // A speedup.
+            // If there is only one entry, then the frustum-aabb collision test is
+            // called twice for 2 bounding boxes of the same size
+            geom_children = geometry_intersect;
+        }
+        else
+        {
+            geom_children = ego_frustum_intersects_ego_aabb( pfrust, &( children_ptr->bbox ) );
+        }
+    }
+
+    if ( geom_unsorted <= geometry_outside && geom_nodes <= geometry_outside && geom_children <= geometry_outside )
+    {
+        // the branch and the object do not overlap at all.
+        // do nothing.
+        return bfalse;
+    }
+
+    switch ( geom_unsorted )
+    {
+        case geometry_intersect:
+            // The frustum and branch partially overlap. Test each item.
+            BSP_retval = BSP_leaf_list_collide_frustum( unsorted_ptr, pfrust, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+
+        case geometry_inside:
+            // The branch is completely contained by the test aabb. Add every single node.
+            BSP_retval = BSP_branch_add_all_unsorted( pbranch, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+    }
+
+    switch ( geom_nodes )
+    {
+        case geometry_intersect:
+            // The frustum and branch partially overlap. Test each item.
+            BSP_retval = BSP_leaf_list_collide_frustum( nodes_ptr, pfrust, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+
+        case geometry_inside:
+            // The branch is completely contained by the test aabb. Add every single node.
+            BSP_retval = BSP_branch_add_all_nodes( pbranch, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+    }
+
+    switch ( geom_children )
+    {
+        case geometry_intersect:
+            // The frustum and branch partially overlap. Test each item.
+            BSP_retval = BSP_branch_list_collide_frustum( &( pbranch->children ), pfrust, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+
+        case geometry_inside:
+            // The branch is completely contained by the test aabb. Add every single node.
+            BSP_retval = BSP_branch_add_all_children( pbranch, ptest, colst );
+            if ( BSP_retval ) retval = btrue;
+            break;
+    }
+
+    return retval;
+}
 
 //--------------------------------------------------------------------------------------------
-BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth )
+bool_t BSP_branch_insert_branch_list_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int index, int depth )
+{
+    // the leaf is a child of this branch
+
+    BSP_branch_t * pchild;
+    bool_t inserted_branch;
+    BSP_branch_list_t * children_ptr;
+
+    // is there a leaf to insert?
+    if ( NULL == pleaf ) return bfalse;
+
+    // does the branch exist?
+    if ( NULL == pbranch ) return bfalse;
+    children_ptr = &( pbranch->children );
+
+    // a valid child list?
+    if ( INVALID_BSP_BRANCH_LIST( children_ptr ) ) return bfalse;
+
+    // is the index within the correct range?
+    if ( index < 0 || ( size_t )index >= children_ptr->lst_size ) return bfalse;
+
+    // get the child. if it doesn't exist, create one
+    pchild = BSP_tree_ensure_branch( ptree, pbranch, index );
+
+    // try to insert the leaf
+    inserted_branch = bfalse;
+    if ( NULL != pchild )
+    {
+        // insert the leaf
+        inserted_branch = BSP_branch_insert_leaf_rec( ptree, pchild, pleaf, depth );
+    }
+
+    // if it was inserted, update the bounding box
+    if ( inserted_branch )
+    {
+        if ( 0 == children_ptr->inserted )
+        {
+            ego_aabb_copy( &( children_ptr->bbox ), &( pleaf->bbox ) );
+        }
+        else
+        {
+            ego_aabb_self_union( &( children_ptr->bbox ), &( pleaf->bbox ) );
+        }
+
+        children_ptr->inserted++;
+    }
+
+    return inserted_branch;
+}
+
+//--------------------------------------------------------------------------------------------
+int BSP_branch_insert_leaf_rec_1( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth )
+{
+    int index, retval;
+
+    bool_t inserted_leaf, inserted_branch;
+
+    if ( NULL == ptree || NULL == pbranch || NULL == pleaf || depth < 0 ) return -1;
+
+    // not inserted anywhere, yet
+    inserted_leaf   = bfalse;
+    inserted_branch = bfalse;
+
+    // don't go too deep
+    if ( depth > ptree->max_depth )
+    {
+        // insert the node under this branch
+        inserted_branch = BSP_branch_insert_leaf_list( pbranch, pleaf );
+    }
+    else
+    {
+        //---- determine which child the leaf needs to go under
+        index = _find_child_index( &( pbranch->bsp_bbox ), &( pleaf->bbox.data ) );
+
+        //---- insert the leaf in the right place
+        if ( index < -1 )
+        {
+            /* do nothing */
+        }
+        else if ( -1 == index )
+        {
+            // the leaf belongs on this branch
+            inserted_leaf = BSP_branch_insert_leaf_list( pbranch, pleaf );
+        }
+        else
+        {
+            inserted_branch = BSP_branch_insert_branch_list_rec( ptree, pbranch, pleaf, index, depth );
+        }
+    }
+
+    retval = -1;
+    if ( inserted_leaf && !inserted_branch )
+    {
+        retval = 0;
+    }
+    else if ( !inserted_leaf && inserted_branch )
+    {
+        retval = 1;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_insert_leaf_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth )
+{
+    /// @details BB@> recursively insert a leaf in a tree of BSP_branch_t*. Get new branches using the
+    ///              BSP_tree_get_free() function to allocate any new branches that are needed.
+
+    bool_t handled = bfalse;
+    size_t nodes_at_this_level, unsorted_nodes, sibling_nodes;
+
+    BSP_leaf_list_t * unsorted_ptr;
+    BSP_leaf_list_t * nodes_ptr;
+
+    if ( NULL == ptree || NULL == pleaf ) return bfalse;
+
+    if ( NULL == pbranch ) return bfalse;
+    unsorted_ptr = &( pbranch->unsorted );
+    nodes_ptr    = &( pbranch->nodes );
+
+    // nothing has been done with the pleaf pointer yet
+    handled = bfalse;
+
+    // count the nodes in different categories
+    sibling_nodes       = nodes_ptr->count;
+    unsorted_nodes      = unsorted_ptr->count;
+    nodes_at_this_level = sibling_nodes + unsorted_nodes;
+
+    // is list of unsorted nodes overflowing?
+    if ( unsorted_nodes > 0 && nodes_at_this_level >= BRANCH_NODE_THRESHOLD )
+    {
+        // scan through the list and insert everyone in the next lower branch
+
+        BSP_leaf_t * tmp_leaf;
+        int inserted;
+
+        // if you just sort the whole list, you could end up with
+        // every single element in the same node at some large depth
+        // (if the nodes are strange that way).
+        // Since, REDUCING the depth of the BSP is the entire point, we have to limit this in some way...
+        size_t target_unsorted = ( sibling_nodes > BRANCH_NODE_THRESHOLD ) ? 0 : BRANCH_NODE_THRESHOLD - sibling_nodes;
+        size_t min_unsorted = target_unsorted >> 1;
+
+        if ( unsorted_ptr->count > min_unsorted )
+        {
+            tmp_leaf = BSP_leaf_list_pop_front( &( pbranch->unsorted ) );
+            inserted = 0;
+            do
+            {
+                if ( BSP_branch_insert_leaf_rec_1( ptree, pbranch, tmp_leaf, depth + 1 ) )
+                {
+                    inserted++;
+                }
+
+                // Break out BEFORE popping off another pointer.
+                // Otherwise, we lose drop a node by mistake.
+                if ( unsorted_ptr->count <= min_unsorted ) break;
+
+                tmp_leaf = BSP_leaf_list_pop_front( &( pbranch->unsorted ) );
+            }
+            while ( NULL != tmp_leaf );
+
+            // now clear out the old bbox.
+            ego_aabb_self_clear( &( unsorted_ptr->bbox ) );
+
+            if ( unsorted_ptr->count > 0 )
+            {
+                // generate the correct bbox for any remaining nodes
+
+                size_t cnt;
+
+                tmp_leaf = unsorted_ptr->lst;
+                cnt = 0;
+                if ( NULL != tmp_leaf )
+                {
+                    aabb_copy( &( unsorted_ptr->bbox.data ), &( tmp_leaf->bbox.data ) );
+                    tmp_leaf = tmp_leaf->next;
+                    cnt++;
+                }
+
+                for ( /* nothing */;
+                                   NULL != tmp_leaf && cnt < unsorted_ptr->count;
+                                   tmp_leaf = tmp_leaf->next, cnt++ )
+                {
+                    aabb_self_union( &( unsorted_ptr->bbox.data ), &( tmp_leaf->bbox.data ) );
+                }
+
+                ego_aabb_validate( &( unsorted_ptr->bbox ) );
+            }
+        }
+    }
+
+    // re-calculate the values for this branch
+    sibling_nodes       = nodes_ptr->count;
+    unsorted_nodes      = unsorted_ptr->count;
+    nodes_at_this_level = sibling_nodes + unsorted_nodes;
+
+    // defer sorting any new leaves, if possible
+    if ( !handled && nodes_at_this_level < BRANCH_NODE_THRESHOLD )
+    {
+        handled = BSP_leaf_list_push_front( &( pbranch->unsorted ), pleaf );
+    }
+
+    // recursively insert
+    if ( !handled )
+    {
+        int where;
+
+        // keep track of the tree depth
+        where = BSP_branch_insert_leaf_rec_1( ptree, pbranch, pleaf, depth + 1 );
+
+        handled = ( where >= 0 );
+    }
+
+    // keep a record of the highest depth
+    if ( handled && depth > ptree->depth )
+    {
+        ptree->depth = depth;
+    }
+
+    return handled;
+}
+
+//--------------------------------------------------------------------------------------------
+// BSP_tree_t
+//--------------------------------------------------------------------------------------------
+BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 req_dim, Sint32 req_depth )
 {
     int    node_count;
     size_t cnt;
 
     if ( NULL == t ) return t;
 
-    memset( t, 0, sizeof( *t ) );
+    BLANK_STRUCT_PTR( t )
 
-    node_count = BSP_tree_count_nodes( dim, depth );
+    ego_aabb_ctor( &( t->bbox ) );
+    BSP_aabb_ctor( &( t->bsp_bbox ), req_dim );
+    BSP_leaf_list_ctor( &( t->infinite ) );
+
+    // these constructions are handled in BSP_tree_alloc()
+    // BSP_branch_ary_ctor ( &(t->branch_all) );
+    // BSP_branch_pary_ctor( &(t->branch_used) );
+    // BSP_branch_pary_ctor( &(t->branch_free) );
+
+    node_count = BSP_tree_count_nodes( req_dim, req_depth );
     if ( node_count < 0 ) return t;
 
-    if ( !BSP_tree_alloc( t, node_count, dim ) ) return t;
+    if ( !BSP_tree_alloc( t, node_count, req_dim ) ) return t;
 
-    t->depth = depth;
+    t->max_depth = req_depth;
 
     // initialize the free list
     t->branch_free.top = 0;
@@ -856,7 +1729,7 @@ bool_t BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim )
     t->dimensions = 0;
 
     // allocate the infinite node list
-    BSP_leaf_list_alloc( &( t->infinite ), dim );
+    BSP_leaf_list_alloc( &( t->infinite ) );
 
     // allocate the branches
     BSP_branch_ary_ctor( &( t->branch_all ), count );
@@ -873,7 +1746,7 @@ bool_t BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim )
     BSP_branch_pary_ctor( &( t->branch_free ), count );
 
     // initialize the root bounding box
-    BSP_aabb_ctor( &( t->bbox ), dim );
+    BSP_aabb_ctor( &( t->bsp_bbox ), dim );
 
     // set the variables
     t->dimensions = dim;
@@ -907,7 +1780,7 @@ bool_t BSP_tree_dealloc( BSP_tree_t * t )
     BSP_branch_pary_dtor( &( t->branch_free ) );
 
     // deallocate the root bounding box
-    BSP_aabb_dtor( &( t->bbox ) );
+    BSP_aabb_dtor( &( t->bsp_bbox ) );
 
     return btrue;
 }
@@ -927,33 +1800,6 @@ Sint32 BSP_tree_count_nodes( Sint32 dim, Sint32 depth )
     node_count    = numer / denom;
 
     return node_count;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_tree_remove_used( BSP_tree_t * t, BSP_branch_t * B )
-{
-    size_t cnt;
-
-    if ( NULL == t || 0 == t->branch_used.top ) return bfalse;
-
-    if ( NULL == B ) return bfalse;
-
-    // scan the used list for the branch
-    for ( cnt = 0; cnt < t->branch_used.top; cnt++ )
-    {
-        if ( B == t->branch_used.ary[cnt] ) break;
-    }
-
-    // did we find the branch in the used list?
-    if ( cnt == t->branch_used.top ) return bfalse;
-
-    // reduce the size of the list
-    t->branch_used.top--;
-
-    // move the branch that we found to the top of the list
-    SWAP( BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top] );
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -977,23 +1823,6 @@ BSP_branch_t * BSP_tree_alloc_branch( BSP_tree_t * t )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_tree_free_branch( BSP_tree_t * t, BSP_branch_t * B )
-{
-    bool_t retval;
-
-    if ( NULL == t || NULL == B ) return bfalse;
-
-    retval = bfalse;
-    if ( BSP_tree_remove_used( t, B ) )
-    {
-        // add it to the used list
-        retval =  BSP_branch_pary_push_back( &( t->branch_free ), B );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 BSP_branch_t * BSP_tree_get_free( BSP_tree_t * t )
 {
     BSP_branch_t *  B;
@@ -1009,106 +1838,37 @@ BSP_branch_t * BSP_tree_get_free( BSP_tree_t * t )
         EGOBOO_ASSERT( NULL == B->nodes.lst );
 
         // make sure that the data is cleared out
-        BSP_branch_unlink( B );
+        BSP_branch_unlink_all( B );
     }
 
     return B;
 }
 
 //--------------------------------------------------------------------------------------------
-
-//bool_t BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B )
-//{
-//    if ( NULL == t || NULL == B ) return bfalse;
-//
-//    // remove any links to other leaves
-//    BSP_branch_unlink( B );
-//
-//    return BSP_tree_free_branch( t, B );
-//}
-
-//--------------------------------------------------------------------------------------------
-
-//bool_t BSP_tree_free_all( BSP_tree_t * t )
-//{
-//    if ( !BSP_tree_free_nodes( t, bfalse ) ) return bfalse;
-//
-//    if ( !BSP_tree_free_branches( t ) ) return bfalse;
-//
-//    return btrue;
-//}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_tree_clear( BSP_tree_t * t, bool_t recursive )
+bool_t BSP_tree_clear_rec( BSP_tree_t * t )
 {
     if ( NULL == t ) return bfalse;
 
-    if ( recursive )
-    {
-        BSP_branch_clear( t->root, btrue );
-    }
+    // clear all the branches, recursively
+    BSP_branch_clear( t->finite, btrue );
 
     // free the infinite nodes of the tree
     BSP_leaf_list_reset( &( t->infinite ) );
 
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-
-//bool_t BSP_tree_free_nodes( BSP_tree_t * t, bool_t recursive )
-//{
-//    if ( NULL == t ) return bfalse;
-//
-//    if ( recursive )
-//    {
-//        BSP_branch_free_nodes( t->root, btrue );
-//    }
-//
-//    // free the infinite nodes of the tree
-//    BSP_leaf_list_reset( &( t->infinite ) );
-//
-//    return btrue;
-//}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_tree_free_branches( BSP_tree_t * t )
-{
-    size_t cnt;
-
-    if ( NULL == t ) return bfalse;
-
-    // transfer all the "used" branches back to the "free" branches
-    for ( cnt = 0; cnt < t->branch_used.top; cnt++ )
-    {
-        // grab a used branch
-        BSP_branch_t * pbranch = t->branch_used.ary[cnt];
-        if ( NULL == pbranch ) continue;
-
-        // completely unlink the branch
-        BSP_branch_unlink( pbranch );
-
-        // return the branch to the free list
-        BSP_branch_pary_push_back( &( t->branch_free ), pbranch );
-    }
-
-    // reset the used list
-    t->branch_used.top = 0;
-
-    // remove the tree root
-    t->root = NULL;
+    // set the bbox to empty
+    ego_aabb_self_clear( &( t->bbox ) );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t   BSP_tree_prune( BSP_tree_t * t )
+bool_t BSP_tree_prune( BSP_tree_t * t )
 {
     /// @details BB@> remove all leaves with no children.lst or nodes.lst.
 
-    size_t cnt;
+    int cnt;
 
-    if ( NULL == t || NULL == t->root ) return bfalse;
+    if ( NULL == t || NULL == t->finite ) return bfalse;
 
     // search through all allocated branches. This will not catch all of the
     // empty branches every time, but it should catch quite a few
@@ -1128,27 +1888,27 @@ BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t )
 
     if ( NULL == t ) return NULL;
 
-    if ( NULL != t->root ) return t->root;
+    if ( NULL != t->finite ) return t->finite;
 
     proot = BSP_tree_get_free( t );
     if ( NULL == proot ) return NULL;
 
     // make sure that it is unlinked
-    BSP_branch_unlink( proot );
+    BSP_branch_unlink_all( proot );
 
     // copy the tree bounding box to the root node
     for ( cnt = 0; cnt < t->dimensions; cnt++ )
     {
-        proot->bsp_bbox.mins.ary[cnt] = t->bbox.mins.ary[cnt];
-        proot->bsp_bbox.mids.ary[cnt] = t->bbox.mids.ary[cnt];
-        proot->bsp_bbox.maxs.ary[cnt] = t->bbox.maxs.ary[cnt];
+        proot->bsp_bbox.mins.ary[cnt] = t->bsp_bbox.mins.ary[cnt];
+        proot->bsp_bbox.mids.ary[cnt] = t->bsp_bbox.mids.ary[cnt];
+        proot->bsp_bbox.maxs.ary[cnt] = t->bsp_bbox.maxs.ary[cnt];
     }
 
     // fix the depth
     proot->depth = 0;
 
     // assign the root to the tree
-    t->root = proot;
+    t->finite = proot;
 
     return proot;
 }
@@ -1159,7 +1919,7 @@ BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int ind
     BSP_branch_t * pbranch;
 
     if (( NULL == t ) || ( NULL == B ) ) return NULL;
-    if ( index < 0 || ( signed )index > ( signed )B->children.count ) return NULL;
+    if ( index < 0 || ( size_t )index > B->children.lst_size ) return NULL;
 
     // grab any existing value
     pbranch = B->children.lst[index];
@@ -1173,11 +1933,11 @@ BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int ind
         if ( NULL != pbranch )
         {
             // make sure that it is unlinked
-            BSP_branch_unlink( pbranch );
+            BSP_branch_unlink_all( pbranch );
 
             // generate its bounding box
             pbranch->depth = B->depth + 1;
-            BSP_generate_aabb_child( &( B->bsp_bbox ), index, &( pbranch->bsp_bbox ) );
+            _generate_BSP_aabb_child( &( B->bsp_bbox ), index, &( pbranch->bsp_bbox ) );
 
             // insert it in the correct position
             BSP_branch_insert_branch( B, index, pbranch );
@@ -1188,59 +1948,11 @@ BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int ind
 }
 
 //--------------------------------------------------------------------------------------------
-//bool_t BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index )
-//{
-//    bool_t retval;
-//
-//    if (( NULL == t ) || ( NULL == B ) || ( NULL == n ) ) return bfalse;
-//    if (( signed )index > ( signed )B->children.count ) return bfalse;
-//
-//    if ( index >= 0 && NULL != B->children.lst[index] )
-//    {
-//        // inserting a node into the child
-//        retval = BSP_branch_insert_leaf( B->children.lst[index], n );
-//    }
-//    else if ( index < 0 || 0 == t->branch_free.top )
-//    {
-//        // inserting a node into this branch node
-//        // this can either occur because someone requested it (index < 0)
-//        // OR because there are no more free nodes
-//        retval = BSP_branch_insert_leaf( B, n );
-//    }
-//    else
-//    {
-//        // the requested B->children.lst[index] slot is empty. grab a pre-allocated
-//        // BSP_branch_t from the free list in the BSP_tree_t structure an insert it in
-//        // this child node
-//
-//        BSP_branch_t * pbranch = BSP_tree_ensure_branch( t, B, index );
-//
-//        retval = BSP_branch_insert_leaf( pbranch, n );
-//    }
-//
-//    // do some book keeping
-//    if( retval )
-//    {
-//        if( 0 == B->children.inserted )
-//        {
-//            BSP_aabb_copy( &(B->children.bbox), &(n->bbox) );
-//        }
-//        else
-//        {
-//            BSP_aabb_self_union( &(B->children.bbox), &(n->bbox) );
-//        }
-//
-//        B->children.inserted++;
-//    }
-//
-//    // something went wrong ?
-//    return retval;
-//}
-
-//--------------------------------------------------------------------------------------------
 bool_t BSP_tree_insert_infinite( BSP_tree_t * ptree, BSP_leaf_t * pleaf )
 {
-    return BSP_leaf_list_insert( &( ptree->infinite ), pleaf );
+    if ( NULL == ptree || NULL == pleaf ) return bfalse;
+
+    return BSP_leaf_list_push_front( &( ptree->infinite ), pleaf );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1250,7 +1962,7 @@ bool_t BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf )
 
     if ( NULL == ptree || NULL == pleaf ) return bfalse;
 
-    if ( !BSP_aabb_lhs_contains_rhs( &( ptree->bbox ), &( pleaf->bbox ) ) )
+    if ( !BSP_aabb_contains_aabb( &( ptree->bsp_bbox ), &( pleaf->bbox.data ) ) )
     {
         // put the leaf at the head of the infinite list
         retval = BSP_tree_insert_infinite( ptree, pleaf );
@@ -1259,158 +1971,56 @@ bool_t BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf )
     {
         BSP_branch_t * proot = BSP_tree_ensure_root( ptree );
 
-        retval = BSP_tree_insert_leaf_rec( ptree, proot, pleaf, 0 );
+        retval = BSP_branch_insert_leaf_rec( ptree, proot, pleaf, 0 );
+    }
+
+    // make sure the ptree->bbox matches the maximum extent of all objects in the tree
+    if ( retval )
+    {
+        if ( ego_aabb_is_clear( &( ptree->bbox ) ) )
+        {
+            ego_aabb_copy( &( ptree->bbox ), &( pleaf->bbox ) );
+        }
+        else
+        {
+            ego_aabb_self_union( &( ptree->bbox ), &( pleaf->bbox ) );
+        }
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_tree_insert_leaf_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth )
-{
-    /// @details BB@> recursively insert a leaf in a tree of BSP_branch_t*. Get new branches using the
-    ///              BSP_tree_get_free() function to allocate any new branches that are needed.
-
-    size_t cnt;
-    size_t index;
-    bool_t fail;
-    bool_t inserted_branch, inserted_leaf;
-
-    BSP_branch_t * pchild;
-
-    if ( NULL == ptree || NULL == pbranch || NULL == pleaf ) return bfalse;
-
-    // keep track of the tree depth
-    depth++;
-
-    // keep track of where the leaf was inserted
-    inserted_branch = bfalse;
-    inserted_leaf   = bfalse;
-
-    // don't go too deep
-    if ( depth > ptree->depth )
-    {
-        // insert the node under this branch
-        inserted_leaf = BSP_branch_insert_leaf( pbranch, pleaf );
-        return inserted_leaf;
-    }
-
-    //---- determine which child the leaf needs to go under
-    /// @note This function is not optimal, since we encode the comparisons
-    /// in the 32-bit integer indices, and then may have to decimate index to construct
-    /// the child  branch's bounding by calling BSP_generate_aabb_child().
-    /// The reason that it is done this way is that we would have to be dynamically
-    /// allocating and deallocating memory every time this function is called, otherwise. Big waste of time.
-    fail  = bfalse;
-    index = 0;
-    for ( cnt = 0; cnt < ptree->dimensions; cnt++ )
-    {
-        if ( pleaf->bbox.mins.ary[cnt] >= pbranch->bsp_bbox.mins.ary[cnt] && pleaf->bbox.maxs.ary[cnt] <= pbranch->bsp_bbox.mids.ary[cnt] )
-        {
-            index <<= 1;
-            index |= 0;
-        }
-        else if ( pleaf->bbox.mins.ary[cnt] >= pbranch->bsp_bbox.mids.ary[cnt] && pleaf->bbox.maxs.ary[cnt] <= pbranch->bsp_bbox.maxs.ary[cnt] )
-        {
-            index <<= 1;
-            index |= 1;
-        }
-        else if ( pleaf->bbox.mins.ary[cnt] >= pbranch->bsp_bbox.mins.ary[cnt] && pleaf->bbox.maxs.ary[cnt] <= pbranch->bsp_bbox.maxs.ary[cnt] )
-        {
-            // this leaf belongs at this node
-            break;
-        }
-        else
-        {
-            // this leaf is actually bigger than this branch
-            fail = btrue;
-            break;
-        }
-    }
-
-    if ( fail )
-    {
-        // we cannot place this the node under this branch
-        return bfalse;
-    }
-
-    //---- insert the leaf in the right place
-    if ( cnt < ptree->dimensions )
-    {
-        // place this node at this index
-        inserted_leaf = BSP_branch_insert_leaf( pbranch, pleaf );
-    }
-    else if ( index < pbranch->children.count )
-    {
-        bool_t created;
-
-        pchild = pbranch->children.lst[index];
-
-        created = bfalse;
-        if ( NULL == pchild )
-        {
-            pchild = BSP_tree_ensure_branch( ptree, pbranch, index );
-            created = ( NULL != pchild );
-        }
-
-        EGOBOO_ASSERT( pchild->depth == pbranch->depth + 1 );
-
-        if ( NULL != pchild )
-        {
-            // insert the leaf
-            inserted_branch = BSP_tree_insert_leaf_rec( ptree, pchild, pleaf, depth );
-        }
-    }
-
-    // do some book keeping
-    if ( inserted_branch )
-    {
-        if ( 0 == pbranch->children.inserted )
-        {
-            BSP_aabb_copy( &( pbranch->children.bbox ), &( pleaf->bbox ) );
-        }
-        else
-        {
-            BSP_aabb_self_union( &( pbranch->children.bbox ), &( pleaf->bbox ) );
-        }
-
-        pbranch->children.inserted++;
-    }
-
-    // not necessary, but best to be thorough
-    depth--;
-
-    return inserted_branch || inserted_leaf;
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt )
 {
     /// @details BB@> an optimized version of iterating through the t->branch_used list
-    //                and then calling BSP_branch_prune() on the empty branch. In the old method,
-    //                the t->branch_used list was searched twice to find each empty branch. This
-    //                function does it only once.
+    ///                and then calling BSP_branch_prune() on the empty branch. In the old method,
+    ///                the t->branch_used list was searched twice to find each empty branch. This
+    ///                function does it only once.
 
     size_t i;
     bool_t remove;
 
     BSP_branch_t * B;
 
-    if ( NULL == t || cnt < 0 || cnt >= t->branch_used.top ) return bfalse;
+    if ( NULL == t || t->branch_used.top <= 0 || cnt >= ( size_t )t->branch_used.top ) return bfalse;
 
     B = t->branch_used.ary[ cnt ];
     if ( NULL == B ) return bfalse;
 
     // do not remove the root node
-    if ( B == t->root ) return btrue;
+    if ( B == t->finite ) return btrue;
 
     remove = bfalse;
     if ( BSP_branch_empty( B ) )
     {
-        bool_t found = BSP_branch_unlink( B );
+        bool_t found = BSP_branch_unlink_all( B );
 
         // not finding yourself is an error
-        EGOBOO_ASSERT( found );
+        if ( !found )
+        {
+            EGOBOO_ASSERT( bfalse );
+        }
 
         remove = btrue;
     }
@@ -1421,11 +2031,16 @@ bool_t BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt )
         t->branch_used.top--;
 
         // set B's data to "safe" values
+        // this has already been "unlinked", so some of this is redundant
         B->parent = NULL;
-        for ( i = 0; i < B->children.count; i++ ) B->children.lst[i] = NULL;
+        for ( i = 0; i < B->children.lst_size; i++ )
+        {
+            B->children.lst[i] = NULL;
+        }
         BSP_leaf_list_clear( &( B->nodes ) );
+        BSP_leaf_list_clear( &( B->unsorted ) );
         B->depth = -1;
-        BSP_aabb_clear( &( B->bsp_bbox ) );
+        BSP_aabb_self_clear( &( B->bsp_bbox ) );
 
         // move the branch that we found to the top of the list
         SWAP( BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top] );
@@ -1438,35 +2053,55 @@ bool_t BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt )
 }
 
 //--------------------------------------------------------------------------------------------
-int BSP_tree_collide( BSP_tree_t * tree, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst )
+int BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
+    /// @details BB@> fill the collision list with references to objects that the aabb may overlap.
     //      Return the number of collisions found.
 
     if ( NULL == tree || NULL == paabb ) return 0;
 
-    if ( NULL == colst ) return 0;
-    colst->top = 0;
-    if ( 0 == colst->alloc ) return 0;
+    if ( NULL == colst || 0 == colst->alloc ) return 0;
 
     // collide with any "infinite" nodes
-    BSP_leaf_list_collide( &( tree->infinite ), paabb, colst );
+    BSP_leaf_list_collide_aabb( &( tree->infinite ), paabb, ptest, colst );
 
     // collide with the rest of the tree
-    BSP_branch_collide( tree->root, paabb, colst );
+    BSP_branch_collide_aabb( tree->finite, paabb, ptest, colst );
 
     return colst->top;
 }
 
 //--------------------------------------------------------------------------------------------
+int BSP_tree_collide_frustum( const BSP_tree_t * tree, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    /// @details BB@> fill the collision list with references to objects that the frustum may overlap.
+    //      Return the number of collisions found.
+
+    if ( NULL == tree || NULL == pfrust ) return 0;
+
+    if ( NULL == colst || 0 == colst->alloc ) return 0;
+
+    // collide with any "infinite" nodes
+    BSP_leaf_list_collide_frustum( &( tree->infinite ), pfrust, ptest, colst );
+
+    // collide with the rest of the tree
+    BSP_branch_collide_frustum( tree->finite, pfrust, ptest, colst );
+
+    return colst->top;
+}
+
 //--------------------------------------------------------------------------------------------
-BSP_leaf_list_t * BSP_leaf_list_ctor( BSP_leaf_list_t * LL, size_t dim )
+// BSP_leaf_list_t
+//--------------------------------------------------------------------------------------------
+BSP_leaf_list_t * BSP_leaf_list_ctor( BSP_leaf_list_t * LL )
 {
     if ( NULL == LL ) return LL;
 
-    memset( LL, 0, sizeof( *LL ) );
+    BLANK_STRUCT_PTR( LL )
 
-    BSP_leaf_list_alloc( LL, dim );
+    BSP_leaf_list_alloc( LL );
+
+    ego_aabb_ctor( &( LL->bbox ) );
 
     return LL;
 }
@@ -1478,29 +2113,25 @@ BSP_leaf_list_t * BSP_leaf_list_dtor( BSP_leaf_list_t *  LL )
 
     BSP_leaf_list_dealloc( LL );
 
-    memset( LL, 0, sizeof( *LL ) );
+    BLANK_STRUCT_PTR( LL )
 
     return LL;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_leaf_list_alloc( BSP_leaf_list_t * LL, size_t dim )
+bool_t BSP_leaf_list_alloc( BSP_leaf_list_t * LL )
 {
     if ( NULL == LL ) return bfalse;
 
     BSP_leaf_list_dealloc( LL );
 
-    BSP_aabb_alloc( &( LL->bbox ), dim );
-
-    return 0 != LL->bbox.dim;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t BSP_leaf_list_dealloc( BSP_leaf_list_t *  LL )
 {
     if ( NULL == LL ) return bfalse;
-
-    BSP_aabb_dealloc( &( LL->bbox ) );
 
     return btrue;
 }
@@ -1512,7 +2143,7 @@ BSP_leaf_list_t * BSP_leaf_list_clear( BSP_leaf_list_t * LL )
 
     if ( NULL == LL ) return LL;
 
-    BSP_aabb_clear( &( LL->bbox ) );
+    ego_aabb_self_clear( &( LL->bbox ) );
     LL->count = 0;
     LL->lst = NULL;
 
@@ -1520,7 +2151,7 @@ BSP_leaf_list_t * BSP_leaf_list_clear( BSP_leaf_list_t * LL )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_leaf_list_insert( BSP_leaf_list_t * LL, BSP_leaf_t * n )
+bool_t BSP_leaf_list_push_front( BSP_leaf_list_t * LL, BSP_leaf_t * n )
 {
     /// @details BB@> Insert a leaf in the list, making sure there are no duplicates.
     ///               Duplicates will cause loops in the list and make it impossible to
@@ -1535,12 +2166,12 @@ bool_t BSP_leaf_list_insert( BSP_leaf_list_t * LL, BSP_leaf_t * n )
     if ( n->inserted )
     {
         // hmmm.... what to do?
-        log_warning( "BSP_leaf_list_insert() - trying to insert a BSP_leaf that is claiming to be part of a list already\n" );
+        log_warning( "BSP_leaf_list_push_front() - trying to insert a BSP_leaf that is claiming to be part of a list already\n" );
     }
 
     retval = bfalse;
 
-    if ( NULL == LL->lst || 0 == LL->count )
+    if ( EMPTY_BSP_LEAF_LIST( LL ) )
     {
         // prepare the node
         n->next = NULL;
@@ -1548,7 +2179,7 @@ bool_t BSP_leaf_list_insert( BSP_leaf_list_t * LL, BSP_leaf_t * n )
         // insert the node
         LL->lst     = n;
         LL->count   = 1;
-        BSP_aabb_copy( &( LL->bbox ), &( n->bbox ) );
+        ego_aabb_copy( &( LL->bbox ), &( n->bbox ) );
 
         n->inserted = btrue;
 
@@ -1580,7 +2211,7 @@ bool_t BSP_leaf_list_insert( BSP_leaf_list_t * LL, BSP_leaf_t * n )
             // insert the node at the end of the list
             pleaf->next = n;
             LL->count   = LL->count + 1;
-            BSP_aabb_self_union( &( LL->bbox ), &( n->bbox ) );
+            ego_aabb_self_union( &( LL->bbox ), &( n->bbox ) );
 
             n->inserted = btrue;
 
@@ -1599,29 +2230,27 @@ bool_t BSP_leaf_list_reset( BSP_leaf_list_t * LL )
     size_t       cnt;
     BSP_leaf_t * ptmp;
 
-    if ( NULL == LL->lst )
+    if ( NULL == LL ) return bfalse;
+
+    if ( EMPTY_BSP_LEAF_LIST( LL ) )
     {
-        BSP_leaf_list_clear( LL );
-        return btrue;
+        LL->count = 0;
+        LL->lst = NULL;
     }
-    if ( 0 == LL->count )
+    else
     {
-        EGOBOO_ASSERT( NULL == LL->lst );
+        // unlink the nodes
+        for ( cnt = 0; NULL != LL->lst && cnt < LL->count; cnt++ )
+        {
+            // pop a node off the list
+            ptmp    = LL->lst;
+            LL->lst = ptmp->next;
 
-        BSP_leaf_list_clear( LL );
-        return btrue;
+            // clean up the node
+            ptmp->inserted = bfalse;
+            ptmp->next     = NULL;
+        };
     }
-
-    for ( cnt = 0; NULL != LL->lst && cnt < LL->count; cnt++ )
-    {
-        // pop a node off the list
-        ptmp    = LL->lst;
-        LL->lst = ptmp->next;
-
-        // clean up the node
-        ptmp->inserted = bfalse;
-        ptmp->next     = NULL;
-    };
 
     // did we have a problem with the LL->count?
     EGOBOO_ASSERT( NULL == LL->lst );
@@ -1633,64 +2262,208 @@ bool_t BSP_leaf_list_reset( BSP_leaf_list_t * LL )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_leaf_list_collide( BSP_leaf_list_t * LL, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst )
+BSP_leaf_t * BSP_leaf_list_pop_front( BSP_leaf_list_t * LL )
+{
+    BSP_leaf_t * retval;
+
+    // handle a bad list
+    if ( NULL == LL ) return NULL;
+
+    // heal any bad lists
+    if ( NULL == LL->lst )
+    {
+        LL->count = 0;
+    }
+    if ( 0 == LL->count )
+    {
+        LL->lst = NULL;
+    }
+
+    // handle an empty list
+    if ( 0 == LL->count ) return NULL;
+
+    // pop off the top node
+    retval  = LL->lst;
+    LL->lst = retval->next;
+    LL->count--;
+
+    // unlink it so that we avoid a bunch of debugging errors
+    retval->inserted = bfalse;
+    retval->next     = NULL;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @details BB@> check for collisions with the given node list
 
     size_t       cnt;
     BSP_leaf_t * pleaf;
     bool_t       retval;
-    size_t       colst_size;
 
     // basic bounds checking
-    if ( NULL == LL->lst || 0 == LL->count ) return bfalse;
-    if ( NULL == paabb ) return bfalse;
+    if ( NULL == paabb || DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
 
-    // we have already the bounding box of all the leafs
-    if ( !BSP_aabb_overlap( &( LL->bbox ), paabb ) ) return bfalse;
+    // if the list is empty, there is nothing to do
+    if ( EMPTY_BSP_LEAF_LIST( LL ) ) return btrue;
 
-    // if there is no more room in the colist, return bfalse
-    colst_size = BSP_leaf_pary_get_size( colst );
-    if ( 0 == colst_size || BSP_leaf_pary_get_top( colst ) >= colst_size )
-        return bfalse;
+    // NOTE: this has already been tested in the parent function
+    //// we already have the bounding box of all the leafs
+    //if ( !aabb_intersects_aabb( paabb, &(LL->bbox) ) )
+    //{
+    //    return bfalse;
+    //}
+
+    // NOTE: this is already tested by DYNAMIC_ARY_INVALID( colst )
+    //// if there is no more room in the colist, return bfalse
+    //colst_size = BSP_leaf_pary_get_size( colst );
+    //if ( 0 == colst_size || BSP_leaf_pary_get_top( colst ) >= colst_size )
+    //{
+    //    return bfalse;
+    //}
 
     // scan through every leaf
     for ( cnt = 0, pleaf = LL->lst;
           cnt < LL->count && NULL != pleaf;
           cnt++, pleaf = pleaf->next )
     {
-        BSP_aabb_t * pleaf_bb = &( pleaf->bbox );
+        bool_t do_insert;
+        geometry_rv  geometry_test;
+        ego_aabb_t * pleaf_bb = &( pleaf->bbox );
 
+        // make sure the leaf is valid
         EGOBOO_ASSERT( pleaf->data_type > -1 );
 
+        // make sure the leaf is inserted
         if ( !pleaf->inserted )
         {
             // hmmm.... what to do?
-            log_warning( "BSP_leaf_list_collide() - a node in a leaf list is claiming to not be inserted\n" );
+            log_warning( "BSP_leaf_list_collide_aabb() - a node in a leaf list is claiming to not be inserted\n" );
         }
 
-        if ( BSP_aabb_overlap( paabb, pleaf_bb ) )
+        // test the geometry
+        geometry_test = aabb_intersects_aabb( paabb, &( pleaf_bb->data ) );
+
+        // determine what action to take
+        do_insert = bfalse;
+        if ( geometry_test > geometry_outside )
         {
-            // we have a possible intersection
+            if ( NULL == ptest )
+            {
+                do_insert = btrue;
+            }
+            else
+            {
+                // we have a possible intersection
+                do_insert = ( *ptest )( pleaf );
+            }
+        }
+
+        if ( do_insert )
+        {
             if ( !BSP_leaf_pary_push_back( colst, pleaf ) ) break;
         }
     }
 
     // return false if we maxed out the colist
-    retval = ( BSP_leaf_pary_get_top( colst ) < colst_size );
+    retval = ( BSP_leaf_pary_get_top( colst ) < BSP_leaf_pary_get_size( colst ) );
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    /// @details BB@> check for collisions with the given node list
+
+    size_t       cnt;
+    BSP_leaf_t * pleaf;
+    bool_t       retval;
+
+    // basic bounds checking
+    if ( NULL == pfrust || DYNAMIC_ARY_INVALID( colst ) ) return bfalse;
+
+    // if the list is empty, there is nothing to do
+    if ( EMPTY_BSP_LEAF_LIST( LL ) ) return btrue;
+
+    // NOTE: this has already been tested in the parent function
+    //// we already have the bounding box of all the leafs
+    //if ( !ego_frustum_intersects_ego_aabb( pfrust, &(LL->bbox) ) )
+    //{
+    //    return bfalse;
+    //}
+
+    // NOTE: this is already tested by DYNAMIC_ARY_INVALID( colst )
+    //// if there is no more room in the colist, return bfalse
+    //colst_size = BSP_leaf_pary_get_size( colst );
+    //if ( 0 == colst_size || BSP_leaf_pary_get_top( colst ) >= colst_size )
+    //{
+    //    return bfalse;
+    //}
+
+    // scan through every leaf
+    for ( cnt = 0, pleaf = LL->lst;
+          cnt < LL->count && NULL != pleaf;
+          cnt++, pleaf = pleaf->next )
+    {
+        bool_t do_insert;
+        geometry_rv  geometry_test;
+        ego_aabb_t * pleaf_bb = &( pleaf->bbox );
+
+        // make sure the leaf is valid
+        EGOBOO_ASSERT( pleaf->data_type > -1 );
+
+        // make sure the leaf is inserted
+        if ( !pleaf->inserted )
+        {
+            // hmmm.... what to do?
+            log_warning( "BSP_leaf_list_collide_aabb() - a node in a leaf list is claiming to not be inserted\n" );
+        }
+
+        // test the geometry
+        geometry_test = ego_frustum_intersects_ego_aabb( pfrust, pleaf_bb );
+
+        // determine what action to take
+        do_insert = bfalse;
+        if ( geometry_test > geometry_outside )
+        {
+            if ( NULL == ptest )
+            {
+                do_insert = btrue;
+            }
+            else
+            {
+                // we have a possible intersection
+                do_insert = ( *ptest )( pleaf );
+            }
+        }
+
+        if ( do_insert )
+        {
+            if ( !BSP_leaf_pary_push_back( colst, pleaf ) ) break;
+        }
+    }
+
+    // return false if we maxed out the colist
+    retval = ( BSP_leaf_pary_get_top( colst ) < BSP_leaf_pary_get_size( colst ) );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+// BSP_branch_list_t
 //--------------------------------------------------------------------------------------------
 BSP_branch_list_t * BSP_branch_list_ctor( BSP_branch_list_t * BL, size_t dim )
 {
     if ( NULL == BL ) return BL;
 
-    memset( BL, 0, sizeof( *BL ) );
+    BLANK_STRUCT_PTR( BL )
 
     BSP_branch_list_alloc( BL, dim );
+
+    ego_aabb_ctor( &( BL->bbox ) );
 
     return BL;
 }
@@ -1702,7 +2475,7 @@ BSP_branch_list_t * BSP_branch_list_dtor( BSP_branch_list_t *  BL )
 
     BSP_branch_list_dealloc( BL );
 
-    memset( BL, 0, sizeof( *BL ) );
+    BLANK_STRUCT_PTR( BL )
 
     return BL;
 }
@@ -1726,12 +2499,10 @@ bool_t BSP_branch_list_alloc( BSP_branch_list_t * BL, size_t dim )
         {
             BL->lst[cnt] = NULL;
         }
-        BL->count = child_count;
+        BL->lst_size = child_count;
     }
 
-    BSP_aabb_alloc( &( BL->bbox ), dim );
-
-    return ( NULL != BL->lst ) && ( child_count == BL->count ) && ( dim == BL->bbox.dim );
+    return ( NULL != BL->lst ) && ( child_count == BL->lst_size );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1740,59 +2511,340 @@ bool_t BSP_branch_list_dealloc( BSP_branch_list_t * BL )
     if ( NULL == BL ) return bfalse;
 
     EGOBOO_DELETE_ARY( BL->lst );
-    BL->count = 0;
-
-    BSP_aabb_dealloc( &( BL->bbox ) );
+    BL->lst_size = 0;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t BSP_generate_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst )
+bool_t BSP_branch_list_clear_rec( BSP_branch_list_t * BL )
 {
     size_t cnt;
-    int    tnc, child_count;
 
-    // valid source?
-    if ( NULL == psrc || psrc->dim <= 0 ) return bfalse;
+    if ( NULL == BL ) return bfalse;
 
-    // valid destination?
-    if ( NULL == pdst ) return bfalse;
-
-    // valid index?
-    child_count = 2 << ( psrc->dim - 1 );
-    if ( index < 0 || index >= child_count ) return bfalse;
-
-    // make sure that the destination type matches the source type
-    if ( pdst->dim != psrc->dim )
+    // recursively clear out any nodes in the children.lst
+    for ( cnt = 0; cnt < BL->lst_size; cnt++ )
     {
-        BSP_aabb_dtor( pdst );
-        BSP_aabb_ctor( pdst, psrc->dim );
-    }
+        if ( NULL == BL->lst[cnt] ) continue;
 
-    // determine the bounds
-    for ( cnt = 0; cnt < psrc->dim; cnt++ )
-    {
-        float maxval, minval;
+        BSP_branch_clear( BL->lst[cnt], btrue );
+    };
 
-        tnc = (( signed )psrc->dim ) - 1 - cnt;
+    // reset the number of inserted children
+    BL->inserted = 0;
 
-        if ( 0 == ( index & ( 1 << tnc ) ) )
-        {
-            minval = psrc->mins.ary[cnt];
-            maxval = psrc->mids.ary[cnt];
-        }
-        else
-        {
-            minval = psrc->mids.ary[cnt];
-            maxval = psrc->maxs.ary[cnt];
-        }
-
-        pdst->mins.ary[cnt] = minval;
-        pdst->maxs.ary[cnt] = maxval;
-        pdst->mids.ary[cnt] = 0.5f * ( minval + maxval );
-    }
+    // clear out the size of the nodes
+    ego_aabb_self_clear( &( BL->bbox ) );
 
     return btrue;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    size_t cnt;
+    int collisions;
+    BSP_branch_t * pchild;
+
+    if ( NULL == BL ) return bfalse;
+
+    // scan the child branches and collide with them recursively
+    collisions = 0;
+    for ( cnt = 0; cnt < BL->lst_size; cnt++ )
+    {
+        // scan all the children.lst
+        pchild = BL->lst[cnt];
+        if ( NULL == pchild ) continue;
+
+        // collide with each pchild
+        if ( BSP_branch_collide_aabb( pchild, paabb, ptest, colst ) )
+        {
+            collisions++;
+        }
+    }
+
+    return collisions > 0;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t BSP_branch_list_collide_frustum( const BSP_branch_list_t * BL, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    size_t cnt;
+    int collisions;
+    BSP_branch_t * pchild;
+
+    if ( NULL == BL ) return bfalse;
+
+    // scan the child branches and collide with them recursively
+    collisions = 0;
+    for ( cnt = 0; cnt < BL->lst_size; cnt++ )
+    {
+        // scan all the children.lst
+        pchild = BL->lst[cnt];
+        if ( NULL == pchild ) continue;
+
+        // collide with each pchild
+        if ( BSP_branch_collide_frustum( pchild, pfrust, ptest, colst ) )
+        {
+            collisions++;
+        }
+    }
+
+    return collisions > 0;
+}
+
+//--------------------------------------------------------------------------------------------
+// OBSOLETE
+//--------------------------------------------------------------------------------------------
+
+//BSP_branch_t * BSP_branch_create( size_t dim )
+//{
+//    BSP_branch_t * rv;
+//
+//    rv = EGOBOO_NEW( BSP_branch_t );
+//    if ( NULL == rv ) return rv;
+//
+//    return BSP_branch_ctor( rv, dim );
+//}
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_branch_destroy( BSP_branch_t ** ppbranch )
+//{
+//    if ( NULL == ppbranch || NULL == *ppbranch ) return bfalse;
+//
+//    BSP_branch_dtor( *ppbranch );
+//
+//    EGOBOO_DELETE( *ppbranch );
+//
+//    return btrue;
+//}
+
+////--------------------------------------------------------------------------------------------
+//BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim )
+//{
+//    size_t         cnt;
+//    BSP_branch_t * lst;
+//
+//    lst = EGOBOO_NEW_ARY( BSP_branch_t, ary_size );
+//    if ( NULL == lst ) return lst;
+//
+//    for ( cnt = 0; cnt < ary_size; cnt++ )
+//    {
+//        BSP_branch_ctor( lst + cnt, dim );
+//    }
+//
+//    return lst;
+//}
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** lst )
+//{
+//    size_t cnt;
+//
+//    if ( NULL == lst || NULL == *lst || 0 == ary_size ) return bfalse;
+//
+//    for ( cnt = 0; cnt < ary_size; cnt++ )
+//    {
+//        BSP_branch_dtor(( *lst ) + cnt );
+//    }
+//
+//    EGOBOO_DELETE_ARY( *lst );
+//
+//    return btrue;
+//}
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_init_0( BSP_tree_t * t )
+//{
+//    /// @details BB@> reset the tree to the "empty" state. Assume we do not own the nodes.lst or children.lst.
+//
+//    size_t i;
+//    BSP_branch_t * pbranch;
+//
+//    // free any the nodes in the tree
+//    BSP_tree_free_nodes( t, bfalse );
+//
+//    // initialize the leaves.
+//    t->branch_free.top = 0;
+//    t->branch_used.top = 0;
+//    for ( i = 0; i < t->branch_all.alloc; i++ )
+//    {
+//        // grab a branch off of the static list
+//        pbranch = t->branch_all.ary + i;
+//
+//        if ( NULL == pbranch ) continue;
+//
+//        // completely unlink the branch
+//        BSP_branch_unlink_all( pbranch );
+//
+//        // push it onto the "stack"
+//        BSP_branch_pary_push_back( &( t->branch_free ), pbranch );
+//    };
+//
+//    return btrue;
+//}
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B )
+//{
+//    if ( NULL == t || NULL == B ) return bfalse;
+//
+//    // remove any links to other leaves
+//    BSP_branch_unlink_all( B );
+//
+//    return BSP_tree_free_branch( t, B );
+//}
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_free_all( BSP_tree_t * t )
+//{
+//    if ( !BSP_tree_free_nodes( t, bfalse ) ) return bfalse;
+//
+//    if ( !BSP_tree_free_branches( t ) ) return bfalse;
+//
+//    return btrue;
+//}
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_free_nodes( BSP_tree_t * t, bool_t recursive )
+//{
+//    if ( NULL == t ) return bfalse;
+//
+//    if ( recursive )
+//    {
+//        BSP_branch_free_nodes( t->root, btrue );
+//    }
+//
+//    // free the infinite nodes of the tree
+//    BSP_leaf_list_reset( &( t->infinite ) );
+//
+//    return btrue;
+//}
+
+//--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index )
+//{
+//    bool_t retval;
+//
+//    if (( NULL == t ) || ( NULL == B ) || ( NULL == n ) ) return bfalse;
+//    if (( signed )index > ( signed )B->children.lst_size ) return bfalse;
+//
+//    if ( index >= 0 && NULL != B->children.lst[index] )
+//    {
+//        // inserting a node into the child
+//        retval = BSP_branch_insert_leaf_list( B->children.lst[index], n );
+//    }
+//    else if ( index < 0 || 0 == t->branch_free.top )
+//    {
+//        // inserting a node into this branch node
+//        // this can either occur because someone requested it (index < 0)
+//        // OR because there are no more free nodes
+//        retval = BSP_branch_insert_leaf_list( B, n );
+//    }
+//    else
+//    {
+//        // the requested B->children.lst[index] slot is empty. grab a pre-allocated
+//        // BSP_branch_t from the free list in the BSP_tree_t structure an insert it in
+//        // this child node
+//
+//        BSP_branch_t * pbranch = BSP_tree_ensure_branch( t, B, index );
+//
+//        retval = BSP_branch_insert_leaf_list( pbranch, n );
+//    }
+//
+//    // do some book keeping
+//    if( retval )
+//    {
+//        if( 0 == B->children.inserted )
+//        {
+//            BSP_aabb_copy( &(B->children.bbox), &(n->bbox) );
+//        }
+//        else
+//        {
+//            BSP_aabb_self_union( &(B->children.bbox), &(n->bbox) );
+//        }
+//
+//        B->children.inserted++;
+//    }
+//
+//    // something went wrong ?
+//    return retval;
+//}
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_free_branch( BSP_tree_t * t, BSP_branch_t * B )
+//{
+//    bool_t retval;
+//
+//    if ( NULL == t || NULL == B ) return bfalse;
+//
+//    retval = bfalse;
+//    if ( BSP_tree_remove_used( t, B ) )
+//    {
+//        // add it to the used list
+//        retval =  BSP_branch_pary_push_back( &( t->branch_free ), B );
+//    }
+//
+//    return retval;
+//}
+//
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_free_branches( BSP_tree_t * t )
+//{
+//    int cnt;
+//
+//    if ( NULL == t ) return bfalse;
+//
+//    // transfer all the "used" branches back to the "free" branches
+//    for ( cnt = 0; cnt < t->branch_used.top; cnt++ )
+//    {
+//        // grab a used branch
+//        BSP_branch_t * pbranch = t->branch_used.ary[cnt];
+//        if ( NULL == pbranch ) continue;
+//
+//        // completely unlink the branch
+//        BSP_branch_unlink_all( pbranch );
+//
+//        // return the branch to the free list
+//        BSP_branch_pary_push_back( &( t->branch_free ), pbranch );
+//    }
+//
+//    // reset the used list
+//    t->branch_used.top = 0;
+//
+//    // remove the tree root
+//    t->finite = NULL;
+//
+//    return btrue;
+//}
+//
+
+////--------------------------------------------------------------------------------------------
+//bool_t BSP_tree_remove_used( BSP_tree_t * t, BSP_branch_t * B )
+//{
+//    int cnt;
+//
+//    if ( NULL == t || 0 == t->branch_used.top ) return bfalse;
+//
+//    if ( NULL == B ) return bfalse;
+//
+//    // scan the used list for the branch
+//    for ( cnt = 0; cnt < t->branch_used.top; cnt++ )
+//    {
+//        if ( B == t->branch_used.ary[cnt] ) break;
+//    }
+//
+//    // did we find the branch in the used list?
+//    if ( cnt == t->branch_used.top ) return bfalse;
+//
+//    // reduce the size of the list
+//    t->branch_used.top--;
+//
+//    // move the branch that we found to the top of the list
+//    SWAP( BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top] );
+//
+//    return btrue;
+//}
+//

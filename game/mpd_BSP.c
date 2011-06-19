@@ -22,6 +22,9 @@
 /// @details
 
 #include "mpd_BSP.h"
+#include "obj_BSP.h"
+
+#include "egoboo_frustum.h"
 
 #include "mesh.inl"
 #include "egoboo_math.inl"
@@ -34,21 +37,33 @@ static bool_t _mpd_BSP_system_initialized = bfalse;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-mpd_BSP_t mpd_BSP_root =
-{
-    OCT_BB_INIT_VALS, DYNAMIC_ARY_INIT_VALS, BSP_TREE_INIT_VALS
-};
+mpd_BSP_t mpd_BSP_root = MPD_BSP_INIT;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void mpd_BSP_system_begin( ego_mpd_t * pmpd )
+static bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_system_started()
 {
+    return _mpd_BSP_system_initialized;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
+{
+    // if he system is already started, do a reboot
     if ( _mpd_BSP_system_initialized )
     {
-        mpd_BSP_system_end();
+        if ( rv_error == mpd_BSP_system_end() )
+        {
+            return rv_error;
+        }
     }
 
+    // start the system using the given mesh
     if ( NULL != pmpd )
     {
         mpd_BSP_t * rv;
@@ -58,11 +73,12 @@ void mpd_BSP_system_begin( ego_mpd_t * pmpd )
 
         _mpd_BSP_system_initialized = ( NULL != rv );
     }
+
+    return _mpd_BSP_system_initialized ? rv_success : rv_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void mpd_BSP_system_end()
+egoboo_rv  mpd_BSP_system_end()
 {
     if ( _mpd_BSP_system_initialized )
     {
@@ -70,33 +86,58 @@ void mpd_BSP_system_end()
     }
 
     _mpd_BSP_system_initialized = bfalse;
+
+    return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, ego_mpd_t * pmesh )
+mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, const ego_mpd_t * pmesh )
 {
     /// @details BB@> Create a new BSP tree for the mesh.
     //     These parameters duplicate the max resolution of the old system.
 
-    int size_x, size_y;
+    int grids_x, grids_y;
+    float x_min, x_max, y_min, y_max, bsp_size;
     int depth;
 
     if ( NULL == pbsp ) return NULL;
 
-    memset( pbsp, 0, sizeof( *pbsp ) );
+    BLANK_STRUCT_PTR( pbsp )
 
     if ( NULL == pmesh ) return pbsp;
-    size_x = pmesh->gmem.grids_x;
-    size_y = pmesh->gmem.grids_y;
+
+    // get the nominal physical size of the mesh
+    x_min = 0.0f;
+    x_max = pmesh->gmem.edge_x;
+    y_min = 0.0f;
+    y_max = pmesh->gmem.edge_y;
+    bsp_size = MAX( x_max - x_min, y_max - y_min );
 
     // determine the number of bifurcations necessary to get cells the size of the "blocks"
-    depth = CEIL( LOG( 0.5f * MAX( size_x, size_y ) ) / LOG( 2.0f ) );
+    grids_x = pmesh->gmem.grids_x;
+    grids_y = pmesh->gmem.grids_y;
+    depth = CEIL( LOG( 0.5f * MAX( grids_x, grids_y ) ) / LOG( 2.0f ) );
 
     // make a 2D BSP tree with "max depth" depth
+    // this automatically allocates all data
     BSP_tree_ctor( &( pbsp->tree ), 2, depth );
 
-    mpd_BSP_alloc( pbsp, pmesh );
+    // !!!!SET THE BSP SIZE HERE!!!!
+    // enlarge it a bit
+    pbsp->tree.bsp_bbox.mins.ary[kX] = x_min - 0.25f * bsp_size;
+    pbsp->tree.bsp_bbox.maxs.ary[kX] = x_max + 0.25f * bsp_size;
+    pbsp->tree.bsp_bbox.mids.ary[kX] = 0.5f * ( pbsp->tree.bsp_bbox.mins.ary[kX] + pbsp->tree.bsp_bbox.maxs.ary[kX] );
+
+    pbsp->tree.bsp_bbox.mins.ary[kY] = y_min - 0.25f * bsp_size;
+    pbsp->tree.bsp_bbox.maxs.ary[kY] = y_max + 0.25f * bsp_size;
+    pbsp->tree.bsp_bbox.mids.ary[kY] = 0.5f * ( pbsp->tree.bsp_bbox.mins.ary[kY] + pbsp->tree.bsp_bbox.maxs.ary[kY] );
+
+    // initialize the volume
+    oct_bb_ctor( &( pbsp->volume ) );
+
+    // do any additional allocation
+    mpd_BSP_alloc( pbsp );
 
     return pbsp;
 }
@@ -106,44 +147,24 @@ mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp )
 {
     if ( NULL == pbsp ) return NULL;
 
-    // free all allocated memory
+    // destroy the tree
+    BSP_tree_dtor( &( pbsp->tree ) );
+
+    // free any other allocated memory
     mpd_BSP_free( pbsp );
 
-    // set the volume to zero
-    oct_bb_ctor( &( pbsp->volume ) );
+    BLANK_STRUCT_PTR( pbsp )
 
     return pbsp;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_alloc( mpd_BSP_t * pbsp, ego_mpd_t * pmesh )
+bool_t mpd_BSP_alloc( mpd_BSP_t * pbsp )
 {
-    Uint32 i;
+    if ( NULL == pbsp ) return bfalse;
 
-    if ( NULL == pbsp || NULL == pmesh ) return bfalse;
-
-    if ( 0 == pmesh->gmem.grid_count ) return bfalse;
-
-    // allocate the BSP_leaf_t list, the containers for the actual tiles
-    BSP_leaf_ary_ctor( &( pbsp->nodes ), pmesh->gmem.grid_count );
-    if ( NULL == pbsp->nodes.ary ) return bfalse;
-
-    // initialize the bounding volume size
-    oct_bb_copy( &( pbsp->volume ), &( pmesh->tmem.tile_list[0].oct ) );
-
-    // construct the BSP_leaf_t list
-    for ( i = 1; i < pmesh->gmem.grid_count; i++ )
-    {
-        BSP_leaf_t      * pleaf = pbsp->nodes.ary + i;
-        ego_tile_info_t * ptile = pmesh->tmem.tile_list + i;
-
-        // add the bounding volume for this tile to the bounding volume for the mesh
-        oct_bb_self_union( &( pbsp->volume ), &( ptile->oct ) );
-
-        // let data type 1 stand for a tile, -1 is uninitialized
-        BSP_leaf_ctor( pleaf, 2, pmesh->tmem.tile_list + i, 1 );
-        pleaf->index = i;
-    }
+    // BSP_tree_alloc() is called by BSP_tree_ctor(), so there is no need to
+    // do any allocation here
 
     return btrue;
 }
@@ -153,100 +174,143 @@ bool_t mpd_BSP_free( mpd_BSP_t * pbsp )
 {
     if ( NULL == pbsp ) return bfalse;
 
-    // deallocate the tree
-    BSP_tree_dealloc( &( pbsp->tree ) );
-
-    // deallocate the nodes
-    BSP_leaf_ary_dtor( &( pbsp->nodes ) );
+    // no other data allocated, so nothing else to do
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_fill( mpd_BSP_t * pbsp )
+bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, const ego_mpd_t * pmpd )
 {
-    int tile;
+    int cnt;
 
-    for ( tile = 0; tile < pbsp->nodes.top; tile++ )
+    size_t tcount;
+    ego_tile_info_t * tlist, *ptile;
+
+    // error trap
+    if ( NULL == pbsp || NULL == pmpd ) return bfalse;
+    tcount = pmpd->tmem.tile_count;
+    tlist  = pmpd->tmem.tile_list;
+
+    // make sure the mesh is allocated
+    if ( 0 == tcount || NULL == tlist ) return bfalse;
+
+    // initialize the bsp volume
+    // assumes tlist[0] is insterted
+    oct_bb_copy( &( pbsp->volume ), &( tlist[0].oct ) );
+
+    // insert each tile
+    for ( cnt = 0, ptile = tlist; cnt < tcount; cnt++, ptile++ )
     {
-        ego_tile_info_t * pdata;
-        BSP_leaf_t      * pleaf = pbsp->nodes.ary + tile;
-
-        // do not deal with uninitialized nodes
-        if ( pleaf->data_type < 0 ) continue;
-
-        // grab the leaf data, assume that it points to the correct data structure
-        pdata = ( ego_tile_info_t* ) pleaf->data;
-        if ( NULL == pdata ) continue;
-
-        // calculate the leaf's BSP_aabb_t
-        BSP_aabb_from_oct_bb( &( pleaf->bbox ), &( pdata->oct ) );
-
-        // insert the leaf
-        BSP_tree_insert_leaf( &( pbsp->tree ), pleaf );
+        // try to insert the BSP
+        if ( mpd_BSP_insert( pbsp, ptile, cnt ) )
+        {
+            // add this tile's volume to the bsp's volume
+            oct_bb_self_union( &( pbsp->volume ), &( ptile->oct ) );
+        }
     }
 
-    return btrue;
+    return pbsp->count > 0;
 }
 
 //--------------------------------------------------------------------------------------------
-int mpd_BSP_collide( mpd_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst )
+int mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
     //      Return the number of collisions found.
 
-    if ( NULL == pbsp || NULL == paabb ) return 0;
+    if ( NULL == pbsp || NULL == paabb || NULL == colst ) return 0;
 
-    if ( NULL == colst ) return 0;
-    colst->top = 0;
-    if ( 0 == colst->alloc ) return 0;
-
-    // collide with any "infinite" nodes
-    return BSP_tree_collide( &( pbsp->tree ), paabb, colst );
+    return BSP_tree_collide_aabb( &( pbsp->tree ), paabb, ptest, colst );
 }
 
-////--------------------------------------------------------------------------------------------
-//bool_t mpd_BSP_insert_node( mpd_BSP_t * pbsp, BSP_leaf_t * pnode, int depth, int address_x[], int address_y[] )
-//{
-//    int i;
-//    bool_t retval;
-//    Uint32 index;
-//    BSP_branch_t * pbranch, * pbranch_new;
-//    BSP_tree_t * ptree = &( pbsp->tree );
-//
-//    retval = bfalse;
-//    if ( depth < 0 )
-//    {
-//        // this can only happen if the node does not intersect the BSP bounding box
-//        pnode->next = ptree->infinite;
-//        ptree->infinite = pnode;
-//        retval = btrue;
-//    }
-//    else if ( 0 == depth )
-//    {
-//        // this can only happen if the tile should be in the root node list
-//        pnode->next = ptree->root->nodes;
-//        ptree->root->nodes = pnode;
-//        retval = btrue;
-//    }
-//    else
-//    {
-//        // insert the node into the tree at this point
-//        pbranch = ptree->root;
-//        for ( i = 0; i < depth; i++ )
-//        {
-//            index = (( Uint32 )address_x[i] ) + ((( Uint32 )address_y[i] ) << 1 );
-//
-//            pbranch_new = BSP_tree_ensure_branch( ptree, pbranch, index );
-//            if ( NULL == pbranch_new ) break;
-//
-//            pbranch = pbranch_new;
-//        };
-//
-//        // insert the node in this branch
-//        retval = BSP_tree_insert( ptree, pbranch, pnode, -1 );
-//    };
-//
-//    return retval;
-//}
-//
+//--------------------------------------------------------------------------------------------
+int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+{
+    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
+    //      Return the number of collisions found.
+
+    if ( NULL == pbsp || NULL == pfrust || NULL == colst ) return 0;
+
+    return BSP_tree_collide_frustum( &( pbsp->tree ), pfrust, ptest, colst );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
+{
+    /// @details BB@> insert a character's BSP_leaf_t into the BSP_tree_t
+
+    bool_t       retval;
+    BSP_leaf_t * pleaf;
+    BSP_tree_t * ptree;
+
+    if ( NULL == pbsp || NULL == ptile ) return bfalse;
+    ptree = &( pbsp->tree );
+
+    // grab the leaf from the tile
+    pleaf = &( ptile->bsp_leaf );
+
+    // make sure everything is kosher
+    if ( ptile != ( ego_tile_info_t * )( pleaf->data ) )
+    {
+        // some kind of error. re-initialize the data.
+        pleaf->data      = ptile;
+        pleaf->index     = index;
+        pleaf->data_type = BSP_LEAF_TILE;
+    };
+
+    // convert the octagonal bounding box to an aabb
+    ego_aabb_from_oct_bb( &( pleaf->bbox ), &( ptile->oct ) );
+
+    // insert the leaf
+    retval = BSP_tree_insert_leaf( ptree, pleaf );
+
+    if ( retval )
+    {
+        // log all successes
+        pbsp->count++;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_can_collide( BSP_leaf_t * pleaf )
+{
+    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    ///               can be added to a collision list
+
+    ego_tile_info_t * ptile;
+
+    // make sure we have a character leaf
+    if ( NULL == pleaf || NULL == pleaf->data || BSP_LEAF_TILE != pleaf->data_type )
+    {
+        return bfalse;
+    }
+    ptile = ( ego_tile_info_t * )( pleaf->data );
+
+    if ( TILE_IS_FANOFF( *ptile ) ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpd_BSP_is_visible( BSP_leaf_t * pleaf )
+{
+    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    ///               can be added to a collision list
+
+    ego_tile_info_t * ptile;
+
+    // make sure we have a character leaf
+    if ( NULL == pleaf || NULL == pleaf->data || BSP_LEAF_TILE != pleaf->data_type )
+    {
+        return bfalse;
+    }
+    ptile = ( ego_tile_info_t * )( pleaf->data );
+
+    if ( TILE_IS_FANOFF( *ptile ) ) return bfalse;
+
+    return btrue;
+}

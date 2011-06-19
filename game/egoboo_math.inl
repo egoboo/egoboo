@@ -25,8 +25,9 @@
 
 #include "egoboo_math.h"
 #include "log.h"
-#include "ogl_include.h"
-#include "ogl_debug.h"
+
+#include "extensions/ogl_include.h"
+#include "extensions/ogl_debug.h"
 
 #include <float.h>
 
@@ -47,9 +48,11 @@
 #if defined(TEST_NAN_RESULT)
 #    define LOG_NAN_FVEC2(XX)      if( !fvec2_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
 #    define LOG_NAN_FVEC3(XX)      if( !fvec3_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
+#    define LOG_NAN_FVEC4(XX)      if( !fvec4_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
 #else
 #    define LOG_NAN_FVEC2(XX)
 #    define LOG_NAN_FVEC3(XX)
+#    define LOG_NAN_FVEC4(XX)
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -83,54 +86,58 @@ static INLINE int generate_randmask( const int base, const int mask );
 static INLINE bool_t  fvec2_valid( const fvec2_base_t A );
 static INLINE bool_t  fvec2_self_clear( fvec2_base_t A );
 static INLINE bool_t  fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B );
-static INLINE bool_t  fvec2_base_assign( fvec2_base_t A, const fvec2_t B );
 static INLINE float   fvec2_length( const fvec2_base_t A );
 static INLINE float   fvec2_length_abs( const fvec2_base_t A );
 static INLINE float   fvec2_length_2( const fvec2_base_t A );
 static INLINE bool_t  fvec2_self_scale( fvec2_base_t A, const float B );
 static INLINE bool_t  fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B );
-static INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B );
-static INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec );
 static INLINE bool_t  fvec2_self_normalize( fvec2_base_t A );
 static INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
 static INLINE float   fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B );
+static INLINE float * fvec2_sub( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS );
+static INLINE float * fvec2_add( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS );
+static INLINE float * fvec2_normalize( fvec2_base_t DST, const fvec2_base_t SRC );
+static INLINE float * fvec2_scale( fvec2_base_t DST, const fvec2_base_t SRC, const float B );
 
 static INLINE bool_t  fvec3_valid( const fvec3_base_t A );
 static INLINE bool_t  fvec3_self_clear( fvec3_base_t A );
-static INLINE bool_t  fvec3_base_copy( fvec3_base_t A, const fvec3_base_t B );
-static INLINE bool_t  fvec3_base_assign( fvec3_base_t A, const fvec3_t B );
 static INLINE bool_t  fvec3_self_scale( fvec3_base_t A, const float B );
-static INLINE bool_t  fvec3_self_sum( fvec3_base_t A, const fvec3_base_t B );
-static INLINE bool_t  fvec3_self_normalize( fvec3_base_t A );
-static INLINE bool_t  fvec3_self_normalize_to( fvec3_base_t A, const float B );
-static INLINE float   fvec3_length_2( const fvec3_base_t A );
-static INLINE float   fvec3_length( const fvec3_base_t A );
-static INLINE float   fvec3_length_abs( const fvec3_base_t A );
-static INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B );
-static INLINE float   fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B );
-static INLINE fvec3_t fvec3_scale( const fvec3_base_t A, const float B );
-static INLINE fvec3_t fvec3_normalize( const fvec3_base_t A );
-static INLINE fvec3_t fvec3_add( const fvec3_base_t A, const fvec3_base_t B );
-static INLINE fvec3_t fvec3_sub( const fvec3_base_t A, const fvec3_base_t B );
-static INLINE fvec3_t fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B );
-static INLINE float   fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp );
+static INLINE bool_t  fvec3_self_sum( fvec3_base_t A, const fvec3_base_t RHS );
+static INLINE float   fvec3_self_normalize( fvec3_base_t A );
+static INLINE float   fvec3_self_normalize_to( fvec3_base_t A, const float B );
+static INLINE float   fvec3_length_2( const fvec3_base_t SRC );
+static INLINE float   fvec3_length( const fvec3_base_t SRC );
+static INLINE float   fvec3_length_abs( const fvec3_base_t SRC );
+static INLINE float   fvec3_dot_product( const fvec3_base_t LHS, const fvec3_base_t RHS );
+static INLINE float   fvec3_dist_abs( const fvec3_base_t LHS, const fvec3_base_t RHS );
+static INLINE float * fvec3_base_copy( fvec3_base_t DST, const fvec3_base_t SRC );
+static INLINE float * fvec3_scale( fvec3_base_t DST, const fvec3_base_t SRC, const float B );
+static INLINE float * fvec3_normalize( fvec3_base_t DST, const fvec3_base_t SRC );
+static INLINE float * fvec3_add( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
+static INLINE float * fvec3_sub( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
+static INLINE float * fvec3_cross_product( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
+static INLINE float   fvec3_decompose( const fvec3_base_t src, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp );
 
+static INLINE bool_t fvec4_valid( const fvec4_base_t A );
 static INLINE bool_t fvec4_self_clear( fvec4_base_t A );
+static INLINE bool_t fvec4_self_scale( fvec4_base_t A, const float B );
 
 // matrix functions
-static INLINE fmat_4x4_t IdentityMatrix( void );
-static INLINE fmat_4x4_t ZeroMatrix( void );
-static INLINE fmat_4x4_t MatrixMult( const fmat_4x4_t a, const fmat_4x4_t b );
-static INLINE fmat_4x4_t Translate( const float dx, const float dy, const float dz );
-static INLINE fmat_4x4_t RotateX( const float rads );
-static INLINE fmat_4x4_t RotateY( const float rads );
-static INLINE fmat_4x4_t RotateZ( const float rads );
-static INLINE fmat_4x4_t ScaleXYZ( const float sizex, const float sizey, const float sizez );
-static INLINE fmat_4x4_t FourPoints( const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t upx, const float scale );
-static INLINE fmat_4x4_t ViewMatrix( const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
-static INLINE fmat_4x4_t ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
-static INLINE void       TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t *pSourceV, fvec4_t *pDestV, const Uint32 NumVertor );
+static INLINE float * mat_Copy( fmat_4x4_base_t DST, const fmat_4x4_base_t src );
+static INLINE float * mat_Identity( fmat_4x4_base_t DST );
+static INLINE float * mat_Zero( fmat_4x4_base_t DST );
+static INLINE float * mat_Multiply( fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2 );
+static INLINE float * mat_Translate( fmat_4x4_base_t DST, const float dx, const float dy, const float dz );
+static INLINE float * mat_RotateX( fmat_4x4_base_t DST, const float rads );
+static INLINE float * mat_RotateY( fmat_4x4_base_t DST, const float rads );
+static INLINE float * mat_RotateZ( fmat_4x4_base_t DST, const float rads );
+static INLINE float * mat_ScaleXYZ( fmat_4x4_base_t DST, const float sizex, const float sizey, const float sizez );
+static INLINE float * mat_FourPoints( fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t upx, const float scale );
+static INLINE float * mat_View( fmat_4x4_base_t DST, const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
+static INLINE float * mat_Projection( fmat_4x4_base_t DST, const float near_plane,  const float far_plane,  const float fov, const float ar );
+static INLINE float * mat_Projection_orig( fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov );
+static INLINE void    mat_TransformVertices( const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor );
 
 static INLINE bool_t   mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
 static INLINE bool_t   mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
@@ -140,6 +147,9 @@ static INLINE bool_t   mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t 
 static INLINE bool_t   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
 static INLINE bool_t   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
 static INLINE float *  mat_getTranslate_v( const fmat_4x4_base_t mat );
+
+static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed( fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z );
+static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed( fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z );
 
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOSTING POINT NUMBER FUNCTIONS
@@ -194,7 +204,7 @@ static INLINE bool_t ieee32_bad( float f )
 
 static INLINE FACING_T vec_to_facing( const float dx, const float dy )
 {
-    return ( FACING_T )(( ATAN2( dy, dx ) + PI ) * RAD_TO_TURN );
+    return ( FACING_T )( RAD_TO_FACING( ATAN2( dy, dx ) + PI ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -379,17 +389,6 @@ static INLINE bool_t fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t  fvec2_base_assign( fvec2_base_t A, const fvec2_t B )
-{
-    if ( NULL == A ) return bfalse;
-
-    A[kX] = B.v[kX];
-    A[kY] = B.v[kY];
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 static INLINE bool_t fvec2_self_scale( fvec2_base_t A, const float B )
 {
     if ( NULL == A ) return bfalse;
@@ -446,14 +445,61 @@ static INLINE float fvec2_length( const fvec2_base_t A )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec2_t fvec2_sub( const fvec2_base_t A, const fvec2_base_t B )
+static INLINE float * fvec2_sub( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS )
 {
-    fvec2_t tmp;
+    if ( NULL == DST )
+    {
+        return NULL;
+    }
+    else if ( NULL == LHS && NULL == RHS )
+    {
+        fvec2_self_clear( DST );
+    }
+    else if ( NULL == LHS )
+    {
+        DST[kX] = - RHS[kX];
+        DST[kY] = - RHS[kY];
+    }
+    else if ( NULL == RHS )
+    {
+        DST[kX] = LHS[kX];
+        DST[kY] = LHS[kY];
+    }
+    else
+    {
+        DST[kX] = LHS[kX] - RHS[kX];
+        DST[kY] = LHS[kY] - RHS[kY];
+    }
 
-    tmp.x = A[kX] - B[kX];
-    tmp.y = A[kY] - B[kY];
+    return DST;
+}
 
-    return tmp;
+//--------------------------------------------------------------------------------------------
+static INLINE float * fvec2_add( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS )
+{
+    if ( NULL == DST )
+    {
+        return NULL;
+    }
+    else if ( NULL == LHS && NULL == RHS )
+    {
+        fvec2_self_clear( DST );
+    }
+    else if ( NULL == LHS )
+    {
+        fvec2_base_copy( DST, RHS );
+    }
+    else if ( NULL == RHS )
+    {
+        fvec2_base_copy( DST, LHS );
+    }
+    else
+    {
+        DST[kX] = LHS[kX] - RHS[kX];
+        DST[kY] = LHS[kY] - RHS[kY];
+    }
+
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -463,37 +509,57 @@ static INLINE float fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec2_t fvec2_scale( const fvec2_base_t A, const float B )
+static INLINE float * fvec2_scale( fvec2_base_t DST, const fvec2_base_t SRC, const float B )
 {
-    fvec2_t tmp = ZERO_VECT2;
+    if ( NULL == DST ) return NULL;
 
-    if ( NULL == A || 0.0f == B ) return tmp;
+    if ( NULL == SRC || 0.0f == B )
+    {
+        fvec2_self_clear( DST );
+    }
+    else
+    {
+        DST[kX] = SRC[kX] * B;
+        DST[kY] = SRC[kY] * B;
+    }
 
-    tmp.v[kX] = A[kX] * B;
-    tmp.v[kY] = A[kY] * B;
-
-    return tmp;
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec2_t fvec2_normalize( const fvec2_base_t vec )
+static INLINE float * fvec2_normalize( fvec2_base_t DST, const fvec2_base_t SRC )
 {
-    fvec2_t tmp = ZERO_VECT2;
-
-    if ( ABS( vec[kX] ) + ABS( vec[kY] ) > 0 )
+    if ( NULL == DST )
     {
-        float len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY];
-        float inv_len = 1.0f / SQRT( len2 );
-        LOG_NAN( inv_len );
-
-        tmp.x = vec[kX] * inv_len;
-        LOG_NAN( tmp.x );
-
-        tmp.y = vec[kY] * inv_len;
-        LOG_NAN( tmp.y );
+        return NULL;
     }
 
-    return tmp;
+    if ( NULL == SRC )
+    {
+        fvec2_self_clear( DST );
+    }
+    else if ( 0.0f == ABS( SRC[kX] ) + ABS( SRC[kY] ) )
+    {
+        fvec2_self_clear( DST );
+    }
+    else
+    {
+        float len2 = SRC[kX] * SRC[kX] + SRC[kY] * SRC[kY];
+
+        if ( 0.0f != len2 )
+        {
+            float inv_len = 1.0f / SQRT( len2 );
+            LOG_NAN( inv_len );
+
+            DST[kX] = SRC[kX] * inv_len;
+            LOG_NAN( DST[kX] );
+
+            DST[kY] = SRC[kY] * inv_len;
+            LOG_NAN( DST[kY] );
+        }
+    }
+
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -554,33 +620,24 @@ static INLINE bool_t fvec3_self_clear( fvec3_base_t A )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t fvec3_base_copy( fvec3_base_t A, const fvec3_base_t B )
+static INLINE float * fvec3_base_copy( fvec3_base_t DST, const fvec3_base_t SRC )
 {
-    if ( NULL == A ) return bfalse;
+    if ( NULL == DST ) return NULL;
 
-    if ( NULL == B ) return fvec3_self_clear( A );
+    if ( NULL == SRC )
+    {
+        fvec3_self_clear( DST );
+    }
+    else
+    {
+        DST[kX] = SRC[kX];
+        DST[kY] = SRC[kY];
+        DST[kZ] = SRC[kZ];
 
-    A[kX] = B[kX];
-    A[kY] = B[kY];
-    A[kZ] = B[kZ];
+        LOG_NAN_FVEC3( DST );
+    }
 
-    LOG_NAN_FVEC3( A );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE bool_t  fvec3_base_assign( fvec3_base_t A, const fvec3_t B )
-{
-    if ( NULL == A ) return bfalse;
-
-    A[kX] = B.v[kX];
-    A[kY] = B.v[kY];
-    A[kZ] = B.v[kZ];
-
-    LOG_NAN_FVEC3( A );
-
-    return btrue;
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -621,14 +678,12 @@ static INLINE float fvec3_length_abs( const fvec3_base_t A )
     retval = ABS( A[kX] ) + ABS( A[kY] ) + ABS( A[kZ] );
 
     //DEBUG
-    if ( ieee32_bad( XX ) )
+    if ( ieee32_bad( retval ) )
     {
         log_debug( "Game decided to crash, but I refuse! (%s - %d)\n" __FILE__, __LINE__ );
-        return 0.00f;
+        retval = 0.00f;
     }
     //DEBUG END
-
-    LOG_NAN( retval );
 
     return retval;
 }
@@ -662,81 +717,161 @@ static INLINE float fvec3_length( const fvec3_base_t A )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec3_t fvec3_add( const fvec3_base_t A, const fvec3_base_t B )
+static INLINE float * fvec3_add( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS )
 {
-    fvec3_t tmp;
+    if ( NULL == DST )
+    {
+        return NULL;
+    }
 
-    tmp.x = A[kX] + B[kX];
-    tmp.y = A[kY] + B[kY];
-    tmp.z = A[kZ] + B[kZ];
+    if ( NULL == LHS && NULL == RHS )
+    {
+        fvec2_self_clear( DST );
+    }
+    else if ( NULL == LHS )
+    {
+        fvec3_base_copy( DST, RHS );
 
-    LOG_NAN_FVEC3( tmp.v );
+        LOG_NAN_FVEC3( DST );
+    }
+    else if ( NULL == RHS )
+    {
+        fvec3_base_copy( DST, LHS );
 
-    return tmp;
+        LOG_NAN_FVEC3( DST );
+    }
+    else
+    {
+        DST[kX] = LHS[kX] + RHS[kX];
+        DST[kY] = LHS[kY] + RHS[kY];
+        DST[kZ] = LHS[kZ] + RHS[kZ];
+
+        LOG_NAN_FVEC3( DST );
+    }
+
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec3_t fvec3_sub( const fvec3_base_t A, const fvec3_base_t B )
+static INLINE float * fvec3_sub( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS )
 {
-    fvec3_t tmp;
+    if ( NULL == DST )
+    {
+        return NULL;
+    }
 
-    tmp.x = A[kX] - B[kX];
-    tmp.y = A[kY] - B[kY];
-    tmp.z = A[kZ] - B[kZ];
+    if ( NULL == LHS && NULL == RHS )
+    {
+        fvec2_self_clear( DST );
+    }
+    else if ( NULL == LHS )
+    {
+        DST[kX] = - RHS[kX];
+        DST[kY] = - RHS[kY];
+        DST[kZ] = - RHS[kZ];
 
-    LOG_NAN_FVEC3( tmp.v );
+        LOG_NAN_FVEC3( DST );
+    }
+    else if ( NULL == RHS )
+    {
+        DST[kX] = LHS[kX];
+        DST[kY] = LHS[kY];
+        DST[kZ] = LHS[kZ];
 
-    return tmp;
+        LOG_NAN_FVEC3( DST );
+    }
+    else
+    {
+        DST[kX] = LHS[kX] - RHS[kX];
+        DST[kY] = LHS[kY] - RHS[kY];
+        DST[kZ] = LHS[kZ] - RHS[kZ];
+
+        LOG_NAN_FVEC3( DST );
+    }
+
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec3_t fvec3_scale( const fvec3_base_t A, const float B )
+static INLINE float * fvec3_scale( fvec3_base_t DST, const fvec3_base_t SRC, const float B )
 {
-    fvec3_t tmp = ZERO_VECT3;
 
-    if ( NULL == A || 0.0f == B ) return tmp;
+    if ( NULL == DST )
+    {
+        return NULL;
+    }
 
-    tmp.x = A[kX] * B;
-    tmp.y = A[kY] * B;
-    tmp.z = A[kZ] * B;
+    if ( NULL == SRC )
+    {
+        fvec3_self_clear( DST );
+    }
+    else if ( 0.0f == B )
+    {
+        fvec3_self_clear( DST );
+    }
+    else
+    {
+        DST[kX] = SRC[kX] * B;
+        DST[kY] = SRC[kY] * B;
+        DST[kZ] = SRC[kZ] * B;
 
-    LOG_NAN_FVEC3( tmp.v );
+        LOG_NAN_FVEC3( DST );
+    }
 
-    return tmp;
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec3_t fvec3_normalize( const fvec3_base_t vec )
+static INLINE float * fvec3_normalize( fvec3_base_t DST, const fvec3_base_t SRC )
 {
-    float len2, inv_len;
-    fvec3_t tmp = ZERO_VECT3;
+    if ( NULL == DST )
+    {
+        return NULL;
+    }
 
-    if ( NULL == vec ) return tmp;
+    if ( NULL == SRC )
+    {
+        fvec3_self_clear( DST );
+    }
+    else
+    {
+        float len2 = SRC[kX] * SRC[kX] + SRC[kY] * SRC[kY] + SRC[kZ] * SRC[kZ];
 
-    len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
-    if ( 0.0f == len2 ) return tmp;
+        if ( 0.0f == len2 )
+        {
+            fvec3_self_clear( DST );
+        }
+        else
+        {
+            float inv_len = 1.0f / SQRT( len2 );
+            LOG_NAN( inv_len );
 
-    inv_len = 1.0f / SQRT( len2 );
-    LOG_NAN( inv_len );
+            DST[kX] = SRC[kX] * inv_len;
+            DST[kY] = SRC[kY] * inv_len;
+            DST[kZ] = SRC[kZ] * inv_len;
 
-    tmp.x = vec[kX] * inv_len;
-    tmp.y = vec[kY] * inv_len;
-    tmp.z = vec[kZ] * inv_len;
+            LOG_NAN_FVEC3( DST );
+        }
+    }
 
-    LOG_NAN_FVEC3( tmp.v );
-
-    return tmp;
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t  fvec3_self_normalize( fvec3_base_t A )
+static INLINE float fvec3_self_normalize( fvec3_base_t A )
 {
-    if ( NULL == A ) return bfalse;
+    float len = -1.0f;
+
+    if ( NULL == A ) return len;
 
     if ( 0.0f != fvec3_length_abs( A ) )
     {
-        float len2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
-        float inv_len = 1.0f / SQRT( len2 );
+        float len2, inv_len;
+
+        len2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
+        len = SQRT( len2 );
+        inv_len = 1.0f / len;
+
         LOG_NAN( inv_len );
 
         A[kX] *= inv_len;
@@ -746,24 +881,30 @@ static INLINE bool_t  fvec3_self_normalize( fvec3_base_t A )
 
     LOG_NAN_FVEC3( A );
 
-    return btrue;
+    return len;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t fvec3_self_normalize_to( fvec3_base_t vec, const float B )
+static INLINE float fvec3_self_normalize_to( fvec3_base_t vec, const float B )
 {
-    if ( NULL == vec ) return bfalse;
+    float len = -1.0f;
+
+    if ( NULL == vec ) return len;
 
     if ( 0.0f == B )
     {
         fvec3_self_clear( vec );
-        return btrue;
-    }
 
-    if ( 0.0f != fvec3_length_abs( vec ) )
+        len = 0.0f;
+    }
+    else if ( 0.0f != fvec3_length_abs( vec ) )
     {
-        float len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
-        float inv_len = B / SQRT( len2 );
+        float len2, inv_len;
+
+        len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
+        len = SQRT( len2 );
+        inv_len = B / len;
+
         LOG_NAN( inv_len );
 
         vec[kX] *= inv_len;
@@ -773,21 +914,31 @@ static INLINE bool_t fvec3_self_normalize_to( fvec3_base_t vec, const float B )
 
     LOG_NAN_FVEC3( vec );
 
-    return btrue;
+    return len;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fvec3_t fvec3_cross_product( const fvec3_base_t A, const fvec3_base_t B )
+static INLINE float * fvec3_cross_product( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS )
 {
-    fvec3_t   tmp;
+    if ( NULL == DST )
+    {
+        return NULL;
+    }
 
-    tmp.x = A[kY] * B[kZ] - A[kZ] * B[kY];
-    tmp.y = A[kZ] * B[kX] - A[kX] * B[kZ];
-    tmp.z = A[kX] * B[kY] - A[kY] * B[kX];
+    if ( NULL == LHS || NULL == RHS )
+    {
+        fvec3_self_clear( DST );
+    }
+    else
+    {
+        DST[kX] = LHS[kY] * RHS[kZ] - LHS[kZ] * RHS[kY];
+        DST[kY] = LHS[kZ] * RHS[kX] - LHS[kX] * RHS[kZ];
+        DST[kZ] = LHS[kX] * RHS[kY] - LHS[kY] * RHS[kX];
 
-    LOG_NAN_FVEC3( tmp.v );
+        LOG_NAN_FVEC3( DST );
+    }
 
-    return tmp;
+    return DST;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -913,6 +1064,21 @@ static INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static INLINE bool_t fvec4_valid( const fvec4_base_t A )
+{
+    int cnt;
+
+    if ( NULL == A ) return bfalse;
+
+    for ( cnt = 0; cnt < 4; cnt++ )
+    {
+        if ( ieee32_bad( A[cnt] ) ) return bfalse;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 static INLINE bool_t fvec4_self_clear( fvec4_base_t A )
 {
     if ( NULL == A ) return bfalse;
@@ -924,7 +1090,395 @@ static INLINE bool_t fvec4_self_clear( fvec4_base_t A )
 }
 
 //--------------------------------------------------------------------------------------------
+static INLINE bool_t fvec4_self_scale( fvec4_base_t A, const float B )
+{
+    if ( NULL == A ) return bfalse;
+
+    A[kX] *= B;
+    A[kY] *= B;
+    A[kZ] *= B;
+    A[kW] *= B;
+
+    LOG_NAN_FVEC4( A );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 // MATIX FUNCTIONS
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_Copy( fmat_4x4_base_t DST, const fmat_4x4_base_t src )
+{
+    float * retval = NULL;
+
+    if ( NULL == DST )
+    {
+        retval = NULL;
+    }
+    else if ( NULL == src )
+    {
+        retval = mat_Zero( DST );
+    }
+    else
+    {
+        retval = ( float * )memmove( DST, src, sizeof( fmat_4x4_base_t ) );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_Identity( fmat_4x4_base_t DST )
+{
+    if ( NULL == DST ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = 1; DST[MAT_IDX( 1, 0 )] = 0; DST[MAT_IDX( 2, 0 )] = 0; DST[MAT_IDX( 3, 0 )] = 0;
+    DST[MAT_IDX( 0, 1 )] = 0; DST[MAT_IDX( 1, 1 )] = 1; DST[MAT_IDX( 2, 1 )] = 0; DST[MAT_IDX( 3, 1 )] = 0;
+    DST[MAT_IDX( 0, 2 )] = 0; DST[MAT_IDX( 1, 2 )] = 0; DST[MAT_IDX( 2, 2 )] = 1; DST[MAT_IDX( 3, 2 )] = 0;
+    DST[MAT_IDX( 0, 3 )] = 0; DST[MAT_IDX( 1, 3 )] = 0; DST[MAT_IDX( 2, 3 )] = 0; DST[MAT_IDX( 3, 3 )] = 1;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_Zero( fmat_4x4_base_t DST )
+{
+    // initializes matrix to zero
+
+    if ( NULL == DST ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = 0; DST[MAT_IDX( 1, 0 )] = 0; DST[MAT_IDX( 2, 0 )] = 0; DST[MAT_IDX( 3, 0 )] = 0;
+    DST[MAT_IDX( 0, 1 )] = 0; DST[MAT_IDX( 1, 1 )] = 0; DST[MAT_IDX( 2, 1 )] = 0; DST[MAT_IDX( 3, 1 )] = 0;
+    DST[MAT_IDX( 0, 2 )] = 0; DST[MAT_IDX( 1, 2 )] = 0; DST[MAT_IDX( 2, 2 )] = 0; DST[MAT_IDX( 3, 2 )] = 0;
+    DST[MAT_IDX( 0, 3 )] = 0; DST[MAT_IDX( 1, 3 )] = 0; DST[MAT_IDX( 2, 3 )] = 0; DST[MAT_IDX( 3, 3 )] = 0;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_Multiply( fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2 )
+{
+    int i, j, k;
+
+    if ( NULL == mat_Zero( DST ) ) return NULL;
+
+    //===============================================================================
+    // the multiplocation code is the equivalent of the following function calls
+    //    GLint matrix_mode[1];
+    //    glGetIntegerv( GL_MATRIX_MODE, matrix_mode );
+    //        glMatrixMode( GL_MODELVIEW );                   // or whatever matrix mode you want to use
+    //        glPushMatrix();
+    //            glLoadMatrixf( src1 );
+    //            glMultMatrixf( src2 );
+    //            glGetFloatv( GL_MODELVIEW_MATRIX, DST );    // use the correct argument here to grab the resultant matrix
+    //        glPopMatrix();
+    //    glMatrixMode( matrix_mode[0] );
+    //===============================================================================
+
+    for ( i = 0; i < 4; i++ )
+    {
+        for ( j = 0; j < 4; j++ )
+        {
+            for ( k = 0; k < 4; k++ )
+            {
+                DST[MAT_IDX( i, j )] += src1[MAT_IDX( k, j )] * src2[MAT_IDX( i, k )];
+            }
+        }
+    }
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_Translate( fmat_4x4_base_t DST, const float dx, const float dy, const float dz )
+{
+    if ( NULL == mat_Identity( DST ) ) return NULL;
+
+    DST[MAT_IDX( 3, 0 )] = dx;
+    DST[MAT_IDX( 3, 1 )] = dy;
+    DST[MAT_IDX( 3, 2 )] = dz;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_RotateX( fmat_4x4_base_t DST, const float rads )
+{
+    float cosine = COS( rads );
+    float sine = SIN( rads );
+
+    if ( NULL == mat_Identity( DST ) ) return NULL;
+
+    DST[MAT_IDX( 1, 1 )] = cosine;
+    DST[MAT_IDX( 2, 2 )] = cosine;
+    DST[MAT_IDX( 1, 2 )] = -sine;
+    DST[MAT_IDX( 2, 1 )] = sine;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_RotateY( fmat_4x4_base_t DST, const float rads )
+{
+    float cosine = COS( rads );
+    float sine = SIN( rads );
+
+    if ( NULL == mat_Identity( DST ) ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = cosine;
+    DST[MAT_IDX( 2, 2 )] = cosine;
+    DST[MAT_IDX( 0, 2 )] = sine;
+    DST[MAT_IDX( 2, 0 )] = -sine;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_RotateZ( fmat_4x4_base_t DST, const float rads )
+{
+    float cosine = COS( rads );
+    float sine = SIN( rads );
+
+    if ( NULL == mat_Identity( DST ) ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = cosine;
+    DST[MAT_IDX( 1, 1 )] = cosine;
+    DST[MAT_IDX( 0, 1 )] = -sine;
+    DST[MAT_IDX( 1, 0 )] = sine;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_ScaleXYZ( fmat_4x4_base_t DST, const float sizex, const float sizey, const float sizez )
+{
+    if ( NULL == mat_Identity( DST ) ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = sizex;
+    DST[MAT_IDX( 1, 1 )] = sizey;
+    DST[MAT_IDX( 2, 2 )] = sizez;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed( fmat_4x4_base_t DST, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z )
+{
+    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
+    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
+    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
+    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
+    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
+    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
+
+    if ( NULL == DST ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = scale_x * ( cz * cy );
+    DST[MAT_IDX( 0, 1 )] = scale_x * ( cz * sy * sx + sz * cx );
+    DST[MAT_IDX( 0, 2 )] = scale_x * ( sz * sx - cz * sy * cx );
+    DST[MAT_IDX( 0, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 1, 0 )] = scale_y * ( -sz * cy );
+    DST[MAT_IDX( 1, 1 )] = scale_y * ( -sz * sy * sx + cz * cx );
+    DST[MAT_IDX( 1, 2 )] = scale_y * ( sz * sy * cx + cz * sx );
+    DST[MAT_IDX( 1, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 2, 0 )] = scale_z * ( sy );
+    DST[MAT_IDX( 2, 1 )] = scale_z * ( -cy * sx );
+    DST[MAT_IDX( 2, 2 )] = scale_z * ( cy * cx );
+    DST[MAT_IDX( 2, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 3, 0 )] = translate_x;
+    DST[MAT_IDX( 3, 1 )] = translate_y;
+    DST[MAT_IDX( 3, 2 )] = translate_z;
+    DST[MAT_IDX( 3, 3 )] = 1.0f;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed( fmat_4x4_base_t DST, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z )
+{
+    /// @details BB@> Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
+
+    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
+    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
+    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
+    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
+    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
+    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
+
+    if ( NULL == DST ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = scale_x * ( cz * cy - sz * sy * sx );
+    DST[MAT_IDX( 0, 1 )] = scale_x * ( sz * cy + cz * sy * sx );
+    DST[MAT_IDX( 0, 2 )] = scale_x * ( -cx * sy );
+    DST[MAT_IDX( 0, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 1, 0 )] = scale_y * ( -sz * cx );
+    DST[MAT_IDX( 1, 1 )] = scale_y * ( cz * cx );
+    DST[MAT_IDX( 1, 2 )] = scale_y * ( sx );
+    DST[MAT_IDX( 1, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 2, 0 )] = scale_z * ( cz * sy + sz * sx * cy );
+    DST[MAT_IDX( 2, 1 )] = scale_z * ( sz * sy - cz * sx * cy );
+    DST[MAT_IDX( 2, 2 )] = scale_z * ( cy * cx );
+    DST[MAT_IDX( 2, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 3, 0 )] = translate_x;
+    DST[MAT_IDX( 3, 1 )] = translate_y;
+    DST[MAT_IDX( 3, 2 )] = translate_z;
+    DST[MAT_IDX( 3, 3 )] = 1.0f;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_FourPoints( fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t up, const float scale )
+{
+    fvec3_t vWid, vFor, vUp;
+
+    if ( NULL == DST ) return NULL;
+
+    vWid.x = wid[kX] - ori[kX];
+    vWid.y = wid[kY] - ori[kY];
+    vWid.z = wid[kZ] - ori[kZ];
+
+    vUp.x = up[kX] - ori[kX];
+    vUp.y = up[kY] - ori[kY];
+    vUp.z = up[kZ] - ori[kZ];
+
+    vFor.x = frw[kX] - ori[kX];
+    vFor.y = frw[kY] - ori[kY];
+    vFor.z = frw[kZ] - ori[kZ];
+
+    fvec3_self_normalize( vWid.v );
+    fvec3_self_normalize( vUp.v );
+    fvec3_self_normalize( vFor.v );
+
+    DST[MAT_IDX( 0, 0 )] = -scale * vWid.x;  // HUK
+    DST[MAT_IDX( 0, 1 )] = -scale * vWid.y;  // HUK
+    DST[MAT_IDX( 0, 2 )] = -scale * vWid.z;  // HUK
+    DST[MAT_IDX( 0, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 1, 0 )] = scale * vFor.x;
+    DST[MAT_IDX( 1, 1 )] = scale * vFor.y;
+    DST[MAT_IDX( 1, 2 )] = scale * vFor.z;
+    DST[MAT_IDX( 1, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 2, 0 )] = scale * vUp.x;
+    DST[MAT_IDX( 2, 1 )] = scale * vUp.y;
+    DST[MAT_IDX( 2, 2 )] = scale * vUp.z;
+    DST[MAT_IDX( 2, 3 )] = 0.0f;
+
+    DST[MAT_IDX( 3, 0 )] = ori[kX];
+    DST[MAT_IDX( 3, 1 )] = ori[kY];
+    DST[MAT_IDX( 3, 2 )] = ori[kZ];
+    DST[MAT_IDX( 3, 3 )] = 1.0f;
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_View( fmat_4x4_base_t DST,
+                                const fvec3_base_t   from,     // camera location
+                                const fvec3_base_t   at,        // camera look-at target
+                                const fvec3_base_t   world_up,  // world’s up, usually 0, 0, 1
+                                const float roll )         // clockwise roll around
+//   viewing direction,
+//   in radians
+{
+    /// @details MN@> This probably should be replaced by a call to gluLookAt(),
+    ///               don't see why we need to make our own...
+
+    fvec3_t up, right, view_dir, temp;
+
+    if ( NULL == mat_Identity( DST ) ) return NULL;
+
+    fvec3_normalize( view_dir.v, fvec3_sub( temp.v, at, from ) );
+    fvec3_cross_product( right.v, world_up, view_dir.v );
+    fvec3_cross_product( up.v, view_dir.v, right.v );
+    fvec3_self_normalize( right.v );
+    fvec3_self_normalize( up.v );
+
+    DST[MAT_IDX( 0, 0 )] = right.x;
+    DST[MAT_IDX( 1, 0 )] = right.y;
+    DST[MAT_IDX( 2, 0 )] = right.z;
+
+    DST[MAT_IDX( 0, 1 )] = up.x;
+    DST[MAT_IDX( 1, 1 )] = up.y;
+    DST[MAT_IDX( 2, 1 )] = up.z;
+
+    DST[MAT_IDX( 0, 2 )] = view_dir.x;
+    DST[MAT_IDX( 1, 2 )] = view_dir.y;
+    DST[MAT_IDX( 2, 2 )] = view_dir.z;
+
+    DST[MAT_IDX( 3, 0 )] = -fvec3_dot_product( right.v,    from );
+    DST[MAT_IDX( 3, 1 )] = -fvec3_dot_product( up.v,       from );
+    DST[MAT_IDX( 3, 2 )] = -fvec3_dot_product( view_dir.v, from );
+
+    if ( roll != 0.0f )
+    {
+        // mat_Multiply function shown above
+        fmat_4x4_t tmp1, tmp2;
+
+        mat_Multiply( DST, mat_RotateZ( tmp1.v, -roll ), mat_Copy( tmp2.v, DST ) );
+    }
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_Projection(
+    fmat_4x4_base_t DST,
+    const float near_plane,    // distance to near clipping plane
+    const float far_plane,     // distance to far clipping plane
+    const float fov,           // vertical field of view angle, in radians
+    const float ar )           // aspect ratio
+{
+    /// @details MN@> Again, there is a gl function for this, glFrustum or gluPerspective...
+    ///               does this account for viewport ratio?
+
+    float inv_h = 1 / TAN( fov * 0.5f );
+    float inv_w = inv_h / ar;
+    float Q = far_plane / ( far_plane - near_plane );
+
+    if ( NULL == mat_Zero( DST ) ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = inv_h;         // 0,0
+    DST[MAT_IDX( 1, 1 )] = inv_w;         // 1,1
+    DST[MAT_IDX( 2, 2 )] = Q;         // 2,2
+    DST[MAT_IDX( 3, 2 )] = -1.0f; // 3,2
+    DST[MAT_IDX( 2, 3 )] = Q * near_plane;         // 2,3
+
+    return DST;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * mat_Projection_orig(
+    fmat_4x4_base_t DST,
+    const float near_plane,    // distance to near clipping plane
+    const float far_plane,      // distance to far clipping plane
+    const float fov )           // field of view angle, in radians
+{
+    /// @details MN@> Again, there is a gl function for this, glFrustum or gluPerspective...
+    ///               does this account for viewport ratio?
+
+    float c = COS( fov * 0.5f );
+    float s = SIN( fov * 0.5f );
+    float Q = far_plane / ( far_plane - near_plane );
+
+    if ( NULL == mat_Zero( DST ) ) return NULL;
+
+    DST[MAT_IDX( 0, 0 )] = c / s;       // 0,0
+    DST[MAT_IDX( 1, 1 )] = c / s;       // 1,1
+    DST[MAT_IDX( 2, 2 )] = Q;         // 2,2
+    DST[MAT_IDX( 3, 2 )] = -Q * near_plane; // 3,2
+    DST[MAT_IDX( 2, 3 )] = 1.0f;         // 2,3
+
+    return DST;
+}
+
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vpos )
 {
@@ -982,9 +1536,9 @@ static INLINE bool_t mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
     if ( NULL == mat || NULL == vup ) return bfalse;
 
     // for the camera
-    vup[kX] = -mat[MAT_IDX( 0, 1 )];
-    vup[kY] = -mat[MAT_IDX( 1, 1 )];
-    vup[kZ] = -mat[MAT_IDX( 2, 1 )];
+    vup[kX] = mat[MAT_IDX( 0, 1 )];
+    vup[kY] = mat[MAT_IDX( 1, 1 )];
+    vup[kZ] = mat[MAT_IDX( 2, 1 )];
 
     return btrue;
 }
@@ -1008,9 +1562,9 @@ static INLINE bool_t mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t 
     if ( NULL == mat || NULL == vfrw ) return bfalse;
 
     // for the camera
-    vfrw[kX] = mat[MAT_IDX( 0, 2 )];
-    vfrw[kY] = mat[MAT_IDX( 1, 2 )];
-    vfrw[kZ] = mat[MAT_IDX( 2, 2 )];
+    vfrw[kX] = -mat[MAT_IDX( 0, 2 )];
+    vfrw[kY] = -mat[MAT_IDX( 1, 2 )];
+    vfrw[kZ] = -mat[MAT_IDX( 2, 2 )];
 
     return btrue;
 }
@@ -1028,330 +1582,8 @@ static INLINE float * mat_getTranslate_v( const fmat_4x4_base_t mat )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t IdentityMatrix()
-{
-    fmat_4x4_t tmp;
-
-    tmp.CNV( 0, 0 ) = 1; tmp.CNV( 1, 0 ) = 0; tmp.CNV( 2, 0 ) = 0; tmp.CNV( 3, 0 ) = 0;
-    tmp.CNV( 0, 1 ) = 0; tmp.CNV( 1, 1 ) = 1; tmp.CNV( 2, 1 ) = 0; tmp.CNV( 3, 1 ) = 0;
-    tmp.CNV( 0, 2 ) = 0; tmp.CNV( 1, 2 ) = 0; tmp.CNV( 2, 2 ) = 1; tmp.CNV( 3, 2 ) = 0;
-    tmp.CNV( 0, 3 ) = 0; tmp.CNV( 1, 3 ) = 0; tmp.CNV( 2, 3 ) = 0; tmp.CNV( 3, 3 ) = 1;
-
-    return( tmp );
-}
-
 //--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t ZeroMatrix( void )
-{
-    // initializes matrix to zero
-
-    fmat_4x4_t ret;
-    int i, j;
-
-    for ( i = 0; i < 4; i++ )
-    {
-        for ( j = 0; j < 4; j++ )
-        {
-            ret.CNV( i, j ) = 0;
-        }
-    }
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t MatrixMult( const fmat_4x4_t a, const fmat_4x4_t b )
-{
-    fmat_4x4_t ret = ZERO_MAT_4X4;
-    int i, j, k;
-
-    for ( i = 0; i < 4; i++ )
-    {
-        for ( j = 0; j < 4; j++ )
-        {
-            for ( k = 0; k < 4; k++ )
-            {
-                ret.CNV( i, j ) += a.CNV( k, j ) * b.CNV( i, k );
-            }
-        }
-    }
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t Translate( const float dx, const float dy, const float dz )
-{
-    fmat_4x4_t ret = IdentityMatrix();
-
-    ret.CNV( 3, 0 ) = dx;
-    ret.CNV( 3, 1 ) = dy;
-    ret.CNV( 3, 2 ) = dz;
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t RotateX( const float rads )
-{
-    float cosine = COS( rads );
-    float sine = SIN( rads );
-
-    fmat_4x4_t ret = IdentityMatrix();
-
-    ret.CNV( 1, 1 ) = cosine;
-    ret.CNV( 2, 2 ) = cosine;
-    ret.CNV( 1, 2 ) = -sine;
-    ret.CNV( 2, 1 ) = sine;
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t RotateY( const float rads )
-{
-    float cosine = COS( rads );
-    float sine = SIN( rads );
-
-    fmat_4x4_t ret = IdentityMatrix();
-
-    ret.CNV( 0, 0 ) = cosine; // 0,0
-    ret.CNV( 2, 2 ) = cosine; // 2,2
-    ret.CNV( 0, 2 ) = sine; // 0,2
-    ret.CNV( 2, 0 ) = -sine; // 2,0
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t RotateZ( const float rads )
-{
-    float cosine = COS( rads );
-    float sine = SIN( rads );
-
-    fmat_4x4_t ret = IdentityMatrix();
-
-    ret.CNV( 0, 0 ) = cosine; // 0,0
-    ret.CNV( 1, 1 ) = cosine; // 1,1
-    ret.CNV( 0, 1 ) = -sine; // 0,1
-    ret.CNV( 1, 0 ) = sine; // 1,0
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t ScaleXYZ( const float sizex, const float sizey, const float sizez )
-{
-    fmat_4x4_t ret = IdentityMatrix();
-
-    ret.CNV( 0, 0 ) = sizex; // 0,0
-    ret.CNV( 1, 1 ) = sizey; // 1,1
-    ret.CNV( 2, 2 ) = sizez; // 2,2
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t ScaleXYZRotateXYZTranslate_SpaceFixed( const float scale_x, const float scale_y, const float scale_z, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float translate_x, const float translate_y, const float translate_z )
-{
-    fmat_4x4_t ret;
-
-    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
-    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
-    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
-    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
-    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
-    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
-
-    ret.CNV( 0, 0 ) = scale_x * ( cz * cy );
-    ret.CNV( 0, 1 ) = scale_x * ( cz * sy * sx + sz * cx );
-    ret.CNV( 0, 2 ) = scale_x * ( sz * sx - cz * sy * cx );
-    ret.CNV( 0, 3 ) = 0.0f;
-
-    ret.CNV( 1, 0 ) = scale_y * ( -sz * cy );
-    ret.CNV( 1, 1 ) = scale_y * ( -sz * sy * sx + cz * cx );
-    ret.CNV( 1, 2 ) = scale_y * ( sz * sy * cx + cz * sx );
-    ret.CNV( 1, 3 ) = 0.0f;
-
-    ret.CNV( 2, 0 ) = scale_z * ( sy );
-    ret.CNV( 2, 1 ) = scale_z * ( -cy * sx );
-    ret.CNV( 2, 2 ) = scale_z * ( cy * cx );
-    ret.CNV( 2, 3 ) = 0.0f;
-
-    ret.CNV( 3, 0 ) = translate_x;
-    ret.CNV( 3, 1 ) = translate_y;
-    ret.CNV( 3, 2 ) = translate_z;
-    ret.CNV( 3, 3 ) = 1.0f;
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t ScaleXYZRotateXYZTranslate_BodyFixed( const float scale_x, const float scale_y, const float scale_z, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float translate_x, const float translate_y, const float translate_z )
-{
-    /// @details BB@> Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
-
-    fmat_4x4_t ret;
-
-    float cx = turntocos[turn_x & TRIG_TABLE_MASK];
-    float sx = turntosin[turn_x & TRIG_TABLE_MASK];
-    float cy = turntocos[turn_y & TRIG_TABLE_MASK];
-    float sy = turntosin[turn_y & TRIG_TABLE_MASK];
-    float cz = turntocos[turn_z & TRIG_TABLE_MASK];
-    float sz = turntosin[turn_z & TRIG_TABLE_MASK];
-
-    //ret.CNV( 0, 0 ) = scale_x * ( cz * cy);
-    //ret.CNV( 0, 1 ) = scale_x * ( sz * cy);
-    //ret.CNV( 0, 2 ) = scale_x * (-sy);
-    //ret.CNV( 0, 3 ) = 0.0f;
-
-    //ret.CNV( 1, 0 ) = scale_y * (-sz * cx + cz * sy * sx);
-    //ret.CNV( 1, 1 ) = scale_y * ( cz * cx + sz * sy * sx);
-    //ret.CNV( 1, 2 ) = scale_y * ( cy * sx);
-    //ret.CNV( 1, 3 ) = 0.0f;
-
-    //ret.CNV( 2, 0 ) = scale_z * ( sz * sx + cz * sy * cx);
-    //ret.CNV( 2, 1 ) = scale_z * (-cz * sx + sz * sy * cx);
-    //ret.CNV( 2, 2 ) = scale_z * ( cy * cx);
-    //ret.CNV( 2, 3 ) = 0.0f;
-
-    ret.CNV( 0, 0 ) = scale_x * ( cz * cy - sz * sy * sx );
-    ret.CNV( 0, 1 ) = scale_x * ( sz * cy + cz * sy * sx );
-    ret.CNV( 0, 2 ) = scale_x * ( -cx * sy );
-    ret.CNV( 0, 3 ) = 0.0f;
-
-    ret.CNV( 1, 0 ) = scale_y * ( -sz * cx );
-    ret.CNV( 1, 1 ) = scale_y * ( cz * cx );
-    ret.CNV( 1, 2 ) = scale_y * ( sx );
-    ret.CNV( 1, 3 ) = 0.0f;
-
-    ret.CNV( 2, 0 ) = scale_z * ( cz * sy + sz * sx * cy );
-    ret.CNV( 2, 1 ) = scale_z * ( sz * sy - cz * sx * cy );
-    ret.CNV( 2, 2 ) = scale_z * ( cy * cx );
-    ret.CNV( 2, 3 ) = 0.0f;
-
-    ret.CNV( 3, 0 ) = translate_x;
-    ret.CNV( 3, 1 ) = translate_y;
-    ret.CNV( 3, 2 ) = translate_z;
-    ret.CNV( 3, 3 ) = 1.0f;
-
-    return ret;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t FourPoints( const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t up, const float scale )
-{
-    fmat_4x4_t tmp;
-
-    fvec3_t vWid, vFor, vUp;
-
-    vWid.x = wid[kX] - ori[kX];
-    vWid.y = wid[kY] - ori[kY];
-    vWid.z = wid[kZ] - ori[kZ];
-
-    vUp.x = up[kX] - ori[kX];
-    vUp.y = up[kY] - ori[kY];
-    vUp.z = up[kZ] - ori[kZ];
-
-    vFor.x = frw[kX] - ori[kX];
-    vFor.y = frw[kY] - ori[kY];
-    vFor.z = frw[kZ] - ori[kZ];
-
-    fvec3_self_normalize( vWid.v );
-    fvec3_self_normalize( vUp.v );
-    fvec3_self_normalize( vFor.v );
-
-    tmp.CNV( 0, 0 ) = -scale * vWid.x;  // HUK
-    tmp.CNV( 0, 1 ) = -scale * vWid.y;  // HUK
-    tmp.CNV( 0, 2 ) = -scale * vWid.z;  // HUK
-    tmp.CNV( 0, 3 ) = 0.0f;
-
-    tmp.CNV( 1, 0 ) = scale * vFor.x;
-    tmp.CNV( 1, 1 ) = scale * vFor.y;
-    tmp.CNV( 1, 2 ) = scale * vFor.z;
-    tmp.CNV( 1, 3 ) = 0.0f;
-
-    tmp.CNV( 2, 0 ) = scale * vUp.x;
-    tmp.CNV( 2, 1 ) = scale * vUp.y;
-    tmp.CNV( 2, 2 ) = scale * vUp.z;
-    tmp.CNV( 2, 3 ) = 0.0f;
-
-    tmp.CNV( 3, 0 ) = ori[kX];
-    tmp.CNV( 3, 1 ) = ori[kY];
-    tmp.CNV( 3, 2 ) = ori[kZ];
-    tmp.CNV( 3, 3 ) = 1.0f;
-
-    return tmp;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t ViewMatrix( const fvec3_base_t   from,     // camera location
-                                     const fvec3_base_t   at,        // camera look-at target
-                                     const fvec3_base_t   world_up,  // world’s up, usually 0, 0, 1
-                                     const float roll )         // clockwise roll around
-//   viewing direction,
-//   in radians
-{
-    /// @details MN@> This probably should be replaced by a call to gluLookAt(),
-    ///               don't see why we need to make our own...
-
-    fmat_4x4_t view = IdentityMatrix();
-    fvec3_t   up, right, view_dir, temp;
-
-    temp     = fvec3_sub( at, from );
-    view_dir = fvec3_normalize( temp.v );
-    right    = fvec3_cross_product( world_up, view_dir.v );
-    up       = fvec3_cross_product( view_dir.v, right.v );
-    fvec3_self_normalize( right.v );
-    fvec3_self_normalize( up.v );
-
-    view.CNV( 0, 0 ) = right.x;
-    view.CNV( 1, 0 ) = right.y;
-    view.CNV( 2, 0 ) = right.z;
-    view.CNV( 0, 1 ) = up.x;
-    view.CNV( 1, 1 ) = up.y;
-    view.CNV( 2, 1 ) = up.z;
-    view.CNV( 0, 2 ) = view_dir.x;
-    view.CNV( 1, 2 ) = view_dir.y;
-    view.CNV( 2, 2 ) = view_dir.z;
-    view.CNV( 3, 0 ) = -fvec3_dot_product( right.v,    from );
-    view.CNV( 3, 1 ) = -fvec3_dot_product( up.v,       from );
-    view.CNV( 3, 2 ) = -fvec3_dot_product( view_dir.v, from );
-
-    if ( roll != 0.0f )
-    {
-        // MatrixMult function shown above
-        view = MatrixMult( RotateZ( -roll ), view );
-    }
-
-    return view;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE fmat_4x4_t ProjectionMatrix( const float near_plane,    // distance to near clipping plane
-        const float far_plane,      // distance to far clipping plane
-        const float fov )           // field of view angle, in radians
-{
-    /// @details MN@> Again, there is a gl function for this, glFrustum or gluPerspective...
-    ///               does this account for viewport ratio?
-
-    fmat_4x4_t ret = ZERO_MAT_4X4;
-
-    float c = COS( fov * 0.5f );
-    float s = SIN( fov * 0.5f );
-    float Q = s / ( 1.0f - near_plane / far_plane );
-
-    ret.CNV( 0, 0 ) = c;         // 0,0
-    ret.CNV( 1, 1 ) = c;         // 1,1
-    ret.CNV( 2, 2 ) = Q;         // 2,2
-    ret.CNV( 3, 2 ) = -Q * near_plane; // 3,2
-    ret.CNV( 2, 3 ) = s;         // 2,3
-
-    return ret;
-}
-
-//----------------------------------------------------
-static INLINE void  TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t *pSourceV, fvec4_t *pDestV, const Uint32 NumVertor )
+static INLINE void  mat_TransformVertices( const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor )
 {
     /// @details  GS@> This is just a MulVectorMatrix for now. The W division and screen size multiplication
     ///                must be done afterward.
@@ -1366,10 +1598,10 @@ static INLINE void  TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t 
     {
         for ( cnt = 0; cnt < NumVertor; cnt++ )
         {
-            pDestV->x = SourceIt->x * pMatrix->v[0] + SourceIt->y * pMatrix->v[4] + SourceIt->z * pMatrix->v[8] + pMatrix->v[12];
-            pDestV->y = SourceIt->x * pMatrix->v[1] + SourceIt->y * pMatrix->v[5] + SourceIt->z * pMatrix->v[9] + pMatrix->v[13];
-            pDestV->z = SourceIt->x * pMatrix->v[2] + SourceIt->y * pMatrix->v[6] + SourceIt->z * pMatrix->v[10] + pMatrix->v[14];
-            pDestV->w = SourceIt->x * pMatrix->v[3] + SourceIt->y * pMatrix->v[7] + SourceIt->z * pMatrix->v[11] + pMatrix->v[15];
+            pDestV->x = SourceIt->x * Matrix[0] + SourceIt->y * Matrix[4] + SourceIt->z * Matrix[8] + Matrix[12];
+            pDestV->y = SourceIt->x * Matrix[1] + SourceIt->y * Matrix[5] + SourceIt->z * Matrix[9] + Matrix[13];
+            pDestV->z = SourceIt->x * Matrix[2] + SourceIt->y * Matrix[6] + SourceIt->z * Matrix[10] + Matrix[14];
+            pDestV->w = SourceIt->x * Matrix[3] + SourceIt->y * Matrix[7] + SourceIt->z * Matrix[11] + Matrix[15];
 
             pDestV++;
             SourceIt++;
@@ -1379,10 +1611,10 @@ static INLINE void  TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t 
     {
         for ( cnt = 0; cnt < NumVertor; cnt++ )
         {
-            pDestV->x = SourceIt->x * pMatrix->v[0] + SourceIt->y * pMatrix->v[4] + SourceIt->z * pMatrix->v[8];
-            pDestV->y = SourceIt->x * pMatrix->v[1] + SourceIt->y * pMatrix->v[5] + SourceIt->z * pMatrix->v[9];
-            pDestV->z = SourceIt->x * pMatrix->v[2] + SourceIt->y * pMatrix->v[6] + SourceIt->z * pMatrix->v[10];
-            pDestV->w = SourceIt->x * pMatrix->v[3] + SourceIt->y * pMatrix->v[7] + SourceIt->z * pMatrix->v[11];
+            pDestV->x = SourceIt->x * Matrix[0] + SourceIt->y * Matrix[4] + SourceIt->z * Matrix[8];
+            pDestV->y = SourceIt->x * Matrix[1] + SourceIt->y * Matrix[5] + SourceIt->z * Matrix[9];
+            pDestV->z = SourceIt->x * Matrix[2] + SourceIt->y * Matrix[6] + SourceIt->z * Matrix[10];
+            pDestV->w = SourceIt->x * Matrix[3] + SourceIt->y * Matrix[7] + SourceIt->z * Matrix[11];
 
             pDestV++;
             SourceIt++;
@@ -1392,10 +1624,10 @@ static INLINE void  TransformVertices( const fmat_4x4_t *pMatrix, const fvec4_t 
     {
         for ( cnt = 0; cnt < NumVertor; cnt++ )
         {
-            pDestV->x = SourceIt->x * pMatrix->v[0] + SourceIt->y * pMatrix->v[4] + SourceIt->z * pMatrix->v[8]  + SourceIt->w * pMatrix->v[12];
-            pDestV->y = SourceIt->x * pMatrix->v[1] + SourceIt->y * pMatrix->v[5] + SourceIt->z * pMatrix->v[9]  + SourceIt->w * pMatrix->v[13];
-            pDestV->z = SourceIt->x * pMatrix->v[2] + SourceIt->y * pMatrix->v[6] + SourceIt->z * pMatrix->v[10] + SourceIt->w * pMatrix->v[14];
-            pDestV->w = SourceIt->x * pMatrix->v[3] + SourceIt->y * pMatrix->v[7] + SourceIt->z * pMatrix->v[11] + SourceIt->w * pMatrix->v[15];
+            pDestV->x = SourceIt->x * Matrix[0] + SourceIt->y * Matrix[4] + SourceIt->z * Matrix[8]  + SourceIt->w * Matrix[12];
+            pDestV->y = SourceIt->x * Matrix[1] + SourceIt->y * Matrix[5] + SourceIt->z * Matrix[9]  + SourceIt->w * Matrix[13];
+            pDestV->z = SourceIt->x * Matrix[2] + SourceIt->y * Matrix[6] + SourceIt->z * Matrix[10] + SourceIt->w * Matrix[14];
+            pDestV->w = SourceIt->x * Matrix[3] + SourceIt->y * Matrix[7] + SourceIt->z * Matrix[11] + SourceIt->w * Matrix[15];
 
             pDestV++;
             SourceIt++;

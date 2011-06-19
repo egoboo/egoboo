@@ -24,11 +24,12 @@
 #include "mpd_file.h"
 #include "log.h"
 
-#include "egoboo_math.inl"
 #include "egoboo_endian.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
 #include "egoboo.h"
+
+#include "egoboo_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -155,7 +156,7 @@ mpd_t * mpd_ctor( mpd_t * pmesh )
 {
     if ( NULL == pmesh ) return NULL;
 
-    memset( pmesh, 0, sizeof( *pmesh ) );
+    BLANK_STRUCT_PTR( pmesh )
 
     if ( NULL == mpd_mem_ctor( &( pmesh->mem ) ) ) return NULL;
     if ( NULL == mpd_info_ctor( &( pmesh->info ) ) ) return NULL;
@@ -308,7 +309,7 @@ mpd_info_t * mpd_info_ctor( mpd_info_t * pinfo )
 {
     if ( NULL == pinfo ) return pinfo;
 
-    memset( pinfo, 0, sizeof( *pinfo ) );
+    BLANK_STRUCT_PTR( pinfo )
 
     return pinfo;
 }
@@ -318,7 +319,7 @@ mpd_info_t * mpd_info_dtor( mpd_info_t * pinfo )
 {
     if ( NULL == pinfo ) return NULL;
 
-    memset( pinfo, 0, sizeof( *pinfo ) );
+    BLANK_STRUCT_PTR( pinfo )
 
     return pinfo;
 }
@@ -329,7 +330,7 @@ mpd_mem_t * mpd_mem_ctor( mpd_mem_t * pmem )
 {
     if ( NULL == pmem ) return pmem;
 
-    memset( pmem, 0, sizeof( *pmem ) );
+    BLANK_STRUCT_PTR( pmem )
 
     return pmem;
 }
@@ -340,7 +341,7 @@ mpd_mem_t * mpd_mem_dtor( mpd_mem_t * pmem )
     if ( NULL == pmem ) return NULL;
 
     mpd_mem_free( pmem );
-    memset( pmem, 0, sizeof( *pmem ) );
+    BLANK_STRUCT_PTR( pmem )
 
     return pmem;
 }

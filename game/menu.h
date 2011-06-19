@@ -24,15 +24,18 @@
 
 #include "network.h"
 #include "profile.h"
-#include "font_ttf.h"
+#include "IDSZ_map.h"
 
 #include "egoboo_process.h"
 #include "egoboo.h"
+#include "egoboo_timer.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 struct s_mod_file;
 struct s_gfx_config;
+struct s_Font;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -45,7 +48,7 @@ struct s_menu_process
     bool_t was_active;
     bool_t escape_requested, escape_latch;
 
-    int    ticks_next, ticks_now;
+    timer_t gui_timer;
 };
 typedef struct s_menu_process menu_process_t;
 
@@ -132,32 +135,31 @@ egoboo_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 extern bool_t mnu_draw_background;
 
 extern menu_process_t * MProc;
 
 extern bool_t module_list_valid;
 
-extern Font *menuFont;
+extern struct s_Font *menuFont;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // code for initializing and deinitializing the menu system
-int  menu_system_begin();
-void menu_system_end();
+int  menu_system_begin( void );
+void menu_system_end( void );
 
 // global function to control navigation of the game menus
 int doMenu( float deltaTime );
 
 // code to start and stop menus
 bool_t mnu_begin_menu( which_menu_t which );
-void   mnu_end_menu();
-int    mnu_get_menu_depth();
+void   mnu_end_menu( void );
+int    mnu_get_menu_depth( void );
 
 // "public" implmentation of the TxTitleImage array
-void   TxTitleImage_reload_all();
+void   TxTitleImage_reload_all( void );
 TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
 
 extern bool_t start_new_player;
@@ -174,7 +176,7 @@ bool_t mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModNam
 bool_t mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer );
 
 // "public" menu process hooks
-int                  do_menu_proc_run( menu_process_t * mproc, double frameDuration );
+int                  menu_process_run( menu_process_t * mproc, double frameDuration );
 menu_process_t     * menu_process_init( menu_process_t * mproc );
 
 // "public" reset of the autoformatting

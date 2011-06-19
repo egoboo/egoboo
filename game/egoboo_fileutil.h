@@ -164,7 +164,7 @@ extern "C"
 
     int read_skin_vfs( const char *filename );
 
-    void    GLSetup_SupportedFormats();
+    void    GLSetup_SupportedFormats( void );
     Uint32  ego_texture_load_vfs( struct s_oglx_texture *texture, const char *filename, Uint32 key );
 
     char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional );

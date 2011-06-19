@@ -21,15 +21,33 @@
 
 #include "egoboo_object.h"
 
-#include "pip_file.h"
 #include "graphic_prt.h"
 #include "physics.h"
 #include "bsp.h"
 
+#include "file_formats/pip_file.h"
+
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
 
 struct s_mesh_wall_data;
+
+//--------------------------------------------------------------------------------------------
+// internal structs
+//--------------------------------------------------------------------------------------------
+
+struct s_prt_environment;
+typedef struct s_prt_environment prt_environment_t;
+
+struct s_prt_spawn_data;
+typedef struct s_prt_spawn_data prt_spawn_data_t;
+
+struct s_prt;
+typedef struct s_prt prt_t;
+
+struct s_prt_bundle;
+typedef struct s_prt_bundle prt_bundle_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -39,7 +57,7 @@ struct s_mesh_wall_data;
 
 #define SPAWNNOCHARACTER                255         ///< For particles that spawn characters...
 
-#define STOPBOUNCINGPART                5.0f         ///< To make particles stop bouncing
+#define STOPBOUNCINGPART                5.0f        ///< To make particles stop bouncing
 
 DECLARE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
 
@@ -72,7 +90,6 @@ struct s_prt_environment
     bool_t   inwater;
     fvec3_t  acc;
 };
-typedef struct s_prt_environment prt_environment_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_prt_spawn_data
@@ -91,8 +108,6 @@ struct s_prt_spawn_data
     int      multispawn;
     CHR_REF  oldtarget;
 };
-
-typedef struct s_prt_spawn_data prt_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
 // Particle variables
@@ -137,48 +152,53 @@ struct s_prt
     CHR_REF onwhichplatform_ref;              ///< Is the particle on a platform?
     Uint32  onwhichplatform_update;           ///< When was the last platform attachment made?
 
-    FACING_T rotate;                          ///< Rotation direction
-    Sint16   rotate_add;                      ///< Rotation rate
+    FACING_T          rotate;                ///< Rotation direction
+    Sint16            rotate_add;            ///< Rotation rate
 
-    UFP8_T  size_stt;                        ///< The initial size of particle (8.8-bit fixed point)
-    UFP8_T  size;                            ///< Size of particle (8.8-bit fixed point)
-    SFP8_T  size_add;                        ///< Change in size
+    UFP8_T            size_stt;              ///< The initial size of particle (8.8 fixed point)
+    UFP8_T            size;                  ///< Size of particle (8.8 fixed point)
+    SFP8_T            size_add;              ///< Change in size (8.8 fixed point)
 
-    //bool_t  inview;                          ///< Render this one? (same as inst.indolist)
-    UFP8_T  image;                           ///< Which image (8.8-bit fixed point)
-    Uint16  image_add;                       ///< Animation rate
-    Uint16  image_max;                       ///< End of image loop
-    Uint16  image_stt;                       ///< Start of image loop
+    // which image
+    UFP8_T            image;                 ///< Which image (8.8 fixed point)
+    Uint16            image_add;             ///< Animation rate
+    Uint16            image_max;             ///< End of image loop
+    Uint16            image_stt;             ///< Start of image loop
 
-    bool_t  is_eternal;                      ///< Does the particle ever time-out?
-    size_t  lifetime;                        ///< Total particle lifetime in updates
-    size_t  lifetime_remaining;              ///< How many updates does the particle have left?
-    size_t  frames_remaining;                ///< How many frames does the particle have left?
-    int     contspawn_timer;                 ///< Time until spawn
+    // lifetime stuff
+    bool_t            is_eternal;            ///< Does the particle ever time-out?
+    size_t            lifetime;              ///< Total particle lifetime in updates
+    size_t            lifetime_remaining;    ///< How many updates does the particle have left?
+    size_t            frames_remaining;      ///< How many frames does the particle have left?
+    int               contspawn_timer;       ///< Time until spawn
 
-    Uint32            bump_size_stt;         ///< the starting size of the particle (8.8-bit fixed point)
+    // bunping
+    Uint32            bump_size_stt;         ///< the starting size of the particle (8.8 fixed point)
     bumper_t          bump_real;             ///< Actual size of the particle
     bumper_t          bump_padded;           ///< The size of the particle with the additional bumpers added in
     oct_bb_t          prt_min_cv;            ///< Collision volume for chr-prt interactions
     oct_bb_t          prt_max_cv;            ///< Collision volume for chr-prt interactions
 
-    IPair             damage;                ///< For strength
+    // damage
     Uint8             damagetype;            ///< Damage type
-    Uint16            lifedrain;
-    Uint16            manadrain;
+    IPair             damage;                ///< For strength
+    UFP8_T            lifedrain;             ///< (8.8 fixed point)
+    UFP8_T            manadrain;             ///< (8.8 fixed point)
 
+    // bump effects
     bool_t            is_bumpspawn;          ///< this particle is like a flame, burning something
-    bool_t            inwater;
 
-    int               spawncharacterstate;   ///< if != SPAWNNOCHARACTER, then a character is spawned on end
-
-    bool_t            is_homing;              ///< Is the particle in control of its motion?
+    // motion effects
+    float             buoyancy;              ///< an estimate of the particle bouyancy in air
+    float             air_resistance;        ///< an estimate of the particle's extra resistance to air motion
+    bool_t            is_homing;             ///< Is the particle in control of its motion?
     bool_t            no_gravity;            ///< does the particle ignore gravity?
 
     // some data that needs to be copied from the particle profile
-    Uint8             endspawn_amount;        ///< The number of particles to be spawned at the end
-    Uint16            endspawn_facingadd;     ///< The angular spacing for the end spawn
-    int               endspawn_lpip;          ///< The actual local pip that will be spawned at the end
+    Uint8             endspawn_amount;         ///< The number of particles to be spawned at the end
+    Uint16            endspawn_facingadd;      ///< The angular spacing for the end spawn
+    int               endspawn_lpip;           ///< The actual local pip that will be spawned at the end
+    int               endspawn_characterstate; ///< if != SPAWNNOCHARACTER, then a character is spawned on end
 
     dynalight_info_t  dynalight;              ///< Dynamic lighting...
     prt_instance_t    inst;                   ///< Everything needed for rendering
@@ -190,16 +210,15 @@ struct s_prt
     Uint32         safe_time;                 ///< the last "safe" time
     Uint32         safe_grid;                 ///< the last "safe" grid
 
-    float          buoyancy;                  ///< an estimate of the particle bouyancy in air
-    float          air_resistance;            ///< an estimate of the particle's extra resistance to air motion
-
-    BSP_leaf_t        bsp_leaf;
+    BSP_leaf_t        bsp_leaf;               ///< BSP info for this object
 };
-typedef struct s_prt prt_t;
 
-// counters for debugging wall collisions
-extern int prt_stoppedby_tests;
-extern int prt_pressure_tests;
+prt_t * prt_ctor( prt_t * pprt );
+prt_t * prt_dtor( prt_t * pprt );
+bool_t  prt_request_terminate( prt_t * pprt );
+
+void   prt_set_level( prt_t * pprt, float level );
+bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos );
 
 //--------------------------------------------------------------------------------------------
 struct s_prt_bundle
@@ -210,20 +229,21 @@ struct s_prt_bundle
     PIP_REF   pip_ref;
     pip_t   * pip_ptr;
 };
-typedef struct s_prt_bundle prt_bundle_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// counters for debugging wall collisions
+extern int prt_stoppedby_tests;
+extern int prt_pressure_tests;
 
 //--------------------------------------------------------------------------------------------
 // function prototypes
+//--------------------------------------------------------------------------------------------
 
-void particle_system_begin();
-void particle_system_end();
-
-prt_t * prt_ctor( prt_t * pprt );
-prt_t * prt_dtor( prt_t * pprt );
-
-void   init_all_pip();
-void   release_all_pip();
-bool_t release_one_pip( const PIP_REF ipip );
+// particle_system functions
+void particle_system_begin( void );
+void particle_system_end( void );
 
 const PRT_REF end_one_particle_now( const PRT_REF particle );
 const PRT_REF end_one_particle_in_game( const PRT_REF particle );
@@ -233,37 +253,30 @@ void move_all_particles( void );
 void cleanup_all_particles( void );
 void bump_all_particles_update_counters( void );
 
-void play_particle_sound( const PRT_REF particle, Sint8 sound );
-
 PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget );
 
 #define spawn_one_particle_global( pos, facing, gpip_index, multispawn ) spawn_one_particle( pos, facing, (PRO_REF)MAX_PROFILE, gpip_index, (CHR_REF)MAX_CHR, GRIP_LAST, (TEAM_REF)TEAM_NULL, (CHR_REF)MAX_CHR, (PRT_REF)MAX_PRT, multispawn, (CHR_REF)MAX_CHR );
 
-int     prt_count_free();
-
-PIP_REF load_one_particle_profile_vfs( const char *szLoadName, const PIP_REF pip_override );
-void    reset_particles();
-
+// prt functions
 BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
 BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], struct s_mesh_wall_data * pdata );
+bool_t    prt_is_over_water( const PRT_REF particle );
+void      prt_play_sound( const PRT_REF particle, Sint8 sound );
 
-bool_t prt_is_over_water( const PRT_REF particle );
+prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );
 
-bool_t release_one_pip( const PIP_REF ipip );
+// PipStack functions
+PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override );
+void    PipStack_init_all( void );
+void    PipStack_release_all( void );
+bool_t  PipStack_release_one( const PIP_REF ipip );
 
-bool_t prt_request_terminate( const PRT_REF iprt );
-
-void prt_set_level( prt_t * pprt, float level );
-
+// particle state machine functions
 prt_t * prt_run_config( prt_t * pprt );
 prt_t * prt_config_construct( prt_t * pprt, int max_iterations );
 prt_t * prt_config_initialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_activate( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
-
-bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos );
-
-prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );

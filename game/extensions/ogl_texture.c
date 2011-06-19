@@ -134,7 +134,7 @@ oglx_texture_t * oglx_texture_ctor( oglx_texture_t * ptex )
 {
     if ( NULL == ptex ) return ptex;
 
-    memset( ptex, 0, sizeof( *ptex ) );
+    BLANK_STRUCT_PTR( ptex )
 
     // only need one base.binding per texture
     // do not need to ask for a new id, even if we change the texture data

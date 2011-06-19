@@ -23,8 +23,6 @@
 
 #include "input.h"
 
-#include "controls_file.h"
-
 #if defined(USE_LUA_CONSOLE)
 #    include "lua_console.h"
 #else
@@ -36,7 +34,7 @@
 #include "network.h"
 #include "menu.h"
 #include "graphic.h"
-#include "camera.h"
+#include "camera_system.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -44,72 +42,71 @@
 #include "egoboo_math.h"
 #include "egoboo.h"
 
-#include "SDL_extensions.h"
+#include "file_formats/controls_file.h"
+#include "extensions/SDL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-input_device_t    DeviceList[MAX_LOCAL_PLAYERS];                  //Up to 4 local players
+// generic device list
+device_list_t     InputDevices;
 
 //Raw input devices
-mouse_t           mous;
-keyboard_t        keyb;
-device_joystick_t JoyList[MAXJOYSTICK];
-cursor_t          cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
+mouse_data_t           mous = MOUSE_INIT;
+keyboard_data_t        keyb = KEYBOARD_INIT;
+joystick_data_t JoyList[MAX_JOYSTICK];
+input_cursor_t          input_cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void input_read_mouse();
-static void input_read_keyboard();
-static void input_read_joysticks();
+static void input_system_init_keyboard( void );
+static void input_system_init_mouse( void );
+static void input_system_init_joysticks( void );
+static void input_system_init_devices( void );
+
+static void input_read_mouse( void );
+static void input_read_keyboard( void );
+static void input_read_joysticks( void );
 static void input_read_joystick( int which );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void input_device_init( input_device_t * pdevice )
-{
-    INPUT_DEVICE type;
-    if ( NULL == pdevice ) return;
-
-    type = pdevice->device_type;
-
-    memset( pdevice, 0, sizeof( *pdevice ) );
-    pdevice->sustain = 0.58f;
-    pdevice->cover   = 1.0f - pdevice->sustain;
-    pdevice->device_type = type;
-}
+static bool_t input_handle_SDL_Event( SDL_Event * pevt );
+static bool_t input_handle_SDL_KEYDOWN( SDL_Event * pevt );
+static bool_t input_handle_chat( SDL_Event * pevt );
 
 //--------------------------------------------------------------------------------------------
-void input_init_keyboard()
+//--------------------------------------------------------------------------------------------
+void input_system_init_keyboard()
 {
     // set up the keyboard
-    memset( &keyb, 0, sizeof( keyb ) );
+    BLANK_STRUCT( keyb )
+
     init_scancodes();
-    keyb.on        = btrue;
-    keyb.count     = 0;
-    keyb.state_ptr = NULL;
+
+    keyb.on         = btrue;
+    keyb.state_size = 0;
+    keyb.state_ptr  = NULL;
 }
 
 //--------------------------------------------------------------------------------------------
-void input_init_mouse()
+void input_system_init_mouse()
 {
     /// @details BB@> set up the mouse
-    memset( &mous, 0, sizeof( mous ) );
+    BLANK_STRUCT( mous )
     mous.on      = btrue;
     mous.sense   = 12; //24;
 }
 
 //--------------------------------------------------------------------------------------------
-void input_init_joysticks()
+void input_system_init_joysticks()
 {
     /// @details BB@> init the joysticks
 
     int i;
 
-    for ( i = 0; i < MAXJOYSTICK; i++ )
+    for ( i = 0; i < MAX_JOYSTICK; i++ )
     {
-        memset( JoyList + i, 0, sizeof( JoyList[i] ) );
+        BLANK_STRUCT( JoyList[i] );
 
         if ( i < SDL_NumJoysticks() )
         {
@@ -120,7 +117,19 @@ void input_init_joysticks()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_init()
+void input_system_init_devices()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
+    {
+        input_device_ctor( InputDevices.lst + cnt );
+    }
+    InputDevices.count = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void input_system_init()
 {
     /// @details BB@> initialize the inputs
 
@@ -134,11 +143,13 @@ void input_init()
         log_message( "Success!\n" );
     }
 
-    input_init_keyboard();
-    input_init_mouse();
-    input_init_joysticks();
+    input_system_init_keyboard();
+    input_system_init_mouse();
+    input_system_init_joysticks();
+    input_system_init_devices();
 }
 
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void input_read_mouse()
 {
@@ -170,7 +181,7 @@ void input_read_mouse()
 //--------------------------------------------------------------------------------------------
 void input_read_keyboard()
 {
-    keyb.state_ptr = SDL_GetKeyState( &keyb.count );
+    keyb.state_ptr = SDL_GetKeyState( &( keyb.state_size ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -178,7 +189,7 @@ void input_read_joystick( int which )
 {
     int dead_zone = 0x8000 / 10;
     int i, button_count, x, y;
-    device_joystick_t * pjoy;
+    joystick_data_t * pjoy;
 
     if ( !JoyList[which].on ) return;
 
@@ -225,14 +236,203 @@ void input_read_joysticks()
     int cnt;
 
     SDL_JoystickUpdate();
-    for ( cnt = 0; cnt < MAXJOYSTICK; cnt++ )
+    for ( cnt = 0; cnt < MAX_JOYSTICK; cnt++ )
     {
         input_read_joystick( cnt );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void input_read()
+bool_t input_handle_chat( SDL_Event * pevt )
+{
+    Uint32 kmod;
+    bool_t is_alt, is_shift;
+
+    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return bfalse;
+
+    kmod = SDL_GetModState();
+
+    is_alt   = HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
+    is_shift = HAS_SOME_BITS( kmod, KMOD_SHIFT );
+
+    if ( is_alt ) return bfalse;
+
+    if ( SDLK_RETURN == pevt->key.keysym.sym || SDLK_KP_ENTER == pevt->key.keysym.sym )
+    {
+        net_chat.buffer[net_chat.buffer_count] = CSTR_END;
+        keyb.chat_mode = bfalse;
+        keyb.chat_done = btrue;
+        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
+    }
+    else if ( SDLK_ESCAPE == pevt->key.keysym.sym )
+    {
+        // reset the keyboard buffer
+        keyb.chat_mode = bfalse;
+        keyb.chat_done = bfalse;
+        net_chat.buffer_count = 0;
+        net_chat.buffer[0] = CSTR_END;
+        SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
+    }
+    else if ( SDLK_BACKSPACE == pevt->key.keysym.sym )
+    {
+        if ( net_chat.buffer_count > 0 )
+        {
+            net_chat.buffer_count--;
+        }
+        net_chat.buffer[net_chat.buffer_count] = CSTR_END;
+    }
+    else if ( net_chat.buffer_count < CHAT_BUFFER_SIZE )
+    {
+        if ( is_shift )
+        {
+            net_chat.buffer[net_chat.buffer_count++] = scancode_to_ascii_shift[pevt->key.keysym.sym];
+        }
+        else
+        {
+            net_chat.buffer[net_chat.buffer_count++] = scancode_to_ascii[pevt->key.keysym.sym];
+        }
+        net_chat.buffer[net_chat.buffer_count] = CSTR_END;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t input_handle_SDL_KEYDOWN( SDL_Event * pevt )
+{
+    bool_t handled = bfalse;
+
+    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return bfalse;
+
+    if ( keyb.chat_mode )
+    {
+        handled = input_handle_chat( pevt );
+    }
+    else
+    {
+        if ( SDLK_ESCAPE == pevt->key.keysym.sym )
+        {
+            // tell the main process about the escape request
+            EProc->escape_requested = btrue;
+            handled = btrue;
+        }
+    }
+
+    return handled;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t input_handle_SDL_Event( SDL_Event * pevt )
+{
+    bool_t handled = bfalse;
+
+    if ( NULL == pevt ) return bfalse;
+
+    handled = btrue;
+    switch ( pevt->type )
+    {
+        case SDL_ACTIVEEVENT:
+            // the application has gained or lost some form of focus
+            if ( SDL_APPACTIVE == pevt->active.type && 1 == pevt->active.gain )
+            {
+                // the application has recovered from being minimized
+                // the textures need to be reloaded into OpenGL memory
+
+                gfx_reload_all_textures();
+            }
+            else if ( SDL_APPMOUSEFOCUS == pevt->active.type )
+            {
+                if ( 1 == pevt->active.gain )
+                {
+                    // gained mouse focus
+                    mous.on = btrue;
+                }
+                else
+                {
+                    // lost mouse focus
+                    mous.on = bfalse;
+                }
+            }
+            else if ( SDL_APPINPUTFOCUS == pevt->active.type )
+            {
+                if ( 1 == pevt->active.gain )
+                {
+                    // gained mouse focus
+                    keyb.on = btrue;
+                }
+                else
+                {
+                    // lost mouse focus
+                    keyb.on = bfalse;
+                }
+            }
+            break;
+
+        case SDL_VIDEORESIZE:
+            if ( SDL_VIDEORESIZE == pevt->resize.type )
+            {
+                // The video has been resized.
+                // If the game is active, some camera info mught need to be recalculated
+                // and possibly the auto-formatting for the menu system and the ui system
+                // The ui will handle its own issues.
+
+                // grab all the new SDL screen info
+                SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
+            }
+            break;
+
+        case SDL_VIDEOEXPOSE:
+            // something has been done to the screen and it needs to be re-drawn.
+            // For instance, a window above the app window was moved. This has no
+            // effect on the game at the moment.
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+            if ( pevt->button.button == SDL_BUTTON_WHEELUP )
+            {
+                input_cursor.z++;
+                input_cursor.wheel_event = btrue;
+            }
+            else if ( pevt->button.button == SDL_BUTTON_WHEELDOWN )
+            {
+                input_cursor.z--;
+                input_cursor.wheel_event = btrue;
+            }
+            else
+            {
+                input_cursor.pending_click = btrue;
+            }
+            break;
+
+        case SDL_MOUSEBUTTONUP:
+            input_cursor.pending_click = bfalse;
+            break;
+
+        case SDL_MOUSEMOTION:
+            input_cursor.x = pevt->motion.x;
+            input_cursor.y = pevt->motion.y;
+            break;
+
+        case SDL_QUIT:
+            //Someone pressed the little X in the corner while running windowed mode
+            exit( 0 );
+            break;
+
+            // use this loop to grab any console-mode entry from the keyboard
+        case SDL_KEYDOWN:
+            input_handle_SDL_KEYDOWN( pevt );
+            break;
+
+        default:
+            handled = btrue;
+            break;
+    }
+
+    return handled;
+}
+
+//--------------------------------------------------------------------------------------------
+void input_read_all_devices()
 {
     /// @details ZZ@> This function gets all the current player input states
 
@@ -252,137 +452,9 @@ void input_read()
             }
         }
 
-        ui_handleSDLEvent( &evt );
+        ui_handle_SDL_Event( &evt );
 
-        switch ( evt.type )
-        {
-            case SDL_ACTIVEEVENT:
-                // the application has gained or lost some form of focus
-                if ( SDL_APPACTIVE == evt.active.type && 1 == evt.active.gain )
-                {
-                    // the application has recovered from being minimized
-                    // the textures need to be reloaded into OpenGL memory
-
-                    gfx_reload_all_textures();
-                }
-                break;
-
-            case SDL_VIDEORESIZE:
-                if ( SDL_VIDEORESIZE == evt.resize.type )
-                {
-                    // The video has been resized.
-                    // If the game is active, some camera info mught need to be recalculated
-                    // and possibly the auto-formatting for the menu system and the ui system
-                    // The ui will handle its own issues.
-
-                    // grab all the new SDL screen info
-                    SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
-
-                    // fix the camera rotation angles to estimate what is in-view
-                    camera_rotmesh__init();
-                }
-                break;
-
-            case SDL_VIDEOEXPOSE:
-                // something has been done to the screen and it needs to be re-drawn.
-                // For instance, a window above the app window was moved. This has no
-                // effect on the game at the moment.
-                break;
-
-            case SDL_MOUSEBUTTONDOWN:
-                if ( evt.button.button == SDL_BUTTON_WHEELUP )
-                {
-                    cursor.z++;
-                    cursor.wheel_event = btrue;
-                }
-                else if ( evt.button.button == SDL_BUTTON_WHEELDOWN )
-                {
-                    cursor.z--;
-                    cursor.wheel_event = btrue;
-                }
-                else
-                {
-                    cursor.pending_click = btrue;
-                }
-                break;
-
-            case SDL_MOUSEBUTTONUP:
-                cursor.pending_click = bfalse;
-                break;
-
-            case SDL_MOUSEMOTION:
-                cursor.x = evt.motion.x;
-                cursor.y = evt.motion.y;
-                break;
-
-            case SDL_QUIT:
-                //Someone pressed the little X in the corner while running windowed mode
-                exit( 0 );
-                break;
-
-                // use this loop to grab any console-mode entry from the keyboard
-            case SDL_KEYDOWN:
-                {
-                    Uint32 kmod;
-                    bool_t is_alt, is_shift;
-
-                    kmod = SDL_GetModState();
-
-                    is_alt   = HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
-                    is_shift = HAS_SOME_BITS( kmod, KMOD_SHIFT );
-                    if ( console_mode )
-                    {
-                        if ( !is_alt )
-                        {
-                            if ( SDLK_RETURN == evt.key.keysym.sym || SDLK_KP_ENTER == evt.key.keysym.sym )
-                            {
-                                keyb.buffer[keyb.buffer_count] = CSTR_END;
-                                console_mode = bfalse;
-                                console_done = btrue;
-                                SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
-                            }
-                            else if ( SDLK_ESCAPE == evt.key.keysym.sym )
-                            {
-                                // reset the keyboard buffer
-                                console_mode = bfalse;
-                                console_done = bfalse;
-                                keyb.buffer_count = 0;
-                                keyb.buffer[0] = CSTR_END;
-                                SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
-                            }
-                            else if ( SDLK_BACKSPACE == evt.key.keysym.sym )
-                            {
-                                if ( keyb.buffer_count > 0 )
-                                {
-                                    keyb.buffer_count--;
-                                }
-                                keyb.buffer[keyb.buffer_count] = CSTR_END;
-                            }
-                            else if ( keyb.buffer_count < KEYB_BUFFER_SIZE )
-                            {
-                                if ( is_shift )
-                                {
-                                    keyb.buffer[keyb.buffer_count++] = scancode_to_ascii_shift[evt.key.keysym.sym];
-                                }
-                                else
-                                {
-                                    keyb.buffer[keyb.buffer_count++] = scancode_to_ascii[evt.key.keysym.sym];
-                                }
-                                keyb.buffer[keyb.buffer_count] = CSTR_END;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if ( SDLK_ESCAPE == evt.key.keysym.sym )
-                        {
-                            // tell the main process about the escape request
-                            EProc->escape_requested = btrue;
-                        }
-                    }
-                }
-                break;
-        }
+        input_handle_SDL_Event( &evt );
     }
 
     // Get immediate mode state for the rest of the game
@@ -392,46 +464,196 @@ void input_read()
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD input_get_buttonmask( input_device_t *pdevice )
+//--------------------------------------------------------------------------------------------
+void input_cursor_reset()
 {
+    input_cursor.pressed       = bfalse;
+    input_cursor.clicked       = bfalse;
+    input_cursor.pending_click = bfalse;
+    input_cursor.wheel_event   = bfalse;
+    input_cursor.z             = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void input_cursor_finish_wheel_event()
+{
+    input_cursor.wheel_event   = bfalse;
+    input_cursor.z             = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t input_cursor_wheel_event_pending()
+{
+    if ( input_cursor.wheel_event && 0 == input_cursor.z )
+    {
+        input_cursor.wheel_event = bfalse;
+    }
+
+    return input_cursor.wheel_event;
+}
+
+//--------------------------------------------------------------------------------------------
+int translate_string_to_input_type( const char *string )
+{
+    /// @details ZF@> This function turns a string into a input type (mouse, keyboard, joystick, etc.)
+
+    int retval = INPUT_DEVICE_UNKNOWN;
+
+    if ( INVALID_CSTR( string ) ) return INPUT_DEVICE_UNKNOWN;
+
+    if ( 0 == strcmp( string, "KEYBOARD" ) )
+    {
+        retval = INPUT_DEVICE_KEYBOARD;
+    }
+    else if ( 0 == strcmp( string, "MOUSE" ) )
+    {
+        retval = INPUT_DEVICE_MOUSE;
+    }
+    else if ( 0 == strncmp( string, "JOYSTICK", 8 ) && CSTR_END != string[9] )
+    {
+        int ijoy = ( int )string[9] - ( int )'A';
+
+        if ( ijoy >= 0 && ijoy < MAX_JOYSTICK )
+        {
+            retval = INPUT_DEVICE_JOY + ijoy;
+        }
+    }
+
+    // No matches
+    if ( INPUT_DEVICE_UNKNOWN == retval )
+    {
+        retval = INPUT_DEVICE_KEYBOARD;
+        log_warning( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+const char* translate_input_type_to_string( const int type )
+{
+    /// @details ZF@> This function turns a input type into a string
+
+    static STRING retval;
+
+    if ( type == INPUT_DEVICE_KEYBOARD )
+    {
+        strncpy( retval, "KEYBOARD", SDL_arraysize( retval ) );
+    }
+    else if ( type == INPUT_DEVICE_MOUSE )
+    {
+        strncpy( retval, "MOUSE", SDL_arraysize( retval ) );
+    }
+    else if ( IS_VALID_JOYSTICK( type ) )
+    {
+        snprintf( retval, SDL_arraysize( retval ), "JOYSTICK_%c", ( char )( 'A' + ( type - INPUT_DEVICE_JOY ) ) );
+    }
+    else
+    {
+        // No matches
+        strncpy( retval, "UNKNOWN", SDL_arraysize( retval ) );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+// input_device_t
+//--------------------------------------------------------------------------------------------
+input_device_t * input_device_ctor( input_device_t * pdevice )
+{
+    if ( NULL == pdevice ) return NULL;
+
+    // clear out all the data, including all
+    // control data
+    BLANK_STRUCT_PTR( pdevice )
+
+    pdevice->device_type = INPUT_DEVICE_UNKNOWN;
+
+    return pdevice;
+}
+
+//--------------------------------------------------------------------------------------------
+void input_device_init( input_device_t * pdevice, int req_type )
+{
+    int type;
+
+    if ( NULL == pdevice ) return;
+
+    // save the old type
+    if ( INPUT_DEVICE_UNKNOWN == req_type )
+    {
+        type = pdevice->device_type;
+    }
+    else
+    {
+        type = req_type;
+    }
+
+    // clear out all the data
+    BLANK_STRUCT_PTR( pdevice )
+
+    // set everything that is not 0, bfalse, 0.0f, etc.
+    pdevice->sustain     = 0.58f;
+    pdevice->cover       = 1.0f - pdevice->sustain;
+    pdevice->device_type = type;
+}
+
+//--------------------------------------------------------------------------------------------
+BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice )
+{
+    // assume the worst
     BIT_FIELD buttonmask = EMPTY_BIT_FIELD;
 
     // make sure the idevice is valid
     if ( NULL == pdevice ) return EMPTY_BIT_FIELD;
 
-    switch ( pdevice->device_type )
+    // scan for devices that use buttons
+    if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
     {
-        case INPUT_DEVICE_KEYBOARD: buttonmask = EMPTY_BIT_FIELD; break;
-        case INPUT_DEVICE_MOUSE:    buttonmask = mous.b;   break;
-        case INPUT_DEVICE_JOY + 0:    buttonmask = JoyList[0].b; break;
-        case INPUT_DEVICE_JOY + 1:    buttonmask = JoyList[1].b; break;
+        buttonmask = mous.b;
+    }
+    else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
+    {
+        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
+
+        buttonmask = JoyList[ijoy].b;
     }
 
     return buttonmask;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_is_enabled( input_device_t *pdevice )
+bool_t input_device_is_enabled( input_device_t *pdevice )
 {
     //@details ZF@> This determines if the specified input device is enabled or not
+
+    // assume the worst
+    bool_t retval = bfalse;
 
     // make sure the idevice is valid
     if ( NULL == pdevice ) return bfalse;
 
-    switch ( pdevice->device_type )
+    if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
     {
-        case INPUT_DEVICE_KEYBOARD: return keyb.on;
-        case INPUT_DEVICE_MOUSE:    return mous.on;
-        case INPUT_DEVICE_JOY + 0:    return JoyList[0].on;
-        case INPUT_DEVICE_JOY + 1:    return JoyList[1].on;
+        retval = keyb.on;
+    }
+    else if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
+    {
+        retval = mous.on;
+    }
+    else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
+    {
+        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
+
+        retval = JoyList[ijoy].on;
     }
 
-    return bfalse;
+    return retval;
 }
 
-
 //--------------------------------------------------------------------------------------------
-bool_t control_is_pressed( input_device_t *pdevice, CONTROL_BUTTON icontrol )
+bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol )
 {
     /// @details ZZ@> This function returns btrue if the given icontrol is pressed...
 
@@ -442,72 +664,43 @@ bool_t control_is_pressed( input_device_t *pdevice, CONTROL_BUTTON icontrol )
     if ( NULL == pdevice ) return bfalse;
     pcontrol = pdevice->control + icontrol;
 
+    // if no control information was loaded, it can't be pressed
+    if ( !pcontrol->loaded ) return bfalse;
+
     if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type || pcontrol->is_key )
     {
         retval = SDLKEYDOWN( pcontrol->tag );
     }
     else
     {
-        retval = ( input_get_buttonmask( pdevice ) == pcontrol->tag );
+        retval = ( input_device_get_buttonmask( pdevice ) == pcontrol->tag );
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void cursor_reset()
-{
-    cursor.pressed       = bfalse;
-    cursor.clicked       = bfalse;
-    cursor.pending_click = bfalse;
-    cursor.wheel_event   = bfalse;
-    cursor.z             = 0;
-}
 
-//--------------------------------------------------------------------------------------------
-void cursor_finish_wheel_event()
+void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
 {
-    cursor.wheel_event   = bfalse;
-    cursor.z             = 0;
-}
+    // Sustain old movements to ease mouse/keyboard play
 
-//--------------------------------------------------------------------------------------------
-bool_t cursor_wheel_event_pending()
-{
-    if ( cursor.wheel_event && 0 == cursor.z )
+    float dist;
+
+    if ( NULL == pdevice ) return;
+
+    pdevice->latch_old = pdevice->latch;
+
+    pdevice->latch.x = pdevice->latch.x * pdevice->sustain + newx * pdevice->cover;
+    pdevice->latch.y = pdevice->latch.y * pdevice->sustain + newy * pdevice->cover;
+
+    // make sure that the latch never overflows
+    dist = pdevice->latch.x * pdevice->latch.x + pdevice->latch.y * pdevice->latch.y;
+    if ( dist > 1.0f )
     {
-        cursor.wheel_event = bfalse;
+        float scale = 1.0f / SQRT( dist );
+
+        pdevice->latch.x *= scale;
+        pdevice->latch.y *= scale;
     }
-
-    return cursor.wheel_event;
-}
-
-//--------------------------------------------------------------------------------------------
-INPUT_DEVICE translate_string_to_input_type( const char *string )
-{
-    /// @details ZF@> This function turns a string into a input type (mouse, keyboard, joystick, etc.)
-
-    if ( 0 == strcmp( string, "KEYBOARD" ) )   return INPUT_DEVICE_KEYBOARD;
-    else if ( 0 == strcmp( string, "MOUSE" ) )      return INPUT_DEVICE_MOUSE;
-    else if ( 0 == strcmp( string, "JOYSTICK_A" ) ) return ( INPUT_DEVICE )( INPUT_DEVICE_JOY + 0 );
-    else if ( 0 == strcmp( string, "JOYSTICK_B" ) ) return ( INPUT_DEVICE )( INPUT_DEVICE_JOY + 1 );
-
-    // No matches
-    log_warning( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );
-    return INPUT_DEVICE_KEYBOARD;
-}
-
-//--------------------------------------------------------------------------------------------
-const char* translate_input_type_to_string( const INPUT_DEVICE type )
-{
-    /// @details ZF@> This function turns a input type into a string
-
-    if ( type == INPUT_DEVICE_KEYBOARD )   return "KEYBOARD";
-    else if ( type == INPUT_DEVICE_MOUSE ) return "MOUSE";
-    else if ( type == INPUT_DEVICE_JOY + 0 ) return "JOYSTICK_A";
-    else if ( type == INPUT_DEVICE_JOY + 1 ) return "JOYSTICK_B";
-
-    // No matches
-    return "UNKNOWN";
 }

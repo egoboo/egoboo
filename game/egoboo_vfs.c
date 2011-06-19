@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -822,14 +824,14 @@ int vfs_close( vfs_FILE * pfile )
     if ( vfs_cfile == pfile->type )
     {
         retval = fclose( pfile->ptr.c );
-        memset( pfile, 0, sizeof( *pfile ) );
+        BLANK_STRUCT_PTR( pfile )
 
         EGOBOO_DELETE( pfile );
     }
     else if ( vfs_physfs == pfile->type )
     {
         retval = PHYSFS_close( pfile->ptr.p );
-        memset( pfile, 0, sizeof( *pfile ) );
+        BLANK_STRUCT_PTR( pfile )
 
         EGOBOO_DELETE( pfile );
     }

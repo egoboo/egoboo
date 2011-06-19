@@ -29,21 +29,12 @@
 #include "graphic.h"
 #include "network.h"
 #include "sound.h"
-#include "profile.inl"
 #include "ui.h"
 #include "font_bmp.h"
 #include "input.h"
 #include "game.h"
 #include "menu.h"
-
-#include "char.inl"
-#include "particle.inl"
-#include "enchant.inl"
-#include "collision.h"
-
-#include "file_formats/scancode_file.h"
-#include "file_formats/treasure_table_file.h"
-#include "SDL_extensions.h"
+#include "player.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
@@ -51,6 +42,17 @@
 #include "egoboo_console.h"
 #include "egoboo_strutil.h"
 #include "egoboo.h"
+
+#include "file_formats/scancode_file.h"
+#include "file_formats/controls_file.h"
+#include "file_formats/treasure_table_file.h"
+#include "extensions/SDL_extensions.h"
+
+#include "char.inl"
+#include "particle.inl"
+#include "enchant.inl"
+#include "collision.h"
+#include "profile.inl"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -64,9 +66,9 @@ static int do_ego_proc_leaving( ego_process_t * eproc );
 static int do_ego_proc_run( ego_process_t * eproc, double frameDuration );
 
 static void memory_cleanUp( void );
-static int  ego_init_SDL();
-static void console_begin();
-static void console_end();
+static int  ego_init_SDL( void );
+static void console_begin( void );
+static void console_end( void );
 
 static void object_systems_begin( void );
 static void object_systems_end( void );
@@ -130,19 +132,19 @@ int do_ego_proc_begin( ego_process_t * eproc )
     scantag_read_all_vfs( "mp_data/scancode.txt" );
 
     // load input
-    input_settings_load_vfs( "/controls.txt" );
+    input_settings_load_vfs( "/controls.txt", -1 );
 
-    //Ready the mouse cursor
+    //Ready the mouse input_cursor
     init_mouse_cursor();
 
-    // synchronoze the config values with the various game subsystems
+    // synchronize the config values with the various game subsystems
     // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped
     // to valid values
     setup_synch( &cfg );
 
     // initialize the sound system
-    sound_initialize();
-    load_all_music_sounds_vfs();
+    sound_system_initialize();
+    sound_load_all_music_sounds_vfs();
 
     // initialize the random treasure system
     init_random_treasure_tables_vfs( "mp_data/randomtreasure.txt" );
@@ -209,11 +211,12 @@ int do_ego_proc_running( ego_process_t * eproc )
     }
 
     // Clock updates each frame
+    game_update_timers();
     clk_frameStep( _gclock );
-    eproc->frameDuration = clk_getFrameDuration( _gclock );
+    eproc->base.frameDuration = clk_getFrameDuration( _gclock );
 
     // read the input values
-    input_read();
+    input_read_all_devices();
 
     if ( pickedmodule_ready && !process_running( PROC_PBASE( MProc ) ) )
     {
@@ -301,8 +304,40 @@ int do_ego_proc_running( ego_process_t * eproc )
     }
 
     // run the sub-processes
-    do_game_proc_run( GProc, EProc->frameDuration );
-    do_menu_proc_run( MProc, EProc->frameDuration );
+    game_process_run( GProc, eproc->base.frameDuration );
+    menu_process_run( MProc, eproc->base.frameDuration );
+
+    // toggle the free-running mode on the process timers
+    if ( cfg.dev_mode )
+    {
+        bool_t free_running_keydown = SDLKEYDOWN( SDLK_f ) && SDLKEYDOWN( SDLK_LCTRL );
+        if ( free_running_keydown )
+        {
+            eproc->free_running_latch_requested = btrue;
+        }
+
+        if ( !free_running_keydown && eproc->free_running_latch_requested )
+        {
+            eproc->free_running_latch = btrue;
+            eproc->free_running_latch_requested = bfalse;
+        }
+    }
+
+    if ( eproc->free_running_latch )
+    {
+        if ( NULL != MProc )
+        {
+            MProc->gui_timer.free_running = !MProc->gui_timer.free_running;
+        }
+
+        if ( NULL != GProc )
+        {
+            GProc->ups_timer.free_running = !GProc->ups_timer.free_running && !net_on( PNet );
+            GProc->fps_timer.free_running = !GProc->fps_timer.free_running;
+        }
+
+        eproc->free_running_latch = bfalse;
+    }
 
     // a heads up display that can be used to debug values that are used by both the menu and the game
     // do_game_hud();
@@ -315,15 +350,16 @@ int do_ego_proc_leaving( ego_process_t * eproc )
 {
     if ( !process_validate( PROC_PBASE( eproc ) ) ) return -1;
 
-    // make sure that the
+    // make sure that the game is terminated
     if ( !GProc->base.terminated )
     {
-        do_game_proc_run( GProc, eproc->frameDuration );
+        game_process_run( GProc, eproc->base.frameDuration );
     }
 
+    // make sure that the menu is terminated
     if ( !MProc->base.terminated )
     {
-        do_menu_proc_run( MProc, eproc->frameDuration );
+        menu_process_run( MProc, eproc->base.frameDuration );
     }
 
     if ( GProc->base.terminated && MProc->base.terminated )
@@ -351,7 +387,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
     int result = 0, proc_result = 0;
 
     if ( !process_validate( PROC_PBASE( eproc ) ) ) return -1;
-    eproc->base.dtime = frameDuration;
+    eproc->base.frameDuration = frameDuration;
 
     if ( !eproc->base.paused ) return 0;
 
@@ -418,29 +454,46 @@ int SDL_main( int argc, char **argv )
     // turn on all basic services
     do_ego_proc_begin( EProc );
 
+    
+#if defined(EGOBOO_THROTTLED)
+    // update the game at the user-defined rate
+    EProc->loop_timer.free_running = bfalse;
+    MProc->gui_timer.free_running  = bfalse;
+    GProc->ups_timer.free_running  = bfalse;
+    GProc->fps_timer.free_running  = bfalse;
+#else
+    // make the game update as fast as possible
+    EProc->loop_timer.free_running = btrue;
+    MProc->gui_timer.free_running  = btrue;
+    GProc->ups_timer.free_running  = btrue;
+    GProc->fps_timer.free_running  = btrue;
+#endif
+
     // run the processes
     request_clear_screen();
     while ( !EProc->base.killme && !EProc->base.terminated )
     {
-        // put a throttle on the ego process
-        EProc->ticks_now = SDL_GetTicks();
-        if ( EProc->ticks_now < EProc->ticks_next ) continue;
-
-        // update the timer: 10ms delay between loops
-        EProc->ticks_next = EProc->ticks_now + 10;
-
-        // clear the screen if needed
-        do_clear_screen();
-
-        do_ego_proc_running( EProc );
-
-        // flip the graphics page if need be
-        do_flip_pages();
-
-        // let the OS breathe. It may delay as long as 10ms
-        if ( update_lag < 3 )
+        if ( !timer_throttle( &( EProc->loop_timer ), 100.0f ) )
         {
+            // let the OS breathe. It may delay as long as 10ms
             SDL_Delay( 1 );
+        }
+        else
+        {
+
+            // clear the screen if needed
+            do_clear_screen();
+
+            do_ego_proc_running( EProc );
+
+            // flip the graphics page if need be
+            do_flip_pages();
+
+            // let the OS breathe. It may delay as long as 10ms
+            if ( !EProc->loop_timer.free_running && update_lag < 3 )
+            {
+                SDL_Delay( 1 );
+            }
         }
     }
 
@@ -465,7 +518,7 @@ void memory_cleanUp( void )
     // quit any existing game
     _quit_game( EProc );
 
-    // synchronoze the config values with the various game subsystems
+    // synchronize the config values with the various game subsystems
     setup_synch( &cfg );
 
     // quit the setup system, making sure that the setup file is written
@@ -477,13 +530,13 @@ void memory_cleanUp( void )
     delete_all_graphics();
 
     // make sure that the current control configuration is written
-    input_settings_save_vfs( "controls.txt" );
+    input_settings_save_vfs( "controls.txt", -1 );
 
     // shut down the ui
     ui_end();
 
     // shut down the network
-    if ( PNet->on )
+    if ( net_on( PNet ) )
     {
         net_shutDown();
     }
@@ -498,11 +551,8 @@ void memory_cleanUp( void )
     // deallocate any dynamically allocated scripting memory
     scripting_system_end();
 
-    // deallocate all dynamically allocated memory for characters, particles, and enchants
+    // deallocate all dynamically allocated memory for characters, particles, enchants, and models
     object_systems_end();
-
-    // clean up any remaining models that might have dynamic data
-    MadList_dtor();
 
     log_message( "Success!\n" );
     log_info( "Exiting Egoboo " VERSION " the good way...\n" );
@@ -515,7 +565,7 @@ void memory_cleanUp( void )
 int ego_init_SDL()
 {
     ego_init_SDL_base();
-    input_init();
+    input_system_init();
 
     return _sdl_initialized_base;
 }
@@ -613,6 +663,7 @@ void object_systems_begin( void )
     particle_system_begin();
     enchant_system_begin();
     character_system_begin();
+    model_system_begin();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -623,6 +674,7 @@ void object_systems_end( void )
     particle_system_end();
     enchant_system_end();
     character_system_end();
+    model_system_end();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -647,7 +699,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
 {
     if ( NULL == eproc ) return NULL;
 
-    memset( eproc, 0, sizeof( *eproc ) );
+    BLANK_STRUCT_PTR( eproc )
 
     process_init( PROC_PBASE( eproc ) );
 

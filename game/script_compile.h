@@ -608,8 +608,8 @@ enum e_script_variables
 
 // function prototypes
 
-parser_state_t * script_compiler_init();
-parser_state_t * script_compiler_get_state();
+parser_state_t * script_compiler_init( void );
+parser_state_t * script_compiler_get_state( void );
 bool_t           script_compiler_error( parser_state_t * );
 bool_t           script_compiler_clear_error( parser_state_t * );
 

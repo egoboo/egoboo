@@ -23,6 +23,7 @@
 
 #include "hash.h"
 
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ hash_node_t * hash_node_ctor( hash_node_t * pn, void * data )
 {
     if ( NULL == pn ) return pn;
 
-    memset( pn, 0, sizeof( *pn ) );
+    BLANK_STRUCT_PTR( pn )
 
     pn->data = data;
 
@@ -178,7 +179,7 @@ hash_list_t * hash_list_create( int size )
     hash_list_t * rv = EGOBOO_NEW( hash_list_t );
     if ( NULL == rv ) return NULL;
 
-    memset( rv, 0, sizeof( *rv ) );
+    BLANK_STRUCT_PTR( rv )
 
     return hash_list_ctor( rv, size );
 }
@@ -325,7 +326,7 @@ hash_list_iterator_t * hash_list_iterator_ctor( hash_list_iterator_t * it )
 {
     if ( NULL == it ) return NULL;
 
-    memset( it, 0, sizeof( *it ) );
+    BLANK_STRUCT_PTR( it )
 
     return it;
 }

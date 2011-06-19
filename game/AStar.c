@@ -1,9 +1,9 @@
 #include "AStar.h"
-#include "mesh.h"
-#include "mesh.inl"
 
 #include "graphic.h" //for point debugging
 #include "script.h"  //for waypoint list control
+
+#include "mesh.inl"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -19,10 +19,9 @@ static AStar_Node_t *start_node = NULL;
 
 //------------------------------------------------------------------------------
 //"Private" functions
-static AStar_Node_t* AStar_get_next_node();
+static AStar_Node_t* AStar_get_next_node( void );
 static AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, bool_t closed );
-static void AStar_reset();
-
+static void AStar_reset( void );
 
 //------------------------------------------------------------------------------
 AStar_Node_t* AStar_get_next_node()
@@ -77,6 +76,7 @@ bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, co
     int deadend_count;
     AStar_Node_t * popen;
     float weight;
+    ego_tile_info_t * ptile;
 
     // do not start if the initial point is off the mesh
     if ( mesh_get_tile_int( PMesh, src_ix, src_iy ) == INVALID_TILE )
@@ -184,7 +184,10 @@ flexible_destination:
 
                     //Dont walk into pits
                     //@todo: might need to check tile Z level here instead
-                    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[itile] ) )
+                    ptile = mesh_get_ptile( PMesh, itile );
+                    if ( NULL == ptile ) continue;
+
+                    if ( TILE_IS_FANOFF( *ptile ) )
                     {
                         // add the invalid tile to the list as a closed tile
                         AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, btrue );
@@ -211,7 +214,6 @@ flexible_destination:
                     AStar_add_node( tmp_x, tmp_y, popen, weight, bfalse );
                 }
             }
-
 
             if ( deadend_count == 4 )
             {
@@ -307,7 +309,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
             }
             else
             {
-                //Translate to raw coordinates
+                // translate to raw coordinates
                 way_x = safe_waypoint->ix * GRID_ISIZE + ( GRID_ISIZE / 2 );
                 way_y = safe_waypoint->iy * GRID_ISIZE + ( GRID_ISIZE / 2 );
             }

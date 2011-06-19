@@ -24,14 +24,26 @@
 
 #include "egoboo_object.h"
 
-#include "egoboo.h"
+#include "bsp.h"
 
 #include "file_formats/eve_file.h"
 
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
 struct s_object_profile;
 struct s_chr;
+
+
+//--------------------------------------------------------------------------------------------
+// internal structs
+//--------------------------------------------------------------------------------------------
+
+struct s_enc_spawn_data;
+typedef struct s_enc_spawn_data enc_spawn_data_t;
+
+struct s_enc;
+typedef struct s_enc enc_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -61,7 +73,6 @@ struct s_enc_spawn_data
     PRO_REF profile_ref;
     EVE_REF eve_ref;
 };
-typedef struct s_enc_spawn_data enc_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -97,45 +108,51 @@ struct s_enc
 
     bool_t  addyesno[MAX_ENCHANT_ADD];  ///< Was the value adjusted
     float   addsave[MAX_ENCHANT_ADD];   ///< The adjustment
+
+    BSP_leaf_t        bsp_leaf;         ///< BSP info for this object
 };
-typedef struct s_enc enc_t;
+
+enc_t * enc_ctor( enc_t * penc );
+enc_t * enc_dtor( enc_t * penc );
+bool_t  enc_request_terminate( enc_t * penc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Prototypes
 
-void enchant_system_begin();
-void enchant_system_end();
+// enchant_system functions
+void enchant_system_begin( void );
+void enchant_system_end( void );
 
-enc_t * enc_ctor( enc_t * penc );
-enc_t * enc_dtor( enc_t * penc );
+ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional );
 
-void   init_all_eve();
-void   release_all_eve();
-bool_t release_one_eve( const EVE_REF ieve );
+void    update_all_enchants( void );
+void    cleanup_all_enchants( void );
 
-void    update_all_enchants();
-void    cleanup_all_enchants();
+bool_t  EncList_request_terminate( const ENC_REF  ienc );
 
 void    bump_all_enchants_update_counters( void );
 
-ENC_REF enchant_value_filled( const ENC_REF enchant_idx, int value_idx );
-bool_t  remove_enchant( const ENC_REF  enchant_idx, ENC_REF *  enchant_parent );
+// enchant list management
+bool_t  remove_enchant( const ENC_REF  enchant_idx, ENC_REF * enchant_parent );
 bool_t  remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz );
-//#define  remove_all_character_enchants( PCHR ) remove_all_enchants_with_idsz( PCHR, IDSZ_NONE )
-void    enchant_apply_set( const ENC_REF  enchant_idx, int value_idx, const PRO_REF profile );
-void    enchant_apply_add( const ENC_REF  enchant_idx, int value_idx, const EVE_REF enchanttype );
-ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional );
-EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF profile );
-void    enchant_remove_set( const ENC_REF  enchant_idx, int value_idx );
-void    enchant_remove_add( const ENC_REF  enchant_idx, int value_idx );
+ENC_REF enchant_list_cleanup( const ENC_REF ienc, ENC_REF * enc_parent );
 
-bool_t enc_request_terminate( const ENC_REF  ienc );
+// enc functions
+ENC_REF enc_value_filled( const ENC_REF enchant_idx, int value_idx );
+void    enc_apply_set( const ENC_REF enchant_idx, int value_idx, const PRO_REF profile );
+void    enc_apply_add( const ENC_REF enchant_idx, int value_idx, const EVE_REF enchanttype );
+void    enc_remove_set( const ENC_REF  enchant_idx, int value_idx );
+void    enc_remove_add( const ENC_REF  enchant_idx, int value_idx );
 
+// EveStack functions
+void   EveStack_init_all( void );
+void   EveStack_release_all( void );
+bool_t EveStack_release_one( const EVE_REF ieve );
+EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF profile );
+
+// enchant state machine functions
 enc_t * enc_run_config( enc_t * penc );
-
-ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent );
-
 enc_t * enc_config_construct( enc_t * penc, int max_iterations );
 enc_t * enc_config_initialize( enc_t * penc, int max_iterations );
 enc_t * enc_config_activate( enc_t * penc, int max_iterations );

@@ -22,16 +22,17 @@
 /// @details
 
 #include "graphic_fan.h"
-#include "graphic.h"
-#include "mesh.inl"
-#include "camera.h"
 
+#include "graphic.h"
+#include "camera_system.h"
 #include "game.h"
 #include "texture.h"
 
 #include "egoboo.h"
 
-#include "SDL_extensions.h"
+#include "extensions/SDL_extensions.h"
+
+#include "mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -48,11 +49,18 @@ void animate_all_tiles( ego_mpd_t * pmesh )
 {
     Uint32 cnt;
     Uint32 tile_count;
+    bool_t small_tile_update, big_tile_update;
 
     if ( NULL == pmesh ) return;
 
-    tile_count = pmesh->info.tiles_count;
+    small_tile_update = ( animtile[0].frame_add_old != animtile[0].frame_add );
+    big_tile_update   = ( animtile[1].frame_add_old != animtile[1].frame_add );
 
+    // if there are no updates, do nothing
+    if ( !small_tile_update && !big_tile_update ) return;
+
+    // scan through all the tiles
+    tile_count = pmesh->info.tiles_count;
     for ( cnt = 0; cnt < tile_count; cnt++ )
     {
         animate_tile( pmesh, cnt );
@@ -67,35 +75,36 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
     Uint16 basetile, image;
     Uint16 base_and, frame_and, frame_add;
     Uint8  type;
-    tile_mem_t  * ptmem;
     ego_tile_info_t * ptile;
 
-    if ( NULL == pmesh ) return bfalse;
-    ptmem  = &( pmesh->tmem );
+    // do nothing if the tile is not animated
+    if ( 0 == mesh_test_fx( pmesh, itile, MPDFX_ANIM ) )
+    {
+        return btrue;
+    }
 
-    if ( !mesh_grid_is_valid( pmesh, itile ) ) return bfalse;
-    ptile = ptmem->tile_list + itile;
-
-    // do not render the itile if the image image is invalid
-    if ( TILE_IS_FANOFF( *ptile ) )  return btrue;
+    // grab a pointer to the tile
+    ptile = mesh_get_ptile( pmesh, itile );
+    if ( NULL == ptile )
+    {
+        return bfalse;
+    }
 
     image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
     type  = ptile->type;                       // Command type ( index to points in itile )
-
-    if ( 0 == mesh_test_fx( pmesh, itile, MPDFX_ANIM ) ) return btrue;
 
     // Animate the tiles
     if ( type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
     {
         // Big tiles
-        base_and  = animtile[1].base_and;            // Animation set
+        base_and  = animtile[1].base_and;     // Animation set
         frame_and = animtile[1].frame_and;
         frame_add = animtile[1].frame_add;    // Animated image
     }
     else
     {
         // Small tiles
-        base_and  = animtile[0].base_and;            // Animation set
+        base_and  = animtile[0].base_and;          // Animation set
         frame_and = animtile[0].frame_and;
         frame_add = animtile[0].frame_add;         // Animated image
     }
@@ -108,7 +117,7 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fan( ego_mpd_t * pmesh, Uint32 itile )
+gfx_rv render_fan( const ego_mpd_t * pmesh, const Uint32 itile )
 {
     /// @details ZZ@> This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
@@ -120,24 +129,24 @@ gfx_rv render_fan( ego_mpd_t * pmesh, Uint32 itile )
     Uint8  type;
     int    texture;
 
-    tile_mem_t  * ptmem;
-    ego_tile_info_t * ptile;
+    const tile_mem_t      * ptmem;
+    const ego_tile_info_t * ptile;
 
+    // grab a pointer to the tile
+    ptile = mesh_get_ptile( pmesh, itile );
+    if ( NULL == ptile )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
+        return gfx_error;
+    }
+
+    // get some info from the mesh
     if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
         return gfx_error;
     }
-
     ptmem  = &( pmesh->tmem );
-
-    if ( !mesh_grid_is_valid( pmesh, itile ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
-        return gfx_error;
-    }
-
-    ptile = ptmem->tile_list + itile;
 
     // do not render the itile if the image image is invalid
     if ( TILE_IS_FANOFF( *ptile ) )  return gfx_success;
@@ -206,7 +215,7 @@ gfx_rv render_fan( ego_mpd_t * pmesh, Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv  render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
+gfx_rv  render_hmap_fan( const ego_mpd_t * pmesh, const Uint32 itile )
 {
     /// @details ZZ@> This function draws a mesh itile
     GLvertex v[4];
@@ -217,11 +226,9 @@ gfx_rv  render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     Uint16 tile;
     Uint8  type, twist;
 
-    ego_mpd_info_t  * pinfo;
-    tile_mem_t      * ptmem;
-    ego_tile_info_t * ptile;
-    grid_mem_t      * pgmem;
-    ego_grid_info_t * pgrid;
+    const tile_mem_t      * ptmem;
+    const ego_tile_info_t * ptile;
+    const ego_grid_info_t * pgrid;
 
     if ( NULL == pmesh )
     {
@@ -230,16 +237,20 @@ gfx_rv  render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
     }
 
     ptmem  = &( pmesh->tmem );
-    pgmem  = &( pmesh->gmem );
-    pinfo  = &( pmesh->info );
 
-    if ( !mesh_grid_is_valid( pmesh, itile ) )
+    ptile = mesh_get_ptile( pmesh, itile );
+    if ( NULL == ptile )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
         return gfx_error;
     }
-    ptile = ptmem->tile_list + itile;
-    pgrid = pgmem->grid_list + itile;
+
+    pgrid = mesh_get_pgrid( pmesh, itile );
+    if ( NULL == pgrid )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
+        return gfx_error;
+    }
 
     /// @details BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
@@ -297,7 +308,7 @@ gfx_rv  render_hmap_fan( ego_mpd_t * pmesh, Uint32 itile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
+gfx_rv render_water_fan( const ego_mpd_t * pmesh, const Uint32 itile, const Uint8 layer )
 {
     /// @details ZZ@> This function draws a water itile
 
@@ -315,11 +326,9 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     float x1, y1, fx_off[4], fy_off[4];
     float falpha;
 
-    ego_mpd_info_t * pinfo;
-    tile_mem_t     * ptmem;
-    grid_mem_t     * pgmem;
-    ego_tile_info_t    * ptile;
-    oglx_texture_t   * ptex;
+    const ego_mpd_info_t  * pinfo = NULL;
+    const ego_tile_info_t * ptile = NULL;
+    oglx_texture_t  * ptex  = NULL;
 
     if ( NULL == pmesh )
     {
@@ -328,15 +337,13 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     }
 
     pinfo = &( pmesh->info );
-    ptmem = &( pmesh->tmem );
-    pgmem = &( pmesh->gmem );
 
-    if ( !mesh_grid_is_valid( pmesh, itile ) )
+    ptile = mesh_get_ptile( pmesh, itile );
+    if ( NULL == ptile )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid grid" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, itile, "invalid tile" );
         return gfx_error;
     }
-    ptile = ptmem->tile_list + itile;
 
     falpha = FF_TO_FLOAT( water.layer[layer].alpha );
     falpha = CLIP( falpha, 0.0f, 1.0f );
@@ -348,7 +355,7 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     iy = itile / pinfo->tiles_x;
 
     // To make life easier
-    type  = 0;                                         // Command type ( index to points in itile )
+    type  = 0;                                         // Command type ( index to points in tile )
     offu  = water.layer[layer].tx.x;                   // Texture offsets
     offv  = water.layer[layer].tx.y;
     frame = water.layer[layer].frame;                  // Frame
@@ -357,7 +364,7 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     vertices = tile_dict[type].numvertices;            // Number of vertices
     commands = tile_dict[type].command_count;          // Number of commands
 
-    ptex = TxTexture_get_ptr( texture );
+    ptex = TxTexture_get_valid_ptr( texture );
 
     x1 = ( float ) oglx_texture_GetTextureWidth( ptex ) / ( float ) oglx_texture_GetImageWidth( ptex );
     y1 = ( float ) oglx_texture_GetTextureHeight( ptex ) / ( float ) oglx_texture_GetImageHeight( ptex );
@@ -384,7 +391,7 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
     }
 
     // draw draw front and back faces of polygons
-    GL_DEBUG( glDisable )( GL_CULL_FACE );
+    oglx_end_culling();                        // GL_ENABLE_BIT
 
     // Original points
     badvertex = ptile->vrtstart;
@@ -399,6 +406,7 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
         {
             float dlight;
             int jx, jy;
+            Uint32 jtile;
 
             tnc = imap[cnt];
 
@@ -413,8 +421,8 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
             v[cnt].tex[TT] = fy_off[cnt] + offv;
 
             // get the lighting info from the grid
-            itile = mesh_get_tile_int( pmesh, jx, jy );
-            if ( grid_light_one_corner( pmesh, itile, v[cnt].pos[ZZ], nrm, &dlight ) )
+            jtile = mesh_get_tile_int( pmesh, jx, jy );
+            if ( grid_light_one_corner( pmesh, jtile, v[cnt].pos[ZZ], nrm, &dlight ) )
             {
                 // take the v[cnt].color from the tnc vertices so that it is oriented prroperly
                 v[cnt].col[RR] = dlight * INV_FF + alight;
@@ -469,8 +477,8 @@ gfx_rv render_water_fan( ego_mpd_t * pmesh, Uint32 itile, Uint8 layer )
         GL_DEBUG( glDepthMask )( use_depth_mask );                              // GL_DEPTH_BUFFER_BIT
 
         // cull backward facing polygons
-        GL_DEBUG( glEnable )( GL_CULL_FACE );                                   // GL_ENABLE_BIT
-        GL_DEBUG( glFrontFace )( GL_CW );                                       // GL_POLYGON_BIT
+        // use clockwise orientation to determine backfaces
+        oglx_begin_culling( GL_BACK, MPD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
         // set the blending mode
         if ( water.light )
@@ -509,11 +517,31 @@ void animate_tiles()
 {
     /// ZZ@> This function changes the animated tile frame
 
-    // make sure this updates per frame
-    if ( 0 == ( true_frame & animtile_update_and ) )
+
+    int cnt, tnc;
+    animtile_instance_t * patile;
+
+    for ( cnt = 0; cnt < 2; cnt ++ )
     {
-        animtile[0].frame_add = ( animtile[0].frame_add + 1 ) & animtile[0].frame_and;
-        animtile[1].frame_add = ( animtile[1].frame_add + 1 ) & animtile[1].frame_and;
+        // grab the tile data
+        patile = animtile + cnt;
+
+        // skip it if there were no updates
+        if ( patile->frame_update_old == true_frame ) continue;
+
+        // save the old frame_add when we update to detect changes
+        patile->frame_add_old = patile->frame_add;
+
+        // cycle through all frames since the last time
+        for ( tnc = patile->frame_update_old + 1; tnc <= true_frame; tnc++ )
+        {
+            if ( 0 == ( tnc & patile->update_and ) )
+            {
+                patile->frame_add = ( patile->frame_add + 1 ) & patile->frame_and;
+            }
+        }
+
+        // save the frame update
+        patile->frame_update_old = true_frame;
     }
 }
-

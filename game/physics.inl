@@ -351,7 +351,7 @@ static INLINE apos_t * apos_self_clear( apos_t * val )
 {
     if ( NULL == val ) return val;
 
-    memset( val, 0, sizeof( *val ) );
+    BLANK_STRUCT_PTR( val )
 
     return val;
 }

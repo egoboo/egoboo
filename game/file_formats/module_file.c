@@ -23,8 +23,6 @@
 
 #include "module_file.h"
 
-#include "char.inl"
-#include "enchant.inl"
 #include "log.h"
 #include "menu.h"
 #include "sound.h"
@@ -32,13 +30,16 @@
 #include "passage.h"
 #include "input.h"
 #include "game.h"
-#include "quest.h"
+#include "quest_file.h"
 
 #include "egoboo_vfs.h"
 #include "egoboo_strutil.h"
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
+
+#include "char.inl"
+#include "enchant.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     // clear all the module info
     if ( NULL == pmod ) return NULL;
 
-    memset( pmod, 0, sizeof( *pmod ) );
+    BLANK_STRUCT_PTR( pmod )
 
     // see if we can open the file
     fileread = vfs_openRead( szLoadName );

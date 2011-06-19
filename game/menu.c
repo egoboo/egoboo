@@ -23,27 +23,21 @@
 
 #include "menu.h"
 
-#include "particle.inl"
 #include "mad.h"
-#include "char.inl"
-#include "profile.inl"
-
+#include "player.h"
 #include "game.h"
-#include "quest.h"
 
-#include "controls_file.h"
-#include "scancode_file.h"
 #include "ui.h"
 #include "log.h"
 #include "link.h"
 #include "game.h"
 #include "texture.h"
-#include "module_file.h"
+#include "font_ttf.h"
 
 // To allow changing settings
 #include "sound.h"
 #include "input.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "graphic.h"
 
 #include "egoboo_math.h"
@@ -55,7 +49,15 @@
 
 #include "egoboo.h"
 
-#include "SDL_extensions.h"
+#include "file_formats/quest_file.h"
+#include "file_formats/controls_file.h"
+#include "file_formats/scancode_file.h"
+#include "file_formats/module_file.h"
+#include "extensions/SDL_extensions.h"
+
+#include "particle.inl"
+#include "char.inl"
+#include "profile.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -99,11 +101,11 @@ struct s_ChoosePlayer_element
 };
 typedef struct s_ChoosePlayer_element ChoosePlayer_element_t;
 
-ChoosePlayer_element_t * ChoosePlayer_ctor( ChoosePlayer_element_t * ptr );
-ChoosePlayer_element_t * ChoosePlayer_dtor( ChoosePlayer_element_t * ptr );
+static ChoosePlayer_element_t * ChoosePlayer_ctor( ChoosePlayer_element_t * ptr );
+static ChoosePlayer_element_t * ChoosePlayer_dtor( ChoosePlayer_element_t * ptr );
 
-bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr );
-bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr );
+static bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr );
+static bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 
@@ -111,11 +113,11 @@ bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr );
 struct s_ChoosePlayer_list
 {
     int                    count;                         ///< the profiles that have been loaded
-    ChoosePlayer_element_t lst[MAXIMPORTPERPLAYER + 1];   ///< the profile data
+    ChoosePlayer_element_t lst[MAX_IMPORT_PER_PLAYER + 1];   ///< the profile data
 };
 typedef struct s_ChoosePlayer_list ChoosePlayer_list_t;
 
-ChoosePlayer_list_t * ChoosePlayer_list_dealloc( ChoosePlayer_list_t * );
+static ChoosePlayer_list_t * ChoosePlayer_list_dealloc( ChoosePlayer_list_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -138,8 +140,6 @@ typedef struct s_mnu_module mnu_module_t;
 #define VALID_MOD_RANGE( IMOD ) ( ((IMOD) >= 0) && ((IMOD) < MAX_MODULE) )
 #define VALID_MOD( IMOD )       ( VALID_MOD_RANGE( IMOD ) && IMOD < mnu_ModList.count && mnu_ModList.lst[IMOD].loaded )
 #define INVALID_MOD( IMOD )     ( !VALID_MOD_RANGE( IMOD ) || IMOD >= mnu_ModList.count || !mnu_ModList.lst[IMOD].loaded )
-
-INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ struct s_SelectedPlayer_element
 };
 typedef struct s_SelectedPlayer_element SelectedPlayer_element_t;
 
-egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr );
+static egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 struct s_SelectedPlayer_list
@@ -231,6 +231,7 @@ static SelectedPlayer_list_t mnu_SelectedList = SELECTED_PLAYER_LIST_INIT;
 #define TITLE_TEXTURE_COUNT   MAX_MODULE
 #define INVALID_TITLE_TEXTURE TITLE_TEXTURE_COUNT
 
+INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 INSTANTIATE_STACK_STATIC( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT ); // OpenGL title image surfaces
 
 menu_process_t * MProc             = &_mproc;
@@ -250,22 +251,21 @@ LoadPlayer_list_t mnu_loadplayer     = LOADPLAYER_LIST_INIT;
 
 // Implementation of the mnu_stack
 static bool_t       mnu_stack_push( which_menu_t menu );
-static which_menu_t mnu_stack_pop();
-static which_menu_t mnu_stack_peek();
-static void         mnu_stack_clear();
+static which_menu_t mnu_stack_pop( void );
+static which_menu_t mnu_stack_peek( void );
+static void         mnu_stack_clear( void );
 
 // Implementation of the mnu_SlidyButton array
 static void mnu_SlidyButton_init( float lerp, const char *button_text[] );
 static void mnu_SlidyButton_update_all( float deltaTime );
-static void mnu_SlidyButton_draw_all();
+static void mnu_SlidyButton_draw_all( void );
 
 // implementation of "private" TxTitleImage functions
-static void             TxTitleImage_clear_data();
+static void             TxTitleImage_clear_data( void );
 static void             TxTitleImage_release_one( const TX_REF index );
-static void             TxTitleImage_ctor();
-static void             TxTitleImage_release_all();
-static void             TxTitleImage_dtor();
-static oglx_texture_t * TxTitleImage_get_ptr( const TX_REF itex );
+static void             TxTitleImage_ctor( void );
+static void             TxTitleImage_release_all( void );
+static void             TxTitleImage_dtor( void );
 
 // tipText functions
 static void tipText_set_position( Font * font, const char * text, int spacing );
@@ -274,34 +274,41 @@ static void tipText_set_position( Font * font, const char * text, int spacing );
 static void copyrightText_set_position( Font * font, const char * text, int spacing );
 
 // implementation of "private" ModList functions
-static void mnu_ModList_release_all();
+static void mnu_ModList_release_all( void );
 
 // "process" management
-static int do_menu_proc_begin( menu_process_t * mproc );
-static int do_menu_proc_running( menu_process_t * mproc );
-static int do_menu_proc_leaving( menu_process_t * mproc );
+static int menu_process_do_begin( menu_process_t * mproc );
+static int menu_process_do_running( menu_process_t * mproc );
+static int menu_process_do_leaving( menu_process_t * mproc );
 
 // the hint system
-static void   mnu_GameTip_load_global_vfs();
-static bool_t mnu_GameTip_load_local_vfs();
+static void   mnu_GameTip_load_global_vfs( void );
+static bool_t mnu_GameTip_load_local_vfs( void );
 
 // "private" module utility
-static void   mnu_load_all_module_info();
+static void   mnu_load_all_module_info( void );
 
 // "private" asset function
 static TX_REF mnu_get_icon_ref( const CAP_REF icap, const TX_REF default_ref );
 
 // implementation of the autoformatting
-static void autoformat_init_slidy_buttons();
-static void autoformat_init_tip_text();
-static void autoformat_init_copyright_text();
+static void autoformat_init_slidy_buttons( void );
+static void autoformat_init_tip_text( void );
+static void autoformat_init_copyright_text( void );
 
 // misc other stuff
 static void      mnu_release_one_module( const MOD_REF imod );
 static void      mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst );
-static egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst );
+static egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst );
 static egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
-static egoboo_rv mnu_copy_local_imports( Import_list_t * imp_lst );
+static egoboo_rv mnu_copy_local_imports( import_list_t * imp_lst );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_STACK( mnu_module_t, mnu_ModList, MAX_MODULE );
+
+IMPLEMENT_STACK( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT );
 
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
@@ -360,15 +367,15 @@ void mnu_stack_clear()
 //--------------------------------------------------------------------------------------------
 // The implementation of the menu process
 //--------------------------------------------------------------------------------------------
-int do_menu_proc_begin( menu_process_t * mproc )
+int menu_process_do_begin( menu_process_t * mproc )
 {
     // reset the fps counter
     menu_fps_clock        = 0;
     menu_fps_loops        = 0;
 
     stabilized_menu_fps        = TARGET_FPS;
-    stabilized_menu_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_menu_fps_weight = 0.1f;
+    stabilized_menu_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_menu_fps_weight = STABILIZED_COVER;
 
     // play some music
     sound_play_song( MENU_SONG, 0, -1 );
@@ -387,7 +394,7 @@ int do_menu_proc_begin( menu_process_t * mproc )
 }
 
 //--------------------------------------------------------------------------------------------
-int do_menu_proc_running( menu_process_t * mproc )
+int menu_process_do_running( menu_process_t * mproc )
 {
     int menuResult;
 
@@ -428,7 +435,7 @@ int do_menu_proc_running( menu_process_t * mproc )
 }
 
 //--------------------------------------------------------------------------------------------
-int do_menu_proc_leaving( menu_process_t * mproc )
+int menu_process_do_leaving( menu_process_t * mproc )
 {
     if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
 
@@ -443,19 +450,19 @@ int do_menu_proc_leaving( menu_process_t * mproc )
     menu_fps_loops        = 0;
 
     stabilized_menu_fps        = TARGET_FPS;
-    stabilized_menu_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_menu_fps_weight = 0.1f;
+    stabilized_menu_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_menu_fps_weight = STABILIZED_COVER;
 
     return 1;
 }
 
 //--------------------------------------------------------------------------------------------
-int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
+int menu_process_run( menu_process_t * mproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
     if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
-    mproc->base.dtime = frameDuration;
+    mproc->base.frameDuration = frameDuration;
 
     if ( mproc->base.paused ) return 0;
 
@@ -467,7 +474,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
     switch ( mproc->base.state )
     {
         case proc_begin:
-            proc_result = do_menu_proc_begin( mproc );
+            proc_result = menu_process_do_begin( mproc );
 
             if ( 1 == proc_result )
             {
@@ -476,13 +483,13 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
             break;
 
         case proc_entering:
-            // proc_result = do_menu_proc_entering( mproc );
+            // proc_result = menu_process_do_entering( mproc );
 
             mproc->base.state = proc_running;
             break;
 
         case proc_running:
-            proc_result = do_menu_proc_running( mproc );
+            proc_result = menu_process_do_running( mproc );
 
             if ( 1 == proc_result )
             {
@@ -491,7 +498,7 @@ int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
             break;
 
         case proc_leaving:
-            proc_result = do_menu_proc_leaving( mproc );
+            proc_result = menu_process_do_leaving( mproc );
 
             if ( 1 == proc_result )
             {
@@ -517,7 +524,7 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
 {
     if ( NULL == mproc ) return NULL;
 
-    memset( mproc, 0, sizeof( *mproc ) );
+    BLANK_STRUCT_PTR( mproc )
 
     process_init( PROC_PBASE( mproc ) );
 
@@ -1023,7 +1030,7 @@ int doChooseModule( float deltaTime )
             validModules_count = 0;
             for ( i = 0; i < MAX_MODULE; i++ )
             {
-                memset( validModules + i, 0, sizeof( validModules[i] ) );
+                BLANK_STRUCT( validModules[i] );
             }
 
             // Figure out at what offset we want to draw the module menu.
@@ -1134,18 +1141,18 @@ int doChooseModule( float deltaTime )
                 }
 
                 // use the mouse wheel to scan the modules
-                if ( cursor_wheel_event_pending() )
+                if ( input_cursor_wheel_event_pending() )
                 {
-                    if ( cursor.z > 0 )
+                    if ( input_cursor.z > 0 )
                     {
                         startIndex++;
                     }
-                    else if ( cursor.z < 0 )
+                    else if ( input_cursor.z < 0 )
                     {
                         startIndex--;
                     }
 
-                    cursor_finish_wheel_event();
+                    input_cursor_finish_wheel_event();
                 }
 
                 //Allow arrow keys to scroll as well
@@ -1424,7 +1431,7 @@ bool_t doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, C
     {
         return bfalse;
     }
-    cap_ptr = CapStack.lst + loadplayer_ptr->cap_ref;
+    cap_ptr = CapStack_get_ptr( loadplayer_ptr->cap_ref );
 
     // go to the next element in the list
     chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
@@ -1453,17 +1460,17 @@ bool_t doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, C
     }
 
     // grab the inventory data
-    for ( i = 0; i < MAXIMPORTOBJECTS; i++ )
+    for ( i = 0; i < MAX_IMPORT_OBJECTS; i++ )
     {
         int slot = i + 1;
 
         snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer_ptr->dir, i );
 
         // load the profile
-        cap_ref = load_one_character_profile_vfs( szFilename, slot, bfalse );
+        cap_ref = CapStack_load_one( szFilename, slot, bfalse );
         if ( LOADED_CAP( cap_ref ) )
         {
-            cap_ptr = CapStack.lst + cap_ref;
+            cap_ptr = CapStack_get_ptr( cap_ref );
 
             // go to the next element in the list
             chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
@@ -1535,7 +1542,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
         if ( LOADED_CAP( icap ) )
         {
             STRING temp_string;
-            cap_t * pcap = CapStack.lst + icap;
+            cap_t * pcap = CapStack_get_ptr( icap );
             Uint8 skin = MAX( pcap->skin_override, 0 );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
@@ -1565,27 +1572,27 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
                 snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
                 y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-                y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->lifecolor );
+                y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->life_color );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
                     snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
                     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-                    y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->manacolor );
+                    y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->mana_color );
                 }
             }
             else
             {
                 snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d", ( int )pcap->life_stat.val.from );
                 y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
-                y1 = ui_drawBar( x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from, pcap->lifecolor );
+                y1 = ui_drawBar( x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from, pcap->life_color );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
                     snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d", ( int )pcap->mana_stat.val.from );
                     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
-                    y1 = ui_drawBar( x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->manacolor );
+                    y1 = ui_drawBar( x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->mana_color );
                 }
             }
             y1 += section_spacing;
@@ -1621,7 +1628,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
                     if ( LOADED_CAP( icap ) )
                     {
                         TX_REF  icon_ref;
-                        cap_t * pcap = CapStack.lst + icap;
+                        cap_t * pcap = CapStack_get_ptr( icap );
 
                         STRING itemname;
                         if ( pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( chooseplayer_ptr->chop ) ), SDL_arraysize( itemname ) );
@@ -1629,7 +1636,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
 
                         //draw the icon for this item
                         icon_ref = mnu_get_icon_ref( icap, chooseplayer_ptr->tx_ref );
-                        ui_drawImage( 0, TxTexture_get_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
+                        ui_drawImage( 0, TxTexture_get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
 
                         if ( icap == SLOT_LEFT + 1 )
                         {
@@ -1669,15 +1676,15 @@ int doChoosePlayer( float deltaTime )
     int result = 0;
     int i, x, y;
 
-    int text_hgt = 20;
-    int icon_hgt = 32;
+    const int text_hgt = 20;
+    const int icon_hgt = 32;
 
-    int butt_wid = 200;
-    int butt_hgt = icon_hgt + 10;
-    int butt_spc = 50;
+    const int butt_wid = 200;
+    const int butt_hgt = icon_hgt + 10;
+    const int butt_spc = 50;
 
-    int icon_vert_centering = ( butt_hgt - icon_hgt ) / 2;
-    int text_vert_centering = ( butt_hgt - text_hgt ) / 2;
+    const int icon_vert_centering = ( butt_hgt - icon_hgt ) / 2;
+    const int text_vert_centering = ( butt_hgt - text_hgt ) / 2;
 
     //This makes sparkles move
     sparkle_counter++;
@@ -1774,7 +1781,7 @@ int doChoosePlayer( float deltaTime )
 
                     if ( i < MAX_LOCAL_PLAYERS )
                     {
-                        INPUT_DEVICE device_type = DeviceList[i].device_type;
+                        int device_type = InputDevices.lst[i].device_type;
 
                         if ( INPUT_DEVICE_KEYBOARD == device_type )
                         {
@@ -1784,10 +1791,12 @@ int doChoosePlayer( float deltaTime )
                         {
                             device_icon = ICON_MOUS;
                         }
-                        else if ( device_type >= INPUT_DEVICE_JOY + 0 )
+                        else if ( IS_VALID_JOYSTICK( device_type ) )
                         {
+                            int ijoy = device_type - ( int )INPUT_DEVICE_JOY;
+
                             // alternate the joystick icons in case we have a lot of them
-                            device_icon = ICON_JOYA + ((( int )device_type - ( int )INPUT_DEVICE_JOY + 0 ) & 1 );
+                            device_icon = ( 0 == ( ijoy & 1 ) ) ? ICON_JOYA : ICON_JOYB;
                         }
                         else
                         {
@@ -1941,16 +1950,16 @@ int doChooseCharacter( float deltaTime )
             }
 
             // use the mouse wheel to scan the characters
-            if ( cursor_wheel_event_pending() )
+            if ( input_cursor_wheel_event_pending() )
             {
-                if ( cursor.z > 0 )
+                if ( input_cursor.z > 0 )
                 {
                     if ( startIndex + numVertical < mnu_loadplayer.count )
                     {
                         startIndex++;
                     }
                 }
-                else if ( cursor.z < 0 )
+                else if ( input_cursor.z < 0 )
                 {
                     if ( startIndex > 0 )
                     {
@@ -1958,7 +1967,7 @@ int doChooseCharacter( float deltaTime )
                     }
                 }
 
-                cursor_finish_wheel_event();
+                input_cursor_finish_wheel_event();
             }
 
             // Draw the player selection buttons
@@ -1978,7 +1987,7 @@ int doChooseCharacter( float deltaTime )
                 splayer        = SelectedPlayer_list_index_from_loadplayer( &mnu_SelectedList,  lplayer );
 
                 // do the character button
-                mnu_widgetList[m].img  = TxTexture_get_ptr( loadplayer_ptr->tx_ref );
+                mnu_widgetList[m].img  = TxTexture_get_valid_ptr( loadplayer_ptr->tx_ref );
                 mnu_widgetList[m].text = loadplayer_ptr->name;
                 if ( INVALID_PLAYER != splayer )
                 {
@@ -2240,7 +2249,7 @@ int doInputOptions( float deltaTime )
     pdevice = NULL;
     if ( player < MAX_LOCAL_PLAYERS )
     {
-        pdevice = DeviceList + player;
+        pdevice = InputDevices.lst + player;
     };
 
     switch ( menuState )
@@ -2256,9 +2265,9 @@ int doInputOptions( float deltaTime )
             update_input_type = btrue;
 
             //Clip to valid value
-            if ( INPUT_DEVICE_NONE == DeviceList[player].device_type )
+            if ( INPUT_DEVICE_UNKNOWN == InputDevices.lst[player].device_type )
             {
-                DeviceList[player].device_type = INPUT_DEVICE_BEGIN;
+                InputDevices.lst[player].device_type = INPUT_DEVICE_BEGIN;
             }
 
             //Prepare all buttons
@@ -2266,7 +2275,7 @@ int doInputOptions( float deltaTime )
             {
                 inputOptionsButtons[i][0] = CSTR_END;
             }
-            strncpy( inputOptionsButtons[i++], translate_input_type_to_string( DeviceList[player].device_type ), sizeof( STRING ) );
+            strncpy( inputOptionsButtons[i++], translate_input_type_to_string( InputDevices.lst[player].device_type ), sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Player 1", sizeof( STRING ) );
             strncpy( inputOptionsButtons[i++], "Save Settings", sizeof( STRING ) );
 
@@ -2296,7 +2305,7 @@ int doInputOptions( float deltaTime )
             if ( update_input_type )
             {
                 update_input_type = bfalse;
-                device_found = input_is_enabled( pdevice );
+                device_found = input_device_is_enabled( pdevice );
                 snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
             }
 
@@ -2306,6 +2315,7 @@ int doInputOptions( float deltaTime )
             // Are we waiting for input?
             if ( -1 != waitingforinput )
             {
+
                 // Grab the key/button input from the selected device
                 if ( NULL == pdevice )
                 {
@@ -2316,19 +2326,25 @@ int doInputOptions( float deltaTime )
                     control_t * pcontrol;
                     int         tag;
 
-                    // make sure to update the input
-                    input_read();
-
+                    // grab the control
                     pcontrol = pdevice->control + waitingforinput;
-                    if ( pdevice->device_type == INPUT_DEVICE_JOY + 0 || pdevice->device_type == INPUT_DEVICE_JOY + 1 )
+
+                    // let the control know it is not valid
+                    pcontrol->loaded = bfalse;
+
+                    // make sure to update the input
+                    input_read_all_devices();
+
+                    if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
                     {
-                        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY + 0;
-                        if ( ijoy < MAXJOYSTICK )
+                        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
+                        if ( ijoy < MAX_JOYSTICK )
                         {
                             for ( tag = 0; tag < scantag_count; tag++ )
                             {
                                 if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == JoyList[ijoy].b )
                                 {
+                                    pcontrol->loaded = btrue;
                                     pcontrol->tag    = scantag[tag].value;
                                     pcontrol->is_key = bfalse;
                                     waitingforinput = -1;
@@ -2339,6 +2355,7 @@ int doInputOptions( float deltaTime )
                             {
                                 if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
                                 {
+                                    pcontrol->loaded = btrue;
                                     pcontrol->tag    = scantag[tag].value;
                                     pcontrol->is_key = btrue;
                                     waitingforinput = -1;
@@ -2356,6 +2373,7 @@ int doInputOptions( float deltaTime )
                                     {
                                         if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
                                         {
+                                            pcontrol->loaded = btrue;
                                             pcontrol->tag    = scantag[tag].value;
                                             pcontrol->is_key = btrue;
                                             waitingforinput = -1;
@@ -2370,6 +2388,7 @@ int doInputOptions( float deltaTime )
                                     {
                                         if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == mous.b )
                                         {
+                                            pcontrol->loaded = btrue;
                                             pcontrol->tag    = scantag[tag].value;
                                             pcontrol->is_key = bfalse;
                                             waitingforinput = -1;
@@ -2380,6 +2399,7 @@ int doInputOptions( float deltaTime )
                                     {
                                         if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
                                         {
+                                            pcontrol->loaded = btrue;
                                             pcontrol->tag    = scantag[tag].value;
                                             pcontrol->is_key = btrue;
                                             waitingforinput = -1;
@@ -2563,18 +2583,29 @@ int doInputOptions( float deltaTime )
 
             // The select controller button
             ui_drawTextBox( menuFont, "INPUT DEVICE:", buttonLeft + 300, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, TxTexture_get_ptr(( TX_REF )( ICON_KEYB + pdevice->device_type ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 450, 50, 200, 40 ) )
+            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, TxTexture_get_valid_ptr(( TX_REF )( ICON_KEYB + pdevice->device_type ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 450, 50, 200, 40 ) )
             {
-                //switch to next controller type
-                switch ( pdevice->device_type )
+                // switch to next controller type
+                int old_device_type = pdevice->device_type;
+                int new_device_type = pdevice->device_type;
+
+                new_device_type++;
+
+                // clamp out of range values
+                if ( new_device_type < 0 )
                 {
-                    default:
-                    case INPUT_DEVICE_KEYBOARD: pdevice->device_type = INPUT_DEVICE_MOUSE; break;
-                    case INPUT_DEVICE_MOUSE:    pdevice->device_type = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + 0 ); break;
-                    case INPUT_DEVICE_JOY + 0:  pdevice->device_type = ( INPUT_DEVICE )( INPUT_DEVICE_JOY + 1 ); break;
-                    case INPUT_DEVICE_JOY + 1:  pdevice->device_type = INPUT_DEVICE_KEYBOARD; break;
+                    // fix a negative value
+                    new_device_type = INPUT_DEVICE_JOY + MAX_JOYSTICK - 1;
                 }
-                update_input_type = btrue;
+                else if ( new_device_type >= INPUT_DEVICE_JOY + MAX_JOYSTICK )
+                {
+                    // make all large values wrap around
+                    new_device_type = 0;
+                }
+
+                pdevice->device_type = new_device_type;
+
+                update_input_type = ( new_device_type != old_device_type );
             }
 
             //Display warning if input device was not found
@@ -2596,7 +2627,7 @@ int doInputOptions( float deltaTime )
             {
                 // save settings and go back
                 player = 0;
-                input_settings_save_vfs( "controls.txt" );
+                input_settings_save_vfs( "controls.txt", -1 );
                 menuState = MM_Leaving;
             }
 
@@ -2899,7 +2930,7 @@ int doGameOptions( float deltaTime )
             // Save settings
             if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
-                // synchronoze the config values with the various game subsystems
+                // synchronize the config values with the various game subsystems
                 setup_synch( &cfg );
 
                 // save the setup file
@@ -3127,7 +3158,7 @@ int doAudioOptions( float deltaTime )
             //Save settings
             if ( BUTTON_UP == ui_doButton( 9, sz_buttons[8], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
-                // synchronoze the config values with the various game subsystems
+                // synchronize the config values with the various game subsystems
                 setup_synch( &cfg );
 
                 // save the setup file
@@ -3135,12 +3166,12 @@ int doAudioOptions( float deltaTime )
                 setup_write();
 
                 // Reload the sound system
-                sound_restart();
+                sound_system_restart();
 
                 // Do we restart the music?
                 if ( cfg.music_allowed )
                 {
-                    load_all_music_sounds_vfs();
+                    sound_load_all_music_sounds_vfs();
                     fade_in_music( musictracksloaded[songplaying] );
                 }
 
@@ -3196,27 +3227,27 @@ bool_t doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio
     if ( req_aspect_ratio > 0.0f && req_aspect_ratio < 0.5f*(( 5.0f / 4.0f ) + ( 4.0f / 3.0f ) ) )
     {
         *pratio = 5.0f / 4.0f;
-        strncpy( *psz_ratio, "5:4", sizeof( *psz_ratio ) );
+        strncpy( *psz_ratio, "5:4", SDL_arraysize( *psz_ratio ) );
     }
     else if ( req_aspect_ratio >= 0.5f*(( 5.0f / 4.0f ) + ( 4.0f / 3.0f ) ) && req_aspect_ratio < 0.5f*(( 4.0f / 3.0f ) + ( 8.0f / 5.0f ) ) )
     {
         *pratio = 4.0f / 3.0f;
-        strncpy( *psz_ratio, "4:3", sizeof( *psz_ratio ) );
+        strncpy( *psz_ratio, "4:3", SDL_arraysize( *psz_ratio ) );
     }
     else if ( req_aspect_ratio >= 0.5f*(( 4.0f / 3.0f ) + ( 8.0f / 5.0f ) ) && req_aspect_ratio < 0.5f*(( 8.0f / 5.0f ) + ( 5.0f / 3.0f ) ) )
     {
         *pratio = 8.0f / 5.0f;
-        strncpy( *psz_ratio, "8:5", sizeof( *psz_ratio ) );
+        strncpy( *psz_ratio, "8:5", SDL_arraysize( *psz_ratio ) );
     }
     else if ( req_aspect_ratio >= 0.5f*(( 8.0f / 5.0f ) + ( 5.0f / 3.0f ) ) && req_aspect_ratio < 0.5f*(( 5.0f / 3.0f ) + ( 16.0f / 9.0f ) ) )
     {
         *pratio = 5.0f / 3.0f;
-        strncpy( *psz_ratio, "5:3", sizeof( *psz_ratio ) );
+        strncpy( *psz_ratio, "5:3", SDL_arraysize( *psz_ratio ) );
     }
     else
     {
         *pratio = 16.0f / 9.0f;
-        strncpy( *psz_ratio, "16:9", sizeof( *psz_ratio ) );
+        strncpy( *psz_ratio, "16:9", SDL_arraysize( *psz_ratio ) );
     }
 
     return btrue;
@@ -3278,17 +3309,17 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
                 // Normal resolutions
             case 1024:
                 pcfg->scry_req  = 768;
-                strncpy( sz_aspect_ratio, "4:3", sizeof( sz_aspect_ratio ) );
+                strncpy( sz_aspect_ratio, "4:3", SDL_arraysize( sz_aspect_ratio ) );
                 break;
 
             case 640:
                 pcfg->scry_req = 480;
-                strncpy( sz_aspect_ratio, "4:3", sizeof( sz_aspect_ratio ) );
+                strncpy( sz_aspect_ratio, "4:3", SDL_arraysize( sz_aspect_ratio ) );
                 break;
 
             case 800:
                 pcfg->scry_req = 600;
-                strncpy( sz_aspect_ratio, "4:3", sizeof( sz_aspect_ratio ) );
+                strncpy( sz_aspect_ratio, "4:3", SDL_arraysize( sz_aspect_ratio ) );
                 break;
 
                 // 1280 can be both widescreen and normal
@@ -3296,29 +3327,29 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
                 if ( pcfg->scry_req > 800 )
                 {
                     pcfg->scry_req = 1024;
-                    strncpy( sz_aspect_ratio, "5:4", sizeof( sz_aspect_ratio ) );
+                    strncpy( sz_aspect_ratio, "5:4", SDL_arraysize( sz_aspect_ratio ) );
                 }
                 else
                 {
                     pcfg->scry_req = 800;
-                    strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
+                    strncpy( sz_aspect_ratio, "8:5", SDL_arraysize( sz_aspect_ratio ) );
                 }
                 break;
 
                 // Widescreen resolutions
             case 1440:
                 pcfg->scry_req = 900;
-                strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
+                strncpy( sz_aspect_ratio, "8:5", SDL_arraysize( sz_aspect_ratio ) );
                 break;
 
             case 1680:
                 pcfg->scry_req = 1050;
-                strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
+                strncpy( sz_aspect_ratio, "8:5", SDL_arraysize( sz_aspect_ratio ) );
                 break;
 
             case 1920:
                 pcfg->scry_req = 1200;
-                strncpy( sz_aspect_ratio, "8:5", sizeof( sz_aspect_ratio ) );
+                strncpy( sz_aspect_ratio, "8:5", SDL_arraysize( sz_aspect_ratio ) );
                 break;
 
                 // unknown
@@ -3328,7 +3359,7 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
         }
     }
 
-    snprintf( *psz_screen_size, sizeof( *psz_screen_size ), "%dx%d - %s", pcfg->scrx_req, pcfg->scry_req, sz_aspect_ratio );
+    snprintf( *psz_screen_size, SDL_arraysize( *psz_screen_size ), "%dx%d - %s", pcfg->scrx_req, pcfg->scry_req, sz_aspect_ratio );
 
     return btrue;
 }
@@ -3532,7 +3563,7 @@ int doVideoOptions( float deltaTime )
             }
             else
             {
-                snprintf( sz_screen_size, sizeof( sz_screen_size ), "%dx%d", cfg.scrx_req, cfg.scry_req );
+                snprintf( sz_screen_size, SDL_arraysize( sz_screen_size ), "%dx%d", cfg.scrx_req, cfg.scry_req );
                 sz_buttons[but_screensize] = sz_screen_size;
 
                 aspect_ratio = ( float )cfg.scrx_req / ( float )cfg.scry_req;
@@ -3818,7 +3849,7 @@ int doVideoOptions( float deltaTime )
 
             if ( PMod->active )
             {
-                snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i (%i currently used)", maxparticles, maxparticles - prt_count_free() );
+                snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i (%i currently used)", maxparticles, maxparticles - PrtList_count_free() );
                 ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
             }
             else if ( BUTTON_UP == ui_doButton( 15, sz_buttons[but_maxparticles], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )
@@ -3925,7 +3956,7 @@ int doVideoOptions( float deltaTime )
             {
                 menuChoice = 1;
 
-                // synchronoze the config values with the various game subsystems
+                // synchronize the config values with the various game subsystems
                 setup_synch( &cfg );
 
                 // save the setup file
@@ -4703,7 +4734,7 @@ TX_REF mnu_get_icon_ref( const CAP_REF icap, const TX_REF default_ref )
     cap_t * pitem_cap;
 
     if ( !LOADED_CAP( icap ) ) return icon_ref;
-    pitem_cap = CapStack.lst + icap;
+    pitem_cap = CapStack_get_ptr( icap );
 
     // what do we need to draw?
     is_spell_fx = ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type );
@@ -4766,7 +4797,7 @@ bool_t mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnu
     bool_t         allowed;
 
     if ( INVALID_MOD( modnumber ) ) return bfalse;
-    pmod = mnu_ModList.lst + modnumber;
+    pmod = mnu_ModList_get_ptr( modnumber );
 
     // First check if we are in developers mode or that the right module has been beaten before
     allowed = bfalse;
@@ -4838,7 +4869,7 @@ void mnu_module_init( mnu_module_t * pmod )
     if ( NULL == pmod ) return;
 
     // clear the module
-    memset( pmod, 0, sizeof( *pmod ) );
+    BLANK_STRUCT_PTR( pmod )
 
     pmod->tex_index = INVALID_TITLE_TEXTURE;
 }
@@ -4854,13 +4885,16 @@ void mnu_load_all_module_info()
     // reset the module list
     mnu_ModList_release_all();
 
+    // reset the texture cache
+    TxTitleImage_release_all();
+
     // Search for all .mod directories and load the module info
     ctxt = vfs_findFirst( "mp_modules", "mod", VFS_SEARCH_DIR );
     vfs_ModPath = vfs_search_context_get_current( ctxt );
 
     while ( NULL != ctxt && VALID_CSTR( vfs_ModPath ) && mnu_ModList.count < MAX_MODULE )
     {
-        mnu_module_t * pmod = mnu_ModList.lst + ( MOD_REF )mnu_ModList.count;
+        mnu_module_t * pmod = mnu_ModList_get_ptr( mnu_ModList.count );
 
         // clear the module
         mnu_module_init( pmod );
@@ -4905,7 +4939,7 @@ void mnu_release_one_module( const MOD_REF imod )
     mnu_module_t * pmod;
 
     if ( !VALID_MOD( imod ) ) return;
-    pmod = mnu_ModList.lst + imod;
+    pmod = mnu_ModList_get_ptr( imod );
 
     TxTitleImage_release_one( pmod->tex_index );
     pmod->tex_index = INVALID_TITLE_TEXTURE;
@@ -4958,7 +4992,7 @@ void mnu_ModList_release_all()
             mnu_release_one_module( cnt );
         }
 
-        memset( mnu_ModList.lst + cnt, 0, sizeof( mnu_ModList.lst[cnt] ) );
+        BLANK_STRUCT( mnu_ModList.lst[cnt] );
     }
 
     mnu_ModList.count = 0;
@@ -5059,7 +5093,7 @@ TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
     if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
 
     itex  = ( TX_REF )TxTitleImage.count;
-    if ( INVALID_GL_ID != ego_texture_load_vfs(( TxTitleImage.lst + itex ), szLoadName, INVALID_KEY ) )
+    if ( INVALID_GL_ID != ego_texture_load_vfs( TxTitleImage_get_ptr( itex ), szLoadName, INVALID_KEY ) )
     {
         TxTitleImage.count++;
     }
@@ -5069,14 +5103,6 @@ TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
     }
 
     return itex;
-}
-
-//--------------------------------------------------------------------------------------------
-oglx_texture_t * TxTitleImage_get_ptr( const TX_REF itex )
-{
-    if ( itex >= TxTitleImage.count || itex >= MAX_MODULE ) return NULL;
-
-    return TxTitleImage.lst + itex;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5248,7 +5274,7 @@ bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr )
 {
     if ( NULL == ptr ) return bfalse;
 
-    memset( ptr, 0, sizeof( *ptr ) );
+    BLANK_STRUCT_PTR( ptr )
 
     ptr->cap_ref  = MAX_CAP;
     ptr->tx_ref   = INVALID_TX_TEXTURE;
@@ -5266,7 +5292,7 @@ bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
 
     if ( MAX_CAP != ptr->cap_ref )
     {
-        release_one_cap( ptr->cap_ref );
+        CapStack_release_one( ptr->cap_ref );
     }
     ptr->cap_ref = MAX_CAP;
 
@@ -5348,12 +5374,12 @@ egoboo_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     if ( !vfs_exists( foundfile ) ) return rv_fail;
 
     // offset the slots so that ChoosePlayer will have space to load the inventory objects
-    slot = ( MAXIMPORTOBJECTS + 2 ) + lst->count;
+    slot = ( MAX_IMPORT_OBJECTS + 2 ) + lst->count;
 
     // try to load the character profile
-    icap = load_one_character_profile_vfs( foundfile, slot, bfalse );
+    icap = CapStack_load_one( foundfile, slot, bfalse );
     if ( !LOADED_CAP( icap ) ) return rv_fail;
-    pcap = CapStack.lst + icap;
+    pcap = CapStack_get_ptr( icap );
 
     // get the next index
     idx = LoadPlayer_list_get_free( lst );
@@ -5491,14 +5517,14 @@ egoboo_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
 
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        ppla = PlaStack.lst + ipla;
+        ppla = PlaStack_get_ptr( ipla );
         if ( !ppla->valid ) continue;
 
         if ( !INGAME_CHR( ppla->index ) ) continue;
-        pchr = ChrList.lst + ppla->index;
+        pchr = ChrList_get_ptr( ppla->index );
 
         if ( !LOADED_PRO( pchr->profile_ref ) )continue;
-        ppro = ProList.lst + pchr->profile_ref;
+        ppro = ProList_get_ptr( pchr->profile_ref );
 
         // grab a free LoadPlayer_element_t
         lp_idx = LoadPlayer_list_get_free( lst );
@@ -5551,7 +5577,7 @@ bool_t LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
     // release the cap
     if ( MAX_CAP != ptr->cap_ref )
     {
-        release_one_cap( ptr->cap_ref );
+        CapStack_release_one( ptr->cap_ref );
     }
     ptr->cap_ref = MAX_CAP;
 
@@ -5570,7 +5596,7 @@ bool_t LoadPlayer_element_init( LoadPlayer_element_t * ptr )
 {
     if ( NULL == ptr ) return bfalse;
 
-    memset( ptr, 0, sizeof( *ptr ) );
+    BLANK_STRUCT_PTR( ptr )
 
     // set the non-zero, non-null values
     ptr->cap_ref = MAX_CAP;
@@ -5625,10 +5651,10 @@ egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * sr
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst )
+egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst )
 {
     int                import_idx, i;
-    Import_element_t * import_ptr = NULL;
+    import_element_t * import_ptr = NULL;
 
     int                        loadplayer_idx = -1;
     LoadPlayer_element_t     * loadplayer_ptr = NULL;
@@ -5639,7 +5665,7 @@ egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_lis
     if ( NULL == imp_lst || NULL == sp_lst ) return rv_error;
 
     // blank out any existing data
-    Import_list_init( imp_lst );
+    import_list_init( imp_lst );
 
     // loop through the selected players and store all the valid data in the list of imported players
     for ( selectedplayer_idx = 0; selectedplayer_idx < sp_lst->count; selectedplayer_idx++ )
@@ -5666,7 +5692,7 @@ egoboo_rv mnu_set_local_import_list( Import_list_t * imp_lst, SelectedPlayer_lis
         }
 
         // set the import info
-        import_ptr->slot            = selectedplayer_idx * MAXIMPORTPERPLAYER;
+        import_ptr->slot            = selectedplayer_idx * MAX_IMPORT_PER_PLAYER;
         import_ptr->player          = selectedplayer_idx;
 
         strncpy( import_ptr->srcDir, loadplayer_ptr->dir, SDL_arraysize( import_ptr->srcDir ) );
@@ -5681,7 +5707,7 @@ egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr )
 {
     if ( NULL == ptr ) return rv_error;
 
-    memset( ptr, 0, sizeof( *ptr ) );
+    BLANK_STRUCT_PTR( ptr )
 
     // the non-zero, non-null values
     ptr->player = MAX_PLAYER;
@@ -5748,8 +5774,8 @@ bool_t SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_i
     if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) || sp_lst->count >= MAX_PLAYER ) return bfalse;
     if ( SelectedPlayer_list_check_loadplayer( sp_lst,  loadplayer_idx ) ) return bfalse;
 
-    sp_lst->lst[sp_lst->count].player = loadplayer_idx;
-    sp_lst->lst[sp_lst->count].input_device  = INPUT_DEVICE_NONE;
+    sp_lst->lst[sp_lst->count].player       = loadplayer_idx;
+    sp_lst->lst[sp_lst->count].input_device = INPUT_DEVICE_UNKNOWN;
     sp_lst->count++;
 
     return btrue;
@@ -5848,7 +5874,7 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
 
         for ( i = 0; i < sp_lst->count; i++ )
         {
-            if ( INPUT_DEVICE_NONE == sp_lst->lst[i].input_device )
+            if ( INPUT_DEVICE_UNKNOWN == sp_lst->lst[i].input_device )
             {
                 // we found one
                 done = bfalse;
@@ -5877,7 +5903,7 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
             // tested in the loop because we are using the break command to
             // break out of the loop immediately
 
-            if ( INPUT_DEVICE_NONE == sp_lst->lst[i].input_device )
+            if ( INPUT_DEVICE_UNKNOWN == sp_lst->lst[i].input_device )
             {
                 SelectedPlayer_list_remove( sp_lst,  loadplayer_idx );
             }

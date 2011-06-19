@@ -22,22 +22,32 @@
 
 #include "passage.h"
 
-#include "char.inl"
 #include "script.h"
 #include "sound.h"
-#include "mesh.inl"
 #include "game.h"
-#include "quest.h"
 #include "network.h"
+#include "player.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_math.h"
 #include "egoboo.h"
 
+#include "file_formats/quest_file.h"
+
+#include "char.inl"
+#include "mesh.inl"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, passage_t, PassageStack, MAX_PASS );
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, shop_t,    ShopStack, MAX_SHOP );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_STACK( passage_t, PassageStack, MAX_PASS );
+IMPLEMENT_STACK( shop_t,    ShopStack, MAX_SHOP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -99,7 +109,7 @@ bool_t open_passage( const PASS_REF passage )
     passage_t * ppass;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
-    ppass = PassageStack.lst + passage;
+    ppass = PassageStack_get_ptr( passage );
 
     //no need to do this if it already is open
     if ( ppass->open ) return btrue;
@@ -127,10 +137,11 @@ void flash_passage( const PASS_REF passage, Uint8 color )
 
     int x, y, cnt;
     Uint32 fan;
-    passage_t * ppass;
+    passage_t * ppass = NULL;
+    ego_tile_info_t * ptile = NULL;
 
     if ( INVALID_PASSAGE( passage ) ) return;
-    ppass = PassageStack.lst + passage;
+    ppass = PassageStack_get_ptr( passage );
 
     for ( y = ppass->area.top; y <= ppass->area.bottom; y++ )
     {
@@ -138,11 +149,17 @@ void flash_passage( const PASS_REF passage, Uint8 color )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( !mesh_grid_is_valid( PMesh, fan ) ) continue;
+            ptile = mesh_get_ptile( PMesh, fan );
+            if ( NULL == ptile ) continue;
 
             for ( cnt = 0; cnt < 4; cnt++ )
             {
-                PMesh->tmem.tile_list[fan].lcache[cnt] = color;
+                // set the color
+                ptile->lcache[cnt]       = color;
+
+                // force the lighting code to update
+                ptile->request_clst_update = btrue;
+                ptile->clst_frame        = -1;
             }
         }
     }
@@ -157,7 +174,7 @@ bool_t point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
     frect_t tmp_rect;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
-    ppass = PassageStack.lst + passage;
+    ppass = PassageStack_get_ptr( passage );
 
     // Passage area
     tmp_rect.left   = ppass->area.left * GRID_FSIZE;
@@ -178,7 +195,7 @@ bool_t object_is_in_passage( const PASS_REF passage, float xpos, float ypos, flo
     frect_t tmp_rect;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
-    ppass = PassageStack.lst + passage;
+    ppass = PassageStack_get_ptr( passage );
 
     // Passage area
     radius += CLOSETOLERANCE;
@@ -204,11 +221,11 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
 
     // Skip if the one who is looking doesn't exist
     if ( !INGAME_CHR( isrc ) ) return ( CHR_REF )MAX_CHR;
-    psrc = ChrList.lst + isrc;
+    psrc = ChrList_get_ptr( isrc );
 
     // Skip invalid passages
     if ( INVALID_PASSAGE( passage ) ) return ( CHR_REF )MAX_CHR;
-    ppass = PassageStack.lst + passage;
+    ppass = PassageStack_get_ptr( passage );
 
     // Look at each character
     foundother = ( CHR_REF )MAX_CHR;
@@ -217,7 +234,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
         chr_t * pchr;
 
         if ( !INGAME_CHR( character ) ) continue;
-        pchr = ChrList.lst + character;
+        pchr = ChrList_get_ptr( character );
 
         // dont do scenery objects unless we allow items
         if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
@@ -282,7 +299,7 @@ void check_passage_music()
     for ( passage = 0; passage < PassageStack.count; passage++ )
     {
         PLA_REF ipla;
-        passage_t * ppass = PassageStack.lst + passage;
+        passage_t * ppass = PassageStack_get_ptr( passage );
 
         if ( ppass->music == NO_MUSIC || ppass->music == get_current_song_playing() ) continue;
 
@@ -294,7 +311,7 @@ void check_passage_music()
             character = PlaStack.lst[ipla].index;
 
             if ( !INGAME_CHR( character ) ) continue;
-            pchr = ChrList.lst + character;
+            pchr = ChrList_get_ptr( character );
 
             //dont do items in hands or inventory
             if ( IS_ATTACHED_CHR( character ) ) continue;
@@ -322,7 +339,7 @@ bool_t close_passage( const PASS_REF passage )
     CHR_REF character;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
-    ppass = PassageStack.lst + passage;
+    ppass = PassageStack_get_ptr( passage );
 
     //is it already closed?
     if ( !ppass->open ) return btrue;
@@ -342,7 +359,7 @@ bool_t close_passage( const PASS_REF passage )
             chr_t *pchr;
 
             if ( !INGAME_CHR( character ) ) continue;
-            pchr = ChrList.lst + character;
+            pchr = ChrList_get_ptr( character );
 
             //Don't do held items
             if ( IS_ATTACHED_CHR( character ) ) continue;
@@ -421,7 +438,7 @@ void add_shop_passage( const CHR_REF owner, const PASS_REF passage )
         chr_t * pchr;
 
         if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
+        pchr = ChrList_get_ptr( ichr );
 
         if ( pchr->isitem )
         {
@@ -448,7 +465,7 @@ void add_passage( passage_t * pdata )
     ipass = PasageStack_get_free();
 
     if ( ipass >= MAX_PASS ) return;
-    ppass = PassageStack.lst + ipass;
+    ppass = PassageStack_get_ptr( ipass );
 
     ppass->area.left      = CLIP( pdata->area.left, 0, PMesh->info.tiles_x - 1 );
     ppass->area.top      = CLIP( pdata->area.top, 0, PMesh->info.tiles_y - 1 );
@@ -503,12 +520,12 @@ CHR_REF shop_get_owner( int ix, int iy )
         passage_t * ppass;
         shop_t    * pshop;
 
-        pshop = ShopStack.lst + cnt;
+        pshop = ShopStack_get_ptr( cnt );
 
         passage = pshop->passage;
 
         if ( INVALID_PASSAGE( passage ) ) continue;
-        ppass = PassageStack.lst + passage;
+        ppass = PassageStack_get_ptr( passage );
 
         if ( irect_point_inside( &( ppass->area ), ix, iy ) )
         {

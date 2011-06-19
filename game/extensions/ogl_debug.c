@@ -346,7 +346,7 @@ void oglx_grab_state( ogl_state_t * ps )
 {
     if ( NULL == ps ) return;
 
-    memset( ps, 0, sizeof( *ps ) );
+    BLANK_STRUCT_PTR( ps )
 
     gl_grab_texturing_state( &ps->texturing );
     gl_grab_clipping_state( &ps->clipping );
@@ -383,7 +383,7 @@ GLboolean gl_comp_state( ogl_state_comp_t * pcomp, ogl_state_t * ps1, ogl_state_
     retval = GL_FALSE;
 
     // set the return state
-    memset( pcomp, 0, sizeof( *pcomp ) );
+    BLANK_STRUCT_PTR( pcomp )
 
     // compare the entire state
     //pcomp->state     = ( 0 != memcmp( ps1, ps2, sizeof( *ps1 ) ) );

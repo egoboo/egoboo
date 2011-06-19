@@ -108,7 +108,7 @@ extern "C"
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    EGO_TIME getCurrentTime();                          ///< Returns a structure containing current time and date
+    EGO_TIME getCurrentTime( void );                          ///< Returns a structure containing current time and date
 
     void clk_init( void );                                 ///< Init the clock module
     void clk_shutdown( void );                             ///< Shut down the clock module

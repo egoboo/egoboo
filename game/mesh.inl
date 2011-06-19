@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 //--------------------------------------------------------------------------------------------
 
-static INLINE float  mesh_get_level( const ego_mpd_t * pmesh, float x, float y );
+static INLINE float  mesh_get_level( const ego_mpd_t * pmesh, float pos_x, float pos_y );
 static INLINE Uint32 mesh_get_block( const ego_mpd_t * pmesh, float pos_x, float pos_y );
 static INLINE Uint32 mesh_get_grid( const ego_mpd_t * pmesh, float pos_x, float pos_y );
 
@@ -44,6 +44,10 @@ static INLINE bool_t mesh_grid_is_valid( const ego_mpd_t *, Uint32 id );
 
 static INLINE bool_t mesh_tile_has_bits( const ego_mpd_t *, const int ix, const int iy, const BIT_FIELD bits );
 
+static INLINE ego_tile_info_t * mesh_get_ptile( const ego_mpd_t *, const Uint32 itile );
+static INLINE ego_grid_info_t * mesh_get_pgrid( const ego_mpd_t *, const Uint32 itile );
+static INLINE Uint8             mesh_get_twist( ego_mpd_t * pmesh, const Uint32 igrid );
+
 static INLINE GRID_FX_BITS ego_grid_info_get_all_fx( const ego_grid_info_t * );
 static INLINE GRID_FX_BITS ego_grid_info_test_all_fx( const ego_grid_info_t *, const GRID_FX_BITS bits );
 static INLINE bool_t       ego_grid_info_add_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
@@ -54,7 +58,6 @@ static INLINE bool_t       ego_grid_info_set_pass_fx( ego_grid_info_t *, const G
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
 static INLINE bool_t mesh_tile_has_bits( const ego_mpd_t * pmesh, const int ix, const int iy, const BIT_FIELD bits )
 {
     int itile;
@@ -237,6 +240,42 @@ static INLINE Uint32 mesh_test_fx( const ego_mpd_t * pmesh, Uint32 itile, const 
     }
 
     return ego_grid_info_test_all_fx( pmesh->gmem.grid_list + itile, flags );
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE ego_tile_info_t * mesh_get_ptile( const ego_mpd_t * pmesh, const Uint32 itile )
+{
+    // valid parameters?
+    if ( NULL == pmesh || itile >= pmesh->info.tiles_count ) return NULL;
+
+    // a double check in case the tiles aren't allocated
+    if ( NULL == pmesh->tmem.tile_list || itile >= pmesh->tmem.tile_count ) return NULL;
+
+    return pmesh->tmem.tile_list + itile;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE ego_grid_info_t * mesh_get_pgrid( const ego_mpd_t * pmesh, const Uint32 igrid )
+{
+    // valid parameters?
+    if ( NULL == pmesh || igrid >= pmesh->info.tiles_count ) return NULL;
+
+    // a double check in case the grids aren't allocated
+    if ( NULL == pmesh->gmem.grid_list || igrid >= pmesh->gmem.grid_count ) return NULL;
+
+    return pmesh->gmem.grid_list + igrid;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE Uint8 mesh_get_twist( ego_mpd_t * pmesh, const Uint32 igrid )
+{
+    // valid parameters?
+    if ( NULL == pmesh || igrid >= pmesh->info.tiles_count ) return TWIST_FLAT;
+
+    // a double check in case the grids aren't allocated
+    if ( NULL == pmesh->gmem.grid_list || igrid >= pmesh->gmem.grid_count ) return TWIST_FLAT;
+
+    return pmesh->gmem.grid_list[igrid].twist;
 }
 
 //--------------------------------------------------------------------------------------------

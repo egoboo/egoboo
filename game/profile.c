@@ -35,11 +35,13 @@
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_vfs.h"
-#include "egoboo_mem.h"
 
 #include "mesh.inl"
 #include "bsp.inl"
 #include "particle.inl"
+
+// this include must be the absolute last include
+#include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,6 +59,12 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, pro_t, ProList, MAX_PROFILE );
 //--------------------------------------------------------------------------------------------
 static void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject );
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_LIST( pro_t, ProList, MAX_PROFILE );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void init_all_profiles()
@@ -66,10 +74,10 @@ void init_all_profiles()
     int tnc;
 
     // initialize all the sub-profile lists
-    init_all_pip();
-    init_all_eve();
-    init_all_cap();
-    init_all_mad();
+    PipStack_init_all();
+    EveStack_init_all();
+    CapStack_init_all();
+    MadStack_reconstruct_all();
 
     // initialize the profile list
     ProList_init();
@@ -91,10 +99,10 @@ void release_all_profiles()
     release_all_pro_data();
 
     // relese every type of sub-profile and re-initalize the lists
-    release_all_pip();
-    release_all_eve();
-    release_all_cap();
-    release_all_mad();
+    PipStack_release_all();
+    EveStack_release_all();
+    CapStack_release_all();
+    MadStack_release_all();
 
     // re-initialize the profile list
     ProList_init();
@@ -111,11 +119,17 @@ void profile_system_begin()
         // release all profile data and reinitialize the profile list
         release_all_profiles();
 
+        // initialize the models
+        model_system_end();
+
         _profile_system_initialized = bfalse;
     }
 
     // initialize all the profile lists
     init_all_profiles();
+
+    // initialize the models
+    model_system_begin();
 
     // initialize the script compiler
     script_compiler_init();
@@ -147,6 +161,9 @@ void profile_system_end()
         // release all profile data and reinitialize the profile list
         release_all_profiles();
 
+        // initialize the models
+        model_system_end();
+
         _profile_system_initialized = bfalse;
     }
 }
@@ -168,7 +185,7 @@ bool_t pro_init( pro_t * pobj )
     if ( pobj->message ) free( pobj->message );
 
     //---- reset everything to safe values
-    memset( pobj, 0, sizeof( *pobj ) );
+    BLANK_STRUCT_PTR( pobj )
 
     pobj->icap = ( CAP_REF ) MAX_CAP;
     pobj->imad = ( MAD_REF ) MAX_MAD;
@@ -298,7 +315,7 @@ void ProList_init()
     {
         // make sure we don't get a stupid warning
         ProList.lst[cnt].loaded = bfalse;
-        pro_init( ProList.lst + cnt );
+        pro_init( ProList_get_ptr( cnt ) );
 
         ProList_push_free( cnt );
     }
@@ -344,7 +361,7 @@ bool_t ProList_free_one( const PRO_REF iobj )
 
     // object "destructor"
     // inilializes an object to safe values
-    pro_init( ProList.lst + iobj );
+    pro_init( ProList_get_ptr( iobj ) );
 
     return ProList_push_free( iobj );
 }
@@ -359,7 +376,7 @@ bool_t release_one_profile_textures( const PRO_REF iobj )
     pro_t  * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return bfalse;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
     {
@@ -411,7 +428,7 @@ bool_t release_one_pro_data( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return bfalse;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     // free all sounds
     for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
@@ -434,12 +451,12 @@ bool_t release_one_pro( const PRO_REF iobj )
     if ( !VALID_PRO_RANGE( iobj ) ) return bfalse;
 
     if ( !LOADED_PRO( iobj ) ) return btrue;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     // release all of the sub-profiles
-    release_one_cap( pobj->icap );
-    release_one_mad( pobj->imad );
-    //release_one_eve( pobj->ieve );
+    CapStack_release_one( pobj->icap );
+    MadStack_release_one( pobj->imad );
+    //EveStack_release_one( pobj->ieve );
 
     release_one_local_pips( iobj );
 
@@ -489,7 +506,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     pro_t * pobj;
 
     if ( !VALID_PRO_RANGE( object ) ) return 0;
-    pobj = ProList.lst + object;
+    pobj = ProList_get_ptr( object );
 
     // Load the skins and icons
     max_skin    = max_icon    = -1;
@@ -564,7 +581,6 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     return max_tex + 1;
 }
 
-
 void profile_add_one_message( pro_t *pobject, const EGO_MESSAGE add_message )
 {
     //@details ZF@> This adds one string to the list of messages associated with a profile. The function will
@@ -626,7 +642,6 @@ void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t release_one_local_pips( const PRO_REF iobj )
 {
@@ -636,11 +651,11 @@ bool_t release_one_local_pips( const PRO_REF iobj )
     if ( !VALID_PRO_RANGE( iobj ) ) return bfalse;
 
     if ( !LOADED_PRO( iobj ) ) return btrue;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
-        release_one_pip( pobj->prtpip[cnt] );
+        PipStack_release_one( pobj->prtpip[cnt] );
         pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
     }
 
@@ -660,11 +675,11 @@ void release_all_local_pips()
         pro_t * pobj;
 
         if ( !ProList.lst[object].loaded ) continue;
-        pobj = ProList.lst + object;
+        pobj = ProList_get_ptr( object );
 
         for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
         {
-            release_one_pip( pobj->prtpip[cnt] );
+            PipStack_release_one( pobj->prtpip[cnt] );
             pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
         }
     }
@@ -766,7 +781,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
         {
             log_debug( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
         }
-        else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAXIMPORTPERPLAYER )
+        else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
             log_debug( "load_one_profile_vfs() - Not able to open file \"%s\"\n", tmploadname );
         }
@@ -781,7 +796,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     // without permission
     if ( LOADED_PRO( iobj ) )
     {
-        pro_t * pobj = ProList.lst + iobj;
+        pro_t * pobj = ProList_get_ptr( iobj );
 
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
@@ -808,10 +823,10 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     }
 
     // grab a pointer to the object
-    pobj  = ProList.lst + iobj;
+    pobj  = ProList_get_ptr( iobj );
 
     // load the character profile
-    pobj->icap = load_one_character_profile_vfs( tmploadname, islot, bfalse );
+    pobj->icap = CapStack_load_one( tmploadname, islot, bfalse );
     islot = REF_TO_INT( pobj->icap );
 
     // Load the model for this iobj
@@ -819,7 +834,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 
     // Load the enchantment for this iobj
     make_newloadname( tmploadname, "/enchant.txt", newloadname );
-    pobj->ieve = load_one_enchant_profile_vfs( newloadname, ( EVE_REF )islot );
+    pobj->ieve = EveStack_losd_one( newloadname, ( EVE_REF )islot );
 
     // Load the messages for this iobj, do this before loading the AI script
     make_newloadname( tmploadname, "/message.txt", newloadname );
@@ -831,7 +846,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/part%d.txt", tmploadname, cnt );
 
         // Make sure it's referenced properly
-        pobj->prtpip[cnt] = load_one_particle_profile_vfs( newloadname, ( PIP_REF )MAX_PIP );
+        pobj->prtpip[cnt] = PipStack_load_one( newloadname, ( PIP_REF )MAX_PIP );
     }
 
     pobj->skins = load_profile_skins_vfs( tmploadname, iobj );
@@ -895,10 +910,10 @@ const char * pro_create_chop( const PRO_REF iprofile )
     strncpy( buffer, "*NONE*", SDL_arraysize( buffer ) );
 
     if ( !LOADED_PRO( iprofile ) ) return buffer;
-    ppro = ProList.lst + iprofile;
+    ppro = ProList_get_ptr( iprofile );
 
     if ( !LOADED_CAP( ppro->icap ) ) return buffer;
-    pcap = CapStack.lst + ppro->icap;
+    pcap = CapStack_get_ptr( ppro->icap );
 
     if ( 0 == ppro->chop.section[0].size )
     {
@@ -924,7 +939,7 @@ bool_t pro_load_chop_vfs( const PRO_REF iprofile, const char *szLoadname )
     pro_t * ppro;
 
     if ( !VALID_PRO_RANGE( iprofile ) ) return bfalse;
-    ppro = ProList.lst + iprofile;
+    ppro = ProList_get_ptr( iprofile );
 
     // clear out any current definition
     chop_definition_init( &( ppro->chop ) );

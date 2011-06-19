@@ -33,6 +33,23 @@ typedef struct s_chr_instance chr_instance_t;
 struct s_vlst_cache;
 typedef struct s_vlst_cache vlst_cache_t;
 
+struct s_camera;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// is the coordinate system right handed or left handed?
+
+#if defined(MAD_CULL_RIGHT)
+// this worked with the old camera
+#    define MAD_REF_CULL   GL_CCW
+#    define MAD_NRM_CULL   GL_CW
+#else
+// they had to be reversed with the new camera
+#    define MAD_REF_CULL   GL_CW
+#    define MAD_NRM_CULL   GL_CCW
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -134,6 +151,8 @@ struct s_vlst_cache
 /// All the data that the renderer needs to draw the character
 struct s_chr_instance
 {
+    int update_frame;                ///< the last frame that the instance was calculated in
+
     // position info
     fmat_4x4_t     matrix;           ///< Character's matrix
     matrix_cache_t matrix_cache;     ///< Did we make one yet?
@@ -155,8 +174,8 @@ struct s_chr_instance
 
     // texture info
     TX_REF         texture;         ///< The texture id of the character's skin
-    SFP8_T         uoffset;         ///< For moving textures
-    SFP8_T         voffset;
+    SFP8_T         uoffset;         ///< For moving textures (8.8 fixed point)
+    SFP8_T         voffset;         ///< For moving textures (8.8 fixed point)
 
     // model info
     MAD_REF        imad;            ///< Character's model
@@ -179,8 +198,8 @@ struct s_chr_instance
     Sint32         color_amb;
     fvec4_t        col_amb;
     int            max_light, min_light;
-    Uint32         lighting_update_wld;            ///< update some lighting info no more than once an update
-    Uint32         lighting_frame_all;             ///< update some lighting info no more than once a frame
+    int            lighting_update_wld;            ///< update some lighting info no more than once an update
+    int            lighting_frame_all;             ///< update some lighting info no more than once a frame
 
     // linear interpolated frame vertices
     size_t         vrt_count;
@@ -238,10 +257,12 @@ float  chr_instance_get_remaining_flip( chr_instance_t * pinst );
 gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst );
 gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
 void   chr_instance_update_lighting_base( chr_instance_t * pinst, struct s_chr * pchr, bool_t force );
+void   chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
+bool_t chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-gfx_rv render_one_mad_ref( const CHR_REF ichr );
-gfx_rv render_one_mad_trans( const CHR_REF ichr );
-gfx_rv render_one_mad_solid( const CHR_REF ichr );
+gfx_rv render_one_mad( const struct s_camera * pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+gfx_rv render_one_mad_ref( const struct s_camera * pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_trans( const struct s_camera * pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_solid( const struct s_camera * pcam, const CHR_REF ichr );

@@ -49,7 +49,7 @@ static INLINE CAP_REF pro_get_icap( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return ( CAP_REF )MAX_CAP;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     return LOADED_CAP( pobj->icap ) ? pobj->icap : ( CAP_REF )MAX_CAP;
 }
@@ -60,7 +60,7 @@ static INLINE MAD_REF pro_get_imad( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return ( MAD_REF )MAX_MAD;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     return LOADED_MAD( pobj->imad ) ? pobj->imad : ( MAD_REF )MAX_MAD;
 }
@@ -71,7 +71,7 @@ static INLINE EVE_REF pro_get_ieve( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return ( EVE_REF )MAX_EVE;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     return LOADED_EVE( pobj->ieve ) ? pobj->ieve : ( EVE_REF )MAX_EVE;
 }
@@ -96,7 +96,7 @@ static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
     else
     {
         // this pip is relative to a certain object
-        pobj = ProList.lst + iobj;
+        pobj = ProList_get_ptr( iobj );
 
         // find the local pip if it exists
         if ( pip_index < MAX_PIP_PER_PROFILE )
@@ -127,11 +127,11 @@ static INLINE cap_t * pro_get_pcap( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     if ( !LOADED_CAP( pobj->icap ) ) return NULL;
 
-    return CapStack.lst + pobj->icap;
+    return CapStack_get_ptr( pobj->icap );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -140,11 +140,11 @@ static INLINE mad_t * pro_get_pmad( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     if ( !LOADED_MAD( pobj->imad ) ) return NULL;
 
-    return MadStack.lst + pobj->imad;
+    return MadStack_get_ptr( pobj->imad );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -153,11 +153,11 @@ static INLINE eve_t * pro_get_peve( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     if ( !LOADED_EVE( pobj->ieve ) ) return NULL;
 
-    return EveStack.lst + pobj->ieve;
+    return EveStack_get_ptr( pobj->ieve );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ static INLINE pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
         global_pip = pip_index;
         if ( LOADED_PIP( global_pip ) )
         {
-            return PipStack.lst + global_pip;
+            return PipStack_get_ptr( global_pip );
         }
         else
         {
@@ -181,7 +181,7 @@ static INLINE pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
     }
 
     // this pip is relative to a certain object
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     // find the local pip if it exists
     local_pip = ( PIP_REF )MAX_PIP;
@@ -201,7 +201,7 @@ static INLINE Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index )
     if ( !VALID_SND( index ) ) return NULL;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
+    pobj = ProList_get_ptr( iobj );
 
     return pobj->wavelist[index];
 }

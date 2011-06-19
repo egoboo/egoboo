@@ -56,7 +56,7 @@ struct s_process_instance
     bool_t          killme;
     bool_t          terminated;
     process_state_t state;
-    double          dtime;
+    double          frameDuration;
 };
 typedef struct s_process_instance process_t;
 

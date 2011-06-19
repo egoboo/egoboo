@@ -23,7 +23,7 @@
 
 #include "sound.h"
 
-#include "camera.h"
+#include "camera_system.h"
 #include "log.h"
 #include "game.h"
 #include "graphic.h"
@@ -34,14 +34,19 @@
 #include "egoboo_strutil.h"
 
 #include "egoboo_math.inl"
+#include "char.inl"
 
 #include <SDL.h>
 
-#include "char.inl"
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define LOOPED_COUNT 256
+
+#define MUSIC_STACK_COUNT 20
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define LOOPED_COUNT 256
 
 /// Data needed to store and manipulate a looped sound
 struct s_looped_sound_data
@@ -52,30 +57,51 @@ struct s_looped_sound_data
 };
 typedef struct s_looped_sound_data looped_sound_data_t;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// define a little stack for interrupting music sounds with other music
+
+/// The data needed to store a dsingle music track on the music_stack[]
+struct s_music_stack_element
+{
+    Mix_Music * mus;
+    int         number;
+};
+
+typedef struct s_music_stack_element music_stack_element_t;
+
+static bool_t                music_stack_pop( Mix_Music ** mus, int * song );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 INSTANTIATE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
-static void   LoopedList_init();
-static void   LoopedList_clear();
+static void   LoopedList_init( void );
+static void   LoopedList_clear( void );
 static bool_t LoopedList_free_one( size_t index );
-static size_t LoopedList_get_free();
+static size_t LoopedList_get_free( void );
 
-static bool_t LoopedList_validate();
+static bool_t LoopedList_validate( void );
 static size_t LoopedList_add( Mix_Chunk * sound, int loops, const CHR_REF  object );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static bool_t sdl_audio_initialize( void );
+static bool_t sdl_mixer_initialize( void );
+static void   sdl_mixer_quit( void );
+
+static int    _calculate_volume( const fvec3_base_t diff, const float fov_rad );
+static bool_t _update_stereo_channel( int channel, const fvec3_base_t diff, const float pan );
+static bool_t _update_channel_volume( int channel, const int volume, const float pan );
+static bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t diff, float * pan_ptr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // Sound using SDL_Mixer
 static bool_t mixeron         = bfalse;
-
-snd_config_t snd;
-
-// music
-bool_t      musicinmemory = bfalse;
-Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];
-Sint8       songplaying   = INVALID_SOUND;
-
-Mix_Chunk * g_wavelist[GSND_COUNT];
 
 // text filenames for the global sounds
 static const char * wavenames[GSND_COUNT] =
@@ -92,36 +118,28 @@ static const char * wavenames[GSND_COUNT] =
 
 static bool_t sound_atexit_registered = bfalse;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static bool_t sdl_audio_initialize();
-static bool_t sdl_mixer_initialize();
-static void   sdl_mixer_quit( void );
-
-int    _calculate_volume( fvec3_t   diff, renderlist_t * prlist );
-bool_t _update_stereo_channel( int channel, fvec3_t diff, renderlist_t * prlist );
-bool_t _update_channel_volume( int channel, int volume, fvec3_t diff );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// define a little stack for interrupting music sounds with other music
-
-#define MUSIC_STACK_COUNT 20
-static int music_stack_depth = 0;
-
-/// The data needed to store a dsingle music track on the music_stack[]
-struct s_music_stack_element
-{
-    Mix_Music * mus;
-    int         number;
-};
-
-typedef struct s_music_stack_element music_stack_element_t;
-
+static int                   music_stack_depth = 0;
 static music_stack_element_t music_stack[MUSIC_STACK_COUNT];
 
-static bool_t music_stack_pop( Mix_Music ** mus, int * song );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
+snd_config_t snd;
+
+// music
+bool_t      musicinmemory = bfalse;
+Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];
+Sint8       songplaying   = INVALID_SOUND;
+
+Mix_Chunk * g_wavelist[GSND_COUNT];
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_LIST( looped_sound_data_t, LoopedList, LOOPED_COUNT );
+
+//--------------------------------------------------------------------------------------------
+// music_stack
 //--------------------------------------------------------------------------------------------
 static void music_stack_finished_callback( void )
 {
@@ -204,6 +222,7 @@ void music_stack_init()
 }
 
 //--------------------------------------------------------------------------------------------
+// SDL
 //--------------------------------------------------------------------------------------------
 bool_t sdl_audio_initialize()
 {
@@ -232,7 +251,6 @@ bool_t sdl_audio_initialize()
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t sdl_mixer_initialize()
 {
@@ -281,7 +299,7 @@ void sdl_mixer_quit( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // This function enables the use of SDL_Audio and SDL_Mixer functions, returns btrue if success
-bool_t sound_initialize()
+bool_t sound_system_initialize()
 {
     bool_t retval = bfalse;
     if ( sdl_audio_initialize() )
@@ -297,6 +315,86 @@ bool_t sound_initialize()
     return retval;
 }
 
+//--------------------------------------------------------------------------------------------
+void sound_system_restart()
+{
+    //if ( mixeron )
+    {
+        Mix_CloseAudio();
+        mixeron = bfalse;
+    }
+
+    // loose the info on the currently playing song
+    if ( snd.musicvalid || snd.soundvalid )
+    {
+        if ( -1 != Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) )
+        {
+            mixeron = btrue;
+            Mix_AllocateChannels( snd.maxsoundchannel );
+            Mix_VolumeMusic( snd.musicvolume );
+
+            // initialize the music stack
+            music_stack_init();
+
+            if ( !sound_atexit_registered )
+            {
+                atexit( sdl_mixer_quit );
+                sound_atexit_registered = btrue;
+            }
+        }
+        else
+        {
+            log_warning( "sound_system_restart() - Cannot get the sound module to restart. (%s)\n", Mix_GetError() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t sound_system_config_init( snd_config_t * psnd )
+{
+    // Initialize the sound settings and set all values to default
+    if ( NULL == psnd ) return bfalse;
+
+    psnd->soundvalid        = bfalse;
+    psnd->musicvalid        = bfalse;
+    psnd->musicvolume       = 50;                            // The sound volume of music
+    psnd->soundvolume       = 75;          // Volume of sounds played
+    psnd->maxsoundchannel   = 16;      // Max number of sounds playing at the same time
+    psnd->buffersize        = 2048;
+    psnd->highquality       = bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t sound_system_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
+{
+    if ( NULL == psnd && NULL == pcfg ) return bfalse;
+
+    if ( NULL == pcfg )
+    {
+        return sound_system_config_init( psnd );
+    }
+
+    // coerce pcfg to have valid values
+    pcfg->sound_channel_count = CLIP( pcfg->sound_channel_count, 8, 128 );
+    pcfg->sound_buffer_size   = CLIP( pcfg->sound_buffer_size, 512, 8196 );
+
+    if ( NULL != psnd )
+    {
+        psnd->soundvalid      = pcfg->sound_allowed;
+        psnd->soundvolume     = pcfg->sound_volume;
+        psnd->musicvalid      = pcfg->music_allowed;
+        psnd->musicvolume     = pcfg->music_volume;
+        psnd->maxsoundchannel = pcfg->sound_channel_count;
+        psnd->buffersize      = pcfg->sound_buffer_size;
+        psnd->highquality     = pcfg->sound_highquality;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Mix_Chunk * sound_load_chunk_vfs( const char * szFileName )
 {
@@ -464,101 +562,56 @@ int sound_play_mix( fvec3_t pos, mix_ptr_t * pptr )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_restart()
+void sound_fade_all()
 {
-    //if ( mixeron )
+    if ( mixeron )
     {
-        Mix_CloseAudio();
-        mixeron = bfalse;
+        Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
     }
-
-    // loose the info on the currently playing song
-    if ( snd.musicvalid || snd.soundvalid )
-    {
-        if ( -1 != Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) )
-        {
-            mixeron = btrue;
-            Mix_AllocateChannels( snd.maxsoundchannel );
-            Mix_VolumeMusic( snd.musicvolume );
-
-            // initialize the music stack
-            music_stack_init();
-
-            if ( !sound_atexit_registered )
-            {
-                atexit( sdl_mixer_quit );
-                sound_atexit_registered = btrue;
-            }
-        }
-        else
-        {
-            log_warning( "sound_restart() - Cannot get the sound module to restart. (%s)\n", Mix_GetError() );
-        }
-    }
-}
-
-//------------------------------------
-// Mix_Chunk stuff -------------------
-//------------------------------------
-
-int _calculate_volume( fvec3_t diff, renderlist_t * prlist )
-{
-    /// @details BB@> This calculates the volume a sound should have depending on
-    //  the distance from the camera
-
-    float dist2;
-    int volume;
-    float render_size;
-
-    // approximate the radius of the area that the camera sees
-    render_size = prlist->all_count * ( GRID_FSIZE / 2 * GRID_FSIZE / 2 ) / 4;
-
-    dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-
-    // adjust for the listen skill
-    if ( local_stats.listening_level ) dist2 *= 0.66f * 0.66f;
-
-    volume  = 255 * render_size / ( render_size + dist2 );
-    volume  = ( volume * snd.soundvolume ) / 100;
-
-    return volume;
-}
-
-bool_t _update_channel_volume( int channel, int volume, fvec3_t   diff )
-{
-    float pan;
-    float cosval;
-    int leftvol, rightvol;
-
-    // determine the angle away from "forward"
-    pan = ATAN2( diff.y, diff.x ) - PCamera->turn_z_rad;
-    volume *= ( 2.0f + cos( pan ) ) / 3.0f;
-
-    // determine the angle from the left ear
-    pan += 1.5f * PI;
-
-    // determine the panning
-    cosval = cos( pan );
-    cosval *= cosval;
-
-    leftvol  = cosval * 128;
-    rightvol = 128 - leftvol;
-
-    leftvol  = (( 127 + leftvol ) * volume ) >> 8;
-    rightvol = (( 127 + rightvol ) * volume ) >> 8;
-
-    // apply the volume adjustments
-    Mix_SetPanning( channel, leftvol, rightvol );
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner, renderlist_t * prlist )
+void fade_in_music( Mix_Music * music )
+{
+    if ( mixeron )
+    {
+        Mix_FadeInMusic( music, -1, 500 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void sound_finish_sound()
+{
+    Mix_FadeOutChannel( -1, 500 );     // Stop all in-game sounds that are playing
+    sound_finish_song( 500 );          // Fade out the existing song and pop the music stack
+}
+
+//--------------------------------------------------------------------------------------------
+void sound_free_chunk( Mix_Chunk * pchunk )
+{
+    if ( mixeron )
+    {
+        Mix_FreeChunk( pchunk );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+int get_current_song_playing()
+{
+    //ZF> This gives read access to the private variable 'songplaying'
+    return songplaying;
+}
+
+//--------------------------------------------------------------------------------------------
+// chunk stuff
+//--------------------------------------------------------------------------------------------
+int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
-    fvec3_t   diff;
+
+    fvec3_t diff;
+    float pan;
     int volume;
 
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND_CHANNEL;
@@ -567,8 +620,9 @@ int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const C
     if ( !process_running( PROC_PBASE( GProc ) ) )  return INVALID_SOUND_CHANNEL;
 
     // measure the distance in tiles
-    diff = fvec3_sub( pos.v, PCamera->track_pos.v );
-    volume = _calculate_volume( diff, prlist );
+    _calculate_average_camera_stereo( pos.v, diff.v, &pan );
+
+    volume = _calculate_volume( diff.v, DEG_TO_RAD( CAM_FOV ) );
 
     // play the sound
     if ( volume > 0 )
@@ -590,7 +644,7 @@ int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const C
             }
 
             //Set left/right panning
-            _update_channel_volume( channel, volume, diff );
+            _update_channel_volume( channel, volume, pan );
         }
     }
 
@@ -627,9 +681,9 @@ void sound_stop_channel( int whichchannel )
     }
 }
 
-//------------------------------------
-// Mix_Music stuff -------------------
-//------------------------------------
+//--------------------------------------------------------------------------------------------
+// song stuff
+//--------------------------------------------------------------------------------------------
 void sound_play_song( int songnumber, Uint16 fadetime, int loops )
 {
     /// @details ZF@> This functions plays a specified track loaded into memory
@@ -707,8 +761,7 @@ void sound_stop_song()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void load_global_waves()
+void sound_load_global_waves_vfs()
 {
     /// @details ZZ@> This function loads the global waves
 
@@ -750,7 +803,7 @@ void load_global_waves()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_music_sounds_vfs()
+void sound_load_all_music_sounds_vfs()
 {
     /// ZF@> This function loads all of the music sounds
     STRING loadpath;
@@ -804,71 +857,7 @@ void load_all_music_sounds_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-bool_t snd_config_init( snd_config_t * psnd )
-{
-    // Initialize the sound settings and set all values to default
-    if ( NULL == psnd ) return bfalse;
-
-    psnd->soundvalid        = bfalse;
-    psnd->musicvalid        = bfalse;
-    psnd->musicvolume       = 50;                            // The sound volume of music
-    psnd->soundvolume       = 75;          // Volume of sounds played
-    psnd->maxsoundchannel   = 16;      // Max number of sounds playing at the same time
-    psnd->buffersize        = 2048;
-    psnd->highquality       = bfalse;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t snd_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
-{
-    if ( NULL == psnd && NULL == pcfg ) return bfalse;
-
-    if ( NULL == pcfg )
-    {
-        return snd_config_init( psnd );
-    }
-
-    // coerce pcfg to have valid values
-    pcfg->sound_channel_count = CLIP( pcfg->sound_channel_count, 8, 128 );
-    pcfg->sound_buffer_size   = CLIP( pcfg->sound_buffer_size, 512, 8196 );
-
-    if ( NULL != psnd )
-    {
-        psnd->soundvalid      = pcfg->sound_allowed;
-        psnd->soundvolume     = pcfg->sound_volume;
-        psnd->musicvalid      = pcfg->music_allowed;
-        psnd->musicvolume     = pcfg->music_volume;
-        psnd->maxsoundchannel = pcfg->sound_channel_count;
-        psnd->buffersize      = pcfg->sound_buffer_size;
-        psnd->highquality     = pcfg->sound_highquality;
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-void sound_fade_all()
-{
-    if ( mixeron )
-    {
-        Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void fade_in_music( Mix_Music * music )
-{
-    if ( mixeron )
-    {
-        Mix_FadeInMusic( music, -1, 500 );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
+// LoopedList
 //--------------------------------------------------------------------------------------------
 void   LoopedList_init()
 {
@@ -879,7 +868,7 @@ void   LoopedList_init()
     for ( cnt = 0; cnt < LOOPED_COUNT; cnt++ )
     {
         // clear out all of the data
-        memset( LoopedList.lst + cnt, 0, sizeof( LoopedList.lst[cnt] ) );
+        BLANK_STRUCT( LoopedList.lst[cnt] );
 
         LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
         LoopedList.lst[cnt].chunk   = NULL;
@@ -1054,20 +1043,9 @@ bool_t LoopedList_remove( int channel )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _update_stereo_channel( int channel, fvec3_t diff, renderlist_t * prlist )
-{
-    /// @details BB@> This updates the stereo image of a looped sound
-
-    int       volume;
-
-    if ( INVALID_SOUND_CHANNEL == channel ) return bfalse;
-
-    volume = _calculate_volume( diff, prlist );
-    return _update_channel_volume( channel, volume, diff );
-}
-
+// looped
 //--------------------------------------------------------------------------------------------
-void looped_update_all_sound( renderlist_t * prlist )
+void looped_update_all_sound( )
 {
     int cnt;
 
@@ -1091,14 +1069,19 @@ void looped_update_all_sound( renderlist_t * prlist )
             // not a valid object
             fvec3_t   diff = VECT3( 0, 0, 0 );
 
-            _update_stereo_channel( plooped->channel, diff, prlist );
+            _update_stereo_channel( plooped->channel, diff.v, 0.0f );
         }
         else
         {
-            // make the sound stick to the object
-            diff = fvec3_sub( ChrList.lst[plooped->object].pos.v, PCamera->track_pos.v );
+            float pan;
 
-            _update_stereo_channel( plooped->channel, diff, prlist );
+            // make the sound stick to the object
+
+            // get the stereo parameters for multiple cameras (yuck!)
+            _calculate_average_camera_stereo( ChrList.lst[plooped->object].pos.v, diff.v, &pan );
+
+            // update the stereo channels
+            _update_stereo_channel( plooped->channel, diff.v, pan );
         }
     }
 }
@@ -1150,24 +1133,160 @@ bool_t looped_stop_object_sounds( const CHR_REF  ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_finish_sound()
+// helper functions
+//--------------------------------------------------------------------------------------------
+
+int _calculate_volume( const fvec3_base_t diff, float const fov_rad )
 {
-    Mix_FadeOutChannel( -1, 500 );     // Stop all in-game sounds that are playing
-    sound_finish_song( 500 );          // Fade out the existing song and pop the music stack
+    /// @details BB@> This calculates the volume a sound should have depending on
+    //  the distance from the camera
+
+    float dist2;
+    int volume;
+    float render_size, tan_val;
+
+    // approximate the radius of the area that the camera sees
+    dist2 = diff[kX] * diff[kX] + diff[kY] * diff[kY] + diff[kZ] * diff[kZ];
+    tan_val = TAN( fov_rad * 0.5f );
+    render_size = PI * dist2 * tan_val * tan_val;
+
+    // adjust for the listen skill
+    if ( local_stats.listening_level ) dist2 *= 0.66f * 0.66f;
+
+    volume  = 255 * render_size / ( render_size + dist2 );
+    volume  = ( volume * snd.soundvolume ) / 100;
+
+    return volume;
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_free_chunk( Mix_Chunk * pchunk )
+bool_t _update_channel_volume( int channel, int volume, const float pan )
 {
-    if ( mixeron )
+    float loc_pan = pan;
+    float cosval;
+    int leftvol, rightvol;
+
+    // determine the angle away from "forward"
+    volume *= ( 2.0f + cos( loc_pan ) ) / 3.0f;
+
+    // determine the angle from the left ear
+    loc_pan += 1.5f * PI;
+
+    // determine the panning
+    cosval = cos( loc_pan );
+    cosval *= cosval;
+
+    leftvol  = cosval * 128;
+    rightvol = 128 - leftvol;
+
+    leftvol  = (( 127 + leftvol ) * volume ) >> 8;
+    rightvol = (( 127 + rightvol ) * volume ) >> 8;
+
+    // apply the volume adjustments
+    Mix_SetPanning( channel, leftvol, rightvol );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t diff, float * pan_ptr )
+{
+    int cam_count;
+    fvec2_t pan_diff;
+    ext_camera_iterator_t * it;
+    ext_camera_list_t * pclst;
+
+    if ( NULL == pos ) return bfalse;
+
+    // initialize the values
+    fvec3_self_clear( diff );
+    fvec3_self_clear( pan_diff.v );
+
+    // get the camera list
+    pclst = camera_system_get_list();
+
+    // iterate over all cameras
+    cam_count = 0;
+    for ( it = camera_list_iterator_begin( pclst ); NULL != it; it = camera_list_iterator_next( it ) )
     {
-        Mix_FreeChunk( pchunk );
+        fvec3_t tmp_diff;
+
+        camera_t * pcam = camera_list_iterator_get_camera( it );
+        if ( NULL == pcam ) continue;
+
+        // how many cameras?
+        cam_count++;
+
+        // find the difference relative to this camera
+        fvec3_sub( tmp_diff.v, pos, pcam->center.v );
+
+        // sum up the differences
+        fvec3_self_sum( diff, tmp_diff.v );
+
+        // if pan is required...
+        if ( NULL != pan_ptr )
+        {
+            float diff2, inv_diff_len;
+            float cam_sin, cam_cos;
+            fvec2_t norm_diff, cam_diff, tmp;
+
+            // calculate the camera trig functions
+            cam_sin = SIN( pcam->turn_z_rad );
+            cam_cos = COS( pcam->turn_z_rad );
+
+            // get the distance squared
+            diff2 = fvec2_length_2( tmp_diff.v );
+
+            if ( diff2 > 0.0f )
+            {
+                float inv_diff2 = 1.0f / diff2;
+
+                // fall to half in one grid unit
+                float pan_wt    = 1.0f / ( 1.0f + diff2 / GRID_FSIZE / GRID_FSIZE );
+
+                // normalize the difference vector in 2d
+                inv_diff_len = SQRT( inv_diff2 );
+                fvec2_scale( norm_diff.v, tmp_diff.v, inv_diff_len );
+
+                // measure the diff relative to the camera direction
+                cam_diff.x = norm_diff.x * cam_cos + norm_diff.y * cam_sin;
+                cam_diff.y = norm_diff.y * cam_cos - norm_diff.x * cam_sin;
+
+                // weight the pan based on the volume at the destination
+                fvec2_scale( tmp.v, cam_diff.v, pan_wt );
+
+                // sum this vector
+                fvec2_self_sum( pan_diff.v, tmp.v );
+            }
+        }
     }
+    it = camera_list_iterator_end( it );
+
+    // get the average
+    if ( cam_count > 1 )
+    {
+        fvec3_self_scale( diff, 1.0f / cam_count );
+    }
+
+    // find the net direction
+    if ( NULL != pan_ptr )
+    {
+        *pan_ptr = ATAN2( pan_diff.y, pan_diff.x );
+    }
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-int get_current_song_playing()
+bool_t _update_stereo_channel( int channel, const fvec3_base_t diff, const float pan )
 {
-    //ZF> This gives read access to the private variable 'songplaying'
-    return songplaying;
+    /// @details BB@> This updates the stereo image of a looped sound
+
+    int       volume;
+
+    if ( INVALID_SOUND_CHANNEL == channel ) return bfalse;
+
+    volume = _calculate_volume( diff, DEG_TO_RAD( CAM_FOV ) );
+
+    return _update_channel_volume( channel, volume, pan );
 }

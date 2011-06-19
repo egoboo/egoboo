@@ -33,6 +33,7 @@
 #include "egoboo_strutil.h"
 #include "egoboo.h"
 
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -266,7 +267,7 @@ void fs_findClose( fs_find_context_t * fs_search )
 
     EGOBOO_DELETE( pcnt );
 
-    memset( fs_search, 0, sizeof( *fs_search ) );
+    BLANK_STRUCT_PTR( fs_search )
 }
 
 int DirGetAttrib( const char *fromdir )

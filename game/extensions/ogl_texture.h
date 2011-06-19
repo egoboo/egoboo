@@ -109,4 +109,4 @@ GLboolean oglx_texture_Valid( oglx_texture_t *ptex );
 GLuint    oglx_bind_to_tex_params( GLuint binding, GLenum target, GLint wrap_s, GLint wrap_t );
 
 void      ErrorImage_bind( GLenum target, GLuint id );
-GLuint    ErrorImage_get_binding();
+GLuint    ErrorImage_get_binding( void );

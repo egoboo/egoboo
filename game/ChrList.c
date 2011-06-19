@@ -45,39 +45,45 @@ int chr_loop_depth = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static size_t  ChrList_get_free();
+static size_t  ChrList_get_free( void );
 
 static bool_t ChrList_remove_used( const CHR_REF ichr );
-static bool_t ChrList_remove_used_index( int index );
+static bool_t ChrList_remove_used_index( const int index );
 static bool_t ChrList_add_free( const CHR_REF ichr );
-static bool_t ChrList_remove_free( const CHR_REF ichr );
+//static bool_t ChrList_remove_free( const CHR_REF ichr );
 static bool_t ChrList_remove_free_index( const int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t VALID_CHR_RANGE( CHR_REF ICHR ) { return _VALID_CHR_RANGE( ICHR ); }
-bool_t DEFINED_CHR( CHR_REF ICHR )     { return _DEFINED_CHR( ICHR );     }
-bool_t ALLOCATED_CHR( CHR_REF ICHR )   { return _ALLOCATED_CHR( ICHR );   }
-bool_t ACTIVE_CHR( CHR_REF ICHR )      { return _ACTIVE_CHR( ICHR );      }
-bool_t WAITING_CHR( CHR_REF ICHR )     { return _WAITING_CHR( ICHR );     }
-bool_t TERMINATED_CHR( CHR_REF ICHR )  { return _TERMINATED_CHR( ICHR );  }
+bool_t VALID_CHR_RANGE( const CHR_REF ICHR ) { return _VALID_CHR_RANGE( ICHR ); }
+bool_t DEFINED_CHR( const CHR_REF ICHR )     { return _DEFINED_CHR( ICHR );     }
+bool_t ALLOCATED_CHR( const CHR_REF ICHR )   { return _ALLOCATED_CHR( ICHR );   }
+bool_t ACTIVE_CHR( const CHR_REF ICHR )      { return _ACTIVE_CHR( ICHR );      }
+bool_t WAITING_CHR( const CHR_REF ICHR )     { return _WAITING_CHR( ICHR );     }
+bool_t TERMINATED_CHR( const CHR_REF ICHR )  { return _TERMINATED_CHR( ICHR );  }
 
-size_t  GET_INDEX_PCHR( chr_t * PCHR )  { return _GET_INDEX_PCHR( PCHR );  }
-CHR_REF GET_REF_PCHR( chr_t * PCHR )    { return _GET_REF_PCHR( PCHR );    }
-bool_t  DEFINED_PCHR( chr_t * PCHR )    { return _DEFINED_PCHR( PCHR );    }
-bool_t  VALID_CHR_PTR( chr_t * PCHR )   { return _VALID_CHR_PTR( PCHR );   }
-bool_t  ALLOCATED_PCHR( chr_t * PCHR )  { return _ALLOCATED_PCHR( PCHR );  }
-bool_t  ACTIVE_PCHR( chr_t * PCHR )     { return _ACTIVE_PCHR( PCHR );     }
-bool_t  TERMINATED_PCHR( chr_t * PCHR ) { return _TERMINATED_PCHR( PCHR ); }
+size_t  GET_INDEX_PCHR( const chr_t * PCHR )  { return _GET_INDEX_PCHR( PCHR );  }
+CHR_REF GET_REF_PCHR( const chr_t * PCHR )    { return _GET_REF_PCHR( PCHR );    }
+bool_t  DEFINED_PCHR( const chr_t * PCHR )    { return _DEFINED_PCHR( PCHR );    }
+bool_t  VALID_CHR_PTR( const chr_t * PCHR )   { return _VALID_CHR_PTR( PCHR );   }
+bool_t  ALLOCATED_PCHR( const chr_t * PCHR )  { return _ALLOCATED_PCHR( PCHR );  }
+bool_t  ACTIVE_PCHR( const chr_t * PCHR )     { return _ACTIVE_PCHR( PCHR );     }
+bool_t  TERMINATED_PCHR( const chr_t * PCHR ) { return _TERMINATED_PCHR( PCHR ); }
 
-bool_t INGAME_CHR_BASE( CHR_REF ICHR )  { return _INGAME_CHR_BASE( ICHR );  }
-bool_t INGAME_PCHR_BASE( chr_t * PCHR ) { return _INGAME_PCHR_BASE( PCHR ); }
+bool_t INGAME_CHR_BASE( const CHR_REF ICHR )  { return _INGAME_CHR_BASE( ICHR );  }
+bool_t INGAME_PCHR_BASE( const chr_t * PCHR )       { return _INGAME_PCHR_BASE( PCHR ); }
 
-bool_t INGAME_CHR( CHR_REF ICHR )       { return _INGAME_CHR( ICHR );  }
-bool_t INGAME_PCHR( chr_t * PCHR )      { return _INGAME_PCHR( PCHR ); }
+bool_t INGAME_CHR( const CHR_REF ICHR )       { return _INGAME_CHR( ICHR );  }
+bool_t INGAME_PCHR( const chr_t * PCHR )            { return _INGAME_PCHR( PCHR ); }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+IMPLEMENT_LIST( chr_t, ChrList, MAX_CHR );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 void ChrList_init()
 {
     int cnt;
@@ -93,10 +99,10 @@ void ChrList_init()
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         CHR_REF ichr = ( MAX_CHR - 1 ) - cnt;
-        chr_t * pchr = ChrList.lst + ichr;
+        chr_t * pchr = ChrList_get_ptr( ichr );
 
         // blank out all the data, including the obj_base data
-        memset( pchr, 0, sizeof( *pchr ) );
+        BLANK_STRUCT_PTR( pchr )
 
         // character "initializer"
         ego_object_ctor( POBJ_GET_PBASE( pchr ) );
@@ -112,7 +118,7 @@ void ChrList_dtor()
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        chr_config_deconstruct( ChrList.lst + cnt, 100 );
+        chr_config_deconstruct( ChrList_get_ptr( cnt ), 100 );
     }
 
     ChrList.free_count = 0;
@@ -232,7 +238,7 @@ bool_t ChrList_free_one( const CHR_REF ichr )
     obj_data_t * pbase;
 
     if ( !ALLOCATED_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
     pbase = POBJ_GET_PBASE( pchr );
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
@@ -396,15 +402,6 @@ bool_t ChrList_remove_free_index( const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_free( const CHR_REF ichr )
-{
-    // find the object in the free list
-    int index = ChrList_get_free_list_index( ichr );
-
-    return ChrList_remove_free_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
 int ChrList_get_used_list_index( const CHR_REF ichr )
 {
     int retval = -1, cnt;
@@ -457,7 +454,7 @@ bool_t ChrList_add_used( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_used_index( int index )
+bool_t ChrList_remove_used_index( const int index )
 {
     CHR_REF ichr;
 
@@ -549,7 +546,7 @@ CHR_REF ChrList_allocate( const CHR_REF override )
         }
 
         // allocate the new one
-        POBJ_ALLOCATE( ChrList.lst +  ichr , REF_TO_INT( ichr ) );
+        POBJ_ALLOCATE( ChrList.lst + ichr, REF_TO_INT( ichr ) );
     }
 
     if ( ALLOCATED_CHR( ichr ) )
@@ -574,7 +571,7 @@ void ChrList_cleanup()
         CHR_REF ichr = chr_activation_list[cnt];
 
         if ( !ALLOCATED_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
+        pchr = ChrList_get_ptr( ichr );
 
         if ( !pchr->obj_base.turn_me_on ) continue;
 
@@ -635,3 +632,35 @@ bool_t ChrList_add_termination( CHR_REF ichr )
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_request_terminate( const CHR_REF ichr )
+{
+    /// @details BB@> Mark this character for deletion
+
+    chr_t * pchr = ChrList_get_ptr( ichr );
+
+    return chr_request_terminate( pchr );
+}
+
+//--------------------------------------------------------------------------------------------
+int ChrList_count_free()
+{
+    return ChrList.free_count;
+}
+
+//--------------------------------------------------------------------------------------------
+int ChrList_count_used()
+{
+    return ChrList.used_count; // MAX_CHR - ChrList.free_count;
+}
+
+////--------------------------------------------------------------------------------------------
+//bool_t ChrList_remove_free( const CHR_REF ichr )
+//{
+//    // find the object in the free list
+//    int index = ChrList_get_free_list_index( ichr );
+//
+//    return ChrList_remove_free_index( index );
+//}
+//

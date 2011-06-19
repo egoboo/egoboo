@@ -100,7 +100,7 @@ static INLINE bool_t cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz )
     cap_t * pcap;
 
     if ( !LOADED_CAP( icap ) ) return bfalse;
-    pcap = CapStack.lst + icap;
+    pcap = CapStack_get_ptr( icap );
 
     if ( IDSZ_NONE == test_idsz ) return btrue;
     if ( test_idsz == pcap->idsz[IDSZ_TYPE  ] ) return btrue;
@@ -120,7 +120,7 @@ static INLINE bool_t cap_has_idsz( const CAP_REF icap, IDSZ idsz )
     bool_t  retval;
 
     if ( !LOADED_CAP( icap ) ) return bfalse;
-    pcap = CapStack.lst + icap;
+    pcap = CapStack_get_ptr( icap );
 
     if ( IDSZ_NONE == idsz ) return btrue;
 
@@ -161,7 +161,7 @@ static INLINE chr_t  * team_get_pleader( const TEAM_REF iteam )
     ichr = TeamStack.lst[iteam].leader;
     if ( !DEFINED_CHR( ichr ) ) return NULL;
 
-    return ChrList.lst + ichr;
+    return ChrList_get_ptr( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ static INLINE PRO_REF chr_get_ipro( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return ( PRO_REF )MAX_PROFILE;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( !LOADED_PRO( pchr->profile_ref ) ) return ( PRO_REF )MAX_PROFILE;
 
@@ -194,7 +194,7 @@ static INLINE CAP_REF chr_get_icap( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return ( CAP_REF )MAX_CAP;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return pro_get_icap( pchr->profile_ref );
 }
@@ -205,7 +205,7 @@ static INLINE EVE_REF chr_get_ieve( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return ( EVE_REF )MAX_EVE;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return pro_get_ieve( pchr->profile_ref );
 }
@@ -216,7 +216,7 @@ static INLINE PIP_REF chr_get_ipip( const CHR_REF ichr, int ipip )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return ( PIP_REF )MAX_PIP;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return pro_get_ipip( pchr->profile_ref, ipip );
 }
@@ -228,7 +228,7 @@ static INLINE TEAM_REF chr_get_iteam( const CHR_REF ichr )
     int iteam;
 
     if ( !DEFINED_CHR( ichr ) ) return ( TEAM_REF )TEAM_DAMAGE;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     iteam = REF_TO_INT( pchr->team );
     iteam = CLIP( iteam, 0, TEAM_MAX );
@@ -243,7 +243,7 @@ static INLINE TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
     int iteam;
 
     if ( !DEFINED_CHR( ichr ) ) return ( TEAM_REF )TEAM_MAX;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     iteam = REF_TO_INT( pchr->team_base );
     iteam = CLIP( iteam, 0, TEAM_MAX );
@@ -257,11 +257,11 @@ static INLINE pro_t * chr_get_ppro( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( !LOADED_PRO( pchr->profile_ref ) ) return NULL;
 
-    return ProList.lst + pchr->profile_ref;
+    return ProList_get_ptr( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ static INLINE cap_t * chr_get_pcap( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return pro_get_pcap( pchr->profile_ref );
 }
@@ -281,7 +281,7 @@ static INLINE eve_t * chr_get_peve( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return pro_get_peve( pchr->profile_ref );
 }
@@ -292,7 +292,7 @@ static INLINE pip_t * chr_get_ppip( const CHR_REF ichr, int ipip )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return pro_get_ppip( pchr->profile_ref, ipip );
 }
@@ -303,7 +303,7 @@ static INLINE Mix_Chunk * chr_get_chunk( const CHR_REF ichr, int index )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return pro_get_chunk( pchr->profile_ref, index );
 }
@@ -322,11 +322,9 @@ static INLINE team_t * chr_get_pteam( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
-    if ( pchr->team < 0 && pchr->team >= TEAM_MAX ) return NULL;
-
-    return TeamStack.lst + pchr->team;
+    return TeamStack_get_ptr( pchr->team );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -335,11 +333,9 @@ static INLINE team_t * chr_get_pteam_base( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
-    if ( pchr->team_base < 0 || pchr->team_base >= TEAM_MAX ) return NULL;
-
-    return TeamStack.lst + pchr->team_base;
+    return TeamStack_get_ptr( pchr->team_base );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -348,7 +344,7 @@ static INLINE ai_state_t * chr_get_pai( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return &( pchr->ai );
 }
@@ -359,7 +355,7 @@ static INLINE chr_instance_t * chr_get_pinstance( const CHR_REF ichr )
     chr_t * pchr;
 
     if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     return &( pchr->inst );
 }

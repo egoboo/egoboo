@@ -22,24 +22,20 @@
 #include "bsp.h"
 
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
 
 struct s_chr;
 struct s_prt_bundle;
-
+struct s_ego_frustum;
 struct s_mpd_BSP;
 
 //--------------------------------------------------------------------------------------------
+// internal structs
 //--------------------------------------------------------------------------------------------
 
-enum obj_BSP_type
-{
-    BSP_LEAF_NONE = -1,
-    BSP_LEAF_CHR,
-    BSP_LEAF_ENC,
-    BSP_LEAF_PRT,
-    BSP_LEAF_TILE
-};
+struct s_obj_BSP;
+typedef struct s_obj_BSP obj_BSP_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,15 +49,16 @@ struct s_obj_BSP
     BSP_tree_t   tree;
 };
 
-typedef struct s_obj_BSP obj_BSP_t;
+#define OBJ_BSP_INIT_VALS { 0, BSP_TREE_INIT_VALS }
 
-bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int dim, struct s_mpd_BSP * pmesh_bsp );
+bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int dim, const struct s_mpd_BSP * pmesh_bsp );
 bool_t obj_BSP_dtor( obj_BSP_t * pbsp );
 
 bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth );
 bool_t obj_BSP_free( obj_BSP_t * pbsp );
 
-int    obj_BSP_collide( obj_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
+int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const struct s_ego_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -73,15 +70,19 @@ extern obj_BSP_t prt_BSP_root;
 //--------------------------------------------------------------------------------------------
 
 void obj_BSP_system_begin( struct s_mpd_BSP * pBSP );
-void obj_BSP_system_end();
+void obj_BSP_system_end( void );
 
 bool_t chr_BSP_insert( struct s_chr * pchr );
-bool_t chr_BSP_fill();
-bool_t chr_BSP_clear();
+bool_t chr_BSP_fill( void );
+bool_t chr_BSP_clear( void );
+bool_t chr_BSP_can_collide( BSP_leaf_t * pleaf );
+bool_t chr_BSP_is_visible( BSP_leaf_t * pleaf );
 
 bool_t prt_BSP_insert( struct s_prt_bundle * pbdl_prt );
-bool_t prt_BSP_fill();
-bool_t prt_BSP_clear();
+bool_t prt_BSP_fill( void );
+bool_t prt_BSP_clear( void );
+bool_t prt_BSP_can_collide( BSP_leaf_t * pleaf );
+bool_t prt_BSP_is_visible( BSP_leaf_t * pleaf );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

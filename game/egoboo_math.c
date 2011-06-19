@@ -35,6 +35,7 @@ Uint16  randie[RANDIE_COUNT];
 void make_turntosin( void )
 {
     /// @details ZZ@> This function makes the lookup table for chrturn...
+
     int cnt;
     float ftmp = TWO_PI / ( float )TRIG_TABLE_SIZE;
 

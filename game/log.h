@@ -36,7 +36,7 @@ extern "C"
     void   log_init( const char * logname );
     void   log_shutdown( void );
 
-    FILE * log_get_file();
+    FILE * log_get_file( void );
 
     void   log_setLoggingLevel( int level );
     void   log_message( const char *format, ... );

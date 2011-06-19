@@ -98,9 +98,9 @@ extern "C"
 
         // {GAME}
         int                     message_count_req;
-        Uint16                  message_duration;               ///< Time to keep the message alive
-        bool_t                  StatusList_on;                    ///< Draw the status bars?
-        Uint8                   autoturncamera;             ///< Type of camera control...
+        Uint16                  message_duration;        ///< Time to keep the message alive
+        bool_t                  show_stats;              ///< Draw the status bars?
+        Uint8                   autoturncamera;          ///< Type of camera control...
         bool_t                  fps_allowed;             ///< FPS displayed?
         FEEDBACK_TYPE           feedback;                ///< Feedback type
         Uint8                   difficulty;              ///< What is the current game difficulty
@@ -120,16 +120,13 @@ extern "C"
 // EXTERNAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    bool_t setup_read_vfs();
-    bool_t setup_write();
-    bool_t setup_quit();
+    bool_t setup_read_vfs( void );
+    bool_t setup_write( void );
+    bool_t setup_quit( void );
 
     bool_t setup_download( egoboo_config_t * pcfg );
     bool_t setup_upload( egoboo_config_t * pcfg );
     bool_t setup_synch( egoboo_config_t * pcfg );
-
-    bool_t input_settings_save_vfs( const char* whichfile );
-    bool_t input_settings_load_vfs( const char *szFilename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

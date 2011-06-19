@@ -71,7 +71,6 @@ bool_t twist_to_normal( Uint8 twist, float v[], float slide )
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 // Cartman functions
 //--------------------------------------------------------------------------------------------
@@ -92,7 +91,6 @@ Uint8 cartman_calc_twist( int x, int y )
 
     return twist;
 }
-
 
 //--------------------------------------------------------------------------------------------
 Uint8 cartman_get_fan_twist( const ego_mpd_t * pmesh, Uint32 tile )

@@ -141,7 +141,7 @@ int          pro_get_slot_vfs( const char * tmploadname, int slot_override );
 const char * pro_create_chop( const PRO_REF profile_ref );
 bool_t       pro_load_chop_vfs( const PRO_REF profile_ref, const char *szLoadname );
 
-void    ProList_init();
+void    ProList_init( void );
 size_t  ProList_get_free( const PRO_REF override_ref );
 bool_t  ProList_free_one( const PRO_REF object_ref );
 
@@ -160,22 +160,22 @@ extern chop_data_t chop_mem;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void profile_system_begin();
-void profile_system_end();
+void profile_system_begin( void );
+void profile_system_end( void );
 
-void   init_all_profiles();
+void   init_all_profiles( void );
 int    load_profile_skins_vfs( const char * tmploadname, const PRO_REF object_ref );
-void   release_all_pro_data();
-void   release_all_profiles();
-void   release_all_pro();
-void   release_all_local_pips();
+void   release_all_pro_data( void );
+void   release_all_profiles( void );
+void   release_all_pro( void );
+void   release_all_local_pips( void );
 bool_t release_one_pro( const PRO_REF object_ref );
 bool_t release_one_local_pips( const PRO_REF object_ref );
 
 int load_one_profile_vfs( const char* tmploadname, int slot_override );
 void profile_add_one_message( pro_t *pobject, const EGO_MESSAGE add_message );
 
-void reset_messages();
+void reset_messages( void );
 
 const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );
 bool_t        chop_load_vfs( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );

@@ -45,36 +45,41 @@ int enc_loop_depth = 0;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static size_t  EncList_get_free();
+static size_t  EncList_get_free( void );
 
 static bool_t EncList_remove_used( const ENC_REF ienc );
 static bool_t EncList_remove_used_index( int index );
 static bool_t EncList_add_free( const ENC_REF ienc );
-static bool_t EncList_remove_free( const ENC_REF ienc );
+//static bool_t EncList_remove_free( const ENC_REF ienc );
 static bool_t EncList_remove_free_index( const int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t VALID_ENC_RANGE( ENC_REF IENC ) { return _VALID_ENC_RANGE( IENC ); }
-bool_t DEFINED_ENC( ENC_REF IENC )     { return _DEFINED_ENC( IENC );     }
-bool_t ALLOCATED_ENC( ENC_REF IENC )   { return _ALLOCATED_ENC( IENC );   }
-bool_t ACTIVE_ENC( ENC_REF IENC )      { return _ACTIVE_ENC( IENC );      }
-bool_t WAITING_ENC( ENC_REF IENC )     { return _WAITING_ENC( IENC );     }
-bool_t TERMINATED_ENC( ENC_REF IENC )  { return _TERMINATED_ENC( IENC );  }
+bool_t VALID_ENC_RANGE( const ENC_REF IENC ) { return _VALID_ENC_RANGE( IENC ); }
+bool_t DEFINED_ENC( const ENC_REF IENC )     { return _DEFINED_ENC( IENC );     }
+bool_t ALLOCATED_ENC( const ENC_REF IENC )   { return _ALLOCATED_ENC( IENC );   }
+bool_t ACTIVE_ENC( const ENC_REF IENC )      { return _ACTIVE_ENC( IENC );      }
+bool_t WAITING_ENC( const ENC_REF IENC )     { return _WAITING_ENC( IENC );     }
+bool_t TERMINATED_ENC( const ENC_REF IENC )  { return _TERMINATED_ENC( IENC );  }
 
-size_t  GET_INDEX_PENC( enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
-ENC_REF GET_REF_PENC( enc_t * PENC )    { return _GET_REF_PENC( PENC );    }
-bool_t  DEFINED_PENC( enc_t * PENC )    { return _DEFINED_PENC( PENC );    }
-bool_t  VALID_ENC_PTR( enc_t * PENC )   { return _VALID_ENC_PTR( PENC );   }
-bool_t  ALLOCATED_PENC( enc_t * PENC )  { return _ALLOCATED_PENC( PENC );  }
-bool_t  ACTIVE_PENC( enc_t * PENC )     { return _ACTIVE_PENC( PENC );     }
-bool_t  TERMINATED_PENC( enc_t * PENC ) { return _TERMINATED_PENC( PENC ); }
+size_t  GET_INDEX_PENC( const enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
+ENC_REF GET_REF_PENC( const enc_t * PENC )    { return _GET_REF_PENC( PENC );    }
+bool_t  DEFINED_PENC( const enc_t * PENC )    { return _DEFINED_PENC( PENC );    }
+bool_t  VALID_ENC_PTR( const enc_t * PENC )   { return _VALID_ENC_PTR( PENC );   }
+bool_t  ALLOCATED_PENC( const enc_t * PENC )  { return _ALLOCATED_PENC( PENC );  }
+bool_t  ACTIVE_PENC( const enc_t * PENC )     { return _ACTIVE_PENC( PENC );     }
+bool_t  TERMINATED_PENC( const enc_t * PENC ) { return _TERMINATED_PENC( PENC ); }
 
-bool_t INGAME_ENC_BASE( ENC_REF IENC )  { return _INGAME_ENC_BASE( IENC );  }
-bool_t INGAME_PENC_BASE( enc_t * PENC ) { return _INGAME_PENC_BASE( PENC ); }
+bool_t INGAME_ENC_BASE( const ENC_REF IENC )  { return _INGAME_ENC_BASE( IENC );  }
+bool_t INGAME_PENC_BASE( const enc_t * PENC ) { return _INGAME_PENC_BASE( PENC ); }
 
-bool_t INGAME_ENC( ENC_REF IENC )       { return _INGAME_ENC( IENC );  }
-bool_t INGAME_PENC( enc_t * PENC )      { return _INGAME_PENC( PENC ); }
+bool_t INGAME_ENC( const ENC_REF IENC )       { return _INGAME_ENC( IENC );  }
+bool_t INGAME_PENC( const enc_t * PENC )      { return _INGAME_PENC( PENC ); }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_LIST( enc_t, EncList, MAX_ENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,10 +98,10 @@ void EncList_init()
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
         ENC_REF ienc = ( MAX_ENC - 1 ) - cnt;
-        enc_t * penc = EncList.lst + ienc;
+        enc_t * penc = EncList_get_ptr( ienc );
 
         // blank out all the data, including the obj_base data
-        memset( penc, 0, sizeof( *penc ) );
+        BLANK_STRUCT_PTR( penc )
 
         // enchant "initializer"
         ego_object_ctor( POBJ_GET_PBASE( penc ) );
@@ -112,7 +117,7 @@ void EncList_dtor()
 
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        enc_config_deconstruct( EncList.lst + cnt, 100 );
+        enc_config_deconstruct( EncList_get_ptr( cnt ), 100 );
     }
 
     EncList.free_count = 0;
@@ -233,7 +238,7 @@ bool_t EncList_free_one( const ENC_REF ienc )
     obj_data_t * pbase;
 
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
-    penc  = EncList.lst + ienc;
+    penc  = EncList_get_ptr( ienc );
     pbase = POBJ_GET_PBASE( penc );
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
@@ -397,15 +402,6 @@ bool_t EncList_remove_free_index( const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_remove_free( const ENC_REF ienc )
-{
-    // find the object in the free list
-    int index = EncList_get_free_list_index( ienc );
-
-    return EncList_remove_free_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
 int EncList_get_used_list_index( const ENC_REF ienc )
 {
     int retval = -1, cnt;
@@ -550,20 +546,20 @@ ENC_REF EncList_allocate( const ENC_REF override )
         }
 
         // allocate the new one
-        POBJ_ALLOCATE( EncList.lst +  ienc , REF_TO_INT( ienc ) );
+        POBJ_ALLOCATE( EncList_get_ptr( ienc ), REF_TO_INT( ienc ) );
     }
 
     if ( ALLOCATED_ENC( ienc ) )
     {
         // construct the new structure
-        enc_config_construct( EncList.lst + ienc, 100 );
+        enc_config_construct( EncList_get_ptr( ienc ), 100 );
     }
 
     return ienc;
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_cleanup()
+void enchant_list_cleanup()
 {
     int     cnt;
     enc_t * penc;
@@ -575,7 +571,7 @@ void EncList_cleanup()
         ENC_REF ienc = enc_activation_list[cnt];
 
         if ( !ALLOCATED_ENC( ienc ) ) continue;
-        penc = EncList.lst + ienc;
+        penc = EncList_get_ptr( ienc );
 
         if ( !penc->obj_base.turn_me_on ) continue;
 
@@ -632,7 +628,25 @@ bool_t EncList_add_termination( ENC_REF ienc )
     }
 
     // at least mark the object as "waiting to be terminated"
-    POBJ_REQUEST_TERMINATE( EncList.lst + ienc );
+    POBJ_REQUEST_TERMINATE( EncList_get_ptr( ienc ) );
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t EncList_request_terminate( const ENC_REF ienc )
+{
+    enc_t * penc = EncList_get_ptr( ienc );
+
+    return enc_request_terminate( penc );
+}
+
+////--------------------------------------------------------------------------------------------
+//bool_t EncList_remove_free( const ENC_REF ienc )
+//{
+//    // find the object in the free list
+//    int index = EncList_get_free_list_index( ienc );
+//
+//    return EncList_remove_free_index( index );
+//}
+//

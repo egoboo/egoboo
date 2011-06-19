@@ -23,15 +23,10 @@
 
 #include "graphic_mad.h"
 
-#include "profile.inl"
-#include "char.inl"
 #include "mad.h"
-
-#include "md2.inl"
 #include "id_md2.h"
-
 #include "log.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "game.h"
 #include "input.h"
 #include "texture.h"
@@ -39,6 +34,10 @@
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
+
+#include "profile.inl"
+#include "char.inl"
+#include "md2.inl"
 
 #include <SDL_opengl.h>
 
@@ -59,8 +58,8 @@ static void draw_chr_attached_grip( chr_t * pchr );
 static void draw_chr_bbox( chr_t * pchr );
 
 // these functions are only called by render_one_mad()
-static gfx_rv render_one_mad_enviro( const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-static gfx_rv render_one_mad_tex( const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+static gfx_rv render_one_mad_enviro( const camera_t * pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+static gfx_rv render_one_mad_tex( const camera_t * pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 
 // private chr_instance_t methods
 static gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
@@ -71,18 +70,18 @@ static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
 static void   chr_instance_clear_cache( chr_instance_t * pinst );
 
 // private vlst_cache_t methods
-vlst_cache_t * vlst_cache_init( vlst_cache_t * );
-gfx_rv         vlst_cache_test( vlst_cache_t *, chr_instance_t * );
+static vlst_cache_t * vlst_cache_init( vlst_cache_t * );
+static gfx_rv         vlst_cache_test( vlst_cache_t *, chr_instance_t * );
 
 // private chr_reflection_cache_t methods
-chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache );
+static chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pcache );
 
 // private matrix_cache_t methods
-matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
+static matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad_enviro( const camera_t * pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @details ZZ@> This function draws an environment mapped model
 
@@ -97,12 +96,18 @@ gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, const B
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
+        return gfx_fail;
+    }
+
     if ( !INGAME_CHR( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr  = ChrList.lst + character;
+    pchr  = ChrList_get_ptr( character );
     pinst = &( pchr->inst );
 
     if ( !LOADED_MAD( pinst->imad ) )
@@ -110,7 +115,7 @@ gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, const B
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -122,7 +127,7 @@ gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, const B
     ptex = NULL;
     if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
-        ptex = TxTexture_get_ptr(( TX_REF )TX_PHONG );
+        ptex = TxTexture_get_valid_ptr(( TX_REF )TX_PHONG );
     }
 
     if ( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
@@ -132,10 +137,10 @@ gfx_rv render_one_mad_enviro( const CHR_REF character, GLXvector4f tint, const B
 
     if ( NULL == ptex )
     {
-        ptex = TxTexture_get_ptr( pinst->texture );
+        ptex = TxTexture_get_valid_ptr( pinst->texture );
     }
 
-    uoffset = pinst->uoffset - PCamera->turn_z_one;
+    uoffset = pinst->uoffset - pcam->turn_z_one;
     voffset = pinst->voffset;
 
     // save the matrix mode
@@ -288,7 +293,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad_tex( const camera_t * pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @details ZZ@> This function draws a model
 
@@ -305,12 +310,18 @@ gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, const BIT_
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
+        return gfx_fail;
+    }
+
     if ( !INGAME_CHR( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr  = ChrList.lst + character;
+    pchr  = ChrList_get_ptr( character );
     pinst = &( pchr->inst );
 
     if ( !LOADED_MAD( pinst->imad ) )
@@ -318,7 +329,7 @@ gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, const BIT_
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -328,7 +339,7 @@ gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, const BIT_
     pmd2 = pmad->md2_ptr;
 
     // To make life easier
-    ptex = TxTexture_get_ptr( pinst->texture );
+    ptex = TxTexture_get_valid_ptr( pinst->texture );
 
     uoffset = pinst->uoffset * INV_FFFF;
     voffset = pinst->voffset * INV_FFFF;
@@ -495,29 +506,35 @@ gfx_rv render_one_mad_tex( const CHR_REF character, GLXvector4f tint, const BIT_
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad( const camera_t * pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @details ZZ@> This function picks the actual function to use
 
     chr_t * pchr;
     gfx_rv retval;
 
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
+        return gfx_fail;
+    }
+
     if ( !INGAME_CHR( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     if ( pchr->is_hidden || INGAME_CHR( pchr->inwhich_inventory ) ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
-        retval = render_one_mad_enviro( character, tint, bits );
+        retval = render_one_mad_enviro( pcam, character, tint, bits );
     }
     else
     {
-        retval = render_one_mad_tex( character, tint, bits );
+        retval = render_one_mad_tex( pcam, character, tint, bits );
     }
 
 #if defined(DRAW_CHR_BBOX)
@@ -539,7 +556,7 @@ gfx_rv render_one_mad( const CHR_REF character, GLXvector4f tint, const BIT_FIEL
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_ref( const CHR_REF ichr )
+gfx_rv render_one_mad_ref( const camera_t * pcam, const CHR_REF ichr )
 {
     /// @details ZZ@> This function draws characters reflected in the floor
 
@@ -548,12 +565,18 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
     GLXvector4f tint;
     gfx_rv retval;
 
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
+        return gfx_fail;
+    }
+
     if ( !INGAME_CHR( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -563,7 +586,7 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
 
     if ( !pinst->ref.matrix_valid )
     {
-        if ( !apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level ) )
+        if ( !chr_instance_apply_reflection_matrix( &( pchr->inst ), pchr->enviro.grid_level ) )
         {
             return gfx_error;
         }
@@ -572,10 +595,8 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
     {
         // cull backward facing polygons
-        GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
-
-        // cull face CCW because we are rendering a reflected object
-        GL_DEBUG( glFrontFace )( GL_CCW );    // GL_POLYGON_BIT
+        // use couter-clockwise orientation to determine backfaces
+        oglx_begin_culling( GL_BACK, MAD_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
         if ( pinst->ref.alpha != 255 && pinst->ref.light == 255 )
         {
@@ -586,7 +607,7 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == render_one_mad( ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
+            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_ALPHA | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -601,7 +622,7 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
 
             // the previous call to chr_instance_update_lighting_ref() has actually set the
             // alpha and light for all vertices
-            if ( gfx_error == render_one_mad( ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
+            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_LIGHT | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -614,7 +635,7 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_PHONG | CHR_REFLECT );
 
-            if ( gfx_error == render_one_mad( ichr, tint, CHR_PHONG | CHR_REFLECT ) )
+            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_PHONG | CHR_REFLECT ) )
             {
                 retval = gfx_error;
             }
@@ -626,7 +647,7 @@ gfx_rv render_one_mad_ref( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_trans( const CHR_REF ichr )
+gfx_rv render_one_mad_trans( const camera_t * pcam, const CHR_REF ichr )
 {
     /// @details ZZ@> This function dispatches the rendering of transparent characters
     ///               to the correct function. (this does not handle characer reflection)
@@ -636,12 +657,18 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
     GLXvector4f tint;
     bool_t rendered;
 
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
+        return gfx_fail;
+    }
+
     if ( !INGAME_CHR( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -655,8 +682,10 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
         {
             // most alpha effects will be messed up by
             // skipping backface culling, so don't
-            GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
-            GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
+
+            // cull backward facing polygons
+            // use clockwise orientation to determine backfaces
+            oglx_begin_culling( GL_BACK, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
             // get a speed-up by not displaying completely transparent portions of the skin
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
@@ -667,7 +696,7 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_ALPHA );
 
-            if ( render_one_mad( ichr, tint, CHR_ALPHA ) )
+            if ( render_one_mad( pcam, ichr, tint, CHR_ALPHA ) )
             {
                 rendered = btrue;
             }
@@ -675,7 +704,7 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
         if ( pinst->light < 255 )
         {
             // light effects should show through transparent objects
-            GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+            oglx_end_culling();         // GL_ENABLE_BIT
 
             // the alpha test can only mess us up here
             GL_DEBUG( glDisable )( GL_ALPHA_TEST );     // GL_ENABLE_BIT
@@ -685,7 +714,7 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_LIGHT );
 
-            if ( render_one_mad( ichr, tint, CHR_LIGHT ) )
+            if ( render_one_mad( pcam, ichr, tint, CHR_LIGHT ) )
             {
                 rendered = btrue;
             }
@@ -698,7 +727,7 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 
             chr_instance_get_tint( pinst, tint, CHR_PHONG );
 
-            if ( render_one_mad( ichr, tint, CHR_PHONG ) )
+            if ( render_one_mad( pcam, ichr, tint, CHR_PHONG ) )
             {
                 rendered = btrue;
             }
@@ -710,18 +739,24 @@ gfx_rv render_one_mad_trans( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_solid( const CHR_REF ichr )
+gfx_rv render_one_mad_solid( const camera_t * pcam, const CHR_REF ichr )
 {
     chr_t * pchr;
     chr_instance_t * pinst;
     gfx_rv retval = gfx_error;
+
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera" );
+        return gfx_fail;
+    }
 
     if ( !INGAME_CHR( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -752,17 +787,19 @@ gfx_rv render_one_mad_solid( const CHR_REF ichr )
             // allow the dont_cull_backfaces to keep solid objects from culling backfaces
             if ( pinst->dont_cull_backfaces )
             {
-                GL_DEBUG( glDisable )( GL_CULL_FACE );         // GL_ENABLE_BIT
+                // stop culling backward facing polugons
+                oglx_end_culling();         // GL_ENABLE_BIT
             }
             else
             {
-                GL_DEBUG( glEnable )( GL_CULL_FACE );         // GL_ENABLE_BIT
-                GL_DEBUG( glFrontFace )( GL_CW );             // GL_POLYGON_BIT
+                // cull backward facing polygons
+                // use couter-clockwise orientation to determine backfaces
+                oglx_begin_culling( GL_BACK, MAD_NRM_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
             }
 
             chr_instance_get_tint( pinst, tint, CHR_SOLID );
 
-            if ( gfx_error == render_one_mad( ichr, tint, CHR_SOLID ) )
+            if ( gfx_error == render_one_mad( pcam, ichr, tint, CHR_SOLID ) )
             {
                 retval = gfx_error;
             }
@@ -826,8 +863,8 @@ void draw_chr_verts( chr_t * pchr, int vrt_offset, int verts )
     vmin = vrt_offset;
     vmax = vmin + verts;
 
-    if ( vmin < 0 || vmax < 0 ) return;
-    if ( vmin > pchr->inst.vrt_count || vmax > pchr->inst.vrt_count ) return;
+    if ( vmin < 0 || ( size_t )vmin > pchr->inst.vrt_count ) return;
+    if ( vmax < 0 || ( size_t )vmax > pchr->inst.vrt_count ) return;
 
     texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
     texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
@@ -919,7 +956,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
     vmin = ( int )pinst->vrt_count - ( int )slot_to_grip_offset(( slot_t )slot );
     vmax = vmin + GRIP_VERTS;
 
-    if ( vmin >= 0 && vmax >= 0 && vmax <= pinst->vrt_count )
+    if ( vmin >= 0 && vmax >= 0 && ( size_t )vmax <= pinst->vrt_count )
     {
         fvec3_t   src, dst, diff;
 
@@ -961,7 +998,7 @@ void draw_chr_attached_grip( chr_t * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     if ( !INGAME_CHR( pchr->attachedto ) ) return;
-    pholder = ChrList.lst + pchr->attachedto;
+    pholder = ChrList_get_ptr( pchr->attachedto );
 
     pholder_cap = pro_get_pcap( pholder->profile_ref );
     if ( NULL == pholder_cap ) return;
@@ -1036,6 +1073,9 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 {
     /// @details BB@> determine the basic per-vertex lighting
 
+    const int frame_skip = 1 << 2;
+    const int frame_mask = frame_skip - 1;
+
     Uint16 cnt;
 
     lighting_cache_t global_light, loc_light;
@@ -1048,31 +1088,34 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     vrt_lst = pinst->vrt_lst;
 
     // force this function to be evaluated the 1st time through
-    if ( 0 == update_wld && 0 == game_frame_all ) force = btrue;
+    if ( pinst->lighting_frame_all < 0 || pinst->lighting_frame_all < 0 )
+    {
+        force = btrue;
+    }
 
     // has this already been calculated this update?
-    if ( !force && pinst->lighting_update_wld >= update_wld ) return;
+    if ( !force && pinst->lighting_update_wld >= 0 && ( Uint32 )pinst->lighting_update_wld >= update_wld ) return;
     pinst->lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
     chr_update_matrix( pchr, btrue );
 
-    // has this already been calculated this frame?
-    if ( !force && pinst->lighting_frame_all >= game_frame_all ) return;
+    // has this already been calculated in the last frame_skip frames?
+    if ( !force && pinst->lighting_frame_all >= 0 && ( Uint32 )pinst->lighting_frame_all >= game_frame_all ) return;
 
-    // reduce the amount of updates to an average of about 1 every 2 frames, but dither
+    // reduce the amount of updates to one every frame_skip frames, but dither
     // the updating so that not all objects update on the same frame
-    pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->obj_base.guid ) & 0x03 );
+    pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->obj_base.guid ) & frame_mask );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
     pinst->vrt_count = pinst->vrt_count;
 
     // interpolate the lighting for the origin of the object
-    grid_lighting_interpolate( PMesh, &global_light, pchr->pos.x, pchr->pos.y );
+    grid_lighting_interpolate( PMesh, &global_light, pchr->pos.v );
 
     // rotate the lighting data to body_centered coordinates
-    lighting_project_cache( &loc_light, &global_light, pinst->matrix );
+    lighting_project_cache( &loc_light, &global_light, pinst->matrix.v );
 
     pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( loc_light.hgh.lighting[LVEC_AMB] + loc_light.low.lighting[LVEC_AMB] ) * 0.5f;
 
@@ -1138,7 +1181,7 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -1211,7 +1254,7 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bo
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
@@ -1315,7 +1358,7 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force )
 {
-    int    maxvert, frame_count;
+    int    maxvert, frame_count, md2_verts;
     bool_t vertices_match, frames_match;
     float  loc_flip;
 
@@ -1348,7 +1391,7 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -1358,7 +1401,8 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
     pmd2 = pmad->md2_ptr;
 
     // make sure we have valid data
-    if ( pinst->vrt_count != md2_get_numVertices( pmd2 ) )
+    md2_verts = md2_get_numVertices( pmd2 );
+    if ( md2_verts < 0 || pinst->vrt_count != ( size_t )md2_verts )
     {
         log_error( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
     }
@@ -1635,7 +1679,7 @@ gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t actio
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     // is the chosen action valid?
     if ( !pmad->action_valid[ action ] ) return gfx_fail;
@@ -1685,7 +1729,7 @@ gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     // is the current action valid?
     if ( !pmad->action_valid[ pinst->action_which ] ) return gfx_fail;
@@ -1746,7 +1790,7 @@ gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t actio
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     return chr_instance_set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
 }
@@ -1878,7 +1922,7 @@ gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t acti
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     action = mad_get_action_ref( pinst->imad, action );
 
@@ -1897,8 +1941,8 @@ void chr_instance_clear_cache( chr_instance_t * pinst )
 
     chr_reflection_cache_init( &( pinst->ref ) );
 
-    pinst->lighting_update_wld = 0;
-    pinst->lighting_frame_all  = 0;
+    pinst->lighting_update_wld = -1;
+    pinst->lighting_frame_all  = -1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1910,7 +1954,7 @@ chr_instance_t * chr_instance_dtor( chr_instance_t * pinst )
 
     EGOBOO_ASSERT( NULL == pinst->vrt_lst );
 
-    memset( pinst, 0, sizeof( *pinst ) );
+    BLANK_STRUCT_PTR( pinst )
 
     return pinst;
 }
@@ -1922,7 +1966,7 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
 
     if ( NULL == pinst ) return pinst;
 
-    memset( pinst, 0, sizeof( *pinst ) );
+    BLANK_STRUCT_PTR( pinst )
 
     // model parameters
     pinst->imad = MAX_MAD;
@@ -1943,7 +1987,7 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
 
     // the matrix should never be referenced if the cache is not valid,
     // but it never pays to have a 0 matrix...
-    pinst->matrix = IdentityMatrix();
+    mat_Identity( pinst->matrix.v );
 
     // set the animation state
     pinst->rate         = 1.0f;
@@ -1954,6 +1998,11 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
 
     // the vlst_cache parameters are not valid
     pinst->save.valid = bfalse;
+
+    // set the update frame to an invalid value
+    pinst->update_frame        = -1;
+    pinst->lighting_update_wld = -1;
+    pinst->lighting_frame_all  = -1;
 
     return pinst;
 }
@@ -2014,7 +2063,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     }
 
     if ( !LOADED_MAD( imad ) ) return gfx_fail;
-    pmad = MadStack.lst + imad;
+    pmad = MadStack_get_ptr( imad );
 
     if ( pmad->md2_ptr == NULL )
     {
@@ -2071,7 +2120,7 @@ gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t
     if ( need_matrix )
     {
         // reflect the ordinary matrix
-        apply_reflection_matrix( pinst, grid_level );
+        chr_instance_apply_reflection_matrix( pinst, grid_level );
     }
 
     startalpha = 255;
@@ -2123,7 +2172,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 
     chr_instance_ctor( pinst );
 
     if ( !LOADED_PRO( profile ) ) return gfx_fail;
-    pobj = ProList.lst + profile;
+    pobj = ProList_get_ptr( profile );
 
     pcap = pro_get_pcap( profile );
 
@@ -2161,7 +2210,7 @@ BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
     if ( NULL == pinst ) return 0;
 
     if ( !LOADED_MAD( pinst->imad ) ) return 0;
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr ) return 0;
     pmd2 = pmad->md2_ptr;
@@ -2208,7 +2257,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack.lst + imad;
+    pmad = MadStack_get_ptr( imad );
 
     // we have to have a valid action range
     if ( pinst->action_which > ACTION_COUNT ) return gfx_fail;
@@ -2334,7 +2383,7 @@ MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst )
     if ( NULL == pinst ) return NULL;
 
     if ( !LOADED_MAD( pinst->imad ) ) return NULL;
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr ) return NULL;
     pmd2 = pmad->md2_ptr;
@@ -2358,7 +2407,7 @@ MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst )
     if ( NULL == pinst ) return NULL;
 
     if ( !LOADED_MAD( pinst->imad ) ) return NULL;
-    pmad = MadStack.lst + pinst->imad;
+    pmad = MadStack_get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr ) return NULL;
     pmd2 = pmad->md2_ptr;
@@ -2426,7 +2475,7 @@ chr_reflection_cache_t * chr_reflection_cache_init( chr_reflection_cache_t * pca
 {
     if ( NULL == pcache ) return pcache;
 
-    memset( pcache, 0, sizeof( *pcache ) );
+    BLANK_STRUCT_PTR( pcache )
 
     pcache->alpha = 127;
     pcache->light = 255;
@@ -2440,7 +2489,7 @@ vlst_cache_t * vlst_cache_init( vlst_cache_t * pcache )
 {
     if ( NULL == pcache ) return NULL;
 
-    memset( pcache, 0, sizeof( *pcache ) );
+    BLANK_STRUCT_PTR( pcache )
 
     pcache->vmin = -1;
     pcache->vmax = -1;
@@ -2493,7 +2542,7 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
 
     if ( NULL == mcache ) return mcache;
 
-    memset( mcache, 0, sizeof( *mcache ) );
+    BLANK_STRUCT_PTR( mcache )
 
     mcache->type_bits = MAT_UNKNOWN;
     mcache->grip_chr  = ( CHR_REF )MAX_CHR;
@@ -2521,7 +2570,7 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
     }
 
     // grab the texture
-    ptex = TxTexture_get_ptr( itex );
+    ptex = TxTexture_get_valid_ptr( itex );
 
     // get the transparency info from the texture
     pinst->skin_has_transparency = bfalse;
@@ -2534,5 +2583,148 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
     pinst->texture = itex;
 
     return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
+{
+    /// @detalis BB@> Generate the extra data needed to display a reflection for this character
+
+    if ( NULL == pinst ) return bfalse;
+
+    // invalidate the current matrix
+    pinst->ref.matrix_valid = bfalse;
+
+    // actually flip the matrix
+    if ( pinst->matrix_cache.valid )
+    {
+        pinst->ref.matrix = pinst->matrix;
+
+        pinst->ref.matrix.CNV( 0, 2 ) = -pinst->ref.matrix.CNV( 0, 2 );
+        pinst->ref.matrix.CNV( 1, 2 ) = -pinst->ref.matrix.CNV( 1, 2 );
+        pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
+        pinst->ref.matrix.CNV( 3, 2 ) = 2 * grid_level - pinst->ref.matrix.CNV( 3, 2 );
+
+        pinst->ref.matrix_valid = btrue;
+
+        // fix the reflection
+        chr_instance_update_ref( pinst, grid_level, bfalse );
+    }
+
+    return pinst->ref.matrix_valid;
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits )
+{
+    int i;
+    float weight_sum;
+    GLXvector4f local_tint;
+
+    int local_alpha;
+    int local_light;
+    int local_sheen;
+    int local_redshift;
+    int local_grnshift;
+    int local_blushift;
+
+    if ( NULL == tint ) tint = local_tint;
+
+    if ( HAS_SOME_BITS( bits, CHR_REFLECT ) )
+    {
+        // this is a reflection, use the reflected parameters
+        local_alpha    = pinst->ref.alpha;
+        local_light    = pinst->ref.light;
+        local_sheen    = pinst->ref.sheen;
+        local_redshift = pinst->ref.redshift;
+        local_grnshift = pinst->ref.grnshift;
+        local_blushift = pinst->ref.blushift;
+    }
+    else
+    {
+        // this is NOT a reflection, use the normal parameters
+        local_alpha    = pinst->alpha;
+        local_light    = pinst->light;
+        local_sheen    = pinst->sheen;
+        local_redshift = pinst->redshift;
+        local_grnshift = pinst->grnshift;
+        local_blushift = pinst->blushift;
+    }
+
+    // modify these values based on local character abilities
+    local_alpha = get_alpha( local_alpha, local_stats.seeinvis_mag );
+    local_light = get_light( local_light, local_stats.seedark_mag );
+
+    // clear out the tint
+    weight_sum = 0;
+    for ( i = 0; i < 4; i++ ) tint[i] = 0;
+
+    if ( HAS_SOME_BITS( bits, CHR_SOLID ) )
+    {
+        // solid characters are not blended onto the canvas
+        // the alpha channel is not important
+        weight_sum += 1.0f;
+
+        tint[RR] += 1.0f / ( 1 << local_redshift );
+        tint[GG] += 1.0f / ( 1 << local_grnshift );
+        tint[BB] += 1.0f / ( 1 << local_blushift );
+        tint[AA] += 1.0f;
+    }
+
+    if ( HAS_SOME_BITS( bits, CHR_ALPHA ) )
+    {
+        // alpha characters are blended onto the canvas using the alpha channel
+        // the alpha channel is not important
+        weight_sum += 1.0f;
+
+        tint[RR] += 1.0f / ( 1 << local_redshift );
+        tint[GG] += 1.0f / ( 1 << local_grnshift );
+        tint[BB] += 1.0f / ( 1 << local_blushift );
+        tint[AA] += local_alpha * INV_FF;
+    }
+
+    if ( HAS_SOME_BITS( bits, CHR_LIGHT ) )
+    {
+        // alpha characters are blended onto the canvas by adding their color
+        // the more black the colors, the less visible the character
+        // the alpha channel is not important
+
+        weight_sum += 1.0f;
+
+        if ( local_light < 255 )
+        {
+            tint[RR] += local_light * INV_FF / ( 1 << local_redshift );
+            tint[GG] += local_light * INV_FF / ( 1 << local_grnshift );
+            tint[BB] += local_light * INV_FF / ( 1 << local_blushift );
+        }
+
+        tint[AA] += 1.0f;
+    }
+
+    if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
+    {
+        // phong is essentially the same as light, but it is the
+        // sheen that sets the effect
+
+        float amount;
+
+        weight_sum += 1.0f;
+
+        amount = ( CLIP( local_sheen, 0, 15 ) << 4 ) / 240.0f;
+
+        tint[RR] += amount;
+        tint[GG] += amount;
+        tint[BB] += amount;
+        tint[AA] += 1.0f;
+    }
+
+    // average the tint
+    if ( weight_sum != 0.0f && weight_sum != 1.0f )
+    {
+        for ( i = 0; i < 4; i++ )
+        {
+            tint[i] /= weight_sum;
+        }
+    }
 }
 

@@ -164,7 +164,7 @@ void oglx_upload_2d_mipmap( GLboolean use_alpha, GLsizei w, GLsizei h, const GLv
 void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
 {
 
-    memset( pcaps, 0, sizeof( *pcaps ) );
+    BLANK_STRUCT_PTR( pcaps )
 
     // get any pure OpenGL device caps
 
@@ -261,4 +261,61 @@ FILE * oglx_set_stdout( FILE * pfile )
     }
 
     return pfile_old;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void oglx_begin_culling( GLenum face, GLenum mode )
+{
+    /* Backface culling */
+    // The glEnable() seems implied - DDOI
+
+    // cull backward facing polygons
+    GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
+    GL_DEBUG( glCullFace )( face );       // GL_POLYGON_BIT
+    GL_DEBUG( glFrontFace )( mode );      // GL_POLYGON_BIT
+}
+
+//--------------------------------------------------------------------------------------------
+void oglx_end_culling()
+{
+    GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
+}
+
+//--------------------------------------------------------------------------------------------
+void oglx_set_culling( oglx_culling_data_t * new_data, oglx_culling_data_t * old_data )
+{
+    // save the old culling state and set new culling state
+
+    // grab the current culling state, if possible
+    if ( NULL != old_data )
+    {
+        old_data->enabled = GL_DEBUG( glIsEnabled )( GL_CULL_FACE );
+        GL_DEBUG( glGetIntegerv )( GL_CULL_FACE_MODE, old_data->mode );
+        GL_DEBUG( glGetIntegerv )( GL_FRONT_FACE, old_data->face );
+    }
+
+    // set the new state
+    if ( NULL == new_data )
+    {
+        // the default mode
+        GL_DEBUG( glEnable )( GL_CULL_FACE );  // GL_ENABLE_BIT
+        GL_DEBUG( glCullFace )( GL_BACK );       // GL_POLYGON_BIT
+        GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT
+    }
+    else
+    {
+        // cull backward facing polygons
+        if ( new_data->enabled )
+        {
+            GL_DEBUG( glEnable )( GL_CULL_FACE );
+        }
+        else
+        {
+            GL_DEBUG( glDisable )( GL_CULL_FACE );
+        }
+
+        GL_DEBUG( glCullFace )( new_data->face[0] );       // GL_POLYGON_BIT
+        GL_DEBUG( glFrontFace )( new_data->mode[0] );      // GL_POLYGON_BIT
+    }
 }

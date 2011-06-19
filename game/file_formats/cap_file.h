@@ -208,10 +208,10 @@ extern "C"
         Uint8        gender;                        ///< Gender
 
         // life
-        cap_stat_t   life_stat;                     ///< Life statistics
-        UFP8_T       life_return;                    ///< Life regeneration
-        UFP8_T       life_heal;
-        UFP8_T       life_spawn;                     ///< Life left from last module
+        cap_stat_t   life_stat;                      ///< Life statistics
+        UFP8_T       life_return;                    ///< Life regeneration (8.8 fixed point)
+        UFP8_T       life_heal;                      ///< (8.8 fixed point)
+        UFP8_T       life_spawn;                     ///< Life left from last module (8.8 fixed point)
 
         // mana
         cap_stat_t   mana_stat;                     ///< Mana statistics
@@ -250,8 +250,8 @@ extern "C"
         bool_t       waterwalk;                     ///< Walk on water?
 
         // status graphics
-        Uint8        lifecolor;                     ///< Life bar color
-        Uint8        manacolor;                     ///< Mana bar color
+        Uint8        life_color;                     ///< Life bar color
+        Uint8        mana_color;                     ///< Mana bar color
         bool_t       draw_icon;                     ///< Draw icon
 
         // model graphics
@@ -261,8 +261,8 @@ extern "C"
         bool_t       transferblend;                 ///< Transfer blending to rider/weapons
         Uint8        sheen;                         ///< How shiny it is ( 0-15 )
         bool_t       enviro;                        ///< Phong map this baby?
-        SFP8_T       uoffvel;                       ///< "horizontal" texture movement rate
-        SFP8_T       voffvel;                       ///< "vertical" texture movement rate
+        SFP8_T       uoffvel;                       ///< "horizontal" texture movement rate (8.8 fixed point)
+        SFP8_T       voffvel;                       ///< "vertical" texture movement rate (8.8 fixed point)
         bool_t       uniformlit;                    ///< Bad lighting?
         bool_t       reflect;                       ///< Draw the reflection
         bool_t       alwaysdraw;                    ///< Always render

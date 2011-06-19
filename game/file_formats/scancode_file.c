@@ -34,7 +34,7 @@
 int       scantag_count = 0;
 scantag_t scantag[MAXTAG];
 
-static void   scantag_reset();
+static void   scantag_reset( void );
 static bool_t scantag_read_one( vfs_FILE *fileread );
 
 //--------------------------------------------------------------------------------------------
@@ -120,41 +120,55 @@ int scantag_get_value( const char *string )
 }
 
 //--------------------------------------------------------------------------------------------
-const char* scantag_get_string( INPUT_DEVICE device, Uint32 tag, bool_t is_key )
+const char* scantag_get_string( int device, Uint32 tag, bool_t is_key )
 {
     /// @details ZF@> This translates a input tag value to a string
 
     int cnt;
+    bool_t found = bfalse;
 
-    if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
+    const char * retval = "N/A";
 
     for ( cnt = 0; cnt < scantag_count; cnt++ )
     {
         // do not search invalid keys
+        found = bfalse;
+
         if ( is_key )
         {
-            if ( 'K' != scantag[cnt].name[0] ) continue;
-        }
-        else
-        {
-            switch ( device )
+            if ( 'K' == scantag[cnt].name[0] )
             {
-                case INPUT_DEVICE_MOUSE:
-                    if ( 'M' != scantag[cnt].name[0] ) continue;
-                    break;
-
-                case INPUT_DEVICE_JOY + 0:
-                case INPUT_DEVICE_JOY + 1:
-                    if ( 'J' != scantag[cnt].name[0] ) continue;
-                    break;
+                found = btrue;
             }
-        };
-        if ( tag == scantag[cnt].value )
+        }
+        else if ( INPUT_DEVICE_KEYBOARD == device )
         {
-            return scantag[cnt].name;
+            if ( 'K' == scantag[cnt].name[0] )
+            {
+                found = btrue;
+            }
+        }
+        else if ( INPUT_DEVICE_MOUSE == device )
+        {
+            if ( 'M' == scantag[cnt].name[0] )
+            {
+                found = btrue;
+            }
+        }
+        else if ( IS_VALID_JOYSTICK( device ) )
+        {
+            if ( 'J' == scantag[cnt].name[0] )
+            {
+                found = btrue;
+            }
+        }
+
+        if ( found && tag == scantag[cnt].value )
+        {
+            retval = scantag[cnt].name;
         }
     }
 
     // No matches
-    return "N/A";
+    return retval;
 }

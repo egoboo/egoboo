@@ -55,7 +55,7 @@ token_t * token_ctor( token_t * pt )
     if ( NULL == pt ) return NULL;
 
     // blank every thing
-    memset( pt, 0, sizeof( *pt ) );
+    BLANK_STRUCT_PTR( pt )
 
     // to be explicit
     pt->iIndex   = MAX_OPCODE;
@@ -76,10 +76,10 @@ struct s_parser_state
     token_t      token;
     int          line_count;
 
-    int          line_buffer_count;
+    size_t       line_buffer_count;
     char         line_buffer[MAXLINESIZE];
 
-    int          load_buffer_count;
+    size_t       load_buffer_count;
     Uint8        load_buffer[AISMAXLOADSIZE];
 };
 
@@ -87,7 +87,7 @@ parser_state_t *  parser_state_ctor( parser_state_t * ps )
 {
     if ( NULL == ps ) return NULL;
 
-    memset( ps, 0, sizeof( *ps ) );
+    BLANK_STRUCT_PTR( ps )
 
     // construct any sub-objects
     token_ctor( &( ps->token ) );
@@ -97,7 +97,6 @@ parser_state_t *  parser_state_ctor( parser_state_t * ps )
 
     return ps;
 }
-
 
 /// the parser singleton
 static parser_state_t _parser_state;
@@ -542,15 +541,15 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 
 //Private functions
 
-static size_t       surround_space( int position, char buffer[], size_t buffer_size, const size_t buffer_max );
-static size_t       insert_space( int position, char buffer[], size_t buffer_length, const size_t buffer_max );
-static int          ai_goto_colon( int read, Uint8 buffer[], const size_t buffer_size );
-static egoboo_rv    get_code( int read, Uint8 buffer[], const size_t buffer_size );
+static size_t       surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max );
+static size_t       insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max );
+static size_t       ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size );
+static egoboo_rv    get_code( size_t read, Uint8 buffer[], const size_t buffer_size );
 static size_t       fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max );
 
-static int          load_one_line( parser_state_t * ps, int read, script_info_t *pscript );
+static size_t       load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript );
 static int          get_indentation( parser_state_t * ps, script_info_t *pscript );
-static int          parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, int read );
+static size_t       parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, size_t read );
 static void         emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscript );
 static void         parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript );
 static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
@@ -561,8 +560,8 @@ static void load_ai_codes_vfs( const char* loadname );
 
 // functions for debugging the scripts
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
-static void print_token();
-static void print_line();
+static void print_token( void );
+static void print_line( void );
 #else
 #   define print_token()
 #   define print_line()
@@ -570,6 +569,12 @@ static void print_line();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+IMPLEMENT_STATIC_ARY( OpListAry, MAX_OPCODE );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 parser_state_t *  script_compiler_init()
 {
     /// @details BB@> initalize the sctipt compiling module
@@ -623,7 +628,7 @@ bool_t script_compiler_clear_error( parser_state_t * ps )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-size_t insert_space( int position, char buffer[], size_t buffer_length, const size_t buffer_max )
+size_t insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max )
 {
     /// @details ZZ@> This function adds a space into the load line if there isn't one there already
 
@@ -669,7 +674,7 @@ size_t insert_space( int position, char buffer[], size_t buffer_length, const si
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_line( parser_state_t * ps, int read, script_info_t *pscript )
+size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
 {
     /// @details ZZ@> This function loads a line into the line buffer
 
@@ -824,7 +829,7 @@ int load_one_line( parser_state_t * ps, int read, script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t surround_space( int position, char buffer[], size_t buffer_size, const size_t buffer_max )
+size_t surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max )
 {
     buffer_size = insert_space( position + 1, buffer, buffer_size, buffer_max );
 
@@ -873,8 +878,8 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 {
     /// @details ZZ@> This function puts spaces around operators to seperate words better
 
-    int cnt;
-    char cTmp;
+    size_t cnt;
+    char   cTmp;
     bool_t inside_string = bfalse;
 
     cnt = 0;
@@ -905,7 +910,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 }
 
 //--------------------------------------------------------------------------------------------
-int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, int read )
+size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, size_t read )
 {
     /// @details ZZ@> This function tells what code is being indexed by read, it
     ///    will return the next spot to read from and stick the code number
@@ -1076,7 +1081,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
                 pro_t *ppro;
 
                 if ( !LOADED_PRO( ipro ) ) continue;
-                ppro = ProList.lst + ipro;
+                ppro = ProList_get_ptr( ipro );
 
                 //is this the object we are looking for?
                 if ( 0 == strcmp( obj_name, strrchr( ppro->name, '/' ) + 1 ) )
@@ -1093,7 +1098,7 @@ int parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t
                 snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
 
                 //find first free slot number
-                for ( ipro = MAXIMPORTPERPLAYER * 4; ipro < MAX_PROFILE; ipro++ )
+                for ( ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < MAX_PROFILE; ipro++ )
                 {
                     //skip loaded profiles
                     if ( LOADED_PRO( ipro ) ) continue;
@@ -1222,9 +1227,9 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
 {
     //@details ZF@> This parses an AI script line by line
 
-    int read;
+    size_t read;
     Uint32 highbits;
-    int parseposition;
+    size_t parseposition;
 
     read = 0;
     for ( ps->token.iLine = 0; read < ps->load_buffer_count; ps->token.iLine++ )
@@ -1442,7 +1447,7 @@ void parse_jumps( script_info_t *pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-int ai_goto_colon( int read, Uint8 buffer[], const size_t buffer_size )
+size_t ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size )
 {
     /// @details ZZ@> This function goes to spot after the next colon
 
@@ -1465,7 +1470,7 @@ int ai_goto_colon( int read, Uint8 buffer[], const size_t buffer_size )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv get_code( int read, Uint8 buffer[], const size_t buffer_size )
+egoboo_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
 {
     /// @details ZZ@> This function gets code names and other goodies
 
@@ -1511,7 +1516,7 @@ void load_ai_codes_vfs( const char* loadname )
     /// @details ZZ@> This function loads all of the function and variable names
 
     vfs_FILE* fileread;
-    int read;
+    size_t read;
 
     // make a stack-local buffer for reading in the file
     int           tmp_buffer_size = 0;
@@ -2337,7 +2342,7 @@ DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
 */
 
 //--------------------------------------------------------------------------------------------
-// int load_parsed_line( parser_state_t * ps, int read )
+// int load_parsed_line( parser_state_t * ps, size_t read )
 // {
 //   /// @details ZZ@> This function loads a line into the line buffer
 //
@@ -2364,7 +2369,7 @@ DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
 //   /// @details ZZ@> This function removes comments and endline codes, replacing
 //   ///    them with a 0
 //
-//   int read, write;
+//   size_t read, write;
 
 //   read = 0;
 //   write = 0;

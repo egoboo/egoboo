@@ -25,7 +25,6 @@
 
 #include "egoboo_object.h"
 
-#include "file_formats/cap_file.h"
 #include "graphic_mad.h"
 
 #include "sound.h"
@@ -37,7 +36,10 @@
 
 #include "egoboo.h"
 
+#include "file_formats/cap_file.h"
+
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
 
 struct s_mad;
@@ -48,10 +50,31 @@ struct s_billboard_data_t;
 struct s_mesh_wall_data;
 
 struct s_prt;
+
+//--------------------------------------------------------------------------------------------
+// internal structs
+//--------------------------------------------------------------------------------------------
+enum e_turn_modes;
+typedef enum e_turn_modes TURN_MODE;
+
+enum e_grip_offset;
+typedef enum e_grip_offset grip_offset_t;
+
+struct s_team;
+typedef struct s_team team_t;
+
+struct s_chr_environment;
+typedef struct s_chr_environment chr_environment_t;
+
+struct s_chr_spawn_data;
+typedef struct s_chr_spawn_data chr_spawn_data_t;
+
 struct s_chr;
+typedef struct s_chr chr_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 // Attack directions
 #define ATK_FRONT  0x0000
 #define ATK_RIGHT  0x4000
@@ -76,38 +99,11 @@ struct s_chr;
 
 #define RAISE               12                  ///< Helps correct z level
 
-/// The possible methods for characters to determine what direction they are facing
-typedef enum e_turn_modes
-{
-    TURNMODE_VELOCITY = 0,                       ///< Character gets rotation from velocity (normal)
-    TURNMODE_WATCH,                              ///< For watch towers, look towards waypoint
-    TURNMODE_SPIN,                               ///< For spinning objects
-    TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
-    TURNMODE_COUNT
-} TURN_MODE;
-
-#define MANARETURNSHIFT     44                    ///< ChrList.lst[ichr].manareturn/MANARETURNSHIFT = mana regen per second
+#define MANARETURNSHIFT     44                    ///< mana_return/MANARETURNSHIFT = mana regen per second
 
 #define TURNSPD             0.01f                 ///< Cutoff for turning or same direction
 #define SPINRATE            200                   ///< How fast spinners spin
 #define WATCHMIN            0.01f                 ///< Tolerance for TURNMODE_WATCH
-
-/// The vertex offsets for the various grips
-enum e_grip_offset
-{
-    GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
-    GRIP_LAST      =               1,                ///< Spawn particles at the last vertex
-    GRIP_LEFT      = ( 1 * GRIP_VERTS ),             ///< Left weapon grip starts  4 from last
-    GRIP_RIGHT     = ( 2 * GRIP_VERTS ),             ///< Right weapon grip starts 8 from last
-
-    // aliases
-    GRIP_INVENTORY =               GRIP_ORIGIN,
-    GRIP_ONLY      =               GRIP_LEFT
-};
-typedef enum e_grip_offset grip_offset_t;
-
-grip_offset_t slot_to_grip_offset( slot_t slot );
-slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 #define PITDEPTH            -60                     ///< Depth to kill character
 #define NO_SKIN_OVERRIDE    -1                      ///< For import
@@ -165,6 +161,39 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
 
+// team constants
+#define TEAM_NOLEADER       0xFFFF                        ///< If the team has no leader...
+
+
+#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<MAXNUMINPACK;IT##_internal++) { CHR_REF IT; chr_t * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PITEM = ChrList_get_ptr( IT );
+#define PACK_END_LOOP() } }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+/// The possible methods for characters to determine what direction they are facing
+enum e_turn_modes
+{
+    TURNMODE_VELOCITY = 0,                       ///< Character gets rotation from velocity (normal)
+    TURNMODE_WATCH,                              ///< For watch towers, look towards waypoint
+    TURNMODE_SPIN,                               ///< For spinning objects
+    TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
+    TURNMODE_COUNT
+};
+
+/// The vertex offsets for the various grips
+enum e_grip_offset
+{
+    GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
+    GRIP_LAST      =               1,                ///< Spawn particles at the last vertex
+    GRIP_LEFT      = ( 1 * GRIP_VERTS ),             ///< Left weapon grip starts  4 from last
+    GRIP_RIGHT     = ( 2 * GRIP_VERTS ),             ///< Right weapon grip starts 8 from last
+
+    // aliases
+    GRIP_INVENTORY =               GRIP_ORIGIN,
+    GRIP_ONLY      =               GRIP_LEFT
+};
+
 /// Bits used to control options for the chr_get_name() function
 enum e_chr_name_bits
 {
@@ -192,9 +221,6 @@ enum e_chr_movement_bits
     CHR_MOVEMENT_BITS_RUN   = 1 << CHR_MOVEMENT_RUN
 };
 
-//------------------------------------
-// Team variables
-//------------------------------------
 enum e_team_types
 {
     TEAM_EVIL            = ( 'E' - 'A' ),        ///< Evil team
@@ -204,8 +230,6 @@ enum e_team_types
     TEAM_DAMAGE,                                 ///< For damage tiles
     TEAM_MAX
 };
-
-#define NOLEADER            0xFFFF                   ///< If the team has no leader...
 
 //--------------------------------------------------------------------------------------------
 
@@ -217,7 +241,6 @@ struct s_team
     CHR_REF  leader;                 ///< The leader of the team
     CHR_REF  sissy;                  ///< Whoever called for help last
 };
-typedef struct s_team team_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -256,12 +279,6 @@ struct s_chr_environment
     fvec3_t  acc;
     fvec3_t  vel;
 };
-typedef struct s_chr_environment chr_environment_t;
-
-//--------------------------------------------------------------------------------------------
-
-#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<MAXNUMINPACK;IT##_internal++) { CHR_REF IT; chr_t * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PITEM =  ChrList.lst + IT;
-#define PACK_END_LOOP() } }
 
 //--------------------------------------------------------------------------------------------
 
@@ -276,8 +293,6 @@ struct s_chr_spawn_data
     STRING      name;
     CHR_REF     override;
 };
-
-typedef struct s_chr_spawn_data chr_spawn_data_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -297,25 +312,25 @@ struct s_chr
     STRING         Name;            ///< My name
     Uint8          gender;          ///< Gender
 
-    Uint8          lifecolor;       ///< Bar color
-    SFP8_T         life;            ///< Basic character stats
-    SFP8_T         lifemax;         ///< 8.8 fixed point
-    UFP8_T         life_heal;       ///< 8.8 fixed point
-    SFP8_T         life_return;     ///< Regeneration/poison - 8.8 fixed point
+    Uint8          life_color;       ///< Bar color
+    SFP8_T         life;            ///< (8.8 fixed point)
+    SFP8_T         life_max;        ///< (8.8 fixed point)
+    UFP8_T         life_heal;       ///< (8.8 fixed point)
+    SFP8_T         life_return;     ///< Regeneration/poison - (8.8 fixed point)
 
-    Uint8          manacolor;       ///< Bar color
+    Uint8          mana_color;      ///< Bar color
     SFP8_T         mana;            ///< Mana stuff
-    SFP8_T         manamax;         ///< 8.8 fixed point
-    SFP8_T         manaflow;        ///< 8.8 fixed point
-    SFP8_T         manareturn;      ///< 8.8 fixed point
+    SFP8_T         mana_max;        ///< (8.8 fixed point)
+    SFP8_T         mana_flow;       ///< (8.8 fixed point)
+    SFP8_T         mana_return;     ///< (8.8 fixed point)
 
-    SFP8_T         strength;        ///< Strength     - 8.8 fixed point
-    SFP8_T         wisdom;          ///< Wisdom       - 8.8 fixed point
-    SFP8_T         intelligence;    ///< Intelligence - 8.8 fixed point
-    SFP8_T         dexterity;       ///< Dexterity    - 8.8 fixed point
+    SFP8_T         strength;        ///< Strength     - (8.8 fixed point)
+    SFP8_T         wisdom;          ///< Wisdom       - (8.8 fixed point)
+    SFP8_T         intelligence;    ///< Intelligence - (8.8 fixed point)
+    SFP8_T         dexterity;       ///< Dexterity    - (8.8 fixed point)
 
-    Uint32         experience;                    ///< Experience
-    Uint8          experiencelevel;               ///< Experience Level
+    Uint32         experience;      ///< Experience
+    Uint8          experiencelevel; ///< Experience Level
 
     Sint16         money;            ///< Money
     Uint8          ammomax;          ///< Ammo stuff
@@ -366,8 +381,8 @@ struct s_chr
     Uint8          damage_modifier[DAMAGE_COUNT]; ///< Damage inversion
     float          damage_resistance[DAMAGE_COUNT]; ///< Damage Resistances
     Uint8          defense;                       ///< Base defense rating
-    SFP8_T         damage_boost;                  ///< Add to swipe damage
-    SFP8_T         damage_threshold;              ///< Damage below this number is ignored
+    SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
+    SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
     // sound stuff
     Sint8          sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
@@ -415,9 +430,9 @@ struct s_chr
     bool_t         transferblend;   ///< Give transparency to weapons?
     bool_t         draw_icon;       ///< Show the icon?
     Uint8          sparkle;         ///< Sparkle color or 0 for off
-    bool_t         StatusList_on;   ///< Display stats?
-    SFP8_T         uoffvel;         ///< Moving texture speed
-    SFP8_T         voffvel;
+    bool_t         show_stats;      ///< Display stats?
+    SFP8_T         uoffvel;         ///< Moving texture speed (8.8 fixed point)
+    SFP8_T         voffvel;          ///< Moving texture speed (8.8 fixed point)
     float          shadow_size_stt;  ///< Initial shadow size
     Uint32         shadow_size;      ///< Size of shadow
     Uint32         shadow_size_save; ///< Without size modifiers
@@ -500,7 +515,66 @@ struct s_chr
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
 };
 
-typedef struct s_chr chr_t;
+chr_t * chr_ctor( chr_t * pchr );
+chr_t * chr_dtor( chr_t * pchr );
+bool_t  chr_request_terminate( chr_t * pchr );
+
+bool_t    chr_matrix_valid( chr_t * pchr );
+egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size );
+
+chr_t *   chr_update_hide( chr_t * pchr );
+egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
+bool_t    chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
+bool_t    chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
+int       chr_get_price( const CHR_REF ichr );
+
+MAD_REF        chr_get_imad( const CHR_REF ichr );
+struct s_mad * chr_get_pmad( const CHR_REF ichr );
+TX_REF         chr_get_icon_ref( const CHR_REF item );
+
+bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
+
+bool_t chr_is_over_water( chr_t *pchr );
+
+Uint32 chr_get_framefx( chr_t * pchr );
+
+egoboo_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
+
+egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
+egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
+egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action );
+egoboo_rv chr_increment_action( chr_t * pchr );
+egoboo_rv chr_increment_frame( chr_t * pchr );
+egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready );
+bool_t chr_update_breadcrumb_raw( chr_t * pchr );
+bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force );
+bool_t chr_update_safe_raw( chr_t * pchr );
+bool_t chr_update_safe( chr_t * pchr, bool_t force );
+bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos );
+
+bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
+
+bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
+bool_t character_is_attacking( chr_t *pchr );
+
+void chr_set_floor_level( chr_t * pchr, float level );
+void chr_set_redshift( chr_t * pchr, int rs );
+void chr_set_grnshift( chr_t * pchr, int gs );
+void chr_set_blushift( chr_t * pchr, int bs );
+void chr_set_sheen( chr_t * pchr, int sheen );
+void chr_set_alpha( chr_t * pchr, int alpha );
+void chr_set_light( chr_t * pchr, int light );
+
+const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits );
+const char * chr_get_dir_name( const CHR_REF ichr );
+int chr_get_skill( chr_t *pchr, IDSZ whichskill );
+
+void reset_character_alpha( const CHR_REF character );
+void reset_character_accel( const CHR_REF character );
+
+// this function is needed because the "hidden" state of an ai is determined by
+// whether  ai.state == cap.hidestate
+chr_t * chr_set_ai_state( chr_t * pchr, int state );
 
 //--------------------------------------------------------------------------------------------
 // list definitions
@@ -528,11 +602,73 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-void character_system_begin();
-void character_system_end();
+// character_system functions
+void character_system_begin( void );
+void character_system_end( void );
 
-chr_t * chr_ctor( chr_t * pchr );
-chr_t * chr_dtor( chr_t * pchr );
+void update_all_character_matrices( void );
+
+
+void reset_teams( void );
+void update_all_characters( void );
+void move_all_characters( void );
+void cleanup_all_characters( void );
+void bump_all_characters_update_counters( void );
+void free_all_chraracters( void );
+void free_one_character_in_game( const CHR_REF character );
+
+void keep_weapons_with_holders( void );
+
+void make_one_character_matrix( const CHR_REF cnt );
+void move_one_character_get_environment( chr_t * pchr );
+
+BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
+BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
+
+CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF team, Uint8 skin, FACING_T facing, const char *name, const CHR_REF override );
+void    respawn_character( const CHR_REF character );
+
+// inventory functions
+bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, const bool_t ignorekurse );
+bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool_t ignorekurse );
+bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool_t ignorekurse );
+
+// save character functions
+bool_t  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
+bool_t  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
+bool_t  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character );
+bool_t  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
+CAP_REF CapStack_load_one( const char *szLoadName, int slot_override, bool_t required );
+
+
+void character_swipe( const CHR_REF cnt, slot_t slot );
+
+bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
+
+CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
+CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
+CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
+
+bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
+
+bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_ary, fvec3_base_t grip_up_ary, bool_t shift_origin );
+
+
+// CapStack functions
+void CapStack_init_all( void );
+void CapStack_release_all( void );
+bool_t CapStack_release_one( const CAP_REF icap );
+
+// character state machine functions
+chr_t * chr_run_config( chr_t * pchr );
+chr_t * chr_config_construct( chr_t * pchr, int max_iterations );
+chr_t * chr_config_initialize( chr_t * pchr, int max_iterations );
+chr_t * chr_config_activate( chr_t * pchr, int max_iterations );
+chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations );
+chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations );
+
+bool_t  chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj );
+CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item );
 
 void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
@@ -546,37 +682,14 @@ bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker );
 
-void reset_character_alpha( const CHR_REF character );
-void reset_character_accel( const CHR_REF character );
 bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
 
 egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
-void free_one_character_in_game( const CHR_REF character );
-void update_all_character_matrices();
 void free_inventory_in_game( const CHR_REF character );
-
-void keep_weapons_with_holders();
-void make_one_character_matrix( const CHR_REF cnt );
-
-void update_all_characters( void );
-void move_all_characters( void );
-void cleanup_all_characters( void );
-
-void bump_all_characters_update_counters( void );
-
 void do_level_up( const CHR_REF character );
 bool_t setup_xp_table( const CHR_REF character );
 
-void free_all_chraracters();
-
-BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
-BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
-
-int chr_count_free();
-
-CHR_REF spawn_one_character( fvec3_t   pos, const PRO_REF profile, const TEAM_REF team, Uint8 skin, FACING_T facing, const char *name, const CHR_REF override );
-void    respawn_character( const CHR_REF character );
 int     change_armor( const CHR_REF character, int skin );
 void    change_character( const CHR_REF cnt, const PRO_REF profile, Uint8 skin, Uint8 leavewhich );
 void    change_character_full( const CHR_REF ichr, const PRO_REF profile, Uint8 skin, Uint8 leavewhich );
@@ -586,131 +699,26 @@ void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egoboo_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
-bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, const bool_t ignorekurse );
-bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool_t ignorekurse );
-bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool_t ignorekurse );
-
 void    drop_keys( const CHR_REF character );
 bool_t  drop_all_items( const CHR_REF character );
 bool_t  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool_t people );
 
-bool_t  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
-bool_t  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
-bool_t  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character );
-bool_t  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
-CAP_REF load_one_character_profile_vfs( const char *szLoadName, int slot_override, bool_t required );
-
-void character_swipe( const CHR_REF cnt, slot_t slot );
+//--------------------------------------------------------------------------------------------
+// generic helper functions
 
 bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, Uint16 effects );
+void   init_slot_idsz( void );
 
-void   init_slot_idsz();
-
-bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
-
-struct s_billboard_data * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits );
-const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits );
-const char * chr_get_dir_name( const CHR_REF ichr );
-int chr_get_skill( chr_t *pchr, IDSZ whichskill );
-
-//--------------------------------------------------------------------------------------------
-// helper functions
-
-void init_all_cap();
-void release_all_cap();
-bool_t release_one_cap( const CAP_REF icap );
+grip_offset_t slot_to_grip_offset( slot_t slot );
+slot_t        grip_offset_to_slot( grip_offset_t grip );
 
 const char * describe_value( float value, float maxval, int * rank_ptr );
 const char* describe_damage( float value, float maxval, int * rank_ptr );
 const char* describe_wounds( float max, float current );
 
-void reset_teams();
+struct s_billboard_data * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits );
 
-egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size );
-bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
-bool_t chr_request_terminate( const CHR_REF ichr );
-
-chr_t * chr_update_hide( chr_t * pchr );
-
-bool_t ai_state_set_changed( ai_state_t * pai );
-
-bool_t chr_matrix_valid( chr_t * pchr );
-
-egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
-
-CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
-CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
-CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
-
-bool_t apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
-
-bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj );
-bool_t chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
-bool_t chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
-int    chr_get_price( const CHR_REF ichr );
-
-bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
-
-void chr_set_floor_level( chr_t * pchr, float level );
-void chr_set_redshift( chr_t * pchr, int rs );
-void chr_set_grnshift( chr_t * pchr, int gs );
-void chr_set_blushift( chr_t * pchr, int bs );
-void chr_set_sheen( chr_t * pchr, int sheen );
-void chr_set_alpha( chr_t * pchr, int alpha );
-void chr_set_light( chr_t * pchr, int light );
-
-void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
-
-CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item );
-
-bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
-
-bool_t chr_is_over_water( chr_t *pchr );
-
-Uint32 chr_get_framefx( chr_t * pchr );
-
-egoboo_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
-
-egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_increment_action( chr_t * pchr );
-egoboo_rv chr_increment_frame( chr_t * pchr );
-egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready );
-
-void character_system_begin();
-void character_system_end();
-
-// these accessor functions are to complex to be inlined
-MAD_REF        chr_get_imad( const CHR_REF ichr );
-struct s_mad * chr_get_pmad( const CHR_REF ichr );
-TX_REF         chr_get_icon_ref( const CHR_REF item );
-
-chr_t * chr_run_config( chr_t * pchr );
-
-chr_t * chr_config_construct( chr_t * pprt, int max_iterations );
-chr_t * chr_config_initialize( chr_t * pprt, int max_iterations );
-chr_t * chr_config_activate( chr_t * pprt, int max_iterations );
-chr_t * chr_config_deinitialize( chr_t * pprt, int max_iterations );
-chr_t * chr_config_deconstruct( chr_t * pprt, int max_iterations );
-
-bool_t chr_update_breadcrumb_raw( chr_t * pchr );
-bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force );
-bool_t chr_update_safe_raw( chr_t * pchr );
-bool_t chr_update_safe( chr_t * pchr, bool_t force );
-bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos );
-
-bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
-
-bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
-bool_t character_is_attacking( chr_t *pchr );
-
-
-// this function is needed because the "hidden" state of an ai is determined by
-// whether  ai.state == cap.hidestate
-chr_t * chr_set_ai_state( chr_t * pchr, int state );
-
-void move_one_character_get_environment( chr_t * pchr );
-
-bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_ary, fvec3_base_t grip_up_ary, bool_t shift_origin );
+#define egoboo_char_h

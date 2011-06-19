@@ -27,11 +27,12 @@
 #include "log.h"
 
 #include "mad.h"
-#include "char.inl"
 
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
 #include "egoboo.h"
+
+#include "char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

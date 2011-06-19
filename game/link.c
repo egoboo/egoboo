@@ -23,19 +23,22 @@
 
 #include "link.h"
 
-#include "char.inl"
-#include "camera.h"
+#include "camera_system.h"
 
 #include "menu.h"
 #include "log.h"
 #include "graphic.h"
-#include "module_file.h"
 #include "game.h"
+#include "player.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
 #include "egoboo_typedef.h"
 #include "egoboo.h"
+
+#include "file_formats/module_file.h"
+
+#include "char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -45,7 +48,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t link_push_module();
+static bool_t link_push_module( void );
 static bool_t link_test_module( const char * modname );
 
 //--------------------------------------------------------------------------------------------
@@ -185,7 +188,7 @@ bool_t link_pop_module()
 
                 if ( phero->object_index == ChrList.lst[j].profile_ref )
                 {
-                    pchr = ChrList.lst + j;
+                    pchr = ChrList_get_ptr( j );
                     break;
                 };
             }
@@ -216,7 +219,7 @@ bool_t link_push_module()
 
     // grab an entry
     pentry = link_stack + link_stack_count;
-    memset( pentry, 0, sizeof( *pentry ) );
+    BLANK_STRUCT_PTR( pentry )
 
     // store the load name of the module
     strncpy( pentry->modname, mnu_ModList_get_vfs_path( pickedmodule_index ), SDL_arraysize( pentry->modname ) );
@@ -235,7 +238,7 @@ bool_t link_push_module()
         // Is it alive?
         ichr = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
+        pchr = ChrList_get_ptr( ichr );
 
         if ( pentry->hero_count < LINK_HEROES_MAX )
         {
@@ -265,7 +268,7 @@ bool_t link_push_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t link_load_parent( const char * modname, fvec3_t   pos )
+bool_t link_load_parent( const char * modname, fvec3_t pos )
 {
     int i;
     link_stack_entry_t * pentry;

@@ -93,8 +93,14 @@ You should link to the following libraries
 	- libSDL_mixer
 	- libSDL_image
 
-	PhysicsFS libraries (use the static link library)
+	PhysicsFS libraries. 
 	- libphysfs
+
+	The 2.x.x version of the PhysicsFS library is not generally 
+	available via a package manager, but is available for download over 
+	the internet. For convenience, we have included a zipped and a bzipped 
+	version. Compiling this into a library will require using CMake to generate
+	the project makefiles.
 
 	for the lua integration, you need the Lua 5.0 libraries
 	- liblua50

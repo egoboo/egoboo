@@ -29,7 +29,7 @@ process_t * process_init( process_t * proc )
 {
     if ( NULL == proc ) return proc;
 
-    memset( proc, 0, sizeof( *proc ) );
+    BLANK_STRUCT_PTR( proc )
 
     proc->terminated = btrue;
 

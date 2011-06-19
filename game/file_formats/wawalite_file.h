@@ -140,8 +140,8 @@ extern "C"
     struct s_wawalite_camera
     {
         bool_t swing;
-        float  swingrate;
-        float  swingamp;
+        float  swing_rate;
+        float  swing_amp;
     };
     typedef struct s_wawalite_camera wawalite_camera_t;
 
@@ -183,11 +183,11 @@ extern "C"
         float light_z;
         float light_a;
     };
-
     typedef struct s_wawalite_data wawalite_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
     extern wawalite_data_t wawalite_data;
 
 //--------------------------------------------------------------------------------------------

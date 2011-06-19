@@ -38,13 +38,14 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// the trye-type font data for Egoboo
-struct Font
+struct s_Font
 {
     TTF_Font *ttfFont;
 

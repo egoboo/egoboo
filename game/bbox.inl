@@ -137,7 +137,7 @@ static INLINE oct_bb_t * oct_bb_ctor( oct_bb_t * pobb )
 {
     if ( NULL == pobb ) return NULL;
 
-    memset( pobb, 0, sizeof( *pobb ) );
+    BLANK_STRUCT_PTR( pobb )
 
     pobb->empty = btrue;
 
@@ -172,7 +172,7 @@ static INLINE egoboo_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc )
 {
     if ( NULL == pdst ) return rv_error;
 
-    if ( NULL == psrc || psrc->empty )
+    if ( NULL == psrc )
     {
         oct_bb_ctor( pdst );
         return rv_success;
@@ -264,9 +264,10 @@ static INLINE egoboo_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psr
 {
     if ( NULL == pdst ) return rv_error;
 
-    if ( NULL == psrc || psrc->empty )
+    if ( NULL == psrc )
     {
         oct_bb_ctor_index( pdst, index );
+
         return rv_success;
     }
 
@@ -316,8 +317,8 @@ static INLINE egoboo_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src1_empty = ( NULL == psrc1 || psrc1->empty );
-    src2_empty = ( NULL == psrc2 || psrc2->empty );
+    src1_empty = ( NULL == psrc1 );
+    src2_empty = ( NULL == psrc2 );
 
     if ( src1_empty && src2_empty )
     {
@@ -376,23 +377,17 @@ static INLINE egoboo_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_
 {
     /// @details BB@> find the union of two oct_bb_t
 
-    bool_t dst_empty, src_empty;
+    bool_t src_empty;
 
     if ( NULL == pdst ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    dst_empty = pdst->empty;
-    src_empty = ( NULL == psrc || psrc->empty );
+    src_empty = ( NULL == psrc );
 
     if ( src_empty )
     {
         // !!!! DO NOTHING !!!!
-        return rv_success;
-    }
-    else if ( dst_empty )
-    {
-        oct_bb_copy_index( pdst, psrc, index );
         return rv_success;
     }
 
@@ -409,18 +404,16 @@ static INLINE egoboo_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const o
 {
     /// @details BB@> find the intersection of two oct_bb_t
 
-    bool_t dst_empty, src_empty;
+    bool_t src_empty;
 
     if ( NULL == pdst ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    dst_empty = pdst->empty;
     src_empty = ( NULL == psrc || psrc->empty );
 
-    if ( dst_empty && src_empty )
+    if ( src_empty )
     {
-        oct_bb_ctor_index( pdst, index );
         return rv_fail;
     }
 
@@ -504,12 +497,10 @@ static INLINE egoboo_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psr
 {
     /// @details BB@> find the union of two oct_bb_t
 
-    bool_t dst_null, src_null;
+    bool_t src_null;
     int cnt;
 
-    dst_null = ( NULL == pdst );
-
-    if ( dst_null ) return rv_error;
+    if ( NULL == pdst ) return rv_error;
 
     src_null = ( NULL == psrc );
 
@@ -534,17 +525,15 @@ static INLINE egoboo_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_
 {
     /// @details BB@> find the intersection of two oct_bb_t
 
-    bool_t dst_empty, src_empty;
+    bool_t src_empty;
     int cnt;
 
     if ( NULL == pdst ) return rv_error;
 
-    dst_empty = pdst->empty;
     src_empty = ( NULL == psrc || psrc->empty );
 
-    if ( dst_empty && src_empty )
+    if ( src_empty )
     {
-        oct_bb_ctor( pdst );
         return rv_fail;
     }
 
@@ -589,7 +578,7 @@ static INLINE egoboo_rv oct_bb_add_fvec3( const oct_bb_t * psrc, const fvec3_bas
     pdst->mins[OCT_Z]  += vec[kZ];
     pdst->maxs[OCT_Z]  += vec[kZ];
 
-    return rv_success;
+    return oct_bb_validate( pdst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -643,7 +632,7 @@ static INLINE egoboo_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t 
         pdst->maxs[cnt] += ovec[cnt];
     }
 
-    return rv_success;
+    return oct_bb_validate( pdst );
 }
 
 //--------------------------------------------------------------------------------------------

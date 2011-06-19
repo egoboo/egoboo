@@ -23,11 +23,6 @@
 
 #include "mad.h"
 
-#include "md2.inl"
-
-#include "cap_file.h"
-#include "particle.inl"
-
 #include "log.h"
 #include "script_compile.h"
 #include "graphic.h"
@@ -37,6 +32,11 @@
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
+
+#include "file_formats/cap_file.h"
+
+#include "md2.inl"
+#include "particle.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -73,30 +73,60 @@ static bool_t  mad_free( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void MadList_init()
+
+IMPLEMENT_STACK( mad_t, MadStack, MAX_MAD );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void model_system_begin()
+{
+    MadStack_ctor();
+}
+
+//--------------------------------------------------------------------------------------------
+void model_system_end()
+{
+    MadStack_dtor();
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+void MadStack_ctor()
+{
+    MAD_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_MAD; cnt++ )
+    {
+        mad_ctor( MadStack_get_ptr( cnt ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void MadStack_dtor()
+{
+    MAD_REF cnt;
+
+    for ( cnt = 0; cnt < MAX_MAD; cnt++ )
+    {
+        mad_dtor( MadStack_get_ptr( cnt ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void MadStack_reinit()
 {
     MAD_REF cnt;
 
     // initialize all mad_t
     for ( cnt = 0; cnt < MAX_MAD; cnt++ )
     {
-        mad_t * pmad = MadStack.lst + cnt;
+        mad_t * pmad = MadStack_get_ptr( cnt );
 
         // blank out all the data, including the obj_base data
-        memset( pmad, 0, sizeof( *pmad ) );
+        BLANK_STRUCT_PTR( pmad )
 
         mad_reconstruct( pmad );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void MadList_dtor()
-{
-    MAD_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_MAD; cnt++ )
-    {
-        mad_dtor( MadStack.lst + cnt );
     }
 }
 
@@ -165,6 +195,69 @@ mad_t * action_copy_correct( mad_t * pmad, int actiona, int actionb )
     return pmad;
 }
 
+//--------------------------------------------------------------------------------------------
+mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
+{
+    /// @details ZZ@> This function copies a model's actions
+
+    vfs_FILE *fileread;
+    int actiona, actionb;
+    char szOne[16] = EMPTY_CSTR;
+    char szTwo[16] = EMPTY_CSTR;
+
+    if ( NULL == pmad ) return pmad;
+
+    fileread = vfs_openRead( loadname );
+    if ( NULL == fileread ) return pmad;
+
+    while ( goto_colon( NULL, fileread, btrue ) )
+    {
+        fget_string( fileread, szOne, SDL_arraysize( szOne ) );
+        actiona = action_which( szOne[0] );
+
+        fget_string( fileread, szTwo, SDL_arraysize( szTwo ) );
+        actionb = action_which( szTwo[0] );
+
+        action_copy_correct( pmad, actiona + 0, actionb + 0 );
+        action_copy_correct( pmad, actiona + 1, actionb + 1 );
+        action_copy_correct( pmad, actiona + 2, actionb + 2 );
+        action_copy_correct( pmad, actiona + 3, actionb + 3 );
+    }
+
+    vfs_close( fileread );
+
+    return pmad;
+}
+
+//--------------------------------------------------------------------------------------------
+int action_which( char cTmp )
+{
+    /// @details ZZ@> This function changes a letter into an action code
+    int action;
+
+    switch ( toupper( cTmp ) )
+    {
+        case 'D': action = ACTION_DA; break;
+        case 'U': action = ACTION_UA; break;
+        case 'T': action = ACTION_TA; break;
+        case 'C': action = ACTION_CA; break;
+        case 'S': action = ACTION_SA; break;
+        case 'B': action = ACTION_BA; break;
+        case 'L': action = ACTION_LA; break;
+        case 'X': action = ACTION_XA; break;
+        case 'F': action = ACTION_FA; break;
+        case 'P': action = ACTION_PA; break;
+        case 'Z': action = ACTION_ZA; break;
+            // case 'W': action = ACTION_WA; break;   //ZF> Can't do this, attack animation WALK is used for doing nothing (for example charging spells)
+        case 'H': action = ACTION_HA; break;
+        case 'K': action = ACTION_KA; break;
+        default:  action = ACTION_DA; break;
+    }
+
+    return action;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int mad_get_action( mad_t * pmad, int action )
 {
@@ -245,68 +338,6 @@ Uint32 mad_get_madfx( mad_t * pmad, int action )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
-{
-    /// @details ZZ@> This function copies a model's actions
-
-    vfs_FILE *fileread;
-    int actiona, actionb;
-    char szOne[16] = EMPTY_CSTR;
-    char szTwo[16] = EMPTY_CSTR;
-
-    if ( NULL == pmad ) return pmad;
-
-    fileread = vfs_openRead( loadname );
-    if ( NULL == fileread ) return pmad;
-
-    while ( goto_colon( NULL, fileread, btrue ) )
-    {
-        fget_string( fileread, szOne, SDL_arraysize( szOne ) );
-        actiona = action_which( szOne[0] );
-
-        fget_string( fileread, szTwo, SDL_arraysize( szTwo ) );
-        actionb = action_which( szTwo[0] );
-
-        action_copy_correct( pmad, actiona + 0, actionb + 0 );
-        action_copy_correct( pmad, actiona + 1, actionb + 1 );
-        action_copy_correct( pmad, actiona + 2, actionb + 2 );
-        action_copy_correct( pmad, actiona + 3, actionb + 3 );
-    }
-
-    vfs_close( fileread );
-
-    return pmad;
-}
-
-//--------------------------------------------------------------------------------------------
-int action_which( char cTmp )
-{
-    /// @details ZZ@> This function changes a letter into an action code
-    int action;
-
-    switch ( toupper( cTmp ) )
-    {
-        case 'D': action = ACTION_DA; break;
-        case 'U': action = ACTION_UA; break;
-        case 'T': action = ACTION_TA; break;
-        case 'C': action = ACTION_CA; break;
-        case 'S': action = ACTION_SA; break;
-        case 'B': action = ACTION_BA; break;
-        case 'L': action = ACTION_LA; break;
-        case 'X': action = ACTION_XA; break;
-        case 'F': action = ACTION_FA; break;
-        case 'P': action = ACTION_PA; break;
-        case 'Z': action = ACTION_ZA; break;
-            // case 'W': action = ACTION_WA; break;   //ZF> Can't do this, attack animation WALK is used for doing nothing (for example charging spells)
-        case 'H': action = ACTION_HA; break;
-        case 'K': action = ACTION_KA; break;
-        default:  action = ACTION_DA; break;
-    }
-
-    return action;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -704,7 +735,7 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     STRING  newloadname;
 
     if ( !VALID_MAD_RANGE( imad ) ) return ( MAD_REF )MAX_MAD;
-    pmad = MadStack.lst + imad;
+    pmad = MadStack_get_ptr( imad );
 
     // clear out the mad
     mad_reconstruct( pmad );
@@ -935,25 +966,10 @@ bool_t mad_free( mad_t * pmad )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_reconstruct( mad_t * pmad )
 {
-    /// @details BB@> initialize the character data to safe values
-    ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
-    ///     statements are redundant
-
-    int action;
-
     if ( NULL == pmad ) return NULL;
 
-    mad_free( pmad );
-
-    memset( pmad, 0, sizeof( *pmad ) );
-
-    strncpy( pmad->name, "*NONE*", SDL_arraysize( pmad->name ) );
-
-    // Clear out all actions and reset to invalid
-    for ( action = 0; action < ACTION_COUNT; action++ )
-    {
-        pmad->action_map[action]   = ACTION_COUNT;
-    }
+    mad_dtor( pmad );
+    mad_ctor( pmad );
 
     return pmad;
 }
@@ -961,9 +977,22 @@ mad_t * mad_reconstruct( mad_t * pmad )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_ctor( mad_t * pmad )
 {
-    if ( NULL == mad_reconstruct( pmad ) ) return NULL;
+    /// @details BB@> initialize the data to safe values
 
-    // nothing to do yet
+    int action;
+
+    if ( NULL == pmad ) return NULL;
+
+    // this macro makes all "= 0", "= false", and "= 0.0f" statements redundant
+    BLANK_STRUCT_PTR( pmad )
+
+    strncpy( pmad->name, "*NONE*", SDL_arraysize( pmad->name ) );
+
+    // Clear out all actions and reset to invalid
+    for ( action = 0; action < ACTION_COUNT; action++ )
+    {
+        pmad->action_map[action] = ACTION_COUNT;
+    }
 
     return pmad;
 }
@@ -975,8 +1004,11 @@ mad_t * mad_dtor( mad_t * pmad )
 
     if ( !LOADED_PMAD( pmad ) ) return NULL;
 
-    // deinitialize the object
-    mad_reconstruct( pmad );
+    // free any allocated data
+    mad_free( pmad );
+
+    // blank the data
+    BLANK_STRUCT_PTR( pmad )
 
     // "destruct" the base object
     pmad->loaded = bfalse;
@@ -985,34 +1017,34 @@ mad_t * mad_dtor( mad_t * pmad )
 }
 
 //--------------------------------------------------------------------------------------------
-void init_all_mad()
+void MadStack_reconstruct_all()
 {
     MAD_REF cnt;
 
     for ( cnt = 0; cnt < MAX_MAD; cnt++ )
     {
-        mad_reconstruct( MadStack.lst + cnt );
+        mad_reconstruct( MadStack_get_ptr( cnt ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_mad()
+void MadStack_release_all()
 {
     MAD_REF cnt;
 
     for ( cnt = 0; cnt < MAX_MAD; cnt++ )
     {
-        release_one_mad( cnt );
+        MadStack_release_one( cnt );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_mad( const MAD_REF imad )
+bool_t MadStack_release_one( const MAD_REF imad )
 {
     mad_t * pmad;
 
     if ( !VALID_MAD_RANGE( imad ) ) return bfalse;
-    pmad = MadStack.lst + imad;
+    pmad = MadStack_get_ptr( imad );
 
     if ( !pmad->loaded ) return btrue;
 
@@ -1103,7 +1135,7 @@ int mad_get_action_ref( const MAD_REF imad, int action )
 
     if ( !LOADED_MAD( imad ) ) return ACTION_COUNT;
 
-    return mad_get_action( MadStack.lst + imad, action );
+    return mad_get_action( MadStack_get_ptr( imad ), action );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1111,7 +1143,7 @@ Uint32 mad_get_madfx_ref( const MAD_REF imad, int action )
 {
     if ( !LOADED_MAD( imad ) ) return 0;
 
-    return mad_get_madfx( MadStack.lst + imad, action );
+    return mad_get_madfx( MadStack_get_ptr( imad ), action );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1119,12 +1151,14 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 {
     if ( LOADED_MAD( imad ) )
     {
-        mad_make_equally_lit( MadStack.lst + imad );
+        mad_make_equally_lit( MadStack_get_ptr( imad ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-////--------------------------------------------------------------------------------------------
+// OBSOLETE
+//--------------------------------------------------------------------------------------------
+
 //Uint16 test_frame_name( char letter )
 //{
 //    /// @details ZZ@> This function returns btrue if the 4th, 5th, 6th, or 7th letters
@@ -1219,31 +1253,31 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 //    MadStack.lst[imad].transvertices = ego_md2_data[MadStack.lst[imad].md2_ref].vertex_lst;
 //}
 
-//--------------------------------------------------------------------------------------------
-/*int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
-{
-    /// @details ZZ@> This function returns 1 if the model vertex is connected, 0 otherwise
-    int cnt, tnc, entry;
-
-    entry = 0;
-
-    for ( cnt = 0; cnt < pclist->count; cnt++ )
-    {
-        for ( tnc = 0; tnc < pclist->size[cnt]; tnc++ )
-        {
-            if ( pclist->vrt[entry] == vertex )
-            {
-                // The vertex is used
-                return 1;
-            }
-
-            entry++;
-        }
-    }
-
-    // The vertex is not used
-    return 0;
-}*/
+////--------------------------------------------------------------------------------------------
+//int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
+//{
+//    /// @details ZZ@> This function returns 1 if the model vertex is connected, 0 otherwise
+//    int cnt, tnc, entry;
+//
+//    entry = 0;
+//
+//    for ( cnt = 0; cnt < pclist->count; cnt++ )
+//    {
+//        for ( tnc = 0; tnc < pclist->size[cnt]; tnc++ )
+//        {
+//            if ( pclist->vrt[entry] == vertex )
+//            {
+//                // The vertex is used
+//                return 1;
+//            }
+//
+//            entry++;
+//        }
+//    }
+//
+//    // The vertex is not used
+//    return 0;
+//}
 
 ////--------------------------------------------------------------------------------------------
 //int action_frame()

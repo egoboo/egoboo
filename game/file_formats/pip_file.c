@@ -57,7 +57,7 @@ pip_t * pip_init( pip_t * ppip )
     if ( NULL == ppip ) return ppip;
 
     // clear the pip
-    memset( ppip, 0, sizeof( *ppip ) );
+    BLANK_STRUCT_PTR( ppip )
 
     ppip->end_sound       = INVALID_SOUND;
     ppip->end_sound_floor = INVALID_SOUND;

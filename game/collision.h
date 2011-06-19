@@ -24,11 +24,13 @@
 #include "egoboo_typedef.h"
 
 #include "hash.h"
+
 #include "bbox.inl"
 
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
-struct s_obj_BSP;
+
 struct s_chr;
 struct s_prt;
 
@@ -88,7 +90,7 @@ extern int CHashList_inserted;
 //--------------------------------------------------------------------------------------------
 // global functions
 
-bool_t collision_system_begin();
-void   collision_system_end();
+bool_t collision_system_begin( void );
+void   collision_system_end( void );
 
-void bump_all_objects();
+void bump_all_objects( void );

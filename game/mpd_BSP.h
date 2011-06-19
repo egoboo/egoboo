@@ -22,9 +22,18 @@
 #include "bsp.h"
 
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
 
 struct s_ego_mpd;
+struct s_frustum;
+
+//--------------------------------------------------------------------------------------------
+// internal structs
+//--------------------------------------------------------------------------------------------
+
+struct s_mpd_BSP;
+typedef struct s_mpd_BSP mpd_BSP_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -32,20 +41,29 @@ struct s_ego_mpd;
 // the BSP structure housing the mesh
 struct s_mpd_BSP
 {
+    size_t         count;
     oct_bb_t       volume;
-    BSP_leaf_ary_t nodes;
     BSP_tree_t     tree;
 };
-typedef struct s_mpd_BSP mpd_BSP_t;
 
-mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, struct s_ego_mpd * pmesh );
-mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * );
-bool_t      mpd_BSP_alloc( mpd_BSP_t * pbsp, struct s_ego_mpd * pmesh );
+#define MPD_BSP_INIT \
+    {\
+        0,                 /* count  */ \
+        OCT_BB_INIT_VALS,  /* volume */ \
+        BSP_TREE_INIT_VALS /* tree   */ \
+    }
+
+mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, const struct s_ego_mpd * pmesh );
+mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp );
+bool_t      mpd_BSP_alloc( mpd_BSP_t * pbsp );
 bool_t      mpd_BSP_free( mpd_BSP_t * pbsp );
+bool_t      mpd_BSP_fill( mpd_BSP_t * pbsp, const struct s_ego_mpd * pmpd );
 
-bool_t      mpd_BSP_fill( mpd_BSP_t * pbsp );
+bool_t      mpd_BSP_can_collide( BSP_leaf_t * pleaf );
+bool_t      mpd_BSP_is_visible( BSP_leaf_t * pleaf );
 
-int         mpd_BSP_collide( mpd_BSP_t * pbsp, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
+int         mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int         mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const struct s_ego_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -55,5 +73,6 @@ extern mpd_BSP_t mpd_BSP_root;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void mpd_BSP_system_begin( struct s_ego_mpd * pmpd );
-void mpd_BSP_system_end();
+egoboo_rv mpd_BSP_system_begin( struct s_ego_mpd * pmpd );
+egoboo_rv mpd_BSP_system_end( void );
+bool_t mpd_BSP_system_started( void );

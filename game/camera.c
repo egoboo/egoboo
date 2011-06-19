@@ -23,38 +23,56 @@
 
 #include "camera.h"
 
-#include "char.inl"
-#include "mesh.inl"
-
 #include "input.h"
 #include "graphic.h"
 #include "network.h"
-#include "controls_file.h"
+#include "player.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
 
-#include "SDL_extensions.h"
+#include "file_formats/controls_file.h"
+#include "extensions/SDL_extensions.h"
+
+#include "char.inl"
+#include "mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-camera_t gCamera;
+static void camera_update_position( camera_t * pcam );
+static void camera_update_center( camera_t * pcam );
+static void camera_update_track( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size );
+//static void camera_update_zoom( camera_t * pcam, float height );
 
-void camera_read_input( camera_t *pcam, input_device_t *pdevice );
+static size_t camera_create_track_list( CHR_REF track_list[], size_t track_list_max_size );
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+camera_options_t cam_options;
+
 //--------------------------------------------------------------------------------------------
 // Camera control stuff
+//--------------------------------------------------------------------------------------------
+
+bool_t camera_reset_view( camera_t * pcam )
+{
+    if ( NULL == pcam ) return bfalse;
+
+    camera_gluLookAt( pcam, pcam->roll );
+
+    return btrue;
+}
 
 //--------------------------------------------------------------------------------------------
-void camera_rotmesh__init()
+bool_t camera_reset_projection( camera_t * pcam, float fov_deg, float ar )
 {
-    // Matrix init stuff (from remove.c)
-    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / 1.33333f;
-    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / 1.33333f;
-    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / 1.33333f;
-    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / 1.33333f;
+    if ( NULL == pcam ) return bfalse;
+
+    camera_gluPerspective( pcam, fov_deg, ar, 1, 20 );
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -62,55 +80,57 @@ camera_t * camera_ctor( camera_t * pcam )
 {
     /// @detalis BB@> initialize the camera structure
 
-    fvec3_t   t1 = {{0, 0, 0}};
-    fvec3_t   t2 = {{0, 0, -1}};
-    fvec3_t   t3 = {{0, 1, 0}};
+    BLANK_STRUCT_PTR( pcam )
 
-    memset( pcam, 0, sizeof( *pcam ) );
+    // global options
+    pcam->turn_mode  = cam_options.turn_mode;
+    pcam->swing      = cam_options.swing;
+    pcam->swing_amp  = cam_options.swing_amp;
+    pcam->swing_rate = cam_options.swing_rate;
 
-    pcam->move_mode = pcam->move_mode_old = CAM_PLAYER;
-    pcam->turn_mode = cfg.autoturncamera;
+    // constant values
+    pcam->move_mode_old  = CAM_PLAYER;
+    pcam->move_mode      = CAM_PLAYER;
+    pcam->swing_rate     =  0;
+    pcam->swing_amp      =  0;
+    pcam->zoom           =  CAM_ZOOM_AVG;
+    pcam->zadd           =  CAM_ZADD_AVG;
+    pcam->zadd_goto       =  CAM_ZADD_AVG;
+    pcam->zgoto          =  CAM_ZADD_AVG;
+    pcam->turn_z_rad     = -PI_OVER_FOUR;
+    pcam->turn_z_add     =  0;
+    pcam->turn_z_sustain =  0.60f;
+    pcam->roll           =  0.0f;
+    pcam->motion_blur    =  0.0f;
+    fvec3_self_clear( pcam->center.v );
 
-    pcam->swing        =  0;
-    pcam->swingrate    =  0;
-    pcam->swingamp     =  0;
-    pcam->pos.x        =  0;
-    pcam->pos.y        =  1500;
-    pcam->pos.z        =  1500;
-    pcam->zoom         =  1000;
-    pcam->zadd         =  800;
-    pcam->zaddgoto     =  800;
-    pcam->zgoto        =  800;
-    pcam->turn_z_rad   = -PI * 0.25f;
-    pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
-    pcam->ori.facing_z = CLIP_TO_16BITS(( int )( pcam->turn_z_one * ( float )0x00010000 ) ) ;
-    pcam->turnadd      =  0;
-    pcam->sustain      =  0.60f;
-    pcam->turnupdown   = ( float )( PI * 0.25f );
-    pcam->roll         =  0;
-    pcam->motion_blur  =  0;
+    // derived values
+    fvec3_base_copy( pcam->track_pos.v, pcam->center.v );
+    fvec3_base_copy( pcam->pos.v,       pcam->center.v );
 
-    pcam->mView       = pcam->mViewSave = ViewMatrix( t1.v, t2.v, t3.v, 0 );
-    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( CAM_FOV * PI / 180.0f ) ); // 60 degree CAM_FOV
-    pcam->mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), pcam->mProjection ); // Fix Z value...
-    pcam->mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), pcam->mProjection );  // HUK // ...'cause it needs it
+    pcam->pos.x += pcam->zoom * SIN( pcam->turn_z_rad );
+    pcam->pos.y += pcam->zoom * COS( pcam->turn_z_rad );
+    pcam->pos.z += CAM_ZADD_MAX;
 
-    // [claforte] Fudge the values.
-    pcam->mProjection.v[10] /= 2.0f;
-    pcam->mProjection.v[11] /= 2.0f;
+    pcam->turn_z_one   = RAD_TO_ONE( pcam->turn_z_rad );
+    pcam->ori.facing_z = ONE_TO_TURN( pcam->turn_z_one ) ;
 
-    camera_rotmesh__init();
+    camera_reset_view( pcam );
+
+    camera_reset_projection( pcam, CAM_FOV, ( float )sdl_scr.x / ( float )sdl_scr.y );
 
     return pcam;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void dump_matrix( fmat_4x4_t a )
+void dump_matrix( fmat_4x4_base_t a )
 {
     /// @detalis ZZ@> dump a text representation of a 4x4 matrix to stdout
 
     int i; int j;
+
+    if ( NULL == a ) return;
 
     for ( j = 0; j < 4; j++ )
     {
@@ -118,7 +138,7 @@ void dump_matrix( fmat_4x4_t a )
 
         for ( i = 0; i < 4; i++ )
         {
-            printf( "%f ", a.CNV( i, j ) );
+            printf( "%f ", a[MAT_IDX( i, j )] );
         }
         printf( "\n" );
     }
@@ -126,32 +146,154 @@ void dump_matrix( fmat_4x4_t a )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void camera_look_at( camera_t * pcam, float x, float y )
+void camera_update_position( camera_t * pcam )
 {
     /// @details ZZ@> This function makes the camera turn to face the character
 
+    TURN_T turnsin;
+    fvec3_t pos_new;
+
+    // update the height
     pcam->zgoto = pcam->zadd;
+
+    // update the turn
     if ( 0 != pcam->turn_time )
     {
-        pcam->turn_z_rad = ( 1.5f * PI ) - ATAN2( y - pcam->pos.y, x - pcam->pos.x );  // xgg
+        pcam->turn_z_rad   = ATAN2( pcam->center.y - pcam->pos.y, pcam->center.x - pcam->pos.x );  // xgg
+        pcam->turn_z_one   = RAD_TO_ONE( pcam->turn_z_rad );
+        pcam->ori.facing_z = ONE_TO_TURN( pcam->turn_z_one );
     }
+
+    // update the camera position
+    turnsin = TO_TURN( pcam->ori.facing_z );
+    pos_new.x = pcam->center.x + pcam->zoom * SIN( pcam->turn_z_rad );
+    pos_new.y = pcam->center.y + pcam->zoom * COS( pcam->turn_z_rad );
+    pos_new.z = pcam->center.z + pcam->zgoto;
+
+    // make the camera motion smooth
+    pcam->pos.x = 0.9f * pcam->pos.x + 0.1f * pos_new.x;
+    pcam->pos.y = 0.9f * pcam->pos.y + 0.1f * pos_new.y;
+    pcam->pos.z = 0.9f * pcam->pos.z + 0.1f * pos_new.z;
+
+}
+//--------------------------------------------------------------------------------------------
+static INLINE float camera_multiply_fov( const float old_fov_deg, const float factor )
+{
+    float old_fov_rad;
+    float new_fov_rad, new_fov_deg;
+
+    old_fov_rad = DEG_TO_RAD( old_fov_deg );
+
+    new_fov_rad = 2.0f * ATAN( factor * TAN( old_fov_rad * 0.5f ) );
+    new_fov_deg = RAD_TO_DEG( new_fov_rad );
+
+    return new_fov_deg;
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_make_matrix( camera_t * pcam )
+void camera_gluPerspective( camera_t * pcam, float fovy_deg, float aspect_ratio, float frustum_near, float frustum_far )
 {
-    /// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
+    const float fov_mag = SQRT_TWO;
 
-    float local_swingamp = pcam->swingamp;
+    float fov_big   = fovy_deg;
+    float fov_small = fovy_deg;
+    GLint matrix_mode[1];
 
-    //Fade out the motion blur
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // switch to the projection mode
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPushMatrix )();
+
+    // do the actual glu call
+    GL_DEBUG( glLoadIdentity )();
+    gluPerspective( fovy_deg, aspect_ratio, frustum_near, frustum_far );
+
+    // grab the matrix
+    GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, pcam->mProjection.v );
+
+    // do another glu call
+    fov_big = camera_multiply_fov( CAM_FOV, fov_mag );
+    GL_DEBUG( glLoadIdentity )();
+    gluPerspective( fov_big, aspect_ratio, frustum_near, frustum_far );
+
+    // grab the big matrix
+    GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, pcam->mProjection_big.v );
+
+    // do another glu call
+    fov_small = camera_multiply_fov( CAM_FOV, 1.0f / fov_mag );
+    GL_DEBUG( glLoadIdentity )();
+    gluPerspective( fov_small, aspect_ratio, frustum_near, frustum_far );
+
+    // grab the small matrix
+    GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, pcam->mProjection_small.v );
+
+    // restore the matrix mode(s)
+    GL_DEBUG( glPopMatrix )();
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
+
+    // recalculate the frustum, too
+    ego_frustum_calculate( &( pcam->frustum ), pcam->mProjection.v, pcam->mView.v );
+    ego_frustum_calculate( &( pcam->frustum_big ), pcam->mProjection_big.v, pcam->mView.v );
+    ego_frustum_calculate( &( pcam->frustum_small ), pcam->mProjection_small.v, pcam->mView.v );
+}
+
+//--------------------------------------------------------------------------------------------
+void camera_gluLookAt( camera_t * pcam, float roll_deg )
+{
+    GLint matrix_mode[1];
+
+    // save the matrix mode
+    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
+
+    // switch to the projection mode
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glLoadIdentity )();
+
+    // get the correct coordinate system
+    GL_DEBUG( glScalef )( -1, 1, 1 );
+
+    // check for stupidity
+    if (( pcam->pos.x != pcam->center.x ) || ( pcam->pos.y != pcam->center.y ) || ( pcam->pos.z != pcam->center.z ) )
+    {
+        // do the camera roll
+        glRotatef( roll_deg, 0, 0, 1 );
+
+        // do the actual glu call
+        gluLookAt(
+            pcam->pos.x, pcam->pos.y, pcam->pos.z,
+            pcam->center.x, pcam->center.y, pcam->center.z,
+            0.0f, 0.0f, 1.0f );
+    }
+
+    // grab the matrix
+    GL_DEBUG( glGetFloatv )( GL_MODELVIEW_MATRIX, pcam->mView.v );
+
+    // restore the matrix mode(s)
+    GL_DEBUG( glPopMatrix )();
+    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
+
+    // the view matrix was updated, so update the frustum
+    ego_frustum_calculate( &( pcam->frustum ), pcam->mProjection.v, pcam->mView.v );
+    ego_frustum_calculate( &( pcam->frustum_big ), pcam->mProjection_big.v, pcam->mView.v );
+    ego_frustum_calculate( &( pcam->frustum_small ), pcam->mProjection_small.v, pcam->mView.v );
+}
+
+//--------------------------------------------------------------------------------------------
+void camera_update_effects( camera_t * pcam )
+{
+    float local_swingamp = pcam->swing_amp;
+
+    // Fade out the motion blur
     if ( pcam->motion_blur > 0 )
     {
         pcam->motion_blur *= 0.99f; //Decay factor
         if ( pcam->motion_blur < 0.001f ) pcam->motion_blur = 0;
     }
 
-    //Swing the camera if players are groggy and apply motion blur
+    // Swing the camera if players are groggy and apply motion blur
     if ( local_stats.grog_level > 0 )
     {
         float zoom_add;
@@ -159,30 +301,32 @@ void camera_make_matrix( camera_t * pcam )
         local_swingamp = MAX( local_swingamp, 0.175f );
 
         zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_stats.grog_level * 0.35f;
-        pcam->zaddgoto = CLIP( pcam->zaddgoto + zoom_add, CAM_ZADD_MIN, CAM_ZADD_MAX );
+
+        pcam->zadd_goto   = pcam->zadd_goto + zoom_add;
         pcam->motion_blur = MIN( 1.00f, 0.5f + 0.03f * local_stats.grog_level );
+
+        pcam->zadd_goto = CLIP( pcam->zadd_goto, CAM_ZADD_MIN, CAM_ZADD_MAX );
     }
 
     //Rotate camera if they are dazed and apply motion blur
     if ( local_stats.daze_level > 0 )
     {
-        pcam->turnadd = local_stats.daze_level * CAM_TURN_KEY * 0.5f;
+        pcam->turn_z_add = local_stats.daze_level * CAM_TURN_KEY * 0.5f;
         pcam->motion_blur = MIN( 1.00f, 0.5f + 0.03f * local_stats.daze_level );
     }
 
     //Apply camera swinging
-    pcam->mView = MatrixMult( Translate( pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave );  // xgg
+    //mat_Multiply( pcam->mView.v, mat_Translate( tmp1.v, pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave.v );  // xgg
     if ( local_swingamp > 0.001f )
     {
         pcam->roll = turntosin[pcam->swing] * local_swingamp;
-        pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
+        //mat_Multiply( pcam->mView.v, mat_RotateY( tmp1.v, pcam->roll ), mat_Copy( tmp2.v, pcam->mView.v ) );
     }
-
     // If the camera stops swinging for some reason, slowly return to original position
     else if ( 0 != pcam->roll )
     {
         pcam->roll *= 0.9875f;            //Decay factor
-        pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
+        //mat_Multiply( pcam->mView.v, mat_RotateY( tmp1.v, pcam->roll ), mat_Copy( tmp2.v, pcam->mView.v ) );
 
         // Come to a standstill at some point
         if ( ABS( pcam->roll ) < 0.001f )
@@ -192,8 +336,15 @@ void camera_make_matrix( camera_t * pcam )
         }
     }
 
-    pcam->mView = MatrixMult( RotateZ( pcam->turn_z_rad ), pcam->mView );
-    pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
+    pcam->swing = ( pcam->swing + pcam->swing_rate ) & 0x3FFF;
+}
+
+//--------------------------------------------------------------------------------------------
+void camera_make_matrix( camera_t * pcam )
+{
+    /// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
+
+    camera_gluLookAt( pcam, pcam->roll );
 
     //--- pre-compute some camera vectors
     mat_getCamForward( pcam->mView.v, pcam->vfw.v );
@@ -207,40 +358,128 @@ void camera_make_matrix( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_adjust_angle( camera_t * pcam, float height )
+void camera_update_zoom( camera_t * pcam )
 {
     /// @details ZZ@> This function makes the camera look downwards as it is raised up
 
     float percentmin, percentmax;
-    if ( height < CAM_ZADD_MIN )  height = CAM_ZADD_MIN;
 
-    percentmax = ( height - CAM_ZADD_MIN ) / ( float )( CAM_ZADD_MAX - CAM_ZADD_MIN );
+    if ( NULL == pcam ) return;
+
+    // update zadd
+    pcam->zadd_goto = CLIP( pcam->zadd_goto, CAM_ZADD_MIN, CAM_ZADD_MAX );
+    pcam->zadd      = 0.9f * pcam->zadd  + 0.1f * pcam->zadd_goto;
+
+    // update zoom
+    percentmax = ( pcam->zadd_goto - CAM_ZADD_MIN ) / ( float )( CAM_ZADD_MAX - CAM_ZADD_MIN );
     percentmin = 1.0f - percentmax;
-
-    pcam->turnupdown = (( CAM_UPDOWN_MIN * percentmin ) + ( CAM_UPDOWN_MAX * percentmax ) );
     pcam->zoom = ( CAM_ZOOM_MIN * percentmin ) + ( CAM_ZOOM_MAX * percentmax );
+
+    // update turn_z
+    if ( 0.0f != pcam->turn_z_add )
+    {
+        pcam->ori.facing_z += pcam->turn_z_add;
+        pcam->turn_z_one    = TURN_TO_ONE( pcam->ori.facing_z );
+        pcam->turn_z_rad    = ONE_TO_RAD( pcam->turn_z_one );
+    }
+    pcam->turn_z_add *= pcam->turn_z_sustain;
+
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
+void camera_update_center( camera_t * pcam )
 {
-    /// @details ZZ@> This function moves the camera
+    // Center on target for doing rotation...
+    if ( 0 != pcam->turn_time )
+    {
+        pcam->center.x = pcam->center.x * 0.9f + pcam->track_pos.x * 0.1f;
+        pcam->center.y = pcam->center.y * 0.9f + pcam->track_pos.y * 0.1f;
+    }
+    else
+    {
+        fvec2_t scroll;
+        fvec2_t vup, vrt, diff;
+        float diff_up, diff_rt;
 
-    PLA_REF ipla;
-    Uint16 cnt;
-    float x, y, z, level, newx, newy, movex, movey;
-    Uint16 turnsin;
+        float track_dist_x, track_dist_y;
 
-    if ( CAM_TURN_NONE != pcam->turn_mode )
-        pcam->turn_time = 255;
-    else if ( 0 != pcam->turn_time )
-        pcam->turn_time--;
+        // calculate the difference between the center of the tracked characters
+        // and the center of the camera look_at
+        fvec2_sub( diff.v, pcam->track_pos.v, pcam->center.v );
+
+        // get 2d versions of the camera's right and up vectors
+        fvec2_base_copy( vrt.v, pcam->vrt.v );
+        fvec2_self_normalize( vrt.v );
+
+        fvec2_base_copy( vup.v, pcam->vup.v );
+        fvec2_self_normalize( vup.v );
+
+        // project the diff vector into this space
+        diff_rt = fvec2_dot_product( vrt.v, diff.v );
+        diff_up = fvec2_dot_product( vup.v, diff.v );
+
+        // Get ready to scroll...
+        scroll.x = 0;
+        scroll.y = 0;
+
+        // Adjust for camera height...
+        track_dist_x = ( CAM_TRACK_X_AREA_LOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
+                       ( CAM_TRACK_X_AREA_HIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
+        track_dist_x /= ( CAM_ZADD_MAX - CAM_ZADD_MIN );
+        if ( diff_rt < -track_dist_x )
+        {
+            // Scroll left
+            scroll.x += vrt.x * ( diff_rt + track_dist_x );
+            scroll.y += vrt.y * ( diff_rt + track_dist_x );
+        }
+        if ( diff_rt > track_dist_x )
+        {
+            // Scroll right
+            scroll.x += vrt.x * ( diff_rt - track_dist_x );
+            scroll.y += vrt.y * ( diff_rt - track_dist_x );
+        }
+
+        // Adjust for camera height...
+        track_dist_y = ( CAM_TRACK_Y_AREA_MINLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
+                       ( CAM_TRACK_Y_AREA_MINHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
+        track_dist_y /= ( CAM_ZADD_MAX - CAM_ZADD_MIN );
+        if ( diff_up > track_dist_y )
+        {
+            // Scroll down
+            scroll.x += vup.x * ( diff_up - track_dist_y );
+            scroll.y += vup.y * ( diff_up - track_dist_y );
+        }
+
+        // Adjust for camera height...
+        track_dist_y = ( CAM_TRACK_Y_AREA_MAXLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
+                       ( CAM_TRACK_Y_AREA_MAXHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
+        track_dist_y /= ( CAM_ZADD_MAX - CAM_ZADD_MIN );
+        if ( diff_up < -track_dist_y )
+        {
+            // Scroll up
+            scroll.x += vup.x * ( diff_up + track_dist_y );
+            scroll.y += vup.y * ( diff_up + track_dist_y );
+        }
+
+        pcam->center.x += scroll.x;
+        pcam->center.y += scroll.y;
+    }
+
+    // center.z always approaches track_pos.z
+    pcam->center.z = pcam->center.z * 0.9f + pcam->track_pos.z * 0.1f;
+}
+
+//--------------------------------------------------------------------------------------------
+void camera_update_track( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
+{
+    fvec3_t new_track;
+    float new_track_level;
 
     // the default camera motion is to do nothing
-    x     = pcam->track_pos.x;
-    y     = pcam->track_pos.y;
-    z     = pcam->track_pos.z;
-    level = 128 + mesh_get_level( pmesh, x, y );
+    new_track.x     = pcam->track_pos.x;
+    new_track.y     = pcam->track_pos.y;
+    new_track.z     = pcam->track_pos.z;
+    new_track_level = pcam->track_level;
 
     if ( CAM_FREE == pcam->move_mode )
     {
@@ -271,12 +510,12 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
         if ( SDLKEYDOWN( SDLK_KP7 ) )
         {
-            pcam->turnadd += CAM_TURN_KEY;
+            pcam->turn_z_add += CAM_TURN_KEY;
         }
 
         if ( SDLKEYDOWN( SDLK_KP9 ) )
         {
-            pcam->turnadd -= CAM_TURN_KEY;
+            pcam->turn_z_add -= CAM_TURN_KEY;
         }
 
         pcam->track_pos.z = 128 + mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
@@ -285,7 +524,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     {
         // a camera movement mode for re-focusing in on a bunch of players
 
-        PLA_REF ipla;
+        int cnt;
         fvec3_t sum_pos;
         float   sum_wt, sum_level;
 
@@ -293,12 +532,15 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         sum_level = 0.0f;
         fvec3_self_clear( sum_pos.v );
 
-        for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+        for ( cnt = 0; cnt < track_list_size; cnt++ )
         {
-            chr_t * pchr;
+            chr_t * pchr = NULL;
+            CHR_REF ichr = track_list[cnt];
 
-            pchr = pla_get_pchr( ipla );
-            if ( NULL == pchr || !pchr->alive ) continue;
+            if ( !ACTIVE_CHR( ichr ) ) continue;
+            pchr = ChrList_get_ptr( ichr );
+
+            if ( !pchr->alive ) continue;
 
             sum_pos.x += pchr->pos.x;
             sum_pos.y += pchr->pos.y;
@@ -310,10 +552,10 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         // if any of the characters is doing anything
         if ( sum_wt > 0.0f )
         {
-            x     = sum_pos.x / sum_wt;
-            y     = sum_pos.y / sum_wt;
-            z     = sum_pos.z / sum_wt;
-            level = sum_level / sum_wt;
+            new_track.x     = sum_pos.x / sum_wt;
+            new_track.y     = sum_pos.y / sum_wt;
+            new_track.z     = sum_pos.z / sum_wt;
+            new_track_level = sum_level / sum_wt;
         }
     }
     else if ( CAM_PLAYER == pcam->move_mode )
@@ -321,17 +563,21 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         // a camera mode for focusing in on the players that are actually doing something.
         // "Show me the drama!"
 
+        int cnt;
         chr_t * local_chr_ptrs[MAX_PLAYER];
         int local_chr_count = 0;
 
         // count the number of local players, first
         local_chr_count = 0;
-        for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+        for ( cnt = 0; cnt < track_list_size; cnt++ )
         {
-            chr_t * pchr;
+            chr_t * pchr = NULL;
+            CHR_REF ichr = track_list[cnt];
 
-            pchr = pla_get_pchr( ipla );
-            if ( NULL == pchr || !pchr->alive ) continue;
+            if ( !ACTIVE_CHR( ichr ) ) continue;
+            pchr = ChrList_get_ptr( ichr );
+
+            if ( !pchr->alive ) continue;
 
             local_chr_ptrs[local_chr_count] = pchr;
             local_chr_count++;
@@ -345,10 +591,10 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
         {
             // copy from the one character
 
-            x = local_chr_ptrs[0]->pos.x;
-            y = local_chr_ptrs[0]->pos.y;
-            z = local_chr_ptrs[0]->pos.z;
-            level = local_chr_ptrs[0]->enviro.level;
+            new_track.x = local_chr_ptrs[0]->pos.x;
+            new_track.y = local_chr_ptrs[0]->pos.y;
+            new_track.z = local_chr_ptrs[0]->pos.z;
+            new_track_level = local_chr_ptrs[0]->enviro.level + 128;
         }
         else
         {
@@ -386,17 +632,17 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
                 sum_pos.x += pchr->pos.x * weight;
                 sum_pos.y += pchr->pos.y * weight;
                 sum_pos.z += pchr->pos.z * weight;
-                sum_level += pchr->enviro.level * weight;
+                sum_level += ( pchr->enviro.level + 128 ) * weight;
                 sum_wt    += weight;
             }
 
             // if any of the characters is doing anything
             if ( sum_wt > 0.0f )
             {
-                x = sum_pos.x / sum_wt;
-                y = sum_pos.y / sum_wt;
-                z = sum_pos.z / sum_wt;
-                level = sum_level / sum_wt;
+                new_track.x = sum_pos.x / sum_wt;
+                new_track.y = sum_pos.y / sum_wt;
+                new_track.z = sum_pos.z / sum_wt;
+                new_track_level = sum_level / sum_wt;
             }
         }
     }
@@ -404,10 +650,10 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     if ( CAM_RESET == pcam->move_mode )
     {
         // just set the position
-        pcam->track_pos.x = x;
-        pcam->track_pos.y = y;
-        pcam->track_pos.z = z;
-        pcam->track_level = level;
+        pcam->track_pos.x = new_track.x;
+        pcam->track_pos.y = new_track.y;
+        pcam->track_pos.z = new_track.z;
+        pcam->track_level = new_track_level;
 
         // reset the camera mode
         pcam->move_mode = pcam->move_mode_old;
@@ -415,15 +661,72 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
     else
     {
         // smoothly interpolate the camera tracking position
-        pcam->track_pos.x = 0.9f * pcam->track_pos.x + 0.1f * x;
-        pcam->track_pos.y = 0.9f * pcam->track_pos.y + 0.1f * y;
-        pcam->track_pos.z = 0.9f * pcam->track_pos.z + 0.1f * z;
-        pcam->track_level = 0.9f * pcam->track_level + 0.1f * level;
+        pcam->track_pos.x = 0.9f * pcam->track_pos.x + 0.1f * new_track.x;
+        pcam->track_pos.y = 0.9f * pcam->track_pos.y + 0.1f * new_track.y;
+        pcam->track_pos.z = 0.9f * pcam->track_pos.z + 0.1f * new_track.z;
+        pcam->track_level = 0.9f * pcam->track_level + 0.1f * new_track_level;
     }
 
-    pcam->turnadd = pcam->turnadd * pcam->sustain;
-    pcam->zadd    = 0.9f * pcam->zadd  + 0.1f * pcam->zaddgoto;
-    pcam->pos.z   = 0.9f * pcam->pos.z + 0.1f * pcam->zgoto;
+}
+
+//--------------------------------------------------------------------------------------------
+size_t camera_create_track_list( CHR_REF track_list[], size_t track_list_max_size )
+{
+    /// @details ZZ@> Create a default list of obhects that are tracked
+
+    PLA_REF ipla;
+
+    size_t track_count = 0;
+
+    if ( NULL == track_list || 0 == track_list_max_size ) return 0;
+
+    // blank out the list
+    track_list[0] = MAX_CHR;
+    track_count = 0;
+
+    // scan the PlaStack for objects the camera can track
+    for ( ipla = 0; ipla < MAX_PLAYER && track_count < track_list_max_size; ipla++ )
+    {
+        player_t * ppla = PlaStack_get_ptr( ipla );
+
+        if ( !ppla->valid || !ACTIVE_CHR( ppla->index ) ) continue;
+
+        // add in a valid character
+        track_list[track_count] = ppla->index;
+        track_count++;
+    }
+
+    return track_count;
+}
+
+//--------------------------------------------------------------------------------------------
+void camera_move( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
+{
+    /// @details ZZ@> This function moves the camera
+
+    PLA_REF ipla;
+
+    CHR_REF _track_list[ MAX_PLAYER ];
+
+    CHR_REF * loc_track_list  = track_list;
+    size_t    loc_target_count = track_list_size;
+
+    // deal with optional parameters
+    if ( NULL == track_list )
+    {
+        loc_track_list  = _track_list;
+        loc_target_count = camera_create_track_list( _track_list, SDL_arraysize( _track_list ) );
+    }
+
+    // update the turn_time counter
+    if ( CAM_TURN_NONE != pcam->turn_mode )
+    {
+        pcam->turn_time = 255;
+    }
+    else if ( pcam->turn_time > 0 )
+    {
+        pcam->turn_time--;
+    }
 
     // Camera controls
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -432,90 +735,37 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 
         //Don't do invalid players
         if ( INVALID_PLA( ipla ) ) continue;
-        ppla = PlaStack.lst + ipla;
+        ppla = PlaStack_get_ptr( ipla );
 
         //Handle camera control from this player
         camera_read_input( pcam, ppla->pdevice );
     }
 
-    pcam->pos.x -= ( float )( pcam->mView.CNV( 0, 0 ) ) * pcam->turnadd; // xgg
-    pcam->pos.y += ( float )( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;
+    // update the special camera effects like grog
+    camera_update_effects( pcam );
 
-    // Center on target for doing rotation...
-    if ( 0 != pcam->turn_time )
-    {
-        pcam->center.x = pcam->center.x * 0.9f + pcam->track_pos.x * 0.1f;
-        pcam->center.y = pcam->center.y * 0.9f + pcam->track_pos.y * 0.1f;
-    }
+    // update the average position of the tracked characters
+    camera_update_track( pcam, pmesh, loc_track_list, loc_target_count );
 
-    // Create a tolerance area for walking without camera movement
-    x = pcam->track_pos.x - pcam->pos.x;
-    y = pcam->track_pos.y - pcam->pos.y;
-    newx = -( pcam->mView.CNV( 0, 0 ) * x + pcam->mView.CNV( 1, 0 ) * y ); // newx = -(pcam->mView(0,0) * x + pcam->mView(1,0) * y);
-    newy = -( pcam->mView.CNV( 0, 1 ) * x + pcam->mView.CNV( 1, 1 ) * y ); // newy = -(pcam->mView(0,1) * x + pcam->mView(1,1) * y);
+    // move the camera cente, if need be
+    camera_update_center( pcam );
 
-    // Get ready to scroll...
-    movex = 0;
-    movey = 0;
+    // make the zadd and zoom work together
+    camera_update_zoom( pcam );
 
-    // Adjust for camera height...
-    z = ( CAM_TRACK_X_AREA_LOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
-        ( CAM_TRACK_X_AREA_HIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
-    z = z / ( CAM_ZADD_MAX - CAM_ZADD_MIN );
-    if ( newx < -z )
-    {
-        // Scroll left
-        movex += ( newx + z );
-    }
-    if ( newx > z )
-    {
-        // Scroll right
-        movex += ( newx - z );
-    }
+    // update the position of the camera
+    camera_update_position( pcam );
 
-    // Adjust for camera height...
-    z = ( CAM_TRACK_Y_AREA_MINLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
-        ( CAM_TRACK_Y_AREA_MINHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
-    z = z / ( CAM_ZADD_MAX - CAM_ZADD_MIN );
-    if ( newy < z )
-    {
-        // Scroll down
-        movey -= ( newy - z );
-    }
-    else
-    {
-        // Adjust for camera height...
-        z = ( CAM_TRACK_Y_AREA_MAXLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
-            ( CAM_TRACK_Y_AREA_MAXHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
-        z = z / ( CAM_ZADD_MAX - CAM_ZADD_MIN );
-        if ( newy > z )
-        {
-            // Scroll up
-            movey -= ( newy - z );
-        }
-    }
-
-    turnsin = TO_TURN( pcam->ori.facing_z );
-    pcam->center.x += movex * turntocos[ turnsin & TRIG_TABLE_MASK ] + movey * turntosin[ turnsin & TRIG_TABLE_MASK ];
-    pcam->center.y += -movex * turntosin[ turnsin & TRIG_TABLE_MASK ] + movey * turntocos[ turnsin & TRIG_TABLE_MASK ];
-
-    // Finish up the camera
-    camera_look_at( pcam, pcam->center.x, pcam->center.y );
-    pcam->pos.x = ( float ) pcam->center.x + ( pcam->zoom * SIN( pcam->turn_z_rad ) );
-    pcam->pos.y = ( float ) pcam->center.y + ( pcam->zoom * COS( pcam->turn_z_rad ) );
-
-    camera_adjust_angle( pcam, pcam->pos.z );
-
+    // set the view matrix
     camera_make_matrix( pcam );
-
-    pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
-    pcam->ori.facing_z = CLIP_TO_16BITS( FLOAT_TO_FP16( pcam->turn_z_one ) );
 }
 
+//--------------------------------------------------------------------------------------------
 void camera_read_input( camera_t *pcam, input_device_t *pdevice )
 {
     // @details ZF@> Read camera control input for one specific player controller
-    INPUT_DEVICE type;
+
+    int type;
     bool_t autoturn_camera;
 
     //Don't do network players
@@ -523,145 +773,171 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     type = pdevice->device_type;
 
     //If the device isn't enabled there is no point in continuing
-    if ( !input_is_enabled( pdevice ) ) return;
+    if ( !input_device_is_enabled( pdevice ) ) return;
 
     //Autoturn camera only works in single player and when it is enabled
-    autoturn_camera = CAM_TURN_GOOD == pcam->turn_mode && 1 == local_numlpla;
+    autoturn_camera = ( CAM_TURN_GOOD == pcam->turn_mode ) && ( 1 == local_stats.player_count );
 
     //No auto camera
-    switch ( type )
+    if ( INPUT_DEVICE_MOUSE == type )
     {
-            //Mouse control
-        case INPUT_DEVICE_MOUSE:
+        // Mouse control
+
+        //Auto camera
+        if ( autoturn_camera )
+        {
+            if ( !input_device_control_active( pdevice,  CONTROL_CAMERA ) )
             {
-                //Auto camera
-                if ( autoturn_camera )
-                {
-                    if ( !control_is_pressed( pdevice,  CONTROL_CAMERA ) )
-                    {
-                        pcam->turnadd -= ( mous.x * 0.5f );
-                    }
-                }
+                pcam->turn_z_add -= ( mous.x * 0.5f );
+            }
+        }
 
-                //Normal camera
-                else if ( control_is_pressed( pdevice,  CONTROL_CAMERA ) )
-                {
-                    pcam->turnadd += ( mous.x / 3.0f );
-                    pcam->zaddgoto += ( float ) mous.y / 3.0f;
-                    if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
-                    if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
+        //Normal camera
+        else if ( input_device_control_active( pdevice,  CONTROL_CAMERA ) )
+        {
+            pcam->turn_z_add += ( mous.x / 3.0f );
+            pcam->zadd_goto  += ( float ) mous.y / 3.0f;
 
-                    pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
-                }
-                break;
+            pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
+        }
+    }
+    else if ( IS_VALID_JOYSTICK( type ) )
+    {
+        // Joystick camera controls
+
+        int ijoy = type - INPUT_DEVICE_JOY;
+
+        // figure out which joystick this is
+        joystick_data_t *pjoy = JoyList + ijoy;
+
+        // Autocamera
+        if ( autoturn_camera )
+        {
+            if ( !input_device_control_active( pdevice, CONTROL_CAMERA ) )
+            {
+                pcam->turn_z_add -= pjoy->x * CAM_TURN_JOY;
+            }
+        }
+
+        //Normal camera
+        else if ( input_device_control_active( pdevice, CONTROL_CAMERA ) )
+        {
+            pcam->turn_z_add += pjoy->x * CAM_TURN_JOY;
+            pcam->zadd_goto  += pjoy->y * CAM_TURN_JOY;
+
+            pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
+        }
+    }
+    else
+    {
+        // INPUT_DEVICE_KEYBOARD and any unknown device end up here
+
+        //Auto camera
+        if ( autoturn_camera )
+        {
+            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )
+            {
+                pcam->turn_z_add += CAM_TURN_KEY;
+            }
+            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )
+            {
+                pcam->turn_z_add -= CAM_TURN_KEY;
+            }
+        }
+
+        //Normal camera
+        else
+        {
+            int turn_z_diff = 0;
+
+            //rotation
+            if ( input_device_control_active( pdevice,  CONTROL_CAMERA_LEFT ) )
+            {
+                turn_z_diff += CAM_TURN_KEY;
+            }
+            if ( input_device_control_active( pdevice,  CONTROL_CAMERA_RIGHT ) )
+            {
+                turn_z_diff -= CAM_TURN_KEY;
             }
 
-            // Joystick camera controls
-        case INPUT_DEVICE_JOY + 0:
-        case INPUT_DEVICE_JOY + 1:
+            // Sticky turn?
+            if ( 0 != turn_z_diff )
             {
-                //figure out which joystick this is
-                device_joystick_t *joystick = JoyList + ( type - MAXJOYSTICK );
-
-                //Autocamera
-                if ( autoturn_camera )
-                {
-                    if ( !control_is_pressed( pdevice, CONTROL_CAMERA ) )
-                    {
-                        pcam->turnadd -= JoyList[1].x * CAM_TURN_JOY;
-                    }
-                }
-
-                //Normal camera
-                else if ( control_is_pressed( pdevice, CONTROL_CAMERA ) )
-                {
-                    pcam->turnadd += joystick->x * CAM_TURN_JOY;
-                    pcam->zaddgoto += joystick->y * CAM_TURN_JOY;
-                    if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
-                    if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
-
-                    pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
-                }
-                break;
+                pcam->turn_z_add += turn_z_diff;
+                pcam->turn_time   = CAM_TURN_TIME;
             }
 
-            // Keyboard camera controls
-        case INPUT_DEVICE_KEYBOARD:
+            //zoom
+            if ( input_device_control_active( pdevice,  CONTROL_CAMERA_OUT ) )
             {
-                //Auto camera
-                if ( autoturn_camera )
-                {
-                    pcam->turnadd += ( control_is_pressed( pdevice,  CONTROL_LEFT ) - control_is_pressed( pdevice,  CONTROL_RIGHT ) ) * CAM_TURN_KEY;
-                }
-
-                //Normal camera
-                else
-                {
-                    //rotation
-                    if ( control_is_pressed( pdevice,  CONTROL_CAMERA_LEFT ) || control_is_pressed( pdevice,  CONTROL_CAMERA_RIGHT ) )
-                    {
-                        pcam->turnadd += ( control_is_pressed( pdevice,  CONTROL_CAMERA_LEFT ) - control_is_pressed( pdevice,  CONTROL_CAMERA_RIGHT ) ) * CAM_TURN_KEY;
-                        pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
-                    }
-
-                    //zoom
-                    if ( control_is_pressed( pdevice,  CONTROL_CAMERA_IN ) || control_is_pressed( pdevice,  CONTROL_CAMERA_OUT ) )
-                    {
-                        pcam->zaddgoto += ( control_is_pressed( pdevice,  CONTROL_CAMERA_OUT ) - control_is_pressed( pdevice,  CONTROL_CAMERA_IN ) ) * CAM_TURN_KEY;
-                        if ( pcam->zaddgoto < CAM_ZADD_MIN )  pcam->zaddgoto = CAM_ZADD_MIN;
-                        if ( pcam->zaddgoto > CAM_ZADD_MAX )  pcam->zaddgoto = CAM_ZADD_MAX;
-                    }
-                }
-                break;
+                pcam->zadd_goto += CAM_TURN_KEY;
             }
+            if ( input_device_control_active( pdevice,  CONTROL_CAMERA_IN ) )
+            {
+                pcam->zadd_goto -= CAM_TURN_KEY;
+            }
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
+void camera_reset( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
 {
     /// @details ZZ@> This function makes sure the camera starts in a suitable position
 
+    // constant values
     pcam->swing        = 0;
-    pcam->pos.x        = pmesh->gmem.edge_x * 0.5f;
-    pcam->pos.y        = pmesh->gmem.edge_y * 0.5f;
-    pcam->pos.z        = 1500;
-    pcam->zoom         = 1000;
-    pcam->center.x     = pcam->pos.x;
-    pcam->center.y     = pcam->pos.y;
-    pcam->track_pos.x  = pcam->pos.x;
-    pcam->track_pos.y  = pcam->pos.y;
-    pcam->track_pos.z  = 1500;
-    pcam->turnadd      = 0;
     pcam->track_level  = 0;
-    pcam->zadd         = 1500;
-    pcam->zaddgoto     = CAM_ZADD_MAX;
-    pcam->zgoto        = 1500;
-    pcam->turn_z_rad   = -PI * 0.25f;
-    pcam->turn_z_one   = pcam->turn_z_rad / TWO_PI;
-    pcam->ori.facing_z = CLIP_TO_16BITS(( int )( pcam->turn_z_one * ( float )0x00010000 ) ) ;
-    pcam->turnupdown   = PI * 0.25f;
+    pcam->zoom         = CAM_ZOOM_AVG;
+    pcam->zadd         = CAM_ZADD_AVG;
+    pcam->zadd_goto     = CAM_ZADD_AVG;
+    pcam->zgoto        = CAM_ZADD_AVG;
+    pcam->turn_z_rad   = -PI_OVER_FOUR;
+    pcam->turn_z_add   = 0;
     pcam->roll         = 0;
 
+    // derived values
+    pcam->center.x     = pmesh->gmem.edge_x * 0.5f;
+    pcam->center.y     = pmesh->gmem.edge_y * 0.5f;
+    pcam->center.z     = 0.0f;
+
+    fvec3_base_copy( pcam->track_pos.v, pcam->center.v );
+    fvec3_base_copy( pcam->pos.v,       pcam->center.v );
+
+    pcam->pos.x += pcam->zoom * SIN( pcam->turn_z_rad );
+    pcam->pos.y += pcam->zoom * COS( pcam->turn_z_rad );
+    pcam->pos.z += CAM_ZADD_MAX;
+
+    pcam->turn_z_one   = RAD_TO_ONE( pcam->turn_z_rad );
+    pcam->ori.facing_z = ONE_TO_TURN( pcam->turn_z_one ) ;
+
+    // get optional parameters
+    pcam->swing      = cam_options.swing;
+    pcam->swing_rate = cam_options.swing_rate;
+    pcam->swing_amp  = cam_options.swing_amp;
+    pcam->turn_mode  = cam_options.turn_mode;
+
     // make sure you are looking at the players
-    camera_reset_target( pcam, pmesh );
+    camera_reset_target( pcam, pmesh, track_list, track_list_size );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t camera_reset_target( camera_t * pcam, ego_mpd_t * pmesh )
+bool_t camera_reset_target( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
 {
     // @details BB@> Force the camera to focus in on the players. Should be called any time there is
     //               a "change of scene". With the new velocity-tracking of the camera, this would include
     //               things like character respawns, adding new players, etc.
 
-    int turn_mode_save;
+    int turn_mode_save, move_mode_save;
 
     if ( NULL == pcam ) return bfalse;
 
+    // save some values
     turn_mode_save = pcam->turn_mode;
+    move_mode_save = pcam->move_mode;
 
-    // set an identity matrix.
-    pcam->mView = IdentityMatrix();
+    // get back to the default view matrix
+    camera_reset_view( pcam );
 
     // specify the modes that will make the camera point at the players
     pcam->turn_mode = CAM_TURN_AUTO;
@@ -669,14 +945,17 @@ bool_t camera_reset_target( camera_t * pcam, ego_mpd_t * pmesh )
 
     // If you use CAM_RESET, camera_move() automatically restores pcam->move_mode
     // to its default setting
-    camera_move( pcam, pmesh );
+    camera_move( pcam, pmesh, track_list, track_list_size );
 
     // fix the center position
     pcam->center.x = pcam->track_pos.x;
     pcam->center.y = pcam->track_pos.y;
 
-    // restore the turn mode
+    // restore the modes
     pcam->turn_mode = turn_mode_save;
+    pcam->move_mode = move_mode_save;
+
+    // reset the turn time
     pcam->turn_time = 0;
 
     return btrue;

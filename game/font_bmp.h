@@ -45,6 +45,6 @@ extern Uint8    asciitofont[256];           ///< Conversion table
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void font_bmp_init();
+void font_bmp_init( void );
 void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing );
 int  font_bmp_length_of_word( const char *szText );

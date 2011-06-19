@@ -23,13 +23,8 @@
 
 #include "enchant.inl"
 
-#include "char.inl"
-#include "mad.h"
-#include "particle.inl"
-#include "profile.inl"
-
 #include "sound.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "game.h"
 #include "script_functions.h"
 #include "log.h"
@@ -37,8 +32,14 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
+#include "char.inl"
+#include "mad.h"
+#include "particle.inl"
+#include "profile.inl"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, eve_t, EveStack, MAX_EVE );
 
 //--------------------------------------------------------------------------------------------
@@ -53,16 +54,21 @@ static enc_t * enc_config_dtor( enc_t * penc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+IMPLEMENT_STACK( eve_t, EveStack, MAX_EVE );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void enchant_system_begin()
 {
     EncList_init();
-    init_all_eve();
+    EveStack_init_all();
 }
 
 //--------------------------------------------------------------------------------------------
 void enchant_system_end()
 {
-    release_all_eve();
+    EveStack_release_all();
     EncList_dtor();
 }
 
@@ -89,7 +95,7 @@ enc_t * enc_ctor( enc_t * penc )
 
     memcpy( &save_base, pbase, sizeof( obj_data_t ) );
 
-    memset( penc, 0, sizeof( *penc ) );
+    BLANK_STRUCT_PTR( penc )
 
     // restore the base object data
     memcpy( pbase, &save_base, sizeof( obj_data_t ) );
@@ -108,6 +114,9 @@ enc_t * enc_ctor( enc_t * penc )
     penc->overlay_ref      = ( CHR_REF )MAX_CHR;
 
     penc->nextenchant_ref  = ( ENC_REF )MAX_ENC;
+
+    // initialize the bsp node for this character
+    BSP_leaf_ctor( &( penc->bsp_leaf ), penc, BSP_LEAF_ENC, GET_INDEX_PENC( penc ) );
 
     // we are done constructing. move on to initializing.
     pbase->state = ego_object_initializing;
@@ -137,12 +146,12 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     enc_t * penc;
 
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     // Unlink it from the spawner (if possible)
     if ( ALLOCATED_CHR( penc->spawner_ref ) )
     {
-        chr_t * pspawner = ChrList.lst + penc->spawner_ref;
+        chr_t * pspawner = ChrList_get_ptr( penc->spawner_ref );
 
         if ( ienc == pspawner->undoenchant )
         {
@@ -158,7 +167,7 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
         chr_t * ptarget;
 
-        ptarget = ChrList.lst + penc->target_ref;
+        ptarget = ChrList_get_ptr( penc->target_ref );
 
         if ( ptarget->firstenchant == ienc )
         {
@@ -215,7 +224,7 @@ bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
 
     // Stop invalid pointers
     if ( !ACTIVE_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pchr );
@@ -256,7 +265,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     chr_t * target_ptr, *spawner_ptr, *overlay_ptr;
 
     if ( !ALLOCATED_ENC( ienc ) ) return bfalse;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
     peve = enc_get_peve( ienc );
 
     target_ref = MAX_CHR;
@@ -264,7 +273,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     if ( DEFINED_CHR( penc->target_ref ) )
     {
         target_ref = penc->target_ref;
-        target_ptr = ChrList.lst + penc->target_ref;
+        target_ptr = ChrList_get_ptr( penc->target_ref );
     }
 
     spawner_ref = MAX_CHR;
@@ -272,7 +281,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     if ( DEFINED_CHR( penc->spawner_ref ) )
     {
         spawner_ref = penc->spawner_ref;
-        spawner_ptr = ChrList.lst + penc->spawner_ref;
+        spawner_ptr = ChrList_get_ptr( penc->spawner_ref );
     }
 
     overlay_ref = MAX_CHR;
@@ -280,7 +289,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     if ( DEFINED_CHR( penc->overlay_ref ) )
     {
         overlay_ref = penc->overlay_ref;
-        overlay_ptr = ChrList.lst + penc->overlay_ref;
+        overlay_ptr = ChrList_get_ptr( penc->overlay_ref );
     }
 
     // Unsparkle the spellbook
@@ -300,13 +309,13 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // Remove all of the cumulative values first, since we did it
     for ( add_type = ENC_ADD_LAST; add_type >= ENC_ADD_FIRST; add_type-- )
     {
-        enchant_remove_add( ienc, add_type );
+        enc_remove_add( ienc, add_type );
     }
 
     // unset them in the reverse order of setting them, doing morph last
     for ( set_type = ENC_SET_LAST; set_type >= ENC_SET_FIRST; set_type-- )
     {
-        enchant_remove_set( ienc, set_type );
+        enc_remove_set( ienc, set_type );
     }
 
     // Now fix dem weapons
@@ -400,7 +409,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
+ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
 {
     /// @details ZZ@> This function returns MAX_ENC if the enchantment's target has no conflicting
     ///    set values in its other enchantments.  Otherwise it returns the ienc
@@ -418,7 +427,7 @@ ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
 
     character = EncList.lst[ienc].target_ref;
     if ( !INGAME_CHR( character ) ) return ( ENC_REF )MAX_ENC;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -444,7 +453,7 @@ ENC_REF enchant_value_filled( const ENC_REF  ienc, int value_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
+void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 {
     /// @details ZZ@> This function sets and saves one of the character's stats
 
@@ -457,7 +466,7 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     peve = pro_get_peve( profile );
     if ( NULL == peve ) return;
@@ -465,7 +474,7 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
     penc->setyesno[value_idx] = bfalse;
     if ( peve->setyesno[value_idx] )
     {
-        conflict = enchant_value_filled( ienc, value_idx );
+        conflict = enc_value_filled( ienc, value_idx );
         if ( peve->override || MAX_ENC == conflict )
         {
             // Check for multiple enchantments
@@ -480,7 +489,7 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
                 else
                 {
                     // Just unset the old enchantment's value
-                    enchant_remove_set( conflict, value_idx );
+                    enc_remove_set( conflict, value_idx );
                 }
             }
 
@@ -488,7 +497,7 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
             if ( DEFINED_CHR( penc->target_ref ) )
             {
                 character = penc->target_ref;
-                ptarget = ChrList.lst + character;
+                ptarget = ChrList_get_ptr( character );
 
                 penc->setyesno[value_idx] = btrue;
 
@@ -505,13 +514,13 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
                         break;
 
                     case SETLIFEBARCOLOR:
-                        penc->setsave[value_idx] = ptarget->lifecolor;
-                        ptarget->lifecolor       = peve->setvalue[value_idx];
+                        penc->setsave[value_idx] = ptarget->life_color;
+                        ptarget->life_color       = peve->setvalue[value_idx];
                         break;
 
                     case SETMANABARCOLOR:
-                        penc->setsave[value_idx] = ptarget->manacolor;
-                        ptarget->manacolor       = peve->setvalue[value_idx];
+                        penc->setsave[value_idx] = ptarget->mana_color;
+                        ptarget->mana_color       = peve->setvalue[value_idx];
                         break;
 
                     case SETSLASHMODIFIER:
@@ -623,7 +632,7 @@ void enchant_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profil
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
+void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 {
     /// @details ZZ@> This function does cumulative modification to character stats
 
@@ -637,10 +646,10 @@ void enchant_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
     if ( !DEFINED_ENC( ienc ) ) return;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
-    peve = EveStack.lst + ieve;
+    peve = EveStack_get_ptr( ieve );
 
     if ( !peve->addyesno[value_idx] )
     {
@@ -651,7 +660,7 @@ void enchant_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 
     if ( !DEFINED_CHR( penc->target_ref ) ) return;
     character = penc->target_ref;
-    ptarget = ChrList.lst + character;
+    ptarget = ChrList_get_ptr( character );
 
     valuetoadd  = 0;
     fvaluetoadd = 0.0f;
@@ -734,22 +743,22 @@ void enchant_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             break;
 
         case ADDMANA:
-            newvalue = ptarget->manamax;
+            newvalue = ptarget->mana_max;
             valuetoadd = peve->addvalue[value_idx];
             getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
-            ptarget->manamax += valuetoadd;
+            ptarget->mana_max += valuetoadd;
             //ptarget->mana    += valuetoadd;                       //ZF> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
-            ptarget->mana = CLIP( ptarget->mana, 0, ptarget->manamax );
+            ptarget->mana = CLIP( ptarget->mana, 0, ptarget->mana_max );
             fvaluetoadd = valuetoadd;
             break;
 
         case ADDLIFE:
-            newvalue = ptarget->lifemax;
+            newvalue = ptarget->life_max;
             valuetoadd = peve->addvalue[value_idx];
             getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
-            ptarget->lifemax += valuetoadd;
+            ptarget->life_max += valuetoadd;
             //ptarget->life += valuetoadd;                        //ZF> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
-            ptarget->life = CLIP( ptarget->life, 1, ptarget->lifemax );
+            ptarget->life = CLIP( ptarget->life, 1, ptarget->life_max );
             fvaluetoadd = valuetoadd;
             break;
 
@@ -872,7 +881,7 @@ enc_t * enc_config_do_init( enc_t * penc )
         return NULL;
     }
     penc->eve_ref = pdata->eve_ref;
-    peve = EveStack.lst + pdata->eve_ref;
+    peve = EveStack_get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
     POBJ_ACTIVATE( penc, peve->name );
@@ -886,7 +895,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     else
     {
         penc->target_ref = pdata->target_ref;
-        ptarget = ChrList.lst + penc->target_ref;
+        ptarget = ChrList_get_ptr( penc->target_ref );
     }
     penc->target_mana  = peve->target_mana;
     penc->target_life  = peve->target_life;
@@ -930,13 +939,13 @@ enc_t * enc_config_do_init( enc_t * penc )
     // Now set all of the specific values, morph first
     for ( set_type = ENC_SET_FIRST; set_type <= ENC_SET_LAST; set_type++ )
     {
-        enchant_apply_set( ienc, set_type, pdata->profile_ref );
+        enc_apply_set( ienc, set_type, pdata->profile_ref );
     }
 
     // Now do all of the stat adds
     for ( add_type = ENC_ADD_FIRST; add_type <= ENC_ADD_LAST; add_type++ )
     {
-        enchant_apply_add( ienc, add_type, pdata->eve_ref );
+        enc_apply_add( ienc, add_type, pdata->eve_ref );
     }
 
     // Add it as first in the list
@@ -956,7 +965,7 @@ enc_t * enc_config_do_init( enc_t * penc )
             mad_t * povl_mad;
             int action;
 
-            povl     = ChrList.lst + overlay;
+            povl     = ChrList_get_ptr( overlay );
             povl_mad = chr_get_pmad( overlay );
 
             penc->overlay_ref = overlay;  // Kill this character on end...
@@ -1027,7 +1036,7 @@ enc_t * enc_config_do_active( enc_t * penc )
         int      tnc;
         FACING_T facing;
         penc->spawn_timer = peve->contspawn_delay;
-        ptarget = ChrList.lst + penc->target_ref;
+        ptarget = ChrList_get_ptr( penc->target_ref );
 
         facing = ptarget->ori.facing_z;
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
@@ -1044,7 +1053,7 @@ enc_t * enc_config_do_active( enc_t * penc )
     {
         if ( 0 == penc->lifetime )
         {
-            enc_request_terminate( ienc );
+            EncList_request_terminate( ienc );
         }
         else
         {
@@ -1068,9 +1077,9 @@ enc_t * enc_config_do_active( enc_t * penc )
                     {
                         kill_character( owner, target, bfalse );
                     }
-                    if ( ChrList.lst[owner].life > ChrList.lst[owner].lifemax )
+                    if ( ChrList.lst[owner].life > ChrList.lst[owner].life_max )
                     {
-                        ChrList.lst[owner].life = ChrList.lst[owner].lifemax;
+                        ChrList.lst[owner].life = ChrList.lst[owner].life_max;
                     }
                 }
 
@@ -1080,14 +1089,14 @@ enc_t * enc_config_do_active( enc_t * penc )
                     bool_t mana_paid = cost_mana( owner, -penc->owner_mana, target );
                     if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                     {
-                        enc_request_terminate( ienc );
+                        EncList_request_terminate( ienc );
                     }
                 }
 
             }
             else if ( !EveStack.lst[eve].stayifnoowner )
             {
-                enc_request_terminate( ienc );
+                EncList_request_terminate( ienc );
             }
 
             // the enchant could have been inactivated by the stuff above
@@ -1105,9 +1114,9 @@ enc_t * enc_config_do_active( enc_t * penc )
                         {
                             kill_character( target, owner, bfalse );
                         }
-                        if ( ChrList.lst[target].life > ChrList.lst[target].lifemax )
+                        if ( ChrList.lst[target].life > ChrList.lst[target].life_max )
                         {
-                            ChrList.lst[target].life = ChrList.lst[target].lifemax;
+                            ChrList.lst[target].life = ChrList.lst[target].life_max;
                         }
                     }
 
@@ -1117,14 +1126,14 @@ enc_t * enc_config_do_active( enc_t * penc )
                         bool_t mana_paid = cost_mana( target, -penc->target_mana, owner );
                         if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                         {
-                            enc_request_terminate( ienc );
+                            EncList_request_terminate( ienc );
                         }
                     }
 
                 }
                 else if ( !EveStack.lst[eve].stayiftargetdead )
                 {
-                    enc_request_terminate( ienc );
+                    EncList_request_terminate( ienc );
                 }
             }
         }
@@ -1480,7 +1489,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         log_warning( "spawn_one_enchant() - failed because the target does not exist.\n" );
         return ( ENC_REF )MAX_ENC;
     }
-    ptarget = ChrList.lst + loc_target;
+    ptarget = ChrList_get_ptr( loc_target );
 
     // you should be able to enchant dead stuff to raise the dead...
     // if( !ptarget->alive ) return (ENC_REF)MAX_ENC;
@@ -1509,7 +1518,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 
         return ( ENC_REF )MAX_ENC;
     }
-    peve = EveStack.lst + eve_ref;
+    peve = EveStack_get_ptr( eve_ref );
 
     // count all the requests for this enchantment type
     peve->request_count++;
@@ -1549,7 +1558,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
         return ( ENC_REF )MAX_ENC;
     }
-    ptarget = ChrList.lst + loc_target;
+    ptarget = ChrList_get_ptr( loc_target );
 
     // Check peve->required_damagetype, 90% damage resistance is enough to resist the enchant
     if ( peve->required_damagetype < DAMAGE_COUNT )
@@ -1580,7 +1589,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         log_warning( "spawn_one_enchant() - could not allocate an enchant.\n" );
         return ( ENC_REF )MAX_ENC;
     }
-    penc = EncList.lst + enc_ref;
+    penc = EncList_get_ptr( enc_ref );
 
     POBJ_BEGIN_SPAWN( penc );
 
@@ -1604,7 +1613,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 }
 
 //--------------------------------------------------------------------------------------------
-EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF ieve )
+EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
 {
     /// @details ZZ@> This function loads an enchantment profile into the EveStack
 
@@ -1612,7 +1621,7 @@ EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF ieve
 
     if ( VALID_EVE_RANGE( ieve ) )
     {
-        eve_t * peve = EveStack.lst + ieve;
+        eve_t * peve = EveStack_get_ptr( ieve );
 
         if ( NULL != load_one_enchant_file_vfs( szLoadName, peve ) )
         {
@@ -1627,7 +1636,7 @@ EVE_REF load_one_enchant_profile_vfs( const char* szLoadName, const EVE_REF ieve
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_remove_set( const ENC_REF ienc, int value_idx )
+void enc_remove_set( const ENC_REF ienc, int value_idx )
 {
     /// @details ZZ@> This function unsets a set value
     CHR_REF character;
@@ -1637,13 +1646,13 @@ void enchant_remove_set( const ENC_REF ienc, int value_idx )
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return;
 
     if ( !ALLOCATED_ENC( ienc ) ) return;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( value_idx >= MAX_ENCHANT_SET || !penc->setyesno[value_idx] ) return;
 
     if ( !INGAME_CHR( penc->target_ref ) ) return;
     character = penc->target_ref;
-    ptarget   = ChrList.lst + penc->target_ref;
+    ptarget   = ChrList_get_ptr( penc->target_ref );
 
     switch ( value_idx )
     {
@@ -1656,11 +1665,11 @@ void enchant_remove_set( const ENC_REF ienc, int value_idx )
             break;
 
         case SETLIFEBARCOLOR:
-            ptarget->lifecolor = penc->setsave[value_idx];
+            ptarget->life_color = penc->setsave[value_idx];
             break;
 
         case SETMANABARCOLOR:
-            ptarget->manacolor = penc->setsave[value_idx];
+            ptarget->mana_color = penc->setsave[value_idx];
             break;
 
         case SETSLASHMODIFIER:
@@ -1746,7 +1755,7 @@ void enchant_remove_set( const ENC_REF ienc, int value_idx )
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_remove_add( const ENC_REF ienc, int value_idx )
+void enc_remove_add( const ENC_REF ienc, int value_idx )
 {
     /// @details ZZ@> This function undoes cumulative modification to character stats
 
@@ -1759,11 +1768,11 @@ void enchant_remove_add( const ENC_REF ienc, int value_idx )
     if ( value_idx < 0 || value_idx >= MAX_ENCHANT_ADD ) return;
 
     if ( !ALLOCATED_ENC( ienc ) ) return;
-    penc = EncList.lst + ienc;
+    penc = EncList_get_ptr( ienc );
 
     if ( !INGAME_CHR( penc->target_ref ) ) return;
     character = penc->target_ref;
-    ptarget = ChrList.lst + penc->target_ref;
+    ptarget = ChrList_get_ptr( penc->target_ref );
 
     if ( penc->addyesno[value_idx] )
     {
@@ -1822,14 +1831,14 @@ void enchant_remove_add( const ENC_REF ienc, int value_idx )
 
             case ADDMANA:
                 valuetoadd = penc->addsave[value_idx];
-                ptarget->manamax -= valuetoadd;
+                ptarget->mana_max -= valuetoadd;
                 ptarget->mana -= valuetoadd;
                 if ( ptarget->mana < 0 ) ptarget->mana = 0;
                 break;
 
             case ADDLIFE:
                 valuetoadd = penc->addsave[value_idx];
-                ptarget->lifemax -= valuetoadd;
+                ptarget->life_max -= valuetoadd;
                 ptarget->life -= valuetoadd;
                 if ( ptarget->life < 1 ) ptarget->life = 1;
                 break;
@@ -1893,34 +1902,34 @@ void enchant_remove_add( const ENC_REF ienc, int value_idx )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void init_all_eve()
+void EveStack_init_all()
 {
     EVE_REF cnt;
 
     for ( cnt = 0; cnt < MAX_EVE; cnt++ )
     {
-        eve_init( EveStack.lst + cnt );
+        eve_init( EveStack_get_ptr( cnt ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_eve()
+void EveStack_release_all()
 {
     EVE_REF cnt;
 
     for ( cnt = 0; cnt < MAX_EVE; cnt++ )
     {
-        release_one_eve( cnt );
+        EveStack_release_one( cnt );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t release_one_eve( const EVE_REF ieve )
+bool_t EveStack_release_one( const EVE_REF ieve )
 {
     eve_t * peve;
 
     if ( !VALID_EVE_RANGE( ieve ) ) return bfalse;
-    peve = EveStack.lst + ieve;
+    peve = EveStack_get_ptr( ieve );
 
     if ( !peve->loaded ) return btrue;
 
@@ -1937,7 +1946,7 @@ void update_all_enchants()
     // update all enchants
     for ( ienc = 0; ienc < MAX_ENC; ienc++ )
     {
-        enc_run_config( EncList.lst + ienc );
+        enc_run_config( EncList_get_ptr( ienc ) );
     }
 
     // fix the stat timer
@@ -1949,7 +1958,7 @@ void update_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
+ENC_REF enchant_list_cleanup( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     /// @details BB@> remove all the dead enchants from the enchant list
     ///     and report back the first non-dead enchant in the list.
@@ -1964,7 +1973,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     if ( !VALID_ENC_RANGE( ienc ) ) return MAX_ENC;
 
     // clear the list
-    memset( enc_used, 0, sizeof( enc_used ) );
+    BLANK_ARY( enc_used )
 
     // scan the list of enchants
     ienc_nxt            = ( ENC_REF ) MAX_ENC;
@@ -2053,7 +2062,7 @@ void cleanup_all_enchants()
             EGOBOO_ASSERT( bfalse );
             continue;
         }
-        peve = EveStack.lst + penc->eve_ref;
+        peve = EveStack_get_ptr( penc->eve_ref );
 
         do_remove = bfalse;
         if ( WAITING_PBASE( POBJ_GET_PBASE( penc ) ) )
@@ -2107,11 +2116,11 @@ void bump_all_enchants_update_counters()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enc_request_terminate( const ENC_REF ienc )
+bool_t enc_request_terminate( enc_t * penc )
 {
-    if ( !ALLOCATED_ENC( ienc ) || TERMINATED_ENC( ienc ) ) return bfalse;
+    if ( NULL == penc || !ALLOCATED_PENC( penc ) || TERMINATED_PENC( penc ) ) return bfalse;
 
-    POBJ_REQUEST_TERMINATE( EncList.lst + ienc );
+    POBJ_REQUEST_TERMINATE( penc );
 
     return btrue;
 }

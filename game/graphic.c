@@ -28,12 +28,13 @@
 
 #include "mad.h"
 #include "obj_BSP.h"
-
+#include "mpd_BSP.h"
+#include "player.h"
 #include "collision.h"
 
 #include "log.h"
 #include "script.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "id_md2.h"
 #include "input.h"
 #include "network.h"
@@ -45,6 +46,7 @@
 #include "texture.h"
 #include "clock.h"
 #include "font_bmp.h"
+#include "font_ttf.h"
 #include "lighting.h"
 
 #if defined(USE_LUA_CONSOLE)
@@ -57,10 +59,12 @@
 #include "egoboo_setup.h"
 #include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
+#include "egoboo_clock.h"
+#include "egoboo_frustum.h"
 #include "egoboo.h"
 
-#include "SDL_extensions.h"
-#include "SDL_GL_extensions.h"
+#include "extensions/SDL_extensions.h"
+#include "extensions/SDL_GL_extensions.h"
 
 #include "char.inl"
 #include "particle.inl"
@@ -69,8 +73,26 @@
 #include "mesh.inl"
 
 #include <SDL_image.h>
-
 #include <assert.h>
+
+//--------------------------------------------------------------------------------------------
+// internal structs
+//--------------------------------------------------------------------------------------------
+
+struct s_dynalight_registry;
+typedef struct s_dynalight_registry dynalight_registry_t;
+
+struct s_dolist;
+typedef struct s_dolist dolist_t;
+
+struct s_dynalist;
+typedef struct s_dynalist dynalist_t;
+
+struct s_projection_bitmap;
+typedef struct s_projection_bitmap projection_bitmap_t;
+
+struct s_cam_corner_info;
+typedef struct s_cam_corner_info cam_corner_info_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -79,6 +101,12 @@
 #define SPARKLE_AND  (SPARKLE_SIZE - 1)
 
 #define BLIPSIZE 6
+
+// camera frustum optimization
+//#define ROTMESH_TOPSIDE                  50
+//#define ROTMESH_BOTTOMSIDE               50
+//#define ROTMESH_UP                       30
+//#define ROTMESH_DOWN                     30
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -90,40 +118,181 @@ struct s_dynalight_registry
     ego_frect_t bound;
 };
 
-typedef struct s_dynalight_registry dynalight_registry_t;
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+/// Which tiles are to be drawn, arranged by MPDFX_* bits
+struct s_renderlist
+{
+    ego_mpd_t * pmesh;
+
+    int     all_count;                               ///< Number to render, total
+    int     ref_count;                               ///< ..., is reflected in the floor
+    int     sha_count;                               ///< ..., is not reflected in the floor
+    int     drf_count;                               ///< ..., draws character reflections
+    int     ndr_count;                               ///< ..., draws no character reflections
+    int     wat_count;                               ///< ..., draws no character reflections
+
+    Uint32  all[MAXMESHRENDER];                      ///< List of which to render, total
+    Uint32  ref[MAXMESHRENDER];                      ///< ..., is reflected in the floor
+    Uint32  sha[MAXMESHRENDER];                      ///< ..., is not reflected in the floor
+    Uint32  drf[MAXMESHRENDER];                      ///< ..., draws character reflections
+    Uint32  ndr[MAXMESHRENDER];                      ///< ..., draws no character reflections
+    Uint32  wat[MAXMESHRENDER];                      ///< ..., draws a water tile
+};
+
+static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mpd_t * pmesh );
+static gfx_rv         renderlist_reset( renderlist_t * prlist );
+static gfx_rv         renderlist_insert( renderlist_t * prlist, const ego_grid_info_t * pgrid, const Uint32 index );
+static ego_mpd_t *    renderlist_get_pmesh( const renderlist_t * ptr );
+
+//--------------------------------------------------------------------------------------------
+// the renderlist manager
+//--------------------------------------------------------------------------------------------
+
+struct s_renderlist_ary
+{
+    bool_t       started;
+
+    size_t       free_count;
+    int          free_lst[MAX_RENDER_LISTS];
+
+    renderlist_t lst[MAX_RENDER_LISTS];
+};
+
+#define RENDERLIST_ARY_INIT_VALS                                 \
+    {                                                                \
+        bfalse,         /* bool_t       started                   */ \
+        0,              /* size_t       free_count                */ \
+        /*nothing */    /* int          free_lst[MAX_RENDER_LISTS]*/ \
+        /*nothing */    /* renderlist_t lst[MAX_RENDER_LISTS]     */ \
+    }
+
+static renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr );
+static renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr );
+
+//--------------------------------------------------------------------------------------------
+struct s_renderlist_mgr
+{
+    bool_t           started;
+    renderlist_ary_t ary;
+};
+
+#define RENDERLIST_MGR_INIT_VALS                            \
+    {                                                           \
+        bfalse,                  /* bool_t           started */ \
+        RENDERLIST_ARY_INIT_VALS /* renderlist_ary_t ary     */ \
+    }
+
+static gfx_rv         renderlist_mgr_begin( renderlist_mgr_t * pmgr );
+static gfx_rv         renderlist_mgr_end( renderlist_mgr_t * pmgr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 struct s_dolist
 {
+    int                   index;                ///< A "name" for the dolist
     size_t                count;                ///< How many in the list
     obj_registry_entity_t lst[DOLIST_SIZE];     ///< List of which objects to draw
 };
-typedef struct s_dolist dolist_t;
 
 #define DOLIST_INIT { 0, OBJ_REGISTRY_ENTITY_INIT }
 
-static gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect );
-static gfx_rv dolist_make( dolist_t * pdolist, ego_mpd_t * pmesh );
-static gfx_rv dolist_add_chr( dolist_t * pdolist, ego_mpd_t * pmesh, const CHR_REF ichr );
-static gfx_rv dolist_add_prt( dolist_t * pdolist, ego_mpd_t * pmesh, const PRT_REF iprt );
+static dolist_t * dolist_init( dolist_t * pdolist, const int index );
+static gfx_rv     dolist_reset( dolist_t * pdolist, const int index );
+static gfx_rv     dolist_sort( dolist_t * pdolist, const camera_t * pcam, const bool_t do_reflect );
+static gfx_rv     dolist_test_chr( dolist_t * pdolist, const chr_t * pchr );
+static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, const chr_t * pchr );
+static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
+static gfx_rv     dolist_add_prt_raw( dolist_t * pdolist, const chr_t * pprt );
 
+//--------------------------------------------------------------------------------------------
+// the dolist manager
+//--------------------------------------------------------------------------------------------
+
+struct s_dolist_ary
+{
+    bool_t       started;
+
+    size_t       free_count;
+    int          free_lst[MAX_DO_LISTS];
+
+    dolist_t lst[MAX_DO_LISTS];
+};
+
+#define DOLIST_ARY_INIT_VALS                              \
+    {                                                         \
+        bfalse,         /* bool_t   started                */ \
+        0,              /* size_t   free_count             */ \
+        /*nothing */    /* int      free_lst[MAX_DO_LISTS] */ \
+        /*nothing */    /* dolist_t lst[MAX_DO_LISTS]      */ \
+    }
+
+static dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr );
+static dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr );
+
+//--------------------------------------------------------------------------------------------
+struct s_dolist_mgr
+{
+    bool_t       started;
+    dolist_ary_t ary;
+};
+
+#define DOLIST_MGR_INIT_VALS                        \
+    {                                                   \
+        bfalse,              /* bool_t       started */ \
+        DOLIST_ARY_INIT_VALS /* dolist_ary_t ary     */ \
+    }
+
+static gfx_rv     dolist_mgr_begin( dolist_mgr_t * pmgr );
+static gfx_rv     dolist_mgr_end( dolist_mgr_t * pmgr );
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// The active dynamic lights
 struct s_dynalist
 {
-    int         count;                    ///< the count
+    int         frame;                    ///< the last frame in shich the list was updated
+
+    size_t      count;                    ///< the count
     dynalight_t lst[TOTAL_MAX_DYNA];      ///< the list
 };
-typedef struct s_dynalist dynalist_t;
 
-#define DYNALIST_INIT { 0.0f, 0 }
+#define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
 static gfx_rv dynalist_init( dynalist_t * pdylist );
-static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t * pcam );
-static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam );
+static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const camera_t * pcam );
+
+//--------------------------------------------------------------------------------------------
+
+#define PROJECTION_BITMAP_ROWS 128
+
+struct s_projection_bitmap
+{
+    int y_stt;
+    int row_cnt;
+
+    int row_stt[PROJECTION_BITMAP_ROWS];
+    int row_end[PROJECTION_BITMAP_ROWS];
+};
+
+//static projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr );
+
+//--------------------------------------------------------------------------------------------
+
+struct s_cam_corner_info
+{
+    float                   lowx;
+    float                   highx;
+    float                   lowy;
+    float                   highy;
+
+    float                   x[4];
+    float                   y[4];
+    int                     listlowtohighy[4];
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -136,8 +305,8 @@ PROFILE_DECLARE( render_scene_solid );
 PROFILE_DECLARE( render_scene_water );
 PROFILE_DECLARE( render_scene_trans );
 
-PROFILE_DECLARE( renderlist_make );
-PROFILE_DECLARE( dolist_make );
+PROFILE_DECLARE( gfx_make_renderlist );
+PROFILE_DECLARE( gfx_make_dolist );
 PROFILE_DECLARE( do_grid_lighting );
 PROFILE_DECLARE( light_fans );
 PROFILE_DECLARE( update_all_chr_instance );
@@ -173,6 +342,9 @@ float time_render_scene_mesh_ref_chr        = 0.0f;
 float time_render_scene_mesh_drf_solid      = 0.0f;
 float time_render_scene_mesh_render_shadows = 0.0f;
 
+Uint32          game_frame_all   = 0;             ///< The total number of frames drawn so far
+Uint32          menu_frame_all   = 0;             ///< The total number of frames drawn so far
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int GFX_WIDTH  = 800;
@@ -180,15 +352,8 @@ int GFX_HEIGHT = 600;
 
 gfx_config_t     gfx;
 
-renderlist_t renderlist = RENDERLIST_INIT;         // zero all the counters at startup
-
 float            indextoenvirox[EGO_NORMAL_COUNT];
 float            lighttoenviroy[256];
-
-int rotmesh_topside;
-int rotmesh_bottomside;
-int rotmesh_up;
-int rotmesh_down;
 
 Uint8   mapon         = bfalse;
 Uint8   mapvalid      = bfalse;
@@ -211,8 +376,6 @@ static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
 static line_data_t  line_list[LINE_COUNT];
 static point_data_t point_list[POINT_COUNT];
 
-static dolist_t    _dolist = DOLIST_INIT;
-
 static SDLX_video_parameters_t sdl_vparam;
 static oglx_video_parameters_t ogl_vparam;
 
@@ -221,17 +384,6 @@ static bool_t   _ogl_initialized          = bfalse;
 
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
-
-// Camera optimization stuff
-static float                   cornerx[4];
-static float                   cornery[4];
-static int                     cornerlistlowtohighy[4];
-static float                   cornerlowx;
-static float                   cornerhighx;
-static float                   cornerlowy;
-static float                   cornerhighy;
-
-static dynalist_t dynalist = DYNALIST_INIT;
 
 // Interface stuff
 static irect_t tabrect[NUMBAR];            // The tab rectangles
@@ -244,35 +396,49 @@ static bool_t  gfx_page_clear_requested = btrue;
 
 static float dynalight_keep = 0.9f;
 
+timer_t gfx_update_timer;
+
+static egoboo_clock_t gfx_clock = EGOBOO_CLOCK_INIT;
+
+static dynalist_t _dynalist = DYNALIST_INIT;
+
+static renderlist_mgr_t _renderlist_mgr_data = RENDERLIST_MGR_INIT_VALS;
+static BSP_leaf_pary_t  _renderlist_colst    = DYNAMIC_ARY_INIT_VALS;
+
+static dolist_mgr_t     _dolist_mgr_data = DOLIST_MGR_INIT_VALS;
+static BSP_leaf_pary_t  _dolist_colst    = DYNAMIC_ARY_INIT_VALS;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void gfx_init_SDL_graphics();
+static void gfx_init_SDL_graphics( void );
+static void gfx_reset_timers( void );
 
-static void _flip_pages();
+static void _flip_pages( void );
 static void _debug_print( const char *text );
 static int  _debug_vprintf( const char *format, va_list args );
 static int  _va_draw_string( float x, float y, const char *format, va_list args );
 static int  _draw_string_raw( float x, float y, const char *format, ... );
 
-static gfx_rv gfx_project_cam_view( camera_t * pcam );
+static gfx_rv gfx_project_cam_view( const camera_t * pcam );
 
-static void init_icon_data();
-static void init_bar_data();
-static void init_blip_data();
-static void init_map_data();
+static void init_icon_data( void );
+static void init_bar_data( void );
+static void init_blip_data( void );
+static void init_map_data( void );
 
 static bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
-static void   render_hud();
-static void   draw_inventory();
+static void   render_hud( void );
+static void   draw_inventory( void );
 
-static void gfx_update_timers();
+static void gfx_update_fps_clock( void );
+static void gfx_update_fps( void );
 
-static void gfx_begin_text();
-static void gfx_end_text();
+static void gfx_begin_text( void );
+static void gfx_end_text( void );
 
-static void gfx_enable_texturing();
-static void gfx_disable_texturing();
+static void gfx_enable_texturing( void );
+static void gfx_disable_texturing( void );
 
 static void gfx_begin_2d( void );
 static void gfx_end_2d( void );
@@ -283,14 +449,41 @@ static gfx_rv render_water( renderlist_t * prlist );
 static void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, bool_t use_alpha );
 
 static gfx_rv update_one_chr_instance( struct s_chr * pchr );
-static gfx_rv update_all_chr_instance();
+static gfx_rv update_all_chr_instance( void );
 
 static gfx_rv do_chr_flashing( dolist_t * pdolist );
 
-static void line_list_draw_all( struct s_camera * pcam );
-static int line_list_get_free();
-static void point_list_draw_all( struct s_camera * pcam );
-static int point_list_get_free();
+static void line_list_draw_all( const camera_t * pcam );
+static int line_list_get_free( void );
+static void point_list_draw_all( const camera_t * pcam );
+static int point_list_get_free( void );
+
+static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam );
+static gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist );
+static gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_render_shadows( const camera_t * pcam, const dolist_t * pdolist );
+static gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist );
+static gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist );
+static gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist );
+static gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const int dolist_index );
+static gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, const Uint32 list[], const size_t list_size );
+static void   render_shadow( const CHR_REF character );
+static void   render_bad_shadow( const CHR_REF character );
+
+static bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct );
+
+static gfx_rv gfx_make_dolist( dolist_t * pdolist, const camera_t * pcam );
+static gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam );
+static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_LIST( billboard_data_t, BillboardList, BILLBOARD_COUNT );
+IMPLEMENT_STATIC_ARY( DisplayMsgAry, MAX_MESSAGE );
 
 //--------------------------------------------------------------------------------------------
 // MODULE "PRIVATE" FUNCTIONS
@@ -308,7 +501,7 @@ void _debug_print( const char *text )
 
     // Get a "free" message
     slot = DisplayMsg_get_free();
-    pmsg = DisplayMsg.ary + slot;
+    pmsg = DisplayMsgAry_get_ptr( &DisplayMsg, slot );
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
@@ -347,7 +540,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    oglx_texture_t * tx_ptr = TxTexture_get_ptr(( TX_REF )TX_FONT );
+    oglx_texture_t * tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_FONT );
     if ( NULL == tx_ptr ) return y;
 
     if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
@@ -424,6 +617,18 @@ void gfx_system_begin()
     gfx_init_SDL_graphics();
     ogl_init();
 
+    // initialize the renderlist manager
+    renderlist_mgr_begin( &_renderlist_mgr_data );
+
+    // initialize the dolist manager
+    dolist_mgr_begin( &_dolist_mgr_data );
+
+    // initialize the dynalist frame
+    // otherwise, it will not update until the frame count reaches whatever
+    // left over or random value is in this counter
+    _dynalist.frame = -1;
+    _dynalist.count = 0;
+
     // initialize the gfx data dtructures
     BillboardList_free_all();
     TxTexture_init_all();
@@ -435,8 +640,8 @@ void gfx_system_begin()
     PROFILE_INIT( render_scene_water );
     PROFILE_INIT( render_scene_trans );
 
-    PROFILE_INIT( renderlist_make );
-    PROFILE_INIT( dolist_make );
+    PROFILE_INIT( gfx_make_renderlist );
+    PROFILE_INIT( gfx_make_dolist );
     PROFILE_INIT( do_grid_lighting );
     PROFILE_INIT( light_fans );
     PROFILE_INIT( update_all_chr_instance );
@@ -452,8 +657,23 @@ void gfx_system_begin()
 
     // init some other variables
     stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_game_fps_weight = 0.1f;
+    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_game_fps_weight = STABILIZED_COVER;
+
+    gfx_reset_timers();
+
+    // allocate the specailized "collistion lists"
+    if ( NULL == BSP_leaf_pary_ctor( &_dolist_colst, DOLIST_SIZE ) )
+    {
+        log_error( "%s-%s-%d - Could not allocate dolist collision list", __FILE__, __FUNCTION__, __LINE__ );
+    }
+
+    if ( NULL == BSP_leaf_pary_ctor( &_renderlist_colst, MAXMESHRENDER ) )
+    {
+        log_error( "%s-%s-%d - Could not allocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__ );
+    }
+
+    BLANK_STRUCT( gfx_update_timer )
 }
 
 //--------------------------------------------------------------------------------------------
@@ -466,8 +686,8 @@ void gfx_system_end()
     PROFILE_FREE( render_scene_water );
     PROFILE_FREE( render_scene_trans );
 
-    PROFILE_FREE( renderlist_make );
-    PROFILE_FREE( dolist_make );
+    PROFILE_FREE( gfx_make_renderlist );
+    PROFILE_FREE( gfx_make_dolist );
     PROFILE_FREE( do_grid_lighting );
     PROFILE_FREE( light_fans );
     PROFILE_FREE( update_all_chr_instance );
@@ -483,6 +703,26 @@ void gfx_system_end()
 
     BillboardList_free_all();
     TxTexture_release_all();
+
+    // de-initialize the renderlist manager
+    renderlist_mgr_end( &_renderlist_mgr_data );
+
+    // de-initialize the dolist manager
+    dolist_mgr_end( &_dolist_mgr_data );
+
+    gfx_reset_timers();
+
+    // deallocate the specailized "collistion lists"
+    if ( NULL == BSP_leaf_pary_dtor( &_dolist_colst ) )
+    {
+        log_warning( "%s-%s-%d - Could not deallocate dolist collision list", __FILE__, __FUNCTION__, __LINE__ );
+    }
+
+    if ( NULL == BSP_leaf_pary_dtor( &_renderlist_colst ) )
+    {
+        log_warning( "%s-%s-%d - Could not deallocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__ );
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -511,9 +751,7 @@ int ogl_init()
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
     // backface culling
-    // GL_DEBUG(glEnable)(GL_CULL_FACE);
-    // GL_DEBUG(glFrontFace)(GL_CW);            // GL_POLYGON_BIT
-    // GL_DEBUG(glCullFace)(GL_BACK);
+    // oglx_begin_culling( GL_BACK, GL_CW );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     // disable OpenGL lighting
     GL_DEBUG( glDisable )( GL_LIGHTING );
@@ -665,6 +903,8 @@ bool_t gfx_set_virtual_screen( gfx_config_t * pgfx )
 
     ui_set_virtual_screen( pgfx->vw, pgfx->vh, GFX_WIDTH, GFX_HEIGHT );
 
+    //gfx_calc_rotmesh();
+
     return btrue;
 }
 
@@ -727,6 +967,8 @@ bool_t gfx_config_init( gfx_config_t * pgfx )
 
     pgfx->dynalist_max    = 8;
 
+    //gfx_calc_rotmesh();
+
     return btrue;
 }
 
@@ -766,13 +1008,13 @@ egoboo_rv gfx_error_add( const char * file, const char * function, int line, int
     gfx_error_stack.count++;
 
     // where is the error
-    pstate->file     = file;
-    pstate->function = function;
-    pstate->line     = line;
+    strncpy( pstate->file,     file,     SDL_arraysize( pstate->file ) );
+    strncpy( pstate->function, function, SDL_arraysize( pstate->function ) );
+    pstate->line = line;
 
     // what is the error
     pstate->type     = id;
-    pstate->string   = sz;
+    strncpy( pstate->string, sz, SDL_arraysize( pstate->string ) );
 
     return rv_success;
 }
@@ -835,7 +1077,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
     //Now draw it
     if ( loc_x > 0.0f && loc_y > 0.0f )
     {
-        oglx_texture_t * ptex = TxTexture_get_ptr(( TX_REF )TX_BLIP );
+        oglx_texture_t * ptex = TxTexture_get_valid_ptr(( TX_REF )TX_BLIP );
 
         tx_rect.xmin = ( float )bliprect[color].left   / ( float )oglx_texture_GetTextureWidth( ptex );
         tx_rect.xmax = ( float )bliprect[color].right  / ( float )oglx_texture_GetTextureWidth( ptex );
@@ -863,7 +1105,7 @@ float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_colo
     ego_frect_t tx_rect, sc_rect;
     oglx_texture_t * ptex = NULL;
 
-    ptex = TxTexture_get_ptr( icontype );
+    ptex = TxTexture_get_valid_ptr( icontype );
 
     if ( NULL == ptex )
     {
@@ -969,7 +1211,7 @@ void draw_map_texture( float x, float y )
 
     ego_frect_t sc_rect, tx_rect;
 
-    oglx_texture_t * ptex = TxTexture_get_ptr(( TX_REF )TX_MAP );
+    oglx_texture_t * ptex = TxTexture_get_valid_ptr(( TX_REF )TX_MAP );
     if ( NULL == ptex ) return;
 
     sc_rect.xmin = x;
@@ -1014,7 +1256,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( TxTexture_get_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+    draw_quad_2d( TxTexture_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
 
     x += width;
 
@@ -1034,7 +1276,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxTexture_get_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+        draw_quad_2d( TxTexture_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
     }
 
     //---- Draw the remaining empty ones
@@ -1050,7 +1292,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxTexture_get_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+        draw_quad_2d( TxTexture_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
     }
 
     return y + height;
@@ -1084,7 +1326,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     if ( ticks       > total_ticks ) ticks = total_ticks;
 
     // grab a pointer to the bar texture
-    tx_ptr = TxTexture_get_ptr(( TX_REF )TX_BARS );
+    tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_BARS );
 
     // allow the bitmap to be scaled to arbitrary size
     tx_width   = 128.0f;
@@ -1286,7 +1528,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     Uint8 newword = btrue;
     int cnt = 1;
 
-    oglx_texture_t * tx_ptr = TxTexture_get_ptr(( TX_REF )TX_FONT );
+    oglx_texture_t * tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_FONT );
     if ( NULL == tx_ptr ) return y;
 
     gfx_begin_text();
@@ -1367,7 +1609,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
 
     TX_REF icon_ref;
 
-    chr_t * pitem = !INGAME_CHR( item ) ? NULL : ChrList.lst + item;
+    chr_t * pitem = !INGAME_CHR( item ) ? NULL : ChrList_get_ptr( item );
 
     // grab the icon reference
     icon_ref = chr_get_icon_ref( item );
@@ -1399,7 +1641,7 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return y;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return y;
@@ -1430,22 +1672,22 @@ float draw_status( const CHR_REF character, float x, float y )
     char cTmp;
     char *readtext;
     STRING generictext;
-    int life, lifemax;
-    int mana, manamax;
+    int life, life_max;
+    int mana, mana_max;
 
     chr_t * pchr;
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return y;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return y;
 
     life     = FP8_TO_INT( pchr->life );
-    lifemax  = FP8_TO_INT( pchr->lifemax );
+    life_max  = FP8_TO_INT( pchr->life_max );
     mana     = FP8_TO_INT( pchr->mana );
-    manamax  = FP8_TO_INT( pchr->manamax );
+    mana_max  = FP8_TO_INT( pchr->mana_max );
 
     // grab the character's display name
     readtext = ( char * )chr_get_name( character, CHRNAME_CAPITAL );
@@ -1491,42 +1733,65 @@ float draw_status( const CHR_REF character, float x, float y )
     // Draw the life bar
     if ( pchr->alive )
     {
-        y = draw_one_bar( pchr->lifecolor, x, y, life, lifemax );
+        y = draw_one_bar( pchr->life_color, x, y, life, life_max );
     }
     else
     {
-        y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
+        y = draw_one_bar( 0, x, y, 0, life_max );  // Draw a black bar
     }
 
     // Draw the mana bar
-    if ( manamax > 0 )
+    if ( mana_max > 0 )
     {
-        y = draw_one_bar( pchr->manacolor, x, y, mana, manamax );
+        y = draw_one_bar( pchr->mana_color, x, y, mana, mana_max );
     }
 
     return y;
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_all_status( float y )
+void draw_all_status()
 {
-    int cnt;
+    int cnt, tnc;
+    int y;
+    ego_frect_t screen;
+    ext_camera_list_t * pclst;
 
-    if ( StatusList_on )
+    if ( !StatusList.on ) return;
+
+    // connect each status object with its camera
+    status_list_update_cameras( &StatusList );
+
+    // get the camera list
+    pclst = camera_system_get_list();
+
+    for ( cnt = 0; cnt < MAX_CAMERAS; cnt++ )
     {
-        for ( cnt = 0; cnt < StatusList_count && y < sdl_scr.y; cnt++ )
+        // find the camera
+        ext_camera_t * pext = camera_list_get_ext_camera_index( pclst, cnt );
+        if ( NULL == pext ) continue;
+
+        // grab the screen
+        if ( !ext_camera_get_screen( pext, &screen ) ) continue;
+
+        // draw all attached status
+        y = screen.ymin;
+        for ( tnc = 0; tnc < StatusList.count; tnc++ )
         {
-            y = draw_status( StatusList[cnt], sdl_scr.x - BARX, y );
+            status_list_element_t * pelem = StatusList.lst + tnc;
+
+            if ( cnt == pelem->camera_index )
+            {
+                y = draw_status( pelem->who, screen.xmax - BARX, y );
+            }
         }
     }
-
-    return y;
 }
 
 //--------------------------------------------------------------------------------------------
 void draw_map()
 {
-    int cnt;
+    size_t cnt;
 
     // Map display
     if ( !mapvalid || !mapon ) return;
@@ -1553,7 +1818,7 @@ void draw_map()
                 cap_t * pcap;
 
                 if ( !INGAME_CHR( ichr ) ) continue;
-                pchr = ChrList.lst + ichr;
+                pchr = ChrList_get_ptr( ichr );
 
                 pcap = chr_get_pcap( ichr );
                 if ( NULL == pcap ) continue;
@@ -1606,11 +1871,22 @@ void draw_map()
             }
         }
 
-        //// draw the camera
-        // if ( update_wld & 2 )
-        // {
-        //   draw_blip( 0.75f, COLOR_PURPLE, GET_MAP_X(PMesh, PCamera->pos.x), GET_MAP_Y(PMesh, PCamera->pos.y));
-        // }
+        // draw the camera(s)
+        //if ( update_wld & 2 )
+        //{
+        //    ext_camera_iterator_t * it;
+
+        //    for( it = camera_list_iterator_begin(); NULL != it; it = camera_list_iterator_next( it ) )
+        //    {
+        //        fvec3_t tmp_diff;
+
+        //        camera_t * pcam = camera_list_iterator_get_camera(it);
+        //        if( NULL == pcam ) continue;
+
+        //        draw_blip( 0.75f, COLOR_PURPLE, pcam->pos.x, pcam->pos.y, btrue );
+        //    }
+        //    it = camera_list_iterator_end(it);
+        //}
     }
     ATTRIB_POP( __FUNCTION__ )
 }
@@ -1634,14 +1910,14 @@ float draw_fps( float y )
 
     if ( fpson )
     {
-        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_ups, update_lag );
+        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_game_ups, update_lag );
 
         //Extra debug info
         if ( cfg.dev_mode )
         {
 
 #    if defined(DEBUG_BSP)
-            y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - chr_count_free(), prt_BSP_root.count, maxparticles - prt_count_free() );
+            y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - ChrList_count_free(), prt_BSP_root.count, maxparticles - PrtList_count_free() );
             y = _draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite.count + prt_BSP_root.tree.infinite.count );
             y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
             //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
@@ -1673,7 +1949,7 @@ float draw_fps( float y )
 
 #        if defined(DEBUG_PROFILE_INIT) && defined(_DEBUG)
             y = _draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
-            y = _draw_string_raw( 0, y, "init:renderlist_make %2.4f, init:dolist_make %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
+            y = _draw_string_raw( 0, y, "init:gfx_make_renderlist %2.4f, init:gfx_make_dolist %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
             y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
             y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
             y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
@@ -1764,14 +2040,14 @@ float draw_debug( float y )
         STRING text;
 
         y = _draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
-        y = _draw_string_raw( 0, y, "~~FREEPRT %d", prt_count_free() );
-        y = _draw_string_raw( 0, y, "~~FREECHR %d", chr_count_free() );
-        y = _draw_string_raw( 0, y, "~~MACHINE %d", local_machine );
+        y = _draw_string_raw( 0, y, "~~FREEPRT %d", PrtList_count_free() );
+        y = _draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
+        y = _draw_string_raw( 0, y, "~~MACHINE %d", net_local_machine( PNet ) );
         if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text ), "~~EXPORT: TRUE" );
         else                    snprintf( text, SDL_arraysize( text ), "~~EXPORT: FALSE" );
         y = _draw_string_raw( 0, y, text, PMod->exportvalid );
         y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
-        y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
+        y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", net_get_player_count( PNet ) );
         y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 
         // y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
@@ -1812,12 +2088,12 @@ float draw_timer( float y )
 float draw_game_status( float y )
 {
 
-    if ( PNet->waitingforplayers )
+    if ( net_waitingforplayers( PNet ) )
     {
         y = _draw_string_raw( 0, y, "Waiting for players... " );
     }
 
-    if ( numplayer > 0 )
+    if ( net_get_player_count( PNet ) > 0 )
     {
         if ( local_stats.allpladead || PMod->respawnanytime )
         {
@@ -1887,7 +2163,7 @@ void render_hud()
 
         draw_inventory();
 
-        y = draw_all_status( 0 );
+        draw_all_status();
 
         y = draw_fps( 0 );
         y = draw_help( y );
@@ -1896,11 +2172,11 @@ void render_hud()
         y = draw_game_status( y );
 
         // Network message input
-        if ( console_mode )
+        if ( keyb.chat_mode )
         {
-            char buffer[KEYB_BUFFER_SIZE + 128] = EMPTY_CSTR;
+            char buffer[CHAT_BUFFER_SIZE + 128] = EMPTY_CSTR;
 
-            snprintf( buffer, SDL_arraysize( buffer ), "%s > %s%s", cfg.network_messagename, keyb.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
+            snprintf( buffer, SDL_arraysize( buffer ), "%s > %s%s", cfg.network_messagename, net_chat.buffer, HAS_NO_BITS( update_wld, 8 ) ? "x" : "+" );
 
             y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
         }
@@ -1913,166 +2189,7 @@ void render_hud()
 //--------------------------------------------------------------------------------------------
 // 3D RENDERER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_project_cam_view( camera_t * pcam )
-{
-    /// @details ZZ@> This function figures out where the corners of the view area
-    ///    go when projected onto the plane of the PMesh->  Used later for
-    ///    determining which mesh fans need to be rendered
 
-    int cnt, tnc, extra[2];
-    float ztemp;
-    float numstep;
-    float zproject;
-    float xfin, yfin, zfin;
-    fmat_4x4_t mTemp;
-
-    if ( NULL == pcam ) pcam = PCamera;
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-        return gfx_error;
-    }
-
-    // Range
-    ztemp = ( pcam->pos.z );
-
-    // Topleft
-    mTemp = MatrixMult( RotateY( -rotmesh_topside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( rotmesh_up * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             // 2,2
-    // Camera must look down
-    if ( zproject >= 0.0f )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 0" );
-        return gfx_error;
-    }
-    else
-    {
-        numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
-        zfin = 0;
-        cornerx[0] = xfin;
-        cornery[0] = yfin;
-    }
-
-    // Topright
-    mTemp = MatrixMult( RotateY( rotmesh_topside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( rotmesh_up * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             // 2,2
-    // Camera must look down
-    if ( zproject >= 0.0f )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 1" );
-        return gfx_error;
-    }
-    else
-    {
-        numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
-        zfin = 0;
-        cornerx[1] = xfin;
-        cornery[1] = yfin;
-    }
-
-    // Bottomright
-    mTemp = MatrixMult( RotateY( rotmesh_bottomside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( -rotmesh_down * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             // 2,2
-
-    // Camera must look down
-    if ( zproject >= 0.0f )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 2" );
-        return gfx_error;
-    }
-    else
-    {
-        numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
-        zfin = 0;
-        cornerx[2] = xfin;
-        cornery[2] = yfin;
-    }
-
-    // Bottomleft
-    mTemp = MatrixMult( RotateY( -rotmesh_bottomside * PI / 360 ), PCamera->mView );
-    mTemp = MatrixMult( RotateX( -rotmesh_down * PI / 360 ), mTemp );
-    zproject = mTemp.CNV( 2, 2 );             // 2,2
-    // Camera must look down
-    if ( zproject >= 0.0f )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "failed on corner 3" );
-        return gfx_error;
-    }
-    else
-    {
-        numstep = -ztemp / zproject;
-        xfin = pcam->pos.x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      // 0,2
-        yfin = pcam->pos.y + ( numstep * mTemp.CNV( 1, 2 ) );    // 1,2
-        zfin = 0;
-        cornerx[3] = xfin;
-        cornery[3] = yfin;
-    }
-
-    // Get the extreme values
-    cornerlowx = cornerx[0];
-    cornerlowy = cornery[0];
-    cornerhighx = cornerx[0];
-    cornerhighy = cornery[0];
-    cornerlistlowtohighy[0] = 0;
-    cornerlistlowtohighy[3] = 0;
-
-    // sort the corners
-    for ( cnt = 0; cnt < 4; cnt++ )
-    {
-        if ( cornerx[cnt] < cornerlowx )
-        {
-            cornerlowx = cornerx[cnt];
-        }
-
-        if ( cornerx[cnt] > cornerhighx )
-        {
-            cornerhighx = cornerx[cnt];
-        }
-
-        if ( cornery[cnt] < cornerlowy )
-        {
-            cornerlowy = cornery[cnt];
-            cornerlistlowtohighy[0] = cnt;
-        }
-
-        if ( cornery[cnt] > cornerhighy )
-        {
-            cornerhighy = cornery[cnt];
-            cornerlistlowtohighy[3] = cnt;
-        }
-    }
-
-    // Figure out the order of points
-    for ( cnt = 0, tnc = 0; cnt < 4; cnt++ )
-    {
-        if ( cnt != cornerlistlowtohighy[0] && cnt != cornerlistlowtohighy[3] )
-        {
-            extra[tnc] = cnt;
-            tnc++;
-        }
-    }
-
-    cornerlistlowtohighy[1] = extra[1];
-    cornerlistlowtohighy[2] = extra[0];
-    if ( cornery[extra[0]] < cornery[extra[1]] )
-    {
-        cornerlistlowtohighy[1] = extra[0];
-        cornerlistlowtohighy[2] = extra[1];
-    }
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
 void render_shadow_sprite( float intensity, GLvertex v[] )
 {
     int i;
@@ -2096,6 +2213,7 @@ void render_shadow_sprite( float intensity, GLvertex v[] )
 void render_shadow( const CHR_REF character )
 {
     /// @details ZZ@> This function draws a NIFTY shadow
+
     GLvertex v[4];
 
     TX_REF  itex;
@@ -2105,18 +2223,20 @@ void render_shadow( const CHR_REF character )
     float   height, size_umbra, size_penumbra;
     float   alpha, alpha_umbra, alpha_penumbra;
     chr_t * pchr;
+    ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
-    if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return;
+    ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+    if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichgrid] ) ) return;
+    if ( TILE_IS_FANOFF( *ptile ) ) return;
 
     // no shadow if completely transparent
     alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
@@ -2163,7 +2283,7 @@ void render_shadow( const CHR_REF character )
 
     // Choose texture.
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_Bind( TxTexture_get_ptr( itex ) );
+    oglx_texture_Bind( TxTexture_get_valid_ptr( itex ) );
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -2236,18 +2356,20 @@ void render_bad_shadow( const CHR_REF character )
     float   size, x, y;
     float   level, height, height_factor, alpha;
     chr_t * pchr;
+    ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
-    if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return;
+    ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+    if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
-    if ( TILE_IS_FANOFF( PMesh->tmem.tile_list[pchr->onwhichgrid] ) ) return;
+    if ( TILE_IS_FANOFF( *ptile ) ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = ( 255 == pchr->inst.light ) ? pchr->inst.alpha  * INV_FF : ( pchr->inst.alpha - pchr->inst.light ) * INV_FF;
@@ -2297,7 +2419,7 @@ void render_bad_shadow( const CHR_REF character )
 
     // Choose texture and matrix
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_Bind( TxTexture_get_ptr( itex ) );
+    oglx_texture_Bind( TxTexture_get_valid_ptr( itex ) );
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -2330,6 +2452,12 @@ gfx_rv update_one_chr_instance( chr_t * pchr )
     }
     pinst = &( pchr->inst );
 
+    // only update once per frame
+    if ( pinst->update_frame >= 0 && ( Uint32 )pinst->update_frame >= game_frame_all )
+    {
+        return gfx_success;
+    }
+
     // make sure that the vertices are interpolated
     retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
     if ( gfx_error == retval )
@@ -2339,6 +2467,9 @@ gfx_rv update_one_chr_instance( chr_t * pchr )
 
     // do the basic lighting
     chr_instance_update_lighting_base( pinst, pchr, bfalse );
+
+    // set the update_frame to the current frame
+    pinst->update_frame = game_frame_all;
 
     return retval;
 }
@@ -2356,8 +2487,8 @@ gfx_rv update_all_chr_instance()
 
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( !INGAME_CHR( cnt ) ) continue;
-        pchr = ChrList.lst + cnt;
+        if ( !ALLOCATED_CHR( cnt ) ) continue;
+        pchr = ChrList_get_ptr( cnt );
 
         if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 
@@ -2379,7 +2510,7 @@ gfx_rv update_all_chr_instance()
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
+gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, const Uint32 list[], const size_t list_size )
 {
     Uint32 cnt;
     TX_REF tx;
@@ -2414,7 +2545,7 @@ gfx_rv render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
         for ( tx = TX_TILE_0; tx <= TX_TILE_3; tx++ )
         {
             meshlasttexture = tx;
-            oglx_texture_Bind( TxTexture_get_ptr( tx ) );
+            oglx_texture_Bind( TxTexture_get_valid_ptr( tx ) );
 
             for ( cnt = 0; cnt < list_size; cnt++ )
             {
@@ -2427,32 +2558,40 @@ gfx_rv render_fans_by_list( ego_mpd_t * pmesh, Uint32 list[], size_t list_size )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, ego_mpd_t * pmesh, camera_t * pcam )
+gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam )
 {
     gfx_rv retval;
+    ego_mpd_t * pmesh;
 
     // assume the best;
     retval = gfx_success;
 
-    PROFILE_BEGIN( renderlist_make );
+    PROFILE_BEGIN( gfx_make_renderlist );
     {
         // Which tiles can be displayed
-        if ( gfx_error == renderlist_make( prlist, pmesh, pcam ) )
+        if ( gfx_error == gfx_make_renderlist( prlist, pcam ) )
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END( renderlist_make );
+    PROFILE_END( gfx_make_renderlist );
 
-    PROFILE_BEGIN( dolist_make );
+    pmesh = renderlist_get_pmesh( prlist );
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
+        return gfx_error;
+    }
+
+    PROFILE_BEGIN( gfx_make_dolist );
     {
         // determine which objects are visible
-        if ( gfx_error == dolist_make( pdolist, prlist->pmesh ) )
+        if ( gfx_error == gfx_make_dolist( pdolist, pcam ) )
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END( dolist_make );
+    PROFILE_END( gfx_make_dolist );
 
     // put off sorting the dolist until later
     // because it has to be sorted differently for reflected and non-reflected objects
@@ -2504,8 +2643,8 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
         retval = gfx_error;
     }
 
-    time_render_scene_init_renderlist_make         = PROFILE_QUERY( renderlist_make ) * TARGET_FPS;
-    time_render_scene_init_dolist_make             = PROFILE_QUERY( dolist_make ) * TARGET_FPS;
+    time_render_scene_init_renderlist_make         = PROFILE_QUERY( gfx_make_renderlist ) * TARGET_FPS;
+    time_render_scene_init_dolist_make             = PROFILE_QUERY( gfx_make_dolist ) * TARGET_FPS;
     time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * TARGET_FPS;
     time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * TARGET_FPS;
     time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
@@ -2515,7 +2654,7 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ndr( renderlist_t * prlist )
+gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist )
 {
     /// @details BB@> draw all tiles that do not reflect characters
 
@@ -2543,7 +2682,7 @@ gfx_rv render_scene_mesh_ndr( renderlist_t * prlist )
         GL_DEBUG( glDisable )( GL_BLEND );          // GL_ENABLE_BIT
 
         // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );      // GL_ENABLE_BIT
+        oglx_end_culling();      // GL_ENABLE_BIT
 
         // do not display the completely transparent portion
         // use alpha test to allow the thatched roof tiles to look like thatch
@@ -2552,7 +2691,7 @@ gfx_rv render_scene_mesh_ndr( renderlist_t * prlist )
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->ndr, prlist->ndr_count ) )
+        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->ndr, prlist->ndr_count ) )
         {
             retval = gfx_error;
         }
@@ -2563,7 +2702,7 @@ gfx_rv render_scene_mesh_ndr( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_back( renderlist_t * prlist )
+gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * prlist )
 {
     /// @details BB@> draw the reflective tiles, but turn off the depth buffer
     ///               this blanks out any background that might've been drawn
@@ -2600,7 +2739,7 @@ gfx_rv render_scene_mesh_drf_back( renderlist_t * prlist )
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->drf, prlist->drf_count ) )
         {
             retval = gfx_error;
         }
@@ -2611,7 +2750,7 @@ gfx_rv render_scene_mesh_drf_back( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdolist )
+gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
     /// @details BB@> Render all reflected objects
 
@@ -2638,12 +2777,12 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdolist )
         return gfx_error;
     }
 
-    if ( NULL == prlist->pmesh )
+    pmesh = renderlist_get_pmesh( prlist );
+    if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
         return gfx_error;
     }
-    pmesh = prlist->pmesh;
 
     // assume the best
     retval = gfx_success;
@@ -2667,9 +2806,8 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdolist )
                 Uint32 itile;
 
                 // cull backward facing polygons
-                GL_DEBUG( glEnable )( GL_CULL_FACE );   // GL_ENABLE_BIT
                 // use couter-clockwise orientation to determine backfaces
-                GL_DEBUG( glFrontFace )( GL_CCW );      // GL_POLYGON_BIT
+                oglx_begin_culling( GL_BACK, MPD_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
                 // allow transparent objects
                 GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT
@@ -2683,7 +2821,7 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdolist )
                 {
                     GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
 
-                    if ( gfx_error == render_one_mad_ref( ichr ) )
+                    if ( gfx_error == render_one_mad_ref( pcam, ichr ) )
                     {
                         retval = gfx_error;
                     }
@@ -2695,7 +2833,7 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdolist )
                 PRT_REF iprt;
 
                 // draw draw front and back faces of polygons
-                GL_DEBUG( glDisable )( GL_CULL_FACE );
+                oglx_end_culling();                     // GL_ENABLE_BIT
 
                 // render_one_prt_ref() actually sets its own blend function, but just to be safe
                 // allow transparent objects
@@ -2724,7 +2862,7 @@ gfx_rv render_scene_mesh_ref( renderlist_t * prlist, dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref_chr( renderlist_t * prlist )
+gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * prlist )
 {
     /// @brief   BB@> Render the shadow floors ( let everything show through )
     /// @details BB@> turn on the depth mask, so that no objects under the floor will show through
@@ -2750,14 +2888,14 @@ gfx_rv render_scene_mesh_ref_chr( renderlist_t * prlist )
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE );      // GL_COLOR_BUFFER_BIT
 
         // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT
+        oglx_end_culling();                // GL_ENABLE_BIT
 
         // do not draw hidden surfaces
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->drf, prlist->drf_count ) )
         {
             retval = gfx_error;
         }
@@ -2768,7 +2906,7 @@ gfx_rv render_scene_mesh_ref_chr( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_solid( renderlist_t * prlist )
+gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * prlist )
 {
     /// @brief BB@> Render the shadow floors as normal solid floors
 
@@ -2789,7 +2927,7 @@ gfx_rv render_scene_mesh_drf_solid( renderlist_t * prlist )
         GL_DEBUG( glDisable )( GL_BLEND );                    // GL_ENABLE_BIT
 
         // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );                // GL_ENABLE_BIT
+        oglx_end_culling();                // GL_ENABLE_BIT
 
         // do not draw hidden surfaces
         GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
@@ -2804,7 +2942,7 @@ gfx_rv render_scene_mesh_drf_solid( renderlist_t * prlist )
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );          // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->drf, prlist->drf_count ) )
         {
             retval = gfx_error;
         }
@@ -2815,11 +2953,12 @@ gfx_rv render_scene_mesh_drf_solid( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_render_shadows( dolist_t * pdolist )
+gfx_rv render_scene_mesh_render_shadows( const camera_t * pcam, const dolist_t * pdolist )
 {
     /// @details BB@> Render the shadows
 
-    int cnt, tnc;
+    size_t cnt;
+    int    tnc;
 
     if ( NULL == pdolist )
     {
@@ -2880,7 +3019,7 @@ gfx_rv render_scene_mesh_render_shadows( dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
+gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
     /// @details BB@> draw the mesh and any reflected objects
 
@@ -2901,7 +3040,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
     PROFILE_BEGIN( render_scene_mesh_ndr );
     {
         // draw all tiles that do not reflect characters
-        if ( gfx_error == render_scene_mesh_ndr( prlist ) )
+        if ( gfx_error == render_scene_mesh_ndr( pcam, prlist ) )
         {
             retval = gfx_error;
         }
@@ -2916,7 +3055,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
         {
             // blank out the background behind reflective tiles
 
-            if ( gfx_error == render_scene_mesh_drf_back( prlist ) )
+            if ( gfx_error == render_scene_mesh_drf_back( pcam, prlist ) )
             {
                 retval = gfx_error;
             }
@@ -2926,7 +3065,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
         PROFILE_BEGIN( render_scene_mesh_ref );
         {
             // Render all reflected objects
-            if ( gfx_error == render_scene_mesh_ref( prlist, pdolist ) )
+            if ( gfx_error == render_scene_mesh_ref( pcam, prlist, pdolist ) )
             {
                 retval = gfx_error;
             }
@@ -2936,7 +3075,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
         PROFILE_BEGIN( render_scene_mesh_ref_chr );
         {
             // Render the shadow floors
-            if ( gfx_error == render_scene_mesh_ref_chr( prlist ) )
+            if ( gfx_error == render_scene_mesh_ref_chr( pcam, prlist ) )
             {
                 retval = gfx_error;
             }
@@ -2948,7 +3087,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
         PROFILE_BEGIN( render_scene_mesh_drf_solid );
         {
             // Render the shadow floors as normal solid floors
-            if ( gfx_error == render_scene_mesh_drf_solid( prlist ) )
+            if ( gfx_error == render_scene_mesh_drf_solid( pcam, prlist ) )
             {
                 retval = gfx_error;
             }
@@ -2969,7 +3108,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
     PROFILE_BEGIN( render_scene_mesh_render_shadows );
     {
         // Render the shadows
-        if ( gfx_error == render_scene_mesh_render_shadows( pdolist ) )
+        if ( gfx_error == render_scene_mesh_render_shadows( pcam, pdolist ) )
         {
             retval = gfx_error;
         }
@@ -2980,7 +3119,7 @@ gfx_rv render_scene_mesh( renderlist_t * prlist, dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_solid( dolist_t * pdolist )
+gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist )
 {
     /// @detaile BB@> Render all solid objects
 
@@ -3019,7 +3158,7 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
 
             if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
             {
-                if ( gfx_error == render_one_mad_solid( pdolist->lst[cnt].ichr ) )
+                if ( gfx_error == render_one_mad_solid( pcam, pdolist->lst[cnt].ichr ) )
                 {
                     retval = gfx_error;
                 }
@@ -3027,7 +3166,7 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
             else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
             {
                 // draw draw front and back faces of polygons
-                GL_DEBUG( glDisable )( GL_CULL_FACE );
+                oglx_end_culling();              // GL_ENABLE_BIT
 
                 if ( gfx_error == render_one_prt_solid( pdolist->lst[cnt].iprt ) )
                 {
@@ -3042,7 +3181,7 @@ gfx_rv render_scene_solid( dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans( dolist_t * pdolist )
+gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist )
 {
     /// @details BB@> draw transparent objects
 
@@ -3080,7 +3219,7 @@ gfx_rv render_scene_trans( dolist_t * pdolist )
         {
             if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
             {
-                if ( gfx_error == render_one_mad_trans( pdolist->lst[cnt].ichr ) )
+                if ( gfx_error == render_one_mad_trans( pcam, pdolist->lst[cnt].ichr ) )
                 {
                     retval = gfx_error;
                 }
@@ -3101,23 +3240,32 @@ gfx_rv render_scene_trans( dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
+gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const int dolist_index )
 {
     /// @details ZZ@> This function draws 3D objects
 
     gfx_rv retval;
+    renderlist_t * prlist = NULL;
+    dolist_t     * pdlist = NULL;
 
-    if ( NULL == pcam ) pcam = PCamera;
+    if ( NULL == pcam ) pcam = pcam;
     if ( NULL == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
         return gfx_error;
     }
 
-    if ( NULL == pmesh ) pmesh = PMesh;
-    if ( NULL == pmesh )
+    prlist = renderlist_mgr_get_ptr( &_renderlist_mgr_data, render_list_index );
+    if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "could lock a renderlist" );
+        return gfx_error;
+    }
+
+    pdlist = dolist_mgr_get_ptr( &_dolist_mgr_data, dolist_index );
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "could lock a dolist" );
         return gfx_error;
     }
 
@@ -3126,7 +3274,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 
     PROFILE_BEGIN( render_scene_init );
     {
-        if ( gfx_error == render_scene_init( &renderlist, &_dolist, &dynalist, pmesh, pcam ) )
+        if ( gfx_error == render_scene_init( prlist, pdlist, &_dynalist, pcam ) )
         {
             retval = gfx_error;
         }
@@ -3139,7 +3287,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
         {
             // sort the dolist for reflected objects
             // reflected characters and objects are drawn in this pass
-            if ( gfx_error == dolist_sort( &_dolist, pcam, btrue ) )
+            if ( gfx_error == dolist_sort( pdlist, pcam, btrue ) )
             {
                 retval = gfx_error;
             }
@@ -3147,7 +3295,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
         PROFILE_END( render_scene_mesh_dolist_sort );
 
         // do the render pass for the mesh
-        if ( gfx_error == render_scene_mesh( &renderlist, &_dolist ) )
+        if ( gfx_error == render_scene_mesh( pcam, prlist, pdlist ) )
         {
             retval = gfx_error;
         }
@@ -3165,13 +3313,13 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( render_scene_solid );
     {
         // sort the dolist for non-reflected objects
-        if ( gfx_error == dolist_sort( &_dolist, pcam, bfalse ) )
+        if ( gfx_error == dolist_sort( pdlist, pcam, bfalse ) )
         {
             retval = gfx_error;
         }
 
         // do the render pass for solid objects
-        if ( gfx_error == render_scene_solid( &_dolist ) )
+        if ( gfx_error == render_scene_solid( pcam, pdlist ) )
         {
             retval = gfx_error;
         }
@@ -3181,7 +3329,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( render_scene_water );
     {
         // draw the water
-        if ( gfx_error == render_water( &renderlist ) )
+        if ( gfx_error == render_water( prlist ) )
         {
             retval = gfx_error;
         }
@@ -3191,7 +3339,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
     PROFILE_BEGIN( render_scene_trans );
     {
         // do the render pass for transparent objects
-        if ( gfx_error == render_scene_trans( &_dolist ) )
+        if ( gfx_error == render_scene_trans( pcam, pdlist ) )
         {
             retval = gfx_error;
         }
@@ -3204,8 +3352,8 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 
 #if defined(DRAW_LISTS)
     // draw some debugging lines
-    line_list_draw_all( PCamera );
-    point_list_draw_all( PCamera );
+    line_list_draw_all( pcam );
+    point_list_draw_all( pcam );
 #endif
 
 #if defined(DRAW_PRT_BBOX)
@@ -3224,7 +3372,7 @@ gfx_rv render_scene( ego_mpd_t * pmesh, camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_world_background( const TX_REF texture )
+gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
 {
     /// @details ZZ@> This function draws the large background
     GLvertex vtlist[4];
@@ -3239,6 +3387,12 @@ void render_world_background( const TX_REF texture )
     grid_mem_t     * pgmem;
     oglx_texture_t   * ptex;
     water_instance_layer_t * ilayer;
+
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
 
     pinfo = &( PMesh->info );
     pgmem = &( PMesh->gmem );
@@ -3255,46 +3409,46 @@ void render_world_background( const TX_REF texture )
 
     // determine the constants for the x-coordinate
     xmag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.x ) / GRID_FSIZE;
-    Cx_0 = xmag * ( 1.0f +  PCamera->pos.z       * ilayer->dist.x );
-    Cx_1 = -xmag * ( 1.0f + ( PCamera->pos.z - z0 ) * ilayer->dist.x );
+    Cx_0 = xmag * ( 1.0f +  pcam->pos.z       * ilayer->dist.x );
+    Cx_1 = -xmag * ( 1.0f + ( pcam->pos.z - z0 ) * ilayer->dist.x );
 
     // determine the constants for the y-coordinate
     ymag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.y ) / GRID_FSIZE;
-    Cy_0 = ymag * ( 1.0f +  PCamera->pos.z       * ilayer->dist.y );
-    Cy_1 = -ymag * ( 1.0f + ( PCamera->pos.z - z0 ) * ilayer->dist.y );
+    Cy_0 = ymag * ( 1.0f +  pcam->pos.z       * ilayer->dist.y );
+    Cy_1 = -ymag * ( 1.0f + ( pcam->pos.z - z0 ) * ilayer->dist.y );
 
     // Figure out the coordinates of its corners
     Qx = -pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[0].pos[XX] = Qx;
     vtlist[0].pos[YY] = Qy;
-    vtlist[0].pos[ZZ] = PCamera->pos.z - z0;
-    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
-    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
+    vtlist[0].pos[ZZ] = pcam->pos.z - z0;
+    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
+    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
 
     Qx = 2 * pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[1].pos[XX] = Qx;
     vtlist[1].pos[YY] = Qy;
-    vtlist[1].pos[ZZ] = PCamera->pos.z - z0;
-    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
-    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
+    vtlist[1].pos[ZZ] = pcam->pos.z - z0;
+    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
+    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
 
     Qx = 2 * pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[2].pos[XX] = Qx;
     vtlist[2].pos[YY] = Qy;
-    vtlist[2].pos[ZZ] = PCamera->pos.z - z0;
-    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
-    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
+    vtlist[2].pos[ZZ] = pcam->pos.z - z0;
+    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
+    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
 
     Qx = -pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[3].pos[XX] = Qx;
     vtlist[3].pos[YY] = Qy;
-    vtlist[3].pos[ZZ] = PCamera->pos.z - z0;
-    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * PCamera->pos.x + ilayer->tx.x;
-    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * PCamera->pos.y + ilayer->tx.y;
+    vtlist[3].pos[ZZ] = pcam->pos.z - z0;
+    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
+    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
 
     light = water.light ? 1.0f : 0.0f;
     alpha = ilayer->alpha * INV_FF;
@@ -3314,7 +3468,7 @@ void render_world_background( const TX_REF texture )
         intens = CLIP( intens, 0.0f, 1.0f );
     }
 
-    ptex = TxTexture_get_ptr( texture );
+    ptex = TxTexture_get_valid_ptr( texture );
 
     oglx_texture_Bind( ptex );
 
@@ -3331,7 +3485,7 @@ void render_world_background( const TX_REF texture )
         GL_DEBUG( glDepthFunc )( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
 
         // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );    // GL_ENABLE_BIT
+        oglx_end_culling();    // GL_ENABLE_BIT
 
         if ( alpha > 0.0f )
         {
@@ -3385,26 +3539,35 @@ void render_world_background( const TX_REF texture )
         }
     }
     ATTRIB_POP( __FUNCTION__ );
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-void render_world_overlay( const TX_REF texture )
+gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
 {
     /// @details ZZ@> This function draws the large foreground
 
     float alpha, ftmp;
     fvec3_t   vforw_wind, vforw_cam;
+    TURN_T default_turn;
 
     oglx_texture_t           * ptex;
 
     water_instance_layer_t * ilayer = water.layer + 1;
 
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
     vforw_wind.x = ilayer->tx_add.x;
     vforw_wind.y = ilayer->tx_add.y;
     vforw_wind.z = 0;
-    vforw_wind = fvec3_normalize( vforw_wind.v );
+    fvec3_self_normalize( vforw_wind.v );
 
-    mat_getCamForward( PCamera->mView.v, vforw_cam.v );
+    mat_getCamForward( pcam->mView.v, vforw_cam.v );
     fvec3_self_normalize( vforw_cam.v );
 
     // make the texture begin to disappear if you are not looking straight down
@@ -3426,8 +3589,9 @@ void render_world_overlay( const TX_REF texture )
         y = sdl_scr.y << 6;
         z = 0;
         size = x + y + 1;
-        sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-        cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+        default_turn = ( 3 * 2047 ) & TRIG_TABLE_MASK;
+        sinsize = turntosin[default_turn] * size;
+        cossize = turntocos[default_turn] * size;
         loc_foregroundrepeat = water.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
 
         vtlist[0].pos[XX] = x + cossize;
@@ -3454,7 +3618,7 @@ void render_world_overlay( const TX_REF texture )
         vtlist[3].tex[SS] = ilayer->tx.x;
         vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
 
-        ptex = TxTexture_get_ptr( texture );
+        ptex = TxTexture_get_valid_ptr( texture );
 
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT );
         {
@@ -3472,7 +3636,7 @@ void render_world_overlay( const TX_REF texture )
             GL_DEBUG( glDepthFunc )( GL_ALWAYS );                            // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );                           // GL_ENABLE_BIT
+            oglx_end_culling();                           // GL_ENABLE_BIT
 
             // do not display the completely transparent portion
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
@@ -3495,6 +3659,8 @@ void render_world_overlay( const TX_REF texture )
         }
         ATTRIB_POP( __FUNCTION__ );
     }
+
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3523,7 +3689,7 @@ void draw_inventory()
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         //valid player?
-        ppla = PlaStack.lst + ipla;
+        ppla = PlaStack_get_ptr( ipla );
         if ( !ppla->valid ) continue;
 
         //draw inventory?
@@ -3532,7 +3698,7 @@ void draw_inventory()
 
         //valid character?
         if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
+        pchr = ChrList_get_ptr( ichr );
 
         //don't draw inventories of network players
         if ( !pchr->islocalplayer ) continue;
@@ -3559,10 +3725,10 @@ void draw_inventory()
 
         //Figure out who this is
         ipla = draw_list[cnt];
-        ppla = PlaStack.lst + ipla;
+        ppla = PlaStack_get_ptr( ipla );
 
         ichr = ppla->index;
-        pchr = ChrList.lst + ichr;
+        pchr = ChrList_get_ptr( ichr );
 
         //handle inventories sliding into view
         ppla->inventory_lerp = MIN( ppla->inventory_lerp, width );
@@ -3629,7 +3795,7 @@ void draw_inventory()
 }
 
 //--------------------------------------------------------------------------------------------
-void render_world( camera_t * pcam )
+void gfx_render_world( const camera_t * pcam, const int render_list_index, const int dolist_index )
 {
     gfx_error_state_t * err_tmp;
 
@@ -3640,15 +3806,17 @@ void render_world( camera_t * pcam )
         if ( gfx.draw_background )
         {
             // Render the background
-            render_world_background(( TX_REF )TX_WATER_LOW ); // TX_WATER_LOW for waterlow.bmp
+            // TX_WATER_LOW for waterlow.bmp
+            render_world_background( pcam, ( TX_REF )TX_WATER_LOW );
         }
 
-        render_scene( PMesh, pcam );
+        render_scene( pcam, render_list_index, dolist_index );
 
         if ( gfx.draw_overlay )
         {
             // Foreground overlay
-            render_world_overlay(( TX_REF )TX_WATER_TOP ); // TX_WATER_TOP is watertop.bmp
+            // TX_WATER_TOP is watertop.bmp
+            render_world_overlay( pcam, ( TX_REF )TX_WATER_TOP );
         }
 
         if ( pcam->motion_blur > 0 )
@@ -3662,12 +3830,12 @@ void render_world( camera_t * pcam )
     gfx_end_3d();
 
     // Render the billboards
-    render_all_billboards( pcam );
+    gfx_render_all_billboards( pcam );
 
     err_tmp = gfx_error_pop();
     if ( NULL != err_tmp )
     {
-        printf( "****\nEncountered graphics errors in frame %d\n\n****", game_frame_all );
+        printf( "**** Encountered graphics errors in frame %d ****\n\n", game_frame_all );
         while ( NULL != err_tmp )
         {
             printf( "vvvv\n" );
@@ -3691,7 +3859,8 @@ void gfx_main()
 {
     /// @details ZZ@> This function does all the drawing stuff
 
-    render_world( PCamera );
+    camera_system_render_all( gfx_render_world );
+
     render_hud();
 
     request_flip_pages();
@@ -3730,7 +3899,7 @@ bool_t dump_screenshot()
     if ( !savefound ) return bfalse;
 
     // convert the file path to the correct write path
-    strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), sizeof( szFilename ) );
+    strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), SDL_arraysize( szFilename ) );
 
     // if we are not using OpenGL, use SDL to dump the screen
     if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
@@ -3888,7 +4057,7 @@ void make_enviro( void )
     {
         x = kMd2Normals[cnt][0];
         y = kMd2Normals[cnt][1];
-        indextoenvirox[cnt] = ATAN2( y, x ) / TWO_PI;
+        indextoenvirox[cnt] = ATAN2( y, x ) * INV_TWO_PI;
     }
 
     for ( cnt = 0; cnt < 256; cnt++ )
@@ -3905,8 +4074,8 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
     Uint32 fan[4];
     float u, v;
 
-    ego_grid_info_t  * glist;
-    lighting_cache_t * cache_list[4];
+    const lighting_cache_t * cache_list[4];
+    ego_grid_info_t  * pgrid;
 
     if ( NULL == pmesh ) pmesh = PMesh;
     if ( NULL == pmesh )
@@ -3914,8 +4083,6 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
         return 0.0f;
     }
-
-    glist = pmesh->gmem.grid_list;
 
     ix = FLOOR( pos[XX] / GRID_FSIZE );
     iy = FLOOR( pos[YY] / GRID_FSIZE );
@@ -3928,9 +4095,15 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
-        if ( mesh_grid_is_valid( pmesh, fan[cnt] ) )
+
+        pgrid = mesh_get_pgrid( pmesh, fan[cnt] );
+        if ( NULL == pgrid )
         {
-            cache_list[cnt] = &( glist[fan[cnt]].cache );
+            cache_list[cnt] = NULL;
+        }
+        else
+        {
+            cache_list[cnt] = &( pgrid->cache );
         }
     }
 
@@ -3941,14 +4114,15 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, float fx, float fy )
+bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos )
 {
     int ix, iy, cnt;
     Uint32 fan[4];
     float u, v;
+    fvec2_t tpos;
 
-    ego_grid_info_t  * glist;
-    lighting_cache_t * cache_list[4];
+    ego_grid_info_t  * pgrid;
+    const lighting_cache_t * cache_list[4];
 
     if ( NULL == pmesh ) pmesh = PMesh;
     if ( NULL == pmesh )
@@ -3957,11 +4131,26 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
         return bfalse;
     }
 
-    glist = pmesh->gmem.grid_list;
+    if ( NULL == dst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "no valid lighting cache" );
+        return bfalse;
+    }
 
-    ix = FLOOR( fx / GRID_FSIZE );
-    iy = FLOOR( fy / GRID_FSIZE );
+    if ( NULL == pos )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "no valid position" );
+        return bfalse;
+    }
 
+    // calculate the "tile position"
+    fvec2_scale( tpos.v, pos, 1.0f / GRID_FSIZE );
+
+    // grab this tile's coordinates
+    ix = FLOOR( tpos.x );
+    iy = FLOOR( tpos.y );
+
+    // find the tile id for the surrounding tiles
     fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
     fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );
     fan[2] = mesh_get_tile_int( pmesh, ix,     iy + 1 );
@@ -3969,79 +4158,98 @@ bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, flo
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        cache_list[cnt] = NULL;
-        if ( mesh_grid_is_valid( pmesh, fan[cnt] ) )
+        pgrid = mesh_get_pgrid( pmesh, fan[cnt] );
+
+        if ( NULL == pgrid )
         {
-            cache_list[cnt] = &( glist[fan[cnt]].cache );
+            cache_list[cnt] = NULL;
+        }
+        else
+        {
+            cache_list[cnt] = &( pgrid->cache );
         }
     }
 
-    u = fx / GRID_FSIZE - ix;
-    v = fy / GRID_FSIZE - iy;
+    // grab the coordinates relative to the parent tile
+    u = tpos.x - ix;
+    v = tpos.y - iy;
 
     return lighting_cache_interpolate( dst, cache_list, u, v );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void gfx_update_timers()
+void gfx_update_fps_clock()
 {
     /// @details ZZ@> This function updates the graphics timers
 
-    const float fold = 0.77f;
-    const float fnew = 1.0f - fold;
+    int gfx_clock_diff;
 
-    static int gfx_clock_last = 0;
-    static int gfx_clock      = 0;
-    static int gfx_clock_stt  = -1;
+    bool_t free_running = btrue;
 
-    int dclock;
-
-    if ( gfx_clock_stt < 0 )
-    {
-        gfx_clock_stt  = egoboo_get_ticks();
-        gfx_clock_last = gfx_clock_stt;
-        gfx_clock      = gfx_clock_stt;
-    }
-
-    gfx_clock_last = gfx_clock;
-    gfx_clock      = egoboo_get_ticks() - gfx_clock_stt;
-    dclock         = gfx_clock - gfx_clock_last;
-
-    if ( process_running( PROC_PBASE( MProc ) ) )
-    {
-        menu_fps_clock += dclock;
-
-        if ( menu_fps_loops > 0 && menu_fps_clock > 0 )
-        {
-            stabilized_menu_fps_sum    = fold * stabilized_menu_fps_sum    + fnew * ( float ) menu_fps_loops / (( float ) menu_fps_clock / TICKS_PER_SEC );
-            stabilized_menu_fps_weight = fold * stabilized_menu_fps_weight + fnew;
-
-            // blank these every so often so that the numbers don't overflow
-            if ( menu_fps_loops > 10 * TARGET_FPS )
-            {
-                menu_fps_loops = 0;
-                menu_fps_clock = 0;
-            }
-        };
-
-        if ( stabilized_menu_fps_weight > 0.5f )
-        {
-            stabilized_menu_fps = stabilized_menu_fps_sum / stabilized_menu_fps_weight;
-        }
-    }
-
+    // are the graphics updates free running?
+    free_running = btrue;
     if ( process_running( PROC_PBASE( GProc ) ) )
     {
-        game_fps_clock += dclock;
+        free_running = GProc->fps_timer.free_running;
+    }
+    else if ( process_running( PROC_PBASE( MProc ) ) )
+    {
+        free_running = MProc->gui_timer.free_running;
+    }
 
+    // make sure at least one tick has passed
+    if ( !timer_throttle( &gfx_update_timer, 1 ) ) return;
+
+    // calculate the time since the from the last update
+    if ( !single_frame_mode )
+    {
+        // update the graphics clock the normal way
+        clock_update( &gfx_clock );
+    }
+    else
+    {
+        // do a single-frame update
+        clock_update_diff( &gfx_clock, TICKS_PER_SEC / ( float )cfg.framelimit );
+    }
+
+    // measure the time change
+    gfx_clock_diff = gfx_clock.time_now - gfx_clock.time_lst;
+
+    // update the game fps
+    if ( process_running( PROC_PBASE( GProc ) ) )
+    {
+        game_fps_clock += gfx_clock_diff;
+    }
+
+    // update the menu fps
+    if ( process_running( PROC_PBASE( MProc ) ) )
+    {
+        menu_fps_clock += gfx_clock_diff;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_update_fps()
+{
+    // at fold = 0.60f, it will take approximately 9 updates for the
+    // weight of the first value to be reduced to 1%
+    const float fold = STABILIZED_KEEP;
+    const float fnew = STABILIZED_COVER;
+
+    // update the clock
+    gfx_update_fps_clock();
+
+    // update the game fps
+    if ( process_running( PROC_PBASE( GProc ) ) )
+    {
         if ( game_fps_loops > 0 && game_fps_clock > 0 )
         {
             stabilized_game_fps_sum    = fold * stabilized_game_fps_sum    + fnew * ( float ) game_fps_loops / (( float ) game_fps_clock / TICKS_PER_SEC );
             stabilized_game_fps_weight = fold * stabilized_game_fps_weight + fnew;
 
-            // blank these every so often so that the numbers don't overflow
-            if ( game_fps_loops > 10 * TARGET_FPS )
+            // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
+            if ( game_fps_loops > 0x15555555 || game_fps_clock > 0x15555555 )
             {
                 game_fps_loops = 0;
                 game_fps_clock = 0;
@@ -4054,13 +4262,36 @@ void gfx_update_timers()
         }
     }
 
+    // update the menu fps
+    if ( process_running( PROC_PBASE( MProc ) ) )
+    {
+        if ( menu_fps_loops > 0 && menu_fps_clock > 0 )
+        {
+            stabilized_menu_fps_sum    = fold * stabilized_menu_fps_sum    + fnew * ( float ) menu_fps_loops / (( float ) menu_fps_clock / TICKS_PER_SEC );
+            stabilized_menu_fps_weight = fold * stabilized_menu_fps_weight + fnew;
+
+            // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
+            if ( menu_fps_loops > 0x15555555 || menu_fps_clock > 0x15555555 )
+            {
+                menu_fps_loops = 0;
+                menu_fps_clock = 0;
+            }
+        };
+
+        if ( stabilized_menu_fps_weight > 0.5f )
+        {
+            stabilized_menu_fps = stabilized_menu_fps_sum / stabilized_menu_fps_weight;
+        }
+    }
+
+    // choose the correct fps to display
     if ( process_running( PROC_PBASE( GProc ) ) )
     {
         stabilized_fps = stabilized_game_fps;
     }
     else if ( process_running( PROC_PBASE( MProc ) ) )
     {
-        stabilized_fps = stabilized_game_fps;
+        stabilized_fps = stabilized_menu_fps;
     }
 
 }
@@ -4072,7 +4303,7 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
 {
     if ( NULL == pbb ) return pbb;
 
-    memset( pbb, 0, sizeof( *pbb ) );
+    BLANK_STRUCT_PTR( pbb )
 
     pbb->tex_ref = INVALID_TX_TEXTURE;
     pbb->ichr    = ( CHR_REF )MAX_CHR;
@@ -4112,7 +4343,7 @@ bool_t billboard_data_update( billboard_data_t * pbb )
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
-    pchr = ChrList.lst + pbb->ichr;
+    pchr = ChrList_get_ptr( pbb->ichr );
 
     // determine where the new position should be
     chr_getMatUp( pchr, vup.v );
@@ -4160,7 +4391,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // release any existing texture in case there is an error
-    ptex = TxTexture_get_ptr( pbb->tex_ref );
+    ptex = TxTexture_get_valid_ptr( pbb->tex_ref );
     oglx_texture_Release( ptex );
 
     va_start( args, format );
@@ -4200,7 +4431,7 @@ void BillboardList_init_all()
 
     for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
-        billboard_data_init( BillboardList.lst + cnt );
+        billboard_data_init( BillboardList_get_ptr( cnt ) );
     }
 
     BillboardList_clear_data();
@@ -4218,12 +4449,12 @@ void BillboardList_update_all()
     {
         bool_t is_invalid;
 
-        billboard_data_t * pbb = BillboardList.lst + cnt;
+        billboard_data_t * pbb = BillboardList_get_ptr( cnt );
 
         if ( !pbb->valid ) continue;
 
         is_invalid = bfalse;
-        if ( ticks >= pbb->time || NULL == TxTexture_get_ptr( pbb->tex_ref ) )
+        if ( ticks >= pbb->time || NULL == TxTexture_get_valid_ptr( pbb->tex_ref ) )
         {
             is_invalid = btrue;
         }
@@ -4248,7 +4479,7 @@ void BillboardList_update_all()
         }
         else
         {
-            billboard_data_update( BillboardList.lst + cnt );
+            billboard_data_update( BillboardList_get_ptr( cnt ) );
         }
     }
 }
@@ -4262,7 +4493,7 @@ void BillboardList_free_all()
     {
         if ( !BillboardList.lst[cnt].valid ) continue;
 
-        billboard_data_update( BillboardList.lst + cnt );
+        billboard_data_update( BillboardList_get_ptr( cnt ) );
     }
 }
 
@@ -4288,7 +4519,7 @@ size_t BillboardList_get_free( Uint32 lifetime_secs )
 
     if ( VALID_BILLBOARD_RANGE( ibb ) )
     {
-        pbb = BillboardList.lst + ( BBOARD_REF )ibb;
+        pbb = BillboardList_get_ptr( ibb );
 
         billboard_data_init( pbb );
 
@@ -4314,7 +4545,7 @@ bool_t BillboardList_free_one( size_t ibb )
     billboard_data_t * pbb;
 
     if ( !VALID_BILLBOARD_RANGE( ibb ) ) return bfalse;
-    pbb = BillboardList.lst + ( BBOARD_REF )ibb;
+    pbb = BillboardList_get_ptr( ibb );
 
     billboard_data_free( pbb );
 
@@ -4343,14 +4574,6 @@ bool_t BillboardList_free_one( size_t ibb )
 }
 
 //--------------------------------------------------------------------------------------------
-billboard_data_t * BillboardList_get_ptr( const BBOARD_REF  ibb )
-{
-    if ( !VALID_BILLBOARD( ibb ) ) return NULL;
-
-    return BillboardList.lst + ibb;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt )
 {
@@ -4366,12 +4589,12 @@ bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_ba
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
-    pchr = ChrList.lst + pbb->ichr;
+    pchr = ChrList_get_ptr( pbb->ichr );
 
     // do not display for objects that are mounted or being held
     if ( IS_ATTACHED_CHR( pbb->ichr ) ) return bfalse;
 
-    ptex = TxTexture_get_ptr( pbb->tex_ref );
+    ptex = TxTexture_get_valid_ptr( pbb->tex_ref );
 
     oglx_texture_Bind( ptex );
 
@@ -4384,8 +4607,8 @@ bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_ba
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
     // scale the camera vectors
-    vec_rgt = fvec3_scale( cam_rgt, w * scale * pbb->size );
-    vec_up  = fvec3_scale( cam_up, h * scale * pbb->size );
+    fvec3_scale( vec_rgt.v, cam_rgt, w * scale * pbb->size );
+    fvec3_scale( vec_up.v, cam_up, h * scale * pbb->size );
 
     // bottom left
     vtlist[0].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x - 0 * vec_up.x );
@@ -4436,11 +4659,10 @@ bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_ba
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_all_billboards( camera_t * pcam )
+gfx_rv gfx_render_all_billboards( const camera_t * pcam )
 {
     BBOARD_REF cnt;
 
-    if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
@@ -4472,7 +4694,7 @@ gfx_rv render_all_billboards( camera_t * pcam )
             GL_DEBUG( glShadeModel )( GL_FLAT );                                  // GL_LIGHTING_BIT
 
             // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );                                // GL_ENABLE_BIT
+            oglx_end_culling();                                // GL_ENABLE_BIT
 
             GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
             GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
@@ -4484,7 +4706,7 @@ gfx_rv render_all_billboards( camera_t * pcam )
 
             for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {
-                billboard_data_t * pbb = BillboardList.lst + cnt;
+                billboard_data_t * pbb = BillboardList_get_ptr( cnt );
 
                 if ( !pbb->valid ) continue;
 
@@ -4560,7 +4782,7 @@ bool_t line_list_add( const float src_x, const float src_y, const float src_z, c
 }
 
 //--------------------------------------------------------------------------------------------
-void line_list_draw_all( camera_t * pcam )
+void line_list_draw_all( const camera_t * pcam )
 {
     /// @details BB@> draw some lines for debugging purposes
 
@@ -4591,7 +4813,7 @@ void line_list_draw_all( camera_t * pcam )
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );   // GL_ENABLE_BIT
+            oglx_end_culling();   // GL_ENABLE_BIT
 
             GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
 
@@ -4690,7 +4912,7 @@ int point_list_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void point_list_draw_all( camera_t * pcam )
+void point_list_draw_all( const camera_t * pcam )
 {
     /// @details BB@> draw some points for debugging purposes
 
@@ -4721,7 +4943,7 @@ void point_list_draw_all( camera_t * pcam )
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );   // GL_ENABLE_BIT
+            oglx_end_culling();   // GL_ENABLE_BIT
 
             GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
 
@@ -4853,7 +5075,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 
         // fix the poorly chosen normals...
         // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );
+        oglx_end_culling();                 // GL_ENABLE_BIT
 
         // make them transparent
         GL_DEBUG( glEnable )( GL_BLEND );
@@ -4988,300 +5210,23 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 //--------------------------------------------------------------------------------------------
 // GRAPHICS OPTIMIZATIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_chr( dolist_t * pdolist, ego_mpd_t * pmesh, const CHR_REF ichr )
-{
-    /// ZZ@> This function puts a character in the list
-
-    chr_t * pchr;
-    cap_t * pcap;
-    chr_instance_t * pinst;
-    ego_tile_info_t * ptile;
-
-    // if we are adding the "item" in an empty hand, don't complain
-    if ( !VALID_CHR_RANGE( ichr ) ) return gfx_fail;
-
-    if ( NULL == pdolist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
-        return gfx_error;
-    }
-
-    if ( pdolist->count >= DOLIST_SIZE )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
-        return gfx_error;
-    }
-
-    if ( NULL == pmesh ) pmesh = PMesh;
-    if ( NULL == pmesh )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
-        return gfx_error;
-    }
-
-    if ( !INGAME_CHR( ichr ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character index" );
-        return gfx_error;
-    }
-
-    pchr  = ChrList.lst + ichr;
-    pinst = &( pchr->inst );
-
-    if ( pinst->indolist ) return gfx_success;
-
-    if ( pchr->is_hidden ) return gfx_fail;
-
-    if ( !mesh_grid_is_valid( pmesh, pchr->onwhichgrid ) ) return gfx_fail;
-    ptile = pmesh->tmem.tile_list + pchr->onwhichgrid;
-
-    pcap = chr_get_pcap( ichr );
-    if ( NULL == pcap )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character cap" );
-        return gfx_error;
-    }
-
-    if ( ptile->inrenderlist )
-    {
-        pdolist->lst[pdolist->count].ichr = ichr;
-        pdolist->lst[pdolist->count].iprt = ( PRT_REF )MAX_PRT;
-        pdolist->count++;
-
-        pinst->indolist = btrue;
-    }
-    else if ( pcap->alwaysdraw )
-    {
-        // Double check for large/special objects
-
-        pdolist->lst[pdolist->count].ichr = ichr;
-        pdolist->lst[pdolist->count].iprt = ( PRT_REF )MAX_PRT;
-        pdolist->count++;
-
-        pinst->indolist = btrue;
-    }
-
-    if ( pinst->indolist )
-    {
-        // Add its weapons too
-        dolist_add_chr( pdolist, pmesh, pchr->holdingwhich[SLOT_LEFT] );
-        dolist_add_chr( pdolist, pmesh, pchr->holdingwhich[SLOT_RIGHT] );
-    }
-
-    return pinst->indolist ? gfx_success : gfx_fail;
-}
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_prt( dolist_t * pdolist, ego_mpd_t * pmesh, const PRT_REF iprt )
+// object registry entity implementation
+//--------------------------------------------------------------------------------------------
+
+obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr )
 {
-    /// ZZ@> This function puts a character in the list
-    prt_t * pprt;
-    prt_instance_t * pinst;
-    ego_tile_info_t * ptile;
+    if ( NULL == ptr ) return NULL;
 
-    if ( NULL == pdolist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
-        return gfx_error;
-    }
+    BLANK_STRUCT_PTR( ptr )
 
-    if ( pdolist->count >= DOLIST_SIZE )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
-        return gfx_error;
-    }
+    ptr->ichr = MAX_CHR;
+    ptr->iprt = MAX_PRT;
 
-    if ( !DISPLAY_PRT( iprt ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle index" );
-        return gfx_error;
-    }
-
-    pprt = PrtList.lst + iprt;
-    pinst = &( pprt->inst );
-
-    if ( pinst->indolist ) return gfx_success;
-
-    if ( pprt->is_hidden || 0 == pprt->size ) return gfx_fail;
-
-    if ( !mesh_grid_is_valid( pmesh, pprt->onwhichgrid ) ) return gfx_fail;
-    ptile = pmesh->tmem.tile_list + pprt->onwhichgrid;
-
-    if ( ptile->inrenderlist )
-    {
-        pdolist->lst[pdolist->count].ichr = ( CHR_REF )MAX_CHR;
-        pdolist->lst[pdolist->count].iprt = iprt;
-        pdolist->count++;
-
-        pinst->indolist = btrue;
-    }
-
-    return pinst->indolist ? gfx_success : gfx_fail;
+    return ptr;
 }
 
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_make( dolist_t * pdolist, ego_mpd_t * pmesh )
-{
-    /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
-
-    int cnt;
-    CHR_REF ichr;
-    gfx_rv retval;
-
-    if ( NULL == pdolist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
-        return gfx_error;
-    }
-
-    if ( pdolist->count >= DOLIST_SIZE )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
-        return gfx_error;
-    }
-
-    // Remove everyone from the dolist
-    for ( cnt = 0; cnt < pdolist->count; cnt++ )
-    {
-        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
-        {
-            ChrList.lst[ pdolist->lst[cnt].ichr ].inst.indolist = bfalse;
-        }
-        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
-        {
-            PrtList.lst[ pdolist->lst[cnt].iprt ].inst.indolist = bfalse;
-        }
-    }
-    pdolist->count = 0;
-
-    // assume the best
-    retval = gfx_success;
-
-    // Now fill it up again
-    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
-    {
-        if ( INGAME_CHR( ichr ) && INGAME_CHR( !ChrList.lst[ichr].inwhich_inventory ) )
-        {
-            // Add the character
-            if ( gfx_error == dolist_add_chr( pdolist, pmesh, ichr ) )
-            {
-                retval = gfx_error;
-            }
-        }
-    }
-
-    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
-    {
-        if ( mesh_grid_is_valid( pmesh, prt_bdl.prt_ptr->onwhichgrid ) )
-        {
-            // Add the character
-            if ( gfx_error == dolist_add_prt( pdolist, pmesh, prt_bdl.prt_ref ) )
-            {
-                retval = gfx_error;
-            }
-        }
-    }
-    PRT_END_LOOP();
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_sort( dolist_t * pdolist, camera_t * pcam, bool_t do_reflect )
-{
-    /// @details ZZ@> This function orders the dolist based on distance from camera,
-    ///    which is needed for reflections to properly clip themselves.
-    ///    Order from closest to farthest
-
-    Uint32    cnt;
-    fvec3_t   vcam;
-    size_t    count;
-
-    if ( NULL == pdolist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
-        return gfx_error;
-    }
-
-    if ( pdolist->count >= DOLIST_SIZE )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
-        return gfx_error;
-    }
-
-    if ( NULL == pcam ) pcam = PCamera;
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-        return gfx_error;
-    }
-
-    mat_getCamForward( pcam->mView.v, vcam.v );
-
-    // Figure the distance of each
-    count = 0;
-    for ( cnt = 0; cnt < pdolist->count; cnt++ )
-    {
-        fvec3_t   vtmp;
-        float dist;
-
-        if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
-        {
-            CHR_REF ichr;
-            fvec3_t pos_tmp;
-
-            ichr = pdolist->lst[cnt].ichr;
-
-            if ( do_reflect )
-            {
-                mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp.v );
-            }
-            else
-            {
-                mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
-            }
-
-            vtmp = fvec3_sub( pos_tmp.v, pcam->pos.v );
-        }
-        else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
-        {
-            PRT_REF iprt = pdolist->lst[cnt].iprt;
-
-            if ( do_reflect )
-            {
-                vtmp = fvec3_sub( PrtList.lst[iprt].inst.pos.v, pcam->pos.v );
-            }
-            else
-            {
-                vtmp = fvec3_sub( PrtList.lst[iprt].inst.ref_pos.v, pcam->pos.v );
-            }
-        }
-        else
-        {
-            continue;
-        }
-
-        dist = fvec3_dot_product( vtmp.v, vcam.v );
-        if ( dist > 0 )
-        {
-            pdolist->lst[count].ichr = pdolist->lst[cnt].ichr;
-            pdolist->lst[count].iprt = pdolist->lst[cnt].iprt;
-            pdolist->lst[count].dist = dist;
-            count++;
-        }
-    }
-    pdolist->count = count;
-
-    // use qsort to sort the list in-place
-    if ( pdolist->count > 1 )
-    {
-        qsort( pdolist->lst, pdolist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
-    }
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int obj_registry_entity_cmp( const void * pleft, const void * pright )
 {
@@ -5307,296 +5252,6 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
     }
 
     return rv;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_reset( renderlist_t * prlist )
-{
-    /// @details BB@> Clear old render lists
-
-    if ( NULL == prlist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
-        return gfx_error;
-    }
-
-    if ( NULL != prlist->pmesh )
-    {
-        int cnt;
-
-        // clear out the inrenderlist flag for the old mesh
-        ego_tile_info_t * tlist = prlist->pmesh->tmem.tile_list;
-
-        for ( cnt = 0; cnt < prlist->all_count; cnt++ )
-        {
-            Uint32 fan = prlist->all[cnt];
-            if ( fan < prlist->pmesh->info.tiles_count )
-            {
-                tlist[fan].inrenderlist       = bfalse;
-                tlist[fan].inrenderlist_frame = 0;
-            }
-        }
-
-        prlist->pmesh = NULL;
-    }
-
-    prlist->all_count = 0;
-    prlist->ref_count = 0;
-    prlist->sha_count = 0;
-    prlist->drf_count = 0;
-    prlist->ndr_count = 0;
-    prlist->wat_count = 0;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, camera_t * pcam )
-{
-    /// @details ZZ@> This function figures out which mesh fans to draw
-
-    int cnt, grid_x, grid_y;
-    int row, run, numrow;
-    int corner_x[4], corner_y[4];
-    int leftnum, leftlist[4];
-    int rightnum, rightlist[4];
-    int rowstt[128], rowend[128];
-    int x, stepx, divx, basex;
-    int from, to;
-    gfx_rv retval;
-
-    ego_tile_info_t * tlist;
-
-    // Make sure it doesn't die ugly
-    if ( NULL == prlist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
-        return gfx_error;
-    }
-
-    if ( NULL == pcam ) pcam = PCamera;
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-        return gfx_error;
-    }
-
-    if ( NULL == pmesh ) pmesh = PMesh;
-    if ( NULL == pmesh )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
-        return gfx_error;
-    }
-
-    // because the main loop of the program will always flip the
-    // page before rendering the 1st frame of the actual game,
-    // game_frame_all will always start at 1
-    if ( 1 != ( game_frame_all & 3 ) ) return gfx_success;
-
-    // Find the render area corners.
-    // if this fails, we cannot have a valid list of corners, so this function fails
-    if ( rv_error == gfx_project_cam_view( pcam ) )
-    {
-        return gfx_error;
-    }
-
-    // assume the best
-    retval = gfx_success;
-
-    // reset the renderlist
-    if ( gfx_error == renderlist_reset( prlist ) )
-    {
-        retval = gfx_error;
-    }
-
-    prlist->pmesh = pmesh;
-    tlist = pmesh->tmem.tile_list;
-
-    // It works better this way...
-    cornery[cornerlistlowtohighy[3]] += 256;
-    cornery[cornerlistlowtohighy[0]] -= 256;
-
-    // Make life simpler
-    for ( cnt = 0; cnt < 4; cnt++ )
-    {
-        corner_x[cnt] = cornerx[cornerlistlowtohighy[cnt]];
-        corner_y[cnt] = cornery[cornerlistlowtohighy[cnt]];
-    }
-
-    // Find the center line
-    divx = corner_y[3] - corner_y[0];
-    if ( divx < 1 )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "divx < 1" );
-        return gfx_error;
-    }
-    stepx = corner_x[3] - corner_x[0];
-    basex = corner_x[0];
-
-    // Find the points in each edge
-    leftlist[0] = 0;  leftnum = 1;
-    rightlist[0] = 0;  rightnum = 1;
-    if ( corner_x[1] < ( stepx*( corner_y[1] - corner_y[0] ) / divx ) + basex )
-    {
-        leftlist[leftnum] = 1;  leftnum++;
-        cornerx[1] -= 512;
-    }
-    else
-    {
-        rightlist[rightnum] = 1;  rightnum++;
-        cornerx[1] += 512;
-    }
-    if ( corner_x[2] < ( stepx*( corner_y[2] - corner_y[0] ) / divx ) + basex )
-    {
-        leftlist[leftnum] = 2;  leftnum++;
-        cornerx[2] -= 512;
-    }
-    else
-    {
-        rightlist[rightnum] = 2;  rightnum++;
-        cornerx[2] += 512;
-    }
-
-    leftlist[leftnum] = 3;  leftnum++;
-    rightlist[rightnum] = 3;  rightnum++;
-
-    // Make the left edge ( rowstt )
-    grid_y = corner_y[0] / GRID_ISIZE;
-    row = 0;
-    cnt = 1;
-    while ( cnt < leftnum )
-    {
-        from = leftlist[cnt-1];  to = leftlist[cnt];
-        x = corner_x[from];
-        divx = corner_y[to] - corner_y[from];
-        stepx = 0;
-        if ( divx > 0 )
-        {
-            stepx = (( corner_x[to] - corner_x[from] ) * GRID_ISIZE ) / divx;
-        }
-
-        x -= 128;
-        run = corner_y[to] / GRID_ISIZE;
-        while ( grid_y < run )
-        {
-            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
-            {
-                grid_x = x / GRID_ISIZE;
-                if ( grid_x < 0 )  grid_x = 0;
-                if ( grid_x >= pmesh->info.tiles_x )  grid_x = pmesh->info.tiles_x - 1;
-
-                rowstt[row] = grid_x;
-                row++;
-            }
-
-            x += stepx;
-            grid_y++;
-        }
-
-        cnt++;
-    }
-    numrow = row;
-
-    // Make the right edge ( rowrun )
-    grid_y = corner_y[0] / GRID_ISIZE;
-    row = 0;
-    cnt = 1;
-    while ( cnt < rightnum )
-    {
-        from = rightlist[cnt-1];  to = rightlist[cnt];
-        x = corner_x[from];
-        x += 128;
-        divx = corner_y[to] - corner_y[from];
-        stepx = 0;
-        if ( divx > 0 )
-        {
-            stepx = (( corner_x[to] - corner_x[from] ) * GRID_ISIZE ) / divx;
-        }
-
-        run = corner_y[to] / GRID_ISIZE;
-
-        while ( grid_y < run )
-        {
-            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
-            {
-                grid_x = x / GRID_ISIZE;
-                if ( grid_x < 0 )  grid_x = 0;
-                if ( grid_x >= pmesh->info.tiles_x - 1 )  grid_x = pmesh->info.tiles_x - 1;
-
-                rowend[row] = grid_x;
-                row++;
-            }
-
-            x += stepx;
-            grid_y++;
-        }
-
-        cnt++;
-    }
-
-    if ( numrow != row )
-    {
-        log_warning( "ROW error (%i, %i)\n", numrow, row );
-        return gfx_fail;
-    }
-
-    // fill the renderlist from the projected view
-    grid_y = corner_y[0] / GRID_ISIZE;
-    grid_y = CLIP( grid_y, 0, pmesh->info.tiles_y - 1 );
-    for ( row = 0; row < numrow; row++, grid_y++ )
-    {
-        for ( grid_x = rowstt[row]; grid_x <= rowend[row] && prlist->all_count < MAXMESHRENDER; grid_x++ )
-        {
-            cnt = pmesh->gmem.tilestart[grid_y] + grid_x;
-
-            // Flag the tile as in the renderlist
-            tlist[cnt].inrenderlist       = btrue;
-
-            // if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
-            if ( tlist[cnt].inrenderlist_frame < game_frame_all - 1 )
-            {
-                tlist[cnt].needs_lighting_update = btrue;
-            }
-
-            // make sure to cache the frame number of this update
-            tlist[cnt].inrenderlist_frame = game_frame_all;
-
-            // Put each tile in basic list
-            prlist->all[prlist->all_count] = cnt;
-            prlist->all_count++;
-
-            // Put each tile in one other list, for shadows and relections
-            if ( 0 != mesh_test_fx( pmesh, cnt, MPDFX_SHA ) )
-            {
-                prlist->sha[prlist->sha_count] = cnt;
-                prlist->sha_count++;
-            }
-            else
-            {
-                prlist->ref[prlist->ref_count] = cnt;
-                prlist->ref_count++;
-            }
-
-            if ( 0 != mesh_test_fx( pmesh, cnt, MPDFX_DRAWREF ) )
-            {
-                prlist->drf[prlist->drf_count] = cnt;
-                prlist->drf_count++;
-            }
-            else
-            {
-                prlist->ndr[prlist->ndr_count] = cnt;
-                prlist->ndr_count++;
-            }
-
-            if ( 0 != mesh_test_fx( pmesh, cnt, MPDFX_WATER ) )
-            {
-                prlist->wat[prlist->wat_count] = cnt;
-                prlist->wat_count++;
-            }
-        }
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5682,7 +5337,7 @@ void init_all_graphics()
     BillboardList_free_all();
     TxTexture_init_all();
 
-    // the mouse cursor was just erased. reload it.
+    // the mouse input_cursor was just erased. reload it.
     init_mouse_cursor();
 
     PROFILE_RESET( render_scene_init );
@@ -5691,8 +5346,8 @@ void init_all_graphics()
     PROFILE_RESET( render_scene_water );
     PROFILE_RESET( render_scene_trans );
 
-    PROFILE_RESET( renderlist_make );
-    PROFILE_RESET( dolist_make );
+    PROFILE_RESET( gfx_make_renderlist );
+    PROFILE_RESET( gfx_make_dolist );
     PROFILE_RESET( do_grid_lighting );
     PROFILE_RESET( light_fans );
     PROFILE_RESET( update_all_chr_instance );
@@ -5707,8 +5362,8 @@ void init_all_graphics()
     PROFILE_RESET( render_scene_mesh_render_shadows );
 
     stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_game_fps_weight = 0.1f;
+    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_game_fps_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5736,7 +5391,7 @@ void delete_all_graphics()
 //--------------------------------------------------------------------------------------------
 bool_t init_mouse_cursor()
 {
-    /// @details ZF@> Load the mouse cursor
+    /// @details ZF@> Load the mouse input_cursor
     TX_REF retval;
     bool_t success;
 
@@ -5746,13 +5401,14 @@ bool_t init_mouse_cursor()
     success = btrue;
     if ( INVALID_GL_ID == retval )
     {
-        log_warning( "Could not load mouse cursor (basicdat" SLASH_STR "cursor.png)\n" );
+        log_warning( "Could not load mouse input_cursor (basicdat" SLASH_STR "input_cursor.png)\n" );
         success = bfalse;
     }
 
     return success;
 }
 
+//--------------------------------------------------------------------------------------------
 void draw_mouse_cursor()
 {
     int     x, y;
@@ -5760,7 +5416,14 @@ void draw_mouse_cursor()
 
     oglx_texture_t * tex_ptr;
 
-    tex_ptr = TxTexture_get_ptr(( TX_REF )TX_CURSOR );
+    if ( !mous.on )
+    {
+        SDL_ShowCursor( SDL_DISABLE );
+        return;
+    }
+
+    // grab the cursor texture
+    tex_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_CURSOR );
 
     // Invalid texture?
     if ( !oglx_texture_Valid( tex_ptr ) )
@@ -5838,8 +5501,8 @@ void load_basic_textures()
     PROFILE_RESET( render_scene_water );
     PROFILE_RESET( render_scene_trans );
 
-    PROFILE_RESET( renderlist_make );
-    PROFILE_RESET( dolist_make );
+    PROFILE_RESET( gfx_make_renderlist );
+    PROFILE_RESET( gfx_make_dolist );
     PROFILE_RESET( do_grid_lighting );
     PROFILE_RESET( light_fans );
     PROFILE_RESET( update_all_chr_instance );
@@ -5854,8 +5517,8 @@ void load_basic_textures()
     PROFILE_RESET( render_scene_mesh_render_shadows );
 
     stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_game_fps_weight = 0.1f;
+    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_game_fps_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6007,24 +5670,35 @@ gfx_rv do_chr_flashing( dolist_t * pdolist )
     retval = gfx_success;
     for ( i = 0; i < pdolist->count; i++ )
     {
+        float tmp_seekurse_level;
+
         CHR_REF ichr = pdolist->lst[i].ichr;
         if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
         // Do flashing
-        if ( HAS_NO_BITS( true_frame, ChrList.lst[ichr].flashand ) && ChrList.lst[ichr].flashand != DONTFLASH )
+        if ( DONTFLASH != ChrList.lst[ichr].flashand )
         {
-            flash_character( ichr, 255 );
+            if ( HAS_NO_BITS( game_frame_all, ChrList.lst[ichr].flashand ) )
+            {
+                if ( gfx_error == flash_character( ichr, 255 ) )
+                {
+                    retval = gfx_error;
+                }
+            }
         }
 
         // Do blacking
         // having one holy player in your party will cause the effect, BUT
         // having some non-holy players will dilute it
-        if ( HAS_NO_BITS( true_frame, SEEKURSEAND ) && ( local_stats.seekurse_level > 0.0f ) && ChrList.lst[ichr].iskursed )
+        tmp_seekurse_level = MIN( local_stats.seekurse_level, 1.0f );
+        if (( local_stats.seekurse_level > 0.0f ) && ChrList.lst[ichr].iskursed && 1.0f != tmp_seekurse_level )
         {
-            float tmp_seekurse_level = MIN( local_stats.seekurse_level, 1.0f );
-            if ( gfx_error == flash_character( ichr, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
+            if ( HAS_NO_BITS( game_frame_all, SEEKURSEAND ) )
             {
-                retval = gfx_error;
+                if ( gfx_error == flash_character( ichr, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
+                {
+                    retval = gfx_error;
+                }
             }
         }
     }
@@ -6037,7 +5711,7 @@ gfx_rv flash_character( const CHR_REF character, Uint8 value )
 {
     /// @details ZZ@> This function sets a character's lighting
 
-    int        cnt;
+    size_t     cnt;
     float      flash_val = value * INV_FF;
     GLvertex * pv;
 
@@ -6080,7 +5754,7 @@ void gfx_begin_text()
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );                              // GL_ENABLE_BIT
 
     // draw draw front and back faces of polygons
-    GL_DEBUG( glDisable )( GL_CULL_FACE );                               // GL_ENABLE_BIT
+    oglx_end_culling();                               // GL_ENABLE_BIT
 
     GL_DEBUG( glColor4f )( 1, 1, 1, 1 );                                // GL_CURRENT_BIT
 }
@@ -6111,7 +5785,7 @@ void gfx_disable_texturing()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_begin_3d( camera_t * pcam )
+void gfx_begin_3d( const camera_t * pcam )
 {
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
@@ -6139,29 +5813,50 @@ void gfx_end_3d()
 //--------------------------------------------------------------------------------------------
 void gfx_begin_2d( void )
 {
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glLoadIdentity )();                // Reset The Projection Matrix
-    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );     // Set up an orthogonal projection
 
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_SCISSOR_BIT );
+
+    // Reset the Projection Matrix
+    // Set up an orthogonal projection
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPushMatrix )();
     GL_DEBUG( glLoadIdentity )();
+    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
+
+    // Reset the Modelview Matrix
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPushMatrix )();
+    GL_DEBUG( glLoadIdentity )();
+
+    // remove any scissor test
+    GL_DEBUG( glDisable )( GL_SCISSOR_TEST );
 
     // don't worry about hidden surfaces
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );
 
-    // draw draw front and back faces of polygons
-    GL_DEBUG( glDisable )( GL_CULL_FACE );
+    // stop culling backward facing polygons
+    oglx_end_culling();                            // GL_ENABLE_BIT
 }
 
 //--------------------------------------------------------------------------------------------
 void gfx_end_2d( void )
 {
-    // cull backward facing polygons
-    GL_DEBUG( glEnable )( GL_CULL_FACE );
+    // get the old modelview matrix
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
+    GL_DEBUG( glPopMatrix )();
 
-    // do not draw hidden surfaces
-    GL_DEBUG( glEnable )( GL_DEPTH_TEST );
-    GL_DEBUG( glDepthFunc )( GL_LEQUAL );
+    // get the old projection matrix
+    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
+    GL_DEBUG( glPopMatrix )();
+
+    // ATTRIB_POP()
+    // - restores the culling mode
+    // - restores the culling depth-testing mode
+    // - restores the SCISSOR mode
+    ATTRIB_POP( __FUNCTION__ );
+
+    // leave the MatrixMode in GL_MODELVIEW
+    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6179,36 +5874,36 @@ void request_clear_screen()
 //--------------------------------------------------------------------------------------------
 void do_clear_screen()
 {
-    bool_t try_clear;
+    bool_t game_needs_clear, menu_needs_clear;
 
-    try_clear = bfalse;
+    if ( !gfx_page_clear_requested ) return;
+
+    // clear the depth buffer if anything was drawn
+    GL_DEBUG( glDepthMask )( GL_TRUE );
+    GL_DEBUG( glClear )( GL_DEPTH_BUFFER_BIT );
+
+    // does the game need a clear?
+    game_needs_clear = bfalse;
     if ( process_running( PROC_PBASE( GProc ) ) && PROC_PBASE( GProc )->state > proc_begin )
     {
-        try_clear = gfx_page_clear_requested;
-    }
-    else if ( process_running( PROC_PBASE( MProc ) ) && PROC_PBASE( MProc )->state > proc_begin )
-    {
-        try_clear = gfx_page_clear_requested;
+        game_needs_clear = gfx.clearson;
     }
 
-    if ( try_clear )
+    // does the menu need a clear?
+    menu_needs_clear = bfalse;
+    if ( process_running( PROC_PBASE( MProc ) ) && PROC_PBASE( MProc )->state > proc_begin )
     {
-        bool_t game_needs_clear, menu_needs_clear;
+        menu_needs_clear = mnu_draw_background;
+    }
+
+    // if anything needs a clear, do it
+    if ( game_needs_clear || menu_needs_clear )
+    {
+        GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
 
         gfx_page_clear_requested = bfalse;
 
-        // clear the depth buffer no matter what
-        GL_DEBUG( glDepthMask )( GL_TRUE );
-        GL_DEBUG( glClear )( GL_DEPTH_BUFFER_BIT );
-
-        // clear the color buffer only if necessary
-        game_needs_clear = gfx.clearson && process_running( PROC_PBASE( GProc ) );
-        menu_needs_clear = mnu_draw_background && process_running( PROC_PBASE( MProc ) );
-
-        if ( game_needs_clear || menu_needs_clear )
-        {
-            GL_DEBUG( glClear )( GL_COLOR_BUFFER_BIT );
-        }
+        gfx_clear_loops++;
     }
 }
 
@@ -6251,7 +5946,7 @@ bool_t flip_pages_requested()
 //--------------------------------------------------------------------------------------------
 void _flip_pages()
 {
-    GL_DEBUG( glFlush )();
+    //GL_DEBUG( glFlush )();
 
     // draw the console on top of everything
     egoboo_console_draw_all();
@@ -6261,6 +5956,7 @@ void _flip_pages()
     if ( process_running( PROC_PBASE( MProc ) ) )
     {
         menu_fps_loops++;
+        menu_frame_all++;
     }
 
     if ( process_running( PROC_PBASE( GProc ) ) )
@@ -6269,7 +5965,8 @@ void _flip_pages()
         game_frame_all++;
     }
 
-    gfx_update_timers();
+    // update the frames per second
+    gfx_update_fps();
 
     if ( screenshot_requested )
     {
@@ -6287,13 +5984,59 @@ void _flip_pages()
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans( renderlist_t * prlist )
+bool_t light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold )
 {
+    grid_mem_t * pgmem = NULL;
+    bool_t       retval = bfalse;
+
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "no valid mesh" );
+        return gfx_error;
+    }
+    pgmem = &( pmesh->gmem );
+
+    if ( NULL == ptile )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "no valid tile" );
+        return gfx_error;
+    }
+
+#if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
+
+    // visible fans based on the update "need"
+    retval = mesh_test_corners( pmesh, ptile, threshold );
+
+    // update every 4 fans even if there is no need
+    if ( !retval )
+    {
+        int ix, iy;
+
+        // use a kind of checkerboard pattern
+        ix = fan % pgmem->grids_x;
+        iy = fan / pgmem->grids_x;
+        if ( 0 != ((( ix ^ iy ) + game_frame_all ) & 0x03 ) )
+        {
+            retval = btrue;
+        }
+    }
+
+#else
+    retval = btrue;
+#endif
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv light_fans_update_lcache( renderlist_t * prlist )
+{
+    const int frame_skip = 1 << 2;
+    const int frame_mask = frame_skip - 1;
+
     int    entry;
-    Uint8  type;
-    float  light;
-    int    numvertices, vertex, needs_interpolation_count;
     float  local_mesh_lighting_keep;
+
 
     /// @note we are measuring the change in the intensity at the corner of a tile (the "delta") as
     /// a fraction of the current intensity. This is because your eye is much more sensitive to
@@ -6313,16 +6056,16 @@ gfx_rv light_fans( renderlist_t * prlist )
         return gfx_error;
     }
 
-    if ( NULL == prlist->pmesh )
+    pmesh = renderlist_get_pmesh( prlist );
+    if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
         return gfx_error;
     }
-    pmesh = prlist->pmesh;
 
 #if defined(CLIP_ALL_LIGHT_FANS)
-    // update all visible fans once every 4 updates
-    if ( 0 != ( game_frame_all & 0x03 ) ) return gfx_success;
+    // update all visible fans once every 4 frames
+    if ( 0 != ( game_frame_all & frame_mask ) ) return gfx_success;
 #endif
 
     ptmem = &( pmesh->tmem );
@@ -6333,147 +6076,187 @@ gfx_rv light_fans( renderlist_t * prlist )
     local_mesh_lighting_keep = 0.9f;
 #else
     // update only every 4 frames
-    local_mesh_lighting_keep = POW( 0.9f, 4 );
+    local_mesh_lighting_keep = POW( 0.9f, frame_skip );
 #endif
 
     // cache the grid lighting
-    needs_interpolation_count = 0;
     for ( entry = 0; entry < prlist->all_count; entry++ )
     {
-        bool_t needs_update;
+        bool_t reflective;
         int fan;
         float delta;
         ego_tile_info_t * ptile;
+        ego_grid_info_t * pgrid;
 
+        // which tile?
         fan = prlist->all[entry];
-        if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
 
-        ptile = ptmem->tile_list + fan;
+        // grab a pointer to the tile
+        ptile = mesh_get_ptile( pmesh, fan );
+        if ( NULL == ptile ) continue;
 
-#if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
-
-        // visible fans based on the update "need"
-        needs_update = mesh_test_corners( pmesh, fan, delta_threshold );
-
-        // update every 4 fans even if there is no need
-        if ( !needs_update )
+        // Test to see whether the lcache was already updated
+        // - ptile->lcache_frame < 0 means that the cache value is invalid.
+        // - ptile->lcache_frame is updated inside mesh_light_corners()
+#if defined(CLIP_LIGHT_FANS)
+        // clip the updated on each individual tile
+        if ( ptile->lcache_frame >= 0 && ( Uint32 )ptile->lcache_frame + frame_skip >= game_frame_all )
+#else
+        // let the function clip all tile updates
+        if ( ptile->lcache_frame >= 0 && ( Uint32 )ptile->lcache_frame >= game_frame_all )
+#endif
         {
-            int ix, iy;
-
-            // use a kind of checkerboard pattern
-            ix = fan % pgmem->grids_x;
-            iy = fan / pgmem->grids_x;
-            if ( 0 != ((( ix ^ iy ) + game_frame_all ) & 0x03 ) )
-            {
-                needs_update = btrue;
-            }
+            continue;
         }
 
-#else
-        needs_update = btrue;
-#endif
-
-        // does thit tile need a lighting update?
-        ptile->needs_lighting_update = needs_update;
+        // did someone else request an update?
+        if ( !ptile->request_lcache_update )
+        {
+            // is someone else did not request an update, do we need an one?
+            ptile->request_lcache_update = light_fans_throttle_update( pmesh, ptile, fan, delta_threshold );
+        }
 
         // if there's no need for an update, go to the next tile
-        if ( !needs_update ) continue;
+        if ( !ptile->request_lcache_update ) continue;
 
-        delta = mesh_light_corners( prlist->pmesh, fan, local_mesh_lighting_keep );
+        // is the tile reflective?
+        pgrid = mesh_get_pgrid( pmesh, fan );
+        reflective = ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_DRAWREF ) );
+
+        // light the corners of this tile
+        delta = mesh_light_corners( prlist->pmesh, ptile, reflective, local_mesh_lighting_keep );
 
 #if defined(CLIP_LIGHT_FANS)
-        // use the actual measured change in the intensity at the tile edge to
+        // use the actual maximum change in the intensity at a tile corner to
         // signal whether we need to calculate the next stage
-        ptile->needs_lighting_update = ( delta > delta_threshold );
+        ptile->request_clst_update = ( delta > delta_threshold );
+#else
+        // make sure that mesh_light_corners() did not return an "error value"
+        ptile->request_clst_update = ( delta > 0.0f );
 #endif
-
-        // optimize the use of the second loop
-        if ( ptile->needs_lighting_update )
-        {
-            numvertices = tile_dict[ptile->type].numvertices;
-
-            if ( numvertices <= 4 )
-            {
-                int ivrt;
-
-                vertex = ptile->vrtstart;
-
-                // the second loop is not needed at all
-                for ( ivrt = 0; ivrt < numvertices; ivrt++, vertex++ )
-                {
-                    light = ptile->lcache[ivrt];
-
-                    light = CLIP( light, 0.0f, 255.0f );
-                    ptmem->clst[vertex][RR] =
-                        ptmem->clst[vertex][GG] =
-                            ptmem->clst[vertex][BB] = light * INV_FF;
-                };
-
-                // clear out the deltas
-                memset( ptile->d1_cache, 0, sizeof( ptile->d1_cache ) );
-                memset( ptile->d2_cache, 0, sizeof( ptile->d2_cache ) );
-
-                // everything has been handled. no need to do this in another loop.
-                ptile->needs_lighting_update = bfalse;
-            }
-            else
-            {
-                // the clst cannot be updated at this time. defer it to the next loop.
-                needs_interpolation_count++;
-            }
-        }
     }
 
-    // can we avoid this whole loop?
-    if ( needs_interpolation_count > 0 )
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv light_fans_update_clst( renderlist_t * prlist )
+{
+    /// @details BB@> update the tile's color list, if needed
+
+    gfx_rv retval;
+    int numvertices;
+    int ivrt, vertex;
+    float light;
+    int    entry;
+    Uint32 fan;
+
+    ego_tile_info_t * ptile = NULL;
+    ego_mpd_t       * pmesh = NULL;
+    tile_mem_t      * ptmem = NULL;
+
+    if ( NULL == prlist )
     {
-        // use the grid to light the tiles
-        for ( entry = 0; entry < prlist->all_count; entry++ )
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    pmesh = renderlist_get_pmesh( prlist );
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
+        return gfx_error;
+    }
+
+    // alias the tile memory
+    ptmem = &( pmesh->tmem );
+
+    // assume the best
+    retval = gfx_success;
+
+    // use the grid to light the tiles
+    for ( entry = 0; entry < prlist->all_count; entry++ )
+    {
+        fan = prlist->all[entry];
+        if ( INVALID_TILE == fan ) continue;
+
+        // valid tile?
+        ptile = mesh_get_ptile( pmesh, fan );
+        if ( NULL == ptile )
         {
-            int ivrt;
-            Uint32 fan;
-            ego_tile_info_t * ptile;
-
-            fan = prlist->all[entry];
-            if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
-
-            ptile = ptmem->tile_list + fan;
-
-            if ( !ptile->needs_lighting_update ) continue;
-
-            type        = ptile->type;
-            numvertices = tile_dict[type].numvertices;
-            vertex      = ptile->vrtstart;
-
-            // copy the 1st 4 vertices
-            for ( ivrt = 0; ivrt < 4; ivrt++, vertex++ )
-            {
-                light = ptile->lcache[ivrt];
-
-                light = CLIP( light, 0.0f, 255.0f );
-                ptmem->clst[vertex][RR] =
-                    ptmem->clst[vertex][GG] =
-                        ptmem->clst[vertex][BB] = light * INV_FF;
-            };
-
-            for ( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
-            {
-                light = 0;
-                mesh_interpolate_vertex( ptmem, fan, ptmem->plst[vertex], &light );
-
-                light = CLIP( light, 0.0f, 255.0f );
-                ptmem->clst[vertex][RR] =
-                    ptmem->clst[vertex][GG] =
-                        ptmem->clst[vertex][BB] = light * INV_FF;
-            };
-
-            // clear out the deltas
-            memset( ptile->d1_cache, 0, sizeof( ptile->d1_cache ) );
-            memset( ptile->d2_cache, 0, sizeof( ptile->d2_cache ) );
-
-            // untag this tile
-            ptile->needs_lighting_update = bfalse;
+            retval = gfx_fail;
+            continue;
         }
+
+        // do nothing if this tile has not been marked as needing an update
+        if ( !ptile->request_clst_update )
+        {
+            continue;
+        }
+
+        // do nothing if the color list has already been computed this update
+        if ( ptile->clst_frame  >= 0 && ( Uint32 )ptile->clst_frame >= game_frame_all )
+        {
+            continue;
+        }
+
+        if ( ptile->type < MPD_FAN_TYPE_MAX )
+        {
+            numvertices = tile_dict[ptile->type].numvertices;
+        }
+        else
+        {
+            numvertices = 4;
+        }
+
+        // copy the 1st 4 vertices
+        for ( ivrt = 0, vertex = ptile->vrtstart; ivrt < 4; ivrt++, vertex++ )
+        {
+            GLXvector3f * pcol = ptmem->clst + vertex;
+
+            light = ptile->lcache[ivrt];
+
+            ( *pcol )[RR] = ( *pcol )[GG] = ( *pcol )[BB] = INV_FF * CLIP( light, 0.0f, 255.0f );
+        };
+
+        for ( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
+        {
+            bool_t was_calculated;
+            GLXvector3f * pcol, * ppos;
+
+            pcol = ptmem->clst + vertex;
+            ppos = ptmem->plst + vertex;
+
+            light = 0;
+            was_calculated = mesh_interpolate_vertex( ptmem, ptile, *ppos, &light );
+            if ( !was_calculated ) continue;
+
+            ( *pcol )[RR] = ( *pcol )[GG] = ( *pcol )[BB] = INV_FF * CLIP( light, 0.0f, 255.0f );
+        };
+
+        // clear out the deltas
+        BLANK_ARY( ptile->d1_cache );
+        BLANK_ARY( ptile->d2_cache );
+
+        // untag this tile
+        ptile->request_clst_update = bfalse;
+        ptile->clst_frame          = game_frame_all;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv light_fans( renderlist_t * prlist )
+{
+    if ( gfx_error == light_fans_update_lcache( prlist ) )
+    {
+        return gfx_error;
+    }
+
+    if ( gfx_error == light_fans_update_clst( prlist ) )
+    {
+        return gfx_error;
     }
 
     return gfx_success;
@@ -6515,7 +6298,7 @@ float get_ambient_level()
         min_amb *= local_stats.seedark_mag;
     }
 
-    return MAX( glob_amb, min_amb );
+    return 255; // MAX( glob_amb, min_amb );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6551,20 +6334,20 @@ bool_t sum_global_lighting( lighting_vector_t lighting )
 //--------------------------------------------------------------------------------------------
 void draw_cursor()
 {
-    /// ZZ@> This function implements a mouse cursor
+    /// ZZ@> This function implements a mouse input_cursor
 
-    oglx_texture_t * tx_ptr = TxTexture_get_ptr(( TX_REF )TX_FONT );
+    oglx_texture_t * tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_FONT );
 
-    if ( cursor.x < 6 )  cursor.x = 6;
-    if ( cursor.x > sdl_scr.x - 16 )  cursor.x = sdl_scr.x - 16;
+    if ( input_cursor.x < 6 )  input_cursor.x = 6;
+    if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;
 
-    if ( cursor.y < 8 )  cursor.y = 8;
-    if ( cursor.y > sdl_scr.y - 24 )  cursor.y = sdl_scr.y - 24;
+    if ( input_cursor.y < 8 )  input_cursor.y = 8;
+    if ( input_cursor.y > sdl_scr.y - 24 )  input_cursor.y = sdl_scr.y - 24;
 
     // Needed to setup text mode
     gfx_begin_text();
     {
-        draw_one_font( tx_ptr, 95, cursor.x - 5, cursor.y - 7 );
+        draw_one_font( tx_ptr, 95, input_cursor.x - 5, input_cursor.y - 7 );
     }
     // Needed when done with text mode
     gfx_end_text();
@@ -6586,12 +6369,12 @@ gfx_rv dynalist_init( dynalist_t * pdylist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
+gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
 {
     /// @details ZZ@> This function figures out which particles are visible, and it sets up dynamic
     ///    lighting
 
-    int      tnc;
+    size_t   tnc;
     fvec3_t  vdist;
 
     float         distance   = 0.0f;
@@ -6600,10 +6383,17 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
     float         distance_max = 0.0f;
     dynalight_t * plight_max   = NULL;
 
+    // make sure we have a dynalist
     if ( NULL == pdylist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dynalist" );
         return gfx_error;
+    }
+
+    // do not update the dynalist more than once a frame
+    if ( pdylist->frame >= 0 && ( Uint32 )pdylist->frame >= game_frame_all )
+    {
+        return gfx_success;
     }
 
     // Don't really make a list, just set to visible or not
@@ -6620,7 +6410,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
         plight = NULL;
 
         // find the distance to the camera
-        vdist = fvec3_sub( prt_get_pos_v( prt_bdl.prt_ptr ), pcam->track_pos.v );
+        fvec3_sub( vdist.v, prt_get_pos_v( prt_bdl.prt_ptr ), pcam->track_pos.v );
         distance = vdist.x * vdist.x + vdist.y * vdist.y + vdist.z * vdist.z;
 
         // insert the dynalight
@@ -6671,15 +6461,20 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, camera_t * pcam )
     }
     PRT_END_LOOP();
 
+    // the list is updated, so update the frame count
+    pdylist->frame = game_frame_all;
+
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t * pcam )
+gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const camera_t * pcam )
 {
     /// @details ZZ@> Do all tile lighting, dynamic and global
 
-    int   cnt, tnc, fan, entry;
+    size_t cnt;
+    Uint32 fan;
+    int    tnc, entry;
     int ix, iy;
     float x0, y0, local_keep;
     bool_t needs_dynalight;
@@ -6687,7 +6482,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
 
     lighting_vector_t global_lighting;
 
-    int                  reg_count;
+    size_t               reg_count = 0;
     dynalight_registry_t reg[TOTAL_MAX_DYNA];
 
     ego_frect_t mesh_bound, light_bound;
@@ -6695,7 +6490,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
     ego_mpd_info_t  * pinfo;
     grid_mem_t      * pgmem;
     tile_mem_t      * ptmem;
-    ego_grid_info_t * glist;
+    oct_bb_t        * poct;
 
     dynalight_t fake_dynalight;
 
@@ -6705,25 +6500,22 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
         return gfx_error;
     }
 
-    if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
         return gfx_error;
     }
 
-    if ( NULL == prlist->pmesh )
+    pmesh = renderlist_get_pmesh( prlist );
+    if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
         return gfx_error;
     }
-    pmesh = prlist->pmesh;
 
     pinfo = &( pmesh->info );
     pgmem = &( pmesh->gmem );
     ptmem = &( pmesh->tmem );
-
-    glist = pgmem->grid_list;
 
     // find a bounding box for the "frustum"
     mesh_bound.xmin = pgmem->edge_x;
@@ -6733,18 +6525,14 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
     for ( entry = 0; entry < prlist->all_count; entry++ )
     {
         fan = prlist->all[entry];
-        if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
+        if ( fan >= pinfo->tiles_count ) continue;
 
-        ix = fan % pinfo->tiles_x;
-        iy = fan / pinfo->tiles_x;
+        poct = &( ptmem->tile_list[fan].oct );
 
-        x0 = ix * GRID_FSIZE;
-        y0 = iy * GRID_FSIZE;
-
-        mesh_bound.xmin = MIN( mesh_bound.xmin, x0 - GRID_FSIZE / 2 );
-        mesh_bound.xmax = MAX( mesh_bound.xmax, x0 + GRID_FSIZE / 2 );
-        mesh_bound.ymin = MIN( mesh_bound.ymin, y0 - GRID_FSIZE / 2 );
-        mesh_bound.ymax = MAX( mesh_bound.ymax, y0 + GRID_FSIZE / 2 );
+        mesh_bound.xmin = MIN( mesh_bound.xmin, poct->mins[OCT_X] );
+        mesh_bound.xmax = MAX( mesh_bound.xmax, poct->maxs[OCT_X] );
+        mesh_bound.ymin = MIN( mesh_bound.ymin, poct->mins[OCT_Y] );
+        mesh_bound.ymax = MAX( mesh_bound.ymax, poct->maxs[OCT_Y] );
     }
 
     // is the visible mesh list empty?
@@ -6760,8 +6548,8 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
     // assume no dynamic lighting
     needs_dynalight = bfalse;
 
-    // assume no "extra halp" for systems with only flat lighting
-    memset( &fake_dynalight, 0, sizeof( fake_dynalight ) );
+    // assume no "extra help" for systems with only flat lighting
+    BLANK_STRUCT( fake_dynalight )
 
     // initialize the light_bound
     light_bound.xmin = pgmem->edge_x;
@@ -6790,18 +6578,17 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
             ftmp.ymax = MIN( pdyna->pos.y + radius, mesh_bound.ymax );
 
             // check to see if it intersects the "frustum"
-            if ( ftmp.xmin < ftmp.xmax && ftmp.ymin < ftmp.ymax )
-            {
-                reg[reg_count].bound     = ftmp;
-                reg[reg_count].reference = cnt;
-                reg_count++;
+            if ( ftmp.xmin >= ftmp.xmax || ftmp.ymin >= ftmp.ymax ) continue;
 
-                // determine the maxumum bounding box that encloses all valid lights
-                light_bound.xmin = MIN( light_bound.xmin, ftmp.xmin );
-                light_bound.xmax = MAX( light_bound.xmax, ftmp.xmax );
-                light_bound.ymin = MIN( light_bound.ymin, ftmp.ymin );
-                light_bound.ymax = MAX( light_bound.ymax, ftmp.ymax );
-            }
+            reg[reg_count].bound     = ftmp;
+            reg[reg_count].reference = cnt;
+            reg_count++;
+
+            // determine the maxumum bounding box that encloses all valid lights
+            light_bound.xmin = MIN( light_bound.xmin, ftmp.xmin );
+            light_bound.xmax = MAX( light_bound.xmax, ftmp.xmax );
+            light_bound.ymin = MIN( light_bound.ymin, ftmp.ymin );
+            light_bound.ymax = MAX( light_bound.ymax, ftmp.ymax );
         }
 
         // are there any dynalights visible?
@@ -6869,7 +6656,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
             reg[reg_count].reference = -1;
             reg_count++;
 
-            // leth the downstream calc know we are coming
+            // let the downstream calc know we are coming
             needs_dynalight = btrue;
         }
     }
@@ -6885,9 +6672,20 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
     {
         bool_t resist_lighting_calculation = btrue;
 
+        int                dynalight_count = 0;
+        ego_grid_info_t  * pgrid = NULL;
+        lighting_cache_t * pcache_old = NULL;
+        lighting_cache_t   cache_new;
+
         // grab each grid box in the "frustum"
         fan = prlist->all[entry];
-        if ( !mesh_grid_is_valid( pmesh, fan ) ) continue;
+
+        // a valid tile?
+        pgrid = mesh_get_pgrid( pmesh, fan );
+        if ( NULL == pgrid ) continue;
+
+        // do not update this more than once a frame
+        if ( pgrid->cache_frame >= 0 && ( Uint32 )pgrid->cache_frame >= game_frame_all ) continue;
 
         ix = fan % pinfo->tiles_x;
         iy = fan / pinfo->tiles_x;
@@ -6897,92 +6695,88 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, camera_t *
         // not every light-tile calculation is done every single frame
         resist_lighting_calculation = ( 0 != ((( ix + iy ) ^ game_frame_all ) & 0x03 ) );
 
-        if ( !resist_lighting_calculation )
+        if ( resist_lighting_calculation ) continue;
+
+        // this is not a "bad" grid box, so grab the lighting info
+        pcache_old = &( pgrid->cache );
+
+        lighting_cache_init( &cache_new );
+
+        // copy the global lighting
+        for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
         {
-            lighting_cache_t * pcache_old;
-            lighting_cache_t   cache_new;
+            cache_new.low.lighting[tnc] = global_lighting[tnc];
+            cache_new.hgh.lighting[tnc] = global_lighting[tnc];
+        };
 
-            int dynalight_count = 0;
+        // do we need any dynamic lighting at all?
+        if ( needs_dynalight )
+        {
+            // calculate the local lighting
 
-            // this is not a "bad" grid box, so grab the lighting info
-            pcache_old = &( glist[fan].cache );
+            ego_frect_t fgrid_rect;
 
-            lighting_cache_init( &cache_new );
+            x0 = ix * GRID_FSIZE;
+            y0 = iy * GRID_FSIZE;
 
-            // copy the global lighting
-            for ( tnc = 0; tnc < LIGHTING_VEC_SIZE; tnc++ )
+            // check this grid vertex relative to the measured light_bound
+            fgrid_rect.xmin = x0 - GRID_FSIZE * 0.5f;
+            fgrid_rect.xmax = x0 + GRID_FSIZE * 0.5f;
+            fgrid_rect.ymin = y0 - GRID_FSIZE * 0.5f;
+            fgrid_rect.ymax = y0 + GRID_FSIZE * 0.5f;
+
+            // check the bounding box of this grid vs. the bounding box of the lighting
+            if ( fgrid_rect.xmin <= light_bound.xmax && fgrid_rect.xmax >= light_bound.xmin )
             {
-                cache_new.low.lighting[tnc] = global_lighting[tnc];
-                cache_new.hgh.lighting[tnc] = global_lighting[tnc];
-            };
-
-            // do we need any dynamic lighting at all?
-            if ( needs_dynalight )
-            {
-                // calculate the local lighting
-
-                ego_frect_t fgrid_rect;
-
-                x0 = ix * GRID_FSIZE;
-                y0 = iy * GRID_FSIZE;
-
-                // check this grid vertex relative to the measured light_bound
-                fgrid_rect.xmin = x0 - GRID_FSIZE / 2;
-                fgrid_rect.xmax = x0 + GRID_FSIZE / 2;
-                fgrid_rect.ymin = y0 - GRID_FSIZE / 2;
-                fgrid_rect.ymax = y0 + GRID_FSIZE / 2;
-
-                // check the bounding box of this grid vs. the bounding box of the lighting
-                if ( fgrid_rect.xmin <= light_bound.xmax && fgrid_rect.xmax >= light_bound.xmin )
+                if ( fgrid_rect.ymin <= light_bound.ymax && fgrid_rect.ymax >= light_bound.ymin )
                 {
-                    if ( fgrid_rect.ymin <= light_bound.ymax && fgrid_rect.ymax >= light_bound.ymin )
+                    // this grid has dynamic lighting. add it.
+                    for ( cnt = 0; cnt < reg_count; cnt++ )
                     {
-                        // this grid has dynamic lighting. add it.
-                        for ( cnt = 0; cnt < reg_count; cnt++ )
+                        fvec3_t       nrm;
+                        dynalight_t * pdyna;
+
+                        // does this dynamic light intersects this grid?
+                        if ( fgrid_rect.xmin > reg[cnt].bound.xmax || fgrid_rect.xmax < reg[cnt].bound.xmin ) continue;
+                        if ( fgrid_rect.ymin > reg[cnt].bound.ymax || fgrid_rect.ymax < reg[cnt].bound.ymin ) continue;
+
+                        dynalight_count++;
+
+                        // this should be a valid intersection, so proceed
+                        tnc = reg[cnt].reference;
+                        if ( tnc < 0 )
                         {
-                            fvec3_t       nrm;
-                            dynalight_t * pdyna;
-
-                            // does this dynamic light intersects this grid?
-                            if ( fgrid_rect.xmin > reg[cnt].bound.xmax || fgrid_rect.xmax < reg[cnt].bound.xmin ) continue;
-                            if ( fgrid_rect.ymin > reg[cnt].bound.ymax || fgrid_rect.ymax < reg[cnt].bound.ymin ) continue;
-
-                            dynalight_count++;
-
-                            // this should be a valid intersection, so proceed
-                            tnc = reg[cnt].reference;
-                            if ( tnc < 0 )
-                            {
-                                pdyna = &fake_dynalight;
-                            }
-                            else
-                            {
-                                pdyna = pdylist->lst + tnc;
-                            }
-
-                            nrm.x = pdyna->pos.x - x0;
-                            nrm.y = pdyna->pos.y - y0;
-                            nrm.z = pdyna->pos.z - ptmem->bbox.mins[ZZ];
-                            sum_dyna_lighting( pdyna, cache_new.low.lighting, nrm.v );
-
-                            nrm.z = pdyna->pos.z - ptmem->bbox.maxs[ZZ];
-                            sum_dyna_lighting( pdyna, cache_new.hgh.lighting, nrm.v );
+                            pdyna = &fake_dynalight;
                         }
+                        else
+                        {
+                            pdyna = pdylist->lst + tnc;
+                        }
+
+                        nrm.x = pdyna->pos.x - x0;
+                        nrm.y = pdyna->pos.y - y0;
+                        nrm.z = pdyna->pos.z - ptmem->bbox.mins[ZZ];
+                        sum_dyna_lighting( pdyna, cache_new.low.lighting, nrm.v );
+
+                        nrm.z = pdyna->pos.z - ptmem->bbox.maxs[ZZ];
+                        sum_dyna_lighting( pdyna, cache_new.hgh.lighting, nrm.v );
                     }
                 }
             }
-            else if ( GL_FLAT == gfx.shading )
-            {
-                // evaluate the intensity at the camera
-            }
-
-            // blend in the global lighting every single time
-            // average this in with the existing lighting
-            lighting_cache_blend( pcache_old, &cache_new, local_keep );
-
-            // find the max intensity
-            lighting_cache_max_light( pcache_old );
         }
+        else if ( GL_FLAT == gfx.shading )
+        {
+            // evaluate the intensity at the camera
+        }
+
+        // blend in the global lighting every single time
+        // average this in with the existing lighting
+        lighting_cache_blend( pcache_old, &cache_new, local_keep );
+
+        // find the max intensity
+        lighting_cache_max_light( pcache_old );
+
+        pgrid->cache_frame = game_frame_all;
     }
 
     return gfx_success;
@@ -7097,3 +6891,1811 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
     }
     ATTRIB_POP( __FUNCTION__ );
 }
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile )
+{
+    if ( NULL == ptile )
+    {
+        return gfx_fail;
+    }
+
+    // Flag the tile as in the renderlist
+    ptile->inrenderlist = btrue;
+
+    // if the tile was not in the renderlist last frame, then we need to force a lighting update of this tile
+    if ( ptile->inrenderlist_frame < 0 )
+    {
+        ptile->request_lcache_update = btrue;
+        ptile->lcache_frame        = -1;
+    }
+    else
+    {
+        Uint32 last_frame = ( game_frame_all > 0 ) ? game_frame_all - 1 : 0;
+
+        if (( Uint32 ) ptile->inrenderlist_frame < last_frame )
+        {
+            ptile->request_lcache_update = btrue;
+        }
+    }
+
+    // make sure to cache the frame number of this update
+    ptile->inrenderlist_frame = game_frame_all;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_make_renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst )
+{
+    int j;
+    BSP_leaf_t * pleaf;
+    ego_mpd_t  * pmesh  = NULL;
+    gfx_rv       retval = gfx_error;
+
+    if ( NULL == prlist || NULL == pcolst )
+    {
+        return gfx_error;
+    }
+
+    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
+    {
+        return gfx_fail;
+    }
+
+    pmesh = renderlist_get_pmesh( prlist );
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist is not attached to a mesh" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    // transfer valid pcolst entries to the renderlist
+    for ( j = 0; j < pcolst->top; j++ )
+    {
+        pleaf = pcolst->ary[j];
+        if ( NULL == pleaf ) continue;
+
+        if ( BSP_LEAF_TILE == pleaf->data_type )
+        {
+            Uint32 ifan;
+            ego_tile_info_t * ptile;
+            ego_grid_info_t * pgrid;
+
+            // collided with a character
+            ifan = ( Uint32 )( pleaf->index );
+
+            ptile = mesh_get_ptile( pmesh, ifan );
+            if ( NULL == ptile ) continue;
+
+            pgrid = mesh_get_pgrid( pmesh, ifan );
+            if ( NULL == pgrid ) continue;
+
+            if ( gfx_error == gfx_capture_mesh_tile( ptile ) )
+            {
+                retval = gfx_error;
+                break;
+            }
+
+            if ( gfx_error == renderlist_insert( prlist, pgrid, ifan ) )
+            {
+                retval = gfx_error;
+                break;
+            }
+        }
+        else
+        {
+            // how did we get here?
+            log_warning( "%s-%s-%d- found non-tile in the mpd BSP\n", __FILE__, __FUNCTION__, __LINE__ );
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
+{
+    gfx_rv      retval;
+    bool_t      local_allocation;
+
+    // Make sure there is a renderlist
+    if ( NULL == prlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // make sure that we have a valid camera
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
+    // because the main loop of the program will always flip the
+    // page before rendering the 1st frame of the actual game,
+    // game_frame_all will always start at 1
+    if ( 1 != ( game_frame_all & 3 ) )
+    {
+        return gfx_success;
+    }
+
+    // reset the renderlist
+    if ( gfx_error == renderlist_reset( prlist ) )
+    {
+        return gfx_error;
+    }
+
+    // has the colst been allocated?
+    local_allocation = bfalse;
+    if ( 0 == BSP_leaf_pary_get_size( &_renderlist_colst ) )
+    {
+        // allocate a BSP_leaf_pary to return the detected nodes
+        local_allocation = btrue;
+        if ( NULL == BSP_leaf_pary_ctor( &_renderlist_colst, MAXMESHRENDER ) )
+        {
+            gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list" );
+            return gfx_error;
+        }
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    // get the tiles in the center of the view
+    _renderlist_colst.top = 0;
+    mpd_BSP_collide_frustum( &( mpd_BSP_root ), &( pcam->frustum_big ), NULL, &_renderlist_colst );
+
+    // transfer valid _renderlist_colst entries to the dolist
+    if ( gfx_error == gfx_make_renderlist_add_colst( prlist, &_renderlist_colst ) )
+    {
+        retval = gfx_error;
+        goto gfx_make_renderlist_exit;
+    }
+
+gfx_make_renderlist_exit:
+
+    // if there was a local allocation, make sure to deallocate
+    if ( local_allocation )
+    {
+        BSP_leaf_pary_dtor( &_renderlist_colst );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+// renderlist implementation
+//--------------------------------------------------------------------------------------------
+
+renderlist_t * renderlist_init( renderlist_t * plst, ego_mpd_t * pmesh )
+{
+    if ( NULL == plst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist initializer" );
+        return NULL;
+    }
+
+    BLANK_STRUCT_PTR( plst )
+
+    // init the 1st element of the array
+    plst->all[0] = INVALID_TILE;
+    plst->ref[0] = INVALID_TILE;
+    plst->sha[0] = INVALID_TILE;
+    plst->drf[0] = INVALID_TILE;
+    plst->ndr[0] = INVALID_TILE;
+    plst->wat[0] = INVALID_TILE;
+
+    plst->pmesh = pmesh;
+
+    return plst;
+};
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_reset( renderlist_t * plst )
+{
+    /// @details BB@> Clear old render lists
+
+    ego_mpd_t * pmesh;
+    ego_tile_info_t * tlist;
+    int cnt;
+
+    if ( NULL == plst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    pmesh = renderlist_get_pmesh( plst );
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist does not contain a mesh" );
+        return gfx_error;
+    }
+
+    // clear out the inrenderlist flag for the old mesh
+    tlist = pmesh->tmem.tile_list;
+
+    for ( cnt = 0; cnt < plst->all_count; cnt++ )
+    {
+        Uint32 fan = plst->all[cnt];
+        if ( fan < pmesh->info.tiles_count )
+        {
+            tlist[fan].inrenderlist       = bfalse;
+            tlist[fan].inrenderlist_frame = 0;
+        }
+    }
+
+    // re-initialize the renderlist
+    renderlist_init( plst, plst->pmesh );
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, const Uint32 index )
+{
+    // Make sure it doesn't die ugly
+    if ( NULL == plst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // check for a valid tile
+    if ( NULL == pgrid || INVALID_TILE == index ) return gfx_fail;
+
+    // we can only accept so many tiles
+    if ( plst->all_count >= MAXMESHRENDER ) return gfx_fail;
+
+    // Put each tile in basic list
+    plst->all[plst->all_count] = index;
+    plst->all_count++;
+
+    // Put each tile in one other list, for shadows and relections
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_SHA ) )
+    {
+        plst->sha[plst->sha_count] = index;
+        plst->sha_count++;
+    }
+    else
+    {
+        plst->ref[plst->ref_count] = index;
+        plst->ref_count++;
+    }
+
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_DRAWREF ) )
+    {
+        plst->drf[plst->drf_count] = index;
+        plst->drf_count++;
+    }
+    else
+    {
+        plst->ndr[plst->ndr_count] = index;
+        plst->ndr_count++;
+    }
+
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_WATER ) )
+    {
+        plst->wat[plst->wat_count] = index;
+        plst->wat_count++;
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+ego_mpd_t * renderlist_get_pmesh( const renderlist_t * ptr )
+{
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return NULL;
+    }
+
+    return ptr->pmesh;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh )
+{
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    ptr->pmesh = pmesh;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+// renderlist array implementation
+//--------------------------------------------------------------------------------------------
+renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
+        return NULL;
+    }
+
+    if ( ptr->started ) return ptr;
+
+    for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = cnt;
+        renderlist_init( ptr->lst + cnt, NULL );
+    }
+    ptr->free_count = MAX_RENDER_LISTS;
+
+    ptr->started = btrue;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
+        return NULL;
+    }
+
+    if ( !ptr->started ) return ptr;
+
+    ptr->free_count = 0;
+    for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = -1;
+        renderlist_init( ptr->lst + cnt, NULL );
+    }
+
+    ptr->started = bfalse;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+// renderlist manager implementation
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_mgr_begin( renderlist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist manager" );
+        return gfx_error;
+    }
+
+    if ( pmgr->started ) return gfx_success;
+
+    renderlist_ary_begin( &( pmgr->ary ) );
+
+    pmgr->started = btrue;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_mgr_end( renderlist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist manager" );
+        return gfx_error;
+    }
+
+    if ( !pmgr->started ) return gfx_success;
+
+    renderlist_ary_end( &( pmgr->ary ) );
+
+    // the manager is no longer running
+    pmgr->started = bfalse;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+int renderlist_mgr_get_free_index( renderlist_mgr_t * pmgr )
+{
+    int retval = -1;
+
+    // renderlist manager started?
+    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    {
+        return -1;
+    }
+
+    if ( pmgr->ary.free_count <= 0 ) return -1;
+
+    // resduce the count
+    pmgr->ary.free_count--;
+
+    // grab the index
+    retval = pmgr->ary.free_count;
+
+    // blank the free list
+    if ( retval >= 0 && retval < MAX_RENDER_LISTS )
+    {
+        pmgr->ary.free_lst[ retval ] = -1;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_mgr_free_one( renderlist_mgr_t * pmgr, int index )
+{
+    size_t cnt;
+    gfx_rv retval = gfx_error;
+
+    // renderlist manager started?
+    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    {
+        return gfx_error;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_RENDER_LISTS ) return gfx_error;
+
+    // is the index already freed?
+    for ( cnt = 0; cnt < pmgr->ary.free_count; cnt++ )
+    {
+        if ( index == pmgr->ary.free_lst[cnt] )
+        {
+            return gfx_fail;
+        }
+    }
+
+    // push it on the list
+    retval = gfx_fail;
+    if ( pmgr->ary.free_count < MAX_RENDER_LISTS )
+    {
+        pmgr->ary.free_lst[pmgr->ary.free_count] = index;
+        pmgr->ary.free_count++;
+        retval = gfx_success;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, int index )
+{
+    // renderlist manager started?
+    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    {
+        return NULL;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_RENDER_LISTS )
+    {
+        return NULL;
+    }
+
+    return pmgr->ary.lst + index;
+}
+
+//--------------------------------------------------------------------------------------------
+// dolist implementation
+//--------------------------------------------------------------------------------------------
+dolist_t * dolist_init( dolist_t * plist, const int index )
+{
+    if ( NULL == plist ) return NULL;
+
+    BLANK_STRUCT_PTR( plist )
+
+    obj_registry_entity_init( plist->lst + 0 );
+
+    // give the dolist a "name"
+    plist->index = index;
+
+    return plist;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_reset( dolist_t * plist, const int index )
+{
+    int cnt, entries;
+
+    if ( NULL == plist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( plist->index < 0 || plist->index >= MAX_DO_LISTS )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist index" );
+        return gfx_error;
+    }
+
+    // if there is nothing in the dolist, we are done
+    if ( 0 == plist->count )
+    {
+        return gfx_success;
+    }
+
+    entries = MIN( plist->count, DOLIST_SIZE );
+    for ( cnt = 0; cnt < entries; cnt++ )
+    {
+        obj_registry_entity_t * pent = plist->lst + cnt;
+
+        // tell all valid objects that they are removed from this dolist
+        if ( MAX_CHR == pent->ichr && VALID_PRT_RANGE( pent->iprt ) )
+        {
+            PrtList.lst[pent->iprt].inst.indolist = bfalse;
+        }
+        else if ( MAX_PRT == pent->iprt && VALID_CHR_RANGE( pent->ichr ) )
+        {
+            ChrList.lst[pent->ichr].inst.indolist = bfalse;
+        }
+    }
+    plist->count = 0;
+
+    // reset the dolist
+    dolist_init( plist, index );
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t dolist_test_chr( dolist_t * pdlist, chr_t * pchr )
+{
+    if ( NULL == pdlist )
+    {
+        return bfalse;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        return bfalse;
+    }
+
+    if ( !INGAME_PCHR( pchr ) )
+    {
+        return bfalse;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
+{
+    /// ZZ@> This function puts a character in the list
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist pointer" );
+        return gfx_error;
+    }
+
+    if ( NULL == pchr )
+    {
+        return gfx_fail;
+    }
+
+    //// don't do anything if it's already in the list
+    //if ( pchr->inst.indolist[pdlist->index] )
+    //{
+    //    return gfx_success;
+    //}
+
+    // don't add if it is hidden
+    if ( pchr->is_hidden )
+    {
+        return gfx_fail;
+    }
+
+    // don't add if it's in another character's inventory
+    if ( INGAME_CHR( pchr->inwhich_inventory ) )
+    {
+        return gfx_fail;
+    }
+
+    // fix the dolist
+    pdlist->lst[pdlist->count].ichr = GET_REF_PCHR( pchr );
+    pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
+    pdlist->count++;
+
+    // fix the instance
+    pchr->inst.indolist = btrue;
+
+    // Add any weapons
+    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_LEFT] ) );
+    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_RIGHT] ) );
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t dolist_test_prt( dolist_t * pdlist, prt_t * pprt )
+{
+    if ( NULL == pdlist )
+    {
+        return bfalse;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        return bfalse;
+    }
+
+    if ( !DISPLAY_PPRT( pprt ) )
+    {
+        return bfalse;
+    }
+
+    if ( pprt->is_hidden || 0 == pprt->size )
+    {
+        return bfalse;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
+{
+    /// ZZ@> This function puts a character in the list
+
+    //if ( pprt->inst.indolist[pdlist->index] )
+    //{
+    //    return gfx_success;
+    //}
+
+    pdlist->lst[pdlist->count].ichr = ( CHR_REF )MAX_CHR;
+    pdlist->lst[pdlist->count].iprt = GET_REF_PPRT( pprt );
+    pdlist->count++;
+
+    pprt->inst.indolist = btrue;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_make_dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
+{
+    BSP_leaf_t * pleaf;
+    int j;
+    gfx_rv retval;
+
+    if ( NULL == pdlist || NULL == pcolst )
+    {
+        return gfx_error;
+    }
+
+    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
+    {
+        return gfx_fail;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    for ( j = 0; j < pcolst->top; j++ )
+    {
+        pleaf = pcolst->ary[j];
+        if ( NULL == pleaf ) continue;
+
+        if ( BSP_LEAF_CHR == pleaf->data_type )
+        {
+            CHR_REF ichr;
+            chr_t * pchr;
+
+            // collided with a character
+            ichr = ( CHR_REF )( pleaf->index );
+
+            // is it in the array?
+            if ( !VALID_CHR_RANGE( ichr ) ) continue;
+            pchr = ChrList_get_ptr( ichr );
+
+            // do some more obvious tests before testing the frustum
+            if ( dolist_test_chr( pdlist, pchr ) )
+            {
+                // Add the character
+                if ( gfx_error == dolist_add_chr_raw( pdlist, pchr ) )
+                {
+                    retval = gfx_error;
+                    break;
+                }
+            }
+        }
+        else if ( BSP_LEAF_PRT == pleaf->data_type )
+        {
+            PRT_REF iprt;
+            prt_t * pprt;
+
+            // collided with a particle
+            iprt = ( PRT_REF )( pleaf->index );
+
+            // is it in the array?
+            if ( !VALID_PRT_RANGE( iprt ) ) continue;
+            pprt = PrtList_get_ptr( iprt );
+
+            // do some more obvious tests before testing the frustum
+            if ( dolist_test_prt( pdlist, pprt ) )
+            {
+                // Add the particle
+                if ( gfx_error == dolist_add_prt_raw( pdlist, pprt ) )
+                {
+                    retval = gfx_error;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // how did we get here?
+            log_warning( "%s-%s-%d- found unknown type in a dolist BSP\n", __FILE__, __FUNCTION__, __LINE__ );
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
+{
+    /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
+
+    gfx_rv retval;
+    bool_t local_allocation;
+
+    // assume the best
+    retval = gfx_success;
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    // Remove everyone from the dolist
+    dolist_reset( pdlist, pdlist->index );
+
+    // has the colst been allocated?
+    local_allocation = bfalse;
+    if ( 0 == BSP_leaf_pary_get_size( &_dolist_colst ) )
+    {
+        // allocate a BSP_leaf_pary to return the detected nodes
+        local_allocation = btrue;
+        if ( NULL == BSP_leaf_pary_ctor( &_dolist_colst, DOLIST_SIZE ) )
+        {
+            gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list" );
+            return gfx_error;
+        }
+    }
+
+    // collide the characters with the frustum
+    _dolist_colst.top = 0;
+    obj_BSP_collide_frustum( &chr_BSP_root, &( pcam->frustum ), chr_BSP_is_visible, &_dolist_colst );
+
+    // transfer valid _dolist_colst entries to the dolist
+    if ( gfx_error == gfx_make_dolist_add_colst( pdlist, &_dolist_colst ) )
+    {
+        retval = gfx_error;
+        goto gfx_make_dolist_exit;
+    }
+
+    // collide the particles with the frustum
+    _dolist_colst.top = 0;
+    obj_BSP_collide_frustum( &prt_BSP_root, &( pcam->frustum ), prt_BSP_is_visible, &_dolist_colst );
+
+    // transfer valid _dolist_colst entries to the dolist
+    if ( gfx_error == gfx_make_dolist_add_colst( pdlist, &_dolist_colst ) )
+    {
+        retval = gfx_error;
+        goto gfx_make_dolist_exit;
+    }
+
+gfx_make_dolist_exit:
+
+    // if there was a local allocation, make sure to deallocate
+    if ( local_allocation )
+    {
+        BSP_leaf_pary_dtor( &_dolist_colst );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool_t do_reflect )
+{
+    /// @details ZZ@> This function orders the dolist based on distance from camera,
+    ///    which is needed for reflections to properly clip themselves.
+    ///    Order from closest to farthest
+
+    Uint32    cnt;
+    fvec3_t   vcam;
+    size_t    count;
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
+    mat_getCamForward( pcam->mView.v, vcam.v );
+
+    // Figure the distance of each
+    count = 0;
+    for ( cnt = 0; cnt < pdlist->count; cnt++ )
+    {
+        fvec3_t   vtmp;
+        float dist;
+
+        if ( MAX_PRT == pdlist->lst[cnt].iprt && VALID_CHR_RANGE( pdlist->lst[cnt].ichr ) )
+        {
+            CHR_REF ichr;
+            fvec3_t pos_tmp;
+
+            ichr = pdlist->lst[cnt].ichr;
+
+            if ( do_reflect )
+            {
+                mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp.v );
+            }
+            else
+            {
+                mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
+            }
+
+            fvec3_sub( vtmp.v, pos_tmp.v, pcam->pos.v );
+        }
+        else if ( MAX_CHR == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
+        {
+            PRT_REF iprt = pdlist->lst[cnt].iprt;
+
+            if ( do_reflect )
+            {
+                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.pos.v, pcam->pos.v );
+            }
+            else
+            {
+                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.ref_pos.v, pcam->pos.v );
+            }
+        }
+        else
+        {
+            continue;
+        }
+
+        dist = fvec3_dot_product( vtmp.v, vcam.v );
+        if ( dist > 0 )
+        {
+            pdlist->lst[count].ichr = pdlist->lst[cnt].ichr;
+            pdlist->lst[count].iprt = pdlist->lst[cnt].iprt;
+            pdlist->lst[count].dist = dist;
+            count++;
+        }
+    }
+    pdlist->count = count;
+
+    // use qsort to sort the list in-place
+    if ( pdlist->count > 1 )
+    {
+        qsort( pdlist->lst, pdlist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+// dolist array implementation
+//--------------------------------------------------------------------------------------------
+dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist array" );
+        return NULL;
+    }
+
+    if ( ptr->started ) return ptr;
+
+    for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = cnt;
+        dolist_init( ptr->lst + cnt, cnt );
+    }
+    ptr->free_count = MAX_DO_LISTS;
+
+    ptr->started = btrue;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist array" );
+        return NULL;
+    }
+
+    if ( !ptr->started ) return ptr;
+
+    ptr->free_count = 0;
+    for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = -1;
+        dolist_init( ptr->lst + cnt, cnt );
+    }
+
+    ptr->started = bfalse;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+// dolist manager implementation
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_mgr_begin( dolist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
+        return gfx_error;
+    }
+
+    if ( pmgr->started ) return gfx_success;
+
+    dolist_ary_begin( &( pmgr->ary ) );
+
+    pmgr->started = btrue;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
+        return gfx_error;
+    }
+
+    if ( !pmgr->started ) return gfx_success;
+
+    dolist_ary_end( &( pmgr->ary ) );
+
+    // the manager is no longer running
+    pmgr->started = bfalse;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+int dolist_mgr_get_free_index( dolist_mgr_t * pmgr )
+{
+    int retval = -1;
+
+    // dolist manager started?
+    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    {
+        return -1;
+    }
+
+    if ( pmgr->ary.free_count <= 0 ) return -1;
+
+    // resduce the count
+    pmgr->ary.free_count--;
+
+    // grab the index
+    retval = pmgr->ary.free_count;
+
+    // blank the free list
+    if ( retval >= 0 && retval < MAX_DO_LISTS )
+    {
+        pmgr->ary.free_lst[ retval ] = -1;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, int index )
+{
+    size_t cnt;
+    gfx_rv retval = gfx_error;
+
+    // dolist manager started?
+    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    {
+        return gfx_error;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_DO_LISTS ) return gfx_error;
+
+    // is the index already freed?
+    for ( cnt = 0; cnt < pmgr->ary.free_count; cnt++ )
+    {
+        if ( index == pmgr->ary.free_lst[cnt] )
+        {
+            return gfx_fail;
+        }
+    }
+
+    // push it on the list
+    retval = gfx_fail;
+    if ( pmgr->ary.free_count < MAX_DO_LISTS )
+    {
+        pmgr->ary.free_lst[pmgr->ary.free_count] = index;
+        pmgr->ary.free_count++;
+        retval = gfx_success;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index )
+{
+    // dolist manager started?
+    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    {
+        return NULL;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_DO_LISTS )
+    {
+        return NULL;
+    }
+
+    return pmgr->ary.lst + index;
+}
+
+//--------------------------------------------------------------------------------------------
+// gfx manager management
+//--------------------------------------------------------------------------------------------
+
+renderlist_mgr_t * gfx_get_renderlist_mgr()
+{
+    if ( gfx_success != renderlist_mgr_begin( &_renderlist_mgr_data ) )
+    {
+        return NULL;
+    }
+
+    return &_renderlist_mgr_data;
+}
+
+//--------------------------------------------------------------------------------------------
+dolist_mgr_t * gfx_get_dolist_mgr()
+{
+    if ( gfx_success != dolist_mgr_begin( &_dolist_mgr_data ) )
+    {
+        return NULL;
+    }
+
+    return &_dolist_mgr_data;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void gfx_reset_timers()
+{
+    clock_reset( &gfx_clock );
+    gfx_clear_loops = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ptr->y_stt   = 0;
+    ptr->row_cnt = 0;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct )
+{
+    bool_t retval = bfalse;
+    aabb_t aabb;
+
+    if ( NULL == pf || NULL == poct ) return bfalse;
+
+    retval = bfalse;
+    if ( aabb_from_oct_bb( &aabb, poct ) )
+    {
+        retval = ( frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs ) > geometry_outside );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+// OBSOLETE
+//--------------------------------------------------------------------------------------------
+
+//void gfx_calc_rotmesh()
+//{
+//    static const float assumed_aspect_ratio = 4.0f / 3.0f;
+//
+//    float aspect_ratio = ( float )sdl_scr.x / ( float )sdl_scr.y;
+//
+//    // Matrix init stuff (from remove.c)
+//    rotmesh_topside    = aspect_ratio / assumed_aspect_ratio * ROTMESH_TOPSIDE ;
+//    rotmesh_bottomside = aspect_ratio / assumed_aspect_ratio * ROTMESH_BOTTOMSIDE;
+//    rotmesh_up         = aspect_ratio / assumed_aspect_ratio * ROTMESH_UP;
+//    rotmesh_down       = aspect_ratio / assumed_aspect_ratio * ROTMESH_DOWN;
+//}
+
+//--------------------------------------------------------------------------------------------
+//void get_clip_planes( const camera_t * pcam, GLfloat planes[] )
+//{
+//    // clip plane normals point IN
+//
+//    GLfloat clip[16];
+//    GLfloat _proj[16];
+//    GLfloat _modl[16];
+//    GLfloat t;
+//
+//    const GLfloat * proj = NULL;
+//    const GLfloat * modl = NULL;
+//
+//    // get the matrices...
+//    if ( NULL != pcam )
+//    {
+//        // ...from the camera
+//        proj = pcam->mProjection_big.v;
+//        modl = pcam->mView.v;
+//    }
+//    else
+//    {
+//        // ... from the current OpenGL state
+//
+//        // The Current PROJECTION Matrix
+//        proj = _proj;
+//        glGetFloatv( GL_PROJECTION_MATRIX, _proj );
+//
+//        // The Current MODELVIEW Matrix
+//        modl = _modl;
+//        glGetFloatv( GL_MODELVIEW_MATRIX, _modl );
+//    }
+//
+//    // Multiply Projection By Modelview
+//    clip[ MAT_IDX( 0, 0 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 0 )];
+//    clip[ MAT_IDX( 0, 1 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 1 )];
+//    clip[ MAT_IDX( 0, 2 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 2 )];
+//    clip[ MAT_IDX( 0, 3 )] = modl[ MAT_IDX( 0, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 0, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 0, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 0, 3 )] * proj[ MAT_IDX( 3, 3 )];
+//
+//    clip[ MAT_IDX( 1, 0 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 0 )];
+//    clip[ MAT_IDX( 1, 1 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 1 )];
+//    clip[ MAT_IDX( 1, 2 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 2 )];
+//    clip[ MAT_IDX( 1, 3 )] = modl[ MAT_IDX( 1, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 1, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 1, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 1, 3 )] * proj[ MAT_IDX( 3, 3 )];
+//
+//    clip[ MAT_IDX( 2, 0 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 0 )];
+//    clip[ MAT_IDX( 2, 1 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 1 )];
+//    clip[ MAT_IDX( 2, 2 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 2 )];
+//    clip[ MAT_IDX( 2, 3 )] = modl[ MAT_IDX( 2, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 2, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 2, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 2, 3 )] * proj[ MAT_IDX( 3, 3 )];
+//
+//    clip[ MAT_IDX( 3, 0 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 0 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 0 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 0 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 0 )];
+//    clip[ MAT_IDX( 3, 1 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 1 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 1 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 1 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 1 )];
+//    clip[ MAT_IDX( 3, 2 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 2 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 2 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 2 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 2 )];
+//    clip[ MAT_IDX( 3, 3 )] = modl[ MAT_IDX( 3, 0 )] * proj[ MAT_IDX( 0, 3 )] + modl[ MAT_IDX( 3, 1 )] * proj[ MAT_IDX( 1, 3 )] + modl[ MAT_IDX( 3, 2 )] * proj[ MAT_IDX( 2, 3 )] + modl[ MAT_IDX( 3, 3 )] * proj[ MAT_IDX( 3, 3 )];
+//
+//    // Extract The Numbers For The RIGHT Plane
+//    planes[MAT_IDX( 0, 0 )] = clip[ MAT_IDX( 0, 3 )] - clip[ MAT_IDX( 0, 0 )];
+//    planes[MAT_IDX( 0, 1 )] = clip[ MAT_IDX( 1, 3 )] - clip[ MAT_IDX( 1, 0 )];
+//    planes[MAT_IDX( 0, 2 )] = clip[ MAT_IDX( 2, 3 )] - clip[ MAT_IDX( 2, 0 )];
+//    planes[MAT_IDX( 0, 3 )] = clip[ MAT_IDX( 3, 3 )] - clip[ MAT_IDX( 3, 0 )];
+//
+//    // Normalize The Result
+//    t = SQRT( planes[MAT_IDX( 0, 0 )] * planes[MAT_IDX( 0, 0 )] + planes[MAT_IDX( 0, 1 )] * planes[MAT_IDX( 0, 1 )] + planes[MAT_IDX( 0, 2 )] * planes[MAT_IDX( 0, 2 )] );
+//    planes[MAT_IDX( 0, 0 )] /= t;
+//    planes[MAT_IDX( 0, 1 )] /= t;
+//    planes[MAT_IDX( 0, 2 )] /= t;
+//    planes[MAT_IDX( 0, 3 )] /= t;
+//
+//    // Extract The Numbers For The LEFT Plane
+//    planes[MAT_IDX( 1, 0 )] = clip[ MAT_IDX( 0, 3 )] + clip[ MAT_IDX( 0, 0 )];
+//    planes[MAT_IDX( 1, 1 )] = clip[ MAT_IDX( 1, 3 )] + clip[ MAT_IDX( 1, 0 )];
+//    planes[MAT_IDX( 1, 2 )] = clip[ MAT_IDX( 2, 3 )] + clip[ MAT_IDX( 2, 0 )];
+//    planes[MAT_IDX( 1, 3 )] = clip[ MAT_IDX( 3, 3 )] + clip[ MAT_IDX( 3, 0 )];
+//
+//    // Normalize The Result
+//    t = SQRT( planes[MAT_IDX( 1, 0 )] * planes[MAT_IDX( 1, 0 )] + planes[MAT_IDX( 1, 1 )] * planes[MAT_IDX( 1, 1 )] + planes[MAT_IDX( 1, 2 )] * planes[MAT_IDX( 1, 2 )] );
+//    planes[MAT_IDX( 1, 0 )] /= t;
+//    planes[MAT_IDX( 1, 1 )] /= t;
+//    planes[MAT_IDX( 1, 2 )] /= t;
+//    planes[MAT_IDX( 1, 3 )] /= t;
+//
+//    // Extract The BOTTOM Plane
+//    planes[MAT_IDX( 2, 0 )] = clip[ MAT_IDX( 0, 3 )] + clip[ MAT_IDX( 0, 1 )];
+//    planes[MAT_IDX( 2, 1 )] = clip[ MAT_IDX( 1, 3 )] + clip[ MAT_IDX( 1, 1 )];
+//    planes[MAT_IDX( 2, 2 )] = clip[ MAT_IDX( 2, 3 )] + clip[ MAT_IDX( 2, 1 )];
+//    planes[MAT_IDX( 2, 3 )] = clip[ MAT_IDX( 3, 3 )] + clip[ MAT_IDX( 3, 1 )];
+//
+//    // Normalize The Result
+//    t = SQRT( planes[MAT_IDX( 2, 0 )] * planes[MAT_IDX( 2, 0 )] + planes[MAT_IDX( 2, 1 )] * planes[MAT_IDX( 2, 1 )] + planes[MAT_IDX( 2, 2 )] * planes[MAT_IDX( 2, 2 )] );
+//    planes[MAT_IDX( 2, 0 )] /= t;
+//    planes[MAT_IDX( 2, 1 )] /= t;
+//    planes[MAT_IDX( 2, 2 )] /= t;
+//    planes[MAT_IDX( 2, 3 )] /= t;
+//
+//    // Extract The TOP Plane
+//    planes[MAT_IDX( 3, 0 )] = clip[ MAT_IDX( 0, 3 )] - clip[ MAT_IDX( 0, 1 )];
+//    planes[MAT_IDX( 3, 1 )] = clip[ MAT_IDX( 1, 3 )] - clip[ MAT_IDX( 1, 1 )];
+//    planes[MAT_IDX( 3, 2 )] = clip[ MAT_IDX( 2, 3 )] - clip[ MAT_IDX( 2, 1 )];
+//    planes[MAT_IDX( 3, 3 )] = clip[ MAT_IDX( 3, 3 )] - clip[ MAT_IDX( 3, 1 )];
+//
+//    // Normalize The Result
+//    t = SQRT( planes[MAT_IDX( 3, 0 )] * planes[MAT_IDX( 3, 0 )] + planes[MAT_IDX( 3, 1 )] * planes[MAT_IDX( 3, 1 )] + planes[MAT_IDX( 3, 2 )] * planes[MAT_IDX( 3, 2 )] );
+//    planes[MAT_IDX( 3, 0 )] /= t;
+//    planes[MAT_IDX( 3, 1 )] /= t;
+//    planes[MAT_IDX( 3, 2 )] /= t;
+//    planes[MAT_IDX( 3, 3 )] /= t;
+//
+//    // Extract The FAR Plane
+//    planes[MAT_IDX( 4, 0 )] = clip[ MAT_IDX( 0, 3 )] - clip[ MAT_IDX( 0, 2 )];
+//    planes[MAT_IDX( 4, 1 )] = clip[ MAT_IDX( 1, 3 )] - clip[ MAT_IDX( 1, 2 )];
+//    planes[MAT_IDX( 4, 2 )] = clip[ MAT_IDX( 2, 3 )] - clip[ MAT_IDX( 2, 2 )];
+//    planes[MAT_IDX( 4, 3 )] = clip[ MAT_IDX( 3, 3 )] - clip[ MAT_IDX( 3, 2 )];
+//
+//    // Normalize The Result
+//    t = SQRT( planes[MAT_IDX( 4, 0 )] * planes[MAT_IDX( 4, 0 )] + planes[MAT_IDX( 4, 1 )] * planes[MAT_IDX( 4, 1 )] + planes[MAT_IDX( 4, 2 )] * planes[MAT_IDX( 4, 2 )] );
+//    planes[MAT_IDX( 4, 0 )] /= t;
+//    planes[MAT_IDX( 4, 1 )] /= t;
+//    planes[MAT_IDX( 4, 2 )] /= t;
+//    planes[MAT_IDX( 4, 3 )] /= t;
+//
+//    // Extract The NEAR Plane
+//    planes[MAT_IDX( 5, 0 )] = clip[ MAT_IDX( 0, 3 )] + clip[ MAT_IDX( 0, 2 )];
+//    planes[MAT_IDX( 5, 1 )] = clip[ MAT_IDX( 1, 3 )] + clip[ MAT_IDX( 1, 2 )];
+//    planes[MAT_IDX( 5, 2 )] = clip[ MAT_IDX( 2, 3 )] + clip[ MAT_IDX( 2, 2 )];
+//    planes[MAT_IDX( 5, 3 )] = clip[ MAT_IDX( 3, 3 )] + clip[ MAT_IDX( 3, 2 )];
+//
+//    // Normalize The Result
+//    t = SQRT( planes[MAT_IDX( 5, 0 )] * planes[MAT_IDX( 5, 0 )] + planes[MAT_IDX( 5, 1 )] * planes[MAT_IDX( 5, 1 )] + planes[MAT_IDX( 5, 2 )] * planes[MAT_IDX( 5, 2 )] );
+//    planes[MAT_IDX( 5, 0 )] /= t;
+//    planes[MAT_IDX( 5, 1 )] /= t;
+//    planes[MAT_IDX( 5, 2 )] /= t;
+//    planes[MAT_IDX( 5, 3 )] /= t;
+//}
+//
+//--------------------------------------------------------------------------------------------
+//gfx_rv gfx_project_cam_view( const camera_t * pcam, cam_corner_info_t * pinfo )
+//{
+//    /// @details ZZ@> This function figures out where the corners of the view area
+//    ///    go when projected onto the plane of the PMesh.  Used later for
+//    ///    determining which mesh fans need to be rendered
+//
+//    enum
+//    {
+//        plane_RIGHT  = 0,
+//        plane_LEFT   = 1,
+//        plane_BOTTOM = 2,
+//        plane_TOP    = 3,
+//        plane_FAR    = 4,
+//        plane_NEAR   = 5,
+//
+//        // other values
+//        plane_SIZE = 4
+//    };
+//
+//    enum
+//    {
+//        plane_offset_RIGHT  = plane_RIGHT  * plane_SIZE,
+//        plane_offset_LEFT   = plane_LEFT   * plane_SIZE,
+//        plane_offset_BOTTOM = plane_BOTTOM * plane_SIZE,
+//        plane_offset_TOP    = plane_TOP    * plane_SIZE,
+//        plane_offset_FAR    = plane_FAR    * plane_SIZE,
+//        plane_offset_NEAR   = plane_NEAR   * plane_SIZE
+//    };
+//
+//    enum
+//    {
+//        corner_TOP_LEFT = 0,
+//        corner_TOP_RIGHT,
+//        corner_BOTTOM_RIGHT,
+//        corner_BOTTOM_LEFT,
+//        corner_COUNT
+//    };
+//
+//    int cnt, tnc, extra[2];
+//    fvec3_t point;
+//    int corner_count;
+//    fvec3_t corner_pos[corner_COUNT], corner_dir[corner_COUNT];
+//
+//    // six planes with 4 components.
+//    // the plane i starts at planes + 4*i
+//    // plane_offset_RIGHT, plane_offset_LEFT, plane_offset_BOTTOM, plane_offset_TOP, plane_offset_FAR, plane_offset_NEAR
+//    GLfloat planes[ 6 * 4 ];
+//
+//    GLfloat ground_plane[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+//
+//    if ( NULL == pinfo )
+//    {
+//        return gfx_fail;
+//    }
+//
+//    if ( NULL == pcam )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+//        return gfx_error;
+//    }
+//
+//    get_clip_planes( pcam, planes );
+//
+//    // the number of valid points
+//    corner_count = 0;
+//
+//    // grab the coefficients of the rays at the 4 "folds" in the frustum
+//    two_plane_intersection( corner_pos[corner_TOP_LEFT].v, corner_dir[corner_TOP_LEFT].v, planes + plane_offset_LEFT, planes + plane_offset_TOP );
+//    if ( corner_dir[corner_TOP_LEFT].z < 0.0f )
+//    {
+//        float t = corner_pos[corner_TOP_LEFT].z / corner_dir[corner_TOP_LEFT].z;
+//        pinfo->x[corner_count] = corner_pos[corner_TOP_LEFT].x + corner_dir[corner_TOP_LEFT].x * t;
+//        pinfo->y[corner_count] = corner_pos[corner_TOP_LEFT].y + corner_dir[corner_TOP_LEFT].y * t;
+//        corner_count++;
+//    }
+//
+//    two_plane_intersection( corner_pos[corner_TOP_RIGHT].v, corner_dir[corner_TOP_RIGHT].v, planes + plane_offset_TOP, planes + plane_offset_RIGHT );
+//    if ( corner_dir[corner_TOP_RIGHT].z < 0.0f )
+//    {
+//        float t = corner_pos[corner_TOP_RIGHT].z / corner_dir[corner_TOP_RIGHT].z;
+//        pinfo->x[corner_count] = corner_pos[corner_TOP_RIGHT].x + corner_dir[corner_TOP_RIGHT].x * t;
+//        pinfo->y[corner_count] = corner_pos[corner_TOP_RIGHT].y + corner_dir[corner_TOP_RIGHT].y * t;
+//        corner_count++;
+//    }
+//
+//    two_plane_intersection( corner_pos[corner_BOTTOM_RIGHT].v, corner_dir[corner_BOTTOM_RIGHT].v, planes + plane_offset_RIGHT, planes + plane_offset_BOTTOM );
+//    if ( corner_dir[corner_BOTTOM_RIGHT].z < 0.0f )
+//    {
+//        float t = corner_pos[corner_BOTTOM_RIGHT].z / corner_dir[corner_BOTTOM_RIGHT].z;
+//        pinfo->x[corner_count] = corner_pos[corner_BOTTOM_RIGHT].x + corner_dir[corner_BOTTOM_RIGHT].x * t;
+//        pinfo->y[corner_count] = corner_pos[corner_BOTTOM_RIGHT].y + corner_dir[corner_BOTTOM_RIGHT].y * t;
+//        corner_count++;
+//    }
+//
+//    two_plane_intersection( corner_pos[corner_BOTTOM_LEFT].v, corner_dir[corner_BOTTOM_LEFT].v, planes + plane_offset_BOTTOM, planes + plane_offset_LEFT );
+//    if ( corner_dir[corner_BOTTOM_LEFT].z < 0.0f )
+//    {
+//        float t = corner_pos[corner_BOTTOM_LEFT].z / corner_dir[corner_BOTTOM_LEFT].z;
+//        pinfo->x[corner_count] = corner_pos[corner_BOTTOM_LEFT].x + corner_dir[corner_BOTTOM_LEFT].x * t;
+//        pinfo->y[corner_count] = corner_pos[corner_BOTTOM_LEFT].y + corner_dir[corner_BOTTOM_LEFT].y * t;
+//        corner_count++;
+//    }
+//
+//    if ( corner_count < 4 )
+//    {
+//        // try plane_offset_RIGHT, plane_offset_FAR, and GROUND
+//        if ( three_plane_intersection( point.v, planes + plane_offset_RIGHT, planes + plane_offset_FAR, ground_plane ) )
+//        {
+//            pinfo->x[corner_count] = point.x;
+//            pinfo->y[corner_count] = point.y;
+//            corner_count++;
+//        }
+//    }
+//
+//    if ( corner_count < 4 )
+//    {
+//        // try plane_offset_LEFT, plane_offset_FAR, and GROUND
+//        if ( three_plane_intersection( point.v, planes + plane_offset_LEFT, planes + plane_offset_FAR, ground_plane ) )
+//        {
+//            pinfo->x[corner_count] = point.x;
+//            pinfo->y[corner_count] = point.y;
+//            corner_count++;
+//        }
+//    }
+//
+//    if ( corner_count < 4 )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "not enough corner points intersecting with the ground" );
+//        return gfx_error;
+//    }
+//
+//    // Get the extreme values
+//    pinfo->lowx = pinfo->x[0];
+//    pinfo->lowy = pinfo->y[0];
+//    pinfo->highx = pinfo->x[0];
+//    pinfo->highy = pinfo->y[0];
+//    pinfo->listlowtohighy[0] = 0;
+//    pinfo->listlowtohighy[3] = 0;
+//
+//    // sort the corners
+//    for ( cnt = 0; cnt < 4; cnt++ )
+//    {
+//        if ( pinfo->x[cnt] < pinfo->lowx )
+//        {
+//            pinfo->lowx = pinfo->x[cnt];
+//        }
+//
+//        if ( pinfo->x[cnt] > pinfo->highx )
+//        {
+//            pinfo->highx = pinfo->x[cnt];
+//        }
+//
+//        if ( pinfo->y[cnt] < pinfo->lowy )
+//        {
+//            pinfo->lowy = pinfo->y[cnt];
+//            pinfo->listlowtohighy[0] = cnt;
+//        }
+//
+//        if ( pinfo->y[cnt] > pinfo->highy )
+//        {
+//            pinfo->highy = pinfo->y[cnt];
+//            pinfo->listlowtohighy[3] = cnt;
+//        }
+//    }
+//
+//    // Figure out the order of points
+//    for ( cnt = 0, tnc = 0; cnt < 4; cnt++ )
+//    {
+//        if ( cnt != pinfo->listlowtohighy[0] && cnt != pinfo->listlowtohighy[3] )
+//        {
+//            extra[tnc] = cnt;
+//            tnc++;
+//        }
+//    }
+//
+//    pinfo->listlowtohighy[1] = extra[1];
+//    pinfo->listlowtohighy[2] = extra[0];
+//    if ( pinfo->y[extra[0]] < pinfo->y[extra[1]] )
+//    {
+//        pinfo->listlowtohighy[1] = extra[0];
+//        pinfo->listlowtohighy[2] = extra[1];
+//    }
+//
+//    return gfx_success;
+//}
+
+//--------------------------------------------------------------------------------------------
+//gfx_rv gfx_make_projection_bitmap( renderlist_t * prlist, cam_corner_info_t * pinfo, projection_bitmap_t * pbmp )
+//{
+//    int cnt, grid_x, grid_y;
+//    int row, run;
+//    int leftedge[4], leftedge_count;
+//    int rightedge[4], rightedge_count;
+//    int x, center_dx, center_dy, center_x0, center_y0;
+//    int corner_x[4], corner_y[4];
+//    int corner_stt, corner_end;
+//
+//    ego_mpd_t       * pmesh;
+//
+//    if ( NULL == prlist )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+//
+//        return gfx_error;
+//    }
+//
+//    if ( NULL == pinfo )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL camera frustum data" );
+//
+//        return gfx_error;
+//    }
+//
+//    if ( NULL == pbmp )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL projection data" );
+//
+//        return gfx_error;
+//    }
+//
+//    pmesh = renderlist_get_pmesh( prlist );
+//    if ( NULL == pmesh )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL mesh" );
+//        return gfx_error;
+//    }
+//
+//    // Make life simpler
+//    for ( cnt = 0; cnt < 4; cnt++ )
+//    {
+//        corner_x[cnt] = pinfo->x[pinfo->listlowtohighy[cnt]];
+//        corner_y[cnt] = pinfo->y[pinfo->listlowtohighy[cnt]];
+//    }
+//
+//    // It works better this way...
+//    corner_y[0] -= 128;
+//    corner_y[3] += 128;
+//
+//    // Find the center line
+//    center_dx = corner_x[3] - corner_x[0];
+//    center_dy = corner_y[3] - corner_y[0];
+//    center_x0 = corner_x[0];
+//    center_y0 = corner_y[0];
+//
+//    if ( center_dy < 1 )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "the corner's y-coordinates are not sorted properly" );
+//        return gfx_error;
+//    }
+//
+//    // Find the points in each edge
+//
+//    // bottom
+//    // corner 0 is on both the left and right edges
+//    leftedge[0] = 0;  leftedge_count = 1;
+//    rightedge[0] = 0;  rightedge_count = 1;
+//
+//    // middle
+//    if ( corner_x[1] < ( ( center_dx * ( corner_y[1] - corner_y[0] ) ) / center_dy ) + center_x0 )
+//    {
+//        // corner 1 is on the left edge
+//
+//        leftedge[leftedge_count] = 1;
+//        leftedge_count++;
+//
+//        corner_x[1] -= 512;
+//    }
+//    else
+//    {
+//        // corner 1 is on the right edge
+//
+//        rightedge[rightedge_count] = 1;
+//        rightedge_count++;
+//
+//        corner_x[1] += 512;
+//    }
+//
+//    // middle
+//    if ( corner_x[2] < (( center_dx * ( corner_y[2] - corner_y[0] )) / center_dy ) + center_x0 )
+//    {
+//        // corner 2 is on the left edge
+//
+//        leftedge[leftedge_count] = 2;
+//        leftedge_count++;
+//
+//        corner_x[2] -= 512;
+//    }
+//    else
+//    {
+//        // corner 2 is on the right edge
+//
+//        rightedge[rightedge_count] = 2;
+//        rightedge_count++;
+//
+//        corner_x[2] += 512;
+//    }
+//
+//    // top
+//    // corner 3 is on the left and the right edge
+//    leftedge[leftedge_count] = 3;  leftedge_count++;
+//    rightedge[rightedge_count] = 3;  rightedge_count++;
+//
+//    // Make the left edge
+//    row = 0;
+//    for ( cnt = 1; cnt < leftedge_count && row < PROJECTION_BITMAP_ROWS; cnt++ )
+//    {
+//        int grid_x, x_stt, x_end;
+//        int grid_y, y_stt, y_end;
+//        int grid_y_stt, grid_y_end;
+//
+//        corner_stt = leftedge[cnt-1];
+//        corner_end = leftedge[cnt];
+//
+//        y_stt = corner_y[corner_stt];
+//        y_end = corner_y[corner_end];
+//
+//        x_stt = corner_x[corner_stt];
+//        x_end = corner_x[corner_end];
+//
+//        edge_dy   = y_end - y_stt;
+//        edge_dx   = x_end - x_stt;
+//        edge_dx_step = edge_dx / edge_dy;
+//
+//        grid_y_stt = y_stt / GRID_ISIZE;
+//        grid_y_end = y_end / GRID_ISIZE;
+//
+//        grid_x_stt = x_stt / GRID_ISIZE;
+//        grid_x_end = x_end / GRID_ISIZE;
+//
+//        if( grid_y_stt < 0 )
+//        {
+//            grid_y_stt = 0;
+//
+//            // move the x starting point
+//            grid_x_stt -= grid_y_stt * edge_step;
+//        }
+//
+//        if( grid_y_end > pmesh->info.tiles_y )
+//        {
+//            grid_y_end = pmesh->info.tiles_y;
+//        }
+//
+//        for ( grid_y = grid_y_stt; grid_y <= grid_y_end && row < PROJECTION_BITMAP_ROWS; grid_y++  )
+//        {
+//            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
+//            {
+//                grid_x = x / GRID_ISIZE;
+//                pbmp->corner_stt[row] = CLIP( grid_x, 0, pmesh->info.tiles_x - 1 );
+//                row++;
+//            }
+//        }
+//    }
+//    pbmp->row_cnt = row;
+//
+//    // Make the right edge ( rowrun )
+//    grid_y = corner_y[0] / GRID_ISIZE;
+//    row = 0;
+//
+//    for( cnt = 1; cnt < rightedge_count; cnt++ )
+//    {
+//        corner_stt = rightedge[cnt-1];
+//        corner_end = rightedge[cnt];
+//
+//        x = corner_x[corner_stt] + 128;
+//
+//        edge_dy = corner_y[corner_end] - corner_y[corner_stt];
+//        edge_dx = 0;
+//        if ( edge_dy > 0 )
+//        {
+//            edge_dx = (( corner_x[corner_end] - corner_x[corner_stt] ) * GRID_ISIZE ) / edge_dy;
+//        }
+//
+//        run = corner_y[corner_end] / GRID_ISIZE;
+//
+//        for ( /* nothing */; grid_y < run; grid_y++ )
+//        {
+//            if ( grid_y >= 0 && grid_y < pmesh->info.tiles_y )
+//            {
+//                grid_x = x / GRID_ISIZE;
+//                pbmp->corner_end[row] = CLIP( grid_x, 0, pmesh->info.tiles_x - 1 );
+//                row++;
+//            }
+//
+//            x += edge_dx;
+//        }
+//    }
+//
+//    if ( pbmp->row_cnt != row )
+//    {
+//        log_warning( "ROW error (%i, %i)\n", pbmp->row_cnt, row );
+//        return gfx_fail;
+//    }
+//
+//    // set the starting y value
+//    pbmp->y_stt = corner_y[0] / GRID_ISIZE;
+//
+//    return gfx_success;
+//}
+
+//--------------------------------------------------------------------------------------------
+//gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
+//{
+//    /// @details ZZ@> This function figures out which mesh fans to draw
+//
+//    int cnt, grid_x, grid_y;
+//    int row;
+//
+//    gfx_rv              retval;
+//    cam_corner_info_t   corner;
+//    projection_bitmap_t proj;
+//
+//    ego_mpd_t * pmesh = NULL;
+//
+//
+//    // Make sure there is a renderlist
+//    if ( NULL == prlist )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+//        return gfx_error;
+//    }
+//
+//    // make sure the renderlist is attached to a mesh
+//    pmesh = renderlist_get_pmesh( prlist );
+//    if ( NULL == pmesh )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist is not attached to a mesh" );
+//        return gfx_error;
+//    }
+//
+//    // make sure that we have a valid camera
+//    if ( NULL == pcam )
+//    {
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+//        return gfx_error;
+//    }
+//
+//    // because the main loop of the program will always flip the
+//    // page before rendering the 1st frame of the actual game,
+//    // game_frame_all will always start at 1
+//    if ( 1 != ( game_frame_all & 3 ) )
+//    {
+//        return gfx_success;
+//    }
+//
+//    // Find the render area corners.
+//    // if this fails, we cannot have a valid list of corners, so this function fails
+//    if ( gfx_error == gfx_project_cam_view( pcam, &corner ) )
+//    {
+//        return gfx_error;
+//    }
+//
+//    // assume the best
+//    retval = gfx_success;
+//
+//    // reset the renderlist
+//    if ( gfx_error == renderlist_reset( prlist ) )
+//    {
+//        retval = gfx_error;
+//    }
+//
+//    // scan through each fan... not as fact as colliding with the BSP, but maybe fast enough
+//    tile_count = pmesh->info.tiles_count;
+//    for ( fan = 0; fan < tile_count; fan++ )
+//    {
+//        inview = ego_frustum_intersects_ego_aabb( &(pcam->frustum), mm->tilelst[fan].bbox.mins.v, mm->tilelst[fan].bbox.maxs.v );
+//
+//    }
+//
+//    // get the actual projection "bitmap"
+//    gfx_make_projection_bitmap( prlist, &corner, &proj );
+//
+//    // fill the renderlist from the projected view
+//    grid_y = proj.y_stt;
+//    grid_y = CLIP( grid_y, 0, pmesh->info.tiles_y - 1 );
+//    for ( row = 0; row < proj.row_cnt; row++, grid_y++ )
+//    {
+//        for ( grid_x = proj.row_stt[row]; grid_x <= proj.row_end[row] && prlist->all_count < MAXMESHRENDER; grid_x++ )
+//        {
+//            cnt = pmesh->gmem.tilestart[grid_y] + grid_x;
+//
+//            if ( gfx_error == gfx_capture_mesh_tile( mesh_get_ptile( pmesh, cnt ) ) )
+//            {
+//                retval = gfx_error;
+//                goto gfx_make_renderlist_exit;
+//            }
+//
+//            if ( gfx_error == renderlist_insert( prlist, mesh_get_pgrid( pmesh, cnt ), cnt ) )
+//            {
+//                retval = gfx_error;
+//                goto gfx_make_renderlist_exit;
+//            }
+//        }
+//    }
+//
+//gfx_make_renderlist_exit:
+//    return retval;
+//}

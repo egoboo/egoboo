@@ -23,43 +23,66 @@
 /// @brief Skeleton for Egoboo networking
 
 #include "egoboo_typedef.h"
-#include "IDSZ_map.h"
-#include "input.h"
+
+#include "enet/enet.h"
 
 //--------------------------------------------------------------------------------------------
-// Network stuff
 //--------------------------------------------------------------------------------------------
+
+struct s_net_instance;
+
+//--------------------------------------------------------------------------------------------
+// Network constants
+//--------------------------------------------------------------------------------------------
+
+#define MAX_LOCAL_PLAYERS    4
+#define MAX_PLAYER           MAX_LOCAL_PLAYERS      ///< ZF> used to be 8, but caused some memset issues if MAX_PLAYER > MAX_LOCAL_PLAYERS
 
 #define NETREFRESH          1000                    ///< Every second
-#define NONETWORK           numservice
+#define NONETWORK           service_count
 #define MAXSERVICE          16
 #define NETNAMESIZE         16
 #define MAXSESSION          16
-#define MAXNETPLAYER         8
-
-#define TO_ANY_TEXT         25935                               ///< Message headers
-#define TO_HOST_MODULEOK    14951
-#define TO_HOST_MODULEBAD   14952
-#define TO_HOST_LATCH       33911
-#define TO_HOST_IM_LOADED   40192
-#define TO_HOST_FILE        20482
-#define TO_HOST_DIR         49230
-#define TO_HOST_FILESENT    13131
-#define TO_REMOTE_MODULE    56025
-#define TO_REMOTE_LATCH     12715
-#define TO_REMOTE_FILE      62198
-#define TO_REMOTE_DIR       11034
-#define TO_REMOTE_START     51390
-#define TO_REMOTE_FILESENT  19903
+#define MAXLAG              (1 << 6)
+#define LAGAND              ( MAXLAG - 1 )
 
 #define SHORTLATCH 1024.0f
-#define MAXSENDSIZE 8192
-#define COPYSIZE    4096
-#define TOTALSIZE   2097152
-#define MAX_PLAYER   MAX_LOCAL_PLAYERS      //ZF> used to be 8, but caused some memset issues if MAX_PLAYER > MAX_LOCAL_PLAYERS
-#define MAXLAG      64
-#define LAGAND      63
-#define STARTTALK   10
+#define MAXSENDSIZE 0x2000
+
+#define CHAT_BUFFER_SIZE 2048
+
+#define NET_EGOBOO_PORT  0x8742
+
+/// packet headers
+enum e_net_commands
+{
+    TO_ANY_TEXT         = 0x654F,
+
+    TO_HOST_MODULEOK    = 0x3A67,
+    TO_HOST_MODULEBAD   = 0x3A68,
+    TO_HOST_LATCH       = 0x8477,
+    TO_HOST_IM_LOADED   = 0x9D00,
+    NETFILE_TO_HOST_FILE        = 0x5002,
+    NETFILE_TO_HOST_DIR         = 0xC04E,
+    NETFILE_TO_HOST_SENT    = 0x334B,
+
+    TO_REMOTE_MODULE    = 0xDAD9,
+    TO_REMOTE_LATCH     = 0x31AB,
+    NETFILE_TO_REMOTE_FILE      = 0xF2F6,
+    NETFILE_TO_REMOTE_DIR       = 0x2B1A,
+    TO_REMOTE_START     = 0xC8BE,
+    NETFILE_TO_REMOTE_SENT  = 0x4DBF
+};
+
+/// Networking constants
+enum NetworkConstant
+{
+    NET_UNRELIABLE_CHANNEL    = 0,
+    NET_GUARANTEED_CHANNEL    = 1,
+    NET_EGOBOO_NUM_CHANNELS,
+    NET_MAX_FILE_NAME         = 128,
+    NET_MAX_FILE_TRANSFERS    = 1024  // Maximum files queued up at once
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -76,151 +99,139 @@ struct s_time_latch
 };
 typedef struct s_time_latch time_latch_t;
 
-//--------------------------------------------------------------------------------------------
-void input_device_add_latch( input_device_t * pdevice, float newx, float newy );
+void tlatch_ary_init( time_latch_t ary[], size_t len );
 
 //--------------------------------------------------------------------------------------------
-
-/// The state of a player
-struct s_player
-{
-    bool_t                  valid;                    ///< Player used?
-    CHR_REF                 index;                    ///< Which character?
-
-    /// the buffered input from the local input devices
-    input_device_t          *pdevice;
-
-    // inventory stuff
-    CHR_REF                 selected_item;
-    bool_t                  draw_inventory;
-    Uint32                  inventory_cooldown;
-    int                     inventory_lerp;
-
-    /// Local latch, set by set_one_player_latch(), read by sv_talkToRemotes()
-    latch_t                 local_latch;
-
-    // quest log for this player
-    IDSZ_node_t             quest_log[MAX_IDSZ_MAP_SIZE];          ///< lists all the character's quests
-
-    // Timed latches
-    Uint32                  tlatch_count;
-    time_latch_t            tlatch[MAXLAG];
-
-    /// Network latch, set by unbuffer_player_latches(), used to set the local character's latch
-    latch_t                 net_latch;
-};
-
-typedef struct s_player player_t;
-
-extern int   local_numlpla;                                   ///< Number of local players
-
-#define INVALID_PLAYER MAX_PLAYER
-
-DECLARE_STACK_EXTERN( player_t, PlaStack, MAX_PLAYER );                         ///< Stack for keeping track of players
-
-#define VALID_PLA_RANGE(IPLA) ( ((IPLA) >= 0) && ((IPLA) < MAX_PLAYER) )
-#define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaStack.count) && PlaStack.lst[IPLA].valid )
-#define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaStack.count)|| !PlaStack.lst[IPLA].valid )
-
-//void           player_init( player_t * ppla );
-void           pla_reinit( player_t * ppla );
-CHR_REF        pla_get_ichr( const PLA_REF iplayer );
-struct s_chr * pla_get_pchr( const PLA_REF iplayer );
-
 //--------------------------------------------------------------------------------------------
 
-/// The state of the network code used in old-egoboo
-struct s_net_instance
-{
-    bool_t  on;                      ///< Try to connect?
-    bool_t  serviceon;               ///< Do I need to free the interface?
-    bool_t  hostactive;              ///< Hosting?
-    bool_t  readytostart;            ///< Ready to hit the Start Game button?
-    bool_t  waitingforplayers;       ///< Has everyone talked to the host?
-};
+// an opaque struct for encapsulating network data
+struct s_net_instance;
 typedef struct s_net_instance net_instance_t;
+
+net_instance_t * net_instance_ctor( net_instance_t * pnet );
+bool_t net_on( const net_instance_t * pnet );
+bool_t net_serviceon( const net_instance_t * pnet );
+bool_t net_get_hostactive( const net_instance_t * pnet );
+bool_t net_get_readytostart( const net_instance_t * pnet );
+bool_t net_waitingforplayers( const net_instance_t * pnet );
+int    net_local_machine( const net_instance_t * pnet );
+ENetHost* net_get_myHost( const net_instance_t * pnet );
+
+bool_t net_set_hostactive( net_instance_t * pnet, bool_t val );
+bool_t net_set_waitingforplayers( net_instance_t * pnet, bool_t val );
+bool_t net_set_readytostart( net_instance_t * pnet, bool_t val );
+bool_t net_set_myHost( net_instance_t * pnet, ENetHost* phost );
+
+int    net_get_player_count( const net_instance_t * pnet );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 extern net_instance_t * PNet;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// Network orders
-//extern unsigned char           ordervalid[MAXORDER];
-//extern unsigned char           orderwho[MAXORDER][MAXSELECT];
-//extern unsigned int            orderwhat[MAXORDER];
-//extern unsigned int            orderwhen[MAXORDER];
-
 extern Uint32                  nexttimestamp;                ///< Expected timestamp
-extern FILE                   *globalnetworkerr;             ///< For debuggin' network
 
 extern Uint32                  randsave;                  ///< Used in network timer
-extern int                     networkservice;
-extern int                     numservice;                                 ///< How many we found
-extern char                    netservicename[MAXSERVICE][NETNAMESIZE];    ///< Names of services
-extern int                     numsession;                                 ///< How many we found
-extern char                    netsessionname[MAXSESSION][NETNAMESIZE];    ///< Names of sessions
-extern int                     numplayer;                                  ///< How many we found
-extern char                    netplayername[MAXNETPLAYER][NETNAMESIZE];   ///< Names of machines
 
-extern int                     local_machine;        ///< 0 is host, 1 is 1st remote, 2 is 2nd...
-
-extern int                     playersready;               ///< Number of players ready to start
-extern int                     playersloaded;
+extern int                     net_players_ready;              ///< Number of players ready to start
+extern int                     net_players_loaded;
 
 extern Uint32                  numplatimes;
+
+//--------------------------------------------------------------------------------------------
+// CHAT BUFFER
+
+struct s_chat_buffer
+{
+    int     buffer_count;
+    char    buffer[CHAT_BUFFER_SIZE];
+};
+typedef struct s_chat_buffer chat_buffer_t;
+
+extern chat_buffer_t net_chat;
+
+//--------------------------------------------------------------------------------------------
+// Packet reading/writing
+//--------------------------------------------------------------------------------------------
+
+struct s_ego_packet
+{
+    Uint32  head;                             // The write head
+    Uint32  size;                             // The size of the packet
+    Uint8   buffer[MAXSENDSIZE];              // The data packet
+};
+typedef struct s_ego_packet ego_packet_t;
+
+ego_packet_t * ego_packet_ctor( ego_packet_t * ptr );
+ego_packet_t * ego_packet_dtor( ego_packet_t * ptr );
+bool_t ego_packet_begin( ego_packet_t * ptr );
+bool_t ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc );
+bool_t ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc );
+bool_t ego_packet_addUint16( ego_packet_t * ptr, Uint16 us );
+bool_t ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss );
+bool_t ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui );
+bool_t ego_packet_addSint32( ego_packet_t * ptr, Sint32 si );
+bool_t ego_packet_addString( ego_packet_t * ptr, const char *string );
+
+// functions that have no use at the moment
+//static bool_t ego_packet_readString( ego_packet_t * ptr, char *buffer, int maxLen );
+//static bool_t ego_packet_readUint8( ego_packet_t * ptr, Uint8 * pval );
+//static bool_t ego_packet_readSint8( ego_packet_t * ptr, Sint8 * pval );
+//static bool_t ego_packet_readUint16( ego_packet_t * ptr, Uint16 * pval );
+//static bool_t ego_packet_readSint16( ego_packet_t * ptr, Sint16 * pval );
+//static bool_t ego_packet_readUint32( ego_packet_t * ptr, Uint32 * pval );
+//static bool_t ego_packet_readSint32( ego_packet_t * ptr, Sint32 * pval );
+
+// opaque wrapper for the enet packet data
+struct s_enet_packet;
+typedef struct s_enet_packet enet_packet_t;
+
+enet_packet_t * enet_packet_ctor( enet_packet_t * );
+enet_packet_t * enet_packet_dtor( enet_packet_t * );
+bool_t enet_packet_startReading( enet_packet_t * ptr, ENetPacket *packet );
+bool_t enet_packet_doneReading( enet_packet_t * ptr );
+size_t enet_packet_remainingSize( enet_packet_t * ptr );
+bool_t enet_packet_readString( enet_packet_t * ptr, char *buffer, size_t maxLen );
+bool_t enet_packet_readUint8( enet_packet_t * ptr, Uint8 * pval );
+bool_t enet_packet_readSint8( enet_packet_t * ptr, Sint8 * pval );
+bool_t enet_packet_readUint16( enet_packet_t * ptr, Uint16 * pval );
+bool_t enet_packet_readSint16( enet_packet_t * ptr, Sint16 * pval );
+bool_t enet_packet_readUint32( enet_packet_t * ptr, Uint32 * pval );
+bool_t enet_packet_readSint32( enet_packet_t * ptr, Sint32 * pval );
 
 //--------------------------------------------------------------------------------------------
 // Networking functions
 //--------------------------------------------------------------------------------------------
 
-void listen_for_packets();
-void unbuffer_player_latches();
-void close_session();
+void net_listen_for_packets( void );
+void net_unbuffer_player_latches( void );
+void net_close_session( void );
 
-void net_initialize();
-void net_shutDown();
+void net_initialize( void );
+void net_shutDown( void );
 void net_logf( const char *format, ... );
 
-void net_startNewPacket();
+void net_sayHello( void );
+void net_send_message( void );
 
-void packet_addUnsignedByte( Uint8 uc );
-void packet_addSignedByte( Sint8 sc );
-void packet_addUnsignedShort( Uint16 us );
-void packet_addSignedShort( Sint16 ss );
-void packet_addUnsignedInt( Uint32 ui );
-void packet_addSignedInt( Sint32 si );
-void packet_addString( const char *string );
-
-void net_sendPacketToHost();
-void net_sendPacketToAllPlayers();
-void net_sendPacketToHostGuaranteed();
-void net_sendPacketToAllPlayersGuaranteed();
-void net_sendPacketToOnePlayerGuaranteed( int player );
-void net_send_message();
-
-void net_updateFileTransfers();
-int  net_pendingFileTransfers();
-
+void net_updateFileTransfers( void );
+int  net_pendingFileTransfers( void );
 void net_copyFileToAllPlayers( const char *source, const char *dest );
-void net_copyFileToHost( const char *source, const char *dest );
-void net_copyDirectoryToHost( const char *dirname, const char *todirname );
 void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname );
-void net_sayHello();
-void cl_talkToHost();
-void sv_talkToRemotes();
+void net_copyFileToPeer( const char *source, const char *dest, ENetPeer * peer );
+void net_copyDirectoryToPeer( const char *dirname, const char *todirname, ENetPeer * peer );
 
-int sv_hostGame();
-int cl_joinGame( const char *hostname );
-
-void find_open_sessions();
-void sv_letPlayersJoin();
-void stop_players_from_joining();
+void find_open_sessions( void );
+void stop_players_from_joining( void );
 // int create_player(int host);
 // void turn_on_service(int service);
 
-void net_reset_players();
+void net_count_players( net_instance_t * pnet );
 
-void tlatch_ary_init( time_latch_t ary[], size_t len );
-
-player_t*      chr_get_ppla( const CHR_REF ichr );
+bool_t net_sendPacketToAllPlayers( ego_packet_t * pkt );
+bool_t net_sendPacketToAllPlayersGuaranteed( ego_packet_t * pkt );
+bool_t net_sendPacketToOnePlayerGuaranteed( ego_packet_t * pkt, int player );
+bool_t net_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer );
+bool_t net_sendPacketToPeerGuaranteed( ego_packet_t * ptr, ENetPeer *peer );
+//bool_t net_sendPacketToHostGuaranteed( ego_packet_t * pkt );
+//bool_t net_sendPacketToHost( ego_packet_t * pkt );

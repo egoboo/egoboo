@@ -30,26 +30,26 @@
 // testing functions
 //--------------------------------------------------------------------------------------------
 
-bool_t VALID_CHR_RANGE( CHR_REF ICHR );
-bool_t DEFINED_CHR( CHR_REF ICHR );
-bool_t ALLOCATED_CHR( CHR_REF ICHR );
-bool_t ACTIVE_CHR( CHR_REF ICHR );
-bool_t WAITING_CHR( CHR_REF ICHR );
-bool_t TERMINATED_CHR( CHR_REF ICHR );
+bool_t VALID_CHR_RANGE( const CHR_REF ICHR );
+bool_t DEFINED_CHR( const CHR_REF ICHR );
+bool_t ALLOCATED_CHR( const CHR_REF ICHR );
+bool_t ACTIVE_CHR( const CHR_REF ICHR );
+bool_t WAITING_CHR( const CHR_REF ICHR );
+bool_t TERMINATED_CHR( const CHR_REF ICHR );
 
-size_t  GET_INDEX_PCHR( chr_t * PCHR );
-CHR_REF GET_REF_PCHR( chr_t * PCHR );
-bool_t  DEFINED_PCHR( chr_t * PCHR );
-bool_t  VALID_CHR_PTR( chr_t * PCHR );
-bool_t  ALLOCATED_PCHR( chr_t * PCHR );
-bool_t  ACTIVE_PCHR( chr_t * PCHR );
-bool_t  TERMINATED_PCHR( chr_t * PCHR );
+size_t  GET_INDEX_PCHR( const chr_t * PCHR );
+CHR_REF GET_REF_PCHR( const chr_t * PCHR );
+bool_t  DEFINED_PCHR( const chr_t * PCHR );
+bool_t  VALID_CHR_PTR( const chr_t * PCHR );
+bool_t  ALLOCATED_PCHR( const chr_t * PCHR );
+bool_t  ACTIVE_PCHR( const chr_t * PCHR );
+bool_t  TERMINATED_PCHR( const chr_t * PCHR );
 
-bool_t INGAME_CHR_BASE( CHR_REF ICHR );
-bool_t INGAME_PCHR_BASE( chr_t * PCHR );
+bool_t INGAME_CHR_BASE( const CHR_REF ICHR );
+bool_t INGAME_PCHR_BASE( const chr_t * PCHR );
 
-bool_t INGAME_CHR( CHR_REF ICHR );
-bool_t INGAME_PCHR( chr_t * PCHR );
+bool_t INGAME_CHR( const CHR_REF ICHR );
+bool_t INGAME_PCHR( const chr_t * PCHR );
 
 //--------------------------------------------------------------------------------------------
 // testing macros
@@ -84,9 +84,8 @@ bool_t INGAME_PCHR( chr_t * PCHR );
 
 // Macros automate looping through the ChrList. This hides code which defers the creation and deletion of
 // objects until the loop terminates, so tha the length of the list will not change during the loop.
-#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR)  {int IT##_internal; int chr_loop_start_depth = chr_loop_depth; chr_loop_depth++; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PCHR = ChrList.lst + IT;
+#define CHR_BEGIN_LOOP_ACTIVE(IT, PCHR)  {int IT##_internal; int chr_loop_start_depth = chr_loop_depth; chr_loop_depth++; for(IT##_internal=0;IT##_internal<ChrList.used_count;IT##_internal++) { CHR_REF IT; chr_t * PCHR = NULL; IT = (CHR_REF)ChrList.used_ref[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PCHR = ChrList_get_ptr( IT );
 #define CHR_END_LOOP() } chr_loop_depth--; EGOBOO_ASSERT(chr_loop_start_depth == chr_loop_depth); ChrList_cleanup(); }
-
 
 //--------------------------------------------------------------------------------------------
 // external variables
@@ -100,19 +99,23 @@ extern int chr_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    ChrList_init();
-void    ChrList_dtor();
+void    ChrList_init( void );
+void    ChrList_dtor( void );
 
 CHR_REF ChrList_allocate( const CHR_REF override );
 
 bool_t  ChrList_free_one( const CHR_REF ichr );
-void    ChrList_free_all();
+void    ChrList_free_all( void );
 
 bool_t  ChrList_add_used( const CHR_REF ichr );
 
-void    ChrList_update_used();
+void    ChrList_update_used( void );
 
-void    ChrList_cleanup();
+void    ChrList_cleanup( void );
 
-bool_t ChrList_add_activation( CHR_REF ichr );
-bool_t ChrList_add_termination( CHR_REF ichr );
+bool_t ChrList_add_activation( const CHR_REF ichr );
+bool_t ChrList_add_termination( const CHR_REF ichr );
+bool_t ChrList_request_terminate( const CHR_REF ichr );
+
+int ChrList_count_free();
+int ChrList_count_used();

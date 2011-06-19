@@ -23,21 +23,42 @@
 /// @details Basic skeleton for the client portion of a client-server architecture,
 /// this is totally not in use yet.
 
+#include "egoboo_typedef.h"
+#include "network.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// A mockup of an actual client state
-typedef struct ClientState_t
+struct s_ClientState
 {
-    int dummy;
-} ClientState_t;
+    ENetPeer* gameHost;
+    ENetPeer* player_peers[MAX_PLAYER];
+};
+
+typedef struct s_ClientState ClientState_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 // Globally accesible client state
 extern ClientState_t ClientState;
 
-int  cl_init();
-void cl_shutDown();
-void cl_frameStep();
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+int  cl_init( void );
+void cl_shutDown( void );
+void cl_frameStep( void );
 
 // Much more to come...
 // int  cl_connectToServer(...);
 // int  cl_loadModule(...);
+
+egoboo_rv cl_talkToHost( net_instance_t * pnet );
+egoboo_rv cl_joinGame( net_instance_t * pnet, const char *hostname );
+egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 #define egoboo_Client_h

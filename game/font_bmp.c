@@ -89,8 +89,8 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     }
 
     // Get the size of the bitmap
-    xsize = oglx_texture_GetImageWidth( TxTexture_get_ptr(( TX_REF )TX_FONT ) );
-    ysize = oglx_texture_GetImageHeight( TxTexture_get_ptr(( TX_REF )TX_FONT ) );
+    xsize = oglx_texture_GetImageWidth( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ) );
+    ysize = oglx_texture_GetImageHeight( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ) );
     if ( 0 == xsize || 0 == ysize )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );

@@ -25,12 +25,27 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 struct s_ego_mpd;
 struct s_camera;
 struct s_renderlist;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+#if defined(MPD_CULL_RIGHT)
+// this worked with the old camera
+#    define MPD_REF_CULL   GL_CCW
+#    define MPD_NRM_CULL   GL_CW
+#else
+// they had to be reversed with the new camera
+#    define MPD_REF_CULL   GL_CW
+#    define MPD_NRM_CULL   GL_CCW
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 // JF - Added so that the video mode might be determined outside of the graphics code
 extern bool_t          meshnotexture;
 extern TX_REF          meshlasttexture;             ///< Last texture used
@@ -38,8 +53,9 @@ extern TX_REF          meshlasttexture;             ///< Last texture used
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void animate_all_tiles( struct s_ego_mpd * pmesh );
-gfx_rv render_fan( struct s_ego_mpd * pmesh, Uint32 fan );
-gfx_rv render_hmap_fan( struct s_ego_mpd * pmesh, Uint32 itile );
-gfx_rv render_water_fan( struct s_ego_mpd * pmesh, Uint32 fan, Uint8 layer );
+
+gfx_rv render_fan( const struct s_ego_mpd * pmesh, const Uint32 fan );
+gfx_rv render_hmap_fan( const struct s_ego_mpd * pmesh, const Uint32 itile );
+gfx_rv render_water_fan( const struct s_ego_mpd * pmesh, const Uint32 fan, const Uint8 layer );
 
 void animate_tiles( void );

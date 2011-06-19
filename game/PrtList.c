@@ -31,8 +31,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, prt_t, PrtList, MAX_PRT );
-
 static size_t  prt_termination_count = 0;
 static PRT_REF prt_termination_list[MAX_PRT];
 
@@ -41,6 +39,9 @@ static PRT_REF prt_activation_list[MAX_PRT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+INSTANTIATE_LIST( ACCESS_TYPE_NONE, prt_t, PrtList, MAX_PRT );
+
 int prt_loop_depth = 0;
 
 size_t maxparticles       = 512;
@@ -49,41 +50,46 @@ bool_t maxparticles_dirty = btrue;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static size_t  PrtList_get_free();
+static size_t  PrtList_get_free( void );
 
 static bool_t PrtList_remove_used( const PRT_REF iprt );
 static bool_t PrtList_remove_used_index( int index );
 static bool_t PrtList_add_free( const PRT_REF iprt );
-static bool_t PrtList_remove_free( const PRT_REF iprt );
+//static bool_t PrtList_remove_free( const PRT_REF iprt );
 static bool_t PrtList_remove_free_index( const int index );
 
-static size_t  PrtList_get_free();
+static size_t  PrtList_get_free( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t VALID_PRT_RANGE( PRT_REF IPRT ) { return _VALID_PRT_RANGE( IPRT ); }
-bool_t DEFINED_PRT( PRT_REF IPRT )     { return _DEFINED_PRT( IPRT );     }
-bool_t ALLOCATED_PRT( PRT_REF IPRT )   { return _ALLOCATED_PRT( IPRT );   }
-bool_t ACTIVE_PRT( PRT_REF IPRT )      { return _ACTIVE_PRT( IPRT );      }
-bool_t WAITING_PRT( PRT_REF IPRT )     { return _WAITING_PRT( IPRT );     }
-bool_t TERMINATED_PRT( PRT_REF IPRT )  { return _TERMINATED_PRT( IPRT );  }
+bool_t VALID_PRT_RANGE( const PRT_REF IPRT ) { return _VALID_PRT_RANGE( IPRT ); }
+bool_t DEFINED_PRT( const PRT_REF IPRT )     { return _DEFINED_PRT( IPRT );     }
+bool_t ALLOCATED_PRT( const PRT_REF IPRT )   { return _ALLOCATED_PRT( IPRT );   }
+bool_t ACTIVE_PRT( const PRT_REF IPRT )      { return _ACTIVE_PRT( IPRT );      }
+bool_t WAITING_PRT( const PRT_REF IPRT )     { return _WAITING_PRT( IPRT );     }
+bool_t TERMINATED_PRT( const PRT_REF IPRT )  { return _TERMINATED_PRT( IPRT );  }
 
-size_t  GET_INDEX_PPRT( prt_t * PPRT )  { return _GET_INDEX_PPRT( PPRT );  }
-PRT_REF GET_REF_PPRT( prt_t * PPRT )    { return _GET_REF_PPRT( PPRT );    }
-bool_t  DEFINED_PPRT( prt_t * PPRT )    { return _DEFINED_PPRT( PPRT );    }
-bool_t  VALID_PRT_PTR( prt_t * PPRT )   { return _VALID_PRT_PTR( PPRT );   }
-bool_t  ALLOCATED_PPRT( prt_t * PPRT )  { return _ALLOCATED_PPRT( PPRT );  }
-bool_t  ACTIVE_PPRT( prt_t * PPRT )     { return _ACTIVE_PPRT( PPRT );     }
-bool_t  TERMINATED_PPRT( prt_t * PPRT ) { return _TERMINATED_PPRT( PPRT ); }
+size_t  GET_INDEX_PPRT( const prt_t * PPRT )  { return _GET_INDEX_PPRT( PPRT );  }
+PRT_REF GET_REF_PPRT( const prt_t * PPRT )    { return _GET_REF_PPRT( PPRT );    }
+bool_t  DEFINED_PPRT( const prt_t * PPRT )    { return _DEFINED_PPRT( PPRT );    }
+bool_t  VALID_PRT_PTR( const prt_t * PPRT )   { return _VALID_PRT_PTR( PPRT );   }
+bool_t  ALLOCATED_PPRT( const prt_t * PPRT )  { return _ALLOCATED_PPRT( PPRT );  }
+bool_t  ACTIVE_PPRT( const prt_t * PPRT )     { return _ACTIVE_PPRT( PPRT );     }
+bool_t  TERMINATED_PPRT( const prt_t * PPRT ) { return _TERMINATED_PPRT( PPRT ); }
 
-bool_t INGAME_PRT_BASE( PRT_REF IPRT )  { return _INGAME_PRT_BASE( IPRT );  }
-bool_t INGAME_PPRT_BASE( prt_t * PPRT ) { return _INGAME_PPRT_BASE( PPRT ); }
+bool_t INGAME_PRT_BASE( const PRT_REF IPRT )  { return _INGAME_PRT_BASE( IPRT );  }
+bool_t INGAME_PPRT_BASE( const prt_t * PPRT ) { return _INGAME_PPRT_BASE( PPRT ); }
 
-bool_t INGAME_PRT( PRT_REF IPRT )       { return _INGAME_PRT( IPRT );  }
-bool_t INGAME_PPRT( prt_t * PPRT )      { return _INGAME_PPRT( PPRT ); }
+bool_t INGAME_PRT( const PRT_REF IPRT )       { return _INGAME_PRT( IPRT );  }
+bool_t INGAME_PPRT( const prt_t * PPRT )      { return _INGAME_PPRT( PPRT ); }
 
-bool_t DISPLAY_PRT( PRT_REF IPRT )     { return _DISPLAY_PRT( IPRT ) ; }
-bool_t DISPLAY_PPRT( prt_t * PPRT )    { return _DISPLAY_PPRT( PPRT ); }
+bool_t DISPLAY_PRT( const PRT_REF IPRT )     { return _DISPLAY_PRT( IPRT ) ; }
+bool_t DISPLAY_PPRT( const prt_t * PPRT )    { return _DISPLAY_PPRT( PPRT ); }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_LIST( prt_t, PrtList, MAX_PRT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -106,10 +112,10 @@ void PrtList_init()
     for ( cnt = 0; cnt < MAX_PRT; cnt++ )
     {
         PRT_REF iprt = ( MAX_PRT - 1 ) - cnt;
-        prt_t * pprt = PrtList.lst + iprt;
+        prt_t * pprt = PrtList_get_ptr( iprt );
 
         // blank out all the data, including the obj_base data
-        memset( pprt, 0, sizeof( *pprt ) );
+        BLANK_STRUCT_PTR( pprt )
 
         // particle "initializer"
         ego_object_ctor( POBJ_GET_PBASE( pprt ) );
@@ -127,7 +133,7 @@ void PrtList_dtor()
 
     for ( cnt = 0; cnt < MAX_PRT; cnt++ )
     {
-        prt_config_deconstruct( PrtList.lst + cnt, 100 );
+        prt_config_deconstruct( PrtList_get_ptr( cnt ), 100 );
     }
 
     PrtList.free_count = 0;
@@ -246,7 +252,7 @@ bool_t PrtList_free_one( const PRT_REF iprt )
     obj_data_t * pbase;
 
     if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
     pbase = POBJ_GET_PBASE( pprt );
 
     // if we are inside a PrtList loop, do not actually change the length of the
@@ -312,7 +318,7 @@ size_t PrtList_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF PrtList_allocate( bool_t force )
+PRT_REF PrtList_allocate( const bool_t force )
 {
     /// @details ZZ@> This function gets an unused particle.  If all particles are in use
     ///    and force is set, it grabs the first unimportant one.  The iprt
@@ -345,7 +351,7 @@ PRT_REF PrtList_allocate( bool_t force )
                     found = iprt;
                     break;
                 }
-                pprt =  PrtList.lst +  iprt;
+                pprt =  PrtList_get_ptr( iprt );
 
                 // does it have a valid profile?
                 if ( !LOADED_PIP( pprt->pip_ref ) )
@@ -440,13 +446,13 @@ PRT_REF PrtList_allocate( bool_t force )
         }
 
         // allocate the new one
-        POBJ_ALLOCATE( PrtList.lst +  iprt , REF_TO_INT( iprt ) );
+        POBJ_ALLOCATE( PrtList_get_ptr( iprt ), REF_TO_INT( iprt ) );
     }
 
     if ( ALLOCATED_PRT( iprt ) )
     {
         // construct the new structure
-        prt_config_construct( PrtList.lst +  iprt, 100 );
+        prt_config_construct( PrtList_get_ptr( iprt ), 100 );
     }
 
     return iprt;
@@ -551,15 +557,6 @@ bool_t PrtList_remove_free_index( const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_free( const PRT_REF iprt )
-{
-    // find the object in the free list
-    int index = PrtList_get_free_list_index( iprt );
-
-    return PrtList_remove_free_index( index );
-}
-
-//--------------------------------------------------------------------------------------------
 int PrtList_get_used_list_index( const PRT_REF iprt )
 {
     int retval = -1, cnt;
@@ -655,7 +652,7 @@ bool_t PrtList_remove_used( const PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 void PrtList_cleanup()
 {
-    int     cnt;
+    size_t  cnt;
     prt_t * pprt;
 
     // go through the list and activate all the particles that
@@ -665,7 +662,7 @@ void PrtList_cleanup()
         PRT_REF iprt = prt_activation_list[cnt];
 
         if ( !ALLOCATED_PRT( iprt ) ) continue;
-        pprt = PrtList.lst + iprt;
+        pprt = PrtList_get_ptr( iprt );
 
         if ( !pprt->obj_base.turn_me_on ) continue;
 
@@ -684,7 +681,7 @@ void PrtList_cleanup()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_add_activation( PRT_REF iprt )
+bool_t PrtList_add_activation( const PRT_REF iprt )
 {
     // put this particle into the activation list so that it can be activated right after
     // the PrtList loop is completed
@@ -707,7 +704,7 @@ bool_t PrtList_add_activation( PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_add_termination( PRT_REF iprt )
+bool_t PrtList_add_termination( const PRT_REF iprt )
 {
     bool_t retval = bfalse;
 
@@ -722,7 +719,118 @@ bool_t PrtList_add_termination( PRT_REF iprt )
     }
 
     // at least mark the object as "waiting to be terminated"
-    POBJ_REQUEST_TERMINATE( PrtList.lst + iprt );
+    POBJ_REQUEST_TERMINATE( PrtList_get_ptr( iprt ) );
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+int PrtList_count_free()
+{
+    return PrtList.free_count;
+}
+
+//--------------------------------------------------------------------------------------------
+void PrtList_reset_all()
+{
+    /// @details ZZ@> This resets all particle data and reads in the coin and water particles
+
+    const char *loadpath;
+
+    release_all_local_pips();
+    PipStack_release_all();
+
+    // Load in the standard global particles ( the coins for example )
+    loadpath = "mp_data/1money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_COIN1 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/5money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_COIN5 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/25money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_COIN25 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/100money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_COIN100 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/200money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_GEM200 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/500money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_GEM500 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/1000money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_GEM1000 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/2000money.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_GEM2000 ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    // Load module specific information
+    loadpath = "mp_data/weather4.txt";
+    PipStack_load_one( loadpath, ( PIP_REF )PIP_WEATHER );              //It's okay if weather particles fail
+
+    loadpath = "mp_data/weather5.txt";
+    PipStack_load_one( loadpath, ( PIP_REF )PIP_WEATHER_FINISH );
+
+    loadpath = "mp_data/splash.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_SPLASH ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    loadpath = "mp_data/ripple.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_RIPPLE ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    // This is also global...
+    loadpath = "mp_data/defend.txt";
+    if ( MAX_PIP == PipStack_load_one( loadpath, ( PIP_REF )PIP_DEFEND ) )
+    {
+        log_error( "Data file was not found! (\"%s\")\n", loadpath );
+    }
+
+    PipStack.count = GLOBAL_PIP_COUNT;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t PrtList_request_terminate( const PRT_REF iprt )
+{
+    prt_t * pprt = PrtList_get_ptr( iprt );
+
+    return prt_request_terminate( pprt );
+}
+
+////--------------------------------------------------------------------------------------------
+//bool_t PrtList_remove_free( const PRT_REF iprt )
+//{
+//    // find the object in the free list
+//    int index = PrtList_get_free_list_index( iprt );
+//
+//    return PrtList_remove_free_index( index );
+//}

@@ -84,6 +84,6 @@ tx_request_t * ego_rpc_load_TxTitleImage( const char *filename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t ego_rpc_system_begin();
-void   ego_rpc_system_end();
-bool_t ego_rpc_system_timestep();
+bool_t ego_rpc_system_begin( void );
+void   ego_rpc_system_end( void );
+bool_t ego_rpc_system_timestep( void );

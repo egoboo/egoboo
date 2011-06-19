@@ -19,13 +19,17 @@
 //*
 //********************************************************************************************
 
+#include "input.h"
+
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 #include "egoboo_process.h"
-#include "input.h"
+#include "egoboo_timer.h"
 
 //--------------------------------------------------------------------------------------------
+// forward declaration of external structs
 //--------------------------------------------------------------------------------------------
+
 struct s_ego_mpd;
 struct s_camera;
 struct s_script_state;
@@ -43,12 +47,99 @@ struct s_chr;
 struct s_prt;
 struct s_prt_bundle;
 
-struct s_Import_list;
+struct s_import_list;
+
+//--------------------------------------------------------------------------------------------
+// forward declaration of internal structs
+//--------------------------------------------------------------------------------------------
+
+struct s_game_process;
+typedef struct s_game_process game_process_t;
+
+struct s_animtile_instance;
+typedef struct s_animtile_instance animtile_instance_t;
+
+struct s_damagetile_instance;
+typedef struct s_damagetile_instance damagetile_instance_t;
+
+struct s_weather_instance;
+typedef struct s_weather_instance weather_instance_t;
+
+struct s_water_layer_instance;
+typedef struct s_water_layer_instance water_instance_layer_t;
+
+struct s_water_instance;
+typedef struct s_water_instance water_instance_t;
+
+struct s_fog_instance;
+typedef struct s_fog_instance fog_instance_t;
+
+struct s_game_module;
+typedef struct s_game_module game_module_t;
+
+struct s_import_element;
+typedef struct s_import_element import_element_t;
+
+struct s_import_list;
+typedef struct s_import_list import_list_t;
+
+struct s_line_of_sight_info;
+typedef struct s_line_of_sight_info line_of_sight_info_t;
+
+struct s_pit_info;
+typedef struct s_pit_info pit_info_t;
+
+struct s_status_list_element;
+typedef struct s_status_list_element status_list_element_t;
+
+struct s_status_list;
+typedef struct s_status_list status_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #define EXPKEEP 0.85f                                ///< Experience to keep when respawning
+
+// tile
+// #defne TILESOUNDTIME 16
+#define TILE_REAFFIRM_AND  3
+
+// water
+#define MAXWATERLAYER 2                                    ///< Maximum water layers
+#define MAXWATERFRAME (1 << 10)                            ///< Maximum number of wave frames
+#define WATERFRAMEAND (MAXWATERFRAME-1)
+#define WATERPOINTS 4                                      ///< Points in a water fan
+
+// inventory
+#define MAXINVENTORY        6                              ///< maximum number of objects in an inventory
+
+// status list
+#define MAX_STATUS          10                             ///< Maximum status displays
+
+// end text
+#define MAXENDTEXT 1024                                    ///< longest end text message
+
+// imports
+#define MAX_IMPORTS 16
+#define MAX_IMPORT_OBJECTS     ( MAXINVENTORY + 2 )        ///< left hand + right hand + MAXINVENTORY
+#define MAX_IMPORT_PER_PLAYER  ( 1 + MAX_IMPORT_OBJECTS )  ///< player + MAX_IMPORT_OBJECTS
+
+//--------------------------------------------------------------------------------------------
+
+/// The bitmasks for various in-game actions
+enum e_latchbutton_bits
+{
+    LATCHBUTTON_LEFT      = ( 1 << 0 ),                      ///< Character button presses
+    LATCHBUTTON_RIGHT     = ( 1 << 1 ),
+    LATCHBUTTON_JUMP      = ( 1 << 2 ),
+    LATCHBUTTON_ALTLEFT   = ( 1 << 3 ),                      ///< ( Alts are for grab/drop )
+    LATCHBUTTON_ALTRIGHT  = ( 1 << 4 ),
+    LATCHBUTTON_PACKLEFT  = ( 1 << 5 ),                      ///< ( Used by AI script for inventory cycle )
+    LATCHBUTTON_PACKRIGHT = ( 1 << 6 ),                      ///< ( Used by AI script for inventory cycle )
+    LATCHBUTTON_RESPAWN   = ( 1 << 7 )
+};
+
+//--------------------------------------------------------------------------------------------
 
 /// The possible pre-defined orders
 enum e_order
@@ -102,41 +193,12 @@ struct s_game_process
     int    menu_depth;
     bool_t escape_requested, escape_latch;
 
-    int    fps_ticks_next, fps_ticks_now;
-    int    ups_ticks_next, ups_ticks_now;
-
+    timer_t fps_timer;
+    timer_t ups_timer;
 };
-typedef struct s_game_process game_process_t;
 
-extern game_process_t * GProc;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//#define TILESOUNDTIME 16                ///< Not used anywhere
-#define TILE_REAFFIRM_AND  3
-
-#define MAXWATERLAYER 2                             ///< Maximum water layers
-#define MAXWATERFRAME 512                           ///< Maximum number of wave frames
-#define WATERFRAMEAND (MAXWATERFRAME-1)
-#define WATERPOINTS 4                               ///< Points in a water fan
-
-//Inventory stuff
-#define MAXINVENTORY        6
-#define MAXIMPORTOBJECTS    (MAXINVENTORY + 2)      ///< left hand + right hand + MAXINVENTORY
-#define MAXIMPORTPERPLAYER  (1 + MAXIMPORTOBJECTS)  ///< player + MAXIMPORTOBJECTS
-
-/// The bitmasks for various in-game actions
-enum e_latchbutton_bits
-{
-    LATCHBUTTON_LEFT      = ( 1 << 0 ),                      ///< Character button presses
-    LATCHBUTTON_RIGHT     = ( 1 << 1 ),
-    LATCHBUTTON_JUMP      = ( 1 << 2 ),
-    LATCHBUTTON_ALTLEFT   = ( 1 << 3 ),                      ///< ( Alts are for grab/drop )
-    LATCHBUTTON_ALTRIGHT  = ( 1 << 4 ),
-    LATCHBUTTON_PACKLEFT  = ( 1 << 5 ),                      ///< ( Used by AI script for inventory cycle )
-    LATCHBUTTON_PACKRIGHT = ( 1 << 6 ),                      ///< ( Used by AI script for inventory cycle )
-    LATCHBUTTON_RESPAWN   = ( 1 << 7 )
-};
+game_process_t * game_process_init( game_process_t * gproc );
+int              game_process_run( game_process_t * gproc, double frameDuration );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -144,15 +206,16 @@ enum e_latchbutton_bits
 /// The actual state of the animated tiles in-game
 struct s_animtile_instance
 {
-    int    update_and;             ///< New tile every 7 frames
-    Uint16 frame_and;
-    Uint16 base_and;
-    Uint16 frame_add;
-};
-typedef struct s_animtile_instance animtile_instance_t;
+    int    update_and;            ///< how often to update the tile
 
-extern Uint32              animtile_update_and;
-extern animtile_instance_t animtile[2];
+    Uint16 frame_and;             ///< how many images within the "tile set"?
+    Uint16 base_and;              ///< animated "tile set"
+    Uint16 frame_add;             ///< which image within the tile set?
+    Uint16 frame_add_old;         ///< the frame offset, the last time it was updated
+    Uint32 frame_update_old;
+};
+
+bool_t upload_animtile_data( animtile_instance_t dst[], const struct s_wawalite_animtile * src, const size_t animtile_count );
 
 //--------------------------------------------------------------------------------------------
 
@@ -169,8 +232,8 @@ struct s_damagetile_instance
     //Sint16  sound_time;           // this is not used anywhere in the game
     //Uint16  min_distance;           // this is not used anywhere in the game
 };
-typedef struct s_damagetile_instance damagetile_instance_t;
-extern damagetile_instance_t damagetile;
+
+bool_t upload_damagetile_data( damagetile_instance_t * dst, const struct s_wawalite_damagetile * src );
 
 //--------------------------------------------------------------------------------------------
 
@@ -184,8 +247,8 @@ struct s_weather_instance
     PLA_REF iplayer;
     int     time;                ///< 0 is no weather
 };
-typedef struct s_weather_instance weather_instance_t;
-extern weather_instance_t weather;
+
+bool_t upload_weather_data( weather_instance_t * dst, const struct s_wawalite_weather * src );
 
 //--------------------------------------------------------------------------------------------
 
@@ -193,10 +256,10 @@ extern weather_instance_t weather;
 struct s_water_layer_instance
 {
     Uint16    frame;        ///< Frame
-    Uint32    frame_add;      ///< Speed
+    Uint32    frame_add;    ///< Speed
 
-    float     z;            ///< Base height of water
-    float     amp;            ///< Amplitude of waves
+    float     z;            ///< Base height of this water layer
+    float     amp;          ///< Amplitude of waves
 
     fvec2_t   dist;         ///< some indication of "how far away" the layer is if it is an overlay
 
@@ -209,17 +272,20 @@ struct s_water_layer_instance
 
     fvec2_t   tx_add;            ///< Texture movement
 };
-typedef struct s_water_layer_instance water_instance_layer_t;
+
+float water_instance_layer_get_level( water_instance_layer_t * ptr );
+
+//--------------------------------------------------------------------------------------------
 
 /// The data descibing the water state
 struct s_water_instance
 {
     float  surface_level;          ///< Surface level for water striders
     float  douse_level;            ///< Surface level for torches
-    bool_t is_water;         ///< Is it water?  ( Or lava... )
+    bool_t is_water;               ///< Is it water?  ( Or lava... )
     bool_t overlay_req;
     bool_t background_req;
-    bool_t light;            ///< Is it light ( default is alpha )
+    bool_t light;                  ///< Is it light ( default is alpha )
 
     float  foregroundrepeat;
     float  backgroundrepeat;
@@ -232,8 +298,12 @@ struct s_water_instance
     float  layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
 };
 
-typedef struct s_water_instance water_instance_t;
-extern water_instance_t water;
+float     water_instance_get_water_level( water_instance_t * pinst );
+egoboo_rv water_instance_move( water_instance_t * pwater );
+bool_t    water_instance_make( water_instance_t * pinst, const struct s_wawalite_water * pdata );
+bool_t    water_instance_set_douse_level( water_instance_t * pinst, float level );
+
+bool_t    upload_water_data( water_instance_t * dst, const struct s_wawalite_water * src );
 
 //--------------------------------------------------------------------------------------------
 
@@ -246,8 +316,8 @@ struct s_fog_instance
     Uint8   red, grn, blu;
     float   distance;
 };
-typedef struct s_fog_instance fog_instance_t;
-extern fog_instance_t fog;
+
+bool_t upload_fog_data( fog_instance_t * dst, const struct s_wawalite_fog * src );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -269,27 +339,16 @@ struct s_game_module
     Uint32  seed;                       ///< The module seed
     Uint32  randsave;
 };
-typedef struct s_game_module game_module_t;
 
-//--------------------------------------------------------------------------------------------
-// Status displays
-
-#define MAXSTAT             10                      ///< Maximum status displays
-
-extern bool_t  StatusList_on;
-extern int     StatusList_count;
-extern CHR_REF StatusList[MAXSTAT];
-
-//--------------------------------------------------------------------------------------------
-// End text
-#define MAXENDTEXT 1024
-
-extern char   endtext[MAXENDTEXT];     ///< The end-module text
-extern size_t endtext_carat;
+bool_t game_module_setup( game_module_t * pinst, const struct s_mod_file * pdata, const char * loadname, const Uint32 seed );
+bool_t game_module_init( game_module_t * pinst );
+bool_t game_module_reset( game_module_t * pinst, const Uint32 seed );
+bool_t game_module_start( game_module_t * pinst );
+bool_t game_module_stop( game_module_t * pinst );
 
 //--------------------------------------------------------------------------------------------
 // Imports
-struct s_Import_element
+struct s_import_element
 {
     STRING          srcDir;
     STRING          dstDir;
@@ -299,25 +358,21 @@ struct s_Import_element
     size_t          player;             ///< Which player is this?
     int             slot;               ///< which slot it it to be loaded into
 };
-typedef struct s_Import_element Import_element_t;
 
-bool_t Import_element_init( Import_element_t * );
+bool_t import_element_init( import_element_t * );
 
 //--------------------------------------------------------------------------------------------
-#define MAX_IMPORTS 16
 
-struct s_Import_list
+struct s_import_list
 {
-    size_t                count;              ///< Number of imports
-    Import_element_t lst[MAX_IMPORTS];
+    size_t           count;              ///< Number of imports
+    import_element_t lst[MAX_IMPORTS];
 };
-typedef struct s_Import_list Import_list_t;
 
 #define IMPORT_LIST_INIT {0}
 
-bool_t    Import_list_init( Import_list_t * );
-egoboo_rv Import_list_from_players( Import_list_t * imp_lst );
-
+bool_t    import_list_init( import_list_t * imp_lst );
+egoboo_rv import_list_from_players( import_list_t * imp_lst );
 
 //--------------------------------------------------------------------------------------------
 /// Data needed to specify a line-of-sight test
@@ -333,18 +388,9 @@ struct s_line_of_sight_info
     int     collide_y;
 };
 
-typedef struct s_line_of_sight_info line_of_sight_info_t;
-
 bool_t do_line_of_sight( line_of_sight_info_t * plos );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-extern bool_t    overrideslots;          ///< Override existing slots?
-
-extern struct s_ego_mpd         * PMesh;
-extern struct s_camera          * PCamera;
-extern struct s_game_module * PMod;
 
 /// Pitty stuff
 struct s_pit_info
@@ -353,25 +399,84 @@ struct s_pit_info
     bool_t     teleport;      ///< Do they teleport?
     fvec3_t    teleport_pos;
 };
-typedef struct s_pit_info pit_info_t;
+
+#define PIT_INFO_INIT { bfalse /* kill */, bfalse /* teleport */, ZERO_VECT3 /* teleport_pos */ }
+
+//--------------------------------------------------------------------------------------------
+
+/// Status display info
+struct s_status_list_element
+{
+    int     camera_index;
+    CHR_REF who;
+};
+
+#define STATUS_LIST_ELEMENT_INIT { -1 /* camera_index */, MAX_CHR /* who */ }
+
+//--------------------------------------------------------------------------------------------
+
+/// List of objects with status displays
+struct s_status_list
+{
+    bool_t                on;
+    size_t                count;
+    status_list_element_t lst[MAX_STATUS];
+};
+
+#define STATUS_LIST_INIT { bfalse /* on */, 0 /* count */, {STATUS_LIST_ELEMENT_INIT} /* lst */ }
+
+bool_t status_list_update_cameras( status_list_t * plst );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// various global pointers
+extern game_process_t       * GProc;
+extern struct s_ego_mpd     * PMesh;
+extern struct s_camera      * PCamera;
+extern struct s_game_module * PMod;
+
+// special terrain and wawalite-related data structs
+extern animtile_instance_t animtile[2];
+extern damagetile_instance_t damagetile;
+extern weather_instance_t weather;
+extern water_instance_t water;
+extern fog_instance_t fog;
+
+extern status_list_t StatusList;
+
+// End text
+extern char   endtext[MAXENDTEXT];     ///< The end-module text
+extern size_t endtext_carat;
 
 extern pit_info_t pits;
 
-extern FACING_T  glouseangle;                                        ///< actually still used
+extern bool_t    overrideslots;          ///< Override existing slots?
+extern FACING_T  glouseangle;            ///< global return value from prt_find_target() - actually still used
 
 extern bool_t activate_spawn_file_active;
 
-extern Import_list_t ImportList;
+extern import_list_t ImportList;
+
+// various clocks and timers
+extern Sint32          clock_wld;             ///< The sync clock
+extern Uint32          clock_enc_stat;        ///< For character stat regeneration
+extern Uint32          clock_chr_stat;        ///< For enchant stat regeneration
+extern Uint32          clock_pit;             ///< For pit kills
+extern Uint32          update_wld;            ///< The number of times the game has been updated
+extern Uint32          true_update;
+extern Uint32          true_frame;
+extern int             update_lag;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// the hook for deinitializing an old module
-void   game_quit_module();
+void   game_quit_module( void );
 
 /// the hook for exporting all the current players and reloading them
-bool_t game_update_imports();
-void   game_finish_module();
+bool_t game_update_imports( void );
+void   game_finish_module( void );
 bool_t game_begin_module( const char * modname, Uint32 seed );
 
 /// Exporting stuff
@@ -385,7 +490,7 @@ void show_full_status( int statindex );
 void show_magic_status( int statindex );
 
 /// End Text
-void reset_end_text();
+void reset_end_text( void );
 
 /// Particles
 int     number_of_attached_particles( const CHR_REF character );
@@ -397,7 +502,7 @@ int     reaffirm_attached_particles( const CHR_REF character );
 /// Statlist
 void statlist_add( const CHR_REF character );
 void statlist_move_to_top( const CHR_REF character );
-void statlist_sort();
+void statlist_sort( void );
 
 /// Player
 void   set_one_player_latch( const PLA_REF player );
@@ -415,37 +520,17 @@ void  free_all_objects( void );
 struct s_ego_mpd * set_PMesh( struct s_ego_mpd * pmpd );
 struct s_camera  * set_PCamera( struct s_camera * pcam );
 
-bool_t upload_animtile_data( animtile_instance_t pinst[], struct s_wawalite_animtile * pdata, size_t animtile_count );
-bool_t upload_damagetile_data( damagetile_instance_t * pinst, struct s_wawalite_damagetile * pdata );
-bool_t upload_weather_data( weather_instance_t * pinst, struct s_wawalite_weather * pdata );
-bool_t upload_water_data( water_instance_t * pinst, struct s_wawalite_water * pdata );
-bool_t upload_fog_data( fog_instance_t * pinst, struct s_wawalite_fog * pdata );
-
 float get_mesh_level( struct s_ego_mpd * pmesh, float x, float y, bool_t waterwalk );
-
-bool_t make_water( water_instance_t * pinst, struct s_wawalite_water * pdata );
 
 bool_t game_choose_module( int imod, int seed );
 
-int                  game_do_menu( struct s_menu_process * mproc );
-game_process_t     * game_process_init( game_process_t * gproc );
+int    game_do_menu( struct s_menu_process * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
-void upload_wawalite();
-
-bool_t game_module_setup( game_module_t * pinst, struct s_mod_file * pdata, const char * loadname, Uint32 seed );
-bool_t game_module_init( game_module_t * pinst );
-bool_t game_module_reset( game_module_t * pinst, Uint32 seed );
-bool_t game_module_start( game_module_t * pinst );
-bool_t game_module_stop( game_module_t * pinst );
-
 bool_t check_target( struct s_chr * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits );
 
-void attach_all_particles();
-
-struct s_wawalite_data * read_wawalite();
-bool_t write_wawalite( const char *modname, struct s_wawalite_data * pdata );
+void attach_all_particles( void );
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
@@ -459,10 +544,6 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
 
 float get_chr_level( struct s_ego_mpd * pmesh, struct s_chr * pchr );
-
-int do_game_proc_run( game_process_t * gproc, double frameDuration );
-
-egoboo_rv move_water( water_instance_t * pwater );
 
 void disenchant_character( const CHR_REF ichr );
 
@@ -479,6 +560,13 @@ bool_t attach_prt_to_platform( struct s_prt * pprt, struct s_chr * pplat );
 bool_t detach_character_from_platform( struct s_chr * pchr );
 bool_t detach_particle_from_platform( struct s_prt * pprt );
 
-egoboo_rv game_copy_imports( struct s_Import_list * imp_lst );
+egoboo_rv game_copy_imports( struct s_import_list * imp_lst );
 
 bool_t check_time( Uint32 check );
+void   game_update_timers( void );
+
+// wawalite functions
+struct s_wawalite_data * read_wawalite_vfs( void );
+bool_t write_wawalite_vfs( /* const char *modname, */ const struct s_wawalite_data * pdata );
+bool_t fix_wawalite( struct s_wawalite_data * pdata );
+void   upload_wawalite( void );

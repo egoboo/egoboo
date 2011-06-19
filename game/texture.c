@@ -24,12 +24,18 @@
 #include "texture.h"
 
 #include "egoboo_fileutil.h"
+
 #include "egoboo_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+IMPLEMENT_LIST( oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -223,15 +229,14 @@ TX_REF TxTexture_load_one_vfs( const char *filename, const TX_REF itex_src, Uint
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * TxTexture_get_ptr( const TX_REF itex )
+oglx_texture_t * TxTexture_get_valid_ptr( const TX_REF itex )
 {
-    oglx_texture_t * ptex;
-
-    if ( itex < 0 || itex >= TX_TEXTURE_COUNT ) return NULL;
-    ptex = TxTexture.lst + itex;
+    oglx_texture_t * ptex = TxTexture_get_ptr( itex );
 
     if ( !oglx_texture_Valid( ptex ) )
+    {
         return NULL;
+    }
 
     return ptex;
 }

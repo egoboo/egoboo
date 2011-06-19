@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-#include "file_formats/mpd_file.h"
-#include "extensions/ogl_include.h"
-
 #include "lighting.h"
 #include "bsp.h"
+
+#include "file_formats/mpd_file.h"
+#include "extensions/ogl_include.h"
 
 //--------------------------------------------------------------------------------------------
 
@@ -81,28 +81,46 @@ typedef float       light_cache_t[4];
 /// The data describing an Egoboo tile
 struct s_ego_tile_info
 {
+    // the "inherited" tile info
     Uint8   type;                              ///< Tile type
     Uint16  img;                               ///< Get texture from this
     size_t  vrtstart;                          ///< Which vertex to start at
 
+    // some extra flags
     bool_t  fanoff;                            ///< display this tile?
+
+    // some info about the renderlist
     bool_t  inrenderlist;                      ///< Is the tile going to be rendered this frame?
     int     inrenderlist_frame;                ///< What was the frame number the last time this tile was rendered?
-    bool_t  needs_lighting_update;             ///< Has this tile been tagged for a lighting update?
 
-    oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
+    // tile corner lighting parameters
     normal_cache_t ncache;                     ///< the normals at the corners of this tile
     light_cache_t  lcache;                     ///< the light at the corners of this tile
+    bool_t         request_lcache_update;        ///< has this tile been tagged for a lcache update?
+    int            lcache_frame;              ///< the last frame in which the lighting cache was updated
+
+    // tile vertex lighting parameters
+    bool_t         request_clst_update;          ///< has this tile been tagged for a color list update?
+    int            clst_frame;                 ///< the last frame in which the color list was updated
     light_cache_t  d1_cache;                   ///< the estimated change in the light at the corner of the tile
     light_cache_t  d2_cache;                   ///< the estimated change in the light at the corner of the tile
+
+    // the bounding boc of this tile
+    oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
+    BSP_leaf_t     bsp_leaf;                   ///< the octree node for this object
 };
 typedef struct s_ego_tile_info ego_tile_info_t;
 
-ego_tile_info_t * ego_tile_info_alloc();
-ego_tile_info_t * ego_tile_info_init( ego_tile_info_t * ptr );
+ego_tile_info_t * ego_tile_info_ctor( ego_tile_info_t * ptr, int index );
+ego_tile_info_t * ego_tile_info_dtor( ego_tile_info_t * ptr );
+ego_tile_info_t * ego_tile_info_free( ego_tile_info_t * ptr );
+ego_tile_info_t * ego_tile_info_create( int index );
+ego_tile_info_t * ego_tile_info_destroy( ego_tile_info_t * ptr );
 
-ego_tile_info_t * ego_tile_info_alloc_ary( size_t count );
-ego_tile_info_t * ego_tile_info_init_ary( ego_tile_info_t * ptr, size_t count );
+ego_tile_info_t * ego_tile_info_ctor_ary( ego_tile_info_t * ptr, size_t count );
+ego_tile_info_t * ego_tile_info_dtor_ary( ego_tile_info_t * ptr, size_t count );
+ego_tile_info_t * ego_tile_info_create_ary( size_t count );
+ego_tile_info_t * ego_tile_info_destroy_ary( ego_tile_info_t * ary, size_t count );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -121,9 +139,20 @@ struct s_ego_grid_info
     // the lighting info in the upper left hand corner of a grid
     Uint8            a, l;                     ///< the raw mesh lighting... pretty much ignored
     lighting_cache_t cache;                    ///< the per-grid lighting info
-
+    int              cache_frame;              ///< the last frame in which the cache was calculated
 };
 typedef struct s_ego_grid_info ego_grid_info_t;
+
+ego_grid_info_t * ego_grid_info_ctor( ego_grid_info_t * ptr );
+ego_grid_info_t * ego_grid_info_dtor( ego_grid_info_t * ptr );
+ego_grid_info_t * ego_grid_info_free( ego_grid_info_t * ptr );
+ego_grid_info_t * ego_grid_info_create();
+ego_grid_info_t * ego_grid_info_destroy( ego_grid_info_t * ptr );
+
+ego_grid_info_t * ego_grid_info_ctor_ary( ego_grid_info_t * ptr, size_t count );
+ego_grid_info_t * ego_grid_info_dtor_ary( ego_grid_info_t * ptr, size_t count );
+ego_grid_info_t * ego_grid_info_create_ary( size_t count );
+ego_grid_info_t * ego_grid_info_destroy_ary( ego_grid_info_t * ary, size_t count );
 
 //--------------------------------------------------------------------------------------------
 struct s_grid_mem
@@ -163,8 +192,9 @@ struct s_tile_mem
     size_t          vert_count;                        ///< number of vertices
     GLXvector3f   * plst;                              ///< the position list
     GLXvector2f   * tlst;                              ///< the texture coordinate list
-    GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
     GLXvector3f   * nlst;                              ///< the normal list
+    GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
+
 };
 typedef struct s_tile_mem tile_mem_t;
 
@@ -232,13 +262,13 @@ ego_mpd_t * mesh_renew( ego_mpd_t * pmesh );
 /// loading/saving
 ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh );
 
-void   mesh_make_twist();
+void   mesh_make_twist( void );
 
-float  mesh_light_corners( ego_mpd_t * pmesh, int itile, float mesh_lighting_keep );
-bool_t mesh_test_corners( ego_mpd_t * pmesh, int itile, float threshold );
-bool_t mesh_interpolate_vertex( tile_mem_t * pmem, int itile, float pos[], float * plight );
+bool_t mesh_test_corners( ego_mpd_t * pmesh, ego_tile_info_t * ptile, float threshold );
+float  mesh_light_corners( ego_mpd_t * pmesh, ego_tile_info_t * ptile, bool_t reflective, float mesh_lighting_keep );
+bool_t mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, float pos[], float * plight );
 
-bool_t grid_light_one_corner( ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
+bool_t grid_light_one_corner( const ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
 
 BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * private_data );
 BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * private_data );
@@ -251,3 +281,5 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile );
 
 fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits );
 float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, const BIT_FIELD bits );
+
+bool_t mesh_update_water_level( ego_mpd_t * pmesh );

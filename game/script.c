@@ -25,11 +25,11 @@
 #include "script_functions.h"
 
 #include "mad.h"
-
 #include "log.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "game.h"
 #include "network.h"
+#include "player.h"
 
 #include "egoboo_vfs.h"
 #include "egoboo_setup.h"
@@ -132,7 +132,7 @@ void scr_run_chr_script( const CHR_REF character )
     scripting_system_begin();
 
     if ( !INGAME_CHR( character ) )  return;
-    pchr  = ChrList.lst + character;
+    pchr  = ChrList_get_ptr( character );
     pself = &( pchr->ai );
     pscript = &( chr_get_ppro( character )->ai_script );
 
@@ -215,7 +215,7 @@ void scr_run_chr_script( const CHR_REF character )
     }
 
     // reset the script state
-    memset( &my_state, 0, sizeof( my_state ) );
+    BLANK_STRUCT( my_state )
 
     // reset the ai
     pself->terminate = bfalse;
@@ -295,7 +295,6 @@ bool_t scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script
 
     // check for valid pointers
     if ( NULL == pstate || NULL == pself ) return bfalse;
-
 
     // check for valid execution pointer
     if ( pscript->position >= pscript->length ) return bfalse;
@@ -889,16 +888,16 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
     chr_t * pchr = NULL, * ptarget = NULL, * powner = NULL;
 
     if ( !DEFINED_CHR( pself->index ) ) return;
-    pchr = ChrList.lst + pself->index;
+    pchr = ChrList_get_ptr( pself->index );
 
     if ( DEFINED_CHR( pself->target ) )
     {
-        ptarget = ChrList.lst + pself->target;
+        ptarget = ChrList_get_ptr( pself->target );
     }
 
     if ( DEFINED_CHR( pself->owner ) )
     {
-        powner = ChrList.lst + pself->owner;
+        powner = ChrList_get_ptr( pself->owner );
     }
 
     // get the operator
@@ -1013,7 +1012,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARLEADERX:
                 varname = "LEADERX";
                 iTmp = pchr->pos.x;
-                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
+                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
                     iTmp = team_get_pleader( pchr->team )->pos.x;
 
                 break;
@@ -1021,7 +1020,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARLEADERY:
                 varname = "LEADERY";
                 iTmp = pchr->pos.y;
-                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
+                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
                     iTmp = team_get_pleader( pchr->team )->pos.y;
 
                 break;
@@ -1047,7 +1046,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARLEADERTURN:
                 varname = "LEADERTURN";
                 iTmp = pchr->ori.facing_z;
-                if ( TeamStack.lst[pchr->team].leader != NOLEADER )
+                if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
                     iTmp = team_get_pleader( pchr->team )->ori.facing_z;
 
                 break;
@@ -1244,12 +1243,12 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSELFMANAFLOW:
                 varname = "SELFMANAFLOW";
-                iTmp = pchr->manaflow;
+                iTmp = pchr->mana_flow;
                 break;
 
             case VARTARGETMANAFLOW:
                 varname = "TARGETMANAFLOW";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->manaflow;
+                iTmp = ( NULL == ptarget ) ? 0 : ptarget->mana_flow;
                 break;
 
             case VARSELFATTACHED:
@@ -1259,7 +1258,16 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSWINGTURN:
                 varname = "SWINGTURN";
-                iTmp = PCamera->swing << 2;
+                {
+                    ext_camera_list_t * plst = camera_system_get_list();
+                    camera_t          * pcam = camera_list_find_target( plst, pself->index );
+
+                    iTmp = 0;
+                    if ( NULL != pcam )
+                    {
+                        iTmp = pcam->swing << 2;
+                    }
+                }
                 break;
 
             case VARXYDISTANCE:
@@ -1393,7 +1401,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARTARGETMAXLIFE:
                 varname = "TARGETMAXLIFE";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->lifemax;
+                iTmp = ( NULL == ptarget ) ? 0 : ptarget->life_max;
                 break;
 
             case VARTARGETTEAM:
@@ -1697,7 +1705,7 @@ void set_alerts( const CHR_REF character )
 
     // invalid characters do not think
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
     pai  = chr_get_pai( character );
 
     if ( waypoint_list_empty( &( pai->wp_lst ) ) ) return;
@@ -1816,7 +1824,7 @@ ai_state_t * ai_state_reconstruct( ai_state_t * pself )
     ai_state_free( pself );
 
     // set everything to safe values
-    memset( pself, 0, sizeof( *pself ) );
+    BLANK_STRUCT_PTR( pself )
 
     pself->index      = ( CHR_REF )MAX_CHR;
     pself->target     = ( CHR_REF )MAX_CHR;
@@ -1853,3 +1861,64 @@ ai_state_t * ai_state_dtor( ai_state_t * pself )
     return pself;
 }
 
+//--------------------------------------------------------------------------------------------
+bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
+{
+    bool_t retval;
+
+    if ( NULL == pai ) return bfalse;
+
+    // this function is only truely valid if there is no other order
+    retval = HAS_NO_BITS( pai->alert, ALERTIF_ORDERED );
+
+    SET_BIT( pai->alert, ALERTIF_ORDERED );
+    pai->order_value   = value;
+    pai->order_counter = counter;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ai_state_set_changed( ai_state_t * pai )
+{
+    /// @details BB@> do something tricky here
+
+    bool_t retval = bfalse;
+
+    if ( NULL == pai ) return bfalse;
+
+    if ( HAS_NO_BITS( pai->alert, ALERTIF_CHANGED ) )
+    {
+        SET_BIT( pai->alert, ALERTIF_CHANGED );
+        retval = btrue;
+    }
+
+    if ( !pai->changed )
+    {
+        pai->changed = btrue;
+        retval = btrue;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
+{
+    /// @details BB@> bumping into a chest can initiate whole loads of update messages.
+    ///     Try to throttle the rate that new "bump" messages can be passed to the ai
+
+    if ( NULL == pself ) return bfalse;
+
+    if ( !INGAME_CHR( ichr ) ) return bfalse;
+
+    // 5 bumps per second?
+    if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
+    {
+        pself->bumplast_time = update_wld;
+        SET_BIT( pself->alert, ALERTIF_BUMPED );
+    }
+    pself->bumplast = ichr;
+
+    return btrue;
+}

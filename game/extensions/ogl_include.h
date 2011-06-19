@@ -97,7 +97,13 @@ void oglx_ViewMatrix( GLXmatrix view,
 void oglx_ProjectionMatrix( GLXmatrix proj,
                             const GLfloat near_plane,    ///< @var distance to near clipping plane
                             const GLfloat far_plane,     ///< @var distance to far clipping plane
-                            const GLfloat fov );         ///< @var field of view angle, in radians
+                            const GLfloat fov_rad );     ///< @var vertical field-of-view angle, in radians
+
+GLboolean oglx_ProjectionMatrix_2( GLXmatrix proj,
+                                   GLfloat frustum_near, ///< @var distance to near clipping plane
+                                   GLfloat frustum_far,  ///< @var distance to far clipping plane
+                                   GLfloat fov_rad,      ///< @var vertical field-of-view angle, in radians
+                                   GLfloat screen[] );   ///< @var the screen coordinates of the current viewport
 
 /// Set the FILE that ogl_include will use to dump debugging information.
 /// If not set, it will default to stderr.

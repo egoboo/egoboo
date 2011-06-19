@@ -24,9 +24,10 @@
 
 #include "ui.h"
 #include "graphic.h"
+#include "font_ttf.h"
 
-#include "ogl_debug.h"
-#include "SDL_extensions.h"
+#include "extensions/ogl_debug.h"
+#include "extensions/SDL_extensions.h"
 
 #include <string.h>
 #include <SDL_opengl.h>
@@ -84,7 +85,7 @@ int ui_begin( const char *default_font, int default_font_size )
     // initialize the font handler
     fnt_init();
 
-    memset( &ui_context, 0, sizeof( ui_context ) );
+    BLANK_STRUCT( ui_context )
 
     ui_context.active = ui_context.hot = UI_Nothing;
 
@@ -109,7 +110,7 @@ void ui_end()
     // clear out the active font
     ui_context.activeFont = NULL;
 
-    memset( &ui_context, 0, sizeof( ui_context ) );
+    BLANK_STRUCT( ui_context )
 }
 
 //--------------------------------------------------------------------------------------------
@@ -119,7 +120,7 @@ void ui_Reset()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_handleSDLEvent( SDL_Event *evt )
+bool_t ui_handle_SDL_Event( SDL_Event *evt )
 {
     bool_t handled;
 
@@ -179,7 +180,7 @@ void ui_beginFrame( float deltaTime )
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                    // GL_ENABLE_BIT
 
     // draw draw front and back faces of polygons
-    GL_DEBUG( glDisable )( GL_CULL_FACE );                                     // GL_ENABLE_BIT
+    oglx_end_culling();                                     // GL_ENABLE_BIT
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                     // GL_ENABLE_BIT
 
@@ -485,7 +486,6 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
 
     return vy + vheight;
 }
-
 
 //--------------------------------------------------------------------------------------------
 float ui_drawWidgetButton( ui_Widget_t * pw )
@@ -891,7 +891,6 @@ Font * ui_loadFont( const char * font_name, float vpointSize )
 
     return fnt_loadFont( font_name, pointSize );
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

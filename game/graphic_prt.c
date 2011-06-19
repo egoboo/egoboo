@@ -23,18 +23,18 @@
 
 #include "graphic_prt.h"
 
-#include "particle.inl"
-#include "char.inl"
-#include "profile.inl"
-
 #include "game.h"
 #include "texture.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "input.h"
 #include "lighting.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
+
+#include "particle.inl"
+#include "char.inl"
+#include "profile.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ void prt_set_texture_params( const TX_REF itex )
     index = prt_get_texture_style( itex );
     if ( index < 0 ) return;
 
-    ptex = TxTexture_get_ptr( itex );
+    ptex = TxTexture_get_valid_ptr( itex );
     if ( NULL == ptex ) return;
 
     ptex_w[index] = ptex->imgW;
@@ -96,7 +96,7 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static gfx_rv prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting );
+static gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool_t do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
@@ -123,56 +123,6 @@ int cmp_prt_registry_entity( const void * vlhs, const void * vrhs )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
-{
-    fvec3_t vfwd, vcam;
-    size_t  numparticle;
-
-    update_all_prt_instance( pcam );
-
-    mat_getCamForward( pcam->mView.v, vfwd.v );
-    vcam = pcam->pos;
-
-    // Original points
-    numparticle = 0;
-    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
-    {
-        prt_instance_t * pinst;
-
-        if ( numparticle >= reg_count ) break;
-
-        pinst = &( prt_bdl.prt_ptr->inst );
-
-        if ( !pinst->indolist ) continue;
-
-        if ( 0 != pinst->size )
-        {
-            fvec3_t   vpos;
-            float dist;
-
-            vpos.x = pinst->pos.x - vcam.x;
-            vpos.y = pinst->pos.y - vcam.y;
-            vpos.z = pinst->pos.z - vcam.z;
-
-            dist = fvec3_dot_product( vfwd.v, vpos.v );
-
-            if ( dist > 0 )
-            {
-                reg[numparticle].index = REF_TO_INT( prt_bdl.prt_ref );
-                reg[numparticle].dist  = dist;
-                numparticle++;
-            }
-        }
-    }
-    PRT_END_LOOP();
-
-    // sort the particles from close to far
-    qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
-
-    return numparticle;
-}
-
-//--------------------------------------------------------------------------------------------
 gfx_rv render_one_prt_solid( const PRT_REF iprt )
 {
     /// @details BB@> Render the solid version of the particle
@@ -188,7 +138,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     // if the particle is hidden, do not continue
     if ( pprt->is_hidden ) return gfx_fail;
@@ -213,7 +163,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         GL_DEBUG( glDepthMask )( GL_TRUE );           // GL_ENABLE_BIT
 
         // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );        // GL_ENABLE_BIT
+        oglx_end_culling();        // GL_ENABLE_BIT
 
         // Since the textures are probably mipmapped or minified with some kind of
         // interpolation, we can never really turn blending off,
@@ -225,7 +175,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
         GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );       // GL_COLOR_BUFFER_BIT
 
-        oglx_texture_Bind( TxTexture_get_ptr(( TX_REF )TX_PARTICLE_TRANS ) );
+        oglx_texture_Bind( TxTexture_get_valid_ptr(( TX_REF )TX_PARTICLE_TRANS ) );
 
         GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );  // GL_CURRENT_BIT
 
@@ -245,28 +195,6 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
-{
-    /// @details BB@> do solid sprites first
-
-    size_t cnt;
-    PRT_REF prt;
-
-    gfx_begin_3d( pcam );
-    {
-        // apply solid particles from near to far
-        for ( cnt = 0; cnt < numparticle; cnt++ )
-        {
-            // Get the index from the color slot
-            prt = reg[cnt].index;
-
-            render_one_prt_solid( prt );
-        }
-    }
-    gfx_end_3d();
-}
-
-//--------------------------------------------------------------------------------------------
 gfx_rv render_one_prt_trans( const PRT_REF iprt )
 {
     /// @details BB@> do all kinds of transparent sprites next
@@ -281,7 +209,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     // if the particle is hidden, do not continue
     if ( pprt->is_hidden ) return gfx_fail;
@@ -303,7 +231,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );       // GL_DEPTH_BUFFER_BIT
 
         // draw draw front and back faces of polygons
-        GL_DEBUG( glDisable )( GL_CULL_FACE );    // ENABLE_BIT
+        oglx_end_culling();    // ENABLE_BIT
 
         draw_particle = bfalse;
         if ( SPRITE_SOLID == pprt->type )
@@ -323,7 +251,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particle_color[AA] = 1.0f;
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
-            oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+            oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
 
             draw_particle = btrue;
         }
@@ -343,7 +271,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particle_color[AA] = 1.0f;
 
             pinst->texture_ref = TX_PARTICLE_LIGHT;
-            oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+            oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
 
             draw_particle = ( intens > 0.0f );
         }
@@ -364,7 +292,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particle_color[AA] = pinst->falpha;
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
-            oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+            oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
 
             draw_particle = ( pinst->falpha > 0.0f );
         }
@@ -398,84 +326,8 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
-{
-    /// @details BB@> do all kinds of transparent sprites next
-
-    int cnt;
-
-    gfx_begin_3d( pcam );
-    {
-        // apply transparent particles from far to near
-        for ( cnt = (( int )numparticle ) - 1; cnt >= 0; cnt-- )
-        {
-            // Get the index from the color slot
-            render_one_prt_trans(( PRT_REF )reg[cnt].index );
-        }
-    }
-    gfx_end_3d();
-}
-
 //--------------------------------------------------------------------------------------------
-void render_all_particles( camera_t * pcam )
-{
-    /// @details ZZ@> This function draws the sprites for particle systems
 
-    prt_registry_entity_t reg[MAX_PRT];
-    size_t numparticle;
-
-    numparticle = render_all_prt_begin( pcam, reg, MAX_PRT );
-
-    render_all_prt_solid( pcam, reg, numparticle );
-    render_all_prt_trans( pcam, reg, numparticle );
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
-{
-    fvec3_t vfwd, vcam;
-    size_t  numparticle;
-
-    update_all_prt_instance( pcam );
-
-    mat_getCamForward( pcam->mView.v, vfwd.v );
-    vcam = pcam->pos;
-
-    // Original points
-    numparticle = 0;
-    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
-    {
-        prt_instance_t * pinst;
-        fvec3_t   vpos;
-        float dist;
-
-        if ( numparticle >= reg_count ) break;
-
-        pinst = &( prt_bdl.prt_ptr->inst );
-
-        if ( !pinst->indolist ) continue;
-
-        vpos = fvec3_sub( pinst->ref_pos.v, vcam.v );
-        dist = fvec3_dot_product( vfwd.v, vpos.v );
-
-        if ( dist > 0 )
-        {
-            reg[numparticle].index = REF_TO_INT( iprt );
-            reg[numparticle].dist  = dist;
-            numparticle++;
-        }
-
-    }
-    PRT_END_LOOP();
-
-    // sort the particles from close to far
-    qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
-
-    return numparticle;
-}
-
-//--------------------------------------------------------------------------------------------
 gfx_rv render_one_prt_ref( const PRT_REF iprt )
 {
     /// @details BB@> render one particle
@@ -491,7 +343,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.lst + iprt;
+    pprt = PrtList_get_ptr( iprt );
 
     // if the particle is hidden, do not continue
     if ( pprt->is_hidden ) return gfx_fail;
@@ -523,7 +375,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
             GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
             // draw draw front and back faces of polygons
-            GL_DEBUG( glDisable )( GL_CULL_FACE );    // ENABLE_BIT
+            oglx_end_culling();    // ENABLE_BIT
 
             draw_particle = bfalse;
             if ( SPRITE_LIGHT == pprt->type )
@@ -542,7 +394,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = 1.0f;
 
                 pinst->texture_ref = TX_PARTICLE_LIGHT;
-                oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+                oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
 
                 draw_particle = intens > 0.0f;
             }
@@ -569,7 +421,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = alpha;
 
                 pinst->texture_ref = TX_PARTICLE_TRANS;
-                oglx_texture_Bind( TxTexture_get_ptr( pinst->texture_ref ) );
+                oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
 
                 draw_particle = alpha > 0.0f;
             }
@@ -603,38 +455,6 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
     }
 
     return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
-{
-    size_t cnt;
-    PRT_REF prt;
-
-    gfx_begin_3d( pcam );
-    {
-        // Render each particle that was on
-        for ( cnt = 0; cnt < numparticle; cnt++ )
-        {
-            // Get the index from the color slot
-            prt = reg[cnt].index;
-
-            render_one_prt_ref(( PRT_REF )reg[cnt].index );
-        }
-    }
-    gfx_end_3d();
-}
-
-//--------------------------------------------------------------------------------------------
-void render_prt_ref( camera_t * pcam )
-{
-    /// @details ZZ@> This function draws sprites reflected in the floor
-
-    prt_registry_entity_t reg[MAX_PRT];
-    size_t numparticle;
-
-    numparticle = render_all_prt_ref_begin( pcam, reg, MAX_PRT );
-    render_all_prt_ref( pcam, reg, numparticle );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -801,7 +621,7 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
     if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 
     if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return;
-    pholder = ChrList.lst + loc_pprt->attachedto_ref;
+    pholder = ChrList_get_ptr( loc_pprt->attachedto_ref );
 
     pholder_cap = pro_get_pcap( pholder->profile_ref );
     if ( NULL == pholder_cap ) return;
@@ -814,11 +634,10 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv update_all_prt_instance( camera_t * pcam )
+gfx_rv update_all_prt_instance( const camera_t * pcam )
 {
     gfx_rv retval;
 
-    if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
@@ -862,7 +681,7 @@ gfx_rv update_all_prt_instance( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
+gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
 {
     pip_t * ppip;
 
@@ -877,7 +696,6 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     pinst->valid     = bfalse;
     pinst->ref_valid = bfalse;
 
-    if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
@@ -895,7 +713,7 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pprt->pip_ref, "invalid pip" );
         return gfx_error;
     }
-    ppip = PipStack.lst + pprt->pip_ref;
+    ppip = PipStack_get_ptr( pprt->pip_ref );
 
     pinst->type = pprt->type;
 
@@ -910,11 +728,11 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
-    vfwd = fvec3_sub( pinst->pos.v, pcam->pos.v );
-    vfwd = fvec3_normalize( vfwd.v );
+    fvec3_sub( vfwd.v, pinst->pos.v, pcam->pos.v );
+    fvec3_self_normalize( vfwd.v );
 
-    vfwd_ref = fvec3_sub( pinst->ref_pos.v, pcam->pos.v );
-    vfwd_ref = fvec3_normalize( vfwd_ref.v );
+    fvec3_sub( vfwd_ref.v, pinst->ref_pos.v, pcam->pos.v );
+    fvec3_self_normalize( vfwd_ref.v );
 
     // set the up and right vectors
     if ( ppip->rotatetoface && !INGAME_CHR( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
@@ -922,29 +740,29 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
         // the particle points along its direction of travel
 
         vup = pprt->vel;
-        vup   = fvec3_normalize( vup.v );
+        fvec3_self_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = fvec3_cross_product( vfwd.v, vup.v );
-        vright = fvec3_normalize( vright.v );
+        fvec3_cross_product( vright.v, vfwd.v, vup.v );
+        fvec3_self_normalize( vright.v );
 
         vup_ref    = vup;
-        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
-        vright_ref = fvec3_normalize( vright_ref.v );
+        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
+        fvec3_self_normalize( vright_ref.v );
     }
     else if ( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
         vup = pcam->vup;
-        vup = fvec3_normalize( vup.v );
+        fvec3_self_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = fvec3_cross_product( vfwd.v, vup.v );
-        vright = fvec3_normalize( vright.v );
+        fvec3_cross_product( vright.v, vfwd.v, vup.v );
+        fvec3_self_normalize( vright.v );
 
         vup_ref    = vup;
-        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
-        vright_ref = fvec3_normalize( vright_ref.v );
+        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
+        fvec3_self_normalize( vright_ref.v );
     }
     else if ( ORIENTATION_V == pinst->orientation )
     {
@@ -971,34 +789,33 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
         vup.x = vup.x + weight * vup_cam.x;
         vup.y = vup.y + weight * vup_cam.y;
         vup.z = vup.z + weight * vup_cam.z;
-        vup = fvec3_normalize( vup.v );
+        fvec3_self_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = fvec3_cross_product( vfwd.v, vup.v );
-        vright = fvec3_normalize( vright.v );
+        fvec3_cross_product( vright.v, vfwd.v, vup.v );
+        fvec3_self_normalize( vright.v );
 
-        vright_ref = fvec3_cross_product( vfwd.v, vup_ref.v );
-        vright_ref = fvec3_normalize( vright_ref.v );
+        fvec3_cross_product( vright_ref.v, vfwd.v, vup_ref.v );
+        fvec3_self_normalize( vright_ref.v );
 
         vup_ref    = vup;
-        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
-        vright_ref = fvec3_normalize( vright_ref.v );
+        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
+        fvec3_self_normalize( vright_ref.v );
     }
     else if ( ORIENTATION_H == pinst->orientation )
     {
-        vup.x = vup.y = 0;
-        vup.z = 1;
+        fvec3_t vert = VECT3( 0, 0, 1 );
 
         // force right to be horizontal
-        vright = fvec3_cross_product( vfwd.v, vup.v );
+        fvec3_cross_product( vright.v, vfwd.v, vert.v );
 
         // force "up" to be close to the camera forward, but horizontal
-        vup = fvec3_cross_product( vup.v, vright.v );
-        vup_ref = fvec3_cross_product( vup.v, vright_ref.v );
+        fvec3_cross_product( vup.v, vert.v, vright.v );
+        fvec3_cross_product( vup_ref.v, vert.v, vright_ref.v );
 
         // normalize them
-        vright = fvec3_normalize( vright.v );
-        vup    = fvec3_normalize( vup.v );
+        fvec3_self_normalize( vright.v );
+        fvec3_self_normalize( vup.v );
 
         vright_ref = vright;
         vup_ref    = vup;
@@ -1007,7 +824,7 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     {
         chr_instance_t * cinst = chr_get_pinstance( pprt->attachedto_ref );
 
-        if ( chr_matrix_valid( ChrList.lst + pprt->attachedto_ref ) )
+        if ( chr_matrix_valid( ChrList_get_ptr( pprt->attachedto_ref ) ) )
         {
             // use the character matrix to orient the particle
             // assume that the particle "up" is in the z-direction in the object's
@@ -1037,29 +854,29 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
             }
         }
 
-        vup = fvec3_normalize( vup.v );
+        fvec3_self_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = fvec3_cross_product( vfwd.v, vup.v );
-        vright = fvec3_normalize( vright.v );
+        fvec3_cross_product( vright.v, vfwd.v, vup.v );
+        fvec3_self_normalize( vright.v );
 
         vup_ref    = vup;
-        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
-        vright_ref = fvec3_normalize( vright_ref.v );
+        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
+        fvec3_self_normalize( vright_ref.v );
     }
     else
     {
         // use the camera up vector
         vup = pcam->vup;
-        vup = fvec3_normalize( vup.v );
+        fvec3_self_normalize( vup.v );
 
         // get the correct "right" vector
-        vright = fvec3_cross_product( vfwd.v, vup.v );
-        vright = fvec3_normalize( vright.v );
+        fvec3_cross_product( vright.v, vfwd.v, vup.v );
+        fvec3_self_normalize( vright.v );
 
         vup_ref    = vup;
-        vright_ref = fvec3_cross_product( vfwd_ref.v, vup.v );
-        vright_ref = fvec3_normalize( vright_ref.v );
+        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
+        fvec3_self_normalize( vright_ref.v );
     }
 
     // calculate the actual vectors using the particle rotation
@@ -1074,8 +891,9 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     else
     {
         float  sinval, cosval;
-        TURN_T turn = TO_TURN( pprt->rotate );
+        TURN_T turn;
 
+        turn = TO_TURN( pprt->rotate );
         cosval = turntocos[ turn ];
         sinval = turntosin[ turn ];
 
@@ -1097,7 +915,7 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
     }
 
     // calculate the billboard normal
-    pinst->nrm = fvec3_cross_product( pinst->right.v, pinst->up.v );
+    fvec3_cross_product( pinst->nrm.v, pinst->right.v, pinst->up.v );
 
     // flip the normal so that the front front of the quad is toward the camera
     if ( fvec3_dot_product( vfwd.v, pinst->nrm.v ) < 0 )
@@ -1188,7 +1006,9 @@ gfx_rv prt_instance_update_vertices( camera_t * pcam, prt_instance_t * pinst, pr
 //--------------------------------------------------------------------------------------------
 fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst )
 {
-    fmat_4x4_t mat = IdentityMatrix();
+    fmat_4x4_t mat;
+
+    mat_Identity( mat.v );
 
     mat.CNV( 0, 1 ) = -pinst->up.x;
     mat.CNV( 1, 1 ) = -pinst->up.y;
@@ -1229,11 +1049,11 @@ gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8
     alpha = trans;
 
     // interpolate the lighting for the origin of the object
-    grid_lighting_interpolate( PMesh, &global_light, pinst->pos.x, pinst->pos.y );
+    grid_lighting_interpolate( PMesh, &global_light, pinst->pos.v );
 
     // rotate the lighting data to body_centered coordinates
     mat = prt_instance_make_matrix( pinst );
-    lighting_project_cache( &loc_light, &global_light, mat );
+    lighting_project_cache( &loc_light, &global_light, mat.v );
 
     // determine the normal dependent amount of light
     lighting_evaluate_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->tmem.bbox, &amb, &dir );
@@ -1267,7 +1087,7 @@ gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting )
+gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, bool_t do_lighting )
 {
     prt_t          * pprt;
     prt_instance_t * pinst;
@@ -1278,7 +1098,7 @@ gfx_rv prt_instance_update( camera_t * pcam, const PRT_REF particle, Uint8 trans
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, particle, "invalid particle" );
         return gfx_error;
     }
-    pprt = PrtList.lst + particle;
+    pprt = PrtList_get_ptr( particle );
     pinst = &( pprt->inst );
 
     // assume the best
@@ -1343,3 +1163,206 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );
     }
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// EXAMPLE CODE THAT IS NOT USED
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static void   render_all_particles( struct s_camera * pcam );
+static size_t render_all_prt_begin( const camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count );
+static void   render_all_prt_solid( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle );
+static void   render_all_prt_trans( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle );
+
+//--------------------------------------------------------------------------------------------
+void render_all_particles( camera_t * pcam )
+{
+    /// @details ZZ@> This function draws the sprites for particle systems
+
+    prt_registry_entity_t reg[MAX_PRT];
+    size_t numparticle;
+
+    numparticle = render_all_prt_begin( pcam, reg, MAX_PRT );
+
+    render_all_prt_solid( pcam, reg, numparticle );
+    render_all_prt_trans( pcam, reg, numparticle );
+}
+
+//--------------------------------------------------------------------------------------------
+size_t render_all_prt_begin( const camera_t * pcam,  prt_registry_entity_t reg[], size_t reg_count )
+{
+    fvec3_t vfwd, vcam;
+    size_t  numparticle;
+
+    update_all_prt_instance( pcam );
+
+    mat_getCamForward( pcam->mView.v, vfwd.v );
+    vcam = pcam->pos;
+
+    // Original points
+    numparticle = 0;
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
+    {
+        prt_instance_t * pinst;
+
+        if ( numparticle >= reg_count ) break;
+
+        pinst = &( prt_bdl.prt_ptr->inst );
+
+        if ( !pinst->indolist ) continue;
+
+        if ( 0 != pinst->size )
+        {
+            fvec3_t   vpos;
+            float dist;
+
+            vpos.x = pinst->pos.x - vcam.x;
+            vpos.y = pinst->pos.y - vcam.y;
+            vpos.z = pinst->pos.z - vcam.z;
+
+            dist = fvec3_dot_product( vfwd.v, vpos.v );
+
+            if ( dist > 0 )
+            {
+                reg[numparticle].index = REF_TO_INT( prt_bdl.prt_ref );
+                reg[numparticle].dist  = dist;
+                numparticle++;
+            }
+        }
+    }
+    PRT_END_LOOP();
+
+    // sort the particles from close to far
+    qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
+
+    return numparticle;
+}
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_solid( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
+{
+    /// @details BB@> do solid sprites first
+
+    size_t cnt;
+    PRT_REF prt;
+
+    gfx_begin_3d( pcam );
+    {
+        // apply solid particles from near to far
+        for ( cnt = 0; cnt < numparticle; cnt++ )
+        {
+            // Get the index from the color slot
+            prt = reg[cnt].index;
+
+            render_one_prt_solid( prt );
+        }
+    }
+    gfx_end_3d();
+}
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_trans( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
+{
+    /// @details BB@> do all kinds of transparent sprites next
+
+    int cnt;
+
+    gfx_begin_3d( pcam );
+    {
+        // apply transparent particles from far to near
+        for ( cnt = (( int )numparticle ) - 1; cnt >= 0; cnt-- )
+        {
+            // Get the index from the color slot
+            render_one_prt_trans(( PRT_REF )reg[cnt].index );
+        }
+    }
+    gfx_end_3d();
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// EXAMPLE CODE THAT IS NOT USED
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static void   render_all_prt_ref( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle );
+static size_t render_all_prt_ref_begin( const camera_t * pcam,  prt_registry_entity_t reg[],  size_t reg_count );
+static void   render_prt_ref( const camera_t * pcam );
+
+//--------------------------------------------------------------------------------------------
+void render_prt_ref( camera_t * pcam )
+{
+    /// @details ZZ@> This function draws sprites reflected in the floor
+
+    prt_registry_entity_t reg[MAX_PRT];
+    size_t numparticle;
+
+    numparticle = render_all_prt_ref_begin( pcam, reg, MAX_PRT );
+    render_all_prt_ref( pcam, reg, numparticle );
+}
+
+//--------------------------------------------------------------------------------------------
+size_t render_all_prt_ref_begin( const camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
+{
+    fvec3_t vfwd, vcam;
+    size_t  numparticle;
+
+    update_all_prt_instance( pcam );
+
+    mat_getCamForward( pcam->mView.v, vfwd.v );
+    vcam = pcam->pos;
+
+    // Original points
+    numparticle = 0;
+    PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
+    {
+        prt_instance_t * pinst;
+        fvec3_t   vpos;
+        float dist;
+
+        if ( numparticle >= reg_count ) break;
+
+        pinst = &( prt_bdl.prt_ptr->inst );
+
+        if ( !pinst->indolist ) continue;
+
+        fvec3_sub( vpos.v, pinst->ref_pos.v, vcam.v );
+        dist = fvec3_dot_product( vfwd.v, vpos.v );
+
+        if ( dist > 0 )
+        {
+            reg[numparticle].index = REF_TO_INT( iprt );
+            reg[numparticle].dist  = dist;
+            numparticle++;
+        }
+
+    }
+    PRT_END_LOOP();
+
+    // sort the particles from close to far
+    qsort( reg, numparticle, sizeof( prt_registry_entity_t ), cmp_prt_registry_entity );
+
+    return numparticle;
+}
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_ref( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
+{
+    size_t cnt;
+    PRT_REF prt;
+
+    gfx_begin_3d( pcam );
+    {
+        // Render each particle that was on
+        for ( cnt = 0; cnt < numparticle; cnt++ )
+        {
+            // Get the index from the color slot
+            prt = reg[cnt].index;
+
+            render_one_prt_ref(( PRT_REF )reg[cnt].index );
+        }
+    }
+    gfx_end_3d();
+}
+

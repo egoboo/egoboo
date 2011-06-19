@@ -48,7 +48,7 @@
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
 #undef  ENABLE_BODY_GRAB      ///< Enable the grabbing of bodies?
-#define  TEST_NAN_RESULT       ///< Test the result of certain math operations
+#undef  TEST_NAN_RESULT       ///< Test the result of certain math operations
 
 #undef  USE_LUA_CONSOLE       ///< LUA support for the console
 
@@ -77,7 +77,7 @@
 
 #undef  DEBUG_WAYPOINTS      ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
 
-#define  DEBUG_ASTAR          ///< Debug AStar pathfinding
+#undef  DEBUG_ASTAR          ///< Debug AStar pathfinding
 
 /// How much script debugging.
 ///    0 -- debugging off ( requires defined(_DEBUG) )
@@ -89,6 +89,11 @@
 #undef  DRAW_CHR_BBOX        ///< display selected character bounding boxes
 #undef  DRAW_PRT_BBOX        ///< display selected particle bounding boxes
 #define DRAW_LISTS          ///< display any lines or points that have been added to various lists
+
+#define MAD_CULL_RIGHT       ///< helps to define which faces are clipped when rendering character models
+#define MPD_CULL_RIGHT       ///< helps to define which faces are clipped when rendering the mesh
+
+#define EGOBOO_THROTTLED     ///< are the inner loops of the game throttled?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -31,7 +31,7 @@ obj_data_t * ego_object_ctor( obj_data_t * pbase )
 {
     if ( NULL == pbase ) return pbase;
 
-    memset( pbase, 0, sizeof( *pbase ) );
+    BLANK_STRUCT_PTR( pbase )
 
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;
@@ -44,7 +44,7 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase )
 {
     if ( NULL == pbase ) return pbase;
 
-    memset( pbase, 0, sizeof( *pbase ) );
+    BLANK_STRUCT_PTR( pbase )
 
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;

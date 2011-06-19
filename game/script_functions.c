@@ -27,30 +27,32 @@
 
 #include "script_functions.h"
 
-#include "profile.inl"
-#include "enchant.inl"
-#include "char.inl"
-#include "particle.inl"
 #include "mad.h"
-#include "mesh.inl"
 
 #include "link.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "passage.h"
 #include "graphic.h"
 #include "input.h"
 #include "network.h"
 #include "game.h"
 #include "log.h"
-
-#include "spawn_file.h"
-#include "quest.h"
+#include "player.h"
 
 #include "AStar.h"
 
 #include "egoboo_math.h"
 #include "egoboo_strutil.h"
 #include "egoboo_setup.h"
+
+#include "file_formats/spawn_file.h"
+#include "file_formats/quest_file.h"
+
+#include "profile.inl"
+#include "enchant.inl"
+#include "char.inl"
+#include "particle.inl"
+#include "mesh.inl"
 #include "egoboo_math.inl"
 
 //--------------------------------------------------------------------------------------------
@@ -65,9 +67,9 @@
     pro_t * ppro; \
     Uint8 returncode = btrue; \
     if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return bfalse; \
-    pchr = ChrList.lst + pself->index; \
+    pchr = ChrList_get_ptr( pself->index ); \
     if( !LOADED_PRO(pchr->profile_ref) ) return bfalse; \
-    ppro = ProList.lst + pchr->profile_ref;
+    ppro = ProList_get_ptr( pchr->profile_ref );
 
 #define SCRIPT_FUNCTION_END() \
     return returncode;
@@ -85,7 +87,7 @@
 
 #define SCRIPT_REQUIRE_TARGET(PTARGET) \
     if( !INGAME_CHR(pself->target) ) return bfalse; \
-    PTARGET = ChrList.lst + pself->target;
+    PTARGET = ChrList_get_ptr( pself->target );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1132,9 +1134,9 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
             ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
             ChrList.lst[ichr].jump_timer = JUMPDELAY;
 
-            tmp_pos = chr_get_pos( ChrList.lst + ichr );
+            tmp_pos = chr_get_pos( ChrList_get_ptr( ichr ) );
             tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
+            chr_set_pos( ChrList_get_ptr( ichr ), tmp_pos.v );
         }
     }
 
@@ -1149,9 +1151,9 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
             ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
             ChrList.lst[ichr].jump_timer = JUMPDELAY;
 
-            tmp_pos = chr_get_pos( ChrList.lst + ichr );
+            tmp_pos = chr_get_pos( ChrList_get_ptr( ichr ) );
             tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos( ChrList.lst + ichr, tmp_pos.v );
+            chr_set_pos( ChrList_get_ptr( ichr ), tmp_pos.v );
         }
     }
 
@@ -1171,7 +1173,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( INGAME_CHR( pself->target ) )
     {
-        chr_t * pself_target = ChrList.lst + pself->target;
+        chr_t * pself_target = ChrList_get_ptr( pself->target );
 
         if ( pself_target->alive )
         {
@@ -1287,7 +1289,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 
             //only valid items
             if ( !INGAME_CHR( item ) ) continue;
-            pitem = ChrList.lst + item;
+            pitem = ChrList_get_ptr( item );
 
             //matching idsz?
             if ( chr_is_type_idsz( item, idsz ) ) break;
@@ -1300,7 +1302,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( INGAME_CHR( item ) )
     {
-        pitem = ChrList.lst + item;
+        pitem = ChrList_get_ptr( item );
         returncode = btrue;
 
         // Cost one ammo
@@ -1324,7 +1326,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
             }
 
             // get rid of the character, no matter what
-            chr_request_terminate( item );
+            ChrList_request_terminate( item );
         }
     }
 
@@ -1681,7 +1683,7 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
     {
         CHR_REF ileader = TeamStack.lst[pchr->team].leader;
 
-        if ( NOLEADER != ileader && INGAME_CHR( ileader ) )
+        if ( TEAM_NOLEADER != ileader && INGAME_CHR( ileader ) )
         {
             CHR_REF itarget = ChrList.lst[ileader].ai.target;
 
@@ -1808,7 +1810,7 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( TeamStack.lst[pchr->team].leader != NOLEADER );
+    returncode = ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1840,7 +1842,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
     {
         CHR_REF ileader = TeamStack.lst[pchr->team].leader;
 
-        if ( NOLEADER != ileader && INGAME_CHR( ileader ) )
+        if ( TEAM_NOLEADER != ileader && INGAME_CHR( ileader ) )
         {
             SET_TARGET_0( ileader );
             returncode = btrue;
@@ -1862,7 +1864,6 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     /// direction, and tmpdistance gives the new character's initial velocity
 
     CHR_REF ichr;
-    int tTmp;
     fvec3_t   pos;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1876,29 +1877,29 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
     }
     else
     {
-        chr_t * pchild = ChrList.lst + ichr;
+        chr_t * pchild = ChrList_get_ptr( ichr );
 
         // was the child spawned in a "safe" spot?
         if ( !chr_get_safe( pchild, NULL ) )
         {
-            chr_request_terminate( ichr );
+            ChrList_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
         }
         else
         {
+            TURN_T turn;
             pself->child = ichr;
 
-            tTmp = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
-
-            pchild->vel.x += turntocos[ tTmp ] * pstate->distance;
-            pchild->vel.y += turntosin[ tTmp ] * pstate->distance;
+            turn = TO_TURN( pchr->ori.facing_z + ATK_BEHIND );
+            pchild->vel.x += turntocos[ turn ] * pstate->distance;
+            pchild->vel.y += turntosin[ turn ] * pstate->distance;
 
             pchild->iskursed = pchr->iskursed;  /// @details BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
@@ -2078,7 +2079,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->life > pself_target->lifemax - HURTDAMAGE )
+    if ( !pself_target->alive || pself_target->life > pself_target->life_max - HURTDAMAGE )
         returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
@@ -2147,7 +2148,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     if ( returncode )
     {
         fvec3_t tmp_pos;
-        prt_t * pprt = PrtList.lst + iprt;
+        prt_t * pprt = PrtList_get_ptr( iprt );
 
         // attach the particle
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
@@ -2753,19 +2754,9 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
     // SetWaterLevel( tmpargument = "level" )
     /// @details ZZ@> This function raises or lowers the water in the module
 
-    int iTmp;
-    float fTmp;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    fTmp = ( pstate->argument / 10.0f ) - water.douse_level;
-    water.surface_level += fTmp;
-    water.douse_level += fTmp;
-
-    for ( iTmp = 0; iTmp < MAXWATERLAYER; iTmp++ )
-    {
-        water.layer[iTmp].z += fTmp;
-    }
+    returncode = water_instance_set_douse_level( &water, pstate->argument / 10.0f );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3180,7 +3171,7 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 {
     // CostTargetMana( tmpargument = "amount" )
     /// @details ZZ@> This function costs the target a specific amount of mana, proceeding
-    /// if the target was able to pay the price.  The amounts are 8.8-bit fixed point
+    /// if the target was able to pay the price.  The amounts are 8.8 fixed point
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3471,12 +3462,33 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
     // SendMessageNear( tmpargument = "message" )
     /// @details ZZ@> This function sends a message if the camera is in the nearby area
 
-    int iTmp;
+    int iTmp, min_distance;
+    ext_camera_list_t * plst;
+    ext_camera_iterator_t * it;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = ABS( pchr->pos_old.x - PCamera->track_pos.x ) + ABS( pchr->pos_old.y - PCamera->track_pos.y );
-    if ( iTmp < MSGDISTANCE )
+    // get the camera list
+    plst = camera_system_get_list();
+
+    // iterate over all cameras and find the minimum distance
+    min_distance = -1;
+    for ( it = camera_list_iterator_begin( plst ); NULL != it; it = camera_list_iterator_next( it ) )
+    {
+        camera_t * pcam = camera_list_iterator_get_camera( it );
+        if ( NULL != pcam )
+        {
+            iTmp = ABS( pchr->pos_old.x - pcam->track_pos.x ) + ABS( pchr->pos_old.y - pcam->track_pos.y );
+
+            if ( -1 == min_distance || iTmp < min_distance )
+            {
+                min_distance = iTmp;
+            }
+        }
+    }
+    it = camera_list_iterator_end( it );
+
+    if ( min_distance < MSGDISTANCE )
     {
         returncode = _display_message( pself->index, pchr->profile_ref, pstate->argument, pstate );
     }
@@ -4108,7 +4120,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
         if ( playing_chunk != new_chunk )
         {
-            pchr->loopedsound_channel = sound_play_chunk_looped( pchr->pos_old, new_chunk, -1, pself->index, &renderlist );
+            pchr->loopedsound_channel = sound_play_chunk_looped( pchr->pos_old, new_chunk, -1, pself->index );
         }
     }
 
@@ -4135,7 +4147,7 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // HealSelf()
     /// @details ZZ@> This function gives life back to the character.
-    /// Values given as 8.8-bit fixed point
+    /// Values given as 8.8 fixed point
     /// This does NOT remove [HEAL] enchants ( poisons )
     /// This does not set the ALERTIF_HEALED alert
 
@@ -4340,7 +4352,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     {
         int action;
 
-        chr_t * pchild = ChrList.lst + pself->child;
+        chr_t * pchild = ChrList_get_ptr( pself->child );
 
         action = mad_get_action_ref( pchild->inst.imad, pstate->argument );
 
@@ -4410,7 +4422,7 @@ Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 
     if ( VALID_CHR_RANGE( pself->child ) )
     {
-        chr_set_ai_state( ChrList.lst + pself->child, pstate->argument );
+        chr_set_ai_state( ChrList_get_ptr( pself->child ), pstate->argument );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4440,7 +4452,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        returncode = prt_set_size( PrtList.lst + iprt, pstate->turn );
+        returncode = prt_set_size( PrtList_get_ptr( iprt ), pstate->turn );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4712,8 +4724,8 @@ Uint8 scr_GiveLifeToTarget( script_state_t * pstate, ai_state_t * pself )
     if ( pself_target->alive )
     {
         iTmp = pstate->argument;
-        getadd( LOWSTAT, pself_target->lifemax, PERFECTBIG, &iTmp );
-        pself_target->lifemax += iTmp;
+        getadd( LOWSTAT, pself_target->life_max, PERFECTBIG, &iTmp );
+        pself_target->life_max += iTmp;
         if ( iTmp < 0 )
         {
             getadd( 1, pself_target->life, PERFECTBIG, &iTmp );
@@ -4741,8 +4753,8 @@ Uint8 scr_GiveManaToTarget( script_state_t * pstate, ai_state_t * pself )
     if ( pself_target->alive )
     {
         iTmp = pstate->argument;
-        getadd( 0, pself_target->manamax, PERFECTBIG, &iTmp );
-        pself_target->manamax += iTmp;
+        getadd( 0, pself_target->mana_max, PERFECTBIG, &iTmp );
+        pself_target->mana_max += iTmp;
         if ( iTmp < 0 )
         {
             getadd( 0, pself_target->mana, PERFECTBIG, &iTmp );
@@ -4814,7 +4826,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // HealTarget( tmpargument = "amount" )
     /// @details ZZ@> This function gives some life back to the target.
-    /// Values are 8.8-bit fixed point. Any enchantments that are removed by [HEAL], like poison, go away
+    /// Values are 8.8 fixed point. Any enchantments that are removed by [HEAL], like poison, go away
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4833,7 +4845,7 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // PumpTarget( tmpargument = "amount" )
     /// @details ZZ@> This function gives some mana back to the target.
-    /// Values are 8.8-bit fixed point
+    /// Values are 8.8 fixed point
 
     int iTmp;
     chr_t * pself_target;
@@ -4845,7 +4857,7 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
     if ( pself_target->alive )
     {
         iTmp = pstate->argument;
-        getadd( 0, pself_target->mana, pself_target->manamax, &iTmp );
+        getadd( 0, pself_target->mana, pself_target->mana_max, &iTmp );
         pself_target->mana += iTmp;
     }
 
@@ -5141,15 +5153,18 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     /// coordinates
 
     Uint32 iTmp;
+    ego_tile_info_t * ptile = NULL;
 
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
     iTmp = mesh_get_grid( PMesh, pstate->x, pstate->y );
-    if ( mesh_grid_is_valid( PMesh, iTmp ) )
+
+    ptile = mesh_get_ptile( PMesh, iTmp );
+    if ( NULL != ptile )
     {
         returncode = btrue;
-        pstate->argument = PMesh->tmem.tile_list[iTmp].img & TILE_LOWER_MASK;
+        pstate->argument = ptile->img & TILE_LOWER_MASK;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5221,7 +5236,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->StatusList_on )
+    if ( pchr->show_stats )
     {
         int x = 0;
     }
@@ -5262,7 +5277,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     // SetEnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
     /// @details ZZ@> This function sets the mana and life drains for the last enchantment
     /// spawned by this character.
-    /// Values are 8.8-bit fixed point
+    /// Values are 8.8 fixed point
 
     ENC_REF iTmp;
 
@@ -5304,19 +5319,19 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
     }
     else
     {
-        chr_t * pchild = ChrList.lst + ichr;
+        chr_t * pchild = ChrList_get_ptr( ichr );
 
         // was the child spawned in a "safe" spot?
         if ( !chr_get_safe( pchild, NULL ) )
         {
-            chr_request_terminate( ichr );
+            ChrList_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
         }
         else
@@ -5358,7 +5373,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
             cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
@@ -5367,12 +5382,12 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = ChrList.lst + ichr;
+        chr_t * pchild = ChrList_get_ptr( ichr );
 
         // was the child spawned in a "safe" spot?
         if ( !chr_get_safe( pchild, NULL ) )
         {
-            chr_request_terminate( ichr );
+            ChrList_request_terminate( ichr );
             ichr = ( CHR_REF )MAX_CHR;
         }
         else
@@ -5592,7 +5607,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     if ( INGAME_CHR( pself->target ) )
     {
         int action;
-        chr_t * pself_target = ChrList.lst + pself->target;
+        chr_t * pself_target = ChrList_get_ptr( pself->target );
 
         action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
 
@@ -6305,7 +6320,7 @@ Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !pchr->StatusList_on )
+    if ( !pchr->show_stats )
     {
         statlist_add( pself->index );
     }
@@ -6370,7 +6385,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     {
     if(INGAME_CHR(sTmp) && ChrList.lst[sTmp].alive && ChrList.lst[sTmp].Team == pchr->Team)
     {
-    distance = ABS(PCamera->trackx-ChrList.lst[sTmp].pos_old.x)+ABS(PCamera->tracky-ChrList.lst[sTmp].pos_old.y);
+    distance = ABS(PCamera->track.x-ChrList.lst[sTmp].pos_old.x)+ABS(PCamera->track.y-ChrList.lst[sTmp].pos_old.y);
     if(distance < iTmp)  iTmp = distance;
     }
     sTmp++;
@@ -6424,7 +6439,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 
     if ( !INGAME_CHR( pself->target ) ) return bfalse;
 
-    pself_target = ChrList.lst + pself->target;
+    pself_target = ChrList_get_ptr( pself->target );
 
     pcap = chr_get_pcap( pself->target );         // The Target's model
     if ( NULL == pcap )  return bfalse;
@@ -6574,7 +6589,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
 
     if ( returncode )
     {
-        PrtList.lst[iprt].spawncharacterstate = pstate->turn;
+        PrtList.lst[iprt].endspawn_characterstate = pstate->turn;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6790,7 +6805,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !pself_target->alive || pself_target->mana > pself_target->manamax - HURTDAMAGE )
+    if ( !pself_target->alive || pself_target->mana > pself_target->mana_max - HURTDAMAGE )
     {
         returncode = bfalse;
     }
@@ -6837,7 +6852,6 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 {
     // FollowLink( tmpargument = "index of next module name" )
     /// @details BB@> Skips to the next module!
-
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6942,7 +6956,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
     {
         //Who is the dirty backstabber?
-        chr_t * pattacker = ChrList.lst + pself->attacklast;
+        chr_t * pattacker = ChrList_get_ptr( pself->attacklast );
         if ( !ACTIVE_PCHR( pattacker ) ) return bfalse;
 
         //Only if hit from behind
@@ -6994,7 +7008,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) )
     {
-        player_t * ppla = PlaStack.lst + ipla;
+        player_t * ppla = PlaStack_get_ptr( ipla );
 
         result = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
     }
@@ -7019,7 +7033,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        player_t * ppla = PlaStack.lst + ipla;
+        player_t * ppla = PlaStack_get_ptr( ipla );
 
         if ( !ppla->valid ) continue;
 
@@ -7055,7 +7069,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) )
     {
-        player_t * ppla = PlaStack.lst + ipla;
+        player_t * ppla = PlaStack_get_ptr( ipla );
 
         quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument );
     }
@@ -7089,7 +7103,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     if ( VALID_PLA( ipla ) && 0 != pstate->distance )
     {
         int        quest_level = QUEST_NONE;
-        player_t * ppla        = PlaStack.lst + ipla;
+        player_t * ppla        = PlaStack_get_ptr( ipla );
 
         quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
 
@@ -7115,7 +7129,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     for ( player_count = 0, success_count = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         int quest_level;
-        player_t * ppla = PlaStack.lst + ipla;
+        player_t * ppla = PlaStack_get_ptr( ipla );
 
         if ( !ppla->valid || !INGAME_CHR( ppla->index ) ) continue;
         player_count++;
@@ -7221,7 +7235,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAXIMPORTPERPLAYER )
+        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
             cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
@@ -7230,7 +7244,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = ChrList.lst + ichr;
+        chr_t * pchild = ChrList_get_ptr( ichr );
 
         Uint8 grip = CLIP( pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT );
 
@@ -7254,7 +7268,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //No more room!
             else
             {
-                chr_request_terminate( ichr );
+                ChrList_request_terminate( ichr );
                 ichr = ( CHR_REF )MAX_CHR;
             }
         }
@@ -7280,7 +7294,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             //Grip is already used
             else
             {
-                chr_request_terminate( ichr );
+                ChrList_request_terminate( ichr );
                 ichr = ( CHR_REF )MAX_CHR;
             }
         }
@@ -7292,7 +7306,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
             // technically this should never occur since we are limiting the attachment points above
             if ( !chr_get_safe( pchild, NULL ) )
             {
-                chr_request_terminate( ichr );
+                ChrList_request_terminate( ichr );
                 ichr = ( CHR_REF )MAX_CHR;
             }
         }
@@ -7535,8 +7549,8 @@ Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
     if ( pself_target->alive )
     {
         iTmp = pstate->argument;
-        getadd( 0, pself_target->manaflow, PERFECTSTAT, &iTmp );
-        pself_target->manaflow += iTmp;
+        getadd( 0, pself_target->mana_flow, PERFECTSTAT, &iTmp );
+        pself_target->mana_flow += iTmp;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7558,8 +7572,8 @@ Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
     if ( pself_target->alive )
     {
         iTmp = pstate->argument;
-        getadd( 0, pself_target->manareturn, PERFECTSTAT, &iTmp );
-        pself_target->manareturn += iTmp;
+        getadd( 0, pself_target->mana_return, PERFECTSTAT, &iTmp );
+        pself_target->mana_return += iTmp;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7785,7 +7799,6 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 
     returncode = NULL != chr_make_text_billboard( pself->index, ppro->message[pstate->argument], text_color, do_tint, pstate->distance, bb_opt_fade );
 
-
     SCRIPT_FUNCTION_END();
 }
 
@@ -7913,7 +7926,7 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
         }
 
         //check distance
-        diff  = fvec3_sub( pchr->pos.v, pweapon->pos.v );
+        fvec3_sub( diff.v, pchr->pos.v, pweapon->pos.v );
         dist = fvec3_dot_product( diff.v, diff.v );
         if ( dist < best_dist )
         {
@@ -7950,7 +7963,8 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
 
     Uint32 endtile;
     Uint32 fan;
-    int useful;
+    bool_t       useful;
+    ego_tile_info_t * ptile = NULL;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
@@ -7978,10 +7992,12 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
         fan = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
-        if ( mesh_grid_is_valid( PMesh, fan ) )
+
+        ptile = mesh_get_ptile( PMesh, fan );
+        if ( NULL != ptile )
         {
-            Uint16 img      = PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK;
-            Uint16 highbits = PMesh->tmem.tile_list[fan].img & TILE_UPPER_MASK;
+            Uint16 img      = ptile->img & TILE_LOWER_MASK;
+            Uint16 highbits = ptile->img & TILE_UPPER_MASK;
 
             if ( img >= starttile && img < endtile )
             {
@@ -8008,7 +8024,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
                 }
             }
 
-            if ( PMesh->tmem.tile_list[fan].img != ( img | highbits ) )
+            if ( ptile->img != ( img | highbits ) )
             {
                 mesh_set_texture( PMesh, fan, img | highbits );
             }
@@ -8032,7 +8048,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message_index, script_state_t * 
     FUNCTION_BEGIN();
 
     if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return bfalse;
-    ppro = ProList.lst + pchr->profile_ref;
+    ppro = ProList_get_ptr( pchr->profile_ref );
 
     ichr           = GET_REF_PCHR( pchr );
     length = strlen( ppro->message[message_index] );
@@ -8057,10 +8073,11 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
 
     int x, y;
     Uint32 fan;
-    passage_t * ppass;
+    passage_t  * ppass = NULL;
+    ego_tile_info_t * ptile = NULL;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
-    ppass = PassageStack.lst + passage;
+    ppass = PassageStack_get_ptr( passage );
 
     // Do the first row
     x = x0 / GRID_ISIZE;
@@ -8075,15 +8092,12 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( mesh_grid_is_valid( PMesh, fan ) )
+            ptile = mesh_get_ptile( PMesh, fan );
+            if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
-                if ( tiletype == ( PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK ) )
-                {
-                    *px1 = ( x * GRID_ISIZE ) + 64;
-                    *py1 = ( y * GRID_ISIZE ) + 64;
-                    return btrue;
-                }
-
+                *px1 = ( x * GRID_ISIZE ) + 64;
+                *py1 = ( y * GRID_ISIZE ) + 64;
+                return btrue;
             }
         }
         y++;
@@ -8096,14 +8110,12 @@ Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, con
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( mesh_grid_is_valid( PMesh, fan ) )
+            ptile = mesh_get_ptile( PMesh, fan );
+            if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
-                if ( tiletype == ( PMesh->tmem.tile_list[fan].img & TILE_LOWER_MASK ) )
-                {
-                    *px1 = x * GRID_ISIZE + 64;
-                    *py1 = y * GRID_ISIZE + 64;
-                    return btrue;
-                }
+                *px1 = x * GRID_ISIZE + 64;
+                *py1 = y * GRID_ISIZE + 64;
+                return btrue;
             }
         }
     }
@@ -8122,7 +8134,7 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     pro_t *ppro;
 
     if ( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return bfalse;
-    ppro = ProList.lst + iprofile;
+    ppro = ProList_get_ptr( iprofile );
 
     slot = DisplayMsg_get_free();
     DisplayMsg.ary[slot].time = cfg.message_duration;

@@ -38,15 +38,14 @@
 cap_t * cap_init( cap_t * pcap )
 {
     /// @details BB@> initialize the character profile data to safe values
-    ///     since we use memset(..., 0, ...), all = 0, = false, and = 0.0f
-    ///     statements are redundant
 
     int cnt;
 
     if ( NULL == pcap ) return pcap;
 
     // clear out all the data
-    memset( pcap, 0, sizeof( *pcap ) );
+    // all = 0, = false, and = 0.0f statements are redundant
+    BLANK_STRUCT_PTR( pcap )
 
     for ( cnt = 0; cnt < IDSZ_COUNT; cnt++ )
     {
@@ -140,8 +139,8 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     else                              pcap->gender = GENDER_OTHER;
 
     // Read in the icap stats
-    pcap->lifecolor = fget_next_int( fileread );
-    pcap->manacolor = fget_next_int( fileread );
+    pcap->life_color = fget_next_int( fileread );
+    pcap->mana_color = fget_next_int( fileread );
 
     fget_next_range( fileread, &( pcap->life_stat.val ) );
     fget_next_range( fileread, &( pcap->life_stat.perlevel ) );
@@ -449,7 +448,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     }
     vfs_close( fileread );
 
-    //log_debug( "load_one_character_profile_vfs() - loaded icap %s (%d)\n", pcap->classname, icap );
+    //log_debug( "CapStack_load_one() - loaded icap %s (%d)\n", pcap->classname, icap );
 
     return pcap;
 }
@@ -501,8 +500,8 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     template_put_gender( filetemp, filewrite, pcap->gender );
 
     // Object stats
-    template_put_int( filetemp, filewrite, pcap->lifecolor );
-    template_put_int( filetemp, filewrite, pcap->manacolor );
+    template_put_int( filetemp, filewrite, pcap->life_color );
+    template_put_int( filetemp, filewrite, pcap->mana_color );
     template_put_range( filetemp, filewrite, pcap->life_stat.val );
     template_put_range( filetemp, filewrite, pcap->life_stat.perlevel );
     template_put_range( filetemp, filewrite, pcap->mana_stat.val );

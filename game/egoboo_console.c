@@ -23,18 +23,22 @@
 
 #include "egoboo_console.inl"
 
-#include "egoboo_math.inl"
+#include "file_common.h"
+
 #include "egoboo_strutil.h"
 #include "egoboo_vfs.h"
 
 #include "extensions/ogl_debug.h"
+#include "extensions/ogl_extensions.h"
 #include "extensions/SDL_extensions.h"
 
-#include "file_common.h"
+#include "egoboo_math.inl"
 
 #include <string.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -175,7 +179,7 @@ egoboo_console_t * egoboo_console_ctor( egoboo_console_t * pcon, SDL_Rect Con_re
     if ( NULL == pcon ) return NULL;
 
     // reset all the console data
-    memset( pcon, 0, sizeof( *pcon ) );
+    BLANK_STRUCT_PTR( pcon )
 
     // set the console's font
     pcon->pfont = fnt_loadFont( vfs_resolveReadFilename( "mp_data/pc8x8.fon" ), 12 );
@@ -257,7 +261,7 @@ void egoboo_console_draw_begin()
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );                                        // GL_ENABLE_BIT
 
     // draw draw front and back faces of polygons
-    GL_DEBUG( glDisable )( GL_CULL_FACE );                                         // GL_ENABLE_BIT
+    oglx_end_culling();                                         // GL_ENABLE_BIT
 
     GL_DEBUG( glEnable )( GL_TEXTURE_2D );                                         // GL_ENABLE_BIT
 

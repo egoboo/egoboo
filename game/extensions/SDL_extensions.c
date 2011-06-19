@@ -87,7 +87,7 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     SDL_Surface * ps;
     const SDL_VideoInfo * pvi;
 
-    memset( psi, 0, sizeof( *psi ) );
+    BLANK_STRUCT_PTR( psi )
 
     init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
@@ -566,7 +566,7 @@ SDL_bool SDLX_sdl_video_flags_default( SDLX_sdl_video_flags_t * pflags )
 {
     if ( NULL == pflags ) return SDL_FALSE;
 
-    memset( pflags, 0, sizeof( *pflags ) );
+    BLANK_STRUCT_PTR( pflags )
 
     pflags->double_buf  = 1;
     pflags->full_screen = 1;
@@ -580,7 +580,7 @@ SDL_bool SDLX_sdl_gl_attrib_default( SDLX_sdl_gl_attrib_t * patt )
 {
     if ( NULL == patt ) return SDL_FALSE;
 
-    memset( patt, 0, sizeof( *patt ) );
+    BLANK_STRUCT_PTR( patt )
 
     patt->multi_buffers      = 1;
     patt->multi_samples      = 2;

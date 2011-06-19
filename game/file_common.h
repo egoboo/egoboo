@@ -75,12 +75,12 @@ extern "C"
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void fs_init();
+    void fs_init( void );
 
-    const char * fs_getBinaryDirectory();
-    const char * fs_getDataDirectory();
-    const char * fs_getUserDirectory();
-    const char * fs_getConfigDirectory();
+    const char * fs_getBinaryDirectory( void );
+    const char * fs_getDataDirectory( void );
+    const char * fs_getUserDirectory( void );
+    const char * fs_getConfigDirectory( void );
 
     const char * fs_createBinaryDirectoryFilename( const char * relative_pathname );
     const char * fs_createDataDirectoryFilename( const char * relative_pathname );

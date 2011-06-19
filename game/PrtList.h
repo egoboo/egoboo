@@ -30,29 +30,29 @@
 // testing functions
 //--------------------------------------------------------------------------------------------
 
-bool_t VALID_PRT_RANGE( PRT_REF IPRT );
-bool_t DEFINED_PRT( PRT_REF IPRT );
-bool_t ALLOCATED_PRT( PRT_REF IPRT );
-bool_t ACTIVE_PRT( PRT_REF IPRT );
-bool_t WAITING_PRT( PRT_REF IPRT );
-bool_t TERMINATED_PRT( PRT_REF IPRT );
+bool_t VALID_PRT_RANGE( const PRT_REF IPRT );
+bool_t DEFINED_PRT( const PRT_REF IPRT );
+bool_t ALLOCATED_PRT( const PRT_REF IPRT );
+bool_t ACTIVE_PRT( const PRT_REF IPRT );
+bool_t WAITING_PRT( const PRT_REF IPRT );
+bool_t TERMINATED_PRT( const PRT_REF IPRT );
 
-size_t  GET_INDEX_PPRT( prt_t * PPRT );
-PRT_REF GET_REF_PPRT( prt_t * PPRT );
-bool_t  DEFINED_PPRT( prt_t * PPRT );
-bool_t  VALID_PRT_PTR( prt_t * PPRT );
-bool_t  ALLOCATED_PPRT( prt_t * PPRT );
-bool_t  ACTIVE_PPRT( prt_t * PPRT );
-bool_t  TERMINATED_PPRT( prt_t * PPRT );
+size_t  GET_INDEX_PPRT( const prt_t * PPRT );
+PRT_REF GET_REF_PPRT( const prt_t * PPRT );
+bool_t  DEFINED_PPRT( const prt_t * PPRT );
+bool_t  VALID_PRT_PTR( const prt_t * PPRT );
+bool_t  ALLOCATED_PPRT( const prt_t * PPRT );
+bool_t  ACTIVE_PPRT( const prt_t * PPRT );
+bool_t  TERMINATED_PPRT( const prt_t * PPRT );
 
-bool_t INGAME_PRT_BASE( PRT_REF IPRT );
-bool_t INGAME_PPRT_BASE( prt_t * PPRT );
+bool_t INGAME_PRT_BASE( const PRT_REF IPRT );
+bool_t INGAME_PPRT_BASE( const prt_t * PPRT );
 
-bool_t INGAME_PRT( PRT_REF IPRT );
-bool_t INGAME_PPRT( prt_t * PPRT );
+bool_t INGAME_PRT( const PRT_REF IPRT );
+bool_t INGAME_PPRT( const prt_t * PPRT );
 
-bool_t DISPLAY_PRT( PRT_REF IPRT );
-bool_t DISPLAY_PPRT( prt_t * PPRT );
+bool_t DISPLAY_PRT( const PRT_REF IPRT );
+bool_t DISPLAY_PPRT( const prt_t * PPRT );
 
 //--------------------------------------------------------------------------------------------
 // testing macros
@@ -93,8 +93,8 @@ bool_t DISPLAY_PPRT( prt_t * PPRT );
 // Macros automate looping through the PrtList. This hides code which defers the creation and deletion of
 // objects until the loop terminates, so tha the length of the list will not change during the loop.
 
-#define PRT_BEGIN_LOOP_ACTIVE(IT, PRT_BDL)  {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_bundle_t PRT_BDL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT (IT)) continue; prt_bundle_set(&PRT_BDL, PrtList.lst + IT);
-#define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_bundle_t PRT_BDL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; prt_bundle_set(&PRT_BDL, PrtList.lst + IT);
+#define PRT_BEGIN_LOOP_ACTIVE(IT, PRT_BDL)  {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_bundle_t PRT_BDL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!ACTIVE_PRT (IT)) continue; prt_bundle_set(&PRT_BDL, PrtList_get_ptr( IT ));
+#define PRT_BEGIN_LOOP_DISPLAY(IT, PRT_BDL) {int IT##_internal; int prt_loop_start_depth = prt_loop_depth; prt_loop_depth++; for(IT##_internal=0;IT##_internal<PrtList.used_count;IT##_internal++) { PRT_REF IT; prt_bundle_t PRT_BDL; IT = (PRT_REF)PrtList.used_ref[IT##_internal]; if(!DISPLAY_PRT(IT)) continue; prt_bundle_set(&PRT_BDL, PrtList_get_ptr( IT ));
 #define PRT_END_LOOP() } prt_loop_depth--; EGOBOO_ASSERT(prt_loop_start_depth == prt_loop_depth); PrtList_cleanup(); }
 
 //--------------------------------------------------------------------------------------------
@@ -112,21 +112,23 @@ extern int    prt_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    PrtList_init();
-void    PrtList_dtor();
+void    PrtList_init( void );
+void    PrtList_dtor( void );
 
-PRT_REF PrtList_allocate( bool_t force );
+PRT_REF PrtList_allocate( const bool_t force );
 
 bool_t  PrtList_free_one( const PRT_REF iprt );
-void    PrtList_free_all();
+void    PrtList_free_all( void );
 
 bool_t  PrtList_add_used( const PRT_REF iprt );
 
-void    PrtList_update_used();
+void    PrtList_update_used( void );
 
-void    PrtList_cleanup();
+void    PrtList_cleanup( void );
+void    PrtList_reset_all( void );
 
-bool_t PrtList_add_activation( PRT_REF iprt );
-bool_t PrtList_add_termination( PRT_REF iprt );
+bool_t  PrtList_add_activation( const PRT_REF iprt );
+bool_t  PrtList_add_termination( const PRT_REF iprt );
+bool_t PrtList_request_terminate( const PRT_REF iprt );
 
-void PrtList_cleanup();
+int     PrtList_count_free( void );

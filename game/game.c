@@ -24,11 +24,7 @@
 #include "game.h"
 
 #include "mad.h"
-
-#include "controls_file.h"
-#include "scancode_file.h"
-#include "treasure_table_file.h"
-
+#include "player.h"
 #include "clock.h"
 #include "link.h"
 #include "ui.h"
@@ -43,15 +39,14 @@
 #include "input.h"
 #include "menu.h"
 #include "network.h"
+#include "client.h"
+#include "server.h"
 #include "texture.h"
-#include "wawalite_file.h"
 #include "clock.h"
-#include "spawn_file.h"
-#include "camera.h"
+#include "camera_system.h"
 #include "id_md2.h"
 #include "collision.h"
 #include "graphic_fan.h"
-#include "quest.h"
 #include "obj_BSP.h"
 #include "mpd_BSP.h"
 #include "char.h"
@@ -67,7 +62,13 @@
 #include "egoboo_vfs.h"
 #include "egoboo.h"
 
-#include "SDL_extensions.h"
+#include "file_formats/controls_file.h"
+#include "file_formats/scancode_file.h"
+#include "file_formats/treasure_table_file.h"
+#include "file_formats/wawalite_file.h"
+#include "file_formats/spawn_file.h"
+#include "file_formats/quest_file.h"
+#include "extensions/SDL_extensions.h"
 
 #include "egoboo_console.h"
 #if defined(USE_LUA_CONSOLE)
@@ -91,17 +92,18 @@
 //--------------------------------------------------------------------------------------------
 
 static ego_mpd_t         _mesh[2];
-static camera_t          _camera[2];
 
 static game_process_t    _gproc;
-static game_module_t      gmod;
+static game_module_t     _gmod;
+
+static egoboo_clock_t     game_clock = EGOBOO_CLOCK_INIT;
 
 PROFILE_DECLARE( game_update_loop );
 PROFILE_DECLARE( gfx_loop );
 PROFILE_DECLARE( game_single_update );
 
 PROFILE_DECLARE( talk_to_remotes );
-PROFILE_DECLARE( listen_for_packets );
+PROFILE_DECLARE( net_listen_for_packets );
 PROFILE_DECLARE( check_stats );
 PROFILE_DECLARE( set_local_latches );
 PROFILE_DECLARE( check_passage_music );
@@ -116,20 +118,17 @@ char   endtext[MAXENDTEXT] = EMPTY_CSTR;
 size_t endtext_carat = 0;
 
 // Status displays
-bool_t  StatusList_on     = btrue;
-int     StatusList_count    = 0;
-CHR_REF StatusList[MAXSTAT];
+status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mpd_t         * PMesh   = _mesh + 0;
-camera_t          * PCamera = _camera + 0;
-game_module_t     * PMod    = &gmod;
+game_module_t     * PMod    = &_gmod;
 game_process_t    * GProc   = &_gproc;
+camera_t          * PCamera = NULL;
 
-pit_info_t pits = { bfalse, bfalse, ZERO_VECT3 };
+pit_info_t pits = PIT_INFO_INIT;
 
 FACING_T glouseangle = 0;                                        // actually still used
 
-Uint32                animtile_update_and = 0;
 animtile_instance_t   animtile[2];
 damagetile_instance_t damagetile;
 weather_instance_t    weather;
@@ -138,54 +137,63 @@ fog_instance_t        fog;
 
 bool_t activate_spawn_file_active = bfalse;
 
-Import_list_t ImportList  = IMPORT_LIST_INIT;
+import_list_t ImportList  = IMPORT_LIST_INIT;
+
+Sint32          clock_wld        = 0;
+Uint32          clock_enc_stat   = 0;
+Uint32          clock_chr_stat   = 0;
+Uint32          clock_pit        = 0;
+Uint32          update_wld       = 0;
+Uint32          true_update      = 0;
+Uint32          true_frame       = 0;
+int             update_lag       = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // game initialization / deinitialization - not accessible by scripts
-static void reset_timers();
+static void game_reset_timers( void );
 
 // looping - stuff called every loop - not accessible by scripts
-static void check_stats();
-static void tilt_characters_to_terrain();
-static void update_pits();
-static int  update_game();
-static void game_update_timers();
+static void check_stats( void );
+static void tilt_characters_to_terrain( void );
+static void update_pits( void );
+static int  update_game( void );
+static void game_update_ups( void );
 static void do_damage_tiles( void );
 static void set_local_latches( void );
-static void let_all_characters_think();
-static void do_weather_spawn_particles();
+static void let_all_characters_think( void );
+static void do_weather_spawn_particles( void );
 
 // module initialization / deinitialization - not accessible by scripts
 static bool_t game_load_module_data( const char *smallname );
-static void   game_release_module_data();
+static void   game_release_module_data( void );
 static void   game_load_all_profiles( const char *modname );
-static void   game_load_profile_ai();
+static void   game_load_profile_ai( void );
 
-static void   activate_spawn_file_vfs();
-static void   activate_alliance_file_vfs();
+static void   activate_spawn_file_vfs( void );
+static void   activate_alliance_file_vfs( void );
 
 static bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo );
 
-static void   game_reset_players();
+static void   game_reset_players( void );
 
 // Model stuff
 static void log_madused_vfs( const char *savename );
 
 // "process" management
-static int do_game_proc_begin( game_process_t * gproc );
-static int do_game_proc_running( game_process_t * gproc );
-static int do_game_proc_leaving( game_process_t * gproc );
+static int game_process_do_begin( game_process_t * gproc );
+static int game_process_do_running( game_process_t * gproc );
+static int game_process_do_leaving( game_process_t * gproc );
 
 // misc
 static bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which );
 static void   game_end_menu( menu_process_t * mproc );
 
-static void   do_game_hud();
+static void   do_game_hud( void );
 
 // manage the game's vfs mount points
-static void   game_clear_vfs_paths();
+static void   game_clear_vfs_paths( void );
 
 // place the object lists in the initial state
 void reset_all_object_lists( void );
@@ -193,6 +201,12 @@ void reset_all_object_lists( void );
 //line of sight calculations
 static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
 static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
+
+// implementing wawalite data
+static bool_t upload_light_data( const wawalite_data_t * pdata );
+static bool_t upload_phys_data( const wawalite_physics_t * pdata );
+static bool_t upload_graphics_data( const wawalite_graphics_t * pdata );
+static bool_t upload_camera_data( const wawalite_camera_t * pdata );
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -339,7 +353,7 @@ egoboo_rv export_all_players( bool_t require_local )
         chr_t    * pchr;
 
         if ( !VALID_PLA( ipla ) ) continue;
-        ppla = PlaStack.lst + ipla;
+        ppla = PlaStack_get_ptr( ipla );
 
         is_local = ( NULL != ppla->pdevice );
         if ( require_local && !is_local ) continue;
@@ -347,7 +361,7 @@ egoboo_rv export_all_players( bool_t require_local )
         // Is it alive?
         if ( !INGAME_CHR( ppla->index ) ) continue;
         character = ppla->index;
-        pchr      = ChrList.lst + character;
+        pchr      = ChrList_get_ptr( character );
 
         // don't export dead characters
         if ( !pchr->alive ) continue;
@@ -442,16 +456,16 @@ void statlist_add( const CHR_REF character )
 
     chr_t * pchr;
 
-    if ( StatusList_count >= MAXSTAT ) return;
+    if ( StatusList.count >= MAX_STATUS ) return;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
-    if ( pchr->StatusList_on ) return;
+    if ( pchr->show_stats ) return;
 
-    StatusList[StatusList_count] = character;
-    pchr->StatusList_on = btrue;
-    StatusList_count++;
+    StatusList.lst[StatusList.count].who = character;
+    pchr->show_stats = btrue;
+    StatusList.count++;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -460,31 +474,33 @@ void statlist_move_to_top( const CHR_REF character )
     /// @details ZZ@> This function puts the character on top of the StatusList
 
     int cnt, oldloc;
+    status_list_element_t tmp;
 
     // Find where it is
-    oldloc = StatusList_count;
+    oldloc = StatusList.count;
 
-    for ( cnt = 0; cnt < StatusList_count; cnt++ )
+    for ( cnt = 0; cnt < StatusList.count; cnt++ )
     {
-        if ( StatusList[cnt] == character )
+        if ( character == StatusList.lst[cnt].who )
         {
+            memmove( &tmp, StatusList.lst + cnt, sizeof( status_list_element_t ) );
             oldloc = cnt;
-            cnt = StatusList_count;
+            break;
         }
     }
 
     // Change position
-    if ( oldloc < StatusList_count )
+    if ( oldloc < StatusList.count )
     {
         // Move all the lower ones up
         while ( oldloc > 0 )
         {
             oldloc--;
-            StatusList[oldloc+1] = StatusList[oldloc];
+            memmove( StatusList.lst + oldloc + 1, StatusList.lst + oldloc, sizeof( status_list_element_t ) );
         }
 
         // Put the character in the top slot
-        StatusList[0] = character;
+        memmove( StatusList.lst + 0, &tmp, sizeof( status_list_element_t ) );
     }
 }
 
@@ -516,7 +532,7 @@ egoboo_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     int action;
 
     if ( !INGAME_CHR( character ) ) return rv_error;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     imad = chr_get_imad( character );
     if ( !LOADED_MAD( imad ) ) return rv_fail;
@@ -639,7 +655,15 @@ int update_game()
 
     int tnc, numdead, numalive;
     int update_loop_cnt;
+    int max_iterations;
+    bool_t need_updates;
+    bool_t free_running;
+    Uint32 loc_true_update;
+
     PLA_REF ipla;
+
+    // is the update counter free running?
+    free_running = GProc->ups_timer.free_running && !net_on( PNet );
 
     // Check for all local players being dead
     local_stats.allpladead      = bfalse;
@@ -649,7 +673,9 @@ int update_game()
     local_stats.grog_level      = 0.0f;
     local_stats.daze_level      = 0.0f;
 
-    numplayer = 0;
+    // count the total number of players
+    net_count_players( PNet );
+
     numdead = numalive = 0;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
@@ -666,10 +692,7 @@ int update_game()
             PlaStack.lst[ipla].valid = bfalse;
             continue;
         }
-        pchr = ChrList.lst + ichr;
-
-        // count the total number of players
-        numplayer++;
+        pchr = ChrList_get_ptr( ichr );
 
         // only interested in local players
         if ( NULL == PlaStack.lst[ipla].pdevice ) continue;
@@ -704,7 +727,7 @@ int update_game()
     local_stats.seedark_mag  = exp( 0.32f * local_stats.seedark_level );
 
     // Did everyone die?
-    if ( numdead >= local_numlpla )
+    if ( numdead >= local_stats.player_count )
     {
         local_stats.allpladead = btrue;
     }
@@ -719,7 +742,7 @@ int update_game()
 
         ichr = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
+        pchr = ChrList_get_ptr( ichr );
 
         if ( !pchr->alive )
         {
@@ -736,15 +759,43 @@ int update_game()
         }
     }
 
+    // don't use a value of true_update that could change during the
+    // iteration of the inner loop
+    game_update_timers();
+    loc_true_update = true_update;
+
+    max_iterations = 1;
+    need_updates    = bfalse;
+    if ( free_running )
+    {
+        // if the ups_timer is free-running then there is only one update
+        // per each unregulated pass through the loop
+
+        need_updates = btrue;
+        max_iterations = 1;
+    }
+    else if ( single_frame_mode )
+    {
+        // for single frame mode, only one update per request
+        need_updates = btrue;
+        max_iterations = 1;
+    }
+    else if ( update_wld < loc_true_update )
+    {
+        // if the ups_timer is throttled, do not exceed the given rate
+        need_updates    = btrue;
+        max_iterations = 2 * TARGET_UPS;
+    }
+
     update_lag = 0;
     update_loop_cnt = 0;
-    if ( update_wld < true_update )
+    if ( need_updates )
     {
-        int max_iterations = single_frame_mode ? 1 : 2 * TARGET_UPS;
-
         /// @todo claforte@> Put that back in place once networking is functional (Jan 6th 2001)
-        for ( tnc = 0; update_wld < true_update && tnc < max_iterations; tnc++ )
+        for ( tnc = 0; tnc < max_iterations; tnc++ )
         {
+            if ( !free_running && ( update_wld >= loc_true_update ) ) break;
+
             PROFILE_BEGIN( game_single_update );
             {
                 // do important stuff to keep in sync inside this loop
@@ -753,14 +804,14 @@ int update_game()
                 PMod->randsave = rand();
 
                 // read the input values
-                input_read();
+                input_read_all_devices();
 
                 // NETWORK PORT
-                PROFILE_BEGIN( listen_for_packets );
+                PROFILE_BEGIN( net_listen_for_packets );
                 {
-                    listen_for_packets();
+                    net_listen_for_packets();
                 }
-                PROFILE_END2( listen_for_packets );
+                PROFILE_END2( net_listen_for_packets );
 
                 PROFILE_BEGIN( set_local_latches );
                 {
@@ -770,14 +821,14 @@ int update_game()
 
                 PROFILE_BEGIN( cl_talkToHost );
                 {
-                    cl_talkToHost();
+                    cl_talkToHost( PNet );
                 }
                 PROFILE_END2( cl_talkToHost );
 
                 PROFILE_BEGIN( talk_to_remotes );
                 {
                     // get all player latches from the "remotes"
-                    sv_talkToRemotes();
+                    sv_talkToRemotes( PNet );
                 }
                 PROFILE_END2( talk_to_remotes );
 
@@ -785,8 +836,8 @@ int update_game()
                 {
                     BillboardList_update_all();
                     animate_tiles();
-                    move_water( &water );
-                    looped_update_all_sound( &renderlist );
+                    water_instance_move( &water );
+                    looped_update_all_sound();
                     do_damage_tiles();
                     update_pits();
                     do_weather_spawn_particles();
@@ -796,7 +847,7 @@ int update_game()
                 //---- begin the code object I/O
                 {
                     let_all_characters_think();           // sets the non-player latches
-                    unbuffer_player_latches();            // sets the player latches
+                    net_unbuffer_player_latches();            // sets the player latches
                 }
                 //---- end the code object I/O
 
@@ -810,7 +861,7 @@ int update_game()
                 //---- end the code for updating in-game objects
 
                 // put the camera movement inside here
-                camera_move( PCamera, PMesh );
+                camera_system_move( PMesh );
 
                 // Timers
                 clock_wld += UPDATE_SKIP;
@@ -818,11 +869,20 @@ int update_game()
                 clock_chr_stat++;
 
                 // Reset the respawn timer
-                if ( local_stats.revivetimer > 0 ) local_stats.revivetimer--;
+                if ( local_stats.revivetimer > 0 )
+                {
+                    local_stats.revivetimer--;
+                }
 
                 update_wld++;
-                ups_loops++;
                 update_loop_cnt++;
+
+                // calculate the updates per second
+                game_ups_loops++;
+                game_update_ups();
+
+                // get the time values for the next iteration
+                game_update_timers();
             }
             PROFILE_END2( game_single_update );
 
@@ -836,7 +896,7 @@ int update_game()
     est_update_game_time = 0.9F * est_update_game_time + 0.1F * est_single_update_time * update_loop_cnt;
     est_max_game_ups     = 0.9F * est_max_game_ups     + 0.1F * ( 1.0F / est_update_game_time );
 
-    if ( PNet->on )
+    if ( net_on( PNet ) )
     {
         if ( 0 == numplatimes )
         {
@@ -844,7 +904,7 @@ int update_game()
             // Make it go slower so it doesn't happen again
             clock_wld += 25;
         }
-        if ( numplatimes > 3 && !PNet->hostactive )
+        if ( numplatimes > 3 && !net_get_hostactive( PNet ) )
         {
             // The host has too many messages, and is probably experiencing control
             // lag...  Speed it up so it gets closer to sync
@@ -860,110 +920,156 @@ void game_update_timers()
 {
     /// @details ZZ@> This function updates the game timers
 
-    static bool_t update_was_paused = bfalse;
+    int    clock_diff;
+    bool_t free_running = bfalse;
+    bool_t is_paused    = bfalse;
 
-    int ticks_diff;
-    int clock_diff;
+    static bool_t was_paused = bfalse;
 
-    const float fold = 0.77f;
-    const float fnew = 1.0f - fold;
-
-    ticks_last = ticks_now;
-    ticks_now  = egoboo_get_ticks();
+    // is the game/module paused?
+    is_paused = bfalse;
+    if ( !net_on( PNet ) )
+    {
+        is_paused  = !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused;
+    }
 
     // check to make sure that the game is running
-    if ( !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused )
+    if ( is_paused )
     {
         // for a local game, force the function to ignore the accumulation of time
         // until you re-join the game
-        if ( !PNet->on )
-        {
-            ticks_last = ticks_now;
-            update_was_paused = btrue;
-            return;
-        }
+        clock_update_diff( &game_clock, 0 );
+        was_paused = btrue;
+        return;
     }
 
-    // make sure some amount of time has passed
-    ticks_diff = ticks_now - ticks_last;
-    if ( 0 == ticks_diff ) return;
-
-    // calculate the time since the from the last update
-    // if the game was paused, assume that only one update time elapsed since the last time through this function
-    clock_diff = UPDATE_SKIP;
-    if ( !update_was_paused && !single_frame_mode )
+    // are the game updates free running?
+    free_running = bfalse;
+    if ( !net_on( PNet ) )
     {
-        clock_diff = ticks_diff;
-        clock_diff = MIN( clock_diff, 10 * UPDATE_SKIP );
+        free_running = GProc->ups_timer.free_running;
     }
 
-    if ( PNet->on )
+    clock_diff = 0;
+    if ( net_on( PNet ) )
     {
         // if the network game is on, there really is no real "pause"
         // so we can always measure the game time from the first clock reading
-        clock_all = ticks_now - clock_stt;
+        clock_update( &game_clock );
     }
     else
     {
         // if the net is not on, the game clock will pause when the local game is paused.
         // if we use the other calculation, the game will freeze while it handles the updates
         // for all the time that the game was paused... not so good
-        clock_all  += clock_diff;
-    }
 
-    // Use the number of updates that should have been performed up to this point (true_update)
-    // to try to regulate the update speed of the game
-    // By limiting this loop to 10, you are essentially saying that the update loop
-    // can go 10 times as fast as normal to help update_wld catch up to true_update,
-    // but it can't completely bog doen the game
-    true_update = clock_all / UPDATE_SKIP;
-
-    // get the number of frames that should have happened so far in a similar way
-    true_frame  = clock_all / FRAME_SKIP;
-
-    // figure out the update rate
-    ups_clock += clock_diff;
-
-    if ( ups_loops > 0 && ups_clock > 0 )
-    {
-        stabilized_ups_sum    = stabilized_ups_sum * fold + fnew * ( float ) ups_loops / (( float ) ups_clock / TICKS_PER_SEC );
-        stabilized_ups_weight = stabilized_ups_weight * fold + fnew;
-
-        // blank these every so often so that the numbers don't overflow
-        if ( ups_loops > 10 * TARGET_UPS )
+        // calculate the time since the from the last update
+        // if the game was paused, assume that only one update time elapsed since the last time through this function
+        if ( was_paused || single_frame_mode )
         {
-            ups_loops = 0;
-            ups_clock = 0;
+            clock_update_diff( &game_clock, UPDATE_SKIP );
+        }
+        else
+        {
+            clock_update( &game_clock );
         }
     }
 
-    if ( stabilized_ups_weight > 0.5f )
-    {
-        stabilized_ups = stabilized_ups_sum / stabilized_ups_weight;
-    }
+    // calculate the difference
+    clock_diff = game_clock.time_now - game_clock.time_lst;
+
+    // return if there is no reason to continue
+    if ( !free_running && 0 == clock_diff ) return;
+
+    // update the game_ups clock
+    game_ups_clock += clock_diff;
+
+    // Use the number of updates that should have been performed up to this point (true_update)
+    // to try to regulate the update speed of the game
+    true_update      = game_clock.time_now / UPDATE_SKIP;
+
+    // get the number of frames that should have happened so far in a similar way
+    true_frame      = ( game_clock.time_now  / TICKS_PER_SEC ) * cfg.framelimit;
+
+    // figure out the update rate
+    game_ups_clock += clock_diff;
 
     // if it got this far and the funciton had been paused, it is time to unpause it
-    update_was_paused = bfalse;
+    was_paused = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_timers()
+void game_update_ups()
+{
+    /// @details ZZ@> This function updates the game timers
+
+    // at fold = 0.60f, it will take approximately 9 updates for the
+    // weight of the first value to be reduced to 1%
+    const float fold = 0.60f;
+    const float fnew = 1.0f - fold;
+
+    if ( game_ups_loops > 0 && game_ups_clock > 0 )
+    {
+        stabilized_game_ups_sum    = fold * stabilized_game_ups_sum    + fnew * ( float ) game_ups_loops / (( float ) game_ups_clock / TICKS_PER_SEC );
+        stabilized_game_ups_weight = fold * stabilized_game_ups_weight + fnew;
+
+        // Don't allow the counters to overflow. 0x15555555 is 1/3 of the maximum Sint32 value
+        if ( game_ups_loops > 0x15555555 || game_ups_clock  > 0x15555555 )
+        {
+            game_ups_loops = 0;
+            game_ups_clock = 0;
+        }
+    }
+
+    if ( stabilized_game_ups_weight > 0.5f )
+    {
+        stabilized_game_ups = stabilized_game_ups_sum / stabilized_game_ups_weight;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void game_reset_timers()
 {
     /// @details ZZ@> This function resets the timers...
 
-    clock_stt = ticks_now = ticks_last = egoboo_get_ticks();
-
-    clock_all = 0;
+    // reset the synchronization
     clock_wld = 0;
-    clock_enc_stat = 0;
-    clock_chr_stat = 0;
-    clock_pit = 0;
-
-    update_wld = 0;
-    game_frame_all = 0;
     outofsync = bfalse;
 
+    // reset the pits
     pits.kill = pits.teleport = bfalse;
+    clock_pit = 0;
+
+    // reset some counters
+    game_frame_all = 0;
+    update_wld = 0;
+
+    // reset some special clocks
+    clock_enc_stat = 0;
+    clock_chr_stat = 0;
+
+    // reset the game clock
+    clock_reset( &game_clock );
+
+    // reset the ups counter(s)
+    game_ups_clock        = 0;
+    game_ups_loops        = 0;
+
+    stabilized_game_ups        = TARGET_UPS;
+    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
+    stabilized_game_ups_weight = STABILIZED_COVER;
+
+    // reset the fps counter(s)
+    game_fps_clock        = 0;
+    game_fps_loops        = 0;
+
+    stabilized_game_fps        = cfg.framelimit;
+    stabilized_game_fps_sum    = STABILIZED_COVER * cfg.framelimit;
+    stabilized_game_fps_weight = STABILIZED_COVER;
+
+    stabilized_game_ups        = TARGET_UPS;
+    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
+    stabilized_game_ups_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -971,44 +1077,43 @@ int game_do_menu( menu_process_t * mproc )
 {
     /// @details BB@> do menus
 
+    static double loc_frameDuration = 0.0f;
+
     int menuResult;
     bool_t need_menu = bfalse;
 
-    need_menu = bfalse;
-    if ( flip_pages_requested() )
+    if ( process_running( PROC_PBASE( mproc ) ) )
     {
-        // someone else (and that means the game) has drawn a frame
-        // so we just need to draw the menu over that frame
-        need_menu = btrue;
+        loc_frameDuration += mproc->base.frameDuration;
 
-        // force the menu to be displayed immediately when the game stops
-        mproc->base.dtime = 1.0f / ( float )cfg.framelimit;
-    }
-    else if ( !process_running( PROC_PBASE( GProc ) ) )
-    {
-        // the menu's frame rate is controlled by a timer
-        mproc->ticks_now = SDL_GetTicks();
-        if ( mproc->ticks_now > mproc->ticks_next )
+        if ( flip_pages_requested() )
         {
-            // FPS limit
-            float  frameskip = ( float )TICKS_PER_SEC / ( float )cfg.framelimit;
-            mproc->ticks_next = mproc->ticks_now + frameskip;
-
+            // someone else (and that means the game) has drawn a frame
+            // so we just need to draw the menu over that frame
             need_menu = btrue;
-            mproc->base.dtime = 1.0f / ( float )cfg.framelimit;
+
+            // force the menu to be displayed immediately when the game stops
+            timer_reset( &( mproc->gui_timer ), -1, cfg.framelimit );
+        }
+        else if ( timer_throttle( &( mproc->gui_timer ), cfg.framelimit ) )
+        {
+            need_menu = btrue;
         }
     }
 
     menuResult = 0;
     if ( need_menu )
     {
-        ui_beginFrame( mproc->base.dtime );
+        ui_beginFrame( loc_frameDuration );
         {
-            menuResult = doMenu( mproc->base.dtime );
+            menuResult = doMenu( loc_frameDuration );
             draw_mouse_cursor();
             request_flip_pages();
         }
         ui_endFrame();
+
+        // reset the elapsed frame counter
+        loc_frameDuration = 0.0F;
     }
 
     return menuResult;
@@ -1016,7 +1121,7 @@ int game_do_menu( menu_process_t * mproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int do_game_proc_begin( game_process_t * gproc )
+int game_process_do_begin( game_process_t * gproc )
 {
     BillboardList_init_all();
 
@@ -1040,7 +1145,6 @@ int do_game_proc_begin( game_process_t * gproc )
     // do some graphics initialization
     //make_lightdirectionlookup();
     make_enviro();
-    camera_ctor( PCamera );
 
     // try to start a new module
     if ( !game_begin_module( pickedmodule_path, ( Uint32 )~0 ) )
@@ -1049,6 +1153,21 @@ int do_game_proc_begin( game_process_t * gproc )
         process_kill( PROC_PBASE( gproc ) );
         process_resume( PROC_PBASE( MProc ) );
     }
+
+    // set up the cameras *after* game_begin_module() or the player devices will not be initialized
+    // and camera_system_begin() will not set up thte correct view
+    if ( camera_system_is_started() )
+    {
+        camera_system_init( local_stats.player_count );
+    }
+    else
+    {
+        camera_system_begin( local_stats.player_count );
+    }
+    set_PCamera( camera_system_get_main() );
+
+    // make sure the cameras are centered on something or there will be a graphics error
+    camera_system_reset_targets( PMesh );
 
     // Initialize the process
     gproc->base.valid = btrue;
@@ -1059,27 +1178,27 @@ int do_game_proc_begin( game_process_t * gproc )
     PROFILE_RESET( gfx_loop );
 
     PROFILE_RESET( talk_to_remotes );
-    PROFILE_RESET( listen_for_packets );
+    PROFILE_RESET( net_listen_for_packets );
     PROFILE_RESET( check_stats );
     PROFILE_RESET( set_local_latches );
     PROFILE_RESET( check_passage_music );
     PROFILE_RESET( cl_talkToHost );
 
     // reset the ups counter
-    ups_clock        = 0;
-    ups_loops        = 0;
+    game_ups_clock        = 0;
+    game_ups_loops        = 0;
 
-    stabilized_ups        = TARGET_UPS;
-    stabilized_ups_sum    = 0.1f * TARGET_UPS;
-    stabilized_ups_weight = 0.1f;
+    stabilized_game_ups        = TARGET_UPS;
+    stabilized_game_ups_sum    = STABILIZED_COVER * TARGET_UPS;
+    stabilized_game_ups_weight = STABILIZED_COVER;
 
     // reset the fps counter
     game_fps_clock        = 0;
     game_fps_loops        = 0;
 
     stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_game_fps_weight = 0.1f;
+    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_game_fps_weight = STABILIZED_COVER;
 
     // re-initialize these variables
     est_max_fps          =  TARGET_FPS;
@@ -1103,52 +1222,90 @@ int do_game_proc_begin( game_process_t * gproc )
 }
 
 //--------------------------------------------------------------------------------------------
-int do_game_proc_running( game_process_t * gproc )
+int game_process_do_running( game_process_t * gproc )
 {
     int update_loops = 0;
+
+    bool_t need_ups_update  = bfalse;
+    bool_t need_fps_update  = bfalse;
+    bool_t ups_free_running = bfalse;
+    bool_t fps_free_running = bfalse;
 
     if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
 
     gproc->was_active  = gproc->base.valid;
 
-    if ( gproc->base.paused ) return 0;
+    if ( !process_running( PROC_PBASE( gproc ) ) ) return 0;
 
-    gproc->ups_ticks_now = SDL_GetTicks();
-    if (( !single_frame_mode && gproc->ups_ticks_now > gproc->ups_ticks_next ) || ( single_frame_mode && single_update_requested ) )
+    // are the updates free running?
+    ups_free_running = gproc->ups_timer.free_running && !net_on( PNet );
+
+    // update all the timers
+    game_update_timers();
+
+    need_ups_update = bfalse;
+    if ( single_frame_mode )
     {
-        // UPS limit
-        gproc->ups_ticks_next = gproc->ups_ticks_now + UPDATE_SKIP * 0.25f;
+        if ( single_update_requested )
+        {
+            need_ups_update = btrue;
+            single_update_requested = bfalse;
+            timer_reset( &( gproc->ups_timer ), -1, TARGET_UPS );
+        }
+    }
+    else if ( ups_free_running )
+    {
+        need_ups_update = btrue;
+    }
+    else if ( timer_throttle( &( gproc->ups_timer ), TARGET_UPS ) )
+    {
+        need_ups_update = btrue;
+    }
 
+    if ( need_ups_update )
+    {
         PROFILE_BEGIN( game_update_loop );
         {
-            // update all the timers
-            game_update_timers();
-
             // do the updates
-            if ( gproc->mod_paused && !PNet->on )
+            if ( gproc->mod_paused && !net_on( PNet ) )
             {
-                clock_wld = clock_all;
+                clock_wld = game_clock.time_now;
             }
             else
             {
+                input_device_t * pdevice;
+                bool_t msg_pressed;
+                int cnt;
+
+                // check to see if anyone has pressed the message button
+                msg_pressed = bfalse;
+                for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
+                {
+                    pdevice = InputDevices.lst + cnt;
+
+                    if ( input_device_control_active( pdevice, CONTROL_MESSAGE ) )
+                    {
+                        msg_pressed = btrue;
+                        break;
+                    }
+                }
+
                 // start the console mode?
-                if ( SDLKEYDOWN( SDLK_m ) )
+                if ( msg_pressed )
                 {
                     // reset the keyboard buffer
                     SDL_EnableKeyRepeat( 20, SDL_DEFAULT_REPEAT_DELAY );
-                    console_mode = btrue;
-                    console_done = bfalse;
-                    keyb.buffer_count = 0;
-                    keyb.buffer[0] = CSTR_END;
+                    keyb.chat_mode = btrue;
+                    keyb.chat_done = bfalse;
+                    net_chat.buffer_count = 0;
+                    net_chat.buffer[0] = CSTR_END;
                 }
 
                 // This is the control loop
-                if ( PNet->on && console_done )
+                if ( net_on( PNet ) && keyb.chat_done )
                 {
                     net_send_message();
                 }
-
-                game_update_timers();
 
                 PROFILE_BEGIN( check_stats );
                 {
@@ -1162,9 +1319,9 @@ int do_game_proc_running( game_process_t * gproc )
                 }
                 PROFILE_END2( check_passage_music );
 
-                if ( PNet->waitingforplayers )
+                if ( net_waitingforplayers( PNet ) )
                 {
-                    clock_wld = clock_all;
+                    clock_wld = game_clock.time_now;
                 }
                 else
                 {
@@ -1188,17 +1345,37 @@ int do_game_proc_running( game_process_t * gproc )
             est_max_ups     = 0.9F * est_max_ups     + 0.1F * ( 1.0F / PROFILE_QUERY( game_update_loop ) );
         }
 
-        single_update_requested = bfalse;
+        // just to be complete
+        need_ups_update = bfalse;
     }
 
     // Do the display stuff
-    gproc->fps_ticks_now = SDL_GetTicks();
-    if (( !single_frame_mode && gproc->fps_ticks_now > gproc->fps_ticks_next ) || ( single_frame_mode && single_frame_requested ) )
-    {
-        // FPS limit
-        float  frameskip = ( float )TICKS_PER_SEC / ( float )cfg.framelimit;
-        gproc->fps_ticks_next = gproc->fps_ticks_now + frameskip;
 
+    // are the frames free running?
+    fps_free_running = GProc->fps_timer.free_running;
+
+    need_fps_update = bfalse;
+    if ( single_frame_mode )
+    {
+        if ( single_frame_requested )
+        {
+            need_fps_update = btrue;
+            single_frame_requested = bfalse;
+            timer_reset( &( gproc->fps_timer ), -1, cfg.framelimit );
+        }
+    }
+    else if ( fps_free_running )
+    {
+        need_fps_update = btrue;
+    }
+    else if ( timer_throttle( &( gproc->fps_timer ), cfg.framelimit ) )
+    {
+        need_fps_update = btrue;
+    }
+
+    // Do the display stuff
+    if ( need_fps_update )
+    {
         PROFILE_BEGIN( gfx_loop );
         {
             gfx_main();
@@ -1215,7 +1392,8 @@ int do_game_proc_running( game_process_t * gproc )
         est_render_time = est_gfx_time * TARGET_FPS;
         est_max_fps  = 0.9F * est_max_fps + 0.1F * ( 1.0F - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
 
-        single_frame_requested = bfalse;
+        // just to be complete
+        need_fps_update = bfalse;
     }
 
     if ( gproc->escape_requested )
@@ -1242,7 +1420,7 @@ int do_game_proc_running( game_process_t * gproc )
 }
 
 //--------------------------------------------------------------------------------------------
-int do_game_proc_leaving( game_process_t * gproc )
+int game_process_do_leaving( game_process_t * gproc )
 {
     if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
 
@@ -1265,22 +1443,26 @@ int do_game_proc_leaving( game_process_t * gproc )
     scripting_system_end();
 
     // clean up any remaining models that might have dynamic data
-    release_all_mad();
+    MadStack_release_all();
+
+    // free the cameras
+    camera_system_end();
+    set_PCamera( NULL );
 
     // reset the fps counter
     game_fps_clock             = 0;
     game_fps_loops             = 0;
 
     stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = 0.1f * TARGET_FPS;
-    stabilized_game_fps_weight = 0.1f;
+    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_game_fps_weight = STABILIZED_COVER;
 
     PROFILE_FREE( game_update_loop );
     PROFILE_FREE( game_single_update );
     PROFILE_FREE( gfx_loop );
 
     PROFILE_FREE( talk_to_remotes );
-    PROFILE_FREE( listen_for_packets );
+    PROFILE_FREE( net_listen_for_packets );
     PROFILE_FREE( check_stats );
     PROFILE_FREE( set_local_latches );
     PROFILE_FREE( check_passage_music );
@@ -1290,12 +1472,12 @@ int do_game_proc_leaving( game_process_t * gproc )
 }
 
 //--------------------------------------------------------------------------------------------
-int do_game_proc_run( game_process_t * gproc, double frameDuration )
+int game_process_run( game_process_t * gproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
     if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
-    gproc->base.dtime = frameDuration;
+    gproc->base.frameDuration = frameDuration;
 
     if ( gproc->base.paused ) return 0;
 
@@ -1307,7 +1489,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
     switch ( gproc->base.state )
     {
         case proc_begin:
-            proc_result = do_game_proc_begin( gproc );
+            proc_result = game_process_do_begin( gproc );
 
             if ( 1 == proc_result )
             {
@@ -1322,7 +1504,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
             break;
 
         case proc_running:
-            proc_result = do_game_proc_running( gproc );
+            proc_result = game_process_do_running( gproc );
 
             if ( 1 == proc_result )
             {
@@ -1331,7 +1513,7 @@ int do_game_proc_run( game_process_t * gproc, double frameDuration )
             break;
 
         case proc_leaving:
-            proc_result = do_game_proc_leaving( gproc );
+            proc_result = game_process_do_leaving( gproc );
 
             if ( 1 == proc_result )
             {
@@ -1364,7 +1546,7 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
     float  longdist2 = max_dist2;
 
     if ( !LOADED_PIP( particletype ) ) return ( CHR_REF )MAX_CHR;
-    ppip = PipStack.lst + particletype;
+    ppip = PipStack_get_ptr( particletype );
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
@@ -1429,7 +1611,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT
     if ( !ACTIVE_PCHR( psrc ) ) return bfalse;
 
     if ( !INGAME_CHR( ichr_test ) ) return bfalse;
-    ptst = ChrList.lst + ichr_test;
+    ptst = ChrList_get_ptr( ichr_test );
 
     // Skip hidden characters
     if ( ptst->is_hidden ) return bfalse;
@@ -1459,7 +1641,7 @@ bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         int quest_level = QUEST_NONE;
-        player_t * ppla = PlaStack.lst + ptst->is_which_player;
+        player_t * ppla = PlaStack_get_ptr( ptst->is_which_player );
 
         quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
 
@@ -1570,11 +1752,11 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
         CHR_REF ichr_test = search_list[cnt];
 
         if ( !INGAME_CHR( ichr_test ) ) continue;
-        ptst = ChrList.lst + ichr_test;
+        ptst = ChrList_get_ptr( ichr_test );
 
         if ( !check_target( psrc, ichr_test, idsz, targeting_bits ) ) continue;
 
-        diff  = fvec3_sub( psrc->pos.v, ptst->pos.v );
+        fvec3_sub( diff.v, psrc->pos.v, ptst->pos.v );
         dist2 = fvec3_dot_product( diff.v, diff.v );
 
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( MAX_CHR == best_target || dist2 < best_dist2 ) )
@@ -1613,7 +1795,7 @@ void do_damage_tiles()
         chr_t * pchr;
 
         if ( !INGAME_CHR( character ) ) continue;
-        pchr = ChrList.lst + character;
+        pchr = ChrList_get_ptr( character );
 
         pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL == pcap ) continue;
@@ -1649,19 +1831,6 @@ void do_damage_tiles()
 
         // don't do direct damage to invulnerable objects
         if ( pchr->invictus ) continue;
-
-        //@todo: sound of lava sizzling and such
-        //distance = ABS( PCamera->track_pos.x - pchr->pos.x ) + ABS( PCamera->track_pos.y - pchr->pos.y );
-
-        //if ( distance < damagetile.min_distance )
-        //{
-        //    damagetile.min_distance = distance;
-        //}
-
-        //if ( distance < damagetile.min_distance + 256 )
-        //{
-        //    damagetile.sound_time = 0;
-        //}
 
         if ( 0 == pchr->damage_timer )
         {
@@ -1797,13 +1966,13 @@ void do_weather_spawn_particles()
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
                 if ( INGAME_CHR( ichr ) && !INGAME_CHR( ChrList.lst[ichr].inwhich_inventory ) )
                 {
-                    chr_t * pchr = ChrList.lst + ichr;
+                    chr_t * pchr = ChrList_get_ptr( ichr );
 
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.part_gpip, 0 );
                     if ( DEFINED_PRT( particle ) )
                     {
-                        prt_t * pprt = PrtList.lst + particle;
+                        prt_t * pprt = PrtList_get_ptr( particle );
 
                         bool_t destroy_particle = bfalse;
 
@@ -1837,12 +2006,7 @@ void do_weather_spawn_particles()
             }
         }
     }
-
-    PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 0x3FFF;
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------
 void set_one_player_latch( const PLA_REF ipla )
@@ -1850,7 +2014,7 @@ void set_one_player_latch( const PLA_REF ipla )
     /// @details ZZ@> This function converts input readings to latch settings, so players can
     ///    move around
 
-    Uint16 turnsin;
+    TURN_T turnsin;
     float dist, scale;
     float fsin, fcos;
     latch_t sum;
@@ -1858,21 +2022,30 @@ void set_one_player_latch( const PLA_REF ipla )
     fvec2_t joy_pos, joy_new;
 
     player_t       * ppla;
+    camera_t       * pcam;
     input_device_t * pdevice;
+    ext_camera_list_t * plst;
 
     // skip invalid players
     if ( INVALID_PLA( ipla ) ) return;
-    ppla = PlaStack.lst + ipla;
-    pdevice = ppla->pdevice;
+    ppla = PlaStack_get_ptr( ipla );
 
     // is the device a local device or an internet device?
+    pdevice = ppla->pdevice;
     if ( pdevice == NULL ) return;
 
     //No need to continue if device is not enabled
-    if ( !input_is_enabled( pdevice ) ) return;
+    if ( !input_device_is_enabled( pdevice ) ) return;
+
+    // get teh camera list
+    plst = camera_system_get_list();
+
+    // find the camera that is pointing at this character
+    pcam = camera_list_find_target( plst, ppla->index );
+    if ( NULL == pcam ) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
-    fast_camera_turn = ( 1 == local_numlpla ) && CAM_TURN_GOOD == PCamera->turn_mode;
+    fast_camera_turn = ( 1 == local_stats.player_count ) && ( CAM_TURN_GOOD == pcam->turn_mode );
 
     // Clear the player's latch buffers
     latch_init( &( sum ) );
@@ -1880,95 +2053,91 @@ void set_one_player_latch( const PLA_REF ipla )
     fvec2_self_clear( joy_pos.v );
 
     // generate the transforms relative to the camera
-    turnsin = TO_TURN( PCamera->ori.facing_z );
+    // this needs to be changed for multicamera
+    turnsin = TO_TURN( pcam->ori.facing_z );
     fsin    = turntosin[ turnsin ];
     fcos    = turntocos[ turnsin ];
 
-    switch ( pdevice->device_type )
+    if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
     {
+        // Mouse routines
 
-            // Mouse routines
-        case INPUT_DEVICE_MOUSE:
+        if ( fast_camera_turn || !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+        {
+            dist = SQRT( mous.x * mous.x + mous.y * mous.y );
+            if ( dist > 0 )
             {
-
-                if ( fast_camera_turn || !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+                scale = mous.sense / dist;
+                if ( dist < mous.sense )
                 {
-                    dist = SQRT( mous.x * mous.x + mous.y * mous.y );
-                    if ( dist > 0 )
-                    {
-                        scale = mous.sense / dist;
-                        if ( dist < mous.sense )
-                        {
-                            scale = dist / mous.sense;
-                        }
-
-                        if ( mous.sense != 0 )
-                        {
-                            scale /= mous.sense;
-                        }
-
-                        joy_pos.x = mous.x * scale;
-                        joy_pos.y = mous.y * scale;
-
-                        //if ( fast_camera_turn && !control_is_pressed( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
-
-                        joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-                        joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
-                    }
+                    scale = dist / mous.sense;
                 }
 
-                break;
-            }
-
-            // Joystick routines
-        case INPUT_DEVICE_JOY + 0:
-        case INPUT_DEVICE_JOY + 1:
-            {
-                //Figure out which joystick we are using
-                device_joystick_t *joystick;
-                joystick = JoyList + ( pdevice->device_type - MAXJOYSTICK );
-
-                if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
+                if ( mous.sense != 0 )
                 {
-                    joy_pos.x = joystick->x;
-                    joy_pos.y = joystick->y;
-
-                    dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
-                    if ( dist > 1.0f )
-                    {
-                        scale = 1.0f / SQRT( dist );
-                        joy_pos.x *= scale;
-                        joy_pos.y *= scale;
-                    }
-
-                    if ( fast_camera_turn && !control_is_pressed( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
-
-                    joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-                    joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+                    scale /= mous.sense;
                 }
 
-                break;
-            }
+                joy_pos.x = mous.x * scale;
+                joy_pos.y = mous.y * scale;
 
-            // Keyboard routines
-        case INPUT_DEVICE_KEYBOARD:
+                //if ( fast_camera_turn && !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  joy_pos.x = 0;
+
+                joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+                joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+            }
+        }
+    }
+
+    else if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
+    {
+        // Keyboard routines
+
+        if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
+        {
+            if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) ) joy_pos.x++;
+            if ( input_device_control_active( pdevice,  CONTROL_LEFT ) ) joy_pos.x--;
+            if ( input_device_control_active( pdevice,  CONTROL_DOWN ) ) joy_pos.y++;
+            if ( input_device_control_active( pdevice,  CONTROL_UP ) ) joy_pos.y--;
+
+            if ( fast_camera_turn )  joy_pos.x = 0;
+
+            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+        }
+    }
+    else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
+    {
+        // Joystick routines
+
+        //Figure out which joystick we are using
+        joystick_data_t *joystick;
+        joystick = JoyList + ( pdevice->device_type - MAX_JOYSTICK );
+
+        if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
+        {
+            joy_pos.x = joystick->x;
+            joy_pos.y = joystick->y;
+
+            dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
+            if ( dist > 1.0f )
             {
-
-                if ( fast_camera_turn || !control_is_pressed( pdevice, CONTROL_CAMERA ) )
-                {
-                    if ( control_is_pressed( pdevice,  CONTROL_RIGHT ) ) joy_pos.x++;
-                    if ( control_is_pressed( pdevice,  CONTROL_LEFT ) ) joy_pos.x--;
-                    if ( control_is_pressed( pdevice,  CONTROL_DOWN ) ) joy_pos.y++;
-                    if ( control_is_pressed( pdevice,  CONTROL_UP ) ) joy_pos.y--;
-
-                    if ( fast_camera_turn )  joy_pos.x = 0;
-
-                    joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
-                    joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
-                }
-
-                break;
+                scale = 1.0f / SQRT( dist );
+                joy_pos.x *= scale;
+                joy_pos.y *= scale;
             }
+
+            if ( fast_camera_turn && !input_device_control_active( pdevice, CONTROL_CAMERA ) )  joy_pos.x = 0;
+
+            joy_new.x = ( joy_pos.x * fcos + joy_pos.y * fsin );
+            joy_new.y = ( -joy_pos.x * fsin + joy_pos.y * fcos );
+        }
+    }
+
+    else
+    {
+        // unknown device type.
+        pdevice = NULL;
     }
 
     // Update movement (if any)
@@ -1978,15 +2147,15 @@ void set_one_player_latch( const PLA_REF ipla )
     // Read control buttons
     if ( !ppla->draw_inventory )
     {
-        if ( control_is_pressed( pdevice, CONTROL_JUMP ) )
+        if ( input_device_control_active( pdevice, CONTROL_JUMP ) )
             SET_BIT( sum.b, LATCHBUTTON_JUMP );
-        if ( control_is_pressed( pdevice, CONTROL_LEFT_USE ) )
+        if ( input_device_control_active( pdevice, CONTROL_LEFT_USE ) )
             SET_BIT( sum.b, LATCHBUTTON_LEFT );
-        if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
+        if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
             SET_BIT( sum.b, LATCHBUTTON_ALTLEFT );
-        if ( control_is_pressed( pdevice, CONTROL_RIGHT_USE ) )
+        if ( input_device_control_active( pdevice, CONTROL_RIGHT_USE ) )
             SET_BIT( sum.b, LATCHBUTTON_RIGHT );
-        if ( control_is_pressed( pdevice, CONTROL_RIGHT_GET ) )
+        if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
             SET_BIT( sum.b, LATCHBUTTON_ALTRIGHT );
 
         // Now update movement and input
@@ -2001,7 +2170,7 @@ void set_one_player_latch( const PLA_REF ipla )
     else if ( ppla->inventory_cooldown < update_wld )
     {
         int new_selected = ppla->selected_item;
-        chr_t *pchr = ChrList.lst + ppla->index;
+        chr_t *pchr = ChrList_get_ptr( ppla->index );
 
         //dirty hack here... mouse seems to be inverted in inventory mode?
         if ( pdevice->device_type == INPUT_DEVICE_MOUSE )
@@ -2027,7 +2196,7 @@ void set_one_player_latch( const PLA_REF ipla )
         if ( pchr->inst.action_ready && 0 == pchr->reload_timer )
         {
             //handle LEFT hand control
-            if ( control_is_pressed( pdevice, CONTROL_LEFT_GET ) )
+            if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
             {
                 //put it away and swap with any existing item
                 inventory_swap_item( ppla->index, ppla->selected_item, SLOT_LEFT, bfalse );
@@ -2038,7 +2207,7 @@ void set_one_player_latch( const PLA_REF ipla )
             }
 
             //handle RIGHT hand control
-            if ( control_is_pressed( pdevice, CONTROL_RIGHT_GET ) )
+            if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
             {
                 //put it away and swap with any existing item
                 inventory_swap_item( ppla->index, ppla->selected_item, SLOT_RIGHT, bfalse );
@@ -2055,7 +2224,7 @@ void set_one_player_latch( const PLA_REF ipla )
     }
 
     //enable inventory mode?
-    if ( update_wld > ppla->inventory_cooldown && control_is_pressed( pdevice, CONTROL_INVENTORY ) )
+    if ( update_wld > ppla->inventory_cooldown && input_device_control_active( pdevice, CONTROL_INVENTORY ) )
     {
         ppla->draw_inventory = !ppla->draw_inventory;
         ppla->inventory_cooldown = update_wld + ( ONESECOND / 4 );
@@ -2083,7 +2252,7 @@ void check_stats()
     static int stat_check_delay = 0;
 
     int ticks;
-    if ( console_mode ) return;
+    if ( keyb.chat_mode ) return;
 
     ticks = egoboo_get_ticks();
     if ( ticks > stat_check_timer + 20 )
@@ -2116,7 +2285,7 @@ void check_stats()
         if ( INGAME_CHR( PlaStack.lst[docheat].index ) )
         {
             Uint32 xpgain;
-            chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
+            chr_t * pchr = ChrList_get_ptr( PlaStack.lst[docheat].index );
             cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
             //Give 10% of XP needed for next level
@@ -2140,7 +2309,7 @@ void check_stats()
         if ( INGAME_CHR( PlaStack.lst[docheat].index ) )
         {
             cap_t * pcap;
-            chr_t * pchr = ChrList.lst + PlaStack.lst[docheat].index;
+            chr_t * pchr = ChrList_get_ptr( PlaStack.lst[docheat].index );
             pcap = pro_get_pcap( pchr->profile_ref );
 
             //Heal 1 life
@@ -2211,14 +2380,14 @@ void show_stat( int statindex )
     int     level;
     char    gender[8] = EMPTY_CSTR;
 
-    if ( statindex < StatusList_count )
+    if ( statindex < StatusList.count )
     {
-        character = StatusList[statindex];
+        character = StatusList.lst[statindex].who;
 
         if ( INGAME_CHR( character ) )
         {
             cap_t * pcap;
-            chr_t * pchr = ChrList.lst + character;
+            chr_t * pchr = ChrList_get_ptr( character );
 
             pcap = pro_get_pcap( pchr->profile_ref );
 
@@ -2283,12 +2452,12 @@ void show_armor( int statindex )
     cap_t * pcap;
     chr_t * pchr;
 
-    if ( statindex >= StatusList_count ) return;
+    if ( statindex >= StatusList.count ) return;
 
-    ichr = StatusList[statindex];
+    ichr = StatusList.lst[statindex].who;
     if ( !INGAME_CHR( ichr ) ) return;
 
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
     skinlevel = pchr->skin;
 
     pcap = chr_get_pcap( ichr );
@@ -2341,7 +2510,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     if ( NULL == pmanaregen ) pmanaregen = &local_manaregen;
 
     // set the base values
-    ( *pmanaregen ) = pchr->manareturn / MANARETURNSHIFT;
+    ( *pmanaregen ) = pchr->mana_return / MANARETURNSHIFT;
     ( *pliferegen ) = pchr->life_return;
 
     // Don't forget to add gains and costs from enchants
@@ -2375,16 +2544,15 @@ void show_full_status( int statindex )
     chr_t * pchr;
     Uint8  skinlevel;
 
-    if ( statindex >= StatusList_count ) return;
-    character = StatusList[statindex];
+    if ( statindex >= StatusList.count ) return;
+    character = StatusList.lst[statindex].who;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
     skinlevel = pchr->skin;
 
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return;
-
 
     // clean up the enchant list
     cleanup_character_enchants( pchr );
@@ -2419,12 +2587,12 @@ void show_magic_status( int statindex )
     const char * missile_str;
     chr_t * pchr;
 
-    if ( statindex >= StatusList_count ) return;
+    if ( statindex >= StatusList.count ) return;
 
-    character = StatusList[statindex];
+    character = StatusList.lst[statindex].who;
 
     if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // clean up the enchant list
     cleanup_character_enchants( pchr );
@@ -2465,9 +2633,9 @@ void tilt_characters_to_terrain()
     {
         if ( !INGAME_CHR( cnt ) ) continue;
 
-        if ( pchr->stickybutt && mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+        if ( pchr->stickybutt )
         {
-            twist = PMesh->gmem.grid_list[pchr->onwhichgrid].twist;
+            twist = mesh_get_twist( PMesh, pchr->onwhichgrid );
             pchr->ori.map_facing_y = map_twist_y[twist];
             pchr->ori.map_facing_x = map_twist_x[twist];
         }
@@ -2491,7 +2659,7 @@ void import_dir_profiles_vfs( const char * dirname )
 
     if ( !PMod->importvalid || 0 == PMod->importamount ) return;
 
-    for ( cnt = 0; cnt < PMod->importamount*MAXIMPORTPERPLAYER; cnt++ )
+    for ( cnt = 0; cnt < PMod->importamount*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
         // Make sure the object exists...
         snprintf( filename, SDL_arraysize( filename ), "%s/temp%04d.obj", dirname, cnt );
@@ -2500,7 +2668,7 @@ void import_dir_profiles_vfs( const char * dirname )
         if ( vfs_exists( newloadname ) )
         {
             // new player found
-            if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) import_data.player++;
+            if ( 0 == ( cnt % MAX_IMPORT_PER_PLAYER ) ) import_data.player++;
 
             // store the slot info
             import_data.slot = cnt;
@@ -2531,6 +2699,9 @@ void load_all_profiles_import()
 
     import_dir_profiles_vfs( "mp_import" );
     import_dir_profiles_vfs( "mp_remote" );
+
+    // return this to the normal value
+    overrideslots = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2549,7 +2720,7 @@ void game_load_profile_ai()
         pro_t *ppro;
 
         if ( !LOADED_PRO( ipro ) ) continue;
-        ppro = ProList.lst + ipro;
+        ppro = ProList_get_ptr( ipro );
 
         // Load the AI script for this iobj
         make_newloadname( ppro->name, "/script.txt", loadname );
@@ -2624,11 +2795,11 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     if ( NULL == pinfo ) return bfalse;
 
     if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
     pcap = chr_get_pcap( ichr );
 
     pparent = NULL;
-    if ( INGAME_CHR( pinfo->parent ) ) pparent = ChrList.lst + pinfo->parent;
+    if ( INGAME_CHR( pinfo->parent ) ) pparent = ChrList_get_ptr( pinfo->parent );
 
     pchr->money += pinfo->money;
     if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
@@ -2675,12 +2846,12 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
         //Unkurse both inhand items
         if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
-            pitem = ChrList.lst + ichr;
+            pitem = ChrList_get_ptr( ichr );
             pitem->iskursed = bfalse;
         }
         if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
         {
-            pitem = ChrList.lst + ichr;
+            pitem = ChrList_get_ptr( ichr );
             pitem->iskursed = bfalse;
         }
 
@@ -2792,7 +2963,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     new_object = spawn_one_character( psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, ( CHR_REF )MAX_CHR );
     if ( !DEFINED_CHR( new_object ) ) return bfalse;
 
-    pobject = ChrList.lst + new_object;
+    pobject = ChrList_get_ptr( new_object );
 
     // determine the attachment
     if ( psp_info->attach == ATTACH_NONE )
@@ -2814,7 +2985,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 
             bool_t player_added;
 
-            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, DeviceList + local_numlpla );
+            player_added = add_player( new_object, ( PLA_REF )PlaStack.count, InputDevices.lst + local_stats.player_count );
 
             if ( start_new_player && player_added )
             {
@@ -2847,7 +3018,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
-                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, DeviceList + ImportList.lst[local_index].local_player_num );
+                player_added = add_player( new_object, ( PLA_REF )PlaStack.count, InputDevices.lst + ImportList.lst[local_index].local_player_num );
             }
             else
             {
@@ -2894,8 +3065,8 @@ void activate_spawn_file_vfs()
         CHR_REF parent = ( CHR_REF )MAX_CHR;
         size_t i;
 
-        //Mark each slot as free with the string termination character
-        memset( reserved_slot, CSTR_END, sizeof( reserved_slot[0][0] ) * MAX_PROFILE * 256 );
+        // Mark each slot as free with the string termination character
+        memset( reserved_slot, CSTR_END, sizeof( reserved_slot ) );
 
         //First load spawn data of every object
         while ( spawn_file_scan( fileread, &spawn_list[spawn_count] ) )
@@ -2943,7 +3114,7 @@ void activate_spawn_file_vfs()
             spawn_file_info_t * sp_dynamic = spawn_list + dynamic_list[i];
 
             //Find first free slot that is not the spellbook slot
-            for ( sp_dynamic->slot = MAXIMPORTPERPLAYER * MAX_PLAYER; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
+            for ( sp_dynamic->slot = MAX_IMPORT_PER_PLAYER * MAX_PLAYER; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
             {
                 //dont try to grab the spellbook slot
                 if ( sp_dynamic->slot == SPELLBOOK ) continue;
@@ -2975,7 +3146,7 @@ void activate_spawn_file_vfs()
             // If nothing is already in that slot, try to load it.
             if ( !LOADED_PRO(( PRO_REF ) sp_info->slot ) )
             {
-                bool_t import_object = sp_info->slot > PMod->importamount * MAXIMPORTPERPLAYER;
+                bool_t import_object = sp_info->slot > PMod->importamount * MAX_IMPORT_PER_PLAYER;
 
                 if ( !activate_spawn_file_load_object( sp_info ) )
                 {
@@ -3025,7 +3196,6 @@ void game_reset_module_data()
     game_reset_players();
 
     reset_end_text();
-    renderlist_reset( &renderlist );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3047,10 +3217,10 @@ void game_load_global_assets()
 void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
-    load_global_waves();
-    reset_particles();
+    sound_load_global_waves_vfs();
+    PrtList_reset_all();
 
-    if ( NULL == read_wawalite() )
+    if ( NULL == read_wawalite_vfs() )
     {
         log_warning( "wawalite.txt not loaded for %s.\n", modname );
     }
@@ -3097,6 +3267,7 @@ bool_t game_load_module_data( const char *smallname )
 {
     /// @details ZZ@> This function loads a module
 
+    egoboo_rv mpd_BSP_retval;
     STRING modname;
     ego_mpd_t * pmesh_rv;
 
@@ -3131,7 +3302,17 @@ bool_t game_load_module_data( const char *smallname )
         goto game_load_module_data_fail;
     }
 
-    mpd_BSP_system_begin( pmesh_rv );
+    // start the mpd_BSP_system
+    mpd_BSP_retval = mpd_BSP_system_begin( pmesh_rv );
+    if ( rv_error == mpd_BSP_retval )
+    {
+        goto game_load_module_data_fail;
+    }
+    else if ( rv_success == mpd_BSP_retval )
+    {
+        // if it is started, populate the mpd_BSP
+        mpd_BSP_fill( &mpd_BSP_root, pmesh_rv );
+    }
 
     return btrue;
 
@@ -3195,7 +3376,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return 0;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
@@ -3212,7 +3393,7 @@ int reaffirm_attached_particles( const CHR_REF character )
         particle = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
         if ( DEFINED_PRT( particle ) )
         {
-            prt_t * pprt = PrtList.lst + particle;
+            prt_t * pprt = PrtList_get_ptr( particle );
 
             pprt = place_particle_at_vertex( pprt, character, pprt->attachedto_vrt_off );
             if ( NULL == pprt ) continue;
@@ -3240,10 +3421,10 @@ void game_quit_module()
     game_release_module_data();
 
     // turn off networking
-    close_session();
+    net_close_session();
 
     // reset the "ui" mouse state
-    cursor_reset();
+    input_cursor_reset();
 
     // re-initialize all game/module data
     game_reset_module_data();
@@ -3305,7 +3486,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     //==== set the module-dependent mount points
 
     //---- add the "/modules/*.mod/objects" directories to mp_objects
-    snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
 
     // mount the user's module objects directory at the beginning of the mount point list
     vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_objects", 1 );
@@ -3331,7 +3512,7 @@ bool_t game_setup_vfs_paths( const char * mod_path )
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "armor",            "mp_objects", 1 );
 
     //---- add the "/modules/*.mod/gamedat" directory to mp_data
-    snprintf( tmpDir, sizeof( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
+    snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
 
     // mount the user's module gamedat directory at the beginning of the mount point list
     vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_data", 1 );
@@ -3376,9 +3557,9 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // initialize the game objects
     initialize_all_objects();
-    cursor_reset();
+    input_cursor_reset();
     game_module_reset( PMod, seed );
-    camera_reset( PCamera, PMesh );
+    camera_system_reset( PMesh );
     update_all_character_matrices();
     attach_all_particles();
 
@@ -3394,7 +3575,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     // initialize the timers as the very last thing
     timeron = bfalse;
-    reset_timers();
+    game_reset_timers();
 
     return btrue;
 }
@@ -3412,7 +3593,7 @@ bool_t game_update_imports()
         export_all_players( bfalse );
 
         // update the import list
-        Import_list_from_players( &ImportList );
+        import_list_from_players( &ImportList );
     }
 
     // erase the data in the import folder
@@ -3466,7 +3647,7 @@ bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
     pprt = pbdl_prt->prt_ptr;
 
     if ( !INGAME_CHR( pbdl_prt->prt_ptr->attachedto_ref ) ) return bfalse;
-    pchr = ChrList.lst + pbdl_prt->prt_ptr->attachedto_ref;
+    pchr = ChrList_get_ptr( pbdl_prt->prt_ptr->attachedto_ref );
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
     if ( NULL == pprt ) return bfalse;
@@ -3506,7 +3687,7 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t
     chr_t    * pchr = NULL;
 
     if ( !VALID_PLA_RANGE( player ) ) return bfalse;
-    ppla = PlaStack.lst + player;
+    ppla = PlaStack_get_ptr( player );
 
     // does the player already exist?
     if ( ppla->valid ) return bfalse;
@@ -3515,7 +3696,7 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t
     pla_reinit( ppla );
 
     if ( !DEFINED_CHR( character ) ) return bfalse;
-    pchr = ChrList.lst + character;
+    pchr = ChrList_get_ptr( character );
 
     // set the reference to the player
     pchr->is_which_player = player;
@@ -3534,10 +3715,7 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t
     {
         local_stats.noplayers = bfalse;
         pchr->islocalplayer = btrue;
-        local_numlpla++;
-
-        // reset the camera
-        camera_reset_target( PCamera, PMesh );
+        local_stats.player_count++;
     }
 
     PlaStack.count++;
@@ -3668,12 +3846,6 @@ camera_t * set_PCamera( camera_t * pcam )
 
     PCamera = pcam;
 
-    // Matrix init stuff (from remove.c)
-    rotmesh_topside    = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_TOPSIDE / 1.33333f;
-    rotmesh_bottomside = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_BOTTOMSIDE / 1.33333f;
-    rotmesh_up         = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_UP / 1.33333f;
-    rotmesh_down       = (( float )sdl_scr.x / sdl_scr.y ) * CAM_ROTMESH_DOWN / 1.33333f;
-
     return pcam_old;
 }
 
@@ -3699,57 +3871,6 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
     }
 
     return zdone;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t make_water( water_instance_t * pinst, wawalite_water_t * pdata )
-{
-    /// @details ZZ@> This function sets up water movements
-
-    int layer, frame, point, cnt;
-    float temp;
-    Uint8 spek;
-
-    if ( NULL == pinst || NULL == pdata ) return bfalse;
-
-    for ( layer = 0; layer < pdata->layer_count; layer++ )
-    {
-        pinst->layer[layer].tx.x = 0;
-        pinst->layer[layer].tx.y = 0;
-
-        for ( frame = 0; frame < MAXWATERFRAME; frame++ )
-        {
-            // Do first mode
-            for ( point = 0; point < WATERPOINTS; point++ )
-            {
-                temp = SIN(( frame * TWO_PI / MAXWATERFRAME ) + ( TWO_PI * point / WATERPOINTS ) + ( PI / 2 * layer / MAXWATERLAYER ) );
-                pinst->layer_z_add[layer][frame][point] = temp * pdata->layer[layer].amp;
-            }
-        }
-    }
-
-    // Calculate specular highlights
-    spek = 0;
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-        spek = 0;
-        if ( cnt > pdata->spek_start )
-        {
-            temp = cnt - pdata->spek_start;
-            temp = temp / ( 256 - pdata->spek_start );
-            temp = temp * temp;
-            spek = temp * pdata->spek_level;
-        }
-
-        // [claforte] Probably need to replace this with a
-        //           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
-        if ( GL_FLAT == gfx.shading )
-            pinst->spek[cnt] = 0;
-        else
-            pinst->spek[cnt] = spek;
-    }
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3791,11 +3912,11 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     chr_t      * pchr, *ptarget, *powner;
     ai_state_t * pai;
 
-    pchr    = !INGAME_CHR( ichr ) ? NULL : ChrList.lst + ichr;
+    pchr    = !INGAME_CHR( ichr ) ? NULL : ChrList_get_ptr( ichr );
     pai     = ( NULL == pchr )    ? NULL : &( pchr->ai );
 
-    ptarget = (( NULL == pai ) || !INGAME_CHR( pai->target ) ) ? pchr : ChrList.lst + pai->target;
-    powner  = (( NULL == pai ) || !INGAME_CHR( pai->owner ) ) ? pchr : ChrList.lst + pai->owner;
+    ptarget = (( NULL == pai ) || !INGAME_CHR( pai->target ) ) ? pchr : ChrList_get_ptr( pai->target );
+    powner  = (( NULL == pai ) || !INGAME_CHR( pai->owner ) ) ? pchr : ChrList_get_ptr( pai->owner );
 
     cnt = 0;
     while ( CSTR_END != *src && src < src_end && dst < dst_end )
@@ -4079,7 +4200,7 @@ bool_t game_choose_module( int imod, int seed )
 
     if ( seed < 0 ) seed = time( NULL );
 
-    if ( NULL == PMod ) PMod = &gmod;
+    if ( NULL == PMod ) PMod = &_gmod;
 
     retval = game_module_setup( PMod, mnu_ModList_get_base( imod ), mnu_ModList_get_vfs_path( imod ), seed );
 
@@ -4097,7 +4218,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 {
     if ( NULL == gproc ) return NULL;
 
-    memset( gproc, 0, sizeof( *gproc ) );
+    BLANK_STRUCT_PTR( gproc )
 
     process_init( PROC_PBASE( gproc ) );
 
@@ -4110,7 +4231,7 @@ game_process_t * game_process_init( game_process_t * gproc )
     PROFILE_INIT( gfx_loop );
 
     PROFILE_INIT( talk_to_remotes );
-    PROFILE_INIT( listen_for_packets );
+    PROFILE_INIT( net_listen_for_packets );
     PROFILE_INIT( check_stats );
     PROFILE_INIT( set_local_latches );
     PROFILE_INIT( check_passage_music );
@@ -4130,11 +4251,11 @@ void do_game_hud()
         GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
         if ( fpson )
         {
-            y = draw_string( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_ups );
+            y = draw_string( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_game_ups );
             y = draw_string( 0, y, "estimated max FPS %2.3f", est_max_fps ); \
         }
 
-        y = draw_string( 0, y, "Menu time %f", MProc->base.dtime );
+        y = draw_string( 0, y, "Menu time %f", MProc->base.frameDuration );
     }
 }
 
@@ -4319,19 +4440,21 @@ void game_reset_players()
     local_stats.sense_enemies_team = ( TEAM_REF ) TEAM_MAX;
     local_stats.sense_enemies_idsz = IDSZ_NONE;
 
-    net_reset_players();
+    PlaStack_reset_all();
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_layer_t data[], int layer_count )
+bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count )
 {
     int layer;
 
     if ( NULL == inst || 0 == layer_count ) return bfalse;
 
-    // clear all data
-    memset( inst, 0, layer_count * sizeof( *inst ) );
+    for ( layer = 0; layer < layer_count; layer++ )
+    {
+        BLANK_STRUCT_PTR( inst + layer );
+    }
 
     // set the frame
     for ( layer = 0; layer < layer_count; layer++ )
@@ -4343,19 +4466,22 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_la
     {
         for ( layer = 0; layer < layer_count; layer++ )
         {
-            inst[layer].z         = data[layer].z;
-            inst[layer].amp       = data[layer].amp;
+            const wawalite_water_layer_t * pwawa  = data + layer;
+            water_instance_layer_t       * player = inst + layer;
 
-            inst[layer].dist      = data[layer].dist;
+            player->z         = pwawa->z;
+            player->amp       = pwawa->amp;
 
-            inst[layer].light_dir = data[layer].light_dir / 63.0f;
-            inst[layer].light_add = data[layer].light_add / 63.0f;
+            player->dist      = pwawa->dist;
 
-            inst[layer].tx_add    = data[layer].tx_add;
+            player->light_dir = pwawa->light_dir / 63.0f;
+            player->light_add = pwawa->light_add / 63.0f;
 
-            inst[layer].alpha     = data[layer].alpha;
+            player->tx_add    = pwawa->tx_add;
 
-            inst[layer].frame_add = data[layer].frame_add;
+            player->alpha     = pwawa->alpha;
+
+            player->frame_add = pwawa->frame_add;
         }
     }
 
@@ -4363,66 +4489,11 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], wawalite_water_la
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_water_data( water_instance_t * pinst, wawalite_water_t * pdata )
-{
-    //int layer;
-
-    if ( NULL == pinst ) return bfalse;
-
-    memset( pinst, 0, sizeof( *pinst ) );
-
-    if ( NULL != pdata )
-    {
-        // upload the data
-
-        pinst->surface_level    = pdata->surface_level;
-        pinst->douse_level      = pdata->douse_level;
-
-        pinst->is_water         = pdata->is_water;
-        pinst->overlay_req      = pdata->overlay_req;
-        pinst->background_req   = pdata->background_req;
-
-        pinst->light            = pdata->light;
-
-        pinst->foregroundrepeat = pdata->foregroundrepeat;
-        pinst->backgroundrepeat = pdata->backgroundrepeat;
-
-        // upload the layer data
-        pinst->layer_count   = pdata->layer_count;
-        upload_water_layer_data( pinst->layer, pdata->layer, pdata->layer_count );
-    }
-
-    // fix the light in case of self-lit textures
-    //if ( pdata->light )
-    //{
-    //    for ( layer = 0; layer < pinst->layer_count; layer++ )
-    //    {
-    //        pinst->layer[layer].light_add = 1.0f;  // Some cards don't support light lights...
-    //    }
-    //}
-
-    make_water( pinst, pdata );
-
-    // Allow slow machines to ignore the fancy stuff
-    if ( !cfg.twolayerwater_allowed && pinst->layer_count > 1 )
-    {
-        int iTmp = pdata->layer[0].light_add;
-        iTmp = ( pdata->layer[1].light_add * iTmp * INV_FF ) + iTmp;
-        if ( iTmp > 255 ) iTmp = 255;
-
-        pinst->layer_count        = 1;
-        pinst->layer[0].light_add = iTmp * INV_FF;
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pdata )
+bool_t upload_weather_data( weather_instance_t * pinst, const wawalite_weather_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( *pinst ) );
+    BLANK_STRUCT_PTR( pinst )
 
     // set a default value
     pinst->timer_reset = 10;
@@ -4442,19 +4513,15 @@ bool_t upload_weather_data( weather_instance_t * pinst, wawalite_weather_t * pda
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_fog_data( fog_instance_t * pinst, wawalite_fog_t * pdata )
+bool_t upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( *pinst ) );
-
-    pdata->top      = 0;
-    pdata->bottom   = -100;
-    pinst->on       = cfg.fog_allowed;
+    BLANK_STRUCT_PTR( pinst )
 
     if ( NULL != pdata )
     {
-        pinst->on     = pdata->found && pinst->on;
+        pinst->on     = pdata->found && pinst->on && cfg.fog_allowed;
         pinst->top    = pdata->top;
         pinst->bottom = pdata->bottom;
 
@@ -4470,11 +4537,11 @@ bool_t upload_fog_data( fog_instance_t * pinst, wawalite_fog_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetile_t * pdata )
+bool_t upload_damagetile_data( damagetile_instance_t * pinst, const wawalite_damagetile_t * pdata )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( *pinst ) );
+    BLANK_STRUCT_PTR( pinst )
 
     //pinst->sound_time   = TILESOUNDTIME;
     //pinst->min_distance = 9999;
@@ -4494,13 +4561,13 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, wawalite_damagetil
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * pdata, size_t animtile_count )
+bool_t upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t * pdata, const size_t animtile_count )
 {
     Uint32 cnt;
 
     if ( NULL == inst || 0 == animtile_count ) return bfalse;
 
-    memset( inst, 0, sizeof( *inst ) );
+    BLANK_STRUCT_PTR( inst )
 
     for ( cnt = 0; cnt < animtile_count; cnt++ )
     {
@@ -4527,7 +4594,7 @@ bool_t upload_animtile_data( animtile_instance_t inst[], wawalite_animtile_t * p
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_light_data( wawalite_data_t * pdata )
+bool_t upload_light_data( const wawalite_data_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
@@ -4569,7 +4636,7 @@ bool_t upload_light_data( wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_phys_data( wawalite_physics_t * pdata )
+bool_t upload_phys_data( const wawalite_physics_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
@@ -4585,7 +4652,7 @@ bool_t upload_phys_data( wawalite_physics_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_graphics_data( wawalite_graphics_t * pdata )
+bool_t upload_graphics_data( const wawalite_graphics_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
@@ -4597,13 +4664,13 @@ bool_t upload_graphics_data( wawalite_graphics_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_camera_data( wawalite_camera_t * pdata )
+bool_t upload_camera_data( const wawalite_camera_t * pdata )
 {
     if ( NULL == pdata ) return bfalse;
 
-    PCamera->swing     = pdata->swing;
-    PCamera->swingrate = pdata->swingrate;
-    PCamera->swingamp  = pdata->swingamp;
+    cam_options.swing     = pdata->swing;
+    cam_options.swing_rate = pdata->swing_rate;
+    cam_options.swing_amp  = pdata->swing_amp;
 
     return btrue;
 }
@@ -4627,7 +4694,7 @@ void upload_wawalite()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_module_setup( game_module_t * pinst, mod_file_t * pdata, const char * loadname, Uint32 seed )
+bool_t game_module_setup( game_module_t * pinst, const mod_file_t * pdata, const char * loadname, const Uint32 seed )
 {
     //Prepeares a module to be played
     if ( NULL == pdata ) return bfalse;
@@ -4656,7 +4723,7 @@ bool_t game_module_init( game_module_t * pinst )
 {
     if ( NULL == pinst ) return bfalse;
 
-    memset( pinst, 0, sizeof( *pinst ) );
+    BLANK_STRUCT_PTR( pinst )
 
     pinst->seed = ( Uint32 )~0;
 
@@ -4664,7 +4731,7 @@ bool_t game_module_init( game_module_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_module_reset( game_module_t * pinst, Uint32 seed )
+bool_t game_module_reset( game_module_t * pinst, const Uint32 seed )
 {
     if ( NULL == pinst ) return bfalse;
 
@@ -4688,7 +4755,7 @@ bool_t game_module_start( game_module_t * pinst )
     pinst->randsave = rand();
     randindex = rand() % RANDIE_COUNT;
 
-    PNet->hostactive = btrue; // very important or the input will not work
+    net_set_hostactive( PNet, btrue ); // very important or the input will not work
 
     return btrue;
 }
@@ -4703,13 +4770,13 @@ bool_t game_module_stop( game_module_t * pinst )
     pinst->active      = bfalse;
 
     // network stuff
-    PNet->hostactive  = bfalse;
+    net_set_hostactive( PNet, bfalse );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite( /* const char *modname */ )
+wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
 {
     int cnt, waterspeed_count, windspeed_count;
 
@@ -4722,6 +4789,9 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
     if ( NULL == pdata ) return NULL;
 
     memcpy( &wawalite_data, pdata, sizeof( wawalite_data_t ) );
+
+    // fix any out-of-bounds data
+    fix_wawalite( &wawalite_data );
 
     // limit some values
     wawalite_data.damagetile.sound_index = CLIP( wawalite_data.damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
@@ -4798,13 +4868,13 @@ wawalite_data_t * read_wawalite( /* const char *modname */ )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
+bool_t fix_wawalite( wawalite_data_t * pdata )
 {
-    /// @details BB@> Prepare and write the wawalite file
+    /// @details BB@> coerce all parameters to in-bounds values
 
     int cnt;
 
-    if ( !VALID_CSTR( modname ) || NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     // limit some values
     pdata->damagetile.sound_index = CLIP( pdata->damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
@@ -4814,6 +4884,16 @@ bool_t write_wawalite( const char *modname, wawalite_data_t * pdata )
         pdata->water.layer[cnt].light_dir = CLIP( pdata->water.layer[cnt].light_dir, 0, 63 );
         pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, 0, 63 );
     }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t write_wawalite_vfs( /* const char *modname, */ wawalite_data_t * pdata )
+{
+    /// @details BB@> Prepare and write the wawalite file
+
+    if ( NULL == pdata ) return bfalse;
 
     return write_wawalite_file_vfs( pdata );
 }
@@ -4877,10 +4957,10 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     bool_t inshop;
 
     if ( !INGAME_CHR( iitem ) ) return bfalse;
-    pitem = ChrList.lst + iitem;
+    pitem = ChrList_get_ptr( iitem );
 
     if ( !INGAME_CHR( idropper ) ) return bfalse;
-    pdropper = ChrList.lst + idropper;
+    pdropper = ChrList_get_ptr( idropper );
 
     inshop = bfalse;
     if ( pitem->isitem && ShopStack.count > 0 )
@@ -4894,7 +4974,7 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
         if ( INGAME_CHR( iowner ) )
         {
             int price;
-            chr_t * powner = ChrList.lst + iowner;
+            chr_t * powner = ChrList_get_ptr( iowner );
 
             inshop = btrue;
 
@@ -4930,10 +5010,10 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     chr_t * ppicker, * pitem;
 
     if ( !INGAME_CHR( iitem ) ) return bfalse;
-    pitem = ChrList.lst + iitem;
+    pitem = ChrList_get_ptr( iitem );
 
     if ( !INGAME_CHR( ipicker ) ) return bfalse;
-    ppicker = ChrList.lst + ipicker;
+    ppicker = ChrList_get_ptr( ipicker );
 
     can_grab = btrue;
     can_pay  = btrue;
@@ -4949,7 +5029,7 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         iowner = shop_get_owner( ix, iy );
         if ( INGAME_CHR( iowner ) )
         {
-            chr_t * powner = ChrList.lst + iowner;
+            chr_t * powner = ChrList_get_ptr( iowner );
 
             in_shop = btrue;
             price   = chr_get_price( iitem );
@@ -5012,10 +5092,10 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     chr_t * pthief, * pitem;
 
     if ( !INGAME_CHR( iitem ) ) return bfalse;
-    pitem = ChrList.lst + iitem;
+    pitem = ChrList_get_ptr( iitem );
 
     if ( !INGAME_CHR( ithief ) ) return bfalse;
-    pthief = ChrList.lst + ithief;
+    pthief = ChrList_get_ptr( ithief );
 
     can_steal = btrue;
     if ( pitem->isitem && ShopStack.count > 0 )
@@ -5030,7 +5110,7 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
         {
             IPair  tmp_rand = {1, 100};
             Uint8  detection;
-            chr_t * powner = ChrList.lst + iowner;
+            chr_t * powner = ChrList_get_ptr( iowner );
 
             detection = generate_irand_pair( tmp_rand );
 
@@ -5057,10 +5137,10 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     CHR_REF shop_keeper;
 
     if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pchr = ChrList.lst + ichr;
+    pchr = ChrList_get_ptr( ichr );
 
     if ( !INGAME_CHR( iitem ) ) return bfalse;
-    pitem = ChrList.lst + iitem;
+    pitem = ChrList_get_ptr( iitem );
     ix = pitem->pos.x / GRID_FSIZE;
     iy = pitem->pos.y / GRID_FSIZE;
 
@@ -5256,33 +5336,6 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv move_water( water_instance_t * pwater )
-{
-    /// @details ZZ@> This function animates the water overlays
-
-    int layer;
-
-    if ( NULL == pwater ) return rv_error;
-
-    for ( layer = 0; layer < MAXWATERLAYER; layer++ )
-    {
-        water_instance_layer_t * player = pwater->layer + layer;
-
-        player->tx.x += player->tx_add.x;
-        player->tx.y += player->tx_add.y;
-
-        if ( player->tx.x >  1.0f )  player->tx.x -= 1.0f;
-        if ( player->tx.y >  1.0f )  player->tx.y -= 1.0f;
-        if ( player->tx.x < -1.0f )  player->tx.x += 1.0f;
-        if ( player->tx.y < -1.0f )  player->tx.y += 1.0f;
-
-        player->frame = ( player->frame + player->frame_add ) & WATERFRAMEAND;
-    }
-
-    return rv_success;
-}
-
-//--------------------------------------------------------------------------------------------
 void disenchant_character( const CHR_REF cnt )
 {
     /// @details ZZ@> This function removes all enchantments from a character
@@ -5291,7 +5344,7 @@ void disenchant_character( const CHR_REF cnt )
     size_t ienc_count;
 
     if ( !ALLOCATED_CHR( cnt ) ) return;
-    pchr = ChrList.lst + cnt;
+    pchr = ChrList_get_ptr( cnt );
 
     ienc_count = 0;
     while (( MAX_ENC != pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
@@ -5313,7 +5366,7 @@ void cleanup_character_enchants( chr_t * pchr )
     if ( NULL == pchr ) return;
 
     // clean up the enchant list
-    pchr->firstenchant = cleanup_enchant_list( pchr->firstenchant, &( pchr->firstenchant ) );
+    pchr->firstenchant = enchant_list_cleanup( pchr->firstenchant, &( pchr->firstenchant ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5368,7 +5421,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // what to do about traction if the platform is tilted... hmmm?
     chr_getMatUp( pplat, platform_up.v );
-    platform_up = fvec3_normalize( platform_up.v );
+    fvec3_self_normalize( platform_up.v );
 
     pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 
@@ -5405,7 +5458,7 @@ bool_t detach_character_from_platform( chr_t * pchr )
     old_zlerp        = pchr->enviro.zlerp;
     if ( INGAME_CHR( old_platform_ref ) )
     {
-        old_platform_ptr = ChrList.lst + old_platform_ref;
+        old_platform_ptr = ChrList_get_ptr( old_platform_ref );
     }
 
     // undo the attachment
@@ -5491,11 +5544,11 @@ bool_t detach_particle_from_platform( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t Import_element_init( Import_element_t * ptr )
+bool_t import_element_init( import_element_t * ptr )
 {
     if ( NULL == ptr ) return bfalse;
 
-    memset( ptr, 0, sizeof( *ptr ) );
+    BLANK_STRUCT_PTR( ptr )
 
     // all non-zero, non-null values
     ptr->player = MAX_PLAYER;
@@ -5506,14 +5559,14 @@ bool_t Import_element_init( Import_element_t * ptr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv game_copy_imports( Import_list_t * imp_lst )
+egoboo_rv game_copy_imports( import_list_t * imp_lst )
 {
     int       tnc;
     egoboo_rv retval;
     STRING    tmp_src_dir, tmp_dst_dir;
 
     int                import_idx = 0;
-    Import_element_t * import_ptr = NULL;
+    import_element_t * import_ptr = NULL;
 
     if ( NULL == imp_lst ) return rv_error;
 
@@ -5547,7 +5600,7 @@ egoboo_rv game_copy_imports( Import_list_t * imp_lst )
         }
 
         // Copy all of the character's items to the import directory
-        for ( tnc = 0; tnc < MAXIMPORTOBJECTS; tnc++ )
+        for ( tnc = 0; tnc < MAX_IMPORT_OBJECTS; tnc++ )
         {
             snprintf( tmp_src_dir, SDL_arraysize( tmp_src_dir ), "%s/%d.obj", import_ptr->srcDir, tnc );
 
@@ -5569,7 +5622,7 @@ egoboo_rv game_copy_imports( Import_list_t * imp_lst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t Import_list_init( Import_list_t * imp_lst )
+bool_t import_list_init( import_list_t * imp_lst )
 {
     int cnt;
 
@@ -5577,7 +5630,7 @@ bool_t Import_list_init( Import_list_t * imp_lst )
 
     for ( cnt = 0; cnt < MAX_IMPORTS; cnt++ )
     {
-        Import_element_init( imp_lst->lst + cnt );
+        import_element_init( imp_lst->lst + cnt );
     }
     imp_lst->count = 0;
 
@@ -5585,7 +5638,7 @@ bool_t Import_list_init( Import_list_t * imp_lst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
+egoboo_rv import_list_from_players( import_list_t * imp_lst )
 {
     bool_t is_local;
     PLA_REF player;
@@ -5593,7 +5646,7 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
     PLA_REF                 player_idx;
     player_t              * player_ptr = NULL;
 
-    Import_element_t      * import_ptr = NULL;
+    import_element_t      * import_ptr = NULL;
 
     CHR_REF                 ichr;
     chr_t                 * pchr;
@@ -5601,17 +5654,17 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
     if ( NULL == imp_lst ) return rv_error;
 
     // blank out the ImportList list
-    Import_list_init( &ImportList );
+    import_list_init( &ImportList );
 
     // generate the ImportList list from the player info
     for ( player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++ )
     {
         if ( !VALID_PLA( player_idx ) ) continue;
-        player_ptr = PlaStack.lst + player_idx;
+        player_ptr = PlaStack_get_ptr( player_idx );
 
         ichr = player_ptr->index;
         if ( !DEFINED_CHR( ichr ) ) continue;
-        pchr = ChrList.lst + ichr;
+        pchr = ChrList_get_ptr( ichr );
 
         is_local = ( NULL != player_ptr->pdevice );
 
@@ -5620,7 +5673,7 @@ egoboo_rv Import_list_from_players( Import_list_t * imp_lst )
         imp_lst->count++;
 
         import_ptr->player          = player_idx;
-        import_ptr->slot            = REF_TO_INT( player ) * MAXIMPORTPERPLAYER;
+        import_ptr->slot            = REF_TO_INT( player ) * MAX_IMPORT_PER_PLAYER;
         import_ptr->srcDir[0]       = CSTR_END;
         import_ptr->dstDir[0]       = CSTR_END;
         strncpy( import_ptr->name, pchr->Name, SDL_arraysize( import_ptr->name ) );
@@ -5664,4 +5717,239 @@ bool_t check_time( Uint32 check )
             //Unhandled check
         default: log_warning( "Unhandled time enum in check_time()\n" ); return bfalse;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t water_instance_make( water_instance_t * pinst, const wawalite_water_t * pdata )
+{
+    /// @details ZZ@> This function sets up water movements
+
+    int layer, frame, point, cnt;
+    float temp;
+    Uint8 spek;
+
+    if ( NULL == pinst || NULL == pdata ) return bfalse;
+
+    for ( layer = 0; layer < pdata->layer_count; layer++ )
+    {
+        pinst->layer[layer].tx.x = 0;
+        pinst->layer[layer].tx.y = 0;
+
+        for ( frame = 0; frame < MAXWATERFRAME; frame++ )
+        {
+            // Do first mode
+            for ( point = 0; point < WATERPOINTS; point++ )
+            {
+                temp = SIN(( frame * TWO_PI / MAXWATERFRAME ) + ( TWO_PI * point / WATERPOINTS ) + ( PI_OVER_TWO * layer / MAXWATERLAYER ) );
+                pinst->layer_z_add[layer][frame][point] = temp * pdata->layer[layer].amp;
+            }
+        }
+    }
+
+    // Calculate specular highlights
+    spek = 0;
+    for ( cnt = 0; cnt < 256; cnt++ )
+    {
+        spek = 0;
+        if ( cnt > pdata->spek_start )
+        {
+            temp = cnt - pdata->spek_start;
+            temp = temp / ( 256 - pdata->spek_start );
+            temp = temp * temp;
+            spek = temp * pdata->spek_level;
+        }
+
+        // [claforte] Probably need to replace this with a
+        //           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
+        if ( GL_FLAT == gfx.shading )
+            pinst->spek[cnt] = 0;
+        else
+            pinst->spek[cnt] = spek;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t upload_water_data( water_instance_t * pinst, const wawalite_water_t * pdata )
+{
+    //int layer;
+
+    if ( NULL == pinst ) return bfalse;
+
+    BLANK_STRUCT_PTR( pinst )
+
+    if ( NULL != pdata )
+    {
+        // upload the data
+
+        pinst->surface_level    = pdata->surface_level;
+        pinst->douse_level      = pdata->douse_level;
+
+        pinst->is_water         = pdata->is_water;
+        pinst->overlay_req      = pdata->overlay_req;
+        pinst->background_req   = pdata->background_req;
+
+        pinst->light            = pdata->light;
+
+        pinst->foregroundrepeat = pdata->foregroundrepeat;
+        pinst->backgroundrepeat = pdata->backgroundrepeat;
+
+        // upload the layer data
+        pinst->layer_count   = pdata->layer_count;
+        upload_water_layer_data( pinst->layer, pdata->layer, pdata->layer_count );
+    }
+
+    // fix the light in case of self-lit textures
+    //if ( pdata->light )
+    //{
+    //    for ( layer = 0; layer < pinst->layer_count; layer++ )
+    //    {
+    //        pinst->layer[layer].light_add = 1.0f;  // Some cards don't support light lights...
+    //    }
+    //}
+
+    water_instance_make( pinst, pdata );
+
+    // Allow slow machines to ignore the fancy stuff
+    if ( !cfg.twolayerwater_allowed && pinst->layer_count > 1 )
+    {
+        int iTmp = pdata->layer[0].light_add;
+        iTmp = ( pdata->layer[1].light_add * iTmp * INV_FF ) + iTmp;
+        if ( iTmp > 255 ) iTmp = 255;
+
+        pinst->layer_count        = 1;
+        pinst->layer[0].light_add = iTmp * INV_FF;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+egoboo_rv water_instance_move( water_instance_t * pwater )
+{
+    /// @details ZZ@> This function animates the water overlays
+
+    int layer;
+
+    if ( NULL == pwater ) return rv_error;
+
+    for ( layer = 0; layer < MAXWATERLAYER; layer++ )
+    {
+        water_instance_layer_t * player = pwater->layer + layer;
+
+        player->tx.x += player->tx_add.x;
+        player->tx.y += player->tx_add.y;
+
+        if ( player->tx.x >  1.0f )  player->tx.x -= 1.0f;
+        if ( player->tx.y >  1.0f )  player->tx.y -= 1.0f;
+        if ( player->tx.x < -1.0f )  player->tx.x += 1.0f;
+        if ( player->tx.y < -1.0f )  player->tx.y += 1.0f;
+
+        player->frame = ( player->frame + player->frame_add ) & WATERFRAMEAND;
+    }
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t water_instance_set_douse_level( water_instance_t * pinst, float level )
+{
+    int   ilayer;
+    float dlevel;
+
+    if ( NULL == pinst ) return bfalse;
+
+    // get the level difference
+    dlevel = level - pinst->douse_level;
+
+    // update all special values
+    pinst->surface_level += dlevel;
+    pinst->douse_level += dlevel;
+
+    // update the gfx height of the water
+    for ( ilayer = 0; ilayer < MAXWATERLAYER; ilayer++ )
+    {
+        pinst->layer[ilayer].z += dlevel;
+    }
+
+    mesh_update_water_level( PMesh );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+float water_instance_get_water_level( water_instance_t * ptr )
+{
+    int cnt;
+    float level;
+
+    if ( NULL == ptr ) return 0.0f;
+
+    level = water_instance_layer_get_level( ptr->layer + 0 );
+
+    if ( cfg.twolayerwater_allowed )
+    {
+        for ( cnt = 1; cnt < MAXWATERLAYER; cnt++ )
+        {
+            // do it this way so the macro does not evaluate water_instance_layer_get_level() twice
+            float tmpval = water_instance_layer_get_level( ptr->layer + cnt );
+
+            level = MAX( level, tmpval );
+        }
+    }
+
+    return level;
+}
+
+//--------------------------------------------------------------------------------------------
+
+float water_instance_layer_get_level( water_instance_layer_t * ptr )
+{
+    if ( NULL == ptr ) return 0.0f;
+
+    return ptr->z + ptr->amp;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t status_list_update_cameras( status_list_t * plst )
+{
+    int cnt, index, base_index;
+    ext_camera_list_t * pclst;
+
+    if ( NULL == plst ) return bfalse;
+
+    if ( !plst->on || 0 == plst->count ) return btrue;
+
+    // get the camera list
+    pclst = camera_system_get_list();
+
+    base_index = -1;
+    for ( cnt = 0; cnt < plst->count; cnt++ )
+    {
+        status_list_element_t * pelem = StatusList.lst + cnt;
+
+        index = camera_list_find_target_index( pclst, pelem->who );
+
+        if (( -1 == base_index ) && ( -1 != index ) )
+        {
+            base_index = index;
+        }
+
+        pelem->camera_index = index;
+    }
+
+    // fill in any bad camera indices
+    for ( cnt = 0; cnt < plst->count; cnt++ )
+    {
+        status_list_element_t * pelem = StatusList.lst + cnt;
+
+        if ( -1 == pelem->camera_index )
+        {
+            pelem->camera_index = base_index;
+        }
+    }
+
+    return btrue;
 }

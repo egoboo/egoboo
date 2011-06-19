@@ -29,6 +29,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -132,7 +133,7 @@ ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int window_size )
 
     if ( NULL == cs ) return cs;
 
-    memset( cs, 0, sizeof( *cs ) );
+    BLANK_STRUCT_PTR( cs )
 
     psrc = clock_getTimeSource();
     cs->sourceStartTime = psrc();
@@ -154,7 +155,7 @@ bool_t clk_dtor( ClockState_t * cs )
 
     EGOBOO_DELETE_ARY( cs->frameHistory );
 
-    memset( cs, 0, sizeof( *cs ) );
+    BLANK_STRUCT_PTR( cs )
 
     return btrue;
 }

@@ -20,16 +20,20 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
-#include "extensions/ogl_texture.h"
-#include "file_formats/module_file.h"
+
 #include "mesh.h"
 #include "mad.h"
+#include "camera_system.h"
 
 #include "egoboo.h"
+
+#include "extensions/ogl_texture.h"
+#include "file_formats/module_file.h"
 
 #include <SDL.h>
 
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
 struct s_chr;
 struct s_camera;
@@ -37,12 +41,39 @@ struct s_egoboo_config;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;
 struct s_egoboo_config;
-struct Font;
+struct s_Font;
+
+struct s_renderlist;
+struct s_renderlist_ary;
+struct s_renderlist_mgr;
+
+struct s_dolist;
+struct s_dolist_ary;
+struct s_dolist_mgr;
+
+//--------------------------------------------------------------------------------------------
+// typedefs
+//--------------------------------------------------------------------------------------------
+
+typedef struct s_renderlist     renderlist_t;
+typedef struct s_renderlist_ary renderlist_ary_t;
+typedef struct s_renderlist_mgr renderlist_mgr_t;
+
+typedef struct s_dolist     dolist_t;
+typedef struct s_dolist_ary dolist_ary_t;
+typedef struct s_dolist_mgr dolist_mgr_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+/// the default icon size in pixels
 #define ICON_SIZE 32
+
+/// the max number of do lists that can exist
+#define MAX_DO_LISTS MAX_CAMERAS
+
+/// the max number of render lists that can exist
+#define MAX_RENDER_LISTS 4
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -61,12 +92,12 @@ typedef enum e_gfx_rv gfx_rv;
 
 struct s_gfx_error_state
 {
-    const char * file;
-    const char * function;
-    int          line;
+    STRING file;
+    STRING function;
+    int    line;
 
-    int          type;
-    const char * string;
+    int    type;
+    STRING string;
 };
 typedef struct s_gfx_error_state gfx_error_state_t;
 
@@ -82,8 +113,8 @@ typedef struct s_gfx_error_stack gfx_error_stack_t;
 #define GFX_ERROR_STACK_INIT { 0, GFX_ERROR_STATE_INIT }
 
 egoboo_rv           gfx_error_add( const char * file, const char * function, int line, int id, const char * sz );
-gfx_error_state_t * gfx_error_pop();
-void                gfx_error_clear();
+gfx_error_state_t * gfx_error_pop( void );
+void                gfx_error_clear( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -155,7 +186,8 @@ typedef struct s_obj_registry_entity obj_registry_entity_t;
 
 #define OBJ_REGISTRY_ENTITY_INIT { MAX_CHR, MAX_PRT, 0.0f }
 
-int obj_registry_entity_cmp( const void * pleft, const void * pright );
+obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr );
+int                     obj_registry_entity_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -172,52 +204,6 @@ struct s_GLvertex
     GLint   color_dir;   ///< "optimized" per-vertex directional lighting
 };
 typedef struct s_GLvertex GLvertex;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// Which tiles are to be drawn, arranged by MPDFX_* bits
-struct s_renderlist
-{
-    ego_mpd_t * pmesh;
-
-    int     all_count;                               ///< Number to render, total
-    int     ref_count;                               ///< ..., is reflected in the floor
-    int     sha_count;                               ///< ..., is not reflected in the floor
-    int     drf_count;                               ///< ..., draws character reflections
-    int     ndr_count;                               ///< ..., draws no character reflections
-    int     wat_count;                               ///< ..., draws no character reflections
-
-    Uint32  all[MAXMESHRENDER];                      ///< List of which to render, total
-
-    Uint32  ref[MAXMESHRENDER];                      ///< ..., is reflected in the floor
-    Uint32  sha[MAXMESHRENDER];                      ///< ..., is not reflected in the floor
-
-    Uint32  drf[MAXMESHRENDER];                      ///< ..., draws character reflections
-    Uint32  ndr[MAXMESHRENDER];                      ///< ..., draws no character reflections
-
-    Uint32  wat[MAXMESHRENDER];                      ///< ..., draws a water tile
-};
-typedef struct s_renderlist renderlist_t;
-
-#define RENDERLIST_INIT   \
-    { \
-        NULL,           /* pmesh */  \
-        0,              /* all_count */  \
-        0,              /* ref_count */  \
-        0,              /* sha_count */  \
-        0,              /* drf_count */  \
-        0,              /* ndr_count */  \
-        0,              /* wat_count */  \
-        {INVALID_TILE}, /* all[MAXMESHRENDER] */  \
-        {INVALID_TILE}, /* ref[MAXMESHRENDER] */  \
-        {INVALID_TILE}, /* sha[MAXMESHRENDER] */  \
-        {INVALID_TILE}, /* drf[MAXMESHRENDER] */  \
-        {INVALID_TILE}, /* ndr[MAXMESHRENDER] */  \
-        {INVALID_TILE}  /* wat[MAXMESHRENDER] */  \
-    }
-
-extern renderlist_t renderlist;
 
 //--------------------------------------------------------------------------------------------
 //extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
@@ -244,21 +230,6 @@ DECLARE_STATIC_ARY_TYPE( DisplayMsgAry, msg_t, MAX_MESSAGE );
 DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 //--------------------------------------------------------------------------------------------
-// camera optimization
-
-// For figuring out what to draw
-#define CAM_ROTMESH_TOPSIDE                  50
-#define CAM_ROTMESH_BOTTOMSIDE               50
-#define CAM_ROTMESH_UP                       30
-#define CAM_ROTMESH_DOWN                     30
-
-// The ones that get used
-extern int rotmesh_topside;
-extern int rotmesh_bottomside;
-extern int rotmesh_up;
-extern int rotmesh_down;
-
-//--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
 struct s_gfx_config
 {
@@ -278,7 +249,7 @@ struct s_gfx_config
     bool_t draw_water_0;      ///< Do we draw water layer 1 (TX_WATER_LOW)
     bool_t draw_water_1;      ///< Do we draw water layer 2 (TX_WATER_TOP)
 
-    int    dynalist_max;     ///< Max number of dynamic lights to draw
+    size_t dynalist_max;     ///< Max number of dynamic lights to draw
     bool_t exploremode;       ///< fog of war mode for mesh display
     bool_t usefaredge;        ///< Far edge maps? (Outdoor)
 
@@ -347,16 +318,15 @@ typedef struct s_billboard_data billboard_data_t;
 billboard_data_t * billboard_data_init( billboard_data_t * pbb );
 bool_t             billboard_data_free( billboard_data_t * pbb );
 bool_t             billboard_data_update( billboard_data_t * pbb );
-bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct Font *font, SDL_Color color, const char * format, ... );
+bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct s_Font *font, SDL_Color color, const char * format, ... );
 
 DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
-void               BillboardList_init_all();
-void               BillboardList_update_all();
-void               BillboardList_free_all();
+void               BillboardList_init_all( void );
+void               BillboardList_update_all( void );
+void               BillboardList_free_all( void );
 size_t             BillboardList_get_free( Uint32 lifetime_secs );
 bool_t             BillboardList_free_one( size_t ibb );
-billboard_data_t * BillboardList_get_ptr( const BBOARD_REF  ibb );
 
 #define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
 #define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
@@ -412,27 +382,30 @@ extern float time_render_scene_mesh_ref_chr;
 extern float time_render_scene_mesh_drf_solid;
 extern float time_render_scene_mesh_render_shadows;
 
+extern Uint32          game_frame_all;             ///< The total number of frames drawn so far
+extern Uint32          menu_frame_all;             ///< The total number of frames drawn so far
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-void   gfx_system_begin();
-void   gfx_system_end();
+void   gfx_system_begin( void );
+void   gfx_system_end( void );
 
-int    ogl_init();
-void   gfx_main();
-void   gfx_begin_3d( struct s_camera * pcam );
-void   gfx_end_3d();
+int    ogl_init( void );
+void   gfx_main( void );
+void   gfx_begin_3d( const struct s_camera * pcam );
+void   gfx_end_3d( void );
 bool_t gfx_synch_oglx_texture_parameters( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
-void   gfx_reload_all_textures();
+void   gfx_reload_all_textures( void );
 
-void   request_clear_screen();
-void   do_clear_screen();
-bool_t flip_pages_requested();
-void   request_flip_pages();
-void   do_flip_pages();
+void   request_clear_screen( void );
+void   do_clear_screen( void );
+bool_t flip_pages_requested( void );
+void   request_flip_pages( void );
+void   do_flip_pages( void );
 
-float  draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
+float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
 void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
 void  draw_map_texture( float x, float y );
 float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
@@ -440,56 +413,67 @@ float draw_string( float x, float y, const char *format, ... );
 float draw_wrap_string( const char *szText, float x, float y, int maxx );
 float draw_status( const CHR_REF character, float x, float y );
 void  draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo, Uint8 sparkle_override );
-void  draw_cursor();
+void  draw_cursor( void );
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map );
 
-void      render_world( struct s_camera * pcam );
-void      render_shadow( const CHR_REF character );
-void      render_bad_shadow( const CHR_REF character );
-gfx_rv render_scene( ego_mpd_t * pmesh, struct s_camera * pcam );
 bool_t    render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
 bool_t    render_aabb( aabb_t * pbbox );
-gfx_rv render_all_billboards( struct s_camera * pcam );
+gfx_rv    gfx_render_all_billboards( const struct s_camera * pcam );
 
-void   make_enviro();
-void   clear_messages();
-bool_t dump_screenshot();
-void   make_lightdirectionlookup();
+// the render engine callback
+void   gfx_render_world( const struct s_camera * pcam, const int render_list_index, const int dolist_index );
 
-int  DisplayMsg_get_free();
+void   make_enviro( void );
+void   clear_messages( void );
+bool_t dump_screenshot( void );
+
+//void   make_lightdirectionlookup( void );
+
+int  DisplayMsg_get_free( void );
 
 int debug_printf( const char *format, ... );
 
-gfx_rv renderlist_reset( renderlist_t * prlist );
-gfx_rv renderlist_make( renderlist_t * prlist, ego_mpd_t * pmesh, struct s_camera * pcam );
-
-bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, float fx, float fy );
+bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
 float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
-void line_list_init();
-//int  line_list_get_free();
+void line_list_init( void );
+//int  line_list_get_free( void );
 bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration );
 
-void point_list_init();
-//int  point_list_get_free();
+void point_list_init( void );
+//int  point_list_get_free( void );
 bool_t point_list_add( const float x, const float y, const float z, const int duration );
 
-void init_all_graphics();
-void release_all_graphics();
-void delete_all_graphics();
+void init_all_graphics( void );
+void release_all_graphics( void );
+void delete_all_graphics( void );
 
-void release_all_profile_textures();
+void release_all_profile_textures( void );
 
-void   load_graphics();
-bool_t load_blips();
-void   load_bars();
-void   load_map();
-bool_t load_all_global_icons();
-void   load_basic_textures( );
+void   load_graphics( void );
+bool_t load_blips( void );
+void   load_bars( void );
+void   load_map( void );
+bool_t load_all_global_icons( void );
+void   load_basic_textures( void );
 
-float  get_ambient_level();
+float  get_ambient_level( void );
 
-bool_t init_mouse_cursor();
-void   draw_mouse_cursor();
+bool_t init_mouse_cursor( void );
+void   draw_mouse_cursor( void );
 
 gfx_rv flash_character( const CHR_REF character, Uint8 value );
+
+//void gfx_calc_rotmesh( void );
+
+renderlist_mgr_t * gfx_get_renderlist_mgr( void );
+int            renderlist_mgr_get_free_index( renderlist_mgr_t * ptr );
+gfx_rv         renderlist_mgr_free_one( renderlist_mgr_t * ptr, int index );
+renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, int index );
+
+dolist_mgr_t * gfx_get_dolist_mgr( void );
+int        dolist_mgr_get_free_index( dolist_mgr_t * ptr );
+gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, int index );
+dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index );
+
+gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh );

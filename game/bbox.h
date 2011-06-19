@@ -28,6 +28,18 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_aabb;
+struct s_bumper;
+struct s_oct_bb;
+//struct s_ego_aabb;
+struct s_aabb_lst;
+struct s_aabb_ary;
+struct s_OVolume;
+struct s_CVolume;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// axis aligned bounding box
 struct s_aabb
 {
@@ -35,6 +47,17 @@ struct s_aabb
     float maxs[3];
 };
 typedef struct s_aabb aabb_t;
+
+bool_t aabb_copy( aabb_t * pdst, const aabb_t * psrc );
+bool_t aabb_self_clear( aabb_t * pdst );
+bool_t aabb_is_clear( const aabb_t * pdst );
+
+bool_t aabb_from_oct_bb( aabb_t * dst, const struct s_oct_bb * src );
+bool_t aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+bool_t aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+bool_t aabb_self_union( aabb_t * pdst, const aabb_t * psrc );
+
+#define AABB_INIT_VALS   { {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }
 
 //--------------------------------------------------------------------------------------------
 
@@ -81,45 +104,45 @@ egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
 #define OCT_BB_INIT_VALS { btrue, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
-struct s_ego_aabb
-{
-    int    sub_used;
-    float  weight;
-
-    bool_t used;
-    int    level;
-    int    address;
-
-    aabb_t  bb;
-};
-
-typedef struct s_ego_aabb ego_aabb_t;
-
-//--------------------------------------------------------------------------------------------
-struct s_aabb_lst
-{
-    int       count;
-    ego_aabb_t * list;
-};
-typedef struct s_aabb_lst aabb_lst_t;
-
-EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst );
-EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst );
-EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst );
-EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count );
+//struct s_ego_aabb
+//{
+//    int    sub_used;
+//    float  weight;
+//
+//    bool_t used;
+//    int    level;
+//    int    address;
+//
+//    aabb_t  bb;
+//};
+//
+//typedef struct s_ego_aabb ego_aabb_t;
 
 //--------------------------------------------------------------------------------------------
-struct s_aabb_ary
-{
-    int         count;
-    aabb_lst_t * list;
-};
-typedef struct s_aabb_ary aabb_ary_t;
+//struct s_aabb_lst
+//{
+//    int       count;
+//    ego_aabb_t * list;
+//};
+//typedef struct s_aabb_lst aabb_lst_t;
+//
+//EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst );
+//EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst );
+//EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst );
+//EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count );
 
-EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary );
-EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary );
-EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary );
-EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count );
+//--------------------------------------------------------------------------------------------
+//struct s_aabb_ary
+//{
+//    int         count;
+//    aabb_lst_t * list;
+//};
+//typedef struct s_aabb_ary aabb_ary_t;
+//
+//EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary );
+//EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary );
+//EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary );
+//EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count );
 
 //--------------------------------------------------------------------------------------------
 
@@ -174,4 +197,5 @@ void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 #define Egoboo_bbox_h

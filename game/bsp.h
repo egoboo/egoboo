@@ -22,9 +22,16 @@
 /// @file bsp.h
 /// @details
 
-#include "bbox.inl"
+#include "egoboo_frustum.h"
 
 //--------------------------------------------------------------------------------------------
+// external structs
+//--------------------------------------------------------------------------------------------
+
+struct s_ego_frustum;
+
+//--------------------------------------------------------------------------------------------
+// internal structs
 //--------------------------------------------------------------------------------------------
 
 struct s_BSP_aabb;
@@ -46,16 +53,45 @@ struct s_BSP_tree;
 typedef struct s_BSP_tree BSP_tree_t;
 
 //--------------------------------------------------------------------------------------------
+// BSP types
+//--------------------------------------------------------------------------------------------
+
+typedef bool_t ( BSP_leaf_test_t )( BSP_leaf_t * );
+
+//--------------------------------------------------------------------------------------------
+// known BSP types
+//--------------------------------------------------------------------------------------------
+
+enum e_bsp_type
+{
+    BSP_LEAF_NONE = -1,
+    BSP_LEAF_CHR,
+    BSP_LEAF_ENC,
+    BSP_LEAF_PRT,
+    BSP_LEAF_TILE
+};
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 struct s_BSP_aabb
 {
     bool_t      valid;
     size_t      dim;
+
     float_ary_t mins;
     float_ary_t mids;
     float_ary_t maxs;
 };
+
+#define BSP_AABB_INIT_VALS                         \
+    {                                                  \
+        bfalse,                /* bool_t      valid */ \
+        0,                     /* size_t      dim   */ \
+        DYNAMIC_ARY_INIT_VALS, /* float_ary_t mins  */ \
+        DYNAMIC_ARY_INIT_VALS, /* float_ary_t mids  */ \
+        DYNAMIC_ARY_INIT_VALS  /* float_ary_t maxs  */ \
+    }
 
 BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim );
 BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb );
@@ -64,7 +100,7 @@ BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim );
 BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb );
 
 bool_t       BSP_aabb_empty( const BSP_aabb_t * pbb );
-bool_t       BSP_aabb_clear( BSP_aabb_t * pbb );
+bool_t       BSP_aabb_self_clear( BSP_aabb_t * pbb );
 
 bool_t       BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, const oct_bb_t * psrc );
 
@@ -73,8 +109,6 @@ bool_t       BSP_aabb_invalidate( BSP_aabb_t * pbb );
 bool_t       BSP_aabb_copy( BSP_aabb_t * pdst, const BSP_aabb_t * psrc );
 
 bool_t       BSP_aabb_self_union( BSP_aabb_t * pdst, BSP_aabb_t * psrc );
-
-#define BSP_AABB_INIT_VALUES { bfalse, 0, DYNAMIC_ARY_INIT_VALS, DYNAMIC_ARY_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_leaf
@@ -86,26 +120,60 @@ struct s_BSP_leaf
     void              * data;
     size_t              index;
 
-    BSP_aabb_t          bbox;
+    ego_aabb_t          bbox;
 };
 
-BSP_leaf_t * BSP_leaf_create( int dim, void * data, int type );
-bool_t       BSP_leaf_destroy( BSP_leaf_t ** ppleaf );
-BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * t, int dim, void * data, int type );
-bool_t       BSP_leaf_dtor( BSP_leaf_t * t );
-
-//--------------------------------------------------------------------------------------------
 DECLARE_DYNAMIC_ARY( BSP_leaf_ary, BSP_leaf_t )
 DECLARE_DYNAMIC_ARY( BSP_leaf_pary, BSP_leaf_t * )
+
+BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, void * data, int type, int index );
+BSP_leaf_t * BSP_leaf_dtor( BSP_leaf_t * L );
+bool_t       BSP_leaf_clear( BSP_leaf_t * L );
+bool_t       BSP_leaf_unlink( BSP_leaf_t * L );
+bool_t       BSP_leaf_copy( BSP_leaf_t * L_dst, const BSP_leaf_t * L_src );
+
+// OBSOLETE
+//BSP_leaf_t * BSP_leaf_create( void * data, int type, int index );
+//bool_t       BSP_leaf_destroy( BSP_leaf_t ** pL );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_BSP_leaf_list
+{
+    size_t          count;
+    BSP_leaf_t    * lst;
+
+    ego_aabb_t      bbox;
+};
+
+#define BSP_LEAF_LIST_INIT_VALS                       \
+    {                                                     \
+        0,                   /* size_t          count */  \
+        NULL,                /* BSP_leaf_t    * lst   */  \
+        AABB_INIT_VALS       /* aabb_t          bbox  */  \
+    }
+
+BSP_leaf_list_t * BSP_leaf_list_ctor( BSP_leaf_list_t * );
+BSP_leaf_list_t * BSP_leaf_list_dtor( BSP_leaf_list_t * );
+BSP_leaf_list_t * BSP_leaf_list_clear( BSP_leaf_list_t * );
+
+bool_t BSP_leaf_list_alloc( BSP_leaf_list_t * );
+bool_t BSP_leaf_list_dealloc( BSP_leaf_list_t * );
+bool_t BSP_leaf_list_reset( BSP_leaf_list_t * );
+
+bool_t       BSP_leaf_list_push_front( BSP_leaf_list_t *, BSP_leaf_t * n );
+BSP_leaf_t * BSP_leaf_list_pop_front( BSP_leaf_list_t * );
+
+#define EMPTY_BSP_LEAF_LIST(LL) ( (NULL == (LL)) || (NULL == (LL)->lst) || (0 == (LL)->count) )
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_branch_list
 {
-    size_t          count;
+    size_t          lst_size;
     BSP_branch_t ** lst;
 
     size_t          inserted;
-    BSP_aabb_t      bbox;
+    ego_aabb_t      bbox;
 };
 
 BSP_branch_list_t * BSP_branch_list_ctor( BSP_branch_list_t *, size_t dim );
@@ -113,123 +181,116 @@ BSP_branch_list_t * BSP_branch_list_dtor( BSP_branch_list_t * );
 
 bool_t BSP_branch_list_alloc( BSP_branch_list_t *, size_t dim );
 bool_t BSP_branch_list_dealloc( BSP_branch_list_t * );
+bool_t BSP_branch_list_clear_rec( BSP_branch_list_t * );
 
-bool_t BSP_branch_list_unlink( BSP_branch_list_t * );
+bool_t BSP_branch_list_collide_frustum( const BSP_branch_list_t * BL, const struct s_ego_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool_t BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const struct s_aabb * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
-//--------------------------------------------------------------------------------------------
-struct s_BSP_leaf_list
-{
-    size_t          count;
-    BSP_leaf_t    * lst;
-    BSP_aabb_t      bbox;
-};
-
-BSP_leaf_list_t * BSP_leaf_list_ctor( BSP_leaf_list_t *, size_t dim );
-BSP_leaf_list_t * BSP_leaf_list_dtor( BSP_leaf_list_t * );
-BSP_leaf_list_t * BSP_leaf_list_clear( BSP_leaf_list_t * );
-
-bool_t BSP_leaf_list_alloc( BSP_leaf_list_t *, size_t dim );
-bool_t BSP_leaf_list_dealloc( BSP_leaf_list_t * );
-
-bool_t BSP_leaf_list_insert( BSP_leaf_list_t *, BSP_leaf_t * n );
-bool_t BSP_leaf_list_reset( BSP_leaf_list_t * );
-bool_t BSP_leaf_list_collide( BSP_leaf_list_t *, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
+#define INVALID_BSP_BRANCH_LIST(BL) ( (NULL == (BL)) || (NULL == (BL)->lst) || (0 == (BL)->lst_size) )
 
 //--------------------------------------------------------------------------------------------
 struct s_BSP_branch
 {
-    BSP_branch_t  * parent;
+    BSP_branch_t  * parent;                 //< the parent branch of this branch
 
-    BSP_branch_list_t children;
-    BSP_leaf_list_t   nodes;
+    BSP_leaf_list_t   unsorted;             //< nodes that have not yet been sorted
+    BSP_branch_list_t children;             //< the child branches of this branch
+    BSP_leaf_list_t   nodes;                //< the nodes at this level
 
-    BSP_aabb_t      bsp_bbox;
-    int             depth;
+    BSP_aabb_t      bsp_bbox;               //< the size of the node
+    int             depth;                  //< the actual depth of this branch
 };
 
-//BSP_branch_t * BSP_branch_create( size_t dim );
-//bool_t         BSP_branch_destroy( BSP_branch_t ** ppbranch );
-//BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim );
-//bool_t         BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch );
+DECLARE_DYNAMIC_ARY( BSP_branch_ary, BSP_branch_t )
+DECLARE_DYNAMIC_ARY( BSP_branch_pary, BSP_branch_t * )
 
 BSP_branch_t * BSP_branch_ctor( BSP_branch_t * B, size_t dim );
 BSP_branch_t * BSP_branch_dtor( BSP_branch_t * B );
 bool_t         BSP_branch_alloc( BSP_branch_t * B, size_t dim );
 bool_t         BSP_branch_dealloc( BSP_branch_t * B );
 
-bool_t         BSP_branch_empty( BSP_branch_t * pbranch );
+bool_t         BSP_branch_empty( const BSP_branch_t * pbranch );
 
-bool_t         BSP_branch_insert_leaf( BSP_branch_t * B, BSP_leaf_t * n );
-bool_t         BSP_branch_insert_branch( BSP_branch_t * B, int index, BSP_branch_t * B2 );
 bool_t         BSP_branch_clear( BSP_branch_t * B, bool_t recursive );
 bool_t         BSP_branch_free_nodes( BSP_branch_t * B, bool_t recursive );
-bool_t         BSP_branch_unlink( BSP_branch_t * B );
-bool_t         BSP_branch_add_all_nodes( BSP_branch_t * pbranch, BSP_leaf_pary_t * colst );
+bool_t         BSP_branch_unlink_all( BSP_branch_t * B );
+bool_t         BSP_branch_unlink_parent( BSP_branch_t * B );
+bool_t         BSP_branch_unlink_children( BSP_branch_t * B );
+bool_t         BSP_branch_unlink_nodes( BSP_branch_t * B );
+bool_t         BSP_branch_update_depth_rec( BSP_branch_t * B, int depth );
+
+bool_t         BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool_t         BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool_t         BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool_t         BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+
+// OBSOLETE
+//BSP_branch_t * BSP_branch_create( size_t dim );
+//bool_t         BSP_branch_destroy( BSP_branch_t ** ppbranch );
+//BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim );
+//bool_t         BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch );
 
 //--------------------------------------------------------------------------------------------
-
-DECLARE_DYNAMIC_ARY( BSP_branch_ary, BSP_branch_t )
-DECLARE_DYNAMIC_ARY( BSP_branch_pary, BSP_branch_t * )
-
 //--------------------------------------------------------------------------------------------
 struct s_BSP_tree
 {
-    size_t dimensions;
-    int    depth;
+    size_t dimensions;             ///< the number of dimensions used by the tree
+    int    max_depth;              ///< the maximum depth that the BSP supports
 
-    BSP_branch_ary_t  branch_all;
-    BSP_branch_pary_t branch_used;
-    BSP_branch_pary_t branch_free;
+    BSP_branch_ary_t  branch_all;  ///< the list of pre-allocated branches
+    BSP_branch_pary_t branch_used; ///< a linked list of all used pre-allocated branches
+    BSP_branch_pary_t branch_free; ///< a linked list of all free pre-allocated branches
 
-    BSP_branch_t    * root;
+    BSP_branch_t    * finite;      ///< the root node of the ordinary BSP tree
+    BSP_leaf_list_t   infinite;    ///< all nodes which do not fit inside the BSP tree
 
-    BSP_leaf_list_t   infinite;
-
-    BSP_aabb_t        bbox;
+    int               depth;       ///< the maximum actual depth of the tree
+    ego_aabb_t        bbox;        ///< the actual size of everything in the tree
+    BSP_aabb_t        bsp_bbox;    ///< the root-size of the tree
 };
 
-#define BSP_TREE_INIT_VALS                                               \
-    {                                                                    \
-        0,                     /* size_t              dimensions     */  \
-        0,                     /* int                 depth          */  \
-        DYNAMIC_ARY_INIT_VALS, /* BSP_branch_ary_t    branch_all     */  \
-        DYNAMIC_ARY_INIT_VALS, /* BSP_branch_pary_t * branch_all     */  \
-        DYNAMIC_ARY_INIT_VALS, /* BSP_branch_pary_t * branch_free    */  \
-        NULL,                  /* BSP_branch_t      * root           */  \
-        0,                     /* size_t              infinite_count */  \
-        NULL,                  /* BSP_leaf_t        * infinite       */  \
-        BSP_AABB_INIT_VALUES   /* BSP_aabb_t bbox                    */  \
+#define BSP_TREE_INIT_VALS                                                   \
+    {                                                                        \
+        0,                         /* size_t              dimensions     */  \
+        0,                         /* int                 max_depth      */  \
+        DYNAMIC_ARY_INIT_VALS,     /* BSP_branch_ary_t    branch_all     */  \
+        DYNAMIC_ARY_INIT_VALS,     /* BSP_branch_pary_t   branch_used    */  \
+        DYNAMIC_ARY_INIT_VALS,     /* BSP_branch_pary_t   branch_free    */  \
+        NULL,                      /* BSP_branch_t      * root           */  \
+        BSP_LEAF_LIST_INIT_VALS,   /* BSP_leaf_list_t     infinite       */  \
+        0,                         /* int                 depth          */  \
+        EGO_AABB_INIT_VALS,        /* ego_aabb_t          bbox           */  \
+        BSP_AABB_INIT_VALS         /* BSP_aabb_t          bsp_bbox       */  \
     }
-
-//BSP_tree_t * BSP_tree_create( size_t count );
-//bool_t       BSP_tree_destroy( BSP_tree_t ** ptree );
 
 BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
 BSP_tree_t * BSP_tree_dtor( BSP_tree_t * t );
 bool_t       BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
 bool_t       BSP_tree_dealloc( BSP_tree_t * t );
-//bool_t       BSP_tree_init_0( BSP_tree_t * t );
-//BSP_tree_t * BSP_tree_init_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
 
-bool_t         BSP_tree_clear( BSP_tree_t * t, bool_t recursive );
-//bool_t         BSP_tree_free_nodes( BSP_tree_t * t, bool_t recursive );
-//bool_t         BSP_tree_free_all( BSP_tree_t * t );
+bool_t         BSP_tree_clear_rec( BSP_tree_t * t );
 bool_t         BSP_tree_prune( BSP_tree_t * t );
 BSP_branch_t * BSP_tree_get_free( BSP_tree_t * t );
-//bool_t         BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B );
 BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t );
 BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int index );
 Sint32         BSP_tree_count_nodes( Sint32 dim, Sint32 depth );
-//bool_t         BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index );
 bool_t         BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
 bool_t         BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt );
 
+int            BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int            BSP_tree_collide_frustum( const BSP_tree_t * tree, const struct s_ego_frustum * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+
+// OBSOLETE
+//BSP_tree_t * BSP_tree_create( size_t count );
+//bool_t       BSP_tree_destroy( BSP_tree_t ** ptree );
+//bool_t       BSP_tree_init_0( BSP_tree_t * t );
+//BSP_tree_t * BSP_tree_init_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
+//bool_t         BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index );
+//bool_t         BSP_tree_free_nodes( BSP_tree_t * t, bool_t recursive );
+//bool_t         BSP_tree_free_all( BSP_tree_t * t );
+//bool_t         BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t BSP_generate_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst );
-int    BSP_tree_collide( BSP_tree_t * tree, BSP_aabb_t * paabb, BSP_leaf_pary_t * colst );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 #define Egoboo_bsp_h

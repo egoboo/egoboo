@@ -22,11 +22,12 @@
 /// @details
 
 #include "spawn_file.h"
-#include "char.inl"
 #include "game.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
+
+#include "char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo )
 
     if ( NULL == pinfo ) return pinfo;
 
-    memset( pinfo, 0, sizeof( *pinfo ) );
+    BLANK_STRUCT_PTR( pinfo )
 
     pinfo->attach = ATTACH_NONE;
     pinfo->team   = TEAM_NULL;

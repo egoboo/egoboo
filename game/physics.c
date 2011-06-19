@@ -171,7 +171,7 @@ bool_t phys_warp_normal( float exponent, fvec3_base_t nrm )
     nrm[kZ] = nrm[kZ] * POW( length_vrt_2, 0.5f * ( exponent - 1.0f ) );
 
     // normalize the normal
-    return fvec3_self_normalize( nrm );
+    return ( fvec3_self_normalize( nrm ) >= 0.0f );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fve
     }
 
     // normalize this normal
-    rv = fvec3_self_normalize( nrm );
+    rv = ( fvec3_self_normalize( nrm ) > 0.0f );
 
     // find the depth in the direction of the normal, if possible
     if ( rv && NULL != depth )
@@ -977,7 +977,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_oct_bb( const oct_bb_t * src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst )
+bool_t phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst )
 {
     /// @details BB@> use the velocity of an object and its oct_bb_t to determine the
     ///               amount of territory that an object will cover in the range [tmin,tmax].
@@ -989,41 +989,41 @@ bool_t phys_expand_oct_bb( const oct_bb_t * src, const fvec3_base_t vel, const f
     abs_vel = fvec3_length_abs( vel );
     if ( 0.0f == abs_vel )
     {
-        return oct_bb_copy( pdst, src ) ? btrue : bfalse;
+        return oct_bb_copy( pdst, psrc ) ? btrue : bfalse;
     }
 
     // determine the bounding volume at t == tmin
     if ( 0.0f == tmin )
     {
-        oct_bb_copy( &tmp_min, src );
+        oct_bb_copy( &tmp_min, psrc );
     }
     else
     {
-        fvec3_t pos_min;
+        fvec3_t tmp_diff;
 
-        pos_min.x = vel[kX] * tmin;
-        pos_min.y = vel[kY] * tmin;
-        pos_min.z = vel[kZ] * tmin;
+        tmp_diff.x = vel[kX] * tmin;
+        tmp_diff.y = vel[kY] * tmin;
+        tmp_diff.z = vel[kZ] * tmin;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( src, pos_min.v, &tmp_min ) ) return bfalse;
+        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_min ) ) return bfalse;
     }
 
     // determine the bounding volume at t == tmax
     if ( tmax == 0.0f )
     {
-        oct_bb_copy( &tmp_max, src );
+        oct_bb_copy( &tmp_max, psrc );
     }
     else
     {
-        fvec3_t pos_max;
+        fvec3_t tmp_diff;
 
-        pos_max.x = vel[kX] * tmax;
-        pos_max.y = vel[kY] * tmax;
-        pos_max.z = vel[kZ] * tmax;
+        tmp_diff.x = vel[kX] * tmax;
+        tmp_diff.y = vel[kY] * tmax;
+        tmp_diff.z = vel[kZ] * tmax;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( src, pos_max.v, &tmp_max ) ) return bfalse;
+        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_max ) ) return bfalse;
     }
 
     // determine bounding box for the range of times
@@ -1059,15 +1059,18 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
     /// @details BB@> use the object velocity to figure out where the volume that the particle will
     ///               occupy during this update
 
-    oct_bb_t tmp_oct;
+    oct_bb_t tmp_oct1, tmp_oct2;
 
     if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
 
+    // copy the volume
+    oct_bb_copy( &tmp_oct1, &( pprt->prt_max_cv ) );
+
     // add in the current position to the bounding volume
-    oct_bb_add_fvec3( &( pprt->prt_max_cv ), prt_get_pos_v( pprt ), &tmp_oct );
+    oct_bb_add_fvec3( &tmp_oct1, pprt->pos.v, &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
-    return phys_expand_oct_bb( &tmp_oct, pprt->vel.v, tmin, tmax, pdst );
+    return phys_expand_oct_bb( &tmp_oct2, pprt->vel.v, tmin, tmax, pdst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1076,7 +1079,7 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
 {
     if ( NULL == bc ) return bc;
 
-    memset( bc, 0, sizeof( *bc ) );
+    BLANK_STRUCT_PTR( bc )
     bc->time = update_wld;
 
     if ( NULL == pchr ) return bc;
@@ -1103,7 +1106,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
 
     if ( NULL == bc ) return bc;
 
-    memset( bc, 0, sizeof( *bc ) );
+    BLANK_STRUCT_PTR( bc )
     bc->time = update_wld;
 
     if ( NULL == pprt ) return bc;

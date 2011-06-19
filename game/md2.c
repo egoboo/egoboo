@@ -27,8 +27,10 @@
 #include "log.h"
 
 #include "egoboo_endian.h"
+
 #include "egoboo_math.inl"
 
+// this include must be the absolute last include
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ MD2_Frame_t * MD2_Frame_ctor( MD2_Frame_t * pframe, size_t size )
 {
     if ( NULL == pframe ) return pframe;
 
-    memset( pframe, 0, sizeof( *pframe ) );
+    BLANK_STRUCT_PTR( pframe )
 
     pframe->vertex_lst = EGOBOO_NEW_ARY( MD2_Vertex_t, size );
     if ( NULL != pframe->vertex_lst ) pframe->vertex_count = size;
@@ -66,7 +68,7 @@ MD2_Frame_t * MD2_Frame_dtor( MD2_Frame_t * pframe )
     EGOBOO_DELETE_ARY( pframe->vertex_lst );
     pframe->vertex_count = 0;
 
-    memset( pframe, 0, sizeof( *pframe ) );
+    BLANK_STRUCT_PTR( pframe )
 
     return pframe;
 }
@@ -77,7 +79,7 @@ void MD2_GLCommand_ctor( MD2_GLCommand_t * m )
 {
     if ( NULL == m ) return;
 
-    memset( m, 0, sizeof( *m ) );
+    BLANK_STRUCT_PTR( m )
 
     m->next = NULL;
     m->data = NULL;
@@ -90,7 +92,7 @@ void MD2_GLCommand_dtor( MD2_GLCommand_t * m )
 
     EGOBOO_DELETE_ARY( m->data );
 
-    memset( m, 0, sizeof( *m ) );
+    BLANK_STRUCT_PTR( m )
 }
 
 //--------------------------------------------------------------------------------------------
@@ -146,7 +148,7 @@ MD2_Model_t * MD2_Model_ctor( MD2_Model_t * m )
 {
     if ( NULL == m ) return m;
 
-    memset( m, 0, sizeof( *m ) );
+    BLANK_STRUCT_PTR( m )
 
     return m;
 }
@@ -260,7 +262,7 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             pframe->vertex_lst[tnc].nrm.y *= SGN( scale_y );
             pframe->vertex_lst[tnc].nrm.z *= SGN( scale_z );
 
-            pframe->vertex_lst[tnc].nrm = fvec3_normalize( pframe->vertex_lst[tnc].nrm.v );
+            fvec3_self_normalize( pframe->vertex_lst[tnc].nrm.v );
 
             oct_vec_ctor( opos, pframe->vertex_lst[tnc].pos.v );
 
@@ -514,7 +516,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
                 int i;
                 for ( i = 0; i < cmd->command_count; i++ )
                 {
-                    cmd->data[i].index = ENDIAN_INT32( cmd->data[i].s );
+                    cmd->data[i].index = SDL_swap32( cmd->data[i].s );
                     cmd->data[i].s     = ENDIAN_FLOAT( cmd->data[i].s );
                     cmd->data[i].t     = ENDIAN_FLOAT( cmd->data[i].t );
                 };

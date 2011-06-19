@@ -38,8 +38,8 @@ extern "C"
 // MACROS
 //--------------------------------------------------------------------------------------------
 
-#   define VFS_TRUE  (1==1)
-#   define VFS_FALSE (!VFS_TRUE)
+#   define VFS_TRUE  ((int)(1==1))
+#   define VFS_FALSE ((int)(!VFS_TRUE))
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
@@ -80,7 +80,7 @@ extern "C"
 
 /// the initlization routing. there is no need to call the de-initialization. That
 /// will be called automatically at program termination
-    void vfs_init();
+    void vfs_init( void );
 
 /// these functions open in "binary mode" this means that they are reading using
 /// physfs and not using the c stdio routines
@@ -137,7 +137,7 @@ extern "C"
     int          vfs_getc( vfs_FILE * pfile );
     int          vfs_ungetc( int c, vfs_FILE * pfile );
 
-    void         vfs_empty_temp_directories();
+    void         vfs_empty_temp_directories( void );
 
     int          vfs_copyFile( const char *source, const char *dest );
     int          vfs_copyDirectory( const char *sourceDir, const char *destDir );
@@ -152,8 +152,8 @@ extern "C"
     const char * vfs_resolveReadFilename( const char * src_filename );
     const char * vfs_resolveWriteFilename( const char * src_filename );
 
-    const char* vfs_getError();
-    const char* vfs_getVersion();
+    const char* vfs_getError( void );
+    const char* vfs_getVersion( void );
 
     int vfs_add_mount_point( const char * dirname, const char * relative_path, const char * mount_point, int append );
     int vfs_remove_mount_point( const char * mount_point );
@@ -161,7 +161,7 @@ extern "C"
     const char * vfs_convert_fname( const char * fname );
     const char * vfs_convert_fname_sys( const char * fname );
 
-    void vfs_set_base_search_paths();
+    void vfs_set_base_search_paths( void );
     const char * vfs_mount_info_strip_path( const char * some_path );
 
 //--------------------------------------------------------------------------------------------

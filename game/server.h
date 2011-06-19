@@ -23,25 +23,66 @@
 /// @Basic skeleton for the server portion of a client-server architecture,
 /// this is totally not in use yet.
 
-typedef struct GameState GameState;
+#include "egoboo_typedef.h"
+
+#include "network.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define MAXNETPLAYER         8
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+/// Network information on connected players
+struct s_NetPlayerInfo
+{
+    int playerSlot;
+};
+typedef struct s_NetPlayerInfo NetPlayerInfo_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /// A mockup of the struct that could be used to store the server state
-typedef struct ServerState_t
+struct s_ServerState
 {
-    int dummy;
-// GameState gameState;
-} ServerState_t;
+    Uint32 last_frame;
+    bool_t am_host;
+
+    int     player_count;                             ///< How many we found
+    char    player_name[MAXNETPLAYER][NETNAMESIZE];   ///< Names of machines
+
+    NetPlayerInfo_t player_info[MAXNETPLAYER];
+
+};
+typedef struct s_ServerState ServerState_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 /// Globally accessible server state
 extern ServerState_t ServerState;
 
-int  sv_init();
-void sv_shutDown();
-void sv_frameStep();
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+int  sv_init( void );
+void sv_shutDown( void );
+void sv_frameStep( void );
+
+egoboo_rv sv_talkToRemotes( net_instance_t * pnet );
+egoboo_rv sv_hostGame( net_instance_t * pnet );
+egoboo_rv sv_letPlayersJoin( net_instance_t * pnet );
+egoboo_rv sv_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt );
 
 // More to come...
 // int  sv_beginSinglePlayer(...)
 // int  sv_beginMultiPlayer(...)
 // int  sv_loadModule(...)
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 #define egoboo_Server_h

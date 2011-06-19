@@ -102,7 +102,7 @@ struct s_oglx_caps
 typedef struct s_oglx_caps oglx_caps_t;
 
 void oglx_Get_Screen_Info( oglx_caps_t * pcaps );
-void oglx_report_caps();
+void oglx_report_caps( void );
 
 extern oglx_caps_t ogl_caps;
 
@@ -124,5 +124,18 @@ GLboolean oglx_video_parameters_default( oglx_video_parameters_t * pvid );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-FILE * oglx_set_stdout( FILE * pfile );
+struct s_oglx_culling_data
+{
+    GLboolean enabled;
+    GLint     face[1];
+    GLint     mode[1];
+};
+typedef struct s_oglx_culling_data oglx_culling_data_t;
 
+void oglx_set_culling( oglx_culling_data_t * new_data, oglx_culling_data_t * old_data );
+void oglx_begin_culling( GLenum which, GLenum mode );
+void oglx_end_culling( void );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+FILE * oglx_set_stdout( FILE * pfile );

@@ -21,6 +21,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
+				OptimizeForProcessor="3"
+				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions;Fluid_Studios_Memory_Manager"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
 				GeneratePreprocessedFile="0"
@@ -30,12 +32,14 @@
 				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
+				AssemblerListingLocation="$(IntDir)/"
 				BrowseInformation="1"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="4"
-				CompileAs="0"
+				CompileAs="2"
 				DisableSpecificWarnings="4127;4239;4130"
 				ShowIncludes="FALSE"/>
 			<Tool
@@ -48,7 +52,7 @@
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/game.pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -78,7 +82,7 @@
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
 			CharacterSet="2"
-			WholeProgramOptimization="FALSE">
+			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
@@ -98,7 +102,7 @@
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
-				EnableFunctionLevelLinking="FALSE"
+				EnableFunctionLevelLinking="TRUE"
 				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
 				BrowseInformation="1"
@@ -160,6 +164,9 @@
 				RelativePath=".\clock.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_clock.c">
+			</File>
+			<File
 				RelativePath=".\egoboo_console.c">
 			</File>
 			<File
@@ -167,6 +174,9 @@
 			</File>
 			<File
 				RelativePath=".\egoboo_fileutil.c">
+			</File>
+			<File
+				RelativePath=".\egoboo_frustum.c">
 			</File>
 			<File
 				RelativePath=".\egoboo_math.c">
@@ -184,6 +194,9 @@
 				RelativePath=".\egoboo_strutil.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_timer.c">
+			</File>
+			<File
 				RelativePath=".\egoboo_typedef.c">
 			</File>
 			<File
@@ -191,6 +204,9 @@
 			</File>
 			<File
 				RelativePath=".\font_ttf.c">
+			</File>
+			<File
+				RelativePath=".\geometry.c">
 			</File>
 			<File
 				RelativePath=".\hash.c">
@@ -215,6 +231,9 @@
 				RelativePath=".\clock.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_clock.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_config.h">
 			</File>
 			<File
@@ -225,6 +244,9 @@
 			</File>
 			<File
 				RelativePath=".\egoboo_fileutil.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_frustum.h">
 			</File>
 			<File
 				RelativePath=".\egoboo_math.h">
@@ -251,6 +273,9 @@
 				RelativePath=".\egoboo_strutil.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_timer.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_typedef.h">
 			</File>
 			<File
@@ -258,6 +283,9 @@
 			</File>
 			<File
 				RelativePath=".\font_ttf.h">
+			</File>
+			<File
+				RelativePath=".\geometry.h">
 			</File>
 			<File
 				RelativePath=".\hash.h">
@@ -269,7 +297,7 @@
 				RelativePath=".\log.h">
 			</File>
 			<File
-				RelativePath=".\System.h">
+				RelativePath=".\system.h">
 			</File>
 		</Filter>
 		<Filter
@@ -287,6 +315,9 @@
 						Name="VCCLCompilerTool"
 						GeneratePreprocessedFile="0"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\camera_system.c">
 			</File>
 			<File
 				RelativePath=".\char.c">
@@ -344,7 +375,7 @@
 				RelativePath=".\mad.c">
 			</File>
 			<File
-				RelativePath=".\Md2.c">
+				RelativePath=".\md2.c">
 			</File>
 			<File
 				RelativePath=".\menu.c">
@@ -374,6 +405,9 @@
 				RelativePath=".\physics.c">
 			</File>
 			<File
+				RelativePath=".\player.c">
+			</File>
+			<File
 				RelativePath=".\profile.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -387,9 +421,6 @@
 			</File>
 			<File
 				RelativePath=".\rpc.c">
-			</File>
-			<File
-				RelativePath=".\script_implementation.c">
 			</File>
 			<File
 				RelativePath=".\server.c">
@@ -413,6 +444,9 @@
 			</File>
 			<File
 				RelativePath=".\camera.h">
+			</File>
+			<File
+				RelativePath=".\camera_system.h">
 			</File>
 			<File
 				RelativePath=".\char.h">
@@ -493,6 +527,9 @@
 				RelativePath=".\physics.h">
 			</File>
 			<File
+				RelativePath=".\player.h">
+			</File>
+			<File
 				RelativePath=".\profile.h">
 			</File>
 			<File
@@ -519,9 +556,6 @@
 			Filter="">
 			<File
 				RelativePath=".\char.inl">
-			</File>
-			<File
-				RelativePath=".\ChrList.inl">
 			</File>
 			<File
 				RelativePath=".\enchant.inl">
@@ -692,6 +726,24 @@
 				Name="controls.txt"
 				Filter="">
 				<File
+					RelativePath=".\file_formats\controls_file-v1.c">
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v1.h">
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v2.c">
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v2.h">
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v3.c">
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v3.h">
+				</File>
+				<File
 					RelativePath=".\file_formats\controls_file.c">
 				</File>
 				<File
@@ -702,10 +754,10 @@
 				Name="quest.txt"
 				Filter="">
 				<File
-					RelativePath=".\quest.c">
+					RelativePath=".\file_formats\quest_file.c">
 				</File>
 				<File
-					RelativePath=".\quest.h">
+					RelativePath=".\file_formats\quest_file.h">
 				</File>
 			</Filter>
 			<Filter
@@ -749,7 +801,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="scancodes.txt"
+				Name="scancode.txt"
 				Filter="">
 				<File
 					RelativePath=".\file_formats\scancode_file.c">
