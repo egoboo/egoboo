@@ -438,7 +438,7 @@ static void gfx_begin_text( void );
 static void gfx_end_text( void );
 
 static void gfx_enable_texturing( void );
-static void gfx_disable_texturing( void );
+//static void gfx_disable_texturing( void );
 
 static void gfx_begin_2d( void );
 static void gfx_end_2d( void );
@@ -473,7 +473,7 @@ static gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmes
 static void   render_shadow( const CHR_REF character );
 static void   render_bad_shadow( const CHR_REF character );
 
-static bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct );
+//static bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct );
 
 static gfx_rv gfx_make_dolist( dolist_t * pdolist, const camera_t * pcam );
 static gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam );
@@ -6032,7 +6032,9 @@ bool_t light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, i
 gfx_rv light_fans_update_lcache( renderlist_t * prlist )
 {
     const int frame_skip = 1 << 2;
+#if defined(CLIP_ALL_LIGHT_FANS)
     const int frame_mask = frame_skip - 1;
+#endif
 
     int    entry;
     float  local_mesh_lighting_keep;
@@ -7452,24 +7454,24 @@ gfx_rv dolist_reset( dolist_t * plist, const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
+gfx_rv dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
 {
     if ( NULL == pdlist )
     {
-        return bfalse;
+        return gfx_error;
     }
 
     if ( pdlist->count >= DOLIST_SIZE )
     {
-        return bfalse;
+        return gfx_fail;
     }
 
     if ( !INGAME_PCHR( pchr ) )
     {
-        return bfalse;
+        return gfx_fail;
     }
 
-    return btrue;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7522,29 +7524,29 @@ gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
+gfx_rv dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
 {
     if ( NULL == pdlist )
     {
-        return bfalse;
+        return gfx_error;
     }
 
     if ( pdlist->count >= DOLIST_SIZE )
     {
-        return bfalse;
+        return gfx_fail;
     }
 
     if ( !DISPLAY_PPRT( pprt ) )
     {
-        return bfalse;
+        return gfx_fail;
     }
 
     if ( pprt->is_hidden || 0 == pprt->size )
     {
-        return bfalse;
+        return gfx_fail;
     }
 
-    return btrue;
+    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------

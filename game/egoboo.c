@@ -63,7 +63,7 @@
 static int do_ego_proc_begin( ego_process_t * eproc );
 static int do_ego_proc_running( ego_process_t * eproc );
 static int do_ego_proc_leaving( ego_process_t * eproc );
-static int do_ego_proc_run( ego_process_t * eproc, double frameDuration );
+//static int do_ego_proc_run( ego_process_t * eproc, double frameDuration );
 
 static void memory_cleanUp( void );
 static int  ego_init_SDL( void );

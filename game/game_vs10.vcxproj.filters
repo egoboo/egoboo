@@ -288,6 +288,36 @@
     <ClCompile Include="AStar.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="camera_system.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_clock.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_frustum.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_timer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geometry.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mpd_functions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file-v1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file-v2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file-v3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bbox.h">
@@ -551,6 +581,39 @@
     <ClInclude Include="AStar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="camera_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mpd_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physfs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file-v1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file-v2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file-v3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="char.inl">
@@ -607,6 +670,7 @@
     <None Include="bbox.inl">
       <Filter>Inline Files</Filter>
     </None>
+    <None Include="game.cbp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\egoboo.rc">

@@ -112,8 +112,8 @@ typedef struct s_bumplist bumplist_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t add_chr_chr_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
-static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+//static bool_t add_chr_chr_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+//static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
 
 static bool_t detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool_t detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
@@ -133,7 +133,7 @@ static bool_t bump_all_collisions( CoNode_ary_t * pcn_ary );
 
 static bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
-static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
+//static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
 static bool_t do_chr_chr_collision( CoNode_t * d );
 
 static bool_t do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );

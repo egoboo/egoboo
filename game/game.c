@@ -188,9 +188,9 @@ static int game_process_do_leaving( game_process_t * gproc );
 
 // misc
 static bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which );
-static void   game_end_menu( menu_process_t * mproc );
+//static void   game_end_menu( menu_process_t * mproc );
 
-static void   do_game_hud( void );
+//static void   do_game_hud( void );
 
 // manage the game's vfs mount points
 static void   game_clear_vfs_paths( void );
@@ -200,7 +200,7 @@ void reset_all_object_lists( void );
 
 //line of sight calculations
 static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
-static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
+//static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
 
 // implementing wawalite data
 static bool_t upload_light_data( const wawalite_data_t * pdata );
@@ -4889,7 +4889,7 @@ bool_t fix_wawalite( wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_vfs( /* const char *modname, */ const wawalite_data_t * pdata )
+bool_t write_wawalite_vfs( wawalite_data_t * pdata )
 {
     /// @details BB@> Prepare and write the wawalite file
 

@@ -55,7 +55,7 @@ egoboo_rv quest_log_add( struct s_IDSZ_node quest_log[], size_t quest_log_len, I
 
 ConfigFilePtr_t quest_file_open( const char *player_directory );
 egoboo_rv       quest_file_export( ConfigFilePtr_t pfile );
-egoboo_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool_t export );
+egoboo_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export );
 egoboo_rv       quest_file_set_level( ConfigFilePtr_t ppfile, IDSZ idsz, int level );
 egoboo_rv       quest_file_adjust_level( ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment );
 egoboo_rv       quest_file_get_level( ConfigFilePtr_t ppfile, IDSZ idsz );

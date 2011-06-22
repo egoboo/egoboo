@@ -41,7 +41,6 @@ bool_t plane_base_normalize( plane_base_t * plane )
 {
     // the vector < (*plane)[kX], (*plane)[kY], (*plane)[kZ] > is the normal to the plane.
     // Convert it to a unit normal vector, which makes (*plane)[kW] the distance to the origin.
-
     float magnitude2;
 
     if ( NULL == plane ) return bfalse;

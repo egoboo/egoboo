@@ -103,7 +103,7 @@ static bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap );
 
 static void cleanup_one_character( chr_t * pchr );
 
-static void chr_log_script_time( const CHR_REF ichr );
+//static void chr_log_script_time( const CHR_REF ichr );
 
 static bool_t update_chr_darkvision( const CHR_REF character );
 

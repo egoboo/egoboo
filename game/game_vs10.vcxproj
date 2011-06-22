@@ -15,20 +15,24 @@
     <ClCompile Include="bbox.c" />
     <ClCompile Include="bsp.c" />
     <ClCompile Include="camera.c" />
+    <ClCompile Include="camera_system.c" />
     <ClCompile Include="char.c" />
     <ClCompile Include="ChrList.c" />
     <ClCompile Include="client.c" />
     <ClCompile Include="clock.c" />
     <ClCompile Include="collision.c" />
     <ClCompile Include="egoboo.c" />
+    <ClCompile Include="egoboo_clock.c" />
     <ClCompile Include="egoboo_console.c" />
     <ClCompile Include="egoboo_endian.c" />
     <ClCompile Include="egoboo_fileutil.c" />
+    <ClCompile Include="egoboo_frustum.c" />
     <ClCompile Include="egoboo_math.c" />
     <ClCompile Include="egoboo_object.c" />
     <ClCompile Include="egoboo_process.c" />
     <ClCompile Include="egoboo_setup.c" />
     <ClCompile Include="egoboo_strutil.c" />
+    <ClCompile Include="egoboo_timer.c" />
     <ClCompile Include="egoboo_typedef.c" />
     <ClCompile Include="egoboo_vfs.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -48,6 +52,9 @@
     <ClCompile Include="file_common.c" />
     <ClCompile Include="file_formats\cap_file.c" />
     <ClCompile Include="file_formats\configfile.c" />
+    <ClCompile Include="file_formats\controls_file-v1.c" />
+    <ClCompile Include="file_formats\controls_file-v2.c" />
+    <ClCompile Include="file_formats\controls_file-v3.c" />
     <ClCompile Include="file_formats\controls_file.c" />
     <ClCompile Include="file_formats\eve_file.c" />
     <ClCompile Include="file_formats\id_md2.c" />
@@ -64,6 +71,7 @@
     <ClCompile Include="font_bmp.c" />
     <ClCompile Include="font_ttf.c" />
     <ClCompile Include="game.c" />
+    <ClCompile Include="geometry.c" />
     <ClCompile Include="graphic.c" />
     <ClCompile Include="graphic_fan.c" />
     <ClCompile Include="graphic_mad.c" />
@@ -83,6 +91,7 @@
     <ClCompile Include="menu.c" />
     <ClCompile Include="mesh.c" />
     <ClCompile Include="mpd_BSP.c" />
+    <ClCompile Include="mpd_functions.c" />
     <ClCompile Include="network.c" />
     <ClCompile Include="obj_BSP.c" />
     <ClCompile Include="particle.c" />
@@ -102,6 +111,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="platform\sys_win32.c" />
+    <ClCompile Include="player.c" />
     <ClCompile Include="profile.c" />
     <ClCompile Include="PrtList.c" />
     <ClCompile Include="quest.c" />
@@ -120,17 +130,20 @@
     <ClInclude Include="bbox.h" />
     <ClInclude Include="bsp.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="camera_system.h" />
     <ClInclude Include="char.h" />
     <ClInclude Include="ChrList.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="clock.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="egoboo.h" />
+    <ClInclude Include="egoboo_clock.h" />
     <ClInclude Include="egoboo_config.h" />
     <ClInclude Include="egoboo_console.h" />
     <ClInclude Include="egoboo_doxygen.h" />
     <ClInclude Include="egoboo_endian.h" />
     <ClInclude Include="egoboo_fileutil.h" />
+    <ClInclude Include="egoboo_frustum.h" />
     <ClInclude Include="egoboo_math.h" />
     <ClInclude Include="egoboo_mem.h" />
     <ClInclude Include="egoboo_object.h" />
@@ -139,6 +152,7 @@
     <ClInclude Include="egoboo_setup.h" />
     <ClInclude Include="egoboo_state_machine.h" />
     <ClInclude Include="egoboo_strutil.h" />
+    <ClInclude Include="egoboo_timer.h" />
     <ClInclude Include="egoboo_typedef.h" />
     <ClInclude Include="egoboo_typedef_cpp.h" />
     <ClInclude Include="egoboo_vfs.h" />
@@ -153,6 +167,9 @@
     <ClInclude Include="file_common.h" />
     <ClInclude Include="file_formats\cap_file.h" />
     <ClInclude Include="file_formats\configfile.h" />
+    <ClInclude Include="file_formats\controls_file-v1.h" />
+    <ClInclude Include="file_formats\controls_file-v2.h" />
+    <ClInclude Include="file_formats\controls_file-v3.h" />
     <ClInclude Include="file_formats\controls_file.h" />
     <ClInclude Include="file_formats\eve_file.h" />
     <ClInclude Include="file_formats\id_md2.h" />
@@ -169,6 +186,7 @@
     <ClInclude Include="font_bmp.h" />
     <ClInclude Include="font_ttf.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="graphic.h" />
     <ClInclude Include="graphic_fan.h" />
     <ClInclude Include="graphic_mad.h" />
@@ -185,11 +203,14 @@
     <ClInclude Include="menu.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="mpd_BSP.h" />
+    <ClInclude Include="mpd_functions.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="obj_BSP.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="passage.h" />
+    <ClInclude Include="physfs.h" />
     <ClInclude Include="physics.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="profile.h" />
     <ClInclude Include="PrtList.h" />
     <ClInclude Include="quest.h" />
@@ -216,6 +237,7 @@
     <None Include="egoboo_math.inl" />
     <None Include="enchant.inl" />
     <None Include="file_formats\id_normals.inl" />
+    <None Include="game.cbp" />
     <None Include="md2.inl" />
     <None Include="mesh.inl" />
     <None Include="particle.inl" />
@@ -272,7 +294,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <AdditionalIncludeDirectories>$(SolutionDir)enet\include;$(SolutionDir)game;$(SolutionDir)game\file_formats;$(SolutionDir)game\platform;$(SolutionDir)game\extensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
@@ -301,7 +323,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
