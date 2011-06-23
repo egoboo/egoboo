@@ -37,9 +37,9 @@
 				AssemblerListingLocation="$(IntDir)/"
 				BrowseInformation="1"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="FALSE"
+				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"
-				CompileAs="2"
+				CompileAs="1"
 				DisableSpecificWarnings="4127;4239;4130"
 				ShowIncludes="FALSE"/>
 			<Tool

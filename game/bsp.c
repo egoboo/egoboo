@@ -84,7 +84,7 @@ static bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const e
 bool_t _generate_BSP_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst )
 {
     size_t cnt;
-    int    tnc, child_count;
+    signed tnc, child_count;
 
     // valid source?
     if ( NULL == psrc || psrc->dim <= 0 ) return bfalse;

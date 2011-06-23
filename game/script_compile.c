@@ -1123,7 +1123,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
         {
             // a normal string
 
-            int cnt;
+            signed cnt;
             bool_t message_found = bfalse;
 
             // see if this message is already loaded, no need to load it twice into memory

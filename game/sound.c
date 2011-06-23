@@ -1200,7 +1200,7 @@ bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t di
 
     // initialize the values
     fvec3_self_clear( diff );
-    fvec3_self_clear( pan_diff.v );
+    fvec2_self_clear( pan_diff.v );
 
     // get the camera list
     pclst = camera_system_get_list();
