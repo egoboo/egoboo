@@ -95,9 +95,9 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
 
     //Figure out if there is a method we prefer
     if ( 0 == strcmp( session, "gnome" ) ) type = ZENITY;
-    else if ( 0 == strcmp session, "kde" ) ) type = KDIALOG;
+    else if ( 0 == strcmp ( session, "kde" ) ) type = KDIALOG;
 
-        while ( btrue )
+    while ( btrue )
     {
         //Ready the command
         switch ( type )
@@ -108,7 +108,7 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
             }
 
             //Did we succeed?
-            if ( 0 <= system( cmd ) ) break;
+            if ( 0 <= system( buffer ) ) break;
 
             //Nope, try the next solution
             tried[type] = btrue;

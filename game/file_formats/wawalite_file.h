@@ -192,7 +192,7 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    bool_t            write_wawalite_file_vfs( wawalite_data_t * pdata );
+    bool_t            write_wawalite_file_vfs( const wawalite_data_t * pdata );
     wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t * pdata );
 
 //--------------------------------------------------------------------------------------------

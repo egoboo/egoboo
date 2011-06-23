@@ -218,7 +218,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
     ///     use default values to fill in any missing keys
 
     const char *lCurSectionName;
-    bool_t lTempBool;
+    config_bool_t lTempBool;
     Sint32 lTempInt;
     STRING lTempStr;
 

@@ -82,9 +82,6 @@
 struct s_dynalight_registry;
 typedef struct s_dynalight_registry dynalight_registry_t;
 
-struct s_dolist;
-typedef struct s_dolist dolist_t;
-
 struct s_dynalist;
 typedef struct s_dynalist dynalist_t;
 
@@ -396,7 +393,7 @@ static bool_t  gfx_page_clear_requested = btrue;
 
 static float dynalight_keep = 0.9f;
 
-timer_t gfx_update_timer;
+ego_timer_t gfx_update_timer;
 
 static egoboo_clock_t gfx_clock = EGOBOO_CLOCK_INIT;
 
@@ -420,9 +417,9 @@ static int  _debug_vprintf( const char *format, va_list args );
 static int  _va_draw_string( float x, float y, const char *format, va_list args );
 static int  _draw_string_raw( float x, float y, const char *format, ... );
 
-static gfx_rv gfx_project_cam_view( const camera_t * pcam );
+//static gfx_rv gfx_project_cam_view( const camera_t * pcam );
 
-static void init_icon_data( void );
+//static void init_icon_data( void );
 static void init_bar_data( void );
 static void init_blip_data( void );
 static void init_map_data( void );
@@ -4199,7 +4196,7 @@ void gfx_update_fps_clock()
     }
 
     // make sure at least one tick has passed
-    if ( !timer_throttle( &gfx_update_timer, 1 ) ) return;
+    if ( !ego_timer_throttle( &gfx_update_timer, 1 ) ) return;
 
     // calculate the time since the from the last update
     if ( !single_frame_mode )

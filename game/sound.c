@@ -838,12 +838,12 @@ void sound_load_all_music_sounds_vfs()
     //Special xmas theme, override the default menu theme song
     if ( check_time( SEASON_CHRISTMAS ) )
     {
-        snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/xmas.ogg" ), songname );
+        snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/xmas.ogg" ) );
         musictracksloaded[MENU_SONG] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
     }
     else if ( check_time( SEASON_HALLOWEEN ) )
     {
-        snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/halloween.ogg" ), songname );
+        snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/special/halloween.ogg" ) );
         musictracksloaded[MENU_SONG] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
     }
 

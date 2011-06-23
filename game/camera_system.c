@@ -69,8 +69,6 @@ struct s_ext_camera
     int              do_list;
 };
 
-typedef struct s_ext_camera ext_camera_t;
-
 static ext_camera_t * ext_camera_ctor( ext_camera_t * ptr );
 static ext_camera_t * ext_camera_dtor( ext_camera_t * ptr );
 static ext_camera_t * ext_camera_reinit( ext_camera_t * ptr );

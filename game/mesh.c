@@ -747,7 +747,9 @@ void mesh_make_twist()
     Uint16 cnt;
 
     float     gdot;
-    fvec3_t   grav = VECT3( 0, 0, gravity );
+    fvec3_t   grav = ZERO_VECT3;
+
+    grav.z = gravity;
 
     for ( cnt = 0; cnt < 256; cnt++ )
     {
@@ -1673,7 +1675,10 @@ fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius,
     {
         for ( fx = pos[kX] - jitter_size; fx <= pos[kX] + jitter_size; fx += jitter_size, cnt++ )
         {
-            fvec2_t jitter_pos = VECT2( fx, fy );
+            fvec2_t jitter_pos;
+
+             jitter_pos.x = fx;
+             jitter_pos.y = fy;
 
             if ( 4 == cnt ) continue;
 
@@ -1695,9 +1700,12 @@ fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius,
             // find the maximal pressure gradient == the minimal distance to move
             if ( 0.0f != dpressure )
             {
-                float weight;
+                float   weight;
+                fvec2_t tmp;
                 float   dist = pressure_ary[4] / dpressure;
-                fvec2_t tmp = VECT2( dist * fx, dist * fy );
+
+                tmp.x = dist * fx;
+                tmp.y = dist * fy;
 
                 weight = 1.0f / dist;
 

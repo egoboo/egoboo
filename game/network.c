@@ -162,7 +162,7 @@ int     net_players_loaded = 0;
 
 net_instance_t * PNet = &gnet;
 
-chat_buffer_t net_chat = { bfalse, 0, EMPTY_CSTR };
+chat_buffer_t net_chat = { 0, EMPTY_CSTR };
 
 Uint32 nexttimestamp;                          // Expected timestamp
 

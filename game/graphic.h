@@ -110,7 +110,7 @@ struct s_gfx_error_stack
 };
 typedef struct s_gfx_error_stack gfx_error_stack_t;
 
-#define GFX_ERROR_STACK_INIT { 0, GFX_ERROR_STATE_INIT }
+#define GFX_ERROR_STACK_INIT { 0, { GFX_ERROR_STATE_INIT } }
 
 egoboo_rv           gfx_error_add( const char * file, const char * function, int line, int id, const char * sz );
 gfx_error_state_t * gfx_error_pop( void );

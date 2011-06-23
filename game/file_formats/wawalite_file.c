@@ -31,8 +31,11 @@
 #include "char.inl"
 #include "egoboo_math.inl"
 
+#include <string.h>
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 wawalite_data_t wawalite_data;
 
 //--------------------------------------------------------------------------------------------
@@ -56,15 +59,15 @@ static wawalite_graphics_t *   read_wawalite_graphics( vfs_FILE * fileread, wawa
 static wawalite_camera_t *     read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t * pcamera );
 static wawalite_data_t *       read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdata );
 
-static bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater );
-static bool_t write_wawalite_light( vfs_FILE * filewrite, wawalite_data_t * pdata );
-static bool_t write_wawalite_physics( vfs_FILE * filewrite, wawalite_physics_t * pphys );
-static bool_t write_wawalite_animtile( vfs_FILE * filewrite, wawalite_animtile_t * panimtile );
-static bool_t write_wawalite_damagetile( vfs_FILE * filewrite, wawalite_damagetile_t * pdamagetile );
-static bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweather );
-static bool_t write_wawalite_graphics( vfs_FILE * filewrite, wawalite_graphics_t * pgraphics );
-static bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera );
-static bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata );
+static bool_t write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * pwater );
+static bool_t write_wawalite_light( vfs_FILE * filewrite, const wawalite_data_t * pdata );
+static bool_t write_wawalite_physics( vfs_FILE * filewrite, const wawalite_physics_t * pphys );
+static bool_t write_wawalite_animtile( vfs_FILE * filewrite, const wawalite_animtile_t * panimtile );
+static bool_t write_wawalite_damagetile( vfs_FILE * filewrite, const wawalite_damagetile_t * pdamagetile );
+static bool_t write_wawalite_weather( vfs_FILE * filewrite, const wawalite_weather_t * pweather );
+static bool_t write_wawalite_graphics( vfs_FILE * filewrite, const wawalite_graphics_t * pgraphics );
+static bool_t write_wawalite_camera( vfs_FILE * filewrite, const wawalite_camera_t * pcamera );
+static bool_t write_wawalite_fog( vfs_FILE * filewrite, const wawalite_data_t * pdata );
 
 static const int WAWALITE_FILE_VERSION = 2;
 
@@ -374,7 +377,7 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater )
+bool_t write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * pwater )
 {
     if ( NULL == filewrite || NULL == pwater ) return bfalse;
 
@@ -421,7 +424,7 @@ bool_t write_wawalite_water( vfs_FILE * filewrite, wawalite_water_t * pwater )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_light( vfs_FILE * filewrite, wawalite_data_t * pdata )
+bool_t write_wawalite_light( vfs_FILE * filewrite, const wawalite_data_t * pdata )
 {
     if ( NULL == filewrite || NULL == pdata ) return bfalse;
 
@@ -435,7 +438,7 @@ bool_t write_wawalite_light( vfs_FILE * filewrite, wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_physics( vfs_FILE * filewrite, wawalite_physics_t * pphys )
+bool_t write_wawalite_physics( vfs_FILE * filewrite, const wawalite_physics_t * pphys )
 {
     if ( NULL == filewrite || NULL == pphys ) return bfalse;
 
@@ -451,7 +454,7 @@ bool_t write_wawalite_physics( vfs_FILE * filewrite, wawalite_physics_t * pphys 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_animtile( vfs_FILE * filewrite, wawalite_animtile_t * panimtile )
+bool_t write_wawalite_animtile( vfs_FILE * filewrite, const wawalite_animtile_t * panimtile )
 {
     if ( NULL == filewrite || NULL == panimtile ) return bfalse;
 
@@ -463,7 +466,7 @@ bool_t write_wawalite_animtile( vfs_FILE * filewrite, wawalite_animtile_t * pani
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_damagetile( vfs_FILE * filewrite, wawalite_damagetile_t * pdamagetile )
+bool_t write_wawalite_damagetile( vfs_FILE * filewrite, const wawalite_damagetile_t * pdamagetile )
 {
     if ( NULL == filewrite || NULL == pdamagetile ) return bfalse;
 
@@ -475,7 +478,7 @@ bool_t write_wawalite_damagetile( vfs_FILE * filewrite, wawalite_damagetile_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweather )
+bool_t write_wawalite_weather( vfs_FILE * filewrite, const wawalite_weather_t * pweather )
 {
     if ( NULL == filewrite || NULL == pweather ) return bfalse;
 
@@ -488,7 +491,7 @@ bool_t write_wawalite_weather( vfs_FILE * filewrite, wawalite_weather_t * pweath
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_graphics( vfs_FILE * filewrite, wawalite_graphics_t * pgraphics )
+bool_t write_wawalite_graphics( vfs_FILE * filewrite, const wawalite_graphics_t * pgraphics )
 {
     if ( NULL == filewrite || NULL == pgraphics ) return bfalse;
 
@@ -500,7 +503,7 @@ bool_t write_wawalite_graphics( vfs_FILE * filewrite, wawalite_graphics_t * pgra
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera )
+bool_t write_wawalite_camera( vfs_FILE * filewrite, const wawalite_camera_t * pcamera )
 {
     if ( NULL == filewrite || NULL == pcamera ) return bfalse;
 
@@ -512,7 +515,7 @@ bool_t write_wawalite_camera( vfs_FILE * filewrite, wawalite_camera_t * pcamera 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
+bool_t write_wawalite_fog( vfs_FILE * filewrite, const wawalite_data_t * pdata )
 {
     if ( NULL == filewrite || NULL == pdata ) return bfalse;
 
@@ -536,7 +539,7 @@ bool_t write_wawalite_fog( vfs_FILE * filewrite, wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_file_vfs( wawalite_data_t * pdata )
+bool_t write_wawalite_file_vfs( const wawalite_data_t * pdata )
 {
     /// @details ZZ@> This function sets up water and lighting for the module
 

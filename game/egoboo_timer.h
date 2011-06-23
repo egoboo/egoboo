@@ -43,7 +43,7 @@ struct s_timer
     int     ticks_next;
     int     ticks_diff;
 };
-typedef struct s_timer timer_t;
+typedef struct s_timer ego_timer_t;
 
-bool_t timer_throttle( timer_t * timer, float rate );
-bool_t timer_reset( timer_t * timer, int ticks, float rate );
+bool_t ego_timer_throttle( ego_timer_t * timer, float rate );
+bool_t timer_reset( ego_timer_t * timer, int ticks, float rate );

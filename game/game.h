@@ -193,8 +193,8 @@ struct s_game_process
     int    menu_depth;
     bool_t escape_requested, escape_latch;
 
-    timer_t fps_timer;
-    timer_t ups_timer;
+    ego_timer_t fps_timer;
+    ego_timer_t ups_timer;
 };
 
 game_process_t * game_process_init( game_process_t * gproc );
@@ -567,6 +567,6 @@ void   game_update_timers( void );
 
 // wawalite functions
 struct s_wawalite_data * read_wawalite_vfs( void );
-bool_t write_wawalite_vfs( /* const char *modname, */ const struct s_wawalite_data * pdata );
+bool_t write_wawalite_vfs( const struct s_wawalite_data * pdata );
 bool_t fix_wawalite( struct s_wawalite_data * pdata );
 void   upload_wawalite( void );

@@ -3951,7 +3951,11 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     {
-        fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
+        fvec3_t   vtmp;
+
+        vtmp.x = pstate->x;
+        vtmp.y = pstate->y;
+        vtmp.z = pstate->distance;
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
@@ -5236,11 +5240,6 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->show_stats )
-    {
-        int x = 0;
-    }
-
     ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
 
     if ( INGAME_CHR( ichr ) )
@@ -5459,7 +5458,12 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     {
-        fvec3_t   vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
+        fvec3_t vtmp;
+
+        vtmp.x = pstate->x;
+        vtmp.y = pstate->y;
+        vtmp.z = pstate->distance;
+
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
@@ -6581,7 +6585,12 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     }
 
     {
-        fvec3_t vtmp = VECT3( pstate->x, pstate->y, pstate->distance );
+        fvec3_t vtmp;
+
+        vtmp.x = pstate->x;
+        vtmp.y = pstate->y;
+        vtmp.z = pstate->distance;
+
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 

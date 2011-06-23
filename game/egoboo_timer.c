@@ -25,7 +25,7 @@
 #include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
-bool_t timer_throttle( timer_t * ptimer, float rate )
+bool_t ego_timer_throttle( ego_timer_t * ptimer, float rate )
 {
     /// BB@> return btrue if the process should proceed, bfalse, otherwise
 
@@ -49,7 +49,7 @@ bool_t timer_throttle( timer_t * ptimer, float rate )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t timer_reset( timer_t * ptimer, int ticks, float rate )
+bool_t timer_reset( ego_timer_t * ptimer, int ticks, float rate )
 {
     if ( NULL == ptimer ) return bfalse;
 

@@ -301,7 +301,7 @@ static void      mnu_release_one_module( const MOD_REF imod );
 static void      mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst );
 static egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst );
 static egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
-static egoboo_rv mnu_copy_local_imports( import_list_t * imp_lst );
+//static egoboo_rv mnu_copy_local_imports( import_list_t * imp_lst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1886,8 +1886,8 @@ int doChooseCharacter( float deltaTime )
     static int    last_player = 0;
     static bool_t new_player = bfalse;
     static int numVertical, numHorizontal;
-    static Uint32 BitsInput[4];
-    static bool_t device_on[4];
+    //static Uint32 BitsInput[4];
+    //static bool_t device_on[4];
     static const char * button_text[] = { "Select Character", "None", "" };
 
     int result = 0;

@@ -435,6 +435,10 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
         case proc_finish:
             process_terminate( PROC_PBASE( eproc ) );
             break;
+
+            default:
+            /* do nothing */
+            break;
     }
 
     return result;
@@ -472,7 +476,7 @@ int SDL_main( int argc, char **argv )
     request_clear_screen();
     while ( !EProc->base.killme && !EProc->base.terminated )
     {
-        if ( !timer_throttle( &( EProc->loop_timer ), 100.0f ) )
+        if ( !ego_timer_throttle( &( EProc->loop_timer ), 100.0f ) )
         {
             // let the OS breathe. It may delay as long as 10ms
             SDL_Delay( 1 );
@@ -623,7 +627,12 @@ void console_begin()
     ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
     ///     have no area...
 
-    SDL_Rect blah = {0, 0, sdl_scr.x, sdl_scr.y * 0.25f };
+    SDL_Rect blah;
+
+    blah.x = 0;
+    blah.y = 0;
+    blah.w = sdl_scr.x;
+    blah.h = sdl_scr.y * 0.25f;
 
 #if defined(USE_LUA_CONSOLE)
     _top_con = lua_console_create( NULL, blah );

@@ -1095,7 +1095,7 @@ int game_do_menu( menu_process_t * mproc )
             // force the menu to be displayed immediately when the game stops
             timer_reset( &( mproc->gui_timer ), -1, cfg.framelimit );
         }
-        else if ( timer_throttle( &( mproc->gui_timer ), cfg.framelimit ) )
+        else if ( ego_timer_throttle( &( mproc->gui_timer ), cfg.framelimit ) )
         {
             need_menu = btrue;
         }
@@ -1257,7 +1257,7 @@ int game_process_do_running( game_process_t * gproc )
     {
         need_ups_update = btrue;
     }
-    else if ( timer_throttle( &( gproc->ups_timer ), TARGET_UPS ) )
+    else if ( ego_timer_throttle( &( gproc->ups_timer ), TARGET_UPS ) )
     {
         need_ups_update = btrue;
     }
@@ -1368,7 +1368,7 @@ int game_process_do_running( game_process_t * gproc )
     {
         need_fps_update = btrue;
     }
-    else if ( timer_throttle( &( gproc->fps_timer ), cfg.framelimit ) )
+    else if ( ego_timer_throttle( &( gproc->fps_timer ), cfg.framelimit ) )
     {
         need_fps_update = btrue;
     }
@@ -1525,6 +1525,10 @@ int game_process_run( game_process_t * gproc, double frameDuration )
         case proc_finish:
             process_terminate( PROC_PBASE( gproc ) );
             process_resume( PROC_PBASE( MProc ) );
+            break;
+
+            default:
+            /* do noithing */
             break;
     }
 
@@ -4889,7 +4893,7 @@ bool_t fix_wawalite( wawalite_data_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_vfs( wawalite_data_t * pdata )
+bool_t write_wawalite_vfs( const wawalite_data_t * pdata )
 {
     /// @details BB@> Prepare and write the wawalite file
 
@@ -5379,7 +5383,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     ///  move_one_character() function, so the environment has already been determined this round
 
     cap_t * pchr_cap;
-    fvec3_t   platform_up;
+    fvec3_t   platform_up = VECT3(0,0,1);
 
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
@@ -5702,8 +5706,8 @@ bool_t check_time( Uint32 check )
     switch ( check )
     {
             //Halloween between 31th october and the 1st of november
-        case SEASON_HALLOWEEN: return ( 10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31 ||
-                                            11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1 );
+        case SEASON_HALLOWEEN: return ( (10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31) ||
+                                            (11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1) );
 
             //Xmas from december 16th until newyear
         case SEASON_CHRISTMAS: return ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 );

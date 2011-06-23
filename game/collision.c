@@ -1891,7 +1891,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    fvec3_t vdiff;
+    fvec3_t vdiff = ZERO_VECT3;
 
     oct_vec_t apos, bpos;
 
@@ -2931,7 +2931,7 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
 bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 {
     /// @details BB@> make the character and particle recoil from the collision
-    float chr_mass, prt_mass;
+    float chr_mass = 0.0f, prt_mass;
     float chr_recoil, prt_recoil;
 
     float attack_factor;
@@ -3021,7 +3021,7 @@ bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
             fvec3_t tmp_impulse;
 
             float holder_mass, total_mass;
-            float attached_mass;
+            float attached_mass = 0.0f;
             float tmp_holder_recoil, tmp_prt_recoil, holder_recoil;
 
             holder_mass = 0.0f;

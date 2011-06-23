@@ -420,7 +420,7 @@ typedef Uint16 REF_T;
 
 #define DECLARE_EXTERN_STATIC_ARY(ARY_T, NAME)       \
     ARY_T##ELEM_t * ARY_T##_get_ptr( ARY_T##_t *, size_t ); \
-    extern ARY_T##_t NAME;
+    extern ARY_T##_t NAME
 
 #define INSTANTIATE_STATIC_ARY(ARY_T, NAME) \
     ARY_T##_t NAME = STATIC_ARY_INIT_VALS;

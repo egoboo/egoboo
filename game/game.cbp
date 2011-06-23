@@ -150,7 +150,6 @@
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-Wmain" />
-					<Add option="-pedantic" />
 					<Add option="-Wall" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_CONSOLE" />
@@ -348,6 +347,10 @@
 			<Option target="nix-gcc-debug" />
 			<Option target="nix-gcc-release" />
 		</Unit>
+		<Unit filename="AStar.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="AStar.h" />
 		<Unit filename="ChrList.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -378,6 +381,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="camera.h" />
+		<Unit filename="camera_system.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="camera_system.h" />
 		<Unit filename="char.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -404,6 +411,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="egoboo.h" />
+		<Unit filename="egoboo_clock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboo_clock.h" />
 		<Unit filename="egoboo_config.h" />
 		<Unit filename="egoboo_console.c">
 			<Option compilerVar="CC" />
@@ -419,6 +430,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="egoboo_fileutil.h" />
+		<Unit filename="egoboo_frustum.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboo_frustum.h" />
 		<Unit filename="egoboo_math.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -443,6 +458,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="egoboo_strutil.h" />
+		<Unit filename="egoboo_timer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboo_timer.h" />
 		<Unit filename="egoboo_typedef.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -497,6 +516,18 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="file_formats/configfile.h" />
+		<Unit filename="file_formats/controls_file-v1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/controls_file-v1.h" />
+		<Unit filename="file_formats/controls_file-v2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/controls_file-v2.h" />
+		<Unit filename="file_formats/controls_file-v3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/controls_file-v3.h" />
 		<Unit filename="file_formats/controls_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -526,6 +557,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="file_formats/pip_file.h" />
+		<Unit filename="file_formats/quest_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/quest_file.h" />
 		<Unit filename="file_formats/scancode_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -559,6 +594,10 @@
 		</Unit>
 		<Unit filename="game.cbp" />
 		<Unit filename="game.h" />
+		<Unit filename="geometry.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="geometry.h" />
 		<Unit filename="graphic.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -619,10 +658,22 @@
 		</Unit>
 		<Unit filename="mesh.h" />
 		<Unit filename="mesh.inl" />
+		<Unit filename="mpd_BSP.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mpd_BSP.h" />
+		<Unit filename="mpd_functions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mpd_functions.h" />
 		<Unit filename="network.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="network.h" />
+		<Unit filename="obj_BSP.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="obj_BSP.h" />
 		<Unit filename="particle.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -632,6 +683,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="passage.h" />
+		<Unit filename="physfs.h" />
 		<Unit filename="physics.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -666,15 +718,15 @@
 			<Option target="win32-msvc-debug" />
 			<Option target="win32-msvc-release" />
 		</Unit>
+		<Unit filename="player.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="player.h" />
 		<Unit filename="profile.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="profile.h" />
 		<Unit filename="profile.inl" />
-		<Unit filename="quest.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="quest.h" />
 		<Unit filename="rpc.c">
 			<Option compilerVar="CC" />
 		</Unit>

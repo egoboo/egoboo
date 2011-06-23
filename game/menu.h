@@ -48,7 +48,7 @@ struct s_menu_process
     bool_t was_active;
     bool_t escape_requested, escape_latch;
 
-    timer_t gui_timer;
+    ego_timer_t gui_timer;
 };
 typedef struct s_menu_process menu_process_t;
 

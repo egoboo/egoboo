@@ -70,8 +70,8 @@ int chr_pressure_tests = 0;
 //--------------------------------------------------------------------------------------------
 
 static CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character );
-static bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
-static CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
+//static bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
+//static CHR_REF chr_get_pack_item( const CHR_REF character, grip_offset_t grip_off, bool_t ignorekurse );
 
 static bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_off );
 
@@ -238,7 +238,7 @@ chr_t * chr_ctor( chr_t * pchr )
     {
         pchr->equipment[cnt] = ( CHR_REF )MAX_CHR;
     }
-    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
+    for ( cnt = 0; cnt < MAXNUMINPACK; cnt++ )
     {
         pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
     }
@@ -748,7 +748,12 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
 
         if ( vertex_offset == GRIP_ORIGIN )
         {
-            fvec3_t tmp_pos = VECT3( pchr->inst.matrix.CNV( 3, 0 ), pchr->inst.matrix.CNV( 3, 1 ), pchr->inst.matrix.CNV( 3, 2 ) );
+            fvec3_t tmp_pos;
+
+            tmp_pos.x = pchr->inst.matrix.CNV( 3, 0 );
+            tmp_pos.y = pchr->inst.matrix.CNV( 3, 1 );
+            tmp_pos.z = pchr->inst.matrix.CNV( 3, 2 );
+
             prt_set_pos( pprt, tmp_pos.v );
 
             return pprt;
@@ -1447,9 +1452,9 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for ( i = 0; i < MAXINVENTORY; i++ )
+        for ( i = 0; i < MAXNUMINPACK; i++ )
         {
-            if ( !INGAME_CHR( pchr->inventory[inventory_slot] ) )
+            if ( !INGAME_CHR( pchr->inventory[i] ) )
             {
                 //found a free slot
                 inventory_slot = i;
@@ -1575,9 +1580,9 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
     if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for ( i = 0; i < MAXINVENTORY; i++ )
+        for ( i = 0; i < MAXNUMINPACK; i++ )
         {
-            if ( INGAME_CHR( pchr->inventory[inventory_slot] ) )
+            if ( !INGAME_CHR( pchr->inventory[i] ) )
             {
                 //found a free slot
                 inventory_slot = i;
@@ -4072,7 +4077,11 @@ chr_t * chr_config_do_active( chr_t * pchr )
         if ( !pchr->enviro.inwater )
         {
             // Splash
-            fvec3_t vtmp = VECT3( pchr->pos.x, pchr->pos.y, water_level + RAISE );
+            fvec3_t vtmp;
+
+            vtmp.x = pchr->pos.x;
+            vtmp.y = pchr->pos.y;
+            vtmp.z = water_level + RAISE;
 
             spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
 
@@ -4107,7 +4116,11 @@ chr_t * chr_config_do_active( chr_t * pchr )
 
                 if ( 0 == (( update_wld + pchr->obj_base.guid ) & ripand ) && pchr->pos.z < water_level && pchr->alive )
                 {
-                    fvec3_t   vtmp = VECT3( pchr->pos.x, pchr->pos.y, water_level );
+                    fvec3_t   vtmp;
+
+                    vtmp.x = pchr->pos.x;
+                    vtmp.y = pchr->pos.y;
+                    vtmp.z = water_level;
 
                     spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
                 }
@@ -5651,7 +5664,7 @@ void move_one_character_get_environment( chr_t * pchr )
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-        fvec3_t   platform_up;
+        fvec3_t   platform_up = VECT3(0.0f,0.0f,1.0f);
 
         chr_getMatUp( pplatform, platform_up.v );
         fvec3_self_normalize( platform_up.v );

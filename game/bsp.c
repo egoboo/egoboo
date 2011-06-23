@@ -1262,6 +1262,10 @@ bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paa
             BSP_retval = BSP_branch_add_all_unsorted( pbranch, ptest, colst );
             if ( BSP_retval ) retval = btrue;
             break;
+
+            default:
+            /* do nothing */
+            break;
     }
 
     switch ( geom_nodes )
@@ -1277,6 +1281,10 @@ bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paa
             BSP_retval = BSP_branch_add_all_nodes( pbranch, ptest, colst );
             if ( BSP_retval ) retval = btrue;
             break;
+
+            default:
+            /* do nothing */
+            break;
     }
 
     switch ( geom_children )
@@ -1291,6 +1299,10 @@ bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paa
             // The branch is completely contained by the test aabb. Add every single node.
             BSP_retval = BSP_branch_add_all_children( pbranch, ptest, colst );
             if ( BSP_retval ) retval = btrue;
+            break;
+
+            default:
+            /* do nothing */
             break;
     }
 
@@ -1404,6 +1416,10 @@ bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frust
             BSP_retval = BSP_branch_add_all_unsorted( pbranch, ptest, colst );
             if ( BSP_retval ) retval = btrue;
             break;
+
+            default:
+            /* do nothing */
+            break;
     }
 
     switch ( geom_nodes )
@@ -1419,6 +1435,10 @@ bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frust
             BSP_retval = BSP_branch_add_all_nodes( pbranch, ptest, colst );
             if ( BSP_retval ) retval = btrue;
             break;
+
+            default:
+            /* do nothing */
+            break;
     }
 
     switch ( geom_children )
@@ -1433,6 +1453,10 @@ bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frust
             // The branch is completely contained by the test aabb. Add every single node.
             BSP_retval = BSP_branch_add_all_children( pbranch, ptest, colst );
             if ( BSP_retval ) retval = btrue;
+            break;
+
+            default:
+            /* do nothing */
             break;
     }
 

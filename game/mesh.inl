@@ -95,7 +95,8 @@ static INLINE bool_t mesh_grid_is_valid( const ego_mpd_t * pmpd, Uint32 id )
     if ( INVALID_TILE == id ) return bfalse;
 
     return id < pmpd->info.tiles_count;
-};
+}
+
 //--------------------------------------------------------------------------------------------
 static INLINE float mesh_get_level( const ego_mpd_t * pmesh, float x, float y )
 {

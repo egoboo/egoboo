@@ -169,7 +169,7 @@ struct s_ego_process
     bool_t was_active;
     bool_t escape_requested, escape_latch;
 
-    timer_t loop_timer;
+    ego_timer_t loop_timer;
 
     bool_t free_running_latch_requested;
     bool_t free_running_latch;

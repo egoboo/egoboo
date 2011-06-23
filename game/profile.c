@@ -551,7 +551,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     {
         // If we didn't get a skin, set it to the water texture
         max_skin = 0;
-        pobj->tex_ref[cnt] = TX_WATER_TOP;
+        pobj->tex_ref[max_skin] = TX_WATER_TOP;
 
         log_debug( "Object is missing a skin (%s)!\n", tmploadname );
     }
